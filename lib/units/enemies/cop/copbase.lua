@@ -65,6 +65,7 @@ do	 -- payday 2
 		"ene_biker_3",
 		"ene_biker_4",
 		"ene_bulldozer_1",
+		"ene_bulldozer_2",
 		"ene_cop_1",
 		"ene_cop_2",
 		"ene_cop_3",

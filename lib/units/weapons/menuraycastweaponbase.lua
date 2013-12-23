@@ -135,6 +135,7 @@ function NewRaycastWeaponBase:_update_stats_values()
 		if parts_stats[ stat ] then
 			stats[ stat ] = math_clamp( stats[ stat ] + parts_stats[ stat ], 1, #tweak_data[ stat ] )
 		end
+		stats[ stat ] = math_clamp( stats[ stat ], 1, #tweak_data[ stat ] )
 	end
 	
 	self._current_stats = {}
@@ -315,7 +316,7 @@ function NewRaycastWeaponBase:check_stats()
 		-- print( stat, tweak_data[ stat ][ i ] )
 		self._current_stats[ stat ] = tweak_data[ stat ][ i ]
 	end
-	self._current_stats.alert_size = tweak_data.alert_size[ math_clamp( stats.suppression, 1, #tweak_data.alert_size ) ]
+	self._current_stats.alert_size = tweak_data.alert_size[ math_clamp( stats.alert_size, 1, #tweak_data.alert_size ) ]
 	
 		
 	return stats

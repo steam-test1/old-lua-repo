@@ -79,32 +79,32 @@ end
 function WeaponFactoryTweakData:_init_silencers()
 	-- Silencers
 	-- Silencer, Rifles, Large and not concealable
-	self.parts.wpn_fps_upg_ns_ass_smg_large 				= { pcs = { 10, 20, 30, 40 } , type = "barrel_ext", name_id = "bm_wp_upg_ns_ass_smg_large", a_obj = "a_ns", parent = "barrel", unit = "units/payday2/weapons/wpn_fps_upg_ns_ass_smg_large/wpn_fps_upg_ns_ass_smg_large",
-																stats = { value = 5, suppression = 12, damage = -2, recoil = 3, spread_moving = -3, concealment = -3}, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_c" }
+	self.parts.wpn_fps_upg_ns_ass_smg_large 				= { pcs = { 10, 20, 30, 40 } , type = "barrel_ext", sub_type = "silencer", name_id = "bm_wp_upg_ns_ass_smg_large", a_obj = "a_ns", parent = "barrel", unit = "units/payday2/weapons/wpn_fps_upg_ns_ass_smg_large/wpn_fps_upg_ns_ass_smg_large",
+																stats = { value = 5, suppression = 12, alert_size = 12, damage = -1, recoil = 3, spread_moving = -3, concealment = -3}, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_c" }
 															}
 	-- Silencer, Rifles, Medium and quite concealable
-	self.parts.wpn_fps_upg_ns_ass_smg_medium 				= { pcs = { 10, 20, 30, 40 } , type = "barrel_ext", name_id = "bm_wp_upg_ns_ass_smg_medium", a_obj = "a_ns", parent = "barrel", unit = "units/payday2/weapons/wpn_fps_upg_ns_ass_smg_medium/wpn_fps_upg_ns_ass_smg_medium",
-																stats = { value = 2, suppression = 12, damage = -3, recoil = 1, spread_moving = -2, concealment = -2 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_b" }
+	self.parts.wpn_fps_upg_ns_ass_smg_medium 				= { pcs = { 10, 20, 30, 40 } , type = "barrel_ext", sub_type = "silencer", name_id = "bm_wp_upg_ns_ass_smg_medium", a_obj = "a_ns", parent = "barrel", unit = "units/payday2/weapons/wpn_fps_upg_ns_ass_smg_medium/wpn_fps_upg_ns_ass_smg_medium",
+																stats = { value = 2, suppression = 12, alert_size = 12, damage = -3, recoil = 1, spread_moving = -2, concealment = -2 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_b" }
 															}
 	-- Silencer, Rifles, small and very concealable
-	self.parts.wpn_fps_upg_ns_ass_smg_small 				= { pcs = { 10, 20, 30, 40 } , type = "barrel_ext", name_id  = "bm_wp_upg_ns_ass_smg_small", a_obj = "a_ns", parent = "barrel", unit = "units/payday2/weapons/wpn_fps_upg_ns_ass_smg_small/wpn_fps_upg_ns_ass_smg_small",
-																stats = { value = 3, suppression = 12, damage = -4, recoil = 0, spread_moving = -1, concealment = -1 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_a" }
+	self.parts.wpn_fps_upg_ns_ass_smg_small 				= { pcs = { 10, 20, 30, 40 } , type = "barrel_ext", sub_type = "silencer", name_id  = "bm_wp_upg_ns_ass_smg_small", a_obj = "a_ns", parent = "barrel", unit = "units/payday2/weapons/wpn_fps_upg_ns_ass_smg_small/wpn_fps_upg_ns_ass_smg_small",
+																stats = { value = 3, suppression = 12, alert_size = 12, damage = -5, recoil = 0, spread_moving = -1, concealment = 0 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_a" }
 															}
 	-- Silencer, Pistols, Large and not concealable														
-	self.parts.wpn_fps_upg_ns_pis_large 					= { pcs = { 10, 20, 30, 40 } , type = "barrel_ext", name_id = "bm_wp_upg_ns_pis_large", a_obj = "a_ns", parent = "slide", unit = "units/payday2/weapons/wpn_fps_upg_ns_pis_large/wpn_fps_upg_ns_pis_large",
-																stats = { value = 5, suppression = 12, damage = -2, recoil = 2, spread_moving = -2, concealment = -1 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_c" }
+	self.parts.wpn_fps_upg_ns_pis_large 					= { pcs = { 10, 20, 30, 40 } , type = "barrel_ext", sub_type = "silencer", name_id = "bm_wp_upg_ns_pis_large", a_obj = "a_ns", parent = "slide", unit = "units/payday2/weapons/wpn_fps_upg_ns_pis_large/wpn_fps_upg_ns_pis_large",
+																stats = { value = 5, suppression = 12, alert_size = 12, damage = -1, recoil = 2, spread_moving = -2, concealment = -3 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_c" }
 															}
 	-- Silencer, Pistols, Medium and quite concealable												
-	self.parts.wpn_fps_upg_ns_pis_medium 					= { pcs = { 10, 20, 30, 40 } , type = "barrel_ext", name_id = "bm_wp_upg_ns_pis_medium", a_obj = "a_ns", parent = "slide", unit = "units/payday2/weapons/wpn_fps_upg_ns_pis_medium/wpn_fps_upg_ns_pis_medium",
-																stats = { value = 1, suppression = 12, damage = -3, recoil = 1, spread_moving = -2, concealment = -2 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_b" }
+	self.parts.wpn_fps_upg_ns_pis_medium 					= { pcs = { 10, 20, 30, 40 } , type = "barrel_ext", sub_type = "silencer", name_id = "bm_wp_upg_ns_pis_medium", a_obj = "a_ns", parent = "slide", unit = "units/payday2/weapons/wpn_fps_upg_ns_pis_medium/wpn_fps_upg_ns_pis_medium",
+																stats = { value = 1, suppression = 12, alert_size = 12, damage = -2, recoil = 1, spread_moving = -2, concealment = -2 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_b" }
 															}
 	-- Silencer, Pistols, small and very concealable															
-	self.parts.wpn_fps_upg_ns_pis_small 					= { pcs = { 10, 20, 30, 40 } , type = "barrel_ext", name_id = "bm_wp_upg_ns_pis_small", a_obj = "a_ns", parent = "slide", unit = "units/payday2/weapons/wpn_fps_upg_ns_pis_small/wpn_fps_upg_ns_pis_small",
-																stats = { value = 3, suppression = 12, damage = -4, recoil = 0, spread_moving = -1, concealment = -1 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_a" }
+	self.parts.wpn_fps_upg_ns_pis_small 					= { pcs = { 10, 20, 30, 40 } , type = "barrel_ext", sub_type = "silencer", name_id = "bm_wp_upg_ns_pis_small", a_obj = "a_ns", parent = "slide", unit = "units/payday2/weapons/wpn_fps_upg_ns_pis_small/wpn_fps_upg_ns_pis_small",
+																stats = { value = 3, suppression = 12, alert_size = 12, damage = -4, recoil = 0, spread_moving = -1, concealment = 0 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_a" }
 															}
 	-- Silencer, Shotgun, Medium and quite concealable															
-	self.parts.wpn_fps_upg_ns_shot_thick 					= { pcs = { 10, 20, 30, 40 } , type = "barrel_ext", name_id = "bm_wp_upg_ns_shot_thick", a_obj = "a_ns", parent = "barrel", unit = "units/payday2/weapons/wpn_fps_upg_ns_shot_thick/wpn_fps_upg_ns_shot_thick",
-																stats = { value = 7, suppression = 12, damage = -4, recoil = 1, spread_moving = -2, concealment = -1 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_a" }
+	self.parts.wpn_fps_upg_ns_shot_thick 					= { pcs = { 10, 20, 30, 40 } , type = "barrel_ext", sub_type = "silencer", name_id = "bm_wp_upg_ns_shot_thick", a_obj = "a_ns", parent = "barrel", unit = "units/payday2/weapons/wpn_fps_upg_ns_shot_thick/wpn_fps_upg_ns_shot_thick",
+																stats = { value = 7, suppression = 12, alert_size = 12, damage = -4, recoil = 1, spread_moving = -2, concealment = -2 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_a" }
 															}
 	
 	self.parts.wpn_fps_upg_ns_ass_smg_large.third_unit = "units/payday2/weapons/wpn_third_upg_ns_ass_smg_large/wpn_third_upg_ns_ass_smg_large"
@@ -151,21 +151,21 @@ function WeaponFactoryTweakData:_init_gadgets()
 	
 	-- Gadgets
 	-- FLASHLIGHT, small, Rifles
-	self.parts.wpn_fps_upg_fl_ass_smg_sho_surefire 			= { pcs = { 10, 20, 30, 40 } , type = "gadget", name_id = "bm_wp_upg_fl_ass_smg_sho_surefire", a_obj = "a_fl", unit = "units/payday2/weapons/wpn_fps_upg_fl_ass_smg_sho_surefire/wpn_fps_upg_fl_ass_smg_sho_surefire",
+	self.parts.wpn_fps_upg_fl_ass_smg_sho_surefire 			= { pcs = { 10, 20, 30, 40 } , type = "gadget", sub_type = "flashlight", name_id = "bm_wp_upg_fl_ass_smg_sho_surefire", a_obj = "a_fl", unit = "units/payday2/weapons/wpn_fps_upg_fl_ass_smg_sho_surefire/wpn_fps_upg_fl_ass_smg_sho_surefire",
 																stats = { value = 3, spread_moving = -1, concealment = -1 },
 																adds = { "wpn_fps_addon_ris" }
 															}
 	-- LASER, small, Rifles
-	self.parts.wpn_fps_upg_fl_ass_smg_sho_peqbox 			= { pcs = { 20, 30, 40 } , type = "gadget", name_id = "bm_wp_upg_fl_ass_smg_sho_peqbox", a_obj = "a_fl", unit = "units/payday2/weapons/wpn_fps_upg_fl_ass_smg_sho_peqbox/wpn_fps_upg_fl_ass_smg_sho_peqbox",
+	self.parts.wpn_fps_upg_fl_ass_smg_sho_peqbox 			= { pcs = { 20, 30, 40 } , type = "gadget", sub_type = "laser", name_id = "bm_wp_upg_fl_ass_smg_sho_peqbox", a_obj = "a_fl", unit = "units/payday2/weapons/wpn_fps_upg_fl_ass_smg_sho_peqbox/wpn_fps_upg_fl_ass_smg_sho_peqbox",
 																stats = { value = 5, spread_moving = -1, concealment = -1 },
 																adds = { "wpn_fps_addon_ris" }
 															}
 	-- LASER, small, Pistols
-	self.parts.wpn_fps_upg_fl_pis_laser 					= { pcs = { 20, 30, 40 } , type = "gadget", name_id = "bm_wp_upg_fl_pis_laser", a_obj = "a_fl", unit = "units/payday2/weapons/wpn_fps_upg_fl_pis_laser/wpn_fps_upg_fl_pis_laser",
+	self.parts.wpn_fps_upg_fl_pis_laser 					= { pcs = { 20, 30, 40 } , type = "gadget", sub_type = "laser", name_id = "bm_wp_upg_fl_pis_laser", a_obj = "a_fl", unit = "units/payday2/weapons/wpn_fps_upg_fl_pis_laser/wpn_fps_upg_fl_pis_laser",
 																stats = { value = 5, spread_moving = -1, concealment = -1 }
 															}
 	-- FLASHLIGHT, small, Pistols
-	self.parts.wpn_fps_upg_fl_pis_tlr1 						= { pcs = { 10, 20, 30, 40 } , type = "gadget", name_id = "bm_wp_upg_fl_pis_tlr1", a_obj = "a_fl", unit = "units/payday2/weapons/wpn_fps_upg_fl_pis_tlr1/wpn_fps_upg_fl_pis_tlr1",
+	self.parts.wpn_fps_upg_fl_pis_tlr1 						= { pcs = { 10, 20, 30, 40 } , type = "gadget", sub_type = "flashlight", name_id = "bm_wp_upg_fl_pis_tlr1", a_obj = "a_fl", unit = "units/payday2/weapons/wpn_fps_upg_fl_pis_tlr1/wpn_fps_upg_fl_pis_tlr1",
 																stats = { value = 2, spread_moving = -1, concealment = -1 }
 															}
 	
@@ -181,7 +181,7 @@ function WeaponFactoryTweakData:_init_vertical_grips()
 																stats = { value = 2, spread = 1, spread_moving = 2, concealment = -1 }
 															}
 	self.parts.wpn_fps_upg_vg_ass_smg_stubby 				= { type = "vertical_grip", name_id = "bm_wp_upg_vg_ass_smg_stubby", a_obj = "a_vg", unit = "units/payday2/weapons/wpn_fps_upg_vg_ass_smg_stubby/wpn_fps_upg_vg_ass_smg_stubby",
-																stats = { value = 2, spread = 1, spread_moving = 2, concealment = -1 }
+																stats = { value = 2, spread = 1, spread_moving = 2, concealment = 1 }
 															}
 	self.parts.wpn_fps_upg_vg_ass_smg_afg 					= { type = "vertical_grip", name_id = "bm_wp_upg_vg_ass_smg_afg", a_obj = "a_vg", unit = "units/payday2/weapons/wpn_fps_upg_vg_ass_smg_afg/wpn_fps_upg_vg_ass_smg_afg",
 																stats = { value = 2, spread = 1, spread_moving = 2, concealment = -1 }
@@ -199,7 +199,7 @@ function WeaponFactoryTweakData:_init_sights()
 	-- Sights
 	-- Sight, Heavyweight, Best zoom, normal silhouette
 	self.parts.wpn_fps_upg_o_specter 					= { pcs = { 30, 40 } , type = "sight", name_id = "bm_wp_upg_o_specter", a_obj = "a_o", unit = "units/payday2/weapons/wpn_fps_upg_o_specter/wpn_fps_upg_o_specter",
-															stats = { value = 8, zoom = 4, recoil = 2, spread_moving = -3, concealment = -1 }, perks = { "scope" },
+															stats = { value = 8, zoom = 4, recoil = 1, spread_moving = -3, concealment = -3 }, perks = { "scope" },
 															stance_mod = { 	wpn_fps_ass_m4 = { translation = Vector3( 0,0,-0.45 ) },
 																			wpn_fps_ass_m16 = { translation = Vector3( 0,0,-0.01 ) },
 																			wpn_fps_smg_olympic = { translation = Vector3( 0,0,-0.01 ) },
@@ -222,31 +222,31 @@ function WeaponFactoryTweakData:_init_sights()
 														}
 	-- Sight, Heavyweight, Best zoom, Big silhouette
 	self.parts.wpn_fps_upg_o_aimpoint 					= { pcs = { 30, 40 } , type = "sight", name_id = "bm_wp_upg_o_aimpoint", a_obj = "a_o", unit = "units/payday2/weapons/wpn_fps_upg_o_aimpoint/wpn_fps_upg_o_aimpoint",
-															stats = { value = 8, zoom = 4, recoil = 2, spread_moving = -3, concealment = -1}, perks = { "scope" },
+															stats = { value = 8, zoom = 4, recoil = 1, spread_moving = -3, concealment = -3}, perks = { "scope" },
 															stance_mod = deep_clone( self.parts.wpn_fps_upg_o_specter.stance_mod ),
 															forbids = { "wpn_fps_amcar_uupg_body_upperreciever", "wpn_fps_ass_m16_os_frontsight" }
 														}
 	-- Sight, Heavyweight, Best zoom, Big silhouette
 	self.parts.wpn_fps_upg_o_aimpoint_2					= { pcs = { 10, 20, 30, 40}, dlc = "preorder", type = "sight", name_id = "bm_wp_upg_o_aimpoint", a_obj = "a_o", unit = "units/payday2/weapons/wpn_fps_upg_o_aimpoint/wpn_fps_upg_o_aimpoint_preorder",
-															stats = { value = 1, zoom = 4, recoil = 2, spread_moving = -3, concealment = -2 }, perks = { "scope" },
+															stats = { value = 1, zoom = 4, recoil = 1, spread_moving = -3, concealment = -3 }, perks = { "scope" },
 															stance_mod = deep_clone( self.parts.wpn_fps_upg_o_specter.stance_mod ), 
 															forbids = { "wpn_fps_amcar_uupg_body_upperreciever", "wpn_fps_ass_m16_os_frontsight" }
 														}
 	-- Sight, Lightweight, Bad zoom, small silhouette
 	self.parts.wpn_fps_upg_o_docter 					= { pcs = { 20, 30, 40 } , type = "sight", name_id = "bm_wp_upg_o_docter", a_obj = "a_o", unit = "units/payday2/weapons/wpn_fps_upg_o_docter/wpn_fps_upg_o_docter",
-															stats = { value = 5, zoom = 2, spread_moving = -1 }, perks = { "scope" },
+															stats = { value = 5, zoom = 2, recoil = 1, spread_moving = -1, concealment = -1 }, perks = { "scope" },
 															stance_mod = deep_clone( self.parts.wpn_fps_upg_o_specter.stance_mod ), 
 															forbids = { "wpn_fps_amcar_uupg_body_upperreciever", "wpn_fps_ass_m16_os_frontsight" }
 														}
 	-- Sight, Normal weight, Normal zoom, normal silhouette
 	self.parts.wpn_fps_upg_o_eotech 					= { pcs = { 10, 20, 30, 40 } , type = "sight", name_id = "bm_wp_upg_o_eotech", a_obj = "a_o", unit = "units/payday2/weapons/wpn_fps_upg_o_eotech/wpn_fps_upg_o_eotech",
-															stats = { value = 3, zoom = 3, recoil = 1, spread_moving = -2, concealment = -1 }, perks = { "scope" },
+															stats = { value = 3, zoom = 3, recoil = 1, spread_moving = -2, concealment = -2 }, perks = { "scope" },
 															stance_mod = deep_clone( self.parts.wpn_fps_upg_o_specter.stance_mod ), 
 															forbids = { "wpn_fps_amcar_uupg_body_upperreciever", "wpn_fps_ass_m16_os_frontsight" }
 														}
 	-- Sight, Lightweight, Normal zoom, small silhouette
 	self.parts.wpn_fps_upg_o_t1micro 					= { pcs = { 10, 20, 30, 40 } , type = "sight", name_id = "bm_wp_upg_o_t1micro", a_obj = "a_o", unit = "units/payday2/weapons/wpn_fps_upg_o_t1micro/wpn_fps_upg_o_t1micro",
-															stats = { value = 3, zoom = 3, recoil = 1, spread_moving = -1 }, perks = { "scope" },
+															stats = { value = 3, zoom = 3, recoil = 1, spread_moving = -1, concealment = -1 }, perks = { "scope" },
 															stance_mod = deep_clone( self.parts.wpn_fps_upg_o_specter.stance_mod ), 
 															forbids = { "wpn_fps_amcar_uupg_body_upperreciever", "wpn_fps_ass_m16_os_frontsight" }
 														}
@@ -309,8 +309,8 @@ function WeaponFactoryTweakData:_init_m4()
 																stats = { value = 1, spread = 1, concealment = -1 }
 															}
 	-- Barrel, Silenced barrel
-	self.parts.wpn_fps_m4_uupg_b_sd 						= { pcs = { 20, 30, 40 } , type = "barrel", name_id = "bm_wp_m4_uupg_b_sd", a_obj = "a_b", unit = "units/payday2/weapons/wpn_fps_ass_m4_pts/wpn_fps_m4_uupg_b_sd",
-																stats = { value = 6, suppression = 12, spread = -1, damage = -2, recoil = 1, spread_moving = 1, concealment = 1 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_c" },
+	self.parts.wpn_fps_m4_uupg_b_sd 						= { pcs = { 20, 30, 40 } , type = "barrel", sub_type = "silencer", name_id = "bm_wp_m4_uupg_b_sd", a_obj = "a_b", unit = "units/payday2/weapons/wpn_fps_ass_m4_pts/wpn_fps_m4_uupg_b_sd",
+																stats = { value = 6, suppression = 12, alert_size = 12, spread = -1, damage = -2, recoil = 1, spread_moving = 1, concealment = 1 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_c" },
 																forbids = { "wpn_fps_m4_uupg_fg_rail_ext", 
 																			"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
 																			"wpn_fps_upg_ns_ass_smg_firepig", "wpn_fps_upg_ns_ass_smg_stubby", "wpn_fps_upg_ns_ass_smg_tank", },
@@ -326,7 +326,7 @@ function WeaponFactoryTweakData:_init_m4()
 																}
 	-- Magazine, standard m4 mag, 30 bullets
 	self.parts.wpn_fps_m4_uupg_m_std 						= { pcs = { 10, 20, 30, 40 } , type = "magazine", name_id = "bm_wp_m4_uupg_m_std", a_obj = "a_m", unit = "units/payday2/weapons/wpn_fps_ass_m4_pts/wpn_fps_m4_uupg_m_std",
-																stats = { value = 1, extra_ammo = 4 },
+																stats = { value = 1, extra_ammo = 4, concealment = -1 },
 																-- animations = { reload = "reload", reload_not_empty = "reload_not_empty" }
 															}
 	-- Stock, Foldable skeletal stock 
@@ -352,10 +352,10 @@ function WeaponFactoryTweakData:_init_m4()
 															}
 	-- Grip, Ergo grip, best spread
 	self.parts.wpn_fps_upg_m4_g_sniper 						= { pcs = { 10, 20, 30, 40 } , type = "grip", name_id = "bm_wp_m4_g_sniper", a_obj = "a_g", unit = "units/payday2/weapons/wpn_fps_upg_m4_reusable/wpn_fps_upg_m4_g_sniper",
-																stats = { value = 2, spread = 1, recoil = 2, spread_moving = -2 }
+																stats = { value = 6, spread = 1, recoil = 1, spread_moving = -2, concealment = -1 }
 															}	
 	self.parts.wpn_fps_upg_m4_m_drum 						= { type = "magazine", name_id = "bm_wp_m4_m_drum", a_obj = "a_m", unit = "units/payday2/weapons/wpn_fps_upg_m4_reusable/wpn_fps_upg_m4_m_drum",
-																stats = { value = 9, extra_ammo = 20 },
+																stats = { value = 9, extra_ammo = 20, concealment = -5 },
 																-- animations = { reload = "reload", reload_not_empty = "reload_not_empty" }
 															}
 	-- Mag, lightweight mag, 30 bullets
@@ -370,13 +370,13 @@ function WeaponFactoryTweakData:_init_m4()
 															}
 	-- Mag, standard stock					 			
 	self.parts.wpn_fps_upg_m4_s_standard 					= { pcs = { 10, 20, 30, 40 } , type = "stock", name_id = "bm_wp_m4_s_standard", a_obj = "a_s", unit = "units/payday2/weapons/wpn_fps_upg_m4_reusable/wpn_fps_upg_m4_s_standard",
-																stats = { value = 1, spread_moving = -1  },
+																stats = { value = 1, spread_moving = -1, concealment = -1, recoil = 1 },
 																adds_type = { "stock_adapter" },
 																forbids = { "wpn_fps_shot_r870_ris_special"},
 															}
 	-- Stock, Lightweight big stock
 	self.parts.wpn_fps_upg_m4_s_pts 						= { pcs = { 10, 20, 30, 40 } , type = "stock", name_id = "bm_wp_m4_s_pts", a_obj = "a_s", unit = "units/payday2/weapons/wpn_fps_upg_m4_reusable/wpn_fps_upg_m4_s_pts",
-																stats = { value = 3, spread = 0, spread_moving = 1, recoil = 2, concealment = -1 },
+																stats = { value = 3, spread = 0, spread_moving = 1, recoil = 1, concealment = -1 },
 																adds_type = { "stock_adapter" },
 																forbids = { "wpn_fps_shot_r870_ris_special"},
 															}
@@ -491,7 +491,7 @@ function WeaponFactoryTweakData:_init_g18c()
 															}
 	-- Mag, heavy mag, 33 rounds		
 	self.parts.wpn_fps_pis_g18c_m_mag_33rnd 				= { pcs = { 30, 40 } , type = "magazine", name_id = "bm_wp_g18c_m_mag_33rnd", a_obj = "a_m", unit = "units/payday2/weapons/wpn_fps_pis_g18c_pts/wpn_fps_pis_g18c_m_mag_33rnd",
-																stats = { value = 6, spread_moving = -3, extra_ammo = 6 },
+																stats = { value = 6, spread_moving = -3, extra_ammo = 6, concealment = -2 },
 																animations = { reload = "reload", reload_not_empty = "reload_not_empty" } 
 															}
 	self.parts.wpn_fps_pis_g18c_m_mag_17rnd 				= { type = "magazine", name_id = "bm_wp_g18c_m_mag_17rnd", a_obj = "a_m", unit = "units/payday2/weapons/wpn_fps_pis_g18c_pts/wpn_fps_pis_g18c_m_mag_17rnd",
@@ -793,12 +793,12 @@ function WeaponFactoryTweakData:_init_ak_parts()
 															}
 	-- Stock, Heavyweight Sniper stock (INFAMOUS)			
 	self.parts.wpn_upg_ak_s_psl 							= { pcs = { 10, 20, 30, 40 } , type = "stock", name_id = "bm_wp_ak_s_psl", a_obj = "a_s", unit = "units/payday2/weapons/wpn_fps_upg_ak_reusable/wpn_upg_ak_s_psl",
-																stats = { value = 5, spread = 3, spread_moving = -2, recoil = -1, concealment = -3 },
+																stats = { value = 6, spread = 3, spread_moving = -3, recoil = 0, concealment = -3 },
 																forbids = { "wpn_upg_ak_g_standard" }
 															}
 	-- Stock, mediumweight Foldable stock
 	self.parts.wpn_upg_ak_s_skfoldable 						= { pcs = { 10, 20, 30, 40 } , type = "stock", name_id = "bm_wp_ak_s_skfoldable", a_obj = "a_s", unit = "units/payday2/weapons/wpn_fps_upg_ak_reusable/wpn_upg_ak_s_skfoldable",
-																stats = { value = 3, spread_moving = 2, recoil = 1, concealment = 2 },  --pc = { 40, 45, 50 } 
+																stats = { value = 3, spread_moving = 2, recoil = -1, concealment = 2 },  --pc = { 40, 45, 50 } 
 																adds = { "wpn_upg_ak_g_standard" },
 															}
 	self.parts.wpn_fps_ak_extra_ris 						= { type = "extra", name_id = "bm_wp_ak_s_skfoldable", a_obj = "a_of", unit = "units/payday2/weapons/wpn_fps_upg_ak_reusable/wpn_fps_ak_extra_ris",
@@ -1565,11 +1565,11 @@ function WeaponFactoryTweakData:_init_deagle()
 															}
 	-- Grip, Lightweight, Vanity (INFAMOUS)
 	self.parts.wpn_fps_pis_deagle_g_bling 					= { pc = 40 , type = "grip", name_id = "bm_wp_deagle_g_bling", a_obj = "a_g", unit = "units/payday2/weapons/wpn_fps_pis_deagle_pts/wpn_fps_pis_deagle_g_bling",
-																stats = { value = 10, spread_moving = -2, recoil = 2 }
+																stats = { value = 10, spread_moving = -2, recoil = 2, concealment = 1 }
 															}
 	-- Grip, Lightweight, Best spread_moving
 	self.parts.wpn_fps_pis_deagle_g_ergo 					= { pc = 40 , type = "grip", name_id = "bm_wp_deagle_g_ergo", a_obj = "a_g", unit = "units/payday2/weapons/wpn_fps_pis_deagle_pts/wpn_fps_pis_deagle_g_ergo",
-																stats = { value = 6, spread_moving = 2, recoil = -1 }
+																stats = { value = 6, spread_moving = 2, recoil = -1, spread = 1, concealment = -1 }
 															}
 	self.parts.wpn_fps_pis_deagle_g_standard 				= { type = "grip", name_id = "bm_wp_deagle_g_standard", a_obj = "a_g", unit = "units/payday2/weapons/wpn_fps_pis_deagle_pts/wpn_fps_pis_deagle_g_standard",
 																stats = { value = 1 }
@@ -1685,8 +1685,8 @@ function WeaponFactoryTweakData:_init_mp5()
 																forbids = { "wpn_fps_addon_ris"},
 															}
 	-- Foregrip, Lightweight, Best spread_moving, concealable (INFAMOUS)
-	self.parts.wpn_fps_smg_mp5_fg_mp5sd 					= { pcs = { 20, 30, 40 } , type = "foregrip", name_id = "bm_wp_mp5_fg_mp5sd", a_obj = "a_fg", unit = "units/payday2/weapons/wpn_fps_smg_mp5_pts/wpn_fps_smg_mp5_fg_mp5sd",																									
-																stats = { value = 10, spread_moving = 1, suppression = 12, damage = -4, recoil = 3, concealment = 1 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_c" },
+	self.parts.wpn_fps_smg_mp5_fg_mp5sd 					= { pcs = { 20, 30, 40 } , type = "foregrip", sub_type = "silencer", name_id = "bm_wp_mp5_fg_mp5sd", a_obj = "a_fg", unit = "units/payday2/weapons/wpn_fps_smg_mp5_pts/wpn_fps_smg_mp5_fg_mp5sd",																									
+																stats = { value = 10, spread_moving = 1, suppression = 12, alert_size = 12, damage = -4, recoil = 3, concealment = 1 }, perks = { "silencer" }, sound_switch = { suppressed = "suppressed_c" },
 																adds = { "wpn_fps_smg_mp5_b_mp5sd" },
 																forbids = { "wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
 																			"wpn_fps_upg_ns_ass_smg_firepig", "wpn_fps_upg_ns_ass_smg_stubby", "wpn_fps_upg_ns_ass_smg_tank", },
@@ -1797,7 +1797,7 @@ function WeaponFactoryTweakData:_init_colt_1911()
 															}
 	-- Grip, Lightweight, Best spread_moving
 	self.parts.wpn_fps_pis_1911_g_ergo 						= { pcs = { 10, 20, 30, 40 } , type = "grip", name_id = "bm_wp_1911_g_ergo", a_obj = "a_g", unit = "units/payday2/weapons/wpn_fps_pis_1911_pts/wpn_fps_pis_1911_g_ergo",
-																stats = { value = 2, spread_moving = 1 }
+																stats = { value = 2, spread_moving = 1, recoil = 1 }
 															}
 	self.parts.wpn_fps_pis_1911_g_standard 					= { type = "grip", name_id = "bm_wp_1911_g_standard", a_obj = "a_g", unit = "units/payday2/weapons/wpn_fps_pis_1911_pts/wpn_fps_pis_1911_g_standard",
 																stats = { value = 1 }
@@ -2010,21 +2010,21 @@ function WeaponFactoryTweakData:_init_r870()
 															}
 	-- Stock, Normal weight, good moving_spread															
 	self.parts.wpn_fps_shot_r870_s_nostock_big 				= { pcs = { 10, 20, 30, 40 } , type = "stock", name_id = "bm_wp_r870_s_nostock_big", a_obj = "a_s", unit = "units/payday2/weapons/wpn_fps_shot_r870_pts/wpn_fps_shot_r870_s_nostock_big",
-																stats = { value = 4, spread_moving = 1, recoil = -1, concealment = 1 },
+																stats = { value = 4, spread_moving = 1, recoil = -3, concealment = 1 },
 																forbids = { "wpn_fps_shot_r870_ris_special"},
 															}
 	-- Stock, lightweight, bad spread and best moving_spread
 	self.parts.wpn_fps_shot_r870_s_nostock_single 			= { type = "stock", name_id = "bm_wp_r870_s_nostock_single", a_obj = "a_s", unit = "units/payday2/weapons/wpn_fps_shot_r870_pts/wpn_fps_shot_r870_s_nostock_single",
-																stats = { value = 3, spread_moving = 2, recoil = -1, concealment = 2 },
+																stats = { value = 3, spread_moving = 2, recoil = -3, concealment = 2 },
 																forbids = { "wpn_fps_shot_r870_ris_special"},
 															}	
 	-- Stock, No weight, best moving_spread
 	self.parts.wpn_fps_shot_r870_s_nostock 					= { pcs = { 10, 20, 30, 40 } , type = "stock", name_id = "bm_wp_r870_s_nostock", a_obj = "a_s", unit = "units/payday2/weapons/wpn_fps_shot_r870_pts/wpn_fps_shot_r870_s_nostock",
-																stats = { value = 2, spread_moving = 1, recoil = -2, concealment = 3 },
+																stats = { value = 2, spread_moving = 1, recoil = -3, concealment = 3 },
 															}
 	-- Stock, Heavyweight, Best spread and Bad moving_spread	
 	self.parts.wpn_fps_shot_r870_s_solid_big 				= { pcs = { 10, 20, 30, 40 } , type = "stock", name_id = "bm_wp_r870_s_solid_big", a_obj = "a_s", unit = "units/payday2/weapons/wpn_fps_shot_r870_pts/wpn_fps_shot_r870_s_solid_big",
-																stats = { value = 4, spread_moving = -2, recoil = 2, concealment = -1 },
+																stats = { value = 4, spread_moving = -2, recoil = 2, concealment = -2 },
 																forbids = { "wpn_fps_shot_r870_ris_special"},
 															}
 	-- Stock, Heavyweight, medium spread and medium moving_spread	
@@ -2324,7 +2324,7 @@ function WeaponFactoryTweakData:_init_huntsman()
 															}
 	-- Barrel, Negative weight, Crazy spread_moving, Recoil is WORST
 	self.parts.wpn_fps_shot_huntsman_b_short 				= { pc = 40 , type = "barrel", name_id = "bm_wp_huntsman_b_short", a_obj = "a_b", unit = "units/payday2/weapons/wpn_fps_shot_huntsman_pts/wpn_fps_shot_huntsman_b_short",
-																stats = { value = 10, recoil = -4, spread = -4, spread_moving = 3, concealment = 3 },
+																stats = { value = 10, recoil = -4, spread = -4, spread_moving = 3, concealment = 10 },
 																animations = { reload = "reload", reload_not_empty = "reload", fire = "recoil", fire_steelsight = "recoil" } 
 															}
 	self.parts.wpn_fps_shot_huntsman_body_standard 			= { type = "lower_reciever", name_id = "bm_wp_huntsman_body_standard", a_obj = "a_body", unit = "units/payday2/weapons/wpn_fps_shot_huntsman_pts/wpn_fps_shot_huntsman_body_standard",
@@ -2335,7 +2335,7 @@ function WeaponFactoryTweakData:_init_huntsman()
 															}
 	-- Stock, Negative weight, Crazy spread_moving, Recoil is WORST
 	self.parts.wpn_fps_shot_huntsman_s_short 				= { pc = 40 , type = "stock", name_id = "bm_wp_huntsman_s_short", a_obj = "a_s", unit = "units/payday2/weapons/wpn_fps_shot_huntsman_pts/wpn_fps_shot_huntsman_s_short",
-																stats = { value = 10, recoil = -4, spread = -4, spread_moving = 3, concealment = 3 }
+																stats = { value = 10, recoil = -4, spread = -4, spread_moving = 3, concealment = 10 }
 															}
 	
 	self.parts.wpn_fps_shot_huntsman_b_long.third_unit = "units/payday2/weapons/wpn_third_shot_huntsman_pts/wpn_third_shot_huntsman_b_long"
@@ -2385,11 +2385,11 @@ function WeaponFactoryTweakData:_init_raging_bull()
 																stats = { value = 1 }
 															}
 	-- Body, Best Recoil (INFAMOUS)
-	self.parts.wpn_fps_pis_rage_body_smooth 				= { pcs = { 10, 20, 30, 40 } , type = "stock", name_id = "bm_wp_rage_body_smooth", a_obj = "a_body", unit = "units/payday2/weapons/wpn_fps_pis_rage_pts/wpn_fps_pis_rage_body_smooth",
+	self.parts.wpn_fps_pis_rage_body_smooth 				= { pcs = { 10, 20, 30, 40 } , type = "upper_reciever", name_id = "bm_wp_rage_body_smooth", a_obj = "a_body", unit = "units/payday2/weapons/wpn_fps_pis_rage_pts/wpn_fps_pis_rage_body_smooth",
 																stats = { value = 6, recoil = 1, concealment = 1 },
 																animations = { reload = "reload", reload_not_empty = "reload_not_empty", fire = "recoil", fire_steelsight = "recoil" } 
 															}
-	self.parts.wpn_fps_pis_rage_body_standard 				= { type = "stock", name_id = "bm_wp_rage_body_standard", a_obj = "a_body", unit = "units/payday2/weapons/wpn_fps_pis_rage_pts/wpn_fps_pis_rage_body_standard",
+	self.parts.wpn_fps_pis_rage_body_standard 				= { type = "upper_reciever", name_id = "bm_wp_rage_body_standard", a_obj = "a_body", unit = "units/payday2/weapons/wpn_fps_pis_rage_pts/wpn_fps_pis_rage_body_standard",
 																stats = { value = 1 }, 
 																animations = { reload = "reload", reload_not_empty = "reload_not_empty", fire = "recoil", fire_steelsight = "recoil" } 
 															}

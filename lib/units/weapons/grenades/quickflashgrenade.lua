@@ -23,7 +23,7 @@ function QuickFlashGrenade:_play_sound_and_effects()
 		local sound_source = SoundDevice:create_source( "grenade_bounce_source" )
 		sound_source:set_position(bounce_point)
 		
-		sound_source:post_event( "grenade_gas_bounce" )
+		sound_source:post_event( "flashbang_bounce" )
 	
 	elseif self._state == 3 then
 		--World:effect_manager():spawn( { effect = Idstring( "effects/particles/explosions/explosion_smoke_grenade" ), position = self._unit:position(), normal = self._unit:rotation():y() } )

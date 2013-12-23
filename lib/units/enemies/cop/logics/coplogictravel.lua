@@ -540,6 +540,10 @@ function CopLogicTravel._upd_enemy_detection( data )
 		end
 	end
 	
+	if data.cool then
+		CopLogicTravel.upd_suspicion_decay( data )
+	end
+	
 	return delay
 end
 

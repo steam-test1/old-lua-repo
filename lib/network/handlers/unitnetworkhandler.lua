@@ -518,6 +518,23 @@ end
 
 --------------------------------------------------------------------------------------
 
+function UnitNetworkHandler:sync_interaction_info_id( unit, info_id, sender )
+	if not self._verify_gamestate( self._gamestate_filter.any_ingame ) then
+		return
+	end
+	
+	local peer = self._verify_sender( sender )
+	if not peer then
+		return
+	end
+	
+	if alive( unit ) and unit:interaction().set_info_id then
+		unit:interaction():set_info_id( info_id )
+	end
+end
+
+--------------------------------------------------------------------------------------
+
 function UnitNetworkHandler:sync_interacted_by_id( unit_id, tweak_setting, sender )
 	if not ( self._verify_gamestate( self._gamestate_filter.any_ingame ) or self._verify_sender( sender ) ) then
 		return
@@ -1306,6 +1323,22 @@ end
 
 --------------------------------------------------------------------------------------
 
+function UnitNetworkHandler:place_deployable_bag( class_name, pos, rot, upgrade_lvl, rpc )
+	local peer = self._verify_sender( rpc )
+	if not ( self._verify_gamestate( self._gamestate_filter.any_ingame ) and peer ) then
+		return
+	end
+	
+	local class = CoreSerialize.string_to_classtable( class_name )
+	if class then
+		local unit = class.spawn( pos, rot, upgrade_lvl )
+		unit:base():set_server_information( peer:id() )
+	end
+end
+
+--------------------------------------------------------------------------------------
+
+--[[
 function UnitNetworkHandler:place_doctor_bag( pos, rot, amount_upgrade_lvl, rpc )
 	if not ( self._verify_gamestate( self._gamestate_filter.any_ingame ) and self._verify_sender( rpc ) ) then
 		return
@@ -1314,6 +1347,14 @@ function UnitNetworkHandler:place_doctor_bag( pos, rot, amount_upgrade_lvl, rpc 
 	local unit = DoctorBagBase.spawn( pos, rot, amount_upgrade_lvl )
 	unit:base():set_server_information( peer:id() )
 end
+]]
+
+
+
+
+
+
+--------------------------------------------------------------------------------------
 
 function UnitNetworkHandler:sync_doctor_bag_setup( unit, amount_upgrade_lvl )
 	if not ( alive( unit ) and self._verify_gamestate( self._gamestate_filter.any_ingame ) ) then

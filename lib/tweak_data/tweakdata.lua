@@ -525,6 +525,11 @@ function TweakData:init()
 	self.screen_colors.regular_color = Color( 255, 41, 150, 240 ) / 255
 	self.screen_colors.pro_color = Color( 255, 255, 51, 51 ) / 255
 	
+	
+	self.screen_colors.stats_positive = Color( 255, 191, 221, 125 ) / 255
+	self.screen_colors.stats_negative = Color( 255, 254, 93, 99 ) / 255
+	self.screen_colors.stats_mods = Color( 255, 229, 229, 76 ) / 255
+	
 	if Global.old_colors_purple then
 		self.screen_color_white = Color.purple
 		self.screen_color_red = Color.purple
@@ -964,7 +969,10 @@ function TweakData:init()
 	self.interaction.pick_lock_hard_no_skill.sound_start 		= "bar_pick_lock"
 	self.interaction.pick_lock_hard_no_skill.sound_interupt 	= "bar_pick_lock_cancel"
 	self.interaction.pick_lock_hard_no_skill.sound_done	 		= "bar_pick_lock_finished"
-
+	
+	self.interaction.pick_lock_deposit_transport = deep_clone(self.interaction.pick_lock_hard_no_skill)
+	self.interaction.pick_lock_deposit_transport.timer = 15
+	
 	self.interaction.cant_pick_lock = {}
 	self.interaction.cant_pick_lock.icon = "equipment_bank_manager_key"
 	self.interaction.cant_pick_lock.text_id = "hud_int_pick_lock"
@@ -1024,6 +1032,16 @@ function TweakData:init()
 	self.interaction.drill.axis				= "y"
 	self.interaction.drill.action_text_id = "hud_action_placing_drill"
 	
+	self.interaction.drill_upgrade = {}
+	self.interaction.drill_upgrade.icon = "equipment_drill"
+	self.interaction.drill_upgrade.contour 			= "upgradable"
+	self.interaction.drill_upgrade.text_id = "hud_int_equipment_drill_upgrade"
+	self.interaction.drill_upgrade.timer = 10
+	self.interaction.drill_upgrade.sound_start 		= "bar_drill_apply"
+	self.interaction.drill_upgrade.sound_interupt 	= "bar_drill_apply_cancel"
+	self.interaction.drill_upgrade.sound_done	 	= "bar_drill_apply_finished"
+	self.interaction.drill_upgrade.action_text_id = "hud_action_upgrading_drill"
+	
 	self.interaction.drill_jammed = {}
 	self.interaction.drill_jammed.icon = "equipment_drill"
 	self.interaction.drill_jammed.text_id = "hud_int_equipment_drill_jammed"
@@ -1057,6 +1075,16 @@ function TweakData:init()
 	self.interaction.lance_jammed.sound_done	 	= "bar_thermal_lance_fix_finished"
 	self.interaction.lance_jammed.upgrade_timer_multiplier = { category = "player", upgrade = "drill_fix_interaction_speed_multiplier" }
 	self.interaction.lance_jammed.action_text_id = "hud_action_fixing_lance"
+	
+	self.interaction.lance_upgrade = {}
+	self.interaction.lance_upgrade.icon = "equipment_drill"
+	self.interaction.lance_upgrade.contour 			= "upgradable"
+	self.interaction.lance_upgrade.text_id = "hud_int_equipment_lance_upgrade"
+	self.interaction.lance_upgrade.timer = 10
+	self.interaction.lance_upgrade.sound_start 		= "bar_drill_apply"
+	self.interaction.lance_upgrade.sound_interupt 	= "bar_drill_apply_cancel"
+	self.interaction.lance_upgrade.sound_done	 	= "bar_drill_apply_finished"
+	self.interaction.lance_upgrade.action_text_id = "hud_action_upgrading_lance"
 	
 	self.interaction.glass_cutter = {}
 	self.interaction.glass_cutter.icon 				= "equipment_cutter"
@@ -1359,6 +1387,7 @@ function TweakData:init()
 	self.interaction.ecm_jammer.text_id = "hud_int_equipment_ecm_feedback"
 	self.interaction.ecm_jammer.contour = "deployable"
 	self.interaction.ecm_jammer.requires_upgrade = { category = "ecm_jammer", upgrade = "can_activate_feedback" }
+	self.interaction.ecm_jammer.upgrade_timer_multiplier = { category = "ecm_jammer", upgrade = "interaction_speed_multiplier" }
 	self.interaction.ecm_jammer.timer = 2
 	
 	self.interaction.laptop_objective = {}
@@ -2346,8 +2375,8 @@ function TweakData:init()
 
 	self.experience_manager.stage_completion = { 200, 250, 300, 350, 425, 475, 550 }
 	self.experience_manager.job_completion = { 750, 1000, 1500, 2000, 2500, 3000, 4000 }
-	self.experience_manager.stage_failed_multiplier = 0.15
-	self.experience_manager.difficulty_multiplier = { 1.5, 4, 8 } -- This is an addition to the job/stage xp( stage_xp+stage_xp*mul ), hard, overkill, overkill_146
+	self.experience_manager.stage_failed_multiplier = 0.10
+	self.experience_manager.difficulty_multiplier = { 2, 5, 10 } -- This is an addition to the job/stage xp( stage_xp+stage_xp*mul ), hard, overkill, overkill_146
 	self.experience_manager.alive_humans_multiplier = { 1, 1.1, 1.2, 1.3 }
 	
 	
@@ -2360,7 +2389,7 @@ function TweakData:init()
 	self.experience_manager.civilians_killed					= 0		-- Amount of XP penalty recieved from each killed civilian during a heist
 	
 	self.experience_manager.day_multiplier = { 1, 2, 3, 4, 5, 6, 7 }				-- multiplier on how much more experience you get for each day. mulitplied on base xp, day+job+risk
-	self.experience_manager.pro_day_multiplier = { 1.0, 2.5, 4.0, 5.5, 7.0, 8.5, 10.0 }	-- professional version, ( 7 days might be abit excessive )
+	self.experience_manager.pro_day_multiplier = { 1.0, 2.5, 5.0, 5.5, 7.0, 8.5, 10.0 }	-- professional version, ( 7 days might be abit excessive )
 	
 	self.experience_manager.total_level_objectives		= 500		-- How much XP should be divided in a level from objectives 
 	self.experience_manager.total_criminals_finished	= 50		-- Amount of XP bonus recieved from each alive criminal at heist end
@@ -2490,7 +2519,11 @@ function TweakData:init()
 	self.contour.deployable						= {}
 	self.contour.deployable.standard_color 		= Vector3( 0.1, 1.0, 0.5 )
 	self.contour.deployable.selected_color 		= Vector3( 1.0, 1.0, 1.0 )
-		
+	
+	self.contour.upgradable						= {}
+	self.contour.upgradable.standard_color 		= Vector3( 0.1, 0.5, 1.0 )
+	self.contour.upgradable.selected_color 		= Vector3( 1.0, 1.0, 1.0 )
+	
 	self.contour.pickup							= {}
 	self.contour.pickup.standard_color	 		= Vector3( 0.1, 1.0, 0.5 )
 	self.contour.pickup.selected_color 			= Vector3( 1.0, 1.0, 1.0 )

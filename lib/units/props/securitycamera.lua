@@ -229,8 +229,13 @@ function SecurityCamera:_upd_detect_attention_objects( t )
 						local max_delay = det_delay[2]
 						local angle_mul_mod = 0.25 * math.min( angle / self._cone_angle, 1 ) -- angle only plays 25% role
 						local dis_mul_mod = 0.75 * dis_multiplier
+						local notice_delay_mul = (attention_info.settings.notice_delay_mul or 1)
 						
-						local notice_delay_modified = math.lerp( min_delay, max_delay, dis_mul_mod + angle_mul_mod ) * ( attention_info.settings.notice_delay_mul or 1 )
+						if attention_info.settings.detection and attention_info.settings.detection.delay_mul then
+							notice_delay_mul = notice_delay_mul * attention_info.settings.detection.delay_mul
+						end
+						
+						local notice_delay_modified = math.lerp( min_delay, max_delay, dis_mul_mod + angle_mul_mod ) * notice_delay_mul
 						delta_prog = notice_delay_modified > 0 and dt / notice_delay_modified or 1
 						--[[if attention_info.unit == managers.player:player_unit() then
 							print( "notice_delay_modified", notice_delay_modified, "max_delay", max_delay, "angle_mul_mod", angle_mul_mod, "dis_mul_mod", dis_mul_mod, "dis_multiplier", dis_multiplier, "angle_mul", angle / self._cone_angle, "dt", dt, "delta_prog", delta_prog )
@@ -323,7 +328,14 @@ end
 function SecurityCamera:_detection_angle_and_dis_chk( my_pos, my_fwd, handler, settings, attention_pos )
 	local dis = mvector3.direction( self._tmp_vec1, my_pos, attention_pos )
 	local dis_multiplier, angle_multiplier
-	dis_multiplier = dis / self._range
+	
+	local max_dis = self._range
+	if settings.detection and settings.detection.range_mul then
+		max_dis = max_dis * settings.detection.range_mul
+	end
+	
+	dis_multiplier = dis / max_dis
+	
 	if dis_multiplier < 1 then	-- not too far
 		if settings.notice_requires_FOV then
 			local angle = mvector3.angle( my_fwd, self._tmp_vec1 )
@@ -538,9 +550,19 @@ function SecurityCamera:_upd_suspicion( t )
 		if attention_data.identified and attention_data.reaction == AIAttentionObject.REACT_SUSPICIOUS then
 			--print( "[SecurityCamera:_upd_suspicion]", inspect( attention_data ) )
 			if not attention_data.verified then
-				-- no changes in suspicion
-				if attention_data.last_suspicion_t then
-					attention_data.last_suspicion_t = t
+				if attention_data.uncover_progress then
+					local dt = t - attention_data.last_suspicion_t
+					attention_data.uncover_progress = attention_data.uncover_progress - dt
+					if attention_data.uncover_progress <= 0 then
+						attention_data.uncover_progress = nil
+						attention_data.last_suspicion_t = nil
+						attention_data.unit:movement():on_suspicion( self._unit, false )
+						managers.groupai:state():on_criminal_suspicion_progress( attention_data.unit, self._unit, false )
+					else
+						max_suspicion = math.max( max_suspicion, attention_data.uncover_progress )
+						attention_data.unit:movement():on_suspicion( self._unit, attention_data.uncover_progress )
+						attention_data.last_suspicion_t = t
+					end
 				end
 			else -- suspicious and verified
 				local dis = attention_data.dis
@@ -548,14 +570,14 @@ function SecurityCamera:_upd_suspicion( t )
 				local suspicion_range = self._suspicion_range
 				local uncover_range = 0--attention_data.settings.uncover_range
 				local max_range = self._range
-				if attention_data.settings.uncover_range and dis < math.min( max_range, uncover_range * susp_settings.range_mul ) then
+				if attention_data.settings.uncover_range and dis < math.min( max_range, uncover_range ) * susp_settings.range_mul then
 					--print( "came too close", dis, math.min( max_range, uncover_range * susp_settings.range_mul ) )
 					attention_data.unit:movement():on_suspicion( self._unit, true )
 					managers.groupai:state():on_criminal_suspicion_progress( attention_data.unit, self._unit, true )
 					managers.groupai:state():criminal_spotted( attention_data.unit )
 					max_suspicion = 1
 					_exit_func( attention_data )
-				elseif suspicion_range and dis < math.min( max_range, suspicion_range * susp_settings.range_mul ) then
+				elseif suspicion_range and dis < math.min( max_range, suspicion_range ) * susp_settings.range_mul then
 					
 					if attention_data.last_suspicion_t then
 						local dt = t - attention_data.last_suspicion_t
@@ -564,12 +586,13 @@ function SecurityCamera:_upd_suspicion( t )
 						local range_min = uncover_range
 						local mul = 1 - ( dis - range_min ) / range_max
 						
-						local progress = dt * 0.15 * mul * susp_settings.buildup_mul
+						local progress = dt * 0.5 * mul * susp_settings.buildup_mul
 						attention_data.uncover_progress = ( attention_data.uncover_progress or 0 ) + progress
 						max_suspicion = math.max( max_suspicion, attention_data.uncover_progress )
 						--print( "attention_data.uncover_progress", attention_data.uncover_progress, "progress", progress, "dis", dis, "mul", mul, "dt", dt )
 						if attention_data.uncover_progress < 1 then
 							attention_data.unit:movement():on_suspicion( self._unit, attention_data.uncover_progress )
+							attention_data.last_suspicion_t = t
 						else
 							attention_data.unit:movement():on_suspicion( self._unit, true )
 							managers.groupai:state():on_criminal_suspicion_progress( attention_data.unit, self._unit, true )
@@ -579,8 +602,8 @@ function SecurityCamera:_upd_suspicion( t )
 					else
 						--print( "start suspecting" )
 						attention_data.uncover_progress = 0
-						attention_data.last_suspicion_t = t
 						managers.groupai:state():on_criminal_suspicion_progress( attention_data.unit, self._unit, 0 )
+						attention_data.last_suspicion_t = t
 					end
 				elseif attention_data.uncover_progress then
 					--print( "out of range", dis )
@@ -593,11 +616,10 @@ function SecurityCamera:_upd_suspicion( t )
 							attention_data.unit:movement():on_suspicion( self._unit, false )
 							managers.groupai:state():on_criminal_suspicion_progress( attention_data.unit, self._unit, false )
 						else
+							attention_data.last_suspicion_t = t
 							max_suspicion = math.max( max_suspicion, attention_data.uncover_progress )
 							attention_data.unit:movement():on_suspicion( self._unit, attention_data.uncover_progress )
 						end
-					else
-						attention_data.last_suspicion_t = t
 					end
 				end
 			end

@@ -1,6 +1,8 @@
 DLCManager = DLCManager or class()
 DLCManager.PLATFORM_CLASS_MAP = {}
 
+DLCManager.BUNDLED_DLC_PACKAGES = { dlc1 = false, season_pass = false }
+
 function DLCManager:new( ... )
 	local platform = SystemInfo:platform()
 	return ( self.PLATFORM_CLASS_MAP[ platform:key() ] or GenericDLCManager ):new( ... )

@@ -207,9 +207,9 @@ function MoneyTweakData:init()
 	
 -- Skillpoint costs
 	self.skilltree.respec.base_point_cost = 500				-- base cost for spending a point
-	self.skilltree.respec.point_tier_cost = self._create_value_table( 4000, self.biggest_cashout*0.25, 6, true, 1.1 )
+	self.skilltree.respec.point_tier_cost = self._create_value_table( 4000, self.biggest_cashout*0.18, 6, true, 1.1 )
 	
-	self.skilltree.respec.respec_refund_multiplier = 0.5
+	self.skilltree.respec.respec_refund_multiplier = 0.6
 	
 	self.skilltree.respec.point_cost = 0			-- the respeccing cost for each point
 	self.skilltree.respec.point_multiplier_cost = 1.0 -- point cost 'raised to' with this ( points * point_cost )^point_multiplier_cost, this increases the point cost for each point placed

@@ -115,6 +115,7 @@ function NarrativeTweakData:init()
 	self.jobs.alex.crimenet_callouts = { "hct_rats_cnc_01", "hct_rats_cnc_02", "hct_rats_cnc_03" }
 	self.jobs.alex.crimenet_videos = { "cn_rat1", "cn_rat2", "cn_rat3" }
 	self.jobs.alex.payout = { 10000, 15000, 20000, 30000 }
+	self.jobs.alex.contract_cost = { 121000, 170000, 250000, 500000 }
 	
 -- PRO
 	self.jobs.alex_prof = deep_clone( self.jobs.alex )
@@ -122,6 +123,7 @@ function NarrativeTweakData:init()
 	self.jobs.alex_prof.professional = true
 	self.jobs.alex_prof.region = "professional"
 	self.jobs.alex_prof.payout = { 10000, 15000, 30000, 40000 }
+	self.jobs.alex_prof.contract_cost = { 131000, 188000, 263000, 530000 }
 	
 -------------
 -- BIG OIL --
@@ -140,15 +142,15 @@ function NarrativeTweakData:init()
 	self.jobs.welcome_to_the_jungle.crimenet_callouts = { "elp_bigoil_cnc_01", "elp_bigoil_cnc_02", "elp_bigoil_cnc_03" }
 	self.jobs.welcome_to_the_jungle.crimenet_videos = { "cn_bigoil1", "cn_bigoil2", "cn_bigoil3" }
 	self.jobs.welcome_to_the_jungle.payout = { 200000, 275000, 400000, 500000 }
+	self.jobs.welcome_to_the_jungle.contract_cost = { 20000, 36000, 50000, 90000 }
 	
-
 -- PRO
 	self.jobs.welcome_to_the_jungle_prof = deep_clone( self.jobs.welcome_to_the_jungle )
 	self.jobs.welcome_to_the_jungle_prof.jc = 70
 	self.jobs.welcome_to_the_jungle_prof.professional = true
 	self.jobs.welcome_to_the_jungle_prof.region = "professional"
 	self.jobs.welcome_to_the_jungle_prof.payout = { 250000, 300000, 450000, 550000 }
-
+	self.jobs.welcome_to_the_jungle_prof.contract_cost = { -100000, -300000, -550000, -850000 }
 -------------------
 -- FRAMING FRAME --
 -------------------

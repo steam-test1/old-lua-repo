@@ -251,7 +251,7 @@ function PlayerTased:_check_action_primary_attack( t, input )
 						end
 					end
 					
-					local suppression_mul = managers.player:upgrade_value( "player", "suppression_multiplier", 1 ) * managers.player:upgrade_value( "player", "suppression_multiplier2", 1 ) * managers.player:upgrade_value( "player", "passive_suppression_multiplier", 1 )
+					local suppression_mul = managers.blackmarket:threat_multiplier()
 					
 					local fired
 					if fire_mode == "single" then
@@ -456,7 +456,7 @@ function PlayerTased:_give_shock_to_taser( taser_unit )
 	-- taser_unit:movement():play_redirect( "counter_tased" )	-- played on taser
 	local action_data = {
 		variant = "counter_tased",
-		damage = taser_unit:character_damage()._HEALTH_INIT * 0.2,
+		damage = taser_unit:character_damage()._HEALTH_INIT * ( tweak_data.upgrades.counter_taser_damage or 0.2 ),
 		damage_effect = taser_unit:character_damage()._HEALTH_INIT * 2, -- * 0
 		attacker_unit = self._unit,
 		attack_dir = -taser_unit:movement()._action_common_data.fwd,

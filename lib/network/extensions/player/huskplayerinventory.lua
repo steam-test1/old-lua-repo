@@ -13,6 +13,7 @@ HuskPlayerInventory._index_to_weapon_list = {
 	Idstring( "units/payday2/weapons/wpn_npc_smg_mp9/wpn_npc_smg_mp9" ), 
 	Idstring( "units/payday2/weapons/wpn_npc_mac11/wpn_npc_mac11" ),
 	Idstring( "units/payday2/weapons/wpn_npc_sniper/wpn_npc_sniper" ),
+	Idstring( "units/payday2/weapons/wpn_npc_saiga/wpn_npc_saiga" ),
 	
 	-- NEW PD2
 	"wpn_fps_pis_g18c_npc",

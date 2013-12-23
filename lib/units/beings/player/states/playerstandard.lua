@@ -169,7 +169,13 @@ function PlayerStandard:_enter( enter_data )
 	self._ext_inventory:set_mask_visibility( true )
 	
 	if not self._state_data.ducking then
-		self._ext_movement:set_attention_settings( { "pl_enemy_cbt", "pl_team_idle_std", "pl_civ_cbt" } )
+		local stand_attention = nil
+		if managers.groupai:state():whisper_mode() then
+			stand_attention = "pl_enemy_stand_mask_on"
+		else
+			stand_attention = "pl_enemy_cbt"
+		end
+		self._ext_movement:set_attention_settings( { stand_attention, "pl_team_idle_std", "pl_civ_cbt" } )
 	end
 	
 	self._ext_network:send( "set_stance", 2 ) -- hos
@@ -1077,24 +1083,29 @@ end
 --	Check how fast the player can go in his current stance ( defensive/standard )
 
 function PlayerStandard:_get_max_walk_speed( t )
-	
-	if self._state_data.in_steelsight then
-		return self._tweak_data.movement.speed.STEELSIGHT_MAX
-	end
-	
-	if self._state_data.ducking then
-		return self._tweak_data.movement.speed.CROUCHING_MAX * managers.player:upgrade_value( "player", "crouch_speed_multiplier", 1 )
-	end
-	
-	if self._state_data.in_air then
-		return self._tweak_data.movement.speed.INAIR_MAX
-	end
-	
 	local morale_boost_bonus = self._ext_movement:morale_boost()
 	morale_boost_bonus = morale_boost_bonus and morale_boost_bonus.move_speed_bonus or 1
 	local armor_penalty = managers.player:body_armor_movement_penalty()
 	
-	return ( self._running and ( self._tweak_data.movement.speed.RUNNING_MAX * managers.player:upgrade_value( "player", "run_speed_multiplier", 1 ) ) or ( self._tweak_data.movement.speed.STANDARD_MAX * managers.player:upgrade_value( "player", "walk_speed_multiplier", 1 ) ) ) * morale_boost_bonus * armor_penalty
+	local speed_multiplier = 1 * morale_boost_bonus * armor_penalty
+	
+	if self._state_data.in_steelsight then
+		return speed_multiplier * self._tweak_data.movement.speed.STEELSIGHT_MAX
+	end
+	
+	if self._state_data.ducking then
+		return speed_multiplier * self._tweak_data.movement.speed.CROUCHING_MAX * managers.player:upgrade_value( "player", "crouch_speed_multiplier", 1 )
+	end
+	
+	if self._state_data.in_air then
+		return speed_multiplier * self._tweak_data.movement.speed.INAIR_MAX
+	end
+	
+	if self._running then
+		return speed_multiplier * self._tweak_data.movement.speed.RUNNING_MAX * managers.player:upgrade_value( "player", "run_speed_multiplier", 1 )
+	end
+	
+	return speed_multiplier * self._tweak_data.movement.speed.STANDARD_MAX * managers.player:upgrade_value( "player", "walk_speed_multiplier", 1 )
 end
 
 --------------------------------------------------------------------------------------
@@ -1276,7 +1287,13 @@ function PlayerStandard:_end_action_ducking( t )
 	self._unit:activate_mover( PlayerStandard.MOVER_STAND, velocity )
 	self._ext_network:send( "set_pose", 1 )	--stand
 	
-	self._ext_movement:set_attention_settings( { "pl_enemy_cbt", "pl_team_idle_std", "pl_civ_cbt" } )
+	local stand_attention = nil
+	if managers.groupai:state():whisper_mode() then
+		stand_attention = "pl_enemy_stand_mask_on"
+	else
+		stand_attention = "pl_enemy_cbt"
+	end
+	self._ext_movement:set_attention_settings( { stand_attention, "pl_team_idle_std", "pl_civ_cbt" } )
 end
 
 --------------------------------------------------------------------------------------
@@ -1517,8 +1534,9 @@ function PlayerStandard:_check_action_melee( t, input )
 			local dmg_multiplier = 1
 			if not managers.enemy:is_civilian( character_unit ) and not managers.groupai:state():is_enemy_special( character_unit ) then
 				dmg_multiplier = dmg_multiplier * managers.player:upgrade_value( "player", "non_special_melee_multiplier", 1 )
+			else
+				dmg_multiplier = dmg_multiplier * managers.player:upgrade_value( "player", "melee_damage_multiplier", 1 )
 			end
-			dmg_multiplier = dmg_multiplier * managers.player:upgrade_value( "player", "melee_damage_multiplier", 1 )
 
 			local health_ratio = self._ext_damage:health_ratio()
 			
@@ -1937,14 +1955,12 @@ function PlayerStandard:_get_intimidation_action( prime_target, char_table, amou
 				end
 				if needs_revive and rally_skill_data.long_dis_revive then
 					voice_type = "revive"
-				--[[elseif not is_arrested and not needs_revive and rally_skill_data.morale_boost_delay_t and managers.player:player_timer():time() > rally_skill_data.morale_boost_delay_t then
+				elseif not is_arrested and not needs_revive and rally_skill_data.morale_boost_delay_t and managers.player:player_timer():time() > rally_skill_data.morale_boost_delay_t then
 					voice_type = "boost"
-					amount = 1 -- 1 means "morale_boost"]]
+					amount = 1 -- 1 means "morale_boost"
 				end
 			end
 			
-
-
 			if is_human_player then
 				prime_target.unit:network():send_to_unit( { "long_dis_interaction", prime_target.unit, amount, self._unit } )
 			elseif voice_type == "revive" then -- Team AI, revive
@@ -2228,8 +2244,7 @@ function PlayerStandard:_start_action_intimidate( t )
 				prime_target.unit:interaction():interact( self._unit )
 			end
 			self._ext_movement:rally_skill_data().morale_boost_delay_t = managers.player:player_timer():time() + 3.5
-
-		--[[elseif voice_type == "boost" then
+		elseif voice_type == "boost" then
 			interact_type = "cmd_gogo"
 			
 			local static_data = managers.criminals:character_static_data_by_unit( prime_target.unit )
@@ -2237,8 +2252,7 @@ function PlayerStandard:_start_action_intimidate( t )
 				return
 			end
 			local character_code = static_data.ssuffix
-			sound_name = "f36x_any"]]
-
+			sound_name = "g18"
 		elseif voice_type == "escort" then
 			interact_type = "cmd_point"
 			sound_name = "e01x_" .. sound_suffix
@@ -2246,7 +2260,7 @@ function PlayerStandard:_start_action_intimidate( t )
 		elseif voice_type == "escort_keep" then
 			interact_type = "cmd_point"
 			sound_name = "e05x_" .. sound_suffix
-			
+		
 		elseif voice_type == "escort_go" then
 			interact_type = "cmd_point"
 
@@ -2617,7 +2631,7 @@ function PlayerStandard:_check_action_primary_attack( t, input )
 					local suppression_ratio = self._unit:character_damage():effective_suppression_ratio()
 					local spread_mul = math.lerp( 1, tweak_data.player.suppression.spread_mul, suppression_ratio )
 					local autohit_mul = math.lerp( 1, tweak_data.player.suppression.autohit_chance_mul, suppression_ratio )
-					local suppression_mul = managers.player:upgrade_value( "player", "suppression_multiplier", 1 ) * managers.player:upgrade_value( "player", "suppression_multiplier2", 1 ) * managers.player:upgrade_value( "player", "passive_suppression_multiplier", 1 )
+					local suppression_mul = managers.blackmarket:threat_multiplier()
 					local dmg_mul = managers.player:temporary_upgrade_value( "temporary", "dmg_multiplier_outnumbered", 1 )
 					dmg_mul = dmg_mul * managers.player:upgrade_value( "player", "passive_damage_multiplier", 1 )
 					
@@ -2656,7 +2670,7 @@ function PlayerStandard:_check_action_primary_attack( t, input )
 							weap_base:tweak_data_anim_play( "fire", weap_base:fire_rate_multiplier())
 						end
 						
-						if fire_mode == "single" then
+						if fire_mode == "single" and weap_base:get_name_id() ~= "saw" then
 							if not self._state_data.in_steelsight then
 								self._ext_camera:play_redirect( self.IDS_RECOIL, 1 ) -- weap_base:fire_rate_multiplier() )
 							elseif weap_tweak_data.animations.recoil_steelsight then

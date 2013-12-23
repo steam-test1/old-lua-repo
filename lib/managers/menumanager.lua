@@ -1356,6 +1356,10 @@ function MenuCallbackHandler:abort_mission_visible()
 	return true
 end
 
+function MenuCallbackHandler:lobby_exist()
+	return managers.network.matchmake.lobby_handler
+end
+
 function MenuCallbackHandler:hidden()
 	return false
 end
@@ -2528,7 +2532,9 @@ end
 
 function MenuCallbackHandler:invite_friends()
 
-	Steam:overlay_activate( "invite", managers.network.matchmake.lobby_handler:id() )
+	if managers.network.matchmake.lobby_handler then
+		Steam:overlay_activate( "invite", managers.network.matchmake.lobby_handler:id() )
+	end
 	--Steam:overlay_activate ( "game", "LobbyInvite" ) 
 end
 
@@ -3011,11 +3017,27 @@ function MenuCallbackHandler:clear_local_steam_stats()
 end
 
 function MenuCallbackHandler:print_local_steam_stats()
-	managers.statistics:debug_print_stats()
+	managers.statistics:debug_print_stats( false, 1 )
+end
+
+function MenuCallbackHandler:print_local_steam_stats_7days()
+	managers.statistics:debug_print_stats( false, 7 )
+end
+
+function MenuCallbackHandler:print_local_steam_stats_30days()
+	managers.statistics:debug_print_stats( false, 30 )
 end
 
 function MenuCallbackHandler:print_global_steam_stats()
-	managers.statistics:debug_print_stats( true )
+	managers.statistics:debug_print_stats( true, 1 )
+end
+
+function MenuCallbackHandler:print_global_steam_stats_7days()
+	managers.statistics:debug_print_stats( true, 7 )
+end
+
+function MenuCallbackHandler:print_global_steam_stats_30days()
+	managers.statistics:debug_print_stats( true, 30 )
 end
 
 ----------------------------------------------------------------------

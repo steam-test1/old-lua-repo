@@ -224,9 +224,10 @@ function IngameAccessCamera:update( t, dt )
 			if not ray then
 				amount = amount + 1
 				managers.hud:access_camera_track( amount, self._cam_unit:camera()._camera, unit:movement():m_head_pos() )
-				if managers.player:upgrade_value( "player", "sec_camera_highlight", false ) then
-					if managers.groupai:state():whisper_mode() then
-						if tweak_data.character[ unit:base()._tweak_table ].silent_priority_shout then
+				if self._last_access_camera and not self._last_access_camera:value( "destroyed" ) then
+					if managers.player:upgrade_value( "player", "sec_camera_highlight", false ) then
+						if managers.groupai:state():whisper_mode() and tweak_data.character[ unit:base()._tweak_table ].silent_priority_shout
+								or tweak_data.character[ unit:base()._tweak_table ].priority_shout then
 							self:add_enemy_contour( unit )
 						end
 					end

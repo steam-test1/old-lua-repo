@@ -194,6 +194,11 @@ function CopLogicIdle.queued_update( data )
 	CopLogicIdle._upd_pathing( data, my_data )
 	
 	CopLogicIdle._upd_scan( data, my_data )
+	
+	if data.cool then
+		CopLogicIdle.upd_suspicion_decay( data )
+	end
+	
 	if data.internal_data ~= my_data then
 		CopLogicBase._report_detections( data.detected_attention_objects )
 		return

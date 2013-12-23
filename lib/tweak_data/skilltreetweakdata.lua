@@ -113,8 +113,8 @@ function SkillTreeTweakData:init()					-- IF ANY CHANGES IS MADE TO THE SKILLTRE
 								[1] = { upgrades = { "doctor_bag", "passive_doctor_bag_interaction_speed_multiplier" }, cost = self.costs.unlock_tree, desc_id="menu_mastermind_tier_1" },
 								[2] = { upgrades = { "team_passive_stamina_multiplier_1" }, desc_id="menu_mastermind_tier_2" },
 								[3] = { upgrades = { "player_passive_intimidate_range_mul" }, desc_id="menu_mastermind_tier_3" },
-								[4] = { upgrades = { "player_passive_convert_enemies_health_multiplier", "player_passive_convert_enemies_damage_multiplier" }, desc_id="menu_mastermind_tier_4" },
-								[5] = { upgrades = { "player_convert_enemies_interaction_speed_multiplier" }, desc_id="menu_mastermind_tier_5" },
+								[4] = { upgrades = { "team_passive_health_multiplier", "player_passive_convert_enemies_health_multiplier", "player_passive_convert_enemies_damage_multiplier" }, desc_id="menu_mastermind_tier_4" },
+								[5] = { upgrades = { "player_convert_enemies_interaction_speed_multiplier", "player_wolverine_health_regen" }, desc_id="menu_mastermind_tier_5" },
 								[6] = { upgrades = { "player_passive_empowered_intimidation", "passive_player_assets_cost_multiplier" }, desc_id="menu_mastermind_tier_6" },
 								}
 	self.skills[ "enforcer" ] =  {									-- This is a skill that gives an upgrade
@@ -208,7 +208,7 @@ function SkillTreeTweakData:init()					-- IF ANY CHANGES IS MADE TO THE SKILLTRE
 									desc_id = "menu_dominator_desc",		-- Description of skill
 									icon_xy = { 2, 8 },
 									[1] = { upgrades = { "player_intimidate_enemies" }, cost = self.costs.default },
-									[2] = { upgrades = { "player_intimidate_range_mul", "player_intimidate_aura" }, cost = self.costs.pro },
+									[2] = { upgrades = { "player_intimidate_range_mul", "player_intimidate_aura", "player_ene_hostage_lim_1" }, cost = self.costs.pro },
 								}
 	self.skills[ "fast_learner" ] = {	-- tier 2
 									name_id = "menu_fast_learner",
@@ -285,7 +285,7 @@ function SkillTreeTweakData:init()					-- IF ANY CHANGES IS MADE TO THE SKILLTRE
 									name_id = "menu_inspire",
 									desc_id = "menu_inspire_desc",		-- Description of skill
 									icon_xy = { 4, 9 },
-									[1] = { upgrades = { "player_revive_interaction_speed_multiplier" }, cost = self.costs.hightier },
+									[1] = { upgrades = { "player_revive_interaction_speed_multiplier", "player_morale_boost" }, cost = self.costs.hightier },
 									[2] = { upgrades = { "player_long_dis_revive" }, cost = self.costs.hightierpro },
 								}
 	self.skills[ "pistol_messiah" ] = {	-- tier 6
@@ -676,7 +676,7 @@ function SkillTreeTweakData:init()					-- IF ANY CHANGES IS MADE TO THE SKILLTRE
 									desc_id = "menu_ecm_feedback_desc",		-- Description of skill
 									icon_xy = { 6, 2 },
 									[1] = { upgrades = { "ecm_jammer_can_activate_feedback" }, cost = self.costs.hightier },
-									[2] = { upgrades = { "ecm_jammer_feedback_duration_boost" }, cost = self.costs.hightierpro },
+									[2] = { upgrades = { "ecm_jammer_feedback_duration_boost", "ecm_jammer_interaction_speed_multiplier" }, cost = self.costs.hightierpro },
 								}
 	self.skills[ "moving_target" ] = {	-- tier 6
 									name_id = "menu_moving_target",

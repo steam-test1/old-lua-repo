@@ -15,8 +15,9 @@ function UpgradesTweakData:_init_pd2_values()
 	self.values.rep_upgrades.values = { 2 }										-- how many skill point is rewarded
 	
 	--[[ A R M O R ]]
-	self.values.player.body_armor = { 1, 2, 3, 4, 5, 10 }
-	self.values.player.armor_movement_penalty = { 0.96, 0.92, 0.88, 0.84, 0.76, 0.64 } -- A multiplier on movement speed
+	self.values.player.body_armor = { 1, 2, 3, 5, 7, 15 }
+	self.values.player.armor_movement_penalty = { 0.96, 0.92, 0.85, 0.75, 0.65, 0.5 } -- A multiplier on movement speed
+	self.values.player.armor_dodge_penalty = { 1, 1, 0.8, 0.5, 0.25, 0 }
 	
 	
 	--[[ D E F A U L T  U P G R A D E S ]]
@@ -29,11 +30,28 @@ function UpgradesTweakData:_init_pd2_values()
 	self.ammo_bag_base																		= 4
 	self.ecm_jammer_base_battery_life											= 20
 	self.ecm_jammer_base_low_battery_life									= 8					-- int, not float
-	self.ecm_jammer_base_range											= 2000
+	self.ecm_jammer_base_range														= 2500
+	
+	self.ecm_feedback_min_duration												= 15
+	self.ecm_feedback_max_duration												= 20
+	self.ecm_feedback_interval														= 1.5
+	
 	self.sentry_gun_base_ammo															= 150
 	self.sentry_gun_base_armor														= 10
 	self.doctor_bag_base																	= 2
 	
+	
+	
+	self.cop_hurt_alert_radius_whisper										= 600
+	self.cop_hurt_alert_radius														= 400
+	self.drill_alert_radius																= 2500
+	self.taser_malfunction_min														= 1
+	self.taser_malfunction_max														= 3
+	self.counter_taser_damage															= 0.5
+	
+	self.moral_boost_speed_bonus													= 1.2000000476837
+	self.moral_boost_suppression_resistance								= 1
+	self.moral_boost_time																	= 10
 	
 	--[[ D L C  U P G R A D E S ]]
 		-- PRE-ORDER
@@ -42,26 +60,26 @@ function UpgradesTweakData:_init_pd2_values()
 	--[[ M A S T E R M I N D ]]
 		--[[ TIER 1 ]]
 			-- TACTICIAN
-	self.values.weapon.special_damage_taken_multiplier		= { 1.05 }	-- BASIC
+	self.values.player.corpse_alarm_pager_bluff						= { true }
 	self.values.player.marked_enemy_extra_damage					= { true }	-- ACE. self.values.player.marked_enemy_damage_mul when active
 	self.values.player.marked_enemy_damage_mul						= 1.15				-- ACE. this is read directly
 			
 			-- CABLE_GUY
-	self.values.cable_tie.interact_speed_multiplier				= { 0.5 }		-- BASIC
+	self.values.cable_tie.interact_speed_multiplier				= { 0.25 }		-- BASIC
 	self.values.cable_tie.quantity												= { 4 }			-- ACE
 	self.values.cable_tie.can_cable_tie_doors							= { true }	-- ACE
 	
 			-- COMBAT_MEDIC
 	self.values.temporary.combat_medic_damage_multiplier	= { { 1.25, 10 }, { 1.25, 15 } }	-- BASIC. { value, time }, only first upgrade is in skilltree
 	self.values.player.revive_health_boost								= { 1 }			-- ACE. defines which value in self.revive_health_multiplier to use
-	self.revive_health_multiplier													= { 1.35 }		-- ACE. this is read directly
+	self.revive_health_multiplier													= { 1.3 }		-- ACE. this is read directly
 	
 		--[[ TIER 2 ]]
 			-- CONTROL_FREAK
 	self.values.player.civ_harmless_bullets								= { true } -- BASIC
 	self.values.player.civ_harmless_melee									= { true } -- BASIC
 	self.values.player.civ_calming_alerts									= { true } -- BASIC
-	self.values.player.civ_intimidation_mul								= { 10.00 }	-- ACE
+	self.values.player.civ_intimidation_mul								= { 1.5 }	-- ACE
 	
 			-- LEADERSHIP
 	self.values.team.pistol.recoil_multiplier							= { 0.75 }	-- ACE
@@ -80,6 +98,7 @@ function UpgradesTweakData:_init_pd2_values()
 	self.values.player.intimidate_enemies									= { true }	-- BASIC
 	self.values.player.intimidate_range_mul								= { 1.5 }			-- ACE
 	self.values.player.intimidate_aura										= { 700 }		-- ACE. radius in cm
+	self.values.player.ene_hostage_lim_1									= { 3 }
 	
 			-- STOCKHOLM_SYNDROME
 	self.values.player.civilian_reviver										= { true }	-- BASIC
@@ -87,7 +106,7 @@ function UpgradesTweakData:_init_pd2_values()
 	
 		--[[ TIER 4 ]]
 			-- BLACK_MARKETEER
-	self.values.player.buy_cost_multiplier								= { 0.95, 0.8 } -- BASIC, ACE
+	self.values.player.buy_cost_multiplier								= { 0.9, 0.8 } -- BASIC, ACE
 	self.values.player.sell_cost_multiplier								= { 1.25 }		-- ACE
 	
 			-- MEDIC_2X
@@ -98,19 +117,19 @@ function UpgradesTweakData:_init_pd2_values()
 	self.values.player.convert_enemies										= { true }	-- BASIC
 	self.values.player.convert_enemies_max_minions				= { 1, 2 }	-- BASIC. only first upgrade is in skilltree
 	self.values.player.convert_enemies_health_multiplier	= { 0.65 }	-- ACE. implemented as a damage reduction multiplier
-	self.values.player.convert_enemies_damage_multiplier	= { 1.43 }		-- ACE
+	self.values.player.convert_enemies_damage_multiplier	= { 1.45 }		-- ACE
 	
 		--[[ TIER 5 ]]
 			-- FAST_LEARNER
-	self.values.player.xp_multiplier											= { 1.1 }		-- BASIC
-	self.values.team.xp.multiplier												= { 1.1 }		-- ACE
+	self.values.player.xp_multiplier											= { 1.15 }		-- BASIC
+	self.values.team.xp.multiplier												= { 1.3 }		-- ACE
 		
 			-- GUN_FIGHTER
-	self.values.pistol.reload_speed_multiplier						= { 1.33 }	-- BASIC
-	self.values.pistol.damage_multiplier									= { 1.25 }	-- ACE
+	self.values.pistol.reload_speed_multiplier						= { 1.5 }	-- BASIC
+	self.values.pistol.damage_multiplier									= { 1.5 }	-- ACE
 
 			-- KILMER
-	self.values.assault_rifle.reload_speed_multiplier			= { 1.33 }	-- BASIC
+	self.values.assault_rifle.reload_speed_multiplier			= { 1.25 }	-- BASIC
 	self.values.assault_rifle.move_spread_multiplier			= { 0.5 }		-- ACE
 	
 		--[[ TIER 6 ]]
@@ -124,15 +143,16 @@ function UpgradesTweakData:_init_pd2_values()
 	
 			-- INSPIRE
 	self.values.player.revive_interaction_speed_multiplier	= { 0.5 }	-- BASIC
-	self.values.player.long_dis_revive										= { 0.5 }	-- ACE
+	self.values.player.long_dis_revive										= { 0.75 }	-- ACE
 	
 		--[[ TIER BONUS ]]
 	self.values.doctor_bag.interaction_speed_multiplier		= { 0.80 }					-- TIER 1
 	self.values.team.stamina.passive_multiplier						= { 1.15, 1.30 }		-- TIER 2, Leadership BASIC
 	self.values.player.passive_intimidate_range_mul				= { 1.25 }					-- TIER 3
+	self.values.team.health.passive_multiplier						= { 1.10 }
 	self.values.player.passive_convert_enemies_health_multiplier		= { 0.25 }	-- TIER 4. implemented as a damage reduction multiplier
 	self.values.player.passive_convert_enemies_damage_multiplier		= { 1.15 }	-- TIER 4
-	self.values.player.convert_enemies_interaction_speed_multiplier	= { 0.33 }	-- TIER 5
+	self.values.player.convert_enemies_interaction_speed_multiplier	= { 0.35 }	-- TIER 5
 	self.values.player.empowered_intimidation_mul					= { 3	}							-- TIER 6
 	self.values.player.passive_assets_cost_multiplier			= { 0.5 }						-- TIER 6
 	
@@ -151,8 +171,8 @@ function UpgradesTweakData:_init_pd2_values()
 	
 		--[[ TIER 2 ]]
 			-- STEROIDS
-	self.values.player.non_special_melee_multiplier				= { 2.0 }		-- BASIC
-	self.values.player.melee_damage_multiplier						= { 2.0 }		-- ACE
+	self.values.player.non_special_melee_multiplier				= { 1.5 }		-- BASIC
+	self.values.player.melee_damage_multiplier						= { 1.5 }		-- ACE
 	
 			-- SHOW_OF_FORCE
 	self.values.player.primary_weapon_when_downed					= { true }	-- BASIC
@@ -173,12 +193,12 @@ function UpgradesTweakData:_init_pd2_values()
 	
 			-- SHOTGUN_IMPACT
 	self.values.shotgun.recoil_multiplier									= { 0.75 }	-- BASIC
-	self.values.shotgun.damage_multiplier									= { 1.33 }	-- ACE
+	self.values.shotgun.damage_multiplier									= { 1.35 }	-- ACE
 	
 		--[[ TIER 4 ]]
 			-- AMMO_2X
-	self.values.ammo_bag.ammo_increase										= { 2 }			-- BASIC
-	self.values.ammo_bag.quantity													= { 1 }			-- ACE
+	self.values.ammo_bag.quantity													= { 1 }			-- BASIC
+	self.values.ammo_bag.ammo_increase										= { 2 }			-- ACE
 	
 			-- SHOTGUN_CQB
 	self.values.shotgun.reload_speed_multiplier						= { 1.5 }		-- BASIC
@@ -190,7 +210,7 @@ function UpgradesTweakData:_init_pd2_values()
 	
 		--[[ TIER 5 ]]
 			-- SHADES
-	self.values.player.flashbang_multiplier								= { 0.5, 0.25 }	-- BASIC, ACE
+	self.values.player.flashbang_multiplier								= { 0.75, 0.25 }	-- BASIC, ACE
 	
 			-- FROM_THE_HIP
 	self.values.shotgun.hip_fire_spread_multiplier				= { 0.80 }		-- BASIC
@@ -206,21 +226,21 @@ function UpgradesTweakData:_init_pd2_values()
 	
 		--[[ TIER 6 ]]
 			-- WOLVERINE
-	self.values.player.melee_damage_health_ratio_multiplier	= { 5.0 }	-- BASIC. Additional damage ontop of base damage ( multiplier of base damage, 1 = x2 (1+1) damage, 5 = x6 (1+5) damage ect. )
+	self.values.player.melee_damage_health_ratio_multiplier	= { 2.5 }	-- BASIC. Additional damage ontop of base damage ( multiplier of base damage, 1 = x2 (1+1) damage, 5 = x6 (1+5) damage ect. )
 	self.values.player.damage_health_ratio_multiplier			= { 1.0 }		-- ACE. Additional damage ontop of base damage
-	self.player_damage_health_ratio_threshold							= 0.4 			-- ACE. when self.values.damage_health_ratio_multiplier starts to kick in (health of player 0-1)
+	self.player_damage_health_ratio_threshold							= 0.25 			-- ACE. when self.values.damage_health_ratio_multiplier starts to kick in (health of player 0-1)
 
 			-- JUGGERNAUT
 	-- BASIC unlocks armor level 7
 	self.values.player.shield_knock												= { true }	-- ACE
 	
 			-- OVERKILL
-	self.values.temporary.overkill_damage_multiplier			= { { 2, 6 } } -- BASIC { value, time }
+	self.values.temporary.overkill_damage_multiplier			= { { 1.75, 5 } } -- BASIC { value, time }
 	self.values.player.overkill_all_weapons								= { true }	-- ACE	
 	
 		--[[ TIER BONUS ]]
 	self.values.player.passive_suppression_multiplier			= { 1.1, 1.2 }				-- TIER 1, TIER 3
-	self.values.player.passive_health_multiplier					= { 1.1, 1.20, 1.40 }		-- TIER 2, TIER 4, TIER 6
+	self.values.player.passive_health_multiplier					= { 1.1, 1.20, 1.50 }		-- TIER 2, TIER 4, TIER 6
 	self.values.weapon.passive_damage_multiplier					= { 1.05 } 						-- TIER 5
 	
 	
@@ -243,7 +263,7 @@ function UpgradesTweakData:_init_pd2_values()
 	self.values.player.drill_speed_multiplier							= { 0.85, 0.7 }	-- BASIC, ACE
 	
 			-- TRIP_MINE_EXPERT
-	self.values.player.trip_mine_deploy_time_multiplier		= { 0.80, 0.5 }	-- TRIP_MINE_EXPERT: BASIC, HARDWARE_EXPERT: BASIC
+	self.values.player.trip_mine_deploy_time_multiplier		= { 0.80, 0.6 }	-- TRIP_MINE_EXPERT: BASIC, HARDWARE_EXPERT: BASIC
 	self.values.trip_mine.sensor_toggle										= { true }	-- ACE
 	
 			-- HARDWARE_EXPERT
@@ -255,7 +275,8 @@ function UpgradesTweakData:_init_pd2_values()
 		--[[ TIER 3 ]]
 			-- SENTRY_GUN
 	-- BASIC unlocks sentry gun
-	self.values.sentry_gun.armor_multiplier								= { 2 }		-- ACE
+	self.values.sentry_gun.armor_multiplier								= { 2.5 }		-- ACE
+	
 	
 			-- SHARPSHOOTER
 	self.values.weapon.single_spread_multiplier						= { 0.5 }		-- BASIC
@@ -300,12 +321,12 @@ function UpgradesTweakData:_init_pd2_values()
 	self.values.weapon.clip_ammo_increase									= { 5, 15 }	-- BASIC, ACE
 	
 			-- IRON_MAN
-	self.values.player.armor_multiplier										= { 2 }		-- BASIC
+	self.values.player.armor_multiplier										= { 1.5 }		-- BASIC
 	self.values.team.armor.regen_time_multiplier					= { 0.75 }		-- ACE
 	
 		--[[ TIER BONUS ]]
-	self.values.player.passive_crafting_weapon_multiplier	= { 0.99, 0.97, 0.95 }	-- TIER 1, TIER 3, TIER 5
-	self.values.player.passive_crafting_mask_multiplier		= { 0.99, 0.97, 0.95 }	-- TIER 1, TIER 3, TIER 5
+	self.values.player.passive_crafting_weapon_multiplier	= { 0.99, 0.96, 0.91 }	-- TIER 1, TIER 3, TIER 5
+	self.values.player.passive_crafting_mask_multiplier		= { 0.99, 0.96, 0.91 }	-- TIER 1, TIER 3, TIER 5
 	self.values.weapon.passive_recoil_multiplier					= { 0.95, 0.9 }					-- TIER 2, TIER 6
 	self.values.weapon.passive_headshot_damage_multiplier	= { 1.25 }							-- TIER 4
 	self.values.player.passive_armor_multiplier						= { 1.1, 1.25 }					-- TIER 6. only first upgrade is in skilltree
@@ -324,21 +345,21 @@ function UpgradesTweakData:_init_pd2_values()
 	self.values.player.run_speed_multiplier								= { 1.25 }	-- ACE
 	
 			-- CAT_BURGLAR
-	self.values.player.fall_damage_multiplier							= { 0.5 }		-- BASIC
+	self.values.player.fall_damage_multiplier							= { 0.25 }		-- BASIC
 	self.values.player.fall_health_damage_multiplier			= { 0.0 }		-- ACE	-- THIS ONE IS LOCKED TO THE SKILL DESCRIPTION AND CANNOT BE CHANGED WITHOUT CHANGING THE DESRIPTION
 	self.values.player.respawn_time_multiplier						= { 0.5 } 	-- ACE
 	
 		--[[ TIER 2 ]]
 			-- CLEANER
-	self.values.player.corpse_alarm_pager_bluff						= { true }	-- BASIC. tweak_data.player.alarm_pager[ has_upgrade and "bluff_success_chance_w_skill" or "bluff_success_chance" ]
+	self.values.weapon.special_damage_taken_multiplier		= { 1.05 }
 	self.values.player.corpse_dispose											= { true }	-- ACE
 	
 			-- TRANSPORTER
-	self.values.carry.interact_speed_multiplier						= { 0.6, 0.25 }	-- BASIC, ACE
+	self.values.carry.interact_speed_multiplier						= { 0.75, 0.25 }	-- BASIC, ACE
 	
 			-- CHAMELEON
 	self.values.player.suspicion_multiplier								= { 0.75 }	-- BASIC
-	self.values.player.camouflage_bonus										= { 1.25 }	-- ACE. multiplier to player's detection delay
+	self.values.player.camouflage_bonus										= { 0.85 }	-- ACE. multiplier to player's detection delay
 	
 		--[[ TIER 3 ]]
 			-- ASSASSIN
@@ -351,7 +372,7 @@ function UpgradesTweakData:_init_pd2_values()
 	self.values.player.damage_dampener										= { 0.5 }		-- ACE. multiplier
 	
 			-- SMG_MASTER
-	self.values.smg.reload_speed_multiplier								= { 1.33 }	-- BASIC
+	self.values.smg.reload_speed_multiplier								= { 1.35 }	-- BASIC
 
 	self.values.smg.fire_rate_multiplier											= { 1.2 }	-- ACE
 	
@@ -363,7 +384,7 @@ function UpgradesTweakData:_init_pd2_values()
 			-- ECM_FEEDBACK
 	self.values.ecm_jammer.can_activate_feedback					= { true }	-- BASIC
 	self.values.ecm_jammer.feedback_duration_boost				= { 1.25 }	-- ACE
-	self.values.ecm_jammer.affects_pagers						= { true }	-- ACE
+	self.values.ecm_jammer.interaction_speed_multiplier		= { 0 }	-- ACE
 	
 			-- HITMAN
 	self.values.weapon.silencer_damage_multiplier					= { 1.15, 1.3 }	-- BASIC, ACE
@@ -376,7 +397,7 @@ function UpgradesTweakData:_init_pd2_values()
 	
 			-- MAGIC_TOUCH
 	self.values.player.pick_lock_easy											= { true }	-- BASIC
-	self.values.player.pick_lock_easy_speed_multiplier		= { 0.75, 0.65 }	-- BASIC, ACE. reduces speed for pick_lock_easy, pick_lock_easy_no_skill and pick_lock_hard_no_skill interactions
+	self.values.player.pick_lock_easy_speed_multiplier		= { 0.75, 0.5 }	-- BASIC, ACE. reduces speed for pick_lock_easy, pick_lock_easy_no_skill and pick_lock_hard_no_skill interactions
 	self.values.player.pick_lock_hard											= { true }	-- ACE
 			
 			-- SILENCE_EXPERT
@@ -392,7 +413,8 @@ function UpgradesTweakData:_init_pd2_values()
 	self.values.ecm_jammer.quantity												= { 1, 3 }	-- BASIC, ACE
 	self.values.ecm_jammer.duration_multiplier_2					= { 1.25 }	-- ACE
 	self.values.ecm_jammer.feedback_duration_boost_2			= { 1.25 }	-- ACE
-	
+	self.values.ecm_jammer.affects_pagers									= { true }	-- ACE
+
 			-- MOVING_TARGET
 	self.values.player.can_strafe_run											= { true }	-- BASIC
 	self.values.player.can_free_run												= { true }	-- ACE
@@ -400,15 +422,153 @@ function UpgradesTweakData:_init_pd2_values()
 		--[[ TIER BONUS ]]
 	self.values.ecm_jammer.affects_cameras								= { true }				-- TIER 1
 	self.values.player.passive_dodge_chance								= { 0.05, 0.15 }	-- TIER 1, TIER 3
-	self.values.weapon.passive_swap_speed_multiplier			= { 1.2, 2 }		-- TIER 2, TIER 5
-	self.values.player.passive_suspicion_multiplier				= { 0.75 }				-- TIER 4
+	self.values.weapon.passive_swap_speed_multiplier			= { 1.2, 2 }			-- TIER 2, TIER 5
+	self.values.player.passive_concealment_modifier				= { 5 }						-- TIER 4
 	self.values.player.passive_armor_movement_penalty_multiplier		= { 0.75 }				-- TIER 4
 	self.values.player.passive_loot_drop_multiplier				= { 1.1 }				-- TIER 6
 	self.values.weapon.armor_piercing_chance				= { 0.15000000596046 }			-- TIER 6
-
-
-	self.values.player.run_and_shoot					= { true }		-- Ironman ace
-	self.values.player.run_and_reload					= { true }		-- kilmer ace
+	
+	
+	
+	
+	self.values.player.run_and_shoot												= { true }		-- Ironman ace
+	self.values.player.run_and_reload												= { true }		-- kilmer ace
+	self.values.player.morale_boost													= { true }
+	self.values.player.electrocution_resistance_multiplier	= { 0.25 }
+	
+	
+	self.values.player.concealment_addition									= { 2, 4, 6 }
+	self.values.sentry_gun.armor_multiplier2								= { 1.25 }
+	
+	
+	
+	
+	local editable_skill_descs = {
+		ammo_2x										= {{"2"}, {"200%"}},
+		ammo_reservoir						= {{"5"}, {"5"}},
+		assassin									= {{"25%", "10%"}, {"95%"}},
+		bandoliers								= {{"25%"}, {"75%"}},
+		black_marketeer						= {{"10%"}, {"20%", "25%"}},
+		blast_radius							= {{"25%"}, {"50%"}},
+		cable_guy									= {{"75%"}, {"4"}},
+		carbon_blade							= {{"20%"}, {"50%", "20%"}},
+		cat_burglar								= {{"75%"}, {"50%"}},
+		chameleon									= {{"25%"}, {"15%"}},
+		cleaner										= {{"5%"}, {}},
+		combat_medic							= {{"25%", "10"}, {"30%"}},
+		control_freak							= {{}, {"50%"}},
+		
+		discipline								= {{"50%"}, {}},
+		
+		dominator									= {{}, {"50%"}},
+		drill_expert							= {{"15%"}, {"15%"}},
+		
+		ecm_2x										= {{"2"}, {"25%", "25%"}},
+		ecm_booster								= {{"25%"}, {}},
+		ecm_feedback							= {{"50%-100%", "25", "1.5", "15-20"}, {"25%"}},
+		enforcer									= {{"400%"}, {}},
+		equilibrium								= {{"10%", "50%"}, {"100%"}},
+		fast_learner							= {{"15%"}, {"30%"}},
+		from_the_hip							= {{"20%"}, {"20%"}},
+		ghost											= {{"1", "20"}, {}},
+		good_luck_charm						= {{"50%"}, {"200%"}},
+		gun_fighter								= {{"50%"}, {"50%"}},
+		hardware_expert						= {{"25%", "20%"}, {"30%", "50%"}},
+		hitman										= {{"15%"}, {"15%", "15%"}},
+		inside_man								= {{"50%"}, {}},
+		inspire										= {{"50%", "20%", "10"}, {"75%"}},
+		insulation								= {{}, {"50%"}},
+		iron_man									= {{"50%"}, {"25%"}},
+		joker											= {{}, {"55%", "45%"}},
+		juggernaut								= {{}, {}},
+		kilmer										= {{"25%"}, {"50%"}},
+		leadership								= {{"25%"}, {"50%"}},
+		mag_plus									= {{"5"}, {"10"}},
+		magic_touch								= {{"25%"}, {"25%"}},
+		martial_arts							= {{"50%"}, {"50%"}},
+		master_craftsman					= {{"10%"}, {"10%"}},
+		mastermind								= {{"2"}, {}},
+		medic_2x									= {{"2"}, {"2"}},
+		
+		
+		
+		nine_lives								= {{"1"}, {"10%"}},
+		oppressor									= {{"25%"}, {"50%"}},
+		overkill									= {{"75%", "5"}, {}},
+		pack_mule									= {{"50%"}, {"50%"}},
+		pistol_messiah						= {{"1"}, {"2"}},
+		portable_saw							= {{}, {"1"}},
+		rifleman									= {{"100%"}, {"25%"}},
+		scavenger									= {{"10%"}, {"20%"}},
+		sentry_2_0								= {{"50%"}, {}},
+		sentry_gun								= {{}, {"150%"}},
+		sentry_gun_2x							= {{"2"}, {"300%"}},
+		sentry_targeting_package	= {{"100%"}, {"150%"}},
+		shades										= {{"25%"}, {"50%"}},
+		shaped_charge							= {{"3"}, {}},
+		sharpshooter							= {{"50%"}, {"25%"}},
+		shotgun_cqb								= {{"50%"}, {"125%"}},
+		shotgun_impact						= {{"25%"}, {"35%"}},
+		show_of_force							= {{}, {"15%"}},
+		silence										= {{}, {}},
+		silence_expert						= {{"50%"}, {"50%", "100%"}},
+		silent_drilling						= {{"65%"}, {}},
+		smg_master								= {{"35%"}, {"20%"}},
+		smg_training							= {{}, {}},
+		sprinter									= {{"25%", "25%"}, {"25%", "25%"}},
+		steroids									= {{"50%"}, {"50%"}},
+		stockholm_syndrome				= {{"100%"}, {"100%"}},
+		tactician									= {{"4", "2"}, {"15%"}},
+		target_mark								= {{}, {}},
+		technician								= {{"2"}, {}},
+		tough_guy									= {{"50%"}, {"25%"}},
+		transporter								= {{"25%"}, {"50%"}},
+		triathlete								= {{"100%"}, {"50%"}},
+		trip_mine_expert					= {{}, {}},
+		trip_miner								= {{"1"}, {"20%"}},
+		underdog									= {{"15%"}, {"15%"}},
+		wolverine									= {{"25%", "250%"}, {"25%", "100%"}},
+		
+		mastermind_tier1					= {{"20%"}},
+		mastermind_tier2					= {{"15%"}},
+		mastermind_tier3					= {{"25%"}},
+		mastermind_tier4					= {{"10%"}},
+		mastermind_tier5					= {{"65%"}},
+		mastermind_tier6					= {{"200%", "50%"}},
+		
+		enforcer_tier1						= {{"10%"}},
+		enforcer_tier2						= {{"10%"}},
+		enforcer_tier3						= {{"10%"}},
+		enforcer_tier4						= {{"10%"}},
+		enforcer_tier5						= {{"5%"}},
+		enforcer_tier6						= {{"30%"}},
+		
+		technician_tier1					= {{"1%"}},
+		technician_tier2					= {{"5%"}},
+		technician_tier3					= {{"3%"}},
+		technician_tier4					= {{"25%"}},
+		technician_tier5					= {{"5%"}},
+		technician_tier6					= {{"5%", "10%", "10%"}},
+		
+		ghost_tier1								= {{"5%"}},
+		ghost_tier2								= {{"20%"}},
+		ghost_tier3								= {{"10%"}},
+		ghost_tier4								= {{"+5", "15%"}},
+		ghost_tier5								= {{"80%"}},
+		ghost_tier6								= {{"10%", "15%"}},
+	}
+	
+	self.skill_descs = {}
+	for skill_id, skill_desc in pairs( editable_skill_descs ) do
+		self.skill_descs[ skill_id ] = {}
+		for index, skill_version in ipairs( skill_desc ) do
+			local version = index == 1 and "multibasic" or "multipro"
+			self.skill_descs[ skill_id ][ index ] = #skill_version
+			for i, desc in ipairs( skill_version ) do
+				self.skill_descs[ skill_id ][ version .. ( i == 1 and "" or tostring( i ) ) ] = desc
+			end
+		end
+	end
 end
 
 function UpgradesTweakData:init()
@@ -541,7 +701,6 @@ function UpgradesTweakData:init()
 	-- self.values.player.corpse_dispose = { true }
 	-- self.values.player.taser_malfunction = { true }
 	-- self.values.player.taser_self_shock = { true }
-	self.values.player.electrocution_resistance_multiplier 		= { 0.25 }
 	-- self.values.player.silent_kill = { 400 } -- 4m alert radius on dead and hurt enemies
 	-- .values.player.melee_knockdown_mul = { 1.5 }
 	-- self.values.player.walk_speed_multiplier	= { 1.25 }
@@ -597,7 +756,7 @@ function UpgradesTweakData:init()
 	-- self.values.player.sentry_gun_deploy_time_multiplier = { 0.50 }
 	-- self.values.player.trip_mine_deploy_time_multiplier 			= { 0.80, 0.5 }
 	-- self.values.player.long_dis_revive 			= { true }
-	self.values.player.morale_boost														= { true }
+	-- self.values.player.morale_boost														= { true }
 	-- self.player_damage_health_ratio_threshold										= 0.4 			-- when damage_health_ratio_multiplier starts to kick in
 	-- self.values.player.damage_health_ratio_multiplier						= { 1.0 }
 	-- self.values.player.melee_damage_health_ratio_multiplier			= { 5.0 }
@@ -620,7 +779,6 @@ function UpgradesTweakData:init()
 	-- self.values.player.passive_assets_cost_multiplier = { 0.92 }
 	-- self.values.player.revive_health_boost = { 1 }				-- which value in self.revive_health_multiplier the revived player should use when boosting his health
 	-- self.values.player.pistol_revive_from_bleed_out	= { 1, 3 }
-	
 	self.steps.player = {}
 	self.steps.player.thick_skin = { nil, 8, 18, 27, 39 }
 	self.steps.player.extra_ammo_multiplier = { nil, 7, 16, 24, 38 }
@@ -1027,6 +1185,7 @@ function UpgradesTweakData:_init_value_tables()
 	self.values.team.xp = {}
 	self.values.team.armor = {}
 	self.values.team.stamina = {}
+	self.values.team.health = {}
 end
 
 
@@ -1753,10 +1912,41 @@ function UpgradesTweakData:_player_definitions()
 														category 	= "feature",
 														name_id		= "menu_player_passive_suspicion_bonus",
 														upgrade		= { category 	= "player",
-																		upgrade 	= "passive_suspicion_multiplier",
+																		upgrade 	= "passive_concealment_modifier",
 																		value 		= 1
 																		}
 														}
+														
+														
+	self.definitions[ "player_concealment_bonus_1" ] = {
+														category 	= "feature",
+														incremental	= true,
+														name_id		= "menu_player_passive_suspicion_bonus",
+														upgrade		= { category 	= "player",
+																		upgrade 	= "concealment_addition",
+																		value 		= 1
+																		}
+														}
+	self.definitions[ "player_concealment_bonus_2" ] = {
+														category 	= "feature",
+														incremental	= true,
+														name_id		= "menu_player_passive_suspicion_bonus",
+														upgrade		= { category 	= "player",
+																		upgrade 	= "concealment_addition",
+																		value 		= 1
+																		}
+														}
+	self.definitions[ "player_concealment_bonus_3" ] = {
+														category 	= "feature",
+														incremental	= true,
+														name_id		= "menu_player_passive_suspicion_bonus",
+														upgrade		= { category 	= "player",
+																		upgrade 	= "concealment_addition",
+																		value 		= 1
+																		}
+														}
+														
+														
 														
 	self.definitions[ "player_suspicion_bonus" ] = {
 														category 	= "feature",
@@ -2295,6 +2485,15 @@ function UpgradesTweakData:_player_definitions()
 																		}
 														}
 	
+	self.definitions[ "player_ene_hostage_lim_1" ] = {
+														category 	= "feature",
+														name_id		= "menu_player_intimidate_aura",
+														upgrade		= { category 	= "player",
+																		upgrade 	= "ene_hostage_lim_1",
+																		value 		= 1
+																		}
+														}
+														
 	self.definitions[ "player_civilian_gives_ammo" ] = {
 														category 	= "feature",
 														name_id		= "menu_player_civilian_gives_ammo",
@@ -2877,7 +3076,15 @@ function UpgradesTweakData:_ecm_jammer_definitions()
 																		value 		= 1
 																		}
 														}
-	
+	self.definitions[ "ecm_jammer_interaction_speed_multiplier" ] = {
+														category 	= "equipment_upgrade",
+														name_id		= "menu_ecm_jammer_interaction_speed_multiplier",
+														upgrade		= { category 	= "ecm_jammer",
+																		upgrade 	= "interaction_speed_multiplier",
+																		value 		= 1
+																		}
+														}
+														
 end
 
 -- AMMO BAG ------------------------------------------------------------
@@ -3159,7 +3366,15 @@ function UpgradesTweakData:_sentry_gun_definitions()
 																	value 		= 1
 																	}
 													}
-	
+	self.definitions[ "sentry_gun_armor_multiplier2" ] = {
+													category 	= "feature",
+													name_id		= "menu_sentry_gun_armor_multiplier",
+													upgrade		= { category 	= "sentry_gun",
+																	upgrade 	= "armor_multiplier2",
+																	value 		= 1
+																	}
+													}
+													
 	self.definitions[ "sentry_gun_spread_multiplier" ] = {
 													category 	= "feature",
 													name_id		= "menu_sentry_gun_spread_multiplier",
@@ -4405,6 +4620,14 @@ function UpgradesTweakData:_team_definitions()
 														upgrade		= { category 	= "stamina",
 																		upgrade 	= "passive_multiplier",
 																		value 		= 2
+																		}
+														}
+	self.definitions[ "team_passive_health_multiplier" ] = {	-- tier bonus
+														category 	= "team",
+														name_id		= "menu_team_health_multiplier",
+														upgrade		= { category 	= "health",
+																		upgrade 	= "passive_multiplier",
+																		value 		= 1
 																		}
 														}
 end
