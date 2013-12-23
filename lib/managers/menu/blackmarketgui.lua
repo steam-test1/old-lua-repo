@@ -335,6 +335,10 @@ function BlackMarketGuiTabItem:set_tab_position( x )
 	return math.round( x + tw + 15 + 5 )
 end
 
+function BlackMarketGuiTabItem:inside_tab( x,y )
+	return self._tab_panel:inside( x, y )
+end
+
 function BlackMarketGuiTabItem:inside( x, y )
 	if( self._tab_panel:inside( x, y ) ) then
 		return true
@@ -1699,6 +1703,7 @@ function BlackMarketGui:_setup( is_start_page, component_data )
 	-- local tab_x = self._title_text:x() + text_width + 45
 	
 	self._tab_scroll_panel = self._panel:panel( { w=grid_panel_w, y=top_padding+1 } )
+	self._tab_area_panel = self._panel:panel( { w=grid_panel_w, y=top_padding+1 } )
 	-- self._tab_scroll_panel:set_debug(true)
 	
 	self._tab_scroll_table = { panel = self._tab_scroll_panel }
@@ -1716,6 +1721,10 @@ function BlackMarketGui:_setup( is_start_page, component_data )
 		if clbk_func then
 			clbk_func()
 		end
+	end
+	
+	if #self._tabs > 0 then
+		self._tab_area_panel:set_h( self._tabs[ #self._tabs ]._tab_panel:h() )
 	end
 	
 	--[[
@@ -1813,6 +1822,7 @@ function BlackMarketGui:_setup( is_start_page, component_data )
 			m_mod			= { prio=2, btn="BTN_Y", 			pc_btn=Idstring("menu_modify_item"), name="bm_menu_btn_mod_mask",			callback=callback( self, self, "mask_mods_callback" ) },
 			m_preview = { prio=3, btn="BTN_STICK_R", 		pc_btn=Idstring("menu_preview_item"), name="bm_menu_btn_preview_mask",	callback=callback( self, self, "preview_mask_callback" ) },
 			m_sell		= { prio=4, btn="BTN_X", 			pc_btn=Idstring("menu_remove_item"), name="bm_menu_btn_sell_mask", 		callback=callback( self, self, "sell_mask_callback" ) },
+			m_remove	= { prio=4, btn="BTN_X", 			pc_btn=Idstring("menu_remove_item"), name="bm_menu_btn_remove_mask", 		callback=callback( self, self, "sell_mask_callback" ) },
 			
 			-- empty mask slot selected // global value
 			em_gv 		= { prio=1, btn="BTN_A", 			pc_btn=nil, name="bm_menu_btn_buy_new_mask", 	callback=callback( self, self, "choose_mask_global_value_callback" ) },
@@ -3476,13 +3486,13 @@ function BlackMarketGui:update_info_text()		-- [1] = Title, [2] = Error text, [3
 			updated_texts[1].text = slot_data.name_localized
 			
 			local resource_colors = {}
-			if price >= 0 and slot_data.slot ~= 1 then
-				updated_texts[2].text = "##" .. managers.localization:to_upper_text("st_menu_value") .. " " .. managers.experience:cash_string( price ) .. "##"
+			if price > 0 and slot_data.slot ~= 1 then
+				updated_texts[2].text = "##" .. managers.localization:to_upper_text("st_menu_value") .. " " .. managers.experience:cash_string( price ) .. "##" .. "   "
 				table.insert( resource_colors, slot_data.can_afford~=false and tweak_data.screen_colors.text or tweak_data.screen_colors.important_1 )
 			end
 			
 			if slot_data.num_backs then
-				updated_texts[2].text = updated_texts[2].text .. "   " .. "##" .. managers.localization:to_upper_text("bm_menu_item_amount", {amount=math.abs(slot_data.unlocked)}) .. "##"
+				updated_texts[2].text = updated_texts[2].text .. "##" .. managers.localization:to_upper_text("bm_menu_item_amount", {amount=math.abs(slot_data.unlocked)}) .. "##"
 				table.insert( resource_colors, math.abs(slot_data.unlocked) >= 5 and tweak_data.screen_colors.resource or math.abs(slot_data.unlocked) > 0 and Color( 1, 0.9, 0.9, 0.3) or tweak_data.screen_colors.important_1 )
 			end
 			if #resource_colors == 1 then
@@ -3956,9 +3966,11 @@ function BlackMarketGui:_rec_round_object( object )
 end
 
 function BlackMarketGui:mouse_moved( o, x, y )
+	local inside_tab_area = self._tab_area_panel:inside( x, y )
 	local used = true
-	local pointer = "link"
-			-- tabs and grid
+	local pointer = inside_tab_area and self._highlighted == self._selected and "arrow" or "link"
+	
+	-- tabs and grid
 	local inside_tab_scroll = self._tab_scroll_panel:inside( x, y )
 	local update_select = false
 	
@@ -3984,7 +3996,7 @@ function BlackMarketGui:mouse_moved( o, x, y )
 				self._tabs[ self._highlighted ]:set_highlight( self._selected ~= self._highlighted )
 				
 				used = true
-				pointer = "link"
+				pointer = self._highlighted == self._selected and "arrow" or "link"
 				
 				-- if update_select == 1 then
 				-- 	self:mouse_pressed( Idstring( "0" ), x, y )
@@ -4076,7 +4088,7 @@ end
 function BlackMarketGui:mouse_pressed( button, x, y )
 	local holding_shift = false
 	local scroll_button_pressed = ( button == Idstring( "mouse wheel up" ) ) or ( button == Idstring( "mouse wheel down" ) )
-	if SystemInfo:platform() == Idstring( "WIN32" ) then
+	--[[if SystemInfo:platform() == Idstring( "WIN32" ) then
 		local lsi = Input:keyboard():button_index( Idstring( "left shift" ) )
 		local rsi = Input:keyboard():button_index( Idstring( "right shift" ) )
 		
@@ -4087,7 +4099,10 @@ function BlackMarketGui:mouse_pressed( button, x, y )
 	if not holding_shift and scroll_button_pressed and self._tabs[ self._selected ] then
 		holding_shift = self._tabs[ self._selected ]:is_inside_scrollbar( x, y )
 	end
-	if not holding_shift then
+	if not holding_shift then]]
+	
+	local inside_tab_area = self._tab_area_panel:inside( x, y )
+	if inside_tab_area then
 		if button == Idstring( "mouse wheel down" ) then
 			self:next_page( true )
 			return
@@ -5154,7 +5169,13 @@ function BlackMarketGui:populate_masks( data )
 			if( i~=1 ) then table.insert( new_data, "m_preview" ) end
 		end
 
-		if( i~=1 ) then table.insert( new_data, "m_sell" ) end
+		if( i~=1 ) then
+			if managers.money:get_mask_sell_value( new_data.name, new_data.global_value ) > 0 then
+				table.insert( new_data, "m_sell" )
+			else
+				table.insert( new_data, "m_remove" )
+			end
+		end
 		
 		if( crafted.modded ) then
 			new_data.mini_icons = {}
@@ -5857,7 +5878,7 @@ function BlackMarketGui:populate_buy_mask( data )
 		if new_data.unlocked and new_data.unlocked > 0 then
 			table.insert( new_data, "bm_buy" )
 			table.insert( new_data, "bm_preview" )
-			if managers.money:get_mask_sell_value( new_data.name, new_data.global_value, {} ) > 0 then
+			if managers.money:get_mask_sell_value( new_data.name, new_data.global_value ) > 0 then
 				table.insert( new_data, "bm_sell" )
 			end
 		else
@@ -6712,16 +6733,21 @@ function BlackMarketGui:choose_mask_buy_callback( data )
 			end
 			
 			if not mask.infamous and #dlcs > 0 then
+				local only_once = mask.global_value and true or false
 				for _, dlc in pairs( dlcs ) do
+					local global_value = mask.global_value or dlc
 					dlc_tweak = tweak_data.dlc[ dlc ]
-					global_value_tweak = tweak_data.lootdrop.global_values[ dlc ]
+					global_value_tweak = tweak_data.lootdrop.global_values[ global_value ]
 					is_dlc = global_value_tweak and global_value_tweak.dlc or false
 					
-					if is_dlc then
+					--if is_dlc then
 						if dlc_tweak and dlc_tweak.free or managers.dlc:has_dlc( dlc ) or not global_value_tweak.hide_unavailable then
-							table.insert( items, { amount = 0, global_value = dlc, mask_id = mask_id } )
+							table.insert( items, { amount = 0, global_value = global_value, mask_id = mask_id } )
+							if only_once then
+								break
+							end
 						end
-					end
+					--end
 				end
 			else
 				local global_value = mask.infamous and "infamous" or mask.global_value or "normal"

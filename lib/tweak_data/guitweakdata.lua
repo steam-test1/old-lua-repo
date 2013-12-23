@@ -5,11 +5,13 @@ function GuiTweakData:init()
 		{ id = "birthday", name_id = "menu_content_birthday", desc_id = "menu_content_birthday_desc", date_id = "menu_content_birthday_date", webpage = "http://www.overkillsoftware.com/birthday/", image = "guis/textures/pd2/content_updates/birthday" },
 		{ id = "halloween", name_id = "menu_content_halloween", desc_id = "menu_content_halloween_desc", date_id = "menu_content_halloween_date", webpage = "http://www.overkillsoftware.com/halloween/", image = "guis/textures/pd2/content_updates/halloween" },
 		{ id = "armored_transport", name_id = "menu_content_armored_transport", desc_id = "menu_content_armored_transport_desc", date_id = "menu_content_armored_transport_date", store = 264610, image = "guis/textures/pd2/content_updates/armored_transport" },
-		
 		{ id = "gage_pack", name_id = "menu_content_gage_pack", desc_id = "menu_content_gage_pack_desc", date_id = "menu_content_gage_pack_date", store = 267380, image = "guis/textures/pd2/content_updates/gage_pack" },
 		
+		{ id = "charliesierra", name_id = "menu_content_charliesierra", desc_id = "menu_content_charliesierra_desc", date_id = "menu_content_charliesierra_date", webpage = "http://www.overkillsoftware.com/charliesanta/", image = "guis/textures/pd2/content_updates/charliesierra" },
+		{ id = "christmas", name_id = "menu_content_christmas", desc_id = "menu_content_christmas_desc", date_id = "menu_content_christmas_date", store = 267381, image = "guis/textures/pd2/content_updates/christmas" },
+		
 	}
-	self.num_previous_updates = 3
+	self.num_previous_updates = 6
 	
 						-- self.stats.concealment				= { 1, 1, 1, 1.2, 1.2, 1.2, 1.2, 1.3, 1.3, 1.3 }
 	self.suspicion_to_visibility = {}
@@ -98,7 +100,7 @@ function GuiTweakData:init()
 	self.crime_net.special_contracts = {
 		{ id="premium_buy", name_id="menu_cn_premium_buy", desc_id="menu_cn_premium_buy_desc", menu_node="crimenet_contract_special", x=420, y=846, icon="guis/textures/pd2/crimenet_marker_buy" },
 		{ id="contact_info", name_id="menu_cn_contact_info", desc_id="menu_cn_contact_info_desc", menu_node="crimenet_contact_info", x=912, y=905, icon="guis/textures/pd2/crimenet_marker_codex" },
-		--{ id="casino", name_id="menu_cn_casino", desc_id="menu_cn_casino_desc", menu_node="crimenet_contract_casino", x=347, y=716, icon="guis/textures/pd2/crimenet_casino", unlock="unlock_level", pulse=true, pulse_color=Color( 204, 255, 209, 32 )/255 }
+		{ id="casino", name_id="menu_cn_casino", desc_id="menu_cn_casino_desc", menu_node="crimenet_contract_casino", x=347, y=716, icon="guis/textures/pd2/crimenet_casino", unlock="unlock_level", pulse=true, pulse_color=Color( 204, 255, 209, 32 )/255 }
 	}
 	
 	

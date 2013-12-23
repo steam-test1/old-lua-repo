@@ -76,6 +76,10 @@ CopActionAct._act_redirects.enemy_spawn = {
 	"e_sp_dizzy_stand_v2",
 	"e_sp_dizzy_walk_inplace",
 	"e_sp_dizzy_look_around",
+	"e_sp_car_exit_ntrl_front_r",
+	"e_sp_car_exit_ntrl_front_l",
+	"e_sp_down_5_5m",
+	"e_sp_up_ledge",
 	
 }
 
@@ -223,6 +227,19 @@ CopActionAct._act_redirects.SO = {
 	"e_nl_down_5m_var2",
 	"e_nl_down_5m_var3",
 	"e_nl_down_4m_var2",
+	"e_nl_up_2_75_down_1m",
+	"e_nl_up_0_5_down_5_5m",
+	"e_nl_cs_jump_desk",
+	"e_nl_cs_jump_window",
+	"e_nl_cs_dwn_front",
+	"e_nl_cs_dwn_back",
+	"e_nl_cs_up_short_ladder",
+	"e_nl_cs_up_long_ladder",
+	"e_nl_cs_up_back_ladder",
+	"e_nl_cs_up_front_ladder",
+	"e_nl_cs_up_sewer_ladder",
+	"e_nl_cs_dwn_sewer",
+	"e_nl_cs_up_8m_ladder",
 	"e_so_ntl_idle_tired",
 	"e_so_ntl_idle_kickpebble",
 	"e_so_ntl_idle_look",
@@ -282,6 +299,7 @@ CopActionAct._act_redirects.SO = {
 	"cm_so_investigate_hi",
 	"cm_so_investigate_low",
 	"cm_so_hide",
+	"cmf_so_smoke",
 }
 
 

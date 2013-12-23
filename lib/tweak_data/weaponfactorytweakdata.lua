@@ -163,6 +163,7 @@ function WeaponFactoryTweakData:init()
 	self:_init_ppk()
 	self:_init_content_dlc1()
 	self:_init_content_dlc2()
+	self:_init_content_dlc2_dec16()
 	
 	
 	self:_init_mp7()
@@ -433,6 +434,43 @@ function WeaponFactoryTweakData:_init_content_dlc2()
 	self.parts.wpn_fps_upg_m4_g_hgrip_vanilla.pcs = nil
 end
 
+
+function WeaponFactoryTweakData:_init_content_dlc2_dec16()
+	self.parts.wpn_fps_upg_o_acog 					= { pcs = { 10, 20, 30, 40 }, type = "sight", name_id = "bm_wp_upg_o_acog", a_obj = "a_o", unit = "units/pd2_dlc2/weapons/wpn_fps_upg_o_acog/wpn_fps_upg_o_acog",
+															stats = { value = 6, zoom = 5, recoil = 1, spread_moving = -1, concealment = -3 }, perks = { "scope" },
+															stance_mod = { 	wpn_fps_ass_m4 = { translation = Vector3( 0,0,-0.45 ) },
+																			wpn_fps_ass_m16 = { translation = Vector3( 0,0,-0.01 ) },
+																			wpn_fps_smg_olympic = { translation = Vector3( 0,0,-0.01 ) },
+																			wpn_fps_ass_74 = { translation = Vector3( 0,0,-3 ) },
+																			wpn_fps_ass_akm = { translation = Vector3( 0,0,-3 ) },
+																			wpn_fps_shot_saiga = { translation = Vector3( 0,0,-3 ) },
+																			wpn_fps_shot_r870 = { translation = Vector3( 0,0,-3 ) },
+																			wpn_fps_shot_serbu = { translation = Vector3( 0,0,-3 ) },
+																			wpn_fps_smg_akmsu = { translation = Vector3( 0,0,-2.7 ) },
+																			wpn_fps_ass_ak5 = { translation = Vector3( 0,0,-3.5 ) },
+																			wpn_fps_ass_aug = { translation = Vector3( 0,0,-2.8 ) },
+																			wpn_fps_ass_g36 = { translation = Vector3( 0,0,-3 ) },
+																			wpn_fps_smg_p90 = { translation = Vector3( 0,0,-2.97 ) },
+																			wpn_fps_ass_m14 = { translation = Vector3( 0,-15,-3.8 ) },
+																			wpn_fps_smg_mp9 = { translation = Vector3( 0,0,-3.4 ) },
+																			wpn_fps_smg_mp5 = { translation = Vector3( 0,0,-3 ) },
+																			wpn_fps_smg_mac10 = { translation = Vector3( 0,0,-4.5 ) },
+																			
+																			
+																			wpn_fps_ass_s552 = { translation = Vector3( 0,0,-2 ) },
+																			wpn_fps_smg_m45 = { translation = Vector3( 0,0,-4 ) },
+																			
+																			wpn_fps_smg_mp7 = { translation = Vector3( 0,0,-3 ) },
+																			wpn_fps_ass_scar = { translation = Vector3( 0,0,-0.25 ) },
+																			
+																			wpn_fps_smg_tec9 = { translation = Vector3( 0,0,-3.2 ) },
+																			wpn_fps_shot_benelli = { translation = Vector3( 0,0,-0.25 ) },
+																			wpn_fps_pis_g22c = { translation = Vector3( 0,0,-1 ) },
+																		},
+															forbids = { "wpn_fps_amcar_uupg_body_upperreciever", "wpn_fps_ass_m16_os_frontsight", "wpn_fps_ass_scar_o_flipups_up" }
+														}
+	self.parts.wpn_fps_upg_o_acog.third_unit = "units/pd2_dlc2/weapons/wpn_fps_upg_o_acog/wpn_third_upg_o_acog"
+end
 
 
 
@@ -743,7 +781,7 @@ function WeaponFactoryTweakData:_init_m4()
 										"wpn_fps_m4_uupg_s_fold", "wpn_fps_upg_m4_s_standard_vanilla", "wpn_fps_upg_m4_s_pts",
 										"wpn_fps_m4_uupg_draghandle",
 										"wpn_fps_m4_uupg_o_flipup", "wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-										"wpn_fps_upg_o_aimpoint_2",
+										"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 										"wpn_fps_upg_vg_ass_smg_verticalgrip", "wpn_fps_upg_vg_ass_smg_stubby", "wpn_fps_upg_vg_ass_smg_afg",
 										"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
 										"wpn_fps_upg_m4_g_standard_vanilla", "wpn_fps_upg_m4_g_ergo", "wpn_fps_upg_m4_g_sniper",
@@ -874,7 +912,8 @@ function WeaponFactoryTweakData:_init_amcar()
 					wpn_fps_upg_o_eotech_xps = { "wpn_fps_m4_upper_reciever_round_vanilla", "wpn_fps_m4_uupg_draghandle_vanilla", "wpn_fps_m4_uupg_fg_rail_ext" },
 					wpn_fps_upg_o_reflex = { "wpn_fps_m4_upper_reciever_round_vanilla", "wpn_fps_m4_uupg_draghandle_vanilla", "wpn_fps_m4_uupg_fg_rail_ext" },
 					wpn_fps_upg_o_rx01 = { "wpn_fps_m4_upper_reciever_round_vanilla", "wpn_fps_m4_uupg_draghandle_vanilla", "wpn_fps_m4_uupg_fg_rail_ext" },
-					wpn_fps_upg_o_rx30 = { "wpn_fps_m4_upper_reciever_round_vanilla", "wpn_fps_m4_uupg_draghandle_vanilla", "wpn_fps_m4_uupg_fg_rail_ext" }
+					wpn_fps_upg_o_rx30 = { "wpn_fps_m4_upper_reciever_round_vanilla", "wpn_fps_m4_uupg_draghandle_vanilla", "wpn_fps_m4_uupg_fg_rail_ext" },
+					wpn_fps_upg_o_acog = { "wpn_fps_m4_upper_reciever_round_vanilla", "wpn_fps_m4_uupg_draghandle_vanilla", "wpn_fps_m4_uupg_fg_rail_ext" }
 					}
 
 	self.wpn_fps_ass_amcar.default_blueprint = {
@@ -896,7 +935,7 @@ function WeaponFactoryTweakData:_init_amcar()
 										"wpn_fps_upg_m4_g_standard_vanilla",
 										
 										"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro",
-										"wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
+										"wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore", "wpn_fps_upg_o_acog",
 										
 										"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
 										"wpn_fps_upg_ns_ass_smg_firepig", "wpn_fps_upg_ns_ass_smg_stubby", "wpn_fps_upg_ns_ass_smg_tank", 
@@ -975,7 +1014,7 @@ function WeaponFactoryTweakData:_init_m16()
 										"wpn_fps_upg_vg_ass_smg_verticalgrip", "wpn_fps_upg_vg_ass_smg_stubby", "wpn_fps_upg_vg_ass_smg_afg",
 										"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
 										"wpn_fps_ass_m16_o_handle_sight", "wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-										"wpn_fps_upg_o_aimpoint_2",
+										"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 										"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
 										"wpn_fps_upg_ns_ass_smg_firepig", "wpn_fps_upg_ns_ass_smg_stubby", "wpn_fps_upg_ns_ass_smg_tank",
 										
@@ -1047,7 +1086,7 @@ function WeaponFactoryTweakData:_init_olympic()
 										"wpn_fps_m4_uupg_b_short_vanilla", "wpn_fps_m4_uupg_b_medium",
 										"wpn_fps_m4_uupg_m_std", "wpn_fps_upg_m4_m_drum", "wpn_fps_upg_m4_m_pmag", "wpn_fps_upg_m4_m_straight_vanilla",
 										"wpn_fps_ass_m16_o_handle_sight", "wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-										"wpn_fps_upg_o_aimpoint_2",
+										"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 										"wpn_fps_upg_vg_ass_smg_verticalgrip", "wpn_fps_upg_vg_ass_smg_stubby", "wpn_fps_upg_vg_ass_smg_afg",					
 										"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
 										"wpn_fps_upg_m4_g_standard_vanilla", "wpn_fps_upg_m4_g_ergo", "wpn_fps_upg_m4_g_sniper",
@@ -1098,6 +1137,8 @@ function WeaponFactoryTweakData:_init_ak_parts()
 																wpn_fps_upg_o_docter = {  a_obj = "a_of", },
 																wpn_fps_upg_o_eotech = {  a_obj = "a_of", },
 																wpn_fps_upg_o_t1micro = {  a_obj = "a_of", },
+																wpn_fps_upg_o_cmore = {  a_obj = "a_of", },
+																wpn_fps_upg_o_acog = {  a_obj = "a_of", },
 																},
 																
 																--forbids = { "wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_aimpoint_2", },
@@ -1208,6 +1249,7 @@ function WeaponFactoryTweakData:_init_ak74()
 											wpn_fps_upg_o_eotech = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_t1micro = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_cmore = { "wpn_fps_ak_extra_ris" },
+											wpn_fps_upg_o_acog = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_eotech_xps = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_reflex = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_rx01 = { "wpn_fps_ak_extra_ris" },
@@ -1230,7 +1272,7 @@ function WeaponFactoryTweakData:_init_ak74()
 											"wpn_upg_ak_g_standard",
 											"wpn_fps_upg_m4_s_standard", "wpn_fps_upg_m4_s_pts", "wpn_upg_ak_s_folding", "wpn_upg_ak_s_psl", "wpn_upg_ak_s_skfoldable_vanilla",
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_fps_upg_vg_ass_smg_verticalgrip", "wpn_fps_upg_vg_ass_smg_stubby", "wpn_fps_upg_vg_ass_smg_afg",					
 											"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
 											"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
@@ -1267,6 +1309,7 @@ function WeaponFactoryTweakData:_init_akm()
 											wpn_fps_upg_o_eotech = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_t1micro = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_cmore = { "wpn_fps_ak_extra_ris" },
+											wpn_fps_upg_o_acog = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_eotech_xps = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_reflex = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_rx01 = { "wpn_fps_ak_extra_ris" },
@@ -1286,7 +1329,7 @@ function WeaponFactoryTweakData:_init_akm()
 											"wpn_upg_ak_g_standard",
 											"wpn_fps_upg_m4_s_standard", "wpn_fps_upg_m4_s_pts", "wpn_upg_ak_s_folding_vanilla", "wpn_upg_ak_s_psl", "wpn_upg_ak_s_skfoldable",
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_fps_upg_vg_ass_smg_verticalgrip", "wpn_fps_upg_vg_ass_smg_stubby", "wpn_fps_upg_vg_ass_smg_afg",					
 											"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
 											"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
@@ -1325,6 +1368,8 @@ function WeaponFactoryTweakData:_init_akmsu()
 																wpn_fps_upg_o_docter = {  a_obj = "a_of", },
 																wpn_fps_upg_o_eotech = {  a_obj = "a_of", },
 																wpn_fps_upg_o_t1micro = {  a_obj = "a_of", },
+																wpn_fps_upg_o_cmore = {  a_obj = "a_of", },
+																wpn_fps_upg_o_acog = {  a_obj = "a_of", },
 																}
 															}
 	
@@ -1345,6 +1390,7 @@ function WeaponFactoryTweakData:_init_akmsu()
 											wpn_fps_upg_o_eotech = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_t1micro = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_cmore = { "wpn_fps_ak_extra_ris" },
+											wpn_fps_upg_o_acog = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_eotech_xps = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_reflex = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_rx01 = { "wpn_fps_ak_extra_ris" },
@@ -1366,7 +1412,7 @@ function WeaponFactoryTweakData:_init_akmsu()
 											"wpn_fps_smg_akmsu_fg_standard", "wpn_fps_smg_akmsu_fg_rail",
 											"wpn_upg_ak_g_standard",
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_upg_ak_m_akm",
 											"wpn_fps_upg_m4_s_standard", "wpn_fps_upg_m4_s_pts", "wpn_upg_ak_s_folding_vanilla", "wpn_upg_ak_s_psl", "wpn_upg_ak_s_skfoldable",
 											"wpn_fps_upg_vg_ass_smg_verticalgrip", "wpn_fps_upg_vg_ass_smg_stubby", "wpn_fps_upg_vg_ass_smg_afg",					
@@ -1409,6 +1455,8 @@ function WeaponFactoryTweakData:_init_saiga()
 																wpn_fps_upg_o_docter = {  a_obj = "a_of", },
 																wpn_fps_upg_o_eotech = {  a_obj = "a_of", },
 																wpn_fps_upg_o_t1micro = {  a_obj = "a_of", },
+																wpn_fps_upg_o_cmore = {  a_obj = "a_of", },
+																wpn_fps_upg_o_acog = {  a_obj = "a_of", },
 																}
 															}
 	-- Foregrip, Heavyweight and NOT concealable looks
@@ -1441,6 +1489,8 @@ function WeaponFactoryTweakData:_init_saiga()
 											wpn_fps_upg_o_docter = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_eotech = { "wpn_fps_ak_extra_ris" },
 											wpn_fps_upg_o_t1micro = { "wpn_fps_ak_extra_ris" },
+											wpn_fps_upg_o_cmore = { "wpn_fps_ak_extra_ris" },
+											wpn_fps_upg_o_acog = { "wpn_fps_ak_extra_ris" },
 											}
 											
 	self.wpn_fps_shot_saiga.default_blueprint = {
@@ -1462,7 +1512,7 @@ function WeaponFactoryTweakData:_init_saiga()
 											"wpn_upg_ak_g_standard",
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
 											"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_upg_o_marksmansight_rear_vanilla",
 											"wpn_fps_upg_m4_s_standard", "wpn_fps_upg_m4_s_pts", "wpn_upg_ak_s_folding_vanilla", "wpn_upg_ak_s_psl", "wpn_upg_ak_s_skfoldable",
 											"wpn_fps_upg_ns_shot_thick", "wpn_fps_upg_ns_shot_shark",
@@ -1536,6 +1586,7 @@ function WeaponFactoryTweakData:_init_ak5()
 											wpn_fps_upg_o_eotech = { "wpn_fps_ass_ak5_body_rail" },
 											wpn_fps_upg_o_t1micro = { "wpn_fps_ass_ak5_body_rail" },
 											wpn_fps_upg_o_cmore = { "wpn_fps_ass_ak5_body_rail" },
+											wpn_fps_upg_o_acog = { "wpn_fps_ass_ak5_body_rail" },
 											wpn_fps_upg_o_eotech_xps = { "wpn_fps_ass_ak5_body_rail" },
 											wpn_fps_upg_o_reflex = { "wpn_fps_ass_ak5_body_rail" },
 											wpn_fps_upg_o_rx01 = { "wpn_fps_ass_ak5_body_rail" },
@@ -1556,7 +1607,7 @@ function WeaponFactoryTweakData:_init_ak5()
 											"wpn_fps_ass_ak5_s_ak5a", "wpn_fps_ass_ak5_s_ak5b", "wpn_fps_ass_ak5_s_ak5c",
 											"wpn_fps_m4_uupg_m_std_vanilla", "wpn_fps_upg_m4_m_drum", "wpn_fps_upg_m4_m_pmag", "wpn_fps_upg_m4_m_straight",
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_fps_upg_vg_ass_smg_verticalgrip", "wpn_fps_upg_vg_ass_smg_stubby", "wpn_fps_upg_vg_ass_smg_afg",					
 											"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
 											"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
@@ -1629,7 +1680,7 @@ function WeaponFactoryTweakData:_init_aug()
 											"wpn_fps_aug_b_long", "wpn_fps_aug_b_medium", "wpn_fps_aug_b_short",
 											"wpn_fps_aug_m_pmag",
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_upg_o_marksmansight_rear_vanilla", "wpn_upg_o_marksmansight_front_vanilla",
 											"wpn_fps_upg_vg_ass_smg_verticalgrip", "wpn_fps_upg_vg_ass_smg_stubby", "wpn_fps_upg_vg_ass_smg_afg",
 											"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
@@ -1742,7 +1793,7 @@ function WeaponFactoryTweakData:_init_g36()
 											"wpn_fps_ass_g36_g_standard",
 											"wpn_fps_ass_g36_m_standard",
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_fps_ass_g36_b_long", "wpn_fps_ass_g36_b_short",
 											"wpn_fps_ass_g36_fg_c", "wpn_fps_ass_g36_fg_k", "wpn_fps_ass_g36_fg_ksk",
 											"wpn_fps_ass_g36_s_standard", "wpn_fps_ass_g36_s_kv", "wpn_fps_ass_g36_s_sl8",
@@ -1802,7 +1853,7 @@ function WeaponFactoryTweakData:_init_p90()
 											"wpn_fps_smg_p90_m_std",
 											"wpn_fps_smg_p90_b_short", "wpn_fps_smg_p90_b_long",
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
 											"wpn_fps_upg_ns_ass_smg_firepig", "wpn_fps_upg_ns_ass_smg_stubby", "wpn_fps_upg_ns_ass_smg_tank",
 											"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
@@ -1869,7 +1920,7 @@ function WeaponFactoryTweakData:_init_m14()
 											"wpn_fps_ass_m14_body_upper", 
 											"wpn_fps_ass_m14_m_standard",
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2",  "wpn_fps_upg_o_acog",
 											"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
 											"wpn_fps_upg_ns_ass_smg_firepig", "wpn_fps_upg_ns_ass_smg_stubby", "wpn_fps_upg_ns_ass_smg_tank",
 											"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
@@ -1930,7 +1981,7 @@ function WeaponFactoryTweakData:_init_mp9()
 											"wpn_fps_smg_mp9_b_dummy",
 											"wpn_fps_upg_vg_ass_smg_verticalgrip", "wpn_fps_upg_vg_ass_smg_stubby",
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
 											"wpn_fps_upg_ns_ass_smg_firepig", "wpn_fps_upg_ns_ass_smg_stubby", "wpn_fps_upg_ns_ass_smg_tank",
 											"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
@@ -2146,6 +2197,7 @@ function WeaponFactoryTweakData:_init_mp5()
 											wpn_fps_upg_o_eotech = { "wpn_fps_smg_mp5_body_rail" },
 											wpn_fps_upg_o_t1micro = { "wpn_fps_smg_mp5_body_rail" },
 											wpn_fps_upg_o_cmore = { "wpn_fps_smg_mp5_body_rail" },
+											wpn_fps_upg_o_acog = { "wpn_fps_smg_mp5_body_rail" },
 											wpn_fps_upg_o_eotech_xps = { "wpn_fps_smg_mp5_body_rail" },
 											wpn_fps_upg_o_reflex = { "wpn_fps_smg_mp5_body_rail" },
 											wpn_fps_upg_o_rx01 = { "wpn_fps_smg_mp5_body_rail" },
@@ -2164,7 +2216,7 @@ function WeaponFactoryTweakData:_init_mp5()
 											"wpn_fps_smg_mp5_s_ring", "wpn_fps_smg_mp5_s_adjust", "wpn_fps_smg_mp5_s_solid",
 											
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
 											"wpn_fps_upg_ns_ass_smg_firepig", "wpn_fps_upg_ns_ass_smg_stubby", "wpn_fps_upg_ns_ass_smg_tank",
 											"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
@@ -2355,6 +2407,7 @@ function WeaponFactoryTweakData:_init_mac10()
 											wpn_fps_upg_o_eotech = { "wpn_fps_smg_mac10_body_ris_special" },
 											wpn_fps_upg_o_t1micro = { "wpn_fps_smg_mac10_body_ris_special" },
 											wpn_fps_upg_o_cmore = { "wpn_fps_smg_mac10_body_ris_special" },
+											wpn_fps_upg_o_acog = { "wpn_fps_smg_mac10_body_ris_special" },
 											wpn_fps_upg_o_eotech_xps = { "wpn_fps_smg_mac10_body_ris_special" },
 											wpn_fps_upg_o_reflex = { "wpn_fps_smg_mac10_body_ris_special" },
 											wpn_fps_upg_o_rx01 = { "wpn_fps_smg_mac10_body_ris_special" },
@@ -2378,7 +2431,7 @@ function WeaponFactoryTweakData:_init_mac10()
 											
 											"wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro",
 											"wpn_upg_o_marksmansight_rear_vanilla",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
 											"wpn_fps_upg_ns_ass_smg_firepig", "wpn_fps_upg_ns_ass_smg_stubby", "wpn_fps_upg_ns_ass_smg_tank",
 											"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
@@ -2430,7 +2483,7 @@ function WeaponFactoryTweakData:_init_r870()
 	-- Stock, Heavyweight, Best moving_spread (INFAMOUS)	
 	self.parts.wpn_fps_shot_r870_s_folding 					= { pcs = { 10, 20, 30, 40 } , type = "stock", name_id = "bm_wp_r870_s_folding", a_obj = "a_s", unit = "units/payday2/weapons/wpn_fps_shot_r870_pts/wpn_fps_shot_r870_s_folding",
 																stats = { value = 9, spread_moving = 1, recoil = -1, concealment = 1 },
-																forbids = { "wpn_fps_shot_r870_ris_special", "wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore", "wpn_fps_upg_o_aimpoint_2" },
+																forbids = { "wpn_fps_shot_r870_ris_special", "wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore", "wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog" },
 															}
 	self.parts.wpn_fps_shot_r870_s_m4 						= { type = "stock_adapter", name_id = "bm_wp_r870_s_m4", a_obj = "a_s", unit = "units/payday2/weapons/wpn_fps_shot_r870_pts/wpn_fps_shot_r870_s_m4",
 																stats = { value = 3, },
@@ -2517,6 +2570,7 @@ function WeaponFactoryTweakData:_init_r870()
 											wpn_fps_upg_o_eotech = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_t1micro = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_cmore = { "wpn_fps_shot_r870_ris_special" },
+											wpn_fps_upg_o_acog = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_eotech_xps = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_reflex = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_rx01 = { "wpn_fps_shot_r870_ris_special" },
@@ -2539,7 +2593,7 @@ function WeaponFactoryTweakData:_init_r870()
 											"wpn_fps_shot_r870_fg_big", "wpn_fps_shot_r870_fg_railed", "wpn_fps_shot_r870_fg_wood",
 											"wpn_fps_shot_r870_m_extended",
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_fps_shot_r870_s_folding", "wpn_fps_shot_r870_s_m4",
 											"wpn_fps_upg_m4_s_standard", "wpn_fps_upg_m4_s_pts", 
 											"wpn_fps_shot_r870_s_nostock_big", "wpn_fps_shot_r870_s_nostock_single", "wpn_fps_shot_r870_s_nostock",
@@ -2592,6 +2646,7 @@ function WeaponFactoryTweakData:_init_serbu()
 											wpn_fps_upg_o_eotech = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_t1micro = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_cmore = { "wpn_fps_shot_r870_ris_special" },
+											wpn_fps_upg_o_acog = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_eotech_xps = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_reflex = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_rx01 = { "wpn_fps_shot_r870_ris_special" },
@@ -2612,7 +2667,7 @@ function WeaponFactoryTweakData:_init_serbu()
 											"wpn_fps_shot_r870_fg_railed", "wpn_fps_shot_r870_fg_small",
 											"wpn_fps_shot_shorty_m_extended_short",
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",		
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_fps_shot_r870_s_folding",									
 											"wpn_fps_shot_r870_s_m4", "wpn_fps_upg_m4_s_standard", "wpn_fps_upg_m4_s_pts", 
 											"wpn_fps_shot_shorty_s_nostock_short", "wpn_fps_shot_r870_s_nostock_single", "wpn_fps_shot_r870_s_nostock_vanilla",
@@ -3106,6 +3161,7 @@ function WeaponFactoryTweakData:_init_m45()
 											wpn_fps_upg_o_eotech = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_t1micro = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_cmore = { "wpn_fps_shot_r870_ris_special" },
+											wpn_fps_upg_o_acog = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_eotech_xps = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_reflex = { "wpn_fps_shot_r870_ris_special" },
 											wpn_fps_upg_o_rx01 = { "wpn_fps_shot_r870_ris_special" },
@@ -3125,7 +3181,7 @@ function WeaponFactoryTweakData:_init_m45()
 											"wpn_fps_smg_m45_m_extended", "wpn_fps_smg_m45_b_small", "wpn_fps_smg_m45_b_green", "wpn_fps_smg_m45_body_green", "wpn_fps_smg_m45_s_folded", "wpn_fps_smg_m45_g_bling", "wpn_fps_smg_m45_g_ergo",
 											
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",		
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
 											"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
 											"wpn_fps_upg_ns_ass_smg_firepig", "wpn_fps_upg_ns_ass_smg_stubby", "wpn_fps_upg_ns_ass_smg_tank",
@@ -3234,7 +3290,7 @@ function WeaponFactoryTweakData:_init_s552()
 											
 											"wpn_fps_upg_m4_s_standard_vanilla", "wpn_fps_upg_m4_s_pts",
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",		
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
 											"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
 											"wpn_fps_upg_ns_ass_smg_firepig", "wpn_fps_upg_ns_ass_smg_stubby", "wpn_fps_upg_ns_ass_smg_tank",
@@ -3380,7 +3436,7 @@ function WeaponFactoryTweakData:_init_mp7()
 											
 											"wpn_fps_upg_vg_ass_smg_stubby",
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
 											"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
 											"wpn_fps_upg_ns_ass_smg_firepig", "wpn_fps_upg_ns_ass_smg_stubby", "wpn_fps_upg_ns_ass_smg_tank",
@@ -3468,6 +3524,7 @@ function WeaponFactoryTweakData:_init_scar()
 					wpn_fps_upg_o_eotech = { "wpn_fps_ass_scar_o_flipups_down" },
 					wpn_fps_upg_o_t1micro = { "wpn_fps_ass_scar_o_flipups_down" },
 					wpn_fps_upg_o_cmore = { "wpn_fps_ass_scar_o_flipups_down" },
+					wpn_fps_upg_o_acog = { "wpn_fps_ass_scar_o_flipups_down" },
 					wpn_fps_upg_o_eotech_xps = { "wpn_fps_ass_scar_o_flipups_down" },
 					wpn_fps_upg_o_reflex = { "wpn_fps_ass_scar_o_flipups_down" },
 					wpn_fps_upg_o_rx01 = { "wpn_fps_ass_scar_o_flipups_down" },
@@ -3500,7 +3557,7 @@ function WeaponFactoryTweakData:_init_scar()
 											"wpn_fps_upg_i_singlefire", "wpn_fps_upg_i_autofire",
 											
 											"wpn_fps_upg_o_specter", "wpn_fps_upg_o_aimpoint", "wpn_fps_upg_o_docter", "wpn_fps_upg_o_eotech", "wpn_fps_upg_o_t1micro", "wpn_fps_upg_o_rx30", "wpn_fps_upg_o_rx01", "wpn_fps_upg_o_reflex", "wpn_fps_upg_o_eotech_xps", "wpn_fps_upg_o_cmore",
-											"wpn_fps_upg_o_aimpoint_2",
+											"wpn_fps_upg_o_aimpoint_2", "wpn_fps_upg_o_acog",
 											"wpn_fps_upg_fl_ass_smg_sho_peqbox", "wpn_fps_upg_fl_ass_smg_sho_surefire",
 											"wpn_fps_upg_ns_ass_smg_large", "wpn_fps_upg_ns_ass_smg_medium", "wpn_fps_upg_ns_ass_smg_small",
 											"wpn_fps_upg_ns_ass_smg_firepig", "wpn_fps_upg_ns_ass_smg_stubby", "wpn_fps_upg_ns_ass_smg_tank"

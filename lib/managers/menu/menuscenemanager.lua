@@ -357,6 +357,19 @@ function MenuSceneManager:_setup_bg()
 	end
 	
 	
+	local a = self._bg_unit:get_object( Idstring( "a_reference" ) )
+	local is_xmas = true
+	if is_xmas then
+		
+		
+		self._snow_effect = World:effect_manager():spawn( { effect = Idstring( "effects/payday2/menu/menu_snow_xmas_5x5" ), position = Vector3( 0, 0 ,0 ), rotation = Rotation() } )
+		self._xmas_tree = World:spawn_unit( Idstring( "units/pd2_dlc2/props/com_props_christmas_tree/com_prop_christmas_tree" ), a:position() + Vector3( -150, 250, -50 ), Rotation( -45 + ( ( math.random( 2 ) - 1 ) * 180 ) , 0, 0 ) )
+		
+		local e_money = self._bg_unit:effect_spawner( Idstring( "e_money" ) )
+		if e_money then
+			e_money:set_enabled( false )
+		end
+	end
 	--   self:_set_character_unit( "units/payday2/characters/npc_criminal_casual_1/npc_criminal_casual_1_menu" )
 	--[[local a = self._bg_unit:get_object( Idstring( "a_reference" ) )
 	
@@ -668,6 +681,8 @@ function MenuSceneManager:set_lobby_character_visible( i, visible, no_state )
 	unit:set_visible( visible )
 	local mask_unit = self._mask_units[ unit:key() ]
 	mask_unit:set_visible( visible )
+	mask_unit:set_enabled( visible )
+	
 	for _,linked_unit in ipairs( mask_unit:children() ) do
 		linked_unit:set_visible( visible )
 	end 

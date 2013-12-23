@@ -163,7 +163,72 @@ function MissionEndState:at_enter( old_state, params )
 	self._sound_listener:set_position( Vector3( 0, -50000, 0 ) )
 	self._sound_listener:activate( true )
 	
-	if self._success and Global.game_settings.difficulty == "overkill_145" then
+	if self._success then
+		--if self._success and Global.game_settings.difficulty == "overkill_145" then
+			if not managers.statistics:is_dropin() then
+				local mask_pass, diff_pass, no_shots_pass, contract_pass, job_pass
+				for achievement, achievement_data in pairs( tweak_data.achievement.complete_heist_achievements ) do
+					diff_pass = not achievement_data.difficulty or Global.game_settings.difficulty == achievement_data.difficulty
+					mask_pass = not achievement_data.mask or managers.blackmarket:equipped_mask().mask_id == achievement_data.mask
+					no_shots_pass = not achievement_data.no_shots or managers.statistics:session_total_shots( achievement_data.no_shots ) == 0
+					
+					job_pass = not achievement_data.jobs or false
+					if achievement_data.jobs then
+						for _, job_id in ipairs( achievement_data.jobs ) do
+							if managers.job:current_job_id() == job_id then
+								job_pass = true
+								break
+							end
+						end
+					end
+					
+					contract_pass = not achievement_data.contracts or false
+					if achievement_data.contracts then
+						for _, contract_id in ipairs( achievement_data.contracts ) do
+							if managers.job:current_contact_id() == contract_id then
+								contract_pass = true
+								break
+							end
+						end
+					end
+					
+					if job_pass and contract_pass and diff_pass and mask_pass and no_shots_pass then
+						if achievement_data.stat then
+							managers.achievment:award_progress( achievement_data.stat )
+						elseif achievement_data.award then
+							managers.achievment:award( achievement_data.award )
+						end
+					end
+				end
+			end
+		--end
+		
+		for achievement, achievement_data in pairs( tweak_data.achievement.four_mask_achievements ) do
+			if achievement_data.masks then
+				local available_masks = deep_clone( achievement_data.masks )
+				
+				for id, member in pairs( managers.network:game():all_members() ) do
+					local current_mask = member:peer():mask_id()
+					for id, mask_id in ipairs( available_masks ) do
+						if current_mask == mask_id then
+							table.remove( available_masks, id )
+							break
+						end
+					end
+				end
+				
+				if #available_masks == 0 then
+					if achievement_data.stat then
+						managers.achievment:award_progress( achievement_data.stat )
+					elseif achievement_data.award then
+						managers.achievment:award( achievement_data.award )
+					end
+				end
+			end
+		end
+	end
+	
+	--[[if self._success and Global.game_settings.difficulty == "overkill_145" then
 		if managers.blackmarket:equipped_mask().mask_id == tweak_data.achievement.in_soviet_russia.mask and managers.job:current_contact_id() == "vlad" then
 			managers.achievment:award_progress( tweak_data.achievement.in_soviet_russia.stat )
 		end
@@ -176,16 +241,9 @@ function MissionEndState:at_enter( old_state, params )
 				end
 			end
 		end
-	end
+	end]]
 	
-	if self._success then
-		if params.personal_win then
-			if managers.achievment:get_script_data( "last_man_standing" ) then
-				managers.challenges:set_flag( "last_man_standing" )
-			end
-
-			if not managers.statistics:is_dropin() then
-				if managers.achievment:get_script_data( "dodge_this_active" ) and not managers.achievment:get_script_data( "dodge_this_fail" ) and 
+				--[[if managers.achievment:get_script_data( "dodge_this_active" ) and not managers.achievment:get_script_data( "dodge_this_fail" ) and 
 				   tweak_data:difficulty_to_index( Global.game_settings.difficulty ) >= 2 then
 					managers.challenges:set_flag( "dodge_this" )
 				end
@@ -216,12 +274,7 @@ function MissionEndState:at_enter( old_state, params )
 				   tweak_data:difficulty_to_index( Global.game_settings.difficulty ) >= 2 and
 				   Global.level_data.level_id == "heat_street" then
 					managers.challenges:set_flag( "stand_together" )
-				end
-			end
-		elseif params.num_winners == 3 and not alive( managers.player:player_unit() ) then
-			managers.challenges:set_flag( "left_for_dead" )
-		end
-	end
+				end]]
 	
 	self._criminals_completed = (self._success and params.num_winners) or 0
 	managers.statistics:stop_session( { success = self._success } )

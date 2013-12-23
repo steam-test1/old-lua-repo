@@ -23,7 +23,11 @@ GroupAIStateBase.BLAME_SYNC = {		-- this table doubles as a weighting system, wi
 	"met_criminal",			-- special cases, they calls the police themself
 	"mot_criminal",
 	"gls_alarm",
-
+	"sys_blackmailer",
+	"sys_gensec",
+	"sys_police_alerted",
+	"sys_csgo_gunfire",
+	
 	"civ_alarm",
 	"cop_alarm",
 	"gan_alarm",
@@ -1143,8 +1147,10 @@ end
 function GroupAIStateBase:on_tase_start( cop_key, criminal_key )
 	self._criminals[ criminal_key ].being_tased = cop_key
 	
-	if self._criminals[ criminal_key ].unit == managers.player:player_unit() and managers.blackmarket:equipped_mask().mask_id == tweak_data.achievement.its_alive_its_alive.mask then
-		managers.achievment:award_progress( tweak_data.achievement.its_alive_its_alive.stat )
+	if managers.player:player_unit() and alive( self._criminals[ criminal_key ].unit ) then
+		if self._criminals[ criminal_key ].unit:key() == managers.player:player_unit():key() and managers.blackmarket:equipped_mask().mask_id == tweak_data.achievement.its_alive_its_alive.mask then
+			managers.achievment:award_progress( tweak_data.achievement.its_alive_its_alive.stat )
+		end
 	end
 end
 
@@ -4298,6 +4304,10 @@ GroupAIStateBase.unique_triggers ={
 	metal_detector = "met_criminal",
 	motion_sensor = "mot_criminal",
 	glass_alarm = "gls_alarm",
+	blackmailer = "sys_blackmailer",
+	gensec = "sys_gensec",
+	police_alerted = "sys_police_alerted",
+	csgo_gunfire = "sys_csgo_gunfire"
 }
 
 function GroupAIStateBase:fetch_highest_giveaway( ... )

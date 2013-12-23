@@ -171,6 +171,12 @@ end
 
 ------------------------------------------------------------------------------
 
+function GenericDLCManager:has_xmas_soundtrack()
+	return Global.dlc_manager.all_dlc_data.xmas_soundtrack and Global.dlc_manager.all_dlc_data.xmas_soundtrack.verified
+end
+
+------------------------------------------------------------------------------
+
 function GenericDLCManager:has_achievement( data )
 	local achievement = managers.achievment and data and data.achievement_id and managers.achievment:get_info( data.achievement_id )
 	return achievement and achievement.awarded or false
@@ -453,6 +459,10 @@ function WINDLCManager:init()
 			},
 			gage_pack = {
 				app_id = "267380",
+				no_install = true	-- check only ownership here, since this DLC does not require installation
+			},
+			xmas_soundtrack = {
+				app_id = "267381",
 				no_install = true	-- check only ownership here, since this DLC does not require installation
 			},
 			pd2_clan = {

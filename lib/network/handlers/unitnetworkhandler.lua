@@ -2519,4 +2519,14 @@ function UnitNetworkHandler:sync_gui_net_event( unit, event_id, value, sender )
 end
 
 --------------------------------------------------------------------------------------
+
+function UnitNetworkHandler:sync_proximity_activation( unit, proximity_name, range_data_string, sender )
+	if not alive( unit ) or not alive( unit ) or not self._verify_gamestate( self._gamestate_filter.any_ingame ) then
+		return
+	end
+	
+	unit:damage():sync_proximity_activation( proximity_name, range_data_string )
+end
+
+--------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------

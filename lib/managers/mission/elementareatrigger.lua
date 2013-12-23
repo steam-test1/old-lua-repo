@@ -86,6 +86,7 @@ function ElementAreaTrigger:project_instigators()
 					carry_id == "lance_bag" or
 					carry_id == "grenades" or
 					carry_id == "ammo" or
+					carry_id == "cage_bag" or
 					carry_id == "turret"
 				then
 					return true

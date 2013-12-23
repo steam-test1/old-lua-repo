@@ -169,7 +169,40 @@ function DLCTweakData:init( tweak_data )
 		"scar",
 		"p226"
 	}
-
+	
+	
+	
+	
+	
+	self.charliesierra = {}
+	self.charliesierra.content = {}
+	self.charliesierra.free = true
+	
+	self.charliesierra.content.loot_global_value = "normal"
+	self.charliesierra.content.loot_drops = {
+						{ type_items = "weapon_mods", item_entry = "wpn_fps_upg_o_acog", amount = 1 }
+					}
+	self.pd2_clan4 = {}
+	self.pd2_clan4.content = {}
+	self.pd2_clan4.dlc = "has_pd2_clan"
+	self.pd2_clan4.content.loot_global_value = "pd2_clan"
+	self.pd2_clan4.content.loot_drops = {
+						{ type_items = "masks", item_entry = "santa_happy", amount = 1 }
+					}
+	
+	
+	
+	self.xmas_soundtrack = {}
+	self.xmas_soundtrack.content = {}
+	self.xmas_soundtrack.dlc = "has_xmas_soundtrack"
+	
+	self.xmas_soundtrack.content.loot_drops = {
+					{
+						{ type_items = "masks", item_entry = "santa_mad", amount = 1 },
+						{ type_items = "masks", item_entry = "santa_drunk", amount = 1 },
+						{ type_items = "masks", item_entry = "santa_surprise", amount = 1 }
+					}
+	}
 	
 	
 	self.sweettooth = {}

@@ -1452,6 +1452,8 @@ function CopActionWalk:_nav_chk_walk( t, dt, vis_state )
 				else
 					if vis_state < 3 and self._end_of_curved_path and self._ext_anim.run and not ( self._NO_RUN_STOP or self._no_walk or mvec3_dis( c_path[ new_c_index + 1 ], new_pos ) < 120 ) then
 						self._chk_stop_dis = 210
+					elseif self._chk_stop_dis then
+						self._chk_stop_dis = nil
 					end
 					self._walk_turn = nil
 				end

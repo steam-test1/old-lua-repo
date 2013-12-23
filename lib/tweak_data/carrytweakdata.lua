@@ -153,6 +153,13 @@ function CarryTweakData:init( tweak_data )
 		SO_category = "enemies"
 	}
 	
+	self.cage_bag = {}
+	self.cage_bag.type = "medium"
+	self.cage_bag.name_id = "hud_carry_cage_bag"
+	self.cage_bag.skip_exit_secure = true
+	self.cage_bag.visual_object = "g_cagebag"
+	self.cage_bag.unit = "units/payday2/pickups/gen_pku_cage_bag/gen_pku_cage_bag"
+	
 	self.weapon  = {}
 	self.weapon.type = "heavy"
 	self.weapon.name_id = "hud_carry_weapon"
