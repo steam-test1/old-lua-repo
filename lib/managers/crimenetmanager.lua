@@ -1074,7 +1074,7 @@ function CrimeNetGui:init( ws, fullscreeen_ws, node )
 
 	self._special_contracts_id = {}
 
-	self:add_special_contracts()
+	self:add_special_contracts( node:parameters().no_casino )
 	
 	--[[
 	self:_set_zoom( "in", fw*0.5, fh*0.5 )
@@ -1547,14 +1547,28 @@ function CrimeNetGui:_add_location( data )
 end]]
 
 
-function CrimeNetGui:add_special_contracts()
+function CrimeNetGui:add_special_contracts( no_casino )
 	for index, special_contract in ipairs( tweak_data.gui.crime_net.special_contracts ) do
 		local id = special_contract.id
-		if id and not self._jobs[ id ] then
+		if id and not self._jobs[ id ] and
+				( not special_contract.unlock or special_contract.unlock and managers.experience:current_level() >= tweak_data:get_value( special_contract.id, special_contract.unlock ) )
+				and not ( special_contract.id == "casino" and no_casino ) then
 			local gui_data = self:_create_job_gui( special_contract, "special" )
 
 			gui_data.server = true
-			gui_data.special_index = index
+			gui_data.special_node = special_contract.menu_node
+			
+			if special_contract.pulse then
+				local animate_pulse = function( o )
+					while true do
+						over(1, function( p ) o:set_alpha(math.sin(p * 180) * 0.4 + 0.2 ) end )
+					end
+				end
+				
+				gui_data.glow_panel:animate( animate_pulse )
+				gui_data.pulse = special_contract.pulse and 21
+			end
+			
 			self._jobs[ id ] = gui_data
 		end
 	end
@@ -1597,12 +1611,14 @@ function CrimeNetGui:_create_job_gui( data, type, fixed_x, fixed_y, fixed_locati
 	if is_special then
 		x = data.x
 		y = data.y
-
-		local tw = math.max(self._map_panel:child("map"):texture_width(), 1)
-		local th = math.max(self._map_panel:child("map"):texture_height(), 1)
-
-		x = math.round(x / tw * self._map_size_w)
-		y = math.round(y / th * self._map_size_h)
+		
+		if x and y then
+			local tw = math.max(self._map_panel:child("map"):texture_width(), 1)
+			local th = math.max(self._map_panel:child("map"):texture_height(), 1)
+			
+			x = math.round(x / tw * self._map_size_w)
+			y = math.round(y / th * self._map_size_h)
+		end
 	end
 
 	if not x and not y then
@@ -1817,8 +1833,8 @@ function CrimeNetGui:_create_job_gui( data, type, fixed_x, fixed_y, fixed_locati
 	local select_panel = marker_panel:panel( { name="select_panel", w=36, h=38, x=-2, y=0  } )
 	
 	local glow_panel = self._pan_panel:panel( { w=64*15, h=192, layer=10, alpha=0 } )
-	local glow_center = glow_panel:bitmap( { texture="guis/textures/pd2/crimenet_marker_glow", w=192, h=192, blend_mode="add", alpha=0.55, color=is_professional and pro_color or regular_color } )
-	local glow_stretch = glow_panel:bitmap( { texture="guis/textures/pd2/crimenet_marker_glow", w=64*15, h=50, blend_mode="add", alpha=0.55, color=is_professional and pro_color or regular_color } )
+	local glow_center = glow_panel:bitmap( { texture="guis/textures/pd2/crimenet_marker_glow", w=192, h=192, blend_mode="add", alpha=0.55, color=data.pulse_color or ( is_professional and pro_color ) or regular_color } )
+	local glow_stretch = glow_panel:bitmap( { texture="guis/textures/pd2/crimenet_marker_glow", w=64*15, h=50, blend_mode="add", alpha=0.55, color=data.pulse_color or ( is_professional and pro_color ) or regular_color } )
 	local glow_center_dark = glow_panel:bitmap( { texture="guis/textures/pd2/crimenet_marker_glow", w=150, h=150, blend_mode="normal", alpha=0.7, color=Color.black, layer=-1 } )
 	local glow_stretch_dark = glow_panel:bitmap( { texture="guis/textures/pd2/crimenet_marker_glow", w=66*15, h=55, blend_mode="normal", alpha=0.7, color=Color.black, layer=-1 } ) -- , render_template="VertexColorTexturedBlur3D" } )
 	glow_center:set_center( glow_panel:w()/2, glow_panel:h()/2 )
@@ -2073,6 +2089,14 @@ function CrimeNetGui:update_job( id, t, dt )
 		return
 	end
 	
+	if data.pulse then
+		data.pulse = math.step( data.pulse, 0, dt * 2 )
+		if data.pulse < 1 then
+			data.pulse = nil
+			data.glow_panel:stop()
+		end
+	end
+
 	data.focus:set_alpha( data.focus:alpha() - dt/2 )
 	-- data.focus:set_color( data.focus:color():with_alpha( (  ) ) )
 	data.focus:set_size( data.focus:w() + dt * 200, data.focus:h() + dt * 200 )
@@ -2372,11 +2396,11 @@ function CrimeNetGui:check_job_pressed( x, y )
 				num_plrs = job.num_plrs or 0,
 				state = job.state,
 				host_name = job.host_name,
-				special_index = job.special_index
+				special_node = job.special_node
 			}
 			managers.menu_component:post_event( "menu_enter" )
 
-			local node = job.special_index and "crimenet_contract_special" or (Global.game_settings.single_player and "crimenet_contract_singleplayer") or (job.server and "crimenet_contract_join") or "crimenet_contract_host"
+			local node = job.special_node or (Global.game_settings.single_player and "crimenet_contract_singleplayer") or (job.server and "crimenet_contract_join") or "crimenet_contract_host"
 			managers.menu:open_node( node, { data } )
 			
 			--[[
@@ -2985,7 +3009,10 @@ function CrimeNetGui:update_job_gui( job, inside )
 			table.insert( inverted_objects, job.info_text )
 		end]]
 		
-		job.glow_panel:stop()
+		if not job.pulse then
+			job.glow_panel:stop()
+		end
+		
 		if inside == 1 then
 			managers.menu_component:post_event( "highlight" )
 			

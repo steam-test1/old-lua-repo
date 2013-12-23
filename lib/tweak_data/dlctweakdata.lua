@@ -9,7 +9,13 @@ function DLCTweakData:init( tweak_data )
 					{ type_items = "weapon_mods", item_entry = "wpn_fps_upg_ns_pis_medium", amount = 1 },
 					{ type_items = "weapon_mods", item_entry = "wpn_fps_m4_uupg_m_std", amount = 1 },
 	}
-
+	self.pd2_clan = {}
+	self.pd2_clan.content = {}
+	self.pd2_clan.dlc = "has_pd2_clan"
+	self.pd2_clan.content.loot_drops = {
+					{ type_items = "masks", item_entry = "bear", amount = 1 },
+	}
+	
 	self.preorder = {}
 	self.preorder.dlc = "has_preorder"
 	self.preorder.content = {}

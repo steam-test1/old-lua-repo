@@ -105,6 +105,7 @@ function MoneyTweakData:init()
 	self.difficulty_multiplier = { 4, 9, 12, 20 }  -- This is an addition to the job/stage money( stage_money+stage_money*mul ), hard, overkill, overkill_146
 	self.small_loot_difficulty_multiplier = self._create_value_table( 0, 0, 3, false, 1 )
 	self.alive_humans_multiplier = self._create_value_table( 1, self.alive_players_max, 4, false, 1 )
+	self.limited_bonus_multiplier = 1
 	
 	-- Selling value multipliers (a multiplier used to calculate money recieved when selling something)
 	self.sell_weapon_multiplier = 0.25
@@ -122,6 +123,7 @@ function MoneyTweakData:init()
 	self.global_value_multipliers.infamous = 5
 	self.global_value_multipliers.preorder = 1 / 1
 	self.global_value_multipliers.overkill = 0.01
+	self.global_value_multipliers.pd2_clan = 1
 	
 	self.global_value_bonus_multiplier = {}									-- for every extra of the same global value, the sell price is increased with this ( multiplier of value )
 	self.global_value_bonus_multiplier.normal = 0						-- example. an infamous mask with infamous texture = 2 normal, 2 infamous = 1 bonus normal + 1 bonus infamous = sell value increased with 3 times its value ( 1 * 0 + 1 * 3 )
@@ -130,6 +132,7 @@ function MoneyTweakData:init()
 	self.global_value_bonus_multiplier.infamous = 1
 	self.global_value_bonus_multiplier.preorder = 0
 	self.global_value_bonus_multiplier.overkill = 20
+	self.global_value_bonus_multiplier.pd2_clan = 1
 	
 	
 	local smallest_cashout = (self.stage_completion[1] + self.job_completion[1]) * self.offshore_rate

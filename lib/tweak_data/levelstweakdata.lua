@@ -842,9 +842,8 @@ function LevelsTweakData:init()
 					"ukrainian_job", "jewelry_store", "four_stores", "mallcrasher", "nightclub", "branchbank", "fwb",
 					"escape_cafe", "escape_park", "escape_cafe_day", "escape_park_day", "escape_street", "escape_overpass", "escape_garage", "escape_overpass_night",
 					"safehouse",
-					"arm_fac", "arm_par", "arm_hcm", "arm_bri", "arm_cro", "arm_und",
 					"family",
-
+					--[["arm_fac", "arm_par", "arm_hcm", "arm_bri", "arm_cro", "arm_und",]]
 
 					"test01", "test02", "test03", "test04", "test05", "test06", "test07", "test08", "test09", "test10", "escape_chain_test_1", "escape_chain_test_2", "vehicle_van_test"
 					-- "bank", "heat_street", "bridge", "apartment", "slaughter_house", "diamond_heist", "suburbia", "secret_stash", "hospital", "escape_rooftop" 

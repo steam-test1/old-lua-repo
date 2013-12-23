@@ -49,7 +49,7 @@ function UpgradesTweakData:_init_pd2_values()
 	self.taser_malfunction_max														= 3
 	self.counter_taser_damage															= 0.5
 	
-	self.moral_boost_speed_bonus													= 1.2000000476837
+	self.moral_boost_speed_bonus													= 1.2
 	self.moral_boost_suppression_resistance								= 1
 	self.moral_boost_time																	= 10
 	
@@ -426,7 +426,7 @@ function UpgradesTweakData:_init_pd2_values()
 	self.values.player.passive_concealment_modifier				= { 5 }						-- TIER 4
 	self.values.player.passive_armor_movement_penalty_multiplier		= { 0.75 }				-- TIER 4
 	self.values.player.passive_loot_drop_multiplier				= { 1.1 }				-- TIER 6
-	self.values.weapon.armor_piercing_chance				= { 0.15000000596046 }			-- TIER 6
+	self.values.weapon.armor_piercing_chance				= { 0.15 }			-- TIER 6
 	
 	
 	

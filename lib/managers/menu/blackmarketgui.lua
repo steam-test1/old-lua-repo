@@ -1,7 +1,7 @@
 require "lib/managers/menu/WalletGuiObject"
 
 local NOT_WIN_32 = not (SystemInfo:platform() == Idstring( "WIN32" ))
-local WIDTH_MULTIPLIER = NOT_WIN_32 and 0.69 or 0.73
+local WIDTH_MULTIPLIER = NOT_WIN_32 and 0.69 or 0.72
 local BOX_GAP = 54 * 0.25
 local GRID_H_MUL = ( NOT_WIN_32 and 7 or 6 ) / 8
 
@@ -2510,6 +2510,7 @@ function BlackMarketGui:show_stats()
 			self._stats_titles.equip:show()
 			self._stats_titles.equip:set_text( utf8.to_upper( managers.localization:text( "bm_menu_equipped" ) ) )
 			self._stats_titles.equip:set_alpha(0.75)
+			self._stats_titles.equip:set_x( 105 )
 		else
 			for _, title in pairs( self._stats_titles ) do
 				title:show()
@@ -2518,6 +2519,7 @@ function BlackMarketGui:show_stats()
 			self._stats_titles.total:hide()
 			self._stats_titles.equip:set_text( utf8.to_upper( managers.localization:text( "bm_menu_stats_total" ) ) )
 			self._stats_titles.equip:set_alpha(1)
+			self._stats_titles.equip:set_x( 120 )
 		end
 		
 		for _, stat in ipairs( self._stats_shown ) do
@@ -2585,6 +2587,7 @@ function BlackMarketGui:show_stats()
 			self._stats_titles.equip:show()
 			self._stats_titles.equip:set_text( utf8.to_upper( managers.localization:text( "bm_menu_equipped" ) ) )
 			self._stats_titles.equip:set_alpha( 0.75 )
+			self._stats_titles.equip:set_x( 105 )
 		end
 		
 		if not hide_equip then
@@ -4330,7 +4333,7 @@ function BlackMarketGui:populate_masks( data )
 		if is_locked then
 			new_data.unlocked = false
 			new_data.lock_texture = "guis/textures/pd2/lock_skill"
-			new_data.dlc_locked = "bm_menu_dlc_locked"
+			new_data.dlc_locked = tweak_data.lootdrop.global_values[ new_data.global_value ].unlock_id or "bm_menu_dlc_locked"
 		end
 		
 		if new_data.unlocked then
@@ -4599,7 +4602,7 @@ function BlackMarketGui:populate_mods( data )
 		if tweak_data.lootdrop.global_values[mod_global_value] and tweak_data.lootdrop.global_values[mod_global_value].dlc and not tweak_data.dlc[mod_global_value].free and not managers.dlc:has_dlc( mod_global_value) then -- Global.dlc_save.packages[ mod_global_value ] == false then
 			new_data.unlocked = -math.abs(new_data.unlocked)
 			new_data.lock_texture = "guis/textures/pd2/lock_skill"
-			new_data.dlc_locked = "bm_menu_dlc_locked"
+			new_data.dlc_locked = tweak_data.lootdrop.global_values[ new_data.global_value ].unlock_id or "bm_menu_dlc_locked"
 		end
 		
 		local weapon_id = managers.blackmarket:get_crafted_category( new_data.category )[new_data.slot].weapon_id
@@ -4935,7 +4938,7 @@ function BlackMarketGui:populate_buy_mask( data )
 		if tweak_data.lootdrop.global_values[new_data.global_value] and tweak_data.lootdrop.global_values[new_data.global_value].dlc and not tweak_data.dlc[new_data.global_value].free and not managers.dlc:has_dlc( new_data.global_value) then
 			new_data.unlocked = -math.abs(new_data.unlocked)
 			new_data.lock_texture = "guis/textures/pd2/lock_skill"
-			new_data.dlc_locked = "bm_menu_dlc_locked"
+			new_data.dlc_locked = tweak_data.lootdrop.global_values[ new_data.global_value ].unlock_id or "bm_menu_dlc_locked"
 		end
 		
 		if new_data.unlocked and new_data.unlocked > 0 then
@@ -5176,7 +5179,7 @@ function BlackMarketGui:populate_choose_mask_mod( data )
 		if tweak_data.lootdrop.global_values[new_data.global_value] and tweak_data.lootdrop.global_values[new_data.global_value].dlc and not tweak_data.dlc[new_data.global_value].free and not managers.dlc:has_dlc( new_data.global_value) then
 			new_data.unlocked = -math.abs(new_data.unlocked)
 			new_data.lock_texture = "guis/textures/pd2/lock_skill"
-			new_data.dlc_locked = "bm_menu_dlc_locked"
+			new_data.dlc_locked = tweak_data.lootdrop.global_values[ new_data.global_value ].unlock_id or "bm_menu_dlc_locked"
 			is_locked = true
 		end
 		if data.category == "colors" then
@@ -5706,9 +5709,11 @@ function BlackMarketGui:choose_mask_buy_callback( data )
 		if not table.contains( items_ids, mask_id ) and ( mask.pc or mask.pcs ) then
 			local add_to_stash = true
 			local global_value = mask.infamous and "infamous" or "normal"
+			
 			if mask.dlc or mask.dlcs then
 				add_to_stash = false
 				for _, dlc in pairs( mask.dlcs or {} ) do
+					global_value = dlc
 					if tweak_data.lootdrop.global_values[ dlc ] and tweak_data.lootdrop.global_values[ dlc ].dlc and tweak_data.dlc[ dlc ].free or managers.dlc:has_dlc( dlc ) then
 						add_to_stash = true
 						global_value = dlc
@@ -5718,10 +5723,14 @@ function BlackMarketGui:choose_mask_buy_callback( data )
 				if tweak_data.lootdrop.global_values[ mask.dlc ] and tweak_data.lootdrop.global_values[ mask.dlc ].dlc and tweak_data.dlc[ mask.dlc ].free or managers.dlc:has_dlc( mask.dlc ) then
 					add_to_stash = true
 					global_value = mask.dlc
+				elseif not add_to_stash then
+					global_value = mask.dlc or global_value
 				end
 			end
 			
-			if add_to_stash then
+			if add_to_stash or not tweak_data.lootdrop.global_values[ global_value ].hide_unavailable then
+				
+				
 				table.insert( items, { amount=0, global_value=global_value, mask_id=mask_id } )
 			end
 		end

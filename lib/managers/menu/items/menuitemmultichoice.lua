@@ -404,8 +404,10 @@ function MenuItemMultiChoice:_layout( node, row_item )
 	
 	-- row_item.gui_panel:set_right( node._right_align( node ) + row_item.choice_panel:w() )
 	
-	row_item.arrow_right:set_size( 24*tweak_data.scale.multichoice_arrow_multiplier, 24*tweak_data.scale.multichoice_arrow_multiplier )
-	row_item.arrow_left:set_size( 24*tweak_data.scale.multichoice_arrow_multiplier, 24*tweak_data.scale.multichoice_arrow_multiplier )
+	local arrow_size = 24 * tweak_data.scale.multichoice_arrow_multiplier
+	
+	row_item.arrow_right:set_size( arrow_size, arrow_size )
+	row_item.arrow_left:set_size( arrow_size, arrow_size )
 	
 	if( row_item.align == "right" ) then
 		row_item.arrow_left:set_left( right_align  - row_item.gui_panel:x() + (self:parameters().expand_value or 0) ) -- node._left_align( node ) - row_item.gui_panel:x() ) -- 3 )
@@ -420,7 +422,12 @@ function MenuItemMultiChoice:_layout( node, row_item )
 	row_item.gui_text:set_h( h )
 	row_item.gui_text:set_width( w + 5 )
 	
-	row_item.choice_panel:set_w( row_item.gui_panel:width() * 0.4 ) -- 300
+	if h == 0 then
+		h = row_item.font_size
+		row_item.choice_panel:set_w( row_item.gui_panel:width() - ( arrow_size + node._align_line_padding ) * 2 )
+	else
+		row_item.choice_panel:set_w( row_item.gui_panel:width() * 0.4 ) -- 300
+	end
 	
 	row_item.choice_panel:set_h( h )
 	if( row_item.align == "right" ) then

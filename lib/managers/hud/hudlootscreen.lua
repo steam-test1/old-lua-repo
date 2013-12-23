@@ -485,7 +485,7 @@ function HUDLootScreen:feed_lootdrop( lootdrop_data )
 		else
 			local guis_catalog = "guis/"
 			local tweak_data_category = category == "mods" and "weapon_mods" or category
-			local bundle_folder = tweak_data.blackmarket[ tweak_data_category ][ item_id ] and tweak_data.blackmarket[ tweak_data_category ][ item_id ].texture_bundle_folder
+			local bundle_folder = tweak_data.blackmarket[ tweak_data_category ] and tweak_data.blackmarket[ tweak_data_category ][ item_id ] and tweak_data.blackmarket[ tweak_data_category ][ item_id ].texture_bundle_folder
 			if bundle_folder then
 				guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 			end
@@ -596,8 +596,8 @@ function HUDLootScreen:begin_choose_card( peer_id, card_id )
 
 
 
-	local type_to_card = { weapon_mods = 2, cash = 3, masks = 1, materials = 1, colors = 1, textures = 1, xp = 4 }
-	local card_nums = { "upcard_mask", "upcard_weapon", "upcard_cash", "upcard_xp" }
+	local type_to_card = { weapon_mods = 2, cash = 3, masks = 1, materials = 5, colors = 6, textures = 7, xp = 4 }
+	local card_nums = { "upcard_mask", "upcard_weapon", "upcard_cash", "upcard_xp", "upcard_material", "upcard_color", "upcard_pattern" }
 	for i, pc in ipairs( cards ) do
 		local my_card = i == card_id
 		local card_panel = panel:child( "card"..i )
@@ -798,9 +798,9 @@ function HUDLootScreen:show_item( peer_id )
 		local item_category = lootdrop_data[3]
 		local item_id = lootdrop_data[4]
 		local item_pc = lootdrop_data[6]
-		local loot_tweak = tweak_data.blackmarket[item_category][item_id]
+		local loot_tweak = tweak_data.blackmarket[item_category] and tweak_data.blackmarket[item_category][item_id]
 		
-		local item_text = managers.localization:text( loot_tweak.name_id )
+		local item_text = managers.localization:text( loot_tweak and loot_tweak.name_id or "" )
 		if item_category == "cash" then
 			local value_id = tweak_data.blackmarket[ item_category ][ item_id ].value_id
 
@@ -810,11 +810,13 @@ function HUDLootScreen:show_item( peer_id )
 			local value_id = tweak_data.blackmarket[ item_category ][ item_id ].value_id
 			local amount = tweak_data:get_value( "experience_manager", "loot_drop_value", value_id ) or 0
 			item_text = managers.experience:experience_string( amount )
-		end 
-		main_text:set_text( managers.localization:to_upper_text( "menu_l_you_got", {category=managers.localization:text("bm_menu_"..item_category), item=item_text} ) )
+		end
+		if item_category then
+			main_text:set_text( managers.localization:to_upper_text( "menu_l_you_got", {category=managers.localization:text("bm_menu_"..item_category), item=item_text} ) )
+		end
 		quality_text:set_text( managers.localization:to_upper_text( "menu_l_quality", { quality=((item_pc==0 and "?") or item_pc) } ) )
 
-		if global_value ~= "normal" then
+		if global_value and global_value ~= "normal" then
 			global_value_text:set_text( managers.localization:to_upper_text( "menu_l_global_value_" .. global_value ) )
 			global_value_text:set_color( tweak_data.lootdrop.global_values[ global_value ].color )
 			self:make_fine_text( global_value_text )
@@ -1069,6 +1071,10 @@ function HUDLootScreen:check_inside_local_peer( x, y )
 	end
 end
 
+function HUDLootScreen:set_layer( layer )
+	self._backdrop:set_layer( layer )
+end
+
 function HUDLootScreen:reload()
 	self._backdrop:close()
 	self._backdrop = nil
@@ -1085,4 +1091,12 @@ function HUDLootScreen:reload()
 	end
 	]]
 	HUDLootScreen.init( self, self._hud, self._workspace --[[, saved_lootdrop, saved_selected]] )
+end
+
+function HUDLootScreen:close()
+	self._active = false
+	self:hide()
+	
+	self._backdrop:close()
+	self._backdrop = nil
 end

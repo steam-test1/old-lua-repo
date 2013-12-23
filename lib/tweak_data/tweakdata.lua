@@ -39,7 +39,7 @@ function TweakData:digest_tweak_data()
 
 	self:digest_recursive( self.money_manager )
 	self:digest_recursive( self.experience_manager )
-
+	self:digest_recursive( self.casino )
 end
 
 function TweakData:digest_recursive( key, parent )
@@ -2378,6 +2378,7 @@ function TweakData:init()
 	self.experience_manager.stage_failed_multiplier = 0.10
 	self.experience_manager.difficulty_multiplier = { 2, 5, 10 } -- This is an addition to the job/stage xp( stage_xp+stage_xp*mul ), hard, overkill, overkill_146
 	self.experience_manager.alive_humans_multiplier = { 1, 1.1, 1.2, 1.3 }
+	self.experience_manager.limited_bonus_multiplier = 1.33
 	
 	
 	self.experience_manager.level_limit = {}
@@ -2471,6 +2472,7 @@ function TweakData:init()
 	self.achievement.fully_loaded = 9 -- Crafted weapon slots
 	self.achievement.weapon_collector = 18 -- Crafted weapon slots
 	self.achievement.how_do_you_like_me_now = "level_1" -- What armor should not be equipped
+	self.achievement.like_an_angry_bear = "bear"
 	
 	
 	
@@ -2667,7 +2669,6 @@ function TweakData:init()
 	self.blame.cop_alarm = "hint_alarm_cop"
 	self.blame.gan_alarm = "hint_alarm_cop"
 	
-	
 	--[[		-- should look like this
 	cam_criminal
 	cam_glass
@@ -2686,7 +2687,23 @@ function TweakData:init()
 			-----------------------------------------------------------------------------
 	
 	-- self.blame_triggers = { "none", "cop", "gangster",  "civilian", "metal_detector", "security_camera",  }		-- editor
-
+	
+	
+	
+	
+	self.casino = {}
+	self.casino.unlock_level = 10
+	self.casino.entrance_level = { 14, 28, 42, 56, 70, 84, 100 }
+	self.casino.entrance_fee = { 1000000, 3000000, 9000000, 15000000, 20000000, 25000000, 30000000 }
+	self.casino.prefer_cost = 1500000
+	self.casino.prefer_chance = 0.1
+	self.casino.secure_card_cost = { 10000000, 33000000, 65000000 }
+	self.casino.secure_card_level = { 10, 40, 60 }
+	self.casino.infamous_cost = 30000000
+	self.casino.infamous_chance = 3
+	
+	
+	
 	self:set_difficulty()
 
 	self:set_mode()

@@ -162,11 +162,21 @@ function ItemToggle:reload( row_item, node )
 		row_item.gui_icon:set_h( h )
 		-- row_item.gui_icon:set_right( node._left_align( node ) - row_item.gui_panel:x() )
 		
-		if( row_item.align == "right" ) then
-			row_item.gui_icon:set_left( node._right_align( node )  - row_item.gui_panel:x() + (self:parameters().expand_value or 0) )
+		if self:parameters().icon_by_text then
+			if row_item.align == "right" then
+				row_item.gui_icon:set_right( row_item.gui_panel:w() )
+				row_item.gui_text:set_right( row_item.gui_icon:left() )
+			else
+				row_item.gui_icon:set_left( node._right_align( node ) - row_item.gui_panel:x() + ( self:parameters().expand_value or 0 ) )
+				row_item.gui_text:set_left( row_item.gui_icon:right() )
+			end
+			
+		elseif row_item.align == "right" then
+			row_item.gui_icon:set_left( node._right_align( node ) - row_item.gui_panel:x() + ( self:parameters().expand_value or 0 ) )
 		else
 			row_item.gui_icon:set_right( row_item.gui_panel:w() )
 		end
+		
 	end
 
 	-- row_item.gui_panel:set_width( (row_item.gui_option and row_item.gui_option:width() or 0 )+ row_item.gui_text:width() + node._align_line_padding * 2 )

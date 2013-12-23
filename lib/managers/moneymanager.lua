@@ -279,6 +279,8 @@ function MoneyManager:get_money_by_params( params )
 
 	local static_value = self:get_money_by_job( job_id, difficulty_stars + 1 )
 	if static_value then
+	
+	
 		small_value = real_small_value + managers.loot:get_real_total_postponed_small_loot_value()
 
 		if on_last_stage then
@@ -298,7 +300,21 @@ function MoneyManager:get_money_by_params( params )
 		else
 			total_payout = small_value
 		end
+		
+		local limited_bonus = tweak_data:get_value("money_manager", "limited_bonus_multiplier") or 1
+		if limited_bonus > 1 then
+			stage_value = stage_value * limited_bonus
+			stage_risk = stage_risk * limited_bonus
+			bag_value = bag_value * limited_bonus
+			bag_risk = bag_risk * limited_bonus
+			small_value = small_value * limited_bonus
+			small_risk = small_risk * limited_bonus
+			crew_value = crew_value * limited_bonus
+			total_payout = total_payout * limited_bonus
+		end
+		
 	else
+		
 		stage_value = self:get_stage_payout_by_stars( total_stars ) or 0
 		local mandatory_bag_value = 0
 		local bonus_bag_value = 0
@@ -872,7 +888,7 @@ function MoneyManager:get_mask_crafting_price( mask_id, global_value, blueprint 
 	local bonus_global_values = { normal=0, superior=0, exceptional=0, infamous=0}
 	
 	-- local pc_value = self:_get_pc_entry( tweak_data.blackmarket.masks[ mask_id ] )
-	local pc_value = tweak_data.blackmarket.masks[ mask_id ].value or 1 -- Changed system to used value instead of PC
+	local pc_value = tweak_data.blackmarket.masks[ mask_id ] and tweak_data.blackmarket.masks[ mask_id ].value or 1 -- Changed system to used value instead of PC
 	
 	local star_value = pc_value and math.ceil( pc_value ) or 1
 	
@@ -1082,6 +1098,52 @@ function MoneyManager:on_buy_premium_contract( job_id, difficulty_id )
 	self:deduct_from_offshore( amount )
 end
 
+------------------------------------------------------------------
+
+function MoneyManager:get_cost_of_casino_entrance()
+	local current_level = managers.experience:current_level()
+	
+	local level = 1
+	for i = 1, #tweak_data.casino.entrance_level do
+		level = i
+		
+		if current_level < tweak_data:get_value( "casino", "entrance_level", i ) then
+			break
+		end
+	end
+	
+	return tweak_data:get_value( "casino", "entrance_fee", level )
+end
+
+function MoneyManager:get_cost_of_casino_fee( secured_cards, increase_infamous, preferred_card )
+	local fee = self:get_cost_of_casino_entrance()
+	
+	for i = 1, secured_cards do
+		fee = fee + tweak_data:get_value( "casino", "secure_card_cost", i )
+	end
+	
+	if increase_infamous then
+		fee = fee + tweak_data:get_value( "casino", "infamous_cost" )
+	end
+	
+	if preferred_card and preferred_card ~= "none" then
+		fee = fee + tweak_data:get_value( "casino", "prefer_cost" )
+	end
+	
+	return fee
+end
+
+function MoneyManager:can_afford_casino_fee( secured_cards, increase_infamous, preferred_card )
+	return self:offshore() >= self:get_cost_of_casino_fee( secured_cards, increase_infamous, preferred_card )
+end
+
+function MoneyManager:on_buy_casino_fee( secured_cards, increase_infamous, preferred_card )
+	local amount = self:get_cost_of_casino_fee( secured_cards, increase_infamous, preferred_card )
+	self:deduct_from_offshore( amount )
+end
+
+------------------------------------------------------------------
+
 --[[function MoneyManager:calculate_end_score( multipliers )
 	local player_alive = managers.player:player_unit() and true or false
 	if not player_alive then
@@ -1101,7 +1163,6 @@ end
 	self:_add_to_total( end_score )
 	return math.round( end_score )
 end]]
-
 ------------------------------------------------------------------
 
 function MoneyManager:total()
