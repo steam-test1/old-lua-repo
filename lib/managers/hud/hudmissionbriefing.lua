@@ -165,13 +165,15 @@ function HUDMissionBriefing:init( hud, workspace )
 	if interupt_stage then
 		self._job_schedule_panel:set_alpha( 0.2 )
 		
-		self._interupt_panel = self._background_layer_one:panel( {h=125, w=self._background_layer_one:w()/2} )
-		local interupt_text = self._interupt_panel:text( { name="job_text", text=utf8.to_upper( managers.localization:text("menu_escape") ), h=80, align="left", vertical="top", font_size=70, font=bg_font, color=tweak_data.screen_colors.important_1, layer = 5 } )
-		local _,_,w,h = interupt_text:text_rect()
-		interupt_text:set_size( w, h )
-		interupt_text:rotate( -15 )
-		interupt_text:set_center( self._interupt_panel:w()/2, self._interupt_panel:h()/2 )
-		self._interupt_panel:set_shape( self._job_schedule_panel:shape() )		
+		if not tweak_data.levels[ interupt_stage ].bonus_escape then
+			self._interupt_panel = self._background_layer_one:panel( {h=125, w=self._background_layer_one:w()/2} )
+			local interupt_text = self._interupt_panel:text( { name="job_text", text=utf8.to_upper( managers.localization:text("menu_escape") ), h=80, align="left", vertical="top", font_size=70, font=bg_font, color=tweak_data.screen_colors.important_1, layer = 5 } )
+			local _,_,w,h = interupt_text:text_rect()
+			interupt_text:set_size( w, h )
+			interupt_text:rotate( -15 )
+			interupt_text:set_center( self._interupt_panel:w()/2, self._interupt_panel:h()/2 )
+			self._interupt_panel:set_shape( self._job_schedule_panel:shape() )
+		end
 	end
 	
 	local num_stages = self._current_job_data and #self._current_job_data.chain or 0

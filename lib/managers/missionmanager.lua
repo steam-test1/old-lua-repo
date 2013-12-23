@@ -77,6 +77,10 @@ require "lib/managers/mission/ElementSpawnDeployable"
 require "lib/managers/mission/ElementInventoryDummy"
 require "lib/managers/mission/ElementProfileFilter"
 require "lib/managers/mission/ElementFleePoint"
+require "lib/managers/mission/ElementInstigator"
+require "lib/managers/mission/ElementInstigatorRule"
+require "lib/managers/mission/ElementPickup"
+require "lib/managers/mission/ElementLaserTrigger"
 
 -- Old Fortress
 require "lib/managers/mission/ElementPlayerSpawner"
@@ -92,12 +96,14 @@ function MissionManager:init( ... )
 	self:add_area_instigator_categories( "enemies" )
 	self:add_area_instigator_categories( "civilians" )
 	self:add_area_instigator_categories( "escorts" )
+	self:add_area_instigator_categories( "local_criminals" )
 	self:add_area_instigator_categories( "criminals" )
 	self:add_area_instigator_categories( "ai_teammates" )
 	self:add_area_instigator_categories( "loot" )
 	self:add_area_instigator_categories( "unique_loot" )
 	self:set_default_area_instigator( "player" )
-	self:set_global_event_list( { "bankmanager_key", "chavez_key", "blue_key", "keycard", "start_assault", "end_assault", "police_called", "police_weapons_hot", "loot_lost", "special_event_a", "special_event_b", "special_event_c", "special_event_d", "special_event_e", "special_event_f", "special_event_g", "loot_bag", "atm", "civilian_killed" } )
+	self:set_global_event_list( { "bankmanager_key", "keycard", "start_assault", "end_assault", "police_called", "police_weapons_hot", "civilian_killed", "loot_lost", "loot_exploded",
+																"pku_gold", "pku_money", "pku_jewelry", "pku_painting", "pku_meth", "pku_cocaine", "pku_weapons", "pku_toolbag", "pku_atm", "pku_folder", "pku_poster" } )
 	
 	self._mission_filter = {}
 	
@@ -173,9 +179,10 @@ function MissionManager:activate_script( ... )
 	-- end
 end
 
-function MissionManager:client_run_mission_element( id, unit )
+function MissionManager:client_run_mission_element( id, unit, orientation_element_index )
 	for name,data in pairs( self._scripts ) do
 		if data:element( id ) then
+			data:element( id ):set_synced_orientation_element_index( orientation_element_index )
 			data:element( id ):client_on_executed( unit )
 			return
 		end
@@ -183,10 +190,11 @@ function MissionManager:client_run_mission_element( id, unit )
 end
 
 
-function MissionManager:client_run_mission_element_end_screen( id, unit )
+function MissionManager:client_run_mission_element_end_screen( id, unit, orientation_element_index )
 	for name,data in pairs( self._scripts ) do
 		if data:element( id ) then
 			if data:element( id ).client_on_executed_end_screen then
+				data:element( id ):set_synced_orientation_element_index( orientation_element_index )
 				data:element( id ):client_on_executed_end_screen( unit )
 			end
 			return
@@ -204,25 +212,44 @@ function MissionManager:server_run_mission_element_trigger( id, unit )
 	end
 end
 
+
+function MissionManager:to_server_area_event( event_id, id, unit )
+	for name,data in pairs( self._scripts ) do
+		local element = data:element( id )
+		if element then
+			if event_id == 1 then
+				element:sync_enter_area( unit )
+			elseif event_id == 2 then
+				element:sync_exit_area( unit )
+			elseif event_id == 3 then
+				element:sync_while_in_area( unit )
+			elseif event_id == 4 then
+				element:sync_rule_failed( unit )
+			end
+		end
+	end
+end
+
+
 -- Called from client to tell the server that he entered an area
-function MissionManager:server_enter_area( id, unit )
+--[[function MissionManager:server_enter_area( id, unit )
 	for name,data in pairs( self._scripts ) do
 		local element = data:element( id )
 		if element then
 			element:sync_enter_area( unit )
 		end
 	end
-end
+end]]
 
 -- Called from client to tell the server that he exited an area
-function MissionManager:server_exit_area( id, unit )
+--[[function MissionManager:server_exit_area( id, unit )
 	for name,data in pairs( self._scripts ) do
 		local element = data:element( id )
 		if element then
 			element:sync_exit_area( unit )
 		end
 	end
-end
+end]]
 
 -- Called from client to tell the server that he has accessed a camera feed
 function MissionManager:to_server_access_camera_trigger( id, trigger, instigator )

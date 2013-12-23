@@ -9,7 +9,6 @@ ActionSpooc._anim_movement = CopActionWalk._anim_movement
 -- The object is created when the action is started
 function ActionSpooc:init( action_desc, common_data )
 	--print( "[ActionSpooc:init]", inspect( action_desc ) )
-	--Application:stack_dump()
 	
 	self._tmp_vec1 = Vector3()
 	self._common_data = common_data
@@ -243,7 +242,6 @@ end
 
 function ActionSpooc:_wait()
 	--print( "[ActionSpooc:_wait]" )
-	--Application:stack_dump()
 	self._end_of_path = true
 	self:_set_updator( "_upd_wait" )
 	if self._ext_anim.move then
@@ -608,7 +606,6 @@ end
 
 function ActionSpooc:_expire()
 	--print( "[ActionSpooc:_expire]", self._unit )
-	--Application:stack_dump()
 	self._expired = true
 end
 

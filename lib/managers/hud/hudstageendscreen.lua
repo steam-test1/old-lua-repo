@@ -38,7 +38,8 @@ function HUDPackageUnlockedItem:init( panel, row, params, hud_stage_end_screen )
 				local weapon_name = managers.weapon_factory:get_weapon_name_by_factory_id( upgrade_def.factory_id )
 				local weapon_class = managers.localization:text( "menu_" .. tweak_data.weapon[upgrade_def.weapon_id].category )
 				local weapon_category = managers.localization:text( "bm_menu_" .. (tweak_data.weapon[ upgrade_def.weapon_id ].use_data.selection_index == 2 and "primaries" or "secondaries") )
-				bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. weapon_id
+				local texture_name = tweak_data.weapon[ weapon_id ].texture_name or tostring( weapon_id )
+				bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
 				text_string = managers.localization:text( "menu_es_package_weapon", {weapon=utf8.to_upper( weapon_name ), type=utf8.to_upper(weapon_class), category=weapon_category, INVENTORY_MENU=managers.localization:text("menu_inventory")} )
 				
 			elseif category == Idstring( "armor" ) then
@@ -164,6 +165,7 @@ elseif( data.upgrades ) then	-- got upgrades
 	end
 end
 ]]
+
 
 function HUDPackageUnlockedItem:create_animation()
 	managers.menu_component:post_event( "stinger_new_weapon" )
@@ -1644,6 +1646,7 @@ function HUDStageEndScreen:update( t, dt )
 		self._lp_sp_gain:set_visible( visible )
 		self._lp_sp_info:set_visible( visible )
 	end
+	
 	--[[
 	local spin_func = function( self, o, xp, end_xp, total_xp, current_xp, gained_xp, speed, breaks )
 		local dt = 0
@@ -2089,7 +2092,8 @@ function HUDStageEndScreen:animate_level_progress( o, data )
 						if bundle_folder then
 							guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 						end
-						self._package_picture:set_image( guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. weapon_id )
+						local texture_name = tweak_data.weapon[ weapon_id ].texture_name or tostring( weapon_id )
+						self._package_picture:set_image( guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name )
 					else
 						self._package_picture:set_image( "guis/textures/pd2/endscreen/test_icon_package" )
 					end

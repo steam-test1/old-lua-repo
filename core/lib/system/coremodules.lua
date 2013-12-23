@@ -170,6 +170,7 @@ core:register_module( "core/lib/managers/mission/CoreElementExecuteInOtherMissio
 core:register_module( "core/lib/managers/mission/CoreElementLogicChance" )
 core:register_module( "core/lib/managers/mission/CoreElementGlobalEventTrigger" )
 core:register_module( "core/lib/managers/mission/CoreElementTimer" )
+core:register_module( "core/lib/managers/mission/CoreElementShape" )
 
 -- register modules for the world holder and definition
 core:register_module( "core/lib/utils/dev/editor/CoreWorldDefinition" )

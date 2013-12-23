@@ -50,7 +50,7 @@ function NetworkPeer:init( name, rpc, id, loading, synced, in_lobby, character, 
 		managers.network.voice_chat:on_member_added( self )
 	end
 	
-	self._profile = { level = nil, outfit_string = "" }
+	self._profile = { level = nil, rank = nil, outfit_string = "" }
 	self._handshakes = {} -- _handshakes[3] = true -> means this peer knows about peer 3
 end
 
@@ -734,8 +734,9 @@ end
 
 --------------------------------------------------------------------
 
-function NetworkPeer:set_profile( level )
+function NetworkPeer:set_profile( level, rank )
 	self._profile.level = level
+	self._profile.rank = rank
 end
 
 --------------------------------------------------------------------

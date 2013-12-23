@@ -23,30 +23,42 @@ function QuickFlashGrenade:_play_sound_and_effects()
 		local sound_source = SoundDevice:create_source( "grenade_bounce_source" )
 		sound_source:set_position(bounce_point)
 		
-		sound_source:post_event( "flashbang_bounce" )
+		sound_source:post_event( "flashbang_bounce", callback( self, self, "sound_playback_complete_clbk" ), sound_source, "end_of_event" )
 	
 	elseif self._state == 3 then
-		--World:effect_manager():spawn( { effect = Idstring( "effects/particles/explosions/explosion_smoke_grenade" ), position = self._unit:position(), normal = self._unit:rotation():y() } )
+		-- World:effect_manager():spawn( { effect = Idstring( "effects/particles/explosions/explosion_smoke_grenade" ), position = self._unit:position(), normal = self._unit:rotation():y() } )
 		self._unit:sound_source():post_event( "flashbang_explosion" )
 		
-		local parent = self._unit:orientation_object()
-		--self._smoke_effect = World:effect_manager():spawn( { effect = Idstring( "effects/particles/explosions/smoke_grenade_smoke" ), parent = parent } ) -- position = self._unit:position(), normal = self._unit:rotation():y() } )
+		-- local parent = self._unit:orientation_object()
+		-- self._smoke_effect = World:effect_manager():spawn( { effect = Idstring( "effects/particles/explosions/smoke_grenade_smoke" ), parent = parent } ) -- position = self._unit:position(), normal = self._unit:rotation():y() } )
 		local detonate_pos = self._unit:position()
-		local range = 1000
+		self:make_flash( detonate_pos )
+		--[[local range = 1000
 		local affected, line_of_sight, travel_dis, linear_dis = self:_chk_dazzle_local_player( detonate_pos, range )
 		if affected then
 			managers.environment_controller:set_flashbang( detonate_pos, line_of_sight, travel_dis, linear_dis, tweak_data.character.flashbang_multiplier )
 			
 			local sound_eff_mul = math.clamp( 1 - ( travel_dis or linear_dis ) / range, 0.3, 1 )
 			managers.player:player_unit():character_damage():on_flashbanged( sound_eff_mul )
-		end
+		end]]
 		managers.groupai:state():propagate_alert( { "aggression", detonate_pos, 10000, managers.groupai:state():get_unit_type_filter( "civilians_enemies" ), nil } )
+	end
+end
+
+function QuickFlashGrenade:make_flash( detonate_pos, range, ignore_units )
+	local range = range or 1000
+	local affected, line_of_sight, travel_dis, linear_dis = self:_chk_dazzle_local_player( detonate_pos, range, ignore_units )
+	if affected then
+		managers.environment_controller:set_flashbang( detonate_pos, line_of_sight, travel_dis, linear_dis, tweak_data.character.flashbang_multiplier )
+		
+		local sound_eff_mul = math.clamp( 1 - ( travel_dis or linear_dis ) / range, 0.3, 1 )
+		managers.player:player_unit():character_damage():on_flashbanged( sound_eff_mul )
 	end
 end
 
 -----------------------------------------------------------------------------------
 
-function QuickFlashGrenade:_chk_dazzle_local_player( detonate_pos, range )
+function QuickFlashGrenade:_chk_dazzle_local_player( detonate_pos, range, ignore_units )
 	local player = managers.player:player_unit()
 	if not alive( player ) then
 		return
@@ -66,7 +78,11 @@ function QuickFlashGrenade:_chk_dazzle_local_player( detonate_pos, range )
 	local slotmask = managers.slot:get_mask( "bullet_impact_targets" )
 	
 	local _vis_ray_func = function( from, to, boolean )
-		return World:raycast( "ray", from, to, "slot_mask", slotmask, boolean and "report" or nil )
+		if ignore_units then
+			return World:raycast( "ray", from, to, "ignore_unit", ignore_units, "slot_mask", slotmask, boolean and "report" or nil )
+		else
+			return World:raycast( "ray", from, to, "slot_mask", slotmask, boolean and "report" or nil )
+		end
 	end
 	
 	if not _vis_ray_func( m_pl_head_pos, detonate_pos, true ) then
@@ -112,6 +128,11 @@ function QuickFlashGrenade:_chk_dazzle_local_player( detonate_pos, range )
 			end
 		end
 	end
+end
+
+-----------------------------------------------------------------------------------
+
+function QuickFlashGrenade:sound_playback_complete_clbk( event_instance, sound_source, event_type, sound_source_again )
 end
 
 -----------------------------------------------------------------------------------

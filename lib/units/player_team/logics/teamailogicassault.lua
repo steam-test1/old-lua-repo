@@ -275,7 +275,7 @@ function TeamAILogicAssault._upd_enemy_detection( data, is_synchronous )
 			brush:cylinder(data.unit:movement():m_head_pos(), nmy:movement():m_head_pos(), 5)
 			]]
 			TeamAILogicAssault._mark_special_t = data.t
-			TeamAILogicAssault.mark_enemy(data, data.unit, nmy, true, true)
+			TeamAILogicAssault.mark_enemy( data, data.unit, nmy, true, true )
 		end
 	end
 	
@@ -318,8 +318,8 @@ function TeamAILogicAssault.mark_enemy( data, criminal, to_mark, play_sound, pla
 		end
 	end
 	
-	managers.game_play_central:add_enemy_contour( to_mark, false )
-	managers.network:session():send_to_peers_synched( "mark_enemy", to_mark, false )
+	managers.game_play_central:add_enemy_contour( to_mark, false, 1 )
+	managers.network:session():send_to_peers_synched( "mark_enemy", to_mark, false, 1 )
 end
 
 -----------------------------------------------------------------------------
@@ -331,6 +331,7 @@ function TeamAILogicAssault.action_complete_clbk( data, action )
 	local action_type = action:type()
 	
 	if action_type == "walk" then
+		my_data.advancing = nil
 		my_data.rsrv_pos.stand = my_data.rsrv_pos.move_dest
 		my_data.rsrv_pos.move_dest = nil
 	

@@ -22,6 +22,7 @@ function SkillTreeTweakData:init()					-- IF ANY CHANGES IS MADE TO THE SKILLTRE
 				hightier = digest(4),
 				hightierpro = digest(8) } -- Points cost
 	
+	self.tree_multiplier = { digest(1), digest(1), digest(1), digest(1) }
 	
 	--[[ 
 	------------------------------------------- UNUSED UPGRADES -------------------------------------------
@@ -116,6 +117,7 @@ function SkillTreeTweakData:init()					-- IF ANY CHANGES IS MADE TO THE SKILLTRE
 								[4] = { upgrades = { "team_passive_health_multiplier", "player_passive_convert_enemies_health_multiplier", "player_passive_convert_enemies_damage_multiplier" }, desc_id="menu_mastermind_tier_4" },
 								[5] = { upgrades = { "player_convert_enemies_interaction_speed_multiplier" }, desc_id="menu_mastermind_tier_5" },
 								[6] = { upgrades = { "player_passive_empowered_intimidation", "passive_player_assets_cost_multiplier" }, desc_id="menu_mastermind_tier_6" },
+								
 								}
 	self.skills[ "enforcer" ] =  {									-- This is a skill that gives an upgrade
 								name_id = "menu_enforcer",				-- Name of skill
@@ -126,7 +128,8 @@ function SkillTreeTweakData:init()					-- IF ANY CHANGES IS MADE TO THE SKILLTRE
 								[3] = { upgrades = { "player_passive_suppression_bonus_2" }, desc_id="menu_menu_enforcer_tier_3" },
 								[4] = { upgrades = { "player_passive_health_multiplier_2" }, desc_id="menu_menu_enforcer_tier_4" },
 								[5] = { upgrades = { "weapon_passive_damage_multiplier" }, desc_id="menu_menu_enforcer_tier_5" },
-								[6] = { upgrades = { "player_passive_health_multiplier_3" }, desc_id="menu_menu_enforcer_tier_6" },	
+								[6] = { upgrades = { "player_passive_health_multiplier_3" }, desc_id="menu_menu_enforcer_tier_6" },
+								
 								}
 	self.skills[ "technician" ] =  {									-- This is a skill that gives an upgrade
 								name_id = "menu_technician",				-- Name of skill
@@ -149,6 +152,7 @@ function SkillTreeTweakData:init()					-- IF ANY CHANGES IS MADE TO THE SKILLTRE
 								[4] = { upgrades = { "player_passive_suspicion_bonus", "player_passive_armor_movement_penalty_multiplier" }, desc_id="menu_ghost_tier_4" },
 								[5] = { upgrades = { "weapon_passive_swap_speed_multiplier_2" }, desc_id="menu_ghost_tier_5" },
 								[6] = { upgrades = { "player_passive_loot_drop_multiplier", "weapon_passive_armor_piercing_chance" }, desc_id="menu_ghost_tier_6" },
+								
 								}
 	
 	
@@ -208,7 +212,7 @@ function SkillTreeTweakData:init()					-- IF ANY CHANGES IS MADE TO THE SKILLTRE
 									desc_id = "menu_dominator_desc",		-- Description of skill
 									icon_xy = { 2, 8 },
 									[1] = { upgrades = { "player_intimidate_enemies" }, cost = self.costs.default },
-									[2] = { upgrades = { "player_intimidate_range_mul", "player_intimidate_aura", "player_ene_hostage_lim_1" }, cost = self.costs.pro },
+									[2] = { upgrades = { "player_intimidate_range_mul", "player_intimidate_aura" }, cost = self.costs.pro },
 								}
 	self.skills[ "fast_learner" ] = {	-- tier 2
 									name_id = "menu_fast_learner",
@@ -412,6 +416,7 @@ function SkillTreeTweakData:init()					-- IF ANY CHANGES IS MADE TO THE SKILLTRE
 									prerequisites = { "portable_saw" },
 									[1] = { upgrades = { "player_saw_speed_multiplier_1", "saw_lock_damage_multiplier_1" }, cost = self.costs.hightier },
 									[2] = { upgrades = { "player_saw_speed_multiplier_2", "saw_lock_damage_multiplier_2", "saw_enemy_slicer" }, cost = self.costs.hightierpro },
+									
 								}
 	self.skills[ "show_of_force" ] = {	-- tier 2
 									name_id = "menu_show_of_force",

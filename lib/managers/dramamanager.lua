@@ -1,4 +1,4 @@
-DramaManager = DramaManager or class()
+--[[DramaManager = DramaManager or class()
 
 function DramaManager:init()
 	self._cues = {}
@@ -113,3 +113,4 @@ function DramaManager:_process_duration( value )
 		return value
 	end	
 end
+]]

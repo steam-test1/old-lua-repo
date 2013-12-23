@@ -1,6 +1,15 @@
 local tmp_vec3 = Vector3()
 
 GrenadeBase = GrenadeBase or class( UnitBase )
+GrenadeBase.types = { Idstring( "units/weapons/frag_grenade/frag_grenade") }
+GrenadeBase.EVENT_IDS = { detonate = 1 }
+
+function GrenadeBase.server_throw_grenade( grenade_type, pos, dir )
+	local unit = World:spawn_unit( GrenadeBase.types[ grenade_type ], pos, Rotation() )
+	unit:base():throw( { dir = dir } )
+	
+	managers.network:session():send_to_peers_synched( "sync_throw_grenade", unit, dir )
+end
 
 function GrenadeBase.spawn( unit_name, pos, rot ) -- Only called from server
 	--[[local brush = Draw:brush( Color.red:with_alpha( 0.5 ) )
@@ -21,6 +30,9 @@ function GrenadeBase:init( unit )
 	UnitBase.init( self, unit, true )
 	self._unit = unit
 	
+	if not Network:is_server() then
+		return 
+	end
 	self:_setup()
 end
 
@@ -48,161 +60,36 @@ end
 -----------------------------------------------------------------------------------
 
 
--- position, normal, user_unit, dmg, range, curve_pow
--- function GrenadeBase._detect_and_give_dmg( hit_pos, slotmask, user_unit, dmg, range, curve_pow )
--- _collision_slotmask, _user, _damage, _range, _curve_pow, _owner
+
+
+
+
+
+
+
+
+
+
+
 function GrenadeBase:_detect_and_give_dmg( hit_pos )
-	local slotmask = self._collision_slotmask
-	local user_unit = self._user
-	local dmg = self._damage
-	local player_dmg = self._player_damage or dmg
-	local range = self._range
+	local params = {}
+	params.hit_pos = hit_pos
+	params.collision_slotmask = self._collision_slotmask
+	params.user = self._user
+	params.damage = self._damage
+	params.player_damage = self._player_damage or self._damage
+	params.range = self._range
+	params.ignore_unit = self._ignore_unit
+	params.curve_pow = self._curve_pow
+	params.col_ray = self._col_ray
+	params.alert_filter = self._alert_filter
+	params.owner = self._owner
 	
-	
-	--[[local brush = Draw:brush( Color.green:with_alpha( 0.5 ), 2 )
-	brush:sphere( self._unit:position(), 4 )
-	brush:cylinder( self._unit:position(), hit_pos, 2 )]]
-	
-	
-	local player = managers.player:player_unit()
-	if alive( player ) and player_dmg ~= 0 then
-		player:character_damage():damage_explosion( { position = hit_pos, range = range, damage = player_dmg } )
-	end
-	
-	local bodies = World:find_bodies( "intersect", "sphere", hit_pos, range, slotmask )
-	--print( "Found " .. tostring( table.size( bodies ) ) .. " bodies" )
-
-	if user_unit then
-		managers.groupai:state():propagate_alert( { "aggression", hit_pos, 10000, self._alert_filter, user_unit } )
-	end
-	
-	-- TODO: Throw 6 or so "splinters" here to raycast against
-	local splinters = { mvector3.copy( hit_pos ) }
-	
-	local dirs = { 
-		Vector3( range, 0, 0 ),
-		Vector3(-range, 0, 0 ),
-		Vector3( 0, range, 0 ),
-		Vector3( 0,-range, 0 ),
-		Vector3( 0, 0, range ),
-		Vector3( 0, 0,-range )
-	}
-
-	--local splinter_brush = Draw:brush( Color.green:with_alpha( 0.5 ), 2 )
-	--local splinter_brush_fail = Draw:brush( Color.red:with_alpha( 0.5 ), 2 )
-	
-	local pos = Vector3()
-	for _, dir in ipairs( dirs ) do
-		mvector3.set( pos, dir )
-		mvector3.add( pos, hit_pos )
-		local splinter_ray = World:raycast( "ray", hit_pos, pos, "slot_mask", slotmask )
-		
-		pos = ( splinter_ray and splinter_ray.position or pos ) - dir:normalized() * math.min( splinter_ray and splinter_ray.distance or 0, 10 )
-		
-		
-		--[[if splinter_ray then
-			print( "collision", pos )
-			splinter_brush_fail:sphere( pos, 20 )
-		else
-			print( "no collision", pos )
-			splinter_brush:sphere( pos, 20 )
-		end]]
-		
-		local near_splinter = false
-		for _, s_pos in ipairs( splinters ) do
-			if mvector3.distance_sq( pos, s_pos ) < 900 then
-				near_splinter = true
-				break
-			end
-		end
-		
-		if not near_splinter then
-			table.insert( splinters, mvector3.copy( pos ) )
-		end
-	end
-
-	
-	--[[for _, s_pos in ipairs( splinters ) do
-		splinter_brush:sphere( s_pos, 10 )
-	end]]
-	
-	
-	local characters_hit = {}
- 	local units_to_push = {}
- 	
-	for _, hit_body in ipairs( bodies ) do
-		local character = hit_body:unit():character_damage() and hit_body:unit():character_damage().damage_explosion
-		local apply_dmg = hit_body:extension() and hit_body:extension().damage
-		
-		units_to_push[ hit_body:unit():key() ] = hit_body:unit()
-		
-		local dir, len, damage, ray_hit
-		if character and not characters_hit[ hit_body:unit():key() ] then
-			for i_splinter, s_pos in ipairs( splinters ) do
-				ray_hit = not World:raycast( "ray", s_pos, hit_body:center_of_mass(), "slot_mask", slotmask, "ignore_unit", { hit_body:unit() }, "report" )
-				if ray_hit then
-					--debug_pause_unit( hit_body:unit(), "hit unit", hit_body:unit() )
-					--splinter_brush:cylinder( s_pos, hit_body:center_of_mass(), 3 )
-					--Application:draw_line( s_pos, hit_body:center_of_mass(), 0, 1, 0 )
-					characters_hit[ hit_body:unit():key() ] = true
-					break
-				--else
-					--splinter_brush_fail:cylinder( s_pos, hit_body:position(), 3 )
-				end
-			end
-		elseif apply_dmg or hit_body:dynamic() then
-			ray_hit = true
-		end
-		
-	
-		if ray_hit then
-			dir = hit_body:center_of_mass()
-			len = mvector3.direction( dir, hit_pos, dir )
-			damage = dmg * math.pow( math.clamp( 1 - len / range, 0, 1 ), self._curve_pow )
-			damage = math.max( damage, 1 ) -- under 1 damage is generally not allowed 
-			
-			local hit_unit = hit_body:unit()
-			if apply_dmg then
-				local normal = dir
-			
-				hit_body:extension().damage:damage_explosion( user_unit, normal, hit_body:position(), dir, damage )
-				hit_body:extension().damage:damage_damage( user_unit, normal, hit_body:position(), dir, damage )
-								
-				if hit_unit:id() ~= -1 then
-					if alive( user_unit ) then
-						managers.network:session():send_to_peers_synched( "sync_body_damage_explosion", hit_body, user_unit, normal, hit_body:position(), dir, damage )
-					else
-						managers.network:session():send_to_peers_synched( "sync_body_damage_explosion_no_attacker", hit_body, normal, hit_body:position(), dir, damage )
-					end
-				end
-			end
-			
---			print( "final damage", hit_unit, damage )
-			
-			if character then
-				local action_data = {}
-				action_data.variant = "explosion"
-				action_data.damage = damage
-				action_data.attacker_unit = user_unit
-				action_data.weapon_unit = self._owner
-				action_data.col_ray = self._col_ray or { position = hit_body:position(), ray = dir }
-				
-				hit_unit:character_damage():damage_explosion( action_data )
-			end
-		end
-	end
-	
-	GrenadeBase._units_to_push( units_to_push, hit_pos, range )
-	
-	if self._owner then
-		managers.challenges:reset_counter( "m79_law_simultaneous_kills" )
-		managers.challenges:reset_counter( "m79_simultaneous_specials" )
-		
-		managers.statistics:shot_fired( { hit = next( characters_hit ) and true or false, weapon_unit = self._owner } )
-	end
+	local hit_units, splinters = managers.explosion:detect_and_give_dmg(params)
+	return hit_units, splinters
 end
 
-function GrenadeBase._units_to_push( units_to_push, hit_pos, range )
+--[[function GrenadeBase._units_to_push( units_to_push, hit_pos, range )
 	for u_key, unit in pairs( units_to_push ) do
 		if alive( unit ) then
 			local is_character = unit:character_damage() and unit:character_damage().damage_explosion
@@ -234,15 +121,15 @@ function GrenadeBase._units_to_push( units_to_push, hit_pos, range )
 			end
 		end
 	end
-end
+end]]
 
 -- Used by grenade launcher explosion to sync what happens on clients
-function GrenadeBase._explode_on_client( position, normal, user_unit, dmg, range, curve_pow )
-	GrenadeBase._play_sound_and_effects( position, normal, range )
-	GrenadeBase._client_damage_and_push( position, normal, user_unit, dmg, range, curve_pow )
+function GrenadeBase._explode_on_client( position, normal, user_unit, dmg, range, curve_pow, custom_params )
+	managers.explosion:play_sound_and_effects( position, normal, range, custom_params )
+	managers.explosion:client_damage_and_push( position, normal, user_unit, dmg, range, curve_pow )
 end
 
-function GrenadeBase._client_damage_and_push( position, normal, user_unit, dmg, range, curve_pow )
+--[[function GrenadeBase._client_damage_and_push( position, normal, user_unit, dmg, range, curve_pow )
 	local bodies = World:find_bodies( "intersect", "sphere", position, range, managers.slot:get_mask( "bullet_impact_targets" ) )
 
 	local units_to_push = {}
@@ -266,13 +153,13 @@ function GrenadeBase._client_damage_and_push( position, normal, user_unit, dmg, 
 	end
 	
 	GrenadeBase._units_to_push( units_to_push, position, range )
+end]]
+
+function GrenadeBase._play_sound_and_effects( position, normal, range, custom_params )
+	managers.explosion:play_sound_and_effects( position, normal, range, custom_params )
 end
 
-function GrenadeBase._play_sound_and_effects( position, normal, range )
-	GrenadeBase._player_feedback( position, normal, range )
-	GrenadeBase._spawn_sound_and_effects( position, normal, range )
-end
-
+--[[
 function GrenadeBase._player_feedback( position, normal, range )
 	local player = managers.player:player_unit()
 	
@@ -303,7 +190,9 @@ function GrenadeBase._player_feedback( position, normal, range )
 		feedback:play( unpack( params ) )
 	end
 end
+]]
 
+--[[
 function GrenadeBase._spawn_sound_and_effects( position, normal, range, effect_name )
 	effect_name = effect_name or "effects/particles/explosions/explosion_grenade_launcher"
 	if effect_name ~= "none" then
@@ -315,6 +204,7 @@ function GrenadeBase._spawn_sound_and_effects( position, normal, range, effect_n
 	sound_source:post_event( "trip_mine_explode" )
 	managers.enemy:add_delayed_clbk( "M79expl", callback( GrenadeBase, GrenadeBase, "_dispose_of_sound", { sound_source = sound_source } ), TimerManager:game():time() + 2 )
 end
+]]
 
 function GrenadeBase._dispose_of_sound( ... ) -- When this callback is called the table parameter is unreferenced and the sound source can be garbage collected
 end
@@ -322,12 +212,17 @@ end
 
 -----------------------------------------------------------------------------------
 
+function GrenadeBase:sync_throw_grenade( dir )
+	self:throw( { dir = dir } )
+end
+
 function GrenadeBase:throw( params )
 	self._owner = params.owner
-	local velocity = params.dir * 1000
-	velocity = Vector3( velocity.x, velocity.y, velocity.z + 100 )
+	local velocity = params.dir * 250
+	velocity = Vector3( velocity.x, velocity.y, velocity.z + 50 )
 	
-	local mass = math.max( 2 * (1-math.abs( params.dir.z )), 1 ) -- Tweaking the mass used to throw pending on looking angle (throws a bit looser if looking up or down)
+	--local mass = math.max( 2 * (1-math.abs( params.dir.z )), 1 ) -- Tweaking the mass used to throw pending on looking angle (throws a bit looser if looking up or down)
+	local mass = math.max( 2 * (1+math.min( 0, params.dir.z )), 1 ) -- Tweaking the mass used to throw pending on looking angle (throws a bit looser if looking up or down)
 	self._unit:push_at( mass, velocity, self._unit:position() )
 	
 	--[[self._unit:body( 0 ):set_collision_script_tag( Idstring( "bounce" ) )
@@ -359,21 +254,30 @@ function GrenadeBase:detonate()
 	if not self._active then
 		return
 	end
-	
 end
 
 function GrenadeBase:__detonate()
 	-- self:_play_sound_and_effects()
 	
 	if not self._owner then
-		return
+		-- return
 	end
 	
 	self:_detonate()
 end
 
 function GrenadeBase:_detonate()
-	print( "no detonate function for grenade" )
+	print( "no _detonate function for grenade" )
+end
+
+function GrenadeBase:_detonate_on_client()
+	print( "no _detonate_on_client function for grenade" )
+end
+
+function GrenadeBase:sync_net_event( event_id )
+	if event_id == GrenadeBase.EVENT_IDS.detonate then
+		self:_detonate_on_client()
+	end
 end
 
 --[[function GrenadeBase:sync_trip_mine_explode()

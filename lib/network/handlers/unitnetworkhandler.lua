@@ -326,24 +326,24 @@ end
 
 --------------------------------------------------------------------------------------
 
-function UnitNetworkHandler:run_mission_element( id, unit )
+function UnitNetworkHandler:run_mission_element( id, unit, orientation_element_index )
 	if not self._verify_gamestate( self._gamestate_filter.any_ingame ) then
 		if self._verify_gamestate( self._gamestate_filter.any_end_game ) then
-			managers.mission:client_run_mission_element_end_screen( id, unit )
+			managers.mission:client_run_mission_element_end_screen( id, unit, orientation_element_index )
 		end
 		return
 	end
-	managers.mission:client_run_mission_element( id, unit )
+	managers.mission:client_run_mission_element( id, unit, orientation_element_index )
 end
 
-function UnitNetworkHandler:run_mission_element_no_instigator( id )
+function UnitNetworkHandler:run_mission_element_no_instigator( id, orientation_element_index )
 	if not self._verify_gamestate( self._gamestate_filter.any_ingame ) then
 		if self._verify_gamestate( self._gamestate_filter.any_end_game ) then
-			managers.mission:client_run_mission_element_end_screen( id )
+			managers.mission:client_run_mission_element_end_screen( id, nil, orientation_element_index )
 		end
 		return
 	end
-	managers.mission:client_run_mission_element( id )
+	managers.mission:client_run_mission_element( id, nil, orientation_element_index )
 end
 
 --------------------------------------------------------------------------------------
@@ -355,7 +355,14 @@ function UnitNetworkHandler:to_server_mission_element_trigger( id, unit )
 	managers.mission:server_run_mission_element_trigger( id, unit )
 end
 
-function UnitNetworkHandler:to_server_enter_area( id, unit )
+function UnitNetworkHandler:to_server_area_event( event_id, id, unit )
+	if not self._verify_gamestate( self._gamestate_filter.any_ingame ) then
+		return
+	end
+	managers.mission:to_server_area_event( event_id, id, unit )
+end
+
+--[[function UnitNetworkHandler:to_server_enter_area( id, unit )
 	if not self._verify_gamestate( self._gamestate_filter.any_ingame ) then
 		return
 	end
@@ -367,7 +374,7 @@ function UnitNetworkHandler:to_server_exit_area( id, unit )
 		return
 	end
 	managers.mission:server_exit_area( id, unit )
-end
+end]]
 
 function UnitNetworkHandler:to_server_access_camera_trigger( id, trigger, instigator )
 	if not self._verify_gamestate( self._gamestate_filter.any_ingame ) then
@@ -454,8 +461,8 @@ function UnitNetworkHandler:sync_body_damage_explosion( body, attacker, normal, 
 		print( "[UnitNetworkHandler:sync_body_damage_explosion] body has no damage damage_explosion function", body:name(), body:unit():name() )
 		return
 	end
-	body:extension().damage:damage_explosion( attacker, normal, position, direction, damage )
-	body:extension().damage:damage_damage( attacker, normal, position, direction, damage )
+	body:extension().damage:damage_explosion( attacker, normal, position, direction, damage / 163.84 )
+	body:extension().damage:damage_damage( attacker, normal, position, direction, damage / 163.84 )
 end
 
 --------------------------------------------------------------------------------------
@@ -1229,7 +1236,7 @@ function UnitNetworkHandler:element_explode_on_client( position, normal, damage,
 		return
 	end
 	
-	GrenadeBase._client_damage_and_push( position, normal, nil, damage, range, curve_pow )
+	managers.explosion:client_damage_and_push( position, normal, nil, damage, range, curve_pow )
 end
 
 --------------------------------------------------------------------------------------
@@ -1798,11 +1805,33 @@ function UnitNetworkHandler:sync_carry_data( unit, carry_id, carry_value, dye_in
 	-- unit:interaction():set_carry_value( carry_value )
 end
 
+--[[
 function UnitNetworkHandler:sync_bag_dye_pack_exploded( unit, sender )
 	if not ( alive( unit ) and self._verify_gamestate( self._gamestate_filter.any_ingame ) and self._verify_sender( sender ) ) then
 		return
 	end
 	unit:carry_data():sync_dye_exploded()
+end
+]]
+
+--------------------------------------------------------------------------------------
+
+
+function UnitNetworkHandler:server_throw_grenade( grenade_type, position, dir, sender )
+	if not self._verify_gamestate( self._gamestate_filter.any_ingame ) or not self._verify_sender( sender ) then
+		return 
+	end
+	
+	GrenadeBase.server_throw_grenade( grenade_type, position, dir )
+end
+
+
+function UnitNetworkHandler:sync_throw_grenade( unit, dir, sender )
+	if not alive( unit ) or not self._verify_gamestate( self._gamestate_filter.any_ingame ) or not self._verify_sender( sender ) then
+		return 
+	end
+	
+	unit:base():sync_throw_grenade( dir )
 end
 
 --------------------------------------------------------------------------------------
@@ -2027,11 +2056,11 @@ end
 
 --------------------------------------------------------------------------------------
 
-function UnitNetworkHandler:mark_enemy( unit, marking_strength, sender )
+function UnitNetworkHandler:mark_enemy( unit, marking_strength, time_multiplier, sender )
 	if not ( self._verify_gamestate( self._gamestate_filter.any_ingame ) and self._verify_character_and_sender( unit, sender ) ) then
 		return
 	end
-	managers.game_play_central:add_enemy_contour( unit, marking_strength )
+	managers.game_play_central:add_enemy_contour( unit, marking_strength, time_multiplier )
 end
 
 --------------------------------------------------------------------------------------

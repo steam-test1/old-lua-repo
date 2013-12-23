@@ -142,7 +142,7 @@ function HUDLootScreen:create_peer( peers_panel, peer_id )
 	
 	local panel = peers_panel:panel( { name="peer"..tostring(peer_id), x=0, y=(peer_id-1)*110, w=peers_panel:w(), h=110 } )
 	
-	local peer_info_panel = panel:panel( { name="peer_info", w=255 } )
+	local peer_info_panel = panel:panel( { name="peer_info", w=255, h=panel:h()+20, y=-10 } )
 	local peer_name = peer_info_panel:text( { name="peer_name", font=medium_font, font_size=medium_font_size-1, text=" ", h=medium_font_size, w=1, color=color, blend_mode="add" } )
 	
 	

@@ -18,12 +18,12 @@ function LootDropTweakData:init( tweak_data )
 	self.PC_CHANCE[ 2 ] = 0.70
 	self.PC_CHANCE[ 3 ] = 0.70
 	self.PC_CHANCE[ 4 ] = 0.70
-	self.PC_CHANCE[ 5 ] = 0.70
-	self.PC_CHANCE[ 6 ] = 0.68
-	self.PC_CHANCE[ 7 ] = 0.66
-	self.PC_CHANCE[ 8 ] = 0.64
-	self.PC_CHANCE[ 9 ] = 0.62
-	self.PC_CHANCE[ 10 ] = 0.60
+	self.PC_CHANCE[ 5 ] = 0.90
+	self.PC_CHANCE[ 6 ] = 0.91
+	self.PC_CHANCE[ 7 ] = 0.92
+	self.PC_CHANCE[ 8 ] = 0.93
+	self.PC_CHANCE[ 9 ] = 0.94
+	self.PC_CHANCE[ 10 ] = 0.95
 	
 	self.STARS = {}
 
@@ -177,7 +177,8 @@ function LootDropTweakData:init( tweak_data )
 	self.global_values.pd2_clan.durability_multiplier = 1
 	self.global_values.pd2_clan.drops = true
 	self.global_values.pd2_clan.track = true
-	self.global_values.pd2_clan.sort_number = 0
+	self.global_values.pd2_clan.sort_number = -10
+	self.global_values.pd2_clan.unique_lock_icon = "guis/textures/pd2/lock_community"
 	
 	
 	self.global_values.overkill = {}
@@ -203,11 +204,37 @@ function LootDropTweakData:init( tweak_data )
 	self.global_values.halloween.value_multiplier = tweak_data:get_value( "money_manager", "global_value_multipliers", "halloween" )
 	self.global_values.halloween.durability_multiplier = 1
 	self.global_values.halloween.drops = true
-	self.global_values.halloween.track = false
+	self.global_values.halloween.track = true
 	self.global_values.halloween.sort_number = 200
 	
+	self.global_values.armored_transport = {}
+	self.global_values.armored_transport.name_id = "bm_global_value_armored_transport"
+	self.global_values.armored_transport.desc_id = "menu_l_global_value_armored_transport"
+	self.global_values.armored_transport.unlock_id = "bm_global_value_armored_transport_unlock"
+	self.global_values.armored_transport.color = Color( 255, 255, 212, 0 ) / 255
+	self.global_values.armored_transport.dlc = true
+	self.global_values.armored_transport.chance = 1
+	self.global_values.armored_transport.value_multiplier = tweak_data:get_value( "money_manager", "global_value_multipliers", "armored_transport" )
+	self.global_values.armored_transport.durability_multiplier = 1
+	self.global_values.armored_transport.drops = true
+	self.global_values.armored_transport.track = true
+	self.global_values.armored_transport.sort_number = 400
 	
-	self.global_value_list_index = { "normal", "infamous", "pre_order", "pd2_clan", "halloween" }
+	
+	self.global_values.sweettooth = {}
+	self.global_values.sweettooth.name_id = "bm_global_value_sweettooth"
+	self.global_values.sweettooth.desc_id = "menu_l_global_value_sweettooth"
+	self.global_values.sweettooth.unlock_id = "bm_global_value_sweettooth_unlock"
+	self.global_values.sweettooth.color = Color( 255, 59, 174, 254 ) / 255
+	self.global_values.sweettooth.dlc = true
+	self.global_values.sweettooth.chance = 1
+	self.global_values.sweettooth.value_multiplier = tweak_data:get_value( "money_manager", "global_value_multipliers", "sweettooth" )
+	self.global_values.sweettooth.durability_multiplier = 1
+	self.global_values.sweettooth.drops = true
+	self.global_values.sweettooth.track = true
+	self.global_values.sweettooth.sort_number = 200
+	
+	self.global_value_list_index = { "normal", "infamous", "pre_order", "pd2_clan", "halloween", "armored_transport" }
 	
 	self.global_value_list_map = {}
 	for i, d in ipairs( self.global_value_list_index ) do

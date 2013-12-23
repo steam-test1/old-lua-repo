@@ -65,14 +65,16 @@ function MenuNodeButtonLayoutGui:_setup()
 											halign="center", valign="center", } )
 	end
 	
-	self._blur = managers.menu_component._fullscreen_ws:panel():bitmap( { texture="guis/textures/test_blur_df", w=managers.menu_component._fullscreen_ws:panel():w(), h=managers.menu_component._fullscreen_ws:panel():h(), render_template="VertexColorTexturedBlur3D", layer = self.layers.background } )
+	self._blur = managers.menu_component._fullscreen_ws:panel():panel()
+	self._blur:bitmap( { texture = "guis/textures/test_blur_df", w = managers.menu_component._fullscreen_ws:panel():w(), h = managers.menu_component._fullscreen_ws:panel():h(), render_template = "VertexColorTexturedBlur3D", layer = self.layers.background } )
+	self._blur:rect( { color = Color.black, alpha = 0.6 } )
 	local func = function(o)
 		local start_blur = 0
-		over( 0.6, function(p) o:set_alpha( math.lerp( start_blur, 1, p ) ) end)
+		over( 0.6, function(p) o:set_alpha( math.lerp( start_blur, 1, p ) ) end )
 	end	
 	self._blur:animate( func )
 	
-	self._bg = self.ws:panel():rect( { visible = false, color = Color( 1, 0.1, 0.1, 0.1 ), layer = self.layers.background } )
+	self._bg = self.ws:panel():rect( { visible = false, color = Color( 1, 0.4, 0.4, 0.4 ), layer = self.layers.background } )
 	self._controller = self.ws:panel():bitmap( { texture="guis/textures/controller", layer = self.layers.items, w=512, h=256 } )
 	self:_layout()
 end

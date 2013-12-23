@@ -25,6 +25,13 @@ function DLCTweakData:init( tweak_data )
 	self.pd2_clan2.content.upgrades = {
 					"usp"
 	}
+	self.pd2_clan3 = {}
+	self.pd2_clan3.content = {}
+	self.pd2_clan3.dlc = "has_pd2_clan"
+	self.pd2_clan3.content.loot_global_value = "pd2_clan"
+	self.pd2_clan3.content.loot_drops = {
+					{ type_items = "masks", item_entry = "heat", amount = 1 },
+	}
 	
 	self.preorder = {}
 	self.preorder.dlc = "has_preorder"
@@ -101,6 +108,45 @@ function DLCTweakData:init( tweak_data )
 	}
 	
 	
+	
+	self.armored_transport = {}
+	self.armored_transport.content = {}
+	self.armored_transport.dlc = "has_armored_transport"
+	self.armored_transport.content.loot_drops = {
+					{
+						{ type_items = "masks", item_entry = "clinton", amount = 1 },
+						{ type_items = "masks", item_entry = "bush", amount = 1 },
+						{ type_items = "masks", item_entry = "obama", amount = 1 },
+						{ type_items = "masks", item_entry = "nixon", amount = 1 }
+					},
+					{
+						{ type_items = "materials", item_entry = "cash", amount = 1 },
+						{ type_items = "materials", item_entry = "jade", amount = 1 },
+						{ type_items = "materials", item_entry = "redwhiteblue", amount = 1 },
+						{ type_items = "materials", item_entry = "marble", amount = 1 }
+					},
+					{
+						{ type_items = "textures", item_entry = "racestripes", amount = 1 },
+						{ type_items = "textures", item_entry = "americaneagle", amount = 1 },
+						{ type_items = "textures", item_entry = "stars", amount = 1 },
+						{ type_items = "textures", item_entry = "forestcamo", amount = 1 }
+					}
+	}
+	self.armored_transport.content.upgrades = {
+		"m45",
+		"s552", "ppk"
+		
+	}
+	
+	
+	
+	self.sweettooth = {}
+	self.sweettooth.content = {}
+	self.sweettooth.dlc = "has_sweettooth"
+	self.sweettooth.content.loot_drops = {
+					{ type_items = "masks", item_entry = "sweettooth", amount = 1 }
+	}
+	
 	--[[self.japan = {}
 	self.japan.dlc = "has_japan"
 	self.japan.content = {}
@@ -127,5 +173,4 @@ function DLCTweakData:init( tweak_data )
 					{ type_items = "masks", item_entry = "hoxton_clean", amount = 1 },
 					{ type_items = "masks", item_entry = "wolf_clean", amount = 1 },
 	}]]
-	
 end

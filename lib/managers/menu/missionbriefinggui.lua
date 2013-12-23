@@ -1074,7 +1074,8 @@ function LoadoutItem:populate_category( category, data )
 		new_data.equipped = crafted.equipped
 		new_data.level = (not new_data.unlocked and 0)
 		new_data.skill_name = new_data.level==0 and ( "bm_menu_skill_locked_" .. new_data.name )
-		new_data.bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. tostring(crafted.weapon_id)
+		local texture_name = tweak_data.weapon[ crafted.weapon_id ].texture_name or tostring( crafted.weapon_id )
+		new_data.bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
 		new_data.comparision_data = managers.blackmarket:get_weapon_stats( category, i )
 		new_data.stream = false
 		
@@ -1356,7 +1357,8 @@ function TeamLoadoutItem:set_slot_outfit( slot, criminal_name, outfit )
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
 		
-		local primary_bitmap = player_slot.panel:bitmap( { texture=guis_catalog.."textures/pd2/blackmarket/icons/weapons/"..primary_id, w=w, h=h, rotation=math.random(2)-1.5, alpha=0.8 } )
+		local texture_name = tweak_data.weapon[ primary_id ].texture_name or tostring( primary_id )
+		local primary_bitmap = player_slot.panel:bitmap( { texture=guis_catalog.."textures/pd2/blackmarket/icons/weapons/"..texture_name, w=w, h=h, rotation=math.random(2)-1.5, alpha=0.8 } )
 		aspect = primary_bitmap:texture_width() / math.max( 1, primary_bitmap:texture_height() )
 		primary_bitmap:set_w( primary_bitmap:h() * aspect )
 		primary_bitmap:set_center_x( x )
@@ -1387,7 +1389,8 @@ function TeamLoadoutItem:set_slot_outfit( slot, criminal_name, outfit )
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
 		
-		local secondary_bitmap = player_slot.panel:bitmap( { texture=guis_catalog.."textures/pd2/blackmarket/icons/weapons/"..secondary_id, w=w, h=h, rotation=math.random(2)-1.5, alpha=0.8 } )
+		local texture_name = tweak_data.weapon[ secondary_id ].texture_name or tostring( secondary_id )
+		local secondary_bitmap = player_slot.panel:bitmap( { texture=guis_catalog.."textures/pd2/blackmarket/icons/weapons/"..texture_name, w=w, h=h, rotation=math.random(2)-1.5, alpha=0.8 } )
 		aspect = secondary_bitmap:texture_width() / math.max( 1, secondary_bitmap:texture_height() )
 		secondary_bitmap:set_w( secondary_bitmap:h() * aspect )
 		secondary_bitmap:set_center_x( x )
@@ -1434,6 +1437,15 @@ function TeamLoadoutItem:set_slot_outfit( slot, criminal_name, outfit )
 		deployable_bitmap:set_w( deployable_bitmap:h() * aspect )
 		deployable_bitmap:set_center_x( x )
 		deployable_bitmap:set_center_y( y * 12 )
+		
+		local deployable_amount = tonumber( outfit.deployable_amount ) or 0
+		if deployable_amount > 1 then
+			local deployable_text = player_slot.panel:text( { text = "x"..tostring( deployable_amount ), font_size = tweak_data.menu.pd2_small_font_size, font = tweak_data.menu.pd2_small_font, rotation = deployable_bitmap:rotation(), color = tweak_data.screen_colors.text } )
+			local _, _, w, h = deployable_text:text_rect()
+			deployable_text:set_size( w, h )
+			deployable_text:set_rightbottom( player_slot.panel:w(), player_slot.panel:h() )
+			deployable_text:set_position( math.round( deployable_text:x() ) - 16, math.round( deployable_text:y() ) - 5 )
+		end
 	end
 	
 	player_slot.box = BoxGuiObject:new( player_slot.panel, { sides = { 1, 1, 1, 1 } } )
@@ -1525,7 +1537,8 @@ function MissionBriefingGui:init( saferect_ws, fullrect_ws, node )
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
 		
-		primary_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. tostring( weapon_id )
+		local texture_name = tweak_data.weapon[ weapon_id ].texture_name or tostring( weapon_id )
+		primary_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
 		primary_string = managers.weapon_factory:get_weapon_name_by_factory_id( primary.factory_id )
 		primary_perks = managers.blackmarket:get_perks_from_weapon_blueprint( primary.factory_id, primary.blueprint )
 	end
@@ -1538,7 +1551,8 @@ function MissionBriefingGui:init( saferect_ws, fullrect_ws, node )
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
 		
-		secondary_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. tostring( secondary.weapon_id )
+		local texture_name = tweak_data.weapon[ secondary.weapon_id ].texture_name or tostring( secondary.weapon_id )
+		secondary_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
 		secondary_string = managers.weapon_factory:get_weapon_name_by_factory_id( secondary.factory_id )
 		secondary_perks = managers.blackmarket:get_perks_from_weapon_blueprint( secondary.factory_id, secondary.blueprint )
 	end
@@ -2321,7 +2335,8 @@ function MissionBriefingGui:reload_loadout()
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
 		
-		primary_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. tostring( weapon_id )
+		local texture_name = tweak_data.weapon[ weapon_id ].texture_name or tostring( weapon_id )
+		primary_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
 		primary_string = managers.weapon_factory:get_weapon_name_by_factory_id( primary.factory_id )
 		primary_perks = managers.blackmarket:get_perks_from_weapon_blueprint( primary.factory_id, primary.blueprint )
 	end
@@ -2334,7 +2349,8 @@ function MissionBriefingGui:reload_loadout()
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
 		
-		secondary_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. tostring( weapon_id )
+		local texture_name = tweak_data.weapon[ weapon_id ].texture_name or tostring( weapon_id )
+		secondary_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
 		secondary_string = managers.weapon_factory:get_weapon_name_by_factory_id( secondary.factory_id )
 		secondary_perks = managers.blackmarket:get_perks_from_weapon_blueprint( secondary.factory_id, secondary.blueprint )
 	end

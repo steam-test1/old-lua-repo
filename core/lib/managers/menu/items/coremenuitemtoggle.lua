@@ -97,7 +97,7 @@ function ItemToggle:setup_gui( node, row_item )
 	
     if not self:enabled() then
         row_item.color = row_item.disabled_color
-        row_item.row_item_color = row_item.color
+        -- row_item.row_item_color = row_item.color
         row_item.gui_text:set_color( row_item.color )
     end
 	if self:selected_option():parameters().text_id then -- If text based

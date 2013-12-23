@@ -12,7 +12,7 @@ function ElementAreaTrigger:project_instigators()
 	
 	-- Client should never check anything else then himself
 	if Network:is_client() then
-		if self._values.instigator == "player" then
+		if self._values.instigator == "player" or self._values.instigator == "local_criminals" then
 			table.insert( instigators, managers.player:player_unit() )
 		end
 		return instigators
@@ -44,6 +44,11 @@ function ElementAreaTrigger:project_instigators()
 		end
 	elseif self._values.instigator == "criminals" then
 		for _,data in pairs( managers.groupai:state():all_char_criminals() ) do
+			table.insert( instigators, data.unit )
+		end
+	elseif self._values.instigator == "local_criminals" then
+		table.insert( instigators, managers.player:player_unit() )
+		for _,data in pairs( managers.groupai:state():all_AI_criminals() ) do
 			table.insert( instigators, data.unit )
 		end
 	elseif self._values.instigator == "ai_teammates" then
@@ -78,7 +83,10 @@ function ElementAreaTrigger:project_instigators()
 					carry_id == "engine_11" or
 					carry_id == "engine_12" or
 					carry_id == "meth" or
-					carry_id == "lance_bag"
+					carry_id == "lance_bag" or
+					carry_id == "grenades" or
+					carry_id == "ammo" or
+					carry_id == "turret"
 				then
 					return true
 				end
@@ -108,7 +116,7 @@ end
 function ElementAreaTrigger:project_amount_all()
 	-- Add AIs as well?
 	-- return managers.network:game():amount_of_members()
-	if self._values.instigator == "criminals" then
+	if self._values.instigator == "criminals" or self._values.instigator == "local_criminals"then
 		local i = 0
 		for _,data in pairs( managers.groupai:state():all_char_criminals() ) do
 			i = i + 1

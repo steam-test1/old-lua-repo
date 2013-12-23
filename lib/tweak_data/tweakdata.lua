@@ -39,6 +39,7 @@ function TweakData:digest_tweak_data()
 
 	self:digest_recursive( self.money_manager )
 	self:digest_recursive( self.experience_manager )
+	self:digest_recursive( self.rank_manager )
 	self:digest_recursive( self.casino )
 end
 
@@ -973,6 +974,7 @@ function TweakData:init()
 	self.interaction.pick_lock_deposit_transport = deep_clone(self.interaction.pick_lock_hard_no_skill)
 	self.interaction.pick_lock_deposit_transport.timer = 15
 	self.interaction.pick_lock_deposit_transport.axis = "y"
+	self.interaction.pick_lock_deposit_transport.interact_distance = 80
 	
 	self.interaction.cant_pick_lock = {}
 	self.interaction.cant_pick_lock.icon = "equipment_bank_manager_key"
@@ -2124,6 +2126,26 @@ function TweakData:init()
 	self.interaction.halloween_trick = {}
 	self.interaction.halloween_trick.text_id = "hud_int_trick_treat"
 	
+	self.interaction.disassemble_turret = {}
+	self.interaction.disassemble_turret.text_id = "hud_int_hold_disassemble_turret"
+	self.interaction.disassemble_turret.action_text_id = "hud_action_disassemble_turret"
+	self.interaction.disassemble_turret.blocked_hint = "carry_block"
+	self.interaction.disassemble_turret.start_active = false
+	self.interaction.disassemble_turret.timer = 3
+	self.interaction.disassemble_turret.sound_start = "bar_steal_circuit"
+	self.interaction.disassemble_turret.sound_interupt = "bar_steal_circuit_cancel"
+	self.interaction.disassemble_turret.sound_done = "bar_steal_circuit_finished"
+	
+	self.interaction.take_ammo = {}
+	self.interaction.take_ammo.text_id = "hud_int_hold_pack_shells"
+	self.interaction.take_ammo.action_text_id = "hud_action_packing_shells"
+	self.interaction.take_ammo.blocked_hint = "carry_block"
+	self.interaction.take_ammo.start_active = false
+	self.interaction.take_ammo.timer = 2
+	
+	
+	
+	
 	-------------- PD2 Interactions End
 	
 	
@@ -2471,6 +2493,11 @@ function TweakData:init()
 	end
 
 	
+	self.rank_manager = {}
+	self.rank_manager.max_rank = 13
+	self.rank_manager.become_infamous_cost = 200000000
+	
+	
 	self.achievement = {}
 	self.achievement.im_a_healer_tank_damage_dealer = 10 -- Points to earn in each tree
 	self.achievement.iron_man = "level_7" -- Armor ID
@@ -2493,7 +2520,13 @@ function TweakData:init()
 	self.achievement.in_soviet_russia = { mask="bear", stat="halloween_10_stats" }
 	self.achievement.unique_selling_point = "usp"
 	self.achievement.try_out_your_usp = { weapon="usp", stat="halloween_8_stats" }
-	
+	self.achievement.i_take_scores = { mask="heat", stat="armored_4_stat", heists={ "arm_cro", "arm_cro_prof", "arm_und", "arm_und_prof", "arm_hcm", "arm_hcm_prof", "arm_par", "arm_par_prof", "arm_fac", "arm_fac_prof" } }
+	self.achievement.license_to_kill = { weapon="ppk", stat="armored_5_stat" }
+	self.achievement.im_not_a_crook = { mask="nixon", weapon="s552", enemy="sniper", stat="armored_7_stat" }
+	self.achievement.relation_with_bulldozer = { mask="clinton", stat="armored_8_stat" }
+	self.achievement.fool_me_once = { mask="bush", weapon="m45", enemy="shield", stat="armored_9_stat" }
+	self.achievement.no_we_cant = { mask="obama", stat="armored_10_stat" }
+	self.achievement.heat_around_the_corner = "heat"
 	
 -- Pick up definitions
 	
@@ -2590,7 +2623,7 @@ function TweakData:init()
 	self.music.heist.assault			= "music_heist_assault"
 	self.music.heist.fake_assault		= "music_heist_assault"
 	self.music.heist.control			= "music_heist_control"
-	self.music.heist.switches			= { "track_01", "track_02", "track_03", "track_04", "track_05", "track_06", "track_07" }
+	self.music.heist.switches			= { "track_01", "track_02", "track_03", "track_04", "track_05", "track_06", "track_07", "track_08", "track_09" }
 	
 	self.music.default = deep_clone( self.music.heist )
 	

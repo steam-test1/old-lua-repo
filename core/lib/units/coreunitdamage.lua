@@ -3,18 +3,20 @@ core:import( "CoreSequenceManager" )
 CoreUnitDamage = CoreUnitDamage or class()
 UnitDamage = UnitDamage or class( CoreUnitDamage )
 
+local ids_damage = Idstring("damage")
+
 function CoreUnitDamage:init( unit, default_body_extension_class, body_extension_class_map, ignore_body_collisions, ignore_mover_collisions, mover_collision_ignore_duration )
 	self._unit = unit
 	self._unit_element = managers.sequence:get( unit:name(), false, true ) -- Create an empty UnitElement if none found.
 	self._damage = 0
-	self._variables = {}
+	-- self._variables = {}
 	-- self._sound_sources = {}
-
--- Initializes variables:
-	for k,v in pairs( self._unit_element._set_variables ) do
-		self._variables[ k ] = v
+	
+	
+	if self._unit_element._set_variables and next( self._unit_element._set_variables ) then
+		self._variables = clone( self._unit_element._set_variables )
 	end
-
+	
 	-- Used nil variables:
 	--self._state = nil
 	--self._runned_sequences = nil
@@ -28,12 +30,11 @@ function CoreUnitDamage:init( unit, default_body_extension_class, body_extension
 	--self._enemy_killed_reported = nil
 	--self._inherit_destroy_unit_list = nil
 
-
 -- Updates:
 	--self._update_func_map = nil
 	--self._update_func_count = nil
-	self._ids_damage = Idstring( "damage" )
-	self._unit:set_extension_update_enabled( self._ids_damage, ( self._update_func_map ~= nil ) )
+	--self._ids_damage = Idstring( "damage" )
+	self._unit:set_extension_update_enabled( ids_damage, self._update_func_map ~= nil )
 
 
 -- Proximity:
@@ -242,7 +243,7 @@ function CoreUnitDamage:update( unit, t, dt )
 		end
 	else
 		Application:error( "Some scripter tried to enable the damage extension on unit \"" .. tostring( unit:name() ) .. "\" or an artist have specified more than one damage-extension in the unit xml. This would have resulted in a crash, so fix it!" )
-		self._unit:set_extension_update_enabled( self._ids_damage, false )
+		self._unit:set_extension_update_enabled( ids_damage, false )
 	end
 end
 
@@ -253,7 +254,7 @@ function CoreUnitDamage:set_update_callback( func_name, data )
 		if( not self._update_func_map[ func_name ] ) then
 			if( not self._update_func_count ) then
 				self._update_func_count = 0
-				self._unit:set_extension_update_enabled( self._ids_damage, true )
+				self._unit:set_extension_update_enabled( ids_damage, true )
 			end
 
 			self._update_func_count = self._update_func_count + 1
@@ -265,7 +266,7 @@ function CoreUnitDamage:set_update_callback( func_name, data )
 		self._update_func_map[ func_name ] = nil
 
 		if( self._update_func_count == 0 ) then
-			self._unit:set_extension_update_enabled( self._ids_damage, false )
+			self._unit:set_extension_update_enabled( ids_damage, false )
 			self._update_func_map = nil
 			self._update_func_count = nil
 		end
@@ -622,11 +623,13 @@ function CoreUnitDamage:save( data )
 	end
 
 	-- Variables:
-	for k,v in pairs( self._variables ) do
-		if( ( self._unit_element._set_variables[ k ] ~= v ) and ( ( k ~= "damage" ) or ( v ~= self._damage ) ) ) then
-			state.variables = table.map_copy( self._variables )
-			changed = true
-			break
+	if self._variables then
+		for k,v in pairs( self._variables ) do
+			if( ( self._unit_element._set_variables == nil or self._unit_element._set_variables[ k ] ~= v ) and ( ( k ~= "damage" ) or ( v ~= self._damage ) ) ) then
+				state.variables = table.map_copy( self._variables )
+				changed = true
+				break
+			end
 		end
 	end
 
@@ -1091,7 +1094,7 @@ function CoreUnitDamage:add_damage( endurance_type, attack_unit, dest_body, norm
 	if( self._unit_element ) then
 		self._damage = self._damage + damage
 
-		if( self._damage >= self._unit_element._global_vars.endurance ) then
+		if( self._damage >= self._unit_element:get_endurance() ) then
 			return true, damage
 		else
 			return false, damage
@@ -1623,7 +1626,15 @@ function CoreUnitDamage:has_sequence( sequence_name )
 	return self._unit_element and self._unit_element:has_sequence( sequence_name )
 end
 
+function CoreUnitDamage:set_variable( key, val )
+	self._variables = self._variables or {}
+	self._variables[ key ] = val
+end
 
+
+
+
+------------------------------------------------------------------------------------------------------------
 
 CoreBodyDamage = CoreBodyDamage or class()
 
@@ -1649,11 +1660,11 @@ function CoreBodyDamage:init( unit, unit_extension, body, body_element )
 
 
 -- INFLICT:
-	self._inflict = {}
+	--[[self._inflict = {}
 	self._original_inflict = {}
 	self._inflict_time = {}
 	self._run_exit_inflict_sequences = {}
-	self._inflict_updator_map = {}
+	self._inflict_updator_map = {}]]
 
 	if( self._body_element ) then
 		local inflict_element_list = self._body_element:get_inflict_element_list()
@@ -1668,10 +1679,12 @@ function CoreBodyDamage:init( unit, unit_extension, body, body_element )
 					local updator = updator_type_class:new( unit, body, self, inflict_element, self._unit_element )
 
 					if( updator:is_valid() ) then
+						self._inflict_updator_map = self._inflict_updator_map or {}
 						self._inflict_updator_map[ damage_type ] = updator
 					end
 				else
 					local inflict_data = {}
+					self._inflict = self._inflict or {}
 					self._inflict[ damage_type ] = inflict_data
 					inflict_data.damage = inflict_element:get_damage() or 0
 					inflict_data.interval = inflict_element:get_interval() or 0
@@ -1679,12 +1692,15 @@ function CoreBodyDamage:init( unit, unit_extension, body, body_element )
 					inflict_data.enabled = inflict_element:get_enabled()
 
 					inflict_data = {}
+					self._original_inflict = self._original_inflict or {}
 					self._original_inflict[ damage_type ] = inflict_data
 					for k,v in pairs( inflict_data ) do
 						inflict_data[ k ] = v
 					end
-
+					
+					self._inflict_time = self._inflict_time or {}
 					self._inflict_time[ damage_type ] = {}
+					self._run_exit_inflict_sequences = self._run_exit_inflict_sequences or {}
 					self._run_exit_inflict_sequences[ damage_type ] = ( inflict_element:exit_sequence_count() > 0 )
 				end
 			end
@@ -1721,7 +1737,7 @@ function CoreBodyDamage:get_inflict_time( damage_type, src_unit )
 end
 
 function CoreBodyDamage:can_inflict_damage( damage_type, src_unit )
-	if( self._inflict[ damage_type ] and self._inflict[ damage_type ].enabled ) then
+	if( self._inflict and self._inflict[ damage_type ] and self._inflict[ damage_type ].enabled ) then
 		local last_time = self._inflict_time[ damage_type ][ src_unit:key() ]
 
 		if( last_time ) then
@@ -1761,7 +1777,7 @@ function CoreBodyDamage:exit_inflict_damage( damage_type, src_body, normal, pos,
 		if( list[ unit_key ] ) then
 			list[ unit_key ] = nil
 
-			if( self._run_exit_inflict_sequences[ damage_type ] ) then
+			if( self._run_exit_inflict_sequences and self._run_exit_inflict_sequences[ damage_type ] ) then
 				local env = CoreSequenceManager.SequenceEnvironment:new( damage_type, src_unit, self._unit, self._body, normal, pos, dir, 0, velocity, nil, self._unit_element )
 				self._body_element:activate_inflict_exit( env )
 			end
@@ -1895,7 +1911,7 @@ function CoreBodyDamage:get_inflict_enabled( damage_type )
 end
 
 function CoreBodyDamage:set_inflict_attribute( damage_type, attribute, attribute_value )
-	local inflict = self._inflict[ damage_type ]
+	local inflict = self._inflict and self._inflict[ damage_type ]
 
 	if( inflict ) then
 		if( attribute_value ~= nil ) then
@@ -1905,7 +1921,7 @@ function CoreBodyDamage:set_inflict_attribute( damage_type, attribute, attribute
 			return false, true
 		end
 	else
-		local updator = self._inflict_updator_map[ damage_type ]
+		local updator = self._inflict_updator_map and self._inflict_updator_map[ damage_type ]
 
 		if( updator ) then
 			return updator:set_attribute( attribute, attribute_value ), true
@@ -1916,12 +1932,12 @@ function CoreBodyDamage:set_inflict_attribute( damage_type, attribute, attribute
 end
 
 function CoreBodyDamage:get_inflict_attribute( damage_type, attribute )
-	local inflict = self._inflict[ damage_type ]
+	local inflict = self._inflict and self._inflict[ damage_type ]
 
 	if( inflict ) then
 		return inflict[ attribute ]
 	else
-		local updator = self._inflict_updator_map[ damage_type ]
+		local updator = self._inflict_updator_map and self._inflict_updator_map[ damage_type ]
 
 		if( updator ) then
 			return updator:get_attribute( attribute )
@@ -1944,26 +1960,30 @@ function CoreBodyDamage:save( data )
 			break
 		end
 	end
-
-	for damage_type,inflict_data in pairs( self._inflict ) do
-		for k,v in pairs( inflict_data ) do
-			if( v ~= self._original_inflict[ damage_type ][ k ] ) then
-				state.inflict = state.inflict or {}
-				state.inflict[ damage_type ] = state.inflict[ damage_type ] or {}
-				state.inflict[ damage_type ][ k ] = v
-				changed = true
+	
+	if self._inflict then
+		for damage_type,inflict_data in pairs( self._inflict ) do
+			for k,v in pairs( inflict_data ) do
+				if( v ~= self._original_inflict[ damage_type ][ k ] ) then
+					state.inflict = state.inflict or {}
+					state.inflict[ damage_type ] = state.inflict[ damage_type ] or {}
+					state.inflict[ damage_type ][ k ] = v
+					changed = true
+				end
 			end
 		end
 	end
 
 	local updator_state
-	for damage_type, updator in pairs( self._inflict_updator_map ) do
-		local sub_updator_state = {}
+	if self._inflict_updator_map then
+		for damage_type, updator in pairs( self._inflict_updator_map ) do
+			local sub_updator_state = {}
 
-		if( updator:save( sub_updator_state ) ) then
-			updator_state = updator_state or {}
-			updator_state[ damage_type ] = sub_updator_state
-			changed = true
+			if( updator:save( sub_updator_state ) ) then
+				updator_state = updator_state or {}
+				updator_state[ damage_type ] = sub_updator_state
+				changed = true
+			end
 		end
 	end
 	state.InflictUpdatorMap = updator_state
@@ -1991,13 +2011,14 @@ function CoreBodyDamage:load( data )
 		if( state.inflict ) then
 			for damage_type,inflict_data in pairs( state.inflict ) do
 				for k,v in pairs( state.inflict ) do
+					self._inflict = self._inflict or {}
 					self._inflict[ damage_type ][ k ] = v
 				end
 			end
 		end
 
 		local updator_state = state.InflictUpdatorMap
-		if( updator_state ) then
+		if( updator_state and self._inflict_updator_map ) then
 			for damage_type, updator in pairs( self._inflict_updator_map ) do
 				local sub_updator_state = updator_state[ damage_type ]
 				if( sub_updator_state ) then
@@ -2451,7 +2472,10 @@ function CoreInflictFireUpdator:set_fire_object_name( name )
 	if( not self._fire_object ) then
 		self:set_enabled( false )
 		Application:error( "Invalid inflict fire element object \"" .. tostring( name ) .. "\"." )
-		self._body_damage_ext:get_inflict_updator_map()[ self.DAMAGE_TYPE ] = nil
+		local inflict_updator_map = self._body_damage_ext:get_inflict_updator_map()
+		if inflict_updator_map then
+			inflict_updator_map[ self.DAMAGE_TYPE ] = nil
+		end
 		return
 	end
 

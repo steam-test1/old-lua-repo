@@ -257,7 +257,9 @@ function MenuSceneManager:update( t, dt )
 	if alive( self._item_unit ) then
 		-- self._item_offset = math.lerp( self._item_offset_current, self._item_offset_target, bezier_value or 4 * dt )
 		if not self._item_grabbed then
-			self._item_yaw = ( self._item_yaw + 5 * dt ) % 360
+			if not managers.blackmarket:currently_customizing_mask() then
+				self._item_yaw = ( self._item_yaw + 5 * dt ) % 360
+			end
 			
 			self._item_pitch = math.lerp( self._item_pitch, 0, 10 * dt )
 			self._item_roll = math.lerp( self._item_roll, 0, 10 * dt )
@@ -753,12 +755,12 @@ end
 
 function MenuSceneManager:set_character_mask_by_id( mask_id, blueprint, unit, peer_id )
 	local unit_name = managers.blackmarket:mask_unit_name_by_mask_id( mask_id, peer_id ) -- tweak_data.blackmarket.masks[ mask_id ].unit
-	local mask_unit = self:set_character_mask( unit_name, unit )
+	local mask_unit = self:set_character_mask( unit_name, unit, peer_id )
 	mask_unit:base():apply_blueprint( blueprint )
 	-- managers.blackmarket:apply_mask_craft_on_unit( mask_unit, blueprint )
 end
 
-function MenuSceneManager:set_character_mask( mask_unit_name, unit )
+function MenuSceneManager:set_character_mask( mask_unit_name, unit, peer_id )
 	self._mask_units = self._mask_units or {}
 	unit = unit or self._character_unit
 	local mask_align = unit:get_object( Idstring( "Head" ) )
@@ -766,13 +768,18 @@ function MenuSceneManager:set_character_mask( mask_unit_name, unit )
 	local mask_unit = self:_spawn_mask( mask_unit_name, false, mask_align:position(), mask_align:rotation() )
 	-- mask_unit:set_visible( false ) -- TEMP HIDE
 	
-	self:_delete_character_mask( unit )	
+	self:_delete_character_mask( unit )
 	--[[local old_mask_unit = self._mask_units[ unit:key() ]	
 	if alive( old_mask_unit) then
 		old_mask_unit:unlink()
 		old_mask_unit:set_slot(0)
 	end]]
-		
+	
+	local mask_on_sequence = managers.blackmarket:character_mask_on_sequence_by_character_id( managers.blackmarket:equipped_character(), peer_id )
+	print( "mask_on_sequence", mask_on_sequence )
+	if mask_on_sequence and unit:damage():has_sequence( mask_on_sequence ) then
+		unit:damage():run_sequence_simple( mask_on_sequence )
+	end
 	unit:link( mask_align:name(), mask_unit, mask_unit:orientation_object():name() )
 	self._mask_units[ unit:key() ] = mask_unit
 	return mask_unit
@@ -1077,6 +1084,8 @@ function MenuSceneManager:set_scene_template( template, data, custom_name )
 		-- print( "not change to same" )
 		return
 	end
+	managers.menu_component:play_transition()
+	
 	self._fov_mod = 0
 	self._camera_object:set_fov( self._current_fov + (self._fov_mod or 0) )
 	local template_data = data or self._scene_templates[ template ]

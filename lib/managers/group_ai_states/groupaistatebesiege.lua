@@ -603,7 +603,7 @@ function GroupAIStateBesiege:_upd_assault_task()
 						coarse_path = { { spawn_group.area.pos_nav_seg, spawn_group.area.pos } },
 						attitude = "avoid", -- avoid first and switch to engage when in position
 						pose = "crouch",
-						stance = "cbt"
+						stance = "hos"
 					}
 					self:_spawn_in_group( spawn_group, spawn_group_type, grp_objective, task_data )
 				end
@@ -854,7 +854,7 @@ function GroupAIStateBesiege:_upd_recon_tasks()
 					area = spawn_group.area,
 					target_area = task_data.target_area,
 					attitude = "avoid",
-					stance = "cbt",
+					stance = "hos",
 					scan = true
 				}
 				self:_spawn_in_group( spawn_group, spawn_group_type, grp_objective )
@@ -1394,7 +1394,8 @@ function GroupAIStateBesiege:_upd_reenforce_tasks()
 								area = spawn_group.area,
 								target_area = task_data.target_area,
 								attitude = "avoid",
-								stance = "cbt",
+								stance = "hos",
+								pose = "stand",
 								scan = true
 							}
 							self:_spawn_in_group( spawn_group, spawn_group_type, grp_objective )
@@ -2515,7 +2516,7 @@ function GroupAIStateBesiege:_set_recon_objective_to_group( group )
 				type = "recon_area",
 				area = current_objective.target_area,
 				attitude = "avoid",
-				stance = "cbt",
+				stance = "hos",
 				pose = "crouch",
 				scan = true
 			}
@@ -2723,7 +2724,7 @@ function GroupAIStateBesiege:_set_assault_objective_to_group( group, phase )
 			coarse_path = { { objective_area.pos_nav_seg, mvector3.copy( current_objective.area.pos ) } },
 			attitude = "engage",
 			pose = "stand",
-			stance = "cbt",
+			stance = "hos",
 			open_fire = true
 		}
 		self:_set_objective_to_enemy_group( group, grp_objective )
@@ -2817,7 +2818,7 @@ function GroupAIStateBesiege:_set_assault_objective_to_group( group, phase )
 				area = target_area,
 				coarse_path = coarse_path,
 				pose = push and "crouch" or "stand",
-				stance = push and "cbt" or "hos",
+				stance = "hos",
 				attitude = push and "engage" or "avoid",
 				moving_in = push and true or nil,
 				open_fire = push or nil,
@@ -2869,7 +2870,7 @@ function GroupAIStateBesiege:_set_assault_objective_to_group( group, phase )
 				coarse_path = { { retreat_area.pos_nav_seg, mvector3.copy( retreat_area.pos ) } },
 				attitude = "avoid",
 				pose = "crouch",
-				stance = "cbt"
+				stance = "hos"
 			}
 			group.is_chasing = nil
 			self:_set_objective_to_enemy_group( group, new_grp_objective )
@@ -2887,7 +2888,7 @@ function GroupAIStateBesiege._create_objective_from_group_objective( grp_objecti
 	
 	if grp_objective.type == "defend_area" or grp_objective.type == "recon_area" or grp_objective.type == "reenforce_area" or grp_objective.type == "retire" then
 		objective.type = "defend_area"
-		objective.stance = "cbt"
+		objective.stance = "hos"
 		objective.pose = "crouch"
 		objective.scan = true
 		objective.interrupt_dis = 200
@@ -2900,7 +2901,7 @@ function GroupAIStateBesiege._create_objective_from_group_objective( grp_objecti
 			objective.follow_unit = grp_objective.follow_unit
 			objective.distance = grp_objective.distance
 		end
-		objective.stance = "cbt"
+		objective.stance = "hos"
 		objective.pose = "stand"
 		objective.scan = true
 		objective.interrupt_dis = 200
@@ -3129,7 +3130,7 @@ function GroupAIStateBesiege:_assign_assault_groups_to_retire()
 				type = "recon_area",
 				area = regroup_area,
 				attitude = "avoid",
-				stance = "cbt",
+				stance = "hos",
 				pose = "crouch"
 			}
 			self:_set_objective_to_enemy_group( group, grp_objective )
@@ -3147,7 +3148,7 @@ function GroupAIStateBesiege:_assign_recon_groups_to_retire()
 				type = "assault_area",
 				area = group.objective.area,
 				attitude = "avoid",
-				stance = "cbt",
+				stance = "hos",
 				pose = "crouch"
 			}
 			self:_set_objective_to_enemy_group( group, grp_objective )
@@ -3322,7 +3323,7 @@ function GroupAIStateBesiege:_set_reenforce_objective_to_group( group )
 					type = "reenforce_area",
 					area = current_objective.target_area,
 					attitude = "engage",
-					stance = "cbt",
+					stance = "hos",
 					pose = "crouch",
 					scan = true
 				}

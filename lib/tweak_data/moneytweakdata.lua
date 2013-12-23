@@ -83,6 +83,8 @@ function MoneyTweakData:init()
 	self.bag_values.meth = 1000
 	self.bag_values.weapon = 950
 	self.bag_values.weapons = 950
+	self.bag_values.shells = 2100
+	self.bag_values.turret = 10000
 	
 	-- Lootbags
 	self.bag_value_multiplier = self._create_value_table( ((self.cut_lootbag_bonus)/5)/self.offshore_rate/self.bag_values.default, (self.cut_lootbag_bonus)/self.offshore_rate/self.bag_values.default, 7, true, 0.85 ) -- Scaled with stars
@@ -125,6 +127,8 @@ function MoneyTweakData:init()
 	self.global_value_multipliers.overkill = 0.01
 	self.global_value_multipliers.pd2_clan = 1
 	self.global_value_multipliers.halloween = 1
+	self.global_value_multipliers.armored_transport = 1.2
+	self.global_value_multipliers.sweettooth = 1
 	
 	self.global_value_bonus_multiplier = {}									-- for every extra of the same global value, the sell price is increased with this ( multiplier of value )
 	self.global_value_bonus_multiplier.normal = 0						-- example. an infamous mask with infamous texture = 2 normal, 2 infamous = 1 bonus normal + 1 bonus infamous = sell value increased with 3 times its value ( 1 * 0 + 1 * 3 )
@@ -133,8 +137,10 @@ function MoneyTweakData:init()
 	self.global_value_bonus_multiplier.infamous = 1
 	self.global_value_bonus_multiplier.preorder = 0
 	self.global_value_bonus_multiplier.overkill = 20
-	self.global_value_bonus_multiplier.pd2_clan = 1
-	self.global_value_bonus_multiplier.halloween = 1
+	self.global_value_bonus_multiplier.pd2_clan = 0
+	self.global_value_bonus_multiplier.halloween = 0
+	self.global_value_bonus_multiplier.armored_transport = 0.5
+	self.global_value_bonus_multiplier.sweettooth = 0
 	
 	
 	local smallest_cashout = (self.stage_completion[1] + self.job_completion[1]) * self.offshore_rate

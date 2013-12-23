@@ -70,6 +70,7 @@ end
 function MenuManager:setup_local_lobby_character()
 	local local_peer = managers.network:session():local_peer()
 	local level = managers.experience:current_level()
+	local rank = managers.experience:current_rank()
 	local character = local_peer:character()
 	local progress = managers.upgrades:progress()
 	
@@ -81,7 +82,7 @@ function MenuManager:setup_local_lobby_character()
 	
 	-- self:_set_player_slot( slot, { name = peer:name(), peer_id = peer:id(), level = level, character = character, progress = progress  } )
 	-- managers.network:session():send_to_peers_loaded( "lobby_info", peer:id(), slot, level, character, progress[1], progress[2], progress[3]  )
-	managers.network:session():send_to_peers_loaded( "sync_profile", level )
+	managers.network:session():send_to_peers_loaded( "sync_profile", level, rank )
 	managers.network:session():send_to_peers_loaded( "sync_outfit", managers.blackmarket:outfit_string() )
 end
 
@@ -286,9 +287,9 @@ function MenuCallbackHandler:crimenet_focus_changed( node, in_focus )
 		
 		managers.menu_component:create_crimenet_gui()
 		
-		if( managers.controller:get_default_wrapper_type() ~= "pc" ) then
+		--[[if( managers.controller:get_default_wrapper_type() ~= "pc" ) then
 			managers.menu:active_menu().input:activate_controller_mouse()
-		end
+		end]]
 		
 		-- managers.menu:active_menu().input._controller:add_trigger( "back", self._crimenet_to_blackmarket_func )
 		--[[managers.menu_component:create_chat_gui()
@@ -297,9 +298,9 @@ function MenuCallbackHandler:crimenet_focus_changed( node, in_focus )
 	else
 		managers.crimenet:stop()
 		
-		if( managers.controller:get_default_wrapper_type() ~= "pc" ) then
+		--[[if( managers.controller:get_default_wrapper_type() ~= "pc" ) then
 			managers.menu:active_menu().input:deactivate_controller_mouse()
-		end
+		end]]
 		-- managers.menu:active_menu().input._controller:remove_trigger( "back", self._crimenet_to_blackmarket_func )
 		-- managers.menu:active_menu().renderer:_close_crimenet_gui()
 		-- managers.menu:active_menu().renderer:_close_friends_gui()

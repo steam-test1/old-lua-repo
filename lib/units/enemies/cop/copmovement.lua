@@ -97,7 +97,7 @@ local action_variants = {
 }
 local security_variant = action_variants.security
 
-action_variants.patrol = security_variant
+action_variants.gensec = security_variant
 action_variants.cop = security_variant
 action_variants.fbi = security_variant
 action_variants.swat = security_variant
@@ -221,6 +221,8 @@ function CopMovement:post_init()
 	
 	self._unit:kill_mover()
 	self._unit:set_driving( "script" )
+	
+	self._unit:unit_data().has_alarm_pager = self._tweak_data.has_alarm_pager
 	
 	self._unit:character_damage():add_listener( "movement", { "bleedout", "light_hurt", "heavy_hurt", "hurt", "hurt_sick", "shield_knock", "counter_tased", "death", "fatal" }, callback( self, self, "damage_clbk" ) )
 	
@@ -1701,7 +1703,7 @@ function CopMovement:_chk_start_queued_action()
 			self._need_upd = true
 			break
 		else
-			if action_desc.type == "walk" or action_desc.type == "spooc" then	-- fix this internally instead
+			if action_desc.type == "spooc" then	-- fix this internally instead
 				--print( "[CopMovement:_chk_start_queued_action] overwriting nav_index", action_desc.path_index or 1 )
 				action_desc.nav_path[ action_desc.path_index or 1 ] = mvector3.copy( self._m_pos ) -- the start position is old. overwrite just in case
 			end
@@ -1823,9 +1825,9 @@ function CopMovement:sync_action_walk_stop( pos )
 	--print( "[CopMovement:sync_action_walk_stop]", self._unit, inspect( self._active_actions ), inspect( self._queued_actions ) )
 	local walk_action, is_queued = self:_get_latest_walk_action()
 	if is_queued then
-		if not walk_action.nav_path[ #walk_action.nav_path ].x then -- this nav_link was never performed on the server side
+		--[[if not walk_action.nav_path[ #walk_action.nav_path ].x then -- this nav_link was never performed on the server side
 			walk_action.nav_path[ #walk_action.nav_path ] = self._actions.walk._nav_point_pos( walk_action.nav_path[ #walk_action.nav_path ] )
-		end
+		end]]
 		
 		table.insert( walk_action.nav_path, pos )
 		walk_action.persistent = nil

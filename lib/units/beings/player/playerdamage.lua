@@ -394,6 +394,16 @@ function PlayerDamage:damage_bullet( attack_data )
 		attacker_unit = attack_data.attacker_unit
 	}
 	
+	local dmg_mul = managers.player:temporary_upgrade_value( "temporary", "dmg_dampener_outnumbered", 1 ) * managers.player:upgrade_value( "player", "damage_dampener", 1 )
+	
+	if( self._unit:movement()._current_state and self._unit:movement()._current_state:_interacting() ) then
+		dmg_mul = dmg_mul * managers.player:upgrade_value( "player", "interacting_damage_multiplier", 1 )
+	end
+	
+	attack_data.damage = attack_data.damage * dmg_mul
+	
+	
+	
 	local dodge_roll = math.rand( 1 )
 	
 	local dodge_value = tweak_data.player.damage.DODGE_INIT or 0
@@ -404,11 +414,11 @@ function PlayerDamage:damage_bullet( attack_data )
 	
 	if( dodge_roll < dodge_value ) then
 		if attack_data.damage > 0 then
-			self:_send_damage_drama( attack_data, attack_data.damage )
+			self:_send_damage_drama( attack_data, 0 )
 		end
 		
 		self:_call_listeners( damage_info )
-		-- self:play_whizby( attack_data.col_ray.position )
+		self:play_whizby( attack_data.col_ray.position )
 		self:_hit_direction( attack_data.col_ray )
 		
 		self._next_allowed_dmg_t = Application:digest_value( managers.player:player_timer():time() + self._dmg_interval, true )
@@ -416,13 +426,6 @@ function PlayerDamage:damage_bullet( attack_data )
 		return
 	end
 	
-	local dmg_mul = managers.player:temporary_upgrade_value( "temporary", "dmg_dampener_outnumbered", 1 ) * managers.player:upgrade_value( "player", "damage_dampener", 1 )
-	
-	if( self._unit:movement()._current_state and self._unit:movement()._current_state:_interacting() ) then
-		dmg_mul = dmg_mul * managers.player:upgrade_value( "player", "interacting_damage_multiplier", 1 )
-	end
-	
-	attack_data.damage = attack_data.damage * dmg_mul
 	
 	if self._god_mode then
 		if attack_data.damage > 0 then
@@ -476,8 +479,11 @@ function PlayerDamage:damage_bullet( attack_data )
 		armor_reduction_multiplier = 1
 	end
 	local health_subtracted = self:_calc_armor_damage( attack_data )
-	
-	attack_data.damage = attack_data.damage * armor_reduction_multiplier
+	if attack_data.armor_piercing then
+		attack_data.damage = attack_data.damage - health_subtracted
+	else
+		attack_data.damage = attack_data.damage * armor_reduction_multiplier
+	end
 	health_subtracted = health_subtracted + self:_calc_health_damage( attack_data )
 	
 	managers.player:activate_temporary_upgrade( "temporary", "wolverine_health_regen" )
@@ -512,6 +518,9 @@ function PlayerDamage:_calc_armor_damage( attack_data )
 		
 		if self:get_real_armor() <= 0 then
 			self._unit:sound():play( "player_armor_gone_stinger" )
+			if attack_data.armor_piercing then
+				self._unit:sound():play( "player_sniper_hit_armor_gone" )
+			end
 		end
 	end
 	return health_subtracted

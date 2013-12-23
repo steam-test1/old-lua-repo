@@ -23,7 +23,7 @@ function ElementSpawnCivilian:produce()
 		return
 	end
 	
-	local unit = safe_spawn_unit( self._enemy_name, self._values.position, self._values.rotation )
+	local unit = safe_spawn_unit( self._enemy_name, self:get_orientation() )
 	unit:unit_data().mission_element = self
 	table.insert( self._units, unit )
 	if self._values.state ~= "none" then

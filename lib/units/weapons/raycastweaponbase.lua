@@ -79,6 +79,10 @@ function RaycastWeaponBase:selection_index()
 	return self:weapon_tweak_data().use_data.selection_index
 end
 
+function RaycastWeaponBase:get_stance_id()
+	return self:weapon_tweak_data().use_stance or self:get_name_id()
+end
+
 -----------------------------------------------------------------------------------
 
 function RaycastWeaponBase:_create_use_setups()
@@ -1125,8 +1129,9 @@ end
 
 
 function InstantBulletBase:on_hit_player( col_ray, weapon_unit, user_unit, damage )
+	local armor_piercing = alive( weapon_unit ) and weapon_unit:base():weapon_tweak_data().armor_piercing or nil
 	col_ray.unit = managers.player:player_unit()
-	return self:give_impact_damage( col_ray, weapon_unit, user_unit, damage )
+	return self:give_impact_damage( col_ray, weapon_unit, user_unit, damage, armor_piercing )
 end
 
 -----------------------------------------------------------------------------------
@@ -1137,13 +1142,14 @@ end
 
 -----------------------------------------------------------------------------------
 
-function InstantBulletBase:give_impact_damage( col_ray, weapon_unit, user_unit, damage )
+function InstantBulletBase:give_impact_damage( col_ray, weapon_unit, user_unit, damage, armor_piercing )
 	local action_data = {}
 	action_data.variant = "bullet"
 	action_data.damage = damage
 	action_data.weapon_unit = weapon_unit
 	action_data.attacker_unit = user_unit
 	action_data.col_ray = col_ray
+	action_data.armor_piercing = armor_piercing
 	
 	local defense_data = col_ray.unit:character_damage():damage_bullet( action_data )
 	return defense_data

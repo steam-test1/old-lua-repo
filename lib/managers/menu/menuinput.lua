@@ -58,6 +58,7 @@ function MenuInput:activate_mouse( position, controller_activated )
 end
 
 function MenuInput:activate_controller_mouse( position )
+	Application:debug( "MenuInput:activate_controller_mouse()" )
 	self._controller_mouse_active_counter = self._controller_mouse_active_counter + 1
 	
 	if( self._controller_mouse_active_counter == 1 ) then
@@ -68,6 +69,7 @@ function MenuInput:activate_controller_mouse( position )
 end
 
 function MenuInput:deactivate_controller_mouse()
+	Application:debug( "MenuInput:deactivate_controller_mouse()" )
 	self._controller_mouse_active_counter = self._controller_mouse_active_counter - 1
 	
 	if( self._controller_mouse_active_counter < 0 ) then

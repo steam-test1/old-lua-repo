@@ -23,24 +23,26 @@ function ElementExplosion:on_executed( instigator )
 	
 	print( "ElementExplosion:on_executed( instigator )" )
 	
+	local pos, rot = self:get_orientation()
 	local player = managers.player:player_unit()
 	if player then
-		player:character_damage():damage_explosion( { position = self._values.position, range = self._values.range, damage = self._values.player_damage } )
+		player:character_damage():damage_explosion( { position = pos, range = self._values.range, damage = self._values.player_damage } )
 	end
 	
-	GrenadeBase._spawn_sound_and_effects( self._values.position, self._values.rotation:z(), self._values.range, self._values.explosion_effect )
+	managers.explosion:spawn_sound_and_effects( pos, rot:z(), self._values.range, self._values.explosion_effect )
 	
 	if Network:is_server() then
 		-- First server needs to check what damage is done by the explosion .. 
-		GrenadeBase._detect_and_give_dmg( { _range = self._values.range, 
-											_collision_slotmask = managers.slot:get_mask( "bullet_impact_targets" ), 
-											_curve_pow = 5, 
-											_damage = self._values.damage,
-											_player_damage = 0 },
-											self._values.position )
+		managers.explosion:detect_and_give_dmg( {
+					hit_pos = pos,
+					range = self._values.range, 
+					collision_slotmask = managers.slot:get_mask( "bullet_impact_targets" ), 
+					curve_pow = 5, 
+					damage = self._values.damage,
+					player_damage = 0 } )
 		
 		-- .. then server can tell clients that they can push units
-		managers.network:session():send_to_peers_synched( "element_explode_on_client", self._values.position, self._values.rotation:z(), self._values.damage, self._values.range, 5 )
+		managers.network:session():send_to_peers_synched( "element_explode_on_client", pos, rot:z(), self._values.damage, self._values.range, 5 )
 	end
 		 						
 	ElementExplosion.super.on_executed( self, instigator ) -- This will trigger the feedback (camera shake/rumble etc)

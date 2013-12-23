@@ -152,6 +152,7 @@ function SpoocLogicAttack.action_complete_clbk( data, action )
 	local action_type = action:type()
 	local my_data = data.internal_data
 	if action_type == "walk" then
+		my_data.advancing = nil
 		if my_data.moving_to_cover then
 			if action:expired() then	-- The walk action ended normally. ( was not interrupted )
 				--print( "entered_cover" )
@@ -193,7 +194,7 @@ function SpoocLogicAttack._upd_spooc_attack( data, my_data )
 
 	if focus_enemy.nav_tracker and focus_enemy.is_person and focus_enemy.criminal_record and not focus_enemy.criminal_record.status and 
 		not my_data.spooc_attack and focus_enemy.verified and 
-		focus_enemy.verified_dis < ( my_data.attitude == "engage" and not data.is_suppressed and 1500 or 900 ) and 
+		focus_enemy.verified_dis < ( my_data.want_to_take_cover and 900 or 1500 ) and 
 		not data.unit:movement():chk_action_forbidden( "walk" ) and 
 		( not my_data.last_dmg_t or data.t - my_data.last_dmg_t > 0.6 )
 	then
@@ -209,12 +210,18 @@ function SpoocLogicAttack._upd_spooc_attack( data, my_data )
 		local col_ray = managers.navigation:raycast( ray_params )
 		if not col_ray then
 			local z_diff_abs = math.abs( ray_params.trace[1].z - focus_enemy.m_pos.z )
-			if z_diff_abs < 200 and SpoocLogicAttack._chk_request_action_spooc_attack( data, my_data ) then
-				my_data.spooc_attack = {
-					start_t = data.t,
-					target_u_data = focus_enemy
-				}
-				return true
+			if z_diff_abs < 200 then
+				if my_data.attention_unit ~= focus_enemy.u_key then
+					CopLogicBase._set_attention( data, focus_enemy )
+					my_data.attention_unit = focus_enemy.u_key
+				end
+				if SpoocLogicAttack._chk_request_action_spooc_attack( data, my_data ) then
+					my_data.spooc_attack = {
+						start_t = data.t,
+						target_u_data = focus_enemy
+					}
+					return true
+				end
 			end
 		end
 	end
@@ -241,6 +248,12 @@ function SpoocLogicAttack._chk_request_action_spooc_attack( data, my_data )
 		end
 		return true
 	end
+end
+
+-----------------------------------------------------------------------------
+
+function SpoocLogicAttack.chk_should_turn( data, my_data )
+	return ( not my_data.spooc_attack and CopLogicAttack.chk_should_turn( data, my_data ) )
 end
 
 -----------------------------------------------------------------------------
@@ -275,6 +288,25 @@ end
 
 function SpoocLogicAttack.action_taken( data, my_data )
 	return CopLogicAttack.action_taken( data, my_data ) or my_data.spooc_attack
+end
+
+-----------------------------------------------------------------------------
+
+function SpoocLogicAttack._chk_exit_attack_logic( data, new_reaction )
+	return ( not data.internal_data.spooc_attack and CopLogicAttack._chk_exit_attack_logic( data, new_reaction ) )
+end
+
+-----------------------------------------------------------------------------
+
+function SpoocLogicAttack._upd_aim( data, my_data )
+	if my_data.spooc_attack then
+		if my_data.attention_unit ~= my_data.spooc_attack.target_u_data.u_key then
+			CopLogicBase._set_attention( data, my_data.spooc_attack.target_u_data )
+			my_data.attention_unit = my_data.spooc_attack.target_u_data.u_key
+		end
+	else
+		CopLogicAttack._upd_aim( data, my_data )
+	end
 end
 
 -----------------------------------------------------------------------------

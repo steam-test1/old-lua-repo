@@ -16,6 +16,7 @@ Global.DEBUG_MENU_ON = Application:debug_enabled()
 
 core:import( "CoreSetup" )
 
+require "lib/Version"
 require "lib/managers/DLCManager"
 managers.dlc = DLCManager:new()
 

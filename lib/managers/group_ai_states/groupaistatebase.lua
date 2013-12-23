@@ -27,7 +27,7 @@ GroupAIStateBase.BLAME_SYNC = {		-- this table doubles as a weighting system, wi
 	"civ_alarm",
 	"cop_alarm",
 	"gan_alarm",
-	
+	"gan_crate_open",
 	
 	"cam_criminal",			-- camera only uses cam_, so no need to mix the lesser ones with civ and cops ones
 	"cam_gunfire",
@@ -47,6 +47,7 @@ GroupAIStateBase.BLAME_SYNC = {		-- this table doubles as a weighting system, wi
 	"cam_voting",
 	"cam_glass",
 	"cam_breaking_entering",
+	"cam_crate_open",
 	"cam_distress",
 	
 	
@@ -67,6 +68,7 @@ GroupAIStateBase.BLAME_SYNC = {		-- this table doubles as a weighting system, wi
 	"civ_voting",
 	"civ_glass",
 	"civ_breaking_entering",
+	"civ_crate_open",
 	"civ_distress",
 	
 	
@@ -87,6 +89,7 @@ GroupAIStateBase.BLAME_SYNC = {		-- this table doubles as a weighting system, wi
 	"cop_voting",
 	"cop_glass",
 	"cop_breaking_entering",
+	"cop_crate_open",
 	"cop_distress",
 	
 	
@@ -707,8 +710,28 @@ function GroupAIStateBase:police_hostage_count()
 	return self._police_hostage_headcount
 end
 
+-----------------------------------------------------------------------------------
+
 function GroupAIStateBase:hostage_count()
 	return self._hostage_headcount
+end
+
+-----------------------------------------------------------------------------------
+
+function GroupAIStateBase:has_room_for_police_hostage()
+	local global_limit = 1
+	
+	for u_key, u_data in pairs( self._player_criminals ) do
+		local limit
+		if u_data.unit:base().is_local_player then
+			limit = managers.player:upgrade_value( "player", "ene_hostage_lim_1", 1 )
+		else
+			limit = u_data.unit:base():upgrade_value( "player", "ene_hostage_lim_1" )
+		end
+		global_limit = limit and math.max( global_limit, limit ) or global_limit
+	end
+	
+	return ( self._police_hostage_headcount < global_limit )
 end
 
 --------------------------------------------------------------------------------------

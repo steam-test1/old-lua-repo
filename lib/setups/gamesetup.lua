@@ -10,7 +10,7 @@ require "lib/managers/MissionManager"
 require "lib/utils/dev/editor/WorldDefinition"
 require "lib/managers/ObjectInteractionManager"
 require "lib/managers/LocalizationManager"
-require "lib/managers/DramaManager"
+-- require "lib/managers/DramaManager"
 require "lib/managers/DialogManager"
 require "lib/managers/EnemyManager"
 require "lib/managers/SpawnManager"
@@ -36,6 +36,7 @@ require "lib/managers/TradeManager"
 require "lib/managers/CriminalsManager"
 require "lib/managers/FeedBackManager"
 require "lib/managers/TimeSpeedManager"
+require "lib/managers/ExplosionManager"
 
 core:import( "SequenceManager" )
 
@@ -236,10 +237,21 @@ function GameSetup:load_packages()
 		end
 	end
 	
-	-- Load contact specific package
 	
+	-- Load contact specific package
 	local job_tweak_data = Global.job_manager and Global.job_manager.current_job and Global.job_manager.current_job.job_id and tweak_data.narrative.jobs[ Global.job_manager.current_job.job_id ]
-	local contact = Global.job_manager and Global.job_manager.interupt_stage and "interupt" or job_tweak_data and job_tweak_data.contact
+	
+	local contact
+	if Global.job_manager and Global.job_manager.interupt_stage then
+		contact = "interupt"
+		if tweak_data.levels[ Global.job_manager.interupt_stage ].bonus_escape then
+			contact = "bain"
+		end
+	else
+		contact =	job_tweak_data and job_tweak_data.contact
+	end
+	
+	-- local contact = Global.job_manager and Global.job_manager.interupt_stage and "interupt" or job_tweak_data and job_tweak_data.contact
 	local contact_tweak_data = tweak_data.narrative.contacts[ contact ]
 	-- local contact_tweak_data = (Global.job_manager and Global.job_manager.interupt_stage and tweak_data.narrative.contacts[ "interupt" ]) or job_tweak_data and job_tweak_data.contact and tweak_data.narrative.contacts[ job_tweak_data.contact ]
 	
@@ -295,7 +307,7 @@ function GameSetup:init_managers( managers )
 	Setup.init_managers( self, managers )
 	
 	managers.interaction = ObjectInteractionManager:new()
-	managers.drama = DramaManager:new()
+	-- managers.drama = DramaManager:new()
 	managers.dialog = DialogManager:new()
 	managers.enemy = EnemyManager:new()
 	managers.spawn = SpawnManager:new()
@@ -319,6 +331,7 @@ function GameSetup:init_managers( managers )
 	managers.trade = TradeManager:new()
 	managers.feedback = FeedBackManager:new()
 	managers.time_speed = TimeSpeedManager:new()
+	managers.explosion = ExplosionManager:new()
 	
 	
 	if SystemInfo:platform() == Idstring( "X360" ) then
@@ -411,7 +424,7 @@ function GameSetup:update( t, dt )
 	
 	-- local id = Profiler:start( "gaym" )
 	managers.interaction:update( t, dt ) 		-- 0.5
-	managers.dialog:update( t, dt ) 			-- 0
+	-- managers.dialog:update( t, dt ) 			-- 0
 	managers.enemy:update( t, dt ) 				-- 2.9
 	managers.groupai:update( t, dt ) 			-- 0.5
 	managers.spawn:update( t, dt ) 				-- 0
@@ -424,6 +437,7 @@ function GameSetup:update( t, dt )
 	managers.statistics:update( t, dt )			-- ?
 	managers.time_speed:update()
 	managers.objectives:update( t, dt )
+	managers.explosion:update( t, dt )
 	
 	-- Profiler:stop( id )
 	

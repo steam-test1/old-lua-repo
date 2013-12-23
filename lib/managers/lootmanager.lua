@@ -191,10 +191,12 @@ function LootManager:get_secured_mandatory_bags_amount()
 	
 	local amount = 0
 	for _,data in ipairs( self._global.secured ) do
-		if mandatory_bags_amount > 0 and (self._global.mandatory_bags.carry_id == "none" or self._global.mandatory_bags.carry_id == data.carry_id) then
+		if not tweak_data.carry.small_loot[ data.carry_id ] then
+			if mandatory_bags_amount > 0 and (self._global.mandatory_bags.carry_id == "none" or self._global.mandatory_bags.carry_id == data.carry_id) then
 		-- if self._global.mandatory_bags.carry_id == "none" or self._global.mandatory_bags.carry_id == data.carry_id then
-			amount = amount + 1
-			mandatory_bags_amount = mandatory_bags_amount - 1
+				amount = amount + 1
+				mandatory_bags_amount = mandatory_bags_amount - 1
+			end
 		end 
 	end
 	
@@ -255,7 +257,11 @@ function LootManager:get_secured_mandatory_bags_value()
 	return value
 end
 
-function LootManager:is_bonus_bag()
+function LootManager:is_bonus_bag( carry_id )
+	if self._global.mandatory_bags.carry_id ~= "none" and carry_id and carry_id ~= self._global.mandatory_bags.carry_id then
+		return true
+	end
+	
 	local mandatory_bags_amount = self._global.mandatory_bags.amount or 0
 
 	for _,data in ipairs( self._global.secured ) do
@@ -263,7 +269,9 @@ function LootManager:is_bonus_bag()
 			-- Is a mandatory
 			if mandatory_bags_amount > 0 and (self._global.mandatory_bags.carry_id == "none" or self._global.mandatory_bags.carry_id == data.carry_id) then
 				mandatory_bags_amount = mandatory_bags_amount - 1
-			else
+				
+				
+			elseif mandatory_bags_amount == 0 then
 				return true
 			end
 		end
@@ -427,7 +435,7 @@ end
 function LootManager:_present( carry_id, value )
 	local real_value = 0
 	if tweak_data:get_value( "money_manager", "bag_values", carry_id ) then
-		real_value = managers.money:get_secured_bonus_bag_value( value )
+		real_value = managers.money:get_secured_bonus_bag_value( carry_id, value )
 	else
 		real_value = self:get_real_value( carry_id, value)
 	end

@@ -20,19 +20,20 @@ function ElementLootBag:on_executed( instigator )
 	-- print( "ElementLootBag:on_executed" )
 	
 	local unit
+	local pos, rot = self:get_orientation()
 	if self._values.carry_id ~= "none" then
 		-- unit_name = tweak_data.carry[ self._values.carry_id ].unit or unit_name
 		local dir = self._values.spawn_dir * self._values.push_multiplier
 		-- print( "self._values.carry_id", self._values.carry_id, dir )
 		-- local value = tweak_data.carry[ self._values.carry_id ].default_value or tweak_data.money_manager.bag_value
 		local value = managers.money:get_bag_value( self._values.carry_id )
-		unit = managers.player:server_drop_carry( self._values.carry_id, value, true, false, 1, self._values.position, self._values.rotation, dir, 0 )
+		unit = managers.player:server_drop_carry( self._values.carry_id, value, true, false, 1, pos, rot, dir, 0 )
 	elseif self._values.from_respawn then
 		local loot = managers.loot:get_respawn()
 		if loot then
 			-- loot.carry_id, loot.value
 			local dir = self._values.spawn_dir * self._values.push_multiplier 
-			unit = managers.player:server_drop_carry( loot.carry_id, loot.value, true, false, 1, self._values.position, self._values.rotation, dir, 0 )
+			unit = managers.player:server_drop_carry( loot.carry_id, loot.value, true, false, 1, pos, rot, dir, 0 )
 		else
 			print( "NO MORE LOOT TO RESPAWN" )
 		end
@@ -41,7 +42,7 @@ function ElementLootBag:on_executed( instigator )
 		if loot then
 			-- loot.carry_id, loot.value
 			local dir = self._values.spawn_dir * self._values.push_multiplier 
-			unit = managers.player:server_drop_carry( loot.carry_id, loot.value, true, false, 1, self._values.position, self._values.rotation, dir, 0 )
+			unit = managers.player:server_drop_carry( loot.carry_id, loot.value, true, false, 1, pos, rot, dir, 0 )
 		else
 			print( "NO MORE LOOT TO DISTRIBUTE" )
 		end

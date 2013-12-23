@@ -666,13 +666,13 @@ function ConnectionNetworkHandler:sync_outfit( outfit_string, sender )
 	end
 end
 
-function ConnectionNetworkHandler:sync_profile( level, sender )
+function ConnectionNetworkHandler:sync_profile( level, rank, sender )
 	local peer = self._verify_sender( sender )
 	if not peer then
 		return
 	end
 	
-	peer:set_profile( level )
+	peer:set_profile( level, rank )
 end
 
 --------------------------------------------------------------------------------------

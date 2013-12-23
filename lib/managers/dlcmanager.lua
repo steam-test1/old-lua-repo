@@ -1,7 +1,7 @@
 DLCManager = DLCManager or class()
 DLCManager.PLATFORM_CLASS_MAP = {}
 
-DLCManager.BUNDLED_DLC_PACKAGES = { dlc1 = false, season_pass = false }
+DLCManager.BUNDLED_DLC_PACKAGES = { dlc1 = true, season_pass = false, animal = false }
 
 function DLCManager:new( ... )
 	local platform = SystemInfo:platform()
@@ -129,6 +129,12 @@ end
 
 ------------------------------------------------------------------------------
 
+function GenericDLCManager:has_all_dlcs()
+	return self:has_armored_transport()
+end
+
+------------------------------------------------------------------------------
+
 function GenericDLCManager:has_preorder()
 	return Global.dlc_manager.all_dlc_data.preorder and Global.dlc_manager.all_dlc_data.preorder.verified
 end
@@ -143,6 +149,18 @@ end
 
 function GenericDLCManager:has_pd2_clan()
 	return Global.dlc_manager.all_dlc_data.pd2_clan and Global.dlc_manager.all_dlc_data.pd2_clan.verified
+end
+
+------------------------------------------------------------------------------
+
+function GenericDLCManager:has_sweettooth()
+	return Global.dlc_manager.all_dlc_data.sweettooth and Global.dlc_manager.all_dlc_data.sweettooth.verified
+end
+
+------------------------------------------------------------------------------
+
+function GenericDLCManager:has_armored_transport()
+	return Global.dlc_manager.all_dlc_data.armored_transport and Global.dlc_manager.all_dlc_data.armored_transport.verified
 end
 
 ------------------------------------------------------------------------------
@@ -174,6 +192,10 @@ function PS3DLCManager:init()
 			preorder = {
 				filename = "preorder_dlc_key.edat",
 				product_id = "EP4040-BLES01902_00-PPAYDAY2XX000006"
+			},
+			sweettooth = {
+				filename = "sweettooth_dlc_key.edat",
+				product_id = "EP4040-BLES01902_00-PPAYDAY2SWTTOOTH"
 			}
 		}
 		
@@ -417,6 +439,10 @@ function WINDLCManager:init()
 			},
 			career_criminal_edition = {
 				app_id = "218630",
+				no_install = true	-- check only ownership here, since this DLC does not require installation
+			},
+			armored_transport = {
+				app_id = "264610",
 				no_install = true	-- check only ownership here, since this DLC does not require installation
 			},
 			pd2_clan = {

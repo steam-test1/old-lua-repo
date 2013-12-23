@@ -11,6 +11,9 @@ CopDamage._hurt_severities = {
 	heavy = "heavy_hurt"
 }
 
+local mvec_1 = Vector3()
+local mvec_2 = Vector3()
+
 function CopDamage:init( unit )
 	self._unit = unit
 	
@@ -104,18 +107,21 @@ function CopDamage:damage_bullet( attack_data )
 	end
 	
 -- ULF : FBI Heavy swat plating
-	if self._has_plate then
-		local armor_pierced = false
+	if self._has_plate and attack_data.col_ray.body and attack_data.col_ray.body:name() == self._ids_plate_name then
+		local armor_pierce_roll = math.rand( 1 )
+		local armor_pierce_value = 0
+		
 		if attack_data.attacker_unit == managers.player:player_unit() then
-			armor_pierced = math.rand( 1 ) < managers.player:upgrade_value( "weapon", "armor_piercing_chance", 0 )
-			if alive(attack_data.weapon_unit) then
-				if attack_data.weapon_unit:base().got_silencer and attack_data.weapon_unit:base():got_silencer() then
-					armor_pierced = armor_pierced or (math.rand(1) < managers.player:upgrade_value("weapon", "armor_piercing_chance_silencer", 0))
-				end
+			armor_pierce_value = armor_pierce_value + managers.player:upgrade_value( "weapon", "armor_piercing_chance", 0 )
+			armor_pierce_value = armor_pierce_value + managers.player:upgrade_value( "weapon", "armor_piercing_chance_silencer", 0 )
+			
+			local weapon_category = attack_data.weapon_unit:base():weapon_tweak_data().category
+			if weapon_category == "saw" then
+				armor_pierce_value = armor_pierce_value + managers.player:upgrade_value( "saw", "armor_piercing_chance", 0 )
 			end
 		end
-
-		if not armor_pierced and attack_data.col_ray.body and attack_data.col_ray.body:name() == self._ids_plate_name then -- ULF : This could be combined with the checks for head body
+		
+		if armor_pierce_value <= armor_pierce_roll then
 			return
 		end
 	end
@@ -133,7 +139,36 @@ function CopDamage:damage_bullet( attack_data )
 	
 	local headshot_multiplier = 1
 	if attack_data.attacker_unit == managers.player:player_unit() then
-		managers.hud:on_hit_confirmed()
+		local critical_hit = false
+		local critical_value = 0 + managers.player:critical_hit_chance()
+		
+		if critical_value > 0 then
+			mvector3.set( mvec_1, self._unit:movement():m_fwd() )
+			mvector3.set_z( mvec_1, 0 )
+			
+			mvector3.set( mvec_2, attack_data.col_ray.ray )
+			mvector3.set_z( mvec_2, 0 )
+			mvector3.negate( mvec_2 )
+			
+			if mvector3.angle( mvec_1, mvec_2 ) > 90 then
+				local critical_roll = math.rand( 1 )
+				critical_hit = critical_roll < critical_value
+			end
+		end
+		if critical_hit then
+			managers.hud:on_crit_confirmed()
+			
+			if self._char_tweak.headshot_dmg_mul then
+				damage = damage * self._char_tweak.headshot_dmg_mul
+			else
+				damage = self._health * 10
+			end
+		else
+			
+			
+			managers.hud:on_hit_confirmed()
+		end
+		
 		headshot_multiplier = managers.player:upgrade_value( "weapon", "passive_headshot_damage_multiplier", 1 )
 		
 		if tweak_data.character[ self._unit:base()._tweak_table ].priority_shout then
@@ -168,7 +203,7 @@ function CopDamage:damage_bullet( attack_data )
 		self:die( attack_data.variant )
 	else
 		attack_data.damage = damage
-		local result_type = self:get_damage_type(damage_percent)
+		local result_type = self:get_damage_type( damage_percent )
 		result = { type = result_type, variant = attack_data.variant }
 		self._health = self._health - damage
 		self._health_ratio = self._health / self._HEALTH_INIT
@@ -228,8 +263,21 @@ function CopDamage:damage_bullet( attack_data )
 					managers.achievment:award_progress( tweak_data.achievement.pump_action.stat )
 				end
 				local attack_weapon = attack_data.weapon_unit
-				if alive( attack_weapon ) and attack_weapon:base() and attack_weapon:base().name_id == tweak_data.achievement.try_out_your_usp.weapon then
-					managers.achievment:award_progress( tweak_data.achievement.try_out_your_usp.stat )
+				if alive( attack_weapon ) and attack_weapon:base() then
+					local unit_type = self._unit:base()._tweak_table
+					
+					if attack_weapon:base().name_id == tweak_data.achievement.try_out_your_usp.weapon then
+						managers.achievment:award_progress( tweak_data.achievement.try_out_your_usp.stat )
+					end
+					if attack_weapon:base().name_id == tweak_data.achievement.license_to_kill.weapon then
+						managers.achievment:award_progress( tweak_data.achievement.license_to_kill.stat )
+					end
+					if unit_type == tweak_data.achievement.im_not_a_crook.enemy and attack_weapon:base().name_id == tweak_data.achievement.im_not_a_crook.weapon and managers.blackmarket:equipped_mask().mask_id == tweak_data.achievement.im_not_a_crook.mask then
+						managers.achievment:award_progress( tweak_data.achievement.im_not_a_crook.stat )
+					end
+					if unit_type == tweak_data.achievement.fool_me_once.enemy and attack_weapon:base().name_id == tweak_data.achievement.fool_me_once.weapon and managers.blackmarket:equipped_mask().mask_id == tweak_data.achievement.fool_me_once.mask then
+						managers.achievment:award_progress( tweak_data.achievement.fool_me_once.stat )
+					end
 				end
 			end
 			
@@ -367,6 +415,10 @@ function CopDamage:damage_explosion( attack_data )
 		end
 	end
 	
+	if not self._no_blood then
+		managers.game_play_central:sync_play_impact_flesh( attack_data.pos, attack_data.col_ray.ray )
+	end
+	
 	self:_send_explosion_attack_result( attack_data, attacker, damage_percent, self:_get_attack_variant_index( attack_data.result.variant ) )
 	self:_on_damage_received( attack_data )
 	
@@ -421,6 +473,7 @@ function CopDamage:damage_melee( attack_data )
 	attack_data.result = result
 	attack_data.pos = attack_data.col_ray.position
 	
+	local snatch_pager = false
 	if result.type == "death" then
 		local data = { name = self._unit:base()._tweak_table, head_shot = head, weapon_unit = attack_data.weapon_unit, variant = attack_data.variant }
 		managers.statistics:killed_by_anyone( data )
@@ -438,6 +491,9 @@ function CopDamage:damage_melee( attack_data )
 			
 			if self:_type_civilian( self._unit:base()._tweak_table ) then
 				managers.money:civilian_killed()
+			elseif managers.player:upgrade_value( "player", "melee_kill_snatch_pager_chance", 0 ) > math.rand( 1 ) then
+				snatch_pager = true
+				self._unit:unit_data().has_alarm_pager = false
 			end
 		end
 	end
@@ -449,6 +505,8 @@ function CopDamage:damage_melee( attack_data )
 		variant = 1
 	elseif result.type == "counter_tased" then
 		variant = 2
+	elseif snatch_pager then
+		variant = 3
 	else
 		variant = 0
 	end
@@ -775,6 +833,13 @@ function CopDamage:sync_damage_explosion( attacker_unit, damage_percent, i_attac
 		self:_spawn_head_gadget( { position = body:position(), rotation = body:rotation(), dir = Vector3(), skip_push = true } )
 	end
 	
+	if not self._no_blood then
+		
+		local hit_pos = mvector3.copy( self._unit:movement():m_pos() )
+		mvector3.set_z( hit_pos, hit_pos.z + 100 )
+		managers.game_play_central:sync_play_impact_flesh( hit_pos, attack_dir )
+	end
+	
 	-- Fix this: (george)
 	attack_data.pos = self._unit:position()
 	mvector3.set_z( attack_data.pos, attack_data.pos.z + math.random() * 180 )
@@ -818,6 +883,11 @@ function CopDamage:sync_damage_melee( attacker_unit, damage_percent, damage_effe
 		attack_dir = -self._unit:rotation():y()
 	end
 	attack_data.attack_dir = attack_dir
+	
+	
+	if variant == 3 then
+		self._unit:unit_data().has_alarm_pager = false
+	end
 	
 	-- Fix this: (george)
 	attack_data.pos = self._unit:position()

@@ -355,7 +355,7 @@ function MenuTitlescreenState:at_exit()
 		self._controller_list = nil
 	end
 	
-	managers.menu_component:test_camera_shutter_tech()
+	-- managers.menu_component:test_camera_shutter_tech()
 
 	managers.menu:input_enabled( true )
 

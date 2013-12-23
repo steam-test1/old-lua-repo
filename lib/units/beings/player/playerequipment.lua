@@ -126,6 +126,11 @@ function PlayerEquipment:use_doctor_bag()
 		rot = Rotation( rot:yaw(), 0, 0 )
 		
 		PlayerStandard.say_line( self, "s02x_plu" )
+		
+		if managers.blackmarket:equipped_mask().mask_id == tweak_data.achievement.no_we_cant.mask then
+			managers.achievment:award_progress( tweak_data.achievement.no_we_cant.stat )
+		end
+		
 		managers.statistics:use_doctor_bag()
 		
 		local amount_upgrade_lvl = managers.player:upgrade_level( "doctor_bag", "amount_increase" )
@@ -256,7 +261,7 @@ function PlayerEquipment:use_sentry_gun( selected_index )
 		-- local armor_multiplier = managers.player:upgrade_level( "sentry_gun", "armor_increase" )
 
 		local ammo_multiplier = managers.player:upgrade_value( "sentry_gun", "extra_ammo_multiplier", 1 )
-		local armor_multiplier = managers.player:upgrade_value( "sentry_gun", "armor_multiplier", 1 )
+		local armor_multiplier = 1 + ( managers.player:upgrade_value( "sentry_gun", "armor_multiplier", 1 ) - 1 ) + ( managers.player:upgrade_value( "sentry_gun", "armor_multiplier2", 1 ) - 1 )
 		local damage_multiplier = managers.player:upgrade_value( "sentry_gun", "damage_multiplier", 1 )
 		
 		if Network:is_client() then
@@ -302,13 +307,37 @@ function PlayerEquipment:throw_flash_grenade()
 	end
 
 	local from = self._unit:movement():m_head_pos()
-	local to = from + self._unit:movement():m_head_rot():y() * 50 + Vector3( 0, 0, 0 )
+	local to = from + self._unit:movement():m_head_rot():y() * 35 + Vector3( 0, 0, 0 )
 	local unit = GrenadeBase.spawn( self._grenade_name, to, Rotation() )
 	
 	unit:base():throw( { dir = self._unit:movement():m_head_rot():y(), owner = self._unit } )
 	
 	self._grenade_name = nil
 end
+
+function PlayerEquipment:throw_grenade()
+	local from = self._unit:movement():m_head_pos()
+	local pos = from + self._unit:movement():m_head_rot():y() * 35 + Vector3( 0, 0, 0 )
+	local dir = self._unit:movement():m_head_rot():y()
+	
+	
+	if Network:is_client() then
+		managers.network:session():send_to_host( "server_throw_grenade", 1, pos, dir )
+	else
+		GrenadeBase.server_throw_grenade( 1, pos, dir )
+	end
+	
+	
+	
+end
+
+
+
+
+
+
+
+
 
 -----------------------------------------------------------------------------------
 

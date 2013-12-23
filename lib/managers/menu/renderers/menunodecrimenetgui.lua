@@ -22,7 +22,7 @@ function MenuNodeCrimenetGui:_setup_item_panel( safe_rect, res )
 	local height = 580
 	
 	if not (SystemInfo:platform() == Idstring( "WIN32" )) then
-		width = 800
+		width = 850
 		height = 500
 	end
 	

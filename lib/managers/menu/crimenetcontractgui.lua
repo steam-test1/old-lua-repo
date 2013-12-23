@@ -14,13 +14,15 @@ function CrimeNetContractGui:init( ws, fullscreen_ws, node )
 	local job_data = self._node:parameters().menu_component_data
 
 	self._customizable = job_data.customize_contract or false
+	
+	local is_win_32 = SystemInfo:platform() == Idstring( "WIN32" )
 	--job_data.job_id = job_data.job_id or "ukrainian_job"
 	--local narrative = tweak_data.narrative.jobs[ job_data.job_id ]
 	local width = 900
 	local height = 580
 	
-	if not (SystemInfo:platform() == Idstring( "WIN32" )) then
-		width = 800
+	if not is_win_32 then
+		width = 850
 		height = 500
 	end
 	
@@ -85,7 +87,9 @@ function CrimeNetContractGui:init( ws, fullscreen_ws, node )
 
 	local narrative = tweak_data.narrative.jobs[ job_data.job_id ]
 
-	local text_w = width - 389
+	local w = is_win_32 and 389 or 356
+	
+	local text_w = width - w
 	local font_size = tweak_data.menu.pd2_small_font_size
 	local font = tweak_data.menu.pd2_small_font
 	local risk_color = tweak_data.screen_colors.risk
@@ -465,7 +469,12 @@ function CrimeNetContractGui:init( ws, fullscreen_ws, node )
 		if self._briefing_len_panel then
 			self._briefing_len_panel:hide()
 		end
-
+		if not is_win_32 then
+			contact_panel:hide()
+			contact_text:set_top( contact_panel:top() )
+			contact_text:set_text( "" )
+		end
+		
 		local premium_text = self._contract_panel:text( { name = "premium_text", text = "  ", font_size = font_size, font = font, color = tweak_data.screen_colors.button_stage_3, blend_mode = "add", wrap = true, word_wrap = true } )
 		premium_text:set_top( contact_text:bottom() + 10 )
 		premium_text:set_left( contact_text:left() )
@@ -480,7 +489,9 @@ function CrimeNetContractGui:init( ws, fullscreen_ws, node )
 			"free_memory",
 		}
 	end
-
+	
+	
+	
 	self._current_job_star = 0
 	self._current_difficulty_star = 0
 	

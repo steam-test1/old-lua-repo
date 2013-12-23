@@ -462,6 +462,12 @@ end
 
 -----------------------------------------------------------------------------
 
+function ElementSpecialObjective:id()
+	return self._id
+end
+
+-----------------------------------------------------------------------------
+
 function ElementSpecialObjective:_is_nav_link()
 	return self._values.is_navigation_link or self._values.navigation_link and self._values.navigation_link ~= -1
 end

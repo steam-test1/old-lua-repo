@@ -44,6 +44,26 @@ PlayerInventory._index_to_weapon_list = {
 	Idstring( "units/payday2/weapons/wpn_fps_saw/wpn_fps_saw" ),
 	Idstring( "units/payday2/weapons/wpn_fps_shot_shorty/wpn_fps_shot_shorty" ),
 	Idstring( "units/payday2/weapons/wpn_fps_pis_usp/wpn_fps_pis_usp" ),
+	
+	
+	Idstring( "units/pd2_dlc1/weapons/wpn_fps_smg_m45/wpn_fps_smg_m45" ),
+	Idstring( "units/pd2_dlc1/weapons/wpn_fps_ass_s552/wpn_fps_ass_s552" ),
+	Idstring( "units/pd2_dlc1/weapons/wpn_fps_pis_ppk/wpn_fps_pis_ppk" ),
+	
+	
+	Idstring( "units/payday2/weapons/wpn_fps_pis_b92fs/wpn_fps_pis_beretta_primary" ),
+	Idstring( "units/payday2/weapons/wpn_fps_ass_m4/wpn_fps_ass_m4_secondary" ),
+	Idstring( "units/payday2/weapons/wpn_fps_ass_aug/wpn_fps_ass_aug_secondary" ),
+	Idstring( "units/payday2/weapons/wpn_fps_ass_74/wpn_fps_ass_74_secondary" ),
+	Idstring( "units/pd2_dlc1/weapons/wpn_fps_ass_s552/wpn_fps_ass_s552_secondary" ),
+	Idstring( "units/payday2/weapons/wpn_fps_saw/wpn_fps_saw_secondary" ),
+	Idstring( "units/payday2/weapons/wpn_fps_pis_rage/wpn_fps_pis_rage_primary" ),
+	Idstring( "units/payday2/weapons/wpn_fps_pis_deagle/wpn_fps_pis_deagle_primary" ),
+	Idstring( "units/payday2/weapons/wpn_fps_pis_1911/wpn_fps_pis_1911_primary" ),
+	Idstring( "units/payday2/weapons/wpn_fps_pis_g18c/wpn_fps_pis_g18c_primary" ),
+	Idstring( "units/payday2/weapons/wpn_fps_smg_olympic/wpn_fps_smg_olympic_primary" ),
+	Idstring( "units/payday2/weapons/wpn_fps_smg_akmsu/wpn_fps_smg_akmsu_primary" ),
+	
 }
 
 function PlayerInventory:init( unit )
@@ -186,6 +206,9 @@ function PlayerInventory:clbk_weapon_unit_destroyed( weap_unit )
 	local weapon_key = weap_unit:key()
 	for i_sel, sel_data in pairs( self._available_selections ) do
 		if sel_data.unit:key() == weapon_key then
+			if i_sel == self._equipped_selection then
+				self:_call_listeners( "unequip" )
+			end
 			if managers.dyn_resource:has_resource( Idstring("unit"), weap_unit:name(), "packages/dyn_resources" ) then
 				managers.dyn_resource:unload( Idstring("unit"), weap_unit:name(), "packages/dyn_resources", false )
 			end
@@ -588,6 +611,11 @@ function PlayerInventory:set_mask_visibility( state )
 	
 	local backside = World:spawn_unit( Idstring( "units/payday2/masks/msk_backside/msk_backside" ), mask_align:position(), mask_align:rotation() )
 	self._mask_unit:link( self._mask_unit:orientation_object():name(), backside, backside:orientation_object():name() )
+	
+	local mask_on_sequence = managers.blackmarket:character_mask_on_sequence_by_character_name( character_name )
+	if mask_on_sequence then
+		self._unit:damage():run_sequence_simple( mask_on_sequence )
+	end
 end
 
 -----------------------------------------------------------------------------------

@@ -504,12 +504,28 @@ function StatisticsManager:clear_skills_statistics()
 	managers.network.account:publish_statistics( stats )
 end
 
+function StatisticsManager:debug_estimate_steam_players()
+	local key = nil
+	local stats = {}
+	local account = managers.network.account
+	local days = 10000
+	local num_players = 0
+	
+	local play_times = { 0, 10, 20, 40, 80, 100, 150, 200, 250, 500, 1000 }
+	for _, play_time in ipairs( play_times ) do
+		key = "player_time_"..play_time.."h"
+		num_players = num_players + account:get_global_stat( key, days )
+	end
+	
+	Application:debug( managers.money:add_decimal_marks_to_string( tostring( num_players ) ).." players have summited statistics to Steam." )
+end
+
 function StatisticsManager:debug_print_stats( global_flag, days )
 	local key
 	local stats = {}
 	local account = managers.network.account
 
-	days = days or 1
+	days = days or nil
 
 
 
@@ -609,7 +625,7 @@ function StatisticsManager:debug_print_stats( global_flag, days )
 	table.insert( stats, { name = "heist_failed", loc = account:get_stat( "heist_failed" ), glo = account:get_global_stat( "heist_failed", days ) } )
 
 	print( "----------------------------------" )
-	print( ( global_flag and "GLOBAL" or "LOCAL" ) .. " STEAM STATISTICS FOR " .. ( days == 1 and "TODAY" or ( "LAST " .. days .. " DAYS\n" ) ) )
+	print( ( global_flag and "GLOBAL" or "LOCAL" ) .. " STEAM STATISTICS FOR " .. ( days == 1 and "TODAY" or ( not days and "ALLTIME" ) or ( "LAST " .. days .. " DAYS\n" ) ) )
 	for key, data in pairs( stats ) do
 		print( data.name, global_flag and data.glo or data.loc )
 	end

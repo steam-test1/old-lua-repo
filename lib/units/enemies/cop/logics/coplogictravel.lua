@@ -161,6 +161,8 @@ function CopLogicTravel.enter( data, new_logic_name, enter_params )
 		data.unit:brain():set_attention_settings( { cbt = true } )
 	end
 	
+	my_data.attitude = data.objective.attitude or "avoid"
+	
 	my_data.weapon_range = data.char_tweak.weapon[ data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage ].range
 	
 	data.unit:brain():set_update_enabled_state( false )
@@ -281,6 +283,14 @@ function CopLogicTravel.queued_update( data )
 	if data.internal_data ~= my_data then
 		return
 	end
+	
+	if objective.stance and data.unit:movement():stance_name() ~= objective.stance then
+		local upper_body_action = data.unit:movement()._active_actions[ 3 ]
+		if not upper_body_action or upper_body_action:type() ~= "shoot" then
+			data.unit:movement():set_stance( objective.stance )
+		end
+	end
+	
 	if my_data.wants_stop_old_walk_action then	-- possible nav_link from previous logic is not allowing us to start moving
 		if not data.unit:movement():chk_action_forbidden( "walk" ) then
 			data.unit:movement():action_request( { type = "idle", body_part = 2 } )

@@ -5,14 +5,41 @@ DramaExt = DramaExt or class()
 function DramaExt:init( unit )
 	self._unit = unit
 	self._cue = nil
-
---	managers.subtitle:set_presenter( CoreSubtitlePresenter.OverlayPresenter:new( "fonts/font_fortress_22", 26 ) )
 end
 
 function DramaExt:name()
 	return self.character_name
 end
 
+function DramaExt:play_sound( sound, sound_source )
+	self._cue = self._cue or {}
+	self._cue.sound = sound
+	self._cue.sound_source = sound_source
+	
+	local playing = self._unit:sound_source( sound_source ):post_event( sound, self.sound_callback, self._unit, "marker", "end_of_event" )
+	if not playing then
+		Application:error( "[DramaExt:play_cue] Wasn't able to play sound event " .. sound )
+		Application:stack_dump()
+		
+		self:sound_callback( nil, "end_of_event", self._unit, sound_source, nil, nil, nil )
+	end
+end
+
+function DramaExt:play_subtitle( string_id, duration )
+	self._cue = self._cue or {}
+	self._cue.string_id = string_id
+	
+	managers.subtitle:set_visible( true )
+	managers.subtitle:set_enabled( true )
+	
+	if not duration or duration == 0 then
+		managers.subtitle:show_subtitle( string_id, 100000 )
+	else
+		managers.subtitle:show_subtitle( string_id, duration )
+	end
+end
+
+--[[
 function DramaExt:play_cue( id )
 	self._cue = managers.drama:cue( id )
 	
@@ -64,8 +91,9 @@ function DramaExt:play_cue( id )
 
 	return duration
 end
+]]
 
-function DramaExt:stop_cue( id )
+function DramaExt:stop_cue()
 	if self._cue then
 
 		-- Hide the text
@@ -91,10 +119,12 @@ function DramaExt:sound_callback( instance, event_type, unit, sound_source, labe
 		-- Turn off subtitle
 		managers.subtitle:set_visible( false )
 		managers.subtitle:set_enabled( false )
-
+		
+		managers.dialog:finished()
+		
 		-- Play next dialog action
-		managers.hud:set_mugshot_talk( unit:unit_data().mugshot_id, false )
-		managers.dialog:play_dialog()
+		-- managers.hud:set_mugshot_talk( unit:unit_data().mugshot_id, false )
+		-- managers.dialog:play_dialog()
 	elseif event_type == "marker" then
 		if sound_source then
 			managers.subtitle:set_visible( true )

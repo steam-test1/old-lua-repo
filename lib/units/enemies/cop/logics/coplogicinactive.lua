@@ -179,7 +179,7 @@ function CopLogicInactive._set_interaction( data, my_data )
 	if data.unit:character_damage():dead() and managers.groupai:state():whisper_mode() then
 		
 		local my_data = data.internal_data
-		if data.char_tweak.has_alarm_pager then
+		if data.unit:unit_data().has_alarm_pager then
 			local pager_delay = math.lerp( tweak_data.player.alarm_pager.ring_delay[1], tweak_data.player.alarm_pager.ring_delay[2], math.random() )
 			my_data.pager_alert_clbk_id = "alarm_pager"..tostring(data.key)
 			

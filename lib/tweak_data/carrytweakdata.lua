@@ -54,6 +54,9 @@ function CarryTweakData:init( tweak_data )
 	-- self.types.coke_light.looses_value_per_hit  = 1 -- Will be multiplied with self.value_multiplier
 	self.types.coke_light.throw_distance_multiplier	 	= self.types.light.throw_distance_multiplier
 	
+	self.types.explosives = deep_clone( self.types.medium )
+	self.types.explosives.can_explode = true
+	
 	-- Small Loot actions -----------------
 	self.small_loot								= {}
 	
@@ -159,6 +162,16 @@ function CarryTweakData:init( tweak_data )
 	self.weapons.type = "heavy"
 	self.weapons.bag_value = "weapons"
 	self.weapons.name_id = "hud_carry_weapons"
+	
+	self.grenades = {}
+	self.grenades.type = "explosives"
+	self.grenades.name_id = "hud_carry_grenades"
+	self.grenades.bag_value = "weapons"
+	self.grenades.visual_object = "g_explosives_bag"
+	self.grenades.unit = "units/pd2_dlc1/pickups/gen_pku_explosivesbag/gen_pku_explosivesbag"
+	self.grenades.AI_carry = {
+		SO_category = "enemies"
+	}
 	
 	self.person  = {}
 	self.person.type = "being"
@@ -277,6 +290,27 @@ function CarryTweakData:init( tweak_data )
 	self.engine_12.AI_carry = {
 		SO_category = "enemies"
 	}
+	
+	self.turret = {}
+	self.turret.type = "heavy"
+	self.turret.name_id = "hud_carry_turret"
+	self.turret.bag_value = "turret"
+	self.turret.AI_carry = {
+		SO_category = "enemies"
+	}
+	
+	self.ammo = {}
+	self.ammo.type = "explosives"
+	self.ammo.name_id = "hud_carry_ammo"
+	self.ammo.bag_value = "shells"
+	self.ammo.visual_object = "g_explosives_bag"
+	self.ammo.unit = "units/pd2_dlc1/pickups/gen_pku_explosivesbag/gen_pku_explosivesbag"
+	self.ammo.AI_carry = {
+		SO_category = "enemies"
+	}
+	
+	
+	
 	
 end
 
