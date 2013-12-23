@@ -369,7 +369,7 @@ function UpgradesTweakData:_init_pd2_values()
 	
 			-- MARTIAL_ARTS
 	self.values.player.melee_knockdown_mul								= { 1.5 }		-- BASIC
-	self.values.player.damage_dampener										= { 0.5 }		-- ACE. multiplier
+	self.values.player.damage_dampener										= { 0.95 }		-- ACE. multiplier
 	
 			-- SMG_MASTER
 	self.values.smg.reload_speed_multiplier								= { 1.35 }	-- BASIC

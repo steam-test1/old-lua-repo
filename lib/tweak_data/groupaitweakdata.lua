@@ -550,17 +550,18 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 		amount = { 3, 4 },
 		spawn = {
 			{ unit = "CS_shield", freq = 1, amount_min = 1, amount_max = 2, tactics = tactics_CS_shield, rank = 3 },
-			{ unit = "CS_shield", freq = 0.1, amount_max = 1, tactics = tactics_CS_shield, rank = 3 },
-			{ unit = "CS_heavy_M4_w", freq = 1, amount_max = 1, tactics = tactics_CS_swat_heavy, rank = 2 }
+			{ unit = "CS_cop_stealth_MP5", freq = 0.5, amount_max = 1, tactics = tactics_CS_cop_stealth, rank = 1 },
+			{ unit = "CS_heavy_M4_w", freq = 0.75, amount_max = 1, tactics = tactics_CS_swat_heavy, rank = 2 }
 			
 		}
 	}
 	
 	-- CS Tazers
 	self.enemy_spawn_groups.CS_tazers = {
-		amount = { 1, 2 },
+		amount = { 1, 3 },
 		spawn = {
-			{ unit = "CS_tazer", freq = 1, amount_min = 1, amount_max = 2, tactics = tactics_CS_tazer, rank = 1 }
+			{ unit = "CS_tazer", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics_CS_tazer, rank = 2 },
+			{ unit = "CS_cop_stealth_MP5", freq = 1, amount_max = 2, tactics = tactics_CS_cop_stealth, rank = 1 },
 			-- { unit = "CS_heavy_M4", freq = 1, tactics = tactics_CS_tazer, rank = 2 }
 		}
 	}
@@ -570,6 +571,7 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 		spawn = {
 			{ unit = "FBI_tank", freq = 1, amount_min = 1, tactics = tactics_FBI_tank, rank = 2 },
 			{ unit = "CS_tazer", freq = 0.5, amount_max = 1, tactics = tactics_CS_tazer, rank = 1 }
+			
 		}
 	}
 	
@@ -633,6 +635,7 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 		spawn = {
 			{ unit = "FBI_heavy_G36", freq = 1, tactics = tactics_FBI_swat_rifle, rank = 1 },
 			{ unit = "FBI_heavy_G36", freq = 0.5, tactics = tactics_FBI_swat_rifle_flank, rank = 2 }
+			
 		}
 	}
 	
@@ -640,8 +643,9 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 	self.enemy_spawn_groups.FBI_shields = {
 		amount = { 3, 4 },
 		spawn = {
-			{ unit = "FBI_shield", freq = 1, amount_min = 2, amount_max = 3, tactics = tactics_FBI_shield_flank, rank = 3 },
-			{ unit = "CS_tazer", freq = 1, amount_max = 1, tactics = tactics_CS_tazer, rank = 2 }
+			{ unit = "FBI_shield", freq = 1, amount_min = 1, amount_max = 2, tactics = tactics_FBI_shield_flank, rank = 3 },
+			{ unit = "CS_tazer", freq = 0.75, amount_max = 1, tactics = tactics_CS_tazer, rank = 2 },
+			{ unit = "FBI_heavy_G36", freq = 0.5, amount_max = 1, tactics = tactics_FBI_swat_rifle_flank, rank = 1 }
 			
 			
 			
@@ -667,7 +671,7 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 		spawn = {
 			{ unit = "FBI_tank", freq = 1, amount_max = 1, tactics = tactics_FBI_tank, rank = 1 },
 			{ unit = "FBI_shield", freq = 0.5, amount_min = 1, amount_max = 2, tactics = tactics_FBI_shield_flank, rank = 3 },
-			{ unit = "FBI_heavy_G36_w", freq = 0.5, amount_min = 1, tactics = tactics_FBI_heavy_flank, rank = 1 }
+			{ unit = "FBI_heavy_G36_w", freq = 0.75, amount_min = 1, tactics = tactics_FBI_heavy_flank, rank = 1 }
 		--[[ spawn = {
 			{ unit = "FBI_tank", freq = 1, tactics = tactics_FBI_tank, rank = 1 }
 		} ]]
@@ -785,7 +789,7 @@ function GroupAITweakData:_set_hard()
 	self.besiege.assault.groups = {
 		CS_swats = { 0, 1, 0 },
 		CS_heavys = { 0, 0.2, 1 },
-		CS_shields = { 0, 0.02, 1 },
+		CS_shields = { 0, 0.02, 0.35 },
 		CS_tazers = { 0, 0.1, 0.25 },
 		CS_tanks = { 0, 0.02, 0.1 },
 		-- FBI_spoocs = { 0, 0, 0.05 },
@@ -826,7 +830,7 @@ function GroupAITweakData:_set_overkill()
 	self.besiege.assault.groups = {
 		FBI_swats = { 0.1, 1, 0.5 },
 		FBI_heavys = { 0.05, 0.4, 0.5 },
-		FBI_shields = { 0.1, 0.2, 0.5 },
+		FBI_shields = { 0.1, 0.2, 0.35 },
 		FBI_tanks = { 0, 0.15, 0.2 },
 		-- FBI_spooc = { 0, 0.1, 0.3 },
 		CS_tazers = { 0.05, 0.15, 0.25 },
@@ -863,10 +867,10 @@ function GroupAITweakData:_set_overkill_145()
 	
 	-- FBI Case
 	self.besiege.assault.groups = {
-		FBI_swats = { 0.2, 0.5, 0.75 },
-		FBI_heavys = { 0.1, 0.5, 0.5 },
-		FBI_shields = { 0.1, 0.5, 0.75 },
-		FBI_tanks = { 0, 0.5, 1 },
+		FBI_swats = { 0.2, 0.5, 0.5 },
+		FBI_heavys = { 0.2, 0.75, 1 },
+		FBI_shields = { 0.1, 0.3, 0.4 },
+		FBI_tanks = { 0, 0.5, 0.75 },
 		-- FBI_spooc = { 0, 0.2, 0.4 },
 		CS_tazers = { 0.1, 0.35, 0.6 },
 	}
