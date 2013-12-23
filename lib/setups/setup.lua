@@ -140,7 +140,7 @@ function Setup:load_packages()
 end
 
 function Setup:init_managers( managers )
-	Global.game_settings = Global.game_settings or { level_id = managers.dlc:is_trial() and "bank_trial" or "bank", difficulty = "normal", permission = "public", team_ai = true, reputation_permission = 0, drop_in_allowed = true }
+	Global.game_settings = Global.game_settings or { level_id = managers.dlc:is_trial() and "bank_trial" or "bank", difficulty = "normal", permission = "public", team_ai = true, reputation_permission = 0, drop_in_allowed = true, kicking_allowed = true }
 	
 	managers.dyn_resource = DynamicResourceManager:new()
 	managers.gui_data = CoreGuiDataManager.GuiDataManager:new()

@@ -24,7 +24,7 @@ HuskPlayerMovement._walk_anim_velocities = {
 		},
 		cbt = {
 			walk = { fwd = 208.27, bwd = 208.27, l = 192.75, r = 192.75 },
-			run = { fwd = 457.98, bwd = 416.77, l = 416.35, r = 411.9 },
+			run = { fwd = 414.73, bwd = 416.77, l = 416.35, r = 411.9 },
 			sprint = { fwd = 672,79, bwd = 547,35, l = 488,14, r = 547,09 }
 		}
 	},
@@ -47,20 +47,20 @@ HuskPlayerMovement._walk_anim_lengths = {
 		},
 		cbt = {
 			walk = { fwd = 26, bwd = 26, l = 26, r = 26 },
-			run = { fwd = 20, bwd = 18, l = 18, r = 20 },
+			run = { fwd = 19, bwd = 18, l = 18, r = 20 },
 			sprint = { fwd = 16, bwd = 16, l = 16, r = 19 },
-			run_start = { fwd = 31, bwd = 34, l = 27, r = 26 },
-			run_start_turn = { bwd = 29, l = 33, r = 31 },
-			run_stop = { fwd = 31, bwd = 37, l = 32, r = 36 }
+			run_start = { fwd = 29, bwd = 25, l = 27, r = 24 },
+			run_start_turn = { bwd = 26, l = 37, r = 26 },
+			run_stop = { fwd = 29, bwd = 23, l = 28, r = 31 }
 		}
 	},
 	crouch = {
 		cbt = {
 			walk = { fwd = 31, bwd = 31, l = 27, r = 28 },
 			run = { fwd = 21, bwd = 20, l = 19, r = 19 },
-			run_start = { fwd = 35, bwd = 19, l = 33, r = 33 },
-			run_start_turn = { bwd = 31, l = 40, r = 37 },
-			run_stop = { fwd = 35, bwd = 19, l = 27, r = 30 }
+			run_start = { fwd = 31, bwd = 16, l = 30, r = 22 },
+			run_start_turn = { bwd = 28, l = 21, r = 21 },
+			run_stop = { fwd = 27, bwd = 25, l = 28, r = 26 }
 		}
 	},
 	wounded = {

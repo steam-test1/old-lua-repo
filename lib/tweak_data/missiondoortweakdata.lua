@@ -82,7 +82,13 @@ function MissionDoorTweakData:init()
 	self.safe_small.devices.c4 = { 
 										{ align = "a_shp_charge", unit = Idstring( "units/payday2/equipment/gen_equipment_shape_charge/gen_equipment_shape_charge" ) }, 
 									}
-
+	-- Titan Safe Small
+	self.safe_small_titan = {}
+	self.safe_small_titan.devices = {}
+	self.safe_small_titan.devices.drill = {
+									{ align = "a_drill", unit = Idstring( "units/payday2/equipment/item_door_drill_small/item_door_drill_small" ), can_jam = true, timer = 240 },
+								}
+								
 	-- Safe Medium
 	self.safe_medium = {}
 	self.safe_medium.devices = {}
@@ -94,8 +100,13 @@ function MissionDoorTweakData:init()
 										{ align = "a_shp_charge", unit = Idstring( "units/payday2/equipment/gen_equipment_shape_charge/gen_equipment_shape_charge" ) }, 
 									}
 
-
-
+	-- Titan Safe Medium
+	self.safe_medium_titan = {}
+	self.safe_medium_titan.devices = {}
+	self.safe_medium_titan.devices.drill = {
+									{ align = "a_drill", unit = Idstring( "units/payday2/equipment/item_door_drill_small/item_door_drill_small" ), can_jam = true, timer = 300 },
+								}
+								
 	-- Safe Large
 	self.safe_large = {}
 	self.safe_large.devices = {}
@@ -121,6 +132,13 @@ function MissionDoorTweakData:init()
 										{ align = "a_shp_charge_4", unit = Idstring( "units/payday2/equipment/gen_equipment_shape_charge/gen_equipment_shape_charge" ) }, 
 									}
 
+	-- Titan Safe Giga
+	self.safe_giga_titan = {}
+	self.safe_giga_titan.devices = {}
+	self.safe_giga_titan.devices.drill = {
+									{ align = "a_drill", unit = Idstring( "units/payday2/equipment/item_door_drill_small/item_door_drill_small" ), can_jam = true, timer = 360 },
+								}
+								
 
 
 
@@ -138,6 +156,22 @@ function MissionDoorTweakData:init()
 										{ align = "a_shp_charge_3", unit = Idstring( "units/payday2/equipment/gen_equipment_shape_charge/gen_equipment_shape_charge" ) }, 
 										{ align = "a_shp_charge_4", unit = Idstring( "units/payday2/equipment/gen_equipment_shape_charge/gen_equipment_shape_charge" ) } 
 									}
+
+	-- Titan Safe
+	self.safe_titan = {}
+	self.safe_titan.devices = {}
+	self.safe_titan.devices.drill = {
+									{ align = "a_drill", unit = Idstring( "units/payday2/equipment/item_door_drill_small/item_door_drill_small" ), can_jam = true, timer = 600 },
+								}
+								
+
+	-- Titan Deposit Box
+	self.safe_deposit_titan = {}
+	self.safe_deposit_titan.devices = {}
+	self.safe_deposit_titan.devices.drill = {
+									{ align = "a_drill", unit = Idstring( "units/payday2/equipment/item_door_drill_small/item_door_drill_small" ), can_jam = true, timer = 666 },
+								}
+								
 
 	-- Security Panel
 	self.security_panel = {}

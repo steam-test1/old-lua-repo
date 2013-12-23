@@ -35,33 +35,39 @@ function HUDStatsScreen:init()
 	managers.hud:make_fine_text( secured_loot_title )
 	
 	local mission_bags_title = loot_wrapper_panel:text( { layer = 1, valign = "center", name = "mission_bags_title", color = Color.white, font_size = tweak_data.hud_stats.loot_size, font= tweak_data.hud_stats.objectives_font, text = utf8.to_upper( managers.localization:text( "hud_mission_bags" ) ), align = "left", vertical = "top", w = 512, h = 32 } )
-	mission_bags_title:set_position( math.round( x + pad ), 32 )
+	mission_bags_title:set_position( math.round( x + pad ), secured_loot_title:bottom() )
 	managers.hud:make_fine_text( mission_bags_title )
 	
-	local mission_bags_panel = loot_wrapper_panel:panel( { visible = true, name = "mission_bags_panel", x = 0, y = 0, h = 32, w = left_panel:w() } )
+	local mission_bags_panel = loot_wrapper_panel:panel( { visible = true, name = "mission_bags_panel", x = 0, y = 0, h = 22, w = left_panel:w() } )
 	mission_bags_panel:set_lefttop( mission_bags_title:leftbottom() )
-	mission_bags_panel:set_position( mission_bags_panel:x(), mission_bags_panel:y() + 4)
+	mission_bags_panel:set_position( mission_bags_panel:x(), mission_bags_panel:y())
 	-- mission_bags_panel:bitmap( { name = "bag_test", texture="guis/textures/pd2/hud_bag" } )
 	-- "guis/textures/pd2/hud_bag"
 	
+	local mission_bags_payout = loot_wrapper_panel:text( { layer = 1, valign = "center", name = "mission_bags_payout", color = Color.white, font_size = tweak_data.hud_stats.loot_size, font= tweak_data.hud_stats.objectives_font, text = "", align = "left", vertical = "top", w = 512, h = 32 } )
+	mission_bags_payout:set_text( utf8.to_upper( managers.localization:text( "hud_bonus_bags_payout", { MONEY = managers.experience:cash_string( 0 ) } ) ) )
+	mission_bags_payout:set_position( mission_bags_title:left(), mission_bags_panel:bottom() )
+	managers.hud:make_fine_text( mission_bags_payout )
+	mission_bags_payout:set_w( loot_wrapper_panel:w() )
+
 	local bonus_bags_title = loot_wrapper_panel:text( { layer = 1, valign = "center", name = "bonus_bags_title", color = Color.white, font_size = tweak_data.hud_stats.loot_size, font= tweak_data.hud_stats.objectives_font, text = utf8.to_upper( managers.localization:text( "hud_bonus_bags" ) ), align = "left", vertical = "top", w = 512, h = 32 } )
-	bonus_bags_title:set_position( math.round( x + pad ), 96 )
+	bonus_bags_title:set_position( math.round( x + pad ), mission_bags_payout:bottom() + 6 )
 	managers.hud:make_fine_text( bonus_bags_title )
 	
-	local bonus_bags_panel = loot_wrapper_panel:panel( { visible = true, name = "bonus_bags_panel", x = 0, y = 0, h = 20, w = left_panel:w() } )
+	local bonus_bags_panel = loot_wrapper_panel:panel( { visible = true, name = "bonus_bags_panel", x = 0, y = 0, h = 22, w = left_panel:w() } )
 	bonus_bags_panel:set_lefttop( bonus_bags_title:leftbottom() )
-	bonus_bags_panel:set_position( bonus_bags_panel:x(), bonus_bags_panel:y() + 4 )
+	bonus_bags_panel:set_position( bonus_bags_panel:x(), bonus_bags_panel:y() )
 	bonus_bags_panel:grow( -bonus_bags_panel:x(), 0 )
 	-- bonus_bags_panel:bitmap( { name = "bag_test", texture="guis/textures/pd2/hud_bag" } )
 	
 	local bonus_bags_payout = loot_wrapper_panel:text( { layer = 1, valign = "center", name = "bonus_bags_payout", color = Color.white, font_size = tweak_data.hud_stats.loot_size, font= tweak_data.hud_stats.objectives_font, text = "", align = "left", vertical = "top", w = 512, h = 32 } )
 	bonus_bags_payout:set_text( utf8.to_upper( managers.localization:text( "hud_bonus_bags_payout", { MONEY = managers.experience:cash_string( 0 ) } ) ) )
-	bonus_bags_payout:set_position( bonus_bags_title:left(), bonus_bags_panel:bottom() - 0 )
+	bonus_bags_payout:set_position( bonus_bags_title:left(), bonus_bags_panel:bottom() )
 	managers.hud:make_fine_text( bonus_bags_payout )
 	bonus_bags_payout:set_w( loot_wrapper_panel:w() )
 	
 	local instant_cash_title = loot_wrapper_panel:text( { layer = 1, valign = "center", name = "instant_cash_title", color = Color.white, font_size = tweak_data.hud_stats.loot_size, font= tweak_data.hud_stats.objectives_font, text = utf8.to_upper( managers.localization:text( "hud_instant_cash" ) ), align = "left", vertical = "top", w = 512, h = 32 } )
-	instant_cash_title:set_position( math.round( x + pad ), 192 )
+	instant_cash_title:set_position( math.round( x + pad ), bonus_bags_payout:bottom() + 6 )
 	managers.hud:make_fine_text( instant_cash_title )
 	
 	local instant_cash_text = loot_wrapper_panel:text( { layer = 1, valign = "center", name = "instant_cash_text", color = Color.white, font_size = tweak_data.hud_stats.loot_size, font= tweak_data.hud_stats.objectives_font, text = managers.experience:cash_string( 0 ), align = "left", vertical = "top", w = 512, h = 32 } )
@@ -423,6 +429,9 @@ function HUDStatsScreen:_update_stats_screen_loot( loot_wrapper_panel )
 		end
 	end
 	
+	local mission_amount = managers.loot:get_secured_mandatory_bags_amount()
+	local mission_vis = mission_amount > 0 or secured_amount > 0
+	
 	local bonus_amount = managers.loot:get_secured_bonus_bags_amount()
 	local bonus_vis = bonus_amount > 0 or secured_amount > 0
 	
@@ -448,10 +457,15 @@ function HUDStatsScreen:_update_stats_screen_loot( loot_wrapper_panel )
 		end
 	end
 	
-	local money = managers.money:get_secured_bonus_bags_money() -- bonus_amount * ( tweak_data.money_manager.bag_value * managers.money:get_job_bag_value() )
+	local mandatory_cash = managers.money:get_secured_mandatory_bags_money() -- bonus_amount * ( tweak_data.money_manager.bag_value * managers.money:get_job_bag_value() )
+	local mission_bags_payout = loot_wrapper_panel:child( "mission_bags_payout" )
+	mission_bags_payout:set_visible( mission_vis )
+	mission_bags_payout:set_text( utf8.to_upper( managers.localization:text( "hud_bonus_bags_payout", { MONEY = managers.experience:cash_string( mandatory_cash ) } ) ) )
+	
+	local bonus_cash = managers.money:get_secured_bonus_bags_money() -- bonus_amount * ( tweak_data.money_manager.bag_value * managers.money:get_job_bag_value() )
 	local bonus_bags_payout = loot_wrapper_panel:child( "bonus_bags_payout" )
 	bonus_bags_payout:set_visible( bonus_vis )
-	bonus_bags_payout:set_text( utf8.to_upper( managers.localization:text( "hud_bonus_bags_payout", { MONEY = managers.experience:cash_string( money ) } ) ) )
+	bonus_bags_payout:set_text( utf8.to_upper( managers.localization:text( "hud_bonus_bags_payout", { MONEY = managers.experience:cash_string( bonus_cash ) } ) ) )
 	
 	local instant_cash = managers.loot:get_real_total_small_loot_value()
 	local instant_vis = instant_cash > 0

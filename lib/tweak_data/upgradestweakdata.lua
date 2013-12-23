@@ -53,7 +53,7 @@ function UpgradesTweakData:_init_pd2_values()
 			-- COMBAT_MEDIC
 	self.values.temporary.combat_medic_damage_multiplier	= { { 1.25, 10 }, { 1.25, 15 } }	-- BASIC. { value, time }, only first upgrade is in skilltree
 	self.values.player.revive_health_boost								= { 1 }			-- ACE. defines which value in self.revive_health_multiplier to use
-	self.revive_health_multiplier													= { 1.25 }		-- ACE. this is read directly
+	self.revive_health_multiplier													= { 1.35 }		-- ACE. this is read directly
 	
 		--[[ TIER 2 ]]
 			-- CONTROL_FREAK
@@ -267,7 +267,7 @@ function UpgradesTweakData:_init_pd2_values()
 		--[[ TIER 4 ]]
 			-- SENTRY_TARGETING_PACKAGE
 	self.values.sentry_gun.spread_multiplier							= { 0.5 }		-- BASIC
-	self.values.sentry_gun.rot_speed_multiplier						= { 2 }		-- ACE
+	self.values.sentry_gun.rot_speed_multiplier						= { 2.5 }		-- ACE
 	
 			-- DISCIPLINE
 	self.values.player.interacting_damage_multiplier			= { 0.5 }		-- BASIC
@@ -279,7 +279,7 @@ function UpgradesTweakData:_init_pd2_values()
 	
 		--[[ TIER 5 ]]
 			-- SENTRY_2_0
-	self.values.sentry_gun.extra_ammo_multiplier					= { 1.5, 2 }	-- BASIC. only first upgrade is in skilltree
+	self.values.sentry_gun.extra_ammo_multiplier					= { 1.5, 2.5 }	-- BASIC. only first upgrade is in skilltree
 	self.values.sentry_gun.shield													= { true }	-- ACE
 	
 			-- BLAST_RADIUS
@@ -293,7 +293,7 @@ function UpgradesTweakData:_init_pd2_values()
 		--[[ TIER 6 ]]
 			-- SENTRY_GUN_2X
 	self.values.sentry_gun.quantity												= { 1 }			-- BASIC. amount
-	self.values.sentry_gun.damage_multiplier							= { 2 }			-- ACE
+	self.values.sentry_gun.damage_multiplier							= { 4 }			-- ACE
 	
 			-- MAG_PLUS
 	self.values.weapon.clip_ammo_increase									= { 5, 15 }	-- BASIC, ACE
@@ -343,7 +343,7 @@ function UpgradesTweakData:_init_pd2_values()
 			-- ASSASSIN
 	self.values.player.walk_speed_multiplier							= { 1.25 }	-- BASIC
 	self.values.player.crouch_speed_multiplier						= { 1.1 }	-- BASIC
-	self.values.player.silent_kill												= { 100 }		-- ACE. in cm alert radius on dead and hurt enemies
+	self.values.player.silent_kill												= { 25 }		-- ACE. in cm alert radius on dead and hurt enemies
 	
 			-- MARTIAL_ARTS
 	self.values.player.melee_knockdown_mul								= { 1.5 }		-- BASIC

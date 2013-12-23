@@ -26,7 +26,7 @@ function GroupAITweakData:_init_chatter_data()
 		queue = "g90"
 	}
 	self.enemy_chatter.retreat = {
-		radius = 700,
+		radius = 900,
 		max_nr = 2,
 		duration = { 2, 4 },
 		interval = { 0.75, 1.5 },
@@ -82,7 +82,7 @@ function GroupAITweakData:_init_chatter_data()
 		queue = "d02"
 	}
 	self.enemy_chatter.incomming_tank = {
-		radius = 1000,
+		radius = 1500,
 		max_nr = 1,
 		duration = { 60, 60 },
 		interval = { 0.5, 1 },
@@ -90,7 +90,7 @@ function GroupAITweakData:_init_chatter_data()
 		queue = "bdz"
 	}
 	self.enemy_chatter.incomming_spooc = {
-		radius = 1000,
+		radius = 1200,
 		max_nr = 1,
 		duration = { 60, 60 },
 		interval = { 0.5, 1 },
@@ -98,7 +98,7 @@ function GroupAITweakData:_init_chatter_data()
 		queue = "clk"
 	}
 	self.enemy_chatter.incomming_shield = {
-		radius = 1000,
+		radius = 1500,
 		max_nr = 1,
 		duration = { 60, 60 },
 		interval = { 0.5, 1 },
@@ -106,7 +106,7 @@ function GroupAITweakData:_init_chatter_data()
 		queue = "shd"
 	}
 	self.enemy_chatter.incomming_taser = {
-		radius = 1000,
+		radius = 1500,
 		max_nr = 1,
 		duration = { 60, 60 },
 		interval = { 0.5, 1 },
@@ -461,10 +461,10 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 	local tactics_CS_cop = { "provide_coverfire", "provide_support", "ranged_fire" }
 	local tactics_CS_cop_stealth = { "flank", "provide_coverfire", "provide_support" }
 	
-	local tactics_CS_swat_rifle = { "smoke_grenade", "charge", "provide_coverfire", "provide_support", "ranged_fire" }
-	local tactics_CS_swat_shotgun = { "smoke_grenade", "charge", "provide_coverfire", "provide_support" }
-	local tactics_CS_swat_heavy = { "smoke_grenade", "charge", "provide_coverfire", "provide_support", "shield_cover" }
-	local tactics_CS_shield = { "charge", "provide_coverfire", "provide_support", "shield" }
+	local tactics_CS_swat_rifle = { "smoke_grenade", "charge", "provide_coverfire", "provide_support", "ranged_fire", "deathguard" }
+	local tactics_CS_swat_shotgun = { "smoke_grenade", "charge", "provide_coverfire", "provide_support", "shield_cover" }
+	local tactics_CS_swat_heavy = { "smoke_grenade", "charge", "flash_grenade", "provide_coverfire", "provide_support"  }
+	local tactics_CS_shield = { "charge", "provide_coverfire", "provide_support", "shield", "deathguard" }
 	
 	local tactics_CS_swat_rifle_flank = { "flank", "flash_grenade", "smoke_grenade", "charge", "provide_coverfire", "provide_support" }
 	local tactics_CS_swat_shotgun_flank = { "flank", "flash_grenade", "smoke_grenade", "charge", "provide_coverfire", "provide_support" }
@@ -477,10 +477,10 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 	local tactics_FBI_suit = { "provide_coverfire", "provide_support", "ranged_fire" }
 	local tactics_FBI_suit_stealth = { "provide_coverfire", "provide_support" }
 	
-	local tactics_FBI_swat_rifle = { "smoke_grenade", "charge", "provide_coverfire", "provide_support", "ranged_fire" }
-	local tactics_FBI_swat_shotgun = { "smoke_grenade", "charge", "provide_coverfire", "provide_support" }
-	local tactics_FBI_heavy = { "smoke_grenade", "charge", "provide_coverfire", "provide_support", "shield_cover" }
-	local tactics_FBI_shield = { "smoke_grenade", "charge", "provide_coverfire", "provide_support", "shield" }
+	local tactics_FBI_swat_rifle = { "smoke_grenade", "flash_grenade", "provide_coverfire", "charge", "provide_support", "ranged_fire" }
+	local tactics_FBI_swat_shotgun = { "smoke_grenade", "flash_grenade", "charge", "provide_coverfire", "provide_support" }
+	local tactics_FBI_heavy = { "smoke_grenade", "flash_grenade", "charge", "provide_coverfire", "provide_support", "shield_cover", "deathguard" }
+	local tactics_FBI_shield = { "smoke_grenade", "charge", "provide_coverfire", "provide_support", "shield", "deathguard" }
 	
 	local tactics_FBI_swat_rifle_flank = { "flank", "smoke_grenade", "flash_grenade", "charge", "provide_coverfire", "provide_support" }
 	local tactics_FBI_swat_shotgun_flank = { "flank", "smoke_grenade", "flash_grenade", "charge", "provide_coverfire", "provide_support" }
@@ -488,7 +488,7 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 	local tactics_FBI_shield_flank = { "flank", "smoke_grenade", "flash_grenade", "charge", "provide_coverfire", "provide_support", "shield" }
 	
 	local tactics_FBI_spooc = { "flank", "smoke_grenade", "flash_grenade", "charge", "provide_coverfire" }
-	local tactics_FBI_tank = { "charge", "provide_coverfire", "provide_support" }
+	local tactics_FBI_tank = { "charge", "provide_coverfire", "provide_support", "deathguard", "shield" }
 	
 -- CS (COPS/SWAT)
 	self.enemy_spawn_groups.CS_defend_a = {
@@ -528,8 +528,8 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 		amount = { 3, 4 },
 		spawn = {
 			{ unit = "CS_swat_MP5", freq = 1, tactics = tactics_CS_swat_rifle, rank = 2 },
-			{ unit = "CS_swat_R870", freq = 0.4, amount_max = 2, tactics = tactics_CS_swat_shotgun, rank = 1 },
-			{ unit = "CS_swat_MP5", freq = 0.2, tactics = tactics_CS_swat_rifle_flank, rank = 3 },
+			{ unit = "CS_swat_R870", freq = 0.5, amount_max = 2, tactics = tactics_CS_swat_shotgun, rank = 1 },
+			{ unit = "CS_swat_MP5", freq = 0.33, tactics = tactics_CS_swat_rifle_flank, rank = 3 },
 		}
 	}
 	
@@ -554,9 +554,9 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 	
 	-- CS Tazers
 	self.enemy_spawn_groups.CS_tazers = {
-		amount = { 2, 2 },
+		amount = { 1, 2 },
 		spawn = {
-			{ unit = "CS_tazer", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics_CS_tazer, rank = 1 }
+			{ unit = "CS_tazer", freq = 1, amount_min = 1, amount_max = 2, tactics = tactics_CS_tazer, rank = 1 }
 			-- { unit = "CS_heavy_M4", freq = 1, tactics = tactics_CS_tazer, rank = 2 }
 		}
 	}
@@ -651,7 +651,7 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 	
 	-- FBI Tanks
 	self.enemy_spawn_groups.FBI_tanks = {
-		amount = { 1, 2 },
+		amount = { 1, 1 },
 		spawn = {
 			{ unit = "FBI_tank", freq = 1, tactics = tactics_FBI_tank, rank = 1 }
 		}
@@ -681,7 +681,7 @@ function GroupAITweakData:_init_task_data()
 	self.besiege.assault.hostage_hesitation_delay = { 30, 30, 30 }
 	
 	if is_console then
-		self.besiege.assault.force = { 0, 4, 6 }		-- max simultaneous # pigs participating in assault
+		self.besiege.assault.force = { 0, 4, 7 }		-- max simultaneous # pigs participating in assault
 		self.besiege.assault.force_pool = { 0, 60, 100 }			-- max # pigs that may be spawned during the entire assault phase
 	else
 		self.besiege.assault.force = { 0, 5, 7 }				-- max simultaneous # pigs participating in assault	
@@ -769,8 +769,8 @@ function GroupAITweakData:_set_hard()
 		CS_swats = { 0, 1, 0 },
 		CS_heavys = { 0, 0.2, 1 },
 		CS_shields = { 0, 0.02, 1 },
-		CS_tazers = { 0, 0.01, 0.2 },
-		CS_tanks = { 0, 0.01, 0.1 },
+		CS_tazers = { 0, 0.01, 0.25 },
+		CS_tanks = { 0, 0.02, 0.2 },
 		-- FBI_spoocs = { 0, 0, 0.05 },
 	}
 	
@@ -789,7 +789,7 @@ function GroupAITweakData:_set_hard()
 	self.besiege.recon.groups = {
 		CS_stealth_a = { 1, 0, 0 },
 		CS_swats = { 0, 1, 1 },
-		CS_tazers = { 0, 0, 0.2 },
+		CS_tazers = { 0, 0.1, 0.15 },
 		FBI_stealth_b = { 0, 0, 0.1 },
 	}
 	
@@ -807,12 +807,12 @@ function GroupAITweakData:_set_overkill()
 	
 	-- FBI responds
 	self.besiege.assault.groups = {
-		FBI_swats = { 0, 1, 0.25 },
-		FBI_heavys = { 0, 0.2, 1 },
-		FBI_shields = { 0, 0.2, 1 },
-		FBI_tanks = { 0, 0.01, 0.05 },
+		FBI_swats = { 0.1, 1, 0.25 },
+		FBI_heavys = { 0.05, 0.4, 0.5 },
+		FBI_shields = { 0.1, 0.2, 1 },
+		FBI_tanks = { 0.05, 0.15, 0.2 },
 		-- FBI_spooc = { 0, 0.1, 0.3 },
-		CS_tazers = { 0, 0.1, 0.2 },
+		CS_tazers = { 0.05, 0.15, 0.25 },
 	}
 	self.besiege.reenforce.interval = { 10, 20, 30 }		-- (sec)
 	self.besiege.reenforce.groups = {
@@ -829,11 +829,11 @@ function GroupAITweakData:_set_overkill()
 	self.besiege.recon.force = { 2, 4, 6 }					-- max # pigs
 	self.besiege.recon.interval_variation = 40 				-- random adjustment to the recon_interval. ex 0.5 means: +0% to +50% adjustment	
 	self.besiege.recon.groups = {
-		FBI_stealth_a = { 1, 1, 0 },
+		FBI_stealth_a = { 1, 0.5, 0 },
 		FBI_stealth_b = { 0, 0, 1 },
 	}
 	
-	self.besiege.assault.force_balance_mul = { 1.8, 1.9, 2.0, 2.1 } -- multiplier to "self.besiege.assault.force" on 1 to 4 players
+	self.besiege.assault.force_balance_mul = { 1.6, 1.8, 2.0, 2.1 } -- multiplier to "self.besiege.assault.force" on 1 to 4 players
 	self.besiege.assault.force_pool_balance_mul = { 1.6, 1.8, 2, 2.2 } -- multiplier to "self.besiege.assault.force_pool" on 1 to 4 players
 end
 
@@ -846,12 +846,12 @@ function GroupAITweakData:_set_overkill_145()
 	
 	-- FBI Case
 	self.besiege.assault.groups = {
-		FBI_swats = { 0, 1, 0 },
-		FBI_heavys = { 0, 1, 1 },
-		FBI_shields = { 0, 0.5, 1 },
-		FBI_tanks = { 0, 0.1, 0.1 },
+		FBI_swats = { 0.2, 1, 0 },
+		FBI_heavys = { 0.1, 1, 1 },
+		FBI_shields = { 0.1, 0.5, 0.75 },
+		FBI_tanks = { 0.2, 0.5, 1 },
 		-- FBI_spooc = { 0, 0.2, 0.4 },
-		CS_tazers = { 0, 0.1, 0.2 },
+		CS_tazers = { 0.1, 0.35, 0.6 },
 	}
 	self.besiege.reenforce.interval = { 10, 20, 30 }		-- (sec)
 	self.besiege.reenforce.groups = {
@@ -867,11 +867,11 @@ function GroupAITweakData:_set_overkill_145()
 	self.besiege.recon.force = { 2, 4, 6 }					-- max # pigs
 	self.besiege.recon.interval_variation = 40 				-- random adjustment to the recon_interval. ex 0.5 means: +0% to +50% adjustment	
 	self.besiege.recon.groups = {
-		FBI_stealth_a = { 1, 0.5, 0 },
-		FBI_stealth_b = { 0, 1, 1 },
+		FBI_stealth_a = { 1, 1, 0 },
+		FBI_stealth_b = { 0.25, 1, 1 },
 	}
 	
-	self.besiege.assault.force_balance_mul = { 1.8, 1.9, 2.0, 2.1 } -- multiplier to "self.besiege.assault.force" on 1 to 4 players
+	self.besiege.assault.force_balance_mul = { 1.7, 1.9, 2.1, 2.3 } -- multiplier to "self.besiege.assault.force" on 1 to 4 players
 	self.besiege.assault.force_pool_balance_mul = { 2, 2.2, 2.4, 2.6 } -- multiplier to "self.besiege.assault.force_pool" on 1 to 4 players
 end
 

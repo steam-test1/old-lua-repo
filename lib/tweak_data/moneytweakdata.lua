@@ -52,16 +52,16 @@ end
 function MoneyTweakData:init()
 -- Gobals
 	-- 5040000
-	self.biggest_score = 5040000 -- 3600000 * 1.4 -- Thematic cash. Scaled up becasue of fourstores level small loot bug. Used to be 2.000.000, could be alot smaller for better money respect
-	self.biggest_cashout = 250000 -- Cash -- Tweaked with 250.000
+	self.biggest_score = 4000000 -- 3600000 * 1.4 -- Thematic cash. Scaled up becasue of fourstores level small loot bug. Used to be 2.000.000, could be alot smaller for better money respect
+	self.biggest_cashout = 400000 -- Cash -- Tweaked with 250.000
 	self.offshore_rate = self.biggest_cashout / self.biggest_score
 	-- 20.16 original relationship
 	-- 16.8
 	
-	self.alive_players_max = 1.3
+	self.alive_players_max = 1.1
 	self.cashout_without_player_alive = self.biggest_cashout / self.alive_players_max
 	
-	self.cut_difficulty = 8
+	self.cut_difficulty = 4
 	self.max_mission_bags = 6
 	self.cut_lootbag_bonus = ((self.cashout_without_player_alive * 0.3))
 	self.cut_lootbag_bonus = (self.cut_lootbag_bonus / self.max_mission_bags) / self.cut_difficulty
@@ -73,14 +73,16 @@ function MoneyTweakData:init()
 	self.cut_job_complete = ((self.cashout_without_player_alive * 0.15))
 	self.cut_job_complete = self.cut_job_complete / self.cut_difficulty
 	
+
 	self.bag_values = {} -- For sake of syncronization, these values will be multiplied with bag_value_multiplier
-	self.bag_values.default = 150 -- Is this coke? where is coke?!
-	self.bag_values.money = 450
-	self.bag_values.gold = 600
-	self.bag_values.diamonds = 125 -- To compensate for the fast smash and grabs
-	self.bag_values.coke = 500
-	self.bag_values.meth = 600
-	self.bag_values.weapons = 700
+	self.bag_values.default = 900 -- Is this coke? where is coke?!
+	self.bag_values.money = 750
+	self.bag_values.gold = 1000
+	self.bag_values.diamonds = 500 -- To compensate for the fast smash and grabs
+	self.bag_values.coke = 900
+	self.bag_values.meth = 1000
+	self.bag_values.weapon = 950
+	self.bag_values.weapons = 950
 	
 	-- Lootbags
 	self.bag_value_multiplier = self._create_value_table( ((self.cut_lootbag_bonus)/5)/self.offshore_rate/self.bag_values.default, (self.cut_lootbag_bonus)/self.offshore_rate/self.bag_values.default, 7, true, 0.85 ) -- Scaled with stars
@@ -90,7 +92,7 @@ function MoneyTweakData:init()
 	self.job_completion = self._create_value_table( (self.cut_job_complete/7)/self.offshore_rate, self.cut_job_complete/self.offshore_rate, 7, true, 1 ) -- { 10000, 20000, 30000, 50000, 75000, 150000, 200000, 300000, 500000, 1000000 }
 
 
-	self.flat_stage_completion = math.round(2500 / self.offshore_rate)
+	self.flat_stage_completion = math.round(10000 / self.offshore_rate)
 	self.flat_job_completion = 0
 	
 	self.level_limit = {}
@@ -99,7 +101,8 @@ function MoneyTweakData:init()
 	self.level_limit.pc_difference_multipliers = { 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1 }	-- players above low_cap_level will gain money of the difference between his level and job level, from the different of pc
 	
 	self.stage_failed_multiplier = 0.1
-	self.difficulty_multiplier = self._create_value_table( 2.5, self.cut_difficulty, 3, false, 1 ) -- This is an addition to the job/stage money( stage_money+stage_money*mul ), hard, overkill, overkill_146
+	-- self.difficulty_multiplier = self._create_value_table( 2.5, self.cut_difficulty, 3, false, 1 )
+	self.difficulty_multiplier = { 2, 3, 6 }  -- This is an addition to the job/stage money( stage_money+stage_money*mul ), hard, overkill, overkill_146
 	self.small_loot_difficulty_multiplier = self._create_value_table( 0, 0, 3, false, 1 )
 	self.alive_humans_multiplier = self._create_value_table( 1, self.alive_players_max, 4, false, 1 )
 	
@@ -213,7 +216,7 @@ function MoneyTweakData:init()
 		-- macro for calulating point cost (127 is the current maximum of points that can be spent in one tree)
 		-- s for i=1, 127 do print( "POINT " .. i .. ": " .. ((tweak_data.money_manager.skilltree.respec.point_cost*i)^tweak_data.money_manager.skilltree.respec.point_multiplier_cost)-((tweak_data.money_manager.skilltree.respec.point_cost*(i-1))^tweak_data.money_manager.skilltree.respec.point_multiplier_cost) ) end
 	
-	local loot_drop_value = 1500 -- / self.offshore_rate -- Offshore space
+	local loot_drop_value = 10000 -- / self.offshore_rate -- Offshore space
 	self.loot_drop_cash = {}
 	self.loot_drop_cash.cash10 = loot_drop_value * 2
 	self.loot_drop_cash.cash20 = loot_drop_value * 4

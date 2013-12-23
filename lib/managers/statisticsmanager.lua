@@ -329,7 +329,7 @@ function StatisticsManager:publish_to_steam( session, success )
 
 
 	for weapon_name, weapon_data in pairs( session.shots_by_weapon ) do
-		if weapon_data.total > 0 then
+		if weapon_data.total > 0 and tweak_data.weapon[ weapon_name ].statistics then
 			stats[ "weapon_used_" .. weapon_name ] = { type = "int", value = 1 }
 		end
 	end
@@ -344,7 +344,10 @@ function StatisticsManager:publish_to_steam( session, success )
 
 
 
-	stats[ "mask_used_" .. managers.blackmarket:equipped_mask().mask_id ] = { type = "int", value = 1 }
+	local mask_id = managers.blackmarket:equipped_mask().mask_id
+	if tweak_data.blackmarket.masks[ mask_id ].statistics then
+		stats[ "mask_used_" .. mask_id ] = { type = "int", value = 1 }
+	end
 	
 
 
@@ -438,7 +441,7 @@ function StatisticsManager:clear_statistics()
 
 
 	for weapon_name, weapon in pairs( tweak_data.weapon ) do
-		if weapon.autohit then
+		if weapon.autohit and weapon.statistics then
 			stats[ "weapon_used_" .. weapon_name ] = { type = "int", method = "set", value = 0 }
 		end
 	end
@@ -454,7 +457,9 @@ function StatisticsManager:clear_statistics()
 
 
 	for mask_name, mask in pairs( tweak_data.blackmarket.masks ) do
-		stats[ "mask_used_" .. mask_name ] = { type = "int", method = "set", value = 0 }
+		if tweak_data.blackmarket.masks[ mask_name ].statistics then
+			stats[ "mask_used_" .. mask_name ] = { type = "int", method = "set", value = 0 }
+		end
 	end
 
 
@@ -568,7 +573,7 @@ function StatisticsManager:debug_print_stats( global_flag, day )
 
 
 	for weapon_name, weapon in pairs( tweak_data.weapon ) do
-		if weapon.autohit then
+		if weapon.autohit and weapon.statistics then
 			key = "weapon_used_" .. weapon_name
 			table.insert( stats, { name = key, loc = account:get_stat( key ), glo = account:get_global_stat( key, day ) } )
 		end
@@ -585,8 +590,10 @@ function StatisticsManager:debug_print_stats( global_flag, day )
 
 
 	for mask_name, mask in pairs( tweak_data.blackmarket.masks ) do
-		key = "mask_used_" .. mask_name
-		table.insert( stats, { name = key, loc = account:get_stat( key ), glo = account:get_global_stat( key, day ) } )
+		if tweak_data.blackmarket.masks[ mask_name ].statistics then
+			key = "mask_used_" .. mask_name
+			table.insert( stats, { name = key, loc = account:get_stat( key ), glo = account:get_global_stat( key, day ) } )
+		end
 	end
 
 

@@ -43,7 +43,7 @@ function IngameContractGui:init( ws )
 	local risk_color = Color(255, 255, 204, 0)/255
 	local risk_title = text_panel:text( { font=tweak_data.menu.pd2_small_font, font_size=font_size, text=self:get_text( "menu_risk" ), color=risk_color } )
 	managers.hud:make_fine_text( risk_title )
-	risk_title:set_top( text_panel:center_y() )
+	risk_title:set_top( text_panel:center_y()+40 )
 	
 	local menu_risk_id = "menu_risk_pd"
 	if Global.game_settings.difficulty == "hard" then
@@ -71,6 +71,7 @@ function IngameContractGui:init( ws )
 	managers.hud:make_fine_text( experience_title )
 	experience_title:set_top( paygrade_title:bottom() )
 	
+--[[
 	local stage_cash_title = text_panel:text( { font=tweak_data.menu.pd2_small_font, font_size=font_size, text=self:get_text( "menu_cash_stage", { money = "" } ), color=Color.white } )
 	managers.hud:make_fine_text( stage_cash_title )
 	stage_cash_title:set_top( experience_title:bottom() )
@@ -78,10 +79,11 @@ function IngameContractGui:init( ws )
 	local cash_title = text_panel:text( { font=tweak_data.menu.pd2_small_font, font_size=font_size, text=self:get_text( "menu_cash_job", { money = "" } ), color=Color.white } )
 	managers.hud:make_fine_text( cash_title )
 	cash_title:set_top( stage_cash_title:bottom() )
+]]
 		
 	local sx = math.max( paygrade_title:w(), experience_title:w() )
-	sx = math.max( sx, stage_cash_title:w() )
-	sx = math.max( sx, cash_title:w() ) + 24
+	--[[sx = math.max( sx, stage_cash_title:w() )
+	sx = math.max( sx, cash_title:w() ) + 24]]
 	
 	if job_data then
 		local job_stars = managers.job:current_job_stars()
@@ -157,13 +159,14 @@ function IngameContractGui:init( ws )
 		add_xp:set_center_y( cy )
 		
 		-- Money
-		local total_payout, stage_payout_table, job_payout_table = managers.money:get_contract_money_by_stars( job_stars, difficulty_stars, num_days )
+		local total_payout, stage_payout_table, job_payout_table = managers.money:get_contract_money_by_stars( job_stars, difficulty_stars, num_days, managers.job:current_job_id() )
 
 		local stage_value = stage_payout_table[ 1 ]
 		local stage_risk_value = stage_payout_table[ 3 ]
 		local job_value = job_payout_table[ 1 ]
 		local job_risk_value = job_payout_table[ 3 ]
 
+--[[
 		local cy = stage_cash_title:center_y()
 
 		local stage_cash = text_panel:text( { font=tweak_data.menu.pd2_small_font, font_size=font_size, text=tostring(num_days) .. " x " .. managers.experience:cash_string(math.round(stage_value)), color=tweak_data.screen_colors.text } )
@@ -192,6 +195,7 @@ function IngameContractGui:init( ws )
 		managers.hud:make_fine_text( add_cash )
 		add_cash:set_x( job_cash:right() )
 		add_cash:set_center_y( cy )
+]]
 		
 
 		local payday_value = total_payout

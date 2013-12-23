@@ -661,7 +661,7 @@ end
 
 --------------------------------------------------------------------------------------
 
-function Drill:sync_net_event( event_id )
+--[[function Drill:sync_net_event( event_id )
 	if event_id == 3 then
 		self._unit:sound_source():set_rtpc("silent_drill_skill", 100)
 		print("DRILL SOUND: Synced Drill (ACED SKILL)")
@@ -672,7 +672,7 @@ function Drill:sync_net_event( event_id )
 		self._unit:sound_source():set_rtpc("silent_drill_skill", 0)
 		print("DRILL SOUND: Synced Drill (NO SKILL)")
 	end
-end
+end]]
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------

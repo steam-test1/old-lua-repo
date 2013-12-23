@@ -1,5 +1,10 @@
 BaseInteractionExt = BaseInteractionExt or class()
 
+BaseInteractionExt.SKILL_IDS = {}
+BaseInteractionExt.SKILL_IDS.none = 1
+BaseInteractionExt.SKILL_IDS.basic = 2
+BaseInteractionExt.SKILL_IDS.aced = 3
+
 function BaseInteractionExt:init( unit )
 	self._unit = unit
 	self._unit:set_extension_update_enabled( Idstring( "interaction" ), false )
@@ -1246,13 +1251,23 @@ function MissionDoorDeviceInteractionExt:interact( player )
 	-- MissionDoorDeviceInteractionExt.super.interact( self, player )
 	MissionDoorDeviceInteractionExt.super.super.interact( self, player ) -- This basicly plays the end sound for an interaction
 	
+	local is_drill = self._unit:base() and self._unit:base().set_alert_radius
+
 	if Network:is_client() then
+		if is_drill then
+			if managers.player:has_category_upgrade( "player", "silent_drill" ) then
+				self._unit:timer_gui():set_skill( BaseInteractionExt.SKILL_IDS.aced )
+			elseif managers.player:has_category_upgrade( "player", "drill_alert_rad" ) then
+				self._unit:timer_gui():set_skill( BaseInteractionExt.SKILL_IDS.basic )
+			end
+		end
+
 		managers.network:session():send_to_host( "server_place_mission_door_device", self._unit, player )
 	else
 		local result = self:server_place_mission_door_device( player )
 		self:result_place_mission_door_device( result )
 		
-		if self._unit:base() and self._unit:base().set_alert_radius then
+		if is_drill then
 			if managers.player:has_category_upgrade( "player", "silent_drill" ) then
 				self._unit:base():set_alert_radius( nil )
 			elseif managers.player:has_category_upgrade( "player", "drill_alert_rad" ) then
@@ -1271,22 +1286,6 @@ function MissionDoorDeviceInteractionExt:interact( player )
 		end
 	end
 	
-	if managers.network:session() and self._unit:base() and self._unit:base().set_alert_radius then
-		if managers.player:has_category_upgrade( "player", "silent_drill" ) then
-			managers.network:session():send_to_peers_synched( "sync_unit_event_id_8", self._unit, "base", 3 )
-			self._unit:sound_source():set_rtpc( "silent_drill_skill", 100 )
-			print( "DRILL SOUND: User Drill (ACED SKILL)" )
-		elseif managers.player:has_category_upgrade( "player", "drill_alert_rad" ) then
-			managers.network:session():send_to_peers_synched( "sync_unit_event_id_8", self._unit, "base", 2 )
-			self._unit:sound_source():set_rtpc( "silent_drill_skill", 50 )
-			print("DRILL SOUND: User Drill (BASIC SKILL)")
-		else
-			managers.network:session():send_to_peers_synched( "sync_unit_event_id_8", self._unit, "base", 1 )
-			self._unit:sound_source():set_rtpc( "silent_drill_skill", 0 )
-			print( "DRILL SOUND: User Drill (NO SKILL)" )
-		end
-	end
-
 	--[[if Network:is_client() then
 		managers.network:session():send_to_host( "sync_placed_mission_door_device", self._unit )
 	else
@@ -1328,10 +1327,12 @@ function MissionDoorDeviceInteractionExt:sync_interacted( peer )
 		return
 	end
 	
-	if player:base():upgrade_value( "player", "silent_drill" ) or player:base():upgrade_value( "player", "drill_alert_rad" ) or player:base():upgrade_value( "player", "drill_autorepair" ) or player:base():upgrade_value( "player", "drill_autorepair" ) then
+	--[[if player:base():upgrade_value( "player", "silent_drill" ) or player:base():upgrade_value( "player", "drill_alert_rad" ) or player:base():upgrade_value( "player", "drill_autorepair" ) or player:base():upgrade_value( "player", "drill_autorepair" ) then
 		Application:debug( "MissionDoorDeviceInteractionExt:sync_interacted: peer upgrade checks out,", peer )
-	end
+	end]]
 	
+
+
 	local is_drill = self._unit:base() and self._unit:base().set_alert_radius
 	if is_drill then
 		if player:base():upgrade_value( "player", "silent_drill" ) then
@@ -1354,7 +1355,8 @@ function MissionDoorDeviceInteractionExt:server_place_mission_door_device( playe
 	local can_place = self._unit:mission_door_device():can_place()
 	local is_saw = self._unit:base() and self._unit:base().is_saw
 	local is_drill = self._unit:base() and self._unit:base().set_alert_radius
-	
+	local skill = BaseInteractionExt.SKILL_IDS.none
+
 	if is_saw then
 		if player:base().is_local_player then
 			self._unit:timer_gui():set_timer_multiplier( managers.player:upgrade_value( "player", "saw_speed_multiplier", 1 ) )
@@ -1364,9 +1366,23 @@ function MissionDoorDeviceInteractionExt:server_place_mission_door_device( playe
 	elseif is_drill then
 		if player:base().is_local_player then
 			self._unit:timer_gui():set_timer_multiplier( managers.player:upgrade_value( "player", "drill_speed_multiplier", 1 ) )
+
+			if managers.player:has_category_upgrade("player", "silent_drill") then
+				skill = BaseInteractionExt.SKILL_IDS.aced
+			elseif managers.player:has_category_upgrade("player", "drill_alert_rad") then
+				skill = BaseInteractionExt.SKILL_IDS.basic
+			end
 		elseif player:base():upgrade_value( "player", "drill_speed_multiplier" ) then
 			self._unit:timer_gui():set_timer_multiplier( player:base():upgrade_value( "player", "drill_speed_multiplier" ) or 1 )
+
+			if player:base():upgrade_level("player", "silent_drill") == 1 then
+				skill = BaseInteractionExt.SKILL_IDS.aced
+			elseif player:base():upgrade_level("player", "drill_alert_rad") == 1 then
+				skill = BaseInteractionExt.SKILL_IDS.basic
+			end
 		end
+
+		self._unit:timer_gui():set_skill( skill )
 	end
 	
 	self:remove_interact()
@@ -1375,6 +1391,7 @@ function MissionDoorDeviceInteractionExt:server_place_mission_door_device( playe
 	end
 	
 	managers.network:session():send_to_peers_synched( "sync_interacted", self._unit, -2, self.tweak_data )
+	managers.network:session():send_to_peers_synched( "sync_unit_event_id_8", self._unit, "interaction", skill )
 		
 	self:set_active( false )
 	self._unit:mission_door_device():placed()
@@ -1397,6 +1414,12 @@ function MissionDoorDeviceInteractionExt:result_place_mission_door_device( place
 		end
 	else
 		-- print( "DIDn't place it", self._tweak_data.special_equipment )
+	end
+end
+
+function MissionDoorDeviceInteractionExt:sync_net_event( event_id )
+	if self._unit:base() then
+		self._unit:timer_gui():set_skill( event_id )
 	end
 end
 

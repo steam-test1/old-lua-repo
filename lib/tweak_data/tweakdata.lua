@@ -74,6 +74,26 @@ function TweakData:get_value( ... )
 	return value
 end
 
+function TweakData:set_mode()
+	if not Global.game_settings then
+		return
+	end
+
+	if Global.game_settings.single_player then
+		self:_set_singleplayer()
+	else
+		self:_set_multiplayer()
+	end
+end
+
+function TweakData:_set_singleplayer()
+	self.player:_set_singleplayer()
+end
+
+function TweakData:_set_multiplayer()
+	self.player:_set_multiplayer()
+end
+
 -- Default is hard
 function TweakData:set_difficulty()
 	if not Global.game_settings then
@@ -865,6 +885,15 @@ function TweakData:init()
 	self.interaction.numpad.text_id = "debug_interact_numpad"
 	self.interaction.numpad.start_active = false
 	self.interaction.numpad.axis = "z"
+
+	self.interaction.numpad_keycard = {}
+	self.interaction.numpad_keycard.icon = "equipment_bank_manager_key"
+	self.interaction.numpad_keycard.text_id = "hud_int_numpad_keycard"
+	self.interaction.numpad_keycard.equipment_text_id = "hud_int_numpad_no_keycard"
+	self.interaction.numpad_keycard.special_equipment 	= "bank_manager_key"
+	self.interaction.numpad_keycard.equipment_consume 	= true
+	self.interaction.numpad_keycard.start_active = false
+	self.interaction.numpad_keycard.axis = "z"
 
 	self.interaction.take_weapons = {}
 	self.interaction.take_weapons.icon = "develop"
@@ -2257,6 +2286,19 @@ function TweakData:init()
 	self.experience_manager.values.size18				= 500
 	self.experience_manager.values.size20				= 1000
 	
+	self.experience_manager.loot_drop_value						= {}
+	self.experience_manager.loot_drop_value.xp10			= 2000
+	self.experience_manager.loot_drop_value.xp20			= 4000
+	self.experience_manager.loot_drop_value.xp30			= 6000
+	self.experience_manager.loot_drop_value.xp40			= 10000
+	self.experience_manager.loot_drop_value.xp50			= 12000
+	self.experience_manager.loot_drop_value.xp60			= 15000
+	self.experience_manager.loot_drop_value.xp70			= 20000
+	self.experience_manager.loot_drop_value.xp80			= 24000
+	self.experience_manager.loot_drop_value.xp90			= 28000
+	self.experience_manager.loot_drop_value.xp100			= 32000
+
+
 	--[[self.experience_manager.actions						= {}
 	self.experience_manager.actions.killed_cop			= "size02"
 	self.experience_manager.actions.revive				= "size04"
@@ -2283,12 +2325,11 @@ function TweakData:init()
 	
 	self.experience_manager.actions.suburbia_money = "size20"]]	
 	
-	
 
 	self.experience_manager.stage_completion = { 200, 250, 300, 350, 425, 475, 550 }
 	self.experience_manager.job_completion = { 750, 1000, 1500, 2000, 2500, 3000, 4000 }
 	self.experience_manager.stage_failed_multiplier = 0.15
-	self.experience_manager.difficulty_multiplier = { 1.5, 3.5, 7 } -- This is an addition to the job/stage xp( stage_xp+stage_xp*mul ), hard, overkill, overkill_146
+	self.experience_manager.difficulty_multiplier = { 1.5, 2.5, 5 } -- This is an addition to the job/stage xp( stage_xp+stage_xp*mul ), hard, overkill, overkill_146
 	self.experience_manager.alive_humans_multiplier = { 1, 1.1, 1.2, 1.3 }
 	
 	
@@ -2563,6 +2604,7 @@ function TweakData:init()
 	
 	self.blame.met_criminal = "hint_met_criminal" 	-- Metal detector
 	self.blame.mot_criminal = "hint_mot_criminal"	-- Motion Sensor
+	self.blame.gls_alarm = "hint_alarm_glass"
 	
 		-- gangster blames you
 	
@@ -2595,6 +2637,8 @@ function TweakData:init()
 	-- self.blame_triggers = { "none", "cop", "gangster",  "civilian", "metal_detector", "security_camera",  }		-- editor
 
 	self:set_difficulty()
+
+	self:set_mode()
 
 	self:digest_tweak_data()
 end

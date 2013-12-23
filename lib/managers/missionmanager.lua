@@ -97,7 +97,7 @@ function MissionManager:init( ... )
 	self:add_area_instigator_categories( "loot" )
 	self:add_area_instigator_categories( "unique_loot" )
 	self:set_default_area_instigator( "player" )
-	self:set_global_event_list( { "bankmanager_key", "chavez_key", "blue_key", "keycard", "start_assault", "end_assault", "police_called", "police_weapons_hot", "loot_lost", "special_event_a", "special_event_b", "special_event_c", "special_event_d", "special_event_e", "special_event_f", "special_event_g", "loot_bag", "atm" } )
+	self:set_global_event_list( { "bankmanager_key", "chavez_key", "blue_key", "keycard", "start_assault", "end_assault", "police_called", "police_weapons_hot", "loot_lost", "special_event_a", "special_event_b", "special_event_c", "special_event_d", "special_event_e", "special_event_f", "special_event_g", "loot_bag", "atm", "civilian_killed" } )
 	
 	self._mission_filter = {}
 	

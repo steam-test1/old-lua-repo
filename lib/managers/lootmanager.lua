@@ -229,7 +229,6 @@ function LootManager:get_secured_bonus_bags_value()
 			-- Is a mandatory
 			if mandatory_bags_amount > 0 and (self._global.mandatory_bags.carry_id == "none" or self._global.mandatory_bags.carry_id == data.carry_id) then
 				mandatory_bags_amount = mandatory_bags_amount - 1
-				value = value + data.value
 			else
 				value = value + data.value
 			end
@@ -237,6 +236,40 @@ function LootManager:get_secured_bonus_bags_value()
 	end
 	
 	return value
+end
+
+function LootManager:get_secured_mandatory_bags_value()
+	local mandatory_bags_amount = self._global.mandatory_bags.amount or 0
+
+	local value = 0
+	for _,data in ipairs( self._global.secured ) do
+		if not tweak_data.carry.small_loot[ data.carry_id ] then
+			-- Is a mandatory
+			if mandatory_bags_amount > 0 and (self._global.mandatory_bags.carry_id == "none" or self._global.mandatory_bags.carry_id == data.carry_id) then
+				mandatory_bags_amount = mandatory_bags_amount - 1
+				value = value + data.value
+			end
+		end
+	end
+	
+	return value
+end
+
+function LootManager:is_bonus_bag()
+	local mandatory_bags_amount = self._global.mandatory_bags.amount or 0
+
+	for _,data in ipairs( self._global.secured ) do
+		if not tweak_data.carry.small_loot[ data.carry_id ] then
+			-- Is a mandatory
+			if mandatory_bags_amount > 0 and (self._global.mandatory_bags.carry_id == "none" or self._global.mandatory_bags.carry_id == data.carry_id) then
+				mandatory_bags_amount = mandatory_bags_amount - 1
+			else
+				return true
+			end
+		end
+	end
+	
+	return false
 end
 
 ---------------------------------------------------------------------------------
@@ -392,7 +425,12 @@ end
 ---------------------------------------------------------------------------------
 
 function LootManager:_present( carry_id, value )
-	local real_value = self:get_real_value( carry_id, value )
+	local real_value = 0
+	if tweak_data:get_value( "money_manager", "bag_values", carry_id ) then
+		real_value = managers.money:get_secured_bonus_bag_value( value )
+	else
+		real_value = self:get_real_value( carry_id, value)
+	end
 	
 	local carry_data = tweak_data.carry[ carry_id ]
 	local title = managers.localization:text( "hud_loot_secured_title" )

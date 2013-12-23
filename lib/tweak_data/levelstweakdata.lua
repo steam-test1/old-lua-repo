@@ -497,6 +497,18 @@ function LevelsTweakData:init()
 	self.arm_fac.package = "packages/narr_arm_fac"
 	self.arm_fac.cube = "cube_apply_heist_bank"
 
+	self.family = {}
+	self.family.name_id = "heist_family_hl"
+	self.family.briefing_id = "heist_family_briefing"
+	self.family.briefing_dialog = "pln_fj1_brf_01"
+	self.family.world_name = "narratives/bain/diamond_store"
+	self.family.intro_event = "Play_pln_fj1_intro_01"
+	self.family.outro_event = {"Play_pln_fj1_end_01", "Play_pln_fj1_end_02"}
+	-- self.family.intro_cues			= {}
+	self.family.music = "heist"
+	self.family.package = "packages/narr_family"
+	self.family.cube = "cube_apply_heist_bank"
+
 
 	------------------------ TESTS -----------------------
 								
@@ -832,6 +844,7 @@ function LevelsTweakData:init()
 					"escape_cafe", "escape_park", "escape_cafe_day", "escape_park_day", "escape_street", "escape_overpass", "escape_garage", "escape_overpass_night",
 					"safehouse",
 					"arm_fac", "arm_par", "arm_hcm", "arm_bri", "arm_cro", "arm_und",
+					"family",
 
 
 					"test01", "test02", "test03", "test04", "test05", "test06", "test07", "test08", "test09", "test10", "escape_chain_test_1", "escape_chain_test_2", "vehicle_van_test"

@@ -198,7 +198,7 @@ function SawHit:on_collision( col_ray, weapon_unit, user_unit, damage )
 	
 	if hit_unit:damage() then
 		if col_ray.body:extension() and col_ray.body:extension().damage then
-			damage = damage * managers.player:upgrade_value( "saw", "lock_damage_multiplier", 1 ) * 4
+			damage = math.clamp( damage * managers.player:upgrade_value( "saw", "lock_damage_multiplier", 1 ) * 4, 0, 200 )
 			col_ray.body:extension().damage:damage_lock( user_unit, col_ray.normal, col_ray.position, col_ray.direction, damage )
 			-- col_ray.body:extension().damage:damage_lock( nil, nil, nil, nil, 1 )
 			if hit_unit:id() ~= -1 then

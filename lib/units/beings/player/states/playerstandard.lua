@@ -1937,12 +1937,14 @@ function PlayerStandard:_get_intimidation_action( prime_target, char_table, amou
 				end
 				if needs_revive and rally_skill_data.long_dis_revive then
 					voice_type = "revive"
-				elseif not is_arrested and not needs_revive and rally_skill_data.morale_boost_delay_t and managers.player:player_timer():time() > rally_skill_data.morale_boost_delay_t then
+				--[[elseif not is_arrested and not needs_revive and rally_skill_data.morale_boost_delay_t and managers.player:player_timer():time() > rally_skill_data.morale_boost_delay_t then
 					voice_type = "boost"
-					amount = 1 -- 1 means "morale_boost"
+					amount = 1 -- 1 means "morale_boost"]]
 				end
 			end
 			
+
+
 			if is_human_player then
 				prime_target.unit:network():send_to_unit( { "long_dis_interaction", prime_target.unit, amount, self._unit } )
 			elseif voice_type == "revive" then -- Team AI, revive
@@ -2220,13 +2222,14 @@ function PlayerStandard:_start_action_intimidate( t )
 				return
 			end
 			local character_code = static_data.ssuffix
-			sound_name = "f35x_any"
+			sound_name = "f36x_any"
 			
 			if math.random() < self._ext_movement:rally_skill_data().revive_chance then
 				prime_target.unit:interaction():interact( self._unit )
 			end
 			self._ext_movement:rally_skill_data().morale_boost_delay_t = managers.player:player_timer():time() + 3.5
-		elseif voice_type == "boost" then
+
+		--[[elseif voice_type == "boost" then
 			interact_type = "cmd_gogo"
 			
 			local static_data = managers.criminals:character_static_data_by_unit( prime_target.unit )
@@ -2234,7 +2237,8 @@ function PlayerStandard:_start_action_intimidate( t )
 				return
 			end
 			local character_code = static_data.ssuffix
-			sound_name = "f36x_any"
+			sound_name = "f36x_any"]]
+
 		elseif voice_type == "escort" then
 			interact_type = "cmd_point"
 			sound_name = "e01x_" .. sound_suffix

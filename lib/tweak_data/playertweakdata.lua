@@ -24,7 +24,15 @@ function PlayerTweakData:_set_overkill_145()
 	self.damage.DOWNED_TIME_DEC = 15							-- Amount of time decreased from bleed out and fatal timer every time you go down
 	self.damage.DOWNED_TIME_MIN = 1						-- Minimum bleed out and fatal timer
 	
-	self.damage.REVIVE_HEALTH_STEPS = { 0.2 }
+	--self.damage.REVIVE_HEALTH_STEPS = { 0.2 }
+end
+
+function PlayerTweakData:_set_singleplayer()
+	self.damage.REGENERATE_TIME = 1.25
+end
+
+function PlayerTweakData:_set_multiplayer()
+
 end
 
 function PlayerTweakData:init()
@@ -49,7 +57,7 @@ function PlayerTweakData:init()
 	self.damage.ARMOR_DAMAGE_REDUCTION = 0.0		-- Amount of damage reduction on health the armor reduces
 	self.damage.ARMOR_DAMAGE_REDUCTION_STEPS = { 1, 0.6, 0.7, 0.8, 0.9, 0.95, 0.96, 0.97, 0.98, 0.99 }
 	
-	self.damage.HEALTH_INIT = 20							-- The full health of the player unit in duel mode at level 1. (Absolute value)
+	self.damage.HEALTH_INIT = 25							-- The full health of the player unit in duel mode at level 1. (Absolute value)
 	self.damage.LIVES_INIT = 4								-- How many lives the player have, you loose one life each time you go into bleedout, when at 0 you go automatically into custody. REMEMBER: This is _not_ how many times you can be downed/revived (its actually one less then that)
 
 	if(is_console) then
@@ -63,7 +71,7 @@ function PlayerTweakData:init()
 	self.damage.BLEED_OT_TIME = 40						-- Amount of time in bleed out state
 	
 	self.damage.TASED_TIME = 10					    	-- Duration of tased state
-	self.damage.TASED_RECOVER_TIME = 1				-- How long it takes for a tased player to recover to standard movement state
+	self.damage.TASED_RECOVER_TIME = 3				-- How long it takes for a tased player to recover to standard movement state
 	self.damage.BLEED_OUT_HEALTH_INIT = 10			-- Health before going into fatal when in bleed out	
 	
 	self.damage.DOWNED_TIME = 30							-- Total amount of time spent in bleed out and fatal (before death cam)

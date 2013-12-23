@@ -155,7 +155,7 @@ end
 
 function IngameLobbyMenuState:new_fake_loot_pc( debug_pc, can_drop_weapon_mods )
 	local sum = 0
-	local to_drop = {colors = 1, textures = 1, materials = 1, masks = 1, cash = 3}
+	local to_drop = {colors = 1, textures = 1, materials = 1, masks = 1, cash = 3, xp = 4}
 	if can_drop_weapon_mods then
 		to_drop.weapon_mods = 2
 	end

@@ -45,7 +45,7 @@ function HuskTeamAIDamage:damage_explosion( attack_data )
 	if damage_percent > 0 then
 		local hit_offset_height = math.clamp( attack_data.col_ray.position.z - self._unit:movement():m_pos().z, 0 , 300 )
 		local attacker = attack_data.attacker_unit
-		if attacker:id() == -1 then
+		if attacker and attacker:id() == -1 then
 			attacker = self._unit -- Special case when the attacker unit is net-detached
 		end
 		

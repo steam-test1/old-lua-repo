@@ -149,13 +149,13 @@ function CrimeNetContractGui:init( ws, fullscreen_ws, node )
 		local pro_warning_text = self._contract_panel:text( { name = "pro_warning_text", text = managers.localization:to_upper_text( "menu_pro_warning" ), font = font, font_size = font_size, color = tweak_data.screen_colors.pro_color, align = "left", vertical = "top", wrap = true, word_wrap = true, h = 128, x = 10, w = text_w } )
 		self:make_fine_text( pro_warning_text )
 		pro_warning_text:set_h( pro_warning_text:h() + 10 )
-		pro_warning_text:set_bottom( math.round( self._contract_panel:h() * 0.5 ) )
+		pro_warning_text:set_bottom( math.round( self._contract_panel:h() * 0.5 ) + 64)
 		pro_warning_text:set_visible( narrative.professional )
 	--end
 	
 	local risk_title = self._contract_panel:text( { font=font, font_size=font_size, text=managers.localization:to_upper_text( "menu_risk" ), color=risk_color, x = 10 } )
 	self:make_fine_text( risk_title )
-	risk_title:set_top( math.round( self._contract_panel:h() * 0.5 ) )
+	risk_title:set_top( math.round( self._contract_panel:h() * 0.5 ) + 64)
 	
 	local menu_risk_id = "menu_risk_pd"
 	if job_data.difficulty == "hard" then
@@ -180,18 +180,19 @@ function CrimeNetContractGui:init( ws, fullscreen_ws, node )
 	self:make_fine_text( paygrade_title )
 	paygrade_title:set_top( math.round( potential_rewards_title:bottom() + 4 ) )
 	
-	--[[
-	local stage_experience_title
+	
+	--[[ local stage_experience_title
 	if #narrative.chain > 1 then
 		stage_experience_title = self._contract_panel:text( { font=font, font_size=font_size, text=managers.localization:to_upper_text( "menu_experience_stage" ), color=tweak_data.screen_colors.text, x = 10 } )
 		self:make_fine_text( stage_experience_title )
 		stage_experience_title:set_top( math.round( paygrade_title:bottom() ) )
-	end
-	]]
+	end ]]
+
 	local experience_title = self._contract_panel:text( { font=font, font_size=font_size, text=managers.localization:to_upper_text( "menu_experience" ), color=tweak_data.screen_colors.text, x = 10 } )
 	self:make_fine_text( experience_title )
 	experience_title:set_top( math.round( paygrade_title:bottom() ) )
 	
+	--[[
 	local stage_cash_title
 	-- if #narrative.chain > 1 then
 		stage_cash_title = self._contract_panel:text( { font=font, font_size=font_size, text=managers.localization:to_upper_text( "menu_cash_stage", { money = "" } ), color=tweak_data.screen_colors.text, x = 10 } )
@@ -202,13 +203,15 @@ function CrimeNetContractGui:init( ws, fullscreen_ws, node )
 	local cash_title = self._contract_panel:text( { font=font, font_size=font_size, text=managers.localization:to_upper_text( "menu_cash_job", { money = "" } ), color=tweak_data.screen_colors.text, x = 10 } )
 	self:make_fine_text( cash_title )
 	cash_title:set_top( math.round( stage_cash_title:bottom() ) )
+	]]
 		
 	local sx = math.max( paygrade_title:w(), experience_title:w() )
 	
 	-- if #narrative.chain > 1 then
-		sx = math.max( sx, stage_cash_title:w() )
+	--	sx = math.max( sx, stage_cash_title:w() )
 	-- end
-	sx = math.max( sx, cash_title:w() ) + 24
+	-- sx = math.max( sx, cash_title:w() ) + 24
+	sx = sx + 24
 	
 	-- if false and job_data then
 		local plvl = managers.experience:current_level()
@@ -309,6 +312,7 @@ function CrimeNetContractGui:init( ws, fullscreen_ws, node )
 		add_xp:set_center_y( math.round( cy ) )
 		
 			-- Money - STAGE
+--[[
 		local money_stage_stars = 0
 		local money_multiplier = managers.money:get_contract_difficulty_multiplier( difficulty_stars )
 		-- if #narrative.chain > 1 then
@@ -330,7 +334,8 @@ function CrimeNetContractGui:init( ws, fullscreen_ws, node )
 		
 		-- Money - JOB
 		cy = cash_title:center_y()
-		local total_payout, stage_payout_table, job_payout_table = managers.money:get_contract_money_by_stars( job_stars, difficulty_stars, (#narrative.chain) )
+]]
+		local total_payout, stage_payout_table, job_payout_table = managers.money:get_contract_money_by_stars( job_stars, difficulty_stars, (#narrative.chain), job_data.job_id )
 
 		local stage_value = stage_payout_table[ 1 ]
 		local stage_risk_value = stage_payout_table[ 3 ]
@@ -342,7 +347,8 @@ function CrimeNetContractGui:init( ws, fullscreen_ws, node )
 		local total_job_value = job_payout_table[ 2 ]
 		local total_job_risk_value = job_payout_table[ 4 ]
 
-		
+
+--[[
 		local job_cash = self._contract_panel:text( { name="job_cash", font=font, font_size=font_size, text=managers.experience:cash_string(0), color=tweak_data.screen_colors.text } )
 		-- job_cash:set_text( managers.experience:cash_string( money_job_stars - money_stage_stars ) )
 		self:make_fine_text( job_cash )
@@ -354,8 +360,9 @@ function CrimeNetContractGui:init( ws, fullscreen_ws, node )
 		self:make_fine_text( add_cash )
 		add_cash:set_x( math.round( job_cash:right() ) )
 		add_cash:set_center_y( math.round( cy ) )
+]]
 		
-		
+
 
 		local payday_money = math.round( total_payout )
 		-- local payday_string = managers.localization:to_upper_text( "menu_payday", { MONEY = payday_money } )
@@ -396,12 +403,12 @@ function CrimeNetContractGui:init( ws, fullscreen_ws, node )
 
 	self._data = {}
 
-	self._data.job_cash = job_value
+--[[	self._data.job_cash = job_value
 	self._data.add_job_cash = job_risk_value
 
 	self._data.stage_cash = stage_value
 	self._data.add_stage_cash = stage_risk_value
-	-- self._data.payday_string = payday_string
+	-- self._data.payday_string = payday_string ]]
 	self._data.experience = base_xp
 	self._data.add_experience = risk_xp
 	self._data.num_stages_string = tostring(#narrative.chain) .. " x "
@@ -413,10 +420,10 @@ function CrimeNetContractGui:init( ws, fullscreen_ws, node )
 	self._data.gui_objects = {}
 	self._data.gui_objects.risk_text = risk_text
 	self._data.gui_objects.payday_text = payday_text
-	self._data.gui_objects.job_cash = job_cash
+--[[	self._data.gui_objects.job_cash = job_cash
 	self._data.gui_objects.job_add_cash = add_cash
 	self._data.gui_objects.stage_cash = stage_cash
-	self._data.gui_objects.stage_add_cash = stage_add_cash
+	self._data.gui_objects.stage_add_cash = stage_add_cash ]]
 	self._data.gui_objects.add_xp = add_xp
 	self._data.gui_objects.job_xp = job_xp
 	self._data.gui_objects.risks = { "risk_pd", "risk_swat", "risk_fbi", "risk_death_squad" }
@@ -541,6 +548,7 @@ function CrimeNetContractGui:count_job_stars( t, dt )
 		self._data.gui_objects.potential_level_up_text:set_visible( xp > self._data.gui_objects.when_to_level_up )
 	end
 		-- STAGE CASH
+--[[
 	local stage_cash = math.round( self._data.stage_cash * ( self._current_job_star / stars ) )
 	local gui_stage_cash = self._data.gui_objects.stage_cash
 	local gui_stage_add_cash = self._data.gui_objects.stage_add_cash
@@ -549,7 +557,7 @@ function CrimeNetContractGui:count_job_stars( t, dt )
 	self:make_fine_text( gui_stage_cash )
 	
 	gui_stage_add_cash:set_x( math.round( gui_stage_cash:right() ) )
-	
+
 		-- JOB CASH
 	local job_cash = math.round( self._data.job_cash * ( self._current_job_star / stars ) )
 	local gui_job_cash = self._data.gui_objects.job_cash
@@ -559,7 +567,10 @@ function CrimeNetContractGui:count_job_stars( t, dt )
 	self:make_fine_text( gui_job_cash )
 	
 	gui_job_add_cash:set_x( math.round( gui_job_cash:right() ) )
-	
+]]	
+
+
+
 		-- STARS
 	gui_panel:child("star"..self._current_job_star):set_alpha( 1 )
 	gui_panel:child("star"..self._current_job_star):set_color( Color.white )
@@ -601,6 +612,7 @@ function CrimeNetContractGui:count_difficulty_stars( t, dt )
 -- 	gui_add_xp:set_x( math.round( gui_xp:right() ) )
 	
 		-- STAGE CASH
+--[[
 	local stage_cash = math.round( self._data.add_stage_cash * ( self._current_difficulty_star / stars ) )
 -- 	local gui_stage_cash = self._data.gui_objects.stage_cash
 	local gui_stage_add_cash = self._data.gui_objects.stage_add_cash
@@ -619,7 +631,10 @@ function CrimeNetContractGui:count_difficulty_stars( t, dt )
 	self:make_fine_text( gui_job_add_cash )
 	
 -- 	gui_job_add_cash:set_x( math.round( gui_job_cash:right() ) )
-	
+]]	
+
+
+
 		-- STARS
 	gui_panel:child("star"..(self._current_job_star+self._current_difficulty_star)):set_alpha( 1 )
 	gui_panel:child("star"..(self._current_job_star+self._current_difficulty_star)):set_color( tweak_data.screen_colors.risk )
@@ -673,7 +688,7 @@ function CrimeNetContractGui:set_all( t, dt )
 
 
 	local total_xp, base_xp, risk_xp = managers.experience:get_contract_xp_by_stars( job_stars, difficulty_stars, job_data.professional, #narrative.chain )
-	local total_payout, stage_payout_table, job_payout_table = managers.money:get_contract_money_by_stars( job_stars, difficulty_stars, #narrative.chain )
+	local total_payout, stage_payout_table, job_payout_table = managers.money:get_contract_money_by_stars( job_stars, difficulty_stars, #narrative.chain, job_data.job_id )
 
 	local stage_value = stage_payout_table[1]
 	local stage_risk_value = stage_payout_table[3]
@@ -697,7 +712,7 @@ function CrimeNetContractGui:set_all( t, dt )
 
 	gui_add_xp:set_x( math.round( gui_xp:right() ) )
 
-
+--[[
 	local stage_cash = stage_value
 	local gui_stage_cash = gui_panel:child( "stage_cash" )
 	local gui_stage_add_cash = gui_panel:child( "stage_add_cash" )
@@ -716,6 +731,10 @@ function CrimeNetContractGui:set_all( t, dt )
 	self:make_fine_text( gui_job_cash )
 
 	gui_job_add_cash:set_x( math.round( gui_job_cash:right() ) )
+]]
+
+
+
 
 
 
@@ -732,6 +751,8 @@ function CrimeNetContractGui:set_all( t, dt )
 	end
 
 
+
+--[[
 	local stage_cash = stage_risk_value
 	local gui_stage_add_cash = gui_panel:child( "stage_add_cash" )
 
@@ -744,6 +765,8 @@ function CrimeNetContractGui:set_all( t, dt )
 
 	gui_job_add_cash:set_text( " +" .. managers.experience:cash_string( job_cash ) )
 	self:make_fine_text( gui_job_add_cash )
+]]
+
 
 
 	local max_num_stars = managers.job:get_max_jc_for_player() / 10

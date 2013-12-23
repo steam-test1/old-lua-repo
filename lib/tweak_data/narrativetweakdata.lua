@@ -87,12 +87,15 @@ function NarrativeTweakData:init()
 	self.jobs.firestarter.debrief_event = "hct_firestarter_debrief"
 	self.jobs.firestarter.crimenet_callouts = { "hct_firestarter_cnc_01", "hct_firestarter_cnc_02", "hct_firestarter_cnc_03", }
 	self.jobs.firestarter.crimenet_videos = { "cn_fires1", "cn_fires2", "cn_fires3" }
+	self.jobs.firestarter.payout = { 10000, 12500, 20000, 25000 }
 	
+
 -- PRO
 	self.jobs.firestarter_prof = deep_clone( self.jobs.firestarter )
 	self.jobs.firestarter_prof.jc = 70
 	self.jobs.firestarter_prof.professional = true
 	self.jobs.firestarter_prof.region = "professional"
+	self.jobs.firestarter_prof.payout = { 10000, 20000, 30000, 40000 }
 	
 ----------
 -- RATS --
@@ -111,12 +114,14 @@ function NarrativeTweakData:init()
 	self.jobs.alex.debrief_event = "hct_rats_debrief"
 	self.jobs.alex.crimenet_callouts = { "hct_rats_cnc_01", "hct_rats_cnc_02", "hct_rats_cnc_03" }
 	self.jobs.alex.crimenet_videos = { "cn_rat1", "cn_rat2", "cn_rat3" }
+	self.jobs.alex.payout = { 1000, 1500, 3000, 5000 }
 	
 -- PRO
 	self.jobs.alex_prof = deep_clone( self.jobs.alex )
 	self.jobs.alex_prof.jc = 70
 	self.jobs.alex_prof.professional = true
 	self.jobs.alex_prof.region = "professional"
+	self.jobs.alex_prof.payout = { 10000, 15000, 30000, 40000 }
 	
 -------------
 -- BIG OIL --
@@ -134,12 +139,15 @@ function NarrativeTweakData:init()
 	self.jobs.welcome_to_the_jungle.debrief_event = "elp_bigoil_debrief"
 	self.jobs.welcome_to_the_jungle.crimenet_callouts = { "elp_bigoil_cnc_01", "elp_bigoil_cnc_02", "elp_bigoil_cnc_03" }
 	self.jobs.welcome_to_the_jungle.crimenet_videos = { "cn_bigoil1", "cn_bigoil2", "cn_bigoil3" }
+	self.jobs.welcome_to_the_jungle.payout = { 60000, 80000, 100000, 200000 }
 	
+
 -- PRO
 	self.jobs.welcome_to_the_jungle_prof = deep_clone( self.jobs.welcome_to_the_jungle )
 	self.jobs.welcome_to_the_jungle_prof.jc = 70
 	self.jobs.welcome_to_the_jungle_prof.professional = true
 	self.jobs.welcome_to_the_jungle_prof.region = "professional"
+	self.jobs.welcome_to_the_jungle_prof.payout = { 70000, 90000, 120000, 240000 }
 
 -------------------
 -- FRAMING FRAME --
@@ -158,12 +166,14 @@ function NarrativeTweakData:init()
 	self.jobs.framing_frame.debrief_event = "elp_framing_debrief"
 	self.jobs.framing_frame.crimenet_callouts = { "elp_framing_cmc_01", "elp_framing_cmc_02", "elp_framing_cmc_03" }
 	self.jobs.framing_frame.crimenet_videos = { "cn_framingframe1", "cn_framingframe2", "cn_framingframe3" }
+	self.jobs.framing_frame.payout = { 10000, 12500, 17500, 25000 }
 
 -- PRO
 	self.jobs.framing_frame_prof = deep_clone( self.jobs.framing_frame )
 	self.jobs.framing_frame_prof.jc = 60
 	self.jobs.framing_frame_prof.professional = true
 	self.jobs.framing_frame_prof.region = "professional"
+	self.jobs.framing_frame_prof.payout = { 10000, 20000, 30000, 40000 }
 	
 ---------------
 -- WATCHDOGS --
@@ -182,11 +192,13 @@ function NarrativeTweakData:init()
 	self.jobs.watchdogs.debrief_event = "hct_watchdogs_debrief"
 	self.jobs.watchdogs.crimenet_callouts = { "hct_watchdogs_cnc_01", "hct_watchdogs_cnc_02", "hct_watchdogs_cnc_03", }
 	self.jobs.watchdogs.crimenet_videos = { "cn_watchdog1", "cn_watchdog2", "cn_watchdog3" }
+	self.jobs.watchdogs.payout = { 20000, 24000, 35000, 50000 }
 	
 -- PRO
 	self.jobs.watchdogs_prof = deep_clone( self.jobs.watchdogs )
 	self.jobs.watchdogs_prof.jc = 60
 	self.jobs.watchdogs_prof.professional = true
+	self.jobs.watchdogs_prof.payout = { 30000, 35000, 40000, 65000 }
 	
 ---------------
 -- NIGHTCLUB --
@@ -204,12 +216,14 @@ function NarrativeTweakData:init()
 	self.jobs.nightclub.debrief_event = "vld_nightclub_debrief"
 	self.jobs.nightclub.crimenet_callouts = { "vld_nightclub_cnc_01", "vld_nightclub_cnc_02", "vld_nightclub_cnc_03" }
 	self.jobs.nightclub.crimenet_videos = { "cn_nightc1", "cn_nightc2", "cn_nightc3" }
+	self.jobs.nightclub.payout = { 10000, 12500, 20000, 30000 }
 
 -- PRO
 	self.jobs.nightclub_prof = deep_clone( self.jobs.nightclub )
 	self.jobs.nightclub_prof.jc = 40
 	self.jobs.nightclub_prof.professional = true
 	self.jobs.nightclub_prof.region = "professional"
+	self.jobs.nightclub_prof.payout = { 10000, 20000, 30000, 40000 }
 								
 ------------------
 -- UKRANIAN JOB --
@@ -227,12 +241,14 @@ function NarrativeTweakData:init()
 	self.jobs.ukrainian_job.debrief_event = "vld_ukranian_debrief"
 	self.jobs.ukrainian_job.crimenet_callouts = { "vld_ukranian_cnc_01", "vld_ukranian_cnc_02", "vld_ukranian_cnc_03", "vld_ukranian_cnc_04" }
 	self.jobs.ukrainian_job.crimenet_videos = { "cn_ukr1", "cn_ukr2", "cn_ukr3" }
+	self.jobs.ukrainian_job.payout = { 500, 1000, 2000, 3000 }
 	
 -- PRO
 	self.jobs.ukrainian_job_prof = deep_clone( self.jobs.ukrainian_job )
 	self.jobs.ukrainian_job_prof.jc = 30
 	self.jobs.ukrainian_job_prof.professional = true
 	self.jobs.ukrainian_job_prof.region = "professional"
+	self.jobs.ukrainian_job_prof.payout = { 500, 2000, 3000, 5000 }
 	
 -------------------
 -- JEWELRY STORE --
@@ -250,14 +266,15 @@ function NarrativeTweakData:init()
 	self.jobs.jewelry_store.debrief_event = nil
 	self.jobs.jewelry_store.crimenet_callouts = { "pln_jewelrystore_stage1_cnc_01", "pln_jewelrystore_stage1_cnc_02", "pln_jewelrystore_stage1_cnc_03" }
 	self.jobs.jewelry_store.crimenet_videos = { "cn_jewel1", "cn_jewel2", "cn_jewel3" }
+	self.jobs.jewelry_store.payout = { 1500, 3000, 4500, 5000 }
 
 -- PRO	
 	self.jobs.jewelry_store_prof = deep_clone( self.jobs.jewelry_store )
 	self.jobs.jewelry_store_prof.jc = 20
 	self.jobs.jewelry_store_prof.professional = true
 	self.jobs.jewelry_store_prof.region = "professional"
+	self.jobs.jewelry_store_prof.payout = { 3000, 5000, 9000, 15000 }
 											
-
 -----------------
 -- FOUR STORES --
 -----------------
@@ -274,12 +291,14 @@ function NarrativeTweakData:init()
 	self.jobs.four_stores.debrief_event = "vld_fourstores_debrief"
 	self.jobs.four_stores.crimenet_callouts = { "vld_fourstores_cnc_01", "vld_fourstores_cnc_02", "vld_fourstores_cnc_03" }
 	self.jobs.four_stores.crimenet_videos = { "cn_fours1", "cn_fours2", "cn_fours3" }
+	self.jobs.four_stores.payout = { 4000, 6000, 8000, 12000 }
 	
 -- PRO	
 	self.jobs.four_stores_prof = deep_clone( self.jobs.four_stores )
 	self.jobs.four_stores_prof.jc = 20
 	self.jobs.four_stores_prof.professional = true
 	self.jobs.four_stores_prof.region = "professional"
+	self.jobs.four_stores_prof.payout = { 7000, 9000, 13000, 20000 }
 	
 ------------------
 -- MALL CRASHER --
@@ -297,12 +316,14 @@ function NarrativeTweakData:init()
 	self.jobs.mallcrasher.debrief_event = "vld_mallcrashers_debrief"
 	self.jobs.mallcrasher.crimenet_callouts = { "vld_mallcrashers_cnc_01", "vld_mallcrashers_cnc_02", "vld_mallcrashers_cnc_03" }
 	self.jobs.mallcrasher.crimenet_videos = { "cn_mallcrash1", "cn_mallcrash2", "cn_mallcrash3" }
+	self.jobs.mallcrasher.payout = { 7500, 10000, 15000, 20000 }
 
 -- PRO	
 	self.jobs.mallcrasher_prof = deep_clone( self.jobs.mallcrasher )
 	self.jobs.mallcrasher_prof.jc = 30
 	self.jobs.mallcrasher_prof.professional = true
 	self.jobs.mallcrasher_prof.region = "professional"
+	self.jobs.mallcrasher_prof.payout = { 10000, 13000, 18000, 24000 }
 	
 -----------------
 -- BANK RANDOM --
@@ -320,12 +341,14 @@ function NarrativeTweakData:init()
 	self.jobs.branchbank.debrief_event = nil
 	self.jobs.branchbank.crimenet_callouts = { "pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06",  }
 	self.jobs.branchbank.crimenet_videos = { "cn_branchbank1", "cn_branchbank2", "cn_branchbank3" }
+	self.jobs.branchbank.payout = { 10000, 15000, 20000, 35000 }
 	
 -- PRO
 	self.jobs.branchbank_prof = deep_clone( self.jobs.branchbank )
 	self.jobs.branchbank_prof.jc = 50
 	self.jobs.branchbank_prof.professional = true
 	self.jobs.branchbank_prof.region = "professional"
+	self.jobs.branchbank_prof.payout = { 13000, 20000, 24000, 35000 }
 	
 ------------------
 -- BANK DEPOSIT --
@@ -343,12 +366,14 @@ function NarrativeTweakData:init()
 	self.jobs.branchbank_deposit.debrief_event = nil
 	self.jobs.branchbank_deposit.crimenet_callouts = {  "pln_branchbank_deposit_cnc_01", "pln_branchbank_deposit_cnc_02", "pln_branchbank_deposit_cnc_03", "pln_branchbank_deposit_cnc_04", "pln_branchbank_deposit_cnc_05", "pln_branchbank_deposit_cnc_06", }
 	self.jobs.branchbank_deposit.crimenet_videos = { "cn_branchbank1", "cn_branchbank2", "cn_branchbank3" }
+	self.jobs.branchbank_deposit.payout = { 10000, 12500, 22000, 34000 }
 	
 -- PRO
 	self.jobs.branchbank_deposit_prof = deep_clone( self.jobs.branchbank_deposit )
 	self.jobs.branchbank_deposit_prof.jc = 40
 	self.jobs.branchbank_deposit_prof.professional = true
 	self.jobs.branchbank_deposit_prof.region = "professional"
+	self.jobs.branchbank_deposit_prof.payout = { 13000, 20000, 26000, 38000 }
 	
 ---------------
 -- BANK CASH --
@@ -366,12 +391,14 @@ function NarrativeTweakData:init()
 	self.jobs.branchbank_cash.debrief_event = nil
 	self.jobs.branchbank_cash.crimenet_callouts = {  "pln_branchbank_cash_cnc_01", "pln_branchbank_cash_cnc_02", "pln_branchbank_cash_cnc_03", "pln_branchbank_cash_cnc_04", "pln_branchbank_cash_cnc_05", "pln_branchbank_cash_cnc_06", "pln_branchbank_cash_cnc_07"}
 	self.jobs.branchbank_cash.crimenet_videos = { "cn_branchbank1", "cn_branchbank2", "cn_branchbank3" }
+	self.jobs.branchbank_cash.payout = { 5000, 7500, 20000, 30000 }
 	
 -- PRO
 	self.jobs.branchbank_cash_prof = deep_clone( self.jobs.branchbank_cash )
 	self.jobs.branchbank_cash_prof.jc = 40
 	self.jobs.branchbank_cash_prof.professional = true
 	self.jobs.branchbank_cash_prof.region = "professional"
+	self.jobs.branchbank_cash_prof.payout = { 13000, 20000, 24000, 34000 }
 	
 ---------------
 -- BANK GOLD --
@@ -389,12 +416,14 @@ function NarrativeTweakData:init()
 	self.jobs.branchbank_gold.debrief_event = nil
 	self.jobs.branchbank_gold.crimenet_callouts = {  "pln_branchbank_gold_cnc_01", "pln_branchbank_gold_cnc_02", "pln_branchbank_gold_cnc_03", "pln_branchbank_gold_cnc_04", "pln_branchbank_gold_cnc_05", "pln_branchbank_gold_cnc_06", "pln_branchbank_gold_cnc_07"}
 	self.jobs.branchbank_gold.crimenet_videos = { "cn_branchbank1", "cn_branchbank2", "cn_branchbank3" }
+	self.jobs.branchbank_gold.payout = { 10000, 12500, 25000, 37500 }
 	
 -- PRO
 	self.jobs.branchbank_gold_prof = deep_clone( self.jobs.branchbank_gold )
 	self.jobs.branchbank_gold_prof.jc = 30
 	self.jobs.branchbank_gold_prof.professional = true
 	self.jobs.branchbank_gold_prof.region = "professional"
+	self.jobs.branchbank_gold_prof.payout = { 13000, 20000, 26000, 38000 }
 	
 ------------------
 -- ELECTION DAY --
@@ -415,15 +444,16 @@ function NarrativeTweakData:init()
 	self.jobs.election_day.debrief_event = "elp_election_debrief"
 	self.jobs.election_day.crimenet_callouts = { "elp_election_cmc_01", "elp_election_cmc_02", "elp_election_cmc_03" }
 	self.jobs.election_day.crimenet_videos = { "cn_elcday1", "cn_elcday2", "cn_elcday3" }
+	self.jobs.election_day.payout = { 10000, 20000, 30000, 40000 }
 	
 -- PRO
 	self.jobs.election_day_prof = deep_clone( self.jobs.election_day )
 	self.jobs.election_day_prof.jc = 60
 	self.jobs.election_day_prof.professional = true		
 	self.jobs.election_day_prof.region = "professional"
+	self.jobs.election_day_prof.payout = { 10000, 20000, 30000, 40000 }
 
 
-										
 -- SAFEHOUSE					
 	self.jobs.safehouse					= {}
 	self.jobs.safehouse.name_id 		= "heist_safehouse"
@@ -637,21 +667,22 @@ function NarrativeTweakData:init()
   	self.jobs.family.briefing_id = "heist_family_crimenet"
   	self.jobs.family.contact = "bain"
   	self.jobs.family.region = "street"
-  	self.jobs.family.jc = 10
+  	self.jobs.family.jc = 40
   	self.jobs.family.chain = {
 		{level_id = "family", type_id = "heist_type_assault", type = "d"}
 	}
-  	self.jobs.family.briefing_event = "pln_jewelrystore_stage1_brf_speak"
+  	self.jobs.family.briefing_event = "pln_fj1_cbf_01"
   	self.jobs.family.debrief_event = nil
-  	self.jobs.family.crimenet_callouts = {"pln_jewelrystore_stage1_cnc_01", "pln_jewelrystore_stage1_cnc_02", "pln_jewelrystore_stage1_cnc_03"}
+  	self.jobs.family.crimenet_callouts = {"pln_fj1_cnc_01_01", "pln_fj1_cnc_01_02", "pln_fj1_cnc_01_03"}
   	self.jobs.family.crimenet_videos = {"cn_jewel1", "cn_jewel2", "cn_jewel3"}
+	self.jobs.family.payout = { 8500, 11000, 30000, 32000 }
 
 
   	self.jobs.family_prof = deep_clone(	self.jobs.family)
-  	self.jobs.family_prof.jc = 20
+  	self.jobs.family_prof.jc = 40
   	self.jobs.family_prof.professional = true
   	self.jobs.family_prof.region = "professional"
-
+	self.jobs.family_prof.payout = { 10000, 12000, 32000, 35000 }
 
 
 
@@ -705,7 +736,10 @@ function NarrativeTweakData:init()
 						 "branchbank_cash",
 						 "branchbank_gold_prof",
 						 "branchbank_prof",
+						 "family",
 						 }
+
+
 
 end
 

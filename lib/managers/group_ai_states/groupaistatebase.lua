@@ -22,7 +22,8 @@ GroupAIStateBase.BLAME_SYNC = {		-- this table doubles as a weighting system, wi
 	
 	"met_criminal",			-- special cases, they calls the police themself
 	"mot_criminal",
-	
+	"gls_alarm",
+
 	"civ_alarm",
 	"cop_alarm",
 	"gan_alarm",
@@ -4255,6 +4256,7 @@ GroupAIStateBase.unique_triggers ={
 	gangster_alarm = "gan_alarm",
 	metal_detector = "met_criminal",
 	motion_sensor = "mot_criminal",
+	glass_alarm = "gls_alarm",
 }
 
 function GroupAIStateBase:fetch_highest_giveaway( ... )
