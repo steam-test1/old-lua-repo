@@ -35,7 +35,7 @@ function MoneyTweakData._test_curves( pay, bags, alive_players, diff, days)
 	local diff_multiplier = 0
 	if(diff>0) then
 
-		diff_multiplier = tweak_data:get_value( "money_manager", "difficulty_multiplier", diff )
+		diff_multiplier = tweak_data:get_value( "money_manager", "difficulty_multiplier", diff + 1 )
 
 	end
 	
@@ -53,7 +53,7 @@ function MoneyTweakData:init()
 -- Gobals
 	-- 5040000
 	self.biggest_score = 4000000 -- 3600000 * 1.4 -- Thematic cash. Scaled up becasue of fourstores level small loot bug. Used to be 2.000.000, could be alot smaller for better money respect
-	self.biggest_cashout = 400000 -- Cash -- Tweaked with 250.000
+	self.biggest_cashout = 800000 -- Cash -- Tweaked with 250.000
 	self.offshore_rate = self.biggest_cashout / self.biggest_score
 	-- 20.16 original relationship
 	-- 16.8
@@ -102,7 +102,7 @@ function MoneyTweakData:init()
 	
 	self.stage_failed_multiplier = 0.1
 	-- self.difficulty_multiplier = self._create_value_table( 2.5, self.cut_difficulty, 3, false, 1 )
-	self.difficulty_multiplier = { 2, 3, 6 }  -- This is an addition to the job/stage money( stage_money+stage_money*mul ), hard, overkill, overkill_146
+	self.difficulty_multiplier = { 4, 9, 12, 20 }  -- This is an addition to the job/stage money( stage_money+stage_money*mul ), hard, overkill, overkill_146
 	self.small_loot_difficulty_multiplier = self._create_value_table( 0, 0, 3, false, 1 )
 	self.alive_humans_multiplier = self._create_value_table( 1, self.alive_players_max, 4, false, 1 )
 	
@@ -112,8 +112,8 @@ function MoneyTweakData:init()
 	
 	self.killing_civilian_deduction = self._create_value_table( 2000, 20000, 10, true, 2 )
 	
-	self.buy_premium_multiplier = {easy = 1.725, normal = 1.725, hard = 3.45, overkill = 5.175, overkill_145 = 6.9}
-	self.buy_premium_static_fee = {easy = 500000, normal = 500000, hard = 1000000, overkill = 1500000, overkill_145 = 2000000}
+	self.buy_premium_multiplier = {easy = 0.5, normal = 0.75, hard = 1.25, overkill = 1.5, overkill_145 = 2}
+	self.buy_premium_static_fee = {easy = 100000, normal = 100000, hard = 150000, overkill = 200000, overkill_145 = 300000}
 
 	self.global_value_multipliers = {}
 	self.global_value_multipliers.normal = 1
@@ -135,17 +135,17 @@ function MoneyTweakData:init()
 	local smallest_cashout = (self.stage_completion[1] + self.job_completion[1]) * self.offshore_rate
 	
 -- MASK COSTS
-	local biggest_mask_cost = self.biggest_cashout * 100
+	local biggest_mask_cost = self.biggest_cashout * 40
 	local biggest_mask_cost_deinfamous = math.round(biggest_mask_cost / self.global_value_multipliers.infamous)
-	local biggest_mask_part_cost = math.round(smallest_cashout * 46)
-	local smallest_mask_part_cost = math.round(smallest_cashout * 3.9) -- To put preoerder mask just below 25.000 on the crafting
+	local biggest_mask_part_cost = math.round(smallest_cashout * 20)
+	local smallest_mask_part_cost = math.round(smallest_cashout * 1.9) -- To put preoerder mask just below 25.000 on the crafting
 	
 -- WEAPON AND MOD COSTS
-	local biggest_weapon_cost = math.round(self.biggest_cashout * 2.5)
-	local smallest_weapon_cost = math.round(smallest_cashout * 6)
+	local biggest_weapon_cost = math.round(self.biggest_cashout * 1.15)
+	local smallest_weapon_cost = math.round(smallest_cashout * 3)
 	
-	local biggest_weapon_mod_cost = math.round(self.biggest_cashout * 1.3)
-	local smallest_weapon_mod_cost = math.round(smallest_cashout * 7)
+	local biggest_weapon_mod_cost = math.round(self.biggest_cashout * 0.5)
+	local smallest_weapon_mod_cost = math.round(smallest_cashout * 3)
 	
 -- WEAPON TABLES
 	self.weapon_cost = self._create_value_table( smallest_weapon_cost, biggest_weapon_cost, 40, true, 1.1 )
@@ -154,10 +154,10 @@ function MoneyTweakData:init()
 	
 -- MASK TABLES
 	self.masks = {} -- + material + pattern + color values
-	self.masks.mask_value = self._create_value_table( smallest_mask_part_cost, smallest_mask_part_cost * 3, 10, true, 2 )
-	self.masks.material_value = self._create_value_table( smallest_mask_part_cost * 0.9, biggest_mask_part_cost, 10, true, 1.2 )
-	self.masks.pattern_value = self._create_value_table( smallest_mask_part_cost * 0.8, biggest_mask_part_cost, 10, true, 1.1 )
-	self.masks.color_value = self._create_value_table( smallest_mask_part_cost * 0.7, biggest_mask_part_cost, 10, true, 1 )
+	self.masks.mask_value = self._create_value_table( smallest_mask_part_cost, smallest_mask_part_cost * 2, 10, true, 2 )
+	self.masks.material_value = self._create_value_table( smallest_mask_part_cost * 0.5, biggest_mask_part_cost, 10, true, 1.2 )
+	self.masks.pattern_value = self._create_value_table( smallest_mask_part_cost * 0.4, biggest_mask_part_cost, 10, true, 1.1 )
+	self.masks.color_value = self._create_value_table( smallest_mask_part_cost * 0.3, biggest_mask_part_cost, 10, true, 1 )
 	
 	
 	
@@ -207,7 +207,7 @@ function MoneyTweakData:init()
 	
 -- Skillpoint costs
 	self.skilltree.respec.base_point_cost = 500				-- base cost for spending a point
-	self.skilltree.respec.point_tier_cost = self._create_value_table( 4000, self.biggest_cashout*0.45, 6, true, 1.1 )
+	self.skilltree.respec.point_tier_cost = self._create_value_table( 4000, self.biggest_cashout*0.25, 6, true, 1.1 )
 	
 	self.skilltree.respec.respec_refund_multiplier = 0.5
 	

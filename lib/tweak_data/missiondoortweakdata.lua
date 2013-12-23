@@ -161,7 +161,7 @@ function MissionDoorTweakData:init()
 	self.safe_titan = {}
 	self.safe_titan.devices = {}
 	self.safe_titan.devices.drill = {
-									{ align = "a_drill", unit = Idstring( "units/payday2/equipment/item_door_drill_small/item_door_drill_small" ), can_jam = true, timer = 600 },
+									{ align = "a_drill", unit = Idstring( "units/payday2/equipment/item_door_drill_small/item_door_drill_small" ), can_jam = true, timer = 360 },
 								}
 								
 
