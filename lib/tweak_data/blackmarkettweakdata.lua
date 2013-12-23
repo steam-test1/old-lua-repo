@@ -510,7 +510,7 @@ function BlackMarketTweakData:_init_masks()
 	self.masks.pumpkin_king = {}
 	self.masks.pumpkin_king.unit = "units/payday2/masks/msk_pumpkin_king/msk_pumpkin_king"
 	self.masks.pumpkin_king.name_id = "bm_msk_pumpkin_king"
-	self.masks.pumpkin_king.pcs = {10, 20, 30, 40}
+	-- self.masks.pumpkin_king.pcs = {10, 20, 30, 40}
 	self.masks.pumpkin_king.weight = 1000
 	self.masks.pumpkin_king.got_item_weight_mod = 0.01
 	self.masks.pumpkin_king.global_value = "halloween"
@@ -520,7 +520,7 @@ function BlackMarketTweakData:_init_masks()
 	self.masks.witch = {}
 	self.masks.witch.unit = "units/payday2/masks/msk_witch/msk_witch"
 	self.masks.witch.name_id = "bm_msk_witch"
-	self.masks.witch.pcs = {10, 20, 30, 40}
+	-- self.masks.witch.pcs = {10, 20, 30, 40}
 	self.masks.witch.weight = 1000
 	self.masks.witch.got_item_weight_mod = 0.01
 	self.masks.witch.global_value = "halloween"
@@ -530,7 +530,7 @@ function BlackMarketTweakData:_init_masks()
 	self.masks.venomorph = {}
 	self.masks.venomorph.unit = "units/payday2/masks/msk_venomorph/msk_venomorph"
 	self.masks.venomorph.name_id = "bm_msk_venomorph"
-	self.masks.venomorph.pcs = {10, 20, 30, 40}
+	-- self.masks.venomorph.pcs = {10, 20, 30, 40}
 	self.masks.venomorph.weight = 1000
 	self.masks.venomorph.got_item_weight_mod = 0.01
 	self.masks.venomorph.global_value = "halloween"
@@ -540,7 +540,7 @@ function BlackMarketTweakData:_init_masks()
 	self.masks.frank = {}
 	self.masks.frank.unit = "units/payday2/masks/msk_frank/msk_frank"
 	self.masks.frank.name_id = "bm_msk_frank"
-	self.masks.frank.pcs = {10, 20, 30, 40}
+	-- self.masks.frank.pcs = {10, 20, 30, 40}
 	self.masks.frank.weight = 1000
 	self.masks.frank.got_item_weight_mod = 0.01
 	self.masks.frank.global_value = "halloween"
@@ -551,7 +551,7 @@ function BlackMarketTweakData:_init_masks()
 	self.masks.brazil_baby = {}
 	self.masks.brazil_baby.unit = "units/payday2/masks/msk_brazil_baby/msk_brazil_baby"
 	self.masks.brazil_baby.name_id = "bm_msk_brazil_baby"
-	self.masks.brazil_baby.pcs = {}
+	-- self.masks.brazil_baby.pcs = {}
 	self.masks.brazil_baby.global_value = "halloween"
 	self.masks.brazil_baby.value = 8
 	
@@ -560,7 +560,7 @@ function BlackMarketTweakData:_init_masks()
 	self.masks.baby_angry = {}
 	self.masks.baby_angry.unit = "units/payday2/masks/msk_baby_angry/msk_baby_angry"
 	self.masks.baby_angry.name_id = "bm_msk_baby_angry"
-	self.masks.baby_angry.pcs = {}
+	-- self.masks.baby_angry.pcs = {}
 	self.masks.baby_angry.global_value = "halloween"
 	self.masks.baby_angry.value = 8
 	
@@ -569,7 +569,7 @@ function BlackMarketTweakData:_init_masks()
 	self.masks.baby_cry = {}
 	self.masks.baby_cry.unit = "units/payday2/masks/msk_baby_cry/msk_baby_cry"
 	self.masks.baby_cry.name_id = "bm_msk_baby_cry"
-	self.masks.baby_cry.pcs = {}
+	-- self.masks.baby_cry.pcs = {}
 	self.masks.baby_cry.global_value = "halloween"
 	self.masks.baby_cry.value = 8
 	
@@ -578,7 +578,7 @@ function BlackMarketTweakData:_init_masks()
 	self.masks.baby_happy = {}
 	self.masks.baby_happy.unit = "units/payday2/masks/msk_baby_happy/msk_baby_happy"
 	self.masks.baby_happy.name_id = "bm_msk_baby_happy"
-	self.masks.baby_happy.pcs = {}
+	-- self.masks.baby_happy.pcs = {}
 	self.masks.baby_happy.global_value = "halloween"
 	self.masks.baby_happy.value = 8
 	
@@ -2296,7 +2296,7 @@ function BlackMarketTweakData:_init_textures()
 	
 	self.textures.pumpgrin = {}
 	self.textures.pumpgrin.name_id = "bm_txt_pumpgrin"
-	self.textures.pumpgrin.pcs = {10, 20, 30, 40}
+	-- self.textures.pumpgrin.pcs = {10, 20, 30, 40}
 	self.textures.pumpgrin.weight = 2
 	self.textures.pumpgrin.texture = "units/payday2/masks/shared_textures/patterns/pattern_pumpgrin_df"
 	self.textures.pumpgrin.global_value = "halloween"
@@ -2304,7 +2304,7 @@ function BlackMarketTweakData:_init_textures()
 	
 	self.textures.shout = {}
 	self.textures.shout.name_id = "bm_txt_shout"
-	self.textures.shout.pcs = {10, 20, 30, 40}
+	-- self.textures.shout.pcs = {10, 20, 30, 40}
 	self.textures.shout.weight = 2
 	self.textures.shout.texture = "units/payday2/masks/shared_textures/patterns/pattern_shout_df"
 	self.textures.shout.global_value = "halloween"
@@ -2312,7 +2312,7 @@ function BlackMarketTweakData:_init_textures()
 	
 	self.textures.webbed = {}
 	self.textures.webbed.name_id = "bm_txt_webbed"
-	self.textures.webbed.pcs = {10, 20, 30, 40}
+	-- self.textures.webbed.pcs = {10, 20, 30, 40}
 	self.textures.webbed.weight = 2
 	self.textures.webbed.texture = "units/payday2/masks/shared_textures/patterns/pattern_webbed_df"
 	self.textures.webbed.global_value = "halloween"
@@ -2320,7 +2320,7 @@ function BlackMarketTweakData:_init_textures()
 	
 	self.textures.hannibalistic = {}
 	self.textures.hannibalistic.name_id = "bm_txt_hannibalistic"
-	self.textures.hannibalistic.pcs = {10, 20, 30, 40}
+	-- self.textures.hannibalistic.pcs = {10, 20, 30, 40}
 	self.textures.hannibalistic.weight = 2
 	self.textures.hannibalistic.texture = "units/payday2/masks/shared_textures/patterns/pattern_hannibalistic_df"
 	self.textures.hannibalistic.global_value = "halloween"
@@ -2328,7 +2328,7 @@ function BlackMarketTweakData:_init_textures()
 	
 	self.textures.stitches = {}
 	self.textures.stitches.name_id = "bm_txt_stitches"
-	self.textures.stitches.pcs = {10, 20, 30, 40}
+	-- self.textures.stitches.pcs = {10, 20, 30, 40}
 	self.textures.stitches.weight = 2
 	self.textures.stitches.texture = "units/payday2/masks/shared_textures/patterns/pattern_stitches_df"
 	self.textures.stitches.global_value = "halloween"
@@ -2336,7 +2336,7 @@ function BlackMarketTweakData:_init_textures()
 	
 	self.textures.doomweaver = {}
 	self.textures.doomweaver.name_id = "bm_txt_doomweaver"
-	self.textures.doomweaver.pcs = {10, 20, 30, 40}
+	-- self.textures.doomweaver.pcs = {10, 20, 30, 40}
 	self.textures.doomweaver.weight = 2
 	self.textures.doomweaver.texture = "units/payday2/masks/shared_textures/patterns/pattern_doomweaver_df"
 	self.textures.doomweaver.global_value = "halloween"

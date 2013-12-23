@@ -56,7 +56,7 @@ function DLCTweakData:init( tweak_data )
 	
 	
 	
-	self.halloween = {}
+	--[[ self.halloween = {}
 	self.halloween.free = true
 	self.halloween.content = {}
 	self.halloween.content.loot_drops = {
@@ -66,7 +66,7 @@ function DLCTweakData:init( tweak_data )
 						{ type_items = "masks", item_entry = "venomorph", amount = 1 },
 						{ type_items = "masks", item_entry = "frank", amount = 1 },
 					}
-	}
+	}]]
 	self.halloween_nightmare_1 = {}
 	self.halloween_nightmare_1.dlc = "has_achievement"
 	self.halloween_nightmare_1.achievement_id = "halloween_nightmare_1"
