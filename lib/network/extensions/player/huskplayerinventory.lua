@@ -50,6 +50,11 @@ HuskPlayerInventory._index_to_weapon_list = {
  	"wpn_fps_pis_ppk_npc",
 	
 	
+	"wpn_fps_smg_mp7_npc",
+	"wpn_fps_ass_scar_npc",
+	"wpn_fps_pis_p226_npc",
+	
+	
  	"wpn_fps_pis_beretta_primary_npc",
  	"wpn_fps_ass_m4_secondary_npc",
  	"wpn_fps_ass_aug_secondary_npc",

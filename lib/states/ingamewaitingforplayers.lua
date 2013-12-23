@@ -357,6 +357,9 @@ function IngameWaitingForPlayersState:set_dropin( char_name )
 	print( "Joining as " .. char_name )
 end
 
+function IngameWaitingForPlayersState:check_is_dropin()
+	return not self._started_from_beginning
+end
 
 function IngameWaitingForPlayersState:at_exit()
 	print( "[IngameWaitingForPlayersState:at_exit()]" )

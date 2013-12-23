@@ -29,7 +29,8 @@ function TeamAILogicDisabled.enter( data, new_logic_name, enter_params )
 		
 		CopLogicAttack._set_best_cover( data, my_data, old_internal_data.best_cover )
 		CopLogicAttack._set_nearest_cover( my_data, old_internal_data.nearest_cover )
-		my_data.attention = old_internal_data.attention
+		
+		my_data.attention_unit = old_internal_data.attention_unit
 	end
 	
 	local key_str = tostring( data.key )
@@ -180,14 +181,14 @@ function TeamAILogicDisabled._upd_aim( data, my_data )
 	
 	if aim or shoot then
 		if focus_enemy.verified then
-			if my_data.attention ~= focus_enemy.u_key then
+			if my_data.attention_unit ~= focus_enemy.u_key then
 				CopLogicBase._set_attention( data, focus_enemy )
-				my_data.attention = focus_enemy.u_key
+				my_data.attention_unit = focus_enemy.u_key
 			end
 		else
-			if my_data.attention ~= focus_enemy.verified_pos then
+			if my_data.attention_unit ~= focus_enemy.verified_pos then
 				CopLogicBase._set_attention_on_pos( data, mvector3.copy( focus_enemy.verified_pos ) )
-				my_data.attention = mvector3.copy( focus_enemy.verified_pos )
+				my_data.attention_unit = mvector3.copy( focus_enemy.verified_pos )
 			end
 		end
 	else		-- do not aim ( switch to hostile stance )
@@ -200,9 +201,9 @@ function TeamAILogicDisabled._upd_aim( data, my_data )
 			end
 			data.unit:brain():action_request( new_action )
 		end
-		if my_data.attention then
+		if my_data.attention_unit then
 			CopLogicBase._reset_attention( data )
-			my_data.attention = nil
+			my_data.attention_unit = nil
 		end
 	end
 	

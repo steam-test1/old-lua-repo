@@ -286,7 +286,7 @@ function NetworkAccountSTEAM:publish_statistics( stats, force_store )
 	for key, stat in pairs( stats ) do
 		local res
 		if stat.type == "int" then
-			local val = handler:get_stat( key )
+			local val = math.max( 0, handler:get_stat( key ) )
 
 			if stat.method == "lowest" then
 				if stat.value < val then
@@ -301,7 +301,7 @@ function NetworkAccountSTEAM:publish_statistics( stats, force_store )
 					res = true
 				end
 			elseif stat.method == "set" then
-				res = handler:set_stat( key, stat.value )
+				res = handler:set_stat( key, math.clamp( stat.value, 0, 2147483000 ) )
 			else
 				if stat.value > 0 then
 					local mval = (val / 1000) + (stat.value / 1000)

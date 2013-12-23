@@ -65,6 +65,7 @@ function PlayerMovement:init( unit )
 			morale_boost_delay_t = managers.player:has_category_upgrade( "player", "morale_boost" ) and 0 or nil,
 			long_dis_revive = managers.player:has_category_upgrade( "player", "long_dis_revive" ),
 			revive_chance = managers.player:upgrade_value( "player", "long_dis_revive", 1 ),
+			morale_boost_cooldown_t = tweak_data.upgrades.morale_boost_base_cooldown * managers.player:upgrade_value( "player", "morale_boost_cooldown_multiplier", 1 ),
 		}
 	end
 	
@@ -319,6 +320,12 @@ end
 --	RETURNS MUTABLE!!!!!
 function PlayerMovement:m_detect_pos()	-- unit root pos
 	return self._m_head_pos
+end
+
+-------------------------------------------------------------------------------
+
+function PlayerMovement:m_newest_pos()
+	return self._m_pos
 end
 
 -------------------------------------------------------------------------------
@@ -846,14 +853,15 @@ end
 
 function PlayerMovement:on_morale_boost( benefactor_unit )
 	if self._morale_boost then
-		managers.enemy:reschedule_delayed_clbk( self._morale_boost.expire_clbk_id, managers.player:player_timer():time() + tweak_data.upgrades.moral_boost_time )
+		managers.enemy:reschedule_delayed_clbk( self._morale_boost.expire_clbk_id, managers.player:player_timer():time() + tweak_data.upgrades.morale_boost_time )
 	else
 		self._morale_boost = {
 			expire_clbk_id = "PlayerMovement_morale_boost"..tostring( self._unit:key() ),
-			move_speed_bonus = tweak_data.upgrades.moral_boost_speed_bonus,
-			suppression_resistance = tweak_data.upgrades.moral_boost_suppression_resistance
+			move_speed_bonus = tweak_data.upgrades.morale_boost_speed_bonus,
+			suppression_resistance = tweak_data.upgrades.morale_boost_suppression_resistance,
+			reload_speed_bonus = tweak_data.upgrades.morale_boost_reload_speed_bonus
 		}
-		managers.enemy:add_delayed_clbk( self._morale_boost.expire_clbk_id, callback( self, self, "clbk_morale_boost_expire" ), managers.player:player_timer():time() + tweak_data.upgrades.moral_boost_time )
+		managers.enemy:add_delayed_clbk( self._morale_boost.expire_clbk_id, callback( self, self, "clbk_morale_boost_expire" ), managers.player:player_timer():time() + tweak_data.upgrades.morale_boost_time )
 	end
 end
 
@@ -996,4 +1004,18 @@ end
 
 function PlayerMovement:running()
 	return self._is_running
+end
+
+-------------------------------------------------------------------------------
+
+function PlayerMovement:on_enter_ladder( ladder_unit )
+	self._ladder_unit = ladder_unit
+end
+
+function PlayerMovement:on_exit_ladder()
+	self._ladder_unit = nil
+end
+
+function PlayerMovement:ladder_unit()
+	return self._ladder_unit
 end

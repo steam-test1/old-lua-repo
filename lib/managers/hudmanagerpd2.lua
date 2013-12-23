@@ -165,6 +165,16 @@ function HUDManager:_set_teammate_weapon_selected( i, id, icon )
 	end
 end
 
+function HUDManager:recreate_weapon_firemode( i )
+	if self._teammate_panels[ i ] then
+		self._teammate_panels[ i ]:recreate_weapon_firemode()
+	end
+end
+
+function HUDManager:set_teammate_weapon_firemode( i, id, firemode )
+	self._teammate_panels[ i ]:set_weapon_firemode( id, firemode )
+end
+
 -- HIJACKED
 function HUDManager:set_ammo_amount( selection_index, max_clip, current_clip, current_left, max )
 	-- print( "set_ammo_amount", max_clip, current_clip, current_left, max )
@@ -310,11 +320,6 @@ function HUDManager:clear_player_special_equipments()
 	self._teammate_panels[ HUDManager.PLAYER_PANEL ]:clear_special_equipment()
 end
 
--- NEW
-function HUDManager:set_perk_equipment( i, data )
-	self._teammate_panels[ i ]:set_perk_equipment( data )
-end
-
 -- HIJACKED
 function HUDManager:add_item( data )
 	self:set_deployable_equipment( HUDManager.PLAYER_PANEL, data )
@@ -333,6 +338,18 @@ end
 -- NEW
 function HUDManager:set_teammate_deployable_equipment_amount( i, index, data )
 	self._teammate_panels[ i ]:set_deployable_equipment_amount( index, data )
+end
+
+-- NEW
+function HUDManager:set_teammate_grenades( i, data )
+	
+	self._teammate_panels[ i ]:set_grenades( data )
+end
+
+-- NEW
+function HUDManager:set_teammate_grenades_amount( i, data )
+	
+	self._teammate_panels[ i ]:set_grenades_amount( data )
 end
 
 function HUDManager:set_player_condition( icon_data, text )
@@ -481,11 +498,10 @@ function HUDManager:add_teammate_panel( character_name, player_name, ai, peer_id
 					-- self:add_teammate_special_equipment( i, { id = equipment, icon = tweak_data.equipments.specials[ equipment ].icon } )
 				end
 				
-				local peer_perk = managers.player:get_synced_perk( peer_id )
-				if peer_perk then
-					local icon = tweak_data.upgrades.definitions[ peer_perk.perk ].icon
-					self:set_perk_equipment( i, { icon = icon } )
-					-- self:add_teammate_special_equipment( i, { id = equipment, icon = tweak_data.equipments.specials[ equipment ].icon } )
+				local peer_grenades = managers.player:get_synced_grenades( peer_id )
+				if peer_grenades then
+					local icon = tweak_data.blackmarket.grenades[ peer_grenades.grenade ].icon
+					self:set_teammate_grenades( i, { icon = icon, amount = Application:digest_value( peer_grenades.amount, false ) } )
 				end
  			end
  			
@@ -1018,7 +1034,11 @@ function HUDManager:_add_name_label( data )
 	if is_husk_player then
 		peer_id = data.unit:network():peer():id()
 		local level = data.unit:network():peer():level()
-		data.name = data.name .. " ["..level.."]"
+		local rank = data.unit:network():peer():rank()
+		if level then
+			local experience = ( rank > 0 and ( managers.experience:rank_string( rank ) .. ":" ) or "" ) .. level
+			data.name = data.name .. " ("..experience..")"
+		end
 	end
 	
 	local panel = hud.panel:panel( { name = "name_label"..id } )
@@ -1031,7 +1051,6 @@ function HUDManager:_add_name_label( data )
 	local tabs_texture = "guis/textures/pd2/hud_tabs"
 	local bag_rect = { 2, 34, 20, 17 }
 	-- Get carry info?
-	-- local name =  .. " ["..peer:level().."]"
 	local color_id = managers.criminals:character_color_id_by_unit( data.unit )
 	local crim_color = tweak_data.chat_colors[ color_id ]
 	local bag = panel:bitmap( { name = "bag", texture = tabs_texture, texture_rect = bag_rect, visible = false, layer = 0, color = (crim_color * 1.1):with_alpha( 1 ), x = 1, y = 1 } )

@@ -93,6 +93,15 @@ function SawWeaponBase:fire( from_pos, direction, dmg_mul, shoot_player, spread_
 		-- Add a tad of random to how long a blade works, This should be related to overheats, so the player can control the risk a bit more
 		ammo_usage = ammo_usage + math.ceil(math.random()*10)
 		
+		if managers.player:has_category_upgrade( "saw", "consume_no_ammo_chance" ) then
+			local roll = math.rand( 1 )
+			local chance = managers.player:upgrade_value( "saw", "consume_no_ammo_chance", 0 )
+			
+			if roll < chance then
+				ammo_usage = 0
+			end
+		end
+		
 		self:set_ammo_remaining_in_clip( math.max( self:get_ammo_remaining_in_clip() - ammo_usage, 0 ) )
 		self:set_ammo_total( math.max( self:get_ammo_total() - ammo_usage, 0 ) )
 		self:_check_ammo_total( user_unit )

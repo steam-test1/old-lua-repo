@@ -227,6 +227,12 @@ function BaseInteractionExt:_get_timer()
 	if self._tweak_data.upgrade_timer_multiplier then
 		multiplier = managers.player:upgrade_value( self._tweak_data.upgrade_timer_multiplier.category, self._tweak_data.upgrade_timer_multiplier.upgrade, 1 )
 	end
+	if managers.player:has_category_upgrade( "player", "level_interaction_timer_multiplier" ) then
+		local data = managers.player:upgrade_value( "player", "level_interaction_timer_multiplier" ) or {}
+		local player_level = managers.experience:current_level() or 0
+		
+		multiplier = multiplier * ( 1 - ( data[1] or 0 ) * math.ceil( player_level / ( data[2] or 1 ) ) )
+	end
 	return self._tweak_data.timer * multiplier * managers.player:toolset_value()
 end
 
@@ -777,6 +783,19 @@ function AmmoBagInteractionExt:interact( player )
 		managers.hud:set_weapon_ammo_by_unit( weapon.unit )
 	end]]
 	return interacted
+end
+
+--//--------------------
+
+GrenadeCrateInteractionExt = GrenadeCrateInteractionExt or class( UseInteractionExt )
+
+function GrenadeCrateInteractionExt:_interact_blocked( player )
+	return managers.player:got_max_grenades()
+end
+
+function GrenadeCrateInteractionExt:interact( player )
+	GrenadeCrateInteractionExt.super.super.interact( self, player )
+	return self._unit:base():take_grenade( player )
 end
 
 --//--------------------

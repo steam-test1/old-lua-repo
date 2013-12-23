@@ -212,14 +212,14 @@ end
 
 --------------------------------------------------------------------------------------
 
-function UnitNetworkHandler:damage_explosion( subject_unit, attacker_unit, damage, i_attack_variant, death, sender )
+function UnitNetworkHandler:damage_explosion( subject_unit, attacker_unit, damage, i_attack_variant, death, direction, sender )
 	if not ( self._verify_character_and_sender( subject_unit, sender ) and self._verify_gamestate( self._gamestate_filter.any_ingame ) ) then
 		return
 	end
 	if not alive( attacker_unit ) or attacker_unit:key() == subject_unit:key() then
 		attacker_unit = nil
 	end
-	subject_unit:character_damage():sync_damage_explosion( attacker_unit, damage, i_attack_variant, death )
+	subject_unit:character_damage():sync_damage_explosion( attacker_unit, damage, i_attack_variant, death, direction )
 end
 
 --------------------------------------------------------------------------------------
@@ -1138,7 +1138,7 @@ function UnitNetworkHandler:sync_trip_mine_set_armed( unit, bool, length, sender
 	unit:base():sync_trip_mine_set_armed( bool, length )
 end
 
-function UnitNetworkHandler:sync_trip_mine_beep_explode( unit, sender )
+--[[function UnitNetworkHandler:sync_trip_mine_beep_explode( unit, sender )
 	if not ( alive( unit ) and self._verify_gamestate( self._gamestate_filter.any_ingame ) and self._verify_sender( sender ) ) then
 		return
 	end
@@ -1150,7 +1150,7 @@ function UnitNetworkHandler:sync_trip_mine_beep_sensor( unit, sender )
 		return
 	end
 	unit:base():sync_trip_mine_beep_sensor()
-end
+end]]
 
 --------------------------------------------------------------------------------------
 
@@ -1326,6 +1326,15 @@ function UnitNetworkHandler:sync_ammo_bag_ammo_taken( unit, amount, sender )
 		return
 	end
 	unit:base():sync_ammo_taken( amount )
+end
+
+--------------------------------------------------------------------------------------
+
+function UnitNetworkHandler:sync_grenade_crate_grenade_taken( unit, amount, sender )
+	if not alive( unit ) or not self._verify_gamestate( self._gamestate_filter.any_ingame ) or not self._verify_sender( sender ) then
+		return 
+	end
+	unit:base():sync_grenade_taken( amount )
 end
 
 --------------------------------------------------------------------------------------
@@ -1754,11 +1763,11 @@ function UnitNetworkHandler:sync_cable_ties( peer_id, amount, sender )
 end
 
 --------------------------------------------------------------------------------------
-function UnitNetworkHandler:sync_perk_equipment( peer_id, perk, sender )
+function UnitNetworkHandler:sync_grenades( peer_id, grenade, amount, sender )
 	if not ( self._verify_gamestate( self._gamestate_filter.any_ingame ) and self._verify_sender( sender ) ) then
 		return
 	end
-	managers.player:set_synced_perk( peer_id, perk )
+	managers.player:set_synced_grenades( peer_id, grenade, amount )
 end
 
 --------------------------------------------------------------------------------------
@@ -1822,16 +1831,19 @@ function UnitNetworkHandler:server_throw_grenade( grenade_type, position, dir, s
 		return 
 	end
 	
-	GrenadeBase.server_throw_grenade( grenade_type, position, dir )
+	local peer = self._verify_sender( sender )
+	local peer_id = peer:id()
+	
+	GrenadeBase.server_throw_grenade( grenade_type, position, dir, peer_id )
 end
 
 
-function UnitNetworkHandler:sync_throw_grenade( unit, dir, sender )
+function UnitNetworkHandler:sync_throw_grenade( unit, dir, grenade_type, sender )
 	if not alive( unit ) or not self._verify_gamestate( self._gamestate_filter.any_ingame ) or not self._verify_sender( sender ) then
 		return 
 	end
 	
-	unit:base():sync_throw_grenade( dir )
+	unit:base():sync_throw_grenade( dir, grenade_type )
 end
 
 --------------------------------------------------------------------------------------
@@ -2494,6 +2506,16 @@ function UnitNetworkHandler:remove_unit( unit, sender )
 	end
 	
 	unit:set_slot( 0 )
+end
+
+--------------------------------------------------------------------------------------
+
+function UnitNetworkHandler:sync_gui_net_event( unit, event_id, value, sender )
+	if not alive( unit ) or not alive( unit ) or not self._verify_gamestate( self._gamestate_filter.any_ingame ) then
+		return 
+	end
+	
+	unit:digital_gui():sync_gui_net_event( event_id, value )
 end
 
 --------------------------------------------------------------------------------------

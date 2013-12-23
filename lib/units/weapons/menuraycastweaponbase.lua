@@ -285,6 +285,8 @@ function NewRaycastWeaponBase:toggle_gadget()
 	end
 end
 
+function NewRaycastWeaponBase:toggle_firemode()
+end
 ----------------------------------------------------
 
 function NewRaycastWeaponBase:check_stats()

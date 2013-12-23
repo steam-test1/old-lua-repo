@@ -1,5 +1,9 @@
 TripMineBase = TripMineBase or class( UnitBase )
 
+TripMineBase.EVENT_IDS = {}
+TripMineBase.EVENT_IDS.sensor_beep = 1
+TripMineBase.EVENT_IDS.explosion_beep = 2
+
 function TripMineBase.spawn( pos, rot, sensor_upgrade ) -- Only called from server
 	--[[local brush = Draw:brush( Color.red:with_alpha( 0.5 ) )
 	brush:set_persistance( 2 ) 
@@ -279,7 +283,8 @@ function TripMineBase:_sensor( t )
 			
 			self:_emit_sensor_sound_and_effect()
 			if managers.network:session() then
-				managers.network:session():send_to_peers_synched( "sync_trip_mine_beep_sensor", self._unit )
+				
+				managers.network:session():send_to_peers_synched( "sync_unit_event_id_8", self._unit, "base", TripMineBase.EVENT_IDS.sensor_beep )
 			end
 		
 			self._sensor_last_unit_time = t + 5
@@ -330,7 +335,8 @@ function TripMineBase:_check()
 		
 		self._unit:sound_source():post_event( "trip_mine_beep_explode" )
 		if managers.network:session() then	
-			managers.network:session():send_to_peers_synched( "sync_trip_mine_beep_explode", self._unit )
+			
+			managers.network:session():send_to_peers_synched( "sync_unit_event_id_8", self._unit, "base", TripMineBase.EVENT_IDS.explosion_beep )
 		end
 	end
 	-- self:_debug_draw( from_pos, to_pos )	
@@ -503,7 +509,7 @@ function TripMineBase:_play_sound_and_effects()
 	local sound_source = SoundDevice:create_source( "TripMineBase" )
 	sound_source:set_position( self._unit:position() )
 	sound_source:post_event( "trip_mine_explode" )
-	managers.enemy:add_delayed_clbk( "TrMiexpl", callback( TripMineBase, TripMineBase, "_dispose_of_sound", { sound_source = sound_source } ), TimerManager:game():time() + 2 )
+	managers.enemy:add_delayed_clbk( "TrMiexpl", callback( TripMineBase, TripMineBase, "_dispose_of_sound", { sound_source = sound_source } ), TimerManager:game():time() + 4 )
 end
 
 									-- Needs new sound and effect
@@ -514,6 +520,14 @@ function TripMineBase:_emit_sensor_sound_and_effect()
 end
 
 function TripMineBase._dispose_of_sound( ... ) -- When this callback is called the table parameter is unreferenced and the sound source can be garbage collected
+end
+
+function TripMineBase:sync_net_event( event_id )
+	if event_id == TripMineBase.EVENT_IDS.sensor_beep then
+		self:sync_trip_mine_beep_sensor()
+	elseif event_id == TripMineBase.EVENT_IDS.explosion_beep then
+		self:sync_trip_mine_beep_explode()
+	end
 end
 
 -----------------------------------------------------------------------------------

@@ -1,4 +1,5 @@
 require "lib/managers/menu/SkillTreeGui"
+require "lib/managers/menu/InfamyTreeGui"
 require "lib/managers/menu/BlackMarketGui"
 require "lib/managers/menu/InventoryList"
 require "lib/managers/menu/MissionBriefingGui"
@@ -52,6 +53,7 @@ function MenuComponentManager:init()
 	self._active_components[ "debug_strings" ] = { create = callback( self, self, "_create_debug_strings_gui" ), close = callback( self, self, "_disable_debug_strings_gui" ) }
 	self._active_components[ "debug_fonts" ] = { create = callback( self, self, "_create_debug_fonts_gui" ), close = callback( self, self, "_disable_debug_fonts_gui" ) }
 	self._active_components[ "skilltree" ] = { create = callback( self, self, "_create_skilltree_gui" ), close = callback( self, self, "close_skilltree_gui" ) }
+	self._active_components[ "infamytree" ] = { create = callback( self, self, "_create_infamytree_gui" ), close = callback( self, self, "close_infamytree_gui" ) }
 	self._active_components[ "crimenet" ] = { create = callback( self, self, "_create_crimenet_gui" ), close = callback( self, self, "close_crimenet_gui" ) }
 	self._active_components[ "crimenet_contract" ] = { create = callback( self, self, "_create_crimenet_contract_gui" ), close = callback( self, self, "close_crimenet_contract_gui" ) }
 	self._active_components[ "crimenet_filters" ] = { create = callback( self, self, "_create_crimenet_filters_gui" ), close = callback( self, self, "close_crimenet_filters_gui" ) }
@@ -117,6 +119,10 @@ function MenuComponentManager:key_press_controller_support( o, k )
 		return 
 	end
 
+end
+
+function MenuComponentManager:fullscreen_ws()
+	return self._fullscreen_ws
 end
 
 function MenuComponentManager:resolution_changed()
@@ -315,6 +321,12 @@ function MenuComponentManager:input_focus()
 			return 1
 		end
 	end
+	if( self._infamytree_gui ) then
+		if( self._infamytree_gui:input_focus() ) then
+			return 1
+		end
+	end
+	
 	if( self._blackmarket_gui ) then
 		return self._blackmarket_gui:input_focus()
 	end
@@ -402,6 +414,11 @@ function MenuComponentManager:move_up()
 			return true
 		end
 	end
+	if self._infamytree_gui then
+		if self._infamytree_gui:move_up() then
+			return true
+		end
+	end
 	if self._mission_briefing_gui then
 		if self._mission_briefing_gui:move_up() then
 			return true
@@ -432,6 +449,11 @@ end
 function MenuComponentManager:move_down()
 	if self._skilltree_gui then
 		if self._skilltree_gui:move_down() then
+			return true
+		end
+	end
+	if self._infamytree_gui then
+		if self._infamytree_gui:move_down() then
 			return true
 		end
 	end
@@ -468,6 +490,11 @@ function MenuComponentManager:move_left()
 			return true
 		end
 	end
+	if self._infamytree_gui then
+		if self._infamytree_gui:move_left() then
+			return true
+		end
+	end
 	if self._mission_briefing_gui then
 		if self._mission_briefing_gui:move_left() then
 			return true
@@ -498,6 +525,11 @@ end
 function MenuComponentManager:move_right()
 	if self._skilltree_gui then
 		if self._skilltree_gui:move_right() then
+			return true
+		end
+	end
+	if self._infamytree_gui then
+		if self._infamytree_gui:move_right() then
 			return true
 		end
 	end
@@ -620,6 +652,11 @@ function MenuComponentManager:confirm_pressed()
 			return true
 		end
 	end
+	if self._infamytree_gui then
+		if self._infamytree_gui:confirm_pressed() then
+			return true
+		end
+	end
 	if self._mission_briefing_gui then
 		if self._mission_briefing_gui:confirm_pressed() then
 			return true
@@ -729,6 +766,11 @@ end
 function MenuComponentManager:mouse_pressed( o, button, x, y )
 	if self._skilltree_gui then
 		if self._skilltree_gui:mouse_pressed( button, x, y ) then
+			return true
+		end
+	end
+	if self._infamytree_gui then
+		if self._infamytree_gui:mouse_pressed( button, x, y ) then
 			return true
 		end
 	end
@@ -1134,6 +1176,13 @@ function MenuComponentManager:mouse_moved( o, x, y )
 	
 	if self._skilltree_gui then
 		local used, pointer = self._skilltree_gui:mouse_moved( o, x, y )
+		wanted_pointer = pointer or wanted_pointer
+		if used then
+			return true, wanted_pointer
+		end
+	end
+	if self._infamytree_gui then
+		local used, pointer = self._infamytree_gui:mouse_moved( o, x, y )
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
@@ -1850,6 +1899,21 @@ function MenuComponentManager:on_points_spent( ... )
 end
 
 
+function MenuComponentManager:_create_infamytree_gui()
+	self:create_infamytree_gui()
+end
+function MenuComponentManager:create_infamytree_gui( node )
+	self:close_infamytree_gui()
+	self._infamytree_gui = InfamyTreeGui:new( self._ws, self._fullscreen_ws, node )
+end
+
+function MenuComponentManager:close_infamytree_gui()
+	if self._infamytree_gui then
+		self._infamytree_gui:close()
+		self._infamytree_gui = nil
+	end
+end
+
 ------------------------ inventory list gui ----------------------------
 function MenuComponentManager:_create_inventory_list_gui( node )
 	self:create_inventory_list_gui( node )
@@ -2066,9 +2130,9 @@ end
 
 function MenuComponentManager:create_lootdrop_casino_gui( node )
 	if not self._lootdrop_casino_gui then
-		local casino_data = node:parameters().menu_component_data
+		local casino_data = node:parameters().menu_component_data or {}
 		
-		local card_secured = casino_data.secure_cards
+		local card_secured = casino_data.secure_cards or 0
 		
 		local card_drops = {}
 		card_drops[1] = (math.random(3) <= card_secured and casino_data.preferred_item)
@@ -2419,7 +2483,7 @@ end
 
 
 
-function MenuComponentManager:get_texture_from_mod_type( type, gadget, silencer )
+function MenuComponentManager:get_texture_from_mod_type( type, sub_type, gadget, silencer, is_auto )
 	local texture
 
 	if silencer then
@@ -2428,6 +2492,8 @@ function MenuComponentManager:get_texture_from_mod_type( type, gadget, silencer 
 		texture = "guis/textures/pd2/blackmarket/inv_mod_" .. ( gadget or "flashlight" )
 	elseif type == "upper_reciever" then
 		texture = "guis/textures/pd2/blackmarket/inv_mod_custom"
+	elseif type == "custom" then
+		texture = "guis/textures/pd2/blackmarket/inv_mod_" .. ( sub_type or ( is_auto and "autofire" or "singlefire" ) )
 	elseif type == "sight" then
 		texture = "guis/textures/pd2/blackmarket/inv_mod_scope"
 	else
@@ -2461,22 +2527,24 @@ function MenuComponentManager:create_weapon_mod_icon_list( weapon, category, fac
 			local gadget
 			local silencer
 			local equipped
+			local sub_type
+			local is_auto = tweak_data.weapon[ weapon ] and tweak_data.weapon[ weapon ].FIRE_MODE == "auto"
 			
 			for _, name_equip in pairs( mods_equip ) do
 				if name == weapon_factory_tweak_data[ name_equip ].type then
 					equipped = true
+					sub_type = weapon_factory_tweak_data[ name_equip ].sub_type
 					
 					if name == "gadget" then
-						gadget = weapon_factory_tweak_data[ name_equip ].sub_type
+						gadget = sub_type
 					end
 					
-					silencer = tweak_data.weapon.factory.parts[ name_equip ].sub_type == "silencer" and true
-					
+					silencer = sub_type == "silencer" and true
 					break
 				end
 			end
 			
-			local texture = self:get_texture_from_mod_type( name, gadget, silencer )
+			local texture = self:get_texture_from_mod_type( name, sub_type, gadget, silencer, is_auto )
 			
 			if DB:has( Idstring( "texture" ), texture ) then
 				table.insert( icon_list, { texture = texture, equipped = equipped, type = name } )

@@ -17,7 +17,7 @@ end
 function HuskCopBrain:post_init()
 	self._alert_listen_key = "HuskCopBrain"..tostring(self._unit:key())
 	local alert_listen_filter = managers.groupai:state():get_unit_type_filter( "criminal" )
-	managers.groupai:state():add_alert_listener( self._alert_listen_key, callback( self, self, "on_alert" ), alert_listen_filter, { footstep = true, bullet = true, vo_cbt = true, vo_intimidate = true, aggression = true }, self._unit:movement():m_head_pos() )
+	managers.groupai:state():add_alert_listener( self._alert_listen_key, callback( self, self, "on_alert" ), alert_listen_filter, { footstep = true, bullet = true, vo_cbt = true, vo_intimidate = true, aggression = true, explosion = true }, self._unit:movement():m_head_pos() )
 	
 	self._last_alert_t = 0
 	

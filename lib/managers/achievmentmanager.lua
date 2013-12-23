@@ -169,7 +169,7 @@ end
 
 
 function AchievmentManager:award_progress( stat )
-	if Application:editor() or not managers.criminals:local_character_name() then
+	if Application:editor() then
 		return 
 	end
 	

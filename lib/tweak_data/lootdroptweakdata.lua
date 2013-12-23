@@ -181,7 +181,7 @@ function LootDropTweakData:init( tweak_data )
 	self.global_values.pd2_clan.unique_lock_icon = "guis/textures/pd2/lock_community"
 	
 	
-	self.global_values.overkill = {}
+	--[[self.global_values.overkill = {}
 	self.global_values.overkill.name_id = "bm_global_value_overkill"
 	self.global_values.overkill.desc_id = "menu_l_global_value_overkill"
 	self.global_values.overkill.color = Color( 1, 0, 0 )
@@ -192,7 +192,7 @@ function LootDropTweakData:init( tweak_data )
 	self.global_values.overkill.durability_multiplier = 1
 	self.global_values.overkill.drops = false
 	self.global_values.overkill.track = true
-	self.global_values.overkill.sort_number = 0
+	self.global_values.overkill.sort_number = 0]]
 	
 	
 	self.global_values.halloween = {}
@@ -219,6 +219,32 @@ function LootDropTweakData:init( tweak_data )
 	self.global_values.armored_transport.drops = true
 	self.global_values.armored_transport.track = true
 	self.global_values.armored_transport.sort_number = 400
+	
+	self.global_values.gage_pack = {}
+	self.global_values.gage_pack.name_id = "bm_global_value_gage_pack"
+	self.global_values.gage_pack.desc_id = "menu_l_global_value_gage_pack"
+	self.global_values.gage_pack.unlock_id = "bm_global_value_gage_pack_unlock"
+	self.global_values.gage_pack.color = Color( 255, 255, 212, 0 ) / 255
+	self.global_values.gage_pack.dlc = true
+	self.global_values.gage_pack.chance = 1
+	self.global_values.gage_pack.value_multiplier = tweak_data:get_value( "money_manager", "global_value_multipliers", "gage_pack" )
+	self.global_values.gage_pack.durability_multiplier = 1
+	self.global_values.gage_pack.drops = true
+	self.global_values.gage_pack.track = true
+	self.global_values.gage_pack.sort_number = 410
+	
+	
+	self.global_values.legendary = {}
+	self.global_values.legendary.name_id = "bm_global_value_legendary"
+	self.global_values.legendary.desc_id = "menu_l_global_value_legendary"
+	self.global_values.legendary.color = Color( 255, 0, 255, 212 ) / 255
+	self.global_values.legendary.dlc = false
+	self.global_values.legendary.chance = 1
+	self.global_values.legendary.value_multiplier = tweak_data:get_value( "money_manager", "global_value_multipliers", "legendary" )
+	self.global_values.legendary.durability_multiplier = 1
+	self.global_values.legendary.drops = false
+	self.global_values.legendary.track = false
+	self.global_values.legendary.sort_number = 1
 	
 	
 	self.global_values.sweettooth = {}

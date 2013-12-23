@@ -169,7 +169,7 @@ function HUDTeammate:init( i, teammates_panel, is_player, width )
 	condition_timer:set_shape( radial_health_panel:shape() )
 	
 	----- Weapon panels
-	local w_selection_w = 13
+	local w_selection_w = 12
 	local weapon_panel_w = 80
 	local extra_clip_w = 4
 	local ammo_text_w = (weapon_panel_w - w_selection_w)/2
@@ -178,17 +178,20 @@ function HUDTeammate:init( i, teammates_panel, is_player, width )
 	
 	local tabs_texture = "guis/textures/pd2/hud_tabs"
 	local bg_rect = { 0, 0, 67, 32 }
-	local weapon_selection_rect1 = { 67, 0, 13, 32 }
-	local weapon_selection_rect2 = { 67, 32, 13, 32 }
+	local weapon_selection_rect1 = { 68, 0, 12, 32 }
+	local weapon_selection_rect2 = { 68, 32, 12, 32 }
 	
 	local weapons_panel = self._player_panel:panel( { name = "weapons_panel", visible = true, layer = 0, w = weapon_panel_w, h = radial_health_panel:h(), x = radial_health_panel:right() + 4, y = radial_health_panel:y() } )
 
 	local primary_weapon_panel = weapons_panel:panel( { name = "primary_weapon_panel", visible = false, layer = 1, w = weapon_panel_w, h = 32, x = 0, y = 0 } )
 	primary_weapon_panel:bitmap( { name = "bg", texture = tabs_texture, texture_rect = bg_rect, visible = true, layer = 0, color = bg_color, w = weapon_panel_w, x = 0 } )
 	primary_weapon_panel:text( { name = "ammo_clip", visible = main_player and true, text="0"..math.random( 40 ), color = Color.white, blend_mode= "normal", layer = 1, w = ammo_text_w + extra_clip_w, h = primary_weapon_panel:h(), x = 0, y = 0 + font_bottom_align_correction, vertical = "bottom", align = "center", font_size = 32, font = tweak_data.hud_players.ammo_font } )
-
 	primary_weapon_panel:text( { name = "ammo_total", visible = true, text="000", color = Color.white, blend_mode= "normal", layer = 1, w = ammo_text_w - extra_clip_w, h = primary_weapon_panel:h(), x = ammo_text_w + extra_clip_w, y = 0 + font_bottom_align_correction, vertical = "bottom", align = "center", font_size = 24, font = tweak_data.hud_players.ammo_font } )
-	primary_weapon_panel:bitmap( { name = "weapon_selection", texture = tabs_texture, texture_rect = weapon_selection_rect1, visible = main_player and true, layer = 1, color = Color.white, w = w_selection_w, x = weapon_panel_w - w_selection_w } )
+	
+	local weapon_selection_panel = primary_weapon_panel:panel( { name = "weapon_selection", layer = 1, visible = main_player and true, w = w_selection_w, x = weapon_panel_w - w_selection_w } )
+	weapon_selection_panel:bitmap( { name = "weapon_selection", texture = tabs_texture, texture_rect = weapon_selection_rect1, color = Color.white, w = w_selection_w } )
+	
+	self:_create_primary_weapon_firemode()
 	
 	if not main_player then
 		local ammo_total = primary_weapon_panel:child( "ammo_total" )
@@ -209,8 +212,12 @@ function HUDTeammate:init( i, teammates_panel, is_player, width )
 	secondary_weapon_panel:bitmap( { name = "bg", texture = tabs_texture, texture_rect = bg_rect, visible = true, layer = 0, color = bg_color, w = weapon_panel_w, x = 0 } )
 	secondary_weapon_panel:text( { name = "ammo_clip", visible = main_player and true, text=""..math.random( 40 ), color = Color.white, blend_mode= "normal", layer = 1, w = ammo_text_w + extra_clip_w, h = secondary_weapon_panel:h(), x = 0, y = 0 + font_bottom_align_correction, vertical = "bottom", align = "center", font_size = 32, font = tweak_data.hud_players.ammo_font } )
 	secondary_weapon_panel:text( { name = "ammo_total", visible = true, text="000", color = Color.white, blend_mode= "normal", layer = 1, w = ammo_text_w - extra_clip_w, h = secondary_weapon_panel:h(), x = ammo_text_w + extra_clip_w, y = 0 + font_bottom_align_correction, vertical = "bottom", align = "center", font_size = 24, font = tweak_data.hud_players.ammo_font } )
-	secondary_weapon_panel:bitmap( { name = "weapon_selection", texture = tabs_texture, texture_rect = weapon_selection_rect2, visible = main_player and true, layer = 1, color = Color.white, w = w_selection_w, x = weapon_panel_w - w_selection_w } )
+	
+	local weapon_selection_panel = secondary_weapon_panel:panel( { name = "weapon_selection", layer = 1, visible = main_player and true, w = w_selection_w, x = weapon_panel_w - w_selection_w } )
+	weapon_selection_panel:bitmap( { name = "weapon_selection", texture = tabs_texture, texture_rect = weapon_selection_rect2, color = Color.white, w = w_selection_w } )
 	secondary_weapon_panel:set_bottom( weapons_panel:h() )
+	
+	self:_create_secondary_weapon_firemode()
 	
 	if not main_player then
 		local ammo_total = secondary_weapon_panel:child( "ammo_total" )
@@ -231,14 +238,18 @@ function HUDTeammate:init( i, teammates_panel, is_player, width )
 	local eq_rect = { 84, 0, 44, 32 }
 	local temp_scale = 1
 	
-	local deployable_equipment_panel = self._player_panel:panel( { name = "deployable_equipment_panel", layer = 1, w = 48, h = 32, x = weapons_panel:right() + 4, y = weapons_panel:y() } )
+	local eq_h = 64 / ( PlayerBase.USE_GRENADES and 3 or 2 )
+	local eq_w = 48
+	local eq_tm_scale = PlayerBase.USE_GRENADES and 1 or 0.75
+	
+	local deployable_equipment_panel = self._player_panel:panel( { name = "deployable_equipment_panel", layer = 1, w = eq_w, h = eq_h, x = weapons_panel:right() + 4, y = weapons_panel:y() } )
 	-- deployable_equipment_panel:rect( { name = "bg", visible = true, layer = 0, color = bg_color, w = deployable_equipment_panel:w(), x = 0 } )
 	deployable_equipment_panel:bitmap( { name = "bg", texture = tabs_texture, texture_rect = eq_rect, visible = true, layer = 0, color = bg_color, w = deployable_equipment_panel:w(), x = 0 } )
 	local equipment = deployable_equipment_panel:bitmap( { name = "equipment", visible = false, layer = 1, color = Color.white, w = deployable_equipment_panel:h() * temp_scale, h = deployable_equipment_panel:h() * temp_scale, x = -(deployable_equipment_panel:h()*temp_scale - deployable_equipment_panel:h())/2, y = -(deployable_equipment_panel:h()*temp_scale - deployable_equipment_panel:h())/2 } )
 	local amount = deployable_equipment_panel:text( { name = "amount", visible = false, text = tostring(12), font = "fonts/font_medium_mf", font_size = 22, color = Color.white, align = "right", vertical = "center", layer = 2, x = -2, y = 2, w = deployable_equipment_panel:w(), h = deployable_equipment_panel:h() } )
 	-- deployable_equipment_panel:set_debug( true )
 	if not main_player then
-		local scale = 0.75
+		local scale = eq_tm_scale
 		-- deployable_equipment_panel:set_debug( true )
 		deployable_equipment_panel:set_size( deployable_equipment_panel:w() * 0.9, deployable_equipment_panel:h() * scale )
 		equipment:set_size( equipment:w() * scale, equipment:h() * scale )
@@ -254,13 +265,17 @@ function HUDTeammate:init( i, teammates_panel, is_player, width )
 	
 	----- Cable ties
 	local texture, rect = tweak_data.hud_icons:get_icon_data( tweak_data.equipments.specials.cable_tie.icon )
-	local cable_ties_panel = self._player_panel:panel( { name = "cable_ties_panel", visible = true, layer = 1, w = 48, h = 32, x = weapons_panel:right() + 4, y = weapons_panel:y() } )
+	local cable_ties_panel = self._player_panel:panel( { name = "cable_ties_panel", visible = true, layer = 1, w = eq_w, h = eq_h, x = weapons_panel:right() + 4, y = weapons_panel:y() } )
 	cable_ties_panel:bitmap( { name = "bg", texture = tabs_texture, texture_rect = eq_rect, visible = true, layer = 0, color = bg_color, w = deployable_equipment_panel:w(), x = 0 } )
 	local cable_ties = cable_ties_panel:bitmap( { name = "cable_ties", visible = false, texture = texture, texture_rect = rect, layer = 1, color = Color.white, w = deployable_equipment_panel:h() * temp_scale, h = deployable_equipment_panel:h() * temp_scale, x = -(deployable_equipment_panel:h()*temp_scale - deployable_equipment_panel:h())/2, y = -(deployable_equipment_panel:h()*temp_scale - deployable_equipment_panel:h())/2 } )
 	local amount = cable_ties_panel:text( { name = "amount", visible = false, text = tostring(12), font = "fonts/font_medium_mf", font_size = 22, color = Color.white, align = "right", vertical = "center", layer = 2, x = -2, y = 2, w = deployable_equipment_panel:w(), h = deployable_equipment_panel:h() } )
-	cable_ties_panel:set_bottom( weapons_panel:bottom() )
+	if PlayerBase.USE_GRENADES then
+		cable_ties_panel:set_center_y( weapons_panel:center_y() )
+	else
+		cable_ties_panel:set_bottom( weapons_panel:bottom() )
+	end
 	if not main_player then
-		local scale = 0.75
+		local scale = eq_tm_scale
 		--- cable_ties_panel:set_debug( true )
 		cable_ties_panel:set_size( cable_ties_panel:w() * 0.9, cable_ties_panel:h() * scale )
 		cable_ties:set_size( cable_ties:w() * scale, cable_ties:h() * scale )
@@ -272,6 +287,31 @@ function HUDTeammate:init( i, teammates_panel, is_player, width )
 		cable_ties_panel:set_bottom( deployable_equipment_panel:bottom() )
 		local bg = cable_ties_panel:child( "bg" )
 		bg:set_size( cable_ties_panel:size() )
+	end
+	----- GRENADES
+	if PlayerBase.USE_GRENADES then
+		
+		local texture, rect = tweak_data.hud_icons:get_icon_data( "frag_grenade" )
+		local grenades_panel = self._player_panel:panel( { name = "grenades_panel", visible = true, layer = 1, w = eq_w, h = eq_h, x = weapons_panel:right() + 4, y = weapons_panel:y() } )
+		
+		grenades_panel:bitmap( { name = "bg", texture = tabs_texture, texture_rect = eq_rect, visible = true, layer = 0, color = bg_color, w = cable_ties_panel:w(), x = 0 } )
+		local grenades = grenades_panel:bitmap( { name = "grenades", visible = true, texture = texture, texture_rect = rect, layer = 1, color = Color.white, w = cable_ties_panel:h() * temp_scale, h = cable_ties_panel:h() * temp_scale, x = -( cable_ties_panel:h() * temp_scale - cable_ties_panel:h() ) / 2, y = -( cable_ties_panel:h() * temp_scale - cable_ties_panel:h() ) / 2 } )
+		local amount = grenades_panel:text( { name = "amount", visible = true, text = tostring( "03" ), font = "fonts/font_medium_mf", font_size = 22, color = Color.white, align = "right", vertical = "center", layer = 2, x = -2, y = 2, w = grenades_panel:w(), h = grenades_panel:h() } )
+		grenades_panel:set_bottom( weapons_panel:bottom() )
+		if not main_player then
+			local scale = eq_tm_scale
+			
+			grenades_panel:set_size( grenades_panel:w() * 0.9, grenades_panel:h() * scale )
+			grenades:set_size( grenades:w() * scale, grenades:h() * scale )
+			grenades:set_center_y( grenades_panel:h() / 2 )
+			grenades:set_x( grenades:x() + 4 )
+			amount:set_center_y( grenades_panel:h() / 2 )
+			amount:set_right( grenades_panel:w() - 4 )
+			grenades_panel:set_x( cable_ties_panel:right() )
+			grenades_panel:set_bottom( cable_ties_panel:bottom() )
+			local bg = grenades_panel:child( "bg" )
+			bg:set_size( grenades_panel:size() )
+		end
 	end
 	
 	----- CARRY
@@ -304,6 +344,98 @@ function HUDTeammate:init( i, teammates_panel, is_player, width )
 	self._panel = teammate_panel
 	
 	-- self:_rec_round_object( self._panel )
+end
+
+function HUDTeammate:recreate_weapon_firemode()
+	self:_create_primary_weapon_firemode()
+	self:_create_secondary_weapon_firemode()
+end
+
+function HUDTeammate:_create_primary_weapon_firemode()
+	local primary_weapon_panel = self._player_panel:child( "weapons_panel" ):child( "primary_weapon_panel" )
+	local weapon_selection_panel = primary_weapon_panel:child( "weapon_selection" )
+	local old_single = weapon_selection_panel:child( "firemode_single" )
+	local old_auto = weapon_selection_panel:child( "firemode_auto" )
+	
+	if alive( old_single ) then
+		weapon_selection_panel:remove( old_single )
+	end
+	
+	if alive( old_auto ) then
+		weapon_selection_panel:remove( old_auto )
+	end
+	
+	if self._main_player then
+		local equipped_primary = managers.blackmarket:equipped_primary()
+		
+		local weapon_tweak_data = tweak_data.weapon[ equipped_primary.weapon_id ]
+		local fire_mode = weapon_tweak_data.FIRE_MODE
+		local can_toggle_firemode = weapon_tweak_data.CAN_TOGGLE_FIREMODE
+		local locked_to_auto = managers.weapon_factory:has_perk( "fire_mode_auto", equipped_primary.factory_id, equipped_primary.blueprint )
+		local locked_to_single = managers.weapon_factory:has_perk( "fire_mode_single", equipped_primary.factory_id, equipped_primary.blueprint )
+		
+		local single_id = "firemode_single" .. ( ( not can_toggle_firemode or locked_to_single ) and "_locked" or "" )
+		local texture, texture_rect = tweak_data.hud_icons:get_icon_data( single_id )
+		local firemode_single = weapon_selection_panel:bitmap( { name = "firemode_single", texture = texture, texture_rect = texture_rect, x = 2, blend_mode = "mul", layer = 1 } )
+		firemode_single:set_bottom( weapon_selection_panel:h() - 2 )
+		firemode_single:hide()
+		
+		local auto_id = "firemode_auto" .. ( ( not can_toggle_firemode or locked_to_auto ) and "_locked" or "" )
+		local texture, texture_rect = tweak_data.hud_icons:get_icon_data( auto_id )
+		local firemode_auto = weapon_selection_panel:bitmap( { name = "firemode_auto", texture = texture, texture_rect = texture_rect, x = 2, blend_mode = "mul", layer = 1 } )
+		firemode_auto:set_bottom( weapon_selection_panel:h() - 2 )
+		firemode_auto:hide()
+		
+		if locked_to_single or not locked_to_auto and fire_mode == "single" then
+			firemode_single:show()
+		else
+			firemode_auto:show()
+		end
+	end
+	
+end
+
+function HUDTeammate:_create_secondary_weapon_firemode()
+	local secondary_weapon_panel = self._player_panel:child( "weapons_panel" ):child( "secondary_weapon_panel" )
+	
+	local weapon_selection_panel = secondary_weapon_panel:child( "weapon_selection" )
+	local old_single = weapon_selection_panel:child( "firemode_single" )
+	local old_auto = weapon_selection_panel:child( "firemode_auto" )
+	
+	if alive( old_single ) then
+		weapon_selection_panel:remove( old_single )
+	end
+	
+	if alive( old_auto ) then
+		weapon_selection_panel:remove( old_auto )
+	end
+	if self._main_player then
+		local equipped_secondary = managers.blackmarket:equipped_secondary()
+		
+		local weapon_tweak_data = tweak_data.weapon[ equipped_secondary.weapon_id ]
+		local fire_mode = weapon_tweak_data.FIRE_MODE
+		local can_toggle_firemode = weapon_tweak_data.CAN_TOGGLE_FIREMODE
+		local locked_to_auto = managers.weapon_factory:has_perk( "fire_mode_auto", equipped_secondary.factory_id, equipped_secondary.blueprint )
+		local locked_to_single = managers.weapon_factory:has_perk( "fire_mode_single", equipped_secondary.factory_id, equipped_secondary.blueprint )
+		
+		local single_id = "firemode_single" .. ( ( not can_toggle_firemode or locked_to_single ) and "_locked" or "" )
+		local texture, texture_rect = tweak_data.hud_icons:get_icon_data( single_id )
+		local firemode_single = weapon_selection_panel:bitmap( { name = "firemode_single", texture = texture, texture_rect = texture_rect, x = 2, blend_mode = "mul", layer = 1 } )
+		firemode_single:set_bottom( weapon_selection_panel:h() - 2 )
+		firemode_single:hide()
+		
+		local auto_id = "firemode_auto" .. ( ( not can_toggle_firemode or locked_to_auto ) and "_locked" or "" )
+		local texture, texture_rect = tweak_data.hud_icons:get_icon_data( auto_id )
+		local firemode_auto = weapon_selection_panel:bitmap( { name = "firemode_auto", texture = texture, texture_rect = texture_rect, x = 2, blend_mode = "mul", layer = 1 } )
+		firemode_auto:set_bottom( weapon_selection_panel:h() - 2 )
+		firemode_auto:hide()
+		
+		if locked_to_single or not locked_to_auto and fire_mode == "single" then
+			firemode_single:show()
+		else
+			firemode_auto:show()
+		end
+	end
 end
 
 function HUDTeammate:_rec_round_object( object )
@@ -447,6 +579,27 @@ function HUDTeammate:set_weapon_selected( id, hud_icon )
 	end]]
 end
 
+function HUDTeammate:set_weapon_firemode( id, firemode )
+	local is_secondary = id == 1
+	local secondary_weapon_panel = self._player_panel:child( "weapons_panel" ):child( "secondary_weapon_panel" )
+	local primary_weapon_panel = self._player_panel:child( "weapons_panel" ):child( "primary_weapon_panel" )
+	
+	local weapon_selection = is_secondary and secondary_weapon_panel:child( "weapon_selection" ) or primary_weapon_panel:child( "weapon_selection" )
+	if alive( weapon_selection ) then
+		local firemode_single = weapon_selection:child( "firemode_single" )
+		local firemode_auto = weapon_selection:child( "firemode_auto" )
+		
+		if alive( firemode_single ) and alive( firemode_auto ) then
+			if firemode == "single" then
+				firemode_single:show()
+				firemode_auto:hide()
+			else
+				firemode_single:hide()
+				firemode_auto:show()
+			end
+		end
+	end
+end
 --[[function HUDTeammate:update_second_weapon_ammo_info( unit )
 	local teammate_panel = self._panel
 	local ammo_total_secondary = teammate_panel:child( "ammo_total_secondary" )
@@ -687,11 +840,26 @@ function HUDTeammate:set_cable_ties_amount( amount )
 	local cable_ties_panel = self._player_panel:child( "cable_ties_panel" )
 	local cable_ties_amount = cable_ties_panel:child( "amount" )
 	cable_ties_amount:set_visible( visible )
-	cable_ties_amount:set_text( amount == -1 and "--" or tostring( amount ) )
+	if amount == -1 then
+		cable_ties_amount:set_text( "--" )
+	else
+		self:_set_amount_string( cable_ties_amount, amount )
+	end
+	
 	local cable_ties = cable_ties_panel:child( "cable_ties" )
 	cable_ties:set_visible( visible )
 end
 
+function HUDTeammate:_set_amount_string( text, amount )
+	if not PlayerBase.USE_GRENADES then
+		text:set_text( tostring( amount ) )
+		return 
+	end
+	
+	local zero = self._main_player and amount < 10 and "0" or ""
+	text:set_text( zero .. amount )
+	text:set_range_color( 0, string.len(zero), Color.white:with_alpha( 0.5 ) )
+end
 -- local player_components = {
 							 -- "health_bg", "health", "armor", "healtharmor_divider",
 --							} --"ammo_pad", "ammo_total", "ammo_clip" }
@@ -743,10 +911,6 @@ end
 
 -----------------------------------------------------------------
 
-function HUDTeammate:set_perk_equipment( data )
-	
-end
-
 function HUDTeammate:set_deployable_equipment( data )
 	local icon, texture_rect = tweak_data.hud_icons:get_icon_data( data.icon )
 	
@@ -764,7 +928,37 @@ function HUDTeammate:set_deployable_equipment_amount( index, data )
 	local deployable_equipment_panel = self._player_panel:child( "deployable_equipment_panel" )
 	local amount = deployable_equipment_panel:child( "amount" )
 	deployable_equipment_panel:child( "equipment" ):set_visible( data.amount ~= 0 )
-	amount:set_text( tostring( data.amount ) )
+	-- amount:set_text( tostring( data.amount ) )
+	self:_set_amount_string( amount, data.amount )
+	amount:set_visible( data.amount ~= 0 )
+end
+
+function HUDTeammate:set_grenades( data )
+	if not PlayerBase.USE_GRENADES then
+		return 
+	end
+	local icon, texture_rect = tweak_data.hud_icons:get_icon_data( data.icon )
+	
+	local grenades_panel = self._player_panel:child( "grenades_panel" )
+	local grenades = grenades_panel:child( "grenades" )
+	grenades:set_visible( true )
+	grenades:set_image( icon, unpack( texture_rect ) )
+	
+	self:set_grenades_amount( data )
+end
+
+function HUDTeammate:set_grenades_amount( data )
+	if not PlayerBase.USE_GRENADES then
+		return 
+	end
+	
+	local teammate_panel = self._panel:child( "player" )
+	
+	local grenades_panel = self._player_panel:child( "grenades_panel" )
+	local amount = grenades_panel:child( "amount" )
+	grenades_panel:child( "grenades" ):set_visible( data.amount ~= 0 )
+	
+	self:_set_amount_string( amount, data.amount )
 	amount:set_visible( data.amount ~= 0 )
 end
 

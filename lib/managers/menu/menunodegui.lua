@@ -326,8 +326,11 @@ function MenuNodeGui:_create_menu_item( row_item )
 		row_item.item:parameters().back = false
 		row_item.item:parameters().pd2_corner = true
 	end
-
-	if row_item.item:parameters().back then
+	
+	
+	if row_item.item:parameters().gui_node_custom then
+		self:gui_node_custom( row_item )
+	elseif row_item.item:parameters().back then
 		-- row_item.gui_panel = self._item_panel_parent:rect( { color = Color.red, w = 20, h = 30 } )
 		row_item.gui_panel = self._item_panel_parent:panel( { layer = self.layers.items, w = 30, h = 30 } ) -- THIS WILL BE OVERRIDEN IN CoreMenuNodeGui
 		row_item.unselected = row_item.gui_panel:bitmap( { visible = false, texture = "guis/textures/menu_unselected", x = 0, y = 0, valign = nil, halign = nil, h = row_item.gui_panel:h(), w = row_item.gui_panel:w(), layer = -1 } )
@@ -372,10 +375,10 @@ function MenuNodeGui:_create_menu_item( row_item )
 			
 			MenuBackdropGUI.animate_bg_text( self, bg_text )
 		end
-		
-		
---	elseif row_item.type == "slider" then 	-- Moved to CoreMenuItemSlider
---	elseif row_item.type == "toggle" then	-- Moved to CoreMenuItemToggle
+			
+			
+--elseif row_item.type == "slider" then 	-- Moved to CoreMenuItemSlider
+--elseif row_item.type == "toggle" then	-- Moved to CoreMenuItemToggle
 	elseif row_item.type == "level" then -- Not really used in PD2 right now
 		row_item.gui_panel = self:_text_item_part( row_item, self.item_panel, self:_right_align()  )
 		row_item.gui_panel:set_text( utf8.to_upper( row_item.gui_panel:text() ) )
@@ -385,7 +388,7 @@ function MenuNodeGui:_create_menu_item( row_item )
 		-- local movie = level_data and level_data.movie
 		local description = level_data and level_data.briefing_id and managers.localization:text( level_data.briefing_id ) or "Missing description text"
 		local image = level_data and level_data.loading_image or "guis/textures/menu/missing_level"
-				
+		
 		row_item.level_title = row_item.gui_level_panel:text( { layer = 1, text = utf8.to_upper( row_item.gui_panel:text() ), font = self.font, font_size = self.font_size, color = row_item.color, align = "left", vertical = "top", wrap = false, word_wrap = false, w = 100/2, h = 128 } )
 		-- row_item.level_image = row_item.gui_level_panel:bitmap( { visible = false, x = row_item.gui_level_panel:w()/2, y = 0, --[[w = row_item.gui_level_panel:w()/2, h = row_item.gui_level_panel:w()/2,]] --[[texture_rect = { 0, 0, 48, 48 },]] texture = image } )
 		row_item.level_text = row_item.gui_level_panel:text( { layer = 1, text = utf8.to_upper( description ), font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = row_item.color, align = "left", vertical = "top", wrap = true, word_wrap = true, w = 100/2, h = 128 } )
@@ -396,12 +399,12 @@ function MenuNodeGui:_create_menu_item( row_item )
 			-- row_item.item:set_parameter( "movie", row_item.level_movie )
 			managers.video:add_video( row_item.level_movie )
 		end]]
-				
+			
 		-- row_item.level_text:set_text( level_data.description_id  )
 		self:_align_normal( row_item )
---	elseif row_item.type == "challenge" then 	-- Moved to MenuItemChallenge
---	elseif row_item.type == "upgrade" then		-- Moved to MenuItemUpgrade
---	elseif row_item.type == "multi_choice" then -- Moved to MenuItemMultiChoice
+--elseif row_item.type == "challenge" then 	-- Moved to MenuItemChallenge
+--elseif row_item.type == "upgrade" then		-- Moved to MenuItemUpgrade
+--elseif row_item.type == "multi_choice" then -- Moved to MenuItemMultiChoice
 	elseif row_item.type == "chat" then -- Only WIN32, but not used right now in PD2
 		row_item.gui_panel = self.item_panel:panel( { w = self.item_panel:w(), h = 100 } )
 		-- row_item.gui_text = self:_text_item_part( row_item, row_item.gui_panel, self:_right_align()  )
@@ -413,8 +416,8 @@ function MenuNodeGui:_create_menu_item( row_item )
 		row_item.chat_input:script().typing_callback = callback(self, self, "_cb_lock", row_item)
 		
 		row_item.border = row_item.gui_panel:rect( { visible = false, layer = self.layers.items, color=tweak_data.hud.prime_color, w = 800, h = 2 } )
-		--<rect name_s="border" color="tweak_data.hud.prime_color" visible="false" w="800" h="2" y="0" halign_s="grow" valign_s="grow"
-		
+		-- <rect name_s="border" color="tweak_data.hud.prime_color" visible="false" w="800" h="2" y="0" halign_s="grow" valign_s="grow"
+	
 		-- row_item.input_text = row_item.gui_panel:text( { text = "HELLO WORLD", font = row_item.font, font_size = self.font_size, h = self.font_size, layer = self.layers.items, align="left", halign="left", vertical="center" } )
 		--[[ row_item.chat_text = row_item.gui_panel:text( { text = "THIS IS A TEST\nIT IS A TEST", font = row_item.font, font_size = self.font_size, h = self.font_size, layer = self.layers.items, 
 														align="left", halign="bottom", vertical="bottom",
@@ -426,16 +429,16 @@ function MenuNodeGui:_create_menu_item( row_item )
 		row_item.color_mod = (row_item.item:parameters().signin_status == "uninvitable" or row_item.item:parameters().signin_status == "not_signed_in") and 0.75 or 1
 		row_item.friend_name = self:_text_item_part( row_item, row_item.gui_panel, self:_right_align() )
 		row_item.friend_name:set_color( row_item.friend_name:color() * row_item.color_mod  )
-			 
+		
 		row_item.signin_status = self:_text_item_part( row_item, row_item.gui_panel, self:_left_align() )
 		row_item.signin_status:set_align( cot_align )
 		row_item.signin_status:set_color( row_item.signin_status:color() * row_item.color_mod )
 		
 		local status_text = managers.localization:text( "menu_friends_"..row_item.item:parameters().signin_status )
 		row_item.signin_status:set_text( utf8.to_upper( status_text ) )
-			
+		
 		self:_align_friend( row_item )
---	elseif row_item.type == "customize_controller" then -- Moved to MenuItemCustomizeController
+--elseif row_item.type == "customize_controller" then -- Moved to MenuItemCustomizeController
 	elseif row_item.type == "weapon_expand" or row_item.type == "weapon_upgrade_expand" then
 		row_item.item:setup_gui( self, row_item )
 	else
@@ -1752,5 +1755,5 @@ function MenuNodeMainGui:_setup_item_rows( node )
 		self._version_string = nil
 	end
 	
-	self._version_string = self.ws:panel():text( { name = "version_string", text = tostring( Global.version ), font = tweak_data.menu.pd2_small_font, font_size = tweak_data.menu.pd2_small_font_size, align = SystemInfo:platform() == Idstring( "WIN32" ) and "right" or "left", vertical = "bottom", alpha = 0.5 } )
+	self._version_string = self.ws:panel():text( { name = "version_string", text = Application:version(), font = tweak_data.menu.pd2_small_font, font_size = tweak_data.menu.pd2_small_font_size, align = SystemInfo:platform() == Idstring( "WIN32" ) and "right" or "left", vertical = "bottom", alpha = 0.5 } )
 end

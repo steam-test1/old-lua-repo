@@ -101,7 +101,7 @@ function CivilianBrain:on_cool_state_changed( state )
 	local alert_types
 	if state then
 		alert_listen_filter = managers.groupai:state():get_unit_type_filter( "criminals_enemies_civilians" )
-		alert_types = { footstep = true, bullet = true, vo_cbt = true, vo_intimidate = true, vo_distress = true, aggression = true }
+		alert_types = { footstep = true, bullet = true, vo_cbt = true, vo_intimidate = true, vo_distress = true, aggression = true, explosion = true }
 	else
 		--alert_listen_filter = managers.groupai:state():get_unit_type_filter( "criminals_and_enemies" )
 		alert_listen_filter = managers.groupai:state():get_unit_type_filter( "criminal" )

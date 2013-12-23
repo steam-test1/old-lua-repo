@@ -363,7 +363,7 @@ end
 function CivilianLogicSurrender.on_alert( data, alert_data )
 	
 	local alert_type = alert_data[1]
-	if not ( alert_type == "aggression" or alert_type == "bullet" ) then
+	if not ( alert_type == "aggression" or alert_type == "bullet" or alert_type == "explosion" ) then
 		return
 	end
 	

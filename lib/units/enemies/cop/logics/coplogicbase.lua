@@ -21,12 +21,14 @@ CopLogicBase._AGGRESSIVE_ALERT_TYPES = {
 	vo_cbt = true,
 	vo_intimidate = true,
 	vo_distress = true,
-	aggression = true
+	aggression = true,
+	explosion = true
 }
 
 CopLogicBase._DANGEROUS_ALERT_TYPES = {
 	bullet = true,
-	aggression = true
+	aggression = true,
+	explosion = true
 }
 
 -----------------------------------------------------------------------------

@@ -630,6 +630,7 @@ function SavefileManager:_save_cache( slot )
 		managers.blackmarket:save( cache )
 		managers.mission:save_job_values( cache )
 		managers.dlc:save( cache )
+		managers.infamy:save( cache )
 	end
 
 	if SystemInfo:platform() == Idstring("WIN32") then
@@ -995,6 +996,7 @@ function SavefileManager:_load_cache( slot )
 			managers.skilltree:load( cache, version )
 			managers.mission:load_job_values( cache, version )
 			managers.dlc:load( cache, version )
+			managers.infamy:load( cache, version )
 		end
 	else
 		Application:error( "[SavefileManager] Unable to load savefile from slot \"" .. tostring( slot ) .. "\"." )

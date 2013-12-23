@@ -382,16 +382,16 @@ function ConnectionNetworkHandler:lobby_sync_update_difficulty( difficulty )
 	end
 end
 
-function ConnectionNetworkHandler:lobby_info( peer_id, level, character, mask_set, ass_progress, sha_progress, sup_progress, tech_progress, sender )
+function ConnectionNetworkHandler:lobby_info( peer_id, level, rank, character, mask_set, ass_progress, sha_progress, sup_progress, tech_progress, sender )
 	-- if not self._verify_gamestate( self._gamestate_filter.player_slot ) then
 	--	return
 	-- end
-	-- print( "ConnectionNetworkHandler:lobby_info", peer_id, slot, level )
-	print( "ConnectionNetworkHandler:lobby_info", peer_id, level )
+	print( "ConnectionNetworkHandler:lobby_info", peer_id, level, rank )
 	local peer = self._verify_sender( sender )
 	print( "  IS THIS AN OK PEER?", peer and peer:id() )
 	if peer then
 		peer:set_level( level )
+		peer:set_rank( rank )
 		local progress = { ass_progress, sha_progress, sup_progress }
 		if tech_progress ~= -1 then
 			table.insert( progress, tech_progress )
@@ -404,11 +404,11 @@ function ConnectionNetworkHandler:lobby_info( peer_id, level, character, mask_se
 		
 		local lobby_menu = managers.menu:get_menu( "lobby_menu" )
 		if lobby_menu and lobby_menu.renderer:is_open() then
-			lobby_menu.renderer:_set_player_slot( peer_id, { name = peer:name(), peer_id = peer_id, level = level, character = character, progress = progress  } )
+			lobby_menu.renderer:_set_player_slot( peer_id, { name = peer:name(), peer_id = peer_id, level = level, rank = rank, character = character, progress = progress  } )
 		end
 		local kit_menu = managers.menu:get_menu( "kit_menu" )
 		if kit_menu and kit_menu.renderer:is_open() then
-			kit_menu.renderer:_set_player_slot( peer_id, { name = peer:name(), peer_id = peer_id, level = level, character = character, progress = progress  } )
+			kit_menu.renderer:_set_player_slot( peer_id, { name = peer:name(), peer_id = peer_id, level = level, rank = rank, character = character, progress = progress  } )
 		end
 	
 	end

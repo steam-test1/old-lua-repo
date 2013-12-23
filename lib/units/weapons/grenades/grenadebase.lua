@@ -1,14 +1,23 @@
 local tmp_vec3 = Vector3()
 
 GrenadeBase = GrenadeBase or class( UnitBase )
-GrenadeBase.types = { Idstring( "units/weapons/frag_grenade/frag_grenade") }
+GrenadeBase.types = { "frag" }
 GrenadeBase.EVENT_IDS = { detonate = 1 }
 
-function GrenadeBase.server_throw_grenade( grenade_type, pos, dir )
-	local unit = World:spawn_unit( GrenadeBase.types[ grenade_type ], pos, Rotation() )
-	unit:base():throw( { dir = dir } )
+function GrenadeBase.server_throw_grenade( grenade_type, pos, dir, owner_peer_id )
+	local grenade_entry = GrenadeBase.types[ grenade_type ]
+	local unit_name = Idstring( tweak_data.blackmarket.grenades[ grenade_entry ].unit )
+	local unit = World:spawn_unit( unit_name, pos, Rotation() )
+	if owner_peer_id and managers.network:game() then
+		local member = managers.network:game():member( owner_peer_id )
+		local thrower_unit = member and member:unit()
+		if alive( thrower_unit ) then
+			unit:base():set_thrower_unit( thrower_unit )
+		end
+	end
+	unit:base():throw( { dir = dir, grenade_entry = grenade_entry } )
 	
-	managers.network:session():send_to_peers_synched( "sync_throw_grenade", unit, dir )
+	managers.network:session():send_to_peers_synched( "sync_throw_grenade", unit, dir, grenade_type )
 end
 
 function GrenadeBase.spawn( unit_name, pos, rot ) -- Only called from server
@@ -34,6 +43,15 @@ function GrenadeBase:init( unit )
 		return 
 	end
 	self:_setup()
+end
+
+
+function GrenadeBase:set_thrower_unit( unit )
+	self._thrower_unit = unit
+end
+
+function GrenadeBase:thrower_unit()
+	return alive( self._thrower_unit ) and self._thrower_unit or nil
 end
 
 -----------------------------------------------------------------------------------
@@ -212,10 +230,12 @@ end
 
 -----------------------------------------------------------------------------------
 
-function GrenadeBase:sync_throw_grenade( dir )
-	self:throw( { dir = dir } )
+function GrenadeBase:sync_throw_grenade( dir, grenade_type )
+	local grenade_entry = GrenadeBase.types[ grenade_type ]
+	self:throw( { dir = dir, grenade_entry = grenade_entry } )
 end
 
+local mvec1 = Vector3()
 function GrenadeBase:throw( params )
 	self._owner = params.owner
 	local velocity = params.dir * 250
@@ -224,6 +244,21 @@ function GrenadeBase:throw( params )
 	--local mass = math.max( 2 * (1-math.abs( params.dir.z )), 1 ) -- Tweaking the mass used to throw pending on looking angle (throws a bit looser if looking up or down)
 	local mass = math.max( 2 * (1+math.min( 0, params.dir.z )), 1 ) -- Tweaking the mass used to throw pending on looking angle (throws a bit looser if looking up or down)
 	self._unit:push_at( mass, velocity, self._unit:position() )
+	
+	if params.grenade_entry then
+		local unit_name = tweak_data.blackmarket.grenades[ params.grenade_entry ].sprint_unit
+		if unit_name then
+			local sprint = World:spawn_unit( Idstring( unit_name ), self._unit:position(), self._unit:rotation() )
+			local rot = Rotation( params.dir, math.UP )
+			mrotation.x( rot, mvec1 )
+			mvector3.multiply( mvec1, 0.25 )
+			mvector3.add( mvec1, params.dir )
+			mvector3.add( mvec1, math.UP / 2 )
+			mvector3.multiply( mvec1, 100 )
+			
+			sprint:push_at( mass, mvec1, sprint:position() )
+		end
+	end
 	
 	--[[self._unit:body( 0 ):set_collision_script_tag( Idstring( "bounce" ) )
 	self._unit:body( 0 ):set_collision_script_filter( 1 )

@@ -43,6 +43,8 @@ function PlayerBleedOut:enter( state_data, enter_data )
 		self:_interupt_action_steelsight( managers.player:player_timer():time() )
 	end
 	
+	self:_interupt_action_ladder( managers.player:player_timer():time() )
+	
 	managers.groupai:state():report_criminal_downed( self._unit )
 end
 
@@ -122,6 +124,8 @@ function PlayerBleedOut:_update_check_actions( t, dt )
 	self._unit:camera():set_shaker_parameter( "headbob", "amplitude", 0 )
 	
 	-- Timers
+	self:_update_throw_grenade_timers( t, input )
+	
 	self:_update_reload_timers( t, dt, input )
 		
 	self:_update_equip_weapon_timers( t, input )
@@ -145,6 +149,10 @@ function PlayerBleedOut:_update_check_actions( t, dt )
 	end
 		
 	if not new_action then
+		new_action = self:_check_action_weapon_firemode( t, input )
+	end
+	
+	if not new_action then
 		new_action = self:_check_action_reload( t, input )
 	end
 	
@@ -155,6 +163,10 @@ function PlayerBleedOut:_update_check_actions( t, dt )
 	if not new_action then
 		new_action = self:_check_action_primary_attack( t, input )
 		self._shooting = new_action
+	end
+	
+	if not new_action then
+		new_action = self:_check_action_throw_grenade( t, input )
 	end
 	
 	if not new_action then
@@ -479,7 +491,8 @@ function PlayerBleedOut:_start_action_bleedout( t )
 	self:_stance_entered()
 	self:_update_crosshair_offset()
 	self._unit:kill_mover()
-	self._unit:activate_mover( Idstring( "duck" ) )
+	self:_activate_mover( Idstring( "duck" ) )
+	-- self._unit:activate_mover( Idstring( "duck" ) )
 end
 
 --------------------------------------------------------------------------------------
@@ -493,7 +506,8 @@ function PlayerBleedOut:_end_action_bleedout( t )
 	self:_stance_entered()
 	self:_update_crosshair_offset()
 	self._unit:kill_mover()
-	self._unit:activate_mover( Idstring( "stand" ) )
+	self:_activate_mover( Idstring( "stand" ) )
+	-- self._unit:activate_mover( Idstring( "stand" ) )
 end
 
 -----------------------------------------------------------------------------------

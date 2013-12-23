@@ -3,6 +3,8 @@ FragGrenade = FragGrenade or class( GrenadeBase )
 -----------------------------------------------------------------------------------
 
 function FragGrenade:init( unit )
+	self._init_timer = 2.5
+	
 	FragGrenade.super.init( self, unit )
 	
 	
@@ -12,7 +14,7 @@ function FragGrenade:init( unit )
 	self._damage = 20
 	self._player_damage = 10
 	
-	self._custom_params = { effect = self._effect_name, feedback_range = self._range * 2, camera_shake_max_mul = 4, sound_muffle_effect = true }
+	self._custom_params = { effect = self._effect_name, sound_event = "grenade_explode", feedback_range = self._range * 2, camera_shake_max_mul = 4, sound_muffle_effect = true }
 end
 
 -----------------------------------------------------------------------------------
@@ -34,7 +36,8 @@ function FragGrenade:_detonate()
 		curve_pow = self._curve_pow,
 		damage = self._damage,
 		player_damage = 0,
-		ignore_unit = self._unit
+		ignore_unit = self._unit,
+		user = self:thrower_unit()
 	} )
 	managers.network:session():send_to_peers_synched( "sync_unit_event_id_8", self._unit, "base", GrenadeBase.EVENT_IDS.detonate )
 	

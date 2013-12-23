@@ -22,7 +22,8 @@ function NetworkPeer:init( name, rpc, id, loading, synced, in_lobby, character, 
 		Network:set_throttling_disabled( self._steam_rpc, true )
 	end
 	
-	self._level = 0 -- Reputation level
+	self._level = nil -- Reputation level
+	self._rank = 0
 	self._in_lobby = in_lobby
 	self._loading = loading
 	-- self._loaded = nil
@@ -730,6 +731,21 @@ end
 
 function NetworkPeer:level()
 	return self._level
+end
+
+--------------------------------------------------------------------
+
+function NetworkPeer:set_rank( rank )
+	self._rank = rank
+	if managers.hud then
+		managers.hud:update_name_label_by_peer( self )
+	end
+end
+
+--------------------------------------------------------------------
+
+function NetworkPeer:rank()
+	return self._rank
 end
 
 --------------------------------------------------------------------

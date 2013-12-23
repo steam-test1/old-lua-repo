@@ -16,7 +16,6 @@ Global.DEBUG_MENU_ON = Application:debug_enabled()
 
 core:import( "CoreSetup" )
 
-require "lib/Version"
 require "lib/managers/DLCManager"
 managers.dlc = DLCManager:new()
 
@@ -35,6 +34,7 @@ require "lib/managers/MenuManager"
 require "lib/managers/AchievmentManager"
 require "lib/managers/SkillTreeManager"
 require "lib/managers/DynamicResourceManager"
+require "lib/managers/InfamyManager"
 
 
 core:import( "PlatformManager" )
@@ -73,6 +73,7 @@ require "lib/managers/LootManager"
 require "lib/managers/JobManager"
 require "lib/managers/MissionAssetsManager"
 require "lib/managers/VoiceBriefingManager"
+require "lib/units/UnitDamage"
 
 require "lib/units/MaskExt"
 script_data = script_data or {}
@@ -168,6 +169,7 @@ function Setup:init_managers( managers )
 	managers.job = JobManager:new()
 	managers.assets = MissionAssetsManager:new()
 	managers.briefing = VoiceBriefingManager:new()
+	managers.infamy = InfamyManager:new()
 			
 	game_state_machine = GameStateMachine:new()
 end

@@ -20,6 +20,7 @@ function CharacterTweakData:init( tweak_data )
 	self:_init_gangster( presets )
 	self:_init_biker_escape( presets )
 	self:_init_tank( presets )
+	
 	self:_init_spooc( presets )
 	self:_init_shield( presets )
 	self:_init_taser( presets )
@@ -220,7 +221,7 @@ function CharacterTweakData:_init_heavy_swat( presets )
 -- HEALTH	
 	self.heavy_swat.HEALTH_INIT = 10
 	self.heavy_swat.headshot_dmg_mul = self.heavy_swat.HEALTH_INIT/6	-- damage multiplier on received headshots. nil means insta-death
-	
+	self.heavy_swat.damage.explosion_damage_mul = 0.7
 	self.heavy_swat.move_speed = presets.move_speed.fast
 	self.heavy_swat.surrender_break_time = { 6, 8 } -- How quickly does the character snap back to combat after surrendering. { min, max }. (sec)
 	self.heavy_swat.suppression = presets.suppression.hard_agg
@@ -283,7 +284,7 @@ function CharacterTweakData:_init_fbi_heavy_swat( presets )
 -- HEALTH
 	self.fbi_heavy_swat.HEALTH_INIT = 20
 	self.fbi_heavy_swat.headshot_dmg_mul = self.fbi_heavy_swat.HEALTH_INIT/10	-- damage multiplier on received headshots. nil means insta-death
-	
+	self.fbi_heavy_swat.damage.explosion_damage_mul = 0.5
 	self.fbi_heavy_swat.move_speed = presets.move_speed.fast
 	self.fbi_heavy_swat.surrender_break_time = { 6, 8 } -- How quickly does the character snap back to combat after surrendering. { min, max }. (sec)
 	self.fbi_heavy_swat.suppression = presets.suppression.hard_agg
@@ -423,7 +424,7 @@ function CharacterTweakData:_init_tank( presets )
 -- HEALTH
 	self.tank.HEALTH_INIT = 550
 	self.tank.headshot_dmg_mul = self.tank.HEALTH_INIT/24	-- damage multiplier on received headshots. nil means insta-death
-	
+	self.tank.damage.explosion_damage_mul = 0.33
 	self.tank.move_speed = presets.move_speed.very_slow
 	self.tank.allowed_stances = { cbt = true }
 	self.tank.allowed_poses = { stand = true }
@@ -457,6 +458,27 @@ function CharacterTweakData:_init_tank( presets )
 	self.tank.announce_incomming = "incomming_tank"	-- swats will anounce the arrival of this unit
 end
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -----------------------
 -------- SPOOC --------
 -----------------------
@@ -468,8 +490,8 @@ function CharacterTweakData:_init_spooc( presets )
 	self.spooc.detection = presets.detection.normal
 	
 -- HEALTH
-	self.spooc.HEALTH_INIT = 32
-	self.spooc.headshot_dmg_mul = self.spooc.HEALTH_INIT/6	-- damage multiplier on received headshots. nil means insta-death
+	self.spooc.HEALTH_INIT = 48
+	self.spooc.headshot_dmg_mul = self.spooc.HEALTH_INIT/12	-- damage multiplier on received headshots. nil means insta-death
 	
 	self.spooc.move_speed = presets.move_speed.lightning
 	self.spooc.SPEED_SPRINT = 1000		-- max sprint velocity. Used in spooc attack. (cm/sec)
@@ -535,8 +557,9 @@ function CharacterTweakData:_init_shield( presets )
 	self.shield.deathguard = false
 	self.shield.no_equip_anim = true
 	self.shield.wall_fwd_offset = 100				-- leave space at the front when in cover
+	self.shield.damage.explosion_damage_mul = 0.25
 	
-	self.shield.damage.hurt_severity = presets.hurt_severities.no_hurts
+	self.shield.damage.hurt_severity = presets.hurt_severities.only_explosion_hurts
 	self.shield.damage.shield_knocked = true
 	
 	self.shield.weapon.mp9 = {}
@@ -878,25 +901,66 @@ function CharacterTweakData:_presets( tweak_data )
 	presets.hurt_severities = {}
 	
 	presets.hurt_severities.no_hurts = {
-		health_reference = 1,
-		zones = {
-			{ none=1 }
+		bullet = {
+			health_reference = 1,
+			zones = {
+				{ none=1 }
+			}
+		},
+		explosion = {
+			health_reference = 1,
+			zones = {
+				{ none=1 }
+			}
 		}
 	}
 	
 	presets.hurt_severities.only_light_hurt = {
-		health_reference = 1,
-		zones = {
-			{ light=1 }
+		bullet = {
+			health_reference = 1,
+			zones = {
+				{ light=1 }
+			}
+		},
+		explosion = {
+			health_reference = 1,
+			zones = {
+				{ explode=1 }
+			}
+		}
+	}
+	
+	presets.hurt_severities.only_explosion_hurts = {
+		bullet = {
+			health_reference = 1,
+			zones = {
+				{ none=1 }
+			}
+		},
+		explosion = {
+			health_reference = 1,
+			zones = {
+				{ explode=1 }
+			}
 		}
 	}
 	
 	presets.hurt_severities.base = {
-		health_reference = "current",	-- if "full" then the zone "health_limit"s are relative to the units full health. can also be "current" or a number
-		zones = {
-			{ health_limit=0.2, none=0, light=0.7, moderate=0.2, heavy=0.1 }, -- the zone applies up to it's "health_limit" and before the next zone's "health_limit". none, light, moderate and heavy represent normalized chances of this hurt type taking effect
-			{ health_limit=0.4, light=0.2, moderate=0.5, heavy=0.3 },
-			{ light=0.1, moderate=0.3, heavy=0.6 },
+		bullet = {
+			health_reference = "current",	-- if "full" then the zone "health_limit"s are relative to the units full health. can also be "current" or a number
+			zones = {
+				{ health_limit=0.2, none=0, light=0.7, moderate=0.2, heavy=0.1 }, -- the zone applies up to it's "health_limit" and before the next zone's "health_limit". none, light, moderate and heavy represent normalized chances of this hurt type taking effect
+				{ health_limit=0.4, light=0.2, moderate=0.5, heavy=0.3 },
+				{ light=0.1, moderate=0.3, heavy=0.6 },
+			}
+		},
+		explosion = {
+			health_reference = "current",
+			zones = {
+				{ health_limit=0.2, none=0.6, heavy=0.4 },
+				{ health_limit=0.5, heavy=0.6, explode=0.4 },
+				{ heavy=0.2, explode=0.8 },
+			}
 		}
 	}
 	
@@ -933,6 +997,7 @@ function CharacterTweakData:_presets( tweak_data )
 	presets.base.damage = {}
 	presets.base.damage.hurt_severity = presets.hurt_severities.base
 	presets.base.damage.death_severity = 0.5 -- % of the character's max health that a single injury must cause in order to play the heavy death
+	presets.base.damage.explosion_damage_mul = 1
 	
 	
  -->xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx<--
@@ -948,7 +1013,8 @@ function CharacterTweakData:_presets( tweak_data )
 	presets.gang_member_damage.BLEED_OUT_HEALTH_INIT = tweak_data.player.damage.BLEED_OUT_HEALTH_INIT			-- Health before going into fatal when in bleed out
 	presets.gang_member_damage.ARRESTED_TIME = tweak_data.player.damage.ARRESTED_TIME					-- Amount of time in arrest before "dead"
 	presets.gang_member_damage.INCAPACITATED_TIME = tweak_data.player.damage.INCAPACITATED_TIME
-	presets.gang_member_damage.hurt_severity = {
+	presets.gang_member_damage.hurt_severity = presets.hurt_severities.base
+	presets.gang_member_damage.hurt_severity.bullet = {
 		health_reference = "current",	-- if "full" then the zone "health_limit"s are relative to the units full health. can also be "current" or a number
 		zones = {
 			{ health_limit=0.4, none=0.3, light=0.6, moderate=0.1 }, -- the zone applies up to it's "health_limit" and before the next zone's "health_limit". none, light, moderate and heavy represent normalized chances of this hurt type taking effect
@@ -1642,7 +1708,7 @@ function CharacterTweakData:_presets( tweak_data )
 		},
 		
 		ninja = { -- characters on ecstacy. no encumbrance
-			speed = 2,
+			speed = 3,
 			occasions = {
 				hit = {
 					chance = 0.9,
@@ -1690,6 +1756,8 @@ function CharacterTweakData:_presets( tweak_data )
 		end
 	end
 	
+	
+	
 	-- MOVE SPEEDS
 	presets.move_speed = {	--(cm/sec)
 		
@@ -1711,7 +1779,7 @@ function CharacterTweakData:_presets( tweak_data )
 			},
 			crouch = {
 				walk = { hos={ fwd=245, strafe=210, bwd=190 }, cbt={ fwd=255, strafe=190, bwd=190 } },
-				run = { hos={ fwd=450, strafe=300, bwd=268 }, cbt={ fwd=312, strafe=300, bwd=268 } }
+				run = { hos={ fwd=700, strafe=500, bwd=468 }, cbt={ fwd=512, strafe=500, bwd=468 } }
 			}
 		},
 		
@@ -1722,7 +1790,7 @@ function CharacterTweakData:_presets( tweak_data )
 			},
 			crouch = {
 				walk = { hos={ fwd=144, strafe=120, bwd=113 }, cbt={ fwd=144, strafe=120, bwd=113 } },
-				run = { hos={ fwd=360, strafe=300, bwd=355 }, cbt={ fwd=360, strafe=300, bwd=355 } }
+				run = { hos={ fwd=144, strafe=120, bwd=113 }, cbt={ fwd=144, strafe=100, bwd=125 } }
 			}
 		},
 		
@@ -1750,7 +1818,7 @@ function CharacterTweakData:_presets( tweak_data )
 		fast = {
 			stand = {
 				walk = { ntl={ fwd=150, strafe=120, bwd=110 }, hos={ fwd=270, strafe=215, bwd=185 }, cbt={ fwd=270, strafe=215, bwd=185 } },
-				run = { hos={ fwd=525, strafe=315, bwd=280 }, cbt={ fwd=450, strafe=285, bwd=280 } }
+				run = { hos={ fwd=625, strafe=315, bwd=280 }, cbt={ fwd=450, strafe=285, bwd=280 } }
 			},
 			crouch = {
 				walk = { hos={ fwd=235, strafe=180, bwd=170 }, cbt={ fwd=235, strafe=180, bwd=170 } },
@@ -1760,7 +1828,7 @@ function CharacterTweakData:_presets( tweak_data )
 		very_fast = {
 			stand = {
 				walk = { ntl={ fwd=150, strafe=120, bwd=110 }, hos={ fwd=285, strafe=225, bwd=215 }, cbt={ fwd=285, strafe=225, bwd=215 } },
-				run = { hos={ fwd=550, strafe=340, bwd=325 }, cbt={ fwd=475, strafe=325, bwd=300 } }
+				run = { hos={ fwd=670, strafe=340, bwd=325 }, cbt={ fwd=475, strafe=325, bwd=300 } }
 			},
 			crouch = {
 				walk = { hos={ fwd=245, strafe=210, bwd=190 }, cbt={ fwd=255, strafe=190, bwd=190 } },

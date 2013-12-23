@@ -1163,6 +1163,7 @@ function MenuManager:do_clear_progress()
 	managers.blackmarket:reset()
 	managers.dlc:on_reset_profile()
 	managers.mission:on_reset_profile()
+	managers.infamy:reset()
 	
 	managers.crimenet:reset_seed()
 	
@@ -1208,6 +1209,11 @@ end
 function MenuCallbackHandler:dlc_buy_pc()
 	print( "[MenuCallbackHandler:dlc_buy_pc]" )
 	Steam:overlay_activate( "store", 218620 )
+end
+
+function MenuCallbackHandler:dlc_buy_gage_pack_pc()
+	print( "[MenuCallbackHandler:dlc_buy_gage_pack_pc]" )
+	Steam:overlay_activate( "store", 267380 )
 end
 
 function MenuCallbackHandler:dlc_buy_armadillo_pc()
@@ -1256,12 +1262,24 @@ function MenuCallbackHandler:not_has_armored_transport()
 	return not self:has_armored_transport()
 end
 
+function MenuCallbackHandler:has_gage_pack()
+	return managers.dlc:has_gage_pack()
+end
+
+function MenuCallbackHandler:not_has_gage_pack()
+	return not self:has_gage_pack()
+end
+
 function MenuCallbackHandler:reputation_check( data )
 	return managers.experience:current_level() >= data:value()
 end
 
 function MenuCallbackHandler:non_overkill_145( data )
 	return true -- not (Global.game_settings.difficulty == "overkill_145")
+end
+
+function MenuCallbackHandler:to_be_continued()
+	return true
 end
 
 function MenuCallbackHandler:is_level_145()
@@ -1354,7 +1372,7 @@ function MenuCallbackHandler:is_normal_job()
 end
 
 function MenuCallbackHandler:is_not_max_rank()
-	return managers.experience:current_rank() < tweak_data:get_value( "rank_manager", "max_rank" )
+	return managers.experience:current_rank() < #tweak_data.infamy.tree
 end
 
 function MenuCallbackHandler:singleplayer_restart()
@@ -2235,6 +2253,7 @@ function MenuCallbackHandler:play_safehouse( params )
 	managers.menu:show_play_safehouse_question( { yes_func = yes_func } )
 end
 
+--[[
 function MenuCallbackHandler:become_infamous( params )
 	if managers.experience:current_level() < 100 or managers.experience:current_rank() >= tweak_data:get_value( "rank_manager", "max_rank" ) then
 		return
@@ -2266,6 +2285,12 @@ function MenuCallbackHandler:become_infamous( params )
 	
 	managers.menu:show_confirm_become_infamous( params )
 end
+]]
+
+
+
+
+
 
 function MenuCallbackHandler:choice_choose_character( item )
 	-- Need to check with server what is ok, and options need to be server based
@@ -4576,7 +4601,7 @@ end
 MenuCustomizeControllerCreator = MenuCustomizeControllerCreator or class()
 MenuCustomizeControllerCreator.CONTROLS = { "move", "primary_attack", "secondary_attack", 
 											"primary_choice1", "primary_choice2", "switch_weapon", 
-											"reload", "weapon_gadget", "run", "jump", "duck", "melee", 
+											"reload", "weapon_gadget", "weapon_firemode", "throw_grenade", "run", "jump", "duck", "melee", 
 											"interact", "use_item", "toggle_chat", "push_to_talk", "continue" }
 MenuCustomizeControllerCreator.AXIS_ORDERED = { move = { "up", "down", "left", "right" } }
 MenuCustomizeControllerCreator.CONTROLS_INFO = {}
@@ -4603,6 +4628,8 @@ MenuCustomizeControllerCreator.CONTROLS_INFO.use_item 			= { text_id = "menu_but
 MenuCustomizeControllerCreator.CONTROLS_INFO.toggle_chat 		= { text_id = "menu_button_chat_message" }
 MenuCustomizeControllerCreator.CONTROLS_INFO.push_to_talk 		= { text_id = "menu_button_push_to_talk" }
 MenuCustomizeControllerCreator.CONTROLS_INFO.continue 			= { text_id = "menu_button_continue" }
+MenuCustomizeControllerCreator.CONTROLS_INFO.throw_grenade		= { text_id = "menu_button_throw_grenade" }
+MenuCustomizeControllerCreator.CONTROLS_INFO.weapon_firemode		= { text_id = "menu_button_weapon_firemode" }
 
 function MenuCustomizeControllerCreator:modify_node( node )
 	local new_node = deep_clone( node )
@@ -4697,6 +4724,162 @@ function MenuCrimeNetContractInitiator:modify_node( original_node, data )
 	node:parameters().menu_component_data = data
 	return node
 end
+
+function MenuCallbackHandler:set_contact_info( item )
+	local parameters = item:parameters() or {}
+	local id = parameters.name
+	local name_id = parameters.text_id
+	local files = parameters.files
+	
+	local active_node_gui = managers.menu:active_menu().renderer:active_node_gui()
+	if active_node_gui and active_node_gui.set_contact_info then
+		if active_node_gui:get_contact_info() ~= item:name() then
+			active_node_gui:set_contact_info( id, name_id, files, 1 )
+		end
+	end
+	
+	local logic = managers.menu:active_menu().logic
+	if logic then
+		logic:refresh_node()
+	end
+end
+
+function MenuCallbackHandler:is_current_contact_info( item )
+	local active_node_gui = managers.menu:active_menu().renderer:active_node_gui()
+	if active_node_gui and active_node_gui.get_contact_info then
+		return active_node_gui:get_contact_info() == item:name()
+	end
+	
+	return false
+end
+
+MenuCrimeNetContactInfoInitiator = MenuCrimeNetContactInfoInitiator or class()
+function MenuCrimeNetContactInfoInitiator:modify_node( original_node, data )
+	local node = original_node
+	
+	local codex_data = {}
+	local contacts = {}
+	
+	for _, codex_d in ipairs( tweak_data.gui.crime_net.codex ) do
+		local codex = {}
+		codex.id = codex_d.id
+		codex.name_lozalized = managers.localization:to_upper_text( codex_d.name_id ).." ("..tostring( #codex_d )..")"
+		for _, info_data in ipairs( codex_d ) do
+			local data = {}
+			
+			data.id = info_data.id
+			data.name_lozalized = managers.localization:to_upper_text( info_data.name_id )
+			data.files = {}
+			for page, file_data in ipairs( info_data ) do
+				local file = {}
+				file.desc_lozalized = file_data.desc_id and managers.localization:text( file_data.desc_id ) or ""
+				file.post_event = file_data.post_event
+				file.videos = file_data.videos and deep_clone( file_data.videos ) or {}
+				file.lock = file_data.lock
+				if file_data.video then
+					table.insert( file.videos, file_data.video )
+				end
+				
+				table.insert( data.files, file )
+			end
+			
+			table.insert( codex, data )
+		end
+		table.insert( codex_data, codex )
+	end
+	
+	local x_id, y_id
+	for i, codex in ipairs( codex_data ) do
+		for i, info_data in ipairs( codex ) do
+			table.sort( info_data, function( x, y )
+				x_id = x.name_lozalized
+				y_id = y.name_lozalized
+				
+				return x_id < y_id
+			end )
+		end
+	end
+	
+	node:clean_items()
+	for i, codex in ipairs( codex_data ) do
+		self:create_divider( node, codex.id, codex.name_lozalized, nil, tweak_data.screen_colors.text )
+		for i, info_data in ipairs( codex ) do
+			self:create_item( node, info_data )
+		end
+		self:create_divider( node, i )
+	end
+	
+	local params =
+	{
+		name = "back",
+		text_id = "menu_back",
+		previous_node = "true",
+		visible_callback = "is_pc_controller",
+		align = "left",
+		last_item = "true",
+		gui_node_custom = "true",
+		pd2_corner = "true"
+	}
+	
+	
+	local data_node = {}
+	local new_item = node:create_item( data_node, params )
+	
+	node:add_item( new_item )
+	
+	node:set_default_item_name( "bain" )
+	node:select_item( "bain" )
+	return node
+end
+
+function MenuCrimeNetContactInfoInitiator:refresh_node( node )
+	return node
+end
+
+
+function MenuCrimeNetContactInfoInitiator:create_divider( node, id, text_id, size, color )
+	local params =
+	{
+		name = "divider_"..id,
+		no_text = not text_id,
+		text_id = text_id,
+		localize = "false",
+		size = size or 8,
+		color = color
+	}
+	
+	local data_node = { type = "MenuItemDivider" }
+	local new_item = node:create_item( data_node, params )
+	
+	node:add_item( new_item )
+end
+
+function MenuCrimeNetContactInfoInitiator:create_item( node, contact )
+	local text_id = contact.name_lozalized
+	local files = contact.files
+	local video_id = contact.video
+	local color_ranges
+	
+	local params =
+	{
+		name = contact.id,
+		text_id = text_id,
+		color_ranges = color_ranges,
+		localize = "false",
+		callback = "set_contact_info",
+		files = files,
+		icon = "guis/textures/scrollarrow",
+		icon_rotation = 270,
+		icon_visible_callback = "is_current_contact_info"
+	}
+	
+	local data_node = {}
+	local new_item = node:create_item( data_node, params )
+	
+	
+	node:add_item( new_item )
+end
+
 
 MenuCrimeNetSpecialInitiator = MenuCrimeNetSpecialInitiator or class()
 function MenuCrimeNetSpecialInitiator:modify_node( original_node, data )

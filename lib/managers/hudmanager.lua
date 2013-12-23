@@ -2427,7 +2427,11 @@ function HUDManager:_add_name_label( data )
 	if is_husk_player then
 		peer_id = data.unit:network():peer():id()
 		local level = data.unit:network():peer():level()
-		data.name = data.name .. " ["..level.."]"
+		local rank = data.unit:network():peer():rank()
+		if level then
+			local experience = ( rank > 0 and ( managers.experience:rank_string( rank ) .. ":" ) or "" ) .. level
+			data.name = data.name .. " ("..experience..")"
+		end
 	end
 	
 	local text = hud.panel:text( { name = "text", text = utf8.to_upper( data.name ), font = tweak_data.hud.medium_font, font_size = tweak_data.hud.name_label_font_size, color = Color(1,1,1,1), align = "center", vertical = "center", layer = -2, w = 256, h = 18 } )
@@ -2464,7 +2468,11 @@ end
 function HUDManager:update_name_label_by_peer( peer )
 	for _,data in pairs( self._hud.name_labels ) do
 		if data.peer_id == peer:id() then
-			local name = data.character_name .. " ["..peer:level().."]"
+			local name = data.character_name
+			if peer:level() then
+				local experience = ( peer:rank() > 0 and ( managers.experience:rank_string( peer:rank() ) .. ":" ) or "" ) .. peer:level()
+				name = name .. " ("..experience..")"
+			end
 			data.text:set_text( utf8.to_upper( name ) )
 			local _,_,w,h = data.text:text_rect()
 			

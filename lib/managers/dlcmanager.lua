@@ -1,7 +1,7 @@
 DLCManager = DLCManager or class()
 DLCManager.PLATFORM_CLASS_MAP = {}
 
-DLCManager.BUNDLED_DLC_PACKAGES = { dlc1 = true, season_pass = false, animal = false }
+DLCManager.BUNDLED_DLC_PACKAGES = { dlc1 = true, gage_pack = true, season_pass = false, animal = false }
 
 function DLCManager:new( ... )
 	local platform = SystemInfo:platform()
@@ -130,7 +130,7 @@ end
 ------------------------------------------------------------------------------
 
 function GenericDLCManager:has_all_dlcs()
-	return self:has_armored_transport()
+	return self:has_armored_transport() and self:has_gage_pack()
 end
 
 ------------------------------------------------------------------------------
@@ -161,6 +161,12 @@ end
 
 function GenericDLCManager:has_armored_transport()
 	return Global.dlc_manager.all_dlc_data.armored_transport and Global.dlc_manager.all_dlc_data.armored_transport.verified
+end
+
+------------------------------------------------------------------------------
+
+function GenericDLCManager:has_gage_pack()
+	return Global.dlc_manager.all_dlc_data.gage_pack and Global.dlc_manager.all_dlc_data.gage_pack.verified
 end
 
 ------------------------------------------------------------------------------
@@ -443,6 +449,10 @@ function WINDLCManager:init()
 			},
 			armored_transport = {
 				app_id = "264610",
+				no_install = true	-- check only ownership here, since this DLC does not require installation
+			},
+			gage_pack = {
+				app_id = "267380",
 				no_install = true	-- check only ownership here, since this DLC does not require installation
 			},
 			pd2_clan = {

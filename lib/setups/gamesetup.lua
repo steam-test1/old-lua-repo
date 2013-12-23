@@ -146,6 +146,7 @@ require "lib/units/equipment/sentry_gun/SentryGunBrain"
 require "lib/units/equipment/sentry_gun/SentryGunMovement"
 require "lib/units/equipment/sentry_gun/SentryGunDamage"
 require "lib/units/equipment/ecm_jammer/ECMJammerBase"
+require "lib/units/equipment/grenade_crate/GrenadeCrateBase"
 
 -- Weapons
 require "lib/units/weapons/RaycastWeaponBase"
@@ -191,6 +192,7 @@ require "lib/units/props/AIAttentionObject"
 require "lib/units/props/SmallLootBase"
 require "lib/units/props/SafehouseMoneyStack"
 require "lib/units/props/OffshoreGui"
+require "lib/units/props/Ladder"
 
 require "lib/managers/menu/FadeoutGuiObject"
 

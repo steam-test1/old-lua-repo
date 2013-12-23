@@ -81,6 +81,7 @@ require "lib/managers/mission/ElementInstigator"
 require "lib/managers/mission/ElementInstigatorRule"
 require "lib/managers/mission/ElementPickup"
 require "lib/managers/mission/ElementLaserTrigger"
+require "lib/managers/mission/ElementSpawnGrenade"
 
 -- Old Fortress
 require "lib/managers/mission/ElementPlayerSpawner"

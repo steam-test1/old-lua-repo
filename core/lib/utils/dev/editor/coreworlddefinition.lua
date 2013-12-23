@@ -830,6 +830,7 @@ function WorldDefinition:assign_unit_data( unit, data )
 	self:_setup_disable_on_ai_graph( unit, data )		-- Set disable on ai graph
 	self:_add_to_portal( unit, data )					-- Adds unit to portal manager
 	self:_setup_projection_light( unit, data )			-- Loads a projection texture to a light
+	self:_setup_ladder( unit, data )
 	
 	self:_project_assign_unit_data( unit, data )		-- Calls a function where the project can assign unit data
 end
@@ -925,6 +926,20 @@ function WorldDefinition:_setup_editable_gui( unit, data )
 	if not Application:editor() then
 		unit:editable_gui():lock_gui()	
 	end
+end
+
+function WorldDefinition:_setup_ladder( unit, data )
+	if not data.ladder then
+		return 
+	end
+	
+	if not unit:ladder() then
+		Application:error( "Unit has ladder data saved but no ladder extension. No ladder data will be loaded." )
+		return 
+	end
+	
+	unit:ladder():set_width( data.ladder.width )
+	unit:ladder():set_height( data.ladder.height )
 end
 
 -- If the unit is network synced, it needs to call this to be checked for only visible in editor

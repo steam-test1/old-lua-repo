@@ -22,7 +22,7 @@ function SkillTreeTweakData:init()					-- IF ANY CHANGES IS MADE TO THE SKILLTRE
 				hightier = digest(4),
 				hightierpro = digest(8) } -- Points cost
 	
-	self.tree_multiplier = { digest(1), digest(1), digest(1), digest(1) }
+	self.unlock_tree_cost = { digest(0), digest(0), digest(0), digest(0) }
 	
 	--[[ 
 	------------------------------------------- UNUSED UPGRADES -------------------------------------------

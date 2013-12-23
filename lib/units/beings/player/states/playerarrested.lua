@@ -224,7 +224,8 @@ function PlayerArrested:_start_action_handcuffed( t )
 	self:_update_crosshair_offset()
 	self._unit:kill_mover()
 	self._unit:character_damage()._arrested = true
-	self._unit:activate_mover( Idstring( "duck" ) )
+	self:_activate_mover( Idstring( "duck" ) )
+	-- self._unit:activate_mover( Idstring( "duck" ) )
 end
 
 --------------------------------------------------------------------------------------
@@ -239,7 +240,8 @@ function PlayerArrested:_end_action_handcuffed( t )
 	self:_update_crosshair_offset()
 	self._unit:kill_mover()
 	self._unit:character_damage()._arrested = nil
-	self._unit:activate_mover( Idstring( "stand" ) )
+	self:_activate_mover( Idstring( "stand" ) )
+	-- self._unit:activate_mover( Idstring( "stand" ) )
 end
 
 -----------------------------------------------------------------------------------

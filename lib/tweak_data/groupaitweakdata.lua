@@ -797,10 +797,10 @@ function GroupAITweakData:_set_hard()
 	-- Swat reinforcement
 	self.besiege.assault.groups = {
 		CS_swats = { 0, 1, 0 },
-		CS_heavys = { 0, 0.2, 1 },
-		CS_shields = { 0, 0.02, 0.35 },
-		CS_tazers = { 0, 0.1, 0.25 },
-		CS_tanks = { 0, 0.02, 0.1 },
+		CS_heavys = { 0, 0.2, 0.7 },
+		CS_shields = { 0, 0.02, 0.2 },
+		CS_tazers = { 0, 0.05, 0.15 },
+		CS_tanks = { 0, 0.01, 0.05 },
 		-- FBI_spoocs = { 0, 0, 0.05 },
 	}
 	
@@ -844,9 +844,9 @@ function GroupAITweakData:_set_overkill()
 	-- FBI responds
 	self.besiege.assault.groups = {
 		FBI_swats = { 0.1, 1, 1 },
-		FBI_heavys = { 0.05, 0.25, 0.25 },
-		FBI_shields = { 0.1, 0.2, 0.275 },
-		FBI_tanks = { 0, 0.15, 0.3 },
+		FBI_heavys = { 0.05, 0.25, 0.5 },
+		FBI_shields = { 0.1, 0.2, 0.2 },
+		FBI_tanks = { 0, 0.1, 0.15 },
 		-- FBI_spooc = { 0, 0.1, 0.3 },
 		CS_tazers = { 0.05, 0.15, 0.2 },
 	}
@@ -890,9 +890,9 @@ function GroupAITweakData:_set_overkill_145()
 	-- FBI Case
 	self.besiege.assault.groups = {
 		FBI_swats = { 0.2, 1, 1 },
-		FBI_heavys = { 0.1, 0.5, 0.25 },
+		FBI_heavys = { 0.1, 0.5, 0.75 },
 		FBI_shields = { 0.1, 0.3, 0.4 },
-		FBI_tanks = { 0, 0.25, 0.35 },
+		FBI_tanks = { 0, 0.25, 0.3 },
 		-- FBI_spooc = { 0, 0.2, 0.4 },
 		CS_tazers = { 0.1, 0.25, 0.25 },
 	}

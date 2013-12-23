@@ -160,7 +160,7 @@ function HuskPlayerMovement:init( unit )
 	self._m_head_rot = Rotation( self._look_dir, math.UP )
 	self._m_head_pos = self._obj_head:position()
 	self._m_detect_pos = mvector3.copy( self._m_head_pos )
-	
+	self._m_newest_pos = mvector3.copy( self._m_pos )
 	
 	self._footstep_style = nil
 	self._footstep_event = ""
@@ -361,6 +361,12 @@ end
 
 -------------------------------------------------------------------------------
 --	RETURNS MUTABLE!!!!!
+function HuskPlayerMovement:m_newest_pos()
+	return self._m_newest_pos
+end
+
+-------------------------------------------------------------------------------
+--	RETURNS MUTABLE!!!!!
 function HuskPlayerMovement:m_rot()
 	return self._m_rot
 end
@@ -395,9 +401,11 @@ function HuskPlayerMovement:_calculate_m_pose()
 	if self._move_data then
 		local path = self._move_data.path
 		mvector3.set( det_pos, path[ #path ] )
+		mvector3.set( self._m_newest_pos, det_pos )
 		mvector3.set_z( det_pos, det_pos.z + self._m_head_pos.z - self._m_pos.z )
 	else
 		mvector3.set( det_pos, self._m_head_pos )
+		mvector3.set( self._m_newest_pos, self._m_pos )
 	end
 end
 

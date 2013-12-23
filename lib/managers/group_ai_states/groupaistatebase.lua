@@ -92,6 +92,11 @@ GroupAIStateBase.BLAME_SYNC = {		-- this table doubles as a weighting system, wi
 	"cop_crate_open",
 	"cop_distress",
 	
+	"sys_explosion",
+	"civ_explosion",
+	"cop_explosion",
+	"gan_explosion",
+	"cam_explosion",
 	
 	"default",					-- blame missing, in the end; same with distress.
 }
@@ -1137,6 +1142,10 @@ end
 -- Called when an AI unit begins the tasing process on a criminal
 function GroupAIStateBase:on_tase_start( cop_key, criminal_key )
 	self._criminals[ criminal_key ].being_tased = cop_key
+	
+	if self._criminals[ criminal_key ].unit == managers.player:player_unit() and managers.blackmarket:equipped_mask().mask_id == tweak_data.achievement.its_alive_its_alive.mask then
+		managers.achievment:award_progress( tweak_data.achievement.its_alive_its_alive.stat )
+	end
 end
 
 -----------------------------------------------------------------------------
@@ -2484,6 +2493,7 @@ end
 function GroupAIStateBase:fill_criminal_team_with_AI( is_drop_in )
 	if managers.navigation:is_data_ready() and self._ai_enabled and managers.groupai:state():team_ai_enabled() then
 		while managers.criminals:get_free_character_name() and managers.criminals:nr_AI_criminals() < managers.criminals.MAX_NR_TEAM_AI do
+			
 			if not self:spawn_one_teamAI( is_drop_in ) then
 				break 
 			end
@@ -2931,6 +2941,14 @@ end
 
 function GroupAIStateBase:all_hostages()
 	return self._hostage_keys
+end
+
+-----------------------------------------------------------------------------------
+
+
+function GroupAIStateBase:is_a_hostage_within( mvec_pos, radius )
+	local units = World:find_units_quick( "sphere", mvec_pos, radius, 22 )
+	return units and #units > 0
 end
 
 -----------------------------------------------------------------------------------
@@ -4314,6 +4332,9 @@ function GroupAIStateBase.analyse_giveaway( trigger_string, giveaway_unit, addit
 			-- cant investigate the unknown
 		-- Application:error( "GroupAIStateBase.analyse_giveaway: Unable to investigate the unknown", "trigger_string", trigger_string, "giveaway_unit", giveaway_unit, "additional_info", additional_info and inspect(additional_info) or "NIL" )
 		-- Application:stack_dump()
+		if additional_info[1] == "explosion" then
+			return "sys_explosion"
+		end
 		return nil
 	end
 	
@@ -4365,7 +4386,7 @@ function GroupAIStateBase.investigate_unit( giveaway_unit, additional_info )
 				investigate_coolness = true
 			elseif alert_type == "bullet" then
 				return "gunfire"
-			elseif alert_type == "aggression" then
+			elseif alert_type == "aggression" or alert_type == "explosion" then
 			end
 		end
 	end
@@ -4877,6 +4898,10 @@ end
 
 function GroupAIStateBase:is_enemy_converted_to_criminal( unit )
 	return self._converted_police[ unit:key() ]
+end
+
+function GroupAIStateBase:get_amount_enemies_converted_to_criminals()
+	return self._converted_police and table.size( self._converted_police )
 end
 
 -----------------------------------------------------------------------------

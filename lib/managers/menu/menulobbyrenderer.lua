@@ -87,7 +87,8 @@ function MenuLobbyRenderer:open(...)
 	
 	if is_server then
 		local level = managers.experience:current_level()
-		self:_set_player_slot( 1, { name = server_peer:name(), peer_id = server_peer:id(), level = level, character = "random"  } )
+		local rank = managers.experience:current_rank()
+		self:_set_player_slot( 1, { name = server_peer:name(), peer_id = server_peer:id(), level = level, rank = rank, character = "random"  } )
 	end
 	
 	self:_entered_menu()
@@ -580,9 +581,9 @@ function MenuLobbyRenderer:on_request_lobby_slot_reply()
 	local progress = managers.upgrades:progress()
 	local mask_set = "remove" -- local_peer:mask_set()
 	local_peer:set_outfit_string( managers.blackmarket:outfit_string() )
-	self:_set_player_slot( local_peer_id, { name = local_peer:name(), peer_id = local_peer_id, level = level, character = character, progress = progress  } )
+	self:_set_player_slot( local_peer_id, { name = local_peer:name(), peer_id = local_peer_id, level = level, rank = rank, character = character, progress = progress  } )
 	
-	managers.network:session():send_to_peers_loaded( "lobby_info", local_peer_id, level, character, mask_set, progress[1], progress[2], progress[3], progress[4] or -1 )
+	managers.network:session():send_to_peers_loaded( "lobby_info", local_peer_id, level, rank, character, mask_set, progress[1], progress[2], progress[3], progress[4] or -1 )
 	managers.network:session():send_to_peers_loaded( "sync_profile", level, rank )
 	managers.network:session():send_to_peers_loaded( "sync_outfit", managers.blackmarket:outfit_string() )
 end

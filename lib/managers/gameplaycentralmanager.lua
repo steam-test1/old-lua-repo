@@ -331,7 +331,8 @@ function GamePlayCentralManager:update( t, dt )
 				local heist_time = Application:time() - self._heist_timer.start_time
 				for peer_id, peer in pairs( managers.network:session():peers() ) do
 					-- Send to each peer to add qos.ping
-					peer:send_queued_sync( "sync_heist_time", heist_time + Network:qos( peer:rpc() ).ping / 1000 )
+					local sync_time = math.min( 100000, heist_time + Network:qos( peer:rpc() ).ping / 1000 )
+					peer:send_queued_sync( "sync_heist_time", sync_time )
 				end
 			end
 		end
