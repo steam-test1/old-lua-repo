@@ -114,7 +114,7 @@ function SkillTreeTweakData:init()					-- IF ANY CHANGES IS MADE TO THE SKILLTRE
 								[2] = { upgrades = { "team_passive_stamina_multiplier_1" }, desc_id="menu_mastermind_tier_2" },
 								[3] = { upgrades = { "player_passive_intimidate_range_mul" }, desc_id="menu_mastermind_tier_3" },
 								[4] = { upgrades = { "team_passive_health_multiplier", "player_passive_convert_enemies_health_multiplier", "player_passive_convert_enemies_damage_multiplier" }, desc_id="menu_mastermind_tier_4" },
-								[5] = { upgrades = { "player_convert_enemies_interaction_speed_multiplier", "player_wolverine_health_regen" }, desc_id="menu_mastermind_tier_5" },
+								[5] = { upgrades = { "player_convert_enemies_interaction_speed_multiplier" }, desc_id="menu_mastermind_tier_5" },
 								[6] = { upgrades = { "player_passive_empowered_intimidation", "passive_player_assets_cost_multiplier" }, desc_id="menu_mastermind_tier_6" },
 								}
 	self.skills[ "enforcer" ] =  {									-- This is a skill that gives an upgrade
@@ -661,7 +661,7 @@ function SkillTreeTweakData:init()					-- IF ANY CHANGES IS MADE TO THE SKILLTRE
 									desc_id = "menu_martial_arts_desc",		-- Description of skill
 									icon_xy = { 1, 3 },
 									[1] = { upgrades = { "player_melee_knockdown_mul" }, cost = self.costs.default },
-									[2] = { upgrades = { "player_damage_dampener" }, cost = self.costs.pro },
+									[2] = { upgrades = { "player_melee_damage_dampener" }, cost = self.costs.pro },
 									
 								}
 	self.skills[ "nine_lives" ] = {	-- tier 4

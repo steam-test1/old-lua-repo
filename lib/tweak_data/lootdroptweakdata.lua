@@ -56,7 +56,7 @@ function LootDropTweakData:init( tweak_data )
 	local min = 10
 	local max = 100
 	
-	local range = { cash={20, 5}, weapon_mods={50, 45}, colors={6, 11}, textures={7, 12}, materials={7, 12}, masks={10, 15}, xp = {8, 0} }
+	local range = { cash={20, 5}, weapon_mods={50, 45}, colors={6, 11}, textures={7, 12}, materials={7, 12}, masks={25, 30}, xp = {8, 0} }
 	
 	for i = min, max, 10 do
 		local cash = ( math.lerp( range.cash[1], range.cash[2], i/max ) )
@@ -192,4 +192,25 @@ function LootDropTweakData:init( tweak_data )
 	self.global_values.overkill.drops = false
 	self.global_values.overkill.track = true
 	self.global_values.overkill.sort_number = 0
+	
+	
+	self.global_values.halloween = {}
+	self.global_values.halloween.name_id = "bm_global_value_halloween"
+	self.global_values.halloween.desc_id = "menu_l_global_value_halloween"
+	self.global_values.halloween.color = Color( 255, 255, 145, 0 ) / 255
+	self.global_values.halloween.dlc = false
+	self.global_values.halloween.chance = 1
+	self.global_values.halloween.value_multiplier = tweak_data:get_value( "money_manager", "global_value_multipliers", "halloween" )
+	self.global_values.halloween.durability_multiplier = 1
+	self.global_values.halloween.drops = true
+	self.global_values.halloween.track = false
+	self.global_values.halloween.sort_number = 200
+	
+	
+	self.global_value_list_index = { "normal", "infamous", "pre_order", "pd2_clan", "halloween" }
+	
+	self.global_value_list_map = {}
+	for i, d in ipairs( self.global_value_list_index ) do
+		self.global_value_list_map[ d ] = i
+	end
 end

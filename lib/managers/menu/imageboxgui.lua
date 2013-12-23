@@ -82,7 +82,7 @@ function ImageBoxGui:_create_image_box( image_config )
 		image_panel:set_top( 10 )
 	end
 	
-	if image_texture then
+	if image_texture and DB:has( Idstring( "texture" ), image_texture ) then
 		local image = image_panel:bitmap( { texture = image_texture, w = image_width, h = image_height } )
 		
 		if image_render_template then

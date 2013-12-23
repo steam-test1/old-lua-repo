@@ -364,7 +364,7 @@ end
 -----------------------------------------------------------------------------------
 
 function SentryGunMovement:synch_allow_fire( ... )
-	self._unit:brain():synch_allow_fire( ... )
+	self._unit:brain():synch_allow_fire( ..., true )
 end
 
 -----------------------------------------------------------------------------------

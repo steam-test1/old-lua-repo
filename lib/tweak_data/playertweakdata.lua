@@ -53,6 +53,8 @@ function PlayerTweakData:init()
 		self.damage.ARMOR_INIT = 2								-- Amount of armor, an non depleted step can be regenerated           -- Amount of armor before losing health (this can be generated)
 	end
 	
+	self.damage.DODGE_INIT = 0
+	
 	self.damage.ARMOR_STEPS = 1									-- Amount of armor steps
 	self.damage.ARMOR_DAMAGE_REDUCTION = 0.0		-- Amount of damage reduction on health the armor reduces
 	self.damage.ARMOR_DAMAGE_REDUCTION_STEPS = { 1, 0.6, 0.7, 0.8, 0.9, 0.95, 0.96, 0.97, 0.98, 0.99 }
@@ -87,6 +89,8 @@ function PlayerTweakData:init()
 	
 	self.fall_health_damage = 4
 	self.fall_damage_alert_size = 250
+	
+	self.SUSPICION_OFFSET_LERP = 0.75
 	
 	self.long_dis_interaction = {
 		intimidate_strength = 0.5, -- shouting at a civilian once results in him staying calm for that percentage of his maximum intimidation time
@@ -1531,6 +1535,7 @@ function PlayerTweakData:_init_new_stances()
 		
 	self:_init_saw()
 	self:_init_serbu()
+	self:_init_usp()
 end
 
 function PlayerTweakData:_init_saw()
@@ -1610,4 +1615,41 @@ function PlayerTweakData:_init_serbu()
 	
 	-- END serbu
 	
+end
+
+function PlayerTweakData:_init_usp()
+	self.stances.usp = deep_clone(self.stances.colt_1911)
+	
+	local pivot_shoulder_translation = Vector3(8.51087, 41.182, -3.19589)
+	local pivot_shoulder_rotation = Rotation(0.0996996, -0.686868, 0.630304)
+	
+	-- Standard stance
+	local pivot_head_translation = Vector3(5, 38, -2)
+	local pivot_head_rotation = Rotation(0, 0, 0)
+	self.stances.usp.standard.shoulders.translation = pivot_head_translation - pivot_shoulder_translation:rotate_with(pivot_shoulder_rotation:inverse()):rotate_with(pivot_head_rotation)
+	self.stances.usp.standard.shoulders.rotation = pivot_head_rotation * pivot_shoulder_rotation:inverse()
+	self.stances.usp.standard.vel_overshot.pivot = pivot_shoulder_translation + Vector3(0, -30, 0)
+	self.stances.usp.standard.vel_overshot.yaw_neg = 10
+	self.stances.usp.standard.vel_overshot.yaw_pos = -10
+	self.stances.usp.standard.vel_overshot.pitch_neg = -8
+	self.stances.usp.standard.vel_overshot.pitch_pos = 8
+	
+	-- Steelsight stance
+	local pivot_head_translation = Vector3(0, 42, 0)
+	local pivot_head_rotation = Rotation(0, 0, 0)
+	self.stances.usp.steelsight.shoulders.translation = pivot_head_translation - pivot_shoulder_translation:rotate_with(pivot_shoulder_rotation:inverse()):rotate_with(pivot_head_rotation)
+	self.stances.usp.steelsight.shoulders.rotation = pivot_head_rotation * pivot_shoulder_rotation:inverse()
+	self.stances.usp.steelsight.zoom_fov = false
+	self.stances.usp.steelsight.vel_overshot.pivot = pivot_shoulder_translation + Vector3(0, -30, 0)
+	self.stances.usp.steelsight.vel_overshot.yaw_neg = 8
+	self.stances.usp.steelsight.vel_overshot.yaw_pos = -8
+	self.stances.usp.steelsight.vel_overshot.pitch_neg = -12
+	self.stances.usp.steelsight.vel_overshot.pitch_pos = 12
+	
+	-- Crouched stance
+	local pivot_head_translation = Vector3(4, 35, -2)
+	local pivot_head_rotation = Rotation(0, 0, 0)
+	self.stances.usp.crouched.shoulders.translation = pivot_head_translation - pivot_shoulder_translation:rotate_with(pivot_shoulder_rotation:inverse()):rotate_with(pivot_head_rotation)
+	self.stances.usp.crouched.shoulders.rotation = pivot_head_rotation * pivot_shoulder_rotation:inverse()
+	self.stances.usp.crouched.vel_overshot.pivot = pivot_shoulder_translation + Vector3(0, -20, 0)
 end

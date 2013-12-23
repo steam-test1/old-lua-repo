@@ -88,7 +88,7 @@ function AchievmentManager:_parse_achievments( platform )
 		if ach._meta == "achievment" then
 			for _,reward in ipairs( ach ) do
 				if reward._meta == "reward" and (Application:editor() or platform == reward.platform) then
-					self.achievments[ ach.id ] = { id = reward.id, name = ach.name, exp = self.exp_awards[ ach.awards_exp ], awarded = false }
+					self.achievments[ ach.id ] = { id = reward.id, name = ach.name, exp = self.exp_awards[ ach.awards_exp ], awarded = false, dlc_loot = reward.dlc_loot or false }
 				end
 		 	end
 		end
@@ -156,11 +156,28 @@ function AchievmentManager:_give_reward( id, skip_exp )
 	local data = self:get_info( id )
 	data.awarded = true
 	
+	
+	if data.dlc_loot then
+		managers.dlc:on_achievement_award_loot()
+	end
 	--[[
 	if not skip_exp and data.exp and data.exp > 0 then
 		managers.experience:add_points( data.exp, true )
 	end
 	]]
+end
+
+
+function AchievmentManager:award_progress( stat )
+	if Application:editor() or not managers.criminals:local_character_name() then
+		return 
+	end
+	
+	print( "[AchievmentManager:award_progress]: ", stat .. " increased with 1" )
+	
+	local stats = {}
+	stats[ stat ] = { type = "int", value = 1 }
+	managers.network.account:publish_statistics( stats, true )
 end
 
 -----------------------------------------------------------------------------------

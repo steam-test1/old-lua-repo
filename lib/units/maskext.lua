@@ -20,7 +20,15 @@ function MaskExt:apply_blueprint( blueprint )
 	
 	-- see managers.blackmarket:apply_mask_craft_on_unit( self._unit, blueprint )
 	local materials = self._unit:get_objects_by_type( Idstring( "material" ) )
-	local material = materials[ #materials ]
+	local material
+	
+	for _, m in ipairs( materials ) do
+		if m:variable_exists( Idstring( "tint_color_a" ) ) then
+			material = m
+			break
+		end
+	end
+	material = material or materials[ #materials ]
 	
 	local tint_color_a = mvec1
 	local tint_color_b = mvec2

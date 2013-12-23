@@ -135,7 +135,9 @@ function PlayerManager:aquire_default_upgrades()
 	--[[managers.upgrades:aquire_default( "trip_mine" )
 	managers.upgrades:aquire_default( "ammo_bag" )
 	managers.upgrades:aquire_default( "doctor_bag" )]]
-		
+	
+	
+	
 	for i = 1, PlayerManager.WEAPON_SLOTS do
 		if not managers.player:weapon_in_slot( i ) then
 			self._global.kit.weapon_slots[ i ] = managers.player:availible_weapons( i )[ 1 ]
@@ -470,6 +472,10 @@ function PlayerManager:player_unit( id )
 	return self._players[ p_id ]
 end
 
+function PlayerManager:local_player()
+	return self:player_unit()
+end
+
 function PlayerManager:warp_to( pos, rot, id )
 	local player = self._players[ id or 1 ]
 	if( alive( player ) ) then
@@ -782,10 +788,13 @@ function PlayerManager:has_category_upgrade( category, upgrade )
 end
 
 -- Returns current body armor value. Body armor upgrade needs to be unlocked and equipped.
-function PlayerManager:body_armor_value()
+function PlayerManager:body_armor_value( category, override_value, default )
 	local armor_data = tweak_data.blackmarket.armors[ managers.blackmarket:equipped_armor() ]
-	return self:upgrade_value_by_level( "player", "body_armor", armor_data.upgrade_level, 0 )
+	
+	return self:upgrade_value_by_level( "player", "body_armor", category, {} )[ override_value or armor_data.upgrade_level ] or default or 0
 
+	--return self:upgrade_value_by_level( "player", "body_armor", armor_data.upgrade_level, 0 )
+	
 	--[[ old armor upgrade 
 	if not self:has_category_upgrade( "player", "body_armor" ) then
 		return 0
@@ -799,6 +808,7 @@ function PlayerManager:body_armor_value()
 	-- return self:upgrade_value( "player", "body_armor" )
 end
 
+--[[
 function PlayerManager:body_armor_movement_penalty()
 	local armor_data = tweak_data.blackmarket.armors[ managers.blackmarket:equipped_armor() ]
 	local movement_penalty = self:upgrade_value_by_level( "player", "armor_movement_penalty", armor_data.movement_penalty, 1 )
@@ -813,11 +823,169 @@ function PlayerManager:body_armor_movement_penalty()
 
 	return movement_penalty
 end
+]]
 
+--[[
 function PlayerManager:body_armor_dodge_penalty()
 	local armor_data = tweak_data.blackmarket.armors[ managers.blackmarket:equipped_armor() ]
 	return self:upgrade_value_by_level( "player", "armor_dodge_penalty", armor_data.upgrade_level, 1, 1 )
 end
+]]
+
+
+
+
+
+
+
+
+function PlayerManager:get_hostage_bonus_multiplier( category )
+	local hostages = managers.groupai and managers.groupai:state():hostage_count() or 0
+	local multiplier = 0
+	
+	multiplier = multiplier + self:team_upgrade_value( category, "hostage_multiplier", 1 ) - 1
+	multiplier = multiplier + self:team_upgrade_value( category, "passive_hostage_multiplier", 1 ) - 1
+	multiplier = multiplier + self:upgrade_value( "player", "hostage_" .. category .. "_multiplier", 1 ) - 1
+	multiplier = multiplier + self:upgrade_value( "player", "passive_hostage_" .. category .. "_multiplier", 1 ) - 1
+	
+	return 1 + multiplier * hostages
+end
+
+----------------------------------------------------
+
+function PlayerManager:movement_speed_multiplier( speed_state, bonus_multiplier )
+	local multiplier = 1
+	local armor_penalty = self:mod_movement_penalty( self:body_armor_value( "movement", nil, 1 ) )
+	
+	multiplier = multiplier + armor_penalty - 1
+	if bonus_multiplier then
+		multiplier = multiplier + bonus_multiplier - 1
+	end
+	if speed_state then
+		multiplier = multiplier + self:upgrade_value( "player", speed_state .. "_speed_multiplier", 1 ) - 1
+	end
+	multiplier = multiplier + self:get_hostage_bonus_multiplier( "speed" ) - 1
+	
+	if self:num_local_minions() > 0 then
+		multiplier = multiplier + self:upgrade_value( "player", "minion_master_speed_multiplier", 1 ) - 1
+	end
+	
+	return multiplier
+end
+
+----------------------------------------------------
+
+function PlayerManager:mod_movement_penalty( movement_penalty )
+	local skill_mods = self:upgrade_value( "player", "passive_armor_movement_penalty_multiplier", 1 )
+	if skill_mods < 1 then
+		local penalty = 1 - movement_penalty
+		penalty = penalty * skill_mods
+		
+		movement_penalty = 1 - penalty
+	end
+	
+	return movement_penalty
+end
+
+function PlayerManager:body_armor_skill_multiplier()
+	local multiplier = 1
+	
+	multiplier = multiplier + self:upgrade_value( "player", "passive_armor_multiplier", 1 ) - 1
+	multiplier = multiplier + self:upgrade_value( "player", "armor_multiplier", 1 ) - 1
+	multiplier = multiplier + self:get_hostage_bonus_multiplier( "armor" ) - 1
+	
+	return multiplier
+end
+
+function PlayerManager:skill_dodge_chance( running, detection_risk )
+	local chance = self:upgrade_value( "player", "passive_dodge_chance", 0 )
+	if running then
+		chance = chance + self:upgrade_value( "player", "run_dodge_chance", 0 )
+	end
+	
+	if not detection_risk then
+		detection_risk = managers.blackmarket:get_suspicion_offset_of_local( tweak_data.player.SUSPICION_OFFSET_LERP or 0.75 )
+		detection_risk = math.round( detection_risk * 100 )
+	end
+		
+	local detection_risk_add_dodge_chance = managers.player:upgrade_value( "player", "detection_risk_add_dodge_chance" )
+	if type( detection_risk_add_dodge_chance ) == "table" then
+		local value = detection_risk_add_dodge_chance[1]
+		local step = detection_risk_add_dodge_chance[2]
+		local operator = detection_risk_add_dodge_chance[3]
+		local threshold = detection_risk_add_dodge_chance[4]
+		
+		local num_steps = 0
+		if operator == "above" then
+			num_steps = math.max( math.floor( ( detection_risk - threshold ) / step ), 0 )
+		elseif operator == "below" then
+			num_steps = math.max( math.floor( ( threshold - detection_risk ) / step ), 0 )
+		end
+		
+		chance = chance + num_steps * value
+	end
+	
+	return chance
+end
+
+function PlayerManager:stamina_multiplier()
+	local multiplier = 1
+	
+	multiplier = multiplier + self:upgrade_value( "player", "stamina_multiplier", 1 ) - 1
+	multiplier = multiplier + self:team_upgrade_value( "stamina", "multiplier", 1 ) - 1
+	multiplier = multiplier + self:team_upgrade_value( "stamina", "passive_multiplier", 1 ) - 1
+	multiplier = multiplier + self:get_hostage_bonus_multiplier( "stamina" ) - 1
+	
+	return multiplier
+end
+
+function PlayerManager:critical_hit_chance()
+	local multiplier = 0
+	
+	multiplier = multiplier + self:upgrade_value( "player", "critical_hit_chance", 0 )
+	multiplier = multiplier + self:upgrade_value( "weapon", "critical_hit_chance", 0 )
+	multiplier = multiplier + self:team_upgrade_value( "critical_hit", "chance", 0 )
+	multiplier = multiplier + self:get_hostage_bonus_multiplier( "critical_hit" ) - 1
+	
+	
+	local detection_risk = managers.blackmarket:get_suspicion_offset_of_local( tweak_data.player.SUSPICION_OFFSET_LERP or 0.75 )
+	detection_risk = math.round( detection_risk * 100 )
+	
+	local detection_risk_add_crit_chance = managers.player:upgrade_value( "player", "detection_risk_add_crit_chance" )
+	if type( detection_risk_add_crit_chance ) == "table" then
+		local value = detection_risk_add_crit_chance[1]
+		local step = detection_risk_add_crit_chance[2]
+		local operator = detection_risk_add_crit_chance[3]
+		local threshold = detection_risk_add_crit_chance[4]
+		
+		local num_steps = 0
+		if operator == "above" then
+			num_steps = math.max( math.floor( ( detection_risk - threshold ) / step ), 0 )
+		elseif operator == "below" then
+			num_steps = math.max( math.floor( ( threshold - detection_risk ) / step ), 0 )
+		end
+		
+		multiplier = multiplier + num_steps * value
+	end
+	return multiplier
+end
+
+
+function PlayerManager:health_skill_multiplier()
+	local multiplier = 1
+	
+	multiplier = multiplier + self:upgrade_value( "player", "health_multiplier", 1 ) - 1
+	multiplier = multiplier + self:upgrade_value( "player", "passive_health_multiplier", 1 ) - 1
+	multiplier = multiplier + self:team_upgrade_value( "health", "passive_multiplier", 1 ) - 1
+	multiplier = multiplier + self:get_hostage_bonus_multiplier( "health" ) - 1
+	
+	if self:num_local_minions() > 0 then
+		multiplier = multiplier + self:upgrade_value( "player", "minion_master_health_multiplier", 1 ) - 1
+	end
+	
+	return multiplier
+end
+
 
 -- Returns current thick skin value. Thick skin upgrade needs to be unlocked and equipped.
 function PlayerManager:thick_skin_value()
@@ -2046,6 +2214,11 @@ function PlayerManager:is_carrying()
 	return self:get_my_carry_data() and true or false
 end
 
+function PlayerManager:current_carry_id()
+	local my_carry_data = self:get_my_carry_data()
+	return my_carry_data and my_carry_data.carry_id or nil
+end
+
 function PlayerManager:carry_blocked_by_cooldown()
 	return self._carry_blocked_cooldown_t and self._carry_blocked_cooldown_t > Application:time() or false
 end
@@ -2111,6 +2284,10 @@ end
 
 function PlayerManager:reset_minions()
 	self._local_player_minions = 0
+end
+
+function PlayerManager:num_local_minions()
+	return self._local_player_minions
 end
 
 function PlayerManager:chk_minion_limit_reached()

@@ -310,10 +310,12 @@ end
 
 -----------------------------------------------------------------------------
 
-function SentryGunBrain:synch_allow_fire( state )
+function SentryGunBrain:synch_allow_fire( state, instant )
 	if state and not self._firing then
 		self._unit:weapon():start_autofire()
-		self._unit:weapon():trigger_held( true, false )
+		if instant then
+			self._unit:weapon():trigger_held( true, false )
+		end
 	elseif not state then
 		if self._unit:weapon():out_of_ammo() then	-- stop all activity
 			self:switch_off()
@@ -390,7 +392,7 @@ function SentryGunBrain:load( save_data )
 	self._shaprness_mul = save_data.brain.shaprness_mul or 1
 	
 	if save_data.brain.firing then
-		self:synch_allow_fire( true )
+		self:synch_allow_fire( true, false )
 	end
 end
 

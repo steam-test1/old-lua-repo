@@ -39,43 +39,6 @@ function LevelsTweakData:init()
 	self.framing_frame_3.package		= "packages/narr_framing_3"
 	self.framing_frame_3.cube			= "cube_apply_heist_bank"
 	
-	self.election_day_1						= {}
-	self.election_day_1.name_id 		= "heist_election_day_1_hl"
-	self.election_day_1.briefing_id 	= "heist_election_day_1_briefing"
-	self.election_day_1.briefing_dialog = "Play_pln_election_stage1_brief"
-	self.election_day_1.world_name 		= "narratives/e_election_day/stage_1"
-	self.election_day_1.intro_event		= "Play_pln_election_stage1_intro_a"
-	self.election_day_1.outro_event				= { "Play_pln_election_stage1_end_a", "Play_pln_election_stage1_end_b" }
-	-- self.election_day_1.intro_cues		= { "intro_election_day_101", "intro_election_day_102", "intro_election_day_103", "intro_election_day_104" }
-	self.election_day_1.music			= "heist"
-	self.election_day_1.package			= {"packages/narr_election1"}
-	self.election_day_1.cube			= "cube_apply_heist_bank"
-	
-	self.election_day_2						= {}
-	self.election_day_2.name_id 		= "heist_election_day_2_hl"
-	self.election_day_2.briefing_id 	= "heist_election_day_2_briefing"
-	self.election_day_2.briefing_dialog = "Play_pln_election_stage2_brief"
-	self.election_day_2.world_name 		= "narratives/e_election_day/stage_2"
-	self.election_day_2.intro_event		= "Play_pln_election_stage2_intro_a"
-	self.election_day_2.outro_event				= { "Play_pln_election_stage2_end_a", "Play_pln_election_stage2_end_b" }
-	-- self.election_day_2.intro_cues		= { "intro_election_day_201", "intro_election_day_202", "intro_election_day_203", "intro_election_day_204" }
-	self.election_day_2.music			= "heist"
-	self.election_day_2.package			= {"packages/narr_election2"}
-	self.election_day_2.cube			= "cube_apply_heist_bank"
-	
-	self.election_day_3					= {}
-	self.election_day_3.name_id 		= "heist_election_day_3_hl"
-	self.election_day_3.briefing_id 	= "heist_election_day_3_briefing"
-	self.election_day_3.briefing_dialog = "Play_pln_election_stage3_brief"
-	self.election_day_3.world_name 		= "narratives/e_election_day/stage_3"
-	self.election_day_3.intro_event		= "Play_pln_election_stage3_intro_a"
-	self.election_day_3.outro_event				= { "Play_pln_election_stage3_end_a", "Play_pln_election_stage3_end_b" }
-	-- self.election_day_3.intro_cues		= { "intro_election_day_301", "intro_election_day_302", "intro_election_day_303", "intro_election_day_304" }
-	self.election_day_3.music			= "heist"
-	self.election_day_3.package			= "packages/narr_election3"
-	self.election_day_3.cube			= "cube_apply_heist_bank"
-	--self.election_day_3.equipment 		= { "c4" }
-	
 	self.alex_1							= {}
 	self.alex_1.name_id 				= "heist_alex_1_hl"
 	self.alex_1.briefing_id 			= "heist_alex_1_briefing"
@@ -285,16 +248,6 @@ function LevelsTweakData:init()
 	self.branchbank.package					= "packages/narr_firestarter3"
 	self.branchbank.cube					= "cube_apply_heist_bank"
 	self.branchbank.mission_data			= { {mission="standalone"} }
-	self.fwb								= {}
-	self.fwb.name_id 						= "heist_fwb_hl"
-	self.fwb.briefing_id 					= "heist_fwb_briefing"
-	self.fwb.world_name 					= "narratives/vlad/fwb"
-	self.fwb.intro_event					= "nothing"
-	self.fwb.outro_event				= "nothing"
-	-- self.fwb.intro_cues						= { "intro_fwb01", "intro_fwb02" }
-	self.fwb.music							= "heist"
-	self.fwb.package						= "packages/vlad_fwb"
-	self.fwb.cube							= "cube_apply_heist_bank"
 
 
 	--	Depreciated heists
@@ -422,81 +375,9 @@ function LevelsTweakData:init()
 	self.safehouse.package				= "packages/safehouse"
 	self.safehouse.cube				= "cube_apply_heist_bank"
 	self.safehouse.team_ai_off			= true
-
-	----------------------- UPCOMING ---------------------
-
-	self.arm_cro = {}
-	self.arm_cro.name_id = "heist_arm_hl"
-	self.arm_cro.briefing_id = "heist_arm_briefing"
-	self.arm_cro.briefing_dialog = "pln_at1_brf_01"
-	self.arm_cro.world_name = "narratives/armadillo/arm_cro"
-	self.arm_cro.intro_event = "Play_pln_at1_intro_01"
-	self.arm_cro.outro_event = {"Play_pln_at1_end_01", "Play_pln_at1_end_02", "Play_pln_at1_end_03"}
-	-- self.arm_cro.intro_cues			= {}
-	self.arm_cro.music = "heist"
-	self.arm_cro.package = "packages/narr_arm_cro"
-	self.arm_cro.cube = "cube_apply_heist_bank"
-
-	self.arm_und = {}
-	self.arm_und.name_id = "heist_arm_hl"
-	self.arm_und.briefing_id = "heist_arm_briefing"
-	self.arm_und.briefing_dialog = "pln_at1_brf_01"
-	self.arm_und.world_name = "narratives/armadillo/arm_und"
-	self.arm_und.intro_event = "Play_pln_at1_intro_01"
-	self.arm_und.outro_event = {"Play_pln_at1_end_01", "Play_pln_at1_end_02", "Play_pln_at1_end_03"}
-	-- self.arm_und.intro_cues			= {}
-	self.arm_und.music = "heist"
-	self.arm_und.package = "packages/narr_arm_und"
-	self.arm_und.cube = "cube_apply_heist_bank"
-
-	self.arm_bri = {}
-	self.arm_bri.name_id = "heist_arm_hl"
-	self.arm_bri.briefing_id = "heist_arm_briefing"
-	self.arm_bri.briefing_dialog = "pln_at1_brf_01"
-	self.arm_bri.world_name = "narratives/armadillo/arm_bri"
-	self.arm_bri.intro_event = "Play_pln_at1_intro_01"
-	self.arm_bri.outro_event = {"Play_pln_at1_end_01", "Play_pln_at1_end_02", "Play_pln_at1_end_03"}
-	-- self.arm_bri.intro_cues			= {}
-	self.arm_bri.music = "heist"
-	self.arm_bri.package = "packages/narr_arm_bri"
-	self.arm_bri.cube = "cube_apply_heist_bank"
-
-	self.arm_hcm = {}
-	self.arm_hcm.name_id = "heist_arm_hl"
-	self.arm_hcm.briefing_id = "heist_arm_briefing"
-	self.arm_hcm.briefing_dialog = "pln_at1_brf_01"
-	self.arm_hcm.world_name = "narratives/armadillo/arm_hcm"
-	self.arm_hcm.intro_event = "Play_pln_at1_intro_01"
-	self.arm_hcm.outro_event = {"Play_pln_at1_end_01", "Play_pln_at1_end_02", "Play_pln_at1_end_03"}
-	-- self.arm_hcm.intro_cues			= {}
-	self.arm_hcm.music = "heist"
-	self.arm_hcm.package = "packages/narr_arm_hcm"
-	self.arm_hcm.cube = "cube_apply_heist_bank"
-
-	self.arm_par = {}
-	self.arm_par.name_id = "heist_arm_hl"
-	self.arm_par.briefing_id = "heist_arm_briefing"
-	self.arm_par.briefing_dialog = "pln_at1_brf_01"
-	self.arm_par.world_name = "narratives/armadillo/arm_par"
-	self.arm_par.intro_event = "Play_pln_at1_intro_01"
-	self.arm_par.outro_event = {"Play_pln_at1_end_01", "Play_pln_at1_end_02", "Play_pln_at1_end_03"}
-	-- self.arm_par.intro_cues			= {}
-	self.arm_par.music = "heist"
-	self.arm_par.package = "packages/narr_arm_par"
-	self.arm_par.cube = "cube_apply_heist_bank"
-
-	self.arm_fac = {}
-	self.arm_fac.name_id = "heist_arm_hl"
-	self.arm_fac.briefing_id = "heist_arm_briefing"
-	self.arm_fac.briefing_dialog = "pln_at1_brf_01"
-	self.arm_fac.world_name = "narratives/armadillo/arm_fac"
-	self.arm_fac.intro_event = "Play_pln_at1_intro_01"
-	self.arm_fac.outro_event = {"Play_pln_at1_end_01", "Play_pln_at1_end_02", "Play_pln_at1_end_03"}
-	-- self.arm_fac.intro_cues			= {}
-	self.arm_fac.music = "heist"
-	self.arm_fac.package = "packages/narr_arm_fac"
-	self.arm_fac.cube = "cube_apply_heist_bank"
-
+	
+	
+	
 	self.family = {}
 	self.family.name_id = "heist_family_hl"
 	self.family.briefing_id = "heist_family_briefing"
@@ -508,8 +389,20 @@ function LevelsTweakData:init()
 	self.family.music = "heist"
 	self.family.package = "packages/narr_family"
 	self.family.cube = "cube_apply_heist_bank"
-
-
+	
+	self.haunted = {}
+	self.haunted.name_id = "heist_haunted_hl"
+	self.haunted.briefing_id = "heist_haunted_briefing"
+	
+	self.haunted.world_name = "narratives/haunted_safehouse"
+	self.haunted.intro_event = "lol"
+	self.haunted.outro_event = { "lol", "lolo" }
+	
+	self.haunted.music = "heist"
+	self.haunted.package = "packages/narr_haunted"
+	self.haunted.cube = "cube_apply_heist_bank"
+	
+	
 	------------------------ TESTS -----------------------
 	self.test01						= {}
 	self.test01.name_id 			= "heist_test01_hl"
@@ -525,7 +418,7 @@ function LevelsTweakData:init()
 	self.test02						= {}
 	self.test02.name_id 			= "heist_test02_hl"
 	self.test02.briefing_id 		= "heist_test02"
-	self.test02.world_name 			= "wip/on_time/stage_1"
+	self.test02.world_name 			= "wip/paz"
 	self.test02.intro_event			= "nothing"
 	self.test02.outro_event				= "nothing"
 	-- self.test02.intro_cues			= { "intro_test0201", "intro_test0202", "intro_test0203", "intro_test0204" }
@@ -820,36 +713,19 @@ function LevelsTweakData:init()
 	self.hospital.dlc					= "dlc4"
 			
 	self._level_index =	{
-						--[["heist_bank", "heist_casino", "score_airport", "score_crackhouse", "score_crossing", "score_yacht", "score_docks", 
-						"quick_diamond", "quick_convoy", "quick_trade",
-						"branchbank_a", "office", "quick_forest_survive", "weapon_room", "snitch_snatch_1", "snitch_snatch_2_alt_1", "snitch_snatch_2_alt_2",
-						"drought_1", "drought_2", "drought_3", "drought_4", "drought_5",
-						"bring_me_the_head_1", "bring_me_the_head_2", "bring_me_the_head_3",
-						"dead_drop_1", "dead_drop_2",
-						"war_is_fantastic_1", "war_is_fantastic_2", "war_is_fantastic_3",
-						"cinderella_1", "cinderella_2", "cinderella_3", "cinderella_4", "cinderella_5",
-						"turf_war_1", "turf_war_2", "turf_war_3",
-						"on_display_1", "on_display_2",
-						
-						]]
-						
 					"welcome_to_the_jungle_1", "welcome_to_the_jungle_2",
 					"framing_frame_1", "framing_frame_2", "framing_frame_3",
-					"election_day_1", "election_day_2", "election_day_3",
 					"watchdogs_1", "watchdogs_2",
 					"alex_1", "alex_2", "alex_3",
 					"firestarter_1", "firestarter_2", "firestarter_3",
-					"ukrainian_job", "jewelry_store", "four_stores", "mallcrasher", "nightclub", "branchbank", "fwb",
+					"ukrainian_job", "jewelry_store", "four_stores", "mallcrasher", "nightclub", "branchbank",
 					"escape_cafe", "escape_park", "escape_cafe_day", "escape_park_day", "escape_street", "escape_overpass", "escape_garage", "escape_overpass_night",
 					"safehouse",
-					"family",
-					--[["arm_fac", "arm_par", "arm_hcm", "arm_bri", "arm_cro", "arm_und",]]
-
-					"test01", "test02", "test03", "test04", "test05", "test06", "test07", "test08", "test09", "test10", "escape_chain_test_1", "escape_chain_test_2", "vehicle_van_test"
-					-- "bank", "heat_street", "bridge", "apartment", "slaughter_house", "diamond_heist", "suburbia", "secret_stash", "hospital", "escape_rooftop" 
+					"family", "haunted",
+					-- "test01", "test02", "test03", "test04", "test05", "test06", "test07", "test08", "test09", "test10", "escape_chain_test_1", "escape_chain_test_2", "vehicle_van_test"
 				}
 
-	self.escape_levels =	{	"escape_cafe", "escape_park", "escape_street", "escape_overpass", "escape_garage", "escape_overpass_night", "escape_cafe_day", "escape_park_day", "election_day_3"	}
+	self.escape_levels =	{	"escape_cafe", "escape_park", "escape_street", "escape_overpass", "escape_garage", "escape_overpass_night", "escape_cafe_day", "escape_park_day" } -- "election_day_3"
 end
 
 ------------------------------------------------------------------

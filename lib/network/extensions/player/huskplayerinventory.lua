@@ -42,6 +42,8 @@ HuskPlayerInventory._index_to_weapon_list = {
 	"wpn_fps_pis_rage_npc",
 	"wpn_fps_saw_npc",
 	"wpn_fps_shot_serbu_npc",
+	"wpn_fps_pis_usp_npc"
+	
 }
 
 

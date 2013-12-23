@@ -38,6 +38,10 @@ function PlayerTased:enter( state_data, enter_data )
 	self:_interupt_action_steelsight()
 	
 	self._rumble_electrified = managers.rumble:play( "electrified" )
+	
+	if managers.blackmarket:equipped_mask().mask_id == tweak_data.achievement.its_alive_its_alive.mask then
+		managers.achievment:award_progress( tweak_data.achievement.its_alive_its_alive.stat )
+	end
 end
 
 --------------------------------------------------------------------------------------

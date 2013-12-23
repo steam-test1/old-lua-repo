@@ -2479,7 +2479,7 @@ function MenuComponentManager:create_weapon_mod_icon_list( weapon, category, fac
 			local texture = self:get_texture_from_mod_type( name, gadget, silencer )
 			
 			if DB:has( Idstring( "texture" ), texture ) then
-				table.insert( icon_list, { texture = texture, equipped = equipped } )
+				table.insert( icon_list, { texture = texture, equipped = equipped, type = name } )
 			end
 		end
 	end

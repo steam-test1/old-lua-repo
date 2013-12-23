@@ -65,8 +65,8 @@ end
 
 function NetworkAccountSTEAM:_set_presences()
 	Steam:set_rich_presence( "level", managers.experience:current_level() )
-	Steam:set_rich_presence( "outfit", managers.blackmarket:outfit_string() )
-	Steam:set_rich_presence( "pung", "ballers" )
+	-- Steam:set_rich_presence( "outfit", managers.blackmarket:outfit_string() )
+	-- Steam:set_rich_presence( "pung", "ballers" )
 end
 
 function NetworkAccountSTEAM:set_presences_peer_id( peer_id )
@@ -253,7 +253,13 @@ function NetworkAccountSTEAM:get_stat( key )
 end
 
 function NetworkAccountSTEAM:get_global_stat( key, days )
-	local global_stat = Steam:sa_handler():get_global_stat( key, days )
+	local global_stat
+	
+	if days then
+		global_stat = Steam:sa_handler():get_global_stat( key, days )
+	else
+		global_stat = Steam:sa_handler():get_global_stat( key )
+	end
 	
 	local value = 0
 	for _, day in ipairs( global_stat ) do
@@ -263,7 +269,7 @@ function NetworkAccountSTEAM:get_global_stat( key, days )
 	return value
 end
 
-function NetworkAccountSTEAM:publish_statistics( stats )
+function NetworkAccountSTEAM:publish_statistics( stats, force_store )
 	if managers.dlc:is_trial() then
 		return
 	end
@@ -332,7 +338,9 @@ function NetworkAccountSTEAM:publish_statistics( stats )
 			Application:throw_exception( "[NetworkAccountSTEAM:publish_statistics] Missing statistics, needs to be added!!" )
 		end
 
-		return
+		if not force_store then
+			return
+		end
 	end
 
 	if not err then

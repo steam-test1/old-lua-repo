@@ -232,6 +232,13 @@ function DescriptionItem:init( panel, text, i, saved_descriptions )
 	title_text:set_size( w, h )
 	title_text:set_position( math.round(title_text:x()), math.round(title_text:y()) )
 	
+	if managers.job:is_current_job_professional() then
+		local pro_text = self._panel:text( { name="pro_text", text=managers.localization:to_upper_text( "cn_menu_pro_job" ), font_size=tweak_data.menu.pd2_medium_font_size, font=tweak_data.menu.pd2_medium_font, color=tweak_data.screen_colors.pro_color, blend_mode="add" } )
+		local x, y, w, h = pro_text:text_rect()
+		pro_text:set_size( w, h )
+		pro_text:set_position( title_text:right() + 10, title_text:y() )
+	end
+	
 	self._scroll_panel = self._panel:panel( { x=10, y=title_text:bottom() } )
 	self._scroll_panel:grow( -self._scroll_panel:x()-10, -self._scroll_panel:y() )
 	local desc_text = self._scroll_panel:text( { name="description_text", text=managers.localization:text(briefing_id), font_size=tweak_data.menu.pd2_small_font_size, font=tweak_data.menu.pd2_small_font, wrap=true, word_wrap=true, color=tweak_data.screen_colors.text } )
@@ -1241,7 +1248,7 @@ end
 function LoadoutItem:create_deployable_loadout()
 	local data = {}
 	-- table.insert( data, { name="bm_menu_deployables", category="deployables", on_create_func=callback(self, self, "populate_deployables"), identifier=Idstring( "deployable" ) } )
-	table.insert( data, { name="bm_menu_deployables", category="deployables", on_create_func_name="populate_deployables", identifier=Idstring( "deployable" ) } )
+	table.insert( data, { name="bm_menu_deployables", category="deployables", on_create_func_name="populate_deployables", override_slots={ 3, 2 }, identifier=Idstring( "deployable" ) } )
 	data.topic_id = "menu_loadout_blackmarket"
 	data.topic_params = { category=managers.localization:text( "bm_menu_deployables" ) }
 	

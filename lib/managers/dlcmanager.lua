@@ -40,13 +40,14 @@ end
 function GenericDLCManager:give_dlc_package()
 	for package_id,data in pairs( tweak_data.dlc ) do
 		-- print( "package_id", package_id, inspect( data ) )
-		if data.free or self[data.dlc]( self ) then
+		if data.free or self[data.dlc]( self, data ) then
 			print( "[DLC] Ownes dlc", data.free, data.dlc ) 
 			if not Global.dlc_save.packages[ package_id ] then
 				Global.dlc_save.packages[ package_id ] = true
 				
 				for _,loot_drop in ipairs( data.content.loot_drops or {} ) do
 					-- print( "  loot_drop", inspect( loot_drop ) )
+					local loot_drop = #loot_drop > 0 and loot_drop[ math.random( #loot_drop ) ] or loot_drop
 					for i = 1, loot_drop.amount do
 						local entry = tweak_data.blackmarket[ loot_drop.type_items ][ loot_drop.item_entry ]
 						local global_value = loot_drop.global_value or data.content.loot_global_value or package_id -- entry.infamous and "infamous" or "normal"
@@ -84,10 +85,19 @@ function GenericDLCManager:on_reset_profile()
 	self:give_dlc_package()
 end
 
+function GenericDLCManager:on_achievement_award_loot()
+	Application:debug("GenericDLCManager:on_achievement_award_loot()")
+	self:give_dlc_package()
+end
+
 function GenericDLCManager:on_signin_complete()
 end
 
 function GenericDLCManager:has_dlc( dlc )
+	if dlc == "cce" then
+		dlc = "career_criminal_edition"
+	end
+	
 	local dlc_data = Global.dlc_manager.all_dlc_data[ dlc ]
 	if not dlc_data then
 		Application:error( "Didn't have dlc data for", dlc )
@@ -136,6 +146,11 @@ function GenericDLCManager:has_pd2_clan()
 end
 
 ------------------------------------------------------------------------------
+
+function GenericDLCManager:has_achievement( data )
+	local achievement = managers.achievment and data and data.achievement_id and managers.achievment:get_info( data.achievement_id )
+	return achievement and achievement.awarded or false
+end
 
 ------------------------------------------------------------------------------
 

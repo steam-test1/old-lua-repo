@@ -730,7 +730,7 @@ function ConnectionNetworkHandler:feed_lootdrop( global_value, item_category, it
 		return
 	end
 	
-	local global_values = { "normal", "superior", "exceptional", "infamous" }
+	local global_values = tweak_data.lootdrop.global_value_list_index
 	local lootdrop_data = { peer, global_values[global_value] or "normal", item_category, item_id, max_pc, item_pc, left_pc, right_pc }
 	
 	managers.hud:feed_lootdrop_hud( lootdrop_data )

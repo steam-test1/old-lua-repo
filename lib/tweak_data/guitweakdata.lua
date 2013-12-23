@@ -21,6 +21,8 @@ function GuiTweakData:init()
 	self.mouse_pointer.controller.max_acceleration = 3					-- maximum of acceleration for controller mouse pointer
 	self.mouse_pointer.controller.mouse_pointer_speed = 125			-- standard speed before acceleration (pixel/sec?)
 	
+	self.MAX_MASK_ROWS = math.round( 12 )
+	
 	self.crime_net = {}
 	self.crime_net.controller = {}
 	self.crime_net.controller.snap_distance = 50								-- 

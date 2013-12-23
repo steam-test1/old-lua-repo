@@ -11,7 +11,12 @@ function HudIconsTweakData:init()
 						texture = "guis/textures/scroll_items",
 						texture_rect = { 15, 0, 15, 18 },
 					}
-
+	
+	self.scrollbar_arrow = {
+						texture = "guis/textures/pd2/scrollbar_arrows",
+						texture_rect = { 1, 1, 9, 10 }
+					}
+	
 	self.scrollbar = {				
 						texture = "guis/textures/scroll_items",
 						texture_rect = { 30, 0, 15, 32 },

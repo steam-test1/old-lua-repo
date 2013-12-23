@@ -437,7 +437,7 @@ function NarrativeTweakData:init()
 	self.jobs.election_day.jc 				= 50
 	self.jobs.election_day.chain			= {
 												{ level_id = "election_day_1", type_id = "heist_type_assault", type = "e", mission_filter = { 1,} }, 
-													{ level_id = "election_day_2", type_id = "heist_type_assault", type = "e", mission_filter = { 1,} },
+												{ level_id = "election_day_2", type_id = "heist_type_assault", type = "e", mission_filter = { 1,} },
 											}
 	self.jobs.election_day.briefing_event = "elp_election_brf"
 	self.jobs.election_day.debrief_event = "elp_election_debrief"
@@ -485,207 +485,235 @@ function NarrativeTweakData:init()
 	self.jobs.escape_chain_test_prof = deep_clone( self.jobs.escape_chain_test )
 	self.jobs.escape_chain_test_prof.jc = 50
 	self.jobs.escape_chain_test_prof.professional = true]]
-  	self.jobs.arm_wrapper = {}
-
-  	self.jobs.arm_wrapper = {}
-  	self.jobs.arm_wrapper.name_id = "heist_arm"
-  	self.jobs.arm_wrapper.briefing_id = "heist_arm_crimenet"
-  	self.jobs.arm_wrapper.contact = "bain"
-  	self.jobs.arm_wrapper.jc = 40
-  	self.jobs.arm_wrapper.chain = {{}}
-  	self.jobs.arm_wrapper.job_wrapper = { "arm_cro", "arm_und", "arm_bri", "arm_hcm", "arm_par", "arm_fac" }
-
-  	self.jobs.arm_wrapper.crimenet_callouts = {"pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06"}
-
-  	self.jobs.arm_wrapper.crimenet_videos = nil
-
-
-  	self.jobs.arm_cro = {}
-  	self.jobs.arm_cro.name_id = "heist_arm"
-  	self.jobs.arm_cro.briefing_id = "heist_arm_crimenet"
-  	self.jobs.arm_cro.contact = "bain"
-  	self.jobs.arm_cro.region = "street"
-  	self.jobs.arm_cro.jc = 40
-  	self.jobs.arm_cro.chain = {
-		{level_id = "arm_cro", type_id = "heist_type_assault", type = "d", mission_filter = {4}, briefing_dialog = nil}
-	}
-  	self.jobs.arm_cro.briefing_event = "pln_branchbank_random_brf_speak"
-  	self.jobs.arm_cro.debrief_event = nil
-  	self.jobs.arm_cro.crimenet_callouts = {"pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06"}
-
-  	self.jobs.arm_cro.crimenet_videos = nil
-
-
-  	self.jobs.arm_cro_prof = deep_clone(	self.jobs.arm_cro)
-  	self.jobs.arm_cro_prof.jc = 40
-  	self.jobs.arm_cro_prof.professional = true
-  	self.jobs.arm_cro_prof.region = "professional"
-
-
-
-
-
-  	self.jobs.arm_und = {}
-  	self.jobs.arm_und.name_id = "heist_arm"
-  	self.jobs.arm_und.briefing_id = "heist_arm_crimenet"
-  	self.jobs.arm_und.contact = "bain"
-  	self.jobs.arm_und.region = "street"
-  	self.jobs.arm_und.jc = 40
-  	self.jobs.arm_und.chain = {
-		{level_id = "arm_und", type_id = "heist_type_assault", type = "d", mission_filter = {4}, briefing_dialog = nil}
-	}
-  	self.jobs.arm_und.briefing_event = "pln_branchbank_random_brf_speak"
-  	self.jobs.arm_und.debrief_event = nil
-  	self.jobs.arm_und.crimenet_callouts = {"pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06"}
-
-  	self.jobs.arm_und.crimenet_videos = nil
-
-
-  	self.jobs.arm_und_prof = deep_clone(	self.jobs.arm_und)
-  	self.jobs.arm_und_prof.jc = 40
-  	self.jobs.arm_und_prof.professional = true
-  	self.jobs.arm_und_prof.region = "professional"
-
-
-
-
-
-
-
-  	self.jobs.arm_bri = {}
-  	self.jobs.arm_bri.name_id = "heist_arm"
-  	self.jobs.arm_bri.briefing_id = "heist_arm_crimenet"
-  	self.jobs.arm_bri.contact = "bain"
-  	self.jobs.arm_bri.region = "street"
-  	self.jobs.arm_bri.jc = 40
-  	self.jobs.arm_bri.chain = {
-		{level_id = "arm_bri", type_id = "heist_type_assault", type = "d", mission_filter = {4}, briefing_dialog = nil}
-	}
-  	self.jobs.arm_bri.briefing_event = "pln_branchbank_random_brf_speak"
-  	self.jobs.arm_bri.debrief_event = nil
-  	self.jobs.arm_bri.crimenet_callouts = {"pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06"}
-
-  	self.jobs.arm_bri.crimenet_videos = nil
-
-
-  	self.jobs.arm_bri_prof = deep_clone(	self.jobs.arm_bri)
-  	self.jobs.arm_bri_prof.jc = 40
-  	self.jobs.arm_bri_prof.professional = true
-  	self.jobs.arm_bri_prof.region = "professional"
-
-
-
-
-
-
-
-
-  	self.jobs.arm_hcm = {}
-  	self.jobs.arm_hcm.name_id = "heist_arm"
-  	self.jobs.arm_hcm.briefing_id = "heist_arm_crimenet"
-  	self.jobs.arm_hcm.contact = "bain"
-  	self.jobs.arm_hcm.region = "street"
-  	self.jobs.arm_hcm.jc = 40
-  	self.jobs.arm_hcm.chain = {
-		{level_id = "arm_hcm", type_id = "heist_type_assault", type = "d", mission_filter = {4}, briefing_dialog = nil}
-	}
-  	self.jobs.arm_hcm.briefing_event = "pln_branchbank_random_brf_speak"
-  	self.jobs.arm_hcm.debrief_event = nil
-  	self.jobs.arm_hcm.crimenet_callouts = {"pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06"}
-
-  	self.jobs.arm_hcm.crimenet_videos = nil
-
-
-  	self.jobs.arm_hcm_prof = deep_clone(	self.jobs.arm_hcm)
-  	self.jobs.arm_hcm_prof.jc = 40
-  	self.jobs.arm_hcm_prof.professional = true
-  	self.jobs.arm_hcm_prof.region = "professional"
-
-
-
-
-  	self.jobs.arm_par = {}
-  	self.jobs.arm_par.name_id = "heist_arm"
-  	self.jobs.arm_par.briefing_id = "heist_arm_crimenet"
-  	self.jobs.arm_par.contact = "bain"
-  	self.jobs.arm_par.region = "street"
-  	self.jobs.arm_par.jc = 40
-  	self.jobs.arm_par.chain = {
-		{level_id = "arm_par", type_id = "heist_type_assault", type = "d", mission_filter = {4}, briefing_dialog = nil}
-	}
-  	self.jobs.arm_par.briefing_event = "pln_branchbank_random_brf_speak"
-  	self.jobs.arm_par.debrief_event = nil
-  	self.jobs.arm_par.crimenet_callouts = {"pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06"}
-
-  	self.jobs.arm_par.crimenet_videos = nil
-
-
-  	self.jobs.arm_par_prof = deep_clone(	self.jobs.arm_par)
-  	self.jobs.arm_par_prof.jc = 40
-  	self.jobs.arm_par_prof.professional = true
-  	self.jobs.arm_par_prof.region = "professional"
-
-
-
-
-  	self.jobs.arm_fac = {}
-  	self.jobs.arm_fac.name_id = "heist_arm"
-  	self.jobs.arm_fac.briefing_id = "heist_arm_crimenet"
-  	self.jobs.arm_fac.contact = "bain"
-  	self.jobs.arm_fac.region = "street"
-  	self.jobs.arm_fac.jc = 40
-  	self.jobs.arm_fac.chain = {
-		{level_id = "arm_fac", type_id = "heist_type_assault", type = "d", mission_filter = {4}, briefing_dialog = nil}
-	}
-  	self.jobs.arm_fac.briefing_event = "pln_branchbank_random_brf_speak"
-  	self.jobs.arm_fac.debrief_event = nil
-  	self.jobs.arm_fac.crimenet_callouts = {"pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06"}
-
-  	self.jobs.arm_fac.crimenet_videos = nil
-
-
-  	self.jobs.arm_fac_prof = deep_clone(	self.jobs.arm_fac)
-  	self.jobs.arm_fac_prof.jc = 40
-  	self.jobs.arm_fac_prof.professional = true
-  	self.jobs.arm_fac_prof.region = "professional"
-
-
-
-
-
-
-
-
-
-
-
-
-
-  	self.jobs.family = {}
-  	self.jobs.family.name_id = "heist_family"
-  	self.jobs.family.briefing_id = "heist_family_crimenet"
-  	self.jobs.family.contact = "bain"
-  	self.jobs.family.region = "street"
-  	self.jobs.family.jc = 40
-  	self.jobs.family.chain = {
-		{level_id = "family", type_id = "heist_type_assault", type = "d"}
-	}
-  	self.jobs.family.briefing_event = "pln_fj1_cbf_01"
-  	self.jobs.family.debrief_event = nil
-  	self.jobs.family.crimenet_callouts = {"pln_fj1_cnc_01_01", "pln_fj1_cnc_01_02", "pln_fj1_cnc_01_03"}
-  	self.jobs.family.crimenet_videos = {"cn_jewel1", "cn_jewel2", "cn_jewel3"}
+	self.jobs.arm_wrapper = {}
+	
+	self.jobs.arm_wrapper = {}
+	self.jobs.arm_wrapper.name_id = "heist_arm"
+	self.jobs.arm_wrapper.briefing_id = "heist_arm_crimenet"
+	self.jobs.arm_wrapper.contact = "bain"
+	self.jobs.arm_wrapper.jc = 40
+	self.jobs.arm_wrapper.chain = {{}}
+	self.jobs.arm_wrapper.job_wrapper = { "arm_cro", "arm_und", "arm_bri", "arm_hcm", "arm_par", "arm_fac" }
+	
+	self.jobs.arm_wrapper.crimenet_callouts = {"pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06"}
+	
+	self.jobs.arm_wrapper.crimenet_videos = nil
+	
+	
+	self.jobs.arm_cro = {}
+	self.jobs.arm_cro.name_id = "heist_arm"
+	self.jobs.arm_cro.briefing_id = "heist_arm_crimenet"
+	self.jobs.arm_cro.contact = "bain"
+	self.jobs.arm_cro.region = "street"
+	self.jobs.arm_cro.jc = 40
+	self.jobs.arm_cro.chain = {
+												{ level_id = "arm_cro", type_id = "heist_type_assault", type = "d", mission_filter = {4}, briefing_dialog = nil }
+											}
+	self.jobs.arm_cro.briefing_event = "pln_branchbank_random_brf_speak"
+	self.jobs.arm_cro.debrief_event = nil
+	self.jobs.arm_cro.crimenet_callouts = {"pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06"}
+	
+	self.jobs.arm_cro.crimenet_videos = nil
+	
+	
+	self.jobs.arm_cro_prof = deep_clone(	self.jobs.arm_cro)
+	self.jobs.arm_cro_prof.jc = 40
+	self.jobs.arm_cro_prof.professional = true
+	self.jobs.arm_cro_prof.region = "professional"
+	
+	
+	
+	
+	
+	self.jobs.arm_und = {}
+	self.jobs.arm_und.name_id = "heist_arm"
+	self.jobs.arm_und.briefing_id = "heist_arm_crimenet"
+	self.jobs.arm_und.contact = "bain"
+	self.jobs.arm_und.region = "street"
+	self.jobs.arm_und.jc = 40
+	self.jobs.arm_und.chain = {
+												{ level_id = "arm_und", type_id = "heist_type_assault", type = "d", mission_filter = {4}, briefing_dialog = nil }
+											}
+	self.jobs.arm_und.briefing_event = "pln_branchbank_random_brf_speak"
+	self.jobs.arm_und.debrief_event = nil
+	self.jobs.arm_und.crimenet_callouts = {"pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06"}
+	
+	self.jobs.arm_und.crimenet_videos = nil
+
+
+	self.jobs.arm_und_prof = deep_clone( self.jobs.arm_und )
+	self.jobs.arm_und_prof.jc = 40
+	self.jobs.arm_und_prof.professional = true
+	self.jobs.arm_und_prof.region = "professional"
+	
+	
+	
+	
+	
+	
+	
+	self.jobs.arm_bri = {}
+	self.jobs.arm_bri.name_id = "heist_arm"
+	self.jobs.arm_bri.briefing_id = "heist_arm_crimenet"
+	self.jobs.arm_bri.contact = "bain"
+	self.jobs.arm_bri.region = "street"
+	self.jobs.arm_bri.jc = 40
+	self.jobs.arm_bri.chain = {
+												{ level_id = "arm_bri", type_id = "heist_type_assault", type = "d", mission_filter = {4}, briefing_dialog = nil }
+											}
+	self.jobs.arm_bri.briefing_event = "pln_branchbank_random_brf_speak"
+	self.jobs.arm_bri.debrief_event = nil
+	self.jobs.arm_bri.crimenet_callouts = {"pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06"}
+	
+	self.jobs.arm_bri.crimenet_videos = nil
+	
+	
+	self.jobs.arm_bri_prof = deep_clone( self.jobs.arm_bri )
+	self.jobs.arm_bri_prof.jc = 40
+	self.jobs.arm_bri_prof.professional = true
+	self.jobs.arm_bri_prof.region = "professional"
+	
+	
+	
+	
+	
+	
+	
+	
+	self.jobs.arm_hcm = {}
+	self.jobs.arm_hcm.name_id = "heist_arm"
+	self.jobs.arm_hcm.briefing_id = "heist_arm_crimenet"
+	self.jobs.arm_hcm.contact = "bain"
+	self.jobs.arm_hcm.region = "street"
+	self.jobs.arm_hcm.jc = 40
+	self.jobs.arm_hcm.chain = {
+												{ level_id = "arm_hcm", type_id = "heist_type_assault", type = "d", mission_filter = {4}, briefing_dialog = nil }
+											}
+	self.jobs.arm_hcm.briefing_event = "pln_branchbank_random_brf_speak"
+	self.jobs.arm_hcm.debrief_event = nil
+	self.jobs.arm_hcm.crimenet_callouts = {"pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06"}
+	
+	self.jobs.arm_hcm.crimenet_videos = nil
+	
+	
+	self.jobs.arm_hcm_prof = deep_clone( self.jobs.arm_hcm )
+	self.jobs.arm_hcm_prof.jc = 40
+	self.jobs.arm_hcm_prof.professional = true
+	self.jobs.arm_hcm_prof.region = "professional"
+	
+	
+	
+	
+	self.jobs.arm_par = {}
+	self.jobs.arm_par.name_id = "heist_arm"
+	self.jobs.arm_par.briefing_id = "heist_arm_crimenet"
+	self.jobs.arm_par.contact = "bain"
+	self.jobs.arm_par.region = "street"
+	self.jobs.arm_par.jc = 40
+	self.jobs.arm_par.chain = {
+												{ level_id = "arm_par", type_id = "heist_type_assault", type = "d", mission_filter = {4}, briefing_dialog = nil }
+											}
+	self.jobs.arm_par.briefing_event = "pln_branchbank_random_brf_speak"
+	self.jobs.arm_par.debrief_event = nil
+	self.jobs.arm_par.crimenet_callouts = {"pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06"}
+	
+	self.jobs.arm_par.crimenet_videos = nil
+	
+	
+	self.jobs.arm_par_prof = deep_clone( self.jobs.arm_par )
+	self.jobs.arm_par_prof.jc = 40
+	self.jobs.arm_par_prof.professional = true
+	self.jobs.arm_par_prof.region = "professional"
+	
+	
+	
+	
+	self.jobs.arm_fac = {}
+	self.jobs.arm_fac.name_id = "heist_arm"
+	self.jobs.arm_fac.briefing_id = "heist_arm_crimenet"
+	self.jobs.arm_fac.contact = "bain"
+	self.jobs.arm_fac.region = "street"
+	self.jobs.arm_fac.jc = 40
+	self.jobs.arm_fac.chain = {
+												{ level_id = "arm_fac", type_id = "heist_type_assault", type = "d", mission_filter = {4}, briefing_dialog = nil }
+											}
+	self.jobs.arm_fac.briefing_event = "pln_branchbank_random_brf_speak"
+	self.jobs.arm_fac.debrief_event = nil
+	self.jobs.arm_fac.crimenet_callouts = {"pln_branchbank_random_cnc_01", "pln_branchbank_random_cnc_02", "pln_branchbank_random_cnc_03", "pln_branchbank_random_cnc_04", "pln_branchbank_random_cnc_05", "pln_branchbank_random_cnc_06"}
+	
+	self.jobs.arm_fac.crimenet_videos = nil
+	
+	
+	self.jobs.arm_fac_prof = deep_clone( self.jobs.arm_fac )
+	self.jobs.arm_fac_prof.jc = 40
+	self.jobs.arm_fac_prof.professional = true
+	self.jobs.arm_fac_prof.region = "professional"
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	self.jobs.family = {}
+	self.jobs.family.name_id = "heist_family"
+	self.jobs.family.briefing_id = "heist_family_crimenet"
+	self.jobs.family.contact = "bain"
+	self.jobs.family.region = "street"
+	self.jobs.family.jc = 40
+	self.jobs.family.chain = {
+												{ level_id = "family", type_id = "heist_type_assault", type = "d" }
+											}
+	self.jobs.family.briefing_event = "pln_fj1_cbf_01"
+	self.jobs.family.debrief_event = nil
+	self.jobs.family.crimenet_callouts = {"pln_fj1_cnc_01_01", "pln_fj1_cnc_01_02", "pln_fj1_cnc_01_03"}
+	self.jobs.family.crimenet_videos = {"cn_jewel1", "cn_jewel2", "cn_jewel3"}
 	self.jobs.family.payout = { 37000, 43000, 60000, 70000 }
-
-
-  	self.jobs.family_prof = deep_clone(	self.jobs.family)
-  	self.jobs.family_prof.jc = 40
-  	self.jobs.family_prof.professional = true
-  	self.jobs.family_prof.region = "professional"
+	
+	
+	self.jobs.family_prof = deep_clone(	self.jobs.family)
+	self.jobs.family_prof.jc = 40
+	self.jobs.family_prof.professional = true
+	self.jobs.family_prof.region = "professional"
 	self.jobs.family_prof.payout = { 40000, 44000, 62000, 70000 }
-
-
-
-
+	
+	
+	
+	
+	
+	
+	self.jobs.haunted = {}
+	self.jobs.haunted.name_id = "heist_haunted"
+	self.jobs.haunted.briefing_id = "heist_haunted_crimenet"
+	self.jobs.haunted.contact = "bain"
+	self.jobs.haunted.region = "street"
+	self.jobs.haunted.jc = 10
+	self.jobs.haunted.chain = {
+												{ level_id = "haunted", type_id = "heist_type_assault", type = "d" }
+											}
+	self.jobs.haunted.briefing_event = nil
+	self.jobs.haunted.debrief_event = nil
+	
+	self.jobs.haunted.crimenet_videos = { "cn_branchbank1", "cn_branchbank2", "cn_branchbank3" }
+	self.jobs.haunted.payout = { 10000, 20000, 30000, 40000 }
+	
+	
+	self.jobs.haunted_prof = deep_clone( self.jobs.haunted )
+	self.jobs.haunted_prof.jc = 40
+	self.jobs.haunted_prof.professional = true
+	self.jobs.haunted_prof.region = "professional"
+	self.jobs.haunted_prof.payout = { 10000, 20000, 30000, 40000 }
+	
+	
+	
+	
+	
 -- TEST JOB FOR MR PATRICK --
 	self.jobs.escape_chain_test						= {}
 	self.jobs.escape_chain_test.name_id 			= "heist_escape_chain_test"
@@ -698,33 +726,33 @@ function NarrativeTweakData:init()
 											}
 	self.jobs.escape_chain_test.briefing_event = nil
 	self.jobs.escape_chain_test.debrief_event = nil
-	self.jobs.escape_chain_test.crimenet_callouts = {  }
+	self.jobs.escape_chain_test.crimenet_callouts = {}
 	
 	self.jobs.escape_chain_test_prof = deep_clone( self.jobs.escape_chain_test )
 	self.jobs.escape_chain_test_prof.jc = 50
 	self.jobs.escape_chain_test_prof.professional = true
 	
-	self._jobs_index = {			 "welcome_to_the_jungle_prof",
-						 "framing_frame",
-						 "framing_frame_prof",
-						 "watchdogs",
-						 "watchdogs_prof",
-						 "alex",
-						 "alex_prof",
-						 "firestarter",
-						 "firestarter_prof",
-						 "ukrainian_job_prof",
-						 "jewelry_store",
-						 "four_stores",
-						 "nightclub",
-						 "mallcrasher",
-						 "branchbank_deposit",
-						 "branchbank_cash",
-						 "branchbank_gold_prof",
-						 "branchbank_prof",
-						 "family",
-
-						 }
+	self._jobs_index = {	"welcome_to_the_jungle_prof",
+												"framing_frame",
+												"framing_frame_prof",
+												"watchdogs",
+												"watchdogs_prof",
+												"alex",
+												"alex_prof",
+												"firestarter",
+												"firestarter_prof",
+												"ukrainian_job_prof",
+												"jewelry_store",
+												"four_stores",
+												"nightclub",
+												"mallcrasher",
+												"branchbank_deposit",
+												"branchbank_cash",
+												"branchbank_gold_prof",
+												"branchbank_prof",
+												"family",
+												"haunted",
+											}
 
 
 

@@ -223,6 +223,14 @@ function CopDamage:damage_bullet( attack_data )
 						managers.player:activate_temporary_upgrade( "temporary", "overkill_damage_multiplier" )
 					end
 				end
+				
+				if managers.blackmarket:equipped_mask().mask_id == tweak_data.achievement.pump_action.mask and attack_data.weapon_unit:base():weapon_tweak_data().category == "shotgun" then
+					managers.achievment:award_progress( tweak_data.achievement.pump_action.stat )
+				end
+				local attack_weapon = attack_data.weapon_unit
+				if alive( attack_weapon ) and attack_weapon:base() and attack_weapon:base().name_id == tweak_data.achievement.try_out_your_usp.weapon then
+					managers.achievment:award_progress( tweak_data.achievement.try_out_your_usp.stat )
+				end
 			end
 			
 			if self:_type_civilian( self._unit:base()._tweak_table ) then
@@ -421,6 +429,12 @@ function CopDamage:damage_melee( attack_data )
 			self:_comment_death( attack_data.attacker_unit, self._unit:base()._tweak_table )
 			self:_show_death_hint( self._unit:base()._tweak_table )
 			managers.statistics:killed( data )
+			
+			if not self:_type_civilian( self._unit:base()._tweak_table ) and managers.groupai:state():whisper_mode() then
+				if managers.blackmarket:equipped_mask().mask_id == tweak_data.achievement.cant_hear_you_scream.mask then
+					managers.achievment:award_progress( tweak_data.achievement.cant_hear_you_scream.stat )
+				end
+			end
 			
 			if self:_type_civilian( self._unit:base()._tweak_table ) then
 				managers.money:civilian_killed()

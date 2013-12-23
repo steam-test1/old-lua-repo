@@ -124,6 +124,7 @@ function MoneyTweakData:init()
 	self.global_value_multipliers.preorder = 1 / 1
 	self.global_value_multipliers.overkill = 0.01
 	self.global_value_multipliers.pd2_clan = 1
+	self.global_value_multipliers.halloween = 1
 	
 	self.global_value_bonus_multiplier = {}									-- for every extra of the same global value, the sell price is increased with this ( multiplier of value )
 	self.global_value_bonus_multiplier.normal = 0						-- example. an infamous mask with infamous texture = 2 normal, 2 infamous = 1 bonus normal + 1 bonus infamous = sell value increased with 3 times its value ( 1 * 0 + 1 * 3 )
@@ -133,6 +134,7 @@ function MoneyTweakData:init()
 	self.global_value_bonus_multiplier.preorder = 0
 	self.global_value_bonus_multiplier.overkill = 20
 	self.global_value_bonus_multiplier.pd2_clan = 1
+	self.global_value_bonus_multiplier.halloween = 1
 	
 	
 	local smallest_cashout = (self.stage_completion[1] + self.job_completion[1]) * self.offshore_rate
@@ -233,5 +235,7 @@ function MoneyTweakData:init()
 	self.loot_drop_cash.cash100 = loot_drop_value * 14
 	
 	self.loot_drop_cash.cash_preorder = self.biggest_cashout / 10
+	
+	
+	self.unlock_new_mask_slot_value = self.biggest_cashout
 end
-
