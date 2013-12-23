@@ -1,40 +1,43 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\elementsmokegrenade.luac 
+core:import( "CoreMissionScriptElement" )
 
-core:import("CoreMissionScriptElement")
-if not ElementSmokeGrenade then
-  ElementSmokeGrenade = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementSmokeGrenade.init = function(l_1_0, ...)
-  ElementSmokeGrenade.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementSmokeGrenade = ElementSmokeGrenade or class( CoreMissionScriptElement.MissionScriptElement )
 
+function ElementSmokeGrenade:init( ... )
+	ElementSmokeGrenade.super.init( self, ... )
 end
 
-ElementSmokeGrenade.client_on_executed = function(l_2_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function ElementSmokeGrenade:client_on_executed( ... )
+	-- self:on_executed( ... )
 end
 
-ElementSmokeGrenade.on_executed = function(l_3_0, l_3_1)
-  if not l_3_0._values.enabled then
-    return 
-  end
-  local is_flashbang = l_3_0._values.effect_type == "flash"
-  if l_3_0._values.immediate and (managers.groupai:state():get_assault_mode() or l_3_0._values.ignore_control) then
-    managers.network:session():send_to_peers("sync_smoke_grenade_kill")
-    managers.groupai:state():sync_smoke_grenade_kill()
-    do
-      local pos = l_3_0._values.position
-      managers.network:session():send_to_peers("sync_smoke_grenade", pos, pos, l_3_0._values.duration, is_flashbang)
-      managers.groupai:state():sync_smoke_grenade(pos, pos, l_3_0._values.duration, is_flashbang)
-      managers.groupai:state()._smoke_grenade_ignore_control = l_3_0._values.ignore_control
-    end
-    do return end
-    managers.groupai:state()._smoke_grenade_queued = {l_3_0._values.position, l_3_0._values.duration, l_3_0._values.ignore_control, is_flashbang}
-  end
-  print(is_flashbang and "FLAAAASHBAAAAANG" or "SMOOOOOOOKEEEEEEEE")
-  ElementSmokeGrenade.super.on_executed(l_3_0, l_3_1)
+function ElementSmokeGrenade:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	local is_flashbang = self._values.effect_type == "flash"
+	if self._values.immediate then
+		if managers.groupai:state():get_assault_mode() or self._values.ignore_control then
+			managers.network:session():send_to_peers( "sync_smoke_grenade_kill" )
+			managers.groupai:state():sync_smoke_grenade_kill()
+			
+			local pos = self._values.position
+			managers.network:session():send_to_peers( "sync_smoke_grenade", pos, pos, self._values.duration, is_flashbang )
+			managers.groupai:state():sync_smoke_grenade( pos, pos, self._values.duration, is_flashbang )
+			
+			managers.groupai:state()._smoke_grenade_ignore_control = self._values.ignore_control
+		end
+	else
+		managers.groupai:state()._smoke_grenade_queued = { self._values.position, self._values.duration, self._values.ignore_control, is_flashbang }
+	end
+	
+
+	
+	
+		
+
+	print( is_flashbang and "FLAAAASHBAAAAANG" or "SMOOOOOOOKEEEEEEEE" )
+--	managers.groupai:state():set_difficulty( self._values.difficulty )
+	
+	ElementSmokeGrenade.super.on_executed( self, instigator )
 end
-
-

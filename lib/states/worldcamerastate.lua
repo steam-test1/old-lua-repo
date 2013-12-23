@@ -1,18 +1,13 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\states\worldcamerastate.luac 
+require "lib/states/GameState"
 
-require("lib/states/GameState")
-if not WorldCameraState then
-  WorldCameraState = class(GameState)
-end
-WorldCameraState.init = function(l_1_0, l_1_1)
-  GameState.init(l_1_0, "world_camera", l_1_1)
+WorldCameraState = WorldCameraState or class( GameState )
+
+function WorldCameraState:init( game_state_machine )
+	GameState.init( self, "world_camera", game_state_machine )
 end
 
-WorldCameraState.at_enter = function(l_2_0)
+function WorldCameraState:at_enter()
 end
 
-WorldCameraState.at_exit = function(l_3_0)
+function WorldCameraState:at_exit()
 end
-
-

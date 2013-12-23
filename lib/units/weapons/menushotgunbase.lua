@@ -1,16 +1,12 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\weapons\menushotgunbase.luac 
+NewShotgunBase = NewShotgunBase or class( NewRaycastWeaponBase )
 
-if not NewShotgunBase then
-  NewShotgunBase = class(NewRaycastWeaponBase)
-end
-NewShotgunBase.init = function(l_1_0, ...)
-  NewShotgunBase.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function NewShotgunBase:init( ... )
+	NewShotgunBase.super.init( self, ... )
 end
 
-if not SaigaShotgun then
-  SaigaShotgun = class(NewShotgunBase)
-end
+-----------------------------------------------------------------------------------
 
+SaigaShotgun = SaigaShotgun or class( NewShotgunBase )
+
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------

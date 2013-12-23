@@ -1,293 +1,272 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\utils\coreevent.luac 
-
 if core then
-  core:module("CoreEvent")
-  core:import("CoreDebug")
-end
-callback = function(l_1_0, l_1_1, l_1_2, l_1_3)
-  if l_1_1 and l_1_2 and l_1_1[l_1_2] then
-    if l_1_3 ~= nil then
-      if l_1_0 then
-        return function(...)
-    return base_callback_class[base_callback_func_name](o, base_callback_param, ...)
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+	core:module( "CoreEvent" )
 
-   end
-      else
-        return function(...)
-        return base_callback_class[base_callback_func_name](base_callback_param, ...)
-         -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-         end
-      end
-    elseif l_1_0 then
-      return function(...)
-      return base_callback_class[base_callback_func_name](o, ...)
-       -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-      end
-    else
-      return function(...)
-      return base_callback_class[base_callback_func_name](...)
-       -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-      end
-    end
-  elseif l_1_1 then
-    local class_name = CoreDebug.class_name(not l_1_1 or getmetatable(l_1_1) or l_1_1)
-    error("Callback on class \"" .. tostring(class_name) .. "\" refers to a non-existing function \"" .. tostring(l_1_2) .. "\".")
-  elseif l_1_2 then
-    error("Callback to function \"" .. tostring(l_1_2) .. "\" is on a nil class.")
-  else
-    error("Callback class and function was nil.")
-  end
+	core:import( "CoreDebug" )
 end
 
+--[[
+
+The module CoreEvent has various functions/classes for
+supporting callbacks, events, etc...
+
+]]--
+
+
+----------------------------------------------------------------------
+-- function: callback
+----------------------------------------------------------------------
+function callback( o, base_callback_class, base_callback_func_name, base_callback_param )
+	if( base_callback_class and base_callback_func_name and base_callback_class[ base_callback_func_name ] ) then
+		if( base_callback_param ~= nil ) then
+			if( o ) then
+				return function( ... ) return base_callback_class[ base_callback_func_name ]( o, base_callback_param, ... ) end
+			else
+				return function( ... ) return base_callback_class[ base_callback_func_name ]( base_callback_param, ... ) end
+			end
+		else
+			if( o ) then
+				return function( ... ) return base_callback_class[ base_callback_func_name ]( o, ... ) end
+			else
+				return function( ... ) return base_callback_class[ base_callback_func_name ]( ... ) end
+			end
+		end
+	elseif( base_callback_class ) then
+		local class_name = base_callback_class and CoreDebug.class_name( getmetatable( base_callback_class ) or base_callback_class )
+		error( "Callback on class \"" .. tostring( class_name ) .. "\" refers to a non-existing function \"" .. tostring( base_callback_func_name ) .. "\"." )
+	elseif( base_callback_func_name ) then
+		error( "Callback to function \"" .. tostring( base_callback_func_name ) .. "\" is on a nil class." )
+	else
+		error( "Callback class and function was nil." )
+	end
+end
+
+
+----------------------------------------------------------------------
+-- Ticket system, for optimization
+----------------------------------------------------------------------
 local tc = 0
-get_ticket = function(l_2_0)
-  return {}
-   -- Warning: undefined locals caused missing assignments!
+
+function get_ticket(delay)
+	return {delay,math.random(delay-1)}
 end
 
-valid_ticket = function(l_3_0)
-  return tc % l_3_0[1] == l_3_0[2]
+function valid_ticket(ticket)
+	return tc%ticket[1]==ticket[2]
 end
 
-update_tickets = function()
-  tc = tc + 1
-  if tc > 30 then
-    tc = 0
-  end
+function update_tickets()
+	tc = tc + 1
+	if tc > 30 then
+		tc = 0
+	end
 end
 
+
+----------------------------------------------------------------------
+-- class: B a s i c E v e n t H a n d l i n g
+--
+-- usage: MyClass = MyClass or class()
+--        mixin(MyClass, BasicEventHandling)
+----------------------------------------------------------------------
 BasicEventHandling = {}
-BasicEventHandling.connect = function(l_5_0, l_5_1, l_5_2, l_5_3)
-  if not l_5_0._event_callbacks then
-    l_5_0._event_callbacks = {}
-  end
-  if not l_5_0._event_callbacks[l_5_1] then
-    l_5_0._event_callbacks[l_5_1] = {}
-  end
-  local wrapped_func = function(...)
-      callback_func(data, ...)
-       -- DECOMPILER ERROR: Confused about usage of registers for local variables.
 
-      end
-  table.insert(l_5_0._event_callbacks[l_5_1], wrapped_func)
-  return wrapped_func
+BasicEventHandling.connect = function(self, event_name, callback_func, data)
+	self._event_callbacks = self._event_callbacks or {}
+	self._event_callbacks[event_name] = self._event_callbacks[event_name] or {}
+	local wrapped_func = function(...) callback_func(data, ...) end
+	table.insert(self._event_callbacks[event_name], wrapped_func)
+	return wrapped_func
 end
 
-BasicEventHandling.disconnect = function(l_6_0, l_6_1, l_6_2)
-  if l_6_0._event_callbacks and l_6_0._event_callbacks[l_6_1] then
-    table.delete(l_6_0._event_callbacks[l_6_1], l_6_2)
-    if table.empty(l_6_0._event_callbacks[l_6_1]) then
-      l_6_0._event_callbacks[l_6_1] = nil
-      if table.empty(l_6_0._event_callbacks) then
-        l_6_0._event_callbacks = nil
-      end
-    end
-  end
+BasicEventHandling.disconnect = function(self, event_name, wrapped_func)
+	if self._event_callbacks and self._event_callbacks[event_name] then
+		table.delete(self._event_callbacks[event_name], wrapped_func)
+		if table.empty(self._event_callbacks[event_name]) then
+			self._event_callbacks[event_name] = nil
+			if table.empty(self._event_callbacks) then
+				self._event_callbacks = nil
+			end
+		end
+	end
 end
 
-BasicEventHandling._has_callbacks_for_event = function(l_7_0, l_7_1)
-  return l_7_0._event_callbacks ~= nil and l_7_0._event_callbacks[l_7_1] ~= nil
+BasicEventHandling._has_callbacks_for_event = function(self, event_name)
+	return self._event_callbacks ~= nil and self._event_callbacks[event_name] ~= nil
 end
 
-BasicEventHandling._send_event = function(l_8_0, l_8_1, ...)
-  if l_8_0._event_callbacks then
-    if not l_8_0._event_callbacks[l_8_1] then
-      for _,wrapped_func in ipairs({}) do
-      end
-      wrapped_func(...)
-    end
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-  end
+BasicEventHandling._send_event = function(self, event_name, ...)
+	if self._event_callbacks then
+		for _, wrapped_func in ipairs(self._event_callbacks[event_name] or {}) do
+			wrapped_func(...)
+		end
+	end
 end
 
-if not CallbackHandler then
-  CallbackHandler = class()
-end
-CallbackHandler.init = function(l_9_0)
-  l_9_0:clear()
+
+----------------------------------------------------------------------
+-- class: C a l l b a c k H a n d l e r
+--
+-- Basic CallbackHandler.
+----------------------------------------------------------------------
+CallbackHandler = CallbackHandler or class()
+
+function CallbackHandler:init()
+    self:clear()
 end
 
-CallbackHandler.clear = function(l_10_0)
-  l_10_0._t = 0
-  l_10_0._sorted = {}
+function CallbackHandler:clear()
+    self._t = 0
+    self._sorted = {}
 end
 
-CallbackHandler.__insert_sorted = function(l_11_0, l_11_1)
-  do
+function CallbackHandler:__insert_sorted(cb)
     local i = 1
-    repeat
-      if l_11_0._sorted[i] and (l_11_0._sorted[i].next == nil or l_11_0._sorted[i].next < l_11_1.next) then
+    while self._sorted[i] and (self._sorted[i].next == nil or cb.next > self._sorted[i].next) do
         i = i + 1
-      else
-        table.insert(l_11_0._sorted, i, l_11_1)
-      end
-       -- Warning: missing end command somewhere! Added here
     end
-     -- Warning: missing end command somewhere! Added here
-  end
+    table.insert(self._sorted, i, cb)
 end
 
-CallbackHandler.add = function(l_12_0, l_12_1, l_12_2, l_12_3)
-  if not l_12_3 then
-    l_12_3 = -1
-  end
-  local cb = {f = l_12_1, interval = l_12_2, times = l_12_3, next = l_12_0._t + l_12_2}
-  l_12_0:__insert_sorted(cb)
-  return cb
+function CallbackHandler:add(f, interval, times)
+	if not times then
+		times = -1
+	end
+    local cb = {f = f, interval = interval, times = times, next = self._t + interval}
+    self:__insert_sorted(cb)
+    return cb
 end
 
-CallbackHandler.remove = function(l_13_0, l_13_1)
-  if l_13_1 then
-    l_13_1.next = nil
-  end
+function CallbackHandler:remove(cb)
+	if cb then
+    	cb.next = nil
+    end
 end
 
-CallbackHandler.update = function(l_14_0, l_14_1)
-  l_14_0._t = l_14_0._t + l_14_1
-  repeat
-    repeat
-      repeat
-        repeat
-          repeat
-            do
-              local cb = l_14_0._sorted[1]
-              if cb == nil then
-                return 
-              elseif cb.next == nil then
-                table.remove(l_14_0._sorted, 1)
-              else
-                if l_14_0._t < cb.next then
-                  return 
-                else
-                  table.remove(l_14_0._sorted, 1)
-                  cb.f(cb, l_14_0._t)
-                  if cb.times >= 0 then
-                    cb.times = cb.times - 1
-                    if cb.times <= 0 then
-                      cb.next = nil
-                    end
-                  end
-                until cb.next
-                cb.next = cb.next + cb.interval
-                l_14_0:__insert_sorted(cb)
-              end
-              do return end
-               -- Warning: missing end command somewhere! Added here
+function CallbackHandler:update(dt)
+    self._t = self._t + dt
+    while true do
+        local cb = self._sorted[1]
+        
+        if cb == nil then
+            return
+        elseif cb.next == nil then
+            table.remove(self._sorted, 1)
+        elseif cb.next > self._t then
+            return
+        else
+            table.remove(self._sorted, 1)
+            cb.f(cb, self._t)
+            if cb.times >= 0 then
+                cb.times = cb.times - 1
+                if cb.times <= 0 then cb.next = nil end
             end
-             -- Warning: missing end command somewhere! Added here
-          end
-           -- Warning: missing end command somewhere! Added here
+            if cb.next then
+                cb.next = cb.next + cb.interval
+                self:__insert_sorted(cb)
+            end
         end
-         -- Warning: missing end command somewhere! Added here
-      end
-       -- Warning: missing end command somewhere! Added here
     end
-     -- Warning: missing end command somewhere! Added here
-  end
 end
 
-if not CallbackEventHandler then
-  CallbackEventHandler = class()
-end
-CallbackEventHandler.init = function(l_15_0)
-end
 
-CallbackEventHandler.clear = function(l_16_0)
-  l_16_0._callback_map = nil
-end
+-- Handler for callbacks. You can safely add and remove functions while calling the callback functions.
 
-CallbackEventHandler.add = function(l_17_0, l_17_1)
-  if not l_17_0._callback_map then
-    l_17_0._callback_map = {}
-  end
-  l_17_0._callback_map[l_17_1] = true
+CallbackEventHandler = CallbackEventHandler or class()
+
+function CallbackEventHandler:init()
+	--[[ Used variables:
+	self._callback_map = nil
+	self._next_callback = nil
+	]]
 end
 
-CallbackEventHandler.remove = function(l_18_0, l_18_1)
-  if not l_18_0._callback_map or not l_18_0._callback_map[l_18_1] then
-    return 
-  end
-  if l_18_0._next_callback == l_18_1 then
-    l_18_0._next_callback = next(l_18_0._callback_map, l_18_0._next_callback)
-  end
-  l_18_0._callback_map[l_18_1] = nil
-  if not next(l_18_0._callback_map) then
-    l_18_0._callback_map = nil
-  end
+function CallbackEventHandler:clear()
+	self._callback_map = nil
 end
 
-CallbackEventHandler.dispatch = function(l_19_0, ...)
-  if l_19_0._callback_map then
-    l_19_0._next_callback = next(l_19_0._callback_map)
-    l_19_0._next_callback(...)
-    repeat
-      repeat
-        if l_19_0._next_callback then
-          l_19_0._next_callback = next(l_19_0._callback_map, l_19_0._next_callback)
-        until l_19_0._next_callback
-        l_19_0._next_callback(...)
-       -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+function CallbackEventHandler:add( func )
+	self._callback_map = self._callback_map or {}
+	self._callback_map[ func ] = true
 end
 
-over = function(l_20_0, l_20_1, l_20_2)
-  do
+function CallbackEventHandler:remove( func )
+	if( not self._callback_map or not self._callback_map[ func ] ) then
+		return
+	end
+
+	if( self._next_callback == func ) then
+		self._next_callback = next( self._callback_map, self._next_callback )
+	end
+
+	self._callback_map[ func ] = nil
+
+	if( not next( self._callback_map ) ) then
+		self._callback_map = nil
+	end
+end
+
+function CallbackEventHandler:dispatch( ... )
+	if( self._callback_map ) then
+		self._next_callback = next( self._callback_map )
+		self._next_callback( ... )
+
+		while( self._next_callback ) do
+			self._next_callback = next( self._callback_map, self._next_callback )
+
+			if( self._next_callback ) then
+				self._next_callback( ... )
+			end
+		end
+	end
+end
+
+
+
+----------------------------------------------------------------------
+-- Helper functions for new gui animation coroutines
+--
+-- In the new gui, animation is done with coroutines. These are some
+-- helper functions for writing such functions.
+----------------------------------------------------------------------
+
+-- Calls the function f over the specified number of seconds. Each time
+-- f is called it is called as f(p, t). p is the fraction of total time
+-- that has elapsed (ranges from 0-1), while t is the total time elapsed
+-- in seconds.
+function over(seconds, f, fixed_dt)
     local t = 0
-    repeat
-      do
-        local dt = coroutine.yield()
-        t = t + (l_20_2 and 0.033333335071802 or dt)
-        if l_20_0 <= t then
-          do return end
-        end
-        l_20_1((t) / l_20_0, t)
-      end
-      do return end
-      l_20_1(1, l_20_0)
+    while true do
+    	local dt = coroutine.yield()
+        t = t + (fixed_dt and 1/30 or dt)
+        if t >= seconds then break end
+        f(t/seconds, t)
     end
-     -- Warning: missing end command somewhere! Added here
-  end
+    f(1, seconds)
 end
 
-seconds = function(l_21_0, l_21_1)
-  if not l_21_1 then
-    return seconds, l_21_0, 0
-  end
-  if l_21_0 and l_21_0 <= l_21_1 then
-    return nil
-  end
-  local dt = coroutine.yield()
-  l_21_1 = l_21_1 + dt
-  if l_21_0 and l_21_0 < l_21_1 then
-    l_21_1 = l_21_0
-  end
-  if l_21_0 then
-    return l_21_1, l_21_1 / l_21_0, dt
-  else
-    return l_21_1, l_21_1, dt
-  end
-end
-
-wait = function(l_22_0, l_22_1)
-  local t = 0
-  repeat
-    if t < l_22_0 then
-      local dt = coroutine.yield()
-      t = t + (l_22_1 and 0.033333335071802 or dt)
+-- Used to loop in for loops:
+--      for t,p,dt in seconds(10) do
+--      end
+-- If no number is given, loops forever and p = t
+function seconds(s, t)
+    if not t then return seconds,s,0 end
+    if s and t>=s then return nil end
+    local dt = coroutine.yield()
+    t = t + dt
+    if s and t>s then t=s end
+    if s then
+        return t, t/s, dt
     else
-       -- Warning: missing end command somewhere! Added here
+        return t, t, dt
     end
-     -- Warning: missing end command somewhere! Added here
-  end
 end
 
+-- Waits until the specified number of seconds have elapsed.
+function wait(seconds,fixed_dt)
+    local t = 0
+    while t < seconds do
+    	local dt = coroutine.yield()
+        t = t + (fixed_dt and 1/30 or dt)
+    end
+end
 

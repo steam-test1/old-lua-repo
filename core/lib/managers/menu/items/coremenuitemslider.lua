@@ -1,210 +1,281 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\menu\items\coremenuitemslider.luac 
-
 core:module("CoreMenuItemSlider")
 core:import("CoreMenuItem")
-if not ItemSlider then
-  ItemSlider = class(CoreMenuItem.Item)
-end
+
+-- Represents an item's slider data
+ItemSlider = ItemSlider or class( CoreMenuItem.Item )
 ItemSlider.TYPE = "slider"
-ItemSlider.init = function(l_1_0, l_1_1, l_1_2)
-  CoreMenuItem.Item.init(l_1_0, l_1_1, l_1_2)
-  l_1_0._type = "slider"
-  l_1_0._min = 0
-  l_1_0._max = 1
-  l_1_0._step = 0.10000000149012
-  l_1_0._show_value = false
-  if l_1_1 then
-    if not l_1_1.min then
-      l_1_0._min = l_1_0._min
-    end
-    if not l_1_1.max then
-      l_1_0._max = l_1_0._max
-    end
-    if not l_1_1.step then
-      l_1_0._step = l_1_0._step
-    end
-    l_1_0._show_value = l_1_1.show_value
-  end
-  l_1_0._min = tonumber(l_1_0._min)
-  l_1_0._max = tonumber(l_1_0._max)
-  l_1_0._step = tonumber(l_1_0._step)
-  l_1_0._value = l_1_0._min
+
+function ItemSlider:init( data_node, parameters )
+	CoreMenuItem.Item.init( self, data_node, parameters )
+	
+	self._type	= "slider"
+	
+	self._min	= 0
+	self._max	= 1
+	self._step	= 0.1
+	self._show_value = false
+	
+	if( data_node ) then
+		self._min	= data_node.min or self._min
+		self._max	= data_node.max or self._max
+		self._step	= data_node.step or self._step
+		
+		self._show_value = data_node.show_value
+	end
+	
+	self._min	= tonumber( self._min )
+	self._max	= tonumber( self._max )
+	self._step	= tonumber( self._step )
+	
+	self._value	= self._min
 end
 
-ItemSlider.value = function(l_2_0)
-  return l_2_0._value
+function ItemSlider:value()
+	return self._value
 end
 
-ItemSlider.show_value = function(l_3_0)
-  return l_3_0._show_value
+function ItemSlider:show_value()
+	return self._show_value
 end
 
-ItemSlider.set_value = function(l_4_0, l_4_1)
-  l_4_0._value = math.min(math.max(l_4_0._min, l_4_1), l_4_0._max)
-  l_4_0:dirty()
+function ItemSlider:set_value( value )
+	self._value = math.min( math.max( self._min, value ), self._max )
+	self:dirty()
 end
 
-ItemSlider.set_value_by_percentage = function(l_5_0, l_5_1)
-  l_5_0:set_value(l_5_0._min + (l_5_0._max - l_5_0._min) * (l_5_1 / 100))
+function ItemSlider:set_value_by_percentage( percent )
+	self:set_value( self._min + ( self._max - self._min ) * (percent/100) )
 end
 
-ItemSlider.set_min = function(l_6_0, l_6_1)
-  l_6_0._min = l_6_1
+function ItemSlider:set_min( value )
+	self._min = value
 end
 
-ItemSlider.set_max = function(l_7_0, l_7_1)
-  l_7_0._max = l_7_1
+function ItemSlider:set_max( value )
+	self._max = value
 end
 
-ItemSlider.set_step = function(l_8_0, l_8_1)
-  l_8_0._step = l_8_1
+function ItemSlider:set_step( value )
+	self._step = value
 end
 
-ItemSlider.increase = function(l_9_0)
-  l_9_0:set_value(l_9_0._value + l_9_0._step)
+function ItemSlider:increase()
+	self:set_value( self._value + self._step )
 end
 
-ItemSlider.decrease = function(l_10_0)
-  l_10_0:set_value(l_10_0._value - l_10_0._step)
+function ItemSlider:decrease()
+	self:set_value( self._value - self._step )
 end
 
-ItemSlider.percentage = function(l_11_0)
-  return (l_11_0._value - l_11_0._min) / (l_11_0._max - l_11_0._min) * 100
+function ItemSlider:percentage()
+	return ( self._value - self._min ) / ( self._max - self._min ) * 100
 end
 
-ItemSlider.setup_gui = function(l_12_0, l_12_1, l_12_2)
-  l_12_2.gui_panel = l_12_1.item_panel:panel({w = l_12_1.item_panel:w()})
-  l_12_2.gui_text = l_12_1._text_item_part(l_12_1, l_12_2, l_12_2.gui_panel, l_12_1._right_align(l_12_1))
-  l_12_2.gui_text:set_layer(l_12_1.layers.items + 1)
-  local _, _, w, h = l_12_2.gui_text:text_rect()
-  l_12_2.gui_panel:set_h(h)
-  local bar_w = 192
-   -- DECOMPILER ERROR: Confused about usage of registers!
+-- GUI ----------------------------------------------------
 
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  l_12_2.gui_slider_bg, {visible = false, x = l_12_1._left_align(l_12_1) - bar_w, y = h / 2 - 11, w = bar_w}.layer, {visible = false, x = l_12_1._left_align(l_12_1) - bar_w, y = h / 2 - 11, w = bar_w}.color, {visible = false, x = l_12_1._left_align(l_12_1) - bar_w, y = h / 2 - 11, w = bar_w}.vertical, {visible = false, x = l_12_1._left_align(l_12_1) - bar_w, y = h / 2 - 11, w = bar_w}.halign, {visible = false, x = l_12_1._left_align(l_12_1) - bar_w, y = h / 2 - 11, w = bar_w}.align, {visible = false, x = l_12_1._left_align(l_12_1) - bar_w, y = h / 2 - 11, w = bar_w}.h = l_12_2.gui_panel:rect({visible = false, x = l_12_1._left_align(l_12_1) - bar_w, y = h / 2 - 11, w = bar_w}), l_12_1.layers.items - 1, Color.black:with_alpha(0.5), "center", "center", "center", 22
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  l_12_2.gui_slider_gfx, {orientation = "vertical", gradient_points = {0, _G.tweak_data.screen_colors.button_stage_3, 1, _G.tweak_data.screen_colors.button_stage_3}, x = l_12_1._left_align(l_12_1) - bar_w + 2, y = l_12_2.gui_slider_bg:y() + 2, w = (l_12_2.gui_slider_bg:w() - 4) * 0.23000000417233, h = l_12_2.gui_slider_bg:h() - 4, align = "center", halign = "center"}.layer, {orientation = "vertical", gradient_points = {0, _G.tweak_data.screen_colors.button_stage_3, 1, _G.tweak_data.screen_colors.button_stage_3}, x = l_12_1._left_align(l_12_1) - bar_w + 2, y = l_12_2.gui_slider_bg:y() + 2, w = (l_12_2.gui_slider_bg:w() - 4) * 0.23000000417233, h = l_12_2.gui_slider_bg:h() - 4, align = "center", halign = "center"}.color, {orientation = "vertical", gradient_points = {0, _G.tweak_data.screen_colors.button_stage_3, 1, _G.tweak_data.screen_colors.button_stage_3}, x = l_12_1._left_align(l_12_1) - bar_w + 2, y = l_12_2.gui_slider_bg:y() + 2, w = (l_12_2.gui_slider_bg:w() - 4) * 0.23000000417233, h = l_12_2.gui_slider_bg:h() - 4, align = "center", halign = "center"}.blend_mode, {orientation = "vertical", gradient_points = {0, _G.tweak_data.screen_colors.button_stage_3, 1, _G.tweak_data.screen_colors.button_stage_3}, x = l_12_1._left_align(l_12_1) - bar_w + 2, y = l_12_2.gui_slider_bg:y() + 2, w = (l_12_2.gui_slider_bg:w() - 4) * 0.23000000417233, h = l_12_2.gui_slider_bg:h() - 4, align = "center", halign = "center"}.vertical = l_12_2.gui_panel:gradient({orientation = "vertical", gradient_points = {0, _G.tweak_data.screen_colors.button_stage_3, 1, _G.tweak_data.screen_colors.button_stage_3}, x = l_12_1._left_align(l_12_1) - bar_w + 2, y = l_12_2.gui_slider_bg:y() + 2, w = (l_12_2.gui_slider_bg:w() - 4) * 0.23000000417233, h = l_12_2.gui_slider_bg:h() - 4, align = "center", halign = "center"}), l_12_1.layers.items, l_12_2.color, l_12_1.row_item_blend_mode or "normal", "center"
-  l_12_2.gui_slider = l_12_2.gui_panel:rect({color = l_12_2.color:with_alpha(0), layer = l_12_1.layers.items, w = 100, h = l_12_2.gui_slider_bg:h() - 4})
-  l_12_2.gui_slider_marker = l_12_2.gui_panel:bitmap({visible = false, texture = "guis/textures/menu_icons", texture_rect = {0, 0, 24, 28}, layer = l_12_1.layers.items + 2})
-  if (l_12_2.align ~= "left" or not "right") and (l_12_2.align ~= "right" or not "left") then
-    local slider_text_align = l_12_2.align
-  end
-  if (l_12_2.slider_text_halign ~= "left" or not "right") and (l_12_2.slider_text_halign ~= "right" or not "left") then
-    local slider_text_halign = l_12_2.slider_text_halign
-  end
-  if (l_12_2.vertical ~= "top" or not "bottom") and (l_12_2.vertical ~= "bottom" or not "top") then
-    local slider_text_vertical = l_12_2.vertical
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  l_12_2.gui_slider_text, {font_size = _G.tweak_data.menu.stats_font_size, x = l_12_1._right_align(l_12_1), y = 0, h = h, w = l_12_2.gui_slider_bg:w(), align = slider_text_align, halign = slider_text_halign, vertical = slider_text_vertical, valign = slider_text_vertical, font = l_12_1.font, color = l_12_2.color, layer = l_12_1.layers.items + 1, text = "" .. math.floor(0) .. "%", blend_mode = not l_12_2.font_size and l_12_1.row_item_blend_mode or "normal"}.render_template = l_12_2.gui_panel:text({font_size = _G.tweak_data.menu.stats_font_size, x = l_12_1._right_align(l_12_1), y = 0, h = h, w = l_12_2.gui_slider_bg:w(), align = slider_text_align, halign = slider_text_halign, vertical = slider_text_vertical, valign = slider_text_vertical, font = l_12_1.font, color = l_12_2.color, layer = l_12_1.layers.items + 1, text = "" .. math.floor(0) .. "%", blend_mode = not l_12_2.font_size and l_12_1.row_item_blend_mode or "normal"}), Idstring("VertexColorTextured")
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-l_12_0:_layout(l_12_1, l_12_2)
-return true
-end
-
-ItemSlider.reload = function(l_13_0, l_13_1, l_13_2)
-  if not l_13_0:show_value() or not string.format("%.0f", l_13_0:value()) then
-    local value = string.format("%.0f", l_13_0:percentage()) .. "%"
-  end
-  l_13_1.gui_slider_text:set_text(value)
-  local where = l_13_1.gui_slider:left() + l_13_1.gui_slider:w() * (l_13_0:percentage() / 100)
-  l_13_1.gui_slider_marker:set_center_x(where)
-  l_13_1.gui_slider_gfx:set_w(l_13_1.gui_slider:w() * (l_13_0:percentage() / 100))
-  return true
-end
-
-ItemSlider.highlight_row_item = function(l_14_0, l_14_1, l_14_2, l_14_3)
-  l_14_2.gui_text:set_color(l_14_2.color)
-  if not l_14_2.font or not Idstring(l_14_2.font) then
-    l_14_2.gui_text:set_font(_G.tweak_data.menu.default_font_no_outline_id)
-  end
-  l_14_2.gui_slider_text:set_color(l_14_2.color)
-  if not l_14_2.font or not Idstring(l_14_2.font) then
-    l_14_2.gui_slider_text:set_font(_G.tweak_data.menu.default_font_no_outline_id)
-  end
-  l_14_2.gui_slider_gfx:set_gradient_points({0, _G.tweak_data.screen_colors.button_stage_2, 1, _G.tweak_data.screen_colors.button_stage_2})
-  if l_14_2.gui_info_panel then
-    l_14_2.gui_info_panel:set_visible(true)
-  end
-  return true
-end
-
-ItemSlider.fade_row_item = function(l_15_0, l_15_1, l_15_2)
-  l_15_2.gui_text:set_color(l_15_2.color)
-  if not l_15_2.font or not Idstring(l_15_2.font) then
-    l_15_2.gui_text:set_font(_G.tweak_data.menu.default_font_id)
-  end
-  l_15_2.gui_slider_text:set_color(l_15_2.color)
-  if not l_15_2.font or not Idstring(l_15_2.font) then
-    l_15_2.gui_slider_text:set_font(_G.tweak_data.menu.default_font_id)
-  end
-  l_15_2.gui_slider_gfx:set_gradient_points({0, _G.tweak_data.screen_colors.button_stage_3, 1, _G.tweak_data.screen_colors.button_stage_3})
-  if l_15_2.gui_info_panel then
-    l_15_2.gui_info_panel:set_visible(false)
-  end
-  return true
+function ItemSlider:setup_gui( node, row_item )
+	row_item.gui_panel = node.item_panel:panel( { w = node.item_panel:w() } )
+	row_item.gui_text = node._text_item_part( node, row_item, row_item.gui_panel, node._right_align( node )  )
+	row_item.gui_text:set_layer( node.layers.items + 1 )
+	local _,_,w,h = row_item.gui_text:text_rect()
+	row_item.gui_panel:set_h( h )
+	local bar_w = 192
+	row_item.gui_slider_bg = row_item.gui_panel:rect( {	visible = false,
+									x = node._left_align( node ) - bar_w, y = h/2 - 11, w = bar_w, h = 22,
+									align="center", halign="center", vertical="center",
+									color = Color.black:with_alpha( 0.5 ), -- node.row_item_color,
+									layer = node.layers.items - 1,
+								} )
+	row_item.gui_slider_gfx = row_item.gui_panel:gradient( {	
+									-- x = node._right_align( node ) + 2, y = h/2 - 2, w = 252, h = 4,
+									orientation = "vertical",
+									-- gradient_points = { 0, Color( 0.5,255/255,168/255,0), 1, Color( 0.5,154/255,102/255,0) },
+									gradient_points = { 0, _G[ "tweak_data" ].screen_colors.button_stage_3, 1, _G[ "tweak_data" ].screen_colors.button_stage_3 },
+									x = node._left_align( node ) - bar_w + 2, y = row_item.gui_slider_bg:y() + 2, w = (row_item.gui_slider_bg:w() - 4) * (0.23), h = row_item.gui_slider_bg:h() - 4,
+									align="center", halign="center", vertical="center",
+									blend_mode = node.row_item_blend_mode or "normal",
+									color = row_item.color, -- node.color,
+									layer = node.layers.items,
+								} )
+	--[[row_item.gui_slider = row_item.gui_panel:gradient( {	
+									-- x = node._right_align( node ) + 2, y = h/2 - 2, w = 252, h = 4,
+									orientation = "vertical",
+									gradient_points = { 0, Color( 0.4,255/255,168/255,0), 1, Color( 0.4,154/255,102/255,0) },
+									x = node._left_align( node ) - bar_w + 2, y = row_item.gui_slider_bg:y() + 2, w = (row_item.gui_slider_bg:w() - 4) * (0.23), h = row_item.gui_slider_bg:h() - 4,
+									align="center", halign="center", vertical="center",
+									color = node.color,
+									layer = node.layers.items,
+								} )]]
+	row_item.gui_slider = row_item.gui_panel:rect( {
+													color = row_item.color:with_alpha( 0.0 ),
+													layer = node.layers.items,
+													w = 100,
+													h = (row_item.gui_slider_bg:h() - 4),
+													} )
+	--[[row_item.gui_slider_marker = row_item.gui_panel:rect( {
+													color = node.row_item_hightlight_color,
+													layer = node.layers.items+1,
+													w = 10,
+													h = 25,
+													} )]]
+	row_item.gui_slider_marker = row_item.gui_panel:bitmap( { visible = false,
+													texture = "guis/textures/menu_icons", 
+													texture_rect = { 0, 0, 24, 28 }, 
+													--[[color = node.row_item_hightlight_color,]]
+													layer = node.layers.items+2,
+													--[[w = 10,
+													h = 25,]]
+													} )
+	local slider_text_align = (row_item.align == "left" and "right") or (row_item.align == "right" and "left") or row_item.align
+	local slider_text_halign = (row_item.slider_text_halign == "left" and "right") or (row_item.slider_text_halign == "right" and "left") or row_item.slider_text_halign
+	local slider_text_vertical = (row_item.vertical == "top" and "bottom") or (row_item.vertical == "bottom" and "top") or row_item.vertical
+	row_item.gui_slider_text = row_item.gui_panel:text( {
+								font_size = row_item.font_size or _G[ "tweak_data" ].menu.stats_font_size,
+								x = node._right_align( node ), y = 0, h = h, w = row_item.gui_slider_bg:w(),
+								align=slider_text_align, halign=slider_text_halign, vertical=slider_text_vertical, valign=slider_text_vertical,
+								font = node.font,
+								color = row_item.color, --  node.color,
+								layer = node.layers.items + 1,
+								text = ""..math.floor( 0*100 ).."%",
+								blend_mode = node.row_item_blend_mode or "normal",
+								render_template = Idstring("VertexColorTextured")
+							} )
+							
+	if row_item.help_text then
+		-- node._create_info_panel( node, row_item )
+	end
+	
+	self:_layout( node, row_item )
+	return true
 end
 
-ItemSlider._layout = function(l_16_0, l_16_1, l_16_2)
-  local safe_rect = managers.gui_data:scaled_size()
-  l_16_2.gui_text:set_font_size(l_16_1.font_size)
-  local x, y, w, h = l_16_2.gui_text:text_rect()
-  local bg_pad = 8
-  local xl_pad = 64
-  l_16_2.gui_panel:set_height(h)
-  l_16_2.gui_panel:set_width(safe_rect.width - l_16_1._mid_align(l_16_1))
-  l_16_2.gui_panel:set_x(l_16_1._mid_align(l_16_1))
-  local sh = h - 2
-  l_16_2.gui_slider_bg:set_h(sh)
-  l_16_2.gui_slider_bg:set_w(l_16_2.gui_panel:w())
-  l_16_2.gui_slider_bg:set_x(0)
-  l_16_2.gui_slider_bg:set_center_y(h / 2)
-  if not l_16_2.font or not Idstring(l_16_2.font) then
-    l_16_2.gui_slider_text:set_font_size(_G.tweak_data.menu.stats_font_size)
-  end
-  l_16_2.gui_slider_text:set_size(l_16_2.gui_slider_bg:size())
-  l_16_2.gui_slider_text:set_position(l_16_2.gui_slider_bg:position())
-  l_16_2.gui_slider_text:set_y(l_16_2.gui_slider_text:y())
-  if l_16_2.align == "right" then
-    l_16_2.gui_slider_text:set_left(l_16_1._right_align(l_16_1) - l_16_2.gui_panel:x())
-  else
-    l_16_2.gui_slider_text:set_x(l_16_2.gui_slider_text:x() - l_16_1.align_line_padding(l_16_1))
-  end
-  l_16_2.gui_slider_gfx:set_h(sh)
-  l_16_2.gui_slider_gfx:set_x(l_16_2.gui_slider_bg:x())
-  l_16_2.gui_slider_gfx:set_y(l_16_2.gui_slider_bg:y())
-  l_16_2.gui_slider:set_x(l_16_2.gui_slider_bg:x())
-  l_16_2.gui_slider:set_y(l_16_2.gui_slider_bg:y())
-  l_16_2.gui_slider:set_w(l_16_2.gui_slider_bg:w())
-  l_16_2.gui_slider_marker:set_center_y(h / 2)
-  l_16_2.gui_text:set_width(safe_rect.width / 2)
-  if l_16_2.align == "right" then
-    l_16_2.gui_text:set_right(l_16_2.gui_panel:w())
-  else
-    l_16_2.gui_text:set_left(l_16_1._right_align(l_16_1) - l_16_2.gui_panel:x())
-  end
-  l_16_2.gui_text:set_height(h)
+function ItemSlider:reload( row_item, node )
+	-- local align_x = safe_rect.width * self._align_line_proportions
+		
+	local value = self:show_value() and string.format( "%.0f", self:value() ) or (string.format( "%.0f", self:percentage() ) .. "%")
+	
+	-- row_item.gui_text:set_text( row_item.text .. ": " .. value .. "%" )
+	
+	row_item.gui_slider_text:set_text( value )
+	-- row_item.gui_slider:set_w( value )
+	-- local x,y,w,h = row_item.gui_text:text_rect()
+	-- row_item.gui_slider:set_w( (self.item_panel:w()/2) * (value/100) )
+	local where = row_item.gui_slider:left() + row_item.gui_slider:w() * (self:percentage()/100)
+	row_item.gui_slider_marker:set_center_x( where )
+	row_item.gui_slider_gfx:set_w( row_item.gui_slider:w() *  (self:percentage()/100) )
+	-- row_item.gui_slider_marker:set_center_x( (self.item_panel:w()/2) * (item:percentage()/100) )
+	-- MenuNodeGui.super._reload_slider_item( self, item )
+	return true
 end
 
+function ItemSlider:highlight_row_item( node, row_item, mouse_over )
+	row_item.gui_text:set_color( row_item.color )
+	row_item.gui_text:set_font( (row_item.font and Idstring(row_item.font)) or _G[ "tweak_data" ].menu.default_font_no_outline_id )
+	row_item.gui_slider_text:set_color( row_item.color )
+	row_item.gui_slider_text:set_font( (row_item.font and Idstring(row_item.font)) or _G[ "tweak_data" ].menu.default_font_no_outline_id )
+	
+	-- row_item.gui_slider:set_color( row_item.color * 0.9 )
+	-- row_item.gui_slider_marker:set_color( (row_item.color*0.8):with_alpha( 1 ) )
+	-- row_item.gui_slider_gfx:set_gradient_points( { 0, Color( 1,255/255,168/255,0), 1, Color( 1,154/255,102/255,0) } )
+	row_item.gui_slider_gfx:set_gradient_points( { 0, _G[ "tweak_data" ].screen_colors.button_stage_2, 1, _G[ "tweak_data" ].screen_colors.button_stage_2 } )
+	if row_item.gui_info_panel then
+		row_item.gui_info_panel:set_visible( true )
+	end
+	
+	return true
+end
 
+function ItemSlider:fade_row_item( node, row_item )
+	-- row_item.color	= self.row_item_color
+	row_item.gui_text:set_color( row_item.color )
+	row_item.gui_text:set_font( (row_item.font and Idstring(row_item.font)) or _G[ "tweak_data" ].menu.default_font_id )
+	row_item.gui_slider_text:set_color( row_item.color )
+	row_item.gui_slider_text:set_font( (row_item.font and Idstring(row_item.font)) or _G[ "tweak_data" ].menu.default_font_id )
+	-- row_item.gui_slider:set_color( row_item.color )
+	-- row_item.gui_slider_gfx:set_gradient_points( { 0, Color( 0.5,255/255,168/255,0), 1, Color( 0.5,154/255,102/255,0) } )
+	row_item.gui_slider_gfx:set_gradient_points( { 0, _G[ "tweak_data" ].screen_colors.button_stage_3, 1, _G[ "tweak_data" ].screen_colors.button_stage_3 } )
+	-- row_item.gui_slider_marker:set_color( row_item.color )
+	if row_item.gui_info_panel then
+		row_item.gui_info_panel:set_visible( false )
+	end
+	return true
+end
+
+function ItemSlider:_layout( node, row_item )
+	local safe_rect = managers.gui_data:scaled_size() -- managers.viewport:get_safe_rect_pixels()
+	
+	row_item.gui_text:set_font_size( node.font_size )
+	local x,y,w,h = row_item.gui_text:text_rect()
+	
+	local bg_pad = 8
+	local xl_pad = 64
+	
+	row_item.gui_panel:set_height( h )
+	-- row_item.gui_panel:set_width( row_item.gui_slider_bg:width() + row_item.gui_text:width() + node._align_line_padding * 2 )
+	-- row_item.gui_panel:set_width( safe_rect.width/2 + xl_pad )
+	-- row_item.gui_panel:set_x( safe_rect.width/2 - xl_pad )
+	
+	row_item.gui_panel:set_width( safe_rect.width - node._mid_align( node ) )
+	row_item.gui_panel:set_x( node._mid_align( node ) )
+		
+	-- local sh = math.min( h, 22 )
+	local sh = h - 2
+		
+	-- row_item.gui_slider_bg:set_debug( true )
+	row_item.gui_slider_bg:set_h( sh )
+	-- row_item.gui_slider_bg:set_w( node._left_align( node ) - safe_rect.width/2 - bg_pad * 2 )
+	row_item.gui_slider_bg:set_w( row_item.gui_panel:w() )
+	-- row_item.gui_slider_bg:set_w( node._left_align( node ) - bg_pad * 2 )
+	-- row_item.gui_slider_bg:set_right( node._left_align( node ) - bg_pad )
+	-- row_item.gui_slider_bg:set_x( xl_pad )
+		-- row_item.gui_slider_bg:set_x( node._right_align( node ) - safe_rect.width/2 + bg_pad * 2 )
+	row_item.gui_slider_bg:set_x( 0 )
+	row_item.gui_slider_bg:set_center_y( h/2 )
+	
+	row_item.gui_slider_text:set_font_size( (row_item.font and Idstring(row_item.font)) or _G[ "tweak_data" ].menu.stats_font_size )
+	row_item.gui_slider_text:set_size( row_item.gui_slider_bg:size() )
+	row_item.gui_slider_text:set_position( row_item.gui_slider_bg:position() )
+	row_item.gui_slider_text:set_y( row_item.gui_slider_text:y() )
+	
+	if( row_item.align == "right" ) then
+		row_item.gui_slider_text:set_left( node._right_align( node ) - row_item.gui_panel:x() )
+	else
+		row_item.gui_slider_text:set_x( row_item.gui_slider_text:x() - node.align_line_padding( node ) )
+	end
+	
+	-- row_item.gui_slider_gfx:set_h( sh - 4)
+	-- row_item.gui_slider_gfx:set_x( row_item.gui_slider_bg:x() + 2 )
+	-- row_item.gui_slider_gfx:set_y( row_item.gui_slider_bg:y() + 2 )
+	row_item.gui_slider_gfx:set_h( sh )
+	row_item.gui_slider_gfx:set_x( row_item.gui_slider_bg:x() )
+	row_item.gui_slider_gfx:set_y( row_item.gui_slider_bg:y() )
+		
+	row_item.gui_slider:set_x( row_item.gui_slider_bg:x() ) -- + 2 )
+	row_item.gui_slider:set_y( row_item.gui_slider_bg:y() ) -- + 2 )
+	row_item.gui_slider:set_w( row_item.gui_slider_bg:w() ) -- - 4 )
+	-- row_item.gui_slider:set_w( node._left_align( node ) )
+	-- row_item.gui_slider:set_right( node._left_align( node ) )
+	-- row_item.gui_slider:set_center_y( h/2 )
+	row_item.gui_slider_marker:set_center_y( h/2 )
+	row_item.gui_text:set_width( safe_rect.width/2 )
+	
+	if( row_item.align == "right" ) then
+		row_item.gui_text:set_right( row_item.gui_panel:w() )
+	else
+		row_item.gui_text:set_left( node._right_align( node ) - row_item.gui_panel:x() )
+	end
+	row_item.gui_text:set_height( h )
+	
+	-- row_item.gui_panel:set_height( h )
+	-- row_item.gui_panel:set_width( row_item.gui_slider:width() + row_item.gui_text:width() + node._align_line_padding * 2 )
+	
+	
+	--local value = string.format( "%.0f", item:percentage() )
+	--[[local where = row_item.gui_slider:left() + row_item.gui_slider:w() * (self:percentage()/100)
+	row_item.gui_slider_marker:set_center_x( where )
+	row_item.gui_slider_gfx:set_w( row_item.gui_slider:w() *  (self:percentage()/100) )
+	
+	if row_item.gui_info_panel then
+		node._align_info_panel( node, row_item )
+	end]]
+end

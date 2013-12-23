@@ -1,27 +1,27 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\elementjobstagealternative.luac 
+core:import( "CoreMissionScriptElement" )
 
-core:import("CoreMissionScriptElement")
-if not ElementJobStageAlternative then
-  ElementJobStageAlternative = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementJobStageAlternative.init = function(l_1_0, ...)
-  ElementJobStageAlternative.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementJobStageAlternative = ElementJobStageAlternative or class( CoreMissionScriptElement.MissionScriptElement )
 
+function ElementJobStageAlternative:init( ... )
+	ElementJobStageAlternative.super.init( self, ... )
 end
 
-ElementJobStageAlternative.on_executed = function(l_2_0, l_2_1)
-  if not l_2_0._values.enabled then
-    return 
-  end
-  print("ElementJobStageAlternative:on_executed", l_2_0._values.alternative, l_2_0._values.interupt)
-  if l_2_0._values.interupt and l_2_0._values.interupt ~= "none" then
-    managers.job:set_next_interupt_stage(l_2_0._values.interupt)
-  else
-    managers.job:set_next_alternative_stage(l_2_0._values.alternative)
-  end
-  ElementJobStageAlternative.super.on_executed(l_2_0, l_2_0._unit or l_2_1)
+function ElementJobStageAlternative:client_on_executed( ... )
+	self:on_executed( ... )
 end
 
-
+function ElementJobStageAlternative:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	print( "ElementJobStageAlternative:on_executed", self._values.alternative, self._values.interupt )
+	if self._values.interupt and self._values.interupt ~= "none" then
+		managers.job:set_next_interupt_stage( self._values.interupt )
+	elseif Network:is_server() then
+		managers.job:set_next_alternative_stage( self._values.alternative )
+	end
+	-- Later add self._values.interupt
+		
+	ElementJobStageAlternative.super.on_executed( self, self._unit or instigator )
+end

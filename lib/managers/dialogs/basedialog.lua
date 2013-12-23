@@ -1,72 +1,72 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\dialogs\basedialog.luac 
+core:module( "SystemMenuManager" )
 
-core:module("SystemMenuManager")
-core:import("CoreDebug")
-if not BaseDialog then
-  BaseDialog = class()
-end
-BaseDialog.init = function(l_1_0, l_1_1, l_1_2)
-  l_1_0._manager = l_1_1
-  if not l_1_2 then
-    l_1_0._data = {}
-  end
-end
+core:import( "CoreDebug" )
 
-BaseDialog.id = function(l_2_0)
-  return l_2_0._data.id
+-- Abstract dialog:
+BaseDialog = BaseDialog or class()
+
+function BaseDialog:init( manager, data )
+	self._manager = manager
+	self._data = data or {}
+
+	--[[ Used variables:
+	self._ws = nil
+	self._controller = nil
+	]]
 end
 
-BaseDialog.priority = function(l_3_0)
-  return l_3_0._data.priority or 0
+function BaseDialog:id()
+	return self._data.id
 end
 
-BaseDialog.get_platform_id = function(l_4_0)
-  return managers.user:get_platform_id(l_4_0._data.user_index) or 0
+function BaseDialog:priority()
+	return self._data.priority or 0
 end
 
-BaseDialog.is_generic = function(l_5_0)
-  return l_5_0._data.is_generic
+function BaseDialog:get_platform_id()
+	return managers.user:get_platform_id( self._data.user_index ) or 0
 end
 
-BaseDialog.fade_in = function(l_6_0)
+function BaseDialog:is_generic()
+	return self._data.is_generic
 end
 
-BaseDialog.fade_out_close = function(l_7_0)
-  l_7_0:close()
+function BaseDialog:fade_in()
 end
 
-BaseDialog.fade_out = function(l_8_0)
-  l_8_0:close()
+function BaseDialog:fade_out_close()
+	self:close()
 end
 
-BaseDialog.close = function(l_9_0)
-  l_9_0._manager:event_dialog_closed(l_9_0)
+function BaseDialog:fade_out()
+	self:close()
 end
 
-BaseDialog.is_closing = function(l_10_0)
-  return false
+function BaseDialog:close()
+	self._manager:event_dialog_closed( self )
 end
 
-BaseDialog.show = function(l_11_0)
-  Application:error("[SystemMenuManager] Unable to display dialog since the logic for it hasn't been implemented.")
-  return false
+function BaseDialog:is_closing()
+	return false
 end
 
-BaseDialog._get_ws = function(l_12_0)
-  return l_12_0._ws
+function BaseDialog:show()
+	Application:error( "[SystemMenuManager] Unable to display dialog since the logic for it hasn't been implemented." )
+	return false
 end
 
-BaseDialog._get_controller = function(l_13_0)
-  return l_13_0._controller
+function BaseDialog:_get_ws()
+	return self._ws
 end
 
-BaseDialog.to_string = function(l_14_0)
-  return string.format("Class: %s, Id: %s, User index: %s", CoreDebug.class_name(getmetatable(l_14_0), _M), tostring(l_14_0._data.id), tostring(l_14_0._data.user_index))
+function BaseDialog:_get_controller()
+	return self._controller
 end
 
-BaseDialog.blocks_exec = function(l_15_0)
-  return true
+function BaseDialog:to_string()
+	return string.format( "Class: %s, Id: %s, User index: %s", CoreDebug.class_name( getmetatable( self ), _M ), tostring( self._data.id ), tostring( self._data.user_index ) )
 end
 
-
+function BaseDialog:blocks_exec()
+	return true
+end

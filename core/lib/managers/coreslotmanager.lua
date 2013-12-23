@@ -1,88 +1,83 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\coreslotmanager.luac 
+core:module( "CoreSlotManager" )
 
-core:module("CoreSlotManager")
-if not SlotManager then
-  SlotManager = class()
-end
-SlotManager.init = function(l_1_0)
-  local unit_manager = World:unit_manager()
-  unit_manager:set_slot_limited(0, 0)
-  unit_manager:set_slot_infinite(1)
-  unit_manager:set_slot_infinite(10)
-  unit_manager:set_slot_infinite(11)
-  unit_manager:set_slot_infinite(15)
-  unit_manager:set_slot_infinite(19)
-  unit_manager:set_slot_infinite(29)
-  unit_manager:set_slot_infinite(35)
-  l_1_0._masks = {}
-  l_1_0._masks.statics = World:make_slot_mask(1, 15, 36)
-  l_1_0._masks.editor_all = World:make_slot_mask(1, 10, 11, 15, 19, 35, 36)
-  l_1_0._masks.mission_elements = World:make_slot_mask(10)
-  l_1_0._masks.surface_move = World:make_slot_mask(1, 11, 20, 21, 24, 35, 38)
-  l_1_0._masks.hub_elements = World:make_slot_mask(10)
-  l_1_0._masks.sound_layer = World:make_slot_mask(19)
-  l_1_0._masks.environment_layer = World:make_slot_mask(19)
-  l_1_0._masks.portal_layer = World:make_slot_mask(19)
-  l_1_0._masks.ai_layer = World:make_slot_mask(19)
-  l_1_0._masks.dynamics = World:make_slot_mask(11)
-  l_1_0._masks.statics_layer = World:make_slot_mask(1, 11, 15)
-  l_1_0._masks.dynamics_layer = World:make_slot_mask(11)
-  l_1_0._masks.dump_all = World:make_slot_mask(1)
-  l_1_0._masks.wires = World:make_slot_mask(35)
-  l_1_0._masks.brush_placeable = World:make_slot_mask(1)
-  l_1_0._masks.brushes = World:make_slot_mask(29)
-end
+SlotManager = SlotManager or class()
 
-SlotManager.get_mask = function(l_2_0, ...)
-  do
-    local arg_list = nil
-    for _,name in pairs({...}) do
-       -- DECOMPILER ERROR: Confused at declaration of local variable
+function SlotManager:init()
+	local unit_manager = World:unit_manager()
 
-      do
-         -- DECOMPILER ERROR: Confused at declaration of local variable
+-- 		0. Unit Trashcan
+	unit_manager:set_slot_limited( 0, 0 )
 
-         -- DECOMPILER ERROR: Confused about usage of registers!
+-- 		1. Statics
+	unit_manager:set_slot_infinite( 1 )
 
-        if l_2_0._masks[i_3] then
-          if not arg_list then
-            arg_list = l_2_0._masks[i_3]
-            for i_1,i_2 in pairs({...}) do
-            end
-             -- DECOMPILER ERROR: Confused about usage of registers!
+-- 		10. Mission elements (formerly known as hub elements)
+	unit_manager:set_slot_infinite( 10 )
+	
+-- 		11. Dynamics
+	unit_manager:set_slot_infinite( 11 )
 
-            arg_list = arg_list + l_2_0._masks[i_3]
-            for i_1,i_2 in pairs({...}) do
-            end
-            Application:error("Invalid slotmask \"" .. tostring(i_3) .. "\".")
-          end
-           -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+-- 		15. AI blocker. ( Editor helper unit )
+	unit_manager:set_slot_infinite( 15 )
+	
+-- 		19. Editor Units
+	unit_manager:set_slot_infinite( 19 )
+	
+-- 		29. Brush units
+	unit_manager:set_slot_infinite( 29 )
 
-        end
-         -- DECOMPILER ERROR: Confused about usage of registers!
+-- 		35. Wires/Cables
+	unit_manager:set_slot_infinite( 35 )
 
-        if #{...} == 0 then
-          Application:error("No parameters passed to get_mask function.")
-        end
-         -- DECOMPILER ERROR: Confused about usage of registers!
+	self._masks = {}
 
-        return arg_list
-      end
-       -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+	self._masks[ "statics" ] = World:make_slot_mask( 1, 15, 36 )
+	self._masks[ "editor_all" ] = World:make_slot_mask( 1, 10, 11, 15, 19, 35, 36 )					-- Selectable units in the editor.
+	self._masks[ "mission_elements" ] = World:make_slot_mask( 10 )
+	self._masks[ "surface_move" ] = World:make_slot_mask( 1, 11, 20, 21, 24, 35, 38 )	-- Needs to be cleaned up: 11, 20, 21, 24, 38
+	self._masks[ "hub_elements" ] = World:make_slot_mask( 10 )
+	self._masks[ "sound_layer" ] = World:make_slot_mask( 19 )
+	self._masks[ "environment_layer" ] = World:make_slot_mask( 19 )
+	self._masks[ "portal_layer" ] = World:make_slot_mask( 19 )
+	self._masks[ "ai_layer" ] = World:make_slot_mask( 19 )
+	self._masks[ "dynamics" ] = World:make_slot_mask( 11 )
+	self._masks[ "statics_layer" ] = World:make_slot_mask( 1, 11, 15 )
+	self._masks[ "dynamics_layer" ] = World:make_slot_mask( 11 )
+	self._masks[ "dump_all" ] = World:make_slot_mask( 1 )
+	self._masks[ "wires" ] = World:make_slot_mask( 35 )
+	self._masks[ "brush_placeable" ] = World:make_slot_mask( 1 )
+	self._masks[ "brushes" ] = World:make_slot_mask( 29 )
 end
 
-SlotManager.get_mask_name = function(l_3_0, l_3_1)
-  return table.get_key(l_3_0._masks, l_3_1)
+function SlotManager:get_mask( ... )
+	local mask
+	local arg_list = { ... }
+
+	for _, name in pairs( arg_list ) do
+		local next_mask = self._masks[ name ]
+
+		if( next_mask ) then
+			if( not mask ) then
+				mask = next_mask
+			else
+				mask = mask + next_mask
+			end
+		else
+			Application:error( "Invalid slotmask \"" .. tostring( name ) .. "\"." )
+		end
+	end
+
+	if( #arg_list == 0 ) then
+		Application:error( "No parameters passed to get_mask function." )
+	end
+
+	return mask
 end
 
-SlotManager.get_mask_map = function(l_4_0)
-  return l_4_0._masks
+function SlotManager:get_mask_name( slotmask )
+	return table.get_key( self._masks, slotmask )
 end
 
-
+function SlotManager:get_mask_map()
+	return self._masks
+end

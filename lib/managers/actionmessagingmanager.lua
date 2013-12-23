@@ -1,96 +1,118 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\actionmessagingmanager.luac 
-
-if not ActionMessagingManager then
-  ActionMessagingManager = class()
-end
+ActionMessagingManager = ActionMessagingManager or class()
 ActionMessagingManager.PATH = "gamedata/action_messages"
 ActionMessagingManager.FILE_EXTENSION = "action_message"
 ActionMessagingManager.FULL_PATH = ActionMessagingManager.PATH .. "." .. ActionMessagingManager.FILE_EXTENSION
-ActionMessagingManager.init = function(l_1_0)
-  l_1_0._messages = {}
-  l_1_0:_parse_messages()
+
+function ActionMessagingManager:init()
+	self._messages = {}
+	self:_parse_messages()
 end
 
-ActionMessagingManager._parse_messages = function(l_2_0)
-  do
-    local list = PackageManager:script_data(l_2_0.FILE_EXTENSION:id(), l_2_0.PATH:id())
-    for _,data in ipairs(list) do
-      if data._meta == "message" then
-        l_2_0:_parse_message(data)
-        for (for control),_ in (for generator) do
-        end
-        Application:error("Unknown node \"" .. tostring(data._meta) .. "\" in \"" .. l_2_0.FULL_PATH .. "\". Expected \"message\" node.")
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+function ActionMessagingManager:_parse_messages()
+	local list = PackageManager:script_data( self.FILE_EXTENSION:id(), self.PATH:id() )
+
+	for _,data in ipairs( list ) do
+		if( data._meta == "message" ) then
+		 	self:_parse_message( data )
+		else
+			Application:error( "Unknown node \"" .. tostring( data._meta ) .. "\" in \"" .. self.FULL_PATH .. "\". Expected \"message\" node." )
+		end
+	end	
 end
 
-ActionMessagingManager._parse_message = function(l_3_0, l_3_1)
-  local id = l_3_1.id
-  local text_id = l_3_1.text_id
-  local event = l_3_1.event
-  local dialog_id = l_3_1.dialog_id
-  local equipment_id = l_3_1.equipment_id
-  l_3_0._messages[id] = {text_id = text_id, event = event, dialog_id = dialog_id, equipment_id = equipment_id}
+function ActionMessagingManager:_parse_message( data )
+	local id =	data.id
+	local text_id = data.text_id
+	
+	-- local trigger_times = data.trigger_times
+	-- local sync = data.sync
+	local event = data.event
+	local dialog_id =data.dialog_id
+	local equipment_id = data.equipment_id
+	
+	self._messages[ id ] = { text_id 		= text_id,
+							-- trigger_times	= trigger_times,
+							-- trigger_count	= 0,
+							-- sync			= sync,
+							event			= event,
+							dialog_id		= dialog_id,
+							equipment_id	= equipment_id,
+							}
 end
 
-ActionMessagingManager.ids = function(l_4_0)
-  local t = {}
-  for id,_ in pairs(l_4_0._messages) do
-    table.insert(t, id)
-  end
-  table.sort(t)
-  return t
+-- Returns a sorted ipairs with all ids
+function ActionMessagingManager:ids()
+	local t = {}
+	for id,_ in pairs( self._messages ) do
+		table.insert( t, id )
+	end
+	table.sort ( t )
+	return t
 end
 
-ActionMessagingManager.messages = function(l_5_0)
-  return l_5_0._messages
+function ActionMessagingManager:messages()
+	return self._messages
 end
 
-ActionMessagingManager.message = function(l_6_0, l_6_1)
-  return l_6_0._messages[l_6_1]
+function ActionMessagingManager:message( id )
+	return self._messages[ id ]
 end
 
-ActionMessagingManager.show_message = function(l_7_0, l_7_1, l_7_2)
-  if not l_7_1 or not l_7_0:message(l_7_1) then
-    Application:stack_dump_error("Bad id to show message, " .. tostring(l_7_1) .. ".")
-    return 
-  end
-  l_7_0:_show_message(l_7_1, l_7_2)
+function ActionMessagingManager:show_message( id, instigator )
+	if not id or not self:message( id ) then
+		Application:stack_dump_error( "Bad id to show message, "..tostring( id ).."." )
+		return
+	end
+	
+	self:_show_message( id, instigator )
+		
+	--[[if self:message( id ).sync then
+		managers.network:session():send_to_peers_synched( "sync_show_message", id )
+	end ]]
 end
 
-ActionMessagingManager._show_message = function(l_8_0, l_8_1, l_8_2)
-  local msg_data = l_8_0:message(l_8_1)
-  local title = (l_8_2:base():nick_name())
-  local icon = nil
-  local msg = ""
-  if msg_data.equipment_id then
-    title = title .. " " .. managers.localization:text("message_obtained_equipment")
-    local equipment = tweak_data.equipments.specials[msg_data.equipment_id]
-    icon = equipment.icon
-    msg = managers.localization:text(equipment.text_id)
-  else
-    title = title .. ":"
-    msg = managers.localization:text(l_8_0:message(l_8_1).text_id)
-  end
-  managers.hud:present_mid_text({title = utf8.to_upper(title), text = utf8.to_upper(msg), icon = icon, time = 4, event = l_8_0:message(l_8_1).event})
-  if l_8_0:message(l_8_1).dialog_id then
-    managers.dialog:queue_dialog(l_8_0:message(l_8_1).dialog_id, {})
-  end
+function ActionMessagingManager:_show_message( id, instigator )
+	local msg_data = self:message( id )
+	-- Trigger if unlimted or if trigger count not reach trigger trimes
+	--[[if not self:message( id ).trigger_times or (self:message( id ).trigger_times ~= self:message( id ).trigger_count) then]]
+		--self:message( id ).trigger_count = self:message( id ).trigger_count + 1
+		
+		-- local msg = managers.localization:text( self:message( id ).text_id )
+		local title = instigator:base():nick_name()
+		local icon
+		local msg = ""
+		if msg_data.equipment_id then
+			title = title .. " " ..managers.localization:text( "message_obtained_equipment" )
+			local equipment = tweak_data.equipments.specials[ msg_data.equipment_id ]
+			icon = equipment.icon
+			msg = managers.localization:text( equipment.text_id )
+		else
+			title = title..":"
+			msg = managers.localization:text( self:message( id ).text_id )
+		end
+		managers.hud:present_mid_text( { title = utf8.to_upper( title ), text = utf8.to_upper( msg ), icon = icon, time = 4, event = self:message( id ).event } )
+		if self:message( id ).dialog_id then
+			managers.dialog:queue_dialog( self:message( id ).dialog_id, {} )
+		end
+	-- end 
 end
 
-ActionMessagingManager.sync_show_message = function(l_9_0, l_9_1, l_9_2)
-  if alive(l_9_2) and managers.network:game():member_from_unit(l_9_2) then
-    l_9_0:_show_message(l_9_1, l_9_2)
-  end
+function ActionMessagingManager:sync_show_message( id, instigator )
+	if alive( instigator ) and managers.network:game():member_from_unit( instigator ) then
+		self:_show_message( id, instigator )
+	end
 end
 
-ActionMessagingManager.save = function(l_10_0, l_10_1)
+function ActionMessagingManager:save( data )
+	--[[local state = {
+		hints = deep_clone( self._messages ),
+	}
+
+	data.ActionMessagingManager = state]]
 end
 
-ActionMessagingManager.load = function(l_11_0, l_11_1)
+function ActionMessagingManager:load( data )
+	--[[local state = data.ActionMessagingManager
+
+	self._messages = deep_clone( state.hints )]]
 end
-
-

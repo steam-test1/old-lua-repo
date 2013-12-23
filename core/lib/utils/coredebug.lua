@@ -1,37 +1,50 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\utils\coredebug.luac 
 
-core:module("CoreDebug")
-core:import("CoreCode")
-core:import("CoreApp")
-if not Global.render_debug then
-  Global.render_debug = {}
-end
-if not Global.render_debug_initialized then
-  Global.render_debug_initialized = {}
-end
+core:module( "CoreDebug" )
+
+core:import( "CoreCode" )
+core:import( "CoreApp" )
+
+--[[ 
+
+The CoreDebug module has functionality for logging
+(Category-print), and drawing for debug purposes.
+
+Please also see module 'CoreCode'.
+
+]]-- 
+
+
+----------------------------------------------------------------------
+-- Functions for Debug Draw
+----------------------------------------------------------------------
+
+-- Modify this table to modify the draw functionality,
+-- it is a bit like 'categpry_print' but for drawing...
+-- The idea with the global access is that the user might want to change 
+-- the values from the console (this also explains the .._initialized).
+Global.render_debug = Global.render_debug or {}
+Global.render_debug_initialized = Global.render_debug_initialized or {}
+
 if not Global.render_debug_initialized.coredebug then
-  Global.render_debug.draw_enabled = true
-  Global.render_debug.render_sky = true
-  Global.render_debug.render_world = true
-  Global.render_debug.render_overlay = true
-  Global.render_debug_initialized.coredebug = true
+	Global.render_debug.draw_enabled = true
+	Global.render_debug.render_sky = true
+	Global.render_debug.render_world = true
+	Global.render_debug.render_overlay = true
+	Global.render_debug_initialized.coredebug = true
 end
-only_in_debug = function(l_1_0, l_1_1)
-  if not l_1_1 then
-    l_1_1 = getmetatable(Application)
-  end
-  local old = "old_" .. l_1_0
-  if not l_1_1[old] then
-    l_1_1[old] = l_1_1[l_1_0]
-    l_1_1[l_1_0] = function(...)
-      if Global.render_debug.draw_enabled then
-        klass[old](...)
-         -- DECOMPILER ERROR: Confused about usage of registers for local variables.
 
-      end
-      end
-  end
+-- To be able to turn on and off all debugdrawing
+function only_in_debug(f, klass)
+    klass = klass or getmetatable(Application)
+    local old = "old_" .. f
+    if not klass[old] then
+        klass[old] = klass[f]    
+        klass[f] = function(...)
+            if Global.render_debug.draw_enabled then
+                klass[old](...)
+            end
+        end
+    end
 end
 
 only_in_debug("draw")
@@ -47,318 +60,345 @@ only_in_debug("draw_rotation_size")
 only_in_debug("draw_arrow")
 only_in_debug("draw_link")
 only_in_debug("arrow", Pen)
-if not Global.category_print then
-  Global.category_print = {}
-end
-if not Global.category_print_initialized then
-  Global.category_print_initialized = {}
-end
+
+
+----------------------------------------------------------------------
+-- Functions for Logging (Category-print)
+----------------------------------------------------------------------
+
+-- Modify these tables to turn loggin of certain categories on and off.
+-- By default some categories are on.
+Global.category_print = Global.category_print or {} 
+Global.category_print_initialized = Global.category_print_initialized or {}
+
 if not Global.category_print_initialized.coredebug then
-  Global.category_print.debug = true
-  Global.category_print.editor = false
-  Global.category_print.sequence = false
-  Global.category_print.controller_manager = false
-  Global.category_print.game_state_machine = false
-  Global.category_print.subtitle_manager = false
-  Global.category_print_initialized.coredebug = true
+	Global.category_print.debug = true 		-- Debug text that _only_ occure when you debug, i.e. when you from the console run a debug function that prints debug text.
+	Global.category_print.editor = false	-- Used by the level editor.
+	Global.category_print.sequence = false	-- Used by the sequence manager.
+	Global.category_print.controller_manager = false
+	Global.category_print.game_state_machine = false
+	Global.category_print.subtitle_manager = false
+	Global.category_print_initialized.coredebug = true
 end
-out = function(...)
-  local CAT_TYPE = "debug"
-  local NO_CAT = "spam"
-  local args = {...}
-  local correct_spaces = function(...)
-    local args = {...}
-     -- DECOMPILER ERROR: No list found. Setlist fails
 
-    do
-      local sel = {}
-       -- DECOMPILER ERROR: Overwrote pending register.
+function out(...)
+	local CAT_TYPE = "debug"
+	local NO_CAT = "spam"
+	local args = {...}
+	
+	local correct_spaces = function(...)
+		local args = {...}
+		local sel = {select(2, ...)}
+		sel[1] = args[1] .. " " .. tostring(sel[1])
+		return unpack(sel)
+	end
+	
+	local do_print = function(c, ...)
+		local cat = CAT_TYPE
+		local args = {...}
+		for k,_ in pairs(Global.category_print) do
+			if k == c then
+				cat = c
+				break
+			end
+		end
+		cat_print(cat, ...)
+	end
+	
+	if #args == 0 then
+		return
+	elseif #args > 1 and type(args[1]) == "string" then
+		local a = args[1]
+		args[1] = "[" .. a .. "]"
+		do_print(a, correct_spaces(unpack(args)))
+	else
+		do_print(NO_CAT, correct_spaces("[" .. NO_CAT .. "]", unpack(args)))
+	end
+end
 
-      sel[1] = select(2, ...) .. " " .. tostring(sel[1])
-      return unpack(sel)
+function cat_print( cat, ... )
+	if( Global.category_print[ cat ] ) then
+		_G.print( ... )
+	end
+end
+
+function cat_debug( cat, ... )
+	if( Global.category_print[ cat ] ) then
+		Application:debug( ... )
+	end
+end
+
+function cat_error( cat, ... )
+	if( Global.category_print[ cat ] ) then
+		Application:error( ... )
+	end
+end
+
+function cat_stack_dump( cat )
+	if( Global.category_print[ cat ] ) then
+		Application:stack_dump()
+	end
+end
+
+function cat_print_inspect( cat, ... )
+	if( Global.category_print[ cat ] ) then
+		for _,var in ipairs( { ... } ) do
+			cat_print( cat, CoreCode.inspect( var ) )
+		end
+	end
+end
+
+function cat_debug_inspect( cat, ... )
+	if( Global.category_print[ cat ] ) then
+		for _,var in ipairs( { ... } ) do
+			cat_debug( cat, "\n" .. tostring( CoreCode.inspect( var ) ) )
+		end
+	end
+end
+
+function catprint_save()
+	local data = { _meta = "categories" }
+
+	for name, allow_print in pairs( Global.category_print ) do
+		if( Global.original_category_print[ name ] ~= allow_print ) then
+			table.insert( data, { _meta = "category", name = name, print = allow_print } )
+		end
+	end
+
+	local path = managers.database:base_path() .. "settings/catprint.catprint"
+	local file = SystemFS:open( path, "w" )
+
+	file:print( ScriptSerializer:to_custom_xml( data ) )
+	file:close()
+end
+
+function catprint_load()
+	if( not Global.original_category_print ) then
+		Global.original_category_print = {}
+		for category,default in pairs( Global.category_print ) do
+			Global.original_category_print[ category ] = default
+		end
+	end
+
+	local file_path = "settings/catprint"
+	local file_extension = "catprint"
+
+	if( DB:has( file_extension, file_path ) ) then
+		local xml = DB:open( file_extension, file_path ):read()
+		local data = ScriptSerializer:from_custom_xml( xml )
+
+		for _,sub_data in ipairs( data ) do
+			local name = tostring( sub_data.name )
+			local allow_print = ( sub_data.print == true )
+			Global.category_print[ name ] = allow_print
+		end
+	end
+end
+
+-- This command is used to print the results of script statements in
+-- the console.
+function print_console_result(...)
+    for i=1,select('#',...) do
+        cat_print( "debug", CoreCode.full_representation( select( i, ... ) ) )
     end
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-   end
-  do
-    local do_print = function(l_2_0, ...)
-    local cat = CAT_TYPE
-    do
-      local args = {...}
-      for k,_ in pairs(Global.category_print) do
-        if k == l_2_0 then
-          cat = l_2_0
-      else
-        end
-      end
-      cat_print(cat, ...)
-    end
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-   end
-    if #args == 0 then
-      return 
-    elseif #args > 1 and type(args[1]) == "string" then
-      local a = args[1]
-      args[1] = "[" .. a .. "]"
-      do_print(a, correct_spaces(unpack(args)))
-    else
-      do_print(NO_CAT, correct_spaces("[" .. NO_CAT .. "]", unpack(args)))
-    end
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-  end
 end
 
-cat_print = function(l_3_0, ...)
-  if Global.category_print[l_3_0] then
-    _G.print(...)
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+function compile_and_reload()
+	local root_path = function()
+		local path = Application:base_path() .. ( CoreApp.arg_value( "-assetslocation" ) or "../../" )
+		
+		-- Because some of the old systems is comparing path length. This pattern does the following 'c:\test\..\test2 = c:\test2'. 
+		local f; f = function(s) local str, i = string.gsub(s, "\\[%w_%.%s]+\\%.%.", ""); return (i > 0) and f(str) or str end
+		return f(path)
+	end
 
-  end
-end
-
-cat_debug = function(l_4_0, ...)
-  if Global.category_print[l_4_0] then
-    Application:debug(...)
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-  end
-end
-
-cat_error = function(l_5_0, ...)
-  if Global.category_print[l_5_0] then
-    Application:error(...)
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-  end
-end
-
-cat_stack_dump = function(l_6_0)
-  if Global.category_print[l_6_0] then
-    Application:stack_dump()
-  end
-end
-
-cat_print_inspect = function(l_7_0, ...)
-  if Global.category_print[l_7_0] then
-    for _,var in ipairs({...}) do
-      cat_print(l_7_0, CoreCode.inspect(var))
-    end
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-  end
-end
-
-cat_debug_inspect = function(l_8_0, ...)
-  if Global.category_print[l_8_0] then
-    for _,var in ipairs({...}) do
-      cat_debug(l_8_0, "\n" .. tostring(CoreCode.inspect(var)))
-    end
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-  end
-end
-
-catprint_save = function()
-  local data = {_meta = "categories"}
-  for name,allow_print in pairs(Global.category_print) do
-    if Global.original_category_print[name] ~= allow_print then
-      table.insert(data, {_meta = "category", name = name, print = allow_print})
-    end
-  end
-  local path = managers.database:base_path() .. "settings/catprint.catprint"
-  local file = SystemFS:open(path, "w")
-  file:print(ScriptSerializer:to_custom_xml(data))
-  file:close()
-end
-
-catprint_load = function()
-  if not Global.original_category_print then
-    Global.original_category_print = {}
-    for category,default in pairs(Global.category_print) do
-      Global.original_category_print[category] = default
-    end
-  end
-  local file_path = "settings/catprint"
-  local file_extension = "catprint"
-  if DB:has(file_extension, file_path) then
-    local xml = DB:open(file_extension, file_path):read()
-    local data = ScriptSerializer:from_custom_xml(xml)
-    for _,sub_data in ipairs(data) do
-      local name = tostring(sub_data.name)
-      local allow_print = sub_data.print == true
-      Global.category_print[name] = allow_print
-    end
-  end
-end
-
-print_console_result = function(...)
-  for i = 1, select("#", ...) do
-    cat_print("debug", CoreCode.full_representation(select(i, ...)))
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-compile_and_reload = function()
-  local root_path = function()
-    local path = Application:base_path() .. (CoreApp.arg_value("-assetslocation") or "../../")
-    local f = nil
-    f = function(l_1_0)
-      local str, i = string.gsub(l_1_0, "\\[%w_%.%s]+\\%.%.", "")
-      return i > 0 and f(str) or str
-      end
-    return f(path)
-   end
-  assert(SystemInfo:platform() == Idstring("WIN32"), "You can only compile on win32 platforms!")
-  Application:data_compile({platform = "win32", source_root = root_path() .. "//assets", target_db_root = Application:base_path() .. "//assets", target_db_name = "all", verbose = false})
-  DB:reload()
-  Application:console_command("reload")
-end
-
-class_name = function(l_13_0)
-  return core:_lookup(l_13_0)
-end
-
-full_class_name = function(l_14_0)
-  local x, y = class_name(l_14_0)
-  return y .. "." .. x
-end
-
-watch = function(l_15_0, l_15_1)
-  debug.sethook(function()
-    if exact then
-      if not rawget(_G, "__watch_previnfo") then
-        cat_print("debug", string.format("[CoreVarTrace] %s", not cond_func() or "? : -1"))
-      end
-    else
-      local src = debug.getinfo(2, "Sl")
-      cat_print("debug", "[CoreVarTrace] Probably file: " .. (src and src.source or "?"))
-      cat_print("debug", "[CoreVarTrace] Might be line: " .. (src and src.currentline or -1))
-    end
-    cat_print("debug", debug.traceback())
-    debug.sethook()
-    if exact then
-      local src = debug.getinfo(2, "Sl")
-      rawset(_G, "__watch_previnfo", string.format("%s : %i", not src or "?", src.currentline or src.currentline or -1))
-    end
-   end, "l", 1)
-end
-
-trace_ref = function(l_16_0, l_16_1, l_16_2)
-  local class_mt = type(l_16_0) == "string" and getmetatable(assert(rawget(_G, l_16_0))) or l_16_0
-  local ref = function()
-    local t = rawget(_G, "_trace_ref_table")
-    if not t then
-      t = {}
-      rawset(_G, "_trace_ref_table", t)
-      cat_print("debug", "[CoreTraceRef] ---------------------- New Script Environment --------------------------")
-    end
-   end
-  local stack = function()
-    return string.gsub(debug.traceback(), "%\n", "\n[CoreTraceRef]\t")
-   end
-  if not rawget(class_mt, "_" .. l_16_1) then
-    rawset(class_mt, "_" .. l_16_1, assert(rawget(class_mt, l_16_1)))
-    rawset(class_mt, l_16_1, function(...)
-      ref()
-      local r = rawget(class_mt, "_" .. init_name)(...)
-      do
-        local t = rawget(_G, "_trace_ref_table")
-        cat_print("debug", "[CoreTraceRef] New ref:", r)
-        t[r] = stack()
-        return r
-      end
-       -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-      end)
-  end
-  if not rawget(class_mt, "_" .. l_16_2) then
-    rawset(class_mt, "_" .. l_16_2, assert(rawget(class_mt, l_16_2)))
-    rawset(class_mt, l_16_2, function(...)
-      ref()
-      local p = {...}
-      local o = p[2]
-      if not o or o.alive and not o:alive() then
-        cat_print("debug", "[CoreTraceRef] WARNING! Deleting NULL ref: ", o, stack())
-      else
-        cat_print("debug", "[CoreTraceRef] Delete ref:", o)
-      end
-      local r = rawget(class_mt, "_" .. destroy_name)(...)
-      do
-        local t = rawget(_G, "_trace_ref_table")
-        t[o] = nil
-        return r
-      end
-       -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-      end)
-  end
-  if not rawget(_G, "_destroy") then
-    rawset(_G, "_destroy", rawget(_G, "destroy"))
-    rawset(_G, "destroy", function(...)
-      ref()
-      local d = rawget(_G, "_destroy")
-      if d then
-        d(...)
-      end
-      local c = 0
-      do
-        local t = assert(rawget(_G, "_trace_ref_table"))
-        for k,v in pairs(t) do
-          c = c + 1
-        end
-        cat_print("debug", string.format("[CoreTraceRef] ---------------------- %i Script References Lost --------------------------", c))
-        for k,v in pairs(t) do
-          cat_print("debug", "[CoreTraceRef]", k, v)
-        end
-      end
-       -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-      end)
-  end
-end
-
-trace_ref_add_destroy_all = function(l_17_0, l_17_1)
-  local class_mt = type(l_17_0) == "string" and getmetatable(assert(rawget(_G, l_17_0))) or l_17_0
-  rawset(class_mt, "_" .. l_17_1, assert(rawget(class_mt, l_17_1)))
-  if not rawget(class_mt, "_" .. l_17_1) then
-    rawset(class_mt, l_17_1, function(...)
-    do
-      local r = rawget(class_mt, "_" .. func_name)(...)
-      cat_print("debug", "[CoreTraceRef] WARNING! Called destroy all function:", func_name)
-      return r
-    end
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-   end)
-  end
-end
-
-debug_pause = function(...)
-  if Application:production_build() then
-    Application:error("[debug_pause]", ...)
-    Application:stack_dump("error")
-    if not Application:editor() or Global.running_simulation then
-      Application:set_pause(true)
-       -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-    end
-  end
-end
-
-debug_pause_unit = function(l_19_0, ...)
-  if Application:production_build() then
-    debug_pause(...)
-    if alive(l_19_0) then
-      Application:draw_cylinder(l_19_0:position(), l_19_0:position() + math.UP * 5000, 30, 1, 0, 0)
-    else
-      Application:error("[debug_pause] DEAD UNIT")
-       -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-    end
-  end
+	assert(SystemInfo:platform() == Idstring("WIN32"), "You can only compile on win32 platforms!")
+	Application:data_compile({
+		platform="win32", 
+		source_root=root_path() .. "//assets", 
+		target_db_root=Application:base_path() .. "//assets", 
+		target_db_name="all",
+		verbose=false
+		-- source_files = "*.lua" pattern would be nice.
+	})
+	
+	DB:reload()
+	Application:console_command("reload")
 end
 
 
+----------------------------------------------------------------------
+-- Functions for reverse lookup of objects, note that
+-- these functions are expensive and should _only_
+-- be used for debugging purposes.
+----------------------------------------------------------------------
+
+function class_name( class )
+	return core:_lookup(class)
+end
+
+function full_class_name( class )
+	local x, y = class_name( class )
+	
+	return y .. "." .. x
+end
+
+----------------------------------------------------------------------
+-- Puts a watch on something. The exact parameter is optional. If
+-- set to true then the exact line is guaranteed. Otherwise it will
+-- likely give you the line after the condition have been satisfied.
+----------------------------------------------------------------------
+
+function watch(cond_func, exact)
+	debug.sethook(function()
+		if cond_func() then
+			if exact then
+				cat_print( "debug", string.format("[CoreVarTrace] %s", rawget(_G, "__watch_previnfo") or "? : -1"))
+			else
+				local src = debug.getinfo(2, "Sl")
+				cat_print( "debug", "[CoreVarTrace] Probably file: " .. (src and src.source or "?"))
+				cat_print( "debug", "[CoreVarTrace] Might be line: " .. (src and src.currentline or -1))
+			end
+			cat_print( "debug", debug.traceback())
+			debug.sethook()
+		end
+		
+		if exact then
+			local src = debug.getinfo(2, "Sl")
+			if src then
+				rawset(_G, "__watch_previnfo", string.format("%s : %i", src.source or "?", src.currentline or -1))
+			end
+		end
+	end, "l", 1)
+end
+
+
+----------------------------------------------------------------------
+-- For tracing script mem leaks.
+----------------------------------------------------------------------
+
+--[[ Adding this in the beginning of the CoreSetup:init will get you started.
+trace_ref("World", "create_camera", "delete_camera")
+trace_ref("Underlay", "create_camera", "delete_camera")
+trace_ref("World", "create_light", "delete_light")
+trace_ref("Application", "create_world_viewport", "destroy_viewport")
+trace_ref("Application", "create_scene_viewport", "destroy_viewport")
+trace_ref(rawget(_G, "Gui"), "create_screen_workspace", "destroy_workspace")
+trace_ref(rawget(_G, "Gui"), "create_object_workspace", "destroy_workspace")
+trace_ref(rawget(_G, "Gui"), "create_scaled_screen_workspace", "destroy_workspace")
+trace_ref(rawget(_G, "Gui"), "create_sub_screen_workspace", "destroy_workspace")
+trace_ref(rawget(_G, "Gui"), "create_world_workspace", "destroy_workspace")
+trace_ref_add_destroy_all(rawget(_G, "Gui"), "destroy_all_workspaces")
+]]
+
+ -- class_name is either a name of a singelton or a metatable.
+function trace_ref(class_name, init_name, destroy_name)
+	local class_mt = (type(class_name) == "string") and getmetatable(assert(rawget(_G, class_name))) or class_name
+
+	local ref = function()
+		local t = rawget(_G, "_trace_ref_table")
+		if not t then
+			t = {}
+			rawset(_G, "_trace_ref_table", t)
+			cat_print( "debug", "[CoreTraceRef] ---------------------- New Script Environment --------------------------")
+		end
+	end
+	
+	local stack = function()
+		return string.gsub(debug.traceback(), "%\n", "\n[CoreTraceRef]\t")
+	end
+
+	if not rawget(class_mt, "_" .. init_name) then
+		rawset(class_mt, "_" .. init_name, assert(rawget(class_mt, init_name)))
+		rawset(class_mt, init_name, function(...)
+			ref()
+			
+			local r = rawget(class_mt, "_" .. init_name)(...)
+			local t = rawget(_G, "_trace_ref_table")
+			
+			cat_print( "debug", "[CoreTraceRef] New ref:", r)
+			
+			t[r] = stack()
+			return r
+		end)
+	end
+	
+	if not rawget(class_mt, "_" .. destroy_name) then
+		rawset(class_mt, "_" .. destroy_name, assert(rawget(class_mt, destroy_name)))
+		rawset(class_mt, destroy_name, function(...)
+			ref()
+			
+			local p = {...}
+			local o = p[2]
+			
+			if not o or (o.alive and not o:alive()) then
+				cat_print( "debug", "[CoreTraceRef] WARNING! Deleting NULL ref: ", o, stack())
+			else
+				cat_print( "debug", "[CoreTraceRef] Delete ref:", o)
+			end
+			
+			local r = rawget(class_mt, "_" .. destroy_name)(...)
+			local t = rawget(_G, "_trace_ref_table")
+	
+			t[o] = nil
+			return r
+		end)
+	end
+	
+	if not rawget(_G, "_destroy") then
+		rawset(_G, "_destroy", rawget(_G, "destroy"))
+		rawset(_G, "destroy", function(...)
+			ref()
+			
+			local d = rawget(_G, "_destroy")
+			if d then
+				d(...)
+			end
+		
+			local c = 0
+			local t = assert(rawget(_G, "_trace_ref_table"))
+			
+			for k,v in pairs(t) do c = c + 1 end
+			
+			cat_print( "debug", string.format("[CoreTraceRef] ---------------------- %i Script References Lost --------------------------", c))
+			
+			for k,v in pairs(t) do
+				cat_print( "debug", "[CoreTraceRef]", k, v)
+			end
+		end)
+	end
+end
+
+function trace_ref_add_destroy_all(class_name, func_name)
+	local class_mt = (type(class_name) == "string") and getmetatable(assert(rawget(_G, class_name))) or class_name
+	rawset(class_mt, "_" .. func_name, assert(rawget(class_mt, func_name)))
+
+	if not rawget(class_mt, "_" .. func_name) then
+		rawset(class_mt, func_name, function(...)
+			local r = rawget(class_mt, "_" .. func_name)(...)
+			cat_print( "debug", "[CoreTraceRef] WARNING! Called destroy all function:", func_name)
+			return r
+		end)
+	end
+end
+
+function debug_pause( ... )
+	if Application:production_build() then
+		Application:error( "[debug_pause]", ... )
+		Application:stack_dump( "error" )
+		if not Application:editor() or Global.running_simulation then
+			Application:set_pause( true )
+		end
+	end
+end
+
+function debug_pause_unit( unit, ... )
+	if Application:production_build() then
+		debug_pause( ... )
+		if alive( unit ) then
+			Application:draw_cylinder( unit:position(), unit:position() + math.UP * 5000, 30, 1, 0, 0 )
+		else
+			Application:error( "[debug_pause] DEAD UNIT" )
+		end
+	end
+end

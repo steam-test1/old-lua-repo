@@ -1,17 +1,29 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\network\matchmaking\networkgrouplobby.luac 
+NetworkGroupLobby = NetworkGroupLobby or class()
 
-if not NetworkGroupLobby then
-  NetworkGroupLobby = class()
-end
-NetworkGroupLobby.init = function(l_1_0)
-end
-
-NetworkGroupLobby._server_timed_out = function(l_2_0, l_2_1)
+function NetworkGroupLobby:init()
+	--[[ Used variables:
+	self._invite_changing_control = nil
+	]]
 end
 
-NetworkGroupLobby.is_invite_changing_control = function(l_3_0)
-  return l_3_0._invite_changing_control
+function NetworkGroupLobby:_server_timed_out( rpc )
+	--[[
+	if( managers.networkgui:started() ) then
+		managers.networkgui:showdlg_error( "lostserver", callback( self, self, "lost_server_dialog_callback" ) )
+	end
+	]]
 end
 
+--[[
+function NetworkGroupLobby:lost_server_dialog_callback()
+	if( Global.gametype ) then
+		Global.gametype:close_message_leave_group()
+	else
+		managers.networkgui:hidedlgbox()
+	end
+end
+]]
 
+function NetworkGroupLobby:is_invite_changing_control()
+	return self._invite_changing_control
+end

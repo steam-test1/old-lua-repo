@@ -1,16 +1,14 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\dialogs\achievementsdialog.luac 
+core:module( "SystemMenuManager" )
 
-core:module("SystemMenuManager")
-require("lib/managers/dialogs/BaseDialog")
-if not AchievementsDialog then
-  AchievementsDialog = class(BaseDialog)
+require "lib/managers/dialogs/BaseDialog"
+
+-- Abstract dialog:
+AchievementsDialog = AchievementsDialog or class( BaseDialog )
+
+function AchievementsDialog:done_callback()
+	if( self._data.callback_func ) then
+		self._data.callback_func()
+	end
+
+	self:fade_out_close()
 end
-AchievementsDialog.done_callback = function(l_1_0)
-  if l_1_0._data.callback_func then
-    l_1_0._data.callback_func()
-  end
-  l_1_0:fade_out_close()
-end
-
-

@@ -1,356 +1,464 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\criminalsmanager.luac 
+CriminalsManager = CriminalsManager or class()
 
-if not CriminalsManager then
-  CriminalsManager = class()
-end
 CriminalsManager.MAX_NR_TEAM_AI = 2
-CriminalsManager.init = function(l_1_0)
-  l_1_0._characters = {{taken = false, name = "american", unit = nil, peer_id = 0, static_data = {ai_character_id = "ai_hoxton", ssuffix = "d", color_id = 1, voice = "rb2", ai_mask_id = "hoxton", mask_id = 1}, data = {}}, {taken = false, name = "german", unit = nil, peer_id = 0, static_data = {ai_character_id = "ai_wolf", ssuffix = "c", color_id = 2, voice = "rb3", ai_mask_id = "wolf", mask_id = 2}, data = {}}, {taken = false, name = "russian", unit = nil, peer_id = 0, static_data = {ai_character_id = "ai_dallas", ssuffix = "a", color_id = 3, voice = "rb4", ai_mask_id = "dallas", mask_id = 3}, data = {}}, {taken = false, name = "spanish", unit = nil, peer_id = 0, static_data = {ai_character_id = "ai_chains", ssuffix = "b", color_id = 4, voice = "rb1", ai_mask_id = "chains", mask_id = 4}, data = {}}}
+
+function CriminalsManager:init()
+	self._characters = 
+	{
+		-- Hoxton
+		{ taken = false, name = "american", unit = nil, peer_id = 0, static_data = { ai_character_id = "ai_hoxton", ssuffix = "d", color_id = 1, voice = "rb2", ai_mask_id = "hoxton", mask_id = 1 }, data = {} },
+		
+		-- Wolf
+		{ taken = false, name = "german",   unit = nil, peer_id = 0, static_data = { ai_character_id = "ai_wolf", ssuffix = "c", color_id = 2, voice = "rb3", ai_mask_id = "wolf", mask_id = 2 }, data = {} },
+		
+		-- Dallas
+		{ taken = false, name = "russian",  unit = nil, peer_id = 0, static_data = { ai_character_id = "ai_dallas", ssuffix = "a", color_id = 3, voice = "rb4", ai_mask_id = "dallas", mask_id = 3 }, data = {} },
+		
+		-- Chains
+		{ taken = false, name = "spanish",  unit = nil, peer_id = 0, static_data = { ai_character_id = "ai_chains", ssuffix = "b", color_id = 4, voice = "rb1", ai_mask_id = "chains", mask_id = 4 }, data = {} }
+	}
 end
 
-CriminalsManager.convert_old_to_new_character_workname = function(l_2_0)
-  local t = {american = "hoxton", german = "wolf", russian = "dallas", spanish = "chains"}
-  return t[l_2_0]
+-----------------------------------------------------------------------------------
+
+function CriminalsManager.convert_old_to_new_character_workname( workname )
+	local t = { american = "hoxton", german = "wolf", russian = "dallas", spanish = "chains" }
+	return t[ workname ]
 end
 
-CriminalsManager.character_names = function()
-  do
-    local l_3_0 = {}
-     -- DECOMPILER ERROR: No list found. Setlist fails
-
-    return l_3_0
-  end
-   -- Warning: undefined locals caused missing assignments!
+function CriminalsManager.character_names()
+	return { "russian", "german", "spanish", "american" }
 end
 
-CriminalsManager.character_workname_by_peer_id = function(l_4_0)
-  local t = {"russian", "german", "spanish", "american"}
-  return t[l_4_0]
+function CriminalsManager.character_workname_by_peer_id( peer_id )
+	local t = { "russian", "german", "spanish", "american" }
+	return t[ peer_id ]
 end
 
-CriminalsManager.on_simulation_ended = function(l_5_0)
-  for id,data in pairs(l_5_0._characters) do
-    l_5_0:_remove(id)
-  end
+function CriminalsManager:on_simulation_ended()
+	for id, data in pairs( self._characters ) do
+		self:_remove( id )
+	end
 end
 
-CriminalsManager.local_character_name = function(l_6_0)
-  return l_6_0._local_character
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:local_character_name()
+	return self._local_character
 end
 
-CriminalsManager.characters = function(l_7_0)
-  return l_7_0._characters
+function CriminalsManager:characters()
+	return self._characters
 end
 
-CriminalsManager.get_any_unit = function(l_8_0)
-  for id,data in pairs(l_8_0._characters) do
-    if data.taken and alive(data.unit) and data.unit:id() ~= -1 then
-      return data.unit
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:get_any_unit()
+	for id, data in pairs( self._characters ) do
+		if data.taken and alive( data.unit ) and data.unit:id() ~= -1 then
+			return data.unit
+		end
+	end
 end
 
-CriminalsManager._remove = function(l_9_0, l_9_1)
-  local data = l_9_0._characters[l_9_1]
-  print("[CriminalsManager:_remove]", inspect(data))
-  if data.name == l_9_0._local_character then
-    l_9_0._local_character = nil
-  end
-  if data.unit then
-    managers.hud:remove_mugshot_by_character_name(data.name)
-  else
-    managers.hud:remove_teammate_panel_by_name_id(data.name)
-  end
-  data.taken = false
-  data.unit = nil
-  data.peer_id = 0
-  data.data = {}
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:_remove( id )
+	local data = self._characters[ id ]
+	
+	print("[CriminalsManager:_remove]", inspect( data ) )
+	
+	if data.name == self._local_character then
+		self._local_character = nil
+	end
+
+	if data.unit then
+--		managers.hud:remove_hud_info_by_unit( data.unit )
+		managers.hud:remove_mugshot_by_character_name( data.name )
+	else
+		managers.hud:remove_teammate_panel_by_name_id( data.name )
+	end
+
+	data.taken = false
+	data.unit = nil
+	data.peer_id = 0
+	data.data = {}
 end
 
-CriminalsManager.add_character = function(l_10_0, l_10_1, l_10_2, l_10_3, l_10_4)
-  print("[CriminalsManager:add_character]", l_10_1, l_10_2, l_10_3, l_10_4)
-  Application:stack_dump()
-  if l_10_2 then
-    l_10_2:base()._tweak_table = l_10_1
-  end
-  for id,data in pairs(l_10_0._characters) do
-    if data.name == l_10_1 then
-      if data.taken then
-        Application:error("[CriminalsManager:set_character] Error: Trying to take a unit slot that has already been taken!")
-        Application:stack_dump()
-        Application:error("[CriminalsManager:set_character] -----")
-        l_10_0:_remove(id)
-      end
-      data.taken = true
-      data.unit = l_10_2
-      data.peer_id = l_10_3
-      data.data.ai = l_10_4 or false
-      data.data.mask_obj = tweak_data.blackmarket.masks[data.static_data.ai_mask_id].unit
-      data.data.mask_id = nil
-      data.data.mask_blueprint = nil
-      if not l_10_4 and l_10_2 then
-        local mask_id = managers.network:session():peer(l_10_3):mask_id()
-        data.data.mask_obj = managers.blackmarket:mask_unit_name_by_mask_id(mask_id, l_10_3)
-        data.data.mask_id = mask_id
-        data.data.mask_blueprint = managers.network:session():peer(l_10_3):mask_blueprint()
-      end
-      managers.hud:remove_mugshot_by_character_name(l_10_1)
-      if l_10_2 then
-        data.data.mugshot_id = managers.hud:add_mugshot_by_unit(l_10_2)
-        if l_10_2:base().is_local_player then
-          l_10_0._local_character = l_10_1
-          managers.hud:reset_player_hpbar()
-        end
-        l_10_2:sound():set_voice(data.static_data.voice)
-        l_10_2:inventory():set_mask_visibility(l_10_2:inventory()._mask_visibility)
-      else
-        if not l_10_4 or not managers.localization:text("menu_" .. l_10_1) then
-          data.data.mugshot_id = managers.hud:add_mugshot_without_unit(l_10_1, l_10_4, l_10_3, managers.network:session():peer(l_10_3):name())
-      else
-        end
-      end
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:add_character( name, unit, peer_id, ai )
+	print("[CriminalsManager:add_character]", name, unit, peer_id, ai)
+	Application:stack_dump()
+	
+	if unit then
+		unit:base()._tweak_table = name
+	end
+	
+	for id, data in pairs( self._characters ) do
+		if data.name == name then
+			if data.taken then
+				Application:error( "[CriminalsManager:set_character] Error: Trying to take a unit slot that has already been taken!" )
+				Application:stack_dump()
+				Application:error( "[CriminalsManager:set_character] -----" )
+				
+				self:_remove( id )
+			end
+			
+			data.taken = true
+			data.unit = unit
+			data.peer_id = peer_id
+			data.data.ai = ai or false
+
+			-- local mask_set = Global.game_settings.single_player and managers.network:session():local_peer():mask_set() or ((not ai) and managers.network:session():peer( peer_id ):mask_set() or "clowns")
+			-- local set = tweak_data.mask_sets[ mask_set ][ data.static_data.mask_id ]
+			
+			data.data.mask_obj = tweak_data.blackmarket.masks[ data.static_data.ai_mask_id ].unit -- set.mask_obj
+			-- data.data.mask_icon = set.mask_icon
+			data.data.mask_id = nil
+			data.data.mask_blueprint = nil
+			
+			if not ai and unit then
+				local mask_id = managers.network:session():peer( peer_id ):mask_id()
+				data.data.mask_obj = managers.blackmarket:mask_unit_name_by_mask_id( mask_id, peer_id ) -- tweak_data.blackmarket.masks[ mask_id ].unit 
+				data.data.mask_id = mask_id
+				data.data.mask_blueprint = managers.network:session():peer( peer_id ):mask_blueprint()
+			end
+			
+			managers.hud:remove_mugshot_by_character_name( name )
+			if unit then
+				data.data.mugshot_id = managers.hud:add_mugshot_by_unit( unit )
+
+				if unit:base().is_local_player then
+					self._local_character = name
+					managers.hud:reset_player_hpbar()
+				end
+				
+				unit:sound():set_voice( data.static_data.voice )
+				unit:inventory():set_mask_visibility( unit:inventory()._mask_visibility )
+			else
+				data.data.mugshot_id = managers.hud:add_mugshot_without_unit( name, ai, peer_id, 
+					ai and managers.localization:text( "menu_"..name ) or managers.network:session():peer( peer_id ):name() )
+			end
+			break
+		end
+	end
+	--print( "exited ok" )
 end
 
-CriminalsManager.set_unit = function(l_11_0, l_11_1, l_11_2)
-  print("[CriminalsManager:set_unit] name", l_11_1, "unit", l_11_2)
-  Application:stack_dump()
-  l_11_2:base()._tweak_table = l_11_1
-  for id,data in pairs(l_11_0._characters) do
-    if data.name == l_11_1 then
-      if not data.taken then
-        Application:error("[CriminalsManager:set_character] Error: Trying to set a unit on a slot that has not been taken!")
-        Application:stack_dump()
-        return 
-      end
-      data.unit = l_11_2
-      managers.hud:remove_mugshot_by_character_name(data.name)
-      data.data.mugshot_id = managers.hud:add_mugshot_by_unit(l_11_2)
-      data.data.mask_obj = tweak_data.blackmarket.masks[data.static_data.ai_mask_id].unit
-      data.data.mask_id = nil
-      data.data.mask_blueprint = nil
-      if not data.data.ai then
-        local mask_id = managers.network:session():peer(data.peer_id):mask_id()
-        data.data.mask_obj = managers.blackmarket:mask_unit_name_by_mask_id(mask_id, data.peer_id)
-        data.data.mask_id = mask_id
-        data.data.mask_blueprint = managers.network:session():peer(data.peer_id):mask_blueprint()
-      end
-      if l_11_2:base().is_local_player then
-        l_11_0._local_character = l_11_1
-        managers.hud:reset_player_hpbar()
-      end
-      l_11_2:sound():set_voice(data.static_data.voice)
-  else
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:set_unit( name, unit )
+	print("[CriminalsManager:set_unit] name", name, "unit", unit )
+	Application:stack_dump()
+	
+	unit:base()._tweak_table = name
+
+	for id, data in pairs( self._characters ) do
+		if data.name == name then
+			if not data.taken then
+				Application:error( "[CriminalsManager:set_character] Error: Trying to set a unit on a slot that has not been taken!" )
+				Application:stack_dump()
+				return
+			end
+			--[[
+			if data.unit then
+				managers.hud:remove_hud_info_by_unit( data.unit )
+			end
+			]]
+			data.unit = unit
+			
+			managers.hud:remove_mugshot_by_character_name( data.name )
+			data.data.mugshot_id = managers.hud:add_mugshot_by_unit( unit )
+			
+			data.data.mask_obj = tweak_data.blackmarket.masks[ data.static_data.ai_mask_id ].unit -- set.mask_obj
+			-- data.data.mask_icon = set.mask_icon
+			data.data.mask_id = nil
+			data.data.mask_blueprint = nil
+			
+			if not data.data.ai then
+				local mask_id = managers.network:session():peer( data.peer_id ):mask_id()
+				data.data.mask_obj = managers.blackmarket:mask_unit_name_by_mask_id( mask_id, data.peer_id ) -- tweak_data.blackmarket.masks[ mask_id ].unit 
+				data.data.mask_id = mask_id
+				data.data.mask_blueprint = managers.network:session():peer( data.peer_id ):mask_blueprint()
+			end
+				
+			if unit:base().is_local_player then
+				self._local_character = name
+				managers.hud:reset_player_hpbar()
+			end
+			
+			unit:sound():set_voice( data.static_data.voice )
+			
+			break
+		end
+	end
+	--print( "exited ok" )
 end
 
-CriminalsManager.is_taken = function(l_12_0, l_12_1)
-  for _,data in pairs(l_12_0._characters) do
-    if l_12_1 == data.name then
-      return data.taken
-    end
-  end
-  return false
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:is_taken( name )
+	for _, data in pairs( self._characters ) do
+		if name == data.name then
+			return data.taken
+		end
+	end
+	
+	return false
 end
 
-CriminalsManager.character_name_by_peer_id = function(l_13_0, l_13_1)
-  for _,data in pairs(l_13_0._characters) do
-    if data.taken and l_13_1 == data.peer_id then
-      return data.name
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:character_name_by_peer_id( peer_id )
+	for _, data in pairs( self._characters ) do
+		if data.taken and peer_id == data.peer_id then
+			return data.name
+		end
+	end
 end
 
-CriminalsManager.character_color_id_by_peer_id = function(l_14_0, l_14_1)
-  local workname = l_14_0.character_workname_by_peer_id(l_14_1)
-  return l_14_0:character_color_id_by_name(workname)
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:character_color_id_by_peer_id( peer_id )
+	local workname = self.character_workname_by_peer_id( peer_id )
+	return self:character_color_id_by_name( workname )
+	--[[for _, data in pairs( self._characters ) do
+		if data.taken and peer_id == data.peer_id then
+			return data.static_data.color_id
+		end
+	end]]
 end
 
-CriminalsManager.character_color_id_by_unit = function(l_15_0, l_15_1)
-  local search_key = l_15_1:key()
-  for id,data in pairs(l_15_0._characters) do
-    if data.unit and data.taken and search_key == data.unit:key() then
-      if data.data.ai then
-        return 5
-      end
-      return data.peer_id
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:character_color_id_by_unit( unit )
+	local search_key = unit:key()
+	for id, data in pairs( self._characters ) do
+		if data.unit and data.taken and search_key == data.unit:key() then
+			if data.data.ai then
+				return 5
+			end
+			return data.peer_id -- self:character_color_id_by_peer_id( data.peer_id )
+			-- local workname = managers.criminals:character_workname_by_peer_id( data.peer_id )
+			-- return self:character_color_id_by_name( workname )
+			-- return data.static_data.color_id
+		end
+	end
 end
 
-CriminalsManager.character_color_id_by_name = function(l_16_0, l_16_1)
-  for id,data in pairs(l_16_0._characters) do
-    if l_16_1 == data.name then
-      return data.static_data.color_id
-    end
-  end
+function CriminalsManager:character_color_id_by_name( name )
+	--[[for i,c_name in ipairs( self:character_names() ) do
+		if c_name == name then
+			return i
+			-- return self:character_color_id_by_peer_id( i )
+		end 
+	end]]
+	for id, data in pairs( self._characters ) do
+		if name == data.name then
+			-- return self:character_color_id_by_peer_id( data.peer_id )
+			return data.static_data.color_id
+		end
+	end
 end
 
-CriminalsManager.character_data_by_name = function(l_17_0, l_17_1)
-  for _,data in pairs(l_17_0._characters) do
-    if data.taken and l_17_1 == data.name then
-      return data.data
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:character_data_by_name( name )
+	for _, data in pairs( self._characters ) do
+		if data.taken and name == data.name then
+			return data.data
+		end
+	end
 end
 
-CriminalsManager.character_data_by_peer_id = function(l_18_0, l_18_1)
-  for _,data in pairs(l_18_0._characters) do
-    if data.taken and l_18_1 == data.peer_id then
-      return data.data
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:character_data_by_peer_id( peer_id )
+	for _, data in pairs( self._characters ) do
+		if data.taken and peer_id == data.peer_id then
+			return data.data
+		end
+	end
 end
 
-CriminalsManager.character_data_by_unit = function(l_19_0, l_19_1)
-  local search_key = l_19_1:key()
-  for id,data in pairs(l_19_0._characters) do
-    if data.unit and data.taken and search_key == data.unit:key() then
-      return data.data
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:character_data_by_unit( unit )
+	local search_key = unit:key()
+	for id, data in pairs( self._characters ) do
+		if data.unit and data.taken and search_key == data.unit:key() then
+			return data.data
+		end
+	end
 end
 
-CriminalsManager.character_static_data_by_name = function(l_20_0, l_20_1)
-  for _,data in pairs(l_20_0._characters) do
-    if l_20_1 == data.name then
-      return data.static_data
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:character_static_data_by_name( name )
+	for _, data in pairs( self._characters ) do
+		if name == data.name then
+			return data.static_data
+		end
+	end
 end
 
-CriminalsManager.character_unit_by_name = function(l_21_0, l_21_1)
-  for _,data in pairs(l_21_0._characters) do
-    if data.taken and l_21_1 == data.name then
-      return data.unit
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:character_unit_by_name( name )
+	for _, data in pairs( self._characters ) do
+		if data.taken and name == data.name then
+			return data.unit
+		end
+	end
 end
 
-CriminalsManager.character_taken_by_name = function(l_22_0, l_22_1)
-  for _,data in pairs(l_22_0._characters) do
-    if l_22_1 == data.name then
-      return data.taken
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:character_taken_by_name( name )
+	for _, data in pairs( self._characters ) do
+		if name == data.name then
+			return data.taken
+		end
+	end
+end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:character_peer_id_by_name( name )
+	for _, data in pairs( self._characters ) do
+		if data.taken and name == data.name then
+			return data.peer_id
+		end
+	end
 end
 
-CriminalsManager.character_peer_id_by_name = function(l_23_0, l_23_1)
-  for _,data in pairs(l_23_0._characters) do
-    if data.taken and l_23_1 == data.name then
-      return data.peer_id
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:get_free_character_name()
+	local available = {}
+
+	for id, data in pairs( self._characters ) do
+		local taken = data.taken
+		
+		if not taken then
+			for _, member in pairs(managers.network:game():all_members()) do
+				if member._assigned_name == data.name then
+					taken = true
+					break
+				end
+			end
+		end
+		
+		if not taken then
+			table.insert( available, data.name )
+		end
+	end
+	
+	if #available > 0 then
+		return available[ math.random(#available) ]
+	end
 end
 
-CriminalsManager.get_free_character_name = function(l_24_0)
-  local available = {}
-  for id,data in pairs(l_24_0._characters) do
-    local taken = data.taken
-    if not taken then
-      for _,member in pairs(managers.network:game():all_members()) do
-        if member._assigned_name == data.name then
-          taken = true
-      else
-        end
-      end
-      if not taken then
-        table.insert(available, data.name)
-      end
-    end
-    if #available > 0 then
-      return available[math.random(#available)]
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:get_num_player_criminals()
+	local num = 0
+	for id, data in pairs( self._characters ) do
+		if data.taken and not data.data.ai then
+			num = num + 1
+		end
+	end
+	
+	return num
 end
 
-CriminalsManager.get_num_player_criminals = function(l_25_0)
-  local num = 0
-  for id,data in pairs(l_25_0._characters) do
-    if data.taken and not data.data.ai then
-      num = num + 1
-    end
-  end
-  return num
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:remove_character_by_unit( unit )
+	if type_name( unit ) ~= "Unit" then
+		return
+	end
+
+	local rem_u_key = unit:key()
+	for id, data in pairs( self._characters ) do
+		if data.unit and data.taken and rem_u_key == data.unit:key() then
+			self:_remove( id )
+			return
+		end
+	end
 end
 
-CriminalsManager.remove_character_by_unit = function(l_26_0, l_26_1)
-  if type_name(l_26_1) ~= "Unit" then
-    return 
-  end
-  local rem_u_key = l_26_1:key()
-  for id,data in pairs(l_26_0._characters) do
-    if data.unit and data.taken and rem_u_key == data.unit:key() then
-      l_26_0:_remove(id)
-      return 
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:remove_character_by_peer_id( peer_id )
+	for id, data in pairs( self._characters ) do
+		if data.taken and peer_id == data.peer_id then
+			self:_remove( id )
+			return
+		end
+	end
 end
 
-CriminalsManager.remove_character_by_peer_id = function(l_27_0, l_27_1)
-  for id,data in pairs(l_27_0._characters) do
-    if data.taken and l_27_1 == data.peer_id then
-      l_27_0:_remove(id)
-      return 
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:remove_character_by_name( name )
+	for id, data in pairs( self._characters ) do
+		if data.taken and name == data.name then
+			self:_remove( id )
+			return
+		end
+	end
 end
 
-CriminalsManager.remove_character_by_name = function(l_28_0, l_28_1)
-  for id,data in pairs(l_28_0._characters) do
-    if data.taken and l_28_1 == data.name then
-      l_28_0:_remove(id)
-      return 
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:character_name_by_unit( unit )
+	if type_name( unit ) ~= "Unit" then
+		return nil
+	end
+	local search_key = unit:key()
+	for id, data in pairs( self._characters ) do
+		if data.unit and data.taken and search_key == data.unit:key() then
+			return data.name
+		end
+	end
 end
 
-CriminalsManager.character_name_by_unit = function(l_29_0, l_29_1)
-  if type_name(l_29_1) ~= "Unit" then
-    return nil
-  end
-  local search_key = l_29_1:key()
-  for id,data in pairs(l_29_0._characters) do
-    if data.unit and data.taken and search_key == data.unit:key() then
-      return data.name
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:character_name_by_panel_id( panel_id )
+	for id, data in pairs( self._characters ) do
+		if data.taken and data.data.panel_id == panel_id then
+			return data.name
+		end
+	end
 end
 
-CriminalsManager.character_name_by_panel_id = function(l_30_0, l_30_1)
-  for id,data in pairs(l_30_0._characters) do
-    if data.taken and data.data.panel_id == l_30_1 then
-      return data.name
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:character_static_data_by_unit( unit )
+	if type_name( unit ) ~= "Unit" then
+		return nil
+	end
+	local search_key = unit:key()
+	for id, data in pairs( self._characters ) do
+		if data.unit and data.taken and search_key == data.unit:key() then
+			return data.static_data
+		end
+	end
 end
 
-CriminalsManager.character_static_data_by_unit = function(l_31_0, l_31_1)
-  if type_name(l_31_1) ~= "Unit" then
-    return nil
-  end
-  local search_key = l_31_1:key()
-  for id,data in pairs(l_31_0._characters) do
-    if data.unit and data.taken and search_key == data.unit:key() then
-      return data.static_data
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function CriminalsManager:nr_AI_criminals()
+	local nr_AI_criminals = 0
+	for i, char_data in pairs( self._characters ) do
+		if char_data.data.ai then
+			nr_AI_criminals = nr_AI_criminals + 1
+		end
+	end
+	return nr_AI_criminals
 end
 
-CriminalsManager.nr_AI_criminals = function(l_32_0)
-  local nr_AI_criminals = 0
-  for i,char_data in pairs(l_32_0._characters) do
-    if char_data.data.ai then
-      nr_AI_criminals = nr_AI_criminals + 1
-    end
-  end
-  return nr_AI_criminals
-end
-
-
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------

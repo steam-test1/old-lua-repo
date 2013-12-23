@@ -1,26 +1,33 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\viewport\interfaces\coreenvironmentskyorientationinterface.luac 
-
 core:module("CoreEnvironmentSkyOrientationInterface")
+
 core:import("CoreClass")
-if not EnvironmentSkyOrientationInterface then
-  EnvironmentSkyOrientationInterface = CoreClass.class()
+
+EnvironmentSkyOrientationInterface = EnvironmentSkyOrientationInterface or CoreClass.class()
+
+EnvironmentSkyOrientationInterface.DATA_PATH = {"sky_orientation"}
+EnvironmentSkyOrientationInterface.SHARED = true
+
+----------------------------------------------------------------------------
+--
+--    P U B L I C
+--
+----------------------------------------------------------------------------
+
+function EnvironmentSkyOrientationInterface:init(handle)
+	self._handle = handle
 end
-local l_0_0 = EnvironmentSkyOrientationInterface
-do
-  local l_0_1 = {}
-   -- DECOMPILER ERROR: No list found. Setlist fails
 
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
+function EnvironmentSkyOrientationInterface:rotation()
+	return self._handle:parameters()["rotation"]
 end
- -- Warning: undefined locals caused missing assignments!
 
+----------------------------------------------------------------------------
+--
+--    P R I V A T E
+--
+----------------------------------------------------------------------------
+
+function EnvironmentSkyOrientationInterface:_process_return(rot)
+	assert(rot, "[EnvironmentSkyOrientationInterface] You did not return any sky rotation!")
+	return {rotation = rot}
+end

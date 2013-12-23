@@ -1,58 +1,58 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\states\ingameelectrified.luac 
+require "lib/states/GameState"
 
-require("lib/states/GameState")
-if not IngameElectrifiedState then
-  IngameElectrifiedState = class(IngamePlayerBaseState)
-end
-IngameElectrifiedState.init = function(l_1_0, l_1_1)
-  IngamePlayerBaseState.super.init(l_1_0, "ingame_electrified", l_1_1)
+IngameElectrifiedState = IngameElectrifiedState or class( IngamePlayerBaseState )
+
+function IngameElectrifiedState:init( game_state_machine )
+	IngamePlayerBaseState.super.init( self, "ingame_electrified", game_state_machine )
 end
 
-IngameElectrifiedState.update = function(l_2_0, l_2_1, l_2_2)
+function IngameElectrifiedState:update( t, dt )
 end
 
-IngameElectrifiedState.at_enter = function(l_3_0)
-  local players = managers.player:players()
-  for k,player in ipairs(players) do
-    local vp = player:camera():viewport()
-    if vp then
-      vp:set_active(true)
-      for (for control),k in (for generator) do
-      end
-      Application:error("No viewport for player " .. tostring(k))
-    end
-    do
-      local player = managers.player:player_unit()
-      if player then
-        player:base():set_enabled(true)
-      end
-      managers.hud:show(PlayerBase.PLAYER_INFO_HUD)
-      managers.hud:show(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN)
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+function IngameElectrifiedState:at_enter()
+	local players = managers.player:players()
+	
+	for k, player in ipairs( players ) do
+		local vp = player:camera():viewport()
+		
+		if( vp ) then
+			vp:set_active( true )
+		else
+			Application:error( "No viewport for player " .. tostring( k ) )	
+		end
+	end
+
+	-- managers.statistics:downed( { bleed_out = true } )
+	
+	local player = managers.player:player_unit()
+	if player then
+		player:base():set_enabled( true )
+	end
+
+	managers.hud:show( PlayerBase.PLAYER_INFO_HUD )
+	managers.hud:show( PlayerBase.PLAYER_INFO_HUD_FULLSCREEN )
+	-- managers.hud:show( PlayerBase.PLAYER_DOWNED_HUD )	
 end
 
-IngameElectrifiedState.at_exit = function(l_4_0)
-  local player = managers.player:player_unit()
-  if player then
-    player:base():set_enabled(false)
-  end
-  managers.hud:hide(PlayerBase.PLAYER_INFO_HUD)
-  managers.hud:hide(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN)
+function IngameElectrifiedState:at_exit()
+	local player = managers.player:player_unit()
+	if player then
+		player:base():set_enabled( false )
+	end
+
+	managers.hud:hide( PlayerBase.PLAYER_INFO_HUD )
+	managers.hud:hide( PlayerBase.PLAYER_INFO_HUD_FULLSCREEN )
+	-- managers.hud:hide( PlayerBase.PLAYER_DOWNED_HUD )
 end
 
-IngameElectrifiedState.on_server_left = function(l_5_0)
-  IngameCleanState.on_server_left(l_5_0)
+function IngameElectrifiedState:on_server_left()
+	IngameCleanState.on_server_left( self )
 end
 
-IngameElectrifiedState.on_kicked = function(l_6_0)
-  IngameCleanState.on_kicked(l_6_0)
+function IngameElectrifiedState:on_kicked()
+	IngameCleanState.on_kicked( self )
 end
 
-IngameElectrifiedState.on_disconnected = function(l_7_0)
-  IngameCleanState.on_disconnected(l_7_0)
+function IngameElectrifiedState:on_disconnected()
+	IngameCleanState.on_disconnected( self )
 end
-
-

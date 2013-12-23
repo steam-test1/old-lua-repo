@@ -1,44 +1,54 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\civilians\dummycivilianbase.luac 
+DummyCivilianBase = DummyCivilianBase or class()
 
-if not DummyCivilianBase then
-  DummyCivilianBase = class()
-end
-DummyCivilianBase.init = function(l_1_0, l_1_1)
-  l_1_0._unit = l_1_1
-  l_1_1:set_driving("animation")
-  l_1_1:set_animation_lod(1, 500000, 500, 500000)
+function DummyCivilianBase:init( unit )
+	self._unit = unit
+	unit:set_driving( "animation" )
+	unit:set_animation_lod( 1, 500000, 500, 500000 )
 end
 
-DummyCivilianBase.play_state = function(l_2_0, l_2_1, l_2_2)
-  local result = l_2_0._unit:play_state(Idstring(l_2_1), l_2_2)
-  return (result ~= Idstring("") and result)
-end
+-------------------------------------------------------------------------------
 
-DummyCivilianBase.anim_clbk_spear_spawn = function(l_3_0, l_3_1)
-  l_3_0:_spawn_spear()
-end
-
-DummyCivilianBase.anim_clbk_spear_unspawn = function(l_4_0, l_4_1)
-  l_4_0:_unspawn_spear()
-end
-
-DummyCivilianBase._spawn_spear = function(l_5_0)
-  if not alive(l_5_0._spear) then
-    l_5_0._spear = World:spawn_unit(Idstring("units/test/beast/weapon/native_spear"), Vector3(), Rotation())
-    l_5_0._unit:link(Idstring("a_weapon_right_front"), l_5_0._spear, l_5_0._spear:orientation_object():name())
-  end
-end
-
-DummyCivilianBase._unspawn_spear = function(l_6_0)
-  if alive(l_6_0._spear) then
-    l_6_0._spear:set_slot(0)
-    l_6_0._spear = nil
-  end
-end
-
-DummyCivilianBase.destroy = function(l_7_0, l_7_1)
-  l_7_0:_unspawn_spear()
+function DummyCivilianBase:play_state( state_name, at_time )
+	local result = self._unit:play_state( Idstring( state_name ), at_time )
+	return result ~= Idstring( "" ) and result
 end
 
 
+-------------------------------------------------------------------------------
+
+function DummyCivilianBase:anim_clbk_spear_spawn( unit )
+	self:_spawn_spear()
+end
+
+-------------------------------------------------------------------------------
+
+function DummyCivilianBase:anim_clbk_spear_unspawn( unit )
+	self:_unspawn_spear()
+end
+
+-------------------------------------------------------------------------------
+
+function DummyCivilianBase:_spawn_spear()
+	if not alive( self._spear ) then
+		self._spear = World:spawn_unit( Idstring( "units/test/beast/weapon/native_spear" ), Vector3(), Rotation() )
+		self._unit:link( Idstring( "a_weapon_right_front" ), self._spear, self._spear:orientation_object():name() )
+	end
+end
+
+-------------------------------------------------------------------------------
+
+function DummyCivilianBase:_unspawn_spear()
+	if alive( self._spear ) then
+		self._spear:set_slot( 0 )
+		self._spear = nil
+	end
+end
+
+-------------------------------------------------------------------------------
+
+function DummyCivilianBase:destroy( unit )
+	self:_unspawn_spear()
+end
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------

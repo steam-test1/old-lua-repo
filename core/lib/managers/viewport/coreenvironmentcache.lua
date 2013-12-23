@@ -1,73 +1,71 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\viewport\coreenvironmentcache.luac 
-
 core:module("CoreEnvironmentCache")
+
 core:import("CoreClass")
 core:import("CoreEnvironmentData")
-if not EnvironmentCache then
-  EnvironmentCache = CoreClass.class()
-end
-EnvironmentCache.init = function(l_1_0)
-  l_1_0._full_control_handles = {}
-  l_1_0._part_control_handles = {}
-  l_1_0._preloaded_environments = {}
-end
 
-EnvironmentCache.set_shared_handle = function(l_2_0, l_2_1, l_2_2, l_2_3)
-  if l_2_1 then
-    l_2_0._full_control_handles[l_2_2] = l_2_3
-  else
-    l_2_0._part_control_handles[l_2_2] = l_2_3
-  end
-  return l_2_2
+EnvironmentCache = EnvironmentCache or CoreClass.class()
+
+----------------------------------------------------------------------------
+--
+--    P U B L I C
+--
+----------------------------------------------------------------------------
+
+function EnvironmentCache:init()
+	self._full_control_handles = {}
+	self._part_control_handles = {}
+	self._preloaded_environments = {}
 end
 
-EnvironmentCache.destroy_shared_handle = function(l_3_0, l_3_1)
-  if not l_3_0._full_control_handles[l_3_1] then
-    local handle = l_3_0._part_control_handles[l_3_1]
-  end
-  l_3_0._full_control_handles[l_3_1] = nil
-  l_3_0._part_control_handles[l_3_1] = nil
-  assert(handle, "[EnvironmentMixer] No handle!")
+function EnvironmentCache:set_shared_handle(full_control, name, handle)
+	if full_control then
+		self._full_control_handles[name] = handle
+	else
+		self._part_control_handles[name] = handle
+	end
+	return name
 end
 
-EnvironmentCache.shared_handle = function(l_4_0, l_4_1, l_4_2)
-  if l_4_1 == true then
-    return l_4_0._full_control_handles[l_4_2]
-  elseif l_4_1 == false then
-    return l_4_0._part_control_handles[l_4_2]
-  else
-    if not l_4_0._full_control_handles[l_4_2] then
-      return l_4_0._part_control_handles[l_4_2]
-    end
-  end
+function EnvironmentCache:destroy_shared_handle(id)
+	local handle = self._full_control_handles[id] or self._part_control_handles[id]
+	self._full_control_handles[id] = nil
+	self._part_control_handles[id] = nil
+	assert(handle, "[EnvironmentMixer] No handle!")
 end
 
-EnvironmentCache.load_environment = function(l_5_0, l_5_1)
-  local env = l_5_0._preloaded_environments[l_5_1]
-  if not env then
-    if not Application:editor() then
-      Application:error("[EnvironmentCache] WARNING! Environment was not preloaded: " .. l_5_1)
-    end
-    l_5_0:preload_environment(l_5_1)
-    env = l_5_0._preloaded_environments[l_5_1]
-  end
-  return env
+function EnvironmentCache:shared_handle(full_control, id)
+	if full_control == true then
+		return self._full_control_handles[id]
+	elseif full_control == false then
+		return self._part_control_handles[id]
+	else
+		return self._full_control_handles[id] or self._part_control_handles[id]
+	end
 end
 
-EnvironmentCache.copy_environment = function(l_6_0, l_6_1)
-  local env = l_6_0:load_environment(l_6_1)
-  return env:copy()
+function EnvironmentCache:load_environment(name)
+	local env = self._preloaded_environments[name]
+	if not env then
+		if not Application:editor() then
+			Application:error("[EnvironmentCache] WARNING! Environment was not preloaded: " .. name)
+		end
+		self:preload_environment(name)
+		env = self._preloaded_environments[name]
+	end
+	return env
 end
 
-EnvironmentCache.preload_environment = function(l_7_0, l_7_1)
-  if not l_7_0._preloaded_environments[l_7_1] then
-    l_7_0._preloaded_environments[l_7_1] = CoreEnvironmentData.EnvironmentData:new(l_7_1)
-  end
+function EnvironmentCache:copy_environment(name)
+	local env = self:load_environment(name)
+	return env:copy()
 end
 
-EnvironmentCache.environment = function(l_8_0, l_8_1)
-  return l_8_0:load_environment(l_8_1)
+function EnvironmentCache:preload_environment(name)
+	if not self._preloaded_environments[name] then
+		self._preloaded_environments[name] = CoreEnvironmentData.EnvironmentData:new( name )
+	end
 end
 
-
+function EnvironmentCache:environment(name)
+	return self:load_environment(name)
+end

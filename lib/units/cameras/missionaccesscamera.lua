@@ -1,91 +1,111 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\cameras\missionaccesscamera.luac 
+MissionAccessCamera = MissionAccessCamera or class()
 
-if not MissionAccessCamera then
-  MissionAccessCamera = class()
-end
-MissionAccessCamera.init = function(l_1_0, l_1_1)
-  l_1_0._unit = l_1_1
-  l_1_0._camera = World:create_camera()
-  l_1_0._default_fov = 57
-  l_1_0._fov = l_1_0._default_fov
-  l_1_0._camera:set_fov(l_1_0._default_fov)
-  l_1_0._camera:set_near_range(15)
-  l_1_0._camera:set_far_range(250000)
-  l_1_0._viewport = managers.viewport:new_vp(0, 0, 1, 1, "MissionAccessCamera", CoreManagerBase.PRIO_WORLDCAMERA)
-  l_1_0._director = l_1_0._viewport:director()
-  l_1_0._shaker = l_1_0._director:shaker()
-  l_1_0._camera_controller = l_1_0._director:make_camera(l_1_0._camera, Idstring("previs_camera"))
-  l_1_0._viewport:set_camera(l_1_0._camera)
-  l_1_0._viewport:set_environment(managers.environment_area:default_environment())
-  l_1_0._director:set_camera(l_1_0._camera_controller)
-  l_1_0._director:position_as(l_1_0._camera)
-  l_1_0._camera_controller:set_both(l_1_0._unit)
-end
-
-MissionAccessCamera._setup_sound_listener = function(l_2_0)
-  l_2_0._listener_id = managers.listener:add_listener("access_camera", l_2_0._camera, l_2_0._camera, nil, false)
-  managers.listener:add_set("access_camera", {"access_camera"})
-  l_2_0._listener_activation_id = managers.listener:activate_set("main", "access_camera")
-  l_2_0._sound_check_object = managers.sound_environment:add_check_object({object = l_2_0._unit:orientation_object(), active = true, primary = true})
+function MissionAccessCamera:init( unit )
+	self._unit = unit
+	
+	self._camera = World:create_camera()
+	
+	self._default_fov = 57
+	self._fov = self._default_fov
+	self._camera:set_fov( self._default_fov )
+	self._camera:set_near_range( 15 )
+	self._camera:set_far_range( 250000 )
+	-- self._viewport = managers.viewport:new_vp( 0, 0, 1, 1, 'MissionAccessCamera', CoreManagerBase.PRIO_WORLDCAMERA )
+	self._viewport = managers.viewport:new_vp( 0, 0, 1, 1, 'MissionAccessCamera', CoreManagerBase.PRIO_WORLDCAMERA )
+	self._director = self._viewport:director()
+	self._shaker = self._director:shaker()
+	self._camera_controller = self._director:make_camera( self._camera, Idstring( "previs_camera" ) )
+	self._viewport:set_camera( self._camera )
+	self._viewport:set_environment( managers.environment_area:default_environment() )
+	self._director:set_camera( self._camera_controller )
+	self._director:position_as( self._camera )
+	-- self._camera_controller:set_both( self._unit:get_object( Idstring( "a_camera" ) ) )
+	self._camera_controller:set_both( self._unit )
+	
+	-- self:_setup_sound_listener()
 end
 
-MissionAccessCamera.set_rotation = function(l_3_0, l_3_1)
-  l_3_0._original_rotation = l_3_1
-  l_3_0._unit:set_rotation(l_3_1)
+function MissionAccessCamera:_setup_sound_listener()
+	self._listener_id = managers.listener:add_listener( "access_camera", self._camera, self._camera, nil, false )
+	managers.listener:add_set( "access_camera", { "access_camera" } )
+	self._listener_activation_id = managers.listener:activate_set( "main", "access_camera" )
+	
+	--[[self._sound_listener = SoundDevice:create_listener( "player_camera" )
+	self._sound_listener:link_position( self._camera_object )
+	self._sound_listener:link_orientation( self._camera_object )
+	self._sound_listener:activate( true )]]
+	self._sound_check_object = managers.sound_environment:add_check_object( { object = self._unit:orientation_object(), active = true, primary = true } )
 end
 
-MissionAccessCamera.start = function(l_4_0, l_4_1)
-  l_4_0._playing = true
-  l_4_0._unit:anim_stop(Idstring("camera_animation"))
-  l_4_0._fov = l_4_0._default_fov
-  l_4_0._viewport:set_active(true)
+function MissionAccessCamera:set_rotation( rotation )
+	self._original_rotation = rotation 
+	self._unit:set_rotation( rotation )
 end
 
-MissionAccessCamera.stop = function(l_5_0)
-  l_5_0._viewport:set_active(false)
-  l_5_0._unit:anim_stop(Idstring("camera_animation"))
-  l_5_0._unit:anim_set_time(Idstring("camera_animation"), 0)
-  l_5_0._playing = false
+function MissionAccessCamera:start( time )
+	self._playing = true
+	self._unit:anim_stop( Idstring( "camera_animation" ) )
+	self._fov = self._default_fov
+	-- self._unit:anim_set_time( Idstring( "camera_animation" ), time or 0 )
+	-- self._unit:anim_play_to( Idstring( "camera_animation" ), self._unit:anim_length( Idstring( "camera_animation" ) ), 1.0 )
+	-- self._unit:anim_play( Idstring( "camera_animation" ), 1.0 )-- , self._unit:anim_length( Idstring( "camera_animation" ) ), 1.0 )
+	self._viewport:set_active(true)
 end
 
-MissionAccessCamera.set_destroyed = function(l_6_0, l_6_1)
+function MissionAccessCamera:stop()
+	self._viewport:set_active(false)
+	self._unit:anim_stop( Idstring( "camera_animation" ) )
+	self._unit:anim_set_time( Idstring( "camera_animation" ), 0 )
+	
+	self._playing = false
 end
 
-MissionAccessCamera.modify_fov = function(l_7_0, l_7_1)
-  l_7_0._fov = math.clamp(l_7_0._fov + l_7_1, 25, 75)
-  l_7_0._camera:set_fov(l_7_0._fov)
+function MissionAccessCamera:set_destroyed( destroyed )
+	-- print( "MissionAccessCamera:set_destroyed", destroyed ) 
+	--[[if destroyed then
+		self._viewport:vp():set_dimensions( 0.4, 0.4, 0.2, 0.2 )
+	else -- OK
+		self._viewport:vp():set_dimensions( 0, 0, 1, 1 )
+	end]]
 end
 
-MissionAccessCamera.zoomed_value = function(l_8_0)
-  return l_8_0._fov / l_8_0._default_fov
+--[[function MissionAccessCamera:update( unit, t, dt )
+end]]
+
+function MissionAccessCamera:modify_fov( fov )
+	self._fov = math.clamp( self._fov + fov, 25, 75 )
+	self._camera:set_fov( self._fov )
 end
 
-MissionAccessCamera.set_offset_rotation = function(l_9_0, l_9_1, l_9_2)
-  if not l_9_0._offset_rotation then
-    l_9_0._offset_rotation = Rotation()
-  end
-  l_9_1 = l_9_1 + mrotation.yaw(l_9_0._original_rotation)
-  l_9_2 = l_9_2 + mrotation.pitch(l_9_0._original_rotation)
-  mrotation.set_yaw_pitch_roll(l_9_0._offset_rotation, l_9_1, l_9_2, 0)
-  l_9_0._unit:set_rotation(l_9_0._offset_rotation)
+function MissionAccessCamera:zoomed_value()
+	return self._fov/self._default_fov
 end
 
-MissionAccessCamera.destroy = function(l_10_0)
-  if l_10_0._viewport then
-    l_10_0._viewport:destroy()
-    l_10_0._viewport = nil
-  end
-  if alive(l_10_0._camera) then
-    World:delete_camera(l_10_0._camera)
-    l_10_0._camera = nil
-  end
-  if l_10_0._listener_id then
-    managers.sound_environment:remove_check_object(l_10_0._sound_check_object)
-    managers.listener:remove_listener(l_10_0._listener_id)
-    managers.listener:remove_set("access_camera")
-    l_10_0._listener_id = nil
-  end
+function MissionAccessCamera:set_offset_rotation( yaw, pitch )
+	self._offset_rotation = self._offset_rotation or Rotation()
+	yaw = yaw + mrotation.yaw( self._original_rotation )
+	pitch = pitch + mrotation.pitch( self._original_rotation )
+	mrotation.set_yaw_pitch_roll( self._offset_rotation, yaw, pitch, 0 )
+	self._unit:set_rotation( self._offset_rotation )
+	-- self._unit:set_rotation( self._original_rotation * self._offset_rotation )
 end
 
+function MissionAccessCamera:destroy()
+	if self._viewport then
+		self._viewport:destroy()
+		self._viewport = nil
+	end
+	
+	if alive(self._camera) then
+		World:delete_camera(self._camera)
+		self._camera = nil
+	end
+	
+	if self._listener_id then
+		managers.sound_environment:remove_check_object( self._sound_check_object )
+		managers.listener:remove_listener( self._listener_id )
+		managers.listener:remove_set( "access_camera" )
+		self._listener_id = nil
+	end
+end
 

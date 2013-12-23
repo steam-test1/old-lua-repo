@@ -1,155 +1,180 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\menu\circleguiobject.luac 
+CircleGuiObject = CircleGuiObject or class()
 
-if not CircleGuiObject then
-  CircleGuiObject = class()
-end
-CircleGuiObject.init = function(l_1_0, l_1_1, l_1_2)
-  l_1_0._panel = l_1_1
-  l_1_0._radius = l_1_2.radius or 20
-  l_1_0._sides = l_1_2.sides or 10
-  l_1_0._total = l_1_2.total or 1
-  l_1_2.triangles = l_1_0:_create_triangles(l_1_2)
-  l_1_2.w = l_1_0._radius * 2
-  l_1_2.h = l_1_0._radius * 2
-  l_1_0._circle = l_1_0._panel:polygon(l_1_2)
-end
-
-CircleGuiObject._create_triangles = function(l_2_0, l_2_1)
-  local amount = 360 * (l_2_1.current or 1) / (l_2_1.total or 1)
-  local s = l_2_0._radius
-  local triangles = {}
-  local step = 360 / l_2_0._sides
-  for i = step, amount, step do
-    local mid = Vector3(l_2_0._radius, l_2_0._radius, 0)
-    table.insert(triangles, mid)
-    table.insert(triangles, mid + Vector3(math.sin(i) * l_2_0._radius, -math.cos(i) * l_2_0._radius, 0))
-    table.insert(triangles, mid + Vector3(math.sin(i - step) * l_2_0._radius, -math.cos(i - step) * l_2_0._radius, 0))
-  end
-  return triangles
-end
-
-CircleGuiObject.set_current = function(l_3_0, l_3_1)
-  local triangles = l_3_0:_create_triangles({current = l_3_1, total = l_3_0._total})
-  l_3_0._circle:clear()
-  l_3_0._circle:add_triangles(triangles)
+function CircleGuiObject:init( panel, config )
+	-- config.total, config.current, config.radius
+	--[[local name 				= config.name or ""
+	local color 			= config.color or Color.white
+	local layer 			= config.layer or 0
+	local visible 			= config.visible or true
+	local rotation			= config.rotation or nil
+	local render_template	= config.render_template or nil]]
+	
+	
+	self._panel = panel
+	self._radius = config.radius or 20
+	self._sides = config.sides or 10
+	self._total = config.total or 1
+	
+	config.triangles = self:_create_triangles( config ) -- { Vector3( 0, 0, 0 ), Vector3( 20, 0, 0 ), Vector3( 0, 20, 0 ) }
+	config.w = self._radius * 2
+	config.h = self._radius * 2 
+	self._circle = self._panel:polygon( config )
+	-- self._circle:set_size( self._radius * 2, self._radius * 2)
+	-- self._circle:set_debug( true )
+	--[[
+	* color
+    * rotation
+    * render_template
+    * blend_mode
+    * convex
+    * triangles
+    * colored_triangles]]
+	
+	-- self._circle = 
 end
 
-CircleGuiObject.set_position = function(l_4_0, l_4_1, l_4_2)
-  l_4_0._circle:set_position(l_4_1, l_4_2)
+function CircleGuiObject:_create_triangles( config )
+	local amount = 360 * (config.current or 1)/(config.total or 1) 
+	-- x math.sin( 270 )
+	-- y math.cos( 270 )
+	local s = self._radius
+	local triangles = {}
+	local step = 360 / self._sides
+	for i = step, amount, step do
+		local mid = Vector3( self._radius, self._radius, 0 )
+		table.insert( triangles, mid )
+		table.insert( triangles, mid + Vector3( math.sin( i ) * self._radius, -math.cos( i ) * self._radius, 0 ) )
+		table.insert( triangles, mid + Vector3( math.sin( i - step ) * self._radius, -math.cos( i - step ) * self._radius, 0 ) )
+	end
+	return triangles
 end
 
-CircleGuiObject.set_layer = function(l_5_0, l_5_1)
-  l_5_0._circle:set_layer(l_5_1)
+function CircleGuiObject:set_current( current )
+	local triangles = self:_create_triangles( { current = current, total = self._total } )
+	self._circle:clear()
+	self._circle:add_triangles( triangles )
 end
 
-CircleGuiObject.layer = function(l_6_0)
-  return l_6_0._circle:layer()
+function CircleGuiObject:set_position( x, y )
+	self._circle:set_position( x, y )
 end
 
-CircleGuiObject.remove = function(l_7_0)
-  l_7_0._panel:remove(l_7_0._circle)
+function CircleGuiObject:set_layer( layer )
+	self._circle:set_layer( layer )
 end
 
-if not CircleBitmapGuiObject then
-  CircleBitmapGuiObject = class()
-end
-CircleBitmapGuiObject.init = function(l_8_0, l_8_1, l_8_2)
-  l_8_0._panel = l_8_1
-  l_8_0._radius = l_8_2.radius or 20
-  l_8_0._sides = l_8_2.sides or 64
-  l_8_0._total = l_8_2.total or 1
-  l_8_0._size = 128
-  l_8_2.texture_rect = nil
-  l_8_2.texture = l_8_2.image or "guis/textures/pd2/hud_progress_active"
-  l_8_2.w = l_8_0._radius * 2
-  l_8_2.h = l_8_0._radius * 2
-  l_8_0._circle = l_8_0._panel:bitmap(l_8_2)
-  l_8_0._circle:set_render_template(Idstring("VertexColorTexturedRadial"))
-  l_8_0._alpha = l_8_0._circle:color().alpha
-  l_8_0._circle:set_color(l_8_0._circle:color():with_red(0))
-  if l_8_2.use_bg then
-    local bg_config = deep_clone(l_8_2)
-    bg_config.texture = "guis/textures/pd2/hud_progress_bg"
-    bg_config.layer = bg_config.layer - 1
-    bg_config.blend_mode = "normal"
-    l_8_0._bg_circle = l_8_0._panel:bitmap(bg_config)
-  end
+function CircleGuiObject:layer()
+	return self._circle:layer()
 end
 
-CircleBitmapGuiObject.radius = function(l_9_0)
-  return l_9_0._radius
+function CircleGuiObject:remove()
+	self._panel:remove( self._circle )
 end
 
-CircleBitmapGuiObject.set_current = function(l_10_0, l_10_1)
-  local j = math.mod(math.floor(l_10_1), 8)
-  local i = math.floor(l_10_1 / 8)
-  l_10_0._circle:set_color(Color(l_10_0._alpha, l_10_1, l_10_0._circle:color().blue, l_10_0._circle:color().green))
+---------------------------------------------------
+
+CircleBitmapGuiObject = CircleBitmapGuiObject or class()
+
+function CircleBitmapGuiObject:init( panel, config )
+	self._panel = panel
+	self._radius = config.radius or 20
+	self._sides = config.sides or 64
+	self._total = config.total or 1
+	self._size = 128
+	config.texture_rect = nil -- { 0, 0, self._size, self._size }
+	-- config.texture = config.image or "guis/textures/radialmap"
+	config.texture = config.image or "guis/textures/pd2/hud_progress_active"
+			
+	config.w = self._radius * 2
+	config.h = self._radius * 2 
+	self._circle = self._panel:bitmap( config )
+	self._circle:set_render_template( Idstring( "VertexColorTexturedRadial" ) )
+	self._alpha = self._circle:color().alpha
+	self._circle:set_color( self._circle:color():with_red( 0 ) )
+	
+	if config.use_bg then
+		local bg_config = deep_clone( config )
+		bg_config.texture = "guis/textures/pd2/hud_progress_bg"
+		bg_config.layer = bg_config.layer - 1
+		bg_config.blend_mode = "normal"
+		self._bg_circle = self._panel:bitmap( bg_config )
+	end
 end
 
-CircleBitmapGuiObject.position = function(l_11_0)
-  return l_11_0._circle:position()
+function CircleBitmapGuiObject:radius()
+	return self._radius
 end
 
-CircleBitmapGuiObject.set_position = function(l_12_0, l_12_1, l_12_2)
-  l_12_0._circle:set_position(l_12_1, l_12_2)
-  if l_12_0._bg_circle then
-    l_12_0._bg_circle:set_position(l_12_1, l_12_2)
-  end
+function CircleBitmapGuiObject:set_current( current )
+	local j = math.mod( math.floor( current ), 8 )
+	local i = math.floor(current/8)
+	-- print( current, j, i )
+	-- self._circle:set_texture_rect( j * self._size, i * self._size, self._size, self._size )
+	self._circle:set_color( Color( self._alpha, current, self._circle:color().blue, self._circle:color().green ) )
 end
 
-CircleBitmapGuiObject.set_visible = function(l_13_0, l_13_1)
-  l_13_0._circle:set_visible(l_13_1)
-  if l_13_0._bg_circle then
-    l_13_0._bg_circle:set_visible(l_13_1)
-  end
+function CircleBitmapGuiObject:position()
+	return self._circle:position()
 end
 
-CircleBitmapGuiObject.visible = function(l_14_0)
-  return l_14_0._circle:visible()
+function CircleBitmapGuiObject:set_position( x, y )
+	self._circle:set_position( x, y )
+	if self._bg_circle then
+		self._bg_circle:set_position( x, y )
+	end
 end
 
-CircleBitmapGuiObject.set_alpha = function(l_15_0, l_15_1)
-  l_15_0._circle:set_alpha(l_15_1)
+function CircleBitmapGuiObject:set_visible( visible )
+	self._circle:set_visible( visible )
+	if self._bg_circle then
+		self._bg_circle:set_visible( visible )
+	end
 end
 
-CircleBitmapGuiObject.alpha = function(l_16_0)
-  l_16_0._circle:alpha()
+function CircleBitmapGuiObject:visible()
+	return self._circle:visible()
 end
 
-CircleBitmapGuiObject.set_color = function(l_17_0, l_17_1)
-  l_17_0._circle:set_color(l_17_1)
+function CircleBitmapGuiObject:set_alpha( alpha )
+	self._circle:set_alpha( alpha )
 end
 
-CircleBitmapGuiObject.color = function(l_18_0)
-  return l_18_0._circle:color()
+function CircleBitmapGuiObject:alpha()
+	self._circle:alpha()
 end
 
-CircleBitmapGuiObject.size = function(l_19_0)
-  return l_19_0._circle:size()
+function CircleBitmapGuiObject:set_color( color )
+	self._circle:set_color( color )
 end
 
-CircleBitmapGuiObject.set_image = function(l_20_0, l_20_1)
-  l_20_0._circle:set_image(l_20_1)
+function CircleBitmapGuiObject:color()
+	return self._circle:color()
 end
 
-CircleBitmapGuiObject.set_layer = function(l_21_0, l_21_1)
-  l_21_0._circle:set_layer(l_21_1)
-  if l_21_0._bg_circle then
-    l_21_0._bg_circle:set_layer(l_21_1 - 1)
-  end
+function CircleBitmapGuiObject:size()
+	return self._circle:size()
 end
 
-CircleBitmapGuiObject.layer = function(l_22_0)
-  return l_22_0._circle:layer()
+function CircleBitmapGuiObject:set_image( texture )
+	self._circle:set_image( texture )
 end
 
-CircleBitmapGuiObject.remove = function(l_23_0)
-  l_23_0._panel:remove(l_23_0._circle)
-  if l_23_0._bg_circle then
-    l_23_0._panel:remove(l_23_0._bg_circle)
-  end
-  l_23_0._panel = nil
+function CircleBitmapGuiObject:set_layer( layer )
+	self._circle:set_layer( layer )
+	if self._bg_circle then
+		self._bg_circle:set_layer( layer - 1 )
+	end
 end
 
+function CircleBitmapGuiObject:layer()
+	return self._circle:layer()
+end
+
+function CircleBitmapGuiObject:remove()
+	self._panel:remove( self._circle )
+	if self._bg_circle then
+		self._panel:remove( self._bg_circle )
+	end
+	self._panel = nil
+end
 

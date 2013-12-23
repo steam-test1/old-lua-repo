@@ -1,90 +1,190 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\menu\renderers\menunodecrimenetgui.luac 
+MenuNodeCrimenetGui = MenuNodeCrimenetGui or class( MenuNodeGui )
 
-if not MenuNodeCrimenetGui then
-  MenuNodeCrimenetGui = class(MenuNodeGui)
-end
-MenuNodeCrimenetGui.init = function(l_1_0, l_1_1, l_1_2, l_1_3)
-  l_1_3.font = tweak_data.menu.pd2_small_font
-  l_1_3.font_size = tweak_data.menu.pd2_small_font_size
-  l_1_3.align = "left"
-  l_1_3.row_item_blend_mode = "add"
-  l_1_3.row_item_color = tweak_data.screen_colors.button_stage_3
-  l_1_3.row_item_hightlight_color = tweak_data.screen_colors.button_stage_2
-  l_1_3.marker_alpha = 1
-  l_1_3.to_upper = true
-  MenuNodeCrimenetGui.super.init(l_1_0, l_1_1, l_1_2, l_1_3)
+function MenuNodeCrimenetGui:init( node, layer, parameters )
+	
+	parameters.font = tweak_data.menu.pd2_small_font
+	parameters.font_size = tweak_data.menu.pd2_small_font_size
+	parameters.align = "left"
+	parameters.row_item_blend_mode = "add"
+	parameters.row_item_color = tweak_data.screen_colors.button_stage_3
+	parameters.row_item_hightlight_color = tweak_data.screen_colors.button_stage_2
+	parameters.marker_alpha = 1
+	parameters.to_upper = true
+	
+	MenuNodeCrimenetGui.super.init( self, node, layer, parameters )
 end
 
-MenuNodeCrimenetGui._setup_item_panel = function(l_2_0, l_2_1, l_2_2)
-  MenuNodeHiddenGui.super._setup_item_panel(l_2_0, l_2_1, l_2_2)
-  local width = 760
-  local height = 540
-  if SystemInfo:platform() ~= Idstring("WIN32") then
-    width = 800
-    height = 500
-  end
-  l_2_0.item_panel:set_rightbottom(l_2_0.item_panel:parent():w() * 0.5 + width / 2 - 10, l_2_0.item_panel:parent():h() * 0.5 + height / 2 - 10)
-  l_2_0:_set_topic_position()
+function MenuNodeCrimenetGui:_setup_item_panel( safe_rect, res )
+	MenuNodeHiddenGui.super._setup_item_panel( self, safe_rect, res )
+	
+
+	local width = 900
+	local height = 580
+	
+	if not (SystemInfo:platform() == Idstring( "WIN32" )) then
+		width = 800
+		height = 500
+	end
+	
+	
+	self.item_panel:set_rightbottom( self.item_panel:parent():w() * 0.5 + width/2 - 10, self.item_panel:parent():h() * 0.5 + height/2 - 10 ) -- safe_rect.width - ( safe_rect.width * 0.35 * 0.5 ) - 15, safe_rect.height - ( safe_rect.height * 0.05 * 0.5 ) - 65 )
+	self:_set_topic_position()
 end
 
-if not MenuNodeCrimenetFiltersGui then
-  MenuNodeCrimenetFiltersGui = class(MenuNodeGui)
-end
-MenuNodeCrimenetFiltersGui.init = function(l_3_0, l_3_1, l_3_2, l_3_3)
-  l_3_3.font = tweak_data.menu.pd2_small_font
-  l_3_3.font_size = tweak_data.menu.pd2_small_font_size
-  l_3_3.align = "left"
-  l_3_3.row_item_blend_mode = "add"
-  l_3_3.row_item_color = tweak_data.screen_colors.button_stage_3
-  l_3_3.row_item_hightlight_color = tweak_data.screen_colors.button_stage_2
-  l_3_3.marker_alpha = 1
-  l_3_3.to_upper = true
-  MenuNodeCrimenetFiltersGui.super.init(l_3_0, l_3_1, l_3_2, l_3_3)
+--[[
+function MenuNodeCrimenetGui:_setup_panels( node )
+	MenuNodeHiddenGui.super._setup_panels( self, node )
 end
 
-MenuNodeCrimenetFiltersGui.close = function(l_4_0, ...)
-  MenuNodeCrimenetFiltersGui.super.close(l_4_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function MenuNodeCrimenetGui:_highlight_row_item( row_item, mouse_over )
+	MenuNodeCrimenetGui.super._highlight_row_item( self, row_item, mouse_over )
+	if row_item then
+		row_item.gui_panel:set_color(  )
+		row_item.highlighted = true
+	end
 end
 
-MenuNodeCrimenetFiltersGui._setup_item_panel = function(l_5_0, l_5_1, l_5_2)
-  MenuNodeCrimenetFiltersGui.super._setup_item_panel(l_5_0, l_5_1, l_5_2)
-  l_5_0:_set_topic_position()
-  local max_layer = 10000
-  local min_layer = 0
-  local child_layer = 0
-  for _,child in ipairs(l_5_0.item_panel:children()) do
-    child:set_halign("right")
-    child_layer = child:layer()
-    if child_layer > 0 then
-      min_layer = math.min(min_layer, child_layer)
-    end
-    max_layer = math.max(max_layer, child_layer)
-  end
-  for _,child in ipairs(l_5_0.item_panel:children()) do
-  end
-  l_5_0.item_panel:set_w(l_5_1.width * (1 - l_5_0._align_line_proportions))
-  l_5_0.item_panel:set_center(l_5_0.item_panel:parent():w() / 2, l_5_0.item_panel:parent():h() / 2)
-  l_5_0.box_panel = l_5_0.item_panel:parent():panel()
-  l_5_0.box_panel:set_shape(l_5_0.item_panel:shape())
-  l_5_0.box_panel:set_layer(51)
-  l_5_0.box_panel:grow(20, 20)
-  l_5_0.box_panel:move(-10, -10)
-  l_5_0.boxgui = BoxGuiObject:new(l_5_0.box_panel, {sides = {1, 1, 1, 1}})
-  l_5_0.box_panel:rect({color = Color.black, alpha = 0.60000002384186})
+function MenuNodeCrimenetGui:_fade_row_item( row_item )
+	MenuNodeCrimenetGui.super._fade_row_item( self, row_item )
+	if row_item then
+		row_item.gui_panel:set_color(  )
+		row_item.highlighted = false
+	end
 end
 
-MenuNodeCrimenetFiltersGui.reload_item = function(l_6_0, l_6_1)
-  MenuNodeCrimenetFiltersGui.super.reload_item(l_6_0, l_6_1)
-  local row_item = l_6_0:row_item(l_6_1)
-  row_item.gui_panel:set_right(l_6_0.item_panel:w())
+function MenuNodeCrimenetGui:_align_marker( row_item )
+	return
+end
+]]
+
+
+--------------------------------------------------------------------------------------------
+MenuNodeCrimenetFiltersGui = MenuNodeCrimenetFiltersGui or class( MenuNodeGui )
+
+function MenuNodeCrimenetFiltersGui:init( node, layer, parameters )
+	
+	parameters.font = tweak_data.menu.pd2_small_font
+	parameters.font_size = tweak_data.menu.pd2_small_font_size
+	parameters.align = "left"
+	--parameters.halign = "center"
+	parameters.row_item_blend_mode = "add"
+	parameters.row_item_color = tweak_data.screen_colors.button_stage_3
+	parameters.row_item_hightlight_color = tweak_data.screen_colors.button_stage_2
+	parameters.marker_alpha = 1
+	parameters.to_upper = true
+	
+	MenuNodeCrimenetFiltersGui.super.init( self, node, layer, parameters )
 end
 
-MenuNodeCrimenetFiltersGui._align_marker = function(l_7_0, l_7_1)
-  MenuNodeCrimenetFiltersGui.super._align_marker(l_7_0, l_7_1)
-  l_7_0._marker_data.marker:set_world_right(l_7_0.item_panel:world_right())
+function MenuNodeCrimenetFiltersGui:close( ... )
+	MenuNodeCrimenetFiltersGui.super.close( self, ... )
+	
 end
 
+function MenuNodeCrimenetFiltersGui:_setup_item_panel( safe_rect, res )
+	MenuNodeCrimenetFiltersGui.super._setup_item_panel( self, safe_rect, res )
+	self:_set_topic_position()
+	
+	local max_layer = 10000
+	local min_layer = 0
+	local child_layer = 0
+	for _, child in ipairs( self.item_panel:children() ) do
+		child:set_halign( "right" )
+		
+		child_layer = child:layer()
+		if child_layer > 0 then
+			min_layer = math.min( min_layer, child_layer )
+		end
+		max_layer = math.max( max_layer, child_layer )
+	end
+	
+	-- self.item_panel:set_layer( max_layer )
+	for _, child in ipairs( self.item_panel:children() ) do
+		-- child:set_layer( 0 )
+	end
+	
+	self.item_panel:set_w( safe_rect.width * (1-self._align_line_proportions) )
+	self.item_panel:set_center( self.item_panel:parent():w()/2, self.item_panel:parent():h()/2 )
+	self.item_panel:set_position( math.round( self.item_panel:x() ), math.round( self.item_panel:y() ) )
 
+	self:_rec_round_object( self.item_panel )
+	
+	self.box_panel = self.item_panel:parent():panel()
+	self.box_panel:set_x( self.item_panel:x() )
+	self.box_panel:set_w( self.item_panel:w() )
+
+	if self.item_panel:h() > self._align_data.panel:h() then
+		self.box_panel:set_y( 0 )
+		self.box_panel:set_h( self.item_panel:parent():h() )
+	else
+		self.box_panel:set_y( self.item_panel:top() )
+		self.box_panel:set_h( self.item_panel:h() )
+	end
+
+	self.box_panel:grow( 20, 20 )
+	self.box_panel:move( -10, -10 )
+
+	self.box_panel:set_layer( 51 )
+	
+	self.boxgui = BoxGuiObject:new( self.box_panel, { sides = { 1, 1, 1, 1 } } )
+	self.boxgui:set_clipping( false )
+	self.box_panel:rect( { color=Color.black, alpha=0.6, rotation=360 } )
+
+	self._align_data.panel:set_left( self.box_panel:left() )
+
+	self._list_arrows.up:set_world_left( self._align_data.panel:world_left() )
+	self._list_arrows.up:set_world_top( self._align_data.panel:world_top() - 10 )
+	self._list_arrows.up:set_width( self.box_panel:width() )
+
+	self._list_arrows.down:set_world_left( self._align_data.panel:world_left() )
+	self._list_arrows.down:set_world_bottom( self._align_data.panel:world_bottom() + 10 )
+	self._list_arrows.down:set_width( self.box_panel:width() )
+end
+
+function MenuNodeCrimenetFiltersGui:_rec_round_object( object )
+	if object.children then
+		for i, d in ipairs( object:children() ) do
+			self:_rec_round_object( d )
+		end
+	end
+	local x,y = object:position()
+	object:set_position( math.round( x ), math.round( y ) )
+end
+
+function MenuNodeCrimenetFiltersGui:reload_item( item )
+	MenuNodeCrimenetFiltersGui.super.reload_item( self, item )
+	
+	local row_item = self:row_item( item )
+
+	if row_item and alive( row_item.gui_panel ) then
+		row_item.gui_panel:set_right( self.item_panel:w() )
+	end
+end
+
+function MenuNodeCrimenetFiltersGui:_align_marker( row_item )
+	MenuNodeCrimenetFiltersGui.super._align_marker( self, row_item )
+	
+	self._marker_data.marker:set_world_right( self.item_panel:world_right() )
+end
+--[[
+function MenuNodeCrimenetFiltersGui:_setup_panels( node )
+	MenuNodeCrimenetFiltersGui.super._setup_panels( self, node )
+end
+
+function MenuNodeCrimenetFiltersGui:_highlight_row_item( row_item, mouse_over )
+	MenuNodeCrimenetFiltersGui.super._highlight_row_item( self, row_item, mouse_over )
+	if row_item then
+		row_item.gui_panel:set_color(  )
+		row_item.highlighted = true
+	end
+end
+
+function MenuNodeCrimenetFiltersGui:_fade_row_item( row_item )
+	MenuNodeCrimenetFiltersGui.super._fade_row_item( self, row_item )
+	if row_item then
+		row_item.gui_panel:set_color(  )
+		row_item.highlighted = false
+	end
+end
+
+]]

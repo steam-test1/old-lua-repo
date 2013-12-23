@@ -1,250 +1,265 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\menu\coremenunode.luac 
-
 core:module("CoreMenuNode")
 core:import("CoreSerialize")
 core:import("CoreMenuItem")
 core:import("CoreMenuItemToggle")
-if not MenuNode then
-  MenuNode = class()
-end
-MenuNode.init = function(l_1_0, l_1_1)
-  local parameters = {}
-  for key,value in pairs(l_1_1) do
-    if key ~= "_meta" and type(value) ~= "table" then
-      parameters[key] = value
-    end
-  end
-  if parameters.modifier then
-    local modifier_names = string.split(parameters.modifier, " ")
-    parameters.modifier = {}
-    for i = 1, #modifier_names do
-      local modifier_instance = loadstring("return " .. modifier_names[i] .. ":new()")()
-      parameters.modifier[i] = callback(modifier_instance, modifier_instance, "modify_node")
-    end
-  end
-  if parameters.refresh then
-    local refresh_names = string.split(parameters.refresh, " ")
-    parameters.refresh = {}
-    for i = 1, #refresh_names do
-      local refresh_instance = loadstring("return " .. refresh_names[i] .. ":new()")()
-      parameters.refresh[i] = callback(refresh_instance, refresh_instance, "refresh_node")
-    end
-  end
-  if parameters.update then
-    local update_names = string.split(parameters.update, " ")
-    parameters.update = {}
-    for i = 1, #update_names do
-      local update_instance = loadstring("return " .. update_names[i] .. ":new()")()
-      parameters.update[i] = callback(update_instance, update_instance, "update_node")
-    end
-  end
-  if parameters.back_callback then
-    parameters.back_callback = string.split(parameters.back_callback, " ")
-  else
-    parameters.back_callback = {}
-  end
-  if parameters.back_callback then
-    parameters.back_callback_name = parameters.back_callback
-    parameters.back_callback = {}
-  end
-  if parameters.focus_changed_callback then
-    parameters.focus_changed_callback = string.split(parameters.focus_changed_callback, " ")
-  else
-    parameters.focus_changed_callback = {}
-  end
-  if parameters.focus_changed_callback then
-    parameters.focus_changed_callback_name = parameters.focus_changed_callback
-    parameters.focus_changed_callback = {}
-  end
-  if parameters.menu_components then
-    parameters.menu_components = string.split(parameters.menu_components, " ")
-  end
-  l_1_0:set_parameters(parameters)
-  l_1_0:_parse_items(l_1_1)
-  l_1_0._selected_item = nil
-end
 
-MenuNode._parse_items = function(l_2_0, l_2_1)
-  l_2_0._items = {}
-  l_2_0._legends = {}
-  for _,c in ipairs(l_2_1) do
-    local type = c._meta
-    do
-      if type == "item" then
-        local item = l_2_0:create_item(c)
-        l_2_0:add_item(item)
-      end
-      for (for control),_ in (for generator) do
-      end
-      if type == "default_item" then
-        l_2_0._default_item_name = c.name
-        for (for control),_ in (for generator) do
-        end
-        if type == "legend" then
-          table.insert(l_2_0._legends, {string_id = c.name, pc = c.pc})
-        end
-      end
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+MenuNode = MenuNode or class()
+
+function MenuNode:init( data_node )
+	-- Load parameters
+	local parameters = {}
+	for key,value in pairs( data_node ) do
+		if( ( key ~= "_meta" ) and ( type( value ) ~= "table" ) ) then
+			parameters[ key ] = value
+		end
+	end
+	
+	-- Register modifier callbacks
+	if parameters.modifier then
+		local modifier_names	= string.split( parameters.modifier, " " )
+		parameters.modifier		= {}
+		for i = 1, #modifier_names do
+			local modifier_instance = loadstring( "return " .. modifier_names[ i ] .. ":new()" )()
+			parameters.modifier[ i ] = callback( modifier_instance, modifier_instance, "modify_node" )
+		end
+	end
+	
+	-- Register refresh callbacks
+	if parameters.refresh then
+		local refresh_names	= string.split( parameters.refresh, " " )
+		parameters.refresh		= {}
+		for i = 1, #refresh_names do
+			local refresh_instance = loadstring( "return " .. refresh_names[ i ] .. ":new()" )()
+			parameters.refresh[ i ] = callback( refresh_instance, refresh_instance, "refresh_node" )
+		end
+	end
+	
+	-- Register update callbacks
+	if parameters.update then
+		local update_names	= string.split( parameters.update, " " )
+		parameters.update		= {}
+		for i = 1, #update_names do
+			local update_instance = loadstring( "return " .. update_names[ i ] .. ":new()" )()
+			parameters.update[ i ] = callback( update_instance, update_instance, "update_node" )
+		end
+	end
+	
+	-- Handle the back callbacks
+	if parameters.back_callback then
+		parameters.back_callback = string.split( parameters.back_callback, " " )
+	else
+		parameters.back_callback = {}
+	end
+	
+	-- Set back callback function names
+	if parameters.back_callback then
+		parameters.back_callback_name	= parameters.back_callback
+		parameters.back_callback		= {}
+	end
+	
+	-- Handle the focus changed callbacks
+	if parameters.focus_changed_callback then
+		parameters.focus_changed_callback = string.split( parameters.focus_changed_callback, " " )
+	else
+		parameters.focus_changed_callback = {}
+	end
+	
+	-- Set focus changed callback function names
+	if parameters.focus_changed_callback then
+		parameters.focus_changed_callback_name	= parameters.focus_changed_callback
+		parameters.focus_changed_callback		= {}
+	end
+	
+	if parameters.menu_components then	
+		parameters.menu_components = string.split( parameters.menu_components, " " )
+	end
+	
+	self:set_parameters( parameters )
+	
+	-- Parse items
+	self:_parse_items( data_node )
+	self._selected_item = nil
 end
 
-MenuNode.update = function(l_3_0, l_3_1, l_3_2)
+function MenuNode:_parse_items( data_node )
+	self._items = {}
+	self._legends = {}
+	for _,c in ipairs( data_node ) do
+		local type = c._meta
+		-- <item>
+		if type == "item" then
+			local item = self:create_item( c )
+			self:add_item( item )
+
+		-- <default_item>
+		elseif type == "default_item" then
+			self._default_item_name = c.name
+			
+		-- <legend>	
+		elseif type == "legend" then
+			table.insert( self._legends, { string_id = c.name, pc = c.pc } )
+		end
+	end
 end
 
-MenuNode.clean_items = function(l_4_0)
-  l_4_0._items = {}
+function MenuNode:update( t, dt )
+	
 end
 
-MenuNode.create_item = function(l_5_0, l_5_1, l_5_2)
-  local item = CoreMenuItem.Item
-  if l_5_1 then
-    local type = l_5_1.type
-    if type then
-      item_type = type
-      item = CoreSerialize.string_to_classtable(item_type)
-    end
-  end
-  item = item:new(l_5_1, l_5_2)
-  return item
+function MenuNode:clean_items()
+	self._items = {}
 end
 
-MenuNode.default_item_name = function(l_6_0)
-  return l_6_0._default_item_name
+function MenuNode:create_item( data_node, parameters )
+	local item	= CoreMenuItem.Item
+	if data_node then
+		local type = data_node.type
+		if type then
+			item_type = type
+			item = CoreSerialize.string_to_classtable(item_type)
+		end
+	end
+	
+	item = item:new( data_node, parameters )
+
+	return item
 end
 
-MenuNode.set_default_item_name = function(l_7_0, l_7_1)
-  l_7_0._default_item_name = l_7_1
+function MenuNode:default_item_name()
+	return self._default_item_name
 end
 
-MenuNode.parameters = function(l_8_0)
-  return l_8_0._parameters
+function MenuNode:set_default_item_name( default_item_name )
+	self._default_item_name = default_item_name
 end
 
-MenuNode.set_parameters = function(l_9_0, l_9_1)
-  l_9_0._parameters = l_9_1
+function MenuNode:parameters()
+	return self._parameters
 end
 
-MenuNode.add_item = function(l_10_0, l_10_1)
-  l_10_1.dirty_callback = callback(l_10_0, l_10_0, "item_dirty")
-  if l_10_0.callback_handler then
-    l_10_1:set_callback_handler(l_10_0.callback_handler)
-  end
-  local last = l_10_0._items[#l_10_0._items]
-  if last then
-    local is_back = last:parameters().back
-  end
-  if is_back then
-    table.insert(l_10_0._items, #l_10_0._items, l_10_1)
-  else
-    table.insert(l_10_0._items, l_10_1)
-  end
+function MenuNode:set_parameters( parameters )
+	self._parameters = parameters
 end
 
-MenuNode.insert_item = function(l_11_0, l_11_1, l_11_2)
-  l_11_1.dirty_callback = callback(l_11_0, l_11_0, "item_dirty")
-  if l_11_0.callback_handler then
-    l_11_1:set_callback_handler(l_11_0.callback_handler)
-  end
-  table.insert(l_11_0._items, l_11_2, l_11_1)
+function MenuNode:add_item( item )
+	item.dirty_callback = callback( self, self, "item_dirty" )
+	if self.callback_handler then
+		item:set_callback_handler( self.callback_handler )
+	end
+	local last = self._items[ #self._items ]
+	local is_back = last and (last:parameters().back or last:parameters().last_item)
+	if is_back then -- Back should always be last, insert item before it
+		table.insert( self._items, #self._items, item )
+	else
+		table.insert( self._items, item )
+	end
 end
 
-MenuNode.delete_item = function(l_12_0, l_12_1)
-  for i,item in ipairs(l_12_0:items()) do
-    if item:parameters().name == l_12_1 then
-      if item == l_12_0:selected_item() then
-        l_12_0._selected_item = nil
-      end
-      local del_item = table.remove(l_12_0._items, i)
-      del_item:on_delete_item()
-      return del_item
-    end
-  end
+function MenuNode:insert_item( item, i )
+	item.dirty_callback = callback( self, self, "item_dirty" )
+	if self.callback_handler then
+		item:set_callback_handler( self.callback_handler )
+	end
+	table.insert( self._items, i, item )
 end
 
-MenuNode.item = function(l_13_0, l_13_1)
-  if not l_13_1 then
-    l_13_1 = l_13_0._default_item_name
-  end
-  local item = nil
-  for _,i in ipairs(l_13_0:items()) do
-    if (not l_13_1 and i:visible()) or i:parameters().name == l_13_1 then
-      item = i
-  else
-    end
-  end
-  return item
+function MenuNode:delete_item( item_name )
+	for i,item in ipairs( self:items() ) do
+		if item:parameters().name == item_name then
+			if item == self:selected_item() then
+				self._selected_item = nil
+			end
+			local del_item = table.remove( self._items, i )
+			del_item:on_delete_item()
+			return del_item
+		end
+	end
 end
 
-MenuNode.items = function(l_14_0)
-  return l_14_0._items
+function MenuNode:item( item_name )
+	if not item_name then
+		item_name = self._default_item_name
+	end
+
+	local item
+	for _,i in ipairs( self:items() ) do
+		if( ( not item_name and i:visible() ) or ( i:parameters().name == item_name ) ) then
+			item = i
+			break
+		end
+	end
+	return item
 end
 
-MenuNode.set_items = function(l_15_0, l_15_1)
-  l_15_0._items = l_15_1
+function MenuNode:items()
+	return self._items
 end
 
-MenuNode.selected_item = function(l_16_0)
-  return l_16_0._selected_item
+function MenuNode:set_items( items )
+	self._items = items
 end
 
-MenuNode.select_item = function(l_17_0, l_17_1)
-  if not l_17_1 and l_17_0:item() and not l_17_0:item():visible() then
-    for i,item in ipairs(l_17_0:items()) do
-      if item:visible() then
-        l_17_0._default_item_name = item:name()
-    else
-      end
-    end
-    l_17_0._selected_item = l_17_0:item(l_17_1)
-     -- Warning: missing end command somewhere! Added here
-  end
+function MenuNode:selected_item()
+	return self._selected_item
 end
 
-MenuNode.set_callback_handler = function(l_18_0, l_18_1)
-  l_18_0.callback_handler = l_18_1
-  for _,callback_name in pairs(l_18_0._parameters.back_callback_name) do
-    table.insert(l_18_0._parameters.back_callback, callback(l_18_1, l_18_1, callback_name))
-  end
-  for _,callback_name in pairs(l_18_0._parameters.focus_changed_callback_name) do
-    table.insert(l_18_0._parameters.focus_changed_callback, callback(l_18_1, l_18_1, callback_name))
-  end
-  for _,item in ipairs(l_18_0._items) do
-    item:set_callback_handler(l_18_1)
-  end
+function MenuNode:select_item( item_name )
+	-- Verify that the default item actually can be default
+	if not item_name and self:item() and not self:item():visible() then
+		for i,item in ipairs( self:items() ) do
+			if item:visible() then
+				self._default_item_name = item:name()
+				break
+			end
+		end 
+	end
+	
+	self._selected_item = self:item( item_name )
 end
 
-MenuNode.trigger_back = function(l_19_0)
-  if l_19_0:parameters().block_back then
-    return true
-  end
-  local block_back = nil
-  for _,callback in pairs(l_19_0:parameters().back_callback) do
-    if not block_back then
-      block_back = callback(l_19_0)
-    end
-  end
-  return block_back
+function MenuNode:set_callback_handler( callback_handler )
+	self.callback_handler = callback_handler
+	
+	for _, callback_name in pairs( self._parameters.back_callback_name ) do
+		table.insert( self._parameters.back_callback, callback( callback_handler, callback_handler, callback_name ) )
+	end
+	
+	for _, callback_name in pairs( self._parameters.focus_changed_callback_name ) do
+		table.insert( self._parameters.focus_changed_callback, callback( callback_handler, callback_handler, callback_name ) )
+	end
+	
+	for _,item in ipairs( self._items ) do
+		item:set_callback_handler( callback_handler )
+	end
 end
 
-MenuNode.trigger_focus_changed = function(l_20_0, l_20_1, ...)
-  for _,callback in pairs(l_20_0:parameters().focus_changed_callback) do
-    callback(l_20_0, l_20_1, ...)
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function MenuNode:trigger_back()
+	if self:parameters().block_back then
+		return true
+	end
+	
+	local block_back = nil
+	for _, callback in pairs( self:parameters().back_callback ) do
+		block_back = block_back or callback( self )
+	end
+	
+	return block_back
 end
 
-MenuNode.item_dirty = function(l_21_0, l_21_1)
-  if l_21_0.dirty_callback then
-    l_21_0.dirty_callback(l_21_0, l_21_1)
-  end
+function MenuNode:trigger_focus_changed( in_focus, ... )
+	-- print( "enuNode:trigger_focus_changed", in_focus, self._parameters.name )
+	-- Application:stack_dump()
+	for _, callback in pairs( self:parameters().focus_changed_callback ) do
+		callback( self, in_focus, ... )
+	end
 end
 
-MenuNode.legends = function(l_22_0)
-  return l_22_0._legends
+function MenuNode:item_dirty( item )
+	if self.dirty_callback then
+		self.dirty_callback( self, item )
+	end
 end
 
-
+function MenuNode:legends()
+	return self._legends
+end

@@ -1,76 +1,86 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\cameras\waitingforplayerscamera.luac 
+WaitingForPlayersCamera = WaitingForPlayersCamera or class()
 
-if not WaitingForPlayersCamera then
-  WaitingForPlayersCamera = class()
-end
-WaitingForPlayersCamera.init = function(l_1_0, l_1_1)
-  l_1_0._unit = l_1_1
-  l_1_0._camera = World:create_camera()
-  l_1_0._camera:set_fov(57)
-  l_1_0._camera:set_near_range(7.5)
-  l_1_0._camera:set_far_range(200000)
-  l_1_0._viewport = managers.viewport:new_vp(0, 0.25, 1, 0.5, "WaitingForPlayersCamera", CoreManagerBase.PRIO_WORLDCAMERA)
-  l_1_0._director = l_1_0._viewport:director()
-  l_1_0._shaker = l_1_0._director:shaker()
-  l_1_0._camera_controller = l_1_0._director:make_camera(l_1_0._camera, Idstring("previs_camera"))
-  l_1_0._viewport:set_camera(l_1_0._camera)
-  l_1_0._viewport:set_environment(managers.environment_area:default_environment())
-  l_1_0._director:set_camera(l_1_0._camera_controller)
-  l_1_0._director:position_as(l_1_0._camera)
-  l_1_0._camera_controller:set_both(l_1_0._unit:get_object(Idstring("a_camera")))
-end
-
-WaitingForPlayersCamera._setup_sound_listener = function(l_2_0)
-  l_2_0._listener_id = managers.listener:add_listener("wait_camera", l_2_0._camera, l_2_0._camera, nil, false)
-  managers.listener:add_set("wait_camera", {"wait_camera"})
-  l_2_0._listener_activation_id = managers.listener:activate_set("main", "wait_camera")
-  l_2_0._sound_check_object = managers.sound_environment:add_check_object({object = l_2_0._unit:orientation_object(), active = true, primary = true})
+function WaitingForPlayersCamera:init( unit )
+	self._unit = unit
+	
+	self._camera = World:create_camera()
+	
+	self._camera:set_fov( 57 )
+	self._camera:set_near_range( 7.5 )
+	self._camera:set_far_range( 200000 )
+	-- self._viewport = managers.viewport:new_vp( 0, 0, 1, 1, 'WaitingForPlayersCamera', CoreManagerBase.PRIO_WORLDCAMERA )
+	self._viewport = managers.viewport:new_vp( 0, 0.25, 1, 0.5, 'WaitingForPlayersCamera', CoreManagerBase.PRIO_WORLDCAMERA )
+	self._director = self._viewport:director()
+	self._shaker = self._director:shaker()
+	self._camera_controller = self._director:make_camera( self._camera, Idstring( "previs_camera" ) )
+	self._viewport:set_camera( self._camera )
+	self._viewport:set_environment( managers.environment_area:default_environment() )
+	self._director:set_camera( self._camera_controller )
+	self._director:position_as( self._camera )
+	self._camera_controller:set_both( self._unit:get_object( Idstring( "a_camera" ) ) )
+	
+	-- self:_setup_sound_listener()
 end
 
-WaitingForPlayersCamera.start = function(l_3_0, l_3_1)
-  l_3_0._playing = true
-  l_3_0._unit:anim_stop(Idstring("camera_animation"))
-  l_3_0._unit:anim_set_time(Idstring("camera_animation"), l_3_1 or 0)
-  l_3_0._unit:anim_play(Idstring("camera_animation"), 1)
-  l_3_0._viewport:set_active(true)
+function WaitingForPlayersCamera:_setup_sound_listener()
+	self._listener_id = managers.listener:add_listener( "wait_camera", self._camera, self._camera, nil, false )
+	managers.listener:add_set( "wait_camera", { "wait_camera" } )
+	self._listener_activation_id = managers.listener:activate_set( "main", "wait_camera" )
+	
+	--[[self._sound_listener = SoundDevice:create_listener( "player_camera" )
+	self._sound_listener:link_position( self._camera_object )
+	self._sound_listener:link_orientation( self._camera_object )
+	self._sound_listener:activate( true )]]
+	self._sound_check_object = managers.sound_environment:add_check_object( { object = self._unit:orientation_object(), active = true, primary = true } )
 end
 
-WaitingForPlayersCamera.stop = function(l_4_0)
-  l_4_0._viewport:set_active(false)
-  l_4_0._unit:anim_stop(Idstring("camera_animation"))
-  l_4_0._unit:anim_set_time(Idstring("camera_animation"), 0)
-  l_4_0._playing = false
+function WaitingForPlayersCamera:start( time )
+	self._playing = true
+	self._unit:anim_stop( Idstring( "camera_animation" ) )
+	self._unit:anim_set_time( Idstring( "camera_animation" ), time or 0 )
+	-- self._unit:anim_play_to( Idstring( "camera_animation" ), self._unit:anim_length( Idstring( "camera_animation" ) ), 1.0 )
+	self._unit:anim_play( Idstring( "camera_animation" ), 1.0 )-- , self._unit:anim_length( Idstring( "camera_animation" ) ), 1.0 )
+	self._viewport:set_active(true)
 end
 
-WaitingForPlayersCamera.update = function(l_5_0, l_5_1, l_5_2, l_5_3)
-   -- DECOMPILER ERROR: unhandled construct in 'if'
-
-  if l_5_0._playing and l_5_0._wait_t and l_5_0._wait_t < l_5_2 then
-    l_5_0._wait_t = nil
-    l_5_0:stop()
-    do return end
-    if not l_5_0._unit:anim_is_playing(Idstring("camera_animation")) then
-      l_5_0._wait_t = l_5_2 + 4
-    end
-  end
+function WaitingForPlayersCamera:stop()
+	self._viewport:set_active(false)
+	self._unit:anim_stop( Idstring( "camera_animation" ) )
+	self._unit:anim_set_time( Idstring( "camera_animation" ), 0 )
+	
+	self._playing = false
 end
 
-WaitingForPlayersCamera.destroy = function(l_6_0)
-  if l_6_0._viewport then
-    l_6_0._viewport:destroy()
-    l_6_0._viewport = nil
-  end
-  if alive(l_6_0._camera) then
-    World:delete_camera(l_6_0._camera)
-    l_6_0._camera = nil
-  end
-  if l_6_0._listener_id then
-    managers.sound_environment:remove_check_object(l_6_0._sound_check_object)
-    managers.listener:remove_listener(l_6_0._listener_id)
-    managers.listener:remove_set("wait_camera")
-    l_6_0._listener_id = nil
-  end
+function WaitingForPlayersCamera:update( unit, t, dt )
+	if self._playing  then
+		if self._wait_t then
+			if self._wait_t < t then
+				 self._wait_t = nil
+				 self:stop()
+			end
+		elseif not self._unit:anim_is_playing( Idstring( "camera_animation" ) ) then
+			self._wait_t = t + 4
+		end
+	end
+	-- :set_default_up( rot:z() )
 end
 
+function WaitingForPlayersCamera:destroy()
+	if self._viewport then
+		self._viewport:destroy()
+		self._viewport = nil
+	end
+	
+	if alive(self._camera) then
+		World:delete_camera(self._camera)
+		self._camera = nil
+	end
+	
+	if self._listener_id then
+		managers.sound_environment:remove_check_object( self._sound_check_object )
+		managers.listener:remove_listener( self._listener_id )
+		managers.listener:remove_set( "wait_camera" )
+		self._listener_id = nil
+	end
+end
 

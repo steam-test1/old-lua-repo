@@ -1,35 +1,33 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\states\gamestate.luac 
+core:import( "CoreInternalGameState" )
 
-core:import("CoreInternalGameState")
-if not GameState then
-  GameState = class(CoreInternalGameState.GameState)
-end
-GameState.freeflight_drop_player = function(l_1_0, l_1_1, l_1_2)
-  if managers.player then
-    managers.player:warp_to(l_1_1, l_1_2)
-  end
+GameState = GameState or class( CoreInternalGameState.GameState )
+
+function GameState:freeflight_drop_player( pos, rot )
+	if( managers.player ) then
+		managers.player:warp_to( pos, rot )
+	end
 end
 
-GameState.set_controller_enabled = function(l_2_0, l_2_1)
+function GameState:set_controller_enabled( enabled ) end
+
+function GameState:default_transition( next_state, params )
+	self:at_exit( next_state, params )
+
+	self:set_controller_enabled( false )
+
+	if( self:gsm():is_controller_enabled() ) then
+		next_state:set_controller_enabled( true )
+	end
+
+	next_state:at_enter( self, params )
 end
 
-GameState.default_transition = function(l_3_0, l_3_1, l_3_2)
-  l_3_0:at_exit(l_3_1, l_3_2)
-  l_3_0:set_controller_enabled(false)
-  if l_3_0:gsm():is_controller_enabled() then
-    l_3_1:set_controller_enabled(true)
-  end
-  l_3_1:at_enter(l_3_0, l_3_2)
+function GameState:on_disconnected()
+	game_state_machine:change_state_by_name( "disconnected" )
 end
 
-GameState.on_disconnected = function(l_4_0)
-  game_state_machine:change_state_by_name("disconnected")
+function GameState:on_server_left()	
+	game_state_machine:change_state_by_name( "server_left" )
 end
 
-GameState.on_server_left = function(l_5_0)
-  game_state_machine:change_state_by_name("server_left")
-end
-
-CoreClass.override_class(CoreInternalGameState.GameState, GameState)
-
+CoreClass.override_class( CoreInternalGameState.GameState, GameState )

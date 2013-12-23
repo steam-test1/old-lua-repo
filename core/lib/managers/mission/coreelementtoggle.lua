@@ -1,46 +1,37 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\mission\coreelementtoggle.luac 
+core:module( "CoreElementToggle" )
+core:import( "CoreMissionScriptElement" )
 
-core:module("CoreElementToggle")
-core:import("CoreMissionScriptElement")
-if not ElementToggle then
-  ElementToggle = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementToggle.init = function(l_1_0, ...)
-  ElementToggle.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementToggle = ElementToggle or class( CoreMissionScriptElement.MissionScriptElement )
 
+function ElementToggle:init( ... )
+	ElementToggle.super.init( self, ... )
 end
 
-ElementToggle.client_on_executed = function(l_2_0, ...)
-  l_2_0:on_executed(...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function ElementToggle:client_on_executed( ... )
+	self:on_executed( ... )
 end
 
-ElementToggle.on_executed = function(l_3_0, l_3_1)
-  if not l_3_0._values.enabled then
-    return 
-  end
-  for _,id in ipairs(l_3_0._values.elements) do
-    local element = l_3_0:get_mission_element(id)
-    if element then
-      if l_3_0._values.toggle == "on" then
-        element:set_enabled(true)
-        if l_3_0._values.set_trigger_times and l_3_0._values.set_trigger_times > -1 then
-          element:set_trigger_times(l_3_0._values.set_trigger_times)
-        else
-          if l_3_0._values.toggle == "off" then
-            element:set_enabled(false)
-          else
-            element:set_enabled(not element:value("enabled"))
-          end
-        end
-      end
-      element:on_toggle(element:value("enabled"))
-    end
-  end
-  ElementToggle.super.on_executed(l_3_0, l_3_1)
+function ElementToggle:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	for _,id in ipairs( self._values.elements ) do
+		local element = self:get_mission_element( id )
+		if element then
+			if self._values.toggle == "on" then
+				element:set_enabled( true )
+				if self._values.set_trigger_times and  self._values.set_trigger_times > -1 then
+					element:set_trigger_times( self._values.set_trigger_times )
+				end
+			elseif self._values.toggle == "off" then
+				element:set_enabled( false )
+			else
+				element:set_enabled( not element:value( "enabled" ) )
+			end
+			element:on_toggle( element:value( "enabled" ) )
+		end
+	end
+	
+	ElementToggle.super.on_executed( self, instigator )
 end
-
-

@@ -1,24 +1,23 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\dialogs\selectuserdialog.luac 
+core:module( "SystemMenuManager" )
 
-core:module("SystemMenuManager")
-require("lib/managers/dialogs/BaseDialog")
-if not SelectUserDialog then
-  SelectUserDialog = class(BaseDialog)
-end
-SelectUserDialog.count = function(l_1_0)
-  return l_1_0._data.count or 1
-end
+require "lib/managers/dialogs/BaseDialog"
 
-SelectUserDialog.done_callback = function(l_2_0)
-  if l_2_0._data.callback_func then
-    l_2_0._data.callback_func()
-  end
-  l_2_0:fade_out_close()
+-- Abstract dialog:
+SelectUserDialog = SelectUserDialog or class( BaseDialog )
+
+function SelectUserDialog:count()
+	return self._data.count or 1
 end
 
-SelectUserDialog.to_string = function(l_3_0)
-  return string.format("%s, Count: %s", tostring(BaseDialog.to_string(l_3_0)), tostring(l_3_0._data.count))
+function SelectUserDialog:done_callback()
+	if( self._data.callback_func ) then
+		self._data.callback_func()
+	end
+
+	self:fade_out_close()
 end
 
-
+function SelectUserDialog:to_string()
+	return string.format( "%s, Count: %s",
+				tostring( BaseDialog.to_string( self ) ), tostring( self._data.count ) )
+end

@@ -1,343 +1,361 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\utils\corecode.luac 
 
-core:module("CoreCode")
-core:import("CoreTable")
-core:import("CoreDebug")
-core:import("CoreClass")
-core:import("CoreApp")
-local open_lua_source_file = function(l_1_0)
-  if DB:is_bundled() then
-    return "[N/A in bundle]"
-  end
-  local entry_type = Idstring("lua_source")
-  local entry_name = l_1_0:match("([^.]*)"):lower()
-  return DB:has(entry_type, entry_name:id()) and DB:open(entry_type, entry_name:id()) or nil
+core:module( "CoreCode" )
+
+core:import( "CoreTable" )
+core:import( "CoreDebug" )
+core:import( "CoreClass" )
+core:import( "CoreApp" )
+
+
+--[[ 
+
+The CoreCode module has functionality for inspection of
+objects, both on code level and object level, and for
+reporting memory usage.
+
+Please also see module 'CoreDebug'.
+
+]]-- 
+
+
+---------------------------------------------------------------------- 
+--  Functions for Accessing Source Code 
+----------------------------------------------------------------------
+local function open_lua_source_file(source)
+	if DB:is_bundled() then
+		return "[N/A in bundle]"
+	end
+	local entry_type = Idstring("lua_source")
+	local entry_name = source:match("([^\.]*)"):lower()
+	return DB:has(entry_type, entry_name:id()) and DB:open(entry_type, entry_name:id()) or nil
 end
 
-get_prototype = function(l_2_0)
-  if l_2_0.source == "=[C]" then
-    return "(C++ method)"
-  end
-  local prototype = l_2_0.source
-  local source_file = open_lua_source_file(l_2_0.source)
-  if source_file then
-    for i = 1, l_2_0.linedefined do
-      prototype = source_file:gets()
+-- Get a single-line function prototype
+function get_prototype(info)
+	if info.source == "=[C]" then
+		return "(C++ method)"
+	end
+	
+	local prototype = info.source -- We only return this if we can't do any better
+	local source_file = open_lua_source_file(info.source)
+	
+	if source_file then
+		for i = 1, info.linedefined do
+			prototype = source_file:gets()
+		end
+		source_file:close()
+	end
+	
+	return prototype
+end
+
+-- Get source code for a function
+function get_source(info)
+	if info.source == "=[C]" then
+		return "(C++ method)"
+	end
+	
+	local source_file = open_lua_source_file(info.source)
+	local lines = {}
+	
+	-- Append any comment lines immediately preceeding the function
+	for i = 1, info.linedefined - 1 do
+		local line = source_file:gets()
+		if line:match("^%s*%-%-") then
+			table.insert(lines, line)
+		else
+			lines = {}
+		end
+	end
+	
+	-- Append the lines of the function itself
+	for i = info.linedefined, info.lastlinedefined do
+		table.insert(lines, source_file:gets())
+	end
+	
+	source_file:close()
+	return table.concat(lines, "\n")
+end
+
+function traceback ( max_level )
+	-- set level = 3, to skip the three first function levels
+	max_level = max_level or 2
+	local level = 2
+	while true do
+		local info = debug.getinfo(level, "Sl")
+		if not info or level >= ( max_level + 2 ) then break end
+		
+		if info.what == "C" then   -- is a C function?
+			CoreDebug.cat_print( "debug", level, "C function" )
+		else   -- a Lua function
+			CoreDebug.cat_print( "debug", string.format( "[%s]:%d",
+              		info.source, info.currentline ) )
+		end
+		
+	level = level + 1
+	end
+end
+
+function alive(obj)
+	if obj and obj:alive() then
+		return true
+	end
+	return false
+end
+
+function deprecation_warning(method_name, breaking_release_name)
+	CoreDebug.cat_print("debug", string.format("DEPRECATION WARNING: %s will be removed in %s", method_name, breaking_release_name or "a future release"))
+end
+
+---------------------------------------------------------------------- 
+--  Functions for Printing Objects 
+---------------------------------------------------------------------- 
+
+--- Returns a iterator similar to pairs, except that the items
+--  has been sorted (on keys). If the optional parameter 'raw' 
+--  is true then the iterator uses rawget to get the values from 
+--  the table; by default the metatable is honored.
+--  @usage: sort_iterator( t [,raw] ) --> iterator; iterator() --> k,v
+local function sort_iterator(t,raw)
+    local sorted = {}
+    for k,v in pairs(t) do sorted[#sorted+1] = k end
+    table.sort(sorted, function (a,b)
+    	if type(a) == "number" then
+    		if type(b) == "number" then
+    			-- Both are numbers.
+	    		return a < b
+	    	else
+	    		-- A is a number but B is not. A should be ordered ahead of B
+	    		return true
+	    	end
+	    else
+	    	if type(b) == "number" then
+	    		-- B is a number but A is not. B should be oredered ahead of A
+	    		return false
+	    	end
+		end
+		-- Neither are numbers
+    	return tostring(a) < tostring(b)
+    end)
+    local index = 0
+    return function ()
+        index = index + 1 
+        local k = sorted[index]
+		if raw then
+			return k, rawget(t,k)
+		else
+	        return k, t[k]
+	    end 
     end
-    source_file:close()
-  end
-  return prototype
 end
 
-get_source = function(l_3_0)
-  if l_3_0.source == "=[C]" then
-    return "(C++ method)"
-  end
-  local source_file = open_lua_source_file(l_3_0.source)
-  local lines = {}
-  for i = 1, l_3_0.linedefined - 1 do
-    local line = source_file:gets()
-    if line:match("^%s*%-%-") then
-      table.insert(lines, line)
-    else
-      lines = {}
-    end
-  end
-  for i = l_3_0.linedefined, l_3_0.lastlinedefined do
-    table.insert(lines, source_file:gets())
-  end
-  source_file:close()
-  return table.concat(lines, "\n")
-end
-
-traceback = function(l_4_0)
-  if not l_4_0 then
-    l_4_0 = 2
-  end
-  local level = 2
-  repeat
-    local info = debug.getinfo(level, "Sl")
-    if info then
-      if l_4_0 + 2 <= level then
-        do return end
-      end
-      if info.what == "C" then
-        CoreDebug.cat_print("debug", level, "C function")
-      else
-        CoreDebug.cat_print("debug", string.format("[%s]:%d", info.source, info.currentline))
-      end
-      level = level + 1
-    else
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-alive = function(l_5_0)
-  if l_5_0 and l_5_0:alive() then
-    return true
-  end
-  return false
-end
-
-deprecation_warning = function(l_6_0, l_6_1)
-  CoreDebug.cat_print("debug", string.format("DEPRECATION WARNING: %s will be removed in %s", l_6_0, l_6_1 or "a future release"))
-end
-
-local sort_iterator = function(l_7_0, l_7_1)
-  local sorted = {}
-  for k,v in pairs(l_7_0) do
-    sorted[#sorted + 1] = k
-  end
-  table.sort(sorted, function(l_1_0, l_1_1)
-    if type(l_1_1) == "number" then
-      if l_1_0 >= l_1_1 then
-        return type(l_1_0) ~= "number"
-      end
-    else
-      return true
-      do return end
-      if type(l_1_1) == "number" then
-        return false
-      end
-    end
-    return tostring(l_1_0) < tostring(l_1_1)
-   end)
-  local index = 0
-  return function()
-    index = index + 1
-    local k = sorted[index]
-    if raw then
-      return k, rawget(t, k)
-    else
-      return k, t[k]
-    end
-   end
-end
-
-line_representation = function(l_8_0, l_8_1, l_8_2)
-  if DB:is_bundled() then
-    return "[N/A in bundle]"
-  end
-  local w = 60
-  if type(l_8_0) == "userdata" then
-    return tostring(l_8_0)
-  else
-    if type(l_8_0) == "table" then
-      if not l_8_1 then
-        l_8_1 = {}
-      end
-      if l_8_1[l_8_0] then
-        return "..."
-      end
-      l_8_1[l_8_0] = true
-      local r = "{"
-      for k,v in sort_iterator(l_8_0, l_8_2) do
-        r = r .. line_representation(k, l_8_1, l_8_2) .. "=" .. line_representation(v, l_8_1, l_8_2) .. ", "
-        if w < r:len() then
-          r = r:sub(1, w)
-          r = r .. "..."
-      else
+--- Returns a representation of an object suitable for printing on a
+--  single line. If the additional parameter 'raw' is true the values 
+--  of the table is retrieved with rawget; by default the metatable is 
+--  honored.
+function line_representation(x,seen,raw)
+	if DB:is_bundled() then
+		return "[N/A in bundle]"
+	end
+    local w = 60
+    if type(x) == "userdata" then
+        return tostring(x)
+    elseif type(x) == "table" then
+        if not seen then seen = {} end
+        if seen[x] then return "..." end
+        seen[x] = true
+        local r = "{"
+        for k,v in sort_iterator(x,raw) do
+            r = r .. line_representation(k,seen,raw) .. '=' .. line_representation(v,seen,raw) .. ', '
+            if r:len() > w then
+                r = r:sub(1,w)
+                r = r .. '...'
+                break
+            end
         end
-      end
-      r = r .. "}"
-      return r
-    else
-      if type(l_8_0) == "string" then
-        l_8_0 = string.gsub(l_8_0, "\n", "\\n")
-        l_8_0 = string.gsub(l_8_0, "\r", "\\r")
-        l_8_0 = string.gsub(l_8_0, "\t", "\\t")
-        if w < l_8_0:len() then
-          l_8_0 = l_8_0:sub(1, w) .. "..."
+        r = r .. '}'
+        return r
+    elseif type(x) == "string" then
+        x = string.gsub(x, '\n', '\\n')
+        x = string.gsub(x, '\r', '\\r')
+        x = string.gsub(x, '\t', '\\t')
+        if x:len() > w then
+            x = x:sub(1,w) .. '...'
         end
-        return l_8_0
-      else
-        if type(l_8_0) == "function" then
-          local info = debug.getinfo(l_8_0)
-          if info.source == "=[C]" then
+        return x
+    elseif type(x) == "function" then
+        local info = debug.getinfo(x)
+        if info.source == '=[C]' then
             return "(C++ method)"
-          else
-            return line_representation((get_prototype(info)), nil, l_8_2)
-          end
         else
-          return tostring(l_8_0)
+            return line_representation(get_prototype(info),nil,raw)
         end
-      end
-    end
-  end
-end
-
-full_representation = function(l_9_0, l_9_1)
-  if DB:is_bundled() then
-    return "[N/A in bundle]"
-  end
-  if type(l_9_0) == "function" then
-    local info = debug.getinfo(l_9_0)
-    return get_source(info)
-  else
-    if type(l_9_0) == "table" then
-      return ascii_table(l_9_0, true)
     else
-      return tostring(l_9_0)
+        return tostring(x)
     end
-     -- Warning: missing end command somewhere! Added here
-  end
 end
 
+-- Returns a representation of an object suitable for printing on multiple
+-- lines.
+function full_representation(x, seen)
+	if DB:is_bundled() then
+		return "[N/A in bundle]"
+	end
+	if type(x) == "function" then
+		local info = debug.getinfo(x)
+		return get_source(info)
+	elseif type(x) == "table" then
+		return ascii_table(x,true)
+--[[ This crashes on some userdata (ie SoundInstance:key()):
+	elseif type(x) == "userdata" and x.__properties and next(x.__properties) then
+		return tostring(x) .. "\nTry properties(...) for more detailed information"
+]]
+	else
+		return tostring(x)
+	end
+end
 inspect = full_representation
-properties = function(l_10_0)
-  local t = {}
-  for i,p in ipairs(l_10_0.__properties) do
-    t[p] = l_10_0[p](l_10_0)
-  end
-  CoreDebug.cat_print("debug", ascii_table(t))
+
+function properties(x)
+    local t = {}
+    for i,p in ipairs(x.__properties) do
+        t[p] = x[p](x)
+    end
+    CoreDebug.cat_print( "debug", ascii_table(t))
 end
 
-help = function(l_11_0)
-  local methods = {}
-  local add_methods = function(l_1_0)
-    if type(l_1_0) == "table" then
-      for k,v in pairs(l_1_0) do
-        if type(v) == "function" then
-          local info = debug.getinfo(v, "S")
-          if info.source ~= "=[C]" then
-            local h = get_prototype(info)
-            local name = k
-            k = nil
-            if h:match("= function") then
-              k = name
+-- List all functions in an object
+function help(o)
+    local methods = {}
+    local function add_methods(t)
+        if type(t) == "table" then
+            for k,v in pairs(t) do
+                if type(v) == "function" then
+                    local info = debug.getinfo(v, "S")
+                    if info.source ~= "=[C]" then
+                        local h = get_prototype(info)
+                        local name = k
+                        k = nil
+                        if h:match("= function") then k = name end
+                        k = k or h:match(":(.*)")
+                        k = k or h:match("%.(.*)")
+                        k = k or h
+                    end
+                    k = k .. string.rep(" ", 40 - #k)
+                    if info.what == "Lua" then
+                        k = k .. "(" .. info.source .. ":" .. info.linedefined .. ")"
+                    else
+                        k = k .. "(C++ function)"
+                    end
+                    methods[k] = true
+                end
             end
-            if not k then
-              k = h:match(":(.*)")
-            end
-            if not k then
-              k = h:match("%.(.*)")
-            end
-            if not k then
-              k = h
-            end
-          end
-          k = k .. string.rep(" ", 40 - #k)
-          if info.what == "Lua" then
-            k = k .. "(" .. info.source .. ":" .. info.linedefined .. ")"
-          else
-            k = k .. "(C++ function)"
-          end
-          methods[k] = true
         end
-      end
-    end
-    if getmetatable(l_1_0) then
-      add_methods(getmetatable(l_1_0))
-    end
-   end
-  add_methods(l_11_0)
-  local sorted_methods = {}
-  for k,v in pairs(methods) do
-    table.insert(sorted_methods, k)
-  end
-  table.sort(sorted_methods)
-  for i,name in ipairs(sorted_methods) do
-    CoreDebug.cat_print("debug", name)
-  end
-end
-
-ascii_table = function(l_12_0, l_12_1)
-  local out = ""
-  local klen = 20
-  local vlen = 20
-  for k,v in pairs(l_12_0) do
-    local kl = line_representation(k, nil, l_12_1):len() + 2
-    local vl = line_representation(v, nil, l_12_1):len() + 2
-    if klen < kl then
-      klen = kl
-    end
-    if vlen < vl then
-      vlen = vl
-    end
-  end
-  out = out .. "-":rep(klen + vlen + 5) .. "\n"
-  for k,v in sort_iterator(l_12_0, l_12_1) do
-    out = out .. "| " .. line_representation(k, nil, l_12_1):left(klen) .. "| " .. line_representation(v, nil, l_12_1):left(vlen) .. "|\n"
-  end
-  out = out .. "-":rep(klen + vlen + 5) .. "\n"
-  return out
-end
-
-memory_report = function(l_13_0)
-  local seen = {}
-  local count = {}
-  local name = {_G = _G}
-  for k,v in pairs(_G) do
-    if type(v) ~= "userdata" or not v:key() then
-      name[(type(v) ~= "userdata" or not v.key) and type(v) == "userdata" or v] = k
-    end
-  end
-  local simple = function(l_1_0)
-    local t = type(l_1_0)
-    if t == "table" then
-      return false
-    end
-    if t == "userdata" then
-      return getmetatable(t)
-    end
-    return true
-   end
-  local recurse = function(l_2_0, l_2_1, l_2_2)
-    local index = type(l_2_0) == "userdata" and l_2_0:key() or l_2_0
-    if seen[index] then
-      return 
-    end
-    seen[index] = true
-    if not name[index] and not name[getmetatable(l_2_0)] then
-      local t = l_2_1 .. "/" .. l_2_2
-    end
-    count[t] = (count[t] or 0) + 1
-    if type(l_2_0) == "table" then
-      for k,v in pairs(l_2_0) do
-        count[t .. "/*"] = (count[t .. "/*"] or 0) + 1
-        if not simple(v) and not seen[v] then
-          recurse(v, t, tostring(k))
+        if getmetatable(t) then
+            add_methods(getmetatable(t))
         end
-      end
     end
-    if CoreClass.type_name(l_2_0) == "Unit" then
-      for _,e in ipairs(l_2_0:extensions()) do
-        recurse(l_2_0[e](l_2_0), t, e)
-      end
+    add_methods(o)
+    local sorted_methods = {}
+    for k,v in pairs(methods) do table.insert(sorted_methods, k) end
+    table.sort(sorted_methods)
+    for i,name in ipairs(sorted_methods) do
+        CoreDebug.cat_print( "debug", name )
     end
-    if getmetatable(l_2_0) and not seen[getmetatable(l_2_0)] then
-      recurse(getmetatable(l_2_0), t, "metatable")
-    end
-   end
-  recurse(_G, nil, nil)
-  local units = World:unit_manager():get_units()
-  local is_windows = SystemInfo:platform() == Idstring("win32")
-  for _,u in ipairs(units) do
-    if not is_windows or not u:name():s() then
-      recurse(u, "Units", u:name(), u)
-    end
-  end
-  local total = 0
-  local res = {}
-  for k,v in pairs(count) do
-    total = total + v
-    if l_13_0 or 100 < v then
-      res[#res + 1] = string.format("%6i  %s", v, k)
-    end
-  end
-  table.sort(res)
-  for _,l in ipairs(res) do
-    CoreDebug.cat_print("debug", l)
-  end
-  CoreDebug.cat_print("debug", string.format("\n%6i  TOTAL", total))
 end
 
-if not __old_profiled then
-  __old_profiled = {}
+--- Formats and prints a table with ascii. If the additional 
+--  parameter 'raw' is true the values of the table is retrieved 
+--  with rawget; by default the metatable is honored. 
+function ascii_table(t,raw)
+    local out = ''
+    local klen = 20
+    local vlen = 20
+    for k,v in pairs(t) do
+        local kl = line_representation(k,nil,raw):len() + 2
+        local vl = line_representation(v,nil,raw):len() + 2
+        if kl > klen then klen = kl end
+        if vl > vlen then vlen = vl end
+    end
+    out = out .. ("-"):rep(klen+vlen+5) .. "\n"
+    for k,v in sort_iterator(t,raw) do
+        out = out .. "| " .. line_representation(k,nil,raw):left(klen) .. "| " .. 
+            line_representation(v,nil,raw):left(vlen) .."|\n"
+    end
+    out = out .. ("-"):rep(klen+vlen+5) .. "\n"
+    return out
 end
+
+----------------------------------------------------------------------
+-- Functions to facilitate reducing lua memory
+----------------------------------------------------------------------
+function memory_report( limit )
+    local seen = {}
+    local count = {}
+    
+    local name = {_G = _G}
+    for k,v in pairs(_G) do
+    	if (type(v) == "userdata" and v.key or type(v) ~= "userdata" ) then
+    		name[ type(v) == "userdata" and v:key() or v] = k
+    	end
+    end
+    
+    local function simple(item)
+        local t = type(item)
+        if t == "table" then return false end
+        if t == "userdata" then return getmetatable(t) end
+        return true
+    end
+    
+    local function recurse(item, parent, key)
+    	local index = type(item) == "userdata" and item:key() or item
+        if seen[index] then return end
+        seen[index] = true
+        local t = name[index] or name[getmetatable(item)] or (parent .. "/" .. key)
+        count[t] = (count[t] or 0) + 1
+        if type(item) == "table" then
+            for k,v in pairs(item) do
+                count[t .. "/*"] = (count[t .. "/*"] or 0) + 1
+                if not simple(v) and not seen[v] then
+                    recurse(v, t, tostring(k))
+                end
+            end
+        end
+       if CoreClass.type_name(item) == "Unit" then
+            for _,e in ipairs(item:extensions()) do
+                recurse(item[e](item), t, e)
+            end
+        end
+        if getmetatable(item) and not seen[getmetatable(item)] then
+          recurse(getmetatable(item), t, "metatable")
+        end
+    end
+    
+    recurse(_G, nil, nil)
+    local units = World:unit_manager():get_units()
+    local is_windows = SystemInfo:platform() == Idstring( "win32" )
+    for _,u in ipairs(units) do
+    	recurse(u, "Units", is_windows and u:name():s() or u:name(), u)
+    end
+
+    local total = 0
+    local res = {}
+    for k,v in pairs(count) do
+        total = total + v
+        if v > (limit or 100) then 
+            res[#res + 1] = string.format("%6i  %s", v, k)
+        end
+    end
+    table.sort(res)
+    for _,l in ipairs(res) do CoreDebug.cat_print( "debug", l) end
+    CoreDebug.cat_print( "debug", string.format("\n%6i  TOTAL", total))
+end
+
+----------------------------------------------------------------------
+-- Functions to profile lua code
+----------------------------------------------------------------------
+
+__old_profiled = __old_profiled or {}
 if __profiled then
   __old_profiled = __profiled
   for k,v in pairs(__profiled) do
@@ -345,64 +363,59 @@ if __profiled then
   end
 end
 __profiled = {}
-profile = function(l_14_0)
-  if __profiled[l_14_0] then
-    return 
-  end
-  local t = {}
-  t.s = l_14_0
-  local start, stop = l_14_0:find(":")
-  if start then
-    t.class = l_14_0:sub(0, start - 1)
-    t.name = l_14_0:sub(stop + 1)
-    if not rawget(_G, t.class) then
-      CoreDebug.cat_print("debug", "Could not find class " .. t.class)
-      return 
-    end
-    t.f = rawget(_G, t.class)[t.name]
-    t.patch = function(l_1_0)
-      _G[t.class][t.name] = l_1_0
-      end
-  else
-    t.name = l_14_0
-    t.f = rawget(_G, t.name)
-    t.patch = function(l_2_0)
-      _G[t.name] = l_2_0
-      end
-  end
-  if not t.f or type(t.f) ~= "function" then
-    CoreDebug.cat_print("debug", "Could not find function " .. l_14_0)
-    return 
-  end
-  t.instrumented = function(...)
-    do
-      local id = Profiler:start(t.s)
-      res = t.f(...)
-      Profiler:stop(id)
-      return res
-    end
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
 
-   end
-  t.patch(t.instrumented)
-  __profiled[l_14_0] = t
-  Application:console_command("profiler add " .. l_14_0)
+function profile(s)
+	if __profiled[s] then return end
+	
+	local t = {}
+	t.s = s
+	local start, stop = s:find(":")
+	if start then
+		t.class = s:sub(0,start-1)
+		t.name = s:sub(stop+1)
+		if not rawget(_G, t.class) then
+			CoreDebug.cat_print( "debug", "Could not find class " .. t.class)
+			return
+		end
+		t.f = rawget(_G, t.class)[t.name]
+		t.patch = function(f) _G[t.class][t.name] = f end
+	else
+		t.name = s
+		t.f = rawget(_G, t.name)
+		t.patch = function(f) _G[t.name] = f end
+	end
+	
+	if not t.f or type(t.f) ~= "function" then
+		CoreDebug.cat_print( "debug", "Could not find function " .. s)
+		return
+	end
+	
+	t.instrumented = function (...)
+		local id = Profiler:start(t.s)
+		res = t.f(...)
+		Profiler:stop(id)
+		return res
+	end
+	t.patch(t.instrumented)
+	__profiled[s] = t
+	
+	Application:console_command("profiler add " .. s)
 end
 
-unprofile = function(l_15_0)
-  local t = __profiled[l_15_0]
-  if t then
-    t.patch(t.f)
-  end
-  Application:console_command("profiler remove " .. l_15_0)
-  __profiled[l_15_0] = nil
+function unprofile(s)
+	local t = __profiled[s]
+	if t then
+		t.patch(t.f)
+	end
+	Application:console_command("profiler remove " .. s)
+	__profiled[s] = nil
 end
 
-reprofile = function()
-  for k,v in pairs(__old_profiled) do
-    profile(k)
-  end
-  __old_profiled = {}
+function reprofile()
+	for k,v in pairs(__old_profiled) do
+		profile(k)
+	end
+	__old_profiled = {}
 end
 
 

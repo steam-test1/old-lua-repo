@@ -1,197 +1,155 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\platformmanager.luac 
+core:module( "PlatformManager" )
 
-core:module("PlatformManager")
-core:import("CoreEvent")
-if not PlatformManager then
-  PlatformManager = class()
-end
+core:import( "CoreEvent" )
+
+PlatformManager = PlatformManager or class()
 PlatformManager.PLATFORM_CLASS_MAP = {}
-PlatformManager.new = function(l_1_0, ...)
-  do
-    local platform = SystemInfo:platform()
-    return l_1_0.PLATFORM_CLASS_MAP[platform:key()] or GenericPlatformManager:new(...)
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
 
+function PlatformManager:new( ... )
+	local platform = SystemInfo:platform()
+	return ( self.PLATFORM_CLASS_MAP[ platform:key() ] or GenericPlatformManager ):new( ... )
 end
 
-if not GenericPlatformManager then
-  GenericPlatformManager = class()
-end
-GenericPlatformManager.init = function(l_2_0)
-  l_2_0._event_queue_list = {}
-  l_2_0._event_callback_handler_map = {}
-  l_2_0._current_presence = "Idle"
-  l_2_0._current_rich_presence = "Idle"
-end
 
-GenericPlatformManager.event = function(l_3_0, l_3_1, ...)
-  table.insert(l_3_0._event_queue_list, {event_type = l_3_1, param_list = {...}})
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
 
+GenericPlatformManager = GenericPlatformManager or class()
+
+function GenericPlatformManager:init()
+	self._event_queue_list = {}
+	self._event_callback_handler_map = {}
+	
+	self._current_presence = "Idle"
+	self._current_rich_presence = "Idle"
 end
 
-GenericPlatformManager.destroy_context = function(l_4_0)
+function GenericPlatformManager:event( event_type, ... )
+	-- print( "   GenericPlatformManager:event", event_type, inspect( { ... } ) )
+	table.insert( self._event_queue_list, { event_type = event_type, param_list = { ... } } )
 end
 
-GenericPlatformManager.add_event_callback = function(l_5_0, l_5_1, l_5_2)
-  if not l_5_0._event_callback_handler_map[l_5_1] then
-    l_5_0._event_callback_handler_map[l_5_1] = CoreEvent.CallbackEventHandler:new()
-  end
-  l_5_0._event_callback_handler_map[l_5_1]:add(l_5_2)
+function GenericPlatformManager:destroy_context() end
+
+function GenericPlatformManager:add_event_callback( event_type, callback_func )
+	self._event_callback_handler_map[ event_type ] = self._event_callback_handler_map[ event_type ] or CoreEvent.CallbackEventHandler:new()
+	self._event_callback_handler_map[ event_type ]:add( callback_func )
 end
 
-GenericPlatformManager.remove_event_callback = function(l_6_0, l_6_1, l_6_2)
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
+function GenericPlatformManager:remove_event_callback( event_type, callback_func )
+	assert( event_type and self._event_callback_handler_map[ event_type ], "Tried to remove non-existing callback on event type \"" .. tostring( event_type ) .. "\"." )
 
-end
-assert(l_6_0._event_callback_handler_map[l_6_1], "Tried to remove non-existing callback on event type \"" .. tostring(l_6_1) .. "\".")
-l_6_0._event_callback_handler_map[l_6_1]:remove(l_6_2)
-if not next(l_6_0._event_callback_handler_map[l_6_1]) then
-  l_6_0._event_callback_handler_map[l_6_1] = nil
-end
-end
+	self._event_callback_handler_map[ event_type ]:remove( callback_func )
 
-GenericPlatformManager.update = function(l_7_0, l_7_1, l_7_2)
-  if next(l_7_0._event_queue_list) then
-    for _,event in ipairs(l_7_0._event_queue_list) do
-      local callback_handler = l_7_0._event_callback_handler_map[event.event_type]
-      if callback_handler then
-        callback_handler:dispatch(unpack(event.param_list))
-      end
-    end
-    l_7_0._event_queue_list = {}
-  end
+	if( not next( self._event_callback_handler_map[ event_type ] ) ) then
+		self._event_callback_handler_map[ event_type ] = nil
+	end
 end
 
-GenericPlatformManager.paused_update = function(l_8_0, l_8_1, l_8_2)
-  l_8_0:update(l_8_1, l_8_2)
+function GenericPlatformManager:update( t, dt )
+	if( next( self._event_queue_list ) ) then
+		for _,event in ipairs( self._event_queue_list ) do
+			local callback_handler = self._event_callback_handler_map[ event.event_type ]
+
+			if( callback_handler ) then
+				callback_handler:dispatch( unpack( event.param_list ) )
+			end
+		end
+
+		self._event_queue_list = {}
+	end
 end
 
-GenericPlatformManager.set_presence = function(l_9_0, l_9_1)
-  l_9_0._current_presence = l_9_1
+function GenericPlatformManager:paused_update( t, dt )
+	self:update( t, dt )
 end
 
-GenericPlatformManager.presence = function(l_10_0)
-  return l_10_0._current_presence
+function GenericPlatformManager:set_presence( name )
+	self._current_presence = name
 end
 
-GenericPlatformManager.set_rich_presence = function(l_11_0, l_11_1)
-  l_11_0._current_rich_presence = l_11_1
+function GenericPlatformManager:presence()
+	return self._current_presence
 end
 
-GenericPlatformManager.rich_presence = function(l_12_0)
-  return l_12_0._current_rich_presence
+function GenericPlatformManager:set_rich_presence( name )
+	self._current_rich_presence = name
 end
 
-GenericPlatformManager.translate_path = function(l_13_0, l_13_1)
-  return string.gsub(l_13_1, "/+([~/]*)", "\\%1")
+function GenericPlatformManager:rich_presence()
+	return self._current_rich_presence
 end
 
-if not Xbox360PlatformManager then
-  Xbox360PlatformManager = class(GenericPlatformManager)
-end
-local l_0_0 = PlatformManager.PLATFORM_CLASS_MAP
-local l_0_1 = _G.Idstring("X360"):key()
-l_0_0[l_0_1] = Xbox360PlatformManager
-l_0_0 = Xbox360PlatformManager
-l_0_1 = function(l_14_0)
-  GenericPlatformManager.init(l_14_0)
-  XboxLive:set_callback(callback(l_14_0, l_14_0, "event"))
+function GenericPlatformManager:translate_path( path )
+	return string.gsub( path, "/+([~/]*)", "\\%1" )
 end
 
-l_0_0.init = l_0_1
-l_0_0 = Xbox360PlatformManager
-l_0_1 = function(l_15_0)
-  GenericPlatformManager.destroy_context(l_15_0)
-  XboxLive:set_callback(nil)
+
+Xbox360PlatformManager = Xbox360PlatformManager or class( GenericPlatformManager )
+PlatformManager.PLATFORM_CLASS_MAP[ _G.Idstring( "X360" ):key() ] = Xbox360PlatformManager
+
+function Xbox360PlatformManager:init()
+	GenericPlatformManager.init( self )
+
+	XboxLive:set_callback( callback( self, self, "event" ) )
 end
 
-l_0_0.destroy_context = l_0_1
-l_0_0 = Xbox360PlatformManager
-l_0_1 = function(l_16_0, l_16_1, l_16_2)
-  print("Xbox360PlatformManager:set_rich_presence", l_16_1)
-  GenericPlatformManager.set_rich_presence(l_16_0, l_16_1)
-  if l_16_2 then
-    XboxLive:set_context(managers.user:get_platform_id(), "presence", l_16_1, l_16_2)
-  else
-    XboxLive:set_context(managers.user:get_platform_id(), "presence", l_16_1, function()
-   end)
-  end
+function Xbox360PlatformManager:destroy_context()
+	GenericPlatformManager.destroy_context( self )
+
+	XboxLive:set_callback( nil )
 end
 
-l_0_0.set_rich_presence = l_0_1
-l_0_0 = Xbox360PlatformManager
-l_0_1 = function(l_17_0, l_17_1, l_17_2)
-  GenericPlatformManager.set_presence(l_17_0, l_17_1)
+function Xbox360PlatformManager:set_rich_presence( name, callback )
+	print( "Xbox360PlatformManager:set_rich_presence", name )
+	GenericPlatformManager.set_rich_presence( self, name )
+	if(callback)then
+		XboxLive:set_context( managers.user:get_platform_id(), "presence", name, callback )
+	else
+		XboxLive:set_context( managers.user:get_platform_id(), "presence", name, function () end )
+	end
 end
 
-l_0_0.set_presence = l_0_1
-l_0_0 = PS3PlatformManager
-if not l_0_0 then
-  l_0_0 = class
-  l_0_1 = GenericPlatformManager
-  l_0_0 = l_0_0(l_0_1)
-end
-PS3PlatformManager = l_0_0
-l_0_0 = PlatformManager
-l_0_0 = l_0_0.PLATFORM_CLASS_MAP
-l_0_1 = _G
-l_0_1 = l_0_1.Idstring
-l_0_1 = l_0_1("PS3")
- -- DECOMPILER ERROR: Overwrote pending register.
-
-l_0_1 = l_0_1:key
-l_0_0[l_0_1] = PS3PlatformManager
-l_0_0 = PS3PlatformManager
-l_0_1 = function(l_18_0, ...)
-  PS3PlatformManager.super.init(l_18_0, ...)
-  l_18_0._current_psn_presence = ""
-  l_18_0._psn_set_presence_time = 0
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function Xbox360PlatformManager:set_presence( name, callback )
+	-- if self._presence_modes[ name ] then
+		GenericPlatformManager.set_presence( self, name )
+		--[[if(callback)then
+			XboxLive:set_context( managers.user:get_platform_id(), "presence", name, callback )
+		else
+			XboxLive:set_context( managers.user:get_platform_id(), "presence", name, function () end )
+		end]]
+	-- else
+	--	Application:error( "No such presence: " .. tostring( name ) )
+	-- end
 end
 
-l_0_0.init = l_0_1
-l_0_0 = PS3PlatformManager
-l_0_1 = function(l_19_0, l_19_1)
-  return string.gsub(l_19_1, "\\+([~\\]*)", "/%1")
+PS3PlatformManager = PS3PlatformManager or class( GenericPlatformManager )
+PlatformManager.PLATFORM_CLASS_MAP[ _G.Idstring( "PS3" ):key() ] = PS3PlatformManager
+
+function PS3PlatformManager:init( ... )
+	PS3PlatformManager.super.init( self, ... )
+	self._current_psn_presence = ""
+	self._psn_set_presence_time = 0
 end
 
-l_0_0.translate_path = l_0_1
-l_0_0 = PS3PlatformManager
-l_0_1 = function(l_20_0, l_20_1, l_20_2)
-  PS3PlatformManager.super.update(l_20_0, l_20_1, l_20_2)
-  if l_20_0._current_psn_presence ~= l_20_0:presence() and l_20_0._psn_set_presence_time <= l_20_1 then
-    l_20_0._psn_set_presence_time = l_20_1 + 10
-    l_20_0._current_psn_presence = l_20_0:presence()
-    print("SET PRESENCE", l_20_0._current_psn_presence)
-    PSN:set_presence_info(l_20_0._current_psn_presence)
-  end
+function PS3PlatformManager:translate_path( path )
+	return string.gsub( path, "\\+([~\\]*)", "/%1" )
 end
 
-l_0_0.update = l_0_1
-l_0_0 = PS3PlatformManager
-l_0_1 = function(l_21_0, l_21_1)
-  GenericPlatformManager.set_presence(l_21_0, l_21_1)
+function PS3PlatformManager:update( t, dt )
+	PS3PlatformManager.super.update( self, t, dt )
+	if( self._current_psn_presence ~= self:presence() and t >= self._psn_set_presence_time ) then
+		self._psn_set_presence_time = t + 10
+		self._current_psn_presence = self:presence()
+		print( "SET PRESENCE", self._current_psn_presence )
+		PSN:set_presence_info( self._current_psn_presence )
+	end
 end
 
-l_0_0.set_presence = l_0_1
-l_0_0 = WinPlatformManager
-if not l_0_0 then
-  l_0_0 = class
-  l_0_1 = GenericPlatformManager
-  l_0_0 = l_0_0(l_0_1)
+function PS3PlatformManager:set_presence( name )
+	GenericPlatformManager.set_presence( self, name )
+	-- PSN:set_presence_info( name )
 end
-WinPlatformManager = l_0_0
-l_0_0 = PlatformManager
-l_0_0 = l_0_0.PLATFORM_CLASS_MAP
-l_0_1 = _G
-l_0_1 = l_0_1.Idstring
-l_0_1 = l_0_1("WIN32")
- -- DECOMPILER ERROR: Overwrote pending register.
 
-l_0_1 = l_0_1:key
-l_0_0[l_0_1] = WinPlatformManager
 
+
+WinPlatformManager = WinPlatformManager or class( GenericPlatformManager )
+PlatformManager.PLATFORM_CLASS_MAP[ _G.Idstring( "WIN32" ):key() ] = WinPlatformManager

@@ -1,26 +1,33 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\viewport\interfaces\coreenvironmentfoginterface.luac 
-
 core:module("CoreEnvironmentFogInterface")
+
 core:import("CoreClass")
-if not EnvironmentFogInterface then
-  EnvironmentFogInterface = CoreClass.class()
+
+EnvironmentFogInterface = EnvironmentFogInterface or CoreClass.class()
+
+EnvironmentFogInterface.DATA_PATH = {"post_effect", "fog_processor", "fog", "fog"}
+EnvironmentFogInterface.SHARED = false
+
+----------------------------------------------------------------------------
+--
+--    P U B L I C
+--
+----------------------------------------------------------------------------
+
+function EnvironmentFogInterface:init(handle)
+	self._handle = handle
 end
-local l_0_0 = EnvironmentFogInterface
-do
-  local l_0_1 = {}
-   -- DECOMPILER ERROR: No list found. Setlist fails
 
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
+function EnvironmentFogInterface:parameters()
+	return table.list_copy( self._handle:parameters() )
 end
- -- Warning: undefined locals caused missing assignments!
 
+----------------------------------------------------------------------------
+--
+--    P R I V A T E
+--
+----------------------------------------------------------------------------
+
+function EnvironmentFogInterface:_process_return(params)
+	assert(table.maxn(params) == 4, "[EnvironmentFogInterface] You did not return all parameters!")
+	return params
+end

@@ -1,12 +1,6 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\menu\renderers\menunodehiddengui.luac 
+MenuNodeHiddenGui = MenuNodeHiddenGui or class( MenuNodeGui )
 
-if not MenuNodeHiddenGui then
-  MenuNodeHiddenGui = class(MenuNodeGui)
+function MenuNodeHiddenGui:_create_menu_item( row_item )
+	MenuNodeHiddenGui.super._create_menu_item( self, row_item )
+	row_item.gui_panel:hide()
 end
-MenuNodeHiddenGui._create_menu_item = function(l_1_0, l_1_1)
-  MenuNodeHiddenGui.super._create_menu_item(l_1_0, l_1_1)
-  l_1_1.gui_panel:hide()
-end
-
-

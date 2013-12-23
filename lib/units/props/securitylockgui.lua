@@ -1,252 +1,377 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\props\securitylockgui.luac 
+SecurityLockGui = SecurityLockGui or class()
 
-if not SecurityLockGui then
-  SecurityLockGui = class()
-end
-SecurityLockGui.init = function(l_1_0, l_1_1)
-  l_1_0._unit = l_1_1
-  l_1_0._visible = true
-  l_1_0._powered = true
-  l_1_0._gui_start = l_1_0._gui_start or "prop_timer_gui_start"
-  l_1_0._gui_working = "prop_timer_gui_working"
-  l_1_0._gui_done = "prop_timer_gui_done"
-  l_1_0._cull_distance = l_1_0._cull_distance or 5000
-  l_1_0._size_multiplier = l_1_0._size_multiplier or 1
-  l_1_0._gui_object = l_1_0._gui_object or "gui_name"
-  l_1_0._bars = l_1_0._bars or 3
-  l_1_0._done_bars = {}
-  l_1_0._5sec_bars = {}
-  l_1_0._new_gui = World:newgui()
-  l_1_0:add_workspace(l_1_0._unit:get_object(Idstring(l_1_0._gui_object)))
-  l_1_0:setup()
-  l_1_0._unit:set_extension_update_enabled(Idstring("timer_gui"), false)
-  l_1_0._update_enabled = false
-end
+--[[
+	Units using this extensions needs to have these sequences:
+	done_1	done_2	done_3
+	5sec_1	5sec_2	5sec_3
+]]
 
-SecurityLockGui.add_workspace = function(l_2_0, l_2_1)
-  l_2_0._ws = l_2_0._new_gui:create_object_workspace(0, 0, l_2_1, Vector3(0, 0, 0))
-  l_2_0._gui = l_2_0._ws:panel():gui(Idstring("guis/security_lock_gui"))
-  l_2_0._gui_script = l_2_0._gui:script()
-end
-
-SecurityLockGui.setup = function(l_3_0)
-  l_3_0._gui_script.working_text:set_render_template(Idstring("VertexColorTextured"))
-  l_3_0._gui_script.time_header_text:set_render_template(Idstring("VertexColorTextured"))
-  l_3_0._gui_script.time_text:set_render_template(Idstring("VertexColorTextured"))
-  l_3_0._gui_script.screen_background:set_size(l_3_0._gui_script.screen_background:parent():size())
-  local gui_w, gui_h = l_3_0._gui_script.screen_background:parent():size()
-  local pad = 64
-  local bar_pad = 16
-  for i = 1, 3 do
-    local icon = l_3_0._gui_script.timer_icon" .. 
-    local timer_bg = l_3_0._gui_script.timer" .. i .. "_background
-    local timer = l_3_0._gui_script.timer" .. 
-    local title = l_3_0._gui_script.timer" .. i .. "_title
-    local visible = i <= l_3_0._bars
-    icon:set_visible(visible)
-    timer_bg:set_visible(visible)
-    timer:set_visible(visible)
-    title:set_visible(visible)
-    title:set_render_template(Idstring("VertexColorTextured"))
-    icon:set_size(132, 132)
-    icon:set_x(pad)
-    icon:set_y(pad + icon:h() * (i - 1) + pad * (i - 1) + 350)
-    local w, h = icon:size()
-    timer_bg:set_h(h / 2)
-    timer:set_h(timer_bg:h() - 8)
-    title:set_h(h / 2)
-    title:set_text(managers.localization:text("prop_security_lock_title", {NR = i}))
-    title:set_font_size(h / 2 * l_3_0._size_multiplier)
-    title:set_top(icon:top())
-    title:set_left(icon:right() + pad)
-    title:set_w(gui_w - (pad * 3 + w))
-    timer_bg:set_bottom(icon:bottom())
-    timer_bg:set_left(icon:right() + pad / 2)
-    timer_bg:set_w(gui_w - (pad * 3 + w))
-    timer:set_h(timer_bg:h() - bar_pad)
-    timer:set_w(timer_bg:w() - bar_pad)
-    timer:set_center(timer_bg:center())
-    l_3_0._timer_lenght = timer:w()
-    timer:set_w(0)
-  end
-  l_3_0._gui_script.working_text:set_center_x(l_3_0._gui_script.working_text:parent():w() / 2)
-  l_3_0._gui_script.working_text:set_center_y(l_3_0._gui_script.working_text:parent():h() / 1.25)
-  l_3_0._gui_script.working_text:set_font_size(80 * l_3_0._size_multiplier)
-  l_3_0._gui_script.working_text:set_text(managers.localization:text(l_3_0._gui_start))
-  l_3_0._gui_script.working_text:set_visible(true)
-  l_3_0._gui_script.time_header_text:set_font_size(80 * l_3_0._size_multiplier)
-  l_3_0._gui_script.time_header_text:set_visible(false)
-  l_3_0._gui_script.time_header_text:set_center_x(l_3_0._gui_script.working_text:parent():w() / 2)
-  l_3_0._gui_script.time_header_text:set_center_y(l_3_0._gui_script.working_text:parent():h() / 1.25)
-  l_3_0._gui_script.time_text:set_font_size(110 * l_3_0._size_multiplier)
-  l_3_0._gui_script.time_text:set_visible(false)
-  l_3_0._gui_script.time_text:set_center_x(l_3_0._gui_script.working_text:parent():w() / 2)
-  l_3_0._gui_script.time_text:set_center_y(l_3_0._gui_script.working_text:parent():h() / 1.1499999761581)
-  l_3_0._original_colors = {}
-  for _,child in ipairs(l_3_0._gui_script.panel:children()) do
-    l_3_0._original_colors[child:key()] = child:color()
-  end
+function SecurityLockGui:init( unit )
+	self._unit = unit
+	self._visible = true
+	self._powered = true
+		
+	self._gui_start = self._gui_start or "prop_timer_gui_start"
+	self._gui_working = "prop_timer_gui_working"
+	-- self._gui_malfunction = "prop_timer_gui_malfunction"
+	self._gui_done = "prop_timer_gui_done"
+			
+	self._cull_distance = self._cull_distance or 5000
+	self._size_multiplier = self._size_multiplier or 1
+	self._gui_object = self._gui_object or "gui_name"
+	
+	self._bars = self._bars or 3
+	self._done_bars = {}
+	self._5sec_bars = {}
+	
+	self._new_gui = World:newgui()
+	
+	self:add_workspace( self._unit:get_object( Idstring( self._gui_object ) ) )
+		
+	self:setup()
+	
+	self._unit:set_extension_update_enabled( Idstring( "timer_gui" ), false )
+	self._update_enabled = false
 end
 
-SecurityLockGui._start = function(l_4_0, l_4_1, l_4_2, l_4_3)
-  l_4_0._current_bar = l_4_1
-  l_4_0._started = true
-  l_4_0._done = false
-  l_4_0._timer = l_4_2 or 5
-  if not l_4_3 then
-    l_4_0._current_timer = l_4_0._timer
-  end
-  l_4_0._gui_script.timer_icon" .. l_4_0._current_ba:set_image("units/world/architecture/secret_stash/props_textures/security_station_locked_df")
-  l_4_0._gui_script.timer" .. l_4_0._current_ba:set_w(l_4_0._timer_lenght * (1 - l_4_0._current_timer / l_4_0._timer))
-  l_4_0._gui_script.working_text:set_visible(false)
-  l_4_0._unit:set_extension_update_enabled(Idstring("timer_gui"), true)
-  l_4_0._update_enabled = true
-  l_4_0:post_event(l_4_0._start_event)
-  l_4_0._gui_script.time_header_text:set_visible(true)
-  l_4_0._gui_script.time_text:set_visible(true)
-  l_4_0._gui_script.time_text:set_text(math.floor(l_4_0._current_timer) .. " " .. managers.localization:text("prop_timer_gui_seconds"))
-  if Network:is_client() then
-    return 
-  end
+function SecurityLockGui:add_workspace( gui_object )
+	self._ws = self._new_gui:create_object_workspace( 0, 0, gui_object, Vector3(0,0,0) )
+	self._gui = self._ws:panel():gui( Idstring( "guis/security_lock_gui" ) )
+	self._gui_script = self._gui:script()
 end
 
-SecurityLockGui.restart = function(l_5_0, l_5_1, l_5_2)
-  l_5_0:start(l_5_1, l_5_2, true)
+function SecurityLockGui:setup()
+	self._gui_script.working_text:set_render_template( Idstring("VertexColorTextured") )
+	self._gui_script.time_header_text:set_render_template( Idstring("VertexColorTextured") )
+	self._gui_script.time_text:set_render_template( Idstring("VertexColorTextured") )
+		
+	self._gui_script.screen_background:set_size( self._gui_script.screen_background:parent():size() )
+	
+	local gui_w, gui_h = self._gui_script.screen_background:parent():size()
+	
+	local pad = 64
+	local bar_pad = 16
+	for i = 1, 3 do
+		local icon = self._gui_script[ "timer_icon"..i ]
+		local timer_bg = self._gui_script[ "timer"..i.."_background" ]
+		local timer = self._gui_script[ "timer"..i ]
+		local title = self._gui_script[ "timer"..i.."_title" ]
+		local visible = i <= self._bars
+		icon:set_visible( visible )
+		timer_bg:set_visible( visible )
+		timer:set_visible( visible )
+		title:set_visible( visible )
+		title:set_render_template( Idstring("VertexColorTextured") )
+						
+		icon:set_size( 132, 132 )
+		
+		icon:set_x( pad )
+		icon:set_y( pad + icon:h() * (i-1) + pad * (i-1) +350)
+		
+		local w,h = icon:size()
+		timer_bg:set_h( h/2 )
+		timer:set_h( timer_bg:h() - 8 )
+		title:set_h( h/2 )
+		
+		title:set_text( managers.localization:text( "prop_security_lock_title", { NR = i } ) )
+		title:set_font_size( h/2*self._size_multiplier )
+		title:set_top( icon:top() )
+		title:set_left( icon:right() + pad )
+		title:set_w( gui_w - (pad * 3 + w) )
+		
+		timer_bg:set_bottom( icon:bottom() )
+		timer_bg:set_left( icon:right() + pad/2 )
+		timer_bg:set_w( gui_w - (pad * 3 + w) )
+		timer:set_h( timer_bg:h() - bar_pad )
+		timer:set_w( timer_bg:w() - bar_pad )
+		timer:set_center( timer_bg:center() )
+		
+		self._timer_lenght = timer:w() -- Same for all
+		
+		timer:set_w( 0 )
+	end
+		
+	self._gui_script.working_text:set_center_x( self._gui_script.working_text:parent():w()/2 )
+	self._gui_script.working_text:set_center_y( self._gui_script.working_text:parent():h()/1.25 )
+	self._gui_script.working_text:set_font_size( 80*self._size_multiplier )
+	self._gui_script.working_text:set_text( managers.localization:text( self._gui_start ) )
+	self._gui_script.working_text:set_visible( true )
+	
+	self._gui_script.time_header_text:set_font_size( 80*self._size_multiplier )
+	self._gui_script.time_header_text:set_visible( false )
+	self._gui_script.time_header_text:set_center_x( self._gui_script.working_text:parent():w()/2 )
+	self._gui_script.time_header_text:set_center_y( self._gui_script.working_text:parent():h()/1.25 )
+	
+	self._gui_script.time_text:set_font_size( 110*self._size_multiplier )
+	self._gui_script.time_text:set_visible( false )
+	self._gui_script.time_text:set_center_x( self._gui_script.working_text:parent():w()/2 )
+	self._gui_script.time_text:set_center_y( self._gui_script.working_text:parent():h()/1.15 )
+	
+	self._original_colors = {}
+	
+	for _,child in ipairs( self._gui_script.panel:children() ) do
+		self._original_colors[ child:key() ] = child:color()	
+	end
+
 end
 
-SecurityLockGui.start = function(l_6_0, l_6_1, l_6_2, l_6_3)
-  if not l_6_3 and l_6_0._started then
-    return 
-  end
-  l_6_0:_start(l_6_1, l_6_2)
-  if managers.network:session() then
-     -- Warning: missing end command somewhere! Added here
-  end
+function SecurityLockGui:_start( bar, timer, current_timer )
+	self._current_bar = bar
+	self._started = true
+	self._done = false
+	self._timer = timer or 5
+	self._current_timer = current_timer or self._timer
+	self._gui_script[ "timer_icon"..self._current_bar ]:set_image( "units/world/architecture/secret_stash/props_textures/security_station_locked_df" )
+	self._gui_script[ "timer"..self._current_bar ]:set_w( self._timer_lenght * (1 - self._current_timer/self._timer ) )
+	-- self._gui_script.working_text:set_text( managers.localization:text( self._gui_working ) )
+	self._gui_script.working_text:set_visible( false )
+	self._unit:set_extension_update_enabled( Idstring( "timer_gui" ), true )
+	self._update_enabled = true
+	
+	self:post_event( self._start_event )
+	
+	self._gui_script.time_header_text:set_visible( true )
+	self._gui_script.time_text:set_visible( true )
+	self._gui_script.time_text:set_text( math.floor( self._current_timer ).." ".. managers.localization:text( "prop_timer_gui_seconds" ) )
+	
+	-- self._unit:base():start()
+	if Network:is_client() then
+		return
+	end
+	
+	-- Only server calculates and run jamming timers
+	-- self:_set_jamming_values()
 end
 
-SecurityLockGui.sync_start = function(l_7_0, l_7_1, l_7_2)
-  l_7_0:_start(l_7_1, l_7_2)
+-- Only server calculates and run jamming timers
+--[[function SecurityLockGui:_set_jamming_values()
+	if not self._can_jam then
+		return
+	end
+	
+	self._jamming_intervals = {}
+	local jammed_times = math.random( self._jam_times )
+	local interval = self._timer / jammed_times
+	for i = 1, jammed_times do
+		local start = interval/2 
+		self._jamming_intervals[ i ] = start + math.rand( start/1.25 )
+	end
+	self._current_jam_timer = table.remove( self._jamming_intervals, 1 )
+end]]
+
+function SecurityLockGui:restart( bar, timer )
+	self:start( bar, timer, true )
 end
 
-SecurityLockGui.update = function(l_8_0, l_8_1, l_8_2, l_8_3)
-  if not l_8_0._powered then
-    return 
-  end
-  l_8_0._current_timer = l_8_0._current_timer - l_8_3
-  if not l_8_0._5sec_bars[l_8_0._current_bar] and l_8_0._current_timer < 5 then
-    l_8_0._5sec_bars[l_8_0._current_bar] = true
-    if l_8_0._unit:damage() then
-      l_8_0._unit:damage():run_sequence_simple("5sec_" .. l_8_0._current_bar)
-    end
-  end
-  l_8_0._gui_script.time_text:set_text(math.floor(l_8_0._current_timer) .. " " .. managers.localization:text("prop_timer_gui_seconds"))
-  l_8_0._gui_script.timer" .. l_8_0._current_ba:set_w(l_8_0._timer_lenght * (1 - l_8_0._current_timer / l_8_0._timer))
-  if l_8_0._current_timer <= 0 then
-    l_8_0._unit:set_extension_update_enabled(Idstring("timer_gui"), false)
-    l_8_0._update_enabled = false
-    l_8_0:done()
-  else
-    l_8_0._gui_script.working_text:set_color(l_8_0._gui_script.working_text:color():with_alpha(0.5 + (math.sin(l_8_2 * 750) + 1) / 4))
-  end
+function SecurityLockGui:start( bar, timer, restart )
+	--[[if self._jammed then
+		self:_set_jammed( false )
+		return
+	end]]
+	
+	if not restart then
+		if self._started then
+			return
+		end
+	end
+	
+	self:_start( bar, timer )
+	if managers.network:session() then
+		-- managers.network:session():send_to_peers_synched( "start_security_lock_gui", self._unit, bar, timer )
+	end
 end
 
-SecurityLockGui.set_visible = function(l_9_0, l_9_1)
-  l_9_0._visible = l_9_1
-  l_9_0._gui:set_visible(l_9_1)
+function SecurityLockGui:sync_start( bar, timer )
+	self:_start( bar, timer )
 end
 
-SecurityLockGui.set_powered = function(l_10_0, l_10_1)
-  l_10_0:_set_powered(l_10_1)
+function SecurityLockGui:update( unit, t, dt )
+	--[[if self._jammed then
+		self._gui_script.screen_background:set_color( self._gui_script.screen_background:color():with_alpha( 0.5 + (math.sin( t*750 )+1)/4 ) )
+		return
+	end]]
+	
+	if not self._powered then
+		return
+	end 
+	
+	--[[if self._current_jam_timer then -- Only on server
+		self._current_jam_timer = self._current_jam_timer - dt
+		if self._current_jam_timer <= 0 then
+			self:set_jammed( true )
+			self._current_jam_timer = table.remove( self._jamming_intervals, 1 )
+			return
+		end 
+	end]]
+	
+	self._current_timer = self._current_timer - dt
+	
+	if not self._5sec_bars[ self._current_bar ] then
+		if self._current_timer < 5 then
+			self._5sec_bars[ self._current_bar ] = true
+			if self._unit:damage() then
+				self._unit:damage():run_sequence_simple( "5sec_"..self._current_bar )
+			end
+		end
+	end
+	
+	self._gui_script.time_text:set_text( math.floor( self._current_timer ).." ".. managers.localization:text( "prop_timer_gui_seconds" ) )
+	self._gui_script[ "timer"..self._current_bar ]:set_w( self._timer_lenght * (1 - self._current_timer/self._timer ) )
+	if self._current_timer <= 0 then -- Done
+		self._unit:set_extension_update_enabled( Idstring( "timer_gui" ), false )
+		self._update_enabled = false
+		self:done()
+	else
+		self._gui_script.working_text:set_color( self._gui_script.working_text:color():with_alpha( 0.5 + (math.sin( t*750 )+1)/4 ) )
+	end
 end
 
-SecurityLockGui._set_powered = function(l_11_0, l_11_1)
-  l_11_0._powered = l_11_1
-  if not l_11_0._powered then
-    for _,child in ipairs(l_11_0._gui_script.panel:children()) do
-      local color = l_11_0._original_colors[child:key()]
-      local c = Color(0, 0, 0, 0)
-      child:set_color(c)
-    end
-  else
-    for _,child in ipairs(l_11_0._gui_script.panel:children()) do
-      child:set_color(l_11_0._original_colors[child:key()])
-    end
-  end
-end
-
-SecurityLockGui.done = function(l_12_0)
-  l_12_0:_set_done()
-  if l_12_0._unit:damage() then
-    l_12_0._unit:damage():run_sequence_simple("done_" .. l_12_0._current_bar)
-  end
-  l_12_0:post_event(l_12_0._done_event)
-end
-
-SecurityLockGui._set_done = function(l_13_0, l_13_1)
-  if not l_13_1 then
-    l_13_1 = l_13_0._current_bar
-  end
-  l_13_0._done_bars[l_13_1] = true
-  l_13_0._done = true
-  l_13_0._gui_script.timer_icon" .. l_13_:set_image("units/world/architecture/secret_stash/props_textures/security_station_unlocked_df")
-  l_13_0._gui_script.timer" .. l_13_:set_w(l_13_0._timer_lenght)
-  l_13_0._gui_script.working_text:set_color(l_13_0._gui_script.working_text:color():with_alpha(1))
-  l_13_0._gui_script.working_text:set_visible(true)
-  if l_13_0._bars == l_13_1 then
-    l_13_0._gui_script.working_text:set_text(managers.localization:text(l_13_0._gui_done))
-  else
-    l_13_0._started = false
-  end
-  l_13_0._gui_script.time_header_text:set_visible(false)
-  l_13_0._gui_script.time_text:set_visible(false)
-end
-
-SecurityLockGui.post_event = function(l_14_0, l_14_1)
-  if not l_14_1 then
-    return 
-  end
-  l_14_0._unit:sound_source():post_event(l_14_1)
-end
-
-SecurityLockGui.lock_gui = function(l_15_0)
-  l_15_0._ws:set_cull_distance(l_15_0._cull_distance)
-  l_15_0._ws:set_frozen(true)
-end
-
-SecurityLockGui.destroy = function(l_16_0)
-  if alive(l_16_0._new_gui) and alive(l_16_0._ws) then
-    l_16_0._new_gui:destroy_workspace(l_16_0._ws)
-    l_16_0._ws = nil
-    l_16_0._new_gui = nil
-  end
-end
-
-SecurityLockGui.save = function(l_17_0, l_17_1)
-  local state = {}
-  state.update_enabled = l_17_0._update_enabled
-  state.timer = l_17_0._timer
-  state.current_bar = l_17_0._current_bar
-  state.current_timer = l_17_0._current_timer
-  state.powered = l_17_0._powered
-  state.done = l_17_0._done
-  state.done_bars = l_17_0._done_bars
-  state.visible = l_17_0._visible
-  l_17_1.SecurityLockGui = state
-end
-
-SecurityLockGui.load = function(l_18_0, l_18_1)
-  local state = l_18_1.SecurityLockGui
-  for bar,_ in pairs(state.done_bars) do
-    l_18_0:_set_done(bar)
-  end
-  if state.update_enabled then
-    l_18_0:_start(state.current_bar, state.timer, state.current_timer)
-    if not state.powered then
-      l_18_0:_set_powered(state.powered)
-    end
-  end
-  l_18_0:set_visible(state.visible)
+function SecurityLockGui:set_visible( visible )
+	self._visible = visible
+	self._gui:set_visible( visible )
 end
 
 
+--[[function SecurityLockGui:sync_set_jammed( jammed )
+	self:_set_jammed( jammed )
+end
+
+function SecurityLockGui:set_jammed( jammed )
+	if managers.network:session() then
+		managers.network:session():send_to_peers_synched( "set_jammed_timer_gui", self._unit, jammed )
+	end
+	self:_set_jammed( jammed )
+end
+
+
+function SecurityLockGui:_set_jammed( jammed )
+	self._jammed = jammed
+	if self._jammed then
+		for _,child in ipairs( self._gui_script.panel:children() ) do
+			local color = self._original_colors[ child:key() ]
+			local c = Color( color.a, 1, 0, 0 )
+			child:set_color( c )
+		end
+		self._gui_script.working_text:set_text( managers.localization:text( self._gui_malfunction ) )
+		self._gui_script.time_text:set_text( managers.localization:text( "prop_timer_gui_error" ) )
+		
+		if self._unit:interaction() then
+			if self._jammed_tweak_data then
+				self._unit:interaction():set_tweak_data( self._jammed_tweak_data )
+			end
+			self._unit:interaction():set_active( true )
+		end
+		self:post_event( self._jam_event )
+	else
+		for _,child in ipairs( self._gui_script.panel:children() ) do
+			child:set_color( self._original_colors[ child:key() ] )
+		end
+		self._gui_script.working_text:set_text( managers.localization:text( self._gui_working ) )
+		self._gui_script.time_text:set_text( math.floor( self._current_timer ).." ".. managers.localization:text( "prop_timer_gui_seconds" ) )
+		self._gui_script.screen_background:set_color( self._gui_script.screen_background:color():with_alpha( 1 ) )
+		self:post_event( self._resume_event )
+	end
+	-- self._unit:base():set_jammed( jammed )
+end]]
+
+function SecurityLockGui:set_powered( powered )
+	-- sync not needed since it is controlled from mission script
+	-- managers.network:session():send_to_peers_synched( "set_jammed_timer_gui", self._unit, jammed )
+	self:_set_powered( powered )
+end
+
+function SecurityLockGui:_set_powered( powered )
+	self._powered = powered
+	if not self._powered then
+		for _,child in ipairs( self._gui_script.panel:children() ) do
+			local color = self._original_colors[ child:key() ]
+			local c = Color( 0, 0, 0, 0 )
+			child:set_color( c )
+		end
+	else
+		for _,child in ipairs( self._gui_script.panel:children() ) do
+			child:set_color( self._original_colors[ child:key() ] )
+		end
+	end
+	-- self._unit:base():set_powered( powered )
+end
+
+function SecurityLockGui:done()
+	self:_set_done()
+		
+	if self._unit:damage() then
+		self._unit:damage():run_sequence_simple( "done_"..self._current_bar )
+	end
+	self:post_event( self._done_event )
+end
+
+function SecurityLockGui:_set_done( bar )
+	bar = bar or self._current_bar
+	self._done_bars[ bar ] = true
+	self._done = true
+	self._gui_script[ "timer_icon"..bar ]:set_image( "units/world/architecture/secret_stash/props_textures/security_station_unlocked_df" )
+	self._gui_script[ "timer"..bar ]:set_w( self._timer_lenght )
+	self._gui_script.working_text:set_color( self._gui_script.working_text:color():with_alpha( 1 ) )
+	self._gui_script.working_text:set_visible( true )
+	if self._bars == bar then
+		self._gui_script.working_text:set_text( managers.localization:text( self._gui_done ) )
+	else
+		self._started = false
+	end
+	self._gui_script.time_header_text:set_visible( false )
+	self._gui_script.time_text:set_visible( false )
+	-- self._unit:base():done()
+end
+
+function SecurityLockGui:post_event( event )
+	if not event then
+		return
+	end
+	self._unit:sound_source():post_event( event )
+end
+
+function SecurityLockGui:lock_gui()
+	self._ws:set_cull_distance( self._cull_distance )
+	self._ws:set_frozen( true )
+end
+
+function SecurityLockGui:destroy()
+	if alive( self._new_gui ) and alive( self._ws ) then
+		self._new_gui:destroy_workspace( self._ws )
+		self._ws = nil
+		self._new_gui = nil
+	end
+end
+
+function SecurityLockGui:save( data )
+	local state 		= {}
+	state.update_enabled 	= self._update_enabled
+	state.timer 			= self._timer
+	state.current_bar	 	= self._current_bar
+	state.current_timer 	= self._current_timer
+	-- state.jammed 			= self._jammed
+	state.powered 			= self._powered
+	state.done				= self._done
+	state.done_bars			= self._done_bars
+	state.visible			= self._visible
+	
+	data.SecurityLockGui = state
+end
+
+function SecurityLockGui:load( data )
+	local state = data.SecurityLockGui
+	for bar,_ in pairs( state.done_bars ) do
+		self:_set_done( bar )
+	end
+	
+	if state.update_enabled then
+		self:_start( state.current_bar, state.timer, state.current_timer )
+		--[[if state.jammed then
+			self:_set_jammed( state.jammed )
+		end]]
+		if not state.powered then
+			self:_set_powered( state.powered )
+		end
+	end
+	self:set_visible( state.visible )
+end

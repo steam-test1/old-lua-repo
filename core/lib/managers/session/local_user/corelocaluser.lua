@@ -1,110 +1,108 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\session\local_user\corelocaluser.luac 
-
 core:module("CoreLocalUser")
 core:import("CorePortableLocalUserStorage")
 core:import("CoreSessionGenericState")
-if not User then
-  User = class(CoreSessionGenericState.State)
-end
-User.init = function(l_1_0, l_1_1, l_1_2, l_1_3, l_1_4, l_1_5)
-  l_1_0._local_user_handler = l_1_1
-  l_1_0._input_input_provider = l_1_2
-  l_1_0._user_index = l_1_3
-  l_1_0._storage = CorePortableLocalUserStorage.Storage:new(l_1_0, l_1_4, l_1_5, profile_data_loaded_callback)
-  l_1_0._game_name = "Player #" .. tostring(l_1_0._user_index)
-end
 
-User.default_data = function(l_2_0)
+User = User or class(CoreSessionGenericState.State)
+
+function User:init(local_user_handler, input_input_provider, user_index, profile_settings_handler, profile_progress_handler)
+	self._local_user_handler = local_user_handler
+	self._input_input_provider = input_input_provider
+	self._user_index = user_index
+
+	self._storage = CorePortableLocalUserStorage.Storage:new(self, profile_settings_handler, profile_progress_handler, profile_data_loaded_callback)
+	self._game_name = "Player #".. tostring(self._user_index)
 end
 
-User.save = function(l_3_0, l_3_1)
+function User.default_data(data)
 end
 
-User.transition = function(l_4_0)
-  l_4_0._storage:transition()
+function User:save(data)
 end
 
-User._player_slot_assigned = function(l_5_0, l_5_1)
-  assert(l_5_0._player_slot == nil, "This user already has an assigned player slot")
-  l_5_0._player_slot = l_5_1
-  l_5_0._storage:request_load()
+function User:transition()
+	self._storage:transition()
 end
 
-User._player_slot_lost = function(l_6_0, l_6_1)
-  assert(l_6_0._player_slot ~= nil, "This user can get a lost player slot, no slot was assigned to begin with")
-  assert(l_6_0._player_slot == l_6_1, "Player has lost a player slot that wasn't assigned")
-  l_6_0._player_slot = nil
+function User:_player_slot_assigned(player_slot)
+	assert(self._player_slot == nil, "This user already has an assigned player slot")
+	self._player_slot = player_slot
+	self._storage:request_load()
 end
 
-User.profile_data_is_loaded = function(l_7_0)
-  return l_7_0._storage:profile_data_is_loaded()
+function User:_player_slot_lost(player_slot)
+	assert(self._player_slot ~= nil, "This user can get a lost player slot, no slot was assigned to begin with")
+	assert(self._player_slot == player_slot, "Player has lost a player slot that wasn't assigned")
+	self._player_slot = nil
 end
 
-User.enter_level = function(l_8_0, l_8_1)
-  l_8_0._local_user_handler:enter_level(l_8_1)
+function User:profile_data_is_loaded()
+	return self._storage:profile_data_is_loaded()
 end
 
-User.leave_level = function(l_9_0, l_9_1)
-  l_9_0._local_user_handler:leave_level(l_9_1)
-  l_9_0:release_player()
+function User:enter_level(level_handler)
+	self._local_user_handler:enter_level(level_handler)
 end
 
-User.gamer_name = function(l_10_0)
-  return l_10_0._game_name
+function User:leave_level(level_handler)
+	self._local_user_handler:leave_level(level_handler)
+	self:release_player()
 end
 
-User.is_stable_for_loading = function(l_11_0)
-  return l_11_0._storage:is_stable_for_loading()
+function User:gamer_name()
+	return self._game_name
 end
 
-User.assign_player = function(l_12_0, l_12_1)
-  l_12_0._player = l_12_1
-  l_12_0._local_user_handler:player_assigned(l_12_0)
+function User:is_stable_for_loading()
+	return self._storage:is_stable_for_loading()
 end
 
-User.release_player = function(l_13_0)
-  l_13_0._local_user_handler:player_removed()
-  l_13_0._player = nil
-  l_13_0._avatar = nil
+function User:assign_player(player)
+	self._player = player
+	self._local_user_handler:player_assigned(self)
 end
 
-User.assigned_player = function(l_14_0)
-  return l_14_0._player
+function User:release_player()
+	self._local_user_handler:player_removed()
+	self._player = nil
+	self._avatar = nil
 end
 
-User.local_user_handler = function(l_15_0)
-  return l_15_0._local_user_handler
+function User:assigned_player()
+	return self._player
 end
 
-User.profile_settings = function(l_16_0)
-  return l_16_0._storage:profile_settings()
+function User:local_user_handler()
+	return self._local_user_handler
 end
 
-User.profile_progress = function(l_17_0)
-  return l_17_0._storage:profile_progress()
+function User:profile_settings()
+	return self._storage:profile_settings()
 end
 
-User.save_profile_settings = function(l_18_0)
-  return l_18_0._storage:request_save()
+function User:profile_progress()
+	return self._storage:profile_progress()
 end
 
-User.save_profile_progress = function(l_19_0)
-  return l_19_0._storage:request_save()
+function User:save_profile_settings()
+	return self._storage:request_save()
 end
 
-User.engine_input_input_input_provider = function(l_20_0)
-  return l_20_0._input_input_provider
+function User:save_profile_progress()
+	return self._storage:request_save()
 end
 
-User.update = function(l_21_0, l_21_1, l_21_2)
-  if not l_21_0._avatar and l_21_0._player and l_21_0._player:has_avatar() then
-    local input_input_provider = l_21_0:engine_input_input_input_provider()
-    local avatar = l_21_0._player:avatar()
-    avatar:set_input(input_input_provider)
-    l_21_0._avatar = avatar
-  end
-  l_21_0._local_user_handler:update(l_21_1, l_21_2)
+function User:engine_input_input_input_provider()
+	return self._input_input_provider
 end
 
-
+function User:update(t, dt)
+	if not self._avatar then
+		if self._player and self._player:has_avatar() then
+			local input_input_provider = self:engine_input_input_input_provider()
+			local avatar = self._player:avatar()
+			avatar:set_input(input_input_provider)
+			self._avatar = avatar
+		end
+	end
+	self._local_user_handler:update(t, dt)	
+end

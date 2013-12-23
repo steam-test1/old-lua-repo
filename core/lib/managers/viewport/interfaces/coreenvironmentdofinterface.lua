@@ -1,26 +1,46 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\viewport\interfaces\coreenvironmentdofinterface.luac 
-
 core:module("CoreEnvironmentDOFInterface")
+
 core:import("CoreClass")
-if not EnvironmentDOFInterface then
-  EnvironmentDOFInterface = CoreClass.class()
+
+EnvironmentDOFInterface = EnvironmentDOFInterface or CoreClass.class()
+
+EnvironmentDOFInterface.DATA_PATH = {"post_effect", "hdr_post_processor", "default", "dof"}
+EnvironmentDOFInterface.SHARED = false
+
+----------------------------------------------------------------------------
+--
+--    P U B L I C
+--
+----------------------------------------------------------------------------
+
+function EnvironmentDOFInterface:init(handle)
+	self._handle = handle
 end
-local l_0_0 = EnvironmentDOFInterface
-do
-  local l_0_1 = {}
-   -- DECOMPILER ERROR: No list found. Setlist fails
 
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
+function EnvironmentDOFInterface:parameters()
+	local params = self._handle:parameters()
+	return {
+		clamp = param["clamp"],
+		near_focus_distance_min = param["near_focus_distance_max"] + param["near_focus_distance_min"],
+		near_focus_distance_max = param["near_focus_distance_max"],
+		far_focus_distance_min = param["far_focus_distance_min"],
+		far_focus_distance_max = param["far_focus_distance_max"] + param["far_focus_distance_min"],
+	}
 end
- -- Warning: undefined locals caused missing assignments!
 
+----------------------------------------------------------------------------
+--
+--    P R I V A T E
+--
+----------------------------------------------------------------------------
+
+function EnvironmentDOFInterface:_process_return(params)
+	assert(table.maxn(params) == 5, "[EnvironmentDOFInterface] You did not return all parameters!")
+	return {
+		clamp = params["clamp"],
+		near_focus_distance_min = math.max( params["near_focus_distance_max"] - params["near_focus_distance_min"], 1),
+		near_focus_distance_max = params["near_focus_distance_max"],
+		far_focus_distance_min = params["far_focus_distance_min"],
+		far_focus_distance_max = math.max( params["far_focus_distance_max"] - params["far_focus_distance_min"], 1 )
+	}
+end

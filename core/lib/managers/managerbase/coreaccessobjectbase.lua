@@ -1,46 +1,54 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\managerbase\coreaccessobjectbase.luac 
+core:module( "CoreAccessObjectBase" )
 
-core:module("CoreAccessObjectBase")
-if not AccessObjectBase then
-  AccessObjectBase = class()
-end
-AccessObjectBase.init = function(l_1_0, l_1_1, l_1_2)
-  l_1_0.__manager = l_1_1
-  l_1_0.__name = l_1_2
-  l_1_0.__active_requested = false
-  l_1_0.__really_activated = false
-end
 
-AccessObjectBase.name = function(l_2_0)
-  return l_2_0.__name
+AccessObjectBase = AccessObjectBase or class()
+
+----------------------------------------------------------------------------
+--    P U B L I C
+----------------------------------------------------------------------------
+
+function AccessObjectBase:init( manager, name )
+	self.__manager = manager
+	self.__name    = name
+	self.__active_requested = false
+	self.__really_activated = false
 end
 
-AccessObjectBase.active = function(l_3_0)
-  return l_3_0.__active_requested
+function AccessObjectBase:name()
+	return self.__name
 end
 
-AccessObjectBase.active_requested = function(l_4_0)
-  return l_4_0.__active_requested
+function AccessObjectBase:active()
+	return self.__active_requested
 end
 
-AccessObjectBase.really_active = function(l_5_0)
-  return l_5_0.__really_activated
+function AccessObjectBase:active_requested()
+	return self.__active_requested
 end
 
-AccessObjectBase.set_active = function(l_6_0, l_6_1)
-  if l_6_0.__active_requested ~= l_6_1 then
-    l_6_0.__active_requested = l_6_1
-    l_6_0.__manager:_prioritize_and_activate()
-  end
+function AccessObjectBase:really_active()
+	-- Exposing this method is maybe/probably a bad move,
+	-- please use it sparingly or not at all /Andreas
+	return self.__really_activated
 end
 
-AccessObjectBase._really_activate = function(l_7_0)
-  l_7_0.__really_activated = true
+function AccessObjectBase:set_active( active )
+	if self.__active_requested ~= active then
+		self.__active_requested = active
+		self.__manager:_prioritize_and_activate()
+	end
 end
 
-AccessObjectBase._really_deactivate = function(l_8_0)
-  l_8_0.__really_activated = false
+----------------------------------------------------------------------------
+--    C O R E   I N T E R N A L
+----------------------------------------------------------------------------
+
+function AccessObjectBase:_really_activate()
+	-- This method is core internal, override in a core subclass
+	self.__really_activated = true
 end
 
-
+function AccessObjectBase:_really_deactivate()
+	-- This method is core internal, override in a core subclass
+	self.__really_activated = false
+end

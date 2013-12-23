@@ -1,84 +1,94 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\elementenemyprefered.luac 
+core:import( "CoreMissionScriptElement" )
 
-core:import("CoreMissionScriptElement")
-if not ElementEnemyPreferedAdd then
-  ElementEnemyPreferedAdd = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementEnemyPreferedAdd.init = function(l_1_0, ...)
-  ElementEnemyPreferedAdd.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementEnemyPreferedAdd = ElementEnemyPreferedAdd or class( CoreMissionScriptElement.MissionScriptElement )
 
-end
-
-ElementEnemyPreferedAdd.on_script_activated = function(l_2_0)
-  if not l_2_0._values.spawn_points then
-    l_2_0._values.spawn_points = l_2_0._values.elements
-  end
-  if not l_2_0._values.spawn_points and not l_2_0._values.spawn_groups then
-    return 
-  end
-  l_2_0._group_data = {}
-  if l_2_0._values.spawn_points then
-    l_2_0._group_data.spawn_points = {}
-    for _,id in ipairs(l_2_0._values.spawn_points) do
-      local element = l_2_0:get_mission_element(id)
-      table.insert(l_2_0._group_data.spawn_points, element)
-    end
-  end
-  if l_2_0._values.spawn_groups then
-    l_2_0._group_data.spawn_groups = {}
-    for _,id in ipairs(l_2_0._values.spawn_groups) do
-      local element = l_2_0:get_mission_element(id)
-      table.insert(l_2_0._group_data.spawn_groups, element)
-    end
-  end
+function ElementEnemyPreferedAdd:init( ... )
+	ElementEnemyPreferedAdd.super.init( self, ... )
+	
+	-- self._group_data = nil
+	-- self._group_data.spawn_points = nil
+	-- self._group_data.spawn_groups = nil
 end
 
-ElementEnemyPreferedAdd.add = function(l_3_0)
-  if not l_3_0._group_data then
-    return 
-  end
-  if l_3_0._group_data.spawn_points then
-    managers.groupai:state():add_preferred_spawn_points(l_3_0._id, l_3_0._group_data.spawn_points)
-  end
-  if l_3_0._group_data.spawn_groups then
-    managers.groupai:state():add_preferred_spawn_groups(l_3_0._id, l_3_0._group_data.spawn_groups)
-  end
+function ElementEnemyPreferedAdd:on_script_activated()
+
+	self._values.spawn_points = self._values.spawn_points or self._values.elements -- backwards compatibility
+	
+	--print("[ElementEnemyPreferedAdd:on_script_activated] self._values", inspect( self._values ) )
+	
+	if not ( self._values.spawn_points or self._values.spawn_groups ) then
+		return
+	end
+	
+	self._group_data = {}
+	
+	if self._values.spawn_points then
+		self._group_data.spawn_points = {}
+		for _, id in ipairs( self._values.spawn_points ) do
+			local element = self:get_mission_element( id )
+			table.insert( self._group_data.spawn_points, element )
+		end
+	end
+	
+	if self._values.spawn_groups then
+		self._group_data.spawn_groups = {}
+		for _, id in ipairs( self._values.spawn_groups ) do
+			local element = self:get_mission_element( id )
+			table.insert( self._group_data.spawn_groups, element )
+		end
+	end
+	
+	--print("[ElementEnemyPreferedAdd:on_script_activated] end: self._group_data", inspect( self._group_data ) )
 end
 
-ElementEnemyPreferedAdd.remove = function(l_4_0)
-  managers.groupai:state():remove_preferred_spawn_points(l_4_0._id)
+function ElementEnemyPreferedAdd:add()
+	--print("[ElementEnemyPreferedAdd:add] self._group_data", inspect( self._group_data ) )
+	if not self._group_data then
+		return
+	end
+	
+	if self._group_data.spawn_points then
+		managers.groupai:state():add_preferred_spawn_points( self._id, self._group_data.spawn_points )
+	end
+	
+	if self._group_data.spawn_groups then
+		managers.groupai:state():add_preferred_spawn_groups( self._id, self._group_data.spawn_groups )
+	end
 end
 
-ElementEnemyPreferedAdd.on_executed = function(l_5_0, l_5_1)
-  if not l_5_0._values.enabled then
-    return 
-  end
-  l_5_0:add()
-  ElementEnemyPreferedAdd.super.on_executed(l_5_0, l_5_1)
+function ElementEnemyPreferedAdd:remove()
+	managers.groupai:state():remove_preferred_spawn_points( self._id )
 end
 
-if not ElementEnemyPreferedRemove then
-  ElementEnemyPreferedRemove = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementEnemyPreferedRemove.init = function(l_6_0, ...)
-  ElementEnemyPreferedRemove.super.init(l_6_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-ElementEnemyPreferedRemove.on_executed = function(l_7_0, l_7_1)
-  if not l_7_0._values.enabled then
-    return 
-  end
-  for _,id in ipairs(l_7_0._values.elements) do
-    local element = l_7_0:get_mission_element(id)
-    if element then
-      element:remove()
-    end
-  end
-  ElementEnemyPreferedRemove.super.on_executed(l_7_0, l_7_1)
+function ElementEnemyPreferedAdd:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	self:add()
+	
+	ElementEnemyPreferedAdd.super.on_executed( self, instigator )
 end
 
+-------------------------------------------------------------------------------------
 
+ElementEnemyPreferedRemove = ElementEnemyPreferedRemove or class( CoreMissionScriptElement.MissionScriptElement )
+
+function ElementEnemyPreferedRemove:init( ... )
+	ElementEnemyPreferedRemove.super.init( self, ... )
+end
+
+function ElementEnemyPreferedRemove:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	for _,id in ipairs( self._values.elements ) do
+		local element = self:get_mission_element( id )
+		if element then
+			element:remove()
+		end
+	end	
+		
+	ElementEnemyPreferedRemove.super.on_executed( self, instigator )
+end

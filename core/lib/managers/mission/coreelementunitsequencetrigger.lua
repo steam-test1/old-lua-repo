@@ -1,53 +1,71 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\mission\coreelementunitsequencetrigger.luac 
+core:module( "CoreElementUnitSequenceTrigger" )
+core:import( "CoreMissionScriptElement" )
+core:import( "CoreCode" )
 
-core:module("CoreElementUnitSequenceTrigger")
-core:import("CoreMissionScriptElement")
-core:import("CoreCode")
-if not ElementUnitSequenceTrigger then
-  ElementUnitSequenceTrigger = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementUnitSequenceTrigger.init = function(l_1_0, ...)
-  ElementUnitSequenceTrigger.super.init(l_1_0, ...)
-  if not l_1_0._values.sequence_list and l_1_0._values.sequence then
-    l_1_0._values.sequence_list = {{unit_id = l_1_0._values.unit_id, sequence = l_1_0._values.sequence}}
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementUnitSequenceTrigger = ElementUnitSequenceTrigger or class( CoreMissionScriptElement.MissionScriptElement )
 
-  end
+function ElementUnitSequenceTrigger:init( ... )
+	ElementUnitSequenceTrigger.super.init( self, ... )
+	if not self._values.sequence_list and self._values.sequence then
+		self._values.sequence_list = { { unit_id = self._values.unit_id, sequence = self._values.sequence } }
+	end
 end
 
-ElementUnitSequenceTrigger.on_script_activated = function(l_2_0)
-  if Network:is_client() then
-    do return end
-  end
-  l_2_0._mission_script:add_save_state_cb(l_2_0._id)
-  for _,data in pairs(l_2_0._values.sequence_list) do
-    managers.mission:add_runned_unit_sequence_trigger(data.unit_id, data.sequence, callback(l_2_0, l_2_0, "on_executed"))
-  end
-  l_2_0._has_active_callback = true
+function ElementUnitSequenceTrigger:on_script_activated()
+	-- print( "ElementUnitSequenceTrigger:on_script_activated()", self._id, Network:is_client() )
+	if Network:is_client() then
+		--[[ -- Client no longer register trigger. For interacting, the server uses the client unit as instigator.
+		if self._values.trigger_times == 1 then -- This is a hack sollution. The problem is that the trigger will be reported twice, which brakes the system if you
+												-- really want it to happen several times. The issue is also that without the client reporting it, there is no way to
+												-- know when client interacts with a unit (cop machine) that then gives him a equipment.
+			-- managers.mission:add_runned_unit_sequence_trigger( self._values.unit_id, self._values.sequence, callback( self, self, "send_to_host" ) )
+			for _,data in pairs( self._values.sequence_list ) do
+				managers.mission:add_runned_unit_sequence_trigger( data.unit_id, data.sequence, callback( self, self, "send_to_host" ) )
+			end
+		end
+		]]
+	else
+		self._mission_script:add_save_state_cb( self._id )
+		-- managers.mission:add_runned_unit_sequence_trigger( self._values.unit_id, self._values.sequence, callback( self, self, "on_executed" ) )
+		for _,data in pairs( self._values.sequence_list ) do
+			managers.mission:add_runned_unit_sequence_trigger( data.unit_id, data.sequence, callback( self, self, "on_executed" ) )
+		end
+			
+	end
+	self._has_active_callback = true
 end
 
-ElementUnitSequenceTrigger.send_to_host = function(l_3_0, l_3_1)
-  if alive(l_3_1) then
-    managers.network:session():send_to_host("to_server_mission_element_trigger", l_3_0._id, l_3_1)
-  end
+function ElementUnitSequenceTrigger:send_to_host( instigator )
+	-- print( "ElementUnitSequenceTrigger:send_to_host()" )
+	-- print( "1 send to host", instigator )
+	if alive( instigator ) then
+		-- print( "send to HOST", self._id, instigator )
+		managers.network:session():send_to_host( "to_server_mission_element_trigger", self._id, instigator ) -- How to send instigator (needed)?
+	end
 end
 
-ElementUnitSequenceTrigger.on_executed = function(l_4_0, l_4_1)
-  if not l_4_0._values.enabled then
-    return 
-  end
-  ElementUnitSequenceTrigger.super.on_executed(l_4_0, l_4_1)
+function ElementUnitSequenceTrigger:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	-- print( " EXECUTE ElementUnitSequenceTrigger", instigator )
+	
+	-- instigator = managers.mission:default_instigator()
+	-- print( "ElementUnitSequenceTrigger:on_executed( instigator )", inspect( instigator ) )
+	
+	ElementUnitSequenceTrigger.super.on_executed( self, instigator )
 end
 
-ElementUnitSequenceTrigger.save = function(l_5_0, l_5_1)
-  l_5_1.save_me = true
+function ElementUnitSequenceTrigger:save( data )
+	data.save_me = true
 end
 
-ElementUnitSequenceTrigger.load = function(l_6_0, l_6_1)
-  if not l_6_0._has_active_callback then
-    l_6_0:on_script_activated()
-  end
+function ElementUnitSequenceTrigger:load( data )
+	-- self:set_enabled( data.enabled )
+	-- print( "load ElementUnitSequenceTrigger", self._has_active_callback, self._values.unit_id )
+	if not self._has_active_callback then
+		-- print( " REGISTER TRIGGER" )
+		self:on_script_activated()
+	end
 end
-
-

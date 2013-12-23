@@ -1,28 +1,21 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\missionscriptelement.luac 
+core:import( "CoreMissionScriptElement" )
+core:import( "CoreClass" )
 
-core:import("CoreMissionScriptElement")
-core:import("CoreClass")
-if not MissionScriptElement then
-  MissionScriptElement = class(CoreMissionScriptElement.MissionScriptElement)
-end
-MissionScriptElement.init = function(l_1_0, ...)
-  MissionScriptElement.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+MissionScriptElement = MissionScriptElement or class( CoreMissionScriptElement.MissionScriptElement )
 
+function MissionScriptElement:init( ... )
+	MissionScriptElement.super.init( self, ... )
 end
 
-MissionScriptElement.client_on_executed = function(l_2_0)
+function MissionScriptElement:client_on_executed()
+	
 end
 
-MissionScriptElement.on_executed = function(l_3_0, ...)
-  if Network:is_client() then
-    return 
-  end
-  MissionScriptElement.super.on_executed(l_3_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function MissionScriptElement:on_executed( ... )
+	if Network:is_client() then
+		return
+	end
+	MissionScriptElement.super.on_executed( self, ... )
 end
 
-CoreClass.override_class(CoreMissionScriptElement.MissionScriptElement, MissionScriptElement)
-
+CoreClass.override_class( CoreMissionScriptElement.MissionScriptElement, MissionScriptElement )

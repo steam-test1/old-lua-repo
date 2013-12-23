@@ -1,253 +1,379 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\network\matchmaking\networkfriendspsn.luac 
+--[[-----------------------------------------------------------------------------------------------
 
-if not NetworkFriendsPSN then
-  NetworkFriendsPSN = class()
-end
-NetworkFriendsPSN.init = function(l_1_0)
-  cat_print("lobby", "friends = NetworkFriendsPSN")
-  l_1_0._friends = {}
-  l_1_0._callback = {}
-  l_1_0._updated_list_friends = PSN:update_list_friends()
-  l_1_0._last_info = {}
-  l_1_0._last_info.friends = 0
-  l_1_0._last_info.friends_map = {}
-  l_1_0._last_info.friends_status_map = {}
-  PSN:set_matchmaking_callback("friends_updated", function()
-    managers.network.friends:psn_update_friends()
-   end)
-  PSN:update_async_friends(true, 20)
-end
+ Friends abstraction layer
 
-NetworkFriendsPSN.destroy = function(l_2_0)
-  PSN:set_matchmaking_callback("friends_updated", function()
-   end)
-  PSN:update_async_friends(false, 20)
-end
+ get_friends_list()
+	Return a table of friend ID objects. Friend ID is platform dependent
 
-NetworkFriendsPSN.set_visible = function(l_3_0, l_3_1)
-  if l_3_1 == true then
-    PSN:update_async_friends(true, 5)
-  else
-    PSN:update_async_friends(true, 20)
-  end
-end
+ get_friends()
+	Iterate through all the friends and call a "status_change" for each friend
 
-NetworkFriendsPSN.call_callback = function(l_4_0, l_4_1, ...)
-  if l_4_0._callback[l_4_1] then
-    l_4_0._callback[l_4_1](...)
-  else
-    Application:error("Callback", l_4_1, "is not registred.")
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ register_callback(event, callback)
+	Register a callback that will trigger for friends event, such as status change (come
+	online/go offline), changes to the list (friend added/removed)
+		event: string
+			The event this callback should be used for. Events are as follows:
+				"friend_added"
+					When a friend have accepted to become your friend
+				"friend_denied" (Not sure yet. Probably not)
+					If your friend request was denied
+				"friend_removed"
+					If your friend removed you from his list, he'll disappear from your list too
+				"friend_request"
+					If someone request to be your friend.
+				"status_change"
+					Friend has come online/gone offline
+		callback: function
+			The function that should be called when an event has occured
 
-  end
-end
+ send_friend_request(nickname)
+	Search Rendezvous for users with the nickname provided and send them a friend request
+	When he have accepted, we'll receive a "friend_added" event
+	We haven't decided what to do if he declines. We'll probably do nothing.
 
-NetworkFriendsPSN.call_silent_callback = function(l_5_0, l_5_1, ...)
-  if l_5_0._callback[l_5_1] then
-    l_5_0._callback[l_5_1](...)
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ remove_friend(id)
+	Remove friend from your friends list. A request to remove you from that persons friends
+	list is sent.
 
-  end
-end
+ has_builtin_screen()
+ 	Return true if this friends abstraction layer provide a built in screen (Xbox) or if
+ 	the screen has to be implemented by the game (Rendezvous)
+ 
+ accept_friend_request(player_id)
+	Call this if you want to accept a friend request
+ 
+ ignore_friend_request(player_id)
+	Call this if you don't want to accept a friend request
 
-NetworkFriendsPSN.get_friends_list = function(l_6_0)
-  return l_6_0._friends
-  local npids = {}
-  local friends = PSN:get_list_friends()
-  for _,f in pairs(friends) do
-    table.insert(npids, f)
-  end
-  return npids
-end
+ num_pending_friend_requests()
+	Returns true if there are pending friend requests. False otherwise.
 
-NetworkFriendsPSN.get_names_friends_list = function(l_7_0)
-  if not l_7_0._updated_list_friends then
-    l_7_0._updated_list_friends = PSN:update_list_friends()
-  end
-  local names = {}
-  local friends = PSN:get_list_friends()
-  if not friends then
-    return names
-  end
-  for _,f in pairs(friends) do
-    if f.friend ~= PSN:get_local_userid() then
-      names[tostring(f.friend)] = true
-    end
-  end
-  return names
+-----------------------------------------------------------------------------------------------]]--
+
+NetworkFriendsPSN = NetworkFriendsPSN or class()
+
+function NetworkFriendsPSN:init()
+	cat_print( 'lobby', "friends = NetworkFriendsPSN")
+	self._friends = {}
+	
+	self._callback = {}
+	
+	self._updated_list_friends = PSN:update_list_friends() --slow, so only run it here.
+	
+	self._last_info = {}
+	self._last_info.friends = 0
+	self._last_info.friends_map = {}
+	self._last_info.friends_status_map = {}
+	--self._last_info.online = 0
+	--self._last_info.uninvitable = 0
+	--self._last_info.offline = 0
+	
+	PSN:set_matchmaking_callback( "friends_updated", function() managers.network.friends:psn_update_friends() end )
+	PSN:update_async_friends( true, 20 )
 end
 
-NetworkFriendsPSN.get_npid_friends_list = function(l_8_0)
-  local npids = {}
-  local friends = PSN:get_list_friends()
-  if not friends then
-    return npids
-  end
-  for _,f in pairs(friends) do
-    if f.friend ~= PSN:get_local_userid() then
-      table.insert(npids, f.friend)
-    end
-  end
-  return npids
+function NetworkFriendsPSN:destroy()
+	PSN:set_matchmaking_callback( "friends_updated", function() end )
+	PSN:update_async_friends( false, 20 )
 end
 
-NetworkFriendsPSN.get_friends = function(l_9_0)
-  cat_print("lobby", "NetworkFriendsPSN:get_friends()")
-  if not l_9_0._updated_list_friends then
-    l_9_0._updated_list_friends = PSN:update_list_friends()
-  end
-  l_9_0._friends = {}
-  local name = managers.network.account:player_id()
-  local friends = PSN:get_list_friends()
-  if friends then
-    l_9_0._last_info.friends = #friends
-    l_9_0:_fill_li_friends_map(friends)
-    l_9_0._last_info.friends_status_map = {}
-    for k,v in pairs(friends) do
-      if tostring(v.friend) ~= name then
-        local online_status = "not_signed_in"
-        local info_mod = 1
-        l_9_0._last_info.friends_status_map[tostring(v.friend)] = v.status * info_mod
-        if managers.network.matchmake:user_in_lobby(v.friend) then
-          online_status = "in_group"
-        else
-          if managers.network:session() and managers.network:session():is_kicked(tostring(v.friend)) then
-            online_status = "banned"
-          else
-            if managers.network.group:find(v.friend) then
-              online_status = "in_group"
-            elseif v.status == 0 then
-              do return end
-            end
-            if v.status == 1 then
-              online_status = "signed_in"
-            elseif v.status == 2 then
-              online_status = "signed_in"
-            end
-          end
-        end
-        local f = NetworkFriend:new(v.friend, tostring(v.friend), online_status)
-        table.insert(l_9_0._friends, f)
-        l_9_0:call_callback("status_change", f)
-      end
-    end
-    l_9_0:call_callback("get_friends_done", l_9_0._friends)
-  end
+function NetworkFriendsPSN:set_visible( set )
+	if( set == true ) then
+		PSN:update_async_friends( true, 5 )
+	else
+		PSN:update_async_friends( true, 20 )
+	end
 end
 
-NetworkFriendsPSN.register_callback = function(l_10_0, l_10_1, l_10_2)
-  l_10_0._callback[l_10_1] = l_10_2
+function NetworkFriendsPSN:call_callback( func, ... )
+	if( self._callback[ func ] ) then
+		self._callback[ func ]( ... )
+	else
+		Application:error("Callback", func, "is not registred.")
+	end
+end
+function NetworkFriendsPSN:call_silent_callback( func, ... )
+	if( self._callback[ func ] ) then
+		self._callback[ func ]( ... )
+	end
 end
 
-NetworkFriendsPSN.send_friend_request = function(l_11_0, l_11_1)
+function NetworkFriendsPSN:get_friends_list()
+	do
+		return self._friends
+	end
+	
+	local npids = {}
+
+	local friends = PSN:get_list_friends()
+	for _,f in pairs(friends) do
+		table.insert(npids, f)
+	end
+
+	return npids
 end
 
-NetworkFriendsPSN.remove_friend = function(l_12_0, l_12_1)
+function NetworkFriendsPSN:get_names_friends_list()
+	if not self._updated_list_friends then
+		self._updated_list_friends = PSN:update_list_friends()
+	end
+	
+	local names = {}
+	local friends = PSN:get_list_friends()
+	if not friends then
+		return names
+	end
+	
+	for _,f in pairs( friends ) do
+		if f.friend ~= PSN:get_local_userid() then
+			names[ tostring( f.friend ) ] = true
+		end
+	end
+	return names
 end
 
-NetworkFriendsPSN.has_builtin_screen = function(l_13_0)
-  return false
+function NetworkFriendsPSN:get_npid_friends_list()
+	local npids = {}
+	local friends = PSN:get_list_friends()
+	if not friends then
+		return npids
+	end
+	
+	for _,f in pairs( friends ) do
+		if f.friend ~= PSN:get_local_userid() then
+			table.insert( npids, f.friend )
+		end
+	end
+	return npids
 end
 
-NetworkFriendsPSN.accept_friend_request = function(l_14_0, l_14_1)
+function NetworkFriendsPSN:get_friends()	
+	cat_print("lobby", "NetworkFriendsPSN:get_friends()" )
+	if not self._updated_list_friends then
+		self._updated_list_friends = PSN:update_list_friends()
+	end
+	
+	self._friends = {}
+		
+	local name = managers.network.account:player_id()
+		
+	local friends = PSN:get_list_friends()
+	if( friends ) then
+		self._last_info.friends = #friends
+		self:_fill_li_friends_map( friends )
+		
+		--self._last_info.online = 0
+		--self._last_info.uninvitable = 0
+		--self._last_info.offline = 0
+		
+		self._last_info.friends_status_map = {}
+		
+		for k, v in pairs( friends ) do
+			-- for i = 1, 34 do
+			if( tostring( v.friend ) ~= name ) then
+				local online_status = "not_signed_in"
+				local info_mod = 1
+				
+				-- if( v.status == 2 and v.info and v.info == managers.platform:presence() ) then
+				--	info_mod = -1
+				-- end
+				self._last_info.friends_status_map[ tostring( v.friend ) ] = v.status * info_mod
+								
+				if managers.network.matchmake:user_in_lobby(v.friend) then
+					online_status = "in_group"
+				elseif managers.network:session() and managers.network:session():is_kicked( tostring( v.friend ) ) then
+					online_status = "banned"
+				elseif managers.network.group:find(v.friend) then
+					online_status = "in_group"
+				elseif( v.status == 0 ) then
+					-- online_status = "not_signed_in"
+					--self._last_info.offline = self._last_info.offline + 1
+				elseif( v.status == 1 ) then
+					online_status = "signed_in"
+					--self._last_info.uninvitable = self._last_info.uninvitable + 1
+				elseif( v.status == 2 ) then
+					--if( v.info and v.info == "MPLobby" ) then
+					-- if( v.info and v.info == "Signed_in" ) then
+						online_status = "signed_in"
+						--self._last_info.online = self._last_info.online + 1
+					-- else
+					--	online_status = "uninvitable"
+						--self._last_info.uninvitable = self._last_info.uninvitable + 1
+					-- end
+				end
+				
+				local f = NetworkFriend:new( v.friend, tostring(v.friend), online_status )
+				table.insert(self._friends, f )
+				self:call_callback( "status_change", f )
+			end
+			-- end
+		end
+		self:call_callback( "get_friends_done", self._friends )
+	end
 end
 
-NetworkFriendsPSN.ignore_friend_request = function(l_15_0, l_15_1)
+function NetworkFriendsPSN:register_callback(event, callback)
+	self._callback[ event ] = callback
 end
 
-NetworkFriendsPSN.num_pending_friend_requests = function(l_16_0)
-  return 0
+function NetworkFriendsPSN:send_friend_request(nickname)
 end
 
-NetworkFriendsPSN.debug_update = function(l_17_0, l_17_1, l_17_2)
+function NetworkFriendsPSN:remove_friend(id)
 end
 
-NetworkFriendsPSN.psn_disconnected = function(l_18_0)
-  l_18_0._updated_list_friends = false
+function NetworkFriendsPSN:has_builtin_screen()
+	return false
 end
 
-NetworkFriendsPSN.psn_update_friends = function(l_19_0)
-  if not PSN:get_list_friends() then
-    local friends = {}
-  end
-  if #friends >= 0 then
-    local change_of_friends = false
-    for k,v in pairs(friends) do
-      local friend_in_list = l_19_0._last_info.friends_map[tostring(v.friend)]
-      if not friend_in_list then
-        change_of_friends = true
-      else
-        l_19_0._last_info.friends_map[tostring(v.friend)] = nil
-      end
-    end
-    for k,v in pairs(l_19_0._last_info.friends_map) do
-      change_of_friends = true
-      do return end
-    end
-    l_19_0:_fill_li_friends_map(friends)
-    if change_of_friends then
-      l_19_0._last_info.friends = #friends
-      l_19_0._updated_list_friends = PSN:update_list_friends()
-      l_19_0:call_silent_callback("friends_reset")
-      return 
-    else
-      if l_19_0:_count_online(friends) then
-        l_19_0:call_silent_callback("friends_reset")
-        return 
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+function NetworkFriendsPSN:accept_friend_request(player_id)
+end
+ 
+function NetworkFriendsPSN:ignore_friend_request(player_id)
 end
 
-NetworkFriendsPSN.is_friend = function(l_20_0, l_20_1)
-  local friends = PSN:get_list_friends()
-  if not friends then
-    return false
-  end
-  for _,data in ipairs(friends) do
-    if data.friend == l_20_1 then
-      return true
-    end
-  end
-  return false
+function NetworkFriendsPSN:num_pending_friend_requests()
+	return 0
 end
 
-NetworkFriendsPSN._fill_li_friends_map = function(l_21_0, l_21_1)
-  l_21_0._last_info.friends_map = {}
-  for k,v in pairs(l_21_1) do
-    l_21_0._last_info.friends_map[tostring(v.friend)] = true
-  end
+function NetworkFriendsPSN:debug_update(t, dt)
 end
 
-NetworkFriendsPSN._fill_li_friends_status_map = function(l_22_0, l_22_1)
-  l_22_0._last_info.friends_status_map = {}
-  for k,v in pairs(l_22_1) do
-    local info_mod = 1
-    if v.status == 2 and v.info and v.info == managers.platform:presence() then
-      info_mod = -1
-    end
-    l_22_0._last_info.friends_status_map[tostring(v.friend)] = v.status * info_mod
-  end
+--Internal functions ------------------------------------------------------------------------------
+
+function NetworkFriendsPSN:psn_disconnected()
+	self._updated_list_friends = false
 end
 
-NetworkFriendsPSN._count_online = function(l_23_0, l_23_1)
-  local name = managers.network.account:player_id()
-  local status_changed = false
-  for k,v in pairs(l_23_1) do
-    local friend_status = l_23_0._last_info.friends_status_map[tostring(v.friend)] or 42
-    local info_mod = 1
-    if tostring(v.friend) ~= name and friend_status ~= v.status * info_mod then
-      status_changed = true
-  else
-    end
-  end
-  if not status_changed then
-    return false
-  end
-  l_23_0:_fill_li_friends_status_map(l_23_1)
-  return true
+function NetworkFriendsPSN:psn_update_friends()
+	-- print( "## NetworkFriendsPSN:psn_update_friends()", PSN:get_list_friends() ) 
+	local friends = PSN:get_list_friends() or {}
+	if( #friends >= 0 ) then
+		local change_of_friends = false
+		
+		for k, v in pairs( friends ) do
+			local friend_in_list = self._last_info.friends_map[ tostring(v.friend) ]
+			if( not friend_in_list ) then
+				change_of_friends = true
+				break
+			end
+			self._last_info.friends_map[ tostring(v.friend) ] = nil
+		end
+		
+		for k, v in pairs( self._last_info.friends_map ) do
+			change_of_friends = true
+			break
+		end
+		
+		self:_fill_li_friends_map( friends )
+		
+		--if( self._last_info.friends ~= #friends ) then
+		if( change_of_friends ) then
+			self._last_info.friends = #friends
+			self._updated_list_friends = PSN:update_list_friends()
+			
+			self:call_silent_callback( "friends_reset" )
+			return
+		else
+			if( self:_count_online( friends ) ) then
+				self:call_silent_callback( "friends_reset" )
+				return
+			end
+		end
+	end
 end
 
+function NetworkFriendsPSN:is_friend( id )
+	-- for _,friend in ipairs( self:get_friends_list() ) do
+	local friends = PSN:get_list_friends()
+	if not friends then
+		return false
+	end
+	
+	for _,data in ipairs( friends ) do
+		if data.friend == id then
+			return true
+		end
+	end
+	return false
+end
 
+function NetworkFriendsPSN:_fill_li_friends_map( friends )
+	self._last_info.friends_map = {}
+	
+	for k, v in pairs( friends ) do
+		self._last_info.friends_map[ tostring( v.friend ) ] = true
+	end
+end
+
+function NetworkFriendsPSN:_fill_li_friends_status_map( friends )
+	self._last_info.friends_status_map = {}
+	
+	for k, v in pairs( friends ) do
+		local info_mod = 1
+		
+		if( v.status == 2 and v.info and v.info == managers.platform:presence() ) then
+			info_mod = -1
+		end
+		
+		self._last_info.friends_status_map[ tostring( v.friend ) ] = v.status * info_mod
+	end
+end
+
+function NetworkFriendsPSN:_count_online( friends )
+	local name = managers.network.account:player_id()
+	
+	--[[
+	local online_count = 0
+	local uninvitable_count = 0
+	local offline_count = 0
+	
+	for k, v in pairs( friends ) do
+		if( tostring( v.friend ) ~= name ) then
+			if( v.status == 0 ) then
+				offline_count = offline_count + 1
+			elseif( v.status == 1 ) then
+				uninvitable_count = uninvitable_count + 1
+			elseif( v.status == 2 ) then
+				if( v.info and v.info == managers.platform:presence() ) then
+					online_count = online_count + 1
+				else
+					uninvitable_count = uninvitable_count + 1
+				end
+			end
+		end
+	end
+	
+	if( self._last_info.online == online_count and self._last_info.uninvitable == uninvitable_count and self._last_info.offline == offline_count ) then
+		return false
+	end
+	
+	self._last_info.online = online_count
+	self._last_info.uninvitable = uninvitable_count
+	self._last_info.offline = offline_count
+	]]
+	
+	local status_changed = false
+	for k, v in pairs( friends ) do
+		local friend_status = self._last_info.friends_status_map[ tostring( v.friend ) ] or 42
+		local info_mod = 1
+		
+		--if( v.status == 2 and v.info and v.info == managers.platform:presence() ) then
+		--	info_mod = -1
+		--end
+		
+		if( tostring( v.friend ) ~= name ) then
+			if( friend_status ~= v.status * info_mod ) then
+				status_changed = true
+				break
+			end
+		end
+	end
+	
+	if( not status_changed ) then
+		return false
+	end
+	
+	self:_fill_li_friends_status_map( friends )
+	return true
+end

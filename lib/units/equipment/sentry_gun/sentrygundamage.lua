@@ -1,113 +1,145 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\equipment\sentry_gun\sentrygundamage.luac 
+SentryGunDamage = SentryGunDamage or class()
 
-if not SentryGunDamage then
-  SentryGunDamage = class()
-end
-SentryGunDamage.init = function(l_1_0, l_1_1)
-  l_1_0._unit = l_1_1
-  l_1_0._ext_movement = l_1_1:movement()
-  l_1_1:base():post_init()
-  l_1_1:brain():post_init()
-  l_1_1:movement():post_init()
-  l_1_0._shield_body_name = Idstring("shield")
-  l_1_0._bag_body_name = Idstring("bag")
-  l_1_0._health_sync_resolution = 0.20000000298023
-  if Network:is_server() then
-    l_1_0._health = 1
-    l_1_0._health_max = l_1_0._health
-    l_1_0._health_sync = 1
-  else
-    l_1_0._health_ratio = 1
-  end
-end
-
-SentryGunDamage.set_health = function(l_2_0, l_2_1)
-  l_2_0._health = l_2_1
-  l_2_0._health_max = math.max(l_2_0._health_max, l_2_1)
+function SentryGunDamage:init( unit )
+	self._unit = unit
+	
+	self._ext_movement = unit:movement()
+	
+	unit:base():post_init()
+	unit:brain():post_init()
+	unit:movement():post_init()
+	
+	self._shield_body_name = Idstring( "shield" )
+	self._bag_body_name = Idstring( "bag" )
+	
+	self._health_sync_resolution = 0.2
+	if Network:is_server() then
+		self._health = 1	-- this get filled later on by set_health or sync_health
+		self._health_max = self._health
+		self._health_sync = 1	-- 0-1 last synched health percentage
+	else
+		self._health_ratio = 1 -- 0-1 percentage full in health
+	end
 end
 
-SentryGunDamage.sync_health = function(l_3_0, l_3_1)
-  l_3_0._health_ratio = l_3_1 * l_3_0._health_sync_resolution * 100
-  if l_3_1 == 0 then
-    l_3_0:die()
-  end
+-----------------------------------------------------------------------------------
+
+function SentryGunDamage:set_health( amount )
+	self._health = amount
+	self._health_max = math.max( self._health_max, amount )
 end
 
-SentryGunDamage.shoot_pos_mid = function(l_4_0, l_4_1)
-  mvector3.set(l_4_1, l_4_0._ext_movement:m_head_pos())
+-----------------------------------------------------------------------------------
+
+function SentryGunDamage:sync_health( health_ratio )	-- info sent from host. clientside only
+	self._health_ratio = health_ratio * self._health_sync_resolution * 100
+	if health_ratio == 0 then
+		self:die()
+	end
 end
 
-SentryGunDamage.damage_bullet = function(l_5_0, l_5_1)
-  if l_5_0._dead or l_5_0._invulnerable or PlayerDamage:_look_for_friendly_fire(l_5_1.attacker_unit) then
-    return 
-  end
-  local hit_shield = not l_5_1.col_ray.body or l_5_1.col_ray.body:name() == l_5_0._shield_body_name
-  local hit_bag = not l_5_1.col_ray.body or l_5_1.col_ray.body:name() == l_5_0._bag_body_name
-  local dmg_adjusted = l_5_1.damage * (hit_shield and tweak_data.weapon.sentry_gun.SHIELD_DMG_MUL or 1) * (hit_bag and tweak_data.weapon.sentry_gun.BAG_DMG_MUL or 1)
-  if l_5_0._health <= dmg_adjusted then
-    l_5_0:die()
-  else
-    l_5_0._health = l_5_0._health - dmg_adjusted
-  end
-  local health_percent = l_5_0._health / l_5_0._health_max
-  if health_percent == 0 or l_5_0._health_sync_resolution <= math.abs(health_percent - l_5_0._health_sync) then
-    l_5_0._health_sync = health_percent
-    l_5_0._unit:network():send("sentrygun_health", math.ceil(health_percent / l_5_0._health_sync_resolution))
-  end
+-----------------------------------------------------------------------------------
+
+function SentryGunDamage:shoot_pos_mid( m_pos )
+	mvector3.set( m_pos, self._ext_movement:m_head_pos() )
 end
 
-SentryGunDamage.dead = function(l_6_0)
-  return l_6_0._dead
+-----------------------------------------------------------------------------------
+
+function SentryGunDamage:damage_bullet( attack_data )
+	--print( "[SentryGunDamage:damage_bullet]", inspect( attack_data ) )
+	if self._dead or self._invulnerable or PlayerDamage:_look_for_friendly_fire( attack_data.attacker_unit ) then
+		return
+	end
+	
+	local hit_shield = attack_data.col_ray.body and attack_data.col_ray.body:name() == self._shield_body_name
+	local hit_bag = attack_data.col_ray.body and attack_data.col_ray.body:name() == self._bag_body_name
+	local dmg_adjusted = attack_data.damage * ( hit_shield and tweak_data.weapon.sentry_gun.SHIELD_DMG_MUL or 1 ) * ( hit_bag and tweak_data.weapon.sentry_gun.BAG_DMG_MUL or 1 )
+	-- print( "hit_shield", hit_shield, "hit_bag", hit_bag, "damage", attack_data.damage, "dmg_adjusted", dmg_adjusted  )
+	if dmg_adjusted >= self._health then
+		self:die()
+	else
+		self._health = self._health - dmg_adjusted
+	end
+	
+	local health_percent = self._health / self._health_max
+	if health_percent == 0 or math.abs( health_percent - self._health_sync ) >= self._health_sync_resolution then
+		self._health_sync = health_percent
+		self._unit:network():send( "sentrygun_health", math.ceil( health_percent / self._health_sync_resolution ) )
+	end
+	
 end
 
-SentryGunDamage.health_ratio = function(l_7_0)
-  return l_7_0._health / HEALTH_MAX
+-----------------------------------------------------------------------------------
+
+function SentryGunDamage:dead()
+	return self._dead
 end
 
-SentryGunDamage.focus_delay_mul = function(l_8_0)
-  return 1
+-----------------------------------------------------------------------------------
+
+function SentryGunDamage:health_ratio()
+	return self._health / HEALTH_MAX
 end
 
-SentryGunDamage.die = function(l_9_0)
-  l_9_0._health = 0
-  l_9_0._dead = true
-  l_9_0._unit:set_slot(26)
-  l_9_0._unit:brain():set_active(false)
-  l_9_0._unit:movement():set_active(false)
-  managers.groupai:state():on_criminal_neutralized(l_9_0._unit)
-  l_9_0._unit:base():on_death()
-  l_9_0._unit:sound_source():post_event("turret_breakdown")
-  if l_9_0._unit:base():has_shield() then
-    l_9_0._unit:damage():run_sequence_simple("broken_with_shield")
-  else
-    l_9_0._unit:damage():run_sequence_simple("broken")
-  end
+-----------------------------------------------------------------------------------
+
+function SentryGunDamage:focus_delay_mul()
+	return 1
 end
 
-SentryGunDamage.save = function(l_10_0, l_10_1)
-  local my_save_data = {}
-  if l_10_0._health_sync then
-    my_save_data.health = math.ceil(l_10_0._health_sync / l_10_0._health_sync_resolution)
-  end
-  if next(my_save_data) then
-    l_10_1.char_damage = my_save_data
-  end
+-----------------------------------------------------------------------------------
+
+function SentryGunDamage:die()
+	--print( "[SentryGunDamage:die]", self._unit )
+	self._health = 0
+	self._dead = true
+	self._unit:set_slot( 26 )
+	self._unit:brain():set_active( false )
+	self._unit:movement():set_active( false )
+	managers.groupai:state():on_criminal_neutralized( self._unit )
+	self._unit:base():on_death()
+	self._unit:sound_source():post_event( "turret_breakdown" )
+	
+	if self._unit:base():has_shield() then
+		self._unit:damage():run_sequence_simple( "broken_with_shield" )
+	else
+		self._unit:damage():run_sequence_simple( "broken" )
+	end
 end
 
-SentryGunDamage.load = function(l_11_0, l_11_1)
-  if not l_11_1 or not l_11_1.char_damage then
-    return 
-  end
-  if l_11_1.char_damage.health then
-    l_11_0:sync_health(l_11_1.char_damage.health)
-  end
+-----------------------------------------------------------------------------------
+
+function SentryGunDamage:save( save_data )
+	local my_save_data = {}
+	if self._health_sync then
+		my_save_data.health = math.ceil( self._health_sync / self._health_sync_resolution )
+	end
+	
+	if next( my_save_data ) then
+		save_data.char_damage = my_save_data
+	end
 end
 
-SentryGunDamage.destroy = function(l_12_0, l_12_1)
-  l_12_1:brain():pre_destroy()
-  l_12_1:movement():pre_destroy()
-  l_12_1:base():pre_destroy()
+-----------------------------------------------------------------------------------
+
+function SentryGunDamage:load( save_data )
+	if not ( save_data and save_data.char_damage ) then
+		return
+	end
+	
+	if save_data.char_damage.health then
+		self:sync_health( save_data.char_damage.health )
+	end
 end
 
+-----------------------------------------------------------------------------------
 
+function SentryGunDamage:destroy( unit )
+	unit:brain():pre_destroy()
+	unit:movement():pre_destroy()
+	unit:base():pre_destroy()
+end
+
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------

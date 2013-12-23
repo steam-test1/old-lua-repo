@@ -1,93 +1,108 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\elementspecialobjectivegroup.luac 
+core:import( "CoreMissionScriptElement" )
 
-core:import("CoreMissionScriptElement")
-if not ElementSpecialObjectiveGroup then
-  ElementSpecialObjectiveGroup = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementSpecialObjectiveGroup.init = function(l_1_0, ...)
-  ElementSpecialObjectiveGroup.super.init(l_1_0, ...)
-  do
-    if not l_1_0._values.access_flag_version then
-      local access_filter_version = not l_1_0._values.SO_access or 1
-    end
-    if access_filter_version ~= managers.navigation.ACCESS_FLAGS_VERSION then
-      print("[ElementSpecialObjectiveGroup:init] converting access flag", access_filter_version, l_1_0._values.SO_access)
-      l_1_0._values.SO_access = managers.navigation:upgrade_access_filter(tonumber(l_1_0._values.SO_access), access_filter_version)
-      print("[ElementSpecialObjectiveGroup:init] converted to", l_1_0._values.SO_access)
-    else
-      l_1_0._values.SO_access = tonumber(l_1_0._values.SO_access)
-    end
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementSpecialObjectiveGroup = ElementSpecialObjectiveGroup or class( CoreMissionScriptElement.MissionScriptElement )
 
-  end
+function ElementSpecialObjectiveGroup:init( ... )
+	ElementSpecialObjectiveGroup.super.init( self, ... )
+	
+	if self._values.SO_access then
+		local access_filter_version = self._values.access_flag_version or 1
+		if access_filter_version ~= managers.navigation.ACCESS_FLAGS_VERSION then
+			print( "[ElementSpecialObjectiveGroup:init] converting access flag", access_filter_version, self._values.SO_access )
+			self._values.SO_access = managers.navigation:upgrade_access_filter( tonumber( self._values.SO_access ), access_filter_version )
+			print( "[ElementSpecialObjectiveGroup:init] converted to", self._values.SO_access )
+		else
+			self._values.SO_access = tonumber( self._values.SO_access )
+		end
+	end
 end
 
-ElementSpecialObjectiveGroup.clbk_verify_administration = function(l_2_0, l_2_1)
-  return ElementSpecialObjective.clbk_verify_administration(l_2_0, l_2_1)
+-----------------------------------------------------------------------------
+
+function ElementSpecialObjectiveGroup:clbk_verify_administration( unit )
+	return ElementSpecialObjective.clbk_verify_administration( self, unit )
 end
 
-ElementSpecialObjectiveGroup.on_executed = function(l_3_0, l_3_1)
-  if not l_3_0._values.enabled or Network:is_client() then
-    return 
-  end
-  if not managers.groupai:state():is_AI_enabled() and not Application:editor() then
-    do return end
-  end
-  if l_3_0._values.spawn_instigator_ids and next(l_3_0._values.spawn_instigator_ids) then
-    local chosen_units = l_3_0:_select_units_from_spawners()
-    if chosen_units then
-      for _,chosen_unit in ipairs(chosen_units) do
-        l_3_0:_execute_random_SO(chosen_unit)
-      end
-    else
-      if l_3_0._values.use_instigator and alive(l_3_1) and l_3_1:brain() and (not l_3_1:character_damage() or not l_3_1:character_damage():dead()) then
-        l_3_0:_execute_random_SO(l_3_1)
-        do return end
-        Application:error("[ElementSpecialObjectiveGroup:on_executed] Special Objective instigator is not an AI unit. Possibly improper \"use instigator\" flag use. Element id:", l_3_0._id)
-        do return end
-        if not l_3_1 then
-          Application:error("[ElementSpecialObjectiveGroup:on_executed] Special Objective missing instigator. Possibly improper \"use instigator\" flag use. Element id:", l_3_0._id)
-          do return end
-          l_3_0:_execute_random_SO(nil)
-        end
-      end
-    end
-  end
-  ElementSpecialObjectiveGroup.super.on_executed(l_3_0, l_3_1)
+-----------------------------------------------------------------------------
+
+function ElementSpecialObjectiveGroup:on_executed( instigator )
+	--print( "[ElementSpecialObjectiveGroup:on_executed] instigator", instigator )
+	if not self._values.enabled or Network:is_client() then
+		return
+	end
+	if not ( managers.groupai:state():is_AI_enabled() or Application:editor() ) then
+		--skip
+	elseif self._values.spawn_instigator_ids and next( self._values.spawn_instigator_ids ) then	-- collect units from spawn elements
+		--print( "self._values.spawn_instigator_ids", self._values.spawn_instigator_ids and inspect( self._values.spawn_instigator_ids ) )
+		local chosen_units = self:_select_units_from_spawners()
+		if chosen_units then
+			for _, chosen_unit in ipairs( chosen_units ) do
+				self:_execute_random_SO( chosen_unit )
+			end
+		end
+	elseif self._values.use_instigator then
+		--print( "self._values.use_instigator" )
+		if alive( instigator ) then
+			if instigator:brain() then
+				if not ( instigator:character_damage() and instigator:character_damage():dead() ) then
+					self:_execute_random_SO( instigator )
+				end
+			else
+				Application:error( "[ElementSpecialObjectiveGroup:on_executed] Special Objective instigator is not an AI unit. Possibly improper \"use instigator\" flag use. Element id:", self._id )
+			end
+		elseif not instigator then
+			Application:error( "[ElementSpecialObjectiveGroup:on_executed] Special Objective missing instigator. Possibly improper \"use instigator\" flag use. Element id:", self._id )
+		end
+	else	-- Add special objective
+		self:_execute_random_SO( nil )
+	end
+	ElementSpecialObjectiveGroup.super.on_executed( self, instigator )
 end
 
-ElementSpecialObjectiveGroup.operation_remove = function(l_4_0)
-  for _,followup_element_id in ipairs(l_4_0._values.followup_elements) do
-    managers.groupai:state():remove_special_objective(followup_element_id)
-  end
+-----------------------------------------------------------------------------
+
+function ElementSpecialObjectiveGroup:operation_remove()
+	for _, followup_element_id in ipairs( self._values.followup_elements ) do
+		managers.groupai:state():remove_special_objective( followup_element_id )
+	end
 end
 
-ElementSpecialObjectiveGroup._select_units_from_spawners = function(l_5_0)
-  return ElementSpecialObjective._select_units_from_spawners(l_5_0)
+-----------------------------------------------------------------------------
+
+function ElementSpecialObjectiveGroup:_select_units_from_spawners()
+	return ElementSpecialObjective._select_units_from_spawners( self )
 end
 
-ElementSpecialObjectiveGroup.choose_followup_SO = function(l_6_0, l_6_1, l_6_2)
-  if l_6_2 and l_6_2[l_6_0._id] then
-    return 
-  end
-  l_6_2[l_6_0._id] = true
-  return ElementSpecialObjective.choose_followup_SO(l_6_0, l_6_1, l_6_2)
+-----------------------------------------------------------------------------------
+
+function ElementSpecialObjectiveGroup:choose_followup_SO( unit, skip_element_ids )
+	if skip_element_ids and skip_element_ids[ self._id ] then
+		return
+	end
+	skip_element_ids[ self._id ] = true -- groups will not be re-iterated
+	return ElementSpecialObjective.choose_followup_SO( self, unit, skip_element_ids )
 end
 
-ElementSpecialObjectiveGroup.get_as_followup = function(l_7_0, l_7_1, l_7_2)
-  if l_7_2[l_7_0._id] then
-    return 
-  end
-  l_7_2[l_7_0._id] = true
-  return ElementSpecialObjective.choose_followup_SO(l_7_0, l_7_1, l_7_2), l_7_0._values.base_chance
+-----------------------------------------------------------------------------------
+
+function ElementSpecialObjectiveGroup:get_as_followup( unit, skip_element_ids )
+	if skip_element_ids[ self._id ] then
+		return
+	end
+	
+	skip_element_ids[ self._id ] = true -- groups will not be re-iterated
+	return ElementSpecialObjective.choose_followup_SO( self, unit, skip_element_ids ), self._values.base_chance
 end
 
-ElementSpecialObjectiveGroup._execute_random_SO = function(l_8_0, l_8_1)
-  local random_SO = ElementSpecialObjective.choose_followup_SO(l_8_0, l_8_1, {l_8_0._id = true})
-  if random_SO then
-    random_SO:on_executed(l_8_1)
-  end
+-----------------------------------------------------------------------------
+
+function ElementSpecialObjectiveGroup:_execute_random_SO( instigator )
+	--print( "[ElementSpecialObjectiveGroup:_execute_random_SO]", instigator )
+	local random_SO = ElementSpecialObjective.choose_followup_SO( self, instigator, { [self._id] = true } )
+	if random_SO then
+		random_SO:on_executed( instigator )
+	end
 end
 
-
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------

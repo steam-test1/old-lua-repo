@@ -1,2447 +1,2592 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\units\coreunitdamage.luac 
-
-core:import("CoreSequenceManager")
-if not CoreUnitDamage then
-  CoreUnitDamage = class()
-end
-if not UnitDamage then
-  UnitDamage = class(CoreUnitDamage)
-end
-CoreUnitDamage.init = function(l_1_0, l_1_1, l_1_2, l_1_3, l_1_4, l_1_5, l_1_6)
-  l_1_0._unit = l_1_1
-  l_1_0._unit_element = managers.sequence:get(l_1_1:name(), false, true)
-  l_1_0._damage = 0
-  l_1_0._variables = {}
-  for k,v in pairs(l_1_0._unit_element._set_variables) do
-    l_1_0._variables[k] = v
-  end
-  l_1_0._ids_damage = Idstring("damage")
-  l_1_0._unit:set_extension_update_enabled(l_1_0._ids_damage, l_1_0._update_func_map ~= nil)
-  for name,element in pairs(l_1_0._unit_element:get_proximity_element_map()) do
-    local data = {}
-    data.name = name
-    data.enabled = element:get_enabled()
-    if element:get_ref_object() then
-      data.ref_object = l_1_0._unit:get_object(Idstring(element:get_ref_object()))
-    end
-    data.interval = element:get_interval()
-    data.quick = element:is_quick()
-    data.is_within = element:get_start_within()
-    data.slotmask = element:get_slotmask()
-    data.last_check_time = TimerManager:game():time() + math.rand(math.min(data.interval, 0))
-    l_1_0:populate_proximity_range_data(data, "within_data", element:get_within_element())
-    l_1_0:populate_proximity_range_data(data, "outside_data", element:get_outside_element())
-    if not l_1_0._proximity_map then
-      l_1_0._proximity_map = {}
-    end
-    l_1_0._proximity_map[name] = data
-    l_1_0._proximity_count = (l_1_0._proximity_count or 0) + 1
-    if data.enabled then
-      if not l_1_0._proximity_enabled_count then
-        l_1_0._proximity_enabled_count = 0
-        l_1_0:set_update_callback("update_proximity_list", true)
-      end
-      l_1_0._proximity_enabled_count = l_1_0._proximity_enabled_count + 1
-    end
-  end
-  for trigger_name in pairs(l_1_0._unit_element:get_trigger_name_map()) do
-    if not l_1_0._trigger_func_list then
-      l_1_0._trigger_func_list = {}
-    end
-    l_1_0._trigger_func_list[trigger_name] = {}
-  end
-  l_1_0._mover_collision_ignore_duration = l_1_6
-  if not l_1_3 then
-    l_1_3 = {}
-  end
-  if not l_1_2 then
-    l_1_2 = CoreBodyDamage
-  end
-  local inflict_updator_damage_type_map = get_core_or_local("InflictUpdator").INFLICT_UPDATOR_DAMAGE_TYPE_MAP
-  local unit_key = l_1_0._unit:key()
-  for _,body_element in pairs(l_1_0._unit_element._bodies) do
-    local body = l_1_0._unit:body(body_element._name)
-    if body then
-      if not body:extension() then
-        body:set_extension({})
-      end
-      local body_ext = l_1_3[body_element._name] or l_1_2:new(l_1_0._unit, l_1_0, body, body_element)
-      body:extension().damage = body_ext
-      do
-        local body_key = nil
-        for _,damage_type in pairs(body_ext:get_endurance_map()) do
-          if inflict_updator_damage_type_map[damage_type] then
-            if not body_key then
-              body_key = body:key()
-            end
-            if not l_1_0._added_inflict_updator_damage_type_map then
-              l_1_0._added_inflict_updator_damage_type_map = {}
-            end
-            l_1_0._added_inflict_updator_damage_type_map[damage_type] = {}
-            l_1_0._added_inflict_updator_damage_type_map[damage_type][body_key] = body_ext
-            managers.sequence:add_inflict_updator_body(damage_type, unit_key, body_key, body_ext)
-          end
-        end
-      end
-      for (for control),_ in (for generator) do
-      end
-      Application:throw_exception("Unit \"" .. l_1_0._unit:name():t() .. "\" doesn't have the body \"" .. body_element._name .. "\" that was loaded into the SequenceManager.")
-    end
-    if not l_1_4 then
-      l_1_0._unit:set_body_collision_callback(callback(l_1_0, l_1_0, "body_collision_callback"))
-    end
-    if l_1_0._unit:mover() and not l_1_5 then
-      l_1_0._unit:set_mover_collision_callback(callback(l_1_0, l_1_0, "mover_collision_callback"))
-    end
-    l_1_0._water_check_element_map = l_1_0._unit_element:get_water_element_map()
-    if l_1_0._water_check_element_map then
-      for name,water_element in pairs(l_1_0._water_check_element_map) do
-        l_1_0:set_water_check(name, water_element:get_enabled(), water_element:get_interval(), water_element:get_ref_object(), water_element:get_ref_body(), water_element:get_body_depth(), water_element:get_physic_effect())
-      end
-    end
-    l_1_0._startup_sequence_map = l_1_0._unit_element:get_startup_sequence_map(l_1_0._unit, l_1_0)
-    if l_1_0._startup_sequence_map then
-      l_1_0._startup_sequence_callback_id = managers.sequence:add_time_callback(callback(l_1_0, l_1_0, "run_startup_sequences"))
-    end
-    if Application:editor() then
-      l_1_0._editor_startup_sequence_map = l_1_0._unit_element:get_editor_startup_sequence_map(l_1_0._unit, l_1_0)
-      if l_1_0._editor_startup_sequence_map then
-        l_1_0._editor_startup_sequence_callback_id = managers.sequence:add_time_callback(callback(l_1_0, l_1_0, "run_editor_startup_sequences"))
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-CoreUnitDamage.get_sound_source = function(l_2_0, l_2_1)
-  if not l_2_0._sound_sources then
-    l_2_0._sound_sources = {}
-  end
-  local sound_source = l_2_0._sound_sources[l_2_1]
-  if not sound_source then
-    sound_source = SoundDevice:create_source(l_2_1)
-    local obj = l_2_0._unit:get_object(Idstring(l_2_1))
-    if obj then
-      sound_source:link(obj)
-    else
-      return 
-    end
-    l_2_0._sound_sources[l_2_1] = sound_source
-  end
-  return sound_source
-end
-
-CoreUnitDamage.destroy = function(l_3_0)
-  if l_3_0._added_inflict_updator_damage_type_map then
-    local unit_key = l_3_0._unit:key()
-    for damage_type,body_map in pairs(l_3_0._added_inflict_updator_damage_type_map) do
-      for body_key in pairs(body_map) do
-        managers.sequence:remove_inflict_updator_body(damage_type, unit_key, body_key)
-      end
-    end
-  end
-  if l_3_0._water_check_map then
-    for name in pairs(l_3_0._water_check_map) do
-      l_3_0:set_water_check_active(, false)
-    end
-  end
-  if l_3_0._inherit_destroy_unit_list then
-    for _,unit in ipairs(l_3_0._inherit_destroy_unit_list) do
-      if alive(unit) then
-        unit:set_slot(0)
-      end
-    end
-  end
-end
-
-CoreUnitDamage.update = function(l_4_0, l_4_1, l_4_2, l_4_3)
-  if l_4_0._update_func_map then
-    for func_name,data in pairs(l_4_0._update_func_map) do
-      l_4_0[func_name](l_4_0, l_4_1, l_4_2, l_4_3, data)
-    end
-  else
-    Application:error("Some scripter tried to enable the damage extension on unit \"" .. tostring(l_4_1:name()) .. "\" or an artist have specified more than one damage-extension in the unit xml. This would have resulted in a crash, so fix it!")
-    l_4_0._unit:set_extension_update_enabled(l_4_0._ids_damage, false)
-  end
-end
-
-CoreUnitDamage.set_update_callback = function(l_5_0, l_5_1, l_5_2)
-  if l_5_2 then
-    if not l_5_0._update_func_map then
-      l_5_0._update_func_map = {}
-    end
-    if not l_5_0._update_func_map[l_5_1] then
-      if not l_5_0._update_func_count then
-        l_5_0._update_func_count = 0
-        l_5_0._unit:set_extension_update_enabled(l_5_0._ids_damage, true)
-      end
-      l_5_0._update_func_count = l_5_0._update_func_count + 1
-    end
-    l_5_0._update_func_map[l_5_1] = l_5_2
-  elseif l_5_0._update_func_map and l_5_0._update_func_map[l_5_1] then
-    l_5_0._update_func_count = l_5_0._update_func_count - 1
-    l_5_0._update_func_map[l_5_1] = nil
-    if l_5_0._update_func_count == 0 then
-      l_5_0._unit:set_extension_update_enabled(l_5_0._ids_damage, false)
-      l_5_0._update_func_map = nil
-      l_5_0._update_func_count = nil
-    end
-  end
-end
-
-CoreUnitDamage.populate_proximity_range_data = function(l_6_0, l_6_1, l_6_2, l_6_3)
-  if l_6_3 then
-    l_6_1[l_6_2] = {}
-    l_6_1[l_6_2].element = l_6_3
-    l_6_1[l_6_2].activation_count = 0
-    l_6_1[l_6_2].max_activation_count = l_6_3:get_max_activation_count()
-    l_6_1[l_6_2].delay = l_6_3:get_delay()
-    l_6_1[l_6_2].range = l_6_3:get_range()
-    l_6_1[l_6_2].count = l_6_3:get_count()
-    l_6_1[l_6_2].is_within = l_6_2 == "within_data"
-  end
-end
-
-CoreUnitDamage.set_proximity_enabled = function(l_7_0, l_7_1, l_7_2)
-  if l_7_0._proximity_map then
-    local data = l_7_0._proximity_map[l_7_1]
-  end
-  if data and not data.enabled ~= not l_7_2 then
-    data.enabled = l_7_2
-    if l_7_2 then
-      if not l_7_0._proximity_enabled_count then
-        l_7_0:set_update_callback("update_proximity_list", true)
-        l_7_0._proximity_enabled_count = 0
-      end
-      l_7_0._proximity_enabled_count = l_7_0._proximity_enabled_count + 1
-    else
-      l_7_0._proximity_enabled_count = l_7_0._proximity_enabled_count - 1
-      if l_7_0._proximity_enabled_count <= 0 then
-        l_7_0._proximity_enabled_count = nil
-        l_7_0:set_update_callback("update_proximity_list", nil)
-      end
-    end
-  end
-end
-
-CoreUnitDamage.update_proximity_list = function(l_8_0, l_8_1, l_8_2, l_8_3)
-  if managers.sequence:is_proximity_enabled() then
-    for name,data in pairs(l_8_0._proximity_map) do
-      if data.enabled and data.last_check_time + data.interval <= l_8_2 then
-        local range_data, reversed = nil, nil
-        if data.is_within then
-          range_data = data.outside_data
-          if not range_data then
-            range_data = data.within_data
-            reversed = true
-          else
-            reversed = false
-          end
-        else
-          range_data = data.within_data
-          if not range_data then
-            range_data = data.outside_data
-            reversed = true
-          else
-            reversed = false
-          end
-        end
-        if l_8_0:check_proximity_activation_count(data) and data.last_check_time + range_data.delay <= l_8_2 and l_8_0:update_proximity(l_8_1, l_8_2, l_8_3, data, range_data) ~= reversed then
-          data.last_check_time = l_8_2
-          data.is_within = not data.is_within
-          if not reversed and l_8_0:is_proximity_range_active(range_data) then
-            range_data.activation_count = range_data.activation_count + 1
-            if not l_8_0._proximity_env then
-              l_8_0._proximity_env = CoreSequenceManager.SequenceEnvironment:new("proximity", l_8_0._unit, l_8_0._unit, nil, Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 0, (Vector3(0, 0, 0)), nil, l_8_0._unit_element)
-            end
-            range_data.element:activate_elements(l_8_0._proximity_env)
-            l_8_0:check_proximity_activation_count(data)
-          end
-        end
-      end
-    end
-  end
-end
-
-CoreUnitDamage.is_proximity_range_active = function(l_9_0, l_9_1)
-  return not l_9_1 or l_9_1.max_activation_count < 0 or l_9_1.activation_count < l_9_1.max_activation_count
-end
-
-CoreUnitDamage.check_proximity_activation_count = function(l_10_0, l_10_1)
-  if not l_10_0:is_proximity_range_active(l_10_1.within_data) and not l_10_0:is_proximity_range_active(l_10_1.outside_data) then
-    l_10_0:set_proximity_enabled(l_10_1.name, false)
-    return false
-  else
-    return true
-  end
-end
-
-CoreUnitDamage.update_proximity = function(l_11_0, l_11_1, l_11_2, l_11_3, l_11_4, l_11_5)
-  local pos = nil
-  if l_11_4.ref_object then
-    pos = l_11_4.ref_object:position()
-  else
-    pos = l_11_0._unit:position()
-  end
-  local unit_list = nil
-  if l_11_5.quick then
-    unit_list = l_11_0._unit:find_units_quick("sphere", pos, l_11_5.range, l_11_4.slotmask)
-  else
-    unit_list = l_11_0._unit:find_units("sphere", pos, l_11_5.range, l_11_4.slotmask)
-  end
-  if #unit_list > l_11_5.count then
-    return (not l_11_4.is_within or l_11_5.is_within == l_11_4.is_within) and l_11_4.is_within or l_11_5.is_within ~= l_11_4.is_within
-  end
-  do return end
-  return l_11_5.count <= #unit_list
-end
-
-CoreUnitDamage.get_proximity_map = function(l_12_0)
-  if not l_12_0._proximity_map then
-    return {}
-  end
-end
-
-CoreUnitDamage.set_proximity_slotmask = function(l_13_0, l_13_1, l_13_2)
-  l_13_0._proximity_map[l_13_1].slotmask = l_13_2
-end
-
-CoreUnitDamage.set_proximity_ref_obj_name = function(l_14_0, l_14_1, l_14_2)
-  if l_14_2 then
-    l_14_0._proximity_map[l_14_1].ref_object = l_14_0._unit:get_object(Idstring(l_14_2))
-  end
-end
-
-CoreUnitDamage.set_proximity_interval = function(l_15_0, l_15_1, l_15_2)
-  l_15_0._proximity_map[l_15_1].interval = l_15_2
-end
-
-CoreUnitDamage.set_proximity_is_within = function(l_16_0, l_16_1, l_16_2)
-  l_16_0._proximity_map[l_16_1].is_within = l_16_2
-end
-
-CoreUnitDamage.set_proximity_within_activations = function(l_17_0, l_17_1, l_17_2)
-  local data = l_17_0._proximity_map[l_17_1]
-  local within_data = data.within_data
-  if within_data then
-    within_data.activations = l_17_2
-    return l_17_0:check_proximity_activation_count(data)
-  end
-end
-
-CoreUnitDamage.set_proximity_within_max_activations = function(l_18_0, l_18_1, l_18_2)
-  local data = l_18_0._proximity_map[l_18_1]
-  local within_data = data.within_data
-  if within_data then
-    within_data.max_activations = l_18_2
-    return l_18_0:check_proximity_activation_count(data)
-  end
-end
-
-CoreUnitDamage.set_proximity_within_delay = function(l_19_0, l_19_1, l_19_2)
-  local within_data = l_19_0._proximity_map[l_19_1].within_data
-  if within_data then
-    within_data.delay = l_19_2
-  end
-end
-
-CoreUnitDamage.set_proximity_within_range = function(l_20_0, l_20_1, l_20_2)
-  local within_data = l_20_0._proximity_map[l_20_1].within_data
-  if within_data then
-    within_data.range = l_20_2
-  end
-end
-
-CoreUnitDamage.set_proximity_inside_count = function(l_21_0, l_21_1, l_21_2)
-  local within_data = l_21_0._proximity_map[l_21_1].within_data
-  if within_data then
-    within_data.count = l_21_2
-  end
-end
-
-CoreUnitDamage.set_proximity_outside_activations = function(l_22_0, l_22_1, l_22_2)
-  local data = l_22_0._proximity_map[l_22_1]
-  local outside_data = data.outside_data
-  if outside_data then
-    outside_data.activations = l_22_2
-    return l_22_0:check_proximity_activation_count(data)
-  end
-end
-
-CoreUnitDamage.set_proximity_outside_max_activations = function(l_23_0, l_23_1, l_23_2)
-  local data = l_23_0._proximity_map[l_23_1]
-  local outside_data = data.outside_data
-  if outside_data then
-    outside_data.max_activations = l_23_2
-    return l_23_0:check_proximity_activation_count(data)
-  end
-end
-
-CoreUnitDamage.set_proximity_outside_delay = function(l_24_0, l_24_1, l_24_2)
-  local outside_data = l_24_0._proximity_map[l_24_1].outside_data
-  if outside_data then
-    outside_data.delay = l_24_2
-  end
-end
-
-CoreUnitDamage.set_proximity_outside_range = function(l_25_0, l_25_1, l_25_2)
-  local outside_data = l_25_0._proximity_map[l_25_1].outside_data
-  if outside_data then
-    outside_data.range = l_25_2
-  end
-end
-
-CoreUnitDamage.set_proximity_outside_range = function(l_26_0, l_26_1, l_26_2)
-  local outside_data = l_26_0._proximity_map[l_26_1].outside_data
-  if outside_data then
-    outside_data.range = count
-  end
-end
-
-CoreUnitDamage.get_water_check_map = function(l_27_0)
-  return l_27_0._water_check_map
-end
-
-CoreUnitDamage.set_water_check = function(l_28_0, l_28_1, l_28_2, l_28_3, l_28_4, l_28_5, l_28_6, l_28_7)
-  if not l_28_0._water_check_map then
-    l_28_0._water_check_map = {}
-  end
-  local water_check = l_28_0._water_check_map[l_28_1]
-  if l_28_4 then
-    local ref_object = l_28_0._unit:get_object(Idstring(l_28_4))
-  end
-  if l_28_5 then
-    local ref_body = l_28_0._unit:body(l_28_5)
-  end
-  if not water_check then
-    water_check = CoreDamageWaterCheck:new(l_28_0._unit, l_28_0, l_28_1, l_28_3, ref_object, ref_body, l_28_6, l_28_7)
-    l_28_0._water_check_map[l_28_1] = water_check
-  else
-    water_check:set_interval(l_28_3)
-    water_check:set_body_depth(l_28_6)
-    if ref_object then
-      water_check:set_ref_object(ref_object)
-    elseif ref_body then
-      water_check:set_ref_body(ref_body)
-    end
-  end
-  l_28_0:set_water_check_active(l_28_1, l_28_2)
-  if not water_check:is_valid() then
-    Application:error("Invalid water check \"" .. tostring(l_28_1) .. "\" in unit \"" .. tostring(l_28_0._unit:name()) .. "\". Neither ref_body nor ref_object is speicified in it.")
-    l_28_0:remove_water_check(l_28_1)
-  end
-end
-
-CoreUnitDamage.remove_water_check = function(l_29_0, l_29_1)
-  if l_29_0._water_check_map then
-    local water_check = l_29_0._water_check_map[l_29_1]
-    if water_check then
-      l_29_0:set_water_check_active(l_29_1, false)
-      l_29_0._water_check_map[l_29_1] = nil
-    end
-  end
-end
-
-CoreUnitDamage.exists_water_check = function(l_30_0, l_30_1)
-  return not l_30_0._water_check_map or l_30_0._water_check_map[l_30_1] ~= nil
-end
-
-CoreUnitDamage.is_water_check_active = function(l_31_0, l_31_1)
-  return not l_31_0._active_water_check_map or l_31_0._active_water_check_map[l_31_1] ~= nil
-end
-
-CoreUnitDamage.set_water_check_active = function(l_32_0, l_32_1, l_32_2)
-  if l_32_0._water_check_map then
-    local water_check = l_32_0._water_check_map[l_32_1]
-  end
-  if water_check and l_32_2 and (not l_32_0._active_water_check_map or not l_32_0._active_water_check_map[l_32_1]) then
-    if not l_32_0._active_water_check_map then
-      l_32_0._active_water_check_map = {}
-    end
-    l_32_0._active_water_check_map[l_32_1] = water_check
-    l_32_0._active_water_check_count = (l_32_0._active_water_check_count or 0) + 1
-    if l_32_0._active_water_check_count == 1 then
-      l_32_0._water_check_func_id = managers.sequence:add_callback(callback(l_32_0, l_32_0, "update_water_checks"))
-      do return end
-      water_check:set_activation_callbacks_enabled(false)
-      if l_32_0._active_water_check_map and l_32_0._active_water_check_map[l_32_1] then
-        l_32_0._active_water_check_map[l_32_1] = nil
-        l_32_0._active_water_check_count = l_32_0._active_water_check_count - 1
-        if l_32_0._active_water_check_count == 0 then
-          managers.sequence:remove_callback(l_32_0._water_check_func_id)
-          l_32_0._water_check_func_id = nil
-          l_32_0._active_water_check_map = nil
-          l_32_0._active_water_check_count = nil
-        end
-      end
-    end
-  end
-end
-
-CoreUnitDamage.update_water_checks = function(l_33_0, l_33_1, l_33_2)
-  for name,water_check in pairs(l_33_0._active_water_check_map) do
-    water_check:update(l_33_1, l_33_2)
-  end
-end
-
-CoreUnitDamage.water_check_enter = function(l_34_0, l_34_1, l_34_2, l_34_3, l_34_4, l_34_5, l_34_6, l_34_7, l_34_8, l_34_9, l_34_10)
-  local element = l_34_0._water_check_element_map[l_34_1]
-  if element then
-    local env = CoreSequenceManager.SequenceEnvironment:new("water", l_34_3, l_34_0._unit, l_34_4, l_34_5, l_34_6, l_34_7, l_34_8, l_34_9, {water_depth = l_34_10}, l_34_0._unit_element)
-    element:activate_enter(env)
-  end
-end
-
-CoreUnitDamage.water_check_exit = function(l_35_0, l_35_1, l_35_2, l_35_3, l_35_4, l_35_5, l_35_6, l_35_7, l_35_8, l_35_9, l_35_10)
-  local element = l_35_0._water_check_element_map[l_35_1]
-  if element then
-    local env = CoreSequenceManager.SequenceEnvironment:new("water", l_35_3, l_35_0._unit, l_35_4, l_35_5, l_35_6, l_35_7, l_35_8, l_35_9, {water_depth = l_35_10}, l_35_0._unit_element)
-    element:activate_exit(env)
-  end
-end
-
-CoreUnitDamage.save = function(l_36_0, l_36_1)
-  local state = {}
-  local changed = false
-  if l_36_0._runned_sequences then
-    for k,v in pairs(l_36_0._runned_sequences) do
-      state.runned_sequences = table.map_copy(l_36_0._runned_sequences)
-      changed = true
-      do return end
-    end
-  end
-  if l_36_0._state then
-    for k,v in pairs(l_36_0._state) do
-      state.state = deep_clone(l_36_0._state)
-      changed = true
-      do return end
-    end
-  end
-  if l_36_0._damage ~= 0 then
-    state.damage = l_36_0._damage
-    changed = true
-  end
-  for k,v in pairs(l_36_0._variables) do
-    if l_36_0._unit_element._set_variables[k] ~= v and (k ~= "damage" or v ~= l_36_0._damage) then
-      state.variables = table.map_copy(l_36_0._variables)
-      changed = true
-  else
-    end
-  end
-  if l_36_0._proximity_count then
-    changed = true
-    state.proximity_count = l_36_0._proximity_count
-    state.proximity_enabled_count = l_36_0._proximity_enabled_count
-    if not l_36_0._proximity_map then
-      for name,data in pairs({}) do
-      end
-      if not state.proximity_map then
-        state.proximity_map = {}
-      end
-      state.proximity_map[name] = {}
-      for attribute_name,attribute_value in pairs(data) do
-        if attribute_name == "ref_object" then
-          if attribute_value then
-            state.proximity_map[name][attribute_name] = attribute_value:name()
-            for (for control),attribute_name in (for generator) do
-            end
-          end
-          if attribute_name == "slotmask" then
-            state.proximity_map[name][attribute_name] = managers.slot:get_mask_name(attribute_value)
-            for (for control),attribute_name in (for generator) do
-            end
-            if attribute_name == "last_check_time" then
-              state.proximity_map[name][attribute_name] = TimerManager:game():time() - attribute_value
-              for (for control),attribute_name in (for generator) do
-              end
-              if attribute_name == "within_data" or attribute_name == "outside_data" then
-                state.proximity_map[name][attribute_name] = {}
-                for range_attribute_name,range_attribute_value in pairs(attribute_value) do
-                  if range_attribute_name ~= "element" then
-                    state.proximity_map[name][attribute_name][range_attribute_name] = range_attribute_value
-                  end
-                end
-                for (for control),attribute_name in (for generator) do
-                end
-                state.proximity_map[name][attribute_name] = attribute_value
-              end
-            end
-          end
-          for _,anim_name in ipairs(l_36_0._unit:anim_groups()) do
-            if not state.anim then
-              state.anim = {}
-            end
-            local anim_time = l_36_0._unit:anim_time(anim_name)
-            table.insert(state.anim, {name = anim_name, time = anim_time})
-            changed = true
-          end
-          if not l_36_0._skip_save_anim_state_machine then
-            local state_machine = l_36_0._unit:anim_state_machine()
-            if state_machine then
-              if not state.state_machine then
-                state.state_machine = {}
-              end
-              for _,segment in ipairs(state_machine:config():segments()) do
-                local anim_state = state_machine:segment_state(segment)
-                if anim_state ~= Idstring("") then
-                  local anim_time = state_machine:segment_real_time(segment)
-                  table.insert(state.state_machine, {anim_state = anim_state, anim_time = anim_time})
-                end
-              end
-            end
-          end
-          if l_36_0._unit_element:save_by_unit(l_36_0._unit, state) or changed then
-            l_36_1.CoreUnitDamage = state
-          end
-           -- Warning: missing end command somewhere! Added here
-        end
-         -- Warning: missing end command somewhere! Added here
-      end
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-CoreUnitDamage.get_unit_element = function(l_37_0)
-  return l_37_0._unit_element
-end
-
-CoreUnitDamage.load = function(l_38_0, l_38_1)
-  do
-    local state = l_38_1.CoreUnitDamage
-    if l_38_0._unit:name() == Idstring("units/payday2/vehicles/air_vehicle_blackhawk/helicopter_cops_ref") then
-      print("[CoreUnitDamage:load]", l_38_0._unit)
-    end
-    if l_38_0._startup_sequence_callback_id then
-      managers.sequence:remove_time_callback(l_38_0._startup_sequence_callback_id)
-      l_38_0:run_startup_sequences()
-    end
-    if l_38_0._editor_startup_sequence_callback_id then
-      managers.sequence:remove_time_callback(l_38_0._editor_startup_sequence_callback_id)
-      l_38_0:run_editor_startup_sequences()
-    end
-    if state then
-      if state.runned_sequences then
-        l_38_0._runned_sequences = table.map_copy(state.runned_sequences)
-      end
-      if state.state then
-        l_38_0._state = deep_clone(state.state)
-      end
-      if not state.damage then
-        l_38_0._damage = l_38_0._damage
-      end
-      if state.variables then
-        l_38_0._variables = table.map_copy(state.variables)
-      end
-      if state.proximity_map then
-        l_38_0._proximity_count = state.proximity_count
-        l_38_0._proximity_enabled_count = state.proximity_enabled_count
-        for name,data in pairs(state.proximity_map) do
-          if not l_38_0._proximity_map then
-            l_38_0._proximity_map = {}
-          end
-          for attribute_name,attribute_value in pairs(data) do
-            if attribute_name == "ref_object" then
-              if attribute_value then
-                l_38_0._proximity_map[name][attribute_name] = l_38_0._unit:get_object(Idstring(attribute_value))
-                for (for control),attribute_name in (for generator) do
-                end
-              end
-              if attribute_name == "slotmask" then
-                l_38_0._proximity_map[name][attribute_name] = managers.slot:get_mask(attribute_value)
-                for (for control),attribute_name in (for generator) do
-                end
-                if attribute_name == "last_check_time" then
-                  l_38_0._proximity_map[name][attribute_name] = TimerManager:game():time() - attribute_value
-                  for (for control),attribute_name in (for generator) do
-                  end
-                  if attribute_name == "within_data" or attribute_name == "outside_data" then
-                    for range_attribute_name,range_attribute_value in pairs(attribute_value) do
-                      l_38_0._proximity_map[name][attribute_name][range_attribute_name] = range_attribute_value
-                    end
-                    for (for control),attribute_name in (for generator) do
-                    end
-                    l_38_0._proximity_map[name][attribute_name] = attribute_value
-                  end
-                end
-                if l_38_0._proximity_enabled_count then
-                  l_38_0:set_update_callback("update_proximity_list", true)
-                end
-              end
-              if state.anim then
-                for _,anim_data in ipairs(state.anim) do
-                  l_38_0._unit:anim_set_time(anim_data.name, anim_data.time)
-                end
-              end
-              if state.state_machine then
-                for _,anim_data in ipairs(state.state_machine) do
-                  l_38_0._unit:play_state(anim_data.anim_state, anim_data.anim_time)
-                end
-              end
-              if l_38_0._state then
-                for element_name,data in pairs(l_38_0._state) do
-                  managers.sequence:load_element_data(l_38_0._unit, element_name, data)
-                end
-              end
-              l_38_0._unit_element:load_by_unit(l_38_0._unit, state)
-            end
-            managers.worlddefinition:use_me(l_38_0._unit)
-            managers.worlddefinition:external_set_only_visible_in_editor(l_38_0._unit)
-          end
-           -- Warning: missing end command somewhere! Added here
-        end
-         -- Warning: missing end command somewhere! Added here
-      end
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-CoreUnitDamage.run_startup_sequences = function(l_39_0)
-  local nil_vector = Vector3(0, 0, 0)
-  l_39_0._startup_sequence_callback_id = nil
-  for name in pairs(l_39_0._startup_sequence_map) do
-    if alive(l_39_0._unit) then
-      managers.sequence:run_sequence(name, "startup", l_39_0._unit, l_39_0._unit, nil, nil_vector, nil_vector, nil_vector, 0, nil_vector)
-      for (for control) in (for generator) do
-        do return end
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-CoreUnitDamage.run_editor_startup_sequences = function(l_40_0)
-  local nil_vector = Vector3(0, 0, 0)
-  l_40_0._editor_startup_sequence_callback_id = nil
-  for name in pairs(l_40_0._editor_startup_sequence_map) do
-    if alive(l_40_0._unit) then
-      managers.sequence:run_sequence(name, "editor_startup", l_40_0._unit, l_40_0._unit, nil, nil_vector, nil_vector, nil_vector, 0, nil_vector)
-      for (for control) in (for generator) do
-        do return end
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-CoreUnitDamage.remove_trigger_func = function(l_41_0, l_41_1, l_41_2, l_41_3)
-  if l_41_0:verify_trigger_name(l_41_1) then
-    l_41_0._trigger_func_list[l_41_1][l_41_2] = nil
-    if l_41_3 then
-      for index,data in ipairs(l_41_0._editor_trigger_data) do
-        if data.id == l_41_2 then
-          table.remove(l_41_0._editor_trigger_data, index)
-      else
-        end
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-CoreUnitDamage.clear_trigger_func_list = function(l_42_0, l_42_1, l_42_2)
-  if l_42_1 and l_42_0._trigger_func_list then
-    l_42_0._trigger_func_list[l_42_1] = {}
-    if l_42_0._editor_trigger_data then
-      for i = #l_42_0._editor_trigger_data, 1 do
-        local data = l_42_0._editor_trigger_data[i]
-        if data.trigger_name == l_42_1 then
-          table.remove(l_42_0._editor_trigger_data, i)
-        end
-      end
-    else
-      l_42_0._editor_trigger_data = nil
-    end
-  end
-end
-
-CoreUnitDamage.add_trigger_sequence = function(l_43_0, l_43_1, l_43_2, l_43_3, l_43_4, l_43_5, l_43_6, l_43_7)
-  l_43_0._last_trigger_id = (l_43_0._last_trigger_id or 0) + 1
-  return l_43_0:set_trigger_sequence(l_43_0._last_trigger_id, l_43_1, l_43_2, l_43_3, l_43_4, l_43_5, l_43_6, l_43_7)
-end
-
-CoreUnitDamage.set_trigger_sequence_name = function(l_44_0, l_44_1, l_44_2, l_44_3)
-  if l_44_0._trigger_func_list and l_44_0._trigger_func_list[l_44_2][l_44_1] then
-    for _,data in ipairs(l_44_0._editor_trigger_data) do
-      if data.id == l_44_1 then
-        return l_44_0:set_trigger_sequence(l_44_1, l_44_2, l_44_3, data.notify_unit, data.time, data.repeat_nr, data.params, true)
-      end
-    end
-  end
-  return nil
-end
-
-CoreUnitDamage.set_trigger_sequence_unit = function(l_45_0, l_45_1, l_45_2, l_45_3)
-  if l_45_0._trigger_func_list and l_45_0._trigger_func_list[l_45_2][l_45_1] then
-    for _,data in ipairs(l_45_0._editor_trigger_data) do
-      if data.id == l_45_1 then
-        return l_45_0:set_trigger_sequence(l_45_1, l_45_2, data.notify_unit_sequence, l_45_3, data.time, data.repeat_nr, data.params, true)
-      end
-    end
-  end
-  return nil
-end
-
-CoreUnitDamage.set_trigger_sequence_time = function(l_46_0, l_46_1, l_46_2, l_46_3)
-  if l_46_0._trigger_func_list and l_46_0._trigger_func_list[l_46_2][l_46_1] then
-    for _,data in ipairs(l_46_0._editor_trigger_data) do
-      if data.id == l_46_1 then
-        return l_46_0:set_trigger_sequence(l_46_1, l_46_2, data.notify_unit_sequence, data.notify_unit, l_46_3, data.repeat_nr, data.params, true)
-      end
-    end
-  end
-  return nil
-end
-
-CoreUnitDamage.set_trigger_sequence_repeat_nr = function(l_47_0, l_47_1, l_47_2, l_47_3)
-  if l_47_0._trigger_func_list and l_47_0._trigger_func_list[l_47_2][l_47_1] then
-    for _,data in ipairs(l_47_0._editor_trigger_data) do
-      if data.id == l_47_1 then
-        return l_47_0:set_trigger_sequence(l_47_1, l_47_2, data.notify_unit_sequence, data.notify_unit, data.time, l_47_3, data.params, true)
-      end
-    end
-  end
-  return nil
-end
-
-CoreUnitDamage.set_trigger_sequence_params = function(l_48_0, l_48_1, l_48_2, l_48_3)
-  if l_48_0._trigger_func_list and l_48_0._trigger_func_list[l_48_2][l_48_1] then
-    for _,data in ipairs(l_48_0._editor_trigger_data) do
-      if data.id == l_48_1 then
-        return l_48_0:set_trigger_sequence(l_48_1, l_48_2, data.notify_unit_sequence, data.notify_unit, data.time, data.repeat_nr, l_48_3, true)
-      end
-    end
-  end
-  return nil
-end
-
-CoreUnitDamage.set_trigger_sequence = function(l_49_0, l_49_1, l_49_2, l_49_3, l_49_4, l_49_5, l_49_6, l_49_7, l_49_8)
-  do
-    local func = function(l_1_0)
-    if l_1_0 and params and getmetatable(l_1_0) ~= CoreSequenceManager.SequenceEnvironment then
-      if getmetatable(params) == CoreSequenceManager.SequenceEnvironment then
-        for k,v in pairs(l_1_0) do
-          params.params[k] = v
-        end
-      else
-        for k,v in pairs(l_1_0) do
-          params[k] = v
-        end
-      end
-    else
-      params = l_1_0
-    end
-  end
-  if getmetatable(params) == CoreSequenceManager.SequenceEnvironment then
-    managers.sequence:run_sequence(notify_unit_sequence, "trigger", self._unit, notify_unit, nil, params.dest_normal, params.pos, params.dir, params.damage, params.velocity, params.params)
-  else
-    managers.sequence:run_sequence_simple3(managers.sequence, notify_unit_sequence, "trigger", self._unit, notify_unit, params)
-  end
-   end
-    if l_49_8 then
-      local data = nil
-      if not l_49_0._editor_trigger_data then
-        l_49_0._editor_trigger_data = {}
-      end
-      if l_49_0._trigger_func_list and l_49_0._trigger_func_list[l_49_2] and l_49_0._trigger_func_list[l_49_2][l_49_1] then
-        for _,data2 in ipairs(l_49_0._editor_trigger_data) do
-          if data2.id == l_49_1 then
-            data = data2
-        else
-          end
-        end
-        if not data then
-          data = {}
-          table.insert(l_49_0._editor_trigger_data, data)
-        end
-        data.id = l_49_1
-        data.trigger_name = l_49_2
-        data.notify_unit_sequence = l_49_3
-        data.notify_unit = l_49_4
-        data.time = l_49_5
-        data.repeat_nr = l_49_6
-        data.params = l_49_7
-      end
-      return l_49_0:set_trigger_func(l_49_1, l_49_2, func, l_49_5, l_49_6, l_49_8)
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-CoreUnitDamage.get_editor_trigger_data = function(l_50_0)
-  if l_50_0._editor_trigger_data then
-    for i = #l_50_0._editor_trigger_data, 1, -1 do
-      local data = l_50_0._editor_trigger_data[i]
-      if not alive(data.notify_unit) then
-        l_50_0:remove_trigger_func(data.trigger_name, data.id, true)
-      end
-    end
-  end
-  return l_50_0._editor_trigger_data
-end
-
-CoreUnitDamage.add_trigger_func = function(l_51_0, l_51_1, l_51_2, l_51_3, l_51_4, l_51_5)
-  l_51_0._last_trigger_id = (l_51_0._last_trigger_id or 0) + 1
-  return l_51_0:set_trigger_func(l_51_0._last_trigger_id, l_51_1, l_51_2, l_51_3, l_51_4, l_51_5)
-end
-
-CoreUnitDamage.set_trigger_func = function(l_52_0, l_52_1, l_52_2, l_52_3, l_52_4, l_52_5, l_52_6)
-  if l_52_0:verify_trigger_name(l_52_2) then
-    local trigger_func = nil
-    if l_52_4 then
-      trigger_func = function(l_1_0)
-      managers.sequence:add_time_callback(func, time, repeat_nr, l_1_0)
-      end
-    elseif l_52_5 and l_52_5 > 1 then
-      trigger_func = function(l_2_0)
-      for i = 1, repeat_nr do
-        func(l_2_0)
-      end
-      end
-    else
-      trigger_func = l_52_3
-    end
-    l_52_0._trigger_func_list[l_52_2][l_52_1] = trigger_func
-    return l_52_1
-  end
-  return nil
-end
-
-CoreUnitDamage.activate_trigger = function(l_53_0, l_53_1, l_53_2)
-  if l_53_0:verify_trigger_name(l_53_1) then
-    for _,func in pairs(l_53_0._trigger_func_list[l_53_1]) do
-      func(l_53_2)
-    end
-  end
-end
-
-CoreUnitDamage.verify_trigger_name = function(l_54_0, l_54_1)
-  if l_54_1 and l_54_0._trigger_func_list and l_54_0._trigger_func_list[l_54_1] then
-    return true
-  else
-    Application:error("Trigger \"" .. tostring(l_54_1) .. "\" doesn't exist. Only the following triggers are available: " .. managers.sequence:get_keys_as_string(l_54_0._unit_element:get_trigger_name_map(), "[None]", true))
-    return false
-  end
-end
-
-CoreUnitDamage.inflict_damage = function(l_55_0, l_55_1, l_55_2, l_55_3, l_55_4, l_55_5, l_55_6, l_55_7)
-  local damage = nil
-  local body_ext = (l_55_3:extension())
-  local damage_ext = nil
-  if body_ext then
-    damage_ext = body_ext.damage
-    if damage_ext then
-      return damage_ext:inflict_damage(l_55_1, l_55_0._unit, l_55_2, l_55_4, l_55_5, l_55_6)
-    end
-  end
-  return nil, false
-end
-
-CoreUnitDamage.damage_damage = function(l_56_0, l_56_1, l_56_2, l_56_3, l_56_4, l_56_5, l_56_6, l_56_7)
-  return l_56_0:add_damage("damage", l_56_1, l_56_2, l_56_3, l_56_4, l_56_5, l_56_6, Vector3(0, 0, 0), l_56_7)
-end
-
-CoreUnitDamage.damage_bullet = function(l_57_0, l_57_1, l_57_2, l_57_3, l_57_4, l_57_5, l_57_6, l_57_7)
-  return l_57_0:add_damage("bullet", l_57_1, l_57_2, l_57_3, l_57_4, l_57_5, l_57_6, Vector3(0, 0, 0), l_57_7)
-end
-
-CoreUnitDamage.damage_lock = function(l_58_0, l_58_1, l_58_2, l_58_3, l_58_4, l_58_5, l_58_6, l_58_7)
-  return l_58_0:add_damage("lock", l_58_1, l_58_2, l_58_3, l_58_4, l_58_5, l_58_6, Vector3(0, 0, 0), l_58_7)
-end
-
-CoreUnitDamage.damage_explosion = function(l_59_0, l_59_1, l_59_2, l_59_3, l_59_4, l_59_5, l_59_6)
-  return l_59_0:add_damage("explosion", l_59_1, l_59_2, l_59_3, l_59_4, l_59_5, l_59_6, Vector3(0, 0, 0))
-end
-
-CoreUnitDamage.damage_collision = function(l_60_0, l_60_1, l_60_2, l_60_3, l_60_4, l_60_5, l_60_6, l_60_7)
-  return l_60_0:add_damage("collision", l_60_1, l_60_2, l_60_3, l_60_4, l_60_5, l_60_6, l_60_7)
-end
-
-CoreUnitDamage.damage_melee = function(l_61_0, l_61_1, l_61_2, l_61_3, l_61_4, l_61_5, l_61_6)
-  return l_61_0:add_damage("melee", l_61_1, l_61_2, l_61_3, l_61_4, l_61_5, l_61_6, Vector3(0, 0, 0))
-end
-
-CoreUnitDamage.damage_electricity = function(l_62_0, l_62_1, l_62_2, l_62_3, l_62_4, l_62_5, l_62_6)
-  return l_62_0:add_damage("electricity", l_62_1, l_62_2, l_62_3, l_62_4, l_62_5, l_62_6, Vector3(0, 0, 0))
-end
-
-CoreUnitDamage.damage_fire = function(l_63_0, l_63_1, l_63_2, l_63_3, l_63_4, l_63_5, l_63_6, l_63_7)
-  return l_63_0:add_damage("fire", l_63_1, l_63_2, l_63_3, l_63_4, l_63_5, l_63_6, l_63_7)
-end
-
-CoreUnitDamage.damage_by_area = function(l_64_0, l_64_1, l_64_2, l_64_3, l_64_4, l_64_5, l_64_6, l_64_7, l_64_8)
-  local damage_func = l_64_0.damage_" .. l_64_
-  if damage_func then
-    return damage_func(l_64_0, l_64_2, l_64_3, l_64_4, l_64_5, l_64_6, l_64_7, l_64_8)
-  else
-    Application:error("Unit \"" .. tostring(l_64_0._unit:name()) .. "\" doesn't have a \"damage_" .. tostring(l_64_1) .. "\"-function on its unit damage extension.")
-    return false, nil
-  end
-end
-
-CoreUnitDamage.add_damage = function(l_65_0, l_65_1, l_65_2, l_65_3, l_65_4, l_65_5, l_65_6, l_65_7, l_65_8)
-  if l_65_0._unit_element then
-    l_65_0._damage = l_65_0._damage + l_65_7
-    if l_65_0._unit_element._global_vars.endurance <= l_65_0._damage then
-      return true, l_65_7
-    else
-      return false, l_65_7
-    end
-  else
-    return false, 0
-  end
-end
-
-CoreUnitDamage.damage_effect = function(l_66_0, l_66_1, l_66_2, l_66_3, l_66_4, l_66_5, l_66_6, l_66_7, l_66_8)
-end
-
-CoreUnitDamage.run_sequence_simple = function(l_67_0, l_67_1, l_67_2)
-  l_67_0:run_sequence_simple2(l_67_0, l_67_1, "", l_67_2)
-end
-
-CoreUnitDamage.run_sequence_simple2 = function(l_68_0, l_68_1, l_68_2, l_68_3)
-  l_68_0:run_sequence_simple3(l_68_0, l_68_1, l_68_2, l_68_0._unit, l_68_3)
-end
-
-CoreUnitDamage.run_sequence_simple3 = function(l_69_0, l_69_1, l_69_2, l_69_3, l_69_4)
-  l_69_0:run_sequence(l_69_1, l_69_2, l_69_3, nil, Vector3(0, 0, 1), l_69_0._unit:position(), Vector3(0, 0, -1), 0, Vector3(0, 0, 0), l_69_4)
-end
-
-CoreUnitDamage.run_sequence = function(l_70_0, l_70_1, l_70_2, l_70_3, l_70_4, l_70_5, l_70_6, l_70_7, l_70_8, l_70_9, l_70_10)
-  l_70_0._unit_element:run_sequence(l_70_1, l_70_2, l_70_3, l_70_0._unit, l_70_4, l_70_5, l_70_6, l_70_7, l_70_8, l_70_9, l_70_10)
-end
-
-CoreUnitDamage.get_damage = function(l_71_0)
-  return l_71_0._damage
-end
-
-CoreUnitDamage.get_endurance = function(l_72_0)
-  if l_72_0._unit_element then
-    return l_72_0._unit_element:get_endurance()
-  else
-    return 0
-  end
-end
-
-CoreUnitDamage.get_damage_ratio = function(l_73_0)
-  if l_73_0._unit_element and l_73_0._unit_element:get_endurance() > 0 then
-    return l_73_0._damage / l_73_0._unit_element:get_endurance()
-  else
-    return 0
-  end
-end
-
-CoreUnitDamage.update_inflict_damage = function(l_74_0, l_74_1, l_74_2)
-  if l_74_0._inflict_dest_body then
-    for damage_type,dest_body in pairs(l_74_0._inflict_dest_body) do
-      if not l_74_0._inflict_done or not l_74_0._inflict_done[damage_type] then
-        if l_74_0._inflict_src_body then
-          local src_body = l_74_0._inflict_src_body[damage_type]
-        end
-        if alive(src_body) and alive(dest_body) then
-          l_74_0:exit_inflict_damage(damage_type, src_body, dest_body)
-        end
-        if l_74_0._inflict_src_body then
-          l_74_0._inflict_src_body[damage_type] = nil
-        end
-        if l_74_0._inflict_dest_body then
-          l_74_0._inflict_dest_body[damage_type] = nil
-        end
-      end
-    end
-  end
-  l_74_0._inflict_done = nil
-end
-
-CoreUnitDamage.check_inflict_damage = function(l_75_0, l_75_1, l_75_2, l_75_3, l_75_4, l_75_5, l_75_6, l_75_7)
-  local can_inflict, delayed = l_75_0:can_receive_inflict_damage(l_75_1, l_75_3)
-  if not l_75_0._inflict_done then
-    l_75_0._inflict_done = {}
-  end
-  l_75_0._inflict_done[l_75_1] = l_75_0._inflict_done[l_75_1] or can_inflict or delayed
-  if can_inflict then
-    if not l_75_0._inflict_dest_body then
-      l_75_0._inflict_dest_body = {}
-    end
-    if not l_75_0._inflict_src_body then
-      l_75_0._inflict_src_body = {}
-    end
-    local old_dest_body = l_75_0._inflict_dest_body[l_75_1]
-    if alive(old_dest_body) and old_dest_body:key() ~= l_75_3:key() then
-      l_75_0:exit_inflict_damage(l_75_1, l_75_0._inflict_src_body[l_75_1], old_dest_body, l_75_4, l_75_5, l_75_6, l_75_7)
-    end
-    l_75_0._inflict_dest_body[l_75_1] = l_75_3
-    l_75_0._inflict_src_body[l_75_1] = l_75_2
-    local entered = l_75_0:enter_inflict_damage(l_75_1, l_75_2, l_75_3, l_75_4, l_75_5, l_75_6, l_75_7)
-    if not entered or l_75_3:extension().damage:get_inflict_instant(l_75_1) then
-      return l_75_0:inflict_damage(l_75_1, l_75_2, l_75_3, l_75_4, l_75_5, l_75_6, l_75_7)
-    else
-      return false, 0
-    end
-  end
-  return false, nil
-end
-
-CoreUnitDamage.can_receive_inflict_damage = function(l_76_0, l_76_1, l_76_2)
-  if alive(l_76_2) then
-    local body_ext = l_76_2:extension()
-    if body_ext then
-      local damage_ext = body_ext.damage
-      if damage_ext then
-        return damage_ext:can_inflict_damage(l_76_1, l_76_0._unit)
-      end
-    end
-  end
-  return false, false
-end
-
-CoreUnitDamage.enter_inflict_damage = function(l_77_0, l_77_1, l_77_2, l_77_3, l_77_4, l_77_5, l_77_6, l_77_7)
-  return l_77_3:extension().damage:enter_inflict_damage(l_77_1, l_77_0._unit, l_77_2, l_77_4, l_77_5, l_77_6, l_77_7)
-end
-
-CoreUnitDamage.inflict_damage = function(l_78_0, l_78_1, l_78_2, l_78_3, l_78_4, l_78_5, l_78_6, l_78_7)
-  return l_78_3:extension().damage:inflict_damage(l_78_1, l_78_0._unit, l_78_2, l_78_4, l_78_5, l_78_6, l_78_7)
-end
-
-CoreUnitDamage.exit_inflict_damage = function(l_79_0, l_79_1, l_79_2, l_79_3, l_79_4, l_79_5, l_79_6, l_79_7)
-  l_79_3:extension().damage:exit_inflict_damage(l_79_1, l_79_2, l_79_4, l_79_5, l_79_6, l_79_7)
-end
-
-CoreUnitDamage.set_direct_attack_unit = function(l_80_0, l_80_1)
-  l_80_0._direct_attack_unit = l_80_1
-end
-
-CoreUnitDamage.get_direct_attack_unit = function(l_81_0)
-  return l_81_0._direct_attack_unit
-end
-
-CoreUnitDamage.add_body_collision_callback = function(l_82_0, l_82_1)
-  l_82_0._last_body_collision_callback_id = (l_82_0._last_body_collision_callback_id or 0) + 1
-  if not l_82_0._body_collision_callback_list then
-    l_82_0._body_collision_callback_list = {}
-  end
-  l_82_0._body_collision_callback_list[l_82_0._last_body_collision_callback_id] = l_82_1
-  return l_82_0._last_body_collision_callback_id
-end
-
-CoreUnitDamage.remove_body_collision_callback = function(l_83_0, l_83_1)
-  if l_83_0._body_collision_callback_list then
-    l_83_0._body_collision_callback_list[l_83_1] = nil
-  end
-end
-
-CoreUnitDamage.add_mover_collision_callback = function(l_84_0, l_84_1)
-  l_84_0._last_mover_collision_callback_id = (l_84_0._last_mover_collision_callback_id or 0) + 1
-  if not l_84_0._mover_collision_callback_list then
-    l_84_0._mover_collision_callback_list = {}
-  end
-  l_84_0._mover_collision_callback_list[l_84_0._last_mover_collision_callback_id] = l_84_1
-  return l_84_0._last_mover_collision_callback_id
-end
-
-CoreUnitDamage.remove_mover_collision_callback = function(l_85_0, l_85_1)
-  if l_85_0._mover_collision_callback_list then
-    l_85_0._mover_collision_callback_list[l_85_1] = nil
-  end
-end
-
-CoreUnitDamage.set_ignore_mover_collision_unit = function(l_86_0, l_86_1, l_86_2)
-  if not l_86_0._ignore_mover_collision_unit_map then
-    l_86_0._ignore_mover_collision_unit_map = {}
-  end
-  l_86_0._ignore_mover_collision_unit_map[l_86_1] = l_86_2
-end
-
-CoreUnitDamage.set_ignore_mover_collision_body = function(l_87_0, l_87_1, l_87_2)
-  if not l_87_0._ignore_mover_collision_body_map then
-    l_87_0._ignore_mover_collision_body_map = {}
-  end
-  l_87_0._ignore_mover_collision_body_map[l_87_1] = l_87_2
-end
-
-CoreUnitDamage.clear_ignore_mover_collision_units = function(l_88_0)
-  l_88_0._ignore_mover_collision_unit_map = nil
-end
-
-CoreUnitDamage.clear_ignore_mover_collision_bodies = function(l_89_0)
-  l_89_0._ignore_mover_collision_body_map = nil
-end
-
-CoreUnitDamage.set_ignore_body_collision_unit = function(l_90_0, l_90_1, l_90_2)
-  if not l_90_0._ignore_body_collision_unit_map then
-    l_90_0._ignore_body_collision_unit_map = {}
-  end
-  l_90_0._ignore_body_collision_unit_map[l_90_1] = l_90_2
-end
-
-CoreUnitDamage.clear_ignore_body_collision_units = function(l_91_0)
-  l_91_0._ignore_body_collision_unit_map = nil
-end
-
-CoreUnitDamage.set_ignore_mover_on_mover_collisions = function(l_92_0, l_92_1)
-  if l_92_1 then
-    l_92_0._ignore_mover_on_mover_collisions = true
-  else
-    l_92_0._ignore_mover_on_mover_collisions = nil
-  end
-end
-
-CoreUnitDamage.get_ignore_mover_on_mover_collisions = function(l_93_0)
-  return not not l_93_0._ignore_mover_on_mover_collisions
-end
-
-CoreUnitDamage.give_body_collision_velocity = function(l_94_0)
-  return not l_94_0._skip_give_body_collision_velocity
-end
-
-CoreUnitDamage.set_give_body_collision_velocity = function(l_95_0, l_95_1)
-  l_95_0._skip_give_body_collision_velocity = not l_95_1
-end
-
-CoreUnitDamage.give_mover_collision_velocity = function(l_96_0)
-  return not l_96_0._skip_give_mover_collision_velocity
-end
-
-CoreUnitDamage.set_give_mover_collision_velocity = function(l_97_0, l_97_1)
-  l_97_0._skip_give_mover_collision_velocity = not l_97_1
-end
-
-CoreUnitDamage.give_body_collision_damage = function(l_98_0)
-  return not l_98_0._skip_give_body_collision_damage
-end
-
-CoreUnitDamage.set_give_body_collision_damage = function(l_99_0, l_99_1)
-  l_99_0._skip_give_body_collision_damage = not l_99_1
-end
-
-CoreUnitDamage.give_mover_collision_damage = function(l_100_0)
-  return not l_100_0._skip_give_mover_collision_damage
-end
-
-CoreUnitDamage.set_give_mover_collision_damage = function(l_101_0, l_101_1)
-  l_101_0._skip_give_mover_collision_damage = not l_101_1
-end
-
-CoreUnitDamage.receive_body_collision_damage = function(l_102_0)
-  return not l_102_0._skip_receive_body_collision_damage
-end
-
-CoreUnitDamage.set_receive_body_collision_damage = function(l_103_0, l_103_1)
-  l_103_0._skip_receive_body_collision_damage = not l_103_1
-end
-
-CoreUnitDamage.receive_mover_collision_damage = function(l_104_0)
-  return not l_104_0._skip_receive_mover_collision_damage
-end
-
-CoreUnitDamage.set_receive_mover_collision_damage = function(l_105_0, l_105_1)
-  l_105_0._skip_receive_mover_collision_damage = not l_105_1
-end
-
-CoreUnitDamage.can_mover_collide = function(l_106_0, l_106_1, l_106_2, l_106_3, l_106_4, l_106_5, l_106_6, l_106_7, l_106_8, l_106_9)
-  local alive_other_body = alive(l_106_4)
-  local damage_ext = l_106_3:damage()
-  return (damage_ext and not damage_ext:give_mover_collision_damage()) or (l_106_0._skip_receive_mover_collision_damage or ((not l_106_0._ignore_mover_collision_unit_map or not l_106_0._ignore_mover_collision_unit_map[l_106_3:key()] or l_106_0._ignore_mover_collision_unit_map[l_106_3:key()] < l_106_1) and not alive_other_body or not l_106_0._ignore_mover_collision_body_map or not l_106_0._ignore_mover_collision_body_map[l_106_4:key()] or l_106_0._ignore_mover_collision_body_map[l_106_4:key()] < l_106_1))
-end
-
-CoreUnitDamage.can_body_collide = function(l_107_0, l_107_1, l_107_2, l_107_3, l_107_4, l_107_5, l_107_6, l_107_7, l_107_8, l_107_9, l_107_10, l_107_11)
-  local damage_ext = l_107_5:damage()
-  return (damage_ext and not damage_ext:give_body_collision_damage()) or (not l_107_0._skip_receive_body_collision_damage and not managers.sequence:is_collisions_enabled() or l_107_0._ignore_body_collision_unit_map and l_107_0._ignore_body_collision_unit_map[l_107_5:key()] and l_107_0._ignore_body_collision_unit_map[l_107_5:key()] < l_107_1)
-end
-
-CoreUnitDamage.get_collision_velocity = function(l_108_0, l_108_1, l_108_2, l_108_3, l_108_4, l_108_5, l_108_6, l_108_7, l_108_8, l_108_9)
-  local damage_ext = l_108_4:damage()
-  local is_other_mover = not alive(l_108_3)
-  if damage_ext and is_other_mover and not damage_ext:give_mover_collision_velocity() then
-    l_108_9 = Vector3()
-    do return end
-    if not damage_ext:give_body_collision_velocity() then
-      l_108_9 = Vector3()
-    end
-  end
-  if l_108_7 then
-    local other_velocity_dir = l_108_9:normalized()
-    local other_velocity_length = l_108_9:length()
-    l_108_8 = other_velocity_dir * math.clamp(math.dot(l_108_8, other_velocity_dir), 0, other_velocity_length)
-  end
-  l_108_5 = l_108_8 - l_108_9
-  if l_108_8:length() < l_108_9:length() then
-    l_108_5 = -(l_108_5)
-  end
-  local direction = l_108_5:normalized()
-  if direction:length() == 0 then
-    direction = -l_108_6
-  end
-  return l_108_0:add_angular_velocity(l_108_1, direction, l_108_2, l_108_3, l_108_4, l_108_5, l_108_7)
-end
-
-CoreUnitDamage.add_angular_velocity = function(l_109_0, l_109_1, l_109_2, l_109_3, l_109_4, l_109_5, l_109_6, l_109_7)
-  local angular_velocity_addition = Vector3()
-  if alive(l_109_3) then
-    local body_ang_vel = l_109_3:angular_velocity()
-    angular_velocity_addition = l_109_2 * 200 * body_ang_vel:length() * (1 + math.abs(math.dot(body_ang_vel:normalized(), l_109_2))) / (10 * math.pi)
-  end
-  if alive(l_109_4) then
-    local other_body_ang_vel = l_109_4:angular_velocity()
-    angular_velocity_addition = angular_velocity_addition + l_109_2 * 200 * other_body_ang_vel:length() * (1 + math.abs(math.dot(other_body_ang_vel:normalized(), l_109_2))) / (10 * math.pi)
-    angular_velocity_addition = l_109_2 * math.clamp(angular_velocity_addition:length(), 0, 200)
-  end
-  return l_109_6 + angular_velocity_addition, l_109_2
-end
-
-CoreUnitDamage.get_collision_damage = function(l_110_0, l_110_1, l_110_2, l_110_3, l_110_4, l_110_5, l_110_6, l_110_7, l_110_8)
-  return math.clamp((l_110_7:length() - 400) / 100, 0, 75)
-end
-
-CoreUnitDamage.body_collision_callback = function(l_111_0, l_111_1, l_111_2, l_111_3, l_111_4, l_111_5, l_111_6, l_111_7, l_111_8, l_111_9, l_111_10)
-  local time = (TimerManager:game():time())
-  local new_velocity, direction, damage = nil, nil, nil
-  if l_111_0:can_body_collide(time, l_111_1, l_111_2, l_111_3, l_111_4, l_111_5, l_111_6, l_111_7, l_111_8, l_111_9, l_111_10) then
-    new_velocity, direction = l_111_0:get_collision_velocity(l_111_6, l_111_3, l_111_5, l_111_4, l_111_8, l_111_7, false, l_111_9, l_111_10)
-    damage = l_111_0:get_collision_damage(l_111_1, l_111_3, l_111_4, l_111_5, l_111_6, l_111_7, new_velocity, false)
-    l_111_0:collision(l_111_1, l_111_2, l_111_3, l_111_4, l_111_5, l_111_6, l_111_7, direction, damage, new_velocity, false)
-  end
-  if l_111_0._body_collision_callback_list then
-    for _,func in pairs(l_111_0._body_collision_callback_list) do
-      func(l_111_1, l_111_2, l_111_3, l_111_4, l_111_5, l_111_6, l_111_7, l_111_8, l_111_9, l_111_10, new_velocity, direction, damage)
-    end
-  end
-end
-
-CoreUnitDamage.mover_collision_callback = function(l_112_0, l_112_1, l_112_2, l_112_3, l_112_4, l_112_5, l_112_6, l_112_7, l_112_8)
-  local time = (TimerManager:game():time())
-  local new_velocity, direction, damage = nil, nil, nil
-  if l_112_0:can_mover_collide(time, l_112_1, l_112_2, l_112_3, l_112_4, l_112_5, l_112_6, l_112_7, l_112_8) then
-    new_velocity, direction = l_112_0:get_collision_velocity(l_112_4, nil, l_112_3, l_112_2, l_112_6, l_112_5, true, l_112_7, l_112_8)
-    damage = l_112_0:get_collision_damage(nil, nil, l_112_2, l_112_3, l_112_4, l_112_5, new_velocity, true)
-    if damage > 0 then
-      if alive(l_112_3) then
-        local body_list = l_112_3:constrained_bodies()
-        table.insert(body_list, l_112_3)
-        for _,body in ipairs(body_list) do
-          l_112_0:set_ignore_mover_collision_body(body:key(), time + (l_112_0._mover_collision_ignore_duration or 1))
-        end
-      else
-        if not l_112_0._mover_collision_ignore_duration then
-          l_112_0:set_ignore_mover_collision_unit(l_112_2:key(), time + (not alive(l_112_2) or 1))
-        end
-      end
-    end
-    l_112_0:collision(nil, l_112_1, nil, l_112_2, l_112_3, l_112_4, l_112_5, direction, damage, new_velocity, true)
-  end
-  if l_112_0._mover_collision_callback_list then
-    for _,func in pairs(l_112_0._mover_collision_callback_list) do
-      func(l_112_1, l_112_2, l_112_3, l_112_4, l_112_5, l_112_6, l_112_7, l_112_8, new_velocity, direction, damage)
-    end
-  end
-end
-
-CoreUnitDamage.collision = function(l_113_0, l_113_1, l_113_2, l_113_3, l_113_4, l_113_5, l_113_6, l_113_7, l_113_8, l_113_9, l_113_10, l_113_11)
-  if l_113_9 > 0 then
-    if l_113_3 then
-      local body_ext = l_113_3:extension()
-      if body_ext and body_ext.damage then
-        body_ext.damage:damage_collision(l_113_4, l_113_7, l_113_6, l_113_8, l_113_9, l_113_10)
-      else
-        l_113_0:damage_collision(l_113_4, l_113_3, l_113_7, l_113_6, l_113_8, l_113_9, l_113_10)
-      end
-    end
-  end
-end
-
-CoreUnitDamage.toggle_debug_collision_all = function(l_114_0)
-  l_114_0:toggle_debug_collision_body()
-  l_114_0:toggle_debug_collision_mover()
-end
-
-CoreUnitDamage.set_debug_collision_all = function(l_115_0, l_115_1)
-  l_115_0:toggle_debug_collision_body(l_115_1)
-  l_115_0:toggle_debug_collision_mover(l_115_1)
-end
-
-CoreUnitDamage.toggle_debug_collision_body = function(l_116_0)
-  l_116_0:set_debug_collision_body(not l_116_0._debug_collision_body_id)
-end
-
-CoreUnitDamage.set_debug_collision_body = function(l_117_0, l_117_1)
-  if not l_117_0._debug_collision_body_id ~= not l_117_1 then
-    if l_117_1 then
-      l_117_0._debug_collision_body_id = l_117_0:add_body_collision_callback(callback(l_117_0, l_117_0, "debug_collision_body"))
-    else
-      l_117_0:remove_body_collision_callback(l_117_0._debug_collision_body_id)
-      l_117_0._debug_collision_body_id = nil
-    end
-    cat_debug("debug", "Body collision debugging " .. tostring(l_117_0._unit) .. " enabled: " .. tostring(not not l_117_1))
-  end
-end
-
-CoreUnitDamage.toggle_debug_collision_mover = function(l_118_0)
-  l_118_0:set_debug_collision_mover(not l_118_0._debug_collision_mover_id)
-end
-
-CoreUnitDamage.set_debug_collision_mover = function(l_119_0, l_119_1)
-  if not l_119_0._debug_collision_mover_id ~= not l_119_1 then
-    if l_119_1 then
-      l_119_0._debug_collision_mover_id = l_119_0:add_mover_collision_callback(callback(l_119_0, l_119_0, "debug_collision_mover"))
-    else
-      l_119_0:remove_mover_collision_callback(l_119_0._debug_collision_mover_id)
-      l_119_0._debug_collision_mover_id = nil
-    end
-    cat_debug("debug", "Mover collision debugging " .. tostring(l_119_0._unit) .. " enabled: " .. tostring(not not l_119_1))
-  end
-end
-
-CoreUnitDamage.debug_collision_body = function(l_120_0, l_120_1, l_120_2, l_120_3, l_120_4, l_120_5, l_120_6, l_120_7, l_120_8, l_120_9, l_120_10, l_120_11, l_120_12, l_120_13)
-  local time = TimerManager:game():time()
-  cat_debug("debug", string.format("[B %g] Velocity: %g, Damage: %g, Ignored: %s", time, l_120_11 and l_120_11:length() or 0, l_120_13 or 0, tostring(not l_120_11)))
-  if managers.debug then
-    managers.debug.gui:set_color(1, 1, 1, 1)
-    managers.debug.gui:set(1, "[B] \"" .. tostring(alive(l_120_0._unit) and l_120_0._unit:name() or nil) .. "\" by \"" .. tostring(alive(l_120_4) and l_120_4:name() or nil) .. "\"")
-    l_120_0:debug_draw_velocity(2, "[B] Own velocity", l_120_6, l_120_9, 0, 0, 1)
-    l_120_0:debug_draw_velocity(3, "[B] Other velocity", l_120_6, l_120_10, 1, 0, 0)
-    l_120_0:debug_draw_velocity(4, "[B] Collision velocity", l_120_6, l_120_8, 0, 1, 1)
-    l_120_0:debug_draw_velocity(5, "[B] Damage velocity", l_120_6, l_120_11, 0, 1, 0)
-    managers.debug.gui:set_color(6, 1, 0.5, 0.5)
-    managers.debug.gui:set(6, "[B] Damage: " .. tostring(l_120_13))
-    managers.debug.gui:set_color(7, 0.5, 0.5, 0.5)
-    managers.debug.gui:set(7, "[B] Ignored: " .. tostring(not l_120_11))
-  end
-end
-
-CoreUnitDamage.debug_collision_mover = function(l_121_0, l_121_1, l_121_2, l_121_3, l_121_4, l_121_5, l_121_6, l_121_7, l_121_8, l_121_9, l_121_10, l_121_11)
-  local time = TimerManager:game():time()
-  cat_debug("debug", string.format("[M %g] Velocity: %g, Damage: %g, Ignored: %s", time, l_121_9 and l_121_9:length() or 0, l_121_11 or 0, tostring(not l_121_9)))
-  if managers.debug then
-    managers.debug.gui:set_color(1, 1, 1, 1)
-    managers.debug.gui:set(1, "[M] \"" .. tostring(alive(l_121_0._unit) and l_121_0._unit:name() or nil) .. "\" by \"" .. tostring(alive(l_121_2) and l_121_2:name() or nil) .. "\"")
-    l_121_0:debug_draw_velocity(2, "[M] Own velocity", l_121_4, l_121_7, 0, 0, 1)
-    l_121_0:debug_draw_velocity(3, "[M] Other velocity", l_121_4, l_121_8, 1, 0, 0)
-    l_121_0:debug_draw_velocity(4, "[M] Collision velocity", l_121_4, l_121_6, 0, 1, 1)
-    l_121_0:debug_draw_velocity(5, "[M] Damage velocity", l_121_4, l_121_9, 0, 1, 0)
-    managers.debug.gui:set_color(6, 1, 0.5, 0.5)
-    managers.debug.gui:set(6, "[M] Damage: " .. tostring(l_121_11))
-    managers.debug.gui:set_color(7, 0.5, 0.5, 0.5)
-    managers.debug.gui:set(7, "[M] Ignored: " .. tostring(not l_121_9))
-  end
-end
-
-CoreUnitDamage.debug_draw_velocity = function(l_122_0, l_122_1, l_122_2, l_122_3, l_122_4, l_122_5, l_122_6, l_122_7)
-  managers.debug.gui:set_color(l_122_1, l_122_5, l_122_6, l_122_7)
-  if l_122_4 then
-    managers.debug.gui:set(l_122_1, string.format("%s: %g   (%g, %g, %g)", l_122_2, l_122_4:length(), l_122_4.x, l_122_4.y, l_122_4.z))
-  else
-    managers.debug.gui:set(l_122_1, string.format("%s: nil", l_122_2))
-  end
-  managers.debug.pos:set(1, l_122_3 + Vector3(0, 0, l_122_1 - 2), "debug_collision_body_" .. l_122_1 - 1, l_122_5, l_122_6, l_122_7)
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-managers.debug.pos:set(2, l_122_3 + Vector3(0, 0, l_122_1 - 2) + Vector3(), "debug_collision_body_" .. l_122_1 - 1, l_122_5, l_122_6, l_122_7)
-end
-
-CoreUnitDamage.outside_worlds_bounding_box = function(l_123_0)
-  if alive(l_123_0._unit) then
-    l_123_0:kill("collision", l_123_0._unit, nil, math.UP, l_123_0._unit:position(), math.DOWN, 0, l_123_0._unit:sampled_velocity())
-  end
-end
-
-CoreUnitDamage.report_enemy_killed = function(l_124_0)
-  if not l_124_0._enemy_killed_reported then
-    local enemy_data = l_124_0._unit:enemy_data()
-    if enemy_data then
-      local group = enemy_data.enemy_group
-      if group then
-        group:unit_killed()
-        l_124_0._enemy_killed_reported = true
-      end
-    end
-  end
-end
-
-CoreUnitDamage.kill = function(l_125_0, l_125_1, l_125_2, l_125_3, l_125_4, l_125_5, l_125_6, l_125_7, l_125_8)
-  if alive(l_125_0._unit) then
-    l_125_0:report_enemy_killed()
-  end
-end
-
-CoreUnitDamage.remove = function(l_126_0)
-  if alive(l_126_0._unit) then
-    l_126_0:report_enemy_killed()
-    l_126_0._unit:set_slot(0)
-  end
-end
-
-CoreUnitDamage.add_inherit_destroy_unit = function(l_127_0, l_127_1)
-  if not l_127_0._inherit_destroy_unit_list then
-    l_127_0._inherit_destroy_unit_list = {}
-  end
-  table.insert(l_127_0._inherit_destroy_unit_list, l_127_1)
-end
-
-CoreUnitDamage.has_sequence = function(l_128_0, l_128_1)
-  if l_128_0._unit_element then
-    return l_128_0._unit_element:has_sequence(l_128_1)
-  end
-end
-
-if not CoreBodyDamage then
-  CoreBodyDamage = class()
-end
-CoreBodyDamage.init = function(l_129_0, l_129_1, l_129_2, l_129_3, l_129_4)
-  l_129_0._unit = l_129_1
-  l_129_0._unit_extension = l_129_2
-  l_129_0._body = l_129_3
-  l_129_0._body_index = l_129_0._unit:get_body_index(l_129_0._body:name())
-  l_129_0._body_element = l_129_4
-  l_129_0._unit_element = l_129_2:get_unit_element()
-  l_129_0._endurance = {}
-  l_129_0._damage = {}
-  if l_129_4 then
-    for k,v in pairs(l_129_4._first_endurance) do
-      if k == "collision" then
-        l_129_0._body:set_collision_script_tag(Idstring("core"))
-      end
-      l_129_0._endurance[k] = v
-      l_129_0._damage[k] = 0
-    end
-  end
-  l_129_0._inflict = {}
-  l_129_0._original_inflict = {}
-  l_129_0._inflict_time = {}
-  l_129_0._run_exit_inflict_sequences = {}
-  l_129_0._inflict_updator_map = {}
-  if l_129_0._body_element then
-    local inflict_element_list = l_129_0._body_element:get_inflict_element_list()
-    if inflict_element_list then
-      local updator_class = get_core_or_local("InflictUpdator")
-      for damage_type,inflict_element in pairs(inflict_element_list) do
-        local updator_type_class = updator_class.INFLICT_UPDATOR_DAMAGE_TYPE_MAP[damage_type]
-        do
-          if updator_type_class then
-            local updator = updator_type_class:new(l_129_1, l_129_3, l_129_0, inflict_element, l_129_0._unit_element)
-            if updator:is_valid() then
-              l_129_0._inflict_updator_map[damage_type] = updator
-            end
-            for (for control),damage_type in (for generator) do
-            end
-            local inflict_data = {}
-            l_129_0._inflict[damage_type] = inflict_data
-            inflict_data.damage = inflict_element:get_damage() or 0
-            inflict_data.interval = inflict_element:get_interval() or 0
-            inflict_data.instant = inflict_element:get_instant()
-            inflict_data.enabled = inflict_element:get_enabled()
-            inflict_data = {}
-            l_129_0._original_inflict[damage_type] = inflict_data
-            for k,v in pairs(inflict_data) do
-              inflict_data[k] = v
-            end
-            l_129_0._inflict_time[damage_type] = {}
-            l_129_0._run_exit_inflict_sequences[damage_type] = inflict_element:exit_sequence_count() > 0
-          end
-        end
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-CoreBodyDamage.set_damage = function(l_130_0, l_130_1, l_130_2)
-  l_130_0._damage[l_130_1] = l_130_2
-  do
-    local element = l_130_0._body_element._first_endurance[l_130_1]
-    repeat
-      if element and element._endurance[l_130_1] <= l_130_0._damage[l_130_1] then
-        element = element._next[l_130_1]
-      else
-        l_130_0._endurance[l_130_1] = element
-      end
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-CoreBodyDamage.get_body = function(l_131_0)
-  return l_131_0._body
-end
-
-CoreBodyDamage.get_inflict_updator_map = function(l_132_0)
-  return l_132_0._inflict_updator_map
-end
-
-CoreBodyDamage.get_endurance_map = function(l_133_0)
-  return l_133_0._endurance
-end
-
-CoreBodyDamage.get_inflict_time = function(l_134_0, l_134_1, l_134_2)
-  return l_134_0._inflict_time[l_134_1][l_134_2]
-end
-
-CoreBodyDamage.can_inflict_damage = function(l_135_0, l_135_1, l_135_2)
-  if l_135_0._inflict[l_135_1] and l_135_0._inflict[l_135_1].enabled then
-    local last_time = l_135_0._inflict_time[l_135_1][l_135_2:key()]
-    if TimerManager:game():time() >= last_time + l_135_0._inflict[l_135_1].interval then
-      local delayed = not last_time
-    end
-    return not delayed, delayed
-  end
-  return false, false
-end
-
-CoreBodyDamage.enter_inflict_damage = function(l_136_0, l_136_1, l_136_2, l_136_3, l_136_4, l_136_5, l_136_6, l_136_7)
-  local unit_key = l_136_2:key()
-  local list = l_136_0._inflict_time[l_136_1]
-  if not list[unit_key] then
-    list[unit_key] = TimerManager:game():time()
-    local damage = l_136_0._inflict[l_136_1].damage
-    local env = CoreSequenceManager.SequenceEnvironment:new(l_136_1, l_136_2, l_136_0._unit, l_136_0._body, l_136_4, l_136_5, l_136_6, damage, l_136_7, nil, l_136_0._unit_element)
-    l_136_0._body_element:activate_inflict_enter(env)
-    return true
-  else
-    return false
-  end
-end
-
-CoreBodyDamage.exit_inflict_damage = function(l_137_0, l_137_1, l_137_2, l_137_3, l_137_4, l_137_5, l_137_6)
-  if alive(l_137_2) then
-    local src_unit = l_137_2:unit()
-    local unit_key = src_unit:key()
-    local list = l_137_0._inflict_time[l_137_1]
-    if list[unit_key] then
-      list[unit_key] = nil
-      if l_137_0._run_exit_inflict_sequences[l_137_1] then
-        local env = CoreSequenceManager.SequenceEnvironment:new(l_137_1, src_unit, l_137_0._unit, l_137_0._body, l_137_3, l_137_4, l_137_5, 0, l_137_6, nil, l_137_0._unit_element)
-        l_137_0._body_element:activate_inflict_exit(env)
-      end
-    end
-  end
-end
-
-CoreBodyDamage.inflict_damage = function(l_138_0, l_138_1, l_138_2, l_138_3, l_138_4, l_138_5, l_138_6, l_138_7)
-  local unit_key = l_138_2:key()
-  l_138_0._inflict_time[l_138_1][unit_key] = TimerManager:game():time()
-  local damage = l_138_0._inflict[l_138_1].damage
-  local env = CoreSequenceManager.SequenceEnvironment:new(l_138_1, l_138_2, l_138_0._unit, l_138_0._body, l_138_4, l_138_5, l_138_6, damage, l_138_7, nil, l_138_0._unit_element)
-  l_138_0._body_element:activate_inflict_damage(env)
-  local damage_ext = l_138_3:extension().damage
-  return damage_ext.damage_" .. l_138_(damage_ext, l_138_0._unit, l_138_4, l_138_5, l_138_6, damage, l_138_7)
-end
-
-CoreBodyDamage.damage_damage = function(l_139_0, l_139_1, l_139_2, l_139_3, l_139_4, l_139_5, l_139_6)
-  l_139_5 = l_139_0:damage_endurance("damage", l_139_1, l_139_2, l_139_3, l_139_4, l_139_5, Vector3(0, 0, 0))
-  return l_139_0._unit_extension:damage_damage(l_139_1, l_139_0._body, l_139_2, l_139_3, l_139_4, l_139_5, l_139_6)
-end
-
-CoreBodyDamage.damage_bullet = function(l_140_0, l_140_1, l_140_2, l_140_3, l_140_4, l_140_5, l_140_6)
-  l_140_5 = l_140_0:damage_endurance("bullet", l_140_1, l_140_2, l_140_3, l_140_4, l_140_5, Vector3(0, 0, 0))
-  return l_140_0._unit_extension:damage_bullet(l_140_1, l_140_0._body, l_140_2, l_140_3, l_140_4, l_140_5, l_140_6)
-end
-
-CoreBodyDamage.damage_lock = function(l_141_0, l_141_1, l_141_2, l_141_3, l_141_4, l_141_5, l_141_6)
-  l_141_5 = l_141_0:damage_endurance("lock", l_141_1, l_141_2, l_141_3, l_141_4, l_141_5, Vector3(0, 0, 0))
-  return l_141_0._unit_extension:damage_lock(l_141_1, l_141_0._body, l_141_2, l_141_3, l_141_4, l_141_5, l_141_6)
-end
-
-CoreBodyDamage.damage_explosion = function(l_142_0, l_142_1, l_142_2, l_142_3, l_142_4, l_142_5)
-  l_142_5 = l_142_0:damage_endurance("explosion", l_142_1, l_142_2, l_142_3, l_142_4, l_142_5, Vector3(0, 0, 0))
-  return false, 0
-end
-
-CoreBodyDamage.damage_collision = function(l_143_0, l_143_1, l_143_2, l_143_3, l_143_4, l_143_5, l_143_6)
-  l_143_5 = l_143_0:damage_endurance("collision", l_143_1, l_143_2, l_143_3, l_143_4, l_143_5, l_143_6)
-  return l_143_0._unit_extension:damage_collision(l_143_1, l_143_0._body, l_143_2, l_143_3, l_143_4, l_143_5, l_143_6)
-end
-
-CoreBodyDamage.damage_melee = function(l_144_0, l_144_1, l_144_2, l_144_3, l_144_4, l_144_5)
-  l_144_5 = l_144_0:damage_endurance("melee", l_144_1, l_144_2, l_144_3, l_144_4, l_144_5, Vector3(0, 0, 0))
-  return l_144_0._unit_extension:damage_melee(l_144_1, l_144_0._body, l_144_2, l_144_3, l_144_4, l_144_5)
-end
-
-CoreBodyDamage.damage_electricity = function(l_145_0, l_145_1, l_145_2, l_145_3, l_145_4, l_145_5)
-  l_145_5 = l_145_0:damage_endurance("electricity", l_145_1, l_145_2, l_145_3, l_145_4, l_145_5, Vector3(0, 0, 0))
-  return l_145_0._unit_extension:damage_electricity(l_145_1, l_145_0._body, l_145_2, l_145_3, l_145_4, l_145_5)
-end
-
-CoreBodyDamage.damage_fire = function(l_146_0, l_146_1, l_146_2, l_146_3, l_146_4, l_146_5, l_146_6)
-  l_146_5 = l_146_0:damage_endurance("fire", l_146_1, l_146_2, l_146_3, l_146_4, l_146_5, l_146_6)
-  return l_146_0._unit_extension:damage_fire(l_146_1, l_146_0._body, l_146_2, l_146_3, l_146_4, l_146_5, l_146_6)
-end
-
-CoreBodyDamage.damage_by_area = function(l_147_0, l_147_1, l_147_2, l_147_3, l_147_4, l_147_5, l_147_6, l_147_7)
-  local damage_func = l_147_0.damage_" .. l_147_
-  if damage_func then
-    return damage_func(l_147_0, l_147_2, l_147_3, l_147_4, l_147_5, l_147_6, l_147_7)
-  else
-    Application:error("Unit \"" .. tostring(l_147_0._unit:name()) .. "\" doesn't have a \"damage_" .. tostring(l_147_1) .. "\"-function on its body damage extension.")
-    return false, nil
-  end
-end
-
-CoreBodyDamage.damage_effect = function(l_148_0, l_148_1, l_148_2, l_148_3, l_148_4, l_148_5, l_148_6, l_148_7)
-  return l_148_0._unit_extension:damage_effect(l_148_1, l_148_2, l_148_0._body, l_148_3, l_148_4, l_148_5, l_148_6, l_148_7)
-end
-
-CoreBodyDamage.endurance_exists = function(l_149_0, l_149_1)
-  return l_149_0._endurance[l_149_1] ~= nil
-end
-
-CoreBodyDamage.damage_endurance = function(l_150_0, l_150_1, l_150_2, l_150_3, l_150_4, l_150_5, l_150_6, l_150_7)
-  if l_150_0._body_element then
-    l_150_6 = l_150_6 * l_150_0._body_element._damage_multiplier
-  end
-  if l_150_0._endurance[l_150_1] then
-    local env = CoreSequenceManager.SequenceEnvironment:new(l_150_1, l_150_2, l_150_0._unit, l_150_0._body, l_150_3, l_150_4, l_150_5, l_150_6, l_150_7, nil, l_150_0._unit_element)
-    l_150_0._endurance[l_150_1]:damage(env)
-  end
-  return l_150_6
-end
-
-CoreBodyDamage.get_body_param = function(l_151_0, l_151_1)
-  if l_151_0._body_element then
-    return l_151_0._body_element:get_body_param(l_151_1)
-  else
-    return nil
-  end
-end
-
-CoreBodyDamage.set_inflict_damage = function(l_152_0, l_152_1, l_152_2)
-  l_152_0:set_inflict_attribute(l_152_1, "damage", l_152_2)
-end
-
-CoreBodyDamage.set_inflict_interval = function(l_153_0, l_153_1, l_153_2)
-  l_153_0:set_inflict_attribute(l_153_1, "interval", l_153_2)
-end
-
-CoreBodyDamage.set_inflict_instant = function(l_154_0, l_154_1, l_154_2)
-  l_154_0:set_inflict_attribute(l_154_1, "instant", l_154_2)
-end
-
-CoreBodyDamage.set_inflict_enabled = function(l_155_0, l_155_1, l_155_2)
-  l_155_0:set_inflict_attribute(l_155_1, "enabled", l_155_2)
-end
-
-CoreBodyDamage.get_inflict_damage = function(l_156_0, l_156_1)
-  return l_156_0:get_inflict_attribute(l_156_1, "damage")
-end
-
-CoreBodyDamage.get_inflict_interval = function(l_157_0, l_157_1)
-  return l_157_0:get_inflict_attribute(l_157_1, "interval")
-end
-
-CoreBodyDamage.get_inflict_instant = function(l_158_0, l_158_1)
-  return l_158_0:get_inflict_attribute(l_158_1, "instant")
-end
-
-CoreBodyDamage.get_inflict_enabled = function(l_159_0, l_159_1)
-  return l_159_0:get_inflict_attribute(l_159_1, "enabled")
-end
-
-CoreBodyDamage.set_inflict_attribute = function(l_160_0, l_160_1, l_160_2, l_160_3)
-  local inflict = l_160_0._inflict[l_160_1]
-  if inflict then
-    if l_160_3 ~= nil then
-      inflict[l_160_2] = l_160_3
-      return true, true
-    else
-      return false, true
-    end
-  else
-    local updator = l_160_0._inflict_updator_map[l_160_1]
-    if updator then
-      return updator:set_attribute(l_160_2, l_160_3), true
-    else
-      return false, false
-    end
-  end
-end
-
-CoreBodyDamage.get_inflict_attribute = function(l_161_0, l_161_1, l_161_2)
-  local inflict = l_161_0._inflict[l_161_1]
-  if inflict then
-    return inflict[l_161_2]
-  else
-    local updator = l_161_0._inflict_updator_map[l_161_1]
-    if updator then
-      return updator:get_attribute(l_161_2)
-    else
-       -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-    end
-    error("Tried to get " .. tostring(l_161_2) .. " on non-existing \"" .. tostring(l_161_1) .. "\"-inflict on body \"" .. tostring(l_161_0._body:name()) .. "\" that exist on unit \"" .. tostring(l_161_0._unit:name()) .. "\".")
-  end
-end
-return nil
-end
-
-CoreBodyDamage.save = function(l_162_0, l_162_1)
-  local state = {}
-  local changed = false
-  for k,v in pairs(l_162_0._damage) do
-    if v ~= 0 then
-      state.damage = table.map_copy(l_162_0._damage)
-      changed = true
-  else
-    end
-  end
-  for damage_type,inflict_data in pairs(l_162_0._inflict) do
-    for k,v in pairs(inflict_data) do
-      if v ~= l_162_0._original_inflict[damage_type][k] then
-        if not state.inflict then
-          state.inflict = {}
-        end
-        if not state.inflict[damage_type] then
-          state.inflict[damage_type] = {}
-        end
-        state.inflict[damage_type][k] = v
-        changed = true
-      end
-    end
-  end
-  local updator_state = nil
-  for damage_type,updator in pairs(l_162_0._inflict_updator_map) do
-    local sub_updator_state = {}
-    if updator:save(sub_updator_state) then
-      if not updator_state then
-        updator_state = {}
-      end
-      updator_state[damage_type] = sub_updator_state
-      changed = true
-    end
-  end
-  state.InflictUpdatorMap = updator_state
-  if changed then
-    l_162_1[l_162_0._body_index] = state
-  end
-  return changed
-end
-
-CoreBodyDamage.load = function(l_163_0, l_163_1)
-  local state = l_163_1[l_163_0._body_index]
-  if state then
-    if state.damage then
-      for damage_type,damage in pairs(state.damage) do
-        l_163_0:set_damage(damage_type, damage)
-      end
-    end
-    if state.inflict then
-      for damage_type,inflict_data in pairs(state.inflict) do
-        for k,v in pairs(state.inflict) do
-          l_163_0._inflict[damage_type][k] = v
-        end
-      end
-    end
-    local updator_state = state.InflictUpdatorMap
-    if updator_state then
-      for damage_type,updator in pairs(l_163_0._inflict_updator_map) do
-        local sub_updator_state = updator_state[damage_type]
-        if sub_updator_state then
-          updator:load(sub_updator_state)
-        end
-      end
-    end
-  end
-end
-
-if not CoreAfroBodyDamage then
-  CoreAfroBodyDamage = class(CoreBodyDamage)
-end
-CoreAfroBodyDamage.init = function(l_164_0, l_164_1, l_164_2, l_164_3, l_164_4)
-  CoreBodyDamage.init(l_164_0, l_164_1, l_164_2, l_164_3, l_164_4)
-end
-
-CoreAfroBodyDamage.damage_bullet = function(l_165_0, l_165_1, l_165_2, l_165_3, l_165_4, l_165_5)
-  return l_165_0:damage("bullet", l_165_1, l_165_2, l_165_3, l_165_4, l_165_5, Vector3(0, 0, 0))
-end
-
-CoreAfroBodyDamage.damage_explosion = function(l_166_0, l_166_1, l_166_2, l_166_3, l_166_4, l_166_5)
-  return l_166_0:damage("explosion", l_166_1, l_166_2, l_166_3, l_166_4, l_166_5, Vector3(0, 0, 0))
-end
-
-CoreAfroBodyDamage.damage_collision = function(l_167_0, l_167_1, l_167_2, l_167_3, l_167_4, l_167_5, l_167_6)
-  return l_167_0:damage("collision", l_167_1, l_167_2, l_167_3, l_167_4, l_167_5, l_167_6)
-end
-
-CoreAfroBodyDamage.damage_melee = function(l_168_0, l_168_1, l_168_2, l_168_3, l_168_4, l_168_5)
-  return l_168_0:damage("melee", l_168_1, l_168_2, l_168_3, l_168_4, l_168_5, Vector3(0, 0, 0))
-end
-
-CoreAfroBodyDamage.damage_electricity = function(l_169_0, l_169_1, l_169_2, l_169_3, l_169_4, l_169_5)
-  return l_169_0:damage("electricity", l_169_1, l_169_2, l_169_3, l_169_4, l_169_5, Vector3(0, 0, 0))
-end
-
-CoreAfroBodyDamage.damage_fire = function(l_170_0, l_170_1, l_170_2, l_170_3, l_170_4, l_170_5, l_170_6)
-  return l_170_0:damage("fire", l_170_1, l_170_2, l_170_3, l_170_4, l_170_5, l_170_6)
-end
-
-CoreAfroBodyDamage.damage = function(l_171_0, l_171_1, l_171_2, l_171_3, l_171_4, l_171_5, l_171_6, l_171_7)
-  l_171_6 = l_171_0:damage_endurance(l_171_1, l_171_2, l_171_3, l_171_4, l_171_5, l_171_6, l_171_7)
-  return false, 0
-end
-
-if not CoreDamageWaterCheck then
-  CoreDamageWaterCheck = class()
-end
-CoreDamageWaterCheck.MIN_INTERVAL = 0.20000000298023
+core:import( "CoreSequenceManager" )
+
+CoreUnitDamage = CoreUnitDamage or class()
+UnitDamage = UnitDamage or class( CoreUnitDamage )
+
+function CoreUnitDamage:init( unit, default_body_extension_class, body_extension_class_map, ignore_body_collisions, ignore_mover_collisions, mover_collision_ignore_duration )
+	self._unit = unit
+	self._unit_element = managers.sequence:get( unit:name(), false, true ) -- Create an empty UnitElement if none found.
+	self._damage = 0
+	self._variables = {}
+	-- self._sound_sources = {}
+
+-- Initializes variables:
+	for k,v in pairs( self._unit_element._set_variables ) do
+		self._variables[ k ] = v
+	end
+
+	-- Used nil variables:
+	--self._state = nil
+	--self._runned_sequences = nil
+	--self._direct_attack_unit = nil
+	--self._skip_give_body_collision_damage = nil
+	--self._skip_give_mover_collision_damage = nil
+	--self._skip_receive_body_collision_damage = nil
+	--self._skip_receive_mover_collision_damage = nil
+	--self._skip_give_body_collision_velocity = nil
+	--self._skip_give_mover_collision_velocity = nil
+	--self._enemy_killed_reported = nil
+	--self._inherit_destroy_unit_list = nil
+
+
+-- Updates:
+	--self._update_func_map = nil
+	--self._update_func_count = nil
+	self._ids_damage = Idstring( "damage" )
+	self._unit:set_extension_update_enabled( self._ids_damage, ( self._update_func_map ~= nil ) )
+
+
+-- Proximity:
+	-- Used nil variables:
+	--self._proximity_env = nil
+	--self._proximity_count = nil
+	--self._proximity_enabled_count = nil
+	--self._proximity_map = nil
+
+	for name, element in pairs( self._unit_element:get_proximity_element_map() ) do
+		local data = {}
+		data.name = name
+		data.enabled = element:get_enabled()
+		data.ref_object = element:get_ref_object() and self._unit:get_object( Idstring( element:get_ref_object() ) )
+		data.interval = element:get_interval()
+		data.quick = element:is_quick()
+		data.is_within = element:get_start_within()
+		data.slotmask = element:get_slotmask()
+		data.last_check_time = TimerManager:game():time() + math.rand( math.min( data.interval, 0 ) )
+
+		self:populate_proximity_range_data( data, "within_data", element:get_within_element() )
+		self:populate_proximity_range_data( data, "outside_data", element:get_outside_element() )
+
+		self._proximity_map = self._proximity_map or {}
+		self._proximity_map[ name ] = data
+
+		self._proximity_count = ( self._proximity_count or 0 ) + 1
+
+		if( data.enabled ) then
+			if( not self._proximity_enabled_count ) then
+				self._proximity_enabled_count = 0
+				self:set_update_callback( "update_proximity_list", true )
+			end
+
+			self._proximity_enabled_count = self._proximity_enabled_count + 1
+		end
+	end
+
+
+-- Triggers:
+	--self._trigger_func_list = nil
+	--self._last_trigger_id = nil
+	--self._editor_trigger_data = nil
+
+	for trigger_name in pairs( self._unit_element:get_trigger_name_map() ) do
+		self._trigger_func_list = self._trigger_func_list or {}
+		self._trigger_func_list[ trigger_name ] = {}
+	end
+
+
+-- Inflicts:
+	--self._inflict_src_body = nil
+	--self._inflict_dest_body = nil
+	--self._inflict_done = nil
+
+
+-- Body collisions:
+	--self._last_body_collision_callback_id = nil
+	--self._body_collision_callback_list = nil
+
+
+-- Mover collisions:
+	--self._last_mover_collision_callback_id = nil
+	--self._mover_collision_callback_list = nil
+
+	self._mover_collision_ignore_duration = mover_collision_ignore_duration
+
+	--self._ignore_mover_collision_body_map = nil
+	--self._ignore_mover_collision_unit_map = nil
+	--self._ignore_body_collision_unit_map = nil
+
+	--self._ignore_mover_on_mover_collisions = nil
+
+
+-- Creates body damage extensions:
+	--self._added_inflict_updator_damage_type_map = nil
+
+	body_extension_class_map = body_extension_class_map or {}
+
+	if( not default_body_extension_class ) then
+		default_body_extension_class = CoreBodyDamage
+	end
+
+	local inflict_updator_damage_type_map = get_core_or_local( "InflictUpdator" ).INFLICT_UPDATOR_DAMAGE_TYPE_MAP
+	local unit_key = self._unit:key()
+	for _,body_element in pairs( self._unit_element._bodies ) do
+		local body = self._unit:body( body_element._name )
+
+		if( body ) then
+			body:set_extension( body:extension() or {} )
+			local body_ext = ( body_extension_class_map[ body_element._name ] or default_body_extension_class ):new( self._unit, self, body, body_element )
+			body:extension().damage = body_ext
+
+			local body_key
+			for _,damage_type in pairs( body_ext:get_endurance_map() ) do
+				if( inflict_updator_damage_type_map[ damage_type ] ) then
+					body_key = body_key or body:key()
+					self._added_inflict_updator_damage_type_map = self._added_inflict_updator_damage_type_map or {}
+					self._added_inflict_updator_damage_type_map[ damage_type ] = {}
+					self._added_inflict_updator_damage_type_map[ damage_type ][ body_key ] = body_ext
+					managers.sequence:add_inflict_updator_body( damage_type, unit_key, body_key, body_ext )
+				end
+			end
+		else
+			Application:throw_exception( "Unit \"" .. self._unit:name():t() .. "\" doesn't have the body \"" .. body_element._name .. "\" that was loaded into the SequenceManager." )
+		end
+	end
+
+
+-- Register collision callbacks:
+	if( not ignore_body_collisions ) then
+		self._unit:set_body_collision_callback( callback( self, self, "body_collision_callback" ) )
+	end
+
+	if( self._unit:mover() and not ignore_mover_collisions ) then
+		self._unit:set_mover_collision_callback( callback( self, self, "mover_collision_callback" ) )
+	end
+
+
+-- Water callbacks:
+	--self._water_check_func_id = nil
+	--self._water_check_map = nil
+	--self._active_water_check_map = nil
+	--self._active_water_check_count = nil
+	self._water_check_element_map = self._unit_element:get_water_element_map()
+
+	if( self._water_check_element_map ) then
+		for name, water_element in pairs( self._water_check_element_map ) do
+			self:set_water_check( name, water_element:get_enabled(), water_element:get_interval(), water_element:get_ref_object(),
+								  water_element:get_ref_body(), water_element:get_body_depth(), water_element:get_physic_effect() )
+		end
+	end
+
+
+-- Startup sequences:
+	self._startup_sequence_map = self._unit_element:get_startup_sequence_map( self._unit, self )
+	if( self._startup_sequence_map ) then
+		self._startup_sequence_callback_id = managers.sequence:add_time_callback( callback( self, self, "run_startup_sequences" ) )
+	end
+
+	--self._editor_startup_sequence_map = nil
+	if( Application:editor() ) then
+		self._editor_startup_sequence_map = self._unit_element:get_editor_startup_sequence_map( self._unit, self )
+
+		if( self._editor_startup_sequence_map ) then
+			self._editor_startup_sequence_callback_id = managers.sequence:add_time_callback( callback( self, self, "run_editor_startup_sequences" ) )
+		end
+	end
+
+
+-- Debug:
+	--self._debug_collision_body_id = nil
+	--self._debug_collision_mover_id = nil
+end
+
+function CoreUnitDamage:get_sound_source( object )
+	self._sound_sources = self._sound_sources or {}
+	local sound_source = self._sound_sources[ object ]
+
+ 	if not sound_source then
+		sound_source = SoundDevice:create_source( object )
+		local obj = self._unit:get_object( Idstring( object ) )
+		
+		if obj then
+			sound_source:link( obj )
+		else
+			return
+		end
+		
+		self._sound_sources[ object ] = sound_source
+	end
+	
+	return sound_source
+end
+
+
+function CoreUnitDamage:destroy()
+	if( self._added_inflict_updator_damage_type_map ) then
+		local unit_key = self._unit:key()
+		for damage_type, body_map in pairs( self._added_inflict_updator_damage_type_map ) do
+			for body_key in pairs( body_map ) do
+				managers.sequence:remove_inflict_updator_body( damage_type, unit_key, body_key )
+			end
+		end
+	end
+
+	if( self._water_check_map ) then
+		for name in pairs( self._water_check_map ) do
+			self:set_water_check_active( name, false )
+		end
+	end
+
+	if( self._inherit_destroy_unit_list ) then
+		for _,unit in ipairs( self._inherit_destroy_unit_list ) do
+			if( alive( unit ) ) then
+				unit:set_slot( 0 )
+			end
+		end
+	end
+end
+
+function CoreUnitDamage:update( unit, t, dt )
+	if( self._update_func_map ) then
+		for func_name, data in pairs( self._update_func_map ) do
+			self[ func_name ]( self, unit, t, dt, data )
+		end
+	else
+		Application:error( "Some scripter tried to enable the damage extension on unit \"" .. tostring( unit:name() ) .. "\" or an artist have specified more than one damage-extension in the unit xml. This would have resulted in a crash, so fix it!" )
+		self._unit:set_extension_update_enabled( self._ids_damage, false )
+	end
+end
+
+function CoreUnitDamage:set_update_callback( func_name, data )
+	if( data ) then
+		self._update_func_map = self._update_func_map or {}
+
+		if( not self._update_func_map[ func_name ] ) then
+			if( not self._update_func_count ) then
+				self._update_func_count = 0
+				self._unit:set_extension_update_enabled( self._ids_damage, true )
+			end
+
+			self._update_func_count = self._update_func_count + 1
+		end
+
+		self._update_func_map[ func_name ] = data
+	elseif( self._update_func_map and self._update_func_map[ func_name ] ) then
+		self._update_func_count = self._update_func_count - 1
+		self._update_func_map[ func_name ] = nil
+
+		if( self._update_func_count == 0 ) then
+			self._unit:set_extension_update_enabled( self._ids_damage, false )
+			self._update_func_map = nil
+			self._update_func_count = nil
+		end
+	end
+end
+
+function CoreUnitDamage:populate_proximity_range_data( data, sub_data_name, element )
+	if( element ) then
+		data[ sub_data_name ] = {}
+		data[ sub_data_name ].element = element
+		data[ sub_data_name ].activation_count = 0
+		data[ sub_data_name ].max_activation_count = element:get_max_activation_count()
+		data[ sub_data_name ].delay = element:get_delay()
+		data[ sub_data_name ].range = element:get_range()
+		data[ sub_data_name ].count = element:get_count()
+		data[ sub_data_name ].is_within = ( sub_data_name == "within_data" )
+	end
+end
+
+function CoreUnitDamage:set_proximity_enabled( name, enabled )
+	local data = self._proximity_map and self._proximity_map[ name ]
+
+	if( data and ( not data.enabled ~= not enabled ) ) then
+		data.enabled = enabled
+
+		if( enabled ) then
+			if( not self._proximity_enabled_count ) then
+				self:set_update_callback( "update_proximity_list", true )
+				self._proximity_enabled_count = 0
+			end
+
+			self._proximity_enabled_count = self._proximity_enabled_count + 1
+		else
+			self._proximity_enabled_count = self._proximity_enabled_count - 1
+
+			if( self._proximity_enabled_count <= 0 ) then
+				self._proximity_enabled_count = nil
+				self:set_update_callback( "update_proximity_list", nil )
+			end
+		end
+	end
+end
+
+function CoreUnitDamage:update_proximity_list( unit, t, dt )
+	if( managers.sequence:is_proximity_enabled() ) then
+		for name, data in pairs( self._proximity_map ) do
+			if( data.enabled and ( data.last_check_time + data.interval <= t ) ) then
+				local range_data
+				local reversed
+
+				if( data.is_within ) then
+					range_data = data.outside_data
+
+					if( not range_data ) then
+						range_data = data.within_data
+						reversed = true
+					else
+						reversed = false
+					end
+				else
+					range_data = data.within_data
+
+					if( not range_data ) then
+						range_data = data.outside_data
+						reversed = true
+					else
+						reversed = false
+					end
+				end
+
+				if( self:check_proximity_activation_count( data ) and ( data.last_check_time + range_data.delay <= t ) and ( self:update_proximity( unit, t, dt, data, range_data ) ~= reversed ) ) then
+					data.last_check_time = t
+					data.is_within = not data.is_within
+
+					if( not reversed and self:is_proximity_range_active( range_data ) ) then
+						range_data.activation_count = range_data.activation_count + 1
+						self._proximity_env = self._proximity_env or CoreSequenceManager.SequenceEnvironment:new( "proximity", self._unit, self._unit, nil, Vector3( 0, 0, 0 ), Vector3( 0, 0, 0 ), Vector3( 0, 0, 0 ), 0, Vector3( 0, 0, 0 ), nil, self._unit_element )
+						range_data.element:activate_elements( self._proximity_env )
+						self:check_proximity_activation_count( data )	-- if deactivated in the sequences that were activated.
+					end
+				end
+			end
+		end
+	end
+end
+
+function CoreUnitDamage:is_proximity_range_active( range_data )
+	return range_data and ( ( range_data.max_activation_count < 0 ) or ( range_data.activation_count < range_data.max_activation_count ) )
+end
+
+function CoreUnitDamage:check_proximity_activation_count( data )
+	if( not self:is_proximity_range_active( data.within_data ) and not self:is_proximity_range_active( data.outside_data ) ) then
+		self:set_proximity_enabled( data.name, false )
+		return false
+	else
+		return true
+	end
+end
+
+function CoreUnitDamage:update_proximity( unit, t, dt, data, range_data )
+	local pos
+	if( data.ref_object ) then
+		pos = data.ref_object:position()
+	else
+		pos = self._unit:position()
+	end
+
+	local unit_list
+	if( range_data.quick ) then
+		unit_list = self._unit:find_units_quick( "sphere", pos, range_data.range, data.slotmask )
+	else
+		unit_list = self._unit:find_units( "sphere", pos, range_data.range, data.slotmask )
+	end
+
+	if( ( data.is_within and ( range_data.is_within ~= data.is_within ) ) or ( not data.is_within and ( range_data.is_within == data.is_within ) ) ) then
+		return ( #unit_list <= range_data.count )
+	else
+		return ( #unit_list >= range_data.count )
+	end
+end
+
+function CoreUnitDamage:get_proximity_map()
+	return self._proximity_map or {}
+end
+
+function CoreUnitDamage:set_proximity_slotmask( name, slotmask )
+	self._proximity_map[ name ].slotmask = slotmask
+end
+
+function CoreUnitDamage:set_proximity_ref_obj_name( name, ref_obj_name )
+	self._proximity_map[ name ].ref_object = ref_obj_name and self._unit:get_object( Idstring( ref_obj_name ) )
+end
+
+function CoreUnitDamage:set_proximity_interval( name, interval )
+	self._proximity_map[ name ].interval = interval
+end
+
+function CoreUnitDamage:set_proximity_is_within( name, is_within )
+	self._proximity_map[ name ].is_within = is_within
+end
+
+function CoreUnitDamage:set_proximity_within_activations( name, activations )
+	local data = self._proximity_map[ name ]
+	local within_data = data.within_data
+	if( within_data ) then
+		within_data.activations = activations
+		return self:check_proximity_activation_count( data )
+	end
+end
+
+function CoreUnitDamage:set_proximity_within_max_activations( name, max_activations )
+	local data = self._proximity_map[ name ]
+	local within_data = data.within_data
+	if( within_data ) then
+		within_data.max_activations = max_activations
+		return self:check_proximity_activation_count( data )
+	end
+end
+
+function CoreUnitDamage:set_proximity_within_delay( name, delay )
+	local within_data = self._proximity_map[ name ].within_data
+	if( within_data ) then
+		within_data.delay = delay
+	end
+end
+
+function CoreUnitDamage:set_proximity_within_range( name, range )
+	local within_data = self._proximity_map[ name ].within_data
+	if( within_data ) then
+		within_data.range = range
+	end
+end
+
+function CoreUnitDamage:set_proximity_inside_count( name, count )
+	local within_data = self._proximity_map[ name ].within_data
+	if( within_data ) then
+		within_data.count = count
+	end
+end
+
+function CoreUnitDamage:set_proximity_outside_activations( name, activations )
+	local data = self._proximity_map[ name ]
+	local outside_data = data.outside_data
+	if( outside_data ) then
+		outside_data.activations = activations
+		return self:check_proximity_activation_count( data )
+	end
+end
+
+function CoreUnitDamage:set_proximity_outside_max_activations( name, max_activations )
+	local data = self._proximity_map[ name ]
+	local outside_data = data.outside_data
+	if( outside_data ) then
+		outside_data.max_activations = max_activations
+		return self:check_proximity_activation_count( data )
+	end
+end
+
+function CoreUnitDamage:set_proximity_outside_delay( name, delay )
+	local outside_data = self._proximity_map[ name ].outside_data
+	if( outside_data ) then
+		outside_data.delay = delay
+	end
+end
+
+function CoreUnitDamage:set_proximity_outside_range( name, range )
+	local outside_data = self._proximity_map[ name ].outside_data
+	if( outside_data ) then
+		outside_data.range = range
+	end
+end
+
+function CoreUnitDamage:set_proximity_outside_range( name, range )
+	local outside_data = self._proximity_map[ name ].outside_data
+	if( outside_data ) then
+		outside_data.range = count
+	end
+end
+
+function CoreUnitDamage:get_water_check_map()
+	return self._water_check_map
+end
+
+function CoreUnitDamage:set_water_check( name, enabled, interval, ref_object_name, ref_body_name, body_depth, physic_effect )
+	self._water_check_map = self._water_check_map or {}
+
+	local water_check = self._water_check_map[ name ]
+	local ref_object = ref_object_name and self._unit:get_object( Idstring( ref_object_name ) )
+	local ref_body = ref_body_name and self._unit:body( ref_body_name )
+
+	if( not water_check ) then
+		water_check = CoreDamageWaterCheck:new( self._unit, self, name, interval, ref_object, ref_body, body_depth, physic_effect )
+		self._water_check_map[ name ] = water_check
+	else
+		water_check:set_interval( interval )
+		water_check:set_body_depth( body_depth )
+
+		if( ref_object ) then
+			water_check:set_ref_object( ref_object )
+		elseif( ref_body ) then
+			water_check:set_ref_body( ref_body )
+		end
+	end
+
+	self:set_water_check_active( name, enabled )
+
+	if( not water_check:is_valid() ) then
+		Application:error( "Invalid water check \"" .. tostring( name ) .. "\" in unit \"" .. tostring( self._unit:name() ) .. "\". Neither ref_body nor ref_object is speicified in it." )
+		self:remove_water_check( name )
+	end
+end
+
+function CoreUnitDamage:remove_water_check( name )
+	if( self._water_check_map ) then
+		local water_check = self._water_check_map[ name ]
+
+		if( water_check ) then
+			self:set_water_check_active( name, false )
+			self._water_check_map[ name ] = nil
+		end
+	end
+end
+
+function CoreUnitDamage:exists_water_check( name )
+	return self._water_check_map and ( self._water_check_map[ name ] ~= nil )
+end
+
+function CoreUnitDamage:is_water_check_active( name )
+	return ( self._active_water_check_map and self._active_water_check_map[ name ] ~= nil )
+end
+
+function CoreUnitDamage:set_water_check_active( name, active )
+	local water_check = self._water_check_map and self._water_check_map[ name ]
+
+	if( water_check ) then
+		if( active ) then
+			if( not self._active_water_check_map or not self._active_water_check_map[ name ] ) then
+				self._active_water_check_map = self._active_water_check_map or {}
+				self._active_water_check_map[ name ] = water_check
+				self._active_water_check_count = ( self._active_water_check_count or 0 ) + 1
+
+				if( self._active_water_check_count == 1 ) then
+					self._water_check_func_id = managers.sequence:add_callback( callback( self, self, "update_water_checks" ) )
+				end
+			end
+		else
+			water_check:set_activation_callbacks_enabled( false )
+
+			if( self._active_water_check_map and self._active_water_check_map[ name ] ) then
+				self._active_water_check_map[ name ] = nil
+				self._active_water_check_count = self._active_water_check_count - 1
+
+				if( self._active_water_check_count == 0 ) then
+					managers.sequence:remove_callback( self._water_check_func_id )
+					self._water_check_func_id = nil
+					self._active_water_check_map = nil
+					self._active_water_check_count = nil
+				end
+			end
+		end
+	end
+end
+
+function CoreUnitDamage:update_water_checks( t, dt )
+	for name, water_check in pairs( self._active_water_check_map ) do
+		water_check:update( t, dt )
+	end
+end
+
+function CoreUnitDamage:water_check_enter( name, water_check, src_unit, body, normal, position, direction, damage, velocity, water_depth )
+	local element = self._water_check_element_map[ name ]
+
+	if( element ) then
+		local env = CoreSequenceManager.SequenceEnvironment:new( "water", src_unit, self._unit, body, normal, position, direction, damage, velocity, { water_depth = water_depth }, self._unit_element )
+		element:activate_enter( env )
+	end
+end
+
+function CoreUnitDamage:water_check_exit( name, water_check, src_unit, body, normal, position, direction, damage, velocity, water_depth )
+	local element = self._water_check_element_map[ name ]
+
+	if( element ) then
+		local env = CoreSequenceManager.SequenceEnvironment:new( "water", src_unit, self._unit, body, normal, position, direction, damage, velocity, { water_depth = water_depth }, self._unit_element )
+		element:activate_exit( env )
+	end
+end
+
+function CoreUnitDamage:save( data )
+	local state = {}
+	local changed = false
+
+	-- Runned sequences:
+	if( self._runned_sequences ) then
+		for k,v in pairs( self._runned_sequences ) do
+			state.runned_sequences = table.map_copy( self._runned_sequences )
+			changed = true
+			break
+		end
+	end
+
+	-- State data:
+	if( self._state ) then
+		for k,v in pairs( self._state ) do
+			state.state = deep_clone( self._state )
+			changed = true
+			break
+		end
+	end
+
+	-- Damage:
+	if( self._damage ~= 0 ) then
+		state.damage = self._damage
+		changed = true
+	end
+
+	-- Variables:
+	for k,v in pairs( self._variables ) do
+		if( ( self._unit_element._set_variables[ k ] ~= v ) and ( ( k ~= "damage" ) or ( v ~= self._damage ) ) ) then
+			state.variables = table.map_copy( self._variables )
+			changed = true
+			break
+		end
+	end
+
+	-- Proximity:
+	if( self._proximity_count ) then
+		changed = true
+		state.proximity_count = self._proximity_count
+		state.proximity_enabled_count = self._proximity_enabled_count
+
+		for name, data in pairs( self._proximity_map or {} ) do
+			state.proximity_map = state.proximity_map or {}
+			state.proximity_map[ name ] = {}
+
+			for attribute_name, attribute_value in pairs( data ) do
+				if( attribute_name == "ref_object" ) then
+					state.proximity_map[ name ][ attribute_name ] = attribute_value and attribute_value:name()
+				elseif( attribute_name == "slotmask" ) then
+					state.proximity_map[ name ][ attribute_name ] = managers.slot:get_mask_name( attribute_value )
+				elseif( attribute_name == "last_check_time" ) then
+					state.proximity_map[ name ][ attribute_name ] = TimerManager:game():time() - attribute_value
+				elseif( ( attribute_name == "within_data" ) or ( attribute_name == "outside_data" ) ) then
+					state.proximity_map[ name ][ attribute_name ] = {}
+
+					for range_attribute_name, range_attribute_value in pairs( attribute_value ) do
+						if( range_attribute_name ~= "element" ) then
+							state.proximity_map[ name ][ attribute_name ][ range_attribute_name ] = range_attribute_value
+						end
+					end
+				else
+					state.proximity_map[ name ][ attribute_name ] = attribute_value
+				end
+			end
+		end
+	end
+
+	-- Save anim groups and their current time
+	for _,anim_name in ipairs( self._unit:anim_groups() ) do
+		state.anim = state.anim or {}
+		
+		-- This is a hacks fix. Animated bodies didn't set the animation time if the time was greater then the length,
+		-- also needed to pull it back some further. (apartment door example) /Martin
+		local anim_time = self._unit:anim_time( anim_name )		
+		table.insert( state.anim, { name = anim_name, time = anim_time } )
+		changed = true
+	end
+	
+	-- Save state machine states and their current time
+	if not self._skip_save_anim_state_machine then
+		local state_machine = self._unit:anim_state_machine()
+		if state_machine then
+			state.state_machine = state.state_machine or {}
+			for _,segment in ipairs( state_machine:config():segments() ) do
+				local anim_state = state_machine:segment_state( segment )
+				if anim_state ~= Idstring( "" ) then
+					local anim_time = state_machine:segment_real_time( segment )
+					table.insert( state.state_machine, { anim_state = anim_state, anim_time = anim_time } )
+				end
+			end
+		end
+	end
+	
+	changed = self._unit_element:save_by_unit( self._unit, state ) or changed
+
+	if( changed ) then
+		data.CoreUnitDamage = state
+	end
+end
+
+function CoreUnitDamage:get_unit_element()
+	return self._unit_element
+end
+
+function CoreUnitDamage:load( data )
+	local state = data.CoreUnitDamage
+	
+	if self._unit:name() == Idstring( "units/payday2/vehicles/air_vehicle_blackhawk/helicopter_cops_ref" ) then
+		print( "[CoreUnitDamage:load]", self._unit )
+	end
+
+	if( self._startup_sequence_callback_id ) then
+		managers.sequence:remove_time_callback( self._startup_sequence_callback_id )
+		self:run_startup_sequences()
+	end
+
+	if( self._editor_startup_sequence_callback_id ) then
+		managers.sequence:remove_time_callback( self._editor_startup_sequence_callback_id )
+		self:run_editor_startup_sequences()
+	end
+
+	if( state ) then
+		if( state.runned_sequences ) then
+			self._runned_sequences = table.map_copy( state.runned_sequences )
+		end
+		if( state.state ) then
+			self._state = deep_clone( state.state )
+		end
+		self._damage = state.damage or self._damage
+
+		if( state.variables ) then
+			self._variables = table.map_copy( state.variables )
+		end
+
+		-- Proximity:
+		if( state.proximity_map ) then
+			self._proximity_count = state.proximity_count
+			self._proximity_enabled_count = state.proximity_enabled_count
+
+			for name, data in pairs( state.proximity_map ) do
+				self._proximity_map = self._proximity_map or {}
+
+				for attribute_name, attribute_value in pairs( data ) do
+					if( attribute_name == "ref_object" ) then
+						self._proximity_map[ name ][ attribute_name ] = attribute_value and self._unit:get_object( Idstring( attribute_value ) )
+					elseif( attribute_name == "slotmask" ) then
+						self._proximity_map[ name ][ attribute_name ] = managers.slot:get_mask( attribute_value )
+					elseif( attribute_name == "last_check_time" ) then
+						self._proximity_map[ name ][ attribute_name ] = TimerManager:game():time() - attribute_value
+					elseif( ( attribute_name == "within_data" ) or ( attribute_name == "outside_data" ) ) then
+						for range_attribute_name, range_attribute_value in pairs( attribute_value ) do
+							self._proximity_map[ name ][ attribute_name ][ range_attribute_name ] = range_attribute_value
+						end
+					else
+						self._proximity_map[ name ][ attribute_name ] = attribute_value
+					end
+				end
+			end
+
+			if( self._proximity_enabled_count ) then
+				self:set_update_callback( "update_proximity_list", true )
+			end
+		end
+		
+		if( state.anim ) then
+			for _,anim_data in ipairs( state.anim ) do
+				self._unit:anim_set_time( anim_data.name, anim_data.time )
+			end
+		end
+		
+		if state.state_machine then
+			for _,anim_data in ipairs( state.state_machine ) do
+				self._unit:play_state( anim_data.anim_state, anim_data.anim_time )
+			end
+		end
+
+		if( self._state ) then
+			for element_name,data in pairs( self._state ) do
+				managers.sequence:load_element_data( self._unit, element_name, data )
+			end
+		end
+
+		self._unit_element:load_by_unit( self._unit, state )
+	end
+		
+	-- Make sure that a spawn sync unit is registered
+	managers.worlddefinition:use_me( self._unit )
+	managers.worlddefinition:external_set_only_visible_in_editor( self._unit )
+end
+
+function CoreUnitDamage:run_startup_sequences()
+	local nil_vector = Vector3( 0, 0, 0 )
+
+	self._startup_sequence_callback_id = nil
+
+	for name in pairs( self._startup_sequence_map ) do
+		if( alive( self._unit ) ) then
+			managers.sequence:run_sequence( name, "startup", self._unit, self._unit, nil, nil_vector, nil_vector, nil_vector, 0, nil_vector )
+		else
+			break
+		end
+	end
+end
+
+function CoreUnitDamage:run_editor_startup_sequences()
+	local nil_vector = Vector3( 0, 0, 0 )
+
+	self._editor_startup_sequence_callback_id = nil
+
+	for name in pairs( self._editor_startup_sequence_map ) do
+		if( alive( self._unit ) ) then
+			managers.sequence:run_sequence( name, "editor_startup", self._unit, self._unit, nil, nil_vector, nil_vector, nil_vector, 0, nil_vector )
+		else
+			break
+		end
+	end
+end
+
+function CoreUnitDamage:remove_trigger_func( trigger_name, id, is_editor )
+	if( self:verify_trigger_name( trigger_name ) ) then
+		self._trigger_func_list[ trigger_name ][ id ] = nil
+
+		if( is_editor ) then
+			for index, data in ipairs( self._editor_trigger_data ) do
+				if( data.id == id ) then
+					table.remove( self._editor_trigger_data, index )
+					break
+				end
+			end
+		end
+	end
+end
+
+function CoreUnitDamage:clear_trigger_func_list( trigger_name, is_editor )
+	if( trigger_name and self._trigger_func_list ) then
+		self._trigger_func_list[ trigger_name ] = {}
+
+		if( self._editor_trigger_data ) then
+			for i=#self._editor_trigger_data, 1 do
+				local data = self._editor_trigger_data[ i ]
+
+				if( data.trigger_name == trigger_name ) then
+					table.remove( self._editor_trigger_data, i )
+				end
+			end
+		end
+	else
+		self._editor_trigger_data = nil
+	end
+end
+
+function CoreUnitDamage:add_trigger_sequence( trigger_name, notify_unit_sequence, notify_unit, time, repeat_nr, params, is_editor )
+	self._last_trigger_id = ( self._last_trigger_id or 0 ) + 1
+	return self:set_trigger_sequence( self._last_trigger_id, trigger_name, notify_unit_sequence, notify_unit, time, repeat_nr, params, is_editor )
+end
+
+-- Editor function only:
+function CoreUnitDamage:set_trigger_sequence_name( id, trigger_name, notify_unit_sequence )
+	if( self._trigger_func_list and self._trigger_func_list[ trigger_name ][ id ] ) then
+		for _, data in ipairs( self._editor_trigger_data ) do
+			if( data.id == id ) then
+				return self:set_trigger_sequence( id, trigger_name, notify_unit_sequence, data.notify_unit, data.time, data.repeat_nr, data.params, true )
+			end
+		end
+	end
+
+	return nil
+end
+
+-- Editor function only:
+function CoreUnitDamage:set_trigger_sequence_unit( id, trigger_name, notify_unit )
+	if( self._trigger_func_list and self._trigger_func_list[ trigger_name ][ id ] ) then
+		for _, data in ipairs( self._editor_trigger_data ) do
+			if( data.id == id ) then
+				return self:set_trigger_sequence( id, trigger_name, data.notify_unit_sequence, notify_unit, data.time, data.repeat_nr, data.params, true )
+			end
+		end
+	end
+
+	return nil
+end
+
+-- Editor function only:
+function CoreUnitDamage:set_trigger_sequence_time( id, trigger_name, time )
+	if( self._trigger_func_list and self._trigger_func_list[ trigger_name ][ id ] ) then
+		for _, data in ipairs( self._editor_trigger_data ) do
+			if( data.id == id ) then
+				return self:set_trigger_sequence( id, trigger_name, data.notify_unit_sequence, data.notify_unit, time, data.repeat_nr, data.params, true )
+			end
+		end
+	end
+
+	return nil
+end
+
+-- Editor function only:
+function CoreUnitDamage:set_trigger_sequence_repeat_nr( id, trigger_name, repeat_nr )
+	if( self._trigger_func_list and self._trigger_func_list[ trigger_name ][ id ] ) then
+		for _, data in ipairs( self._editor_trigger_data ) do
+			if( data.id == id ) then
+				return self:set_trigger_sequence( id, trigger_name, data.notify_unit_sequence, data.notify_unit, data.time, repeat_nr, data.params, true )
+			end
+		end
+	end
+
+	return nil
+end
+
+-- Editor function only:
+function CoreUnitDamage:set_trigger_sequence_params( id, trigger_name, params )
+	if( self._trigger_func_list and self._trigger_func_list[ trigger_name ][ id ] ) then
+		for _, data in ipairs( self._editor_trigger_data ) do
+			if( data.id == id ) then
+				return self:set_trigger_sequence( id, trigger_name, data.notify_unit_sequence, data.notify_unit, data.time, data.repeat_nr, params, true )
+			end
+		end
+	end
+
+	return nil
+end
+
+function CoreUnitDamage:set_trigger_sequence( id, trigger_name, notify_unit_sequence, notify_unit, time, repeat_nr, params, is_editor )
+	local func = function( params2 )
+				 	if( params2 ) then
+						if( params and ( getmetatable( params2 ) ~= CoreSequenceManager.SequenceEnvironment ) ) then
+							if( getmetatable( params ) == CoreSequenceManager.SequenceEnvironment ) then
+							 	for k,v in pairs( params2 ) do
+							 		params.params[ k ] = v
+							 	end
+							else
+							 	for k,v in pairs( params2 ) do
+							 		params[ k ] = v
+							 	end
+							end
+						else
+							params = params2
+						end
+					end
+										
+					if( getmetatable( params ) == CoreSequenceManager.SequenceEnvironment ) then
+						managers.sequence:run_sequence( notify_unit_sequence, "trigger", self._unit, notify_unit, nil, params.dest_normal, params.pos, params.dir, params.damage, params.velocity, params.params )
+					else
+						managers.sequence:run_sequence_simple3( notify_unit_sequence, "trigger", self._unit, notify_unit, params )
+					end
+				end
+
+	if( is_editor ) then
+		local data
+
+		self._editor_trigger_data = self._editor_trigger_data or {}
+
+		if( self._trigger_func_list and self._trigger_func_list[ trigger_name ] and self._trigger_func_list[ trigger_name ][ id ] ) then
+			for _, data2 in ipairs( self._editor_trigger_data ) do
+				if( data2.id == id ) then
+					data = data2
+					break
+				end
+			end
+		end
+
+		if( not data ) then
+			data = {}
+			table.insert( self._editor_trigger_data, data )
+		end
+
+		data.id = id
+		data.trigger_name = trigger_name
+		data.notify_unit_sequence = notify_unit_sequence
+		data.notify_unit = notify_unit
+		data.time = time
+		data.repeat_nr = repeat_nr
+		data.params = params
+	end
+
+	return self:set_trigger_func( id, trigger_name, func, time, repeat_nr, is_editor )
+end
+
+function CoreUnitDamage:get_editor_trigger_data()
+	if( self._editor_trigger_data ) then
+		for i=#self._editor_trigger_data, 1, -1 do
+			local data = self._editor_trigger_data[ i ]
+
+			if( not alive( data.notify_unit ) ) then
+				self:remove_trigger_func( data.trigger_name, data.id, true )
+			end
+		end
+	end
+
+	return self._editor_trigger_data
+end
+
+function CoreUnitDamage:add_trigger_func( trigger_name, func, time, repeat_nr, is_editor )
+	self._last_trigger_id = ( self._last_trigger_id or 0 ) + 1
+	return self:set_trigger_func( self._last_trigger_id, trigger_name, func, time, repeat_nr, is_editor )
+end
+
+function CoreUnitDamage:set_trigger_func( id, trigger_name, func, time, repeat_nr, is_editor )
+	if( self:verify_trigger_name( trigger_name ) ) then
+		local trigger_func
+
+		if( time ) then
+			trigger_func = function( params2 ) managers.sequence:add_time_callback( func, time, repeat_nr, params2 ) end
+		elseif( repeat_nr and ( repeat_nr > 1 ) ) then
+			trigger_func = function( params2 ) for i=1, repeat_nr do func( params2 ) end end
+		else
+			trigger_func = func
+		end
+
+		self._trigger_func_list[ trigger_name ][ id ] = trigger_func
+
+		return id
+	end
+
+	return nil
+end
+
+function CoreUnitDamage:activate_trigger( trigger_name, params2 )
+	if( self:verify_trigger_name( trigger_name ) ) then
+		for _, func in pairs( self._trigger_func_list[ trigger_name ] ) do
+			func( params2 )
+		end
+	end
+end
+
+function CoreUnitDamage:verify_trigger_name( trigger_name )
+	if( trigger_name and self._trigger_func_list and self._trigger_func_list[ trigger_name ] ) then
+		return true
+	else
+		Application:error( "Trigger \"" .. tostring( trigger_name ) .. "\" doesn't exist. Only the following triggers are available: " .. managers.sequence:get_keys_as_string( self._unit_element:get_trigger_name_map(), "[None]", true ) )
+		return false
+	end
+end
+
+function CoreUnitDamage:inflict_damage( damage_type, src_body, source_body, normal, position, direction, velocity )
+	local damage
+	local body_ext = source_body:extension()
+	local damage_ext
+
+	if( body_ext ) then
+		damage_ext = body_ext.damage
+
+		if( damage_ext ) then
+			return damage_ext:inflict_damage( damage_type, self._unit, src_body, normal, position, direction )
+		end
+	end
+
+	return nil, false
+end
+
+function CoreUnitDamage:damage_damage( attack_unit, dest_body, normal, position, direction, damage, unevadable )
+	return self:add_damage( "damage", attack_unit, dest_body, normal, position, direction, damage, Vector3( 0, 0, 0 ), unevadable )
+end
+
+function CoreUnitDamage:damage_bullet( attack_unit, dest_body, normal, position, direction, damage, unevadable )
+	return self:add_damage( "bullet", attack_unit, dest_body, normal, position, direction, damage, Vector3( 0, 0, 0 ), unevadable )
+end
+
+function CoreUnitDamage:damage_lock( attack_unit, dest_body, normal, position, direction, damage, unevadable )
+	return self:add_damage( "lock", attack_unit, dest_body, normal, position, direction, damage, Vector3( 0, 0, 0 ), unevadable )
+end
+
+function CoreUnitDamage:damage_explosion( attack_unit, dest_body, normal, position, direction, damage )
+	return self:add_damage( "explosion", attack_unit, dest_body, normal, position, direction, damage, Vector3( 0, 0, 0 ) )
+end
+
+function CoreUnitDamage:damage_collision( attack_unit, dest_body, normal, position, direction, damage, velocity )
+	return self:add_damage( "collision", attack_unit, dest_body, normal, position, direction, damage, velocity )
+end
+
+function CoreUnitDamage:damage_melee( attack_unit, dest_body, normal, position, direction, damage )
+	return self:add_damage( "melee", attack_unit, dest_body, normal, position, direction, damage, Vector3( 0, 0, 0 ) )
+end
+
+function CoreUnitDamage:damage_electricity( attack_unit, dest_body, normal, position, direction, damage )
+	return self:add_damage( "electricity", attack_unit, dest_body, normal, position, direction, damage, Vector3( 0, 0, 0 ) )
+end
+
+function CoreUnitDamage:damage_fire( attack_unit, dest_body, normal, position, direction, damage, velocity )
+	return self:add_damage( "fire", attack_unit, dest_body, normal, position, direction, damage, velocity )
+end
+
+function CoreUnitDamage:damage_by_area( endurance_type, attack_unit, dest_body, normal, position, direction, damage, velocity )
+	local damage_func = self[ "damage_" .. endurance_type ]
+
+	if( damage_func ) then
+		return damage_func( self, attack_unit, dest_body, normal, position, direction, damage, velocity )
+	else
+		Application:error( "Unit \"" .. tostring( self._unit:name() ) .. "\" doesn't have a \"damage_" .. tostring( endurance_type ) .. "\"-function on its unit damage extension." )
+		return false, nil
+	end
+end
+
+function CoreUnitDamage:add_damage( endurance_type, attack_unit, dest_body, normal, position, direction, damage, velocity )
+	if( self._unit_element ) then
+		self._damage = self._damage + damage
+
+		if( self._damage >= self._unit_element._global_vars.endurance ) then
+			return true, damage
+		else
+			return false, damage
+		end
+	else
+		return false, 0
+	end
+end
+
+function CoreUnitDamage:damage_effect( effect_type, attack_unit, dest_body, normal, position, direction, velocity, params )
+end
+
+function CoreUnitDamage:run_sequence_simple( name, params )
+	self:run_sequence_simple2( name, "", params )
+end
+
+function CoreUnitDamage:run_sequence_simple2( name, endurance_type, params )
+	self:run_sequence_simple3( name, endurance_type, self._unit, params )
+end
+
+function CoreUnitDamage:run_sequence_simple3( name, endurance_type, source_unit, params )
+	self:run_sequence( name, endurance_type, source_unit, nil, Vector3( 0, 0, 1 ), self._unit:position(), Vector3( 0, 0, -1 ), 0, Vector3( 0, 0, 0 ), params )
+end
+
+function CoreUnitDamage:run_sequence( name, endurance_type, source_unit, dest_body, normal, position, direction, damage, velocity, params )
+	self._unit_element:run_sequence( name, endurance_type, source_unit, self._unit, dest_body, normal, position, direction, damage, velocity, params )
+end
+
+function CoreUnitDamage:get_damage()
+	return self._damage
+end
+
+function CoreUnitDamage:get_endurance()
+	if( self._unit_element ) then
+		return self._unit_element:get_endurance()
+	else
+		return 0
+	end
+end
+
+function CoreUnitDamage:get_damage_ratio()
+	if( self._unit_element and ( self._unit_element:get_endurance() > 0 ) ) then
+		return self._damage / self._unit_element:get_endurance()
+	else
+		return 0
+	end
+end
+
+function CoreUnitDamage:update_inflict_damage( t, dt )
+	if( self._inflict_dest_body ) then
+		for damage_type,dest_body in pairs( self._inflict_dest_body ) do
+			if( not self._inflict_done or not self._inflict_done[ damage_type ] ) then
+				local src_body = self._inflict_src_body and self._inflict_src_body[ damage_type ]
+
+				if( alive( src_body ) and alive( dest_body ) ) then
+					self:exit_inflict_damage( damage_type, src_body, dest_body )
+				end
+
+				if( self._inflict_src_body ) then
+					self._inflict_src_body[ damage_type ] = nil
+				end
+
+				if( self._inflict_dest_body ) then
+					self._inflict_dest_body[ damage_type ] = nil
+				end
+			end
+		end
+	end
+
+	self._inflict_done = nil
+end
+
+function CoreUnitDamage:check_inflict_damage( damage_type, src_body, dest_body, normal, pos, dir, velocity )
+	local can_inflict, delayed = self:can_receive_inflict_damage( damage_type, dest_body )
+
+	self._inflict_done = self._inflict_done or {}
+	self._inflict_done[ damage_type ] = self._inflict_done[ damage_type ] or can_inflict or delayed
+
+	if( can_inflict ) then
+		self._inflict_dest_body = self._inflict_dest_body or {}
+		self._inflict_src_body = self._inflict_src_body or {}
+
+		local old_dest_body = self._inflict_dest_body[ damage_type ]
+
+		if( alive( old_dest_body ) and ( old_dest_body:key() ~= dest_body:key() ) ) then
+			self:exit_inflict_damage( damage_type, self._inflict_src_body[ damage_type ], old_dest_body, normal, pos, dir, velocity )
+		end
+
+		self._inflict_dest_body[ damage_type ] = dest_body
+		self._inflict_src_body[ damage_type ] = src_body
+
+		local entered = self:enter_inflict_damage( damage_type, src_body, dest_body, normal, pos, dir, velocity )
+
+		if( not entered or dest_body:extension().damage:get_inflict_instant( damage_type ) ) then
+			return self:inflict_damage( damage_type, src_body, dest_body, normal, pos, dir, velocity )
+		else
+			return false, 0
+		end
+	end
+
+	return false, nil
+end
+
+function CoreUnitDamage:can_receive_inflict_damage( damage_type, dest_body )
+	if( alive( dest_body ) ) then
+		local body_ext = dest_body:extension()
+
+		if( body_ext ) then
+			local damage_ext = body_ext.damage
+
+			if( damage_ext ) then
+				return damage_ext:can_inflict_damage( damage_type, self._unit )
+			end
+		end
+	end
+
+	return false, false
+end
+
+function CoreUnitDamage:enter_inflict_damage( damage_type, src_body, dest_body, normal, position, direction, velocity )
+	return dest_body:extension().damage:enter_inflict_damage( damage_type, self._unit, src_body, normal, position, direction, velocity )
+end
+
+function CoreUnitDamage:inflict_damage( damage_type, src_body, dest_body, normal, position, direction, velocity )
+	return dest_body:extension().damage:inflict_damage( damage_type, self._unit, src_body, normal, position, direction, velocity )
+end
+
+function CoreUnitDamage:exit_inflict_damage( damage_type, src_body, dest_body, normal, pos, dir, velocity )
+	dest_body:extension().damage:exit_inflict_damage( damage_type, src_body, normal, pos, dir, velocity )
+end
+
+function CoreUnitDamage:set_direct_attack_unit( direct_attack_unit )
+	self._direct_attack_unit = direct_attack_unit
+end
+
+function CoreUnitDamage:get_direct_attack_unit()
+	return self._direct_attack_unit
+end
+
+-- This function, if specified in an inherited class, will be called by the sequence manager when a unit is spawned from a sequence involved damage call between an attacking and attacked unit. This function is mostly used to prevent mover collisions from units that are spawned close to or inside a mover.
+-- function CoreUnitDamage:external_spawn_unit_callback( spawned_unit, env ) end
+
+function CoreUnitDamage:add_body_collision_callback( func )
+	self._last_body_collision_callback_id = ( self._last_body_collision_callback_id or 0 ) + 1
+	self._body_collision_callback_list = self._body_collision_callback_list or {}
+	self._body_collision_callback_list[ self._last_body_collision_callback_id ] = func
+	return self._last_body_collision_callback_id
+end
+
+function CoreUnitDamage:remove_body_collision_callback( id )
+	if( self._body_collision_callback_list ) then
+		self._body_collision_callback_list[ id ] = nil
+	end
+end
+
+function CoreUnitDamage:add_mover_collision_callback( func )
+	self._last_mover_collision_callback_id = ( self._last_mover_collision_callback_id or 0 ) + 1
+	self._mover_collision_callback_list = self._mover_collision_callback_list or {}
+	self._mover_collision_callback_list[ self._last_mover_collision_callback_id ] = func
+	return self._last_mover_collision_callback_id
+end
+
+function CoreUnitDamage:remove_mover_collision_callback( id )
+	if( self._mover_collision_callback_list ) then
+		self._mover_collision_callback_list[ id ] = nil
+	end
+end
+
+function CoreUnitDamage:set_ignore_mover_collision_unit( unit_key, time )
+	self._ignore_mover_collision_unit_map = self._ignore_mover_collision_unit_map or {}
+	self._ignore_mover_collision_unit_map[ unit_key ] = time
+end
+
+function CoreUnitDamage:set_ignore_mover_collision_body( body_key, time )
+	self._ignore_mover_collision_body_map = self._ignore_mover_collision_body_map or {}
+	self._ignore_mover_collision_body_map[ body_key ] = time
+end
+
+function CoreUnitDamage:clear_ignore_mover_collision_units()
+	self._ignore_mover_collision_unit_map = nil
+end
+
+function CoreUnitDamage:clear_ignore_mover_collision_bodies()
+	self._ignore_mover_collision_body_map = nil
+end
+
+function CoreUnitDamage:set_ignore_body_collision_unit( unit_key, time )
+	self._ignore_body_collision_unit_map = self._ignore_body_collision_unit_map or {}
+	self._ignore_body_collision_unit_map[ unit_key ] = time
+end
+
+function CoreUnitDamage:clear_ignore_body_collision_units()
+	self._ignore_body_collision_unit_map = nil
+end
+
+function CoreUnitDamage:set_ignore_mover_on_mover_collisions( ignore )
+	if( ignore ) then
+		self._ignore_mover_on_mover_collisions = true
+	else
+		self._ignore_mover_on_mover_collisions = nil
+	end
+end
+
+function CoreUnitDamage:get_ignore_mover_on_mover_collisions()
+	return not not self._ignore_mover_on_mover_collisions
+end
+
+function CoreUnitDamage:give_body_collision_velocity()
+	return not self._skip_give_body_collision_velocity
+end
+
+function CoreUnitDamage:set_give_body_collision_velocity( give_body_velocity )
+	self._skip_give_body_collision_velocity = not give_body_velocity
+end
+
+function CoreUnitDamage:give_mover_collision_velocity()
+	return not self._skip_give_mover_collision_velocity
+end
+
+function CoreUnitDamage:set_give_mover_collision_velocity( give_mover_velocity )
+	self._skip_give_mover_collision_velocity = not give_mover_velocity
+end
+
+function CoreUnitDamage:give_body_collision_damage()
+	return not self._skip_give_body_collision_damage
+end
+
+function CoreUnitDamage:set_give_body_collision_damage( give_body_damage )
+	self._skip_give_body_collision_damage = not give_body_damage
+end
+
+function CoreUnitDamage:give_mover_collision_damage()
+	return not self._skip_give_mover_collision_damage
+end
+
+function CoreUnitDamage:set_give_mover_collision_damage( give_mover_damage )
+	self._skip_give_mover_collision_damage = not give_mover_damage
+end
+
+function CoreUnitDamage:receive_body_collision_damage()
+	return not self._skip_receive_body_collision_damage
+end
+
+function CoreUnitDamage:set_receive_body_collision_damage( receive_body_damage )
+	self._skip_receive_body_collision_damage = not receive_body_damage
+end
+
+function CoreUnitDamage:receive_mover_collision_damage()
+	return not self._skip_receive_mover_collision_damage
+end
+
+function CoreUnitDamage:set_receive_mover_collision_damage( receive_mover_damage )
+	self._skip_receive_mover_collision_damage = not receive_mover_damage
+end
+
+function CoreUnitDamage:can_mover_collide( time, unit, other_unit, other_body, position, normal, collision_velocity, velocity, other_velocity )
+	local alive_other_body = alive( other_body )
+	local damage_ext = other_unit:damage()
+	return ( not damage_ext or damage_ext:give_mover_collision_damage() ) and not self._skip_receive_mover_collision_damage and self._unit:mover() and ( alive_other_body or not self._ignore_mover_on_mover_collisions ) and managers.sequence:is_collisions_enabled() and
+		   ( not self._ignore_mover_collision_unit_map or not self._ignore_mover_collision_unit_map[ other_unit:key() ] or ( time > self._ignore_mover_collision_unit_map[ other_unit:key() ] ) ) and
+		   ( not alive_other_body or ( not self._ignore_mover_collision_body_map or not self._ignore_mover_collision_body_map[ other_body:key() ] or ( time > self._ignore_mover_collision_body_map[ other_body:key() ] ) ) )
+end
+
+function CoreUnitDamage:can_body_collide( time, tag, unit, body, other_unit, other_body, position, normal, collision_velocity, velocity, other_velocity )
+	local damage_ext = other_unit:damage()
+	return ( not damage_ext or damage_ext:give_body_collision_damage() ) and not self._skip_receive_body_collision_damage and managers.sequence:is_collisions_enabled() and
+		   ( not self._ignore_body_collision_unit_map or not self._ignore_body_collision_unit_map[ other_unit:key() ] or ( time > self._ignore_body_collision_unit_map[ other_unit:key() ] ) )
+end
+
+function CoreUnitDamage:get_collision_velocity( position, body, other_body, other_unit, collision_velocity, normal, is_mover, velocity, other_velocity )
+	local damage_ext = other_unit:damage()
+	local is_other_mover = not alive( other_body )
+
+	if( damage_ext ) then
+		if( is_other_mover ) then
+			if( not damage_ext:give_mover_collision_velocity() ) then
+				other_velocity = Vector3()
+			end
+		elseif( not damage_ext:give_body_collision_velocity() ) then
+			other_velocity = Vector3()
+		end
+	end
+
+	if( is_mover ) then
+		local other_velocity_dir = other_velocity:normalized()
+		local other_velocity_length = other_velocity:length()
+
+		velocity = other_velocity_dir * math.clamp( math.dot( velocity, other_velocity_dir ), 0, other_velocity_length )	-- Makes sure the mover velocity only reduces the velocity.
+	end
+
+	collision_velocity = velocity - other_velocity
+
+	if( other_velocity:length() > velocity:length() ) then
+		collision_velocity = -collision_velocity
+	end
+
+	local direction = collision_velocity:normalized()
+	if( direction:length() == 0 ) then
+		direction = -normal
+	end
+
+	return self:add_angular_velocity( position, direction, body, other_body, other_unit, collision_velocity, is_mover )
+end
+
+function CoreUnitDamage:add_angular_velocity( position, direction, body, other_body, other_unit, collision_velocity, is_mover )
+	local angular_velocity_addition = Vector3()
+
+	if( alive( body ) ) then
+		local body_ang_vel = body:angular_velocity()
+		angular_velocity_addition = direction * 200 * body_ang_vel:length() * ( 1 + math.abs( math.dot( body_ang_vel:normalized(), direction ) ) ) / ( 5 * 2 * math.pi )
+	end
+
+	if( alive( other_body ) ) then
+		local other_body_ang_vel = other_body:angular_velocity()
+		angular_velocity_addition = angular_velocity_addition + direction * 200 * other_body_ang_vel:length() * ( 1 + math.abs( math.dot( other_body_ang_vel:normalized(), direction ) ) ) / ( 5 * 2 * math.pi )
+		angular_velocity_addition = direction * math.clamp( angular_velocity_addition:length(), 0, 200 )
+	end
+
+	return collision_velocity + angular_velocity_addition, direction
+end
+
+function CoreUnitDamage:get_collision_damage( tag, body, other_unit, other_body, position, normal, collision_velocity, is_mover_collision )
+	return math.clamp( ( collision_velocity:length() - 400 ) / 100, 0, 75 )
+end
+
+function CoreUnitDamage:body_collision_callback( tag, unit, body, other_unit, other_body, position, normal, collision_velocity, velocity, other_velocity )
+	local time = TimerManager:game():time()
+	local new_velocity, direction, damage
+
+	if( self:can_body_collide( time, tag, unit, body, other_unit, other_body, position, normal, collision_velocity, velocity, other_velocity ) ) then
+		new_velocity, direction = self:get_collision_velocity( position, body, other_body, other_unit, collision_velocity, normal, false, velocity, other_velocity )
+		damage = self:get_collision_damage( tag, body, other_unit, other_body, position, normal, new_velocity, false )
+
+		self:collision( tag, unit, body, other_unit, other_body, position, normal, direction, damage, new_velocity, false )
+	end
+
+	if( self._body_collision_callback_list ) then
+		for _, func in pairs( self._body_collision_callback_list ) do
+			func( tag, unit, body, other_unit, other_body, position, normal, collision_velocity, velocity, other_velocity, new_velocity, direction, damage )
+		end
+	end
+end
+
+function CoreUnitDamage:mover_collision_callback( unit, other_unit, other_body, position, normal, collision_velocity, velocity, other_velocity )
+	local time = TimerManager:game():time()
+	local new_velocity, direction, damage
+
+	if( self:can_mover_collide( time, unit, other_unit, other_body, position, normal, collision_velocity, velocity, other_velocity ) ) then
+		new_velocity, direction = self:get_collision_velocity( position, nil, other_body, other_unit, collision_velocity, normal, true, velocity, other_velocity )
+		damage = self:get_collision_damage( nil, nil, other_unit, other_body, position, normal, new_velocity, true )
+
+		if( damage > 0 ) then
+			if( alive( other_body ) ) then
+				local body_list = other_body:constrained_bodies()
+
+				table.insert( body_list, other_body )
+
+				for _,body in ipairs( body_list ) do
+					self:set_ignore_mover_collision_body( body:key(), time + ( self._mover_collision_ignore_duration or 1 ) )
+				end
+			elseif( alive( other_unit ) ) then
+				self:set_ignore_mover_collision_unit( other_unit:key(), time + ( self._mover_collision_ignore_duration or 1 ) )
+			end
+		end
+
+		self:collision( nil, unit, nil, other_unit, other_body, position, normal, direction, damage, new_velocity, true )
+	end
+
+	if( self._mover_collision_callback_list ) then
+		for _, func in pairs( self._mover_collision_callback_list ) do
+			func( unit, other_unit, other_body, position, normal, collision_velocity, velocity, other_velocity, new_velocity, direction, damage )
+		end
+	end
+end
+
+function CoreUnitDamage:collision( tag, unit, body, other_unit, other_body, position, normal, direction, damage, collision_velocity, is_mover_collision )
+	if( damage > 0 ) then
+		if( body ) then
+			local body_ext = body:extension()
+
+			if( body_ext and body_ext.damage ) then
+				body_ext.damage:damage_collision( other_unit, normal, position, direction, damage, collision_velocity )
+			end
+		else
+			self:damage_collision( other_unit, body, normal, position, direction, damage, collision_velocity )
+		end
+	end
+end
+
+function CoreUnitDamage:toggle_debug_collision_all()
+	self:toggle_debug_collision_body()
+	self:toggle_debug_collision_mover()
+end
+
+function CoreUnitDamage:set_debug_collision_all( enabled )
+	self:toggle_debug_collision_body( enabled )
+	self:toggle_debug_collision_mover( enabled )
+end
+
+function CoreUnitDamage:toggle_debug_collision_body()
+	self:set_debug_collision_body( not self._debug_collision_body_id )
+end
+
+function CoreUnitDamage:set_debug_collision_body( enabled )
+	if( not self._debug_collision_body_id ~= not enabled ) then
+
+		if( enabled ) then
+			self._debug_collision_body_id = self:add_body_collision_callback( callback( self, self, "debug_collision_body" ) )
+		else
+			self:remove_body_collision_callback( self._debug_collision_body_id )
+			self._debug_collision_body_id = nil
+		end
+
+		cat_debug( "debug", "Body collision debugging " .. tostring( self._unit ) .. " enabled: " .. tostring( not not enabled ) )
+	end
+end
+
+function CoreUnitDamage:toggle_debug_collision_mover()
+	self:set_debug_collision_mover( not self._debug_collision_mover_id )
+end
+
+function CoreUnitDamage:set_debug_collision_mover( enabled )
+	if( not self._debug_collision_mover_id ~= not enabled ) then
+
+		if( enabled ) then
+			self._debug_collision_mover_id = self:add_mover_collision_callback( callback( self, self, "debug_collision_mover" ) )
+		else
+			self:remove_mover_collision_callback( self._debug_collision_mover_id )
+			self._debug_collision_mover_id = nil
+		end
+
+		cat_debug( "debug", "Mover collision debugging " .. tostring( self._unit ) .. " enabled: " .. tostring( not not enabled ) )
+	end
+end
+
+function CoreUnitDamage:debug_collision_body( tag, unit, body, other_unit, other_body, position, normal, collision_velocity, velocity, other_velocity, new_velocity, direction, damage )
+	local time = TimerManager:game():time()
+
+	-- Hangs console for some reason, even though not much is printed:
+	--cat_print( "debug", string.format( "[Body %g] ignored: %s, unit: %s, body: %s, other_unit: %s, other_body: %s, col_vel: %g, req_vel: %g, real_vel: %s, vel: %g, other_vel: %g, dmg: %s", time, tostring( not new_velocity ), tostring( unit and unit:name() ), tostring( alive( body ) and body:name() ), tostring( other_unit and other_unit:name() ), tostring( other_body and other_body:name() ), collision_velocity:length(), tostring( new_velocity and new_velocity:length() ), velocity:length(), other_velocity:length(), tostring( damage ) ) )
+	cat_debug( "debug", string.format( "[B %g] Velocity: %g, Damage: %g, Ignored: %s", time, ( new_velocity and new_velocity:length() ) or 0, damage or 0, tostring( not new_velocity ) ) )
+
+	if( managers.debug ) then
+		managers.debug.gui:set_color( 1, 1, 1, 1 )
+		managers.debug.gui:set( 1, "[B] \"" .. tostring( ( alive( self._unit ) and self._unit:name() ) or nil ) .. "\" by \"" .. tostring( ( alive( other_unit ) and other_unit:name() ) or nil ) .. "\"" )
+		self:debug_draw_velocity( 2, "[B] Own velocity", position, velocity, 0, 0, 1 )
+		self:debug_draw_velocity( 3, "[B] Other velocity", position, other_velocity, 1, 0, 0 )
+		self:debug_draw_velocity( 4, "[B] Collision velocity", position, collision_velocity, 0, 1, 1 )
+		self:debug_draw_velocity( 5, "[B] Damage velocity", position, new_velocity, 0, 1, 0 )
+
+		managers.debug.gui:set_color( 6, 1, 0.5, 0.5 )
+		managers.debug.gui:set( 6, "[B] Damage: " .. tostring( damage ) )
+		managers.debug.gui:set_color( 7, 0.5, 0.5, 0.5 )
+		managers.debug.gui:set( 7, "[B] Ignored: " .. tostring( not new_velocity ) )
+	end
+end
+
+function CoreUnitDamage:debug_collision_mover( unit, other_unit, other_body, position, normal, collision_velocity, velocity, other_velocity, new_velocity, direction, damage )
+	local time = TimerManager:game():time()
+
+	-- Hangs console for some reason, even though not much is printed:
+	--cat_print( "debug", string.format( "[Mover %g] ignore: %s, unit: %s, other_unit: %s, other_body: %s, col_vel: %g, req_vel: %s, real_vel: %s, vel: %g, other_vel: %g, dmg: %s", time, tostring( not new_velocity ), tostring( unit and unit:name() ), tostring( other_unit and other_unit:name() ), tostring( other_body and other_body:name() ), collision_velocity:length(), tostring( new_velocity and new_velocity:length() ), velocity:length(), other_velocity:length(), tostring( damage ) ) )
+	cat_debug( "debug", string.format( "[M %g] Velocity: %g, Damage: %g, Ignored: %s", time, ( new_velocity and new_velocity:length() ) or 0, damage or 0, tostring( not new_velocity ) ) )
+
+	if( managers.debug ) then
+		managers.debug.gui:set_color( 1, 1, 1, 1 )
+		managers.debug.gui:set( 1, "[M] \"" .. tostring( ( alive( self._unit ) and self._unit:name() ) or nil ) .. "\" by \"" .. tostring( ( alive( other_unit ) and other_unit:name() ) or nil ) .. "\"" )
+		self:debug_draw_velocity( 2, "[M] Own velocity", position, velocity, 0, 0, 1 )
+		self:debug_draw_velocity( 3, "[M] Other velocity", position, other_velocity, 1, 0, 0 )
+		self:debug_draw_velocity( 4, "[M] Collision velocity", position, collision_velocity, 0, 1, 1 )
+		self:debug_draw_velocity( 5, "[M] Damage velocity", position, new_velocity, 0, 1, 0 )
+
+		managers.debug.gui:set_color( 6, 1, 0.5, 0.5 )
+		managers.debug.gui:set( 6, "[M] Damage: " .. tostring( damage ) )
+		managers.debug.gui:set_color( 7, 0.5, 0.5, 0.5 )
+		managers.debug.gui:set( 7, "[M] Ignored: " .. tostring( not new_velocity ) )
+	end
+end
+
+function CoreUnitDamage:debug_draw_velocity( index, label, position, velocity, red, green, blue )
+	managers.debug.gui:set_color( index, red, green, blue )
+	if( velocity ) then
+		managers.debug.gui:set( index, string.format( "%s: %g   (%g, %g, %g)", label, velocity:length(), velocity.x, velocity.y, velocity.z ) )
+	else
+		managers.debug.gui:set( index, string.format( "%s: nil", label ) )
+	end
+	managers.debug.pos:set( 1, position + Vector3( 0, 0, index - 2 ), "debug_collision_body_" .. ( index - 1 ), red, green, blue )
+	managers.debug.pos:set( 2, position + Vector3( 0, 0, index - 2 ) + ( velocity or Vector3() ), "debug_collision_body_" .. ( index - 1 ), red, green, blue )
+end
+
+function CoreUnitDamage:outside_worlds_bounding_box()
+	if( alive( self._unit ) ) then
+		self:kill( "collision", self._unit, nil, math.UP, self._unit:position(), math.DOWN, 0, self._unit:sampled_velocity() )
+	end
+end
+
+function CoreUnitDamage:report_enemy_killed()
+	if( not self._enemy_killed_reported ) then
+		local enemy_data = self._unit:enemy_data()
+		if( enemy_data ) then
+			local group = enemy_data.enemy_group
+			if( group ) then
+				group:unit_killed()
+				self._enemy_killed_reported = true
+			end
+		end
+	end
+end
+
+function CoreUnitDamage:kill( endurance_type, attack_unit, dest_body, normal, position, direction, damage, velocity )
+	if( alive( self._unit ) ) then
+		self:report_enemy_killed()
+	end
+end
+
+function CoreUnitDamage:remove()
+	if( alive( self._unit ) ) then
+		self:report_enemy_killed()
+		self._unit:set_slot( 0 )
+	end
+end
+
+function CoreUnitDamage:add_inherit_destroy_unit( unit )
+	self._inherit_destroy_unit_list = self._inherit_destroy_unit_list or {}
+	table.insert( self._inherit_destroy_unit_list, unit )
+end
+
+function CoreUnitDamage:has_sequence( sequence_name )
+	return self._unit_element and self._unit_element:has_sequence( sequence_name )
+end
+
+
+
+CoreBodyDamage = CoreBodyDamage or class()
+
+function CoreBodyDamage:init( unit, unit_extension, body, body_element )
+	self._unit = unit
+	self._unit_extension = unit_extension
+	self._body = body
+	self._body_index = self._unit:get_body_index( self._body:name() )
+	self._body_element = body_element
+	self._unit_element = unit_extension:get_unit_element()
+	self._endurance = {}
+	self._damage = {}
+
+	if( body_element ) then
+		for k,v in pairs( body_element._first_endurance ) do
+			if( k == "collision" ) then
+				self._body:set_collision_script_tag( Idstring( "core" ) )	-- Enables collision callbacks.
+			end
+			self._endurance[ k ] = v
+			self._damage[ k ] = 0
+		end
+	end
+
+
+-- INFLICT:
+	self._inflict = {}
+	self._original_inflict = {}
+	self._inflict_time = {}
+	self._run_exit_inflict_sequences = {}
+	self._inflict_updator_map = {}
+
+	if( self._body_element ) then
+		local inflict_element_list = self._body_element:get_inflict_element_list()
+
+		if( inflict_element_list ) then
+			local updator_class = get_core_or_local( "InflictUpdator" )
+
+			for damage_type,inflict_element in pairs( inflict_element_list ) do
+				local updator_type_class = updator_class.INFLICT_UPDATOR_DAMAGE_TYPE_MAP[ damage_type ]
+
+				if( updator_type_class ) then
+					local updator = updator_type_class:new( unit, body, self, inflict_element, self._unit_element )
+
+					if( updator:is_valid() ) then
+						self._inflict_updator_map[ damage_type ] = updator
+					end
+				else
+					local inflict_data = {}
+					self._inflict[ damage_type ] = inflict_data
+					inflict_data.damage = inflict_element:get_damage() or 0
+					inflict_data.interval = inflict_element:get_interval() or 0
+					inflict_data.instant = inflict_element:get_instant()
+					inflict_data.enabled = inflict_element:get_enabled()
+
+					inflict_data = {}
+					self._original_inflict[ damage_type ] = inflict_data
+					for k,v in pairs( inflict_data ) do
+						inflict_data[ k ] = v
+					end
+
+					self._inflict_time[ damage_type ] = {}
+					self._run_exit_inflict_sequences[ damage_type ] = ( inflict_element:exit_sequence_count() > 0 )
+				end
+			end
+		end
+	end
+end
+
+function CoreBodyDamage:set_damage( damage_type, damage )
+	self._damage[ damage_type ] = damage
+
+	local element = self._body_element._first_endurance[ damage_type ]
+
+	while( element and ( element._endurance[ damage_type ] <= self._damage[ damage_type ] ) ) do
+		element = element._next[ damage_type ]
+	end
+
+	self._endurance[ damage_type ] = element
+end
+
+function CoreBodyDamage:get_body()
+	return self._body
+end
+
+function CoreBodyDamage:get_inflict_updator_map()
+	return self._inflict_updator_map
+end
+
+function CoreBodyDamage:get_endurance_map()
+	return self._endurance
+end
+
+function CoreBodyDamage:get_inflict_time( damage_type, src_unit )
+	return self._inflict_time[ damage_type ][ src_unit ]
+end
+
+function CoreBodyDamage:can_inflict_damage( damage_type, src_unit )
+	if( self._inflict[ damage_type ] and self._inflict[ damage_type ].enabled ) then
+		local last_time = self._inflict_time[ damage_type ][ src_unit:key() ]
+
+		if( last_time ) then
+			local delayed = ( last_time + self._inflict[ damage_type ].interval > TimerManager:game():time() )
+			return not delayed, delayed
+		else
+			return true, false
+		end
+	end
+
+	return false, false
+end
+
+function CoreBodyDamage:enter_inflict_damage( damage_type, src_unit, src_body, normal, position, direction, velocity )
+	local unit_key = src_unit:key()
+	local list = self._inflict_time[ damage_type ]
+
+	if( not list[ unit_key ] ) then
+		list[ unit_key ] = TimerManager:game():time()
+
+		local damage = self._inflict[ damage_type ].damage
+		local env = CoreSequenceManager.SequenceEnvironment:new( damage_type, src_unit, self._unit, self._body, normal, position, direction, damage, velocity, nil, self._unit_element )
+		self._body_element:activate_inflict_enter( env )
+
+		return true
+	else
+		return false
+	end
+end
+
+function CoreBodyDamage:exit_inflict_damage( damage_type, src_body, normal, pos, dir, velocity )
+	if( alive( src_body ) ) then
+		local src_unit = src_body:unit()
+		local unit_key = src_unit:key()
+		local list = self._inflict_time[ damage_type ]
+
+		if( list[ unit_key ] ) then
+			list[ unit_key ] = nil
+
+			if( self._run_exit_inflict_sequences[ damage_type ] ) then
+				local env = CoreSequenceManager.SequenceEnvironment:new( damage_type, src_unit, self._unit, self._body, normal, pos, dir, 0, velocity, nil, self._unit_element )
+				self._body_element:activate_inflict_exit( env )
+			end
+		end
+	end
+end
+
+function CoreBodyDamage:inflict_damage( damage_type, src_unit, src_body, normal, position, direction, velocity )
+	local unit_key = src_unit:key()
+
+	self._inflict_time[ damage_type ][ unit_key ] = TimerManager:game():time()
+
+	local damage = self._inflict[ damage_type ].damage
+	local env = CoreSequenceManager.SequenceEnvironment:new( damage_type, src_unit, self._unit, self._body, normal, position, direction, damage, velocity, nil, self._unit_element )
+	self._body_element:activate_inflict_damage( env )
+
+	local damage_ext = src_body:extension().damage
+	return damage_ext[ "damage_" .. damage_type ]( damage_ext, self._unit, normal, position, direction, damage, velocity )
+end
+
+function CoreBodyDamage:damage_damage( attack_unit, normal, position, direction, damage, unevadable )
+	damage = self:damage_endurance( "damage", attack_unit, normal, position, direction, damage, Vector3( 0, 0, 0 ) )
+	return self._unit_extension:damage_damage( attack_unit, self._body, normal, position, direction, damage, unevadable )
+end
+
+function CoreBodyDamage:damage_bullet( attack_unit, normal, position, direction, damage, unevadable )
+	damage = self:damage_endurance( "bullet", attack_unit, normal, position, direction, damage, Vector3( 0, 0, 0 ) )
+	return self._unit_extension:damage_bullet( attack_unit, self._body, normal, position, direction, damage, unevadable )
+end
+
+function CoreBodyDamage:damage_lock( attack_unit, normal, position, direction, damage, unevadable )
+	damage = self:damage_endurance( "lock", attack_unit, normal, position, direction, damage, Vector3( 0, 0, 0 ) )
+	return self._unit_extension:damage_lock( attack_unit, self._body, normal, position, direction, damage, unevadable )
+end
+
+function CoreBodyDamage:damage_explosion( attack_unit, normal, position, direction, damage )
+	damage = self:damage_endurance( "explosion", attack_unit, normal, position, direction, damage, Vector3( 0, 0, 0 ) )
+	return false, 0
+end
+
+function CoreBodyDamage:damage_collision( attack_unit, normal, position, direction, damage, velocity )
+	damage = self:damage_endurance( "collision", attack_unit, normal, position, direction, damage, velocity )
+	return self._unit_extension:damage_collision( attack_unit, self._body, normal, position, direction, damage, velocity )
+end
+
+function CoreBodyDamage:damage_melee( attack_unit, normal, position, direction, damage )
+	damage = self:damage_endurance( "melee", attack_unit, normal, position, direction, damage, Vector3( 0, 0, 0 ) )
+	return self._unit_extension:damage_melee( attack_unit, self._body, normal, position, direction, damage )
+end
+
+function CoreBodyDamage:damage_electricity( attack_unit, normal, position, direction, damage )
+	damage = self:damage_endurance( "electricity", attack_unit, normal, position, direction, damage, Vector3( 0, 0, 0 ) )
+	return self._unit_extension:damage_electricity( attack_unit, self._body, normal, position, direction, damage )
+end
+
+function CoreBodyDamage:damage_fire( attack_unit, normal, position, direction, damage, velocity )
+	damage = self:damage_endurance( "fire", attack_unit, normal, position, direction, damage, velocity )
+	return self._unit_extension:damage_fire( attack_unit, self._body, normal, position, direction, damage, velocity )
+end
+
+function CoreBodyDamage:damage_by_area( endurance_type, attack_unit, normal, position, direction, damage, velocity )
+	local damage_func = self[ "damage_" .. endurance_type ]
+
+	if( damage_func ) then
+		return damage_func( self, attack_unit, normal, position, direction, damage, velocity )
+	else
+		Application:error( "Unit \"" .. tostring( self._unit:name() ) .. "\" doesn't have a \"damage_" .. tostring( endurance_type ) .. "\"-function on its body damage extension." )
+		return false, nil
+	end
+end
+
+function CoreBodyDamage:damage_effect( effect_type, attack_unit, normal, position, direction, velocity, params )
+	return self._unit_extension:damage_effect( effect_type, attack_unit, self._body, normal, position, direction, velocity, params )
+end
+
+function CoreBodyDamage:endurance_exists( endurance_type )
+	return ( self._endurance[ endurance_type ] ~= nil )
+end
+
+function CoreBodyDamage:damage_endurance( endurance_type, attack_unit, normal, position, direction, damage, velocity )
+	if( self._body_element ) then
+		damage = damage * self._body_element._damage_multiplier
+	end
+
+	if( self._endurance[ endurance_type ] ) then
+		local env = CoreSequenceManager.SequenceEnvironment:new( endurance_type, attack_unit, self._unit, self._body, normal, position, direction, damage, velocity, nil, self._unit_element )
+		self._endurance[ endurance_type ]:damage( env )
+	end
+
+	return damage
+end
+
+function CoreBodyDamage:get_body_param( param_name )
+	if( self._body_element ) then
+		return self._body_element:get_body_param( param_name )
+	else
+		return nil
+	end
+end
+
+function CoreBodyDamage:set_inflict_damage( damage_type, damage )
+	self:set_inflict_attribute( damage_type, "damage", damage )
+end
+
+function CoreBodyDamage:set_inflict_interval( damage_type, interval )
+	self:set_inflict_attribute( damage_type, "interval", interval )
+end
+
+function CoreBodyDamage:set_inflict_instant( damage_type, instant )
+	self:set_inflict_attribute( damage_type, "instant", instant )
+end
+
+function CoreBodyDamage:set_inflict_enabled( damage_type, enabled )
+	self:set_inflict_attribute( damage_type, "enabled", enabled )
+end
+
+function CoreBodyDamage:get_inflict_damage( damage_type )
+	return self:get_inflict_attribute( damage_type, "damage" )
+end
+
+function CoreBodyDamage:get_inflict_interval( damage_type )
+	return self:get_inflict_attribute( damage_type, "interval" )
+end
+
+function CoreBodyDamage:get_inflict_instant( damage_type )
+	return self:get_inflict_attribute( damage_type, "instant" )
+end
+
+function CoreBodyDamage:get_inflict_enabled( damage_type )
+	return self:get_inflict_attribute( damage_type, "enabled" )
+end
+
+function CoreBodyDamage:set_inflict_attribute( damage_type, attribute, attribute_value )
+	local inflict = self._inflict[ damage_type ]
+
+	if( inflict ) then
+		if( attribute_value ~= nil ) then
+			inflict[ attribute ] = attribute_value
+			return true, true
+		else
+			return false, true
+		end
+	else
+		local updator = self._inflict_updator_map[ damage_type ]
+
+		if( updator ) then
+			return updator:set_attribute( attribute, attribute_value ), true
+		else
+			return false, false
+		end
+	end
+end
+
+function CoreBodyDamage:get_inflict_attribute( damage_type, attribute )
+	local inflict = self._inflict[ damage_type ]
+
+	if( inflict ) then
+		return inflict[ attribute ]
+	else
+		local updator = self._inflict_updator_map[ damage_type ]
+
+		if( updator ) then
+			return updator:get_attribute( attribute )
+		else
+			error( "Tried to get " .. tostring( attribute ) .. " on non-existing \"" .. tostring( damage_type ) .. "\"-inflict on body \"" .. tostring( self._body and self._body:name() ) .. "\" that exist on unit \"" .. tostring( self._unit and self._unit:name() ) .. "\"." )
+		end
+	end
+
+	return nil
+end
+
+function CoreBodyDamage:save( data )
+	local state = {}
+	local changed = false
+
+	for k,v in pairs( self._damage ) do
+		if( v ~= 0 ) then
+			state.damage = table.map_copy( self._damage )
+			changed = true
+			break
+		end
+	end
+
+	for damage_type,inflict_data in pairs( self._inflict ) do
+		for k,v in pairs( inflict_data ) do
+			if( v ~= self._original_inflict[ damage_type ][ k ] ) then
+				state.inflict = state.inflict or {}
+				state.inflict[ damage_type ] = state.inflict[ damage_type ] or {}
+				state.inflict[ damage_type ][ k ] = v
+				changed = true
+			end
+		end
+	end
+
+	local updator_state
+	for damage_type, updator in pairs( self._inflict_updator_map ) do
+		local sub_updator_state = {}
+
+		if( updator:save( sub_updator_state ) ) then
+			updator_state = updator_state or {}
+			updator_state[ damage_type ] = sub_updator_state
+			changed = true
+		end
+	end
+	state.InflictUpdatorMap = updator_state
+
+	if( changed ) then
+		-- data.CoreBodyDamage = state
+		data[ self._body_index ] = state
+	end
+	
+	return changed
+end
+
+function CoreBodyDamage:load( data )
+	-- local state = data.CoreBodyDamage
+	local state = data[ self._body_index ]
+	
+	if( state ) then
+		if( state.damage ) then
+			for damage_type,damage in pairs( state.damage ) do
+				self:set_damage( damage_type, damage )
+			end
+			-- self._damage = table.map_copy( state.damage )
+		end
+
+		if( state.inflict ) then
+			for damage_type,inflict_data in pairs( state.inflict ) do
+				for k,v in pairs( state.inflict ) do
+					self._inflict[ damage_type ][ k ] = v
+				end
+			end
+		end
+
+		local updator_state = state.InflictUpdatorMap
+		if( updator_state ) then
+			for damage_type, updator in pairs( self._inflict_updator_map ) do
+				local sub_updator_state = updator_state[ damage_type ]
+				if( sub_updator_state ) then
+					updator:load( sub_updator_state )
+				end
+			end
+		end
+	end
+end
+
+
+
+CoreAfroBodyDamage = CoreAfroBodyDamage or class( CoreBodyDamage )
+
+function CoreAfroBodyDamage:init( unit, unit_extension, body, body_element )
+	CoreBodyDamage.init( self, unit, unit_extension, body, body_element )
+end
+
+function CoreAfroBodyDamage:damage_bullet( attack_unit, normal, position, direction, damage )
+	return self:damage( "bullet", attack_unit, normal, position, direction, damage, Vector3( 0, 0, 0 ) )
+end
+
+function CoreAfroBodyDamage:damage_explosion( attack_unit, normal, position, direction, damage )
+	return self:damage( "explosion", attack_unit, normal, position, direction, damage, Vector3( 0, 0, 0 ) )
+end
+
+function CoreAfroBodyDamage:damage_collision( attack_unit, normal, position, direction, damage, velocity )
+	return self:damage( "collision", attack_unit, normal, position, direction, damage, velocity )
+end
+
+function CoreAfroBodyDamage:damage_melee( attack_unit, normal, position, direction, damage )
+	return self:damage( "melee", attack_unit, normal, position, direction, damage, Vector3( 0, 0, 0 ) )
+end
+
+function CoreAfroBodyDamage:damage_electricity( attack_unit, normal, position, direction, damage )
+	return self:damage( "electricity", attack_unit, normal, position, direction, damage, Vector3( 0, 0, 0 ) )
+end
+
+function CoreAfroBodyDamage:damage_fire( attack_unit, normal, position, direction, damage, velocity )
+	return self:damage( "fire", attack_unit, normal, position, direction, damage, velocity )
+end
+
+function CoreAfroBodyDamage:damage( endurance_type, attack_unit, normal, position, direction, damage, velocity )
+	damage = self:damage_endurance( endurance_type, attack_unit, normal, position, direction, damage, velocity )
+	return false, 0
+end
+
+
+
+CoreDamageWaterCheck = CoreDamageWaterCheck or class()
+CoreDamageWaterCheck.MIN_INTERVAL = 0.2
 CoreDamageWaterCheck.DEFAULT_PHYSIC_EFFECT = "water_box"
-CoreDamageWaterCheck.init = function(l_172_0, l_172_1, l_172_2, l_172_3, l_172_4, l_172_5, l_172_6, l_172_7, l_172_8)
-  l_172_0._unit = l_172_1
-  l_172_0._damage_ext = l_172_2
-  l_172_0._name = l_172_3
-  l_172_0._activation_callbacks_enabled = false
-  l_172_0._activation_listener_enabled = false
-  l_172_0._current_ref_body_depth = nil
-  l_172_0:set_interval(l_172_4)
-  l_172_0:set_ref_object(l_172_5)
-  l_172_0:set_body_depth(l_172_7)
-  l_172_0:set_ref_body(l_172_6)
-  if not l_172_8 then
-    l_172_0._physic_effect = l_172_0.DEFAULT_PHYSIC_EFFECT
-  end
-  l_172_0._body_activation_func = callback(l_172_0, l_172_0, "body_activated")
-  l_172_0._water_callback_func = callback(l_172_0, l_172_0, "water_collision")
-  l_172_0._check_time = TimerManager:game():time() + math.random() * l_172_0._interval
-  l_172_0._enter_water = false
+
+function CoreDamageWaterCheck:init( unit, damage_ext, name, interval, ref_object, ref_body, body_depth, physic_effect )
+	self._unit = unit
+	self._damage_ext = damage_ext
+	self._name = name
+
+	self._activation_callbacks_enabled = false
+	self._activation_listener_enabled = false
+
+	self._current_ref_body_depth = nil
+
+	self:set_interval( interval )
+	self:set_ref_object( ref_object )
+	self:set_body_depth( body_depth )
+	self:set_ref_body( ref_body )
+	self._physic_effect = physic_effect or self.DEFAULT_PHYSIC_EFFECT
+
+	self._body_activation_func = callback( self, self, "body_activated" )
+	self._water_callback_func = callback( self, self, "water_collision" )
+	self._check_time = TimerManager:game():time() + math.random() * self._interval
+	self._enter_water = false
 end
 
-CoreDamageWaterCheck.is_valid = function(l_173_0)
-  if not l_173_0._ref_object then
-    return l_173_0._ref_body
-  end
+function CoreDamageWaterCheck:is_valid()
+	return self._ref_object or self._ref_body
 end
 
-CoreDamageWaterCheck.update = function(l_174_0, l_174_1, l_174_2)
-  if l_174_0._check_time <= l_174_1 and l_174_0:check_active_body() then
-    local enter_water = l_174_0._in_water_check_func()
-    if not l_174_0._enter_water ~= not enter_water then
-      l_174_0._enter_water = enter_water
-      if enter_water then
-        l_174_0._damage_ext:water_check_enter(l_174_0._name, l_174_0, l_174_0:get_env_variables(enter_water))
-      else
-        l_174_0._damage_ext:water_check_exit(l_174_0._name, l_174_0, l_174_0:get_env_variables(enter_water))
-      end
-    end
-  end
+function CoreDamageWaterCheck:update( t, dt )
+	if( ( self._check_time <= t ) and self:check_active_body() ) then
+		local enter_water = self._in_water_check_func()
+
+		if( not self._enter_water ~= not enter_water ) then
+			self._enter_water = enter_water
+
+			if( enter_water ) then
+				self._damage_ext:water_check_enter( self._name, self, self:get_env_variables( enter_water ) )
+			else
+				self._damage_ext:water_check_exit( self._name, self, self:get_env_variables( enter_water ) )
+			end
+		end
+	end
 end
 
-CoreDamageWaterCheck.get_env_variables = function(l_175_0, l_175_1)
-   -- DECOMPILER ERROR: Confused at declaration of local variable
+function CoreDamageWaterCheck:get_env_variables( enter_water )
+	local normal, position, velocity, water_depth
 
-  if l_175_1 then
-    do return end
-  end
-   -- DECOMPILER ERROR: Overwrote pending register.
+	if( enter_water ) then
+		normal = Vector3( 0, 0, 1 )
+	else
+		normal = Vector3( 0, 0, -1 )
+	end
 
-  if l_175_0._ref_object then
-    if alive(l_175_0._ref_body) then
-      do return end
-    end
-     -- DECOMPILER ERROR: Overwrote pending register.
+	if( self._ref_object ) then
+		position = self._ref_object:position()
 
-     -- DECOMPILER ERROR: Overwrote pending register.
+		if( alive( self._ref_body ) ) then
+			velocity = self._ref_body:velocity()
+			water_depth = self._ref_body:in_water()
+		else
+			velocity = self._unit:velocity()
+			water_depth = 0
+		end
+	else
+		velocity = self._unit:velocity()
+		water_depth = 0
 
-   -- DECOMPILER ERROR: Overwrote pending register.
+		if( alive( self._ref_body ) ) then
+			position = self._ref_body:position()
+		else
+			position = self._unit:position()
+		end
+	end
 
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-  else
-    if alive(l_175_0._ref_body) then
-      do return end
-    end
-     -- DECOMPILER ERROR: Overwrote pending register.
-
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  return l_175_0._unit, l_175_0._ref_body, Vector3(0, 0, 1), l_175_0._ref_object:position(), l_175_0._ref_body:velocity():normalized(), 0, l_175_0._ref_body:velocity(), l_175_0._ref_body:in_water()
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+	return self._unit, self._ref_body, normal, position, velocity:normalized(), 0, velocity, water_depth
 end
 
-CoreDamageWaterCheck.set_update_variables = function(l_176_0)
-  if l_176_0._ref_object then
-    l_176_0._in_water_check_func = callback(l_176_0, l_176_0, "is_ref_object_in_water")
-  else
-    if alive(l_176_0._ref_body) then
-      l_176_0._in_water_check_func = callback(l_176_0, l_176_0, "is_ref_body_in_water_depth")
-    end
-  end
+function CoreDamageWaterCheck:set_update_variables()
+	if( self._ref_object ) then
+		self._in_water_check_func = callback( self, self, "is_ref_object_in_water" )
+	elseif( alive( self._ref_body ) ) then
+		self._in_water_check_func = callback( self, self, "is_ref_body_in_water_depth" )
+	end
 end
 
-CoreDamageWaterCheck.check_active_body = function(l_177_0)
-  l_177_0._check_time = l_177_0._check_time + l_177_0._interval
-  if alive(l_177_0._ref_body) then
-    l_177_0._current_ref_body_depth = l_177_0._ref_body:in_water()
-  end
-  local static = (l_177_0._current_ref_body_depth and not l_177_0._ref_body:dynamic())
-  if l_177_0._current_ref_body_depth > 0 or static or l_177_0._ref_body:active() == l_177_0._enter_water then
-    l_177_0:set_activation_listener_enabled(true)
-    return false
-  end
-  return true
+function CoreDamageWaterCheck:check_active_body()
+	self._check_time = self._check_time + self._interval
+	self._current_ref_body_depth = alive( self._ref_body ) and self._ref_body:in_water()
+
+	local static = not self._current_ref_body_depth or not self._ref_body:dynamic()
+	if( not static and not self._ref_body:active() and ( ( self._current_ref_body_depth > 0 ) == self._enter_water ) ) then
+		self:set_activation_listener_enabled( true )
+		return false
+	end
+
+	return true
 end
 
-CoreDamageWaterCheck.set_activation_callbacks_enabled = function(l_178_0, l_178_1)
-  if l_178_0._activation_callbacks_enabled ~= l_178_1 then
-    l_178_0._activation_callbacks_enabled = l_178_1
-    if l_178_1 then
-      l_178_0._unit:add_body_activation_callback(l_178_0._body_activation_func)
-      l_178_0._unit:add_water_collision_callback(l_178_0._water_callback_func)
-    else
-      l_178_0._unit:remove_body_activation_callback(l_178_0._body_activation_func)
-      l_178_0._unit:remove_water_collision_callback(l_178_0._water_callback_func)
-      l_178_0._check_time = TimerManager:game():time() + l_178_0._interval
-    end
-  end
+function CoreDamageWaterCheck:set_activation_callbacks_enabled( enabled )
+	if( self._activation_callbacks_enabled ~= enabled ) then
+		self._activation_callbacks_enabled = enabled
+
+		if( enabled ) then
+			self._unit:add_body_activation_callback( self._body_activation_func )
+			self._unit:add_water_collision_callback( self._water_callback_func )
+		else
+			self._unit:remove_body_activation_callback( self._body_activation_func )
+			self._unit:remove_water_collision_callback( self._water_callback_func )
+			self._check_time = TimerManager:game():time() + self._interval
+		end
+	end
 end
 
-CoreDamageWaterCheck.set_activation_listener_enabled = function(l_179_0, l_179_1)
-  if l_179_0._activation_listener_enabled ~= l_179_1 then
-    l_179_0._activation_listener_enabled = l_179_1
-    l_179_0._damage_ext:set_water_check_active(l_179_0._name, not l_179_1)
-    l_179_0:set_activation_callbacks_enabled(l_179_1)
-  end
+function CoreDamageWaterCheck:set_activation_listener_enabled( enabled )
+	if( self._activation_listener_enabled ~= enabled ) then
+		self._activation_listener_enabled = enabled
+		self._damage_ext:set_water_check_active( self._name, not enabled )
+		self:set_activation_callbacks_enabled( enabled )
+	end
 end
 
-CoreDamageWaterCheck.is_ref_object_in_water = function(l_180_0)
-  return World:in_physic_effect(l_180_0._physic_effect, l_180_0._ref_object:position())
+function CoreDamageWaterCheck:is_ref_object_in_water()
+	return World:in_physic_effect( self._physic_effect, self._ref_object:position() )
 end
 
-CoreDamageWaterCheck.is_ref_body_in_water_depth = function(l_181_0)
-  return not l_181_0._current_ref_body_depth or body_depth < l_181_0._current_ref_body_depth
+function CoreDamageWaterCheck:is_ref_body_in_water_depth()
+	return self._current_ref_body_depth and ( self._current_ref_body_depth > body_depth )
 end
 
-CoreDamageWaterCheck.get_interval = function(l_182_0)
-  return l_182_0._interval
+function CoreDamageWaterCheck:get_interval()
+	return self._interval
 end
 
-CoreDamageWaterCheck.set_interval = function(l_183_0, l_183_1)
-  if not l_183_1 then
-    l_183_0._interval = math.max(l_183_0.MIN_INTERVAL, l_183_0.MIN_INTERVAL)
-     -- Warning: missing end command somewhere! Added here
-  end
+function CoreDamageWaterCheck:set_interval( interval )
+	self._interval = math.max( interval or self.MIN_INTERVAL, self.MIN_INTERVAL )
 end
 
-CoreDamageWaterCheck.get_ref_object = function(l_184_0)
-  return l_184_0._ref_object
+function CoreDamageWaterCheck:get_ref_object()
+	return self._ref_object
 end
 
-CoreDamageWaterCheck.set_ref_object = function(l_185_0, l_185_1)
-  l_185_0._ref_object = l_185_1
-  l_185_0:set_activation_listener_enabled(false)
-  l_185_0:set_update_variables()
+function CoreDamageWaterCheck:set_ref_object( ref_object )
+	self._ref_object = ref_object
+	self:set_activation_listener_enabled( false )
+	self:set_update_variables()
 end
 
-CoreDamageWaterCheck.get_ref_body = function(l_186_0)
-  return l_186_0._ref_body
+function CoreDamageWaterCheck:get_ref_body()
+	return self._ref_body
 end
 
-CoreDamageWaterCheck.set_ref_body = function(l_187_0, l_187_1)
-  l_187_0._ref_body = l_187_1
-  l_187_0:set_activation_listener_enabled(false)
-  if l_187_0._ref_body then
-    l_187_0._ref_body_key = l_187_0._ref_body:key()
-    l_187_0._ref_body:set_activate_tag("CoreDamageWaterCheck")
-    l_187_0._ref_body:set_deactivate_tag("CoreDamageWaterCheck")
-    local water_tag = l_187_0._ref_body:enter_water_script_tag()
-    if not water_tag or #water_tag == 0 then
-      water_tag = "CoreDamageWaterCheck"
-    end
-    l_187_0._ref_body:set_enter_water_script_tag(water_tag)
-    l_187_0._ref_body:set_exit_water_script_tag("CoreDamageWaterCheck")
-    l_187_0._ref_body:set_enter_water_script_filter(0)
-    l_187_0._ref_body:set_exit_water_script_filter(0)
-  end
-  l_187_0:set_update_variables()
+function CoreDamageWaterCheck:set_ref_body( ref_body )
+	self._ref_body = ref_body
+	self:set_activation_listener_enabled( false )
+
+	if( self._ref_body ) then
+		self._ref_body_key = self._ref_body:key()
+		self._ref_body:set_activate_tag( "CoreDamageWaterCheck" )
+		self._ref_body:set_deactivate_tag( "CoreDamageWaterCheck" )
+
+		local water_tag = self._ref_body:enter_water_script_tag()
+		if( not water_tag or ( #water_tag == 0 ) ) then
+			water_tag = "CoreDamageWaterCheck"
+		end
+		self._ref_body:set_enter_water_script_tag( water_tag )
+
+		self._ref_body:set_exit_water_script_tag( "CoreDamageWaterCheck" )
+		self._ref_body:set_enter_water_script_filter( 0 )
+		self._ref_body:set_exit_water_script_filter( 0 )
+	end
+
+	self:set_update_variables()
 end
 
-CoreDamageWaterCheck.get_body_depth = function(l_188_0)
-  return l_188_0._body_depth
+function CoreDamageWaterCheck:get_body_depth()
+	return self._body_depth
 end
 
-CoreDamageWaterCheck.set_body_depth = function(l_189_0, l_189_1)
-  l_189_0._body_depth = math.max(l_189_1 or 0, 0)
+function CoreDamageWaterCheck:set_body_depth( body_depth )
+	self._body_depth = math.max( body_depth or 0, 0 )
 end
 
-CoreDamageWaterCheck.water_collision = function(l_190_0, l_190_1, l_190_2, l_190_3, l_190_4, l_190_5, l_190_6, l_190_7, l_190_8)
-  if not l_190_5 ~= not l_190_0._enter_water and l_190_3:key() == l_190_0._ref_body_key then
-    l_190_0:set_activation_listener_enabled(false)
-  end
+function CoreDamageWaterCheck:water_collision( tag, unit, body, surface, enter, position, normal, velocity )
+	if( ( not enter ~= not self._enter_water ) and ( body:key() == self._ref_body_key ) ) then
+		self:set_activation_listener_enabled( false )
+	end
 end
 
-CoreDamageWaterCheck.body_activated = function(l_191_0, l_191_1, l_191_2, l_191_3, l_191_4)
-  if l_191_4 and l_191_3:key() == l_191_0._ref_body_key then
-    l_191_0:set_activation_listener_enabled(false)
-  end
+function CoreDamageWaterCheck:body_activated( tag, unit, body, activated )
+	if( activated and ( body:key() == self._ref_body_key ) ) then
+		self:set_activation_listener_enabled( false )
+	end
 end
 
-CoreDamageWaterCheck.to_string = function(l_192_0)
-  return string.format("[Unit: %s, Name: %s, Enabled: %s, Interval: %g, Object: %s, Body: %s, Body depth: %g]", l_192_0._unit:name(), l_192_0._name, tostring(l_192_0._damage_ext:is_water_check_active(l_192_0._name)), l_192_0._interval, tostring(alive(l_192_0._ref_object) and l_192_0._ref_object:name() or nil), tostring(alive(l_192_0._ref_body) and l_192_0._ref_body:name() or nil), l_192_0._body_depth)
+function CoreDamageWaterCheck:to_string()
+	return string.format( "[Unit: %s, Name: %s, Enabled: %s, Interval: %g, Object: %s, Body: %s, Body depth: %g]", self._unit:name(), self._name, tostring( self._damage_ext:is_water_check_active( self._name ) ), self._interval, tostring( ( alive( self._ref_object ) and self._ref_object:name() ) or nil ), tostring( ( alive( self._ref_body ) and self._ref_body:name() ) or nil ), self._body_depth )
 end
 
-if not CoreInflictUpdator then
-  CoreInflictUpdator = class()
-end
-if not CoreInflictUpdator.INFLICT_UPDATOR_DAMAGE_TYPE_MAP then
-  CoreInflictUpdator.INFLICT_UPDATOR_DAMAGE_TYPE_MAP = {}
-end
-CoreInflictUpdator.MIN_INTERVAL = 0.20000000298023
-CoreInflictUpdator.init = function(l_193_0, l_193_1, l_193_2, l_193_3, l_193_4, l_193_5)
-  l_193_0._unit = l_193_1
-  l_193_0._body = l_193_2
-  l_193_0._body_damage_ext = l_193_3
-  l_193_0._inflict_element = l_193_4
-  l_193_0._unit_element = l_193_5
-  l_193_0._update_func = callback(l_193_0, l_193_0, "update")
-  l_193_0:set_damage(l_193_4:get_damage() or 0)
-  l_193_0:set_interval(l_193_4:get_interval() or 1)
-  l_193_0:set_instant(l_193_4:get_instant())
-  l_193_0:set_enabled(l_193_4:get_enabled())
-  l_193_0._original_damage = l_193_0._damage
-  l_193_0._original_interval = l_193_0._interval
-  l_193_0._original_instant = l_193_0._instant
-  l_193_0._original_enabled = l_193_0._enabled
-  l_193_0._check_time = TimerManager:game():time() + l_193_0._interval * math.random()
-  l_193_0._is_inflicting = false
-  l_193_0._set_attribute_func_map = {}
-  l_193_0._set_attribute_func_map.damage = callback(l_193_0, l_193_0, "set_damage")
-  l_193_0._set_attribute_func_map.interval = callback(l_193_0, l_193_0, "set_interval")
-  l_193_0._set_attribute_func_map.instant = callback(l_193_0, l_193_0, "set_instant")
-  l_193_0._set_attribute_func_map.enabled = callback(l_193_0, l_193_0, "set_enabled")
-  l_193_0._get_attribute_func_map = {}
-  l_193_0._get_attribute_func_map.damage = function()
-    return self._damage
-   end
-  l_193_0._get_attribute_func_map.interval = function()
-    return self._interval
-   end
-  l_193_0._get_attribute_func_map.instant = function()
-    return self._instant
-   end
-  l_193_0._get_attribute_func_map.enabled = function()
-    return self._enabled
-   end
+
+CoreInflictUpdator = CoreInflictUpdator or class()
+CoreInflictUpdator.INFLICT_UPDATOR_DAMAGE_TYPE_MAP = CoreInflictUpdator.INFLICT_UPDATOR_DAMAGE_TYPE_MAP or {}
+CoreInflictUpdator.MIN_INTERVAL = 0.2
+
+function CoreInflictUpdator:init( unit, body, body_damage_ext, inflict_element, unit_element )
+	self._unit = unit
+	self._body = body
+	self._body_damage_ext = body_damage_ext
+	self._inflict_element = inflict_element
+	self._unit_element = unit_element
+
+	self._update_func = callback( self, self, "update" )
+
+	self:set_damage( inflict_element:get_damage() or 0 )
+	self:set_interval( inflict_element:get_interval() or 1 )
+	self:set_instant( inflict_element:get_instant() )
+	self:set_enabled( inflict_element:get_enabled() )
+
+	self._original_damage = self._damage
+	self._original_interval = self._interval
+	self._original_instant = self._instant
+	self._original_enabled = self._enabled
+
+	self._check_time = TimerManager:game():time() + self._interval * math.random()
+	self._is_inflicting = false
+
+	self._set_attribute_func_map = {}
+	self._set_attribute_func_map[ "damage" ] = callback( self, self, "set_damage" )
+	self._set_attribute_func_map[ "interval" ] = callback( self, self, "set_interval" )
+	self._set_attribute_func_map[ "instant" ] = callback( self, self, "set_instant" )
+	self._set_attribute_func_map[ "enabled" ] = callback( self, self, "set_enabled" )
+
+	self._get_attribute_func_map = {}
+	self._get_attribute_func_map[ "damage" ] = function() return self._damage end
+	self._get_attribute_func_map[ "interval" ] = function() return self._interval end
+	self._get_attribute_func_map[ "instant" ] = function() return self._instant end
+	self._get_attribute_func_map[ "enabled" ] = function() return self._enabled end
 end
 
-CoreInflictUpdator.is_valid = function(l_194_0)
-  return true
+function CoreInflictUpdator:is_valid()
+	return true
 end
 
-CoreInflictUpdator.set_damage = function(l_195_0, l_195_1)
-  if not l_195_1 then
-    l_195_0._damage = l_195_0._damage
-  end
+function CoreInflictUpdator:set_damage( damage )
+	self._damage = damage or self._damage
 end
 
-CoreInflictUpdator.set_interval = function(l_196_0, l_196_1)
-  local old_interval = l_196_0._interval
-  if not l_196_1 then
-    l_196_0._interval = math.max(l_196_0._interval, l_196_0.MIN_INTERVAL)
-    if old_interval then
-      l_196_0._check_time = math.clamp(l_196_0._check_time, l_196_0._check_time - old_interval, TimerManager:game():time() + l_196_0._interval)
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+function CoreInflictUpdator:set_interval( interval )
+	local old_interval = self._interval
+	self._interval = math.max( interval or self._interval, self.MIN_INTERVAL )
+
+	if( old_interval ) then
+		self._check_time = math.clamp( self._check_time, self._check_time - old_interval, TimerManager:game():time() + self._interval )
+	end
 end
 
-CoreInflictUpdator.set_instant = function(l_197_0, l_197_1)
-  l_197_0._instant = not not l_197_1
+function CoreInflictUpdator:set_instant( instant )
+	self._instant = not not instant
 end
 
-CoreInflictUpdator.set_enabled = function(l_198_0, l_198_1)
-  l_198_1 = not not l_198_1
-  if l_198_0._enabled ~= l_198_1 then
-    l_198_0._enabled = l_198_1
-    if l_198_1 then
-      l_198_0._id = managers.sequence:add_callback(l_198_0._update_func)
-    elseif l_198_0._id then
-      managers.sequence:remove_callback(l_198_0._id)
-      l_198_0._id = nil
-    end
-  end
+function CoreInflictUpdator:set_enabled( enabled )
+	enabled = not not enabled
+
+	if( self._enabled ~= enabled ) then
+		self._enabled = enabled
+
+		if( enabled ) then
+			self._id = managers.sequence:add_callback( self._update_func )
+		elseif( self._id ) then
+			managers.sequence:remove_callback( self._id )
+			self._id = nil
+		end
+	end
 end
 
-CoreInflictUpdator.save = function(l_199_0, l_199_1)
-  local state = {}
-  local changed = false
-  if l_199_0._original_damage ~= l_199_0._damage then
-    state.damage = l_199_0._damage
-    changed = true
-  end
-  if l_199_0._original_interval ~= l_199_0._interval then
-    state.interval = l_199_0._interval
-    changed = true
-  end
-  if not l_199_0._original_instant ~= not l_199_0._instant then
-    state.instant = l_199_0._instant
-    changed = true
-  end
-  if not l_199_0._original_enabled ~= not l_199_0._enabled then
-    state.enabled = l_199_0._enabled
-    changed = true
-  end
-  if changed then
-    l_199_1.CoreInflictUpdator = state
-  end
-  return changed
+function CoreInflictUpdator:save( data )
+	local state = {}
+	local changed = false
+
+	if( self._original_damage ~= self._damage ) then
+		state.damage = self._damage
+		changed = true
+	end
+	if( self._original_interval ~= self._interval ) then
+		state.interval = self._interval
+		changed = true
+	end
+	if( not self._original_instant ~= not self._instant ) then
+		state.instant = self._instant
+		changed = true
+	end
+	if( not self._original_enabled ~= not self._enabled ) then
+		state.enabled = self._enabled
+		changed = true
+	end
+
+	if( changed ) then
+		data.CoreInflictUpdator = state
+	end
+
+	return changed
 end
 
-CoreInflictUpdator.load = function(l_200_0, l_200_1)
-  local state = l_200_1.CoreInflictUpdator
-  if state then
-    if not state.damage then
-      l_200_0._damage = l_200_0._damage
-    end
-    if not state.interval then
-      l_200_0._interval = l_200_0._interval
-    end
-    if state.instant ~= nil then
-      l_200_0:set_instant(state.instant)
-    end
-    if state.enabled ~= nil then
-      l_200_0:set_enabled(state.enabled)
-    end
-  end
+function CoreInflictUpdator:load( data )
+	local state = data.CoreInflictUpdator
+
+	if( state ) then
+		self._damage = state.damage or self._damage
+		self._interval = state.interval or self._interval
+		if( state.instant ~= nil ) then
+			self:set_instant( state.instant )
+		end
+		if( state.enabled ~= nil ) then
+			self:set_enabled( state.enabled )
+		end
+	end
 end
 
-CoreInflictUpdator.update = function(l_201_0, l_201_1, l_201_2)
-  if l_201_0._check_time <= l_201_1 then
-    if alive(l_201_0._unit) then
-      l_201_0._check_time = l_201_0._check_time + l_201_0._interval
-      l_201_0:check_damage(l_201_1, l_201_2)
-    else
-      l_201_0:set_enabled(false)
-    end
-  end
+function CoreInflictUpdator:update( t, dt )
+	if( self._check_time <= t ) then
+		if( alive( self._unit ) ) then
+			self._check_time = self._check_time + self._interval
+			self:check_damage( t, dt )
+		else
+			self:set_enabled( false )
+		end
+	end
 end
 
-CoreInflictUpdator.set_attribute = function(l_202_0, l_202_1, l_202_2)
-  if l_202_2 ~= nil then
-    local func = l_202_0._set_attribute_func_map[l_202_1]
-    if func then
-      func(l_202_2)
-      return true
-    end
-  end
-  return false
+function CoreInflictUpdator:set_attribute( attribute, attribute_value )
+	if( attribute_value ~= nil ) then
+		local func = self._set_attribute_func_map[ attribute ]
+
+		if( func ) then
+			func( attribute_value )
+			return true
+		end
+	end
+
+	return false
 end
 
-CoreInflictUpdator.get_attribute = function(l_203_0, l_203_1)
-  if l_203_1 then
-    local func = l_203_0._get_attribute_func_map[l_203_1]
-    if func then
-      return func()
-    end
-  end
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
+function CoreInflictUpdator:get_attribute( attribute )
+	if( attribute ) then
+		local func = self._get_attribute_func_map[ attribute ]
 
-end
-error("Tried to get non existing attribute \"" .. tostring(l_203_1) .. "\" on body \"" .. tostring(l_203_0._body:name()) .. "\" that exist on unit \"" .. tostring(l_203_0._unit:name()) .. "\".")
-return nil
+		if( func ) then
+			return func()
+		end
+	end
+
+	error( "Tried to get non existing attribute \"" .. tostring( attribute ) .. "\" on body \"" .. tostring( self._body and self._body:name() ) .. "\" that exist on unit \"" .. tostring( self._unit and self._unit:name() ) .. "\"." )
+	return nil
 end
 
-if not CoreInflictFireUpdator then
-  CoreInflictFireUpdator = class(CoreInflictUpdator)
-end
+
+CoreInflictFireUpdator = CoreInflictFireUpdator or class( CoreInflictUpdator )
 CoreInflictUpdator.INFLICT_UPDATOR_DAMAGE_TYPE_MAP.fire = CoreInflictFireUpdator
 CoreInflictFireUpdator.SPHERE_CHECK_SLOTMASK = "fire_damage"
 CoreInflictFireUpdator.SPHERE_CHECK_PADDING = 200
 CoreInflictFireUpdator.DAMAGE_TYPE = "fire"
-CoreInflictFireUpdator.init = function(l_204_0, l_204_1, l_204_2, l_204_3, l_204_4, l_204_5)
-  CoreInflictUpdator.init(l_204_0, l_204_1, l_204_2, l_204_3, l_204_4, l_204_5)
-  l_204_0._slotmask = managers.slot:get_mask(l_204_0.SPHERE_CHECK_SLOTMASK)
-  if not l_204_0._inflict_element:get_velocity() then
-    l_204_0._velocity = Vector3()
-  end
-  l_204_0._falloff = l_204_0._inflict_element:get_falloff()
-  l_204_0._fire_height = math.max(l_204_4:get_fire_height() or 0, 0)
-  l_204_0._original_fire_object_name = l_204_4:get_fire_object_name()
-  l_204_0:set_fire_object_name(l_204_0._original_fire_object_name)
-  l_204_0._original_velocity = l_204_0._velocity
-  l_204_0._original_falloff = l_204_0._falloff
-  l_204_0._original_fire_height = l_204_0._fire_height
-  local enter_element = l_204_4:get_enter_element()
-  if enter_element then
-    l_204_0._enter_element_func = callback(enter_element, enter_element, "activate")
-  end
-  local exit_element = l_204_4:get_exit_element()
-  if exit_element then
-    l_204_0._exit_element_func = callback(exit_element, exit_element, "activate")
-  end
-  local damage_element = l_204_4:get_damage_element()
-  if damage_element then
-    l_204_0._damage_element_func = callback(damage_element, damage_element, "activate")
-  end
-  l_204_0._set_attribute_func_map.fire_object = callback(l_204_0, l_204_0, "set_fire_object_name")
-  l_204_0._set_attribute_func_map.fire_height = callback(l_204_0, l_204_0, "set_fire_height")
-  l_204_0._set_attribute_func_map.velocity = callback(l_204_0, l_204_0, "set_velocity")
-  l_204_0._set_attribute_func_map.falloff = callback(l_204_0, l_204_0, "set_falloff")
-  l_204_0._get_attribute_func_map.fire_object = function()
-    return self._fire_object
-   end
-  l_204_0._get_attribute_func_map.fire_height = function()
-    return self._fire_height
-   end
-  l_204_0._get_attribute_func_map.velocity = function()
-    return self._velocity
-   end
-  l_204_0._get_attribute_func_map.falloff = function()
-    return self._falloff
-   end
+
+function CoreInflictFireUpdator:init( unit, body, body_damage_ext, inflict_element, unit_element )
+	CoreInflictUpdator.init( self, unit, body, body_damage_ext, inflict_element, unit_element )
+
+	self._slotmask = managers.slot:get_mask( self.SPHERE_CHECK_SLOTMASK )
+	self._velocity = self._inflict_element:get_velocity() or Vector3()
+	self._falloff = self._inflict_element:get_falloff()
+	self._fire_height = math.max( inflict_element:get_fire_height() or 0, 0 )
+	self._original_fire_object_name = inflict_element:get_fire_object_name()
+	self:set_fire_object_name( self._original_fire_object_name )
+
+	self._original_velocity = self._velocity
+	self._original_falloff = self._falloff
+	self._original_fire_height = self._fire_height
+
+	local enter_element = inflict_element:get_enter_element()
+	self._enter_element_func = enter_element and callback( enter_element, enter_element, "activate" )
+	local exit_element = inflict_element:get_exit_element()
+	self._exit_element_func = exit_element and callback( exit_element, exit_element, "activate" )
+	local damage_element = inflict_element:get_damage_element()
+	self._damage_element_func = damage_element and callback( damage_element, damage_element, "activate" )
+
+	self._set_attribute_func_map[ "fire_object" ] = callback( self, self, "set_fire_object_name" )
+	self._set_attribute_func_map[ "fire_height" ] = callback( self, self, "set_fire_height" )
+	self._set_attribute_func_map[ "velocity" ] = callback( self, self, "set_velocity" )
+	self._set_attribute_func_map[ "falloff" ] = callback( self, self, "set_falloff" )
+
+	self._get_attribute_func_map[ "fire_object" ] = function() return self._fire_object end
+	self._get_attribute_func_map[ "fire_height" ] = function() return self._fire_height end
+	self._get_attribute_func_map[ "velocity" ] = function() return self._velocity end
+	self._get_attribute_func_map[ "falloff" ] = function() return self._falloff end
 end
 
-CoreInflictFireUpdator.is_valid = function(l_205_0)
-  return not CoreInflictUpdator.is_valid(l_205_0) or l_205_0._fire_object ~= nil
+function CoreInflictFireUpdator:is_valid()
+	return CoreInflictUpdator.is_valid( self ) and ( self._fire_object ~= nil )
 end
 
-CoreInflictFireUpdator.set_fire_object_name = function(l_206_0, l_206_1)
-  if l_206_1 then
-    l_206_0._fire_object = l_206_0._unit:get_object(Idstring(l_206_1))
-  end
-  if not l_206_0._fire_object then
-    l_206_0:set_enabled(false)
-    Application:error("Invalid inflict fire element object \"" .. tostring(l_206_1) .. "\".")
-    l_206_0._body_damage_ext:get_inflict_updator_map()[l_206_0.DAMAGE_TYPE] = nil
-    return 
-  end
-  l_206_0:set_fire_height(l_206_0._fire_height)
+function CoreInflictFireUpdator:set_fire_object_name( name )
+	self._fire_object = name and self._unit:get_object( Idstring( name ) )
+	if( not self._fire_object ) then
+		self:set_enabled( false )
+		Application:error( "Invalid inflict fire element object \"" .. tostring( name ) .. "\"." )
+		self._body_damage_ext:get_inflict_updator_map()[ self.DAMAGE_TYPE ] = nil
+		return
+	end
+
+	self:set_fire_height( self._fire_height )
 end
 
-CoreInflictFireUpdator.set_fire_height = function(l_207_0, l_207_1)
-  l_207_0._fire_height = l_207_1
-  l_207_0._sphere_check_range = l_207_0._fire_object:oobb():size() / 2:length() + l_207_0._fire_height + l_207_0.SPHERE_CHECK_PADDING
+function CoreInflictFireUpdator:set_fire_height( height )
+	self._fire_height = height
+	self._sphere_check_range = ( self._fire_object:oobb():size() / 2 ):length() + self._fire_height + self.SPHERE_CHECK_PADDING
 end
 
-CoreInflictFireUpdator.set_velocity = function(l_208_0, l_208_1)
-  l_208_0._velocity = l_208_1
+function CoreInflictFireUpdator:set_velocity( velocity )
+	self._velocity = velocity
 end
 
-CoreInflictFireUpdator.set_falloff = function(l_209_0, l_209_1)
-  l_209_0._falloff = l_209_1
+function CoreInflictFireUpdator:set_falloff( falloff )
+	self._falloff = falloff
 end
 
-CoreInflictFireUpdator.save = function(l_210_0, l_210_1)
-  local state = {}
-  local changed = CoreInflictUpdator.save(l_210_0, l_210_1)
-  if l_210_0._original_fire_object_name ~= l_210_0._fire_object:name() then
-    state.fire_object_name = l_210_0._fire_object:name()
-    changed = true
-  end
-  if l_210_0._original_velocity ~= l_210_0._velocity then
-    state.velocity = l_210_0._velocity
-    changed = true
-  end
-  if l_210_0._original_falloff ~= l_210_0._falloff then
-    state.falloff = l_210_0._falloff
-    changed = true
-  end
-  if l_210_0._original_fire_height ~= l_210_0._fire_height then
-    state.fire_height = l_210_0._fire_height
-    changed = true
-  end
-  if changed then
-    l_210_1.CoreInflictFireUpdator = state
-  end
-  return changed
+function CoreInflictFireUpdator:save( data )
+	local state = {}
+	local changed = CoreInflictUpdator.save( self, data )
+
+	if( self._original_fire_object_name ~= self._fire_object:name() ) then
+		state.fire_object_name = self._fire_object:name()
+		changed = true
+	end
+	if( self._original_velocity ~= self._velocity ) then
+		state.velocity = self._velocity
+		changed = true
+	end
+	if( self._original_falloff ~= self._falloff ) then
+		state.falloff = self._falloff
+		changed = true
+	end
+	if( self._original_fire_height ~= self._fire_height ) then
+		state.fire_height = self._fire_height
+		changed = true
+	end
+
+	if( changed ) then
+		data.CoreInflictFireUpdator = state
+	end
+
+	return changed
 end
 
-CoreInflictFireUpdator.load = function(l_211_0, l_211_1)
-  CoreInflictUpdator.load(l_211_0, l_211_1)
-  local state = l_211_1.CoreInflictUpdator
-  if state then
-    if state.fire_object_name then
-      l_211_0:set_fire_object_name(state.fire_object_name)
-    end
-    if state.fire_height then
-      l_211_0:set_fire_height(state.fire_height)
-    end
-    if not state.velocity then
-      l_211_0._velocity = l_211_0._velocity
-    end
-    if not state.falloff then
-      l_211_0._falloff = l_211_0._falloff
-    end
-  end
+function CoreInflictFireUpdator:load( data )
+	CoreInflictUpdator.load( self, data )
+	local state = data.CoreInflictUpdator
+
+	if( state ) then
+		if( state.fire_object_name ) then
+			self:set_fire_object_name( state.fire_object_name )
+		end
+		if( state.fire_height ) then
+			self:set_fire_height( state.fire_height )
+		end
+		self._velocity = state.velocity or self._velocity
+		self._falloff = state.falloff or self._falloff
+	end
 end
 
-CoreInflictFireUpdator.check_damage = function(l_212_0, l_212_1, l_212_2)
-  local oobb = l_212_0._fire_object:oobb()
-  local oobb_center = oobb:center()
-  local unit_list = (l_212_0._unit:find_units_quick("sphere", oobb_center, l_212_0._sphere_check_range, l_212_0._slotmask))
-  local inflicted_damage, exit_inflict_env = nil, nil
-  for _,unit in ipairs(unit_list) do
-    local unit_key = unit:key()
-    local inflict_body_map = managers.sequence:get_inflict_updator_body_map(l_212_0.DAMAGE_TYPE, unit_key)
-    if inflict_body_map then
-      for body_key,body_ext in pairs(inflict_body_map) do
-        local body = body_ext:get_body()
-        if alive(body) then
-          local body_center = body:center_of_mass()
-          local distance = (oobb:principal_distance(body:oobb()))
-          local position, normal = nil, nil
-          local direction = (oobb_center - body_center:normalized())
-          do
-            local damage = nil
-            if distance > 0 then
-              position, normal = oobb:raycast(body_center, body_center - Vector3(0, 0, l_212_0._fire_height))
-              if position then
-                if l_212_0._falloff and l_212_0._fire_height > 0 then
-                  damage = l_212_0._damage * math.clamp(1 - distance / l_212_0._fire_height, 0, 1)
-                else
-                  damage = l_212_0._damage
-                end
-              else
-                position, normal = body_center, -direction
-                damage = l_212_0._damage
-              end
-              do
-                if position then
-                  local was_inflicting = l_212_0._is_inflicting
-                  inflicted_damage = true
-                  if not l_212_0._is_inflicting then
-                    l_212_0._is_inflicting = true
-                    if l_212_0._enter_element_func then
-                      local env = CoreSequenceManager.SequenceEnvironment:new(l_212_0.DAMAGE_TYPE, unit, l_212_0._unit, l_212_0._body, normal, position, direction, damage, l_212_0._velocity, {distance = distance}, l_212_0._unit_element)
-                      l_212_0._enter_element_func(env)
-                    end
-                  end
-                  if was_inflicting or l_212_0._instant then
-                    if l_212_0._damage_element_func then
-                      local env = CoreSequenceManager.SequenceEnvironment:new(l_212_0.DAMAGE_TYPE, unit, l_212_0._unit, l_212_0._body, normal, position, direction, damage, l_212_0._velocity, {distance = distance}, l_212_0._unit_element)
-                      l_212_0._damage_element_func(env)
-                    end
-                    body_ext:damage_fire(l_212_0._unit, normal, position, direction, damage, l_212_0._velocity)
-                  end
-                  for (for control),body_key in (for generator) do
-                  end
-                  if l_212_0._exit_element_func and not exit_inflict_env then
-                    exit_inflict_env = CoreSequenceManager.SequenceEnvironment:new(l_212_0.DAMAGE_TYPE, unit, l_212_0._unit, l_212_0._body, -direction, body_center, direction, damage, l_212_0._velocity, {distance = distance}, l_212_0._unit_element)
-                  end
-                  for (for control),body_key in (for generator) do
-                  end
-                  managers.sequence:remove_inflict_updator_body(l_212_0.DAMAGE_TYPE, unit_key, body_key)
-                end
-              end
-            end
-          end
-        end
-        if not inflicted_damage and l_212_0._is_inflicting then
-          l_212_0._is_inflicting = false
-          if exit_inflict_env then
-            l_212_0._exit_element_func(exit_inflict_env)
-          end
-        end
-         -- Warning: missing end command somewhere! Added here
-      end
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+function CoreInflictFireUpdator:check_damage( t, dt )
+	local oobb = self._fire_object:oobb()
+	local oobb_center = oobb:center()
+	local unit_list = self._unit:find_units_quick( "sphere", oobb_center, self._sphere_check_range, self._slotmask )
+	local inflicted_damage, exit_inflict_env
+
+	for _,unit in ipairs( unit_list ) do
+		local unit_key = unit:key()
+		local inflict_body_map = managers.sequence:get_inflict_updator_body_map( self.DAMAGE_TYPE, unit_key )
+
+		if( inflict_body_map ) then
+			for body_key,body_ext in pairs( inflict_body_map ) do
+				local body = body_ext:get_body()
+
+				if( alive( body ) ) then
+					local body_center = body:center_of_mass()
+					local distance = oobb:principal_distance( body:oobb() )
+					local position, normal
+					local direction = ( oobb_center - body_center ):normalized()
+					local damage
+
+					if( distance > 0 ) then
+						position, normal = oobb:raycast( body_center, body_center - Vector3( 0, 0, self._fire_height ) )
+
+						if( position ) then
+							if( self._falloff and ( self._fire_height > 0 ) ) then
+								damage = self._damage * math.clamp( 1 - distance / self._fire_height, 0, 1 )
+							else
+								damage = self._damage
+							end
+						end
+					else
+						position, normal = body_center, -direction
+						damage = self._damage
+					end
+
+					if( position ) then
+						local was_inflicting = self._is_inflicting
+
+						inflicted_damage = true
+
+						if( not self._is_inflicting ) then
+							self._is_inflicting = true
+							if( self._enter_element_func ) then
+								local env = CoreSequenceManager.SequenceEnvironment:new( self.DAMAGE_TYPE, unit, self._unit, self._body, normal, position, direction, damage, self._velocity, { distance = distance }, self._unit_element )
+								self._enter_element_func( env )
+							end
+						end
+
+						if( was_inflicting or self._instant ) then
+							if( self._damage_element_func ) then
+								local env = CoreSequenceManager.SequenceEnvironment:new( self.DAMAGE_TYPE, unit, self._unit, self._body, normal, position, direction, damage, self._velocity, { distance = distance }, self._unit_element )
+								self._damage_element_func( env )
+							end
+
+							body_ext:damage_fire( self._unit, normal, position, direction, damage, self._velocity )
+						end
+					elseif( self._exit_element_func and not exit_inflict_env ) then
+						exit_inflict_env = CoreSequenceManager.SequenceEnvironment:new( self.DAMAGE_TYPE, unit, self._unit, self._body, -direction, body_center, direction, damage, self._velocity, { distance = distance }, self._unit_element )
+					end
+				else
+					managers.sequence:remove_inflict_updator_body( self.DAMAGE_TYPE, unit_key, body_key )
+				end
+			end
+		end
+	end
+
+	if( not inflicted_damage and self._is_inflicting ) then
+		self._is_inflicting = false
+
+		if( exit_inflict_env ) then
+			self._exit_element_func( exit_inflict_env )
+		end
+	end
 end
-
-

@@ -1,37 +1,47 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\network\extensions\player_team\huskteamaimovement.luac 
+HuskTeamAIMovement = HuskTeamAIMovement or class( TeamAIMovement )
 
-if not HuskTeamAIMovement then
-  HuskTeamAIMovement = class(TeamAIMovement)
-end
-HuskTeamAIMovement.init = function(l_1_0, l_1_1)
-  HuskTeamAIMovement.super.init(l_1_0, l_1_1)
-  l_1_0._queued_actions = {}
-  l_1_0._m_host_stop_pos = mvector3.copy(l_1_0._m_pos)
+function HuskTeamAIMovement:init( unit )
+	HuskTeamAIMovement.super.init( self, unit )
+	
+	self._queued_actions = {}
+	self._m_host_stop_pos = mvector3.copy( self._m_pos )
 end
 
-HuskTeamAIMovement._post_init = function(l_2_0)
-  l_2_0:play_redirect("idle")
+-------------------------------------------------------------------------------
+
+function HuskTeamAIMovement:_post_init()
+	self:play_redirect( "idle" )
 end
 
-HuskTeamAIMovement.sync_arrested = function(l_3_0)
-  l_3_0._unit:interaction():set_tweak_data("free")
-  l_3_0._unit:interaction():set_active(true, false)
-  managers.hud:set_mugshot_cuffed(l_3_0._unit:unit_data().mugshot_id)
-  l_3_0._unit:base():set_slot(l_3_0._unit, 24)
+-------------------------------------------------------------------------------
+
+function HuskTeamAIMovement:sync_arrested()
+	self._unit:interaction():set_tweak_data( "free" )
+	self._unit:interaction():set_active( true, false )
+	
+	managers.hud:set_mugshot_cuffed( self._unit:unit_data().mugshot_id )
+	
+	self._unit:base():set_slot( self._unit, 24 ) -- harmless
 end
 
-HuskTeamAIMovement._upd_actions = function(l_4_0, l_4_1)
-  TeamAIMovement._upd_actions(l_4_0, l_4_1)
-  HuskCopMovement._chk_start_queued_action(l_4_0)
+-----------------------------------------------------------------------------------
+
+function HuskTeamAIMovement:_upd_actions( t )
+	TeamAIMovement._upd_actions( self, t )
+	HuskCopMovement._chk_start_queued_action( self )
 end
 
-HuskTeamAIMovement.action_request = function(l_5_0, l_5_1)
-  return HuskCopMovement.action_request(l_5_0, l_5_1)
+-----------------------------------------------------------------------------------
+
+function HuskTeamAIMovement:action_request( action_desc )
+	return HuskCopMovement.action_request( self, action_desc )
 end
 
-HuskTeamAIMovement.chk_action_forbidden = function(l_6_0, l_6_1)
-  return HuskCopMovement.chk_action_forbidden(l_6_0, l_6_1)
+-----------------------------------------------------------------------------------
+
+function HuskTeamAIMovement:chk_action_forbidden( action_desc )
+	return HuskCopMovement.chk_action_forbidden( self, action_desc )
 end
 
-
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------

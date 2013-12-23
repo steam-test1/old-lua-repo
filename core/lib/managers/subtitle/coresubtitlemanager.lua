@@ -1,131 +1,123 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\subtitle\coresubtitlemanager.luac 
+core:module "CoreSubtitleManager"
+core:import "CoreClass"
+core:import "CoreDebug"
+core:import "CoreTable"
+core:import "CoreSubtitlePresenter"
+core:import "CoreSubtitleSequence"
+core:import "CoreSubtitleSequencePlayer"
 
-core:module("CoreSubtitleManager")
-core:import("CoreClass")
-core:import("CoreDebug")
-core:import("CoreTable")
-core:import("CoreSubtitlePresenter")
-core:import("CoreSubtitleSequence")
-core:import("CoreSubtitleSequencePlayer")
-if not SubtitleManager then
-  SubtitleManager = CoreClass.class()
-end
-SubtitleManager.init = function(l_1_0)
-  l_1_0.__subtitle_sequences = {}
-  l_1_0.__loaded_sequence_file_paths = {}
-  l_1_0.__presenter = CoreSubtitlePresenter.DebugPresenter:new()
-  l_1_0:_update_presenter_visibility()
+SubtitleManager = SubtitleManager or CoreClass.class()
+
+function SubtitleManager:init()
+	self.__subtitle_sequences = {}
+	self.__loaded_sequence_file_paths = {}
+	self.__presenter = CoreSubtitlePresenter.DebugPresenter:new()
+	self:_update_presenter_visibility()
 end
 
-SubtitleManager.destroy = function(l_2_0)
-  l_2_0:set_presenter(nil)
+function SubtitleManager:destroy()
+	self:set_presenter(nil)
 end
 
-SubtitleManager.presenter = function(l_3_0)
-  return assert(l_3_0.__presenter, "Invalid presenter. SubtitleManager might have been destroyed.")
+function SubtitleManager:presenter()
+	return assert(self.__presenter, "Invalid presenter. SubtitleManager might have been destroyed.")
 end
 
-SubtitleManager.set_presenter = function(l_4_0, l_4_1)
-  assert(l_4_1 == nil or type(l_4_1.preprocess_sequence) == "function", "Invalid presenter.")
-  if l_4_0.__presenter then
-    l_4_0.__presenter:destroy()
-  end
-  l_4_0.__presenter = l_4_1
-  if l_4_0.__presenter then
-    l_4_0:_update_presenter_visibility()
-  end
+function SubtitleManager:set_presenter(presenter)
+	assert(presenter == nil or type(presenter.preprocess_sequence) == "function", "Invalid presenter.")
+	
+	if self.__presenter then
+		self.__presenter:destroy()
+	end
+	
+	self.__presenter = presenter
+	if self.__presenter then
+		self:_update_presenter_visibility()
+	end
 end
 
-SubtitleManager.load_sequences = function(l_5_0, l_5_1)
-  local root_node = DB:load_node("subtitle_sequence", l_5_1)
-  assert(root_node:name() == "subtitle_sequence", "File is not a subtitle sequence file.")
-  l_5_0.__loaded_sequence_file_paths[l_5_1] = true
-  for sequence_node in root_node:children() do
-    if sequence_node:name() == "sequence" then
-      local sequence = CoreSubtitleSequence.SubtitleSequence:new(sequence_node)
-      l_5_0.__subtitle_sequences[sequence:name()] = sequence
-    end
-  end
+function SubtitleManager:load_sequences(sequence_file_path)
+	local root_node = DB:load_node("subtitle_sequence", sequence_file_path)
+	assert(root_node:name() == "subtitle_sequence", "File is not a subtitle sequence file.")
+	self.__loaded_sequence_file_paths[sequence_file_path] = true
+	
+	for sequence_node in root_node:children() do
+		if sequence_node:name() == "sequence" then
+			local sequence = CoreSubtitleSequence.SubtitleSequence:new(sequence_node)
+			self.__subtitle_sequences[sequence:name()] = sequence
+		end
+	end
 end
 
-SubtitleManager.reload_sequences = function(l_6_0)
-  l_6_0.__subtitle_sequences = {}
-  for sequence_file_path,_ in pairs(l_6_0.__loaded_sequence_file_paths) do
-    l_6_0:load_sequences(sequence_file_path)
-  end
+function SubtitleManager:reload_sequences()
+	self.__subtitle_sequences = {}
+	for sequence_file_path, _ in pairs(self.__loaded_sequence_file_paths) do
+		self:load_sequences(sequence_file_path)
+	end
 end
 
-SubtitleManager.update = function(l_7_0, l_7_1, l_7_2)
-  if l_7_0.__player then
-    l_7_0.__player:update(l_7_1, l_7_2)
-    if l_7_0.__player:is_done() then
-      l_7_0.__player = nil
-    end
-  end
-  l_7_0:presenter():update(l_7_1, l_7_2)
+function SubtitleManager:update(time, delta_time)
+	if self.__player then
+		self.__player:update(time, delta_time)
+		if self.__player:is_done() then
+			self.__player = nil
+		end
+	end
+	
+	self:presenter():update(time, delta_time)
 end
 
-SubtitleManager.enabled = function(l_8_0)
-  return Global.__SubtitleManager__enabled or false
+function SubtitleManager:enabled()
+	return Global.__SubtitleManager__enabled or false
 end
 
-SubtitleManager.set_enabled = function(l_9_0, l_9_1)
-  Global.__SubtitleManager__enabled = not not l_9_1
-  l_9_0:_update_presenter_visibility()
+function SubtitleManager:set_enabled(enabled)
+	Global.__SubtitleManager__enabled = not not enabled -- Force boolean.
+	self:_update_presenter_visibility()
 end
 
-SubtitleManager.visible = function(l_10_0)
-  return not l_10_0.__hidden
+function SubtitleManager:visible()
+	return not self.__hidden
 end
 
-SubtitleManager.set_visible = function(l_11_0, l_11_1)
-  l_11_0.__hidden = (l_11_1 and nil)
-  l_11_0:_update_presenter_visibility()
+function SubtitleManager:set_visible(visible)
+	self.__hidden = not visible or nil
+	self:_update_presenter_visibility()
 end
 
-SubtitleManager.clear_subtitle = function(l_12_0)
-  l_12_0:show_subtitle_localized("")
+function SubtitleManager:clear_subtitle()
+	self:show_subtitle_localized("")
 end
 
-SubtitleManager.is_showing_subtitles = function(l_13_0)
-  return not l_13_0:enabled() or not l_13_0:visible() or l_13_0.__player ~= nil
+function SubtitleManager:is_showing_subtitles()
+	return self:enabled() and self:visible() and self.__player ~= nil
 end
 
-SubtitleManager.show_subtitle = function(l_14_0, l_14_1, l_14_2, l_14_3)
-  l_14_0:show_subtitle_localized(managers.localization:text(l_14_1, l_14_3), l_14_2)
+function SubtitleManager:show_subtitle(string_id, duration, macros)
+	self:show_subtitle_localized(managers.localization:text(string_id, macros), duration)
 end
 
-SubtitleManager.show_subtitle_localized = function(l_15_0, l_15_1, l_15_2)
-  local sequence = CoreSubtitleSequence.SubtitleSequence:new()
-  sequence:add_subtitle(CoreSubtitleSequence.Subtitle:new(l_15_1, 0, l_15_2 or 3))
-  l_15_0.__player = CoreSubtitleSequencePlayer.SubtitleSequencePlayer:new(sequence, l_15_0:presenter())
+function SubtitleManager:show_subtitle_localized(localized_string, duration)
+	local sequence = CoreSubtitleSequence.SubtitleSequence:new()
+	sequence:add_subtitle(CoreSubtitleSequence.Subtitle:new(localized_string, 0, duration or 3))
+	self.__player = CoreSubtitleSequencePlayer.SubtitleSequencePlayer:new(sequence, self:presenter())
 end
 
-SubtitleManager.run_subtitle_sequence = function(l_16_0, l_16_1)
-  if l_16_1 then
-    local sequence = assert(l_16_0.__subtitle_sequences[l_16_1], string.format("Sequence \"%s\" not found.", l_16_1))
-  end
-  if sequence then
-    l_16_0.__player = CoreSubtitleSequencePlayer.SubtitleSequencePlayer:new(sequence, l_16_0:presenter())
-  end
+function SubtitleManager:run_subtitle_sequence(sequence_id)
+	local sequence = sequence_id and assert(self.__subtitle_sequences[sequence_id], string.format("Sequence \"%s\" not found.", sequence_id))
+	self.__player = sequence and CoreSubtitleSequencePlayer.SubtitleSequencePlayer:new(sequence, self:presenter())
 end
 
-SubtitleManager.subtitle_sequence_ids = function(l_17_0)
-  if not l_17_0.__subtitle_sequences then
-    return CoreTable.table.map_keys({})
-     -- Warning: missing end command somewhere! Added here
-  end
+function SubtitleManager:subtitle_sequence_ids()
+	return CoreTable.table.map_keys(self.__subtitle_sequences or {})
 end
 
-SubtitleManager.has_subtitle_sequence = function(l_18_0, l_18_1)
-  return l_18_0.__subtitle_sequences and l_18_0.__subtitle_sequences[l_18_1] ~= nil
+function SubtitleManager:has_subtitle_sequence(sequence_id)
+	return (self.__subtitle_sequences and self.__subtitle_sequences[sequence_id]) ~= nil
 end
 
-SubtitleManager._update_presenter_visibility = function(l_19_0)
-  local presenter = l_19_0:presenter()
-  local show_presenter = l_19_0:enabled() and ((managers.user and managers.user:get_setting("subtitle")))
-  presenter[show_presenter and "show" or "hide"](presenter)
+function SubtitleManager:_update_presenter_visibility()
+	local presenter = self:presenter()
+	local show_presenter = self:enabled() and self:visible() and ( not managers.user or managers.user:get_setting( "subtitle" ) )
+	presenter[show_presenter and "show" or "hide"](presenter)
 end
-
-

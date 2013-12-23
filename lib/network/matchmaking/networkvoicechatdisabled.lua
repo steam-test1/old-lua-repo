@@ -1,114 +1,141 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\network\matchmaking\networkvoicechatdisabled.luac 
+--[[-----------------------------------------------------------------------------------------------
 
-if not NetworkVoiceChatDisabled then
-  NetworkVoiceChatDisabled = class()
-end
-NetworkVoiceChatDisabled.init = function(l_1_0, l_1_1)
-  l_1_0._quiet = l_1_1 or false
-  if l_1_0._quiet then
-    cat_print("lobby", "Voice is quiet.")
-  else
-    cat_print("lobby", "Voice is disabled.")
-  end
-end
+ Voice chat abstraction layer - Disabled
 
-NetworkVoiceChatDisabled.check_status_information = function(l_2_0)
-  l_2_0:_display_warning()
-end
+ To do:
 
-NetworkVoiceChatDisabled.open = function(l_3_0)
-end
+ Implementation notes:
+ 	This is for when the voice should be disabled.
 
-NetworkVoiceChatDisabled.set_volume = function(l_4_0, l_4_1)
+-----------------------------------------------------------------------------------------------]]--
+NetworkVoiceChatDisabled = NetworkVoiceChatDisabled or class()
+
+function NetworkVoiceChatDisabled:init( quiet )
+	self._quiet = quiet or false
+	
+	if( self._quiet ) then
+		cat_print( 'lobby', "Voice is quiet.")
+	else
+		cat_print( 'lobby', "Voice is disabled.")
+	end
 end
 
-NetworkVoiceChatDisabled.voice_type = function(l_5_0)
-  if l_5_0._quiet == true then
-    return "voice_quiet"
-  else
-    return "voice_disabled"
-  end
+function NetworkVoiceChatDisabled:check_status_information()
+	self:_display_warning()
 end
 
-NetworkVoiceChatDisabled.set_drop_in = function(l_6_0, l_6_1)
+function NetworkVoiceChatDisabled:open()
 end
 
-NetworkVoiceChatDisabled.pause = function(l_7_0)
+function NetworkVoiceChatDisabled:set_volume( volume )
 end
 
-NetworkVoiceChatDisabled.resume = function(l_8_0)
+function NetworkVoiceChatDisabled:voice_type()
+	if( self._quiet == true ) then
+		return "voice_quiet"
+	else
+		return "voice_disabled"
+	end
 end
 
-NetworkVoiceChatDisabled.init_voice = function(l_9_0)
+function NetworkVoiceChatDisabled:set_drop_in( data )
 end
 
-NetworkVoiceChatDisabled.destroy_voice = function(l_10_0)
+function NetworkVoiceChatDisabled:pause()
 end
 
-NetworkVoiceChatDisabled.num_peers = function(l_11_0)
-  return true
+function NetworkVoiceChatDisabled:resume()
 end
 
-NetworkVoiceChatDisabled.open_session = function(l_12_0, l_12_1)
-  l_12_0:_display_warning()
+function NetworkVoiceChatDisabled:init_voice()
+end
+function NetworkVoiceChatDisabled:destroy_voice()
 end
 
-NetworkVoiceChatDisabled.close_session = function(l_13_0)
+function NetworkVoiceChatDisabled:num_peers()
+	return true
 end
 
-NetworkVoiceChatDisabled.open_channel_to = function(l_14_0, l_14_1, l_14_2)
-  l_14_0:_display_warning()
+function NetworkVoiceChatDisabled:open_session( roomid )
+	self:_display_warning()
 end
 
-NetworkVoiceChatDisabled.close_channel_to = function(l_15_0, l_15_1)
+function NetworkVoiceChatDisabled:close_session()
 end
 
-NetworkVoiceChatDisabled.lost_peer = function(l_16_0, l_16_1)
+function NetworkVoiceChatDisabled:open_channel_to(player_info, context)
+	self:_display_warning()
 end
 
-NetworkVoiceChatDisabled.close_all = function(l_17_0)
+function NetworkVoiceChatDisabled:close_channel_to(player_info)
 end
 
-NetworkVoiceChatDisabled.set_team = function(l_18_0, l_18_1)
+function NetworkVoiceChatDisabled:lost_peer( peer )
 end
 
-NetworkVoiceChatDisabled.peer_team = function(l_19_0, l_19_1, l_19_2, l_19_3)
+function NetworkVoiceChatDisabled:close_all( )
 end
 
-NetworkVoiceChatDisabled._open_close_peers = function(l_20_0)
+function NetworkVoiceChatDisabled:set_team(team)
 end
 
-NetworkVoiceChatDisabled.update = function(l_21_0)
+function NetworkVoiceChatDisabled:peer_team( xuid, team, rpc )
 end
 
-NetworkVoiceChatDisabled._load_globals = function(l_22_0)
+-- // --
+
+function NetworkVoiceChatDisabled:_open_close_peers()
 end
 
-NetworkVoiceChatDisabled._save_globals = function(l_23_0, l_23_1)
+function NetworkVoiceChatDisabled:update()
 end
 
-NetworkVoiceChatDisabled._display_warning = function(l_24_0)
-  if l_24_0._quiet == false and l_24_0:_have_displayed_warning() == true then
-    managers.menu:show_err_no_chat_parental_control()
-  end
+function NetworkVoiceChatDisabled:_load_globals()
+end
+function NetworkVoiceChatDisabled:_save_globals( disable_voice )
 end
 
-NetworkVoiceChatDisabled._have_displayed_warning = function(l_25_0)
-  if Global.psn_parental_voice and Global.psn_parental_voice == true then
-    return false
-  end
-  Global.psn_parental_voice = true
-  return true
+function NetworkVoiceChatDisabled:_display_warning()
+	if( self._quiet == false ) then
+		if( self:_have_displayed_warning() == true ) then
+			managers.menu:show_err_no_chat_parental_control()
+			--[[local options = {
+				label=managers.localizer:text("mpm_err_no_chat_parental_control"),
+				text="",
+				buttons=
+				{
+					{
+						button="a",
+						label=managers.localizer:text("mpm_mm_dlg_ok"),
+						callback=function() managers.menu:pop_screen() end
+					}
+				}
+			}
+			
+			managers.menu:push_screen(DlgMessage, options, false )]]
+		end	
+	end
+end
+function NetworkVoiceChatDisabled:_have_displayed_warning()
+	if( Global.psn_parental_voice and Global.psn_parental_voice == true ) then
+		return false
+	end
+	
+	Global.psn_parental_voice = true
+	
+	return true
 end
 
-NetworkVoiceChatDisabled.clear_team = function(l_26_0)
+-- Reset all peers to be part of the defualt team so everyone can speak to each other. For use at end of game.
+function NetworkVoiceChatDisabled:clear_team( )
+
 end
 
-NetworkVoiceChatDisabled.psn_session_destroyed = function(l_27_0)
-  if Global.psn and Global.psn.voice then
-    Global.psn.voice.restart = nil
-  end
+-- // --
+
+--PSN function
+function NetworkVoiceChatDisabled:psn_session_destroyed()
+	if( Global.psn and Global.psn.voice ) then
+		Global.psn.voice.restart = nil
+	end
 end
-
-

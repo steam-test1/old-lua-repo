@@ -1,44 +1,41 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\session\coresessionresponse.luac 
-
 core:module("CoreSessionResponse")
-if not Done then
-  Done = class()
-end
+
+Done = Done or class()
+
 Done.DONE = 1
-Done.done = function(l_1_0)
-  l_1_0:_set_response(Done.DONE)
+
+function Done:done()
+	self:_set_response(Done.DONE)
 end
 
-Done._is_response_value = function(l_2_0, l_2_1)
-  assert(not l_2_0._is_destroyed, "You can not check a destroyed response object!")
-  return l_2_0._response == l_2_1
+function Done:_is_response_value(value)
+	assert(not self._is_destroyed, "You can not check a destroyed response object!")
+	return self._response == value
 end
 
-Done.is_done = function(l_3_0)
-  return l_3_0:_is_response_value(Done.DONE)
+function Done:is_done()
+	return self:_is_response_value(Done.DONE)
 end
 
-Done._set_response = function(l_4_0, l_4_1)
-  assert(not l_4_0._is_destroyed, "You can not respond to a destroyed response object!")
-  assert(l_4_0._response == nil, "Response has already been set!")
-  l_4_0._response = l_4_1
+function Done:_set_response(value)
+	assert(not self._is_destroyed, "You can not respond to a destroyed response object!")
+	assert(self._response == nil, "Response has already been set!")
+	self._response = value
 end
 
-Done.destroy = function(l_5_0)
-  l_5_0._is_destroyed = true
+function Done:destroy()
+	self._is_destroyed = true 
 end
 
-if not DoneOrFinished then
-  DoneOrFinished = class(Done)
-end
+
+DoneOrFinished = DoneOrFinished or class(Done)
+
 DoneOrFinished.FINISHED = 2
-DoneOrFinished.finished = function(l_6_0)
-  l_6_0:_set_response(DoneOrFinished.FINISHED)
+
+function DoneOrFinished:finished()
+	self:_set_response(DoneOrFinished.FINISHED) 
 end
 
-DoneOrFinished.is_finished = function(l_7_0)
-  return l_7_0:_is_response_value(DoneOrFinished.FINISHED)
+function DoneOrFinished:is_finished()
+	return self:_is_response_value(DoneOrFinished.FINISHED)
 end
-
-

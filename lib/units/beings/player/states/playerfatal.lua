@@ -1,120 +1,188 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\beings\player\states\playerfatal.luac 
+PlayerFatal = PlayerFatal or class( PlayerStandard )
 
-if not PlayerFatal then
-  PlayerFatal = class(PlayerStandard)
-end
 PlayerFatal._update_movement = PlayerBleedOut._update_movement
-PlayerFatal.init = function(l_1_0, l_1_1)
-  PlayerFatal.super.init(l_1_0, l_1_1)
+
+function PlayerFatal:init( unit )
+	PlayerFatal.super.init( self, unit )
 end
 
-PlayerFatal.enter = function(l_2_0, l_2_1, l_2_2)
-  PlayerFatal.super.enter(l_2_0, l_2_1, l_2_2)
-  l_2_0:_interupt_action_steelsight()
-  l_2_0:_start_action_dead(managers.player:player_timer():time())
-  l_2_0:_start_action_unequip_weapon(managers.player:player_timer():time(), {selection_wanted = 1})
-  l_2_0._unit:base():set_slot(l_2_0._unit, 4)
-  l_2_0._unit:camera():camera_unit():base():set_target_tilt(80)
-  if l_2_0._ext_movement:nav_tracker() then
-    managers.groupai:state():on_criminal_neutralized(l_2_0._unit)
-  end
-  l_2_0._unit:character_damage():on_fatal_state_enter()
-  if Network:is_server() and l_2_2 then
-    if l_2_2.revive_SO_data then
-      l_2_0._revive_SO_data = l_2_2.revive_SO_data
-    end
-    l_2_0._deathguard_SO_id = l_2_2.deathguard_SO_id
-  end
-  if l_2_2 then
-    l_2_0._reequip_weapon = l_2_2.equip_weapon
-  end
+--------------------------------------------------------------------------------------
+
+function PlayerFatal:enter( state_data, enter_data )
+	PlayerFatal.super.enter( self, state_data, enter_data )
+		
+	self:_interupt_action_steelsight()
+	
+	self:_start_action_dead( managers.player:player_timer():time() )
+	self:_start_action_unequip_weapon( managers.player:player_timer():time(), { selection_wanted = 1 } )
+	
+	self._unit:base():set_slot( self._unit, 4 )
+	
+	self._unit:camera():camera_unit():base():set_target_tilt( 80 )
+	
+	if self._ext_movement:nav_tracker() then
+		managers.groupai:state():on_criminal_neutralized( self._unit )
+	end
+		
+	self._unit:character_damage():on_fatal_state_enter()
+	
+	if Network:is_server() and enter_data then
+		if enter_data.revive_SO_data then
+			self._revive_SO_data = enter_data.revive_SO_data
+		end
+		
+		self._deathguard_SO_id = enter_data.deathguard_SO_id
+	end
+	
+	self._reequip_weapon = enter_data and enter_data.equip_weapon
 end
 
-PlayerFatal._enter = function(l_3_0, l_3_1)
-  l_3_0._ext_movement:set_attention_settings({"pl_team_idle_std", "pl_civ_cbt"})
-  if Network:is_server() and l_3_0._ext_movement:nav_tracker() then
-    managers.groupai:state():on_player_weapons_hot()
-  end
+--------------------------------------------------------------------------------------
+
+function PlayerFatal:_enter( enter_data )
+	self._ext_movement:set_attention_settings( { "pl_team_idle_std", "pl_civ_cbt" } )
+	
+	if Network:is_server() and self._ext_movement:nav_tracker() then
+		managers.groupai:state():on_player_weapons_hot()
+	end
 end
 
-PlayerFatal.exit = function(l_4_0, l_4_1, l_4_2)
-  PlayerFatal.super.exit(l_4_0, l_4_1, l_4_2)
-  l_4_0:_end_action_dead(managers.player:player_timer():time())
-  if Network:is_server() then
-    PlayerBleedOut._unregister_revive_SO(l_4_0)
-  end
-  l_4_0._revive_SO_data = nil
-  if l_4_0._stats_screen then
-    l_4_0._stats_screen = false
-    managers.hud:hide_stats_screen()
-  end
-  local exit_data = {equip_weapon = l_4_0._reequip_weapon}
-  if l_4_2 == "standard" then
-    exit_data.wants_crouch = true
-  end
-  return exit_data
+--------------------------------------------------------------------------------------
+
+function PlayerFatal:exit( state_data, new_state_name )
+	PlayerFatal.super.exit( self, state_data, new_state_name )
+	
+	self:_end_action_dead( managers.player:player_timer():time() )
+	
+	if Network:is_server() then
+		PlayerBleedOut._unregister_revive_SO( self )
+	end
+	
+	self._revive_SO_data = nil
+	
+	if self._stats_screen then
+		self._stats_screen = false
+		managers.hud:hide_stats_screen()
+	end
+	
+	local exit_data = { equip_weapon = self._reequip_weapon }
+	
+	if new_state_name == "standard" then
+		exit_data.wants_crouch = true
+	end
+	
+	return exit_data
 end
 
-PlayerFatal.interaction_blocked = function(l_5_0)
-  return true
+--------------------------------------------------------------------------------------
+
+function PlayerFatal:interaction_blocked()
+	return true
 end
 
-PlayerFatal.update = function(l_6_0, l_6_1, l_6_2)
-  PlayerFatal.super.update(l_6_0, l_6_1, l_6_2)
+--------------------------------------------------------------------------------------
+
+function PlayerFatal:update( t, dt )
+	PlayerFatal.super.update( self, t, dt )
 end
 
-PlayerFatal._update_check_actions = function(l_7_0, l_7_1, l_7_2)
-  local input = l_7_0:_get_input()
-  l_7_0:_update_foley(l_7_1, input)
-  local new_action = nil
-  if input.btn_stats_screen_press then
-    l_7_0._unit:base():set_stats_screen_visible(true)
-  elseif input.btn_stats_screen_release then
-    l_7_0._unit:base():set_stats_screen_visible(false)
-  end
-  l_7_0:_check_action_interact(l_7_1, input)
+--------------------------------------------------------------------------------------
+
+--	Read controller input, start, stop, queue and update actions
+
+function PlayerFatal:_update_check_actions( t, dt )
+	------------------------------
+	--Check the controller input--
+	------------------------------
+	local input = self:_get_input()
+	
+	
+	-----------------------------------------
+	--Check if we should start a new action--
+	-----------------------------------------
+	
+	self:_update_foley( t, input )
+	
+	local new_action
+	
+	if input.btn_stats_screen_press then
+		self._unit:base():set_stats_screen_visible( true )
+	elseif input.btn_stats_screen_release then
+		self._unit:base():set_stats_screen_visible( false )
+	end
+	
+	--if input.btn_primary_attack_state and input.btn_steelsight_state then
+	--	self._unit:character_damage():revive()
+	--end
+	
+	self:_check_action_interact( t, input )
+	
+	--[[ local new_action
+	
+	if not new_action then
+		new_action = self:_check_action_primary_attack( t, input )
+	end
+	
+	if not new_action then
+		new_action = self:_check_action_interact( t, input )
+	end]]
+	
 end
 
-PlayerFatal._check_action_interact = function(l_8_0, l_8_1, l_8_2)
-  if l_8_2.btn_interact_press and (not l_8_0._intimidate_t or tweak_data.player.movement_state.interaction_delay < l_8_1 - l_8_0._intimidate_t) then
-    l_8_0._intimidate_t = l_8_1
-    if not PlayerArrested.call_teammate(l_8_0, "f11", l_8_1, true, true) then
-      PlayerBleedOut.call_civilian(l_8_0, "f11", l_8_1, false, true, l_8_0._revive_SO_data)
-    end
-  end
+--------------------------------------------------------------------------------------
+
+--	Check if we want to intimidate or use an item
+
+function PlayerFatal:_check_action_interact( t, input )
+	if input.btn_interact_press then
+		if not self._intimidate_t or t - self._intimidate_t > tweak_data.player.movement_state.interaction_delay then
+			self._intimidate_t = t
+			if not PlayerArrested.call_teammate( self, "f11", t, true, true ) then
+				PlayerBleedOut.call_civilian( self, "f11", t, false, true, self._revive_SO_data )
+			end
+		end
+	end
+end
+--------------------------------------------------------------------------------------
+
+function PlayerFatal:_start_action_dead( t )
+	self:_interupt_action_running( t )
+	self._state_data.ducking = true
+	self:_stance_entered()
+	self:_update_crosshair_offset()
+	self._unit:kill_mover()
+	self._unit:activate_mover( Idstring( "duck" ) )
 end
 
-PlayerFatal._start_action_dead = function(l_9_0, l_9_1)
-  l_9_0:_interupt_action_running(l_9_1)
-  l_9_0._state_data.ducking = true
-  l_9_0:_stance_entered()
-  l_9_0:_update_crosshair_offset()
-  l_9_0._unit:kill_mover()
-  l_9_0._unit:activate_mover(Idstring("duck"))
+--------------------------------------------------------------------------------------
+
+function PlayerFatal:_end_action_dead( t )
+	if not self:_can_stand() then
+		return
+	end
+	
+	self._state_data.ducking = false
+	self:_stance_entered()
+	self:_update_crosshair_offset()
+	self._unit:kill_mover()
+	self._unit:activate_mover( Idstring( "stand" ) )
 end
 
-PlayerFatal._end_action_dead = function(l_10_0, l_10_1)
-  if not l_10_0:_can_stand() then
-    return 
-  end
-  l_10_0._state_data.ducking = false
-  l_10_0:_stance_entered()
-  l_10_0:_update_crosshair_offset()
-  l_10_0._unit:kill_mover()
-  l_10_0._unit:activate_mover(Idstring("stand"))
+-----------------------------------------------------------------------------------
+
+function PlayerFatal:pre_destroy( unit )
+	if Network:is_server() then
+		PlayerBleedOut._unregister_revive_SO( self )
+	end
 end
 
-PlayerFatal.pre_destroy = function(l_11_0, l_11_1)
-  if Network:is_server() then
-    PlayerBleedOut._unregister_revive_SO(l_11_0)
-  end
+-----------------------------------------------------------------------------------
+
+function PlayerFatal:destroy()
+	if Network:is_server() then
+		PlayerBleedOut._unregister_revive_SO( self )
+	end
 end
 
-PlayerFatal.destroy = function(l_12_0)
-  if Network:is_server() then
-    PlayerBleedOut._unregister_revive_SO(l_12_0)
-  end
-end
-
-
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------

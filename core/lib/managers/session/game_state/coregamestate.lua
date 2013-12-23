@@ -1,93 +1,89 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\session\game_state\coregamestate.luac 
-
 core:module("CoreGameState")
 core:import("CoreFiniteStateMachine")
 core:import("CoreGameStateInit")
 core:import("CoreSessionGenericState")
 core:import("CoreRequester")
-if not GameState then
-  GameState = class(CoreSessionGenericState.State)
-end
-GameState.init = function(l_1_0, l_1_1, l_1_2)
-  l_1_0._player_slots = l_1_1
-  l_1_0._session_manager = l_1_2
-  l_1_0._game_requester = CoreRequester.Requester:new()
-  l_1_0._front_end_requester = CoreRequester.Requester:new()
-  assert(l_1_0._session_manager)
-  l_1_0._state = CoreFiniteStateMachine.FiniteStateMachine:new(CoreGameStateInit.Init, "game_state", l_1_0)
-end
 
-GameState.set_debug = function(l_2_0, l_2_1)
-  l_2_0._state:set_debug(l_2_1)
+GameState = GameState or class(CoreSessionGenericState.State)
+
+function GameState:init(player_slots, session_manager)
+	self._player_slots = player_slots
+	self._session_manager = session_manager
+	self._game_requester = CoreRequester.Requester:new()
+	self._front_end_requester = CoreRequester.Requester:new()
+	
+	assert(self._session_manager)
+	self._state = CoreFiniteStateMachine.FiniteStateMachine:new(CoreGameStateInit.Init, "game_state", self)
 end
 
-GameState.default_data = function(l_3_0)
-  l_3_0.start_state = "GameStateInit"
+function GameState:set_debug(debug_on)
+	self._state:set_debug(debug_on)
 end
 
-GameState.save = function(l_4_0, l_4_1)
-  l_4_0._state:save(l_4_1.start_state)
+function GameState.default_data(data)
+	data.start_state = "GameStateInit"
 end
 
-GameState.update = function(l_5_0, l_5_1, l_5_2)
-  if l_5_0._state:state().update then
-    l_5_0._state:update(l_5_1, l_5_2)
-  end
+function GameState:save(data)
+	self._state:save(data.start_state)
 end
 
-GameState.end_update = function(l_6_0, l_6_1, l_6_2)
-  if l_6_0._state:state().end_update then
-    l_6_0._state:state():end_update(l_6_1, l_6_2)
-  end
+function GameState:update(t, dt)
+	if self._state:state().update then
+		self._state:update(t, dt)
+	end
 end
 
-GameState.transition = function(l_7_0)
-  l_7_0._state:transition()
+function GameState:end_update(t, dt)
+	if self._state:state().end_update then
+		self._state:state():end_update(t, dt)
+	end
 end
 
-GameState.player_slots = function(l_8_0)
-  return l_8_0._player_slots
+function GameState:transition()
+	self._state:transition()
 end
 
-GameState.is_in_pre_front_end = function(l_9_0)
-  return l_9_0._is_in_pre_front_end
+function GameState:player_slots()
+	return self._player_slots
 end
 
-GameState.is_in_front_end = function(l_10_0)
-  return l_10_0._is_in_front_end
+function GameState:is_in_pre_front_end()
+	return self._is_in_pre_front_end
 end
 
-GameState.is_in_init = function(l_11_0)
-  return l_11_0._is_in_init
+function GameState:is_in_front_end()
+	return self._is_in_front_end
 end
 
-GameState.is_in_editor = function(l_12_0)
-  return l_12_0._is_in_editor
+function GameState:is_in_init()
+	return self._is_in_init
 end
 
-GameState.is_in_game = function(l_13_0)
-  return l_13_0._is_in_game
+function GameState:is_in_editor()
+	return self._is_in_editor
 end
 
-GameState.is_preparing_for_loading_game = function(l_14_0)
-  return l_14_0._is_preparing_for_loading_game
+function GameState:is_in_game()
+	return self._is_in_game
 end
 
-GameState.is_preparing_for_loading_front_end = function(l_15_0)
-  return l_15_0._is_preparing_for_loading_front_end
+function GameState:is_preparing_for_loading_game()
+	return self._is_preparing_for_loading_game
 end
 
-GameState._session_info = function(l_16_0)
-  return l_16_0._session_manager:session():session_info()
+function GameState:is_preparing_for_loading_front_end()
+	return self._is_preparing_for_loading_front_end
 end
 
-GameState.request_game = function(l_17_0)
-  l_17_0._game_requester:request()
+function GameState:_session_info()
+	return self._session_manager:session():session_info()
 end
 
-GameState.request_front_end = function(l_18_0)
-  l_18_0._front_end_requester:request()
+function GameState:request_game()
+	self._game_requester:request()
 end
 
-
+function GameState:request_front_end()
+	self._front_end_requester:request()
+end

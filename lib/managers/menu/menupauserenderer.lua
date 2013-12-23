@@ -1,111 +1,103 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\menu\menupauserenderer.luac 
-
 core:import("CoreMenuNodeGui")
-if not MenuPauseRenderer then
-  MenuPauseRenderer = class(MenuRenderer)
-end
-MenuPauseRenderer.init = function(l_1_0, l_1_1)
-  MenuRenderer.init(l_1_0, l_1_1)
-end
+MenuPauseRenderer = MenuPauseRenderer or class( MenuRenderer )
 
-MenuPauseRenderer._setup_bg = function(l_2_0)
+function MenuPauseRenderer:init( logic )
+	MenuRenderer.init( self, logic )
 end
 
-MenuPauseRenderer.show_node = function(l_3_0, l_3_1)
-  local gui_class = MenuNodeGui
-  if l_3_1:parameters().gui_class then
-    gui_class = CoreSerialize.string_to_classtable(l_3_1:parameters().gui_class)
-  end
-  if not managers.menu:active_menu() then
-    Application:error("now everything is broken")
-  end
-  {font = tweak_data.menu.pd2_medium_font, row_item_color = tweak_data.screen_colors.button_stage_3, row_item_hightlight_color = tweak_data.screen_colors.button_stage_2, row_item_blend_mode = "add", font_size = tweak_data.menu.pd2_medium_font_size, node_gui_class = gui_class}.spacing = l_3_1:parameters().spacing
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {font = tweak_data.menu.pd2_medium_font, row_item_color = tweak_data.screen_colors.button_stage_3, row_item_hightlight_color = tweak_data.screen_colors.button_stage_2, row_item_blend_mode = "add", font_size = tweak_data.menu.pd2_medium_font_size, node_gui_class = gui_class}.marker_alpha = 0.60000002384186
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {font = tweak_data.menu.pd2_medium_font, row_item_color = tweak_data.screen_colors.button_stage_3, row_item_hightlight_color = tweak_data.screen_colors.button_stage_2, row_item_blend_mode = "add", font_size = tweak_data.menu.pd2_medium_font_size, node_gui_class = gui_class}.marker_color = tweak_data.screen_colors.button_stage_3:with_alpha(0.20000000298023)
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {font = tweak_data.menu.pd2_medium_font, row_item_color = tweak_data.screen_colors.button_stage_3, row_item_hightlight_color = tweak_data.screen_colors.button_stage_2, row_item_blend_mode = "add", font_size = tweak_data.menu.pd2_medium_font_size, node_gui_class = gui_class}.align = "right"
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {font = tweak_data.menu.pd2_medium_font, row_item_color = tweak_data.screen_colors.button_stage_3, row_item_hightlight_color = tweak_data.screen_colors.button_stage_2, row_item_blend_mode = "add", font_size = tweak_data.menu.pd2_medium_font_size, node_gui_class = gui_class}.to_upper = true
-  do
-     -- DECOMPILER ERROR: Confused at declaration of local variable
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    MenuPauseRenderer.super.super.show_node(l_3_0, l_3_1, {font = tweak_data.menu.pd2_medium_font, row_item_color = tweak_data.screen_colors.button_stage_3, row_item_hightlight_color = tweak_data.screen_colors.button_stage_2, row_item_blend_mode = "add", font_size = tweak_data.menu.pd2_medium_font_size, node_gui_class = gui_class})
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function MenuPauseRenderer:_setup_bg()
 end
 
-MenuPauseRenderer.open = function(l_4_0, ...)
-  MenuPauseRenderer.super.super.open(l_4_0, ...)
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-   -- DECOMPILER ERROR: Overwrote pending register.
-
-  MenuRenderer._create_framing(l_4_0)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-   -- Warning: undefined locals caused missing assignments!
+function MenuPauseRenderer:show_node( node )
+	local gui_class = MenuNodeGui
+	if node:parameters().gui_class then
+		gui_class = CoreSerialize.string_to_classtable( node:parameters().gui_class )
+	end
+	if not managers.menu:active_menu() then
+		Application:error( "now everything is broken" )
+	end
+	--[[local parameters = { 	font = tweak_data.menu.default_font,
+							row_item_color = tweak_data.menu.default_font_row_item_color,
+							row_item_hightlight_color = tweak_data.menu.default_hightlight_row_item_color,
+							font_size = tweak_data.menu.default_font_size,
+							node_gui_class = gui_class,
+							spacing = node:parameters().spacing,
+	 					}]]
+	local parameters = { 	font = tweak_data.menu.pd2_medium_font,
+							row_item_color = tweak_data.screen_colors.button_stage_3, -- :with_alpha(0.5), 
+							row_item_hightlight_color = tweak_data.screen_colors.button_stage_2, 
+							-- row_item_color = tweak_data.menu.default_font_row_item_color, -- 
+							-- row_item_hightlight_color = tweak_data.menu.default_hightlight_row_item_color, -- 
+							row_item_blend_mode = "add",
+							font_size = tweak_data.menu.pd2_medium_font_size,
+							-- texture = { texture = "guis/textures/menu_background", width = 1024, height = 512 }, --, padding = 50 },
+							node_gui_class = gui_class, 
+							spacing = node:parameters().spacing,
+							marker_alpha = 0.6,
+							marker_color = tweak_data.screen_colors.button_stage_3:with_alpha(0.2),
+							align = "right",
+							to_upper = true,
+	 					}
+	MenuPauseRenderer.super.super.show_node( self, node, parameters )
 end
 
-MenuPauseRenderer._layout_menu_bg = function(l_5_0)
+function MenuPauseRenderer:open( ... )
+	MenuPauseRenderer.super.super.open( self, ... )
+		
+	-- self._menu_bg = self._fullscreen_panel:bitmap( { visible = true, texture = "guis/textures/ingame_menu_bg", valign = "center", y = managers.gui_data:y_safe_to_full( 0 ), w = self._fullscreen_panel:w(), h = managers.gui_data:scaled_size().height, color = Color.white:with_alpha( 0.75 ), blend_mode = "mulx2" } )
+	self._menu_bg = self._fullscreen_panel:gradient( { visible = true, valign = "center", y = managers.gui_data:y_safe_to_full( 0 ), w = self._fullscreen_panel:w(), h = managers.gui_data:scaled_size().height, orientation = "vertical", 
+														gradient_points = { 0, Color( 1, 0, 0, 0), 0.25, Color(0.0, 0.4, 0.2, 0.0), 1, Color( 1, 0, 0, 0 ) }, blend_mode = "normal" } )
+														
+	self._blur_bg = self._fullscreen_panel:bitmap( { name = "blur_bg", valign = "center", texture="guis/textures/test_blur_df", y = managers.gui_data:y_safe_to_full( 0 ), w = self._fullscreen_panel:w(), h = managers.gui_data:scaled_size().height, render_template="VertexColorTexturedBlur3D", layer=-1 } )
+	
+	self._top_rect = self._fullscreen_panel:rect( { valign = {0,1/2}, color = Color.black, w = self._fullscreen_panel:w(), h = managers.gui_data:y_safe_to_full( 0 ) + 2, y = -2, rotation = 360 } )
+	self._bottom_rect = self._fullscreen_panel:rect( { valign = {1/2,1/2}, color = Color.black, y = managers.gui_data:y_safe_to_full( managers.gui_data:scaled_size().height ), w = self._fullscreen_panel:w(), h = managers.gui_data:y_safe_to_full( 0 )+2, rotation = 360 } )
+	
+	MenuRenderer._create_framing( self )
 end
 
-MenuPauseRenderer.update = function(l_6_0, l_6_1, l_6_2)
-  MenuPauseRenderer.super.update(l_6_0, l_6_1, l_6_2)
-  do
-    local x, y = managers.mouse_pointer:modified_mouse_pos()
-    y = math.clamp(y, 0, managers.gui_data:scaled_size().height)
-    y = y / managers.gui_data:scaled_size().height
-    l_6_0._menu_bg:set_gradient_points({})
-  end
-   -- Warning: undefined locals caused missing assignments!
+function MenuPauseRenderer:_layout_menu_bg()
 end
 
-MenuPauseRenderer.resolution_changed = function(l_7_0, ...)
-  MenuPauseRenderer.super.resolution_changed(l_7_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function MenuPauseRenderer:update( t, dt )
+	MenuPauseRenderer.super.update( self, t, dt )
+	local x, y = managers.mouse_pointer:modified_mouse_pos()
+	y = math.clamp( y, 0 , managers.gui_data:scaled_size().height )
+	y = y/managers.gui_data:scaled_size().height
+	-- self._menu_bg:set_gradient_points( { 0, Color( 1, 0, 0, 0), y, Color(0.0, 0.4, 0.2, 0.0), 1, Color( 1, 0, 0, 0 ) } )
+	-- self._menu_bg:set_gradient_points( { 0, (tweak_data.screen_color_blue/4):with_alpha(0.75), y, (tweak_data.screen_color_blue/4):with_alpha(0.65), 1, (tweak_data.screen_color_blue/4):with_alpha(0.75) } )
+	self._menu_bg:set_gradient_points( { 0, (tweak_data.screen_colors.button_stage_2/4):with_alpha(0.75), y, (tweak_data.screen_colors.button_stage_3/4):with_alpha(0.65), 1, (tweak_data.screen_colors.button_stage_2/4):with_alpha(0.75) } )
+	-- self._menu_bg:set_gradient_points( { 0, Color( 1, 0, 0, 0), (math.sin( t * 10 ) + 1)/2, Color(0.0, 0.4, 0.2, 0.0), 1, Color( 1, 0, 0, 0 ) } )
 end
 
-MenuPauseRenderer.set_bg_visible = function(l_8_0, l_8_1)
-  l_8_0._menu_bg:set_visible(l_8_1)
-  l_8_0._blur_bg:set_visible(l_8_1)
+function MenuPauseRenderer:resolution_changed( ... )
+	MenuPauseRenderer.super.resolution_changed( self, ... )
 end
 
-MenuPauseRenderer.set_bg_area = function(l_9_0, l_9_1)
-  if l_9_0._menu_bg then
-    if l_9_1 == "full" then
-      l_9_0._menu_bg:set_size(l_9_0._menu_bg:parent():size())
-      l_9_0._menu_bg:set_position(0, 0)
-    elseif l_9_1 == "half" then
-      l_9_0._menu_bg:set_size(l_9_0._menu_bg:parent():w() * 0.5, l_9_0._menu_bg:parent():h())
-      l_9_0._menu_bg:set_top(0)
-      l_9_0._menu_bg:set_right(l_9_0._menu_bg:parent():w())
-    else
-      l_9_0._menu_bg:set_size(l_9_0._menu_bg:parent():size())
-      l_9_0._menu_bg:set_position(0, 0)
-    end
-    if l_9_0._blur_bg then
-      l_9_0._blur_bg:set_shape(l_9_0._menu_bg:shape())
-    end
-  end
+function MenuPauseRenderer:set_bg_visible( visible )
+	self._menu_bg:set_visible( visible )
+	self._blur_bg:set_visible( visible )
 end
 
-MenuPauseRenderer.close = function(l_10_0, ...)
-  MenuPauseRenderer.super.close(l_10_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function MenuPauseRenderer:set_bg_area( area )
+	if( self._menu_bg ) then 
+		if area == "full" then
+			self._menu_bg:set_size( self._menu_bg:parent():size() )
+			self._menu_bg:set_position( 0, 0 )
+		elseif area == "half" then
+			self._menu_bg:set_size( self._menu_bg:parent():w() * 0.5, self._menu_bg:parent():h() )
+			self._menu_bg:set_top( 0 )
+			self._menu_bg:set_right( self._menu_bg:parent():w() )
+		else
+			self._menu_bg:set_size( self._menu_bg:parent():size() )
+			self._menu_bg:set_position( 0, 0 )
+		end
+		if self._blur_bg then
+			self._blur_bg:set_shape( self._menu_bg:shape() )
+		end
+	end
 end
 
-
+function MenuPauseRenderer:close( ... )
+	MenuPauseRenderer.super.close( self, ... )
+end

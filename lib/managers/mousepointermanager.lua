@@ -1,354 +1,431 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mousepointermanager.luac 
+MousePointerManager = MousePointerManager or class()
 
-if not MousePointerManager then
-  MousePointerManager = class()
-end
-MousePointerManager.init = function(l_1_0)
-  l_1_0._tweak_data = tweak_data.gui.mouse_pointer
-  l_1_0:_setup()
+function MousePointerManager:init()
+	self._tweak_data = tweak_data.gui.mouse_pointer
+	self:_setup()
 end
 
-MousePointerManager._setup = function(l_2_0)
-  l_2_0._mouse_callbacks = {}
-  l_2_0._id = 0
-  l_2_0._controller_updater = nil
-  l_2_0._controller_x = nil
-  l_2_0._controller_y = nil
-  l_2_0._test_controller_acc = nil
-  l_2_0._enabled = true
-  l_2_0._ws = managers.gui_data:create_fullscreen_workspace()
-  local x, y = 640, 360
-  l_2_0._ws:connect_mouse(Input:mouse())
-  l_2_0._ws:feed_mouse_position(x, y)
-   -- DECOMPILER ERROR: Confused about usage of registers!
+function MousePointerManager:_setup()
+	self._mouse_callbacks = {}
 
-   -- DECOMPILER ERROR: Confused about usage of registers!
+	self._id = 0
+	
+	self._controller_updater = nil
+	self._controller_x = nil
+	self._controller_y = nil
+	self._test_controller_acc = nil
+	
+	self._enabled = true
 
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  l_2_0._mouse, {texture = "guis/textures/mouse_pointer", name_s = "mouse", name = "mouse", texture_rect = {0, 0, 19, 23}}.color, {texture = "guis/textures/mouse_pointer", name_s = "mouse", name = "mouse", texture_rect = {0, 0, 19, 23}}.layer, {texture = "guis/textures/mouse_pointer", name_s = "mouse", name = "mouse", texture_rect = {0, 0, 19, 23}}.h, {texture = "guis/textures/mouse_pointer", name_s = "mouse", name = "mouse", texture_rect = {0, 0, 19, 23}}.w, {texture = "guis/textures/mouse_pointer", name_s = "mouse", name = "mouse", texture_rect = {0, 0, 19, 23}}.y, {texture = "guis/textures/mouse_pointer", name_s = "mouse", name = "mouse", texture_rect = {0, 0, 19, 23}}.x = l_2_0._ws:panel():bitmap({texture = "guis/textures/mouse_pointer", name_s = "mouse", name = "mouse", texture_rect = {0, 0, 19, 23}}), Color(1, 0.69999998807907, 0.69999998807907, 0.69999998807907), tweak_data.gui.MOUSE_LAYER, 23, 19, y, x
-  l_2_0._ws:hide()
-  l_2_0._resolution_changed_callback_id = managers.viewport:add_resolution_changed_func(callback(l_2_0, l_2_0, "resolution_changed"))
+	self._ws = managers.gui_data:create_fullscreen_workspace() -- Overlay:gui():create_screen_workspace()
+	local x, y = 640, 360 -- Use resolution I guess
+	self._ws:connect_mouse( Input:mouse() )
+	self._ws:feed_mouse_position( x, y )
+	
+	-- 0,0,19,23  20,0 . 40,0   
+	self._mouse = self._ws:panel():bitmap( { texture = "guis/textures/mouse_pointer", name_s = "mouse", name = "mouse", texture_rect = {0,0,19,23}, x = x, y = y, w = 19, h = 23, layer = tweak_data.gui.MOUSE_LAYER, color = Color( 1, 0.7, 0.7, 0.7 ) } )
+	self._ws:hide()
+	-- self:_set_size()
+	self._resolution_changed_callback_id = managers.viewport:add_resolution_changed_func( callback( self, self, "resolution_changed" ) )
 end
 
-MousePointerManager.resolution_changed = function(l_3_0)
-  managers.gui_data:layout_fullscreen_workspace(l_3_0._ws)
+function MousePointerManager:resolution_changed()
+	managers.gui_data:layout_fullscreen_workspace( self._ws )
 end
 
-MousePointerManager.set_pointer_image = function(l_4_0, l_4_1)
-  local types = {arrow = {0, 0, 19, 23}, hand = {20, 0, 19, 23}, grab = {40, 0, 19, 23}, link = {20, 0, 19, 23}}
-  local rect = types[l_4_1]
-  if rect then
-    l_4_0._mouse:set_texture_rect(rect[1], rect[2], rect[3], rect[4])
-  end
+function MousePointerManager:set_pointer_image( type )
+	local types = { arrow = { 0, 0, 19, 23 },
+					hand = { 20, 0, 19, 23 },
+					grab = { 40, 0, 19, 23 },
+					link = { 20, 0, 19, 23 },
+					 }
+	local rect = types[ type ]
+	if rect then
+		self._mouse:set_texture_rect( rect[1], rect[2], rect[3], rect[4] )
+	end
 end
 
-MousePointerManager._scaled_size = function(l_5_0)
-  return managers.gui_data:scaled_size()
+function MousePointerManager:_scaled_size()
+	return managers.gui_data:scaled_size()
+	-- local w = managers.viewport:get_safe_rect().height * 1280
+	-- local h = managers.viewport:get_safe_rect().height * 720
+	-- return { width = w, height = h, x = 0, y = 0 }
 end
 
-MousePointerManager._set_size = function(l_6_0)
-  local safe_rect = managers.viewport:get_safe_rect_pixels()
-  local scaled_size = l_6_0:_scaled_size()
-  local res = RenderSettings.resolution
-  local w = scaled_size.width
-  local h = scaled_size.height
-  local y = res.y / 2 - res.x / w * h / 2
-  local n = w / math.clamp(res.x, 0, w)
-  local m = res.x / res.y
-  print("safe_rect.x, y+safe_rect.y", safe_rect.x, y + safe_rect.y)
-  l_6_0._ws:set_screen(w, h, 0, 0, 1279)
+function MousePointerManager:_set_size()
+	local safe_rect = managers.viewport:get_safe_rect_pixels()
+	local scaled_size = self:_scaled_size()
+	local res = RenderSettings.resolution
+	
+	local w = scaled_size.width
+	local h = scaled_size.height
+	local y = res.y/2 - ((res.x/w) * h)/2 -- res.y/2 - 720/2
+	local n = w/math.clamp( res.x, 0, w )
+	-- local y = (math.abs(720-res.y)*n)/2
+	-- local y = (res.y)/2
+	local m = res.x/res.y
+	print( "safe_rect.x, y+safe_rect.y", safe_rect.x, y+safe_rect.y )
+	self._ws:set_screen( w, h, 0, 0, 1280 - 1 )-- res.x-1 )
+	--self._ws:set_debug( true )
 end
 
-MousePointerManager.get_id = function(l_7_0)
-  local id = "mouse_pointer_id" .. tostring(l_7_0._id)
-  l_7_0._id = l_7_0._id + 1
-  return id
+function MousePointerManager:get_id()
+	local id = "mouse_pointer_id"..tostring(self._id)
+	self._id = self._id + 1
+	return id
 end
 
-MousePointerManager.change_mouse_to_controller = function(l_8_0, l_8_1)
-  if not l_8_0._controller_updater then
-    l_8_0._ws:disconnect_mouse()
-    l_8_0:_deactivate()
-    l_8_0._controller_x = 0
-    l_8_0._controller_y = 0
-    l_8_0._controller_acc_x = 0
-    l_8_0._controller_acc_y = 0
-    l_8_0._test_controller_acc = nil
-    local update_controller_pointer = function(l_1_0, l_1_1)
-      local ws = l_1_1._ws
-      local mouse = l_1_1._mouse
-      local confine_panel = l_1_1._confine_panel
-      local convert_mouse_pos = l_1_1.convert_mouse_pos
-      local max = math.max
-      local min = math.min
-      local move_x = 0
-      local move_y = 0
-      local acc = 0
-      local dt = 0
-      local tweak_data = l_1_1._tweak_data.controller
-      local acc_speed = tweak_data.acceleration_speed
-      local max_acc = tweak_data.max_acceleration
-      do
-        local mouse_speed = tweak_data.mouse_pointer_speed
-        repeat
-          if l_1_1._enabled and (l_1_1._controller_x ~= 0 or l_1_1._controller_y ~= 0) then
-            l_1_1._controller_acc_x = l_1_1._controller_x * max(1, acc)
-            l_1_1._controller_acc_y = -(l_1_1._controller_y * max(1, acc))
-            acc = min(acc + dt * acc_speed, max_acc)
-            move_x = l_1_1._controller_acc_x * mouse_speed * dt
-            move_y = l_1_1._controller_acc_y * mouse_speed * dt
-            if confine_panel then
-              local converted_x, converted_y = convert_mouse_pos(l_1_1, mouse:world_x() + move_x, mouse:world_y() + move_y)
-              local outside_left = math.max(0, confine_panel:world_left() - converted_x + 1)
-              local outside_right = math.max(0, converted_x - confine_panel:world_right() + l_1_0:w() + 1)
-              local outside_top = math.max(0, confine_panel:world_top() - converted_y + 1)
-              local outside_bottom = math.max(0, converted_y - confine_panel:world_bottom() + l_1_0:h() + 1)
-              mouse:move(outside_left - outside_right, outside_top - outside_bottom)
-            end
-            mouse:move(move_x, move_y)
-            if l_1_1._mouse_callbacks[#l_1_1._mouse_callbacks] and l_1_1._mouse_callbacks[#l_1_1._mouse_callbacks].mouse_move then
-              l_1_1._mouse_callbacks[#l_1_1._mouse_callbacks].mouse_move(mouse, mouse:x(), mouse:y(), ws)
-            else
-              l_1_1._controller_acc_x = 0
-              l_1_1._controller_acc_y = 0
-              acc = 0
-            end
-          end
-          dt = coroutine.yield()
-          do return end
-        end
-         -- Warning: missing end command somewhere! Added here
-      end
-      end
-    l_8_0._ws:connect_controller(l_8_1, true)
-    l_8_0._controller_updater = l_8_0._mouse:animate(update_controller_pointer, l_8_0)
-    return true
-  end
+function MousePointerManager:change_mouse_to_controller( controller )
+	if( not self._controller_updater ) then
+		self._ws:disconnect_mouse()
+		self:_deactivate()
+		
+		self._controller_x = 0
+		self._controller_y = 0
+		self._controller_acc_x = 0
+		self._controller_acc_y = 0
+		self._test_controller_acc = nil
+		
+		local function update_controller_pointer( o, self )
+			local ws = self._ws
+			local mouse = self._mouse
+			local confine_panel = self._confine_panel
+			
+			local convert_mouse_pos = self.convert_mouse_pos
+			local max = math.max
+			local min = math.min
+			
+			local move_x = 0
+			local move_y = 0
+						
+			local acc = 0
+			local dt = 0
+			
+			local tweak_data = self._tweak_data.controller
+			
+			local acc_speed = tweak_data.acceleration_speed
+			local max_acc = tweak_data.max_acceleration
+			local mouse_speed = tweak_data.mouse_pointer_speed
+			
+			while( true ) do
+				if( self._enabled and (self._controller_x ~= 0 or self._controller_y ~= 0) ) then
+					self._controller_acc_x = (self._controller_x * max( 1, acc ))
+					self._controller_acc_y = -(self._controller_y * max( 1, acc ))
+					
+					acc = min( acc + dt*acc_speed, max_acc )
+					
+					move_x = self._controller_acc_x * mouse_speed * dt
+					move_y = self._controller_acc_y * mouse_speed * dt
+					
+					if( confine_panel ) then
+						local converted_x, converted_y = convert_mouse_pos( self, mouse:world_x() + move_x, mouse:world_y() + move_y )
+						
+						local outside_left 		= math.max( 0, confine_panel:world_left() - converted_x + 1 )		-- one pixel border, the + 1 thing
+						local outside_right 	= math.max( 0, converted_x - confine_panel:world_right() + o:w() + 1 )
+						local outside_top 		= math.max( 0, confine_panel:world_top() - converted_y + 1 )
+						local outside_bottom	= math.max( 0, converted_y - confine_panel:world_bottom() + o:h() + 1 )
+						
+						mouse:move( outside_left - outside_right, outside_top - outside_bottom )
+					end
+					
+					mouse:move( move_x, move_y )
+					
+					if self._mouse_callbacks[ #self._mouse_callbacks ] then
+						if self._mouse_callbacks[ #self._mouse_callbacks ].mouse_move then
+							self._mouse_callbacks[ #self._mouse_callbacks ].mouse_move( mouse, mouse:x(), mouse:y(), ws )
+						end
+					end
+				else
+					self._controller_acc_x = 0
+					self._controller_acc_y = 0
+					acc = 0
+				end
+				dt = coroutine.yield()
+			end
+		end
+	
+		self._ws:connect_controller( controller, true )
+		self._controller_updater = self._mouse:animate( update_controller_pointer, self )
+		
+		return true
+	end
 end
 
-MousePointerManager.change_controller_to_mouse = function(l_9_0)
-  if l_9_0._controller_updater then
-    l_9_0._mouse:stop(l_9_0._controller_updater)
-    l_9_0._ws:disconnect_all_controllers()
-    l_9_0:_deactivate()
-    l_9_0._ws:connect_mouse(Input:mouse())
-    l_9_0._controller_updater = nil
-    l_9_0._controller_acc_x = 0
-    l_9_0._controller_acc_y = 0
-    return true
-  end
+function MousePointerManager:change_controller_to_mouse()
+	if( self._controller_updater ) then
+		self._mouse:stop( self._controller_updater )
+		
+		self._ws:disconnect_all_controllers()
+		self:_deactivate()
+		
+		self._ws:connect_mouse( Input:mouse() )
+		self._controller_updater = nil
+		
+		self._controller_acc_x = 0
+		self._controller_acc_y = 0
+		return true
+	end
 end
 
-MousePointerManager.use_mouse = function(l_10_0, l_10_1, l_10_2)
-  if l_10_2 then
-    table.insert(l_10_0._mouse_callbacks, l_10_2, l_10_1)
-  else
-    table.insert(l_10_0._mouse_callbacks, l_10_1)
-  end
-  l_10_0:_activate()
+function MousePointerManager:use_mouse( params, position )
+	-- if managers.controller:get_default_wrapper_type() ~= "pc" then
+	-- 	return
+	-- end
+	
+	if position then
+		table.insert( self._mouse_callbacks, position, params )
+	else
+		table.insert( self._mouse_callbacks, params )
+	end
+	self:_activate()
 end
 
-MousePointerManager.remove_mouse = function(l_11_0, l_11_1)
-  local removed = false
-  if l_11_1 then
-    for i,params in ipairs(l_11_0._mouse_callbacks) do
-      if params.id == l_11_1 then
-        removed = true
-        table.remove(l_11_0._mouse_callbacks, i)
-    else
-      end
-    end
-    if not removed then
-      table.remove(l_11_0._mouse_callbacks)
-    end
-    if #l_11_0._mouse_callbacks <= 0 then
-      l_11_0:_deactivate()
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+function MousePointerManager:remove_mouse( id )
+	-- if managers.controller:get_default_wrapper_type() ~= "pc" then
+	-- 	return
+	-- end
+	
+	local removed = false
+	if id then
+		for i,params in ipairs( self._mouse_callbacks ) do
+			if params.id == id then
+				removed = true
+				table.remove( self._mouse_callbacks, i )
+				break
+			end
+		end
+	end
+	-- Either we didn't found the id or we was not provided by an id.
+	if not removed then
+		table.remove( self._mouse_callbacks )
+	end
+		
+	if #self._mouse_callbacks <= 0 then
+		self:_deactivate()
+	end
 end
 
-MousePointerManager._activate = function(l_12_0)
-  if l_12_0._active then
-    return 
-  end
-  l_12_0._active = true
-  l_12_0._enabled = true
-  l_12_0._ws:show()
-  l_12_0._ws:feed_mouse_position(l_12_0._mouse:world_position())
-  if not l_12_0._controller_updater then
-    l_12_0._mouse:mouse_move(callback(l_12_0, l_12_0, "_mouse_move"))
-    l_12_0._mouse:mouse_press(callback(l_12_0, l_12_0, "_mouse_press"))
-    l_12_0._mouse:mouse_release(callback(l_12_0, l_12_0, "_mouse_release"))
-    l_12_0._mouse:mouse_click(callback(l_12_0, l_12_0, "_mouse_click"))
-    l_12_0._mouse:mouse_double_click(callback(l_12_0, l_12_0, "_mouse_double_click"))
-  else
-    l_12_0._mouse:axis_move(callback(l_12_0, l_12_0, "_axis_move"))
-    l_12_0._mouse:button_press(nil)
-    l_12_0._mouse:button_release(nil)
-    l_12_0._mouse:button_click(nil)
-  end
+function MousePointerManager:_activate()
+	if self._active then
+		return
+	end
+	self._active = true
+	self._enabled = true
+	self._ws:show()
+	self._ws:feed_mouse_position( self._mouse:world_position() )
+	
+	if( not self._controller_updater ) then
+		self._mouse:mouse_move( callback( self, self, "_mouse_move" ) )
+		self._mouse:mouse_press( callback( self, self, "_mouse_press" ) )
+		self._mouse:mouse_release( callback( self, self, "_mouse_release" ) )
+		self._mouse:mouse_click( callback( self, self, "_mouse_click" ) )
+		self._mouse:mouse_double_click( callback( self, self, "_mouse_double_click" ) )
+	else
+		self._mouse:axis_move( callback( self, self, "_axis_move" ) )
+		self._mouse:button_press( nil ) -- callback( self, self, "_button_press" ) )
+		self._mouse:button_release( nil ) -- callback( self, self, "_button_release" ) )
+		self._mouse:button_click( nil ) -- callback( self, self, "_button_click" ) )
+	end
 end
 
-MousePointerManager._deactivate = function(l_13_0)
-  l_13_0._active = false
-  l_13_0._enabled = nil
-  l_13_0._ws:hide()
-  l_13_0._mouse:mouse_move(nil)
-  l_13_0._mouse:mouse_press(nil)
-  l_13_0._mouse:mouse_release(nil)
-  l_13_0._mouse:mouse_click(nil)
-  l_13_0._mouse:mouse_double_click(nil)
-  l_13_0._mouse:axis_move(nil)
-  l_13_0._mouse:button_press(nil)
-  l_13_0._mouse:button_release(nil)
-  l_13_0._mouse:button_click(nil)
+function MousePointerManager:_deactivate()
+	self._active = false
+	self._enabled = nil
+	self._ws:hide()
+	self._mouse:mouse_move( nil )
+	self._mouse:mouse_press( nil )
+	self._mouse:mouse_release( nil )
+	self._mouse:mouse_click( nil )
+	self._mouse:mouse_double_click( nil )
+	
+	self._mouse:axis_move( nil )
+	self._mouse:button_press( nil )
+	self._mouse:button_release( nil )
+	self._mouse:button_click( nil )
 end
 
-MousePointerManager.enable = function(l_14_0)
-  if l_14_0._active then
-    l_14_0._ws:show()
-  end
-  l_14_0._enabled = true
+function MousePointerManager:enable()
+	if( self._active ) then
+		self._ws:show()
+	end
+	self._enabled = true
 end
 
-MousePointerManager.disable = function(l_15_0)
-  if l_15_0._active then
-    l_15_0._ws:hide()
-  end
-  l_15_0._enabled = false
+function MousePointerManager:disable()
+	if( self._active ) then
+		self._ws:hide()
+	end
+	self._enabled = false
 end
 
-MousePointerManager.confine_mouse_pointer = function(l_16_0, l_16_1)
-  l_16_0._confine_panel = l_16_1
+function MousePointerManager:confine_mouse_pointer( panel )
+	self._confine_panel = panel
 end
 
-MousePointerManager.release_mouse_pointer = function(l_17_0)
-  l_17_0._confine_panel = nil
+function MousePointerManager:release_mouse_pointer()
+	self._confine_panel = nil
 end
 
-MousePointerManager.mouse_move_x = function(l_18_0)
-  return l_18_0._controller_acc_x
+function MousePointerManager:mouse_move_x()
+	return self._controller_acc_x
+end
+function MousePointerManager:mouse_move_y()
+	return self._controller_acc_y
 end
 
-MousePointerManager.mouse_move_y = function(l_19_0)
-  return l_19_0._controller_acc_y
+function MousePointerManager:_mouse_move( o, x, y )
+	o:set_position( x, y )
+	if self._mouse_callbacks[ #self._mouse_callbacks ] then
+		if self._mouse_callbacks[ #self._mouse_callbacks ].mouse_move then
+			self._mouse_callbacks[ #self._mouse_callbacks ].mouse_move( o, x, y, self._ws )
+		end
+	end
 end
 
-MousePointerManager._mouse_move = function(l_20_0, l_20_1, l_20_2, l_20_3)
-  l_20_1:set_position(l_20_2, l_20_3)
-  if l_20_0._mouse_callbacks[#l_20_0._mouse_callbacks] and l_20_0._mouse_callbacks[#l_20_0._mouse_callbacks].mouse_move then
-    l_20_0._mouse_callbacks[#l_20_0._mouse_callbacks].mouse_move(l_20_1, l_20_2, l_20_3, l_20_0._ws)
-  end
+function MousePointerManager:_mouse_press( o, button, x, y )
+	if self._mouse_callbacks[ #self._mouse_callbacks ] then
+		if self._mouse_callbacks[ #self._mouse_callbacks ].mouse_press then
+			self._mouse_callbacks[ #self._mouse_callbacks ].mouse_press( o, button, x, y )
+		end
+	end
 end
 
-MousePointerManager._mouse_press = function(l_21_0, l_21_1, l_21_2, l_21_3, l_21_4)
-  if l_21_0._mouse_callbacks[#l_21_0._mouse_callbacks] and l_21_0._mouse_callbacks[#l_21_0._mouse_callbacks].mouse_press then
-    l_21_0._mouse_callbacks[#l_21_0._mouse_callbacks].mouse_press(l_21_1, l_21_2, l_21_3, l_21_4)
-  end
+function MousePointerManager:_mouse_release( o, button, x, y )
+	if self._mouse_callbacks[ #self._mouse_callbacks ] then
+		if self._mouse_callbacks[ #self._mouse_callbacks ].mouse_release then
+			self._mouse_callbacks[ #self._mouse_callbacks ].mouse_release( o, button, x, y )
+		end
+	end
 end
 
-MousePointerManager._mouse_release = function(l_22_0, l_22_1, l_22_2, l_22_3, l_22_4)
-  if l_22_0._mouse_callbacks[#l_22_0._mouse_callbacks] and l_22_0._mouse_callbacks[#l_22_0._mouse_callbacks].mouse_release then
-    l_22_0._mouse_callbacks[#l_22_0._mouse_callbacks].mouse_release(l_22_1, l_22_2, l_22_3, l_22_4)
-  end
+function MousePointerManager:_mouse_click( o, button, x, y )
+	if self._mouse_callbacks[ #self._mouse_callbacks ] then
+		if self._mouse_callbacks[ #self._mouse_callbacks ].mouse_click then
+			self._mouse_callbacks[ #self._mouse_callbacks ].mouse_click( o, button, x, y )
+		end
+	end
 end
 
-MousePointerManager._mouse_click = function(l_23_0, l_23_1, l_23_2, l_23_3, l_23_4)
-  if l_23_0._mouse_callbacks[#l_23_0._mouse_callbacks] and l_23_0._mouse_callbacks[#l_23_0._mouse_callbacks].mouse_click then
-    l_23_0._mouse_callbacks[#l_23_0._mouse_callbacks].mouse_click(l_23_1, l_23_2, l_23_3, l_23_4)
-  end
-end
-
-MousePointerManager._mouse_double_click = function(l_24_0, l_24_1, l_24_2, l_24_3, l_24_4)
-  if l_24_0._mouse_callbacks[#l_24_0._mouse_callbacks] and l_24_0._mouse_callbacks[#l_24_0._mouse_callbacks].mouse_double_click then
-    l_24_0._mouse_callbacks[#l_24_0._mouse_callbacks].mouse_double_click(l_24_1, l_24_2, l_24_3, l_24_4)
-  end
-end
-
-MousePointerManager._axis_move = function(l_25_0, l_25_1, l_25_2, l_25_3, l_25_4)
-  if not l_25_0._test_controller_acc then
-    l_25_0._test_controller_acc = {}
-  end
-  l_25_0._test_controller_acc[l_25_2:key()] = l_25_3
-  l_25_0._controller_x = 0
-  l_25_0._controller_y = 0
-  for i,axis in pairs(l_25_0._test_controller_acc) do
-    l_25_0._controller_x = l_25_0._controller_x + axis.x
-    l_25_0._controller_y = l_25_0._controller_y + axis.y
-  end
-end
-
-MousePointerManager._button_press = function(l_26_0, l_26_1, l_26_2, l_26_3)
-  if l_26_0._mouse_callbacks[#l_26_0._mouse_callbacks] and l_26_0._mouse_callbacks[#l_26_0._mouse_callbacks].mouse_press then
-    l_26_0._mouse_callbacks[#l_26_0._mouse_callbacks].mouse_press(l_26_1, l_26_2, l_26_1:x(), l_26_1:y())
-  end
-end
-
-MousePointerManager._button_release = function(l_27_0, l_27_1, l_27_2, l_27_3)
-  if l_27_0._mouse_callbacks[#l_27_0._mouse_callbacks] and l_27_0._mouse_callbacks[#l_27_0._mouse_callbacks].mouse_release then
-    l_27_0._mouse_callbacks[#l_27_0._mouse_callbacks].mouse_release(l_27_1, l_27_2, l_27_1:x(), l_27_1:y())
-  end
-end
-
-MousePointerManager._button_click = function(l_28_0, l_28_1, l_28_2, l_28_3)
-  if l_28_0._mouse_callbacks[#l_28_0._mouse_callbacks] and l_28_0._mouse_callbacks[#l_28_0._mouse_callbacks].mouse_click then
-    l_28_0._mouse_callbacks[#l_28_0._mouse_callbacks].mouse_click(l_28_1, l_28_2, l_28_1:x(), l_28_1:y())
-  end
-end
-
-MousePointerManager.set_mouse_world_position = function(l_29_0, l_29_1, l_29_2)
-  l_29_0._mouse:set_world_position(l_29_1, l_29_2)
-  l_29_0._ws:feed_mouse_position(l_29_0._mouse:world_position())
-end
-
-MousePointerManager.force_move_mouse_pointer = function(l_30_0, l_30_1, l_30_2)
-  l_30_0._mouse:move(l_30_1, l_30_2)
-  l_30_0._ws:feed_mouse_position(l_30_0._mouse:world_position())
-end
-
-MousePointerManager.mouse = function(l_31_0)
-  return l_31_0._mouse
-end
-
-MousePointerManager.world_position = function(l_32_0)
-  return l_32_0._mouse:world_position()
-end
-
-MousePointerManager.convert_mouse_pos = function(l_33_0, l_33_1, l_33_2)
-  return managers.gui_data:full_to_safe(l_33_1, l_33_2)
-end
-
-MousePointerManager.modified_mouse_pos = function(l_34_0)
-  local x, y = l_34_0._mouse:world_position()
-  return l_34_0:convert_mouse_pos(x, y)
-end
-
-MousePointerManager.convert_fullscreen_mouse_pos = function(l_35_0, l_35_1, l_35_2)
-  return l_35_1, l_35_2
-end
-
-MousePointerManager.convert_fullscreen_16_9_mouse_pos = function(l_36_0, l_36_1, l_36_2)
-  l_36_2 = l_36_2 - managers.gui_data:full_16_9_size(managers.gui_data).y
-  return l_36_1, l_36_2
-end
-
-MousePointerManager.modified_fullscreen_mouse_pos = function(l_37_0, l_37_1, l_37_2)
-  local x, y = l_37_0._mouse:world_position()
-  return l_37_0:convert_fullscreen_mouse_pos(x, y)
-end
-
-MousePointerManager.modified_fullscreen_16_9_mouse_pos = function(l_38_0, l_38_1, l_38_2)
-  local x, y = l_38_0._mouse:world_position()
-  return l_38_0:convert_fullscreen_16_9_mouse_pos(l_38_0, x, y)
+function MousePointerManager:_mouse_double_click( o, button, x, y )
+	if self._mouse_callbacks[ #self._mouse_callbacks ] then
+		if self._mouse_callbacks[ #self._mouse_callbacks ].mouse_double_click then
+			self._mouse_callbacks[ #self._mouse_callbacks ].mouse_double_click( o, button, x, y )
+		end
+	end
 end
 
 
+function MousePointerManager:_axis_move( o, axis_name, axis_vector, controller )
+	-- o:move( axis_vector.x, axis_vector.y )
+	if( not self._test_controller_acc ) then
+		self._test_controller_acc = {}
+	end
+	self._test_controller_acc[ axis_name:key() ] = axis_vector
+	
+	self._controller_x = 0
+	self._controller_y = 0
+	for i, axis in pairs( self._test_controller_acc ) do
+		self._controller_x = self._controller_x + axis.x
+		self._controller_y = self._controller_y + axis.y
+	end
+end
+
+function MousePointerManager:_button_press( o, button, controller )
+	if self._mouse_callbacks[ #self._mouse_callbacks ] then
+		if self._mouse_callbacks[ #self._mouse_callbacks ].mouse_press then
+			self._mouse_callbacks[ #self._mouse_callbacks ].mouse_press( o, button, o:x(), o:y() )
+		end
+	end
+end
+
+function MousePointerManager:_button_release( o, button, controller )
+	
+	if self._mouse_callbacks[ #self._mouse_callbacks ] then
+		if self._mouse_callbacks[ #self._mouse_callbacks ].mouse_release then
+			self._mouse_callbacks[ #self._mouse_callbacks ].mouse_release( o, button, o:x(), o:y() )
+		end
+	end
+end
+
+function MousePointerManager:_button_click( o, button, controller )
+
+	if self._mouse_callbacks[ #self._mouse_callbacks ] then
+		if self._mouse_callbacks[ #self._mouse_callbacks ].mouse_click then
+			self._mouse_callbacks[ #self._mouse_callbacks ].mouse_click( o, button, o:x(), o:y() )
+		end
+	end
+end
+
+function MousePointerManager:set_mouse_world_position( x, y )
+	self._mouse:set_world_position( x, y )
+	self._ws:feed_mouse_position( self._mouse:world_position() )
+end
+
+function MousePointerManager:force_move_mouse_pointer( x, y ) 
+	self._mouse:move( x, y )
+	self._ws:feed_mouse_position( self._mouse:world_position() )
+end
+
+function MousePointerManager:mouse()
+	return self._mouse
+end
+
+function MousePointerManager:world_position()
+	return self._mouse:world_position()
+end
+
+function MousePointerManager:convert_mouse_pos( x, y )
+	return managers.gui_data:full_to_safe( x, y )
+	--[[Old code here needed when mouse workspace was in resolution size
+	local safe_rect = managers.viewport:get_safe_rect_pixels()
+	local scaled_size = self:_scaled_size()
+	local res = RenderSettings.resolution
+	
+	local w = scaled_size.width
+	local h = scaled_size.height
+	local sw = math.min( safe_rect.width, safe_rect.height*(w/h) )
+		
+	x = x - (res.x-sw)/2
+	x = x * scaled_size.width/sw
+	
+	y = y - (res.y-sw/(scaled_size.width/scaled_size.height))/2
+	y = y * scaled_size.height/(sw/(scaled_size.width/scaled_size.height))
+		
+	return x, y]]
+end
+
+function MousePointerManager:modified_mouse_pos()
+	local x, y = self._mouse:world_position()
+	return self:convert_mouse_pos( x, y )
+end
+
+function MousePointerManager:convert_1280_mouse_pos( x, y )
+	local full_1280_size = managers.gui_data:full_1280_size()
+
+	return x - full_1280_size.convert_x, y - full_1280_size.convert_y
+end
+
+function MousePointerManager:convert_fullscreen_mouse_pos( x, y )
+	-- local res = RenderSettings.resolution
+	-- local full_scaled_size = managers.gui_data:full_scaled_size()
+		
+	-- x = full_scaled_size.width * (x/res.x)
+	-- y = full_scaled_size.height  * (y/res.y)
+			
+	return x, y
+end
+
+function MousePointerManager:convert_fullscreen_16_9_mouse_pos( x, y )
+	y = y - managers.gui_data:full_16_9_size().y
+	return x, y
+end
+
+function MousePointerManager:modified_fullscreen_mouse_pos( x, y )
+	local x, y = self._mouse:world_position()
+	return self:convert_fullscreen_mouse_pos( x, y )
+end
+
+function MousePointerManager:modified_fullscreen_16_9_mouse_pos( x, y )
+	local x, y = self._mouse:world_position()
+	return self:convert_fullscreen_16_9_mouse_pos( x, y )
+end

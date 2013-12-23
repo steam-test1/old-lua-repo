@@ -1,205 +1,218 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\menu\reference_renderer\coremenurenderer.luac 
-
 core:module("CoreMenuRenderer")
 core:import("CoreMenuNodeGui")
-if not Renderer then
-  Renderer = class()
-end
+
+-- reference implementations of the Content Reader, Input and Renderer classes.
+Renderer = Renderer or class()
 Renderer.border_height = 44
-Renderer.preload = function(l_1_0)
+-- The reference implementation shouldn't preload or use any resource not available in all our projects. 
+function Renderer:preload()
 end
 
-Renderer.init = function(l_2_0, l_2_1, l_2_2)
-  if not l_2_2 then
-    l_2_2 = {}
-  end
-  l_2_0._logic = l_2_1
-  l_2_0._logic:register_callback("renderer_show_node", callback(l_2_0, l_2_0, "show_node"))
-  l_2_0._logic:register_callback("renderer_refresh_node", callback(l_2_0, l_2_0, "refresh_node"))
-  l_2_0._logic:register_callback("renderer_select_item", callback(l_2_0, l_2_0, "highlight_item"))
-  l_2_0._logic:register_callback("renderer_deselect_item", callback(l_2_0, l_2_0, "fade_item"))
-  l_2_0._logic:register_callback("renderer_trigger_item", callback(l_2_0, l_2_0, "trigger_item"))
-  l_2_0._logic:register_callback("renderer_navigate_back", callback(l_2_0, l_2_0, "navigate_back"))
-  l_2_0._logic:register_callback("renderer_node_item_dirty", callback(l_2_0, l_2_0, "node_item_dirty"))
-  l_2_0._timer = 0
-  l_2_0._base_layer = l_2_2.layer or 200
-  l_2_0.ws = managers.gui_data:create_saferect_workspace()
-  l_2_0._fullscreen_ws = managers.gui_data:create_fullscreen_workspace()
-  l_2_0._fullscreen_panel = l_2_0._fullscreen_ws:panel():panel({halign = "scale", valign = "scale", layer = l_2_0._base_layer})
-  l_2_0._fullscreen_ws:hide()
-  local safe_rect_pixels = managers.viewport:get_safe_rect_pixels()
-  l_2_0._main_panel = l_2_0.ws:panel():panel({layer = l_2_0._base_layer})
-  l_2_0.safe_rect_panel = l_2_0.ws:panel():panel({w = safe_rect_pixels.width, h = safe_rect_pixels.height, layer = l_2_0._base_layer})
+function Renderer:init( logic, parameters )
+	parameters = parameters or {}
+	self._logic = logic
+	self._logic:register_callback( "renderer_show_node",		callback( self, self, "show_node" ) )
+	self._logic:register_callback( "renderer_refresh_node",		callback( self, self, "refresh_node" ) )
+	self._logic:register_callback( "renderer_select_item",		callback( self, self, "highlight_item" ) )
+	self._logic:register_callback( "renderer_deselect_item",	callback( self, self, "fade_item" ) )
+	self._logic:register_callback( "renderer_trigger_item",		callback( self, self, "trigger_item" ) )
+	self._logic:register_callback( "renderer_navigate_back",	callback( self, self, "navigate_back" ) )
+	self._logic:register_callback( "renderer_node_item_dirty",	callback( self, self, "node_item_dirty" ) )
+	
+	-- Timer used for locking input
+	self._timer = 0	
+	
+	self._base_layer = parameters.layer or 200
+
+	self.ws = managers.gui_data:create_saferect_workspace()
+	
+	self._fullscreen_ws = managers.gui_data:create_fullscreen_workspace()
+	self._fullscreen_panel = self._fullscreen_ws:panel():panel( { halign = "scale", valign = "scale", layer = self._base_layer } )
+	self._fullscreen_ws:hide()
+	
+	local safe_rect_pixels = managers.viewport:get_safe_rect_pixels()
+	self._main_panel = self.ws:panel():panel( { layer = self._base_layer } )
+	self.safe_rect_panel = self.ws:panel():panel( { w = safe_rect_pixels.width, h = safe_rect_pixels.height, layer = self._base_layer } )
+	
 end
 
-Renderer._scaled_size = function(l_3_0)
-  return managers.gui_data:scaled_size()
+function Renderer:_scaled_size()
+	return managers.gui_data:scaled_size()
 end
 
-Renderer.open = function(l_4_0, ...)
-  managers.gui_data:layout_workspace(l_4_0.ws)
-  managers.gui_data:layout_fullscreen_workspace(l_4_0._fullscreen_ws)
-  l_4_0:_layout_main_panel()
-  l_4_0._resolution_changed_callback_id = managers.viewport:add_resolution_changed_func(callback(l_4_0, l_4_0, "resolution_changed"))
-  l_4_0._node_gui_stack = {}
-  l_4_0._open = true
-  l_4_0._fullscreen_ws:show()
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function Renderer:open(...)
+	managers.gui_data:layout_workspace( self.ws )
+	managers.gui_data:layout_fullscreen_workspace( self._fullscreen_ws )
+	self:_layout_main_panel()
+	self._resolution_changed_callback_id = managers.viewport:add_resolution_changed_func( callback( self, self, "resolution_changed" ) )
+	self._node_gui_stack = {}
+	self._open = true
+	self._fullscreen_ws:show()
 end
 
-Renderer.is_open = function(l_5_0)
-  return l_5_0._open
+function Renderer:is_open()
+	return self._open
 end
 
-Renderer.show_node = function(l_6_0, l_6_1, l_6_2)
-  local layer = l_6_0._base_layer
-  local previous_node_gui = l_6_0:active_node_gui()
-  if Application:production_build() then
-    if Global.render_debug.menu_debug then
-      previous_node_gui.safe_rect_panel:set_debug(not previous_node_gui or false)
-    end
-    previous_node_gui._item_panel_parent:set_debug(not Global.render_debug.menu_debug or false)
-  end
-  layer = previous_node_gui:layer()
-  previous_node_gui:set_visible(false)
-  local new_node_gui = nil
-  if l_6_2.node_gui_class then
-    new_node_gui = l_6_2.node_gui_class:new(l_6_1, layer + 1, l_6_2)
-  else
-    new_node_gui = CoreMenuNodeGui.NodeGui:new(l_6_1, layer + 1, l_6_2)
-  end
-  if Global.render_debug.menu_debug then
-    new_node_gui.safe_rect_panel:set_debug(not Application:production_build() or true)
-  end
-  new_node_gui._item_panel_parent:set_debug(not Global.render_debug.menu_debug or true)
-  table.insert(l_6_0._node_gui_stack, new_node_gui)
-  if not managers.system_menu:is_active() then
-    l_6_0:disable_input(0.20000000298023)
-  end
+-- Draws a node and its items
+function Renderer:show_node( node, parameters )
+	local layer = self._base_layer
+	local previous_node_gui = self:active_node_gui()
+	if previous_node_gui then
+		if Application:production_build() then
+			-- previous_node_gui.item_panel:set_debug( Global.render_debug.menu_debug and false )
+			previous_node_gui.safe_rect_panel:set_debug( Global.render_debug.menu_debug and false )
+			previous_node_gui._item_panel_parent:set_debug( Global.render_debug.menu_debug and false )
+		end
+		layer = previous_node_gui:layer()
+		previous_node_gui:set_visible( false )
+	end
+	
+	local new_node_gui
+	if parameters.node_gui_class then
+		new_node_gui = parameters.node_gui_class:new( node, layer + 1, parameters  )
+	else 
+		new_node_gui = CoreMenuNodeGui.NodeGui:new( node, layer + 1, parameters  )
+	end
+	if Application:production_build() then
+		-- new_node_gui.item_panel:set_debug( Global.render_debug.menu_debug and true )
+		new_node_gui.safe_rect_panel:set_debug( Global.render_debug.menu_debug and true )
+		new_node_gui._item_panel_parent:set_debug( Global.render_debug.menu_debug and true )
+	end
+	table.insert( self._node_gui_stack, new_node_gui )
+		
+	if not managers.system_menu:is_active() then
+		self:disable_input( 0.2 )
+	end
 end
 
-Renderer.refresh_node = function(l_7_0, l_7_1, l_7_2)
-  local layer = l_7_0._base_layer
-  local node_gui = l_7_0:active_node_gui()
-  node_gui:refresh_gui(l_7_1, l_7_2)
+function Renderer:refresh_node( node, parameters )
+	local layer = self._base_layer
+	local node_gui = self:active_node_gui()
+	node_gui:refresh_gui( node, parameters )
 end
 
-Renderer.highlight_item = function(l_8_0, l_8_1, l_8_2)
-  local active_node_gui = l_8_0:active_node_gui()
-  if active_node_gui then
-    active_node_gui:highlight_item(l_8_1, l_8_2)
-  end
+function Renderer:highlight_item( item, mouse_over )
+	local active_node_gui = self:active_node_gui()
+	if active_node_gui then
+		active_node_gui:highlight_item( item, mouse_over )
+	end
 end
 
-Renderer.fade_item = function(l_9_0, l_9_1)
-  local active_node_gui = l_9_0:active_node_gui()
-  if active_node_gui then
-    active_node_gui:fade_item(l_9_1)
-  end
+function Renderer:fade_item( item )
+	local active_node_gui = self:active_node_gui()
+	if active_node_gui then
+		active_node_gui:fade_item( item )
+	end
 end
 
-Renderer.trigger_item = function(l_10_0, l_10_1)
-  local node_gui = l_10_0:active_node_gui()
-  if node_gui then
-    node_gui:reload_item(l_10_1)
-  end
+function Renderer:trigger_item( item )
+	local node_gui = self:active_node_gui()
+	if node_gui then
+		node_gui:reload_item( item )
+		-- node_gui:trigger_item( item )
+	end
 end
 
-Renderer.navigate_back = function(l_11_0)
-  local active_node_gui = l_11_0:active_node_gui()
-  if active_node_gui then
-    active_node_gui:close()
-    table.remove(l_11_0._node_gui_stack, #l_11_0._node_gui_stack)
-    l_11_0:active_node_gui():set_visible(true)
-    if Global.render_debug.menu_debug then
-      l_11_0:active_node_gui().safe_rect_panel:set_debug(not Application:production_build() or true)
-    end
-    l_11_0:active_node_gui()._item_panel_parent:set_debug(not Global.render_debug.menu_debug or true)
-    l_11_0:disable_input(0.20000000298023)
-  end
+function Renderer:navigate_back()
+	local active_node_gui = self:active_node_gui()
+	if active_node_gui then
+		active_node_gui:close()
+		table.remove( self._node_gui_stack, #self._node_gui_stack )
+		
+		self:active_node_gui():set_visible( true )
+		if Application:production_build() then
+			-- self:active_node_gui().item_panel:set_debug( Global.render_debug.menu_debug and true )
+			self:active_node_gui().safe_rect_panel:set_debug( Global.render_debug.menu_debug and true )
+			self:active_node_gui()._item_panel_parent:set_debug( Global.render_debug.menu_debug and true )
+		end
+				
+		self:disable_input( 0.2 )
+	end
 end
 
-Renderer.node_item_dirty = function(l_12_0, l_12_1, l_12_2)
-  local node_name = l_12_1:parameters().name
-  for _,gui in pairs(l_12_0._node_gui_stack) do
-    if gui.name == node_name then
-      gui:reload_item(l_12_2)
-    end
-  end
+function Renderer:node_item_dirty( node, item )
+	local node_name = node:parameters().name
+	for _, gui in pairs( self._node_gui_stack ) do
+		if gui.name == node_name then
+			gui:reload_item( item )
+		end
+	end
 end
 
-Renderer.update = function(l_13_0, l_13_1, l_13_2)
-  l_13_0:update_input_timer(l_13_2)
-  for _,node_gui in ipairs(l_13_0._node_gui_stack) do
-    node_gui:update(l_13_1, l_13_2)
-  end
+function Renderer:update( t, dt )
+	self:update_input_timer( dt )
+	for _,node_gui in ipairs( self._node_gui_stack ) do
+		node_gui:update( t, dt )
+	end
 end
 
-Renderer.update_input_timer = function(l_14_0, l_14_1)
-  if l_14_0._timer > 0 then
-    l_14_0._timer = l_14_0._timer - l_14_1
-    if l_14_0._timer <= 0 then
-      l_14_0._logic:accept_input(true)
-    end
-  end
+function Renderer:update_input_timer( dt )
+	if self._timer > 0 then
+		self._timer = self._timer - dt
+		if self._timer <= 0 then
+			self._logic:accept_input( true )
+		end
+	end
 end
 
-Renderer.active_node_gui = function(l_15_0)
-  return l_15_0._node_gui_stack[#l_15_0._node_gui_stack]
+function Renderer:active_node_gui()
+	return self._node_gui_stack[ #self._node_gui_stack ]
 end
 
-Renderer.disable_input = function(l_16_0, l_16_1)
-  l_16_0._timer = l_16_1
-  l_16_0._logic:accept_input(false)
+function Renderer:disable_input( time )
+	self._timer = time
+	self._logic:accept_input( false )
 end
 
-Renderer.close = function(l_17_0)
-  l_17_0._fullscreen_ws:hide()
-  l_17_0._open = false
-  if l_17_0._resolution_changed_callback_id then
-    managers.viewport:remove_resolution_changed_func(l_17_0._resolution_changed_callback_id)
-  end
-  for _,node_gui in ipairs(l_17_0._node_gui_stack) do
-    node_gui:close()
-  end
-  l_17_0._main_panel:clear()
-  l_17_0._fullscreen_panel:clear()
-  l_17_0.safe_rect_panel:clear()
-  l_17_0._node_gui_stack = {}
-  l_17_0._logic:renderer_closed()
+function Renderer:close()
+	self._fullscreen_ws:hide()
+	self._open = false
+	if self._resolution_changed_callback_id then
+		managers.viewport:remove_resolution_changed_func( self._resolution_changed_callback_id  )
+	end
+	for _,node_gui in ipairs( self._node_gui_stack ) do
+		node_gui:close()
+	end
+	self._main_panel:clear()
+	self._fullscreen_panel:clear()
+	self.safe_rect_panel:clear()
+	self._node_gui_stack = {}
+	self._logic:renderer_closed()
 end
 
-Renderer.hide = function(l_18_0)
-  local active_node_gui = l_18_0:active_node_gui()
-  if active_node_gui then
-    active_node_gui:set_visible(false)
-  end
+function Renderer:hide()
+-- print( "Renderer:hide()" )
+--	self._fullscreen_ws:hide()
+	local active_node_gui = self:active_node_gui()
+	if active_node_gui then
+		active_node_gui:set_visible( false )
+	end
 end
 
-Renderer.show = function(l_19_0)
-  local active_node_gui = l_19_0:active_node_gui()
-  if active_node_gui then
-    active_node_gui:set_visible(true)
-  end
+function Renderer:show()
+--	print( "Renderer:show()" )
+--	self._fullscreen_ws:show()
+	local active_node_gui = self:active_node_gui()
+	if active_node_gui then
+		active_node_gui:set_visible( true )
+	end
 end
 
-Renderer._layout_main_panel = function(l_20_0)
-  local scaled_size = l_20_0:_scaled_size()
-  l_20_0._main_panel:set_shape(0, 0, scaled_size.width, scaled_size.height)
-  local safe_rect = l_20_0:_scaled_size()
-  l_20_0.safe_rect_panel:set_shape(safe_rect.x, safe_rect.y, safe_rect.width, safe_rect.height)
+function Renderer:_layout_main_panel()
+	local scaled_size = self:_scaled_size()
+	self._main_panel:set_shape( 0, 0, scaled_size.width, scaled_size.height )
+	
+	local safe_rect = self:_scaled_size() -- managers.viewport:get_safe_rect_pixels()
+	self.safe_rect_panel:set_shape( safe_rect.x, safe_rect.y, safe_rect.width, safe_rect.height )
 end
 
-Renderer.resolution_changed = function(l_21_0)
-  local res = RenderSettings.resolution
-  managers.gui_data:layout_workspace(l_21_0.ws)
-  managers.gui_data:layout_fullscreen_workspace(l_21_0._fullscreen_ws)
-  l_21_0:_layout_main_panel()
-  for _,node_gui in ipairs(l_21_0._node_gui_stack) do
-    node_gui:resolution_changed()
-  end
+function Renderer:resolution_changed()
+	local res = RenderSettings.resolution
+	managers.gui_data:layout_workspace( self.ws )
+	managers.gui_data:layout_fullscreen_workspace( self._fullscreen_ws )
+	self:_layout_main_panel()
+	for _, node_gui in ipairs( self._node_gui_stack ) do
+		node_gui:resolution_changed()
+	end
 end
-
-

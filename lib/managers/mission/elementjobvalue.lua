@@ -1,130 +1,136 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\elementjobvalue.luac 
+core:import( "CoreMissionScriptElement" )
 
-core:import("CoreMissionScriptElement")
-if not ElementJobValue then
-  ElementJobValue = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementJobValue.init = function(l_1_0, ...)
-  ElementJobValue.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementJobValue = ElementJobValue or class( CoreMissionScriptElement.MissionScriptElement )
 
+function ElementJobValue:init( ... )
+	ElementJobValue.super.init( self, ... )
 end
 
-ElementJobValue.client_on_executed = function(l_2_0, ...)
-  if l_2_0._values.save then
-    l_2_0:on_executed(...)
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-  end
+function ElementJobValue:client_on_executed( ... )
+	-- Client should also save this
+	if self._values.save then
+		self:on_executed( ... )
+	end
 end
 
-ElementJobValue.on_executed = function(l_3_0, l_3_1)
-  if not l_3_0._values.enabled then
-    return 
-  end
-  if l_3_0._values.key ~= "none" then
-    if l_3_0._values.save then
-      managers.mission:set_saved_job_value(l_3_0._values.key, l_3_0._values.value)
-    else
-      managers.mission:set_job_value(l_3_0._values.key, l_3_0._values.value)
-    end
-  else
-    if Application:editor() then
-      managers.editor:output_error("Cant set job value with key none.")
-    end
-  end
-  ElementJobValue.super.on_executed(l_3_0, l_3_1)
+function ElementJobValue:on_executed( instigator )
+	if not ( self._values.enabled ) then
+		return
+	end
+		
+	if self._values.key ~= "none" then
+		if self._values.save then
+			managers.mission:set_saved_job_value( self._values.key, self._values.value )
+		else
+			managers.mission:set_job_value( self._values.key, self._values.value )
+		end
+	elseif Application:editor() then
+		managers.editor:output_error( 'Cant set job value with key none.' )
+	end
+		
+	
+	ElementJobValue.super.on_executed( self, instigator )
 end
 
-if not ElementJobValueFilter then
-  ElementJobValueFilter = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementJobValueFilter.init = function(l_4_0, ...)
-  ElementJobValueFilter.super.init(l_4_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+--------------------------------------------------------------------------
 
-end
+ElementJobValueFilter = ElementJobValueFilter or class( CoreMissionScriptElement.MissionScriptElement )
 
-ElementJobValueFilter.client_on_executed = function(l_5_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function ElementJobValueFilter:init( ... )
+	ElementJobValueFilter.super.init( self, ... )
 end
 
-ElementJobValueFilter.on_executed = function(l_6_0, l_6_1)
-  if not l_6_0._values.enabled then
-    return 
-  end
-  local value = nil
-  if l_6_0._values.save then
-    value = managers.mission:get_saved_job_value(l_6_0._values.key)
-  else
-    value = managers.mission:get_job_value(l_6_0._values.key)
-  end
-  if not l_6_0:_check_value(value) then
-    return 
-  end
-  ElementJobValueFilter.super.on_executed(l_6_0, l_6_1)
+function ElementJobValueFilter:client_on_executed( ... )
+	-- self:on_executed( ... )
 end
 
-ElementJobValueFilter._check_value = function(l_7_0, l_7_1)
-  if l_7_0._values.check_type == "not_has_key" then
-    return not l_7_1
-  end
-  if not l_7_1 then
-    return false
-  end
-  if l_7_0._values.check_type == "has_key" then
-    return true
-  end
-  if l_7_1 ~= l_7_0._values.value then
-    return l_7_0._values.check_type and l_7_0._values.check_type ~= "equal"
-  end
-  if l_7_1 > l_7_0._values.value then
-    return l_7_0._values.check_type ~= "less_or_equal"
-  end
-  if l_7_0._values.value > l_7_1 then
-    return l_7_0._values.check_type ~= "greater_or_equal"
-  end
-  if l_7_1 >= l_7_0._values.value then
-    return l_7_0._values.check_type ~= "less_than"
-  end
-  if l_7_0._values.value >= l_7_1 then
-    return l_7_0._values.check_type ~= "greater_than"
-  end
+function ElementJobValueFilter:on_executed( instigator )
+	if not ( self._values.enabled ) then
+		return
+	end
+	
+	local value
+	if self._values.save then
+		value = managers.mission:get_saved_job_value( self._values.key )
+	else 
+		value = managers.mission:get_job_value( self._values.key )
+	end
+	
+	if not self:_check_value( value ) then
+		return
+	end
+	
+	ElementJobValueFilter.super.on_executed( self, instigator )
 end
 
-if not ElementApplyJobValue then
-  ElementApplyJobValue = class(CoreMissionScriptElement.MissionScriptElement)
+function ElementJobValueFilter:_check_value( value )
+	if self._values.check_type == "not_has_key" then
+		return not value
+	end
+	
+	if not value then
+		return false
+	end
+		
+	if self._values.check_type == "has_key" then
+		-- Since value isn't nil
+		return true
+	end
+				
+	if not self._values.check_type or self._values.check_type == "equal" then
+		return value == self._values.value
+	end
+	
+	if self._values.check_type == "less_or_equal" then
+		return value <= self._values.value
+	end
+	
+	if self._values.check_type == "greater_or_equal" then
+		return value >= self._values.value
+	end
+	
+	if self._values.check_type == "less_than" then
+		return value < self._values.value
+	end
+		
+	if self._values.check_type == "greater_than" then
+		return value > self._values.value
+	end
+	
 end
-ElementApplyJobValue.init = function(l_8_0, ...)
-  ElementApplyJobValue.super.init(l_8_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
 
+--------------------------------------------------------------------------------------------
+
+ElementApplyJobValue = ElementApplyJobValue or class( CoreMissionScriptElement.MissionScriptElement )
+
+function ElementApplyJobValue:init( ... )
+	ElementApplyJobValue.super.init( self, ... )
 end
 
-ElementApplyJobValue.client_on_executed = function(l_9_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function ElementApplyJobValue:client_on_executed( ... )
+	--[[if self._values.save then
+		self:on_executed( ... )
+	end]]
 end
 
-ElementApplyJobValue.on_executed = function(l_10_0, l_10_1)
-  if not l_10_0._values.enabled then
-    return 
-  end
-  local value = nil
-  if l_10_0._values.save then
-    value = managers.mission:get_saved_job_value(l_10_0._values.key)
-  else
-    value = managers.mission:get_job_value(l_10_0._values.key)
-  end
-  for _,id in ipairs(l_10_0._values.elements) do
-    local element = l_10_0:get_mission_element(id)
-    if element then
-      element:apply_job_value(value)
-    end
-  end
-  ElementApplyJobValue.super.on_executed(l_10_0, l_10_1)
+function ElementApplyJobValue:on_executed( instigator )
+	if not ( self._values.enabled ) then
+		return
+	end
+		
+	local value
+	if self._values.save then
+		value = managers.mission:get_saved_job_value( self._values.key )
+	else 
+		value = managers.mission:get_job_value( self._values.key )
+	end
+	
+	for _,id in ipairs( self._values.elements ) do
+		local element = self:get_mission_element( id )
+		if element then
+			element:apply_job_value( value )
+		end
+	end
+	
+	ElementApplyJobValue.super.on_executed( self, instigator )
 end
-
-

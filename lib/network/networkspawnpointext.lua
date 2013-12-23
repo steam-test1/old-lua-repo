@@ -1,20 +1,16 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\network\networkspawnpointext.luac 
+NetworkSpawnPointExt = NetworkSpawnPointExt or class()
 
-if not NetworkSpawnPointExt then
-  NetworkSpawnPointExt = class()
-end
-NetworkSpawnPointExt.init = function(l_1_0, l_1_1)
-  if managers.network then
-     -- Warning: missing end command somewhere! Added here
-  end
+function NetworkSpawnPointExt:init( unit )
+	if managers.network then
+		-- managers.network:register_spawn_point( unit )
+	end
 end
 
-NetworkSpawnPointExt.get_data = function(l_2_0, l_2_1)
-  return {position = l_2_1:position(), rotation = l_2_1:rotation()}
+-- Called from network manager when we start a game
+function NetworkSpawnPointExt:get_data( unit )
+	return { position = unit:position(), rotation = unit:rotation() }
 end
 
-NetworkSpawnPointExt.destroy = function(l_3_0, l_3_1)
+function NetworkSpawnPointExt:destroy( unit )
+	--  managers.network:unregister_spawn_point( unit:key() )
 end
-
-

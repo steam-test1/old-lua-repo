@@ -1,616 +1,1054 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\menu\menulobbyrenderer.luac 
-
 core:import("CoreMenuRenderer")
-require("lib/managers/menu/MenuNodeGui")
-require("lib/managers/menu/renderers/MenuNodeTableGui")
-require("lib/managers/menu/renderers/MenuNodeStatsGui")
-if not MenuLobbyRenderer then
-  MenuLobbyRenderer = class(CoreMenuRenderer.Renderer)
-end
-MenuLobbyRenderer.init = function(l_1_0, l_1_1, ...)
-  MenuLobbyRenderer.super.init(l_1_0, l_1_1, ...)
-  l_1_0._sound_source = SoundDevice:create_source("MenuLobbyRenderer")
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.show_node = function(l_2_0, l_2_1)
-  local gui_class = MenuNodeGui
-  if l_2_1:parameters().gui_class then
-    gui_class = CoreSerialize.string_to_classtable(l_2_1:parameters().gui_class)
-  end
-  local parameters = {font = tweak_data.menu.pd2_medium_font, background_color = tweak_data.menu.main_menu_background_color:with_alpha(0), row_item_color = tweak_data.menu.default_font_row_item_color, row_item_hightlight_color = tweak_data.menu.default_hightlight_row_item_color, font_size = tweak_data.menu.pd2_medium_font_size, node_gui_class = gui_class, spacing = l_2_1:parameters().spacing}
-  MenuLobbyRenderer.super.show_node(l_2_0, l_2_1, parameters)
-end
-
-local mugshots = {random = "mugshot_random", undecided = "mugshot_unassigned", american = 1, german = 2, russian = 3, spanish = 4}
-local mugshot_stencil = {random = {"bg_lobby_fullteam", 65}, undecided = {"bg_lobby_fullteam", 65}, american = {"bg_hoxton", 80}, german = {"bg_wolf", 55}, russian = {"bg_dallas", 65}, spanish = {"bg_chains", 60}}
-MenuLobbyRenderer.open = function(l_3_0, ...)
-  MenuLobbyRenderer.super.open(l_3_0, ...)
-  local safe_rect_pixels = managers.gui_data:scaled_size()
-  local scaled_size = safe_rect_pixels
-  MenuRenderer._create_framing(l_3_0)
-  l_3_0._main_panel:hide()
-  l_3_0._player_slots = {}
-  l_3_0._menu_bg = l_3_0._fullscreen_panel:panel({})
-  local is_server = Network:is_server()
-  if not is_server or not managers.network:session():local_peer() then
-    local server_peer = managers.network:session():server_peer()
-  end
-  local is_single_player = Global.game_settings.single_player
-  do
-    local is_multiplayer = not is_single_player
-    if not server_peer then
-      return 
-    end
-    for i = 1, is_single_player and 1 or 4 do
-      local t = {}
-      t.player = {}
-      t.free = true
-      t.kit_slots = {}
-      t.params = {}
-      for slot = 1, PlayerManager.WEAPON_SLOTS + 3 do
-        table.insert(t.kit_slots, slot)
-      end
-      table.insert(l_3_0._player_slots, t)
-    end
-    if is_server then
-      local level = managers.experience:current_level()
-      l_3_0:_set_player_slot(1, {name = server_peer:name(), peer_id = server_peer:id(), level = level, character = "random"})
-    end
-    l_3_0:_entered_menu()
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
 
+require "lib/managers/menu/MenuNodeGui"
+require "lib/managers/menu/renderers/MenuNodeTableGui"
+require "lib/managers/menu/renderers/MenuNodeStatsGui"
+
+MenuLobbyRenderer = MenuLobbyRenderer or class( CoreMenuRenderer.Renderer )
+
+function MenuLobbyRenderer:init( logic, ... )
+	MenuLobbyRenderer.super.init( self, logic, ... )
+	
+	self._sound_source = SoundDevice:create_source( "MenuLobbyRenderer" )
+	
+	-- local head b:get_object( Idstring( "Head" ) )
+end
+
+function MenuLobbyRenderer:show_node( node )
+	local gui_class = MenuNodeGui
+	if node:parameters().gui_class then
+		gui_class = CoreSerialize.string_to_classtable( node:parameters().gui_class )
+	end
+	local parameters = { 	font = tweak_data.menu.pd2_medium_font,
+							background_color = tweak_data.menu.main_menu_background_color:with_alpha( 0 ),
+							row_item_color = tweak_data.menu.default_font_row_item_color,
+							row_item_hightlight_color = tweak_data.menu.default_hightlight_row_item_color,
+							font_size = tweak_data.menu.pd2_medium_font_size,
+							node_gui_class = gui_class,
+							spacing = node:parameters().spacing,
+	 					}
+	MenuLobbyRenderer.super.show_node( self, node, parameters )
+end
+
+local mugshots = { 
+				random 		= "mugshot_random", 
+				undecided	= "mugshot_unassigned",
+				
+				american 	= 1,
+				german  	= 2,
+				russian 	= 3,
+				spanish 	= 4,
+			}
+			
+local mugshot_stencil = { 
+				random 		= { "bg_lobby_fullteam", 65 }, 
+				undecided	= { "bg_lobby_fullteam", 65 },
+				american 	= { "bg_hoxton", 80 },
+				german 		= { "bg_wolf", 55 },
+				russian 	= { "bg_dallas", 65 },
+				spanish	    = { "bg_chains", 60 },
+			}
+
+
+function MenuLobbyRenderer:open(...)
+	MenuLobbyRenderer.super.open( self, ... )
+	local safe_rect_pixels = managers.gui_data:scaled_size()
+	local scaled_size = safe_rect_pixels		
+	MenuRenderer._create_framing( self )
+	
+	self._main_panel:hide()
+	self._player_slots = {}
+	
+	self._menu_bg = self._fullscreen_panel:panel({})
+	
+	local is_server = Network:is_server()
+	local server_peer = is_server and managers.network:session():local_peer() or managers.network:session():server_peer()
+	local is_single_player = Global.game_settings.single_player
+	local is_multiplayer = not is_single_player
+	
+	if not server_peer then
+		return
+	end
+	
+	for i = 1, (is_single_player and 1 or 4) do
+		local t = {}
+		t.player = {}
+		t.free = true
+		
+		t.kit_slots = {}
+		t.params = {}
+		for slot = 1, (PlayerManager.WEAPON_SLOTS + 3) do
+			
+			table.insert( t.kit_slots, slot )
+		end
+		
+		table.insert( self._player_slots, t )
+	end
+	
+	if is_server then
+		local level = managers.experience:current_level()
+		self:_set_player_slot( 1, { name = server_peer:name(), peer_id = server_peer:id(), level = level, character = "random"  } )
+	end
+	
+	self:_entered_menu()
+	--[[
+	self._info_bg_rect = self.safe_rect_panel:rect( { visible = false, x = 0, y = tweak_data.load_level.upper_saferect_border, w = safe_rect_pixels.width*0.41, h = safe_rect_pixels.height - tweak_data.load_level.upper_saferect_border*2, layer = -1, color = Color( 0.5, 0,0,0 ) } )
+	self._gui_info_panel = self.safe_rect_panel:panel( { visible = true, layer = 0, x = 0, y = 0, w = 0, h = 0 } )
+			
+	self._level_id = Global.game_settings.level_id
+	local level_data = tweak_data.levels[ self._level_id ]
+	
+	-- self._level_video = self._gui_info_panel:video( { visible = false, video = level_data.movie, loop = true, blend_mode = "normal", w = 1280/4, h = 720/4, color = Color( 1, 0.4, 0.4, 0.4 ) } )
+	-- self._level_video = self._main_panel:video( { video = "movies/attract", loop = true, blend_mode = "add" } )
+	-- managers.video:add_video( self._level_video )
+	
+	local is_server = Network:is_server()
+	local server_peer = is_server and managers.network:session():local_peer() or managers.network:session():server_peer()
+	local is_single_player = Global.game_settings.single_player
+	local is_multiplayer = not is_single_player
+	
+	if not server_peer then
+		return
+	end
+				
+	local font_size = tweak_data.menu.lobby_info_font_size
+	-- self._info_panel = self._main_panel:panel( { layer = 0 } )
+	self._server_title = self._gui_info_panel:text( { visible = false and is_multiplayer, name = "server_title", text = string.upper( managers.localization:text( "menu_lobby_server_title" ) ), font = tweak_data.menu.default_font, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )
+	self._server_text = self._gui_info_panel:text( { visible = false and is_multiplayer, name = "server_text", text = string.upper(""..server_peer:name()), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )
+	
+	self._server_info_title = self._gui_info_panel:text( { visible = false and is_multiplayer, name = "server_info_title", text = string.upper( managers.localization:text( "menu_lobby_server_state_title" ) ), font = tweak_data.menu.default_font, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )
+	self._server_info_text = self._gui_info_panel:text( { visible = false and is_multiplayer, name = "server_info_text", text = string.upper( managers.localization:text( self._server_state_string_id or "menu_lobby_server_state_in_lobby" ) ), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )
+	
+	self._level_title = self._gui_info_panel:text( { visible = false, name = "level_title", text = string.upper( managers.localization:text( "menu_lobby_campaign_title" ) ), font = tweak_data.menu.default_font, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )
+	self._level_text = self._gui_info_panel:text( { visible = false, name = "level_text", text = string.upper( ""..managers.localization:text( level_data.name_id ) ), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )
+
+	self._difficulty_title = self._gui_info_panel:text( { visible = false, name = "difficulty_title", text = string.upper( managers.localization:text( "menu_lobby_difficulty_title" ) ), font = tweak_data.menu.default_font, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )	
+	self._difficulty_text = self._gui_info_panel:text( { visible = false, name = "difficulty_text", text = "", font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )
+	if is_server then
+		self:update_level_id()
+		self:update_difficulty()
+	else
+		self:_update_difficulty( Global.game_settings.difficulty )
+	end
+	
+
+	for i = 1, (is_single_player and 1 or 4) do
+		local t = {}
+		t.player = {}
+		t.free = true
+		t.panel = self._gui_info_panel:panel( { visible = true, layer = 1, w = 256, h = 50 * tweak_data.scale.lobby_info_offset_multiplier } )
+		local image, rect = tweak_data.hud_icons:get_icon_data( mugshots[ "undecided" ] )
+		t.mugshot = t.panel:bitmap( { texture = image, texture_rect = rect, layer = 1 } )
+		local voice_icon, voice_texture_rect = tweak_data.hud_icons:get_icon_data( "mugshot_talk" )
+		t.voice = t.panel:bitmap( { name = "voice", texture = voice_icon, visible = false, layer = 2, texture_rect = voice_texture_rect, w = voice_texture_rect[3], h = voice_texture_rect[4], color = Color.white } )
+		t.bg_rect = self.safe_rect_panel:rect( { visible = false, color = Color.white:with_alpha( 0.1 ), layer = 0, w = 256, h = 42 * tweak_data.scale.lobby_info_offset_multiplier } )
+		t.name = t.panel:text( { name = "name"..i, text = string.upper( managers.localization:text( "menu_lobby_player_slot_available" ) ), font = tweak_data.menu.default_font, font_size = tweak_data.menu.lobby_name_font_size, color = Color( 1, 0.5, 0.5, 0.5 ), align = "left", vertical = "top", w = 256, h = 24, layer = 1} )
+		t.character = t.panel:text( { visible = true, name = "character"..i, text = string.upper( managers.localization:text( "debug_random" ) ), font = tweak_data.hud.small_font, font_size = tweak_data.hud.small_font_size, color = Color( 1, 0.5, 0.5, 0.5 ), align = "left", vertical = "bottom", w = 256, h = 24, layer = 1} )
+		t.level = t.panel:text( { name = "level"..i, visible = false, text = managers.localization:text( "menu_lobby_level" ), font = tweak_data.menu.default_font, font_size = tweak_data.hud.lobby_name_font_size, align = "right", vertical = "top", w = 256, h = 24, layer = 1} )
+		t.status = t.panel:text( { name = "status"..i, visible = true, text = "", font = tweak_data.hud.small_font, font_size = tweak_data.hud.small_font_size, align = "right", vertical = "bottom", w = 256, h = 24, layer = 1} )
+		t.frame = t.panel:polyline( { visible = false, name = "frame"..i, color = Color.white, layer = 1, line_width = 1, closed = true, points = { Vector3(), Vector3(10,0,0), Vector3(10,10,0), Vector3(0,10,0) } } )
+		
+		t.kit_panel = t.panel:panel( { visible = false, layer = 1, w = t.panel:w(), h = t.panel:h()/2 } )
+		
+		t.kit_slots = {}
+		for slot = 1, (PlayerManager.WEAPON_SLOTS + 3) do
+			-- local x = (slot-1) * 52
+			local icon, texture_rect = tweak_data.hud_icons:get_icon_data( "fallback" )
+			-- local kit_slot = t.kit_panel:bitmap( { name = tostring( slot ), texture = icon, layer = 2, texture_rect = texture_rect, x = x, y = 48, w = 36, h = 36 } )
+			local kit_slot = t.kit_panel:bitmap( { name = tostring( slot ), texture = icon, layer = 0, texture_rect = texture_rect, x = 0, y = 0, w = 10, h = 10 } )
+			table.insert( t.kit_slots, kit_slot )
+		end
+		
+		t.p_panel = t.panel:panel( { visible = false, layer = 0, w = 38, h = 17 } )
+		t.p_bg = t.p_panel:rect( { color = Color.black, layer = 0, w = 38, h = 17 } )
+		t.p_ass_bg = t.p_panel:rect( { color = Color( 1, 0.5, 0.5, 0.5 ), layer = 1, w = 36, h = 3 } )
+		t.p_ass = t.p_panel:rect( { color = Color.white, layer = 2, w = 15, h = 3 } )
+		t.p_sha_bg = t.p_panel:rect( { color = Color( 1, 0.5, 0.5, 0.5 ), layer = 1, w = 36, h = 3 } )
+		t.p_sha = t.p_panel:rect( { color = Color.white, layer = 2, w = 10, h = 3 } )
+		t.p_sup_bg = t.p_panel:rect( { color = Color( 1, 0.5, 0.5, 0.5 ), layer = 1, w = 36, h = 3 } )
+		t.p_sup = t.p_panel:rect( { color = Color.white, layer = 2, w = 24, h = 3 } )
+		t.p_tec_bg = t.p_panel:rect( { color = Color( 1, 0.5, 0.5, 0.5 ), layer = 1, w = 36, h = 3 } )
+		t.p_tec = t.p_panel:rect( { color = Color.white, layer = 2, w = 20, h = 3 } )
+		
+		table.insert( self._player_slots, t )
+	end
+	
+	if is_server then
+		local level = managers.experience:current_level()
+		self:_set_player_slot( 1, { name = server_peer:name(), peer_id = server_peer:id(), level = level, character = "random"  } )
+	end
+	
+	self:_layout_info_panel()
+	self:_layout_video()
+		
+	self._menu_bg = self._fullscreen_panel:bitmap( { visible = true, texture = tweak_data.menu_themes[ managers.user:get_setting( "menu_theme" ) ][ "background" ], layer = -3 } )
+	if not self._no_stencil and not Global.load_level then
+		self._menu_stencil_align = "right"
+		self._menu_stencil_default_image = "guis/textures/empty"
+		self._menu_stencil_image = self._menu_stencil_default_image
+		self._menu_stencil = self._main_panel:bitmap( { visible = false, texture = self._menu_stencil_image, layer = -2,  blend_mode = "normal" } )
+	end
+	
+	self:_entered_menu()
+		
+	-- self:_layout_menu_bg()
+	
+	-- managers.menu_component:add_game_chat()
+	
+	self._top_rect = self._fullscreen_panel:rect( { valign = {0,1/2}, color = Color.black, w = self._fullscreen_panel:w(), h = managers.gui_data:y_safe_to_full( 0 ) } )
+	self._bottom_rect = self._fullscreen_panel:rect( { valign = {1/2,1/2}, color = Color.black, y = managers.gui_data:y_safe_to_full( managers.gui_data:scaled_size().height ), w = self._fullscreen_panel:w(), h = managers.gui_data:y_safe_to_full( 0 ) } )
+]]
+end
+
+function MenuLobbyRenderer:set_bottom_text( ... )
+	MenuRenderer.set_bottom_text( self, ... )
+end
+
+function MenuLobbyRenderer:_entered_menu()
+	local is_server = Network:is_server()
+	local local_peer = managers.network:session():local_peer()
+	managers.network:game():on_entered_lobby()
+	
+	self:on_request_lobby_slot_reply()
+end
+
+function MenuLobbyRenderer:close( ... )
+	self:set_choose_character_enabled( true )
+	-- managers.video:remove_video( self._level_video )
+
+	MenuLobbyRenderer.super.close( self, ... )
+	
+	if managers.menu_scene then
+		managers.menu_scene:hide_all_lobby_characters()
+	end
+	-- managers.menu_component:remove_game_chat()
+end
+
+function MenuLobbyRenderer:update_level_id( level_id )
+	if self._level_id == (level_id or Global.game_settings.level_id) then
+		return
+	end
+	
+	level_id = level_id or Global.game_settings.level_id
+	local level_id_index = tweak_data.levels:get_index_from_level_id( level_id )
+	
+	managers.network:session():send_to_peers( "lobby_sync_update_level_id", level_id_index )
+	self:_update_level_id( level_id )
+end
+
+function MenuLobbyRenderer:sync_update_level_id( level_id )
+	if self._level_id == level_id then
+		return
+	end
+	Global.game_settings.level_id = level_id
+	self:_update_level_id( level_id )
+end
+
+function MenuLobbyRenderer:_update_level_id( level_id )
+	self._level_id = level_id
+	
+	Application:debug( "_update_level_id", level_id )
+	--[[
+	print( ">>>>>>>>>>>>> function MenuLobbyRenderer:_update_level_id( level_id )", level_id, self._level_id )
+	Application:stack_dump()
+	self._level_id = level_id
+	local level_data = tweak_data.levels[ level_id ]
+	-- managers.video:remove_video( self._level_video )
+	-- self._level_video:set_video( level_data.movie )
+	-- managers.video:add_video( self._level_video )
+	self._level_text:set_text( string.upper( ""..managers.localization:text( level_data.name_id ) ) )
+	]]
+end
+
+function MenuLobbyRenderer:update_difficulty()
+	local difficulty = Global.game_settings.difficulty
+	
+	managers.network:session():send_to_peers_loaded( "lobby_sync_update_difficulty", difficulty )
+	self:_update_difficulty( difficulty )
+end
+
+function MenuLobbyRenderer:sync_update_difficulty( difficulty )
+	Global.game_settings.difficulty = difficulty
+	self:_update_difficulty( difficulty )
+end
+
+function MenuLobbyRenderer:_update_difficulty( difficulty )
+	-- self._difficulty_text:set_text( string.upper( managers.localization:text( "menu_difficulty_"..difficulty ) ) )
+	-- self._difficulty_text:set_text( string.upper( ""..difficulty ) )
+	
+	
+	Application:debug( "_update_difficulty", difficulty )
+end
+
+function MenuLobbyRenderer:set_slot_joining( peer, peer_id )
+	managers.hud:set_slot_joining( peer, peer_id )
+	
+	local slot = self._player_slots[ peer_id ]
+	slot.peer_id = peer_id
+	
+	--[[
+	if not alive( slot.name ) then
+		return
+	end 
+	slot.name:set_text( string.upper( peer:name() ) )
+	slot.name:set_color( Color.white )
+	slot.status:set_visible( true )
+	slot.status:set_text( string.upper( managers.localization:text( "menu_waiting_is_joining" ) ) )
+	self:set_character( peer_id, peer:character() )
+	]]
+end
+
+function MenuLobbyRenderer:set_slot_ready( peer, peer_id )
+	managers.hud:set_slot_ready( peer, peer_id )
+	
+	--[[
+	local slot = self._player_slots[ peer_id ]
+	if not slot then
+		return
+	end
+	
+	slot.status:set_text( string.upper( managers.localization:text( "menu_waiting_is_ready" ) ) )
+	]]
+end
+
+function MenuLobbyRenderer:set_dropin_progress( peer_id, progress_percentage )
+	managers.hud:set_dropin_progress( peer_id, progress_percentage )
+
+	--[[
+	local slot = self._player_slots[ peer_id ]
+	if not slot then
+		return
+	end
+	
+	if alive( slot.status ) then
+		slot.status:set_text( string.upper( managers.localization:text( "menu_waiting_is_joining" ) ).." "..tostring(progress_percentage).."%" )
+	end
+	]]
+end
+
+function MenuLobbyRenderer:set_slot_not_ready( peer, peer_id )
+	managers.hud:set_slot_not_ready( peer, peer_id )
+	
+	--[[
+	local slot = self._player_slots[ peer_id ]
+	if not slot then
+		return
+	end
+	
+	slot.status:set_text( string.upper( managers.localization:text( "menu_waiting_is_not_ready" ) ) )
+	]]
+end
+
+function MenuLobbyRenderer:set_player_slots_kit( slot )
+	local peer_id = self._player_slots[ slot ].peer_id
+	
+	Application:debug( "set_player_slots_kit",  slot )
+	
+	--[[
+	for i = 1, PlayerManager.WEAPON_SLOTS do
+		local weapon = managers.player:weapon_in_slot( i )
+		if weapon then 
+			self:set_kit_selection( peer_id, "weapon", weapon, i )
+		end
+	end
+	for i = 1, 3 do
+		local equipment = managers.player:equipment_in_slot( i )
+		if equipment then 
+			self:set_kit_selection( peer_id, "equipment", equipment, i )
+		end
+	end
+	]]
+end
+
+function MenuLobbyRenderer:set_slot_outfit( slot, criminal_name, outfit_string )
+	if self._player_slots then
+		local outfit = managers.blackmarket:unpack_outfit_from_string( outfit_string )
+		
+		self._player_slots[ slot ].outfit = outfit
+		managers.menu_component:set_slot_outfit_mission_briefing_gui( slot, criminal_name, outfit )
+	end
+end
+
+function MenuLobbyRenderer:set_kit_selection( peer_id, category, id, slot )
+	managers.hud:set_kit_selection( peer_id, category, id, slot )
+	
+	Application:debug( "set_kit_selection", peer_id, category, id, slot )
+
+	--[[
+	local player_slot = self:get_player_slot_by_peer_id( peer_id )
+	if not player_slot or not alive( player_slot.name ) then
+		return
+	end
+	local icon, texture_rect
+	if category == "weapon" then
+		icon, texture_rect = tweak_data.hud_icons:get_icon_data( tweak_data.weapon[ id ].hud_icon )	
+	elseif category == "equipment" then
+		slot = slot + PlayerManager.WEAPON_SLOTS
+		local equipment_id = tweak_data.upgrades.definitions[ id ].equipment_id
+		icon, texture_rect = tweak_data.hud_icons:get_icon_data( (tweak_data.equipments.specials[ equipment_id ] or tweak_data.equipments[ equipment_id ] ).icon )
+	end
+	local kit_slot = player_slot.kit_slots[ slot ]
+	kit_slot:set_image( icon, texture_rect[1], texture_rect[2], texture_rect[3], texture_rect[4] )
+	]]
+end
+
+function MenuLobbyRenderer:set_slot_voice( peer, peer_id, active )
+	managers.hud:set_slot_voice( peer, peer_id, active )
+	do return end
+	
+	--[[
+	local slot = self._player_slots[ peer_id ]
+	if not slot then
+		return
+	end
+	
+	slot.voice:set_visible( active )
+	]]
+end
+
+function MenuLobbyRenderer:_set_player_slot( nr, params )
+	-- Application:stack_dump()
+	--[[local my_slot = params.peer_id == managers.network:session():local_peer():id()
+	if my_slot then
+		if managers.menu_scene then
+			managers.menu_scene:set_lobby_character_out_fit( nr, managers.blackmarket:outfit_string() )
+		end
+	end]]
+	local slot = self._player_slots[ nr ]
+	
+	slot.free = false
+	slot.peer_id = params.peer_id
+	slot.params = params
+	
+	managers.hud:set_player_slot( nr, params )
+	
+	-- Application:debug( "_set_player_slot", nr, inspect( params ) )
+	--[[
+	if not alive( slot.name ) then
+		return
+	end
+	
+	slot.name:set_text( string.upper( params.name ) )
+	slot.name:set_color( Color.white )
+	slot.frame:set_color( tweak_data.hud.prime_color )
+	
+	-- See how much space the name takes, if it takes up more than 60% of its parents size, remove the "REP" text
+	local _,_,tw = slot.name:text_rect()
+	local tp = tw / slot.name:parent():w()
+	
+	local rep_txt = (#params.name > 14 and tp > 0.6) and "" or managers.localization:text( "menu_lobby_level" )
+	slot.level:set_text( string.upper( rep_txt .. params.level ) )
+	slot.level:set_visible( true )
+	if params.status then
+		slot.status:set_text( params.status )
+	end
+	slot.kit_panel:set_visible( params.kit_panel_visible )
+	-- slot.status:set_visible( false ) -- Will be true
+	
+	-- slot.bg_rect:set_visible( my_slot )
+	self:set_character( nr, params.character )
+		
+	slot.p_panel:set_visible( true )
+	
+	self:_layout_slot_progress_panel( slot, params.progress )
+	
+	if not slot.join_msg_shown then
+		local msg = managers.localization:text( "menu_lobby_messenger_title" ).. managers.network:session():peer( params.peer_id ):name() .. " "..managers.localization:text( "menu_lobby_message_has_joined" )
+		slot.join_msg_shown = self:sync_chat_message( msg, 1 )
+		print( "slot.join_msg_shown", slot.join_msg_shown )
+	end
+	]]
+end
+
+function MenuLobbyRenderer:remove_player_slot_by_peer_id( peer, reason )
+	if not self._player_slots then
+		return
+	end
+	
+	local peer_id = peer:id()
+	
+	-- if managers.menu_scene then
+	-- 	managers.menu_scene:set_lobby_character_visible( peer_id, false )
+	-- end
+	for _,slot in ipairs( self._player_slots ) do
+		if slot.peer_id == peer_id then
+			slot.peer_id = nil
+			slot.params = nil
+			slot.outfit = nil
+			slot.free = true
+			slot.join_msg_shown = nil
+			
+			managers.hud:remove_player_slot_by_peer_id( peer, reason )
+			managers.menu_component:set_slot_outfit_mission_briefing_gui( peer_id )
+			--[[
+			if not alive( slot.name ) then
+				break
+			end
+			
+			slot.name:set_text( string.upper( managers.localization:text( "menu_lobby_player_slot_available" ) ) )
+			slot.name:set_color( Color( 1, 0.5, 0.5, 0.5 ) )
+			slot.level:set_text( string.upper( managers.localization:text( "menu_lobby_level" ) ) )
+			slot.level:set_visible( false )
+			-- slot.status:set_text( string.upper( managers.localization:text( "menu_waiting_is_not_ready" ) ) )
+			slot.status:set_text( string.upper( "" ) )
+			slot.status:set_visible( false )
+			slot.character:set_text( string.upper( managers.localization:text( "debug_random" ) ) )
+			slot.character:set_color( Color( 1, 0.5, 0.5, 0.5 ) )
+			local image, rect = tweak_data.hud_icons:get_icon_data( mugshots[ "undecided" ] )
+			slot.mugshot:set_image( image, rect[1], rect[2], rect[3], rect[4] )
+			slot.frame:set_color( Color.white )
+			slot.bg_rect:set_visible( false )
+			slot.p_panel:set_visible( false )
+			slot.voice:set_visible( false )
+			
+			slot.kit_panel:set_visible( false )
+			for i,kit_slot in ipairs( slot.kit_slots ) do
+				local icon, texture_rect = tweak_data.hud_icons:get_icon_data( "fallback" )
+				kit_slot:set_image( icon, texture_rect[1], texture_rect[2], texture_rect[3], texture_rect[4] )
+			end
+			
+			reason = reason or "left"
+			local peer_name = peer:name()
+			local reason_msg = managers.localization:text( "menu_lobby_message_has_"..reason, { NAME = peer_name } )
+			local prefix = (reason == "removed_dead") and "" or (peer_name .. " ")
+			local msg = managers.localization:text( "menu_lobby_messenger_title" ).. prefix .. reason_msg
+			self:sync_chat_message( msg, 1 )
+			-- managers.network:session():send_to_peers( "sync_chat_message", msg )
+			]]
+			break
+		end
+	end
+end
+
+function MenuLobbyRenderer:set_character( id, character )
+	Application:debug( "set_character", id, character )
+--[[
+	local slot = self._player_slots[ id ] -- self:get_player_slot_by_peer_id( id )
+	slot.character:set_text( string.upper( managers.localization:text( "menu_"..character ) ) )
+	slot.character:set_color( Color.white )
+]]
+	--[[local mugshot
+	if character == "random" then
+		mugshot = mugshots.random
+	else
+		local mask_set = managers.network:session():peer( id ):mask_set()
+		local mask_id = mugshots[ character ]
+		local set = tweak_data.mask_sets[ mask_set ][ mask_id ]
+
+		mugshot = set.mask_icon
+	end
+	
+	local image, rect = tweak_data.hud_icons:get_icon_data( mugshot )
+	slot.mugshot:set_image( image, rect[1], rect[2], rect[3], rect[4] )
+				
+	if managers.network:session():local_peer():id() == id then
+		managers.menu:active_menu().renderer:set_stencil_image( mugshot_stencil[ character ][ 1 ] )
+		managers.menu:active_menu().renderer:set_stencil_align( "manual", mugshot_stencil[ character ][ 2 ] )
+	end]]
+
+end
+
+function MenuLobbyRenderer:set_choose_character_enabled( enabled )
+	for _,node in ipairs( self._logic._node_stack ) do
+		for _,item in ipairs( node:items() ) do
+			if item:parameters().name == "choose_character" then
+				item:set_enabled( enabled )
+				break
+			end
+		end
+	end
+end
+
+function MenuLobbyRenderer:set_server_state( state )
+	local s = ""
+	if state == "loading" then
+		s = string.upper( managers.localization:text( "menu_lobby_server_state_loading" ) )
+		self:set_choose_character_enabled( false )
+	end
+		
+	-- self._server_info_text:set_text( string.upper( s ) )
+	local msg = managers.localization:text( "menu_lobby_messenger_title" )..managers.localization:text( "menu_lobby_message_server_is_loading" )
+	self:sync_chat_message( msg, 1 )
+end 
+
+function MenuLobbyRenderer:on_request_lobby_slot_reply()
+	local local_peer = managers.network:session():local_peer()
+	local local_peer_id = local_peer:id()
+	local level = managers.experience:current_level()
+	local character = local_peer:character()
+	local progress = managers.upgrades:progress()
+	local mask_set = "remove" -- local_peer:mask_set()
+	local_peer:set_outfit_string( managers.blackmarket:outfit_string() )
+	self:_set_player_slot( local_peer_id, { name = local_peer:name(), peer_id = local_peer_id, level = level, character = character, progress = progress  } )
+	
+	managers.network:session():send_to_peers_loaded( "lobby_info", local_peer_id, level, character, mask_set, progress[1], progress[2], progress[3], progress[4] or -1 )
+	managers.network:session():send_to_peers_loaded( "sync_profile", level )
+	managers.network:session():send_to_peers_loaded( "sync_outfit", managers.blackmarket:outfit_string() )
+end
+
+function MenuLobbyRenderer:get_player_slot_by_peer_id( id )
+	for _,slot in ipairs( self._player_slots ) do
+		if slot.peer_id and slot.peer_id == id then
+			return slot
+		end 
+	end
+	
+	return self._player_slots[ id ]
+end
+
+function MenuLobbyRenderer:get_player_slot_nr_by_peer_id( id )
+	for i,slot in ipairs( self._player_slots ) do
+		if slot.peer_id and slot.peer_id == id then
+			return i
+		end 
+	end
+	return nil
+end
+
+function MenuLobbyRenderer:sync_chat_message( message, id )
+	Application:debug( "sync_chat_message", message, id )
+	
+	for _,node_gui in ipairs( self._node_gui_stack ) do
+		local row_item_chat = node_gui:row_item_by_name( "chat" )
+		if row_item_chat then
+			node_gui:sync_say( message, row_item_chat, id )
+			return true
+		end
+	end
+	return false
+end
+
+function MenuLobbyRenderer:update( t, dt )
+	MenuLobbyRenderer.super.update( self, t, dt )
+end
+
+function MenuLobbyRenderer:highlight_item( item, ... )
+	MenuLobbyRenderer.super.highlight_item( self, item, ... )
+	
+	-- Application:debug( "highlight_item", item )
+	--[[
+--	if item:name() == "choose_character" then
+		local character = managers.network:session():local_peer():character()
+		managers.menu:active_menu().renderer:set_stencil_image( mugshot_stencil[ character ][ 1 ] )
+		managers.menu:active_menu().renderer:set_stencil_align( "manual", mugshot_stencil[ character ][ 2 ] )
+--	end
+	]]
+	-- self._sound_source:post_event( "menu_down" )
+	-- self:post_event( "highlight" )
+end
+
+function MenuLobbyRenderer:trigger_item( item )
+	MenuRenderer.super.trigger_item( self, item )
+	Application:debug( "trigger_item", item )
+	
+	if( item and item:parameters().sound ~= "false" ) then
+		local item_type = item:type()
+		
+		if( item_type == "" ) then
+			-- self._sound_source:post_event( "menu_forward" )
+			self:post_event( "menu_enter" )
+			
+		elseif( item_type == "toggle" ) then
+			if item:value() == "on" then
+				self:post_event( "box_tick" )
+			else
+				self:post_event( "box_untick" )
+			end
+			-- self._sound_source:post_event( "menu_toggle" )
+			
+		elseif( item_type == "slider" ) then
+			local percentage = item:percentage()
+			if( percentage > 0 and percentage < 100 ) then
+				-- self._sound_source:post_event( "menu_value_decrease" )
+			end
+		elseif( item_type == "multi_choice" ) then
+			
+		end
+		
+	end
+end
+
+function MenuLobbyRenderer:post_event( event )
+	self._sound_source:post_event( event )
+end
+
+function MenuLobbyRenderer:navigate_back()
+	MenuLobbyRenderer.super.navigate_back( self )
+	
+	self:post_event( "menu_exit" )
+end
+
+function MenuLobbyRenderer:resolution_changed( ... )
+	MenuLobbyRenderer.super.resolution_changed( self, ... )
+	
+	--[[
+	local safe_rect_pixels = managers.gui_data:scaled_size() -- managers.viewport:get_safe_rect_pixels()
+	self._info_bg_rect:set_shape( 0, tweak_data.load_level.upper_saferect_border, safe_rect_pixels.width*0.41, safe_rect_pixels.height - tweak_data.load_level.upper_saferect_border*2 )
+	self:_layout_info_panel()
+	self:_layout_video()
+	self:_layout_menu_bg()
+	]]
+end
+
+function MenuLobbyRenderer:_layout_menu_bg()
+	local res = RenderSettings.resolution
+	local safe_rect_pixels = managers.gui_data:scaled_size() -- managers.viewport:get_safe_rect_pixels()
+	
+	-- self._menu_bg:set_size( res.y*2, res.y )
+	-- self._menu_bg:set_center( self._menu_bg:parent():center() )
+	-- self._menu_bg:set_size( safe_rect_pixels.height*2, safe_rect_pixels.height )
+	-- self._menu_bg:set_size( self._fullscreen_panel:h() * 2, self._fullscreen_panel:h() )
+	self._menu_bg:set_size( self._fullscreen_panel:h() * 2, self._fullscreen_panel:h() )
+	self._menu_bg:set_position( 0, 0 )
+		
+	self:set_stencil_align( self._menu_stencil_align, self._menu_stencil_align_percent )
+	--[[local y = safe_rect_pixels.height - tweak_data.load_level.upper_saferect_border * 2
+	self._menu_stencil:set_size( y * 2, y )
+	self._menu_stencil:set_x( 0 )
+	self._menu_stencil:set_center_y( res.y/2 )]]
+end
+
+function MenuLobbyRenderer:_layout_slot_progress_panel( slot, progress )
+	print( "MenuLobbyRenderer:_layout_slot_progress_panel()", slot, progress )
+
+	local h = 16
+	local sh = 4
+
+	if progress[4] then
+		h = 17
+		sh = 3
+	end
+
+	slot.p_panel:set_size( 38 * tweak_data.scale.lobby_info_offset_multiplier, h )
+	slot.p_bg:set_size( slot.p_panel:size() )
+
+	slot.p_ass_bg:set_size( slot.p_panel:w() - 2, sh )
+	slot.p_sha_bg:set_size( slot.p_panel:w() - 2, sh )
+	slot.p_sup_bg:set_size( slot.p_panel:w() - 2, sh )
+	slot.p_tec_bg:set_size( slot.p_panel:w() - 2, sh )
+
+	if progress[4] then
+		slot.p_tec:set_visible( true )
+		slot.p_tec_bg:set_visible( true )
+	
+		slot.p_ass_bg:set_position( 1, 1 )
+		slot.p_sha_bg:set_position( 1, 5 )
+		slot.p_sup_bg:set_position( 1, 9 )
+		slot.p_tec_bg:set_position( 1, 13 )
+	else
+		slot.p_tec:set_visible( false )
+		slot.p_tec_bg:set_visible( false )
+	
+		slot.p_ass_bg:set_position( 1, 1 )
+		slot.p_sha_bg:set_position( 1, 6 )
+		slot.p_sup_bg:set_position( 1, 11 )		
+	end
+
+	slot.p_ass:set_shape( slot.p_ass_bg:shape() )
+	slot.p_sha:set_shape( slot.p_sha_bg:shape() )
+	slot.p_sup:set_shape( slot.p_sup_bg:shape() )
+	slot.p_tec:set_shape( slot.p_tec_bg:shape() )
+	
+	slot.p_ass:set_w( slot.params and (slot.p_ass_bg:w() * (progress[1] / 49)) or slot.p_ass:w() )
+	slot.p_sha:set_w( slot.params and (slot.p_sha_bg:w() * (progress[2] / 49)) or slot.p_sha:w() )
+	slot.p_sup:set_w( slot.params and (slot.p_sup_bg:w() * (progress[3] / 49)) or slot.p_sup:w() )
+	slot.p_tec:set_w( slot.params and (slot.p_sup_bg:w() * ((progress[4] or 0) / 49)) or slot.p_tec:w() )
+end
+
+
+
+function MenuLobbyRenderer:_layout_info_panel()
+	local res = RenderSettings.resolution
+	local safe_rect = managers.gui_data:scaled_size() -- managers.viewport:get_safe_rect_pixels()
+	local is_single_player = Global.game_settings.single_player
+	local is_multiplayer = not is_single_player
+	
+	
+	self._gui_info_panel:set_shape( self._info_bg_rect:x() + tweak_data.menu.info_padding,  
+									self._info_bg_rect:y() + tweak_data.menu.info_padding,
+									self._info_bg_rect:w() - tweak_data.menu.info_padding*2,
+									self._info_bg_rect:h() - tweak_data.menu.info_padding*2 )
+	
+	-- self._info_panel:set_debug( true )
+	--[[ self._info_panel:set_x( safe_rect.x )
+	self._info_panel:set_w( safe_rect.width / 2 ) ]]
+	-- self._info_panel:set_y( safe_rect.y + tweak_data.load_level.upper_saferect_border ) -- - tweak_data.load_level.border_pad )
+	-- self._info_panel:set_h( safe_rect.height - tweak_data.load_level.upper_saferect_border * 2 )
+	
+	local font_size = tweak_data.menu.lobby_info_font_size
+	local offset = 22 * tweak_data.scale.lobby_info_offset_multiplier
+	self._server_title:set_font_size( font_size )
+	self._server_text:set_font_size( font_size )
+	local x,y,w,h = self._server_title:text_rect()
+	self._server_title:set_x( tweak_data.menu.info_padding )
+	self._server_title:set_y( tweak_data.menu.info_padding )
+	self._server_title:set_w( w )
+	self._server_text:set_lefttop( self._server_title:righttop() )
+	self._server_text:set_w( self._gui_info_panel:w() )
+	-- self._server_text:set_y( 0 )
+	
+	self._server_info_title:set_font_size( font_size )
+	self._server_info_text:set_font_size( font_size )	
+	local x,y,w,h = self._server_info_title:text_rect()
+	self._server_info_title:set_x( tweak_data.menu.info_padding )
+	self._server_info_title:set_y( tweak_data.menu.info_padding + offset )
+	self._server_info_title:set_w( w )
+	self._server_info_text:set_lefttop( self._server_info_title:righttop() )
+	self._server_info_text:set_w( self._gui_info_panel:w() )
+	
+	self._level_title:set_font_size( font_size )
+	self._level_text:set_font_size( font_size )
+	local x,y,w,h = self._level_title:text_rect()
+	self._level_title:set_x( tweak_data.menu.info_padding )
+	self._level_title:set_y( (is_multiplayer and tweak_data.menu.info_padding + offset*2) or tweak_data.menu.info_padding )
+	self._level_title:set_w( w )
+	self._level_text:set_lefttop( self._level_title:righttop() )
+	self._level_text:set_w( self._gui_info_panel:w() )
+	
+	self._difficulty_title:set_font_size( font_size )
+	self._difficulty_text:set_font_size( font_size )
+	local x,y,w,h = self._difficulty_title:text_rect()
+	self._difficulty_title:set_x( tweak_data.menu.info_padding )
+	self._difficulty_title:set_y( tweak_data.menu.info_padding + offset*(is_multiplayer and 3 or 1) )
+	self._difficulty_title:set_w( w )
+	self._difficulty_text:set_lefttop( self._difficulty_title:righttop() )
+	self._difficulty_text:set_w( self._gui_info_panel:w() )
+	
+	do return end
+	
+	--[[
+	local pad = 3 * tweak_data.scale.lobby_info_offset_multiplier
+	
+	for i,slot in ipairs( self._player_slots ) do
+		slot.panel:set_h( 50 * tweak_data.scale.lobby_info_offset_multiplier )
+		slot.panel:set_w( slot.panel:parent():w() )
+		-- slot.panel:set_y( self._info_panel:h() / 2 + ( i - 1 ) * (slot.panel:h() + 4) )
+		slot.panel:set_bottom( self._gui_info_panel:h() - ( 4 - i ) * (slot.panel:h() + 4) )
+
+		if slot.params then		
+			self:_layout_slot_progress_panel( slot, slot.params.progress )
+		end
+
+		
+		-- slot.mugshot:set_size( 48 * tweak_data.scale.lobby_info_offset_multiplier, 48 * tweak_data.scale.lobby_info_offset_multiplier )
+		slot.mugshot:set_size( slot.panel:h() - pad, slot.panel:h() - pad )
+		slot.mugshot:set_x( 0 )
+		slot.mugshot:set_center_y( slot.panel:h()/2 )
+		slot.voice:set_righttop( slot.mugshot:righttop() )
+		local x,y,w,h = slot.level:text_rect()
+		slot.level:set_w( 100 )
+		-- slot.bg_rect:set_size( slot.panel:size() )
+		slot.bg_rect:set_position( 0, 0 )
+		slot.bg_rect:set_size( self._info_bg_rect:w(), slot.panel:h() )
+		slot.bg_rect:set_position( self._info_bg_rect:x(), self._gui_info_panel:y() + slot.panel:y() ) 
+		-- slot.level:set_shape( slot.level:text_rect() )
+		slot.name:set_font_size( tweak_data.menu.lobby_name_font_size )
+		slot.name:set_lefttop( slot.mugshot:w() + pad, pad )
+		slot.level:set_top( 0 + pad )
+		
+		slot.p_panel:set_w( 38 * tweak_data.scale.lobby_info_offset_multiplier )
+		slot.p_panel:set_top( slot.level:top() )
+		slot.p_panel:set_right( slot.p_panel:parent():w() )
+		
+		slot.level:set_font_size( tweak_data.menu.lobby_name_font_size )
+		slot.level:set_right( slot.p_panel:left() - pad )
+		slot.status:set_font_size( tweak_data.menu.small_font_size )
+		slot.status:set_right( slot.panel:w() - pad )
+		slot.status:set_bottom( slot.panel:h() - pad )
+		slot.character:set_font_size( tweak_data.menu.small_font_size )
+		slot.character:set_leftbottom( slot.mugshot:w() + pad, slot.panel:h() - pad ) -- 14 * tweak_data.scale.lobby_info_offset_multiplier )
+		
+		local bg = slot.bg_rect
+		slot.frame:set_points( { Vector3( bg:left(),bg:top(),0 ), Vector3( bg:right(),bg:top(),0 ), Vector3( bg:right(),bg:bottom(),0 ), Vector3( bg:left(),bg:bottom(),0 ) } )
+		
+		slot.kit_panel:set_w( slot.panel:w() - slot.mugshot:w() - pad )
+		slot.kit_panel:set_h( slot.panel:h()/2 - pad )
+		slot.kit_panel:set_x( slot.mugshot:w() + pad )
+		slot.kit_panel:set_y( slot.panel:h()/2 )
+		
+		for i,kit_slot in ipairs( slot.kit_slots ) do
+			kit_slot:set_size( slot.kit_panel:h(), slot.kit_panel:h() )
+			kit_slot:set_position( slot.kit_panel:h() * (i-1), 0 ) 
+		end
+	end
+	]]
+end
+
+function MenuLobbyRenderer:_layout_video()
+	if self._level_video then
+		local w = self._gui_info_panel:w() 
+		local m = self._level_video:video_width() / self._level_video:video_height()
+		self._level_video:set_size( w, w/m )
+		self._level_video:set_y( 0 )					
+		self._level_video:set_center_x( self._gui_info_panel:w()/2 )
+	
+		--[[local res = RenderSettings.resolution
+		local w = self._level_video:video_width()
+		local h = self._level_video:video_height()
+		local m = h/w]]
+		-- self._level_video_bg:set_shape( 0, 0, res.x, res.y )
+		-- self._level_video:set_size( res.x, res.x*m )
+		--[[self._level_video:set_size( res.y/m, res.y )
+		self._level_video:set_center( res.x/2, res.y/2 )]]
+	end
+end
+
+function MenuLobbyRenderer:set_bg_visible( visible )
+	self._menu_bg:set_visible( visible )
+end
+
+function MenuLobbyRenderer:set_bg_area( area )
+	if( self._menu_bg ) then 
+		if area == "full" then
+			self._menu_bg:set_size( self._menu_bg:parent():size() )
+			self._menu_bg:set_position( 0, 0 )
+		elseif area == "half" then
+			self._menu_bg:set_size( self._menu_bg:parent():w() * 0.5, self._menu_bg:parent():h() )
+			self._menu_bg:set_top( 0 )
+			self._menu_bg:set_right( self._menu_bg:parent():w() )
+		else
+			self._menu_bg:set_size( self._menu_bg:parent():size() )
+			self._menu_bg:set_position( 0, 0 )
+		end
+	end
+end
+
+function MenuLobbyRenderer:set_stencil_image( image )
+	MenuRenderer.set_stencil_image( self, image )
+end
+
+function MenuLobbyRenderer:refresh_theme()
+	MenuRenderer.refresh_theme( self )
+end
+
+function MenuLobbyRenderer:set_stencil_align( align, percent )
+	if not self._menu_stencil then
+		return
+	end
+	
+	local d = self._menu_stencil:texture_height()
+	if d == 0 then
+		return
+	end
+		
+	self._menu_stencil_align = align
+	self._menu_stencil_align_percent = percent
+	local res = RenderSettings.resolution
+	local safe_rect_pixels = managers.gui_data:scaled_size() -- managers.viewport:get_safe_rect_pixels()
+	
+	local y = (safe_rect_pixels.height - tweak_data.load_level.upper_saferect_border * 2) + 2
+	local m = self._menu_stencil:texture_width()/self._menu_stencil:texture_height()
+	self._menu_stencil:set_size( y * m, y )
+	self._menu_stencil:set_center_y( res.y/2 )
+	local w = self._menu_stencil:texture_width()
+	local h = self._menu_stencil:texture_height()
+	if align == "right" then
+		self._menu_stencil:set_texture_rect( 0, 0, w, h )
+		self._menu_stencil:set_right( res.x )
+	elseif align == "left" then
+		self._menu_stencil:set_texture_rect( 0, 0, w, h )
+		self._menu_stencil:set_left( 0 )
+	elseif align == "center" then
+		self._menu_stencil:set_texture_rect( 0, 0, w, h )
+		self._menu_stencil:set_center_x( res.x / 2 )
+	elseif align == "center-right" then
+		self._menu_stencil:set_texture_rect( 0, 0, w, h )
+		self._menu_stencil:set_center_x( res.x * 0.66 )
+	elseif align == "center-left" then
+		self._menu_stencil:set_texture_rect( 0, 0, w, h )
+		self._menu_stencil:set_center_x( res.x * 0.33 )
+	elseif align == "manual" then
+		self._menu_stencil:set_texture_rect( 0, 0, w, h )
+		percent = percent / 100
+		self._menu_stencil:set_left( res.x * percent - (y * m) * percent )
+	end
+end
+
+-- Creates a menu path text as topic for a menu node (if topic_id is provided, it will be appended as well, because the current node is not ready when creating) 
+function MenuLobbyRenderer:current_menu_text( topic_id )	
+	local ids = {}
+	for i,node_gui in ipairs( self._node_gui_stack ) do
+		table.insert( ids, node_gui.node:parameters().topic_id )
+	end
+	table.insert( ids, topic_id )
+	
+	local s = ""
+	for i,id in ipairs( ids ) do
+		s = s .. managers.localization:text( id )
+		s = s .. ((i < #ids) and " > " or "" )
+	end
+	
+	return s
+end
+
+function MenuLobbyRenderer:scroll_up( ... )
+	MenuRenderer.scroll_up( self, ... )
+end
+
+function MenuLobbyRenderer:scroll_down( ... )
+	MenuRenderer.scroll_down( self, ... )
+end
+
+function MenuLobbyRenderer:accept_input( ... )
+	MenuRenderer.accept_input( self, ... )
+end
+
+function MenuLobbyRenderer:mouse_pressed( ... )
+	return MenuRenderer.mouse_pressed( self, ... )
+end
+
+function MenuLobbyRenderer:mouse_released( ... )
+	return MenuRenderer.mouse_released( self, ... )
+end
+
+function MenuLobbyRenderer:mouse_moved( ... )
+	return MenuRenderer.mouse_moved( self, ... )
+end
+
+function MenuLobbyRenderer:input_focus( ... )
+	return MenuRenderer.input_focus( self, ... )
+end
+
+function MenuLobbyRenderer:move_up( ... )
+	return MenuRenderer.move_up( self, ... )
+end
+
+function MenuLobbyRenderer:move_down( ... )
+	return MenuRenderer.move_down( self, ... )
+end
+
+function MenuLobbyRenderer:move_left( ... )
+	return MenuRenderer.move_left( self, ... )
+end
+
+function MenuLobbyRenderer:move_right( ... )
+	return MenuRenderer.move_right( self, ... )
+end
+
+function MenuLobbyRenderer:next_page( ... )
+	return MenuRenderer.next_page( self, ... )
+end
+
+function MenuLobbyRenderer:previous_page( ... )
+	return MenuRenderer.previous_page( self, ... )
+end
+
+function MenuLobbyRenderer:confirm_pressed( ... )
+	return MenuRenderer.confirm_pressed( self, ... )
+end
+
+function MenuLobbyRenderer:special_btn_pressed( ... )
+	return managers.menu_component:special_btn_pressed( ... )
+end
+
+function MenuLobbyRenderer:back_pressed( ... )
+	return MenuRenderer.back_pressed( self, ... )
+end
+
+function MenuLobbyRenderer:mouse_clicked( ... )
+	return MenuRenderer.mouse_clicked( self, ... )
+end
+
+function MenuLobbyRenderer:mouse_double_click( ... )
+	return MenuRenderer.mouse_double_click( self, ... )
 end
-
-MenuLobbyRenderer.set_bottom_text = function(l_4_0, ...)
-  MenuRenderer.set_bottom_text(l_4_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer._entered_menu = function(l_5_0)
-  local is_server = Network:is_server()
-  local local_peer = managers.network:session():local_peer()
-  managers.network:game():on_entered_lobby()
-  l_5_0:on_request_lobby_slot_reply()
-end
-
-MenuLobbyRenderer.close = function(l_6_0, ...)
-  l_6_0:set_choose_character_enabled(true)
-  MenuLobbyRenderer.super.close(l_6_0, ...)
-  if managers.menu_scene then
-    managers.menu_scene:hide_all_lobby_characters()
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-  end
-end
-
-MenuLobbyRenderer.update_level_id = function(l_7_0, l_7_1)
-  if l_7_1 or l_7_0._level_id == Global.game_settings.level_id then
-    return 
-  end
-  if not l_7_1 then
-    l_7_1 = Global.game_settings.level_id
-  end
-  local level_id_index = tweak_data.levels:get_index_from_level_id(l_7_1)
-  managers.network:session():send_to_peers("lobby_sync_update_level_id", level_id_index)
-  l_7_0:_update_level_id(l_7_1)
-end
-
-MenuLobbyRenderer.sync_update_level_id = function(l_8_0, l_8_1)
-  if l_8_0._level_id == l_8_1 then
-    return 
-  end
-  Global.game_settings.level_id = l_8_1
-  l_8_0:_update_level_id(l_8_1)
-end
-
-MenuLobbyRenderer._update_level_id = function(l_9_0, l_9_1)
-  l_9_0._level_id = l_9_1
-  Application:debug("_update_level_id", l_9_1)
-end
-
-MenuLobbyRenderer.update_difficulty = function(l_10_0)
-  local difficulty = Global.game_settings.difficulty
-  managers.network:session():send_to_peers_loaded("lobby_sync_update_difficulty", difficulty)
-  l_10_0:_update_difficulty(difficulty)
-end
-
-MenuLobbyRenderer.sync_update_difficulty = function(l_11_0, l_11_1)
-  Global.game_settings.difficulty = l_11_1
-  l_11_0:_update_difficulty(l_11_1)
-end
-
-MenuLobbyRenderer._update_difficulty = function(l_12_0, l_12_1)
-  Application:debug("_update_difficulty", l_12_1)
-end
-
-MenuLobbyRenderer.set_slot_joining = function(l_13_0, l_13_1, l_13_2)
-  managers.hud:set_slot_joining(l_13_1, l_13_2)
-  local slot = l_13_0._player_slots[l_13_2]
-  slot.peer_id = l_13_2
-end
-
-MenuLobbyRenderer.set_slot_ready = function(l_14_0, l_14_1, l_14_2)
-  managers.hud:set_slot_ready(l_14_1, l_14_2)
-end
-
-MenuLobbyRenderer.set_dropin_progress = function(l_15_0, l_15_1, l_15_2)
-  managers.hud:set_dropin_progress(l_15_1, l_15_2)
-end
-
-MenuLobbyRenderer.set_slot_not_ready = function(l_16_0, l_16_1, l_16_2)
-  managers.hud:set_slot_not_ready(l_16_1, l_16_2)
-end
-
-MenuLobbyRenderer.set_player_slots_kit = function(l_17_0, l_17_1)
-  local peer_id = l_17_0._player_slots[l_17_1].peer_id
-  Application:debug("set_player_slots_kit", l_17_1)
-end
-
-MenuLobbyRenderer.set_slot_outfit = function(l_18_0, l_18_1, l_18_2, l_18_3)
-  if l_18_0._player_slots then
-    local outfit = managers.blackmarket:unpack_outfit_from_string(l_18_3)
-    l_18_0._player_slots[l_18_1].outfit = outfit
-    managers.menu_component:set_slot_outfit_mission_briefing_gui(l_18_1, l_18_2, outfit)
-  end
-end
-
-MenuLobbyRenderer.set_kit_selection = function(l_19_0, l_19_1, l_19_2, l_19_3, l_19_4)
-  managers.hud:set_kit_selection(l_19_1, l_19_2, l_19_3, l_19_4)
-  Application:debug("set_kit_selection", l_19_1, l_19_2, l_19_3, l_19_4)
-end
-
-MenuLobbyRenderer.set_slot_voice = function(l_20_0, l_20_1, l_20_2, l_20_3)
-  managers.hud:set_slot_voice(l_20_1, l_20_2, l_20_3)
-  return 
-end
-
-MenuLobbyRenderer._set_player_slot = function(l_21_0, l_21_1, l_21_2)
-  local slot = l_21_0._player_slots[l_21_1]
-  slot.free = false
-  slot.peer_id = l_21_2.peer_id
-  slot.params = l_21_2
-  managers.hud:set_player_slot(l_21_1, l_21_2)
-end
-
-MenuLobbyRenderer.remove_player_slot_by_peer_id = function(l_22_0, l_22_1, l_22_2)
-  if not l_22_0._player_slots then
-    return 
-  end
-  local peer_id = l_22_1:id()
-  for _,slot in ipairs(l_22_0._player_slots) do
-    if slot.peer_id == peer_id then
-      slot.peer_id = nil
-      slot.params = nil
-      slot.outfit = nil
-      slot.free = true
-      slot.join_msg_shown = nil
-      managers.hud:remove_player_slot_by_peer_id(l_22_1, l_22_2)
-      managers.menu_component:set_slot_outfit_mission_briefing_gui(peer_id)
-  else
-    end
-  end
-end
-
-MenuLobbyRenderer.set_character = function(l_23_0, l_23_1, l_23_2)
-  Application:debug("set_character", l_23_1, l_23_2)
-end
-
-MenuLobbyRenderer.set_choose_character_enabled = function(l_24_0, l_24_1)
-  for _,node in ipairs(l_24_0._logic._node_stack) do
-    for _,item in ipairs(node:items()) do
-      if item:parameters().name == "choose_character" then
-        item:set_enabled(l_24_1)
-        for (for control),_ in (for generator) do
-        end
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-MenuLobbyRenderer.set_server_state = function(l_25_0, l_25_1)
-  local s = ""
-  if l_25_1 == "loading" then
-    s = string.upper(managers.localization:text("menu_lobby_server_state_loading"))
-    l_25_0:set_choose_character_enabled(false)
-  end
-  local msg = managers.localization:text("menu_lobby_messenger_title") .. managers.localization:text("menu_lobby_message_server_is_loading")
-  l_25_0:sync_chat_message(msg, 1)
-end
-
-MenuLobbyRenderer.on_request_lobby_slot_reply = function(l_26_0)
-  local local_peer = managers.network:session():local_peer()
-  local local_peer_id = local_peer:id()
-  local level = managers.experience:current_level()
-  local character = local_peer:character()
-  local progress = managers.upgrades:progress()
-  local mask_set = "remove"
-  local_peer:set_outfit_string(managers.blackmarket:outfit_string())
-  l_26_0:_set_player_slot(local_peer_id, {name = local_peer:name(), peer_id = local_peer_id, level = level, character = character, progress = progress})
-  managers.network:session():send_to_peers_loaded("lobby_info", local_peer_id, level, character, mask_set, progress[1], progress[2], progress[3], progress[4] or -1)
-  managers.network:session():send_to_peers_loaded("sync_profile", level)
-  managers.network:session():send_to_peers_loaded("sync_outfit", managers.blackmarket:outfit_string())
-end
-
-MenuLobbyRenderer.get_player_slot_by_peer_id = function(l_27_0, l_27_1)
-  for _,slot in ipairs(l_27_0._player_slots) do
-    if slot.peer_id and slot.peer_id == l_27_1 then
-      return slot
-    end
-  end
-  return l_27_0._player_slots[l_27_1]
-end
-
-MenuLobbyRenderer.get_player_slot_nr_by_peer_id = function(l_28_0, l_28_1)
-  for i,slot in ipairs(l_28_0._player_slots) do
-    if slot.peer_id and slot.peer_id == l_28_1 then
-      return i
-    end
-  end
-  return nil
-end
-
-MenuLobbyRenderer.sync_chat_message = function(l_29_0, l_29_1, l_29_2)
-  Application:debug("sync_chat_message", l_29_1, l_29_2)
-  for _,node_gui in ipairs(l_29_0._node_gui_stack) do
-    local row_item_chat = node_gui:row_item_by_name("chat")
-    if row_item_chat then
-      node_gui:sync_say(l_29_1, row_item_chat, l_29_2)
-      return true
-    end
-  end
-  return false
-end
-
-MenuLobbyRenderer.update = function(l_30_0, l_30_1, l_30_2)
-  MenuLobbyRenderer.super.update(l_30_0, l_30_1, l_30_2)
-end
-
-MenuLobbyRenderer.highlight_item = function(l_31_0, l_31_1, ...)
-  MenuLobbyRenderer.super.highlight_item(l_31_0, l_31_1, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.trigger_item = function(l_32_0, l_32_1)
-  MenuRenderer.super.trigger_item(l_32_0, l_32_1)
-  Application:debug("trigger_item", l_32_1)
-  if l_32_1 and l_32_1:parameters().sound ~= "false" then
-    local item_type = l_32_1:type()
-    if item_type == "" then
-      l_32_0:post_event("menu_enter")
-    elseif item_type == "toggle" then
-      if l_32_1:value() == "on" then
-        l_32_0:post_event("box_tick")
-      else
-        l_32_0:post_event("box_untick")
-      end
-    do
-      elseif item_type == "slider" then
-        local percentage = l_32_1:percentage()
-  end
-  if percentage <= 0 or percentage >= 100 or item_type == "multi_choice" then
-    end
-  end
-end
-
-MenuLobbyRenderer.post_event = function(l_33_0, l_33_1)
-  l_33_0._sound_source:post_event(l_33_1)
-end
-
-MenuLobbyRenderer.navigate_back = function(l_34_0)
-  MenuLobbyRenderer.super.navigate_back(l_34_0)
-  l_34_0:post_event("menu_exit")
-end
-
-MenuLobbyRenderer.resolution_changed = function(l_35_0, ...)
-  MenuLobbyRenderer.super.resolution_changed(l_35_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer._layout_menu_bg = function(l_36_0)
-  local res = RenderSettings.resolution
-  local safe_rect_pixels = managers.gui_data:scaled_size()
-  l_36_0._menu_bg:set_size(l_36_0._fullscreen_panel:h() * 2, l_36_0._fullscreen_panel:h())
-  l_36_0._menu_bg:set_position(0, 0)
-  l_36_0:set_stencil_align(l_36_0._menu_stencil_align, l_36_0._menu_stencil_align_percent)
-end
-
-MenuLobbyRenderer._layout_slot_progress_panel = function(l_37_0, l_37_1, l_37_2)
-  print("MenuLobbyRenderer:_layout_slot_progress_panel()", l_37_1, l_37_2)
-  local h = 16
-  local sh = 4
-  if l_37_2[4] then
-    h = 17
-    sh = 3
-  end
-  l_37_1.p_panel:set_size(38 * tweak_data.scale.lobby_info_offset_multiplier, h)
-  l_37_1.p_bg:set_size(l_37_1.p_panel:size())
-  l_37_1.p_ass_bg:set_size(l_37_1.p_panel:w() - 2, sh)
-  l_37_1.p_sha_bg:set_size(l_37_1.p_panel:w() - 2, sh)
-  l_37_1.p_sup_bg:set_size(l_37_1.p_panel:w() - 2, sh)
-  l_37_1.p_tec_bg:set_size(l_37_1.p_panel:w() - 2, sh)
-  if l_37_2[4] then
-    l_37_1.p_tec:set_visible(true)
-    l_37_1.p_tec_bg:set_visible(true)
-    l_37_1.p_ass_bg:set_position(1, 1)
-    l_37_1.p_sha_bg:set_position(1, 5)
-    l_37_1.p_sup_bg:set_position(1, 9)
-    l_37_1.p_tec_bg:set_position(1, 13)
-  else
-    l_37_1.p_tec:set_visible(false)
-    l_37_1.p_tec_bg:set_visible(false)
-    l_37_1.p_ass_bg:set_position(1, 1)
-    l_37_1.p_sha_bg:set_position(1, 6)
-    l_37_1.p_sup_bg:set_position(1, 11)
-  end
-  l_37_1.p_ass:set_shape(l_37_1.p_ass_bg:shape())
-  l_37_1.p_sha:set_shape(l_37_1.p_sha_bg:shape())
-  l_37_1.p_sup:set_shape(l_37_1.p_sup_bg:shape())
-  l_37_1.p_tec:set_shape(l_37_1.p_tec_bg:shape())
-  if not l_37_1.params or not l_37_1.p_ass_bg:w() * (l_37_2[1] / 49) then
-    l_37_1.p_ass:set_w(l_37_1.p_ass:w())
-  end
-  if not l_37_1.params or not l_37_1.p_sha_bg:w() * (l_37_2[2] / 49) then
-    l_37_1.p_sha:set_w(l_37_1.p_sha:w())
-  end
-  if not l_37_1.params or not l_37_1.p_sup_bg:w() * (l_37_2[3] / 49) then
-    l_37_1.p_sup:set_w(l_37_1.p_sup:w())
-  end
-  if not l_37_1.p_sup_bg:w() * ((not l_37_1.params or 0) / 49) and not l_37_1.p_sup_bg:w() * ((not l_37_1.params or 0) / 49) then
-    l_37_1.p_tec:set_w(l_37_1.p_tec:w())
-  end
-end
-
-MenuLobbyRenderer._layout_info_panel = function(l_38_0)
-  local res = RenderSettings.resolution
-  local safe_rect = managers.gui_data:scaled_size()
-  local is_single_player = Global.game_settings.single_player
-  local is_multiplayer = not is_single_player
-  l_38_0._gui_info_panel:set_shape(l_38_0._info_bg_rect:x() + tweak_data.menu.info_padding, l_38_0._info_bg_rect:y() + tweak_data.menu.info_padding, l_38_0._info_bg_rect:w() - tweak_data.menu.info_padding * 2, l_38_0._info_bg_rect:h() - tweak_data.menu.info_padding * 2)
-  local font_size = tweak_data.menu.lobby_info_font_size
-  local offset = 22 * tweak_data.scale.lobby_info_offset_multiplier
-  l_38_0._server_title:set_font_size(font_size)
-  l_38_0._server_text:set_font_size(font_size)
-  local x, y, w, h = l_38_0._server_title:text_rect()
-  l_38_0._server_title:set_x(tweak_data.menu.info_padding)
-  l_38_0._server_title:set_y(tweak_data.menu.info_padding)
-  l_38_0._server_title:set_w(w)
-  l_38_0._server_text:set_lefttop(l_38_0._server_title:righttop())
-  l_38_0._server_text:set_w(l_38_0._gui_info_panel:w())
-  l_38_0._server_info_title:set_font_size(font_size)
-  l_38_0._server_info_text:set_font_size(font_size)
-  local x, y, w, h = l_38_0._server_info_title:text_rect()
-  l_38_0._server_info_title:set_x(tweak_data.menu.info_padding)
-  l_38_0._server_info_title:set_y(tweak_data.menu.info_padding + offset)
-  l_38_0._server_info_title:set_w(w)
-  l_38_0._server_info_text:set_lefttop(l_38_0._server_info_title:righttop())
-  l_38_0._server_info_text:set_w(l_38_0._gui_info_panel:w())
-  l_38_0._level_title:set_font_size(font_size)
-  l_38_0._level_text:set_font_size(font_size)
-  local x, y, w, h = l_38_0._level_title:text_rect()
-  l_38_0._level_title:set_x(tweak_data.menu.info_padding)
-  if not is_multiplayer or not tweak_data.menu.info_padding + offset * 2 then
-    l_38_0._level_title:set_y(tweak_data.menu.info_padding)
-  end
-  l_38_0._level_title:set_w(w)
-  l_38_0._level_text:set_lefttop(l_38_0._level_title:righttop())
-  l_38_0._level_text:set_w(l_38_0._gui_info_panel:w())
-  l_38_0._difficulty_title:set_font_size(font_size)
-  l_38_0._difficulty_text:set_font_size(font_size)
-  local x, y, w, h = l_38_0._difficulty_title:text_rect()
-  l_38_0._difficulty_title:set_x(tweak_data.menu.info_padding)
-  l_38_0._difficulty_title:set_y(tweak_data.menu.info_padding + offset * (is_multiplayer and 3 or 1))
-  l_38_0._difficulty_title:set_w(w)
-  l_38_0._difficulty_text:set_lefttop(l_38_0._difficulty_title:righttop())
-  l_38_0._difficulty_text:set_w(l_38_0._gui_info_panel:w())
-  return 
-end
-
-MenuLobbyRenderer._layout_video = function(l_39_0)
-  if l_39_0._level_video then
-    local w = l_39_0._gui_info_panel:w()
-    local m = l_39_0._level_video:video_width() / l_39_0._level_video:video_height()
-    l_39_0._level_video:set_size(w, w / m)
-    l_39_0._level_video:set_y(0)
-    l_39_0._level_video:set_center_x(l_39_0._gui_info_panel:w() / 2)
-  end
-end
-
-MenuLobbyRenderer.set_bg_visible = function(l_40_0, l_40_1)
-  l_40_0._menu_bg:set_visible(l_40_1)
-end
-
-MenuLobbyRenderer.set_bg_area = function(l_41_0, l_41_1)
-  if l_41_0._menu_bg then
-    if l_41_1 == "full" then
-      l_41_0._menu_bg:set_size(l_41_0._menu_bg:parent():size())
-      l_41_0._menu_bg:set_position(0, 0)
-    elseif l_41_1 == "half" then
-      l_41_0._menu_bg:set_size(l_41_0._menu_bg:parent():w() * 0.5, l_41_0._menu_bg:parent():h())
-      l_41_0._menu_bg:set_top(0)
-      l_41_0._menu_bg:set_right(l_41_0._menu_bg:parent():w())
-    else
-      l_41_0._menu_bg:set_size(l_41_0._menu_bg:parent():size())
-      l_41_0._menu_bg:set_position(0, 0)
-    end
-  end
-end
-
-MenuLobbyRenderer.set_stencil_image = function(l_42_0, l_42_1)
-  MenuRenderer.set_stencil_image(l_42_0, l_42_1)
-end
-
-MenuLobbyRenderer.refresh_theme = function(l_43_0)
-  MenuRenderer.refresh_theme(l_43_0)
-end
-
-MenuLobbyRenderer.set_stencil_align = function(l_44_0, l_44_1, l_44_2)
-  if not l_44_0._menu_stencil then
-    return 
-  end
-  local d = l_44_0._menu_stencil:texture_height()
-  if d == 0 then
-    return 
-  end
-  l_44_0._menu_stencil_align = l_44_1
-  l_44_0._menu_stencil_align_percent = l_44_2
-  local res = RenderSettings.resolution
-  local safe_rect_pixels = managers.gui_data:scaled_size()
-  local y = safe_rect_pixels.height - tweak_data.load_level.upper_saferect_border * 2 + 2
-  local m = l_44_0._menu_stencil:texture_width() / l_44_0._menu_stencil:texture_height()
-  l_44_0._menu_stencil:set_size(y * m, y)
-  l_44_0._menu_stencil:set_center_y(res.y / 2)
-  local w = l_44_0._menu_stencil:texture_width()
-  local h = l_44_0._menu_stencil:texture_height()
-  if l_44_1 == "right" then
-    l_44_0._menu_stencil:set_texture_rect(0, 0, w, h)
-    l_44_0._menu_stencil:set_right(res.x)
-  elseif l_44_1 == "left" then
-    l_44_0._menu_stencil:set_texture_rect(0, 0, w, h)
-    l_44_0._menu_stencil:set_left(0)
-  elseif l_44_1 == "center" then
-    l_44_0._menu_stencil:set_texture_rect(0, 0, w, h)
-    l_44_0._menu_stencil:set_center_x(res.x / 2)
-  elseif l_44_1 == "center-right" then
-    l_44_0._menu_stencil:set_texture_rect(0, 0, w, h)
-    l_44_0._menu_stencil:set_center_x(res.x * 0.66000002622604)
-  elseif l_44_1 == "center-left" then
-    l_44_0._menu_stencil:set_texture_rect(0, 0, w, h)
-    l_44_0._menu_stencil:set_center_x(res.x * 0.33000001311302)
-  elseif l_44_1 == "manual" then
-    l_44_0._menu_stencil:set_texture_rect(0, 0, w, h)
-    l_44_2 = l_44_2 / 100
-    l_44_0._menu_stencil:set_left(res.x * (l_44_2) - y * m * (l_44_2))
-  end
-end
-
-MenuLobbyRenderer.current_menu_text = function(l_45_0, l_45_1)
-  local ids = {}
-  for i,node_gui in ipairs(l_45_0._node_gui_stack) do
-    table.insert(ids, node_gui.node:parameters().topic_id)
-  end
-  table.insert(ids, l_45_1)
-  local s = ""
-  for i,id in ipairs(ids) do
-    s = s .. managers.localization:text(id)
-    s = s .. (i < #ids and " > " or "")
-  end
-  return s
-end
-
-MenuLobbyRenderer.scroll_up = function(l_46_0, ...)
-  MenuRenderer.scroll_up(l_46_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.scroll_down = function(l_47_0, ...)
-  MenuRenderer.scroll_down(l_47_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.accept_input = function(l_48_0, ...)
-  MenuRenderer.accept_input(l_48_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.mouse_pressed = function(l_49_0, ...)
-  return MenuRenderer.mouse_pressed(l_49_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.mouse_released = function(l_50_0, ...)
-  return MenuRenderer.mouse_released(l_50_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.mouse_moved = function(l_51_0, ...)
-  return MenuRenderer.mouse_moved(l_51_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.input_focus = function(l_52_0, ...)
-  return MenuRenderer.input_focus(l_52_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.move_up = function(l_53_0, ...)
-  return MenuRenderer.move_up(l_53_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.move_down = function(l_54_0, ...)
-  return MenuRenderer.move_down(l_54_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.move_left = function(l_55_0, ...)
-  return MenuRenderer.move_left(l_55_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.move_right = function(l_56_0, ...)
-  return MenuRenderer.move_right(l_56_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.next_page = function(l_57_0, ...)
-  return MenuRenderer.next_page(l_57_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.previous_page = function(l_58_0, ...)
-  return MenuRenderer.previous_page(l_58_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.confirm_pressed = function(l_59_0, ...)
-  return MenuRenderer.confirm_pressed(l_59_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.special_btn_pressed = function(l_60_0, ...)
-  return managers.menu_component:special_btn_pressed(...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.back_pressed = function(l_61_0, ...)
-  return MenuRenderer.back_pressed(l_61_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.mouse_clicked = function(l_62_0, ...)
-  return MenuRenderer.mouse_clicked(l_62_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-MenuLobbyRenderer.mouse_double_click = function(l_63_0, ...)
-  return MenuRenderer.mouse_double_click(l_63_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-

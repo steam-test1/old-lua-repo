@@ -1,169 +1,170 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\system\coremodule.luac 
+--[[
 
-local CORE, PROJ = 0, 1
+C o r e M o d u l e
+-------------------
+The CoreModule provide functionality for creating
+and registering modules. See also CoreClass for how
+to override core functionality.
+
+The following (non-core-internal) methods are defined:
+  -> core:register_module( <module_file_path> )
+  -> core:module( <module_name> )
+  -> core:import( <module_name> )
+
+]]--
+
+local CORE,PROJ = 0,1
 local CoreModule = {}
+
 CoreModule.PRODUCTION_ONLY = "PRODUCTION_ONLY"
-CoreModule.new = function(l_1_0)
-  local instance = {}
-  l_1_0.__index = l_1_0
-  setmetatable(instance, l_1_0)
-  instance:init()
-  return instance
+
+function CoreModule:new()
+	local instance = {}
+	self.__index = self
+	setmetatable( instance, self )
+	instance:init()
+    return instance
 end
 
-CoreModule.init = function(l_2_0)
-  l_2_0.__modules = {}
-  l_2_0.__filepaths = {}
-  l_2_0.__pristine_G = {}
-  l_2_0.__pristine_closed = false
-  l_2_0.__obj2nametable = {}
-  for k,v in pairs(_G) do
-    l_2_0.__pristine_G[k] = v
-  end
-  l_2_0.__pristine_G.core = l_2_0
-  return l_2_0
+function CoreModule:init()
+	self.__modules         = {}
+	self.__filepaths       = {}
+	self.__pristine_G      = {}
+	self.__pristine_closed = false
+	self.__obj2nametable   = {}
+	for k,v in pairs( _G ) do     -- make a copy of _G as early as possible, this is what
+		self.__pristine_G[k] = v   -- the module will see. The concept is similar to using
+	end                           -- package.seeall except that we don't get all crap in _G.
+	self.__pristine_G.core = self  -- _G.core is added after this function is executed...
+	return self
 end
 
-CoreModule.register_module = function(l_3_0, l_3_1)
-  local module_name = l_3_0:_get_module_name(l_3_1)
-  assert(l_3_0.__filepaths[module_name] == nil, "Can't register module '" .. tostring(module_name) .. "'. It is already registred.")
-  l_3_0.__filepaths[module_name] = l_3_1
+function CoreModule:register_module( module_file_path ) --> nil
+	local module_name = self:_get_module_name( module_file_path )
+	assert( self.__filepaths[module_name] == nil, 
+	        "Can't register module '" .. tostring(module_name) .. "'. It is already registred." )
+	self.__filepaths[module_name] = module_file_path
 end
 
-CoreModule.import = function(l_4_0, l_4_1)
-  if l_4_0.__filepaths[l_4_1] ~= nil then
-    local fp = l_4_0.__filepaths[l_4_1]
-    require(fp)
-    local m = l_4_0.__modules[l_4_1]
-    assert(m, "Can't import. Please check statement core:module('" .. l_4_1 .. "') in: " .. fp)
-    rawset(getfenv(2), l_4_1, m)
-    return m
-  else
-    error("Can't import module '" .. tostring(l_4_1) .. "'. It is not registred (is spelling correct?)")
-  end
+function CoreModule:import( module_name )
+	if self.__filepaths[module_name] ~= nil then
+		local fp = self.__filepaths[module_name]
+		require( fp )
+		local m = self.__modules[module_name]
+		assert( m, "Can't import. Please check statement core:module('" .. module_name .. "') in: " .. fp )
+		rawset( getfenv(2), module_name, m )
+		return m
+	else
+		error( "Can't import module '" .. tostring(module_name) .. "'. It is not registred (is spelling correct?)" )
+	end
 end
 
-CoreModule.from_module_import = function(l_5_0, l_5_1, ...)
-  if l_5_0.__filepaths[l_5_1] ~= nil then
-    local fp = l_5_0.__filepaths[l_5_1]
-    require(fp)
-    local m = l_5_0.__modules[l_5_1]
-    assert(m, "Can't import. Please check statement core:module('" .. l_5_1 .. "') in: " .. fp)
-    for _,name in ipairs({...}) do
-      local v = assert(m[name], "Can't import name '" .. tostring(name) .. "' from module '" .. l_5_1 .. "'")
-      rawset(getfenv(2), name, v)
-    end
-  else
-    error("Can't import module '" .. tostring(l_5_1) .. "'. It is not registred (is spelling correct?)")
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-  end
+function CoreModule:from_module_import( module_name, ... )
+	if self.__filepaths[module_name] ~= nil then
+		local fp = self.__filepaths[module_name]
+		require( fp )
+		local m = self.__modules[module_name]
+		assert( m, "Can't import. Please check statement core:module('" .. module_name .. "') in: " .. fp )
+		for _,name in ipairs({...}) do
+			local v = assert( m[name], "Can't import name '" .. tostring(name) .. "' from module '" .. module_name .. "'" ) 
+			rawset( getfenv(2), name, v )
+		end
+	else
+		error( "Can't import module '" .. tostring(module_name) .. "'. It is not registred (is spelling correct?)" )
+	end
 end
 
-CoreModule.module = function(l_6_0, l_6_1)
-  local M = nil
-  if not l_6_0.__modules[l_6_1] then
-    M = {}
-  end
-  l_6_0.__modules[l_6_1] = M
-  M._M = M
-  M._NAME = l_6_1
-  setmetatable(M, {__index = l_6_0.__pristine_G})
-  setfenv(2, M)
+function CoreModule:module( module_name )
+	local M
+	M = self.__modules[module_name] or {}
+	self.__modules[module_name] = M
+	M._M = M
+	M._NAME = module_name
+	setmetatable( M, { __index = self.__pristine_G } )
+	setfenv(2,M)
 end
 
-CoreModule._add_to_pristine_and_global = function(l_7_0, l_7_1, l_7_2)
-  assert(not l_7_0.__pristine_closed)
-  rawset(l_7_0.__pristine_G, l_7_1, l_7_2)
-  rawset(_G, l_7_1, l_7_2)
+function CoreModule:_add_to_pristine_and_global( key, value )
+	assert( not self.__pristine_closed )
+	rawset( self.__pristine_G, key, value )
+	rawset( _G, key, value )
 end
 
-CoreModule._copy_module_to_global = function(l_8_0, l_8_1)
-  assert(not l_8_0.__pristine_closed)
-  local module = l_8_0:import(l_8_1)
-  for k,v in pairs(module) do
-    rawset(_G, k, v)
-  end
+function CoreModule:_copy_module_to_global( module_name )
+	assert( not self.__pristine_closed )
+	local module = self:import( module_name )
+	for k,v in pairs( module ) do
+		rawset( _G, k, v )
+	end
 end
 
-CoreModule._close_pristine_namespace = function(l_9_0, l_9_1)
-  l_9_0.__pristine_closed = true
+function CoreModule:_close_pristine_namespace( module_name )
+	self.__pristine_closed = true
 end
 
-CoreModule._get_module_name = function(l_10_0, l_10_1)
-  assert(type(l_10_1) == "string")
-  local i = 1
-  local j = string.find(l_10_1, "/", i, true)
-  repeat
-    if j then
-      i = j + 1
-      j = string.find(l_10_1, "/", i, true)
-    do
-      else
-        local module_name = string.sub(l_10_1, i)
-        assert(module_name ~= "", string.format("Malformed module_file_path '%s'", l_10_1))
-        return module_name
-      end
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+function CoreModule:_get_module_name( module_file_path ) --> module_name
+	assert( type( module_file_path ) == "string" )
+	local i = 1
+	local j = string.find( module_file_path, '/', i, true )
+	while j do
+		i = j + 1
+		j = string.find( module_file_path, '/', i, true )
+	end
+	local module_name = string.sub( module_file_path, i )
+	assert( module_name ~= "", string.format( "Malformed module_file_path '%s'", module_file_path ) )
+	return module_name
 end
 
-CoreModule._prepare_reload = function(l_11_0)
-  l_11_0.__filepaths = {}
-  l_11_0.__pristine_closed = false
+function CoreModule:_prepare_reload()
+	self.__filepaths = {}
+	self.__pristine_closed = false
 end
 
-CoreModule._lookup = function(l_12_0, l_12_1)
-  assert(Application:production_build(), "core:_lookup(...) is for debugging only!")
-  if not l_12_0.__obj2nametable[l_12_1] then
-    local find = function(l_1_0, l_1_1, l_1_2)
-    for k,v in pairs(l_1_2) do
-      if v == l_1_0 then
-        self.__obj2nametable[l_1_0] = {k, l_1_1}
-        return true
-      end
-    end
-   end
-    find(l_12_1, "_G", _G)
-    for n,m in pairs(l_12_0.__modules) do
-      find(l_12_1, n, m)
-    end
-  end
-  if not l_12_0.__obj2nametable[l_12_1] then
-    return unpack({"<notfound>", "<notfound>"})
-     -- Warning: missing end command somewhere! Added here
-  end
+function CoreModule:_lookup( object )
+	assert( Application:production_build(), 'core:_lookup(...) is for debugging only!' )
+	if not self.__obj2nametable[object] then
+		local function find( o, n, t )
+			for k,v in pairs( t ) do
+				if v == o then
+					self.__obj2nametable[o] = {k,n}
+					return true
+				end
+			end
+		end
+		find(object, '_G', _G)
+		for n,m in pairs(self.__modules) do
+			find(object, n, m)
+		end
+	end
+	return unpack( self.__obj2nametable[object] or {'<notfound>','<notfound>'} )
 end
 
-CoreModule._name_to_module = function(l_13_0, l_13_1)
-  if not l_13_0.__modules[l_13_1] then
-    if l_13_0.__filepaths[l_13_1] ~= nil then
-      local fp = l_13_0.__filepaths[l_13_1]
-      require(fp)
-      local m = l_13_0.__modules[l_13_1]
-      assert(m, "Can't import. Please check statement core:module('" .. l_13_1 .. "') in: " .. fp)
-    else
-      error("Can't import module '" .. tostring(l_13_1) .. "'. It is not registred (is spelling correct?)")
-    end
-  end
-  return l_13_0.__modules[l_13_1]
+function CoreModule:_name_to_module( module_name )
+	if not self.__modules[module_name] then
+		if self.__filepaths[module_name] ~= nil then
+			local fp = self.__filepaths[module_name]
+			require( fp )
+			local m = self.__modules[module_name]
+			assert( m, "Can't import. Please check statement core:module('" .. module_name .. "') in: " .. fp )
+		else
+			error( "Can't import module '" .. tostring(module_name) .. "'. It is not registred (is spelling correct?)" )
+		end
+	end
+	return self.__modules[module_name]
 end
 
-CoreModule._module_to_name = function(l_14_0, l_14_1)
-  for n,m in pairs(l_14_0.__modules) do
-    if m == l_14_1 then
-      return n
-    end
-  end
-  error("Can't locate module")
+function CoreModule:_module_to_name( module )
+	for n,m in pairs( self.__modules ) do
+		if m == module then
+			return n
+		end
+	end
+	error( "Can't locate module" )
 end
+
 
 if _G.core == nil then
-  _G.core = CoreModule:new()
+	_G.core = CoreModule:new()
 else
-  _G.core:_prepare_reload()
+	_G.core:_prepare_reload()
 end
-

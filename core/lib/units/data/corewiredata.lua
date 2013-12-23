@@ -1,12 +1,6 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\units\data\corewiredata.luac 
+CoreWireData = CoreWireData or class()
 
-if not CoreWireData then
-  CoreWireData = class()
+function CoreWireData:init()
+	self.slack = 0
+	self.target_rot = 0
 end
-CoreWireData.init = function(l_1_0)
-  l_1_0.slack = 0
-  l_1_0.target_rot = 0
-end
-
-

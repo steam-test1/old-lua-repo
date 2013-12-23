@@ -1,28 +1,21 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\elementfakeassaultstate.luac 
+core:import( "CoreMissionScriptElement" )
 
-core:import("CoreMissionScriptElement")
-if not ElementFakeAssaultState then
-  ElementFakeAssaultState = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementFakeAssaultState.init = function(l_1_0, ...)
-  ElementFakeAssaultState.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementFakeAssaultState = ElementFakeAssaultState or class( CoreMissionScriptElement.MissionScriptElement )
 
+function ElementFakeAssaultState:init( ... )
+	ElementFakeAssaultState.super.init( self, ... )
 end
 
-ElementFakeAssaultState.client_on_executed = function(l_2_0, ...)
-  l_2_0:on_executed(...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function ElementFakeAssaultState:client_on_executed( ... )
+	self:on_executed( ... )
 end
 
-ElementFakeAssaultState.on_executed = function(l_3_0, l_3_1)
-  if not l_3_0._values.enabled then
-    return 
-  end
-  managers.groupai:state():set_fake_assault_mode(l_3_0._values.state)
-  ElementFakeAssaultState.super.on_executed(l_3_0, l_3_1)
+function ElementFakeAssaultState:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	managers.groupai:state():set_fake_assault_mode( self._values.state ) 
+		
+	ElementFakeAssaultState.super.on_executed( self, instigator )
 end
-
-

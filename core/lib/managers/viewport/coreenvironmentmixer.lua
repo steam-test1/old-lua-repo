@@ -1,10 +1,9 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\viewport\coreenvironmentmixer.luac 
-
 core:module("CoreEnvironmentMixer")
+
 core:import("CoreClass")
 core:import("CoreEnvironmentData")
 core:import("CoreEnvironmentHandle")
+
 core:import("CoreEnvironmentDebugInterface")
 core:import("CoreEnvironmentSkyOrientationInterface")
 core:import("CoreEnvironmentRadialBlurInterface")
@@ -13,296 +12,336 @@ core:import("CoreEnvironmentDOFInterface")
 core:import("CoreEnvironmentDOFSharedInterface")
 core:import("CoreEnvironmentShadowInterface")
 core:import("CoreEnvironmentShadowSharedInterface")
-if not EnvironmentMixer then
-  EnvironmentMixer = CoreClass.class()
-end
-EnvironmentMixer.set_environment = function(l_1_0, l_1_1, l_1_2)
-  if not l_1_2 or l_1_2 == 0 then
-    l_1_0._from_env = l_1_0._cache:load_environment(l_1_1)
-    l_1_0._target_env = l_1_0._cache:copy_environment(l_1_1)
-  else
-    l_1_0._from_env = l_1_0._to_env
-  end
-  l_1_0._blend = 0
-  l_1_0._blend_time = l_1_2 or 0
-  l_1_0._to_env = l_1_0._cache:load_environment(l_1_1)
-  l_1_0._feed_params = 3
-end
 
-EnvironmentMixer.current_environment = function(l_2_0)
-  if l_2_0:is_mixing() then
-    return l_2_0._from_env:name(), l_2_0._to_env:name(), l_2_0._scale
-  else
-    return l_2_0._to_env:name()
-  end
-end
+EnvironmentMixer = EnvironmentMixer or CoreClass.class()
 
-EnvironmentMixer.is_mixing = function(l_3_0)
-  return l_3_0._is_mixing or false
+----------------------------------------------------------------------------
+--
+--    P U B L I C
+--
+----------------------------------------------------------------------------
+
+function EnvironmentMixer:set_environment( name, blend_time )
+	if not blend_time or blend_time == 0 then
+		self._from_env = self._cache:load_environment( name )
+		self._target_env = self._cache:copy_environment( name )
+	else
+		self._from_env = self._to_env
+	end
+	
+	self._blend = 0
+	self._blend_time = blend_time or 0
+	self._to_env = self._cache:load_environment( name )
+	self._feed_params = 3 -- Magic number of times the values need to be mixed
 end
 
-EnvironmentMixer.create_modifier = function(l_4_0, l_4_1, l_4_2, l_4_3)
-  return l_4_0:_create_modifier(l_4_1, l_4_2, l_4_3)
+function EnvironmentMixer:current_environment()
+	if self:is_mixing() then
+		return self._from_env:name(), self._to_env:name(), self._scale
+	else
+		return self._to_env:name()
+	end
 end
 
-EnvironmentMixer.modifier_owner = function(l_5_0, l_5_1)
-  local interface = l_5_0._interfaces[l_5_1]
-  if interface then
-    local handle_name = l_5_0:_create_handle_name_from_params(unpack(interface.DATA_PATH))
-    if not l_5_0._full_control_handles[handle_name] and not l_5_0._part_control_handles[handle_name] then
-      local handle = l_5_0._cache:shared_handle(nil, handle_name)
-    end
-    if handle then
-      return handle:traceback()
-    else
-      Application:error("[EnvironmentMixer] No modifier created!")
-    end
-  else
-    Application:error("[EnvironmentMixer] No interface with name: " .. l_5_1)
-  end
+function EnvironmentMixer:is_mixing()
+	return self._is_mixing or false
 end
 
-EnvironmentMixer.destroy_modifier = function(l_6_0, l_6_1)
-  if not l_6_0._full_control_handles[l_6_1] then
-    local handle = l_6_0._part_control_handles[l_6_1]
-  end
-  if not handle then
-    l_6_0._cache:destroy_shared_handle(l_6_1)
-    return 
-  end
-  l_6_0._full_control_handles[l_6_1] = nil
-  l_6_0._part_control_handles[l_6_1] = nil
+function EnvironmentMixer:create_modifier(full_control, interface_name, func)
+	return self:_create_modifier(full_control, interface_name, func)
 end
 
-EnvironmentMixer.modifier_interface_names = function(l_7_0)
-  local t = {}
-  for name,_ in pairs(l_7_0._interfaces) do
-    table.insert(t, name)
-  end
-  return unpack(t)
+function EnvironmentMixer:modifier_owner(interface_name)
+	local interface = self._interfaces[interface_name]
+	if interface then
+		local handle_name = self:_create_handle_name_from_params( unpack(interface.DATA_PATH) )
+		local handle = self._full_control_handles[handle_name] or self._part_control_handles[handle_name] or self._cache:shared_handle(nil, handle_name)
+		
+		if handle then
+			return handle:traceback()
+		else
+			Application:error("[EnvironmentMixer] No modifier created!")
+		end
+	else
+		Application:error("[EnvironmentMixer] No interface with name: " .. interface_name)
+	end
 end
 
-EnvironmentMixer.static_parameters = function(l_8_0, l_8_1, ...)
-  do
-    local env = l_8_0._cache:load_environment(l_8_1)
-    return env:parameter_block(...)
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function EnvironmentMixer:destroy_modifier(id)
+	local handle = self._full_control_handles[id] or self._part_control_handles[id]
+	if not handle then
+		self._cache:destroy_shared_handle(id)
+		return
+	end
+	
+	self._full_control_handles[id] = nil
+	self._part_control_handles[id] = nil
 end
 
-EnvironmentMixer.init = function(l_9_0, l_9_1, l_9_2)
-  l_9_0._cache = l_9_1
-  l_9_0._target_env = l_9_0._cache:copy_environment(l_9_2)
-  l_9_0:set_environment(l_9_2)
-  l_9_0._full_control_handles = {}
-  l_9_0._part_control_handles = {}
-  l_9_0._ref_fov_stack = {}
-  l_9_0._interfaces = {debug = CoreEnvironmentDebugInterface.EnvironmentDebugInterface, sky_orientation = CoreEnvironmentSkyOrientationInterface.EnvironmentSkyOrientationInterface, radial_blur = CoreEnvironmentRadialBlurInterface.EnvironmentRadialBlurInterface, fog = CoreEnvironmentFogInterface.EnvironmentFogInterface, dof = CoreEnvironmentDOFInterface.EnvironmentDOFInterface, shared_dof = CoreEnvironmentDOFSharedInterface.EnvironmentDOFSharedInterface, shadow = CoreEnvironmentShadowInterface.EnvironmentShadowInterface, shared_shadow = CoreEnvironmentShadowSharedInterface.EnvironmentShadowSharedInterface}
-  l_9_0._visualization_modes = {"glossiness_visualization", "specular_visualization", "normal_visualization", "albedo_visualization", "deferred_lighting", "depth_visualization"}
+function EnvironmentMixer:modifier_interface_names()
+	local t = {}
+	for name,_ in pairs( self._interfaces ) do
+		table.insert( t, name )
+	end
+	return unpack( t )
 end
 
-EnvironmentMixer.internal_push_ref_fov = function(l_10_0, l_10_1, l_10_2, l_10_3)
-  if not l_10_2:camera() or l_10_1 < math.rad(l_10_2:camera():fov()) then
-    return false
-  end
-  local sh_pro = l_10_2:get_post_processor_effect(l_10_3, Idstring("shadow_processor"), Idstring("shadow_rendering"))
-  if sh_pro then
-    local sh_mod = sh_pro:modifier(Idstring("shadow_modifier"))
-    if sh_mod then
-      table.insert(l_10_0._ref_fov_stack, sh_mod:reference_fov())
-      sh_mod:set_reference_fov(math.rad(l_10_1))
-      return true
-    end
-  end
-  return false
+function EnvironmentMixer:static_parameters( env_name, ... )
+	local env = self._cache:load_environment( env_name )
+	return env:parameter_block( ... )
 end
 
-EnvironmentMixer.internal_pop_ref_fov = function(l_11_0, l_11_1, l_11_2)
-  local sh_pro = l_11_1:get_post_processor_effect(l_11_2, Idstring("shadow_processor"), Idstring("shadow_rendering"))
-  if sh_pro then
-    local sh_mod = sh_pro:modifier(Idstring("shadow_modifier"))
-    if sh_mod and #l_11_0._ref_fov_stack > 0 then
-      local last = l_11_0._ref_fov_stack[#l_11_0._ref_fov_stack]
-      if not l_11_1:camera() or math.rad(l_11_1:camera():fov()) <= last then
-        sh_mod:set_reference_fov(l_11_0._ref_fov_stack[#l_11_0._ref_fov_stack])
-        table.remove(l_11_0._ref_fov_stack, #l_11_0._ref_fov_stack)
-        return true
-      end
-    end
-  end
-  return false
+----------------------------------------------------------------------------
+--
+--    I N T E R N A L
+--
+--    ScriptViewport, EnvironmentHandle
+--
+----------------------------------------------------------------------------
+
+function EnvironmentMixer:init( cache, name )
+	self._cache = cache
+	
+	self._target_env = self._cache:copy_environment( name )
+	self:set_environment( name )
+	
+	self._full_control_handles = {}
+	self._part_control_handles = {}
+	self._ref_fov_stack = {}
+	
+	self._interfaces = {
+		debug = CoreEnvironmentDebugInterface.EnvironmentDebugInterface,
+		sky_orientation = CoreEnvironmentSkyOrientationInterface.EnvironmentSkyOrientationInterface,
+		radial_blur = CoreEnvironmentRadialBlurInterface.EnvironmentRadialBlurInterface,
+		fog = CoreEnvironmentFogInterface.EnvironmentFogInterface,
+		dof = CoreEnvironmentDOFInterface.EnvironmentDOFInterface,
+		shared_dof = CoreEnvironmentDOFSharedInterface.EnvironmentDOFSharedInterface,
+		shadow = CoreEnvironmentShadowInterface.EnvironmentShadowInterface,
+		shared_shadow = CoreEnvironmentShadowSharedInterface.EnvironmentShadowSharedInterface
+	}
+	
+	self._visualization_modes = {
+		"glossiness_visualization",
+		"specular_visualization",
+		"normal_visualization",
+		"albedo_visualization",
+		"deferred_lighting",
+		"depth_visualization"
+	}
 end
 
-EnvironmentMixer.internal_ref_fov = function(l_12_0, l_12_1, l_12_2)
-  local fov = -1
-  local sh_pro = l_12_1:get_post_processor_effect(l_12_2, Idstring("shadow_processor"), Idstring("shadow_rendering"))
-  if sh_pro then
-    local sh_mod = sh_pro:modifier(Idstring("shadow_modifier"))
-    if sh_mod then
-      fov = math.deg(sh_mod:reference_fov())
-    end
-  end
-  return fov
+function EnvironmentMixer:internal_push_ref_fov( fov, vp, scene )
+	if math.rad(vp:camera() and vp:camera():fov()) > fov then
+		return false
+	end
+
+	local sh_pro = vp:get_post_processor_effect(scene, Idstring("shadow_processor"), Idstring("shadow_rendering"))
+	if sh_pro then
+		local sh_mod = sh_pro:modifier(Idstring("shadow_modifier"))
+		if sh_mod then
+			table.insert(self._ref_fov_stack, sh_mod:reference_fov())
+			sh_mod:set_reference_fov(math.rad(fov))
+			return true
+		end
+	end
+	return false
 end
 
-EnvironmentMixer.internal_set_visualization_mode = function(l_13_0, l_13_1, l_13_2, l_13_3)
-  if l_13_1 ~= "deferred_lighting" or l_13_1 ~= "deferred_lighting" then
-    l_13_2:set_post_processor_effect(l_13_3, Idstring("hdr_post_processor"), Idstring("empty")):set_visibility(not table.contains(l_13_0._visualization_modes, l_13_1))
-  end
-  l_13_2:set_post_processor_effect(l_13_3, Idstring("deferred"), Idstring(l_13_1)):set_visibility(true)
-  do return end
-  local error_msg = "[EnvironmentMixer] " .. l_13_1 .. " is not a valid visualization mode! Available modes are:"
-   -- DECOMPILER ERROR: No list found. Setlist fails
-
-  for _,mode in ipairs({}) do
-    error_msg = error_msg .. "\t" .. mode
-  end
-  Application:error(error_msg)
+function EnvironmentMixer:internal_pop_ref_fov( vp, scene )
+	local sh_pro = vp:get_post_processor_effect(scene, Idstring("shadow_processor"), Idstring("shadow_rendering"))
+	if sh_pro then
+		local sh_mod = sh_pro:modifier(Idstring("shadow_modifier"))
+		if sh_mod and #self._ref_fov_stack > 0 then
+			local last = self._ref_fov_stack[#self._ref_fov_stack]
+			if not vp:camera() or math.rad(vp:camera():fov()) <= last then
+				sh_mod:set_reference_fov(self._ref_fov_stack[#self._ref_fov_stack])
+				table.remove(self._ref_fov_stack, #self._ref_fov_stack)
+				return true
+			end
+		end
+	end
+	return false
 end
 
-EnvironmentMixer.internal_visualization_modes = function(l_14_0)
-  return unpack(l_14_0._visualization_modes)
+function EnvironmentMixer:internal_ref_fov( vp, scene )
+	local fov = -1
+	local sh_pro = vp:get_post_processor_effect(scene, Idstring("shadow_processor"), Idstring("shadow_rendering"))
+	if sh_pro then
+		local sh_mod = sh_pro:modifier(Idstring("shadow_modifier"))
+		if sh_mod then
+			fov = math.deg(sh_mod:reference_fov())
+		end
+	end
+	return fov
 end
 
-EnvironmentMixer.set_feed_params = function(l_15_0)
-  l_15_0._feed_params = 1
+function EnvironmentMixer:internal_set_visualization_mode( effect_name, vp, scene )
+	if table.contains(self._visualization_modes, effect_name) then
+		
+		if effect_name == "deferred_lighting" then
+			-- vp:set_post_processor_effect(scene, Idstring("tonemapper"), Idstring("tonemap")):set_visibility(true)
+		else
+			-- vp:set_post_processor_effect(scene, Idstring("tonemapper"), Idstring("tonemap_disable")):set_visibility(true)	
+		end
+		
+		vp:set_post_processor_effect(scene, Idstring("hdr_post_processor"), Idstring("empty")):set_visibility(effect_name == "deferred_lighting")
+		vp:set_post_processor_effect(scene, Idstring("deferred"), Idstring(effect_name)):set_visibility(true)
+		
+		-- vp:set_post_processor_effect(scene, Idstring("hdr_post_processor"), Idstring("default")):set_visibility(effect_name == "deferred_lighting")
+		-- vp:set_post_processor_effect(scene, Idstring("deferred"), Idstring(effect_name)):set_visibility(true)
+		
+	else
+		local error_msg = "[EnvironmentMixer] " .. effect_name .. " is not a valid visualization mode! Available modes are:"
+
+		for _,mode in ipairs({self:internal_visualization_modes()}) do
+			error_msg = error_msg .. "\t" .. mode
+		end
+
+		Application:error( error_msg )
+	end
 end
 
-EnvironmentMixer.internal_update = function(l_16_0, l_16_1, l_16_2, l_16_3)
-  local id = Profiler:start("Environment Mixer")
-  local return_value = not l_16_0._feed_params or true
-  if l_16_0._feed_params then
-    l_16_0._target_env:for_each(function(l_1_0, ...)
-    self:_process_block(nr == 1, l_1_0, ...)
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-   end)
-    l_16_0._feed_params = l_16_0._feed_params - 1
-    if l_16_0._feed_params <= 0 then
-      l_16_0._feed_params = nil
-    end
-    managers.environment_controller:feed_params()
-  end
-  Profiler:stop(id)
-  return return_value
+function EnvironmentMixer:internal_visualization_modes()
+	return unpack( self._visualization_modes )
 end
 
-EnvironmentMixer.internal_output = function(l_17_0, ...)
-  if select("#", ...) <= 0 or not l_17_0._target_env:parameter_block(...) then
-    return l_17_0._target_env
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-  end
+function EnvironmentMixer:set_feed_params()
+	self._feed_params = 1
 end
 
-EnvironmentMixer._create_modifier = function(l_18_0, l_18_1, l_18_2, l_18_3, l_18_4, ...)
-  local interface = assert(l_18_0._interfaces[l_18_2], "[EnvironmentMixer] Could not find interface with name: " .. l_18_2)
-  if not interface.DATA_PATH then
-    local path = {...}
-  end
-  local is_shared = interface.SHARED or l_18_4
-  local name = l_18_0:_create_handle_name_from_params(unpack(path))
-  do
-    if not l_18_0:_get_handle_by_name(name) then
-      local handle = l_18_0._cache:shared_handle(nil, name)
-    end
-    if not handle then
-      handle = CoreEnvironmentHandle.EnvironmentHandle:new(l_18_0, interface, l_18_1, l_18_3, name, is_shared, unpack(path))
-      if is_shared then
-        l_18_0._cache:set_shared_handle(l_18_1, name, handle)
-      elseif l_18_1 then
-        l_18_0._full_control_handles[name] = handle
-      else
-        l_18_0._part_control_handles[name] = handle
-      end
-    end
-    return name
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function EnvironmentMixer:internal_update( nr, t, dt )
+	local id = Profiler:start("Environment Mixer")
+	-- Removed all this expensive mixing. Only do the current neccessary for one frame /MW 
+	--[[self._is_mixing = ( self._blend_time and ( self._blend_time > 0 ) ) and ( self._blend <= self._blend_time ) 
+	
+	if self._is_mixing then 
+		self._scale = math.clamp( self._blend / self._blend_time, 0, 1 )
+	end
+	
+	self._target_env:for_each(
+		function(block, ...)
+			self:_process_block(nr == 1, block, ...)
+		end
+	)
+	
+	if self._is_mixing then
+		self._blend = self._blend + dt
+	end]]
+		
+	local return_value = self._feed_params and true
+	
+	if self._feed_params then
+		self._target_env:for_each(
+		function(block, ...)
+			self:_process_block(nr == 1, block, ...)
+		end
+		)
+	
+		self._feed_params = self._feed_params - 1
+		if self._feed_params <= 0 then
+			self._feed_params = nil
+		end
+		managers.environment_controller:feed_params()
+	end
+	
+	Profiler:stop(id)
+	
+	-- Return value is true if params has been updated
+	return return_value
 end
 
-EnvironmentMixer._get_handle_by_params = function(l_19_0, ...)
-  do
-    local handle_name = l_19_0:_create_handle_name_from_params(...)
-    return l_19_0:_get_handle_by_name(handle_name)
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function EnvironmentMixer:internal_output(...)
+	return (select("#", ...) > 0) and self._target_env:parameter_block(...) or self._target_env
 end
 
-EnvironmentMixer._get_handle_by_name = function(l_20_0, l_20_1)
-  for _,handle in pairs(l_20_0._full_control_handles) do
-    if handle:name() == l_20_1 then
-      return handle
-    end
-  end
-  for _,handle in pairs(l_20_0._part_control_handles) do
-    if handle:name() == l_20_1 then
-      return handle
-    end
-  end
+----------------------------------------------------------------------------
+--
+--    P R I V A T E
+--
+----------------------------------------------------------------------------
+
+function EnvironmentMixer:_create_modifier(full_control, interface_name, func, shared, ...)
+	local interface = assert(self._interfaces[interface_name], "[EnvironmentMixer] Could not find interface with name: " .. interface_name)
+	local path = interface.DATA_PATH or {...}
+	local is_shared = interface.SHARED or shared
+	local name = self:_create_handle_name_from_params(unpack(path))
+	local handle = self:_get_handle_by_name(name) or self._cache:shared_handle(nil, name)
+	
+	if not handle then
+		handle = CoreEnvironmentHandle.EnvironmentHandle:new(self, interface, full_control, func, name, is_shared, unpack(path))
+		if is_shared then
+			self._cache:set_shared_handle(full_control, name, handle)
+		else
+			if full_control then
+				self._full_control_handles[name] = handle
+			else
+				self._part_control_handles[name] = handle
+			end
+		end
+	end
+
+	return name
 end
 
-EnvironmentMixer._process_block = function(l_21_0, l_21_1, l_21_2, ...)
-  local handle_name = l_21_0:_create_handle_name_from_params(...)
-  do
-    if not l_21_1 or not l_21_0._full_control_handles[handle_name] and not l_21_0._cache:shared_handle(true, handle_name) then
-      local handle = l_21_0._full_control_handles[handle_name]
-    end
-    if handle then
-      l_21_0._target_env:set_parameter_block(handle:do_callback(), ...)
-      return 
-    end
-    if l_21_0:is_mixing() then
-      l_21_0:_do_mix(l_21_2, ...)
-    end
-    if not l_21_1 or not l_21_0._part_control_handles[handle_name] and not l_21_0._cache:shared_handle(false, handle_name) then
-      handle = l_21_0._part_control_handles[handle_name]
-    end
-    if handle then
-      l_21_0._target_env:set_parameter_block(handle:do_callback(), ...)
-    end
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-  end
+function EnvironmentMixer:_get_handle_by_params(...)
+	local handle_name = self:_create_handle_name_from_params(...)
+	return self:_get_handle_by_name(handle_name)
 end
 
-EnvironmentMixer._create_handle_name_from_params = function(l_22_0, ...)
-  do
-    local str = ""
-    for _,v in ipairs({...}) do
-      str = str .. v
-    end
-    return str
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function EnvironmentMixer:_get_handle_by_name(name)
+	for _,handle in pairs(self._full_control_handles) do
+		if handle:name() == name then
+			return handle
+		end
+	end
+	for _,handle in pairs(self._part_control_handles) do
+		if handle:name() == name then
+			return handle
+		end
+	end
 end
 
-EnvironmentMixer._do_mix = function(l_23_0, l_23_1, ...)
-  l_23_0:_mix(l_23_1, l_23_0._from_env:parameter_block(...), l_23_0._to_env:parameter_block(...), l_23_0._scale)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function EnvironmentMixer:_process_block(first_mixer, block, ...)
+	local handle_name = self:_create_handle_name_from_params( ... )
+	local handle = first_mixer and (self._full_control_handles[handle_name] or self._cache:shared_handle(true, handle_name)) or self._full_control_handles[handle_name]
+	
+	if handle then
+		self._target_env:set_parameter_block( handle:do_callback(), ... )
+		return
+	end 	
+	
+	if self:is_mixing() then
+		self:_do_mix( block, ... )	
+	end
+	
+	handle = first_mixer and (self._part_control_handles[handle_name] or self._cache:shared_handle(false, handle_name)) or self._part_control_handles[handle_name]
+	if handle then
+		self._target_env:set_parameter_block( handle:do_callback(), ... )
+	end
 end
 
-EnvironmentMixer._mix = function(l_24_0, l_24_1, l_24_2, l_24_3, l_24_4)
-  for key,value in pairs(l_24_2) do
-    if l_24_1[key] then
-      assert(l_24_3[key], "[EnvironmentMixer] Mixing failed, parameters does not match.")
-    end
-     -- DECOMPILER ERROR: unhandled construct in 'if'
-
-    if type(value) == "string" and l_24_4 >= 0.5 then
-      l_24_1[key] = value
-      for (for control),key in (for generator) do
-        local invscale = 1 - l_24_4
-        l_24_1[key] = value * invscale + l_24_3[key] * l_24_4
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+function EnvironmentMixer:_create_handle_name_from_params(...)
+	local str = ""
+	for _,v in ipairs({...}) do
+		str = str .. v
+	end
+	return str
 end
 
+function EnvironmentMixer:_do_mix( block, ... )
+	self:_mix( block, self._from_env:parameter_block( ... ), self._to_env:parameter_block( ... ), self._scale ) 
+end
 
+function EnvironmentMixer:_mix( target_block, from_block, to_block, scale )
+	for key, value in pairs( from_block ) do	
+		assert( target_block[ key ] and to_block[ key ], "[EnvironmentMixer] Mixing failed, parameters does not match." )
+		if type( value ) == "string" then
+			if scale >= 0.5 then 
+				target_block[ key ] = value
+			end
+		else
+			local invscale = 1 - scale
+			target_block[ key ] = ( value * invscale ) + ( to_block[ key ] * scale )
+		end
+	end
+end

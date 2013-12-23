@@ -1,194 +1,278 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\beings\player\playercamera.luac 
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
 
-if not PlayerCamera then
-  PlayerCamera = class()
-end
-PlayerCamera.IDS_NOTHING = Idstring("")
-PlayerCamera.init = function(l_1_0, l_1_1)
-  l_1_0._unit = l_1_1
-  l_1_0._m_cam_rot = l_1_1:rotation()
-  l_1_0._m_cam_pos = l_1_1:position() + math.UP * 140
-  l_1_0._m_cam_fwd = l_1_0._m_cam_rot:y()
-  l_1_0._camera_object = World:create_camera()
-  l_1_0._camera_object:set_near_range(3)
-  l_1_0._camera_object:set_far_range(250000)
-  l_1_0._camera_object:set_fov(75)
-  l_1_0:spawn_camera_unit()
-  l_1_0:_setup_sound_listener()
-  l_1_0._sync_fwd = l_1_1:rotation():y():with_z(0):normalized()
-  l_1_0._last_sync_t = 0
-  l_1_0:setup_viewport(managers.player:viewport_config())
-end
+PlayerCamera = PlayerCamera or class()
+PlayerCamera.IDS_NOTHING = Idstring( "" )
 
-PlayerCamera.setup_viewport = function(l_2_0, l_2_1)
-  if l_2_0._vp then
-    l_2_0._vp:destroy()
-  end
-  local dimensions = l_2_1.dimensions
-  local name = "player" .. tostring(l_2_0._id)
-  local vp = managers.viewport:new_vp(dimensions.x, dimensions.y, dimensions.w, dimensions.h, name)
-  l_2_0._director = vp:director()
-  l_2_0._shaker = l_2_0._director:shaker()
-  l_2_0._shaker:set_timer(managers.player:player_timer())
-  l_2_0._camera_controller = l_2_0._director:make_camera(l_2_0._camera_object, Idstring("fps"))
-  l_2_0._director:set_camera(l_2_0._camera_controller)
-  l_2_0._director:position_as(l_2_0._camera_object)
-  l_2_0._camera_controller:set_both(l_2_0._camera_unit)
-  l_2_0._camera_controller:set_timer(managers.player:player_timer())
-  l_2_0._shakers = {}
-  l_2_0._shakers.breathing = l_2_0._shaker:play("breathing", 0.30000001192093)
-  l_2_0._shakers.headbob = l_2_0._shaker:play("headbob", 0)
-  vp:set_camera(l_2_0._camera_object)
-  vp:set_environment(managers.environment_area:default_environment())
-  l_2_0._vp = vp
-  do return end
-  vp:set_width_mul_enabled()
-  vp:camera():set_width_multiplier(CoreMath.width_mul(1.7777777910233))
-  l_2_0:_set_dimensions()
+function PlayerCamera:init( unit )
+	self._unit = unit
+	
+	self._m_cam_rot = unit:rotation()
+	self._m_cam_pos = unit:position() + math.UP * 140
+	self._m_cam_fwd = self._m_cam_rot:y()
+	
+	self._camera_object = World:create_camera()
+	self._camera_object:set_near_range( 3 )
+	self._camera_object:set_far_range( 250000 )
+	self._camera_object:set_fov( 75 )
+	
+	self:spawn_camera_unit()
+	
+	self:_setup_sound_listener()
+	
+	self._sync_fwd = unit:rotation():y():with_z( 0 ):normalized()
+	self._last_sync_t = 0
+
+	self:setup_viewport( managers.player:viewport_config() )
 end
 
-PlayerCamera._set_dimensions = function(l_3_0)
-  l_3_0._vp._vp:set_dimensions(0, (1 - RenderSettings.aspect_ratio / 1.7777777910233) / 2, 1, RenderSettings.aspect_ratio / 1.7777777910233)
+-----------------------------------------------------------------------------------
+
+function PlayerCamera:setup_viewport( data )
+	
+	if( self._vp ) then
+		-- destroy our current viewport
+		self._vp:destroy()
+	end
+	
+	local dimensions = data.dimensions
+	local name = "player" .. tostring( self._id )
+	local vp = managers.viewport:new_vp( dimensions.x, dimensions.y, dimensions.w, dimensions.h, name )
+	
+	self._director = vp:director()
+	self._shaker = self._director:shaker()
+	self._shaker:set_timer( managers.player:player_timer() )
+	self._camera_controller = self._director:make_camera( self._camera_object, Idstring("fps") )
+	self._director:set_camera( self._camera_controller )
+	self._director:position_as( self._camera_object )
+	self._camera_controller:set_both( self._camera_unit )
+	self._camera_controller:set_timer( managers.player:player_timer() )
+	
+	self._shakers = {}
+	self._shakers.breathing = self._shaker:play( "breathing", 0.3 )
+	self._shakers.headbob = self._shaker:play( "headbob", 0 )
+	
+	vp:set_camera( self._camera_object )
+	vp:set_environment( managers.environment_area:default_environment() )
+	
+	self._vp = vp
+	
+	if false then
+		vp:set_width_mul_enabled()
+		vp:camera():set_width_multiplier(CoreMath.width_mul( 16/9 ) )
+		self:_set_dimensions()
+	end
 end
 
-PlayerCamera.spawn_camera_unit = function(l_4_0)
-  if Global.level_data and Global.level_data.level_id then
-    local lvl_tweak_data = tweak_data.levels[Global.level_data.level_id]
-  end
-  local unit_folder = "suit"
-  l_4_0._camera_unit = World:spawn_unit(Idstring("units/payday2/characters/fps_criminals_suit_1/fps_criminals_suit_1"), l_4_0._m_cam_pos, l_4_0._m_cam_rot)
-  l_4_0._machine = l_4_0._camera_unit:anim_state_machine()
-  l_4_0._unit:link(l_4_0._camera_unit)
-  l_4_0._camera_unit:base():set_parent_unit(l_4_0._unit)
-  l_4_0._camera_unit:base():reset_properties()
-  l_4_0._camera_unit:base():set_stance_instant("standard")
+function PlayerCamera:_set_dimensions()
+	self._vp._vp:set_dimensions( 0, (1-(RenderSettings.aspect_ratio / (16/9)))/2, 1, RenderSettings.aspect_ratio / (16/9)  )
 end
 
-PlayerCamera.camera_unit = function(l_5_0)
-  return l_5_0._camera_unit
+-----------------------------------------------------------------------------------
+
+function PlayerCamera:spawn_camera_unit()
+	local lvl_tweak_data = Global.level_data and Global.level_data.level_id and tweak_data.levels[ Global.level_data.level_id ]
+	-- local unit_folder = lvl_tweak_data and lvl_tweak_data.unit_suit or "suit"
+	local unit_folder = "suit"
+	-- self._camera_unit = World:spawn_unit( Idstring( "units/characters/fps/"..unit_folder.."/fps_hand" ), self._m_cam_pos, self._m_cam_rot )
+	self._camera_unit = World:spawn_unit( Idstring( "units/payday2/characters/fps_criminals_suit_1/fps_criminals_suit_1" ), self._m_cam_pos, self._m_cam_rot )
+	-- Correct mesh variation is set in PlayerMovement:set_character_anim_variables
+	self._machine = self._camera_unit:anim_state_machine()
+	self._unit:link( self._camera_unit )
+	self._camera_unit:base():set_parent_unit( self._unit )
+	self._camera_unit:base():reset_properties()
+	self._camera_unit:base():set_stance_instant( "standard" )	-- "Spawning" stance
 end
 
-PlayerCamera.anim_state_machine = function(l_6_0)
-  return l_6_0._camera_unit:anim_state_machine()
+-----------------------------------------------------------------------------------
+
+function PlayerCamera:camera_unit()
+	return self._camera_unit
 end
 
-PlayerCamera.play_redirect = function(l_7_0, l_7_1, l_7_2)
-  local result = l_7_0._camera_unit:base():play_redirect(l_7_1, l_7_2)
-  return (result ~= PlayerCamera.IDS_NOTHING and result)
+-----------------------------------------------------------------------------------
+
+function PlayerCamera:anim_state_machine()
+	return self._camera_unit:anim_state_machine()
 end
 
-PlayerCamera.play_state = function(l_8_0, l_8_1, l_8_2)
-  local result = l_8_0._camera_unit:base():play_state(l_8_1, l_8_2)
-  return (result ~= PlayerCamera.IDS_NOTHING and result)
+-------------------------------------------------------------------------------
+
+function PlayerCamera:play_redirect( redirect_name, at_time )
+	local result = self._camera_unit:base():play_redirect( redirect_name, at_time )
+	return result ~= PlayerCamera.IDS_NOTHING and result
 end
 
-PlayerCamera.set_speed = function(l_9_0, l_9_1, l_9_2)
-  l_9_0._machine:set_speed(l_9_1, l_9_2)
+-------------------------------------------------------------------------------
+
+function PlayerCamera:play_state( state_name, at_time )
+	local result = self._camera_unit:base():play_state( state_name, at_time )
+	return result ~= PlayerCamera.IDS_NOTHING and result
 end
 
-PlayerCamera.anim_data = function(l_10_0)
-  return l_10_0._camera_unit:anim_data()
+-------------------------------------------------------------------------------
+
+function PlayerCamera:set_speed( state_name, speed )
+	self._machine:set_speed( state_name, speed )
+end 
+
+function PlayerCamera:anim_data()
+	return self._camera_unit:anim_data()
 end
 
-PlayerCamera.destroy = function(l_11_0)
-  l_11_0._vp:destroy()
-  l_11_0._unit = nil
-  if alive(l_11_0._camera_object) then
-    World:delete_camera(l_11_0._camera_object)
-  end
-  l_11_0._camera_object = nil
-  l_11_0:remove_sound_listener()
+-----------------------------------------------------------------------------------
+--[[
+function PlayerCamera:update( unit, t, dt )
+end
+]]
+
+-----------------------------------------------------------------------------------
+
+function PlayerCamera:destroy()
+	self._vp:destroy()
+
+	self._unit = nil
+	if alive( self._camera_object ) then
+		World:delete_camera( self._camera_object )
+	end
+	self._camera_object = nil
+		
+	self:remove_sound_listener()
+	--self._sound_listener:delete()
+	--self._sound_listener = nil
 end
 
-PlayerCamera.remove_sound_listener = function(l_12_0)
-  if not l_12_0._listener_id then
-    return 
-  end
-  managers.sound_environment:remove_check_object(l_12_0._sound_check_object)
-  managers.listener:remove_listener(l_12_0._listener_id)
-  managers.listener:remove_set("player_camera")
-  l_12_0._listener_id = nil
+function PlayerCamera:remove_sound_listener()
+	if not self._listener_id then
+		return
+	end
+	
+	managers.sound_environment:remove_check_object( self._sound_check_object )
+	managers.listener:remove_listener( self._listener_id )
+	managers.listener:remove_set( "player_camera" )
+	self._listener_id = nil
 end
 
-PlayerCamera.clbk_fp_enter = function(l_13_0, l_13_1)
-  if l_13_0._camera_manager_mode ~= "first_person" then
-    l_13_0._camera_manager_mode = "first_person"
-  end
+-----------------------------------------------------------------------------------
+
+function PlayerCamera:clbk_fp_enter( aim_dir )
+	if self._camera_manager_mode ~= "first_person" then
+		self._camera_manager_mode = "first_person"
+	end
 end
 
-PlayerCamera._setup_sound_listener = function(l_14_0)
-  l_14_0._listener_id = managers.listener:add_listener("player_camera", l_14_0._camera_object, l_14_0._camera_object, nil, false)
-  managers.listener:add_set("player_camera", {"player_camera"})
-  l_14_0._listener_activation_id = managers.listener:activate_set("main", "player_camera")
-  l_14_0._sound_check_object = managers.sound_environment:add_check_object({object = l_14_0._unit:orientation_object(), active = true, primary = true})
+-----------------------------------------------------------------------------------
+
+function PlayerCamera:_setup_sound_listener()
+	self._listener_id = managers.listener:add_listener( "player_camera", self._camera_object, self._camera_object, nil, false )
+	managers.listener:add_set( "player_camera", { "player_camera" } )
+	self._listener_activation_id = managers.listener:activate_set( "main", "player_camera" )
+	
+	--[[self._sound_listener = SoundDevice:create_listener( "player_camera" )
+	self._sound_listener:link_position( self._camera_object )
+	self._sound_listener:link_orientation( self._camera_object )
+	self._sound_listener:activate( true )]]
+	self._sound_check_object = managers.sound_environment:add_check_object( { object = self._unit:orientation_object(), active = true, primary = true } )
 end
 
-PlayerCamera.position = function(l_15_0)
-  return l_15_0._m_cam_pos
+---------------------------------------------------------------------------------
+
+function PlayerCamera:position()
+	return self._m_cam_pos
+	-- return self._camera_object:position()
 end
 
-PlayerCamera.rotation = function(l_16_0)
-  return l_16_0._m_cam_rot
+-----------------------------------------------------------------------------------
+
+function PlayerCamera:rotation()
+	return self._m_cam_rot
+	-- return self._camera_object:rotation()
 end
 
-PlayerCamera.forward = function(l_17_0)
-  return l_17_0._m_cam_fwd
+-----------------------------------------------------------------------------------
+
+function PlayerCamera:forward()
+	return self._m_cam_fwd -- self._unit:movement():m_head_rot()
+	-- return self._camera_object:rotation():y()
 end
 
-PlayerCamera.set_position = function(l_18_0, l_18_1)
-  l_18_0._camera_controller:set_camera(l_18_1)
-  mvector3.set(l_18_0._m_cam_pos, l_18_1)
+-----------------------------------------------------------------------------------
+
+function PlayerCamera:set_position( pos )
+	self._camera_controller:set_camera( pos )
+	mvector3.set( self._m_cam_pos, pos )
 end
+
+-----------------------------------------------------------------------------------
 
 local mvec1 = Vector3()
-PlayerCamera.set_rotation = function(l_19_0, l_19_1)
-  mrotation.y(l_19_1, mvec1)
-  mvector3.multiply(mvec1, 100000)
-  mvector3.add(mvec1, l_19_0._m_cam_pos)
-  l_19_0._camera_controller:set_target(mvec1)
-  mrotation.z(l_19_1, mvec1)
-  l_19_0._camera_controller:set_default_up(mvec1)
-  mrotation.set_yaw_pitch_roll(l_19_0._m_cam_rot, l_19_1:yaw(), l_19_1:pitch(), l_19_1:roll())
-  mrotation.y(l_19_0._m_cam_rot, l_19_0._m_cam_fwd)
-  local new_fwd = l_19_0:forward()
-  local error_sync_dot = mvector3.dot(l_19_0._sync_fwd, new_fwd)
-  local t = managers.player:player_timer():time()
-  local sync_dt = t - l_19_0._last_sync_t
-  if (error_sync_dot < 0.89999997615814 and sync_dt > 0.5) or error_sync_dot < 0.99000000953674 and sync_dt > 1 then
-    l_19_0._last_sync_t = t
-    l_19_0._unit:network():send("set_look_dir", new_fwd)
-    mvector3.set(l_19_0._sync_fwd, new_fwd)
-  end
+function PlayerCamera:set_rotation( rot )
+	mrotation.y( rot, mvec1 )
+	mvector3.multiply( mvec1, 100000 )
+	mvector3.add( mvec1, self._m_cam_pos )
+	self._camera_controller:set_target( mvec1 )
+	-- self._camera_controller:set_target( self._m_cam_pos + rot:y() * 100000 )
+	mrotation.z( rot, mvec1 )
+	self._camera_controller:set_default_up( mvec1 )
+	-- self._camera_controller:set_default_up( rot:z() )
+	mrotation.set_yaw_pitch_roll( self._m_cam_rot, rot:yaw(), rot:pitch(), rot:roll() )
+	mrotation.y( self._m_cam_rot, self._m_cam_fwd )
+	
+	-- Check if we need to resend look direction
+	local new_fwd = self:forward()
+	local error_sync_dot = mvector3.dot( self._sync_fwd, new_fwd )
+	local t = managers.player:player_timer():time()
+	local sync_dt = t - self._last_sync_t
+	if error_sync_dot < 0.9 and sync_dt > 0.5 or error_sync_dot < 0.99 and sync_dt > 1 then
+		self._last_sync_t = t
+		self._unit:network():send( "set_look_dir", new_fwd )
+		mvector3.set( self._sync_fwd, new_fwd )
+	end
 end
 
-PlayerCamera.set_FOV = function(l_20_0, l_20_1)
-  l_20_0._camera_object:set_fov(l_20_1)
+-----------------------------------------------------------------------------------
+
+function PlayerCamera:set_FOV( fov_value )
+	self._camera_object:set_fov( fov_value )
 end
 
-PlayerCamera.viewport = function(l_21_0)
-  return l_21_0._vp
+-----------------------------------------------------------------------------------
+
+function PlayerCamera:viewport()
+	return self._vp
 end
 
-PlayerCamera.set_shaker_parameter = function(l_22_0, l_22_1, l_22_2, l_22_3)
-  if not l_22_0._shakers then
-    return 
-  end
-  if l_22_0._shakers[l_22_1] then
-    l_22_0._shaker:set_parameter(l_22_0._shakers[l_22_1], l_22_2, l_22_3)
-  end
+-----------------------------------------------------------------------------------
+
+function PlayerCamera:set_shaker_parameter( effect, parameter, value)
+	if not self._shakers then
+		return
+	end
+	if self._shakers[ effect ] then
+		-- self._shaker:set_parameter_soft( self._shakers[ effect ], parameter, value, 0.9 )
+		-- local start = self._shaker:get_parameter( self._shakers[ effect ], parameter )
+		-- self._shaker:set_parameter_ramp( self._shakers[ effect ], parameter, start, value, 0 )
+		self._shaker:set_parameter( self._shakers[ effect ], parameter, value )
+	end
 end
 
-PlayerCamera.play_shaker = function(l_23_0, l_23_1, l_23_2, l_23_3, l_23_4)
-  return l_23_0._shaker:play(l_23_1, l_23_2 or 1, l_23_3 or 1, l_23_4 or 0)
+-----------------------------------------------------------------------------------
+
+function PlayerCamera:play_shaker( effect, amplitude, frequency, offset )
+	return self._shaker:play( effect, amplitude or 1, frequency or 1, offset or 0 )
 end
 
-PlayerCamera.stop_shaker = function(l_24_0, l_24_1)
-  l_24_0._shaker:stop_immediately(l_24_1)
+function PlayerCamera:stop_shaker( id )
+	self._shaker:stop_immediately( id )
 end
 
-PlayerCamera.shaker = function(l_25_0)
-  return l_25_0._shaker
+function PlayerCamera:shaker()
+	return self._shaker
 end
+
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+
+
 
 

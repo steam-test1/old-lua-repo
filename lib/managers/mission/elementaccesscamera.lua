@@ -1,185 +1,183 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\elementaccesscamera.luac 
+core:import( "CoreMissionScriptElement" )
 
-core:import("CoreMissionScriptElement")
-if not ElementAccessCamera then
-  ElementAccessCamera = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementAccessCamera.init = function(l_1_0, ...)
-  ElementAccessCamera.super.init(l_1_0, ...)
-  l_1_0._camera_unit = nil
-  l_1_0._triggers = {}
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementAccessCamera = ElementAccessCamera or class( CoreMissionScriptElement.MissionScriptElement )
 
+function ElementAccessCamera:init( ... )
+	ElementAccessCamera.super.init( self, ... )
+	
+	self._camera_unit = nil
+	self._triggers = {}
 end
 
-ElementAccessCamera.on_script_activated = function(l_2_0)
-  if l_2_0._values.camera_u_id then
-    local id = l_2_0._values.camera_u_id
-    local unit = nil
-    if Global.running_simulation then
-      unit = managers.editor:unit_with_id(id)
-    else
-      unit = managers.worlddefinition:get_unit_on_load(id, callback(l_2_0, l_2_0, "_load_unit"))
-    end
-    if unit then
-      unit:base():set_access_camera_mission_element(l_2_0)
-      l_2_0._camera_unit = unit
-    end
-  end
-  l_2_0._has_fetched_units = true
-  l_2_0._mission_script:add_save_state_cb(l_2_0._id)
+function ElementAccessCamera:on_script_activated()
+	if self._values.camera_u_id then
+		local id = self._values.camera_u_id
+		local unit
+		if Global.running_simulation then
+			unit = managers.editor:unit_with_id( id )
+		else
+			unit = managers.worlddefinition:get_unit_on_load( id, callback( self, self, "_load_unit" ) )
+		end	 
+		if unit then
+			unit:base():set_access_camera_mission_element( self )
+			self._camera_unit = unit
+		end
+	end
+	
+	self._has_fetched_units = true
+	self._mission_script:add_save_state_cb( self._id )
 end
 
-ElementAccessCamera._load_unit = function(l_3_0, l_3_1)
-  l_3_1:base():set_access_camera_mission_element(l_3_0)
-  l_3_0._camera_unit = l_3_1
+function ElementAccessCamera:_load_unit( unit )
+	-- table.insert( self._camera_units, unit )
+	-- unit set this element
+	unit:base():set_access_camera_mission_element( self )
+	self._camera_unit = unit
 end
 
-ElementAccessCamera.client_on_executed = function(l_4_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function ElementAccessCamera:client_on_executed( ... )
+	-- self:on_executed( ... )
 end
 
-ElementAccessCamera.on_executed = function(l_5_0, l_5_1)
-  if not l_5_0._values.enabled then
-    return 
-  end
-  ElementAccessCamera.super.on_executed(l_5_0, l_5_1)
+function ElementAccessCamera:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+		
+	ElementAccessCamera.super.on_executed( self, instigator )
 end
 
-ElementAccessCamera.access_camera_operation_destroy = function(l_6_0)
-  l_6_0._values.destroyed = true
-  l_6_0:check_triggers("destroyed")
+function ElementAccessCamera:access_camera_operation_destroy()
+	-- print( "ElementAccessCamera:access_camera_operation_destroy" )
+	self._values.destroyed = true
+	self:check_triggers( "destroyed" )
 end
 
-ElementAccessCamera.add_trigger = function(l_7_0, l_7_1, l_7_2, l_7_3)
-  if not l_7_0._triggers[l_7_2] then
-    l_7_0._triggers[l_7_2] = {}
-  end
-  l_7_0._triggers[l_7_2][l_7_1] = {callback = l_7_3}
+function ElementAccessCamera:add_trigger( id, type, callback )
+	self._triggers[ type ] = self._triggers[ type ] or {}
+	self._triggers[ type ][ id ] = { callback = callback }
+	-- self._triggers[ id ] = { amount = amount, callback = callback } 
 end
 
-ElementAccessCamera.remove_trigger = function(l_8_0, l_8_1, l_8_2)
-  if l_8_0._triggers[l_8_2] then
-    l_8_0._triggers[l_8_2][l_8_1] = nil
-  end
+function ElementAccessCamera:remove_trigger( id, type )
+	if self._triggers[ type ] then
+		self._triggers[ type ][ id ] = nil
+	end
 end
 
-ElementAccessCamera.trigger_accessed = function(l_9_0, l_9_1)
-  if Network:is_client() then
-    managers.network:session():send_to_host("to_server_access_camera_trigger", l_9_0._id, "accessed", l_9_1)
-  else
-    l_9_0:check_triggers("accessed", l_9_1)
-  end
+function ElementAccessCamera:trigger_accessed( instigator )
+	if Network:is_client() then
+		managers.network:session():send_to_host( "to_server_access_camera_trigger", self._id, "accessed", instigator ) -- How to send instigator (needed)?
+	else
+		self:check_triggers( "accessed", instigator )
+	end
 end
 
-ElementAccessCamera.check_triggers = function(l_10_0, l_10_1, l_10_2)
-  if not l_10_0._triggers[l_10_1] then
-    return 
-  end
-  for id,cb_data in pairs(l_10_0._triggers[l_10_1]) do
-    cb_data.callback(l_10_2)
-  end
+function ElementAccessCamera:check_triggers( type, instigator )
+	-- print( "ElementAccessCamera:check_triggers", type )
+	if not self._triggers[ type ] then
+		return
+	end
+		
+	for id,cb_data in pairs( self._triggers[ type ] ) do
+		cb_data.callback( instigator )
+	end
 end
 
-ElementAccessCamera.enabled = function(l_11_0, ...)
-  if alive(l_11_0._camera_unit) then
-    return l_11_0._camera_unit:enabled()
-  end
-  return ElementAccessCamera.super.enabled(l_11_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function ElementAccessCamera:enabled( ... )
+	if alive( self._camera_unit ) then
+		return self._camera_unit:enabled()
+	end
+	
+	return ElementAccessCamera.super.enabled( self, ... )
 end
 
-ElementAccessCamera.has_camera_unit = function(l_12_0)
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-return true
+function ElementAccessCamera:has_camera_unit()
+	return alive( self._camera_unit ) and true or false
 end
 
-ElementAccessCamera.camera_unit = function(l_13_0)
-  if alive(l_13_0._camera_unit) then
-    return l_13_0._camera_unit
-  end
-  return nil
+function ElementAccessCamera:camera_unit()
+	if alive( self._camera_unit ) then
+		return self._camera_unit
+	end
+	return nil
 end
 
-ElementAccessCamera.camera_position = function(l_14_0)
-  if alive(l_14_0._camera_unit) then
-    return l_14_0._camera_unit:get_object(Idstring("CameraLens")):position()
-  end
-  return l_14_0:value("position")
+function ElementAccessCamera:camera_position()
+	if alive( self._camera_unit ) then
+		return self._camera_unit:get_object( Idstring( "CameraLens" ) ):position()
+	end
+	return self:value( "position" )
 end
 
-ElementAccessCamera.save = function(l_15_0, l_15_1)
-  l_15_1.enabled = l_15_0._values.enabled
-  l_15_1.destroyed = l_15_0._values.destroyed
+-- HOW IS DESTROYED KNOW AT CLIENT AND DROPPED IN, SAVE/LOAD?
+function ElementAccessCamera:save( data )
+	data.enabled = self._values.enabled
+	data.destroyed = self._values.destroyed
 end
 
-ElementAccessCamera.load = function(l_16_0, l_16_1)
-  l_16_0:set_enabled(l_16_1.enabled)
-  l_16_0._values.destroyed = l_16_1.destroyed
-  if not l_16_0._has_fetched_units then
-    l_16_0:on_script_activated()
-  end
+function ElementAccessCamera:load( data )
+	self:set_enabled( data.enabled )
+	self._values.destroyed = data.destroyed
+	if not self._has_fetched_units then
+		self:on_script_activated()
+	end
 end
 
-if not ElementAccessCameraOperator then
-  ElementAccessCameraOperator = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementAccessCameraOperator.init = function(l_17_0, ...)
-  ElementAccessCameraOperator.super.init(l_17_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+------------------------------------------------------------------------------------------
 
-end
+ElementAccessCameraOperator = ElementAccessCameraOperator or class( CoreMissionScriptElement.MissionScriptElement )
 
-ElementAccessCameraOperator.client_on_executed = function(l_18_0, ...)
-  l_18_0:on_executed(...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function ElementAccessCameraOperator:init( ... )
+	ElementAccessCameraOperator.super.init( self, ... )
 end
 
-ElementAccessCameraOperator.on_executed = function(l_19_0, l_19_1)
-  if not l_19_0._values.enabled then
-    return 
-  end
-  for _,id in ipairs(l_19_0._values.elements) do
-    local element = l_19_0:get_mission_element(id)
-    if element and l_19_0._values.operation == "destroy" then
-      element:access_camera_operation_destroy()
-    end
-  end
-  ElementAccessCameraOperator.super.on_executed(l_19_0, l_19_1)
+function ElementAccessCameraOperator:client_on_executed( ... )
+	self:on_executed( ... )
 end
 
-if not ElementAccessCameraTrigger then
-  ElementAccessCameraTrigger = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementAccessCameraTrigger.init = function(l_20_0, ...)
-  ElementAccessCameraTrigger.super.init(l_20_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-ElementAccessCameraTrigger.on_script_activated = function(l_21_0)
-  for _,id in ipairs(l_21_0._values.elements) do
-    local element = l_21_0:get_mission_element(id)
-    element:add_trigger(l_21_0._id, l_21_0._values.trigger_type, callback(l_21_0, l_21_0, "on_executed"))
-  end
-end
-
-ElementAccessCameraTrigger.client_on_executed = function(l_22_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function ElementAccessCameraOperator:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	for _,id in ipairs( self._values.elements ) do
+		local element = self:get_mission_element( id )
+		if element then
+			if self._values.operation == "destroy" then
+				element:access_camera_operation_destroy()
+			end
+		end
+	end
+	
+	ElementAccessCameraOperator.super.on_executed( self, instigator )
 end
 
-ElementAccessCameraTrigger.on_executed = function(l_23_0, l_23_1)
-  if not l_23_0._values.enabled then
-    return 
-  end
-  ElementAccessCameraTrigger.super.on_executed(l_23_0, l_23_1)
+------------------------------------------------------------------------------------------
+
+ElementAccessCameraTrigger = ElementAccessCameraTrigger or class( CoreMissionScriptElement.MissionScriptElement )
+
+function ElementAccessCameraTrigger:init( ... )
+	ElementAccessCameraTrigger.super.init( self, ... )
 end
 
+function ElementAccessCameraTrigger:on_script_activated()
+	for _,id in ipairs( self._values.elements ) do
+		local element = self:get_mission_element( id )
+		element:add_trigger( self._id, self._values.trigger_type, callback( self, self, "on_executed" ) )
+	end
+end
 
+function ElementAccessCameraTrigger:client_on_executed( ... )
+	-- self:on_executed( ... )
+end
+
+function ElementAccessCameraTrigger:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+		
+	ElementAccessCameraTrigger.super.on_executed( self, instigator )
+end
+
+------------------------------------------------------------------------------------------

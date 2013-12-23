@@ -1,206 +1,332 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\coreguidatamanager.luac 
-
 if core then
-  core:module("CoreGuiDataManager")
-end
-if not GuiDataManager then
-  GuiDataManager = class()
-end
-GuiDataManager.init = function(l_1_0, l_1_1, l_1_2, l_1_3, l_1_4, l_1_5)
-  l_1_0._scene_gui = l_1_1
-  l_1_0._static_resolution = l_1_2
-  l_1_0._safe_rect_pixels = l_1_3
-  l_1_0._safe_rect = l_1_4
-  l_1_0._static_aspect_ratio = l_1_5
-  l_1_0:_setup_workspace_data()
+	core:module("CoreGuiDataManager")
 end
 
-GuiDataManager.destroy = function(l_2_0)
+GuiDataManager = GuiDataManager or class()
+
+function GuiDataManager:init( scene_gui, res, safe_rect_pixels, safe_rect, static_aspect_ratio )
+	self._scene_gui = scene_gui
+	self._static_resolution = res
+	self._safe_rect_pixels = safe_rect_pixels
+	self._safe_rect = safe_rect
+	self._static_aspect_ratio = static_aspect_ratio
+	-- self._resolution_changed_callback_id = managers.viewport:add_resolution_changed_func( callback( self, self, "resolution_changed" ) )
+	self:_setup_workspace_data()
 end
 
-GuiDataManager.create_saferect_workspace = function(l_3_0)
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-local ws = Overlay:gui():create_scaled_screen_workspace(10, 10, 10, 10, 10)
-l_3_0:layout_workspace(ws)
-return ws
+function GuiDataManager:destroy()
+	
 end
 
-GuiDataManager.create_fullscreen_workspace = function(l_4_0)
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-local ws = Overlay:gui():create_scaled_screen_workspace(10, 10, 10, 10, 10)
-l_4_0:layout_fullscreen_workspace(ws)
-return ws
+function GuiDataManager:create_saferect_workspace()
+	local ws = (self._scene_gui or Overlay:gui()):create_scaled_screen_workspace( 10, 10, 10, 10, 10 )
+	self:layout_workspace( ws )
+	return ws
 end
 
-GuiDataManager.create_fullscreen_16_9_workspace = function(l_5_0)
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-local ws = Overlay:gui():create_scaled_screen_workspace(10, 10, 10, 10, 10)
-l_5_0:layout_fullscreen_16_9_workspace(l_5_0, ws)
-return ws
+function GuiDataManager:create_fullscreen_workspace()
+	local ws = (self._scene_gui or Overlay:gui()):create_scaled_screen_workspace( 10, 10, 10, 10, 10 )
+	self:layout_fullscreen_workspace( ws )
+	return ws
 end
 
-GuiDataManager.destroy_workspace = function(l_6_0, l_6_1)
-  if not l_6_0._scene_gui then
-    Overlay:gui():destroy_workspace(l_6_1)
-     -- Warning: missing end command somewhere! Added here
-  end
+function GuiDataManager:create_fullscreen_16_9_workspace()
+	local ws = (self._scene_gui or Overlay:gui()):create_scaled_screen_workspace( 10, 10, 10, 10, 10 )
+	self:layout_fullscreen_16_9_workspace( ws )
+	return ws
 end
 
-GuiDataManager._get_safe_rect_pixels = function(l_7_0)
-  if l_7_0._safe_rect_pixels then
-    return l_7_0._safe_rect_pixels
-  end
-  return managers.viewport:get_safe_rect_pixels()
+function GuiDataManager:create_corner_saferect_workspace()
+	local ws = (self._scene_gui or Overlay:gui()):create_scaled_screen_workspace( 10, 10, 10, 10, 10 )
+	self:layout_corner_saferect_workspace( ws )
+	return ws
 end
 
-GuiDataManager._get_safe_rect = function(l_8_0)
-  if l_8_0._safe_rect then
-    return l_8_0._safe_rect
-  end
-  return managers.viewport:get_safe_rect()
+function GuiDataManager:create_1280_workspace()
+	local ws = (self._scene_gui or Overlay:gui()):create_scaled_screen_workspace( 10, 10, 10, 10, 10 )
+	self:layout_1280_workspace( ws )
+	return ws
 end
 
-GuiDataManager._aspect_ratio = function(l_9_0)
-  if l_9_0._static_aspect_ratio then
-    return l_9_0._static_aspect_ratio
-  end
-  return managers.viewport:aspect_ratio()
-end
-
-local base_res = {x = 1280, y = 720}
-GuiDataManager._setup_workspace_data = function(l_10_0)
-  print("[GuiDataManager:_setup_workspace_data]")
-  l_10_0._saferect_data = {}
-  l_10_0._corner_saferect_data = {}
-  l_10_0._fullrect_data = {}
-  l_10_0._fullrect_16_9_data = {}
-  local safe_rect = l_10_0:_get_safe_rect_pixels()
-  local scaled_size = l_10_0:scaled_size()
-  if not l_10_0._static_resolution then
-    local res = RenderSettings.resolution
-  end
-  local w = scaled_size.width
-  local h = scaled_size.height
-  local sh = math.min(safe_rect.height, safe_rect.width / (w / h))
-  local sw = math.min(safe_rect.width, safe_rect.height * (w / h))
-  local x = res.x / 2 - sh * (w / h) / 2
-  local y = res.y / 2 - sw / (w / h) / 2
-  l_10_0._safe_x = x
-  l_10_0._safe_y = y
-  l_10_0._saferect_data.w = w
-  l_10_0._saferect_data.h = h
-  l_10_0._saferect_data.width = l_10_0._saferect_data.w
-  l_10_0._saferect_data.height = l_10_0._saferect_data.h
-  l_10_0._saferect_data.x = x
-  l_10_0._saferect_data.y = y
-  l_10_0._saferect_data.on_screen_width = sw
-  local h_c = w / (safe_rect.width / safe_rect.height)
-  local w_c = h * (safe_rect.width / safe_rect.height)
-  l_10_0._corner_saferect_data.w = w
-  l_10_0._corner_saferect_data.h = h_c
-  l_10_0._corner_saferect_data.width = l_10_0._corner_saferect_data.w
-  l_10_0._corner_saferect_data.height = l_10_0._corner_saferect_data.h
-  l_10_0._corner_saferect_data.x = safe_rect.x
-  l_10_0._corner_saferect_data.y = safe_rect.y
-  l_10_0._corner_saferect_data.on_screen_width = safe_rect.width
-  l_10_0._fullrect_data.w = base_res.x
-  l_10_0._fullrect_data.h = base_res.x / l_10_0:_aspect_ratio()
-  l_10_0._fullrect_data.width = l_10_0._fullrect_data.w
-  l_10_0._fullrect_data.height = l_10_0._fullrect_data.h
-  l_10_0._fullrect_data.x = 0
-  l_10_0._fullrect_data.y = 0
-  l_10_0._fullrect_data.on_screen_width = res.x
-  l_10_0._fullrect_data.convert_x = math.floor((base_res.x - l_10_0._saferect_data.w) / 2)
-  l_10_0._fullrect_data.convert_y = (base_res.x / l_10_0:_aspect_ratio() - scaled_size.height) / 2
-  l_10_0._fullrect_data.corner_convert_y = math.floor((l_10_0._fullrect_data.height - l_10_0._corner_saferect_data.height) / 2)
-  w = base_res.x
-  h = base_res.y
-  sh = math.min(res.y, res.x / (w / h))
-  sw = math.min(res.x, res.y * (w / h))
-  x = res.x / 2 - sh * (w / h) / 2
-  y = res.y / 2 - sw / (w / h) / 2
-  l_10_0._fullrect_16_9_data.w = w
-  l_10_0._fullrect_16_9_data.h = h
-  l_10_0._fullrect_16_9_data.width = l_10_0._fullrect_16_9_data.w
-  l_10_0._fullrect_16_9_data.height = l_10_0._fullrect_16_9_data.h
-  l_10_0._fullrect_16_9_data.x = x
-  l_10_0._fullrect_16_9_data.y = y
-  l_10_0._fullrect_16_9_data.on_screen_width = sw
-  l_10_0._fullrect_16_9_data.convert_x = math.floor((l_10_0._fullrect_16_9_data.w - l_10_0._saferect_data.w) / 2)
-  l_10_0._fullrect_16_9_data.convert_y = (l_10_0._fullrect_16_9_data.h - l_10_0._saferect_data.h) / 2
-end
-
-GuiDataManager.layout_workspace = function(l_11_0, l_11_1)
-  l_11_1:set_screen(l_11_0._saferect_data.w, l_11_0._saferect_data.h, l_11_0._saferect_data.x, l_11_0._saferect_data.y, l_11_0._saferect_data.on_screen_width)
-end
-
-GuiDataManager.layout_fullscreen_workspace = function(l_12_0, l_12_1)
-  l_12_1:set_screen(l_12_0._fullrect_data.w, l_12_0._fullrect_data.h, l_12_0._fullrect_data.x, l_12_0._fullrect_data.y, l_12_0._fullrect_data.on_screen_width)
-end
-
-GuiDataManager.layout_fullscreen_16_9_workspace = function(l_13_0, l_13_1)
-  l_13_1:set_screen(l_13_0._fullrect_16_9_data.w, l_13_0._fullrect_16_9_data.h, l_13_0._fullrect_16_9_data.x, l_13_0._fullrect_16_9_data.y, l_13_0._fullrect_16_9_data.on_screen_width)
-end
-
-GuiDataManager.layout_corner_saferect_workspace = function(l_14_0, l_14_1)
-  l_14_1:set_screen(l_14_0._corner_saferect_data.w, l_14_0._corner_saferect_data.h, l_14_0._corner_saferect_data.x, l_14_0._corner_saferect_data.y, l_14_0._corner_saferect_data.on_screen_width)
-end
-
-GuiDataManager.scaled_size = function(l_15_0)
-  local w = math.round(l_15_0:_get_safe_rect().width * base_res.x)
-  local h = math.round(l_15_0:_get_safe_rect().height * base_res.y)
-  return {width = w, height = h, x = 0, y = 0}
-end
-
-GuiDataManager.safe_scaled_size = function(l_16_0)
-  return l_16_0._saferect_data
-end
-
-GuiDataManager.corner_scaled_size = function(l_17_0)
-  return l_17_0._corner_saferect_data
-end
-
-GuiDataManager.full_scaled_size = function(l_18_0)
-  return l_18_0._fullrect_data
-end
-
-GuiDataManager.full_16_9_size = function(l_19_0)
-  return l_19_0._fullrect_16_9_data
-end
-
-GuiDataManager.safe_to_full_16_9 = function(l_20_0, l_20_1, l_20_2)
-  return l_20_0._fullrect_16_9_data.convert_x + l_20_1, l_20_0._fullrect_16_9_data.convert_y + l_20_2
-end
-
-GuiDataManager.full_16_9_to_safe = function(l_21_0, l_21_1, l_21_2)
-  return l_21_1 - l_21_0._fullrect_16_9_data.convert_x, l_21_2 - l_21_0._fullrect_16_9_data.convert_y
-end
-
-GuiDataManager.safe_to_full = function(l_22_0, l_22_1, l_22_2)
-  return l_22_0._fullrect_data.convert_x + l_22_1, l_22_0._fullrect_data.convert_y + l_22_2
-end
-
-GuiDataManager.full_to_safe = function(l_23_0, l_23_1, l_23_2)
-  return l_23_1 - l_23_0._fullrect_data.convert_x, l_23_2 - l_23_0._fullrect_data.convert_y
-end
-
-GuiDataManager.corner_safe_to_full = function(l_24_0, l_24_1, l_24_2)
-  return l_24_0._fullrect_data.convert_x + l_24_1, l_24_0._fullrect_data.corner_convert_y + l_24_2
-end
-
-GuiDataManager.y_safe_to_full = function(l_25_0, l_25_1)
-  return l_25_0._fullrect_data.convert_y + l_25_1
-end
-
-GuiDataManager.resolution_changed = function(l_26_0)
-  l_26_0:_setup_workspace_data()
+function GuiDataManager:create_corner_saferect_1280_workspace()
+	local ws = (self._scene_gui or Overlay:gui()):create_scaled_screen_workspace( 10, 10, 10, 10, 10 )
+	self:layout_corner_saferect_1280_workspace( ws )
+	return ws
 end
 
 
+function GuiDataManager:destroy_workspace( ws )
+	(self._scene_gui or Overlay:gui()):destroy_workspace( ws )
+end
+
+function GuiDataManager:get_scene_gui()
+	return self._scene_gui or Overlay:gui()
+end
+
+--[[function GuiDataManager:resolution_changed()
+	self:_setup_workspace_data()
+end]]
+function GuiDataManager:_get_safe_rect_pixels()
+	if self._safe_rect_pixels then
+		return self._safe_rect_pixels
+	end
+	
+	return managers.viewport:get_safe_rect_pixels()
+end
+
+function GuiDataManager:_get_safe_rect()
+	if self._safe_rect then
+		return self._safe_rect
+	end
+	
+	return managers.viewport:get_safe_rect()
+end
+
+function GuiDataManager:_aspect_ratio()
+	if self._static_aspect_ratio then
+		return self._static_aspect_ratio
+	end
+	
+	return managers.viewport:aspect_ratio()
+end
+
+local base_res = { x = 1280, y = 720 }
+-- Called directly from viewport manager on resolution changed
+function GuiDataManager:_setup_workspace_data()
+	print( "[GuiDataManager:_setup_workspace_data]" )
+	self._saferect_data = {}
+	self._corner_saferect_data = {}
+	self._fullrect_data = {}
+	self._fullrect_16_9_data = {}
+	self._fullrect_1280_data = {}
+	self._corner_saferect_1280_data = {}
+	
+
+	local safe_rect = self:_get_safe_rect_pixels()
+	local scaled_size = self:scaled_size()
+	local res = self._static_resolution or RenderSettings.resolution
+	
+	local w = scaled_size.width
+	local h = scaled_size.height
+	local sh = math.min( safe_rect.height, safe_rect.width/(w/h) )
+	local sw = math.min( safe_rect.width, safe_rect.height*(w/h) )
+	local x = res.x/2 - (sh*(w/h))/2
+	local y = res.y/2 - (sw/(w/h))/2
+	-- print( "safe_rect.x, y+safe_rect.y", safe_rect.x, y+safe_rect.y )
+	self._safe_x = ( x )
+	self._safe_y = ( y )
+	
+	self._saferect_data.w = w
+	self._saferect_data.h = h
+	self._saferect_data.width = self._saferect_data.w
+	self._saferect_data.height = self._saferect_data.h
+	self._saferect_data.x = x
+	self._saferect_data.y = y
+	self._saferect_data.on_screen_width = sw
+		
+
+
+
+
+
+
+	local h_c = w/(safe_rect.width/safe_rect.height)
+	h = math.max( h, h_c )
+
+	local w_c = h_c / h
+	w = math.max( w, w/w_c )
+	-- ws:set_screen( w, h_c, safe_rect.x, safe_rect.y, safe_rect.width, safe_rect.height )-- res.x-1 )
+		
+	self._corner_saferect_data.w = w
+	self._corner_saferect_data.h = h
+	self._corner_saferect_data.width = self._corner_saferect_data.w
+	self._corner_saferect_data.height = self._corner_saferect_data.h
+	self._corner_saferect_data.x = safe_rect.x
+	self._corner_saferect_data.y = safe_rect.y
+	self._corner_saferect_data.on_screen_width = safe_rect.width
+	
+
+	sh = base_res.x / self:_aspect_ratio()
+	h = math.max( base_res.y, sh )
+
+	sw = sh / h
+	w = math.max( base_res.x, base_res.x / sw)
+
+	self._fullrect_data.w = w
+	self._fullrect_data.h = h
+	self._fullrect_data.width = self._fullrect_data.w
+	self._fullrect_data.height = self._fullrect_data.h
+	self._fullrect_data.x = 0
+	self._fullrect_data.y = 0
+	self._fullrect_data.on_screen_width = res.x
+	
+	self._fullrect_data.convert_x = math.floor((w - self._saferect_data.w)/2) 
+	self._fullrect_data.convert_y = (h - scaled_size.height)/2
+	
+	self._fullrect_data.corner_convert_x = math.floor((self._fullrect_data.width - self._corner_saferect_data.width)/2)
+	self._fullrect_data.corner_convert_y = math.floor((self._fullrect_data.height - self._corner_saferect_data.height)/2)
+	
+		-- reusing variables for the 16:9 fullscreen rect data
+	w = base_res.x
+	h = base_res.y
+	sh = math.min( res.y, res.x/(w/h) )
+	sw = math.min( res.x, res.y*(w/h) )
+	x = res.x/2 - (sh*(w/h))/2
+	y = res.y/2 - (sw/(w/h))/2
+	
+	self._fullrect_16_9_data.w = w
+	self._fullrect_16_9_data.h = h
+	self._fullrect_16_9_data.width = self._fullrect_16_9_data.w
+	self._fullrect_16_9_data.height = self._fullrect_16_9_data.h
+	self._fullrect_16_9_data.x = x
+	self._fullrect_16_9_data.y = y
+	self._fullrect_16_9_data.on_screen_width = sw
+	
+	self._fullrect_16_9_data.convert_x = math.floor((self._fullrect_16_9_data.w - self._saferect_data.w)/2) 
+	self._fullrect_16_9_data.convert_y = (self._fullrect_16_9_data.h - self._saferect_data.h)/2
+	
+
+
+
+
+	local aspect = math.clamp(res.x / res.y, 1, 16/9)
+	w = base_res.x
+	h = base_res.x / aspect
+
+	sw = math.min(res.x, res.y * aspect)
+	sh = sw / w * (h)
+
+	x = (res.x - sw) / 2
+	y = (res.y - sh) / 2
+
+	self._fullrect_1280_data.w = w
+	self._fullrect_1280_data.h = h
+	self._fullrect_1280_data.width = self._fullrect_1280_data.w
+	self._fullrect_1280_data.height = self._fullrect_1280_data.h
+	self._fullrect_1280_data.x = x
+	self._fullrect_1280_data.y = y
+	self._fullrect_1280_data.on_screen_width = sw
+	self._fullrect_1280_data.sw = sw
+	self._fullrect_1280_data.sh = sh
+	self._fullrect_1280_data.aspect = aspect
+
+	self._fullrect_1280_data.convert_x = math.floor((self._fullrect_data.w - self._fullrect_1280_data.w) / 2)
+	self._fullrect_1280_data.convert_y = math.floor((self._fullrect_data.h - self._fullrect_1280_data.h) / 2)
+	
+
+	w = scaled_size.width
+	h = scaled_size.width / aspect
+
+	sw = math.min(safe_rect.width, safe_rect.height * aspect)
+	sh = sw / w * (h)
+
+	x = (res.x - sw) / 2
+	y = (res.y - sh) / 2
+	
+	self._corner_saferect_1280_data.w = w
+	self._corner_saferect_1280_data.h = h
+	self._corner_saferect_1280_data.width = self._corner_saferect_1280_data.w
+	self._corner_saferect_1280_data.height = self._corner_saferect_1280_data.h
+	self._corner_saferect_1280_data.x = x
+	self._corner_saferect_1280_data.y = y
+	self._corner_saferect_1280_data.on_screen_width = sw
+end
+
+function GuiDataManager:layout_workspace( ws )
+	ws:set_screen( self._saferect_data.w, self._saferect_data.h, self._saferect_data.x, self._saferect_data.y, self._saferect_data.on_screen_width )
+end
+
+function GuiDataManager:layout_fullscreen_workspace( ws )
+	ws:set_screen( self._fullrect_data.w, self._fullrect_data.h, self._fullrect_data.x, self._fullrect_data.y, self._fullrect_data.on_screen_width )
+end
+
+function GuiDataManager:layout_fullscreen_16_9_workspace( ws )
+	ws:set_screen( self._fullrect_16_9_data.w, self._fullrect_16_9_data.h, self._fullrect_16_9_data.x, self._fullrect_16_9_data.y, self._fullrect_16_9_data.on_screen_width )
+end
+
+function GuiDataManager:layout_corner_saferect_workspace( ws )
+	ws:set_screen( self._corner_saferect_data.w, self._corner_saferect_data.h, self._corner_saferect_data.x, self._corner_saferect_data.y, self._corner_saferect_data.on_screen_width )
+end
+
+function GuiDataManager:layout_1280_workspace( ws )
+	ws:set_screen( self._fullrect_1280_data.w, self._fullrect_1280_data.h, self._fullrect_1280_data.x, self._fullrect_1280_data.y, self._fullrect_1280_data.on_screen_width)
+end
+
+function GuiDataManager:layout_corner_saferect_1280_workspace( ws )
+	ws:set_screen( self._corner_saferect_1280_data.w, self._corner_saferect_1280_data.h, self._corner_saferect_1280_data.x, self._corner_saferect_1280_data.y, self._corner_saferect_1280_data.on_screen_width)
+end
+
+--[[
+function GuiDataManager:scaled_size2()
+	local safe_rect = self:_get_safe_rect_pixels()
+	local scaled_size = self:scaled_size()
+	local res = RenderSettings.resolution
+	
+	local w = scaled_size.width
+	local h = scaled_size.height
+	local y = res.y/2 - ((safe_rect.width/(w/h)))/2
+	-- print( "safe_rect.x, y+safe_rect.y", safe_rect.x, y+safe_rect.y )
+	local h_p = w/(safe_rect.width/safe_rect.height)
+	return { width = w, height = h_p, x = 0, y = 0 }
+end]]
+function GuiDataManager:scaled_size()
+	-- 1088, 612 PS3 saferect pixels
+	-- 1198, 674 PC saferect pixels
+	local w = math.round(self:_get_safe_rect().width * base_res.x) -- 1198 -- 1498 -- 1198 -- self:_get_safe_rect().width * 1280
+	local h = math.round(self:_get_safe_rect().height * base_res.y) -- 674 -- 842 -- 674 -- self:_get_safe_rect().height * 720
+	return { width = w, height = h, x = 0, y = 0 }
+end
+
+function GuiDataManager:safe_scaled_size()
+	return self._saferect_data
+end
+
+function GuiDataManager:corner_scaled_size()
+	return self._corner_saferect_data
+end
+
+function GuiDataManager:full_scaled_size()
+	return self._fullrect_data
+end
+
+function GuiDataManager:full_16_9_size()
+	return self._fullrect_16_9_data
+end
+
+function GuiDataManager:full_1280_size()
+	return self._fullrect_1280_data
+end
+
+
+function GuiDataManager:full_to_full_16_9( in_x, in_y )
+	return self._fullrect_16_9_data.convert_x + in_x, self._fullrect_16_9_data.convert_y + in_y
+end
+
+function GuiDataManager:safe_to_full_16_9( in_x, in_y )
+	return self._fullrect_16_9_data.convert_x + in_x, self._fullrect_16_9_data.convert_y + in_y
+end
+
+function GuiDataManager:full_16_9_to_safe( in_x, in_y )
+	return in_x - self._fullrect_16_9_data.convert_x, in_y - self._fullrect_16_9_data.convert_y
+end
+
+
+function GuiDataManager:safe_to_full( in_x, in_y )
+	return self._fullrect_data.convert_x + in_x, self._fullrect_data.convert_y + in_y
+end
+
+function GuiDataManager:full_to_safe( in_x, in_y )
+	return in_x - self._fullrect_data.convert_x, in_y - self._fullrect_data.convert_y
+end
+
+function GuiDataManager:corner_safe_to_full( in_x, in_y )
+	return self._fullrect_data.corner_convert_x + in_x, self._fullrect_data.corner_convert_y + in_y
+end
+
+function GuiDataManager:y_safe_to_full( in_y )
+	return self._fullrect_data.convert_y + in_y
+end
+
+function GuiDataManager:resolution_changed()
+	self:_setup_workspace_data()
+end

@@ -1,195 +1,291 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\tweak_data\carrytweakdata.luac 
+CarryTweakData = CarryTweakData or class()
 
-if not CarryTweakData then
-  CarryTweakData = class()
+function CarryTweakData:init( tweak_data )
+	
+	-- self.thing = {}
+	-- self.thing.type = "heavy" -- heavy, medium, light, light_coke
+	
+	self.value_multiplier = tweak_data.money_manager.bag_value_multiplier
+	self.small_loot_value_multiplier = tweak_data.money_manager.small_loot_value_multiplier
+	
+	self.dye = {}
+	self.dye.chance = 0.5
+	self.dye.value_multiplier = 60 -- Percentage lost after dye explodes
+	
+	-- Types -----------------
+		
+	self.types  = {}
+
+	self.types.being = {}
+	self.types.being.move_speed_modifier 		= 0.5
+	self.types.being.jump_modifier				= 0.5
+	self.types.being.can_run 					= false
+	self.types.being.throw_distance_multiplier	= 0.5
+
+	self.types.mega_heavy = {}
+	self.types.mega_heavy.move_speed_modifier 		= 0.25
+	self.types.mega_heavy.jump_modifier				= 0.25
+	self.types.mega_heavy.can_run 					= false
+	self.types.mega_heavy.throw_distance_multiplier	= 0.125
+	
+	self.types.heavy = {}
+	self.types.heavy.move_speed_modifier 		= 0.5
+	self.types.heavy.jump_modifier				= 0.5
+	self.types.heavy.can_run 					= false
+	self.types.heavy.throw_distance_multiplier	= 0.5
+	
+	self.types.medium = {}
+	self.types.medium.move_speed_modifier		= 0.75
+	self.types.medium.jump_modifier				= 1
+	self.types.medium.can_run 					= false
+	self.types.medium.throw_distance_multiplier	= 1
+	
+	self.types.light = {}
+	self.types.light.move_speed_modifier		= 1
+	self.types.light.jump_modifier				= 1
+	self.types.light.can_run 					= true
+	self.types.light.throw_distance_multiplier	= 1
+	
+	self.types.coke_light = {}
+	self.types.coke_light.move_speed_modifier	= self.types.light.move_speed_modifier
+	self.types.coke_light.jump_modifier			= self.types.light.jump_modifier
+	self.types.coke_light.can_run 				= self.types.light.can_run
+	-- self.types.coke_light.looses_value			= true
+	-- self.types.coke_light.looses_value_per_hit  = 1 -- Will be multiplied with self.value_multiplier
+	self.types.coke_light.throw_distance_multiplier	 	= self.types.light.throw_distance_multiplier
+	
+	-- Small Loot actions -----------------
+	self.small_loot								= {}
+	
+	-- All values are specified in MoneyTweakData
+--[[	self.small_loot.money_bundle			 	= tweak_data.money_manager.small_loot.money_bundle
+	self.small_loot.diamondheist_vault_bust 	= tweak_data.money_manager.small_loot.diamondheist_vault_bust
+	self.small_loot.diamondheist_vault_diamond 	= tweak_data.money_manager.small_loot.diamondheist_vault_diamond
+	self.small_loot.diamondheist_big_diamond 	= tweak_data.money_manager.small_loot.diamondheist_big_diamond
+	self.small_loot.value_gold 					= tweak_data.money_manager.small_loot.value_gold
+	self.small_loot.gen_atm 					= tweak_data.money_manager.small_loot.gen_atm
+	self.small_loot.special_deposit_box			= tweak_data.money_manager.small_loot.special_deposit_box
+	
+	self.small_loot.vault_loot_gold				= tweak_data.money_manager.small_loot.vault_loot_gold
+	self.small_loot.vault_loot_cash				= tweak_data.money_manager.small_loot.vault_loot_cash
+	self.small_loot.vault_loot_coins			= tweak_data.money_manager.small_loot.vault_loot_coins
+	self.small_loot.vault_loot_ring				= tweak_data.money_manager.small_loot.vault_loot_ring
+	self.small_loot.vault_loot_jewels			= tweak_data.money_manager.small_loot.vault_loot_jewels
+	self.small_loot.vault_loot_macka			= tweak_data.money_manager.small_loot.vault_loot_macka	]]--
+
+	self.small_loot.money_bundle			 	= tweak_data:get_value("money_manager", "small_loot", "money_bundle")
+	self.small_loot.diamondheist_vault_bust 	= tweak_data:get_value("money_manager", "small_loot", "diamondheist_vault_bust")
+	self.small_loot.diamondheist_vault_diamond 	= tweak_data:get_value("money_manager", "small_loot", "diamondheist_vault_diamond")
+	self.small_loot.diamondheist_big_diamond 	= tweak_data:get_value("money_manager", "small_loot", "diamondheist_big_diamond")
+	self.small_loot.value_gold 					= tweak_data:get_value("money_manager", "small_loot", "value_gold")
+	self.small_loot.gen_atm 					= tweak_data:get_value("money_manager", "small_loot", "gen_atm")
+	self.small_loot.special_deposit_box			= tweak_data:get_value("money_manager", "small_loot", "special_deposit_box")
+	
+	self.small_loot.vault_loot_gold				= tweak_data:get_value("money_manager", "small_loot", "vault_loot_gold")
+	self.small_loot.vault_loot_cash				= tweak_data:get_value("money_manager", "small_loot", "vault_loot_cash")
+	self.small_loot.vault_loot_coins			= tweak_data:get_value("money_manager", "small_loot", "vault_loot_coins")
+	self.small_loot.vault_loot_ring				= tweak_data:get_value("money_manager", "small_loot", "vault_loot_ring")
+	self.small_loot.vault_loot_jewels			= tweak_data:get_value("money_manager", "small_loot", "vault_loot_jewels")
+	self.small_loot.vault_loot_macka			= tweak_data:get_value("money_manager", "small_loot", "vault_loot_macka")
+	
+	-- Things -----------------
+	
+	self.gold  = {}
+	self.gold.type = "heavy"
+	self.gold.name_id = "hud_carry_gold"
+	self.gold.bag_value = "gold"
+	self.gold.AI_carry = {
+		SO_category = "enemies"
+	}
+	
+	self.money  = {}
+	self.money.type = "medium"
+	self.money.name_id = "hud_carry_money"
+	self.money.bag_value = "money"
+	self.money.dye = true
+	self.money.AI_carry = {
+		SO_category = "enemies"
+	}
+	
+	self.diamonds  = {}
+	self.diamonds.type = "light"
+	self.diamonds.name_id = "hud_carry_diamonds"
+	self.diamonds.bag_value = "diamonds"
+	self.diamonds.AI_carry = {
+		SO_category = "enemies"
+	}
+	
+	self.painting  = {}
+	self.painting.type = "light"
+	self.painting.name_id = "hud_carry_painting"
+	self.painting.visual_object = "g_canvas_bag"
+	self.painting.unit = "units/payday2/pickups/gen_pku_canvasbag/gen_pku_canvasbag"
+	self.painting.AI_carry = {
+		SO_category = "enemies"
+	}
+	
+	self.coke  = {}
+	self.coke.type = "coke_light"
+	self.coke.name_id = "hud_carry_coke"
+	self.coke.bag_value = "coke"
+	self.coke.AI_carry = {
+		SO_category = "enemies"
+	}
+
+	self.meth  = {}
+	self.meth.type = "coke_light"
+	self.meth.name_id = "hud_carry_meth"
+	self.meth.bag_value = "meth"
+	self.meth.AI_carry = {
+		SO_category = "enemies"
+	}
+
+	self.lance_bag  = {}
+	self.lance_bag.type = "medium"
+	self.lance_bag.name_id = "hud_carry_lance_bag"
+	self.lance_bag.skip_exit_secure = true
+	self.lance_bag.visual_object = "g_toolsbag"
+	self.lance_bag.unit = "units/payday2/pickups/gen_pku_toolbag/gen_pku_toolbag"
+	self.lance_bag.AI_carry = {
+		SO_category = "enemies"
+	}
+	
+	self.weapon  = {}
+	self.weapon.type = "heavy"
+	self.weapon.name_id = "hud_carry_weapon"
+	self.weapon.bag_value = "weapons"
+	
+	self.weapons  = {}
+	self.weapons.type = "heavy"
+	self.weapons.bag_value = "weapons"
+	self.weapons.name_id = "hud_carry_weapons"
+	
+	self.person  = {}
+	self.person.type = "being"
+	self.person.name_id = "hud_carry_person"
+	self.person.unit = "units/payday2/pickups/gen_pku_bodybag/gen_pku_bodybag"
+	self.person.visual_object = "g_body_bag" -- Name of object on husk player unit to show when carried
+	self.person.default_value = 1
+	self.person.is_unique_loot = true
+	self.person.skip_exit_secure = true
+	
+	self.special_person  = {}
+	self.special_person.type = "being"
+	self.special_person.name_id = "hud_carry_special_person"
+	self.special_person.unit = "units/payday2/pickups/gen_pku_bodybag/gen_pku_bodybag"
+	self.special_person.default_value = 1
+	self.special_person.is_unique_loot = true
+	self.special_person.skip_exit_secure = true
+
+	self.circuit  = {}
+	self.circuit.type = "heavy"
+	self.circuit.name_id = "hud_carry_circuit"
+	--self.circuit.is_unique_loot = true -- this means that it is picked up by the "unique_loot" area trigger category
+
+	self.engine_01  = {}
+	self.engine_01.type = "mega_heavy"
+	self.engine_01.name_id = "hud_carry_engine_1"
+	self.engine_01.skip_exit_secure = true
+	self.engine_01.AI_carry = {
+		SO_category = "enemies"
+	}
+
+	self.engine_02  = {}
+	self.engine_02.type = "mega_heavy"
+	self.engine_02.name_id = "hud_carry_engine_2"
+	self.engine_02.skip_exit_secure = true
+	self.engine_02.AI_carry = {
+		SO_category = "enemies"
+	}
+
+	self.engine_03  = {}
+	self.engine_03.type = "mega_heavy"
+	self.engine_03.name_id = "hud_carry_engine_3"
+	self.engine_03.skip_exit_secure = true
+	self.engine_03.AI_carry = {
+		SO_category = "enemies"
+	}
+
+	self.engine_04  = {}
+	self.engine_04.type = "mega_heavy"
+	self.engine_04.name_id = "hud_carry_engine_4"
+	self.engine_04.skip_exit_secure = true
+	self.engine_04.AI_carry = {
+		SO_category = "enemies"
+	}
+
+	self.engine_05  = {}
+	self.engine_05.type = "mega_heavy"
+	self.engine_05.name_id = "hud_carry_engine_5"
+	self.engine_05.skip_exit_secure = true
+	self.engine_05.AI_carry = {
+		SO_category = "enemies"
+	}
+
+	self.engine_06  = {}
+	self.engine_06.type = "mega_heavy"
+	self.engine_06.name_id = "hud_carry_engine_6"
+	self.engine_06.skip_exit_secure = true
+	self.engine_06.AI_carry = {
+		SO_category = "enemies"
+	}
+
+	self.engine_07  = {}
+	self.engine_07.type = "mega_heavy"
+	self.engine_07.name_id = "hud_carry_engine_7"
+	self.engine_07.skip_exit_secure = true
+	self.engine_07.AI_carry = {
+		SO_category = "enemies"
+	}
+
+	self.engine_08  = {}
+	self.engine_08.type = "mega_heavy"
+	self.engine_08.name_id = "hud_carry_engine_8"
+	self.engine_08.skip_exit_secure = true
+	self.engine_08.AI_carry = {
+		SO_category = "enemies"
+	}
+
+	self.engine_09  = {}
+	self.engine_09.type = "mega_heavy"
+	self.engine_09.name_id = "hud_carry_engine_9"
+	self.engine_09.skip_exit_secure = true
+	self.engine_09.AI_carry = {
+		SO_category = "enemies"
+	}
+
+	self.engine_10  = {}
+	self.engine_10.type = "mega_heavy"
+	self.engine_10.name_id = "hud_carry_engine_10"
+	self.engine_10.skip_exit_secure = true
+	self.engine_10.AI_carry = {
+		SO_category = "enemies"
+	}
+
+	self.engine_11  = {}
+	self.engine_11.type = "mega_heavy"
+	self.engine_11.name_id = "hud_carry_engine_11"
+	self.engine_11.skip_exit_secure = true
+	self.engine_11.AI_carry = {
+		SO_category = "enemies"
+	}
+	
+	self.engine_12  = {}
+	self.engine_12.type = "mega_heavy"
+	self.engine_12.name_id = "hud_carry_engine_12"
+	self.engine_12.skip_exit_secure = true
+	self.engine_12.AI_carry = {
+		SO_category = "enemies"
+	}
+	
 end
-CarryTweakData.init = function(l_1_0, l_1_1)
-  l_1_0.value_multiplier = l_1_1.money_manager.bag_value_multiplier
-  l_1_0.small_loot_value_multiplier = l_1_1.money_manager.small_loot_value_multiplier
-  l_1_0.dye = {}
-  l_1_0.dye.chance = 0.5
-  l_1_0.dye.value_multiplier = 60
-  l_1_0.types = {}
-  l_1_0.types.being = {}
-  l_1_0.types.being.move_speed_modifier = 0.5
-  l_1_0.types.being.jump_modifier = 0.5
-  l_1_0.types.being.can_run = false
-  l_1_0.types.being.throw_distance_multiplier = 0.5
-  l_1_0.types.mega_heavy = {}
-  l_1_0.types.mega_heavy.move_speed_modifier = 0.25
-  l_1_0.types.mega_heavy.jump_modifier = 0.25
-  l_1_0.types.mega_heavy.can_run = false
-  l_1_0.types.mega_heavy.throw_distance_multiplier = 0.125
-  l_1_0.types.heavy = {}
-  l_1_0.types.heavy.move_speed_modifier = 0.5
-  l_1_0.types.heavy.jump_modifier = 0.5
-  l_1_0.types.heavy.can_run = false
-  l_1_0.types.heavy.throw_distance_multiplier = 0.5
-  l_1_0.types.medium = {}
-  l_1_0.types.medium.move_speed_modifier = 0.75
-  l_1_0.types.medium.jump_modifier = 1
-  l_1_0.types.medium.can_run = false
-  l_1_0.types.medium.throw_distance_multiplier = 1
-  l_1_0.types.light = {}
-  l_1_0.types.light.move_speed_modifier = 1
-  l_1_0.types.light.jump_modifier = 1
-  l_1_0.types.light.can_run = true
-  l_1_0.types.light.throw_distance_multiplier = 1
-  l_1_0.types.coke_light = {}
-  l_1_0.types.coke_light.move_speed_modifier = l_1_0.types.light.move_speed_modifier
-  l_1_0.types.coke_light.jump_modifier = l_1_0.types.light.jump_modifier
-  l_1_0.types.coke_light.can_run = l_1_0.types.light.can_run
-  l_1_0.types.coke_light.throw_distance_multiplier = l_1_0.types.light.throw_distance_multiplier
-  l_1_0.small_loot = {}
-  l_1_0.small_loot.money_bundle = l_1_1:get_value("money_manager", "small_loot", "money_bundle")
-  l_1_0.small_loot.diamondheist_vault_bust = l_1_1:get_value("money_manager", "small_loot", "diamondheist_vault_bust")
-  l_1_0.small_loot.diamondheist_vault_diamond = l_1_1:get_value("money_manager", "small_loot", "diamondheist_vault_diamond")
-  l_1_0.small_loot.diamondheist_big_diamond = l_1_1:get_value("money_manager", "small_loot", "diamondheist_big_diamond")
-  l_1_0.small_loot.value_gold = l_1_1:get_value("money_manager", "small_loot", "value_gold")
-  l_1_0.small_loot.gen_atm = l_1_1:get_value("money_manager", "small_loot", "gen_atm")
-  l_1_0.small_loot.special_deposit_box = l_1_1:get_value("money_manager", "small_loot", "special_deposit_box")
-  l_1_0.small_loot.vault_loot_gold = l_1_1:get_value("money_manager", "small_loot", "vault_loot_gold")
-  l_1_0.small_loot.vault_loot_cash = l_1_1:get_value("money_manager", "small_loot", "vault_loot_cash")
-  l_1_0.small_loot.vault_loot_coins = l_1_1:get_value("money_manager", "small_loot", "vault_loot_coins")
-  l_1_0.small_loot.vault_loot_ring = l_1_1:get_value("money_manager", "small_loot", "vault_loot_ring")
-  l_1_0.small_loot.vault_loot_jewels = l_1_1:get_value("money_manager", "small_loot", "vault_loot_jewels")
-  l_1_0.small_loot.vault_loot_macka = l_1_1:get_value("money_manager", "small_loot", "vault_loot_macka")
-  l_1_0.gold = {}
-  l_1_0.gold.type = "heavy"
-  l_1_0.gold.name_id = "hud_carry_gold"
-  l_1_0.gold.bag_value = "gold"
-  l_1_0.gold.AI_carry = {SO_category = "enemies"}
-  l_1_0.money = {}
-  l_1_0.money.type = "medium"
-  l_1_0.money.name_id = "hud_carry_money"
-  l_1_0.money.bag_value = "money"
-  l_1_0.money.dye = true
-  l_1_0.money.AI_carry = {SO_category = "enemies"}
-  l_1_0.diamonds = {}
-  l_1_0.diamonds.type = "light"
-  l_1_0.diamonds.name_id = "hud_carry_diamonds"
-  l_1_0.diamonds.bag_value = "diamonds"
-  l_1_0.diamonds.AI_carry = {SO_category = "enemies"}
-  l_1_0.painting = {}
-  l_1_0.painting.type = "light"
-  l_1_0.painting.name_id = "hud_carry_painting"
-  l_1_0.painting.visual_object = "g_canvas_bag"
-  l_1_0.painting.unit = "units/payday2/pickups/gen_pku_canvasbag/gen_pku_canvasbag"
-  l_1_0.painting.AI_carry = {SO_category = "enemies"}
-  l_1_0.coke = {}
-  l_1_0.coke.type = "coke_light"
-  l_1_0.coke.name_id = "hud_carry_coke"
-  l_1_0.coke.bag_value = "coke"
-  l_1_0.coke.AI_carry = {SO_category = "enemies"}
-  l_1_0.meth = {}
-  l_1_0.meth.type = "coke_light"
-  l_1_0.meth.name_id = "hud_carry_meth"
-  l_1_0.meth.bag_value = "meth"
-  l_1_0.meth.AI_carry = {SO_category = "enemies"}
-  l_1_0.lance_bag = {}
-  l_1_0.lance_bag.type = "medium"
-  l_1_0.lance_bag.name_id = "hud_carry_lance_bag"
-  l_1_0.lance_bag.skip_exit_secure = true
-  l_1_0.lance_bag.visual_object = "g_toolsbag"
-  l_1_0.lance_bag.unit = "units/payday2/pickups/gen_pku_toolbag/gen_pku_toolbag"
-  l_1_0.lance_bag.AI_carry = {SO_category = "enemies"}
-  l_1_0.weapon = {}
-  l_1_0.weapon.type = "heavy"
-  l_1_0.weapon.name_id = "hud_carry_weapon"
-  l_1_0.weapon.bag_value = "weapons"
-  l_1_0.weapons = {}
-  l_1_0.weapons.type = "heavy"
-  l_1_0.weapons.bag_value = "weapons"
-  l_1_0.weapons.name_id = "hud_carry_weapons"
-  l_1_0.person = {}
-  l_1_0.person.type = "being"
-  l_1_0.person.name_id = "hud_carry_person"
-  l_1_0.person.unit = "units/payday2/pickups/gen_pku_bodybag/gen_pku_bodybag"
-  l_1_0.person.visual_object = "g_body_bag"
-  l_1_0.person.default_value = 1
-  l_1_0.person.is_unique_loot = true
-  l_1_0.person.skip_exit_secure = true
-  l_1_0.special_person = {}
-  l_1_0.special_person.type = "being"
-  l_1_0.special_person.name_id = "hud_carry_special_person"
-  l_1_0.special_person.unit = "units/payday2/pickups/gen_pku_bodybag/gen_pku_bodybag"
-  l_1_0.special_person.default_value = 1
-  l_1_0.special_person.is_unique_loot = true
-  l_1_0.special_person.skip_exit_secure = true
-  l_1_0.circuit = {}
-  l_1_0.circuit.type = "heavy"
-  l_1_0.circuit.name_id = "hud_carry_circuit"
-  l_1_0.engine_01 = {}
-  l_1_0.engine_01.type = "mega_heavy"
-  l_1_0.engine_01.name_id = "hud_carry_engine_1"
-  l_1_0.engine_01.skip_exit_secure = true
-  l_1_0.engine_01.AI_carry = {SO_category = "enemies"}
-  l_1_0.engine_02 = {}
-  l_1_0.engine_02.type = "mega_heavy"
-  l_1_0.engine_02.name_id = "hud_carry_engine_2"
-  l_1_0.engine_02.skip_exit_secure = true
-  l_1_0.engine_02.AI_carry = {SO_category = "enemies"}
-  l_1_0.engine_03 = {}
-  l_1_0.engine_03.type = "mega_heavy"
-  l_1_0.engine_03.name_id = "hud_carry_engine_3"
-  l_1_0.engine_03.skip_exit_secure = true
-  l_1_0.engine_03.AI_carry = {SO_category = "enemies"}
-  l_1_0.engine_04 = {}
-  l_1_0.engine_04.type = "mega_heavy"
-  l_1_0.engine_04.name_id = "hud_carry_engine_4"
-  l_1_0.engine_04.skip_exit_secure = true
-  l_1_0.engine_04.AI_carry = {SO_category = "enemies"}
-  l_1_0.engine_05 = {}
-  l_1_0.engine_05.type = "mega_heavy"
-  l_1_0.engine_05.name_id = "hud_carry_engine_5"
-  l_1_0.engine_05.skip_exit_secure = true
-  l_1_0.engine_05.AI_carry = {SO_category = "enemies"}
-  l_1_0.engine_06 = {}
-  l_1_0.engine_06.type = "mega_heavy"
-  l_1_0.engine_06.name_id = "hud_carry_engine_6"
-  l_1_0.engine_06.skip_exit_secure = true
-  l_1_0.engine_06.AI_carry = {SO_category = "enemies"}
-  l_1_0.engine_07 = {}
-  l_1_0.engine_07.type = "mega_heavy"
-  l_1_0.engine_07.name_id = "hud_carry_engine_7"
-  l_1_0.engine_07.skip_exit_secure = true
-  l_1_0.engine_07.AI_carry = {SO_category = "enemies"}
-  l_1_0.engine_08 = {}
-  l_1_0.engine_08.type = "mega_heavy"
-  l_1_0.engine_08.name_id = "hud_carry_engine_8"
-  l_1_0.engine_08.skip_exit_secure = true
-  l_1_0.engine_08.AI_carry = {SO_category = "enemies"}
-  l_1_0.engine_09 = {}
-  l_1_0.engine_09.type = "mega_heavy"
-  l_1_0.engine_09.name_id = "hud_carry_engine_9"
-  l_1_0.engine_09.skip_exit_secure = true
-  l_1_0.engine_09.AI_carry = {SO_category = "enemies"}
-  l_1_0.engine_10 = {}
-  l_1_0.engine_10.type = "mega_heavy"
-  l_1_0.engine_10.name_id = "hud_carry_engine_10"
-  l_1_0.engine_10.skip_exit_secure = true
-  l_1_0.engine_10.AI_carry = {SO_category = "enemies"}
-  l_1_0.engine_11 = {}
-  l_1_0.engine_11.type = "mega_heavy"
-  l_1_0.engine_11.name_id = "hud_carry_engine_11"
-  l_1_0.engine_11.skip_exit_secure = true
-  l_1_0.engine_11.AI_carry = {SO_category = "enemies"}
-  l_1_0.engine_12 = {}
-  l_1_0.engine_12.type = "mega_heavy"
-  l_1_0.engine_12.name_id = "hud_carry_engine_12"
-  l_1_0.engine_12.skip_exit_secure = true
-  l_1_0.engine_12.AI_carry = {SO_category = "enemies"}
+
+function CarryTweakData:get_carry_ids()
+	local t = {}
+	for id,_ in pairs( tweak_data.carry ) do
+		if type( tweak_data.carry[ id ] ) == "table" and tweak_data.carry[ id ].type then
+			table.insert( t, id )
+		end
+	end
+	return t
 end
-
-CarryTweakData.get_carry_ids = function(l_2_0)
-  local t = {}
-  for id,_ in pairs(tweak_data.carry) do
-    if type(tweak_data.carry[id]) == "table" and tweak_data.carry[id].type then
-      table.insert(t, id)
-    end
-  end
-  return t
-end
-
-

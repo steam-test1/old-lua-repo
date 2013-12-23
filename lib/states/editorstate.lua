@@ -1,20 +1,15 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\states\editorstate.luac 
+require "lib/states/GameState"
 
-require("lib/states/GameState")
-if not EditorState then
-  EditorState = class(GameState)
-end
-EditorState.init = function(l_1_0, l_1_1)
-  GameState.init(l_1_0, "editor", l_1_1)
+EditorState = EditorState or class( GameState )
+
+function EditorState:init( game_state_machine )
+	GameState.init( self, "editor", game_state_machine )
 end
 
-EditorState.at_enter = function(l_2_0)
-  cat_print("game_state_machine", "GAME STATE EditorState ENTER")
+function EditorState:at_enter()
+	cat_print( "game_state_machine", "GAME STATE EditorState ENTER" )
 end
 
-EditorState.at_exit = function(l_3_0)
-  cat_print("game_state_machine", "GAME STATE EditorState ENTER")
+function EditorState:at_exit()
+	cat_print( "game_state_machine", "GAME STATE EditorState ENTER" )
 end
-
-

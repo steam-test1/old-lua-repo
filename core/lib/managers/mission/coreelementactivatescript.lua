@@ -1,35 +1,26 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\mission\coreelementactivatescript.luac 
+core:module( "CoreElementActivateScript" )
+core:import( "CoreMissionScriptElement" )
 
-core:module("CoreElementActivateScript")
-core:import("CoreMissionScriptElement")
-if not ElementActivateScript then
-  ElementActivateScript = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementActivateScript.init = function(l_1_0, ...)
-  ElementActivateScript.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementActivateScript = ElementActivateScript or class( CoreMissionScriptElement.MissionScriptElement )
 
+function ElementActivateScript:init( ... )
+	ElementActivateScript.super.init( self, ... )
 end
 
-ElementActivateScript.client_on_executed = function(l_2_0, ...)
-  l_2_0:on_executed(...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function ElementActivateScript:client_on_executed( ... )
+	self:on_executed( ... )
 end
 
-ElementActivateScript.on_executed = function(l_3_0, l_3_1)
-  if not l_3_0._values.enabled then
-    return 
-  end
-  if l_3_0._values.activate_script ~= "none" then
-    managers.mission:activate_script(l_3_0._values.activate_script, l_3_1)
-  else
-    if Application:editor() then
-      managers.editor:output_error("Cant activate script named \"none\" [" .. l_3_0._editor_name .. "]")
-    end
-  end
-  ElementActivateScript.super.on_executed(l_3_0, l_3_1)
+function ElementActivateScript:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	if self._values.activate_script ~= "none" then
+		managers.mission:activate_script( self._values.activate_script, instigator )
+	elseif Application:editor() then
+		managers.editor:output_error( 'Cant activate script named "none" ['..self._editor_name..']' )
+	end
+		
+	ElementActivateScript.super.on_executed( self, instigator )
 end
-
-

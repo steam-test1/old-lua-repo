@@ -1,34 +1,29 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\cutscene\keys\coreshakecameracutscenekey.luac 
+require "core/lib/managers/cutscene/keys/CoreCutsceneKeyBase"
 
-require("core/lib/managers/cutscene/keys/CoreCutsceneKeyBase")
-if not CoreShakeCameraCutsceneKey then
-  CoreShakeCameraCutsceneKey = class(CoreCutsceneKeyBase)
-end
+CoreShakeCameraCutsceneKey = CoreShakeCameraCutsceneKey or class(CoreCutsceneKeyBase)
 CoreShakeCameraCutsceneKey.ELEMENT_NAME = "camera_shaker"
 CoreShakeCameraCutsceneKey.NAME = "Camera Shake"
 CoreShakeCameraCutsceneKey:register_serialized_attribute("name", "")
 CoreShakeCameraCutsceneKey:register_serialized_attribute("amplitude", 1, tonumber)
 CoreShakeCameraCutsceneKey:register_serialized_attribute("frequency", 1, tonumber)
 CoreShakeCameraCutsceneKey:register_serialized_attribute("offset", 0, tonumber)
-CoreShakeCameraCutsceneKey.__tostring = function(l_1_0)
-  return "Trigger camera shake \"" .. l_1_0:name() .. "\"."
+
+function CoreShakeCameraCutsceneKey:__tostring()
+	return "Trigger camera shake \"" .. self:name() .. "\"."
 end
 
-CoreShakeCameraCutsceneKey.play = function(l_2_0, l_2_1, l_2_2, l_2_3)
-  if l_2_2 then
-    l_2_0:stop()
-  elseif not l_2_3 then
-    l_2_0:stop()
-    l_2_0._shake_abort_func = l_2_1:play_camera_shake(l_2_0:name(), l_2_0:amplitude(), l_2_0:frequency(), l_2_0:offset())
-  end
+function CoreShakeCameraCutsceneKey:play(player, undo, fast_forward)
+	if undo then
+		self:stop()
+	elseif not fast_forward then
+		self:stop()
+		self._shake_abort_func = player:play_camera_shake(self:name(), self:amplitude(), self:frequency(), self:offset())
+	end
 end
 
-CoreShakeCameraCutsceneKey.stop = function(l_3_0)
-  if l_3_0._shake_abort_func then
-    l_3_0._shake_abort_func()
-    l_3_0._shake_abort_func = nil
-  end
+function CoreShakeCameraCutsceneKey:stop()
+	if self._shake_abort_func then
+		self._shake_abort_func()
+		self._shake_abort_func = nil
+	end
 end
-
-

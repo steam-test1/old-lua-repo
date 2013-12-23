@@ -1,17 +1,20 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\entry.luac 
-
- -- DECOMPILER ERROR: Overwrote pending register.
+local selected_setup
 
 if Global.load_level then
-  if Global.network then
-    
-    if not setup then
-      setup = nil:new()
-    end
-    setup:make_entrypoint()
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+	if( Global.network ) then
+		selected_setup = require "lib/setups/NetworkGameSetup"
+	else
+		selected_setup = require "lib/setups/GameSetup"
+	end
+elseif Global.load_start_menu then
+	selected_setup = require "lib/setups/MenuSetup"
+else
+	if Application:editor() then
+		selected_setup = require "lib/setups/NetworkGameSetup"
+	else
+		selected_setup = require "lib/setups/MenuSetup"
+	end
+end
 
-     -- Warning: missing end command somewhere! Added here
-  end
-
+setup = setup or selected_setup:new()
+setup:make_entrypoint()

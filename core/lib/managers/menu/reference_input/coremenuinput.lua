@@ -1,378 +1,473 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\menu\reference_input\coremenuinput.luac 
-
 core:module("CoreMenuInput")
-core:import("CoreDebug")
-core:import("CoreMenuItem")
-core:import("CoreMenuItemSlider")
-core:import("CoreMenuItemToggle")
-if not MenuInput then
-  MenuInput = class()
-end
-MenuInput.init = function(l_1_0, l_1_1, l_1_2)
-  l_1_0._logic = l_1_1
-  l_1_0._menu_name = l_1_2
-  l_1_0._accept_input = true
-  l_1_0._logic:register_callback("input_accept_input", callback(l_1_0, l_1_0, "accept_input"))
-  l_1_0._axis_delay_timer = {}
-  l_1_0._axis_delay_timer.x = 0
-  l_1_0._axis_delay_timer.y = 0
-  l_1_0._item_input_action_map = {}
-  l_1_0._item_input_action_map[CoreMenuItem.Item.TYPE] = callback(l_1_0, l_1_0, "input_item")
-  l_1_0._item_input_action_map[CoreMenuItemSlider.ItemSlider.TYPE] = callback(l_1_0, l_1_0, "input_slider")
-  l_1_0._item_input_action_map[CoreMenuItemToggle.ItemToggle.TYPE] = callback(l_1_0, l_1_0, "input_toggle")
-end
+core:import('CoreDebug')
+core:import( "CoreMenuItem" )
+core:import( "CoreMenuItemSlider" )
+core:import( "CoreMenuItemToggle" )
 
-MenuInput.open = function(l_2_0, ...)
-  l_2_0:create_controller()
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+MenuInput = MenuInput or class()
 
+function MenuInput:init( logic, menu_name )
+	self._logic = logic
+	self._menu_name = menu_name
+	self._accept_input = true
+	self._logic:register_callback( "input_accept_input", callback( self, self, "accept_input" ) )
+	
+	-- Delay timers
+	self._axis_delay_timer = {}
+	self._axis_delay_timer.x = 0
+	self._axis_delay_timer.y = 0
+	
+	self._item_input_action_map = {}
+	self._item_input_action_map[ CoreMenuItem.Item.TYPE ]				= callback( self, self, "input_item" )	
+	self._item_input_action_map[ CoreMenuItemSlider.ItemSlider.TYPE ]	= callback( self, self, "input_slider" )
+	self._item_input_action_map[ CoreMenuItemToggle.ItemToggle.TYPE ]	= callback( self, self, "input_toggle" )
 end
 
-MenuInput.close = function(l_3_0)
-  l_3_0:destroy_controller()
+function MenuInput:open(...)
+	self:create_controller()
 end
 
-MenuInput.axis_timer = function(l_4_0)
-  return l_4_0._axis_delay_timer
+function MenuInput:close()
+	self:destroy_controller()
 end
 
-MenuInput.set_axis_x_timer = function(l_5_0, l_5_1)
-  l_5_0._axis_delay_timer.x = l_5_1
+function MenuInput:axis_timer()
+	return self._axis_delay_timer
 end
 
-MenuInput.set_axis_y_timer = function(l_6_0, l_6_1)
-  l_6_0._axis_delay_timer.y = l_6_1
+-- Set delay timers
+function MenuInput:set_axis_x_timer( time )
+	self._axis_delay_timer.x = time
+end
+function MenuInput:set_axis_y_timer( time )
+	self._axis_delay_timer.y = time
 end
 
-MenuInput._input_hijacked = function(l_7_0)
-  local active_menu = managers.menu:active_menu()
-  if active_menu then
-    return active_menu.renderer:input_focus()
-  end
+function MenuInput:_input_hijacked()
+	local active_menu = managers.menu:active_menu()
+	return active_menu and active_menu.renderer:input_focus()
 end
 
-MenuInput.input_item = function(l_8_0, l_8_1, l_8_2, l_8_3)
-  if l_8_2:get_input_pressed("confirm") or l_8_3 then
-    if l_8_1:parameters().sign_in then
-      print("requires sign in")
-      local f = function(l_1_0)
-        print(l_1_0)
-        if l_1_0 then
-          self._logic:trigger_item(true, item)
-          self:select_node()
-        end
-         end
-      managers.menu:open_sign_in_menu(f)
-    else
-      local node_gui = managers.menu:active_menu().renderer:active_node_gui()
-      if node_gui and node_gui._listening_to_input then
-        return 
-      end
-      l_8_0._logic:trigger_item(true, l_8_1)
-      l_8_0:select_node()
-    end
-  end
+-- MenuInput handling for regular items
+function MenuInput:input_item( item, controller, mouse_click )
+	if controller:get_input_pressed( "confirm" ) or mouse_click then
+		if item:parameters().sign_in then
+			print( "requires sign in" )
+			local f = function( success ) print( success ) if success then self._logic:trigger_item( true, item ) self:select_node() end end
+			managers.menu:open_sign_in_menu( f )	
+		else
+		-- local f = function( success, text ) print( success, text ) if success then self._logic:trigger_item( true, item ) self:select_node() end end
+		-- managers.system_menu:show_keyboard_input( { callback_func = f } )
+				
+			local node_gui = managers.menu:active_menu().renderer:active_node_gui()
+			if node_gui and node_gui._listening_to_input then
+				return
+			end
+		
+		
+			self._logic:trigger_item( true, item )
+			self:select_node()
+		end
+	end
 end
 
-MenuInput.input_slider = function(l_9_0, l_9_1, l_9_2)
-  local slider_delay_down = 0.10000000149012
-  local slider_delay_pressed = 0.20000000298023
-  if l_9_0:menu_right_input_bool() then
-    l_9_1:increase()
-    l_9_0._logic:trigger_item(true, l_9_1)
-    l_9_0:set_axis_x_timer(slider_delay_down)
-    if l_9_0:menu_right_pressed() then
-      local percentage = l_9_1:percentage()
-      if percentage > 0 and percentage < 100 then
-        l_9_0:post_event("slider_increase")
-      end
-      l_9_0:set_axis_x_timer(slider_delay_pressed)
-    else
-      if l_9_0:menu_left_input_bool() then
-        l_9_1:decrease()
-        l_9_0._logic:trigger_item(true, l_9_1)
-        l_9_0:set_axis_x_timer(slider_delay_down)
-        if l_9_0:menu_left_pressed() then
-          l_9_0:set_axis_x_timer(slider_delay_pressed)
-          local percentage = l_9_1:percentage()
-          if percentage > 0 and percentage < 100 then
-            l_9_0:post_event("slider_decrease")
-          end
-        end
-      end
-    end
-  end
+-- MenuInput handling for slider items
+function MenuInput:input_slider( item, controller )
+	local slider_delay_down		= 0.1
+	local slider_delay_pressed	= 0.2
+	
+	if self:menu_right_input_bool() then
+		item:increase()
+		self._logic:trigger_item( true, item )
+		self:set_axis_x_timer( slider_delay_down )
+		if self:menu_right_pressed() then
+			local percentage = item:percentage()
+			if( percentage > 0 and percentage < 100 ) then
+				self:post_event( "slider_increase" )
+			end
+			self:set_axis_x_timer( slider_delay_pressed )	
+		end
+		
+	elseif self:menu_left_input_bool() then
+		item:decrease()
+		self._logic:trigger_item( true, item )
+		self:set_axis_x_timer( slider_delay_down )
+		if self:menu_left_pressed() then
+			self:set_axis_x_timer( slider_delay_pressed )
+			local percentage = item:percentage()
+			if( percentage > 0 and percentage < 100 ) then
+				self:post_event( "slider_decrease" )
+			end	
+		end
+	end
 end
 
-MenuInput.input_toggle = function(l_10_0, l_10_1, l_10_2, l_10_3)
-  local toggle_delay_down = 0.30000001192093
-  local toggle_delay_pressed = 0.60000002384186
-  if l_10_2:get_input_pressed("confirm") or l_10_3 then
-    l_10_1:toggle()
-    l_10_0._logic:trigger_item(true, l_10_1)
-  end
+-- MenuInput handling for toggle items
+function MenuInput:input_toggle( item, controller, mouse_click )
+	local toggle_delay_down		= 0.3
+	local toggle_delay_pressed	= 0.6
+	
+	--[[if self:menu_right_input_bool() then
+		item:toggle()
+		self._logic:trigger_item( true, item )
+		self:set_axis_x_timer( toggle_delay_down )
+		if self:menu_right_pressed() then
+			self:set_axis_x_timer( toggle_delay_pressed )	
+		end
+	elseif self:menu_left_input_bool() then
+		item:toggle_back()
+		self._logic:trigger_item( true, item )
+		self:set_axis_x_timer( toggle_delay_down )
+		if self:menu_left_pressed() then
+			self:set_axis_x_timer( toggle_delay_pressed )	
+		end
+	end]]
+	
+	if controller:get_input_pressed( "confirm" ) or mouse_click then
+		item:toggle()
+		self._logic:trigger_item( true, item )
+	end
 end
 
-MenuInput.update = function(l_11_0, l_11_1, l_11_2)
-  l_11_0:_check_releases()
-  l_11_0:any_keyboard_used()
-  local axis_timer = l_11_0:axis_timer()
-  if axis_timer.y > 0 then
-    l_11_0:set_axis_y_timer(axis_timer.y - l_11_2)
-  end
-  if axis_timer.x > 0 then
-    l_11_0:set_axis_x_timer(axis_timer.x - l_11_2)
-  end
-  if l_11_0:_input_hijacked() then
-    return false
-  end
-  if l_11_0._accept_input and l_11_0._controller then
-    if axis_timer.y <= 0 then
-      if l_11_0:menu_up_input_bool() then
-        l_11_0:prev_item()
-        l_11_0:set_axis_y_timer(0.11999999731779)
-        if l_11_0:menu_up_pressed() then
-          l_11_0:set_axis_y_timer(0.30000001192093)
-        else
-          if l_11_0:menu_down_input_bool() then
-            l_11_0:next_item()
-            l_11_0:set_axis_y_timer(0.11999999731779)
-            if l_11_0:menu_down_pressed() then
-              l_11_0:set_axis_y_timer(0.30000001192093)
-            end
-          end
-        end
-      end
-    end
-    if axis_timer.x <= 0 then
-      local item = l_11_0._logic:selected_item()
-      if item then
-        l_11_0._item_input_action_map[item.TYPE](item, l_11_0._controller)
-      end
-    end
-    if l_11_0._controller:get_input_pressed("menu_update") then
-      print("update something")
-      l_11_0._logic:update_node()
-    end
-  end
-  return true
+function MenuInput:update( t, dt )
+	self:_check_releases()
+	
+	self:any_keyboard_used()
+	
+	local axis_timer = self:axis_timer()
+	
+	if axis_timer.y > 0 then
+		self:set_axis_y_timer( axis_timer.y - dt )
+	end
+	
+	if axis_timer.x > 0 then
+		self:set_axis_x_timer( axis_timer.x - dt )
+	end
+	
+	if self:_input_hijacked() then
+		return false
+	end
+	
+	if self._accept_input and self._controller then
+	
+		-- Up and down, highlight next or prev item
+		if axis_timer.y <= 0 then
+			if self:menu_up_input_bool() then
+				self:prev_item()
+				self:set_axis_y_timer( 0.12 )
+				if self:menu_up_pressed() then
+					self:set_axis_y_timer( 0.3 )
+				end
+			elseif self:menu_down_input_bool() then
+				self:next_item()
+				self:set_axis_y_timer( 0.12 )
+				if self:menu_down_pressed() then
+					self:set_axis_y_timer( 0.3 )
+				end
+			end
+		end
+		
+		--[[if self:menu_scroll_up_input_bool() then
+			managers.menu:active_menu().renderer:scroll_up()
+		elseif self:menu_scroll_down_input_bool() then
+			managers.menu:active_menu().renderer:scroll_down()
+		end]]
+		
+		-- Left and right, toggle item values
+		if axis_timer.x <= 0 then
+			local item = self._logic:selected_item()
+			if item then
+				self._item_input_action_map[ item.TYPE ]( item, self._controller )
+			end
+		end
+		
+		if self._controller:get_input_pressed( "menu_update" ) then
+			print( "update something" )
+			self._logic:update_node()
+		end
+	end
+	
+	return true
 end
 
-MenuInput.menu_up_input_bool = function(l_12_0)
-  if l_12_0._controller then
-    return l_12_0._controller:get_input_bool("menu_up")
-  end
-  return false
+-- Up
+function MenuInput:menu_up_input_bool()
+	if self._controller then
+		return self._controller:get_input_bool( "menu_up" )
+	end
+	return false
 end
 
-MenuInput.menu_up_pressed = function(l_13_0)
-  if l_13_0._controller then
-    return l_13_0._controller:get_input_pressed("menu_up")
-  end
-  return false
+function MenuInput:menu_up_pressed()
+	if self._controller then
+		return self._controller:get_input_pressed( "menu_up" )
+	end
+	return false
 end
 
-MenuInput.menu_up_released = function(l_14_0)
-  if l_14_0._controller then
-    return l_14_0._controller:get_input_released("menu_up")
-  end
-  return false
+function MenuInput:menu_up_released()
+	if self._controller then
+		return self._controller:get_input_released( "menu_up" )
+	end
+	return false
 end
 
-MenuInput.menu_down_input_bool = function(l_15_0)
-  if l_15_0._controller then
-    return l_15_0._controller:get_input_bool("menu_down")
-  end
-  return false
+-- Down
+function MenuInput:menu_down_input_bool()
+	if self._controller then
+		return self._controller:get_input_bool( "menu_down" )
+	end
+	return false
 end
 
-MenuInput.menu_down_pressed = function(l_16_0)
-  if l_16_0._controller then
-    return l_16_0._controller:get_input_pressed("menu_down")
-  end
-  return false
+function MenuInput:menu_down_pressed()
+	if self._controller then
+		return self._controller:get_input_pressed( "menu_down" )
+	end
+	return false
 end
 
-MenuInput.menu_down_released = function(l_17_0)
-  if l_17_0._controller then
-    return l_17_0._controller:get_input_released("menu_down")
-  end
-  return false
+function MenuInput:menu_down_released()
+	if self._controller then
+		return self._controller:get_input_released( "menu_down" )
+	end
+	return false
 end
 
-MenuInput.menu_left_input_bool = function(l_18_0)
-  if l_18_0._controller then
-    return l_18_0._controller:get_input_bool("menu_left")
-  end
-  return false
+-- Left
+function MenuInput:menu_left_input_bool()
+	if self._controller then
+		return self._controller:get_input_bool( "menu_left" )
+	end
+	return false
 end
 
-MenuInput.menu_left_pressed = function(l_19_0)
-  if l_19_0._controller then
-    return l_19_0._controller:get_input_pressed("menu_left")
-  end
-  return false
+function MenuInput:menu_left_pressed()
+	if self._controller then
+		return self._controller:get_input_pressed( "menu_left" )
+	end
+	return false
 end
 
-MenuInput.menu_left_released = function(l_20_0)
-  if l_20_0._controller then
-    return l_20_0._controller:get_input_released("menu_left")
-  end
-  return false
+function MenuInput:menu_left_released()
+	if self._controller then
+		return self._controller:get_input_released( "menu_left" )
+	end
+	return false
 end
 
-MenuInput.menu_right_input_bool = function(l_21_0)
-  if l_21_0._controller then
-    return l_21_0._controller:get_input_bool("menu_right")
-  end
-  return false
+-- Right
+function MenuInput:menu_right_input_bool()
+	if self._controller then
+		return self._controller:get_input_bool( "menu_right" )
+	end
+	return false
 end
 
-MenuInput.menu_right_pressed = function(l_22_0)
-  if l_22_0._controller then
-    return l_22_0._controller:get_input_pressed("menu_right")
-  end
-  return false
+function MenuInput:menu_right_pressed()
+	if self._controller then
+		return self._controller:get_input_pressed( "menu_right" )
+	end
+	return false
 end
-
-MenuInput.menu_right_released = function(l_23_0)
-  if l_23_0._controller then
-    return l_23_0._controller:get_input_released("menu_right")
-  end
-  return false
-end
-
-MenuInput._check_releases = function(l_24_0)
-  if l_24_0:menu_left_released() or l_24_0:menu_right_released() then
-    l_24_0:set_axis_x_timer(0.0099999997764826)
-  end
-  if l_24_0:menu_up_released() or l_24_0:menu_down_released() then
-    l_24_0:set_axis_y_timer(0.0099999997764826)
-  end
-end
-
-MenuInput.accept_input = function(l_25_0, l_25_1)
-  l_25_0._accept_input = l_25_1
-end
-
-MenuInput.focus = function(l_26_0, l_26_1)
-  if l_26_1 then
-    l_26_0:create_controller()
-  else
-    l_26_0:destroy_controller()
-  end
-end
-
-MenuInput.create_controller = function(l_27_0)
-  if not l_27_0._controller then
-    local controller = managers.controller:create_controller("" .. tostring(TimerManager:wall():time()), nil, false)
-    controller:add_trigger("cancel", callback(l_27_0, l_27_0, "back"))
-    controller:set_enabled(true)
-    l_27_0._controller = controller
-  end
-end
-
-MenuInput.destroy_controller = function(l_28_0)
-  if l_28_0._controller then
-    l_28_0._controller:destroy()
-    l_28_0._controller = nil
-  end
-end
-
-MenuInput.logic_changed = function(l_29_0)
-end
-
-MenuInput.next_item = function(l_30_0)
-  if not l_30_0._accept_input then
-    return 
-  end
-  local current_item = l_30_0._logic:selected_item()
-  if current_item then
-    local current_item_name = current_item:parameters().name
-    local items = (l_30_0._logic:selected_node():items())
-    local done = nil
-    for i,v in ipairs(items) do
-      if v:parameters().name == current_item_name then
-        for check = 1, #items - 1 do
-          local next_item = items[(i + check - 1) % #items + 1]
-          if next_item:visible() and next_item.TYPE ~= "divider" then
-            l_30_0._logic:select_item(next_item:parameters().name, true)
-            done = true
-        else
-          end
-        end
-    else
-      if done then
-        end
-      end
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-MenuInput.prev_item = function(l_31_0)
-  local current_item = l_31_0._logic:selected_item()
-  if current_item then
-    local current_item_name = current_item:parameters().name
-    local items = (l_31_0._logic:selected_node():items())
-    local done = nil
-    for i,v in ipairs(items) do
-      if v:parameters().name == current_item_name then
-        for check = 1, #items - 1 do
-          local prev_item = items[(i - check - 1) % #items + 1]
-          if prev_item:visible() and prev_item.TYPE ~= "divider" then
-            l_31_0._logic:select_item(prev_item:parameters().name, true)
-            done = true
-        else
-          end
-        end
-    else
-      if done then
-        end
-      end
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-MenuInput.back = function(l_32_0, l_32_1, l_32_2)
-  if l_32_0:_input_hijacked() == true then
-    return 
-  end
-  if l_32_0._logic:selected_node() and l_32_0._logic:selected_node():parameters().block_back then
-    return 
-  end
-  l_32_0._logic:navigate_back((l_32_1 ~= true and false), type(l_32_2) == "number" and l_32_2 or false)
-end
-
-MenuInput.select_node = function(l_33_0)
-  local item = l_33_0._logic:selected_item()
-  if item and item:visible() then
-    local parameters = item:parameters()
-    if parameters.next_node then
-      if not parameters.next_node_parameters then
-        l_33_0._logic:select_node(parameters.next_node, true, unpack({}))
-      end
-    end
-    if parameters.previous_node then
-      l_33_0:back()
-    end
-  end
-end
-
-MenuInput.any_keyboard_used = function(l_34_0)
-  if l_34_0._keyboard_used or not l_34_0._controller or managers.controller:get_default_wrapper_type() ~= "pc" then
-    return 
-  end
-  for _,key in ipairs({"menu_right", "menu_left", "menu_up", "menu_down", "confirm"}) do
-    if l_34_0._controller:get_input_bool(key) then
-      l_34_0._keyboard_used = true
-      return 
-    end
-  end
+function MenuInput:menu_right_released()
+	if self._controller then
+		return self._controller:get_input_released( "menu_right" )
+	end
+	return false
 end
 
 
+
+-- Scroll Up
+--[[function MenuInput:menu_scroll_up_input_bool()
+	if self._controller then
+		return self._controller:get_input_bool( "menu_up" )
+	end
+	return false
+end
+
+function MenuInput:menu_up_pressed()
+	if self._controller then
+		return self._controller:get_input_pressed( "menu_up" )
+	end
+	return false
+end
+
+function MenuInput:menu_up_released()
+	if self._controller then
+		return self._controller:get_input_released( "menu_up" )
+	end
+	return false
+end
+
+-- Down
+function MenuInput:menu_down_input_bool()
+	if self._controller then
+		return self._controller:get_input_bool( "menu_down" )
+	end
+	return false
+end
+
+function MenuInput:menu_down_pressed()
+	if self._controller then
+		return self._controller:get_input_pressed( "menu_down" )
+	end
+	return false
+end
+
+function MenuInput:menu_down_released()
+	if self._controller then
+		return self._controller:get_input_released( "menu_down" )
+	end
+	return false
+end]]
+
+
+
+-- Reset timers when releasing a button
+function MenuInput:_check_releases()
+	if self:menu_left_released() or self:menu_right_released() then
+		self:set_axis_x_timer( 0.01 )
+	end
+	
+	if self:menu_up_released() or self:menu_down_released() then
+		self:set_axis_y_timer( 0.01 )
+	end
+end
+
+function MenuInput:accept_input( accept )
+	self._accept_input = accept
+end
+ 
+function MenuInput:focus( focus ) 
+	if focus then
+		self:create_controller()
+	else
+		-- When not focused, totally disable the input.
+		self:destroy_controller()
+	end
+end
+
+function MenuInput:create_controller()
+	if not self._controller then
+		local controller = managers.controller:create_controller( "" .. tostring( TimerManager:wall():time() ), nil, false )
+		
+		controller:add_trigger( "cancel", callback( self, self, "back" ) )
+		
+		controller:set_enabled( true )
+		self._controller = controller
+	end
+end
+
+function MenuInput:destroy_controller()
+	if self._controller then
+		self._controller:destroy()
+		self._controller = nil
+	end
+end
+
+function MenuInput:logic_changed()
+end
+
+function MenuInput:next_item()
+	if not self._accept_input then
+		return
+	end
+	
+	local current_item = self._logic:selected_item()
+	if current_item then
+		local current_item_name = current_item:parameters().name
+		local items = self._logic:selected_node():items()
+		local done
+
+		for i,v in ipairs( items ) do
+			if( v:parameters().name == current_item_name ) then
+				for check = 1, #items - 1 do
+					local next_item = items[ ( i + check - 1 ) % #items + 1 ]
+
+					if( next_item:visible() and next_item.TYPE ~= "divider" ) then
+						self._logic:select_item( next_item:parameters().name, true )
+						done = true
+						break
+					end
+				end
+
+				if( done ) then
+					break
+				end
+			end
+		end
+	end
+end
+
+function MenuInput:prev_item()
+	local current_item = self._logic:selected_item()
+	if current_item then
+		local current_item_name = current_item:parameters().name
+		local items = self._logic:selected_node():items()
+		local done
+
+		for i,v in ipairs( items ) do
+			if( v:parameters().name == current_item_name ) then
+				for check = 1, #items - 1 do
+					local prev_item = items[ ( i - check - 1 ) % #items + 1 ]
+
+					if( prev_item:visible() and prev_item.TYPE ~= "divider" ) then
+						self._logic:select_item( prev_item:parameters().name, true )
+						done = true
+						break
+					end
+				end
+
+				if( done ) then
+					break
+				end
+			end
+		end
+	end
+end
+
+
+
+function MenuInput:back( queue, skip_nodes )
+	if( self:_input_hijacked() == true ) then	-- ignore back if _input_hijacked() == true, but not if == 1, nor other non true values
+		return
+	end
+	
+	if self._logic:selected_node() and self._logic:selected_node():parameters().block_back then
+		return
+	end
+	
+	self._logic:navigate_back( (queue == true) or false, (type(skip_nodes) == "number" and skip_nodes) or false )
+end
+
+function MenuInput:select_node()
+	local item = self._logic:selected_item()
+	
+	if item and item:visible() then
+		local parameters = item:parameters()
+		if parameters.next_node then
+			-- Select next node
+			self._logic:select_node( parameters.next_node, true, unpack( parameters.next_node_parameters or {} ) )
+		end
+		if parameters.previous_node then
+			-- Select previous node
+			self:back()
+		end
+	end
+end
+
+function MenuInput:any_keyboard_used()
+	if self._keyboard_used or not self._controller or managers.controller:get_default_wrapper_type() ~= "pc" then
+		return
+	end
+	
+	for _,key in ipairs( { "menu_right", "menu_left", "menu_up", "menu_down", "confirm" } ) do
+		if self._controller:get_input_bool( key ) then
+			self._keyboard_used = true
+			return
+		end
+	end
+	
+end

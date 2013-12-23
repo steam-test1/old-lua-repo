@@ -1,493 +1,661 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\experiencemanager.luac 
-
-if not ExperienceManager then
-  ExperienceManager = class()
-end
+ExperienceManager = ExperienceManager or class()
 ExperienceManager.LEVEL_CAP = Application:digest_value(100, true)
-ExperienceManager.init = function(l_1_0)
-  l_1_0:_setup()
+-- ExperienceManager.PATH = "gamedata/objectives"
+-- ExperienceManager.FILE_EXTENSION = "objective"
+-- ExperienceManager.FULL_PATH = ExperienceManager.PATH .. "." .. ExperienceManager.FILE_EXTENSION
+
+function ExperienceManager:init()
+	self:_setup()
 end
 
-ExperienceManager._setup = function(l_2_0)
-  l_2_0._total_levels = #tweak_data.experience_manager.levels
-  if not Global.experience_manager then
-    Global.experience_manager = {}
-    Global.experience_manager.total = Application:digest_value(0, true)
-    Global.experience_manager.level = Application:digest_value(0, true)
-  end
-  l_2_0._global = Global.experience_manager
-  if not l_2_0._global.next_level_data then
-    l_2_0:_set_next_level_data(1)
-  end
-  l_2_0._cash_tousand_separator = managers.localization:text("cash_tousand_separator")
-  l_2_0._cash_sign = managers.localization:text("cash_sign")
-  l_2_0:present()
+-- Some experience data is kept between levels (if not saved and loaded to profile)
+function ExperienceManager:_setup()
+	self._total_levels = #tweak_data.experience_manager.levels
+	if not Global.experience_manager then
+		Global.experience_manager = {}
+		Global.experience_manager.total = Application:digest_value( 0, true )
+		Global.experience_manager.level = Application:digest_value( 0, true )
+		-- Global.experience_manager.next_level_data = {}
+	end
+	self._global = Global.experience_manager
+	
+	if not self._global.next_level_data then
+		self:_set_next_level_data( 1 )
+		-- managers.upgrades:set_target_upgrade_by_level( self._global.level + 1 )
+	end
+	
+	self._cash_tousand_separator = managers.localization:text( "cash_tousand_separator" )
+	self._cash_sign = managers.localization:text( "cash_sign" )
+
+	
+	-- self:_set_next_level_data( self._global.level + 1 )
+	-- managers.upgrades:set_target_upgrade_by_level( self._global.level + 1 )
+	self:present()
 end
 
-ExperienceManager._set_next_level_data = function(l_3_0, l_3_1)
-  if l_3_0._total_levels < l_3_1 then
-    Application:error("Reached the level cap")
-    if l_3_0._experience_progress_data then
-      table.insert(l_3_0._experience_progress_data, {level = l_3_0._total_levels, current = tweak_data:get_value("experience_manager", "levels", l_3_0._total_levels, "points"), total = tweak_data:get_value("experience_manager", "levels", l_3_0._total_levels, "points")})
-    end
-    return 
-  end
-  local level_data = tweak_data.experience_manager.levels[l_3_1]
-  l_3_0._global.next_level_data = {}
-  l_3_0:_set_next_level_data_points(level_data.points)
-  l_3_0:_set_next_level_data_current_points(0)
-  if l_3_0._experience_progress_data then
-    table.insert(l_3_0._experience_progress_data, {level = l_3_1, current = 0, total = tweak_data:get_value("experience_manager", "levels", l_3_1, "points")})
-  end
+function ExperienceManager:_set_next_level_data( level )
+	if level > self._total_levels then
+		Application:error( "Reached the level cap" )
+
+		if self._experience_progress_data then
+
+			table.insert( self._experience_progress_data, { level = self._total_levels, current = tweak_data:get_value( "experience_manager", "levels", self._total_levels, "points"), total = tweak_data:get_value( "experience_manager", "levels", self._total_levels, "points" ) } )
+		end
+		return
+	end
+	local level_data = tweak_data.experience_manager.levels[ level ]
+	self._global.next_level_data 					= {}
+	self:_set_next_level_data_points( level_data.points )
+	self:_set_next_level_data_current_points( 0 )
+	
+	if( self._experience_progress_data ) then
+
+		table.insert( self._experience_progress_data, { level=level, current=0, total=tweak_data:get_value( "experience_manager", "levels", level, "points" ) } )
+	end
+	
+	-- managers.upgrades:set_target_upgrade_by_level( level )
 end
 
-ExperienceManager.next_level_data_points = function(l_4_0)
-  return l_4_0._global.next_level_data and Application:digest_value(l_4_0._global.next_level_data.points, false) or 0
+function ExperienceManager:next_level_data_points()
+	return self._global.next_level_data and Application:digest_value( self._global.next_level_data.points, false ) or 0
 end
 
-ExperienceManager._set_next_level_data_points = function(l_5_0, l_5_1)
-  l_5_0._global.next_level_data.points = l_5_1
+function ExperienceManager:_set_next_level_data_points( value )
+	self._global.next_level_data.points = value
 end
 
-ExperienceManager.next_level_data_current_points = function(l_6_0)
-  return l_6_0._global.next_level_data and Application:digest_value(l_6_0._global.next_level_data.current_points, false) or 0
+function ExperienceManager:next_level_data_current_points()
+	return self._global.next_level_data and Application:digest_value( self._global.next_level_data.current_points, false ) or 0
 end
 
-ExperienceManager._set_next_level_data_current_points = function(l_7_0, l_7_1)
-  l_7_0._global.next_level_data.current_points = Application:digest_value(l_7_1, true)
+function ExperienceManager:_set_next_level_data_current_points( value )
+	self._global.next_level_data.current_points = Application:digest_value( value, true )
 end
 
-ExperienceManager.next_level_data = function(l_8_0)
-  return {points = l_8_0:next_level_data_points(), current_points = l_8_0:next_level_data_current_points()}
-end
-
-ExperienceManager.perform_action_interact = function(l_9_0, l_9_1)
-end
-
-ExperienceManager.perform_action = function(l_10_0, l_10_1)
-  if managers.platform:presence() ~= "Playing" and managers.platform:presence() ~= "Mission_end" then
-    return 
-  end
-  if not tweak_data.experience_manager.actions[l_10_1] then
-    Application:error("Unknown action \"" .. tostring(l_10_1) .. " in experience manager.")
-    return 
-  end
-  local size = tweak_data.experience_manager.actions[l_10_1]
-  local points = tweak_data.experience_manager.values[size]
-  if not points then
-    Application:error("Unknown size \"" .. tostring(size) .. " in experience manager.")
-    return 
-  end
-  managers.statistics:recieved_experience({action = l_10_1, size = size})
-  l_10_0:add_points(points, true)
-end
-
-ExperienceManager.debug_add_points = function(l_11_0, l_11_1, l_11_2)
-  l_11_0:add_points(l_11_1, l_11_2, true)
-end
-
-ExperienceManager.give_experience = function(l_12_0, l_12_1)
-  l_12_0._experience_progress_data = {}
-  l_12_0._experience_progress_data.gained = l_12_1
-  l_12_0._experience_progress_data.start_t = {}
-  l_12_0._experience_progress_data.start_t.level = l_12_0:current_level()
-  l_12_0._experience_progress_data.start_t.current = l_12_0._global.next_level_data and l_12_0:next_level_data_current_points() or 0
-  l_12_0._experience_progress_data.start_t.total = l_12_0._global.next_level_data and l_12_0:next_level_data_points() or 1
-  l_12_0._experience_progress_data.start_t.xp = l_12_0:xp_gained()
-  table.insert(l_12_0._experience_progress_data, {level = l_12_0:current_level() + 1, current = l_12_0:next_level_data_current_points(), total = l_12_0:next_level_data_points()})
-  local level_cap_xp_leftover = l_12_0:add_points(l_12_1, true, false)
-  if level_cap_xp_leftover then
-    l_12_0._experience_progress_data.gained = l_12_0._experience_progress_data.gained - level_cap_xp_leftover
-  end
-  l_12_0._experience_progress_data.end_t = {}
-  l_12_0._experience_progress_data.end_t.level = l_12_0:current_level()
-  l_12_0._experience_progress_data.end_t.current = l_12_0._global.next_level_data and l_12_0:next_level_data_current_points() or 0
-  l_12_0._experience_progress_data.end_t.total = l_12_0._global.next_level_data and l_12_0:next_level_data_points() or 1
-  l_12_0._experience_progress_data.end_t.xp = l_12_0:xp_gained()
-  table.remove(l_12_0._experience_progress_data, #l_12_0._experience_progress_data)
-  local return_data = deep_clone(l_12_0._experience_progress_data)
-  l_12_0._experience_progress_data = nil
-  return return_data
-end
-
-ExperienceManager.add_points = function(l_13_0, l_13_1, l_13_2, l_13_3)
-  if not l_13_3 and managers.platform:presence() ~= "Playing" and managers.platform:presence() ~= "Mission_end" then
-    return 
-  end
-  if not managers.dlc:has_full_game() and l_13_0:current_level() >= 10 then
-    l_13_0:_set_total(l_13_0:total() + l_13_1)
-    l_13_0:_set_next_level_data_current_points(0)
-    l_13_0:present()
-    managers.challenges:aquired_money()
-    managers.statistics:aquired_money(l_13_1)
-    return l_13_1
-  end
-  if l_13_0:level_cap() <= l_13_0:current_level() then
-    l_13_0:_set_total(l_13_0:total() + l_13_1)
-    managers.challenges:aquired_money()
-    managers.statistics:aquired_money(l_13_1)
-    return l_13_1
-  end
-  if l_13_2 then
-    l_13_0:_present_xp(l_13_1)
-  end
-  local points_left = l_13_0:next_level_data_points() - l_13_0:next_level_data_current_points()
-  if l_13_1 < points_left then
-    l_13_0:_set_total(l_13_0:total() + l_13_1)
-    l_13_0:_set_xp_gained(l_13_0:total())
-    l_13_0:_set_next_level_data_current_points(l_13_0:next_level_data_current_points() + l_13_1)
-    l_13_0:present()
-    managers.challenges:aquired_money()
-    managers.statistics:aquired_money(l_13_1)
-    return 
-  end
-  l_13_0:_set_total(l_13_0:total() + points_left)
-  l_13_0:_set_xp_gained(l_13_0:total())
-  l_13_0:_set_next_level_data_current_points(l_13_0:next_level_data_current_points() + points_left)
-  l_13_0:present()
-  l_13_0:_level_up()
-  managers.statistics:aquired_money(points_left)
-  return l_13_0:add_points(l_13_1 - points_left, l_13_2, l_13_3)
-end
-
-ExperienceManager._level_up = function(l_14_0)
-  l_14_0:_set_current_level(l_14_0:current_level() + 1)
-  l_14_0:_set_next_level_data(l_14_0:current_level() + 1)
-  local player = managers.player:player_unit()
-  if alive(player) and tweak_data:difficulty_to_index(Global.game_settings.difficulty) < 4 then
-    player:base():replenish()
-  end
-  managers.challenges:check_active_challenges()
-  l_14_0:_check_achievements()
-  if managers.network:session() then
-    managers.network:session():send_to_peers_synched("sync_level_up", managers.network:session():local_peer():id(), l_14_0:current_level())
-  end
-  if l_14_0:current_level() >= 145 then
-    managers.challenges:set_flag("president")
-  end
-  managers.upgrades:level_up()
-  managers.skilltree:level_up()
-end
-
-ExperienceManager._check_achievements = function(l_15_0)
-  if tweak_data.achievement.you_gotta_start_somewhere <= l_15_0:current_level() then
-    managers.achievment:award("you_gotta_start_somewhere")
-  end
-  if tweak_data.achievement.guilty_of_crime <= l_15_0:current_level() then
-    managers.achievment:award("guilty_of_crime")
-  end
-  if tweak_data.achievement.gone_in_30_seconds <= l_15_0:current_level() then
-    managers.achievment:award("gone_in_30_seconds")
-  end
-  if tweak_data.achievement.armed_and_dangerous <= l_15_0:current_level() then
-    managers.achievment:award("armed_and_dangerous")
-  end
-  if tweak_data.achievement.big_shot <= l_15_0:current_level() then
-    managers.achievment:award("big_shot")
-  end
-  if tweak_data.achievement.most_wanted <= l_15_0:current_level() then
-    managers.achievment:award("most_wanted")
-  end
-end
-
-ExperienceManager.present = function(l_16_0)
-end
-
-ExperienceManager._present_xp = function(l_17_0, l_17_1)
-  local event = "money_collect_small"
-  if l_17_1 > 999 then
-    event = "money_collect_large"
-  elseif l_17_1 > 101 then
-    event = "money_collect_medium"
-  end
-end
-
-ExperienceManager.current_level = function(l_18_0)
-  return l_18_0._global.level and Application:digest_value(l_18_0._global.level, false) or 0
-end
-
-ExperienceManager._set_current_level = function(l_19_0, l_19_1)
-  l_19_0._global.level = Application:digest_value(l_19_1, true)
-end
-
-ExperienceManager.level_to_stars = function(l_20_0)
-  local player_stars = math.max(math.ceil(l_20_0:current_level() / 10), 1)
-  return player_stars
-end
-
-ExperienceManager.xp_gained = function(l_21_0)
-  return l_21_0._global.xp_gained and Application:digest_value(l_21_0._global.xp_gained, false) or 0
-end
-
-ExperienceManager._set_xp_gained = function(l_22_0, l_22_1)
-  l_22_0._global.xp_gained = Application:digest_value(l_22_1, true)
-end
-
-ExperienceManager.total = function(l_23_0)
-  return Application:digest_value(l_23_0._global.total, false)
-end
-
-ExperienceManager._set_total = function(l_24_0, l_24_1)
-  l_24_0._global.total = Application:digest_value(l_24_1, true)
-end
-
-ExperienceManager.cash_string = function(l_25_0, l_25_1)
-  local sign = ""
-  if l_25_1 < 0 then
-    sign = "-"
-  end
-  local total = tostring(math.round(math.abs(l_25_1)))
-  local reverse = string.reverse(total)
-  local s = ""
-  for i = 1, string.len(reverse) do
-    s = s .. string.sub(reverse, i, i) .. (math.mod(i, 3) == 0 and i ~= string.len(reverse) and l_25_0._cash_tousand_separator or "")
-  end
-  return sign .. l_25_0._cash_sign .. string.reverse(s)
-end
-
-ExperienceManager.total_cash_string = function(l_26_0)
-  return l_26_0:cash_string(l_26_0:total()) .. (l_26_0:total() > 0 and l_26_0._cash_tousand_separator .. "000" or "")
-end
-
-ExperienceManager.actions = function(l_27_0)
-  local t = {}
-  for action,_ in pairs(tweak_data.experience_manager.actions) do
-    table.insert(t, action)
-  end
-  table.sort(t)
-  return t
-end
-
-ExperienceManager.get_job_xp_by_stars = function(l_28_0, l_28_1)
-  local amount = tweak_data:get_value("experience_manager", "job_completion", l_28_1)
-  return amount
-end
-
-ExperienceManager.get_stage_xp_by_stars = function(l_29_0, l_29_1)
-  local amount = tweak_data:get_value("experience_manager", "stage_completion", l_29_1)
-  return amount
-end
-
-ExperienceManager.get_contract_difficulty_multiplier = function(l_30_0, l_30_1)
-  local multiplier = tweak_data:get_value("experience_manager", "difficulty_multiplier", l_30_1)
-  return multiplier or 0
-end
-
-ExperienceManager.get_current_stage_xp_by_stars = function(l_31_0, l_31_1, l_31_2)
-  local amount = l_31_0:get_stage_xp_by_stars(l_31_1) + l_31_0:get_stage_xp_by_stars(l_31_1) * l_31_0:get_contract_difficulty_multiplier(l_31_2)
-  return amount
-end
-
-ExperienceManager.get_current_job_xp_by_stars = function(l_32_0, l_32_1, l_32_2)
-  local amount = l_32_0:get_job_xp_by_stars(l_32_1) + l_32_0:get_job_xp_by_stars(l_32_1) * l_32_0:get_contract_difficulty_multiplier(l_32_2)
-  return amount
-end
-
-ExperienceManager.get_current_job_day_multiplier = function(l_33_0)
-  if not managers.job:has_active_job() then
-    return 1
-  end
-  local current_job_day = managers.job:current_stage()
-  local is_current_job_professional = managers.job:is_current_job_professional()
-  if not is_current_job_professional or not tweak_data:get_value("experience_manager", "pro_day_multiplier", current_job_day) then
-    return tweak_data:get_value("experience_manager", "day_multiplier", current_job_day)
-  end
-end
-
-ExperienceManager.get_on_completion_xp = function(l_34_0)
-  local has_active_job = managers.job:has_active_job()
-  local job_and_difficulty_stars = has_active_job and managers.job:current_job_and_difficulty_stars() or 1
-  local job_stars = has_active_job and managers.job:current_job_stars() or 1
-  local difficulty_stars = job_and_difficulty_stars - job_stars
-  local on_last_stage = managers.job:on_last_stage()
-  local amount = l_34_0:get_current_stage_xp_by_stars(job_stars, difficulty_stars)
-  if on_last_stage then
-    amount = amount + l_34_0:get_current_job_xp_by_stars(job_stars, difficulty_stars)
-  end
-  return amount
-end
-
-ExperienceManager.get_xp_dissected = function(l_35_0, l_35_1, l_35_2)
-  local has_active_job = managers.job:has_active_job()
-  local job_and_difficulty_stars = has_active_job and managers.job:current_job_and_difficulty_stars() or 1
-  local job_stars = has_active_job and managers.job:current_job_stars() or 1
-  local difficulty_stars = job_and_difficulty_stars - job_stars
-  local player_stars = managers.experience:level_to_stars()
-  local days_multiplier = managers.experience:get_current_job_day_multiplier()
-  local is_level_limited = player_stars < job_and_difficulty_stars
-  local total_stars = math.min(job_and_difficulty_stars, player_stars)
-  local total_difficulty_stars = math.max(0, total_stars - job_stars)
-  local xp_multiplier = managers.experience:get_contract_difficulty_multiplier(total_difficulty_stars)
-  total_stars = math.min(job_stars, total_stars)
-  local contract_xp = 0
-  local total_xp = 0
-  local stage_xp_dissect = 0
-  local job_xp_dissect = 0
-  local level_limit_dissect = 0
-  local risk_dissect = 0
-  local failed_level_dissect = 0
-  local alive_crew_dissect = 0
-  local skill_dissect = 0
-  local base_xp = 0
-  local days_dissect = 0
-  if l_35_1 and has_active_job and managers.job:on_last_stage() then
-    job_xp_dissect = managers.experience:get_job_xp_by_stars(job_stars)
-    contract_xp = contract_xp + managers.experience:get_job_xp_by_stars(total_stars)
-    level_limit_dissect = level_limit_dissect + job_xp_dissect
-  end
-  stage_xp_dissect = managers.experience:get_stage_xp_by_stars(job_stars)
-  contract_xp = contract_xp + managers.experience:get_stage_xp_by_stars(total_stars)
-  level_limit_dissect = level_limit_dissect + stage_xp_dissect
-  base_xp = contract_xp
-  contract_xp = contract_xp + math.round((contract_xp) * xp_multiplier)
-  risk_dissect = math.round((level_limit_dissect) * managers.experience:get_contract_difficulty_multiplier(difficulty_stars))
-  level_limit_dissect = math.round(level_limit_dissect + risk_dissect)
-  if is_level_limited then
-    if managers.experience:current_level() <= tweak_data:get_value("experience_manager", "level_limit", "low_cap_level") then
-      contract_xp = contract_xp + (contract_xp) * tweak_data:get_value("experience_manager", "level_limit", "low_cap_multiplier")
-      contract_xp = math.round(math.min(contract_xp, level_limit_dissect))
-    else
-      local diff_in_experience = level_limit_dissect - contract_xp
-      local diff_in_stars = job_and_difficulty_stars - player_stars
-      local tweak_multiplier = tweak_data:get_value("experience_manager", "level_limit", "pc_difference_multipliers", diff_in_stars) or 0
-      contract_xp = contract_xp + diff_in_experience * tweak_multiplier
-      contract_xp = math.round(math.min(contract_xp, level_limit_dissect))
-    end
-  end
-  level_limit_dissect = contract_xp - level_limit_dissect
-  if not l_35_1 then
-    failed_level_dissect = contract_xp
-    contract_xp = math.round(contract_xp * (tweak_data:get_value("experience_manager", "stage_failed_multiplier") or 1))
-    failed_level_dissect = contract_xp - failed_level_dissect
-  end
-  total_xp = contract_xp
-  do
-    if not l_35_2 or not tweak_data:get_value("experience_manager", "alive_humans_multiplier", l_35_2) then
-      local num_players_bonus = not l_35_1 or 1
-    end
-    alive_crew_dissect = math.round(contract_xp * num_players_bonus - contract_xp)
-    total_xp = total_xp + alive_crew_dissect
-  end
-  local multiplier = managers.player:upgrade_value("player", "xp_multiplier", 1)
-  multiplier = multiplier * managers.player:upgrade_value("player", "passive_xp_multiplier", 1)
-  multiplier = multiplier * managers.player:team_upgrade_value("xp", "multiplier", 1)
-  skill_dissect = math.round(contract_xp * (multiplier) - contract_xp)
-  total_xp = total_xp + skill_dissect
-  days_dissect = math.round(contract_xp * days_multiplier - contract_xp)
-  total_xp = total_xp + days_dissect
-  {bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}.stage_xp = math.round(stage_xp_dissect)
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}.job_xp = math.round(job_xp_dissect)
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}.base = math.round(base_xp)
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}.total = math.round(total_xp)
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  if l_35_1 and has_active_job then
-    {bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}.last_stage = managers.job:on_last_stage()
-    do
-       -- DECOMPILER ERROR: Confused at declaration of local variable
-
-    end
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    do
-       -- DECOMPILER ERROR: Confused at declaration of local variable
-
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-      if Application:production_build() then
-        {bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}.rounding_error = ({bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}).total - (({bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}).stage_xp + ({bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}).job_xp + ({bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}).bonus_risk + ({bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}).bonus_num_players + ({bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}).bonus_failed + ({bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}).bonus_low_level + ({bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}).bonus_skill + ({bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}).bonus_days)
-    end
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    else
-      {bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}.rounding_error = 0
-    end
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    return math.round(total_xp), {bonus_risk = math.round(risk_dissect), bonus_num_players = math.round(alive_crew_dissect), bonus_failed = math.round(failed_level_dissect), bonus_low_level = math.round(level_limit_dissect), bonus_skill = math.round(skill_dissect), bonus_days = math.round(days_dissect)}
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+function ExperienceManager:next_level_data()
+	return { points = self:next_level_data_points(), current_points = self:next_level_data_current_points() }
 
 end
 
-ExperienceManager.level_cap = function(l_36_0)
-  return Application:digest_value(l_36_0.LEVEL_CAP, false)
-end
-
-ExperienceManager.reached_level_cap = function(l_37_0)
-  return l_37_0:level_cap() <= l_37_0:current_level()
-end
-
-ExperienceManager.save = function(l_38_0, l_38_1)
-  local state = {total = l_38_0._global.total, xp_gained = l_38_0._global.xp_gained, next_level_data = l_38_0._global.next_level_data, level = l_38_0._global.level}
-  l_38_1.ExperienceManager = state
-end
-
-ExperienceManager.load = function(l_39_0, l_39_1)
-  local state = l_39_1.ExperienceManager
-  if state then
-    l_39_0._global.total = state.total
-    if not state.xp_gained then
-      l_39_0._global.xp_gained = state.total
-    end
-    l_39_0._global.next_level_data = state.next_level_data
-    if not state.level then
-      l_39_0._global.level = Application:digest_value(0, true)
-    end
-    l_39_0:_set_current_level(math.min(l_39_0:current_level(), l_39_0:level_cap()))
-    for level = 1, l_39_0:current_level() do
-      managers.upgrades:aquire_from_level_tree(level, true)
-    end
-    if not l_39_0._global.next_level_data or not tweak_data.experience_manager.levels[l_39_0:current_level() + 1] or l_39_0:next_level_data_points() ~= tweak_data:get_value("experience_manager", "levels", l_39_0:current_level() + 1, "points") then
-      l_39_0:_set_next_level_data(l_39_0:current_level() + 1)
-    end
-  end
-  managers.network.account:experience_loaded()
-end
-
-ExperienceManager.reset = function(l_40_0)
-  managers.upgrades:reset()
-  managers.player:reset()
-  Global.experience_manager = nil
-  l_40_0:_setup()
-end
-
-ExperienceManager.chk_ask_use_backup = function(l_41_0, l_41_1, l_41_2)
-  local savegame_exp_total, backup_savegame_exp_total = nil, nil
-  local state = l_41_1.ExperienceManager
-  if state then
-    savegame_exp_total = state.total
-  end
-  state = l_41_2.ExperienceManager
-  if state then
-    backup_savegame_exp_total = state.total
-  end
-  if savegame_exp_total and backup_savegame_exp_total and Application:digest_value(savegame_exp_total, false) < Application:digest_value(backup_savegame_exp_total, false) then
-    return true
-  end
+function ExperienceManager:perform_action_interact( name )
+--[[
+	if not tweak_data.experience_manager.actions.interact[ name:key() ] then
+		return
+	end
+	
+	local size = tweak_data.experience_manager.actions.interact[ name:key() ]
+	
+	local points = tweak_data.experience_manager.values[ size ]
+	if not points then
+		Application:error( "Unknown size \"" .. tostring( size ) .. " in experience manager." )
+		return
+	end
+		
+	managers.statistics:recieved_experience( { action = action, size = size } )
+	self:add_points( points, true )
+]]
 end
 
 
+function ExperienceManager:perform_action( action )
+	if managers.platform:presence() ~= "Playing" and managers.platform:presence() ~= "Mission_end" then
+		return
+	end
+	
+	if not tweak_data.experience_manager.actions[ action ] then
+		Application:error( "Unknown action \"" .. tostring( action ) .. " in experience manager." )
+		return
+	end
+	
+	local size = tweak_data.experience_manager.actions[ action ]
+	
+	local points = tweak_data.experience_manager.values[ size ]
+	if not points then
+		Application:error( "Unknown size \"" .. tostring( size ) .. " in experience manager." )
+		return
+	end
+		
+	managers.statistics:recieved_experience( { action = action, size = size } )
+	self:add_points( points, true )
+end
+
+function ExperienceManager:debug_add_points( points, present_xp )
+	self:add_points( points, present_xp, true )
+end
+
+function ExperienceManager:give_experience( xp )
+	self._experience_progress_data = {}
+	self._experience_progress_data.gained = xp
+	
+	self._experience_progress_data.start_t = {}
+	self._experience_progress_data.start_t.level = self:current_level()
+	self._experience_progress_data.start_t.current = self._global.next_level_data and self:next_level_data_current_points() or 0
+	self._experience_progress_data.start_t.total = self._global.next_level_data and self:next_level_data_points() or 1
+	self._experience_progress_data.start_t.xp = self:xp_gained()
+	
+	table.insert( self._experience_progress_data, { level=self:current_level()+1, current=self:next_level_data_current_points(), total=self:next_level_data_points() } )
+	
+	local level_cap_xp_leftover = self:add_points( xp, true, false )
+	if( level_cap_xp_leftover ) then
+		self._experience_progress_data.gained = self._experience_progress_data.gained - level_cap_xp_leftover
+	end
+	
+	self._experience_progress_data.end_t = {}
+	self._experience_progress_data.end_t.level = self:current_level()
+	self._experience_progress_data.end_t.current = self._global.next_level_data and self:next_level_data_current_points() or 0
+	self._experience_progress_data.end_t.total = self._global.next_level_data and self:next_level_data_points() or 1
+	self._experience_progress_data.end_t.xp = self:xp_gained()
+	
+	table.remove( self._experience_progress_data, #self._experience_progress_data )
+	
+	local return_data = deep_clone( self._experience_progress_data )
+	self._experience_progress_data = nil
+	
+	return return_data
+end
+
+function ExperienceManager:add_points( points, present_xp, debug )
+	if not debug and managers.platform:presence() ~= "Playing" and managers.platform:presence() ~= "Mission_end" then
+		return
+	end
+	
+	-- points = math.floor( points * multiplier )
+	
+	if not managers.dlc:has_full_game() and self:current_level() >= 10 then
+		self:_set_total( self:total() + points )
+		self:_set_next_level_data_current_points( 0 )
+		self:present()
+		managers.challenges:aquired_money()
+		managers.statistics:aquired_money( points )
+		return points
+	end
+	
+	
+	if self:current_level() >= self:level_cap() then
+		self:_set_total( self:total() + points )
+		managers.challenges:aquired_money()
+		managers.statistics:aquired_money( points )
+		return points
+	end
+		
+	if present_xp then
+		self:_present_xp( points )
+	end
+	
+	local points_left = (self:next_level_data_points() - self:next_level_data_current_points())
+	if points_left > points then
+		self:_set_total( self:total() + points )
+		self:_set_xp_gained( self:total() )
+		self:_set_next_level_data_current_points( self:next_level_data_current_points() + points )
+		self:present()
+		managers.challenges:aquired_money()
+		managers.statistics:aquired_money( points )
+		return
+	end
+	
+	-- Gonna level up
+	self:_set_total( self:total() + points_left )
+	self:_set_xp_gained( self:total() )
+	self:_set_next_level_data_current_points( self:next_level_data_current_points() + points_left )
+	self:present()
+	self:_level_up()
+	managers.statistics:aquired_money( points_left )
+	
+-- if (points-points_left) > 0 then
+	return self:add_points( (points-points_left), present_xp, debug ) -- Add rest of the points to the next level
+-- end
+end
+
+function ExperienceManager:_level_up()
+	-- local target_tree = managers.upgrades:current_tree()
+	-- managers.upgrades:aquire_target()
+	
+	self:_set_current_level( self:current_level() + 1 )
+	self:_set_next_level_data( self:current_level() + 1 )
+	local player = managers.player:player_unit()
+	if alive( player ) and tweak_data:difficulty_to_index( Global.game_settings.difficulty ) < 4 then
+ 		player:base():replenish()
+	end
+	managers.challenges:check_active_challenges()
+	self:_check_achievements()
+	
+	--[[if managers.groupai:state():is_AI_enabled() then -- TODO(nikmyr): is_AI_enabled is to see if its not in the end screen, surely this can be done better?	
+		if target_tree == 1 and managers.groupai:state():get_assault_mode() then
+			managers.challenges:set_flag( "aint_afraid" )
+		elseif target_tree == 2 and managers.statistics._last_kill == "sniper" then
+			managers.challenges:set_flag( "crack_bang" )
+		elseif target_tree == 3 and managers.achievment:get_script_data( "player_reviving" ) then
+			managers.challenges:set_flag( "lay_on_hands" )
+		end
+	end]]
+	
+	if managers.network:session() then
+		managers.network:session():send_to_peers_synched( "sync_level_up", managers.network:session():local_peer():id(), self:current_level() )
+	end
+	
+	if self:current_level() >= 145 then
+		managers.challenges:set_flag( "president" )
+	end
+	
+	managers.upgrades:level_up()
+	managers.skilltree:level_up()
+end
+
+function ExperienceManager:_check_achievements()
+	if self:current_level() >= tweak_data.achievement.you_gotta_start_somewhere then
+		managers.achievment:award( "you_gotta_start_somewhere" )
+	end
+	if self:current_level() >= tweak_data.achievement.guilty_of_crime then
+		managers.achievment:award( "guilty_of_crime" )
+	end
+	if self:current_level() >= tweak_data.achievement.gone_in_30_seconds then
+		managers.achievment:award( "gone_in_30_seconds" )
+	end
+	if self:current_level() >= tweak_data.achievement.armed_and_dangerous then
+		managers.achievment:award( "armed_and_dangerous" )
+	end
+	if self:current_level() >= tweak_data.achievement.big_shot then
+		managers.achievment:award( "big_shot" )
+	end
+	if self:current_level() >= tweak_data.achievement.most_wanted then
+		managers.achievment:award( "most_wanted" )
+	end
+end
+
+function ExperienceManager:present()
+	
+end
+
+function ExperienceManager:_present_xp( amount )
+	-- print( "Recieved money:", amount, "Total now:", self._total )
+		
+	-- Specify this in tweak data later
+	local event = "money_collect_small"
+	if amount > 999 then
+		event = "money_collect_large"
+	elseif amount > 101 then
+		event = "money_collect_medium"
+	end
+	
+	-- managers.hud:present_text( { text = self:cash_string( amount ) ..managers.localization:text( "gain_xp_postfix" ), time = 0.75, event = event } )
+end
+
+function ExperienceManager:current_level()
+	return self._global.level and Application:digest_value( self._global.level, false ) or 0
+end
+
+function ExperienceManager:_set_current_level( value )
+	self._global.level = Application:digest_value( value, true )
+end
+
+function ExperienceManager:level_to_stars()
+	local player_stars = math.max( math.ceil( self:current_level() / 10 ), 1 )
+	return player_stars
+end
+
+function ExperienceManager:xp_gained()
+	return self._global.xp_gained and Application:digest_value( self._global.xp_gained, false ) or 0
+end
+
+function ExperienceManager:_set_xp_gained( value )
+	self._global.xp_gained = Application:digest_value( value, true )
+end
+
+function ExperienceManager:total()
+	return Application:digest_value( self._global.total, false )
+end
+
+function ExperienceManager:_set_total( value )
+	self._global.total = Application:digest_value( value, true )
+end
+
+
+function ExperienceManager:cash_string( cash )
+	local sign = ""
+	if cash < 0 then
+		sign = "-"
+	end
+
+	local total = tostring( math.round( math.abs( cash ) ) )
+	local reverse = string.reverse( total )
+	local s = ""
+	for i = 1, string.len( reverse ) do
+		s = s..string.sub( reverse, i, i )..((math.mod( i, 3 ) == 0 and (i ~= string.len( reverse )) and self._cash_tousand_separator) or "")
+	end
+	return sign .. self._cash_sign .. string.reverse( s )
+end
+
+function ExperienceManager:total_cash_string()
+	return self:cash_string( self:total() ) .. ( self:total() > 0 and (self._cash_tousand_separator .. "000") or "" )
+end
+
+-- Returns a sorted ipairs with all actions
+function ExperienceManager:actions()
+	local t = {}
+	for action,_ in pairs( tweak_data.experience_manager.actions ) do
+		table.insert( t, action )
+	end
+	table.sort ( t )
+	return t
+end
+
+function ExperienceManager:get_job_xp_by_stars( stars )
+
+	local amount = tweak_data:get_value( "experience_manager", "job_completion", stars )
+	return amount
+end
+
+function ExperienceManager:get_stage_xp_by_stars( stars )
+
+	local amount = tweak_data:get_value( "experience_manager", "stage_completion", stars )
+	return amount
+end
+
+function ExperienceManager:get_contract_difficulty_multiplier( stars ) -- stars are 0 - 3
+
+	local multiplier = tweak_data:get_value( "experience_manager", "difficulty_multiplier", stars )
+	return multiplier or 0
+end
+
+function ExperienceManager:get_current_stage_xp_by_stars( stars, diff_stars )
+	local amount = self:get_stage_xp_by_stars( stars ) + self:get_stage_xp_by_stars( stars ) * self:get_contract_difficulty_multiplier( diff_stars )
+	return amount
+end
+
+function ExperienceManager:get_current_job_xp_by_stars( stars, diff_stars )
+	local amount = self:get_job_xp_by_stars( stars ) + self:get_job_xp_by_stars( stars ) * self:get_contract_difficulty_multiplier( diff_stars )
+	return amount
+end
+
+function ExperienceManager:get_current_job_day_multiplier()
+	if not managers.job:has_active_job() then
+		return 1
+	end
+	
+	local current_job_day = managers.job:current_stage()
+	local is_current_job_professional = managers.job:is_current_job_professional()
+	
+
+
+
+	return is_current_job_professional and tweak_data:get_value( "experience_manager", "pro_day_multiplier", current_job_day ) or tweak_data:get_value( "experience_manager", "day_multiplier", current_job_day )
+end
+
+-- Return the experience amount that would be given to the player if he successfully completes a level (day r day + contract)
+function ExperienceManager:get_on_completion_xp()
+	local has_active_job = managers.job:has_active_job()
+	local job_and_difficulty_stars = has_active_job and managers.job:current_job_and_difficulty_stars() or 1
+	local job_stars = has_active_job and managers.job:current_job_stars() or 1
+	local difficulty_stars = job_and_difficulty_stars - job_stars
+	local on_last_stage = managers.job:on_last_stage()
+	
+	local amount = self:get_current_stage_xp_by_stars( job_stars, difficulty_stars )
+	if on_last_stage then
+		amount = amount + self:get_current_job_xp_by_stars( job_stars, difficulty_stars )
+	end
+	return amount
+end
+
+function ExperienceManager:get_contract_xp_by_stars( job_stars, risk_stars, professional, job_days, debug_player_level )
+	local job_and_difficulty_stars = job_stars + risk_stars
+	local job_stars = job_stars
+	local difficulty_stars = risk_stars
+	local player_stars = debug_player_level and math.max( math.ceil( debug_player_level / 10 ), 1 ) or managers.experience:level_to_stars()
+
+	local params = {}
+	params.job_stars = job_stars
+	params.difficulty_stars = difficulty_stars
+	params.current_stage = job_days
+	params.professional = professional
+	params.success = true
+	params.num_winners = 1
+	params.on_last_stage = true
+	params.player_stars = player_stars
+
+	local total_base_xp = 0
+	local total_risk_xp = 0
+	local total_xp = 0
+
+
+	for i = 1, job_days do
+		params.current_stage = i
+		params.on_last_stage = i == job_days
+
+		local total_xp, dissection_table = self:get_xp_by_params( params )
+
+
+		total_base_xp = total_base_xp + dissection_table.base + dissection_table.bonus_days_job
+		total_risk_xp = total_risk_xp + dissection_table.bonus_risk + dissection_table.bonus_days_risk
+	end
+
+	total_xp = total_base_xp + total_risk_xp
+	return total_xp, total_base_xp, total_risk_xp
+end
+
+function ExperienceManager:get_xp_by_params( params )
+	local job_stars = params.job_stars or 0
+	local difficulty_stars = params.difficulty_stars or params.risk_stars or 0
+	local job_and_difficulty_stars = job_stars + difficulty_stars
+
+	local success = params.success
+	local num_winners = params.num_winners or 1
+	local on_last_stage = params.on_last_stage
+
+	local player_stars = params.player_stars or managers.experience:level_to_stars() or 0
+
+	local current_job_stage = params.current_stage or 1
+	local days_multiplier = params.professional and tweak_data:get_value("experience_manager", "pro_day_multiplier", current_job_stage) or tweak_data:get_value("experience_manager", "day_multiplier", current_job_stage)
+
+	local total_stars = math.min(job_stars, player_stars)
+	local total_difficulty_stars = difficulty_stars
+	local xp_multiplier = managers.experience:get_contract_difficulty_multiplier(total_difficulty_stars)
+
+	local contract_xp = 0
+	local total_xp = 0
+
+	local stage_xp_dissect = 0
+	local job_xp_dissect = 0
+	local level_limit_dissect = 0
+	local risk_dissect = 0
+	local failed_level_dissect = 0
+	local alive_crew_dissect = 0
+	local skill_dissect = 0
+	local base_xp = 0
+	local days_dissect = 0
+
+	if success and on_last_stage then
+		job_xp_dissect = managers.experience:get_job_xp_by_stars(total_stars)
+		level_limit_dissect = level_limit_dissect + managers.experience:get_job_xp_by_stars(job_stars)
+	end
+
+	stage_xp_dissect = managers.experience:get_stage_xp_by_stars(total_stars)
+	level_limit_dissect = level_limit_dissect + managers.experience:get_stage_xp_by_stars(job_stars)
+
+	contract_xp = job_xp_dissect + stage_xp_dissect
+
+	local is_level_limited = player_stars < job_stars
+	if is_level_limited and stage_xp_dissect > 0 then
+		local diff_in_experience = level_limit_dissect - (contract_xp)
+		local diff_in_stars = job_stars - player_stars
+
+		local tweak_multiplier = tweak_data:get_value("experience_manager", "level_limit", "pc_difference_multipliers", diff_in_stars) or 0
+		contract_xp = contract_xp + math.round(diff_in_experience * tweak_multiplier)
+
+		local stage_xp_ratio = stage_xp_dissect / (job_xp_dissect + stage_xp_dissect)
+		local job_xp_ratio = job_xp_dissect / (job_xp_dissect + stage_xp_dissect)
+
+		stage_xp_dissect = math.round((contract_xp) * stage_xp_ratio)
+		job_xp_dissect = math.round((contract_xp) * job_xp_ratio)
+
+		local rounding_error = contract_xp - (stage_xp_dissect + job_xp_dissect)
+		job_xp_dissect = job_xp_dissect + rounding_error
+	end
+
+
+	base_xp = contract_xp
+
+	risk_dissect = math.round((contract_xp) * xp_multiplier)
+	contract_xp = contract_xp + risk_dissect
+
+	level_limit_dissect = level_limit_dissect + math.round((level_limit_dissect) * xp_multiplier)
+	level_limit_dissect = contract_xp - (level_limit_dissect)
+
+
+	if not success then
+		failed_level_dissect = contract_xp
+		contract_xp = math.round((contract_xp) * (tweak_data:get_value("experience_manager", "stage_failed_multiplier") or 1))
+		failed_level_dissect = contract_xp - (failed_level_dissect)
+	end
+	total_xp = contract_xp
+
+	if success then
+		local num_players_bonus = num_winners and tweak_data:get_value("experience_manager", "alive_humans_multiplier", num_winners) or 1
+
+		alive_crew_dissect = math.round(contract_xp * num_players_bonus - contract_xp)
+		total_xp = total_xp + alive_crew_dissect
+	end
+
+
+	local multiplier = managers.player:upgrade_value("player", "xp_multiplier", 1)
+	multiplier = multiplier * managers.player:upgrade_value("player", "passive_xp_multiplier", 1)
+	multiplier = multiplier * managers.player:team_upgrade_value("xp", "multiplier", 1)
+
+	skill_dissect = math.round(contract_xp * (multiplier) - contract_xp)
+	total_xp = total_xp + skill_dissect
+
+
+
+	days_dissect = math.round(contract_xp * days_multiplier - contract_xp)
+	total_xp = total_xp + days_dissect
+
+
+	local days_dissect_risk = math.round(days_dissect * (risk_dissect / (base_xp + risk_dissect)))
+	local days_dissect_job = days_dissect - days_dissect_risk
+
+	local dissection_table = {
+		bonus_risk = math.round(risk_dissect),
+		bonus_num_players = math.round(alive_crew_dissect),
+		bonus_failed = math.round(failed_level_dissect),
+		bonus_low_level = math.round(level_limit_dissect),
+		bonus_skill = math.round(skill_dissect),
+		bonus_days = math.round(days_dissect),
+
+		bonus_days_job = math.round(days_dissect_job),
+		bonus_days_risk = math.round(days_dissect_risk),
+
+
+		stage_xp = math.round(stage_xp_dissect),
+		job_xp = math.round(job_xp_dissect),
+		base = math.round(base_xp),
+		total = math.round(total_xp),
+		last_stage = on_last_stage
+	}
+
+	if Application:production_build() then
+		local rounding_error = dissection_table.total - (dissection_table.stage_xp + dissection_table.job_xp + dissection_table.bonus_risk + dissection_table.bonus_num_players + dissection_table.bonus_failed + dissection_table.bonus_skill + dissection_table.bonus_days)
+		dissection_table.rounding_error = rounding_error
+	else
+		dissection_table.rounding_error = 0
+	end
+
+	return math.round(total_xp), dissection_table
+end
+
+function ExperienceManager:get_xp_dissected( success, num_winners )
+	local has_active_job = managers.job:has_active_job()
+	local job_and_difficulty_stars = has_active_job and managers.job:current_job_and_difficulty_stars() or 1
+
+	local job_stars = has_active_job and managers.job:current_job_stars() or 1
+	local difficulty_stars = job_and_difficulty_stars - job_stars
+	local current_stage = has_active_job and managers.job:current_stage() or 1
+	local is_professional = has_active_job and managers.job:is_current_job_professional() or false
+
+	local on_last_stage = has_active_job and managers.job:on_last_stage()
+
+	return self:get_xp_by_params( {	job_stars = job_stars,
+					difficulty_stars = difficulty_stars,
+					current_stage = current_stage,
+					professional = is_professional,
+					success = success,
+					num_winners = num_winners,
+					on_last_stage = on_last_stage } )
+end
+
+---------------------------------------------------------------------
+
+function ExperienceManager:level_cap()
+	return Application:digest_value( self.LEVEL_CAP, false )
+end
+
+function ExperienceManager:reached_level_cap()
+	return self:current_level() >= self:level_cap()
+end
+
+---------------------------------------------------------------------
+
+function ExperienceManager:save( data )
+	local state = {	
+			total 			= self._global.total,
+			xp_gained 			= self._global.xp_gained,
+			next_level_data = self._global.next_level_data,
+			level 			= self._global.level,
+	}
+	data.ExperienceManager = state
+end
+
+function ExperienceManager:load( data )
+	local state = data.ExperienceManager
+	if state then
+		self._global.total 				= state.total
+		self._global.xp_gained 		= state.xp_gained or state.total
+		self._global.next_level_data	= state.next_level_data
+		self._global.level				= state.level or Application:digest_value( 0, true )
+		
+		self:_set_current_level( math.min( self:current_level(), self:level_cap() ) )
+	
+		--[[local level = 0
+		for _, lvl in ipairs( managers.upgrades._global.progress ) do
+			level = level + lvl
+		end
+	
+		self._global.level = level]]
+		
+		for level = 1, self:current_level() do
+			managers.upgrades:aquire_from_level_tree( level, true )
+		end
+		
+
+		if not self._global.next_level_data or not tweak_data.experience_manager.levels[ self:current_level() + 1 ] or self:next_level_data_points() ~= tweak_data:get_value( "experience_manager", "levels", self:current_level() + 1, "points" ) then
+			self:_set_next_level_data( self:current_level() + 1 )
+		end
+	end
+	
+	managers.network.account:experience_loaded()
+end
+
+function ExperienceManager:reset()
+	managers.upgrades:reset()
+	managers.player:reset()
+	Global.experience_manager = nil
+	self:_setup()
+end
+
+---------------------------------------------------------------------
+
+function ExperienceManager:chk_ask_use_backup( savegame_data, backup_savegame_data )
+	local savegame_exp_total, backup_savegame_exp_total
+	
+	local state = savegame_data.ExperienceManager
+	if state then
+		savegame_exp_total = state.total
+	end
+	
+	state = backup_savegame_data.ExperienceManager
+	if state then
+		backup_savegame_exp_total = state.total
+	end
+	
+	if savegame_exp_total and backup_savegame_exp_total and Application:digest_value( savegame_exp_total, false ) < Application:digest_value( backup_savegame_exp_total, false ) then
+		return true
+	end
+end

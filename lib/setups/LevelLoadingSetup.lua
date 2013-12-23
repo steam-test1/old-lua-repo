@@ -1,32 +1,29 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\setups\LevelLoadingSetup.luac 
+require "core/lib/setups/CoreLoadingSetup"
+require "lib/utils/LevelLoadingScreenGuiScript"
+require "lib/managers/menu/MenuBackdropGUI"
+require "core/lib/managers/CoreGuiDataManager"
+require "core/lib/utils/CoreMath"
+require "core/lib/utils/CoreEvent"
 
-require("core/lib/setups/CoreLoadingSetup")
-require("lib/utils/LevelLoadingScreenGuiScript")
-require("lib/managers/menu/MenuBackdropGUI")
-require("core/lib/managers/CoreGuiDataManager")
-require("core/lib/utils/CoreMath")
-require("core/lib/utils/CoreEvent")
-if not LevelLoadingSetup then
-  LevelLoadingSetup = class(CoreLoadingSetup)
-end
-LevelLoadingSetup.init = function(l_1_0)
-  l_1_0._camera = Scene:create_camera()
-  LoadingViewport:set_camera(l_1_0._camera)
-  l_1_0._gui_wrapper = LevelLoadingScreenGuiScript:new(Scene:gui(), arg.res, -1, arg.layer)
-end
+LevelLoadingSetup = LevelLoadingSetup or class( CoreLoadingSetup )
 
-LevelLoadingSetup.update = function(l_2_0, l_2_1, l_2_2)
-  l_2_0._gui_wrapper:update(-1, l_2_1, l_2_2)
+function LevelLoadingSetup:init()
+	self._camera = Scene:create_camera()
+	LoadingViewport:set_camera( self._camera )
+	
+	-- self._gui_wrapper = LightLoadingScreenGuiScript:new( Scene:gui(), arg.res, level_load_progress() )
+	self._gui_wrapper = LevelLoadingScreenGuiScript:new( Scene:gui(), arg.res, -1, arg.layer )
 end
 
-LevelLoadingSetup.destroy = function(l_3_0)
-  LevelLoadingSetup.super.destroy(l_3_0)
-  Scene:delete_camera(l_3_0._camera)
+function LevelLoadingSetup:update( t, dt )
+	-- self._gui_wrapper:update( level_load_progress(), dt )
+	self._gui_wrapper:update( -1, t, dt )
 end
 
-if not setup then
-  setup = LevelLoadingSetup:new()
+function LevelLoadingSetup:destroy()
+	LevelLoadingSetup.super.destroy( self )
+	Scene:delete_camera( self._camera )
 end
+
+setup = setup or LevelLoadingSetup:new()
 setup:make_entrypoint()
-

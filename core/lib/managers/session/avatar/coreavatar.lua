@@ -1,33 +1,28 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\session\avatar\coreavatar.luac 
-
 core:module("CoreAvatar")
-if not Avatar then
-  Avatar = class()
-end
-Avatar.init = function(l_1_0, l_1_1)
-  l_1_0._avatar_handler = l_1_1
-end
 
-Avatar.destroy = function(l_2_0)
-  if l_2_0._input_input_provider then
-    l_2_0:release_input()
-  end
-  l_2_0._avatar_handler:destroy()
+Avatar = Avatar or class()
+
+function Avatar:init(avatar_handler)
+	self._avatar_handler = avatar_handler
 end
 
-Avatar.set_input = function(l_3_0, l_3_1)
-  l_3_0._avatar_handler:enable_input(l_3_1)
-  l_3_0._input_input_provider = l_3_1
+function Avatar:destroy()
+	if self._input_input_provider then
+		self:release_input()
+	end
+	self._avatar_handler:destroy()
 end
 
-Avatar.release_input = function(l_4_0)
-  l_4_0._avatar_handler:disable_input()
-  l_4_0._input_input_provider = nil
+function Avatar:set_input(input_input_provider)
+	self._avatar_handler:enable_input(input_input_provider)
+	self._input_input_provider = input_input_provider
 end
 
-Avatar.avatar_handler = function(l_5_0)
-  return l_5_0._avatar_handler
+function Avatar:release_input()
+	self._avatar_handler:disable_input()
+	self._input_input_provider = nil
 end
 
-
+function Avatar:avatar_handler()
+	return self._avatar_handler
+end

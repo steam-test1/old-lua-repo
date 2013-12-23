@@ -1,25 +1,33 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\network\matchmaking\networkfriend.luac 
+--[[-----------------------------------------------------------------------------------------------
 
-if not NetworkFriend then
-  NetworkFriend = class()
-end
-NetworkFriend.init = function(l_1_0, l_1_1, l_1_2, l_1_3)
-  l_1_0._id = l_1_1
-  l_1_0._name = l_1_2
-  l_1_0._signin_status = l_1_3
-end
+The friend object:
+	id:	Unspecified platform dependent ID
+		The game will not do anything with this except pass it to various other match
+		making methods.
+	name: string
+		The game can use this to display on screen, so you know who you are playing with.
+	signin_status: string
+		"signed_in"
+		"not_signed_in". Use to show online status of your friends for instance
+			
+-----------------------------------------------------------------------------------------------]]--
 
-NetworkFriend.id = function(l_2_0)
-  return l_2_0._id
-end
+NetworkFriend = NetworkFriend or class()
 
-NetworkFriend.name = function(l_3_0)
-  return l_3_0._name
-end
-
-NetworkFriend.signin_status = function(l_4_0)
-  return l_4_0._signin_status
+function NetworkFriend:init(id, name, signin_status)
+	self._id = id
+	self._name = name
+	self._signin_status = signin_status
 end
 
+function NetworkFriend:id()
+	return self._id
+end
 
+function NetworkFriend:name()
+	return self._name
+end
+
+function NetworkFriend:signin_status()
+	return self._signin_status
+end

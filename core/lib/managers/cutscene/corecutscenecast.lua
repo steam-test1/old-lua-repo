@@ -1,313 +1,308 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\cutscene\corecutscenecast.luac 
+CoreCutsceneCast = CoreCutsceneCast or class()
 
-if not CoreCutsceneCast then
-  CoreCutsceneCast = class()
-end
-CoreCutsceneCast.prime = function(l_1_0, l_1_1)
-  if l_1_1 then
-    assert(l_1_1:is_valid(), "Attempting to prime invalid cutscene.")
-  end
-  local preload = true
-  l_1_0:_actor_units_in_cutscene(l_1_1)
-  l_1_0:_animation_blob_controller(l_1_1, preload)
+function CoreCutsceneCast:prime(cutscene)
+	assert(cutscene and cutscene:is_valid(), "Attempting to prime invalid cutscene.")
+	local preload = true
+	self:_actor_units_in_cutscene(cutscene)
+	self:_animation_blob_controller(cutscene, preload)
 end
 
-CoreCutsceneCast.unload = function(l_2_0)
-  if not l_2_0._animation_blob_controllers then
-    for _,blob_controller in pairs({}) do
-    end
-    if blob_controller ~= false and alive(blob_controller) then
-      if blob_controller:is_playing() then
-        blob_controller:stop()
-      end
-      blob_controller:destroy()
-    end
-  end
-  l_2_0._animation_blob_controllers = nil
-  if not l_2_0._spawned_units then
-    for _,unit in pairs({}) do
-    end
-    if alive(unit) then
-      local unit_type = unit:name()
-      World:delete_unit(unit)
-    end
-  end
-  l_2_0._spawned_units = nil
-  if alive(l_2_0.__root_unit) then
-    World:delete_unit(l_2_0.__root_unit)
-  end
-  l_2_0.__root_unit = nil
+function CoreCutsceneCast:unload()
+	-- Delete any animation blob controllers.
+	for _, blob_controller in pairs(self._animation_blob_controllers or {}) do
+		if blob_controller ~= false and alive(blob_controller) then
+			if blob_controller:is_playing() then
+				blob_controller:stop()
+			end
+			blob_controller:destroy()
+		end
+	end
+	self._animation_blob_controllers = nil
+	
+	-- Delete spawned units.
+	for _, unit in pairs(self._spawned_units or {}) do
+		if alive(unit) then
+			local unit_type = unit:name()
+			World:delete_unit(unit)
+		end
+	end
+	self._spawned_units = nil
+	
+	-- Delete the root unit.
+	if alive(self.__root_unit) then
+		World:delete_unit(self.__root_unit)
+	end
+	self.__root_unit = nil
 end
 
-CoreCutsceneCast.is_ready = function(l_3_0, l_3_1)
-  if l_3_1 then
-    local blob_controller = l_3_0:_animation_blob_controller(l_3_1)
-  end
-  return (blob_controller ~= nil and blob_controller:ready())
+function CoreCutsceneCast:is_ready(cutscene)
+	local blob_controller = cutscene and self:_animation_blob_controller(cutscene)
+	return blob_controller == nil or blob_controller:ready()
 end
 
-CoreCutsceneCast.set_timer = function(l_4_0, l_4_1)
-  if not l_4_0._spawned_units then
-    for _,unit in pairs({}) do
-    end
-    if alive(unit) then
-      unit:set_timer(l_4_1)
-      unit:set_animation_timer(l_4_1)
-    end
-  end
+function CoreCutsceneCast:set_timer(timer)
+	for _, unit in pairs(self._spawned_units or {}) do
+		if alive(unit) then
+			unit:set_timer(timer)
+			unit:set_animation_timer(timer)
+		end
+	end
 end
 
-CoreCutsceneCast.set_cutscene_visible = function(l_5_0, l_5_1, l_5_2)
-  if not l_5_0._spawned_units then
-    for unit_name,unit in pairs({}) do
-    end
-    if l_5_1:has_unit(unit_name, true) and l_5_2 then
-      l_5_0:_set_unit_and_children_visible(unit, l_5_0:unit_visible(unit_name))
-    end
-  end
+function CoreCutsceneCast:set_cutscene_visible(cutscene, visible)
+	for unit_name, unit in pairs(self._spawned_units or {}) do
+		if cutscene:has_unit(unit_name, true) then
+			self:_set_unit_and_children_visible(unit, visible and self:unit_visible(unit_name))
+		end
+	end
 end
 
-CoreCutsceneCast.set_unit_visible = function(l_6_0, l_6_1, l_6_2)
-  l_6_2 = not not l_6_2
-  if not l_6_0._hidden_units then
-    l_6_0._hidden_units = {}
-  end
-  local current_visibility = not l_6_0._hidden_units[l_6_1]
-  l_6_0._hidden_units[l_6_1] = (l_6_2 and nil)
-  local unit = l_6_0:unit(l_6_1)
-  if unit then
-    l_6_0:_set_unit_and_children_visible(unit, l_6_2)
-  end
+function CoreCutsceneCast:set_unit_visible(unit_name, visible)
+	visible = not not visible -- Force true or false.
+	self._hidden_units = self._hidden_units or {}
+	local current_visibility = not self._hidden_units[unit_name]
+	
+	-- Check if the visibility has changed.
+	if visible ~= current_visibility then
+		self._hidden_units[unit_name] = not visible or nil
+		local unit = self:unit(unit_name)
+		if unit then
+			self:_set_unit_and_children_visible(unit, visible)
+		end
+	end
 end
 
-CoreCutsceneCast.unit_visible = function(l_7_0, l_7_1)
-  return l_7_0._hidden_units and l_7_0._hidden_units[l_7_1] == nil
+function CoreCutsceneCast:unit_visible(unit_name)
+	return (self._hidden_units and self._hidden_units[unit_name]) == nil
 end
 
-CoreCutsceneCast.unit = function(l_8_0, l_8_1)
-  if l_8_0._spawned_units then
-    return l_8_0._spawned_units[l_8_1]
-  end
+function CoreCutsceneCast:unit(unit_name)
+	return self._spawned_units and self._spawned_units[unit_name]
 end
 
-CoreCutsceneCast.actor_unit = function(l_9_0, l_9_1, l_9_2)
-  local unit = l_9_0:unit(l_9_1)
-  if unit and l_9_2:has_unit(l_9_1) then
-    return unit
-  else
-    return l_9_0:_actor_units_in_cutscene(l_9_2)[l_9_1]
-  end
+function CoreCutsceneCast:actor_unit(unit_name, cutscene)
+	local unit = self:unit(unit_name)
+	if unit and cutscene:has_unit(unit_name) then
+		return unit
+	else
+		return self:_actor_units_in_cutscene(cutscene)[unit_name]
+	end
 end
 
-CoreCutsceneCast.unit_names = function(l_10_0)
-  if not l_10_0._spawned_units or not table.map_keys(l_10_0._spawned_units) then
-    return {}
-  end
+function CoreCutsceneCast:unit_names()
+	return self._spawned_units and table.map_keys(self._spawned_units) or {}
 end
 
-CoreCutsceneCast.evaluate_cutscene_at_time = function(l_11_0, l_11_1, l_11_2)
-  l_11_0._last_evaluated_cutscene = l_11_0._last_evaluated_cutscene or l_11_1
-  if l_11_1 ~= l_11_0._last_evaluated_cutscene then
-    l_11_0:_stop_animations_on_actor_units_in_cutscene(l_11_0._last_evaluated_cutscene)
-  end
-  local orientation_unit = l_11_1:find_spawned_orientation_unit()
-  if orientation_unit and l_11_0:_root_unit():parent() ~= orientation_unit then
-    l_11_0:_reparent_to_locator_unit(orientation_unit, l_11_0:_root_unit())
-  end
-  local blob_controller = l_11_0:_animation_blob_controller(l_11_1)
-  if blob_controller and blob_controller:ready() then
-    if not blob_controller:is_playing() then
-      local actor_units = l_11_0:_actor_units_in_cutscene(l_11_1)
-      local blend_sets = table.remap(actor_units, function(l_1_0)
-        return l_1_0, cutscene:blend_set_for_unit(l_1_0)
-         end)
-      blob_controller:play(actor_units, blend_sets)
-      blob_controller:pause()
-    end
-    blob_controller:set_time(l_11_2)
-    do return end
-    for unit_name,unit in pairs(l_11_0:_actor_units_in_cutscene(l_11_1)) do
-      local unit_animation = l_11_1:animation_for_unit(unit_name)
-      if unit_animation then
-        local machine = unit:anim_state_machine()
-        if not machine:enabled() then
-          machine:set_enabled(true)
-          if not l_11_0:_state_machine_is_playing_raw_animation(machine, unit_animation) then
-            machine:play_raw(unit_animation)
-          end
-        end
-        local anim_length = l_11_1:duration()
-        if anim_length ~= 0 or not 0 then
-          local normalized_time = l_11_2 / anim_length
-        end
-        machine:set_parameter(unit_animation, "t", normalized_time)
-      end
-    end
-  end
-  l_11_0._last_evaluated_cutscene = l_11_1
+function CoreCutsceneCast:evaluate_cutscene_at_time(cutscene, time)
+	self._last_evaluated_cutscene = self._last_evaluated_cutscene or cutscene
+	if cutscene ~= self._last_evaluated_cutscene then
+		self:_stop_animations_on_actor_units_in_cutscene(self._last_evaluated_cutscene)
+	end
+	
+	local orientation_unit = cutscene:find_spawned_orientation_unit()
+	if orientation_unit and self:_root_unit():parent() ~= orientation_unit then
+		self:_reparent_to_locator_unit(orientation_unit, self:_root_unit())
+	end
+
+	local blob_controller = self:_animation_blob_controller(cutscene)
+	if blob_controller then
+		if blob_controller:ready() then
+			if not blob_controller:is_playing() then
+				local actor_units = self:_actor_units_in_cutscene(cutscene)
+				local blend_sets = table.remap(actor_units, function(unit_name) return unit_name, cutscene:blend_set_for_unit(unit_name) end)
+				blob_controller:play(actor_units, blend_sets)
+				blob_controller:pause()
+			end
+			blob_controller:set_time(time)
+		end
+	else
+		for unit_name, unit in pairs(self:_actor_units_in_cutscene(cutscene)) do
+			local unit_animation = cutscene:animation_for_unit(unit_name)
+			if unit_animation then
+				local machine = unit:anim_state_machine()
+				if not machine:enabled() then
+					machine:set_enabled(true)
+					
+					-- The machine is not currently playing, which means it was potentially
+					-- playing either a different animation or nothing at all. Thus, we
+					-- might have to swap out the playing animation for this unit.
+					if not self:_state_machine_is_playing_raw_animation(machine, unit_animation) then
+						machine:play_raw(unit_animation)
+					end
+				end 
+				
+				-- Set the animation time
+				local anim_length = cutscene:duration()
+				local normalized_time = anim_length == 0 and 0 or time / anim_length
+				machine:set_parameter(unit_animation, "t", normalized_time)
+			end
+		end
+	end
+	
+	self._last_evaluated_cutscene = cutscene
 end
 
-CoreCutsceneCast.evaluate_object_at_time = function(l_12_0, l_12_1, l_12_2, l_12_3, l_12_4)
-  assert(l_12_1:is_optimized(), "Currently only supported with optimized cutscenes.")
-  local blob_controller = l_12_0:_animation_blob_controller(l_12_1)
-  if alive(blob_controller) and blob_controller:ready() and blob_controller:is_playing() then
-    local bone_name = l_12_2 .. l_12_3
-    return blob_controller:position(bone_name, l_12_4), blob_controller:rotation(bone_name, l_12_4)
-  else
-    return Vector3(0, 0, 0), Rotation()
-  end
+function CoreCutsceneCast:evaluate_object_at_time(cutscene, unit_name, object_name, time)
+	assert(cutscene:is_optimized(), "Currently only supported with optimized cutscenes.")
+
+	local blob_controller = self:_animation_blob_controller(cutscene)
+	if alive(blob_controller) and blob_controller:ready() and blob_controller:is_playing() then
+		local bone_name = unit_name .. object_name
+		return blob_controller:position(bone_name, time), blob_controller:rotation(bone_name, time)
+	else
+		return Vector3(0, 0, 0), Rotation()
+	end
 end
 
-CoreCutsceneCast.spawn_unit = function(l_13_0, l_13_1, l_13_2)
-  if DB:has("unit", l_13_2) then
-    cat_print("cutscene", string.format("[CoreCutsceneCast] Spawning \"%s\" named \"%s\".", l_13_2, l_13_1))
-    World:effect_manager():set_spawns_enabled(false)
-    local unit = safe_spawn_unit(l_13_2, Vector3(0, 0, 0), Rotation())
-    World:effect_manager():set_spawns_enabled(true)
-    unit:set_timer(managers.cutscene:timer())
-    unit:set_animation_timer(managers.cutscene:timer())
-    l_13_0:_reparent_to_locator_unit(l_13_0:_root_unit(), unit)
-    l_13_0:_set_unit_and_children_visible(unit, false)
-    unit:set_animation_lod(1, 100000, 10000000, 10000000)
-    if unit:cutscene() and unit:cutscene().setup then
-      unit:cutscene():setup()
-    end
-    if unit:anim_state_machine() then
-      unit:anim_state_machine():set_enabled(false)
-    end
-    managers.cutscene:actor_database():append_unit_info(unit)
-    if not l_13_0._spawned_units then
-      l_13_0._spawned_units = {}
-    end
-    l_13_0._spawned_units[l_13_1] = unit
-    return unit
-  else
-    error("Unit type \"" .. tostring(l_13_2) .. "\" not found.")
-  end
+function CoreCutsceneCast:spawn_unit(unit_name, unit_type)
+	if DB:has("unit", unit_type) then
+		cat_print("cutscene", string.format("[CoreCutsceneCast] Spawning \"%s\" named \"%s\".", unit_type, unit_name))
+		World:effect_manager():set_spawns_enabled(false)
+		local unit = safe_spawn_unit(unit_type, Vector3(0, 0, 0), Rotation())
+		World:effect_manager():set_spawns_enabled(true)
+		unit:set_timer(managers.cutscene:timer())
+		unit:set_animation_timer(managers.cutscene:timer())
+		self:_reparent_to_locator_unit(self:_root_unit(), unit)
+		self:_set_unit_and_children_visible(unit, false)
+		unit:set_animation_lod(1, 100000, 10000000, 10000000)
+		
+		if unit:cutscene() and unit:cutscene().setup then
+			unit:cutscene():setup()
+		end
+			
+		-- Disable the anim state machine to mark it as non-playing. 
+		if unit:anim_state_machine() then
+			unit:anim_state_machine():set_enabled(false)
+		end
+
+		managers.cutscene:actor_database():append_unit_info(unit)
+		self._spawned_units = self._spawned_units or {}
+		self._spawned_units[unit_name] = unit
+		return unit
+	else
+		error("Unit type \"" .. tostring(unit_type) .. "\" not found.")
+	end
 end
 
-CoreCutsceneCast.delete_unit = function(l_14_0, l_14_1)
-  local unit = l_14_0:unit(l_14_1)
-  if unit and alive(unit) then
-    local unit_type = unit:name()
-    World:delete_unit(unit)
-  end
-  if l_14_0._spawned_units then
-    l_14_0._spawned_units[l_14_1] = nil
-  end
-  if l_14_0._hidden_units then
-    l_14_0._hidden_units[l_14_1] = nil
-  end
-  return unit ~= nil
+function CoreCutsceneCast:delete_unit(unit_name)
+	local unit = self:unit(unit_name)
+	if unit and alive(unit) then
+		local unit_type = unit:name()
+		World:delete_unit(unit)
+	end
+	
+	if self._spawned_units then
+		self._spawned_units[unit_name] = nil
+	end
+	
+	if self._hidden_units then
+		self._hidden_units[unit_name] = nil
+	end
+	
+	return unit ~= nil -- The unit was deleted trom the world.
 end
 
-CoreCutsceneCast.rename_unit = function(l_15_0, l_15_1, l_15_2)
-  local unit = l_15_0:unit(l_15_1)
-  if unit then
-    l_15_0._spawned_units[l_15_1] = nil
-    l_15_0._spawned_units[l_15_2] = unit
-    if l_15_0._hidden_units and l_15_0._hidden_units[l_15_1] then
-      l_15_0._hidden_units[l_15_1] = nil
-      l_15_0._hidden_units[l_15_2] = true
-    end
-    return true
-  end
-  return false
-end
-
-CoreCutsceneCast._stop_animations_on_actor_units_in_cutscene = function(l_16_0, l_16_1)
-  local blob_controller = l_16_0:_animation_blob_controller(l_16_1)
-  if blob_controller then
-    blob_controller:stop()
-  else
-    for unit_name,unit in pairs(l_16_0:_actor_units_in_cutscene(l_16_1)) do
-      local machine = unit:anim_state_machine()
-      if machine then
-        machine:set_enabled(false)
-      end
-    end
-  end
-end
-
-CoreCutsceneCast._state_machine_is_playing_raw_animation = function(l_17_0, l_17_1, l_17_2)
-  local state_names = table.collect(l_17_1:config():states(), function(l_1_0)
-    return l_1_0:name()
-   end)
-  if table.contains(state_names, l_17_2) then
-    return l_17_1:is_playing(l_17_2)
-  end
-end
-
-CoreCutsceneCast._reparent_to_locator_unit = function(l_18_0, l_18_1, l_18_2)
-  local parent_locator = assert(l_18_1:get_object("locator"), "Parent does not have an Object named \"locator\".")
-  l_18_2:unlink()
-  l_18_1:link(parent_locator:name(), l_18_2, l_18_2:orientation_object():name())
-end
-
-CoreCutsceneCast._set_unit_and_children_visible = function(l_19_0, l_19_1, l_19_2, l_19_3)
-  l_19_1:set_visible(l_19_2)
-  l_19_1:set_enabled(l_19_2)
-  if not l_19_3 then
-    if not l_19_0._spawned_units then
-      l_19_3 = table.remap({}, function(l_1_0, l_1_1)
-    return l_1_1, true
-   end)
-    end
-    for _,child in ipairs(l_19_1:children()) do
-      if not l_19_3[child] then
-        l_19_0:_set_unit_and_children_visible(child, l_19_2, l_19_3)
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-CoreCutsceneCast._animation_blob_controller = function(l_20_0, l_20_1, l_20_2)
-  if l_20_1:animation_blobs() == nil then
-    return nil
-  end
-  if not l_20_0._animation_blob_controllers then
-    l_20_0._animation_blob_controllers = {}
-  end
-  local blob_controller = l_20_0._animation_blob_controllers[l_20_1]
-  if blob_controller == nil then
-    if not l_20_2 then
-      Application:error("The cutscene \"" .. l_20_1:name() .. "\" was not preloaded, causing a performance spike.")
-    end
-    blob_controller = CutScene:load(l_20_1:animation_blobs())
-    l_20_0._animation_blob_controllers[l_20_1] = blob_controller
-  end
-  return blob_controller
-end
-
-CoreCutsceneCast._actor_units_in_cutscene = function(l_21_0, l_21_1)
-  if not l_21_0._spawned_units then
-    l_21_0._spawned_units = {}
-  end
-  local result = {}
-  for unit_name,unit_type in pairs(l_21_1:controlled_unit_types()) do
-    local unit = l_21_0._spawned_units[unit_name]
-    if unit == nil then
-      unit = l_21_0:spawn_unit(unit_name, unit_type)
-    else
-      if not alive(unit) then
-        cat_print("debug", string.format("[CoreCutsceneCast] Zombie Unit detected! Actor \"%s\" of unit type \"%s\" in cutscene \"%s\".", unit_name, unit_type, l_21_1:name()))
-        unit = nil
-      else
-        assert(unit:name() == unit_type, "Named unit type mismatch.")
-      end
-    end
-    result[unit_name] = unit
-  end
-  return result
-end
-
-CoreCutsceneCast._root_unit = function(l_22_0)
-  if l_22_0.__root_unit == nil then
-    l_22_0.__root_unit = World:spawn_unit(Idstring("core/units/locator/locator"), Vector3(0, 0, 0), Rotation())
-  end
-  return l_22_0.__root_unit
+function CoreCutsceneCast:rename_unit(unit_name, new_unit_name)
+	local unit = self:unit(unit_name)
+	if unit then
+		self._spawned_units[unit_name] = nil
+		self._spawned_units[new_unit_name] = unit
+		
+		if self._hidden_units and self._hidden_units[unit_name] then
+			self._hidden_units[unit_name] = nil
+			self._hidden_units[new_unit_name] = true
+		end
+		
+		return true
+	end
+	return false
 end
 
 
+--------------------------------------------------
+-- Private or internal methods
+--------------------------------------------------
+
+function CoreCutsceneCast:_stop_animations_on_actor_units_in_cutscene(cutscene)
+	local blob_controller = self:_animation_blob_controller(cutscene)
+	if blob_controller then
+		blob_controller:stop()
+	else
+		for unit_name, unit in pairs(self:_actor_units_in_cutscene(cutscene)) do
+			local machine = unit:anim_state_machine()
+			if machine then
+				machine:set_enabled(false)
+			end
+		end
+	end
+end
+
+function CoreCutsceneCast:_state_machine_is_playing_raw_animation(machine, animation)
+	local state_names = table.collect(machine:config():states(), function(state) return state:name() end)
+	return table.contains(state_names, animation) and machine:is_playing(animation)
+end
+
+function CoreCutsceneCast:_reparent_to_locator_unit(parent, child)	
+	local parent_locator = assert(parent:get_object("locator"), "Parent does not have an Object named \"locator\".")
+	child:unlink()
+	parent:link(parent_locator:name(), child, child:orientation_object():name())
+end
+
+function CoreCutsceneCast:_set_unit_and_children_visible(unit, visible, excluded_units)
+	unit:set_visible(visible)
+	unit:set_enabled(visible)
+	
+	excluded_units = excluded_units or table.remap(self._spawned_units or {}, function(unit_name, unit) return unit, true end)
+	for _, child in ipairs(unit:children()) do
+		if not excluded_units[child] then
+			self:_set_unit_and_children_visible(child, visible, excluded_units)
+		end
+	end
+end
+
+function CoreCutsceneCast:_animation_blob_controller(cutscene, preloading)
+	if cutscene:animation_blobs() == nil then
+		return nil
+	end
+	
+	self._animation_blob_controllers = self._animation_blob_controllers or {}
+	local blob_controller = self._animation_blob_controllers[cutscene]
+	if blob_controller == nil then
+		if not preloading then
+			Application:error("The cutscene \"" .. cutscene:name() .. "\" was not preloaded, causing a performance spike.")
+		end
+		blob_controller = CutScene:load(cutscene:animation_blobs())
+		self._animation_blob_controllers[cutscene] = blob_controller
+	end
+	
+	return blob_controller
+end
+
+function CoreCutsceneCast:_actor_units_in_cutscene(cutscene)
+	self._spawned_units = self._spawned_units or {}
+	local result = {}
+	
+	for unit_name, unit_type in pairs(cutscene:controlled_unit_types()) do
+		local unit = self._spawned_units[unit_name]
+		if unit == nil then
+			unit = self:spawn_unit(unit_name, unit_type)
+		elseif not alive(unit) then
+			cat_print("debug", string.format("[CoreCutsceneCast] Zombie Unit detected! Actor \"%s\" of unit type \"%s\" in cutscene \"%s\".", unit_name, unit_type, cutscene:name()))
+			unit = nil
+		else
+			assert(unit:name() == unit_type, "Named unit type mismatch.")
+		end
+	
+		result[unit_name] = unit
+	end
+
+	return result
+end
+
+function CoreCutsceneCast:_root_unit()
+	if self.__root_unit == nil then
+		self.__root_unit = World:spawn_unit(Idstring("core/units/locator/locator"), Vector3(0, 0, 0), Rotation())
+	end
+	
+	return self.__root_unit
+end

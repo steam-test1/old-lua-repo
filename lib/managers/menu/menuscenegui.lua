@@ -1,72 +1,81 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\menu\menuscenegui.luac 
+MenuSceneGui = MenuSceneGui or class()
 
-if not MenuSceneGui then
-  MenuSceneGui = class()
-end
-MenuSceneGui.init = function(l_1_0, l_1_1, l_1_2, l_1_3)
-  l_1_0._ws = l_1_1
-  l_1_0._fullscreen_ws = l_1_2
-  l_1_0._node = l_1_3
-  l_1_0._panel = l_1_0._ws:panel():panel()
-  l_1_0._fullscreen_panel = l_1_0._fullscreen_ws:panel():panel()
-  if not managers.menu:is_pc_controller() then
-    l_1_0:_setup_controller_input()
-  end
-end
-
-MenuSceneGui._setup_controller_input = function(l_2_0)
-  l_2_0._left_axis_vector = Vector3()
-  l_2_0._right_axis_vector = Vector3()
-  l_2_0._ws:connect_controller(managers.menu:active_menu().input:get_controller(), true)
-  l_2_0._panel:axis_move(callback(l_2_0, l_2_0, "_axis_move"))
+function MenuSceneGui:init( ws, fullscreen_ws, node )
+	self._ws = ws
+	self._fullscreen_ws = fullscreen_ws
+	self._node = node
+	
+	self._panel = self._ws:panel():panel()
+	self._fullscreen_panel = self._fullscreen_ws:panel():panel()
+	
+	-- managers.menu:active_menu().renderer.ws:hide()
+	if not managers.menu:is_pc_controller() then
+		self:_setup_controller_input()
+	end
 end
 
-MenuSceneGui._destroy_controller_input = function(l_3_0)
-  l_3_0._ws:disconnect_all_controllers()
-  if alive(l_3_0._panel) then
-    l_3_0._panel:axis_move(nil)
-  end
+---------------------------------------------------------------------------
+
+function MenuSceneGui:_setup_controller_input()
+	self._left_axis_vector = Vector3()
+	self._right_axis_vector = Vector3()
+	
+	self._ws:connect_controller( managers.menu:active_menu().input:get_controller(), true )
+	self._panel:axis_move( callback( self, self, "_axis_move" ) )
 end
 
-MenuSceneGui._axis_move = function(l_4_0, l_4_1, l_4_2, l_4_3, l_4_4)
-  if l_4_2 == Idstring("left") then
-    mvector3.set(l_4_0._left_axis_vector, l_4_3)
-  else
-    if l_4_2 == Idstring("right") then
-      mvector3.set(l_4_0._right_axis_vector, l_4_3)
-    end
-  end
+function MenuSceneGui:_destroy_controller_input()
+	self._ws:disconnect_all_controllers()
+	if alive( self._panel ) then
+		self._panel:axis_move( nil )
+	end
 end
 
-MenuSceneGui.update = function(l_5_0, l_5_1, l_5_2)
-  if managers.menu:is_pc_controller() then
-    return 
-  end
-  if mvector3.is_zero(l_5_0._left_axis_vector) then
-    managers.menu_scene:stop_controller_move()
-  else
-    local x = mvector3.x(l_5_0._left_axis_vector)
-    local y = mvector3.y(l_5_0._left_axis_vector)
-    managers.menu_scene:controller_move(x * l_5_2, y * l_5_2)
-  end
-  if mvector3.is_zero(l_5_0._right_axis_vector) then
-    do return end
-  end
-  local y = mvector3.y(l_5_0._right_axis_vector)
-  managers.menu_scene:controller_zoom(y * l_5_2)
+function MenuSceneGui:_axis_move( o, axis_name, axis_vector, controller )
+	if axis_name == Idstring( "left" ) then
+		mvector3.set( self._left_axis_vector, axis_vector )
+		-- 
+	elseif axis_name == Idstring( "right" ) then
+		mvector3.set( self._right_axis_vector, axis_vector )
+		-- managers.menu_scene:controller_zoom( axis_vector )
+	end
 end
 
-MenuSceneGui.close = function(l_6_0)
-  l_6_0:_destroy_controller_input()
-  if alive(l_6_0._panel) then
-    l_6_0._ws:panel():remove(l_6_0._panel)
-    l_6_0._panel = nil
-  end
-  if alive(l_6_0._fullscreen_panel) then
-    l_6_0._fullscreen_ws:panel():remove(l_6_0._fullscreen_panel)
-    l_6_0._fullscreen_panel = nil
-  end
+function MenuSceneGui:update( t, dt )
+	if managers.menu:is_pc_controller() then
+		return
+	end
+	
+	if mvector3.is_zero( self._left_axis_vector ) then
+		managers.menu_scene:stop_controller_move()
+	else
+		local x = mvector3.x( self._left_axis_vector )
+		local y = mvector3.y( self._left_axis_vector )
+		managers.menu_scene:controller_move( x * dt, y * dt )
+	end
+	
+	if mvector3.is_zero( self._right_axis_vector ) then
+		
+	else
+		local y = mvector3.y( self._right_axis_vector )
+		managers.menu_scene:controller_zoom( y * dt )
+	end
 end
 
+---------------------------------------------------------------------------
 
+function MenuSceneGui:close()
+	self:_destroy_controller_input()
+	
+	if alive( self._panel ) then
+		self._ws:panel():remove( self._panel )
+		self._panel = nil
+	end
+	
+	if alive( self._fullscreen_panel ) then
+		self._fullscreen_ws:panel():remove( self._fullscreen_panel )
+		self._fullscreen_panel = nil
+	end
+	
+	-- managers.menu:active_menu().renderer.ws:show()
+end

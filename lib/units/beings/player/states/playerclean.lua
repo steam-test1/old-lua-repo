@@ -1,104 +1,156 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\beings\player\states\playerclean.luac 
+PlayerClean = PlayerClean or class( PlayerStandard )
 
-if not PlayerClean then
-  PlayerClean = class(PlayerStandard)
-end
-PlayerClean.init = function(l_1_0, l_1_1)
-  PlayerClean.super.init(l_1_0, l_1_1)
-  l_1_0._ids_unequip = Idstring("unequip")
+function PlayerClean:init( unit )
+	PlayerClean.super.init( self, unit )
+	self._ids_unequip = Idstring( "unequip" )
 end
 
-PlayerClean.enter = function(l_2_0, l_2_1, l_2_2)
-  PlayerClean.super.enter(l_2_0, l_2_1, l_2_2)
+--------------------------------------------------------------------------------------
+
+function PlayerClean:enter( state_data, enter_data )
+	PlayerClean.super.enter( self, state_data, enter_data )
 end
 
-PlayerClean._enter = function(l_3_0, l_3_1)
-  local equipped_selection = l_3_0._unit:inventory():equipped_selection()
-  if equipped_selection ~= 1 then
-    l_3_0._previous_equipped_selection = equipped_selection
-    l_3_0._ext_inventory:equip_selection(1, false)
-    managers.upgrades:setup_current_weapon()
-  end
-  if l_3_0._unit:camera():anim_data().equipped then
-    l_3_0._unit:camera():play_redirect(l_3_0._ids_unequip)
-  end
-  l_3_0._unit:base():set_slot(l_3_0._unit, 4)
-  l_3_0._ext_movement:set_attention_settings({"pl_law_susp_peaceful", "pl_gangster_cur_peaceful", "pl_team_cur_peaceful", "pl_civ_idle_peaceful"})
-  if not managers.groupai:state():enemy_weapons_hot() then
-    l_3_0._enemy_weapons_hot_listen_id = "PlayerClean" .. tostring(l_3_0._unit:key())
-    managers.groupai:state():add_listener(l_3_0._enemy_weapons_hot_listen_id, {"enemy_weapons_hot"}, callback(l_3_0, l_3_0, "clbk_enemy_weapons_hot"))
-  end
-  l_3_0._ext_network:send("set_stance", 1)
+--------------------------------------------------------------------------------------
+
+function PlayerClean:_enter( enter_data )
+	local equipped_selection = self._unit:inventory():equipped_selection()
+	if equipped_selection ~= 1 then
+		self._previous_equipped_selection = equipped_selection
+		self._ext_inventory:equip_selection( 1, false )
+		managers.upgrades:setup_current_weapon()
+	end
+	
+	if self._unit:camera():anim_data().equipped then
+		self._unit:camera():play_redirect( self._ids_unequip )
+	end
+	self._unit:base():set_slot( self._unit, 4 )
+	
+	self._ext_movement:set_attention_settings( { "pl_law_susp_peaceful", "pl_gangster_cur_peaceful", "pl_team_cur_peaceful", "pl_civ_idle_peaceful" } )
+	
+	if not managers.groupai:state():enemy_weapons_hot() then
+		self._enemy_weapons_hot_listen_id = "PlayerClean"..tostring( self._unit:key() )
+		managers.groupai:state():add_listener( self._enemy_weapons_hot_listen_id, { "enemy_weapons_hot" }, callback( self, self, "clbk_enemy_weapons_hot" ) )
+	end
+	
+	self._ext_network:send( "set_stance", 1 ) -- ntl
 end
 
-PlayerClean.exit = function(l_4_0, l_4_1, l_4_2)
-  PlayerClean.super.exit(l_4_0, l_4_1)
-  if l_4_0._previous_equipped_selection then
-    l_4_0._unit:inventory():equip_selection(l_4_0._previous_equipped_selection, false)
-    l_4_0._previous_equipped_selection = nil
-  end
-  l_4_0._unit:base():set_slot(l_4_0._unit, 2)
-  if l_4_0._enemy_weapons_hot_listen_id then
-    managers.groupai:state():remove_listener(l_4_0._enemy_weapons_hot_listen_id)
-  end
-  return 
+--------------------------------------------------------------------------------------
+
+function PlayerClean:exit( state_data, new_state_name )
+	PlayerClean.super.exit( self, state_data )
+	
+	if self._previous_equipped_selection then
+		self._unit:inventory():equip_selection( self._previous_equipped_selection, false )
+		self._previous_equipped_selection = nil
+	end
+	
+	self._unit:base():set_slot( self._unit, 2 )
+	
+	if self._enemy_weapons_hot_listen_id then
+		managers.groupai:state():remove_listener( self._enemy_weapons_hot_listen_id )
+	end
+	
+	return
 end
 
-PlayerClean.interaction_blocked = function(l_5_0)
-  return true
+--------------------------------------------------------------------------------------
+
+function PlayerClean:interaction_blocked()
+	return true
 end
 
-PlayerClean.update = function(l_6_0, l_6_1, l_6_2)
-  PlayerClean.super.update(l_6_0, l_6_1, l_6_2)
+--------------------------------------------------------------------------------------
+
+function PlayerClean:update( t, dt )
+	PlayerClean.super.update( self, t, dt )
 end
 
-PlayerClean._update_check_actions = function(l_7_0, l_7_1, l_7_2)
-  local input = l_7_0:_get_input()
-  l_7_0._stick_move = l_7_0._controller:get_input_axis("move")
-  if mvector3.length(l_7_0._stick_move) < 0.10000000149012 then
-    l_7_0._move_dir = nil
-  else
-    l_7_0._move_dir = mvector3.copy(l_7_0._stick_move)
-    local cam_flat_rot = Rotation(l_7_0._cam_fwd_flat, math.UP)
-    mvector3.rotate_with(l_7_0._move_dir, cam_flat_rot)
-  end
-  if input.btn_stats_screen_press then
-    l_7_0._unit:base():set_stats_screen_visible(true)
-  elseif input.btn_stats_screen_release then
-    l_7_0._unit:base():set_stats_screen_visible(false)
-  end
-  l_7_0:_update_foley(l_7_1, input)
-  local new_action = nil
-  if new_action or not new_action and l_7_0._state_data.ducking then
-    l_7_0:_end_action_ducking(l_7_1)
-  end
+--------------------------------------------------------------------------------------
+
+--	Read controller input, start, stop, queue and update actions
+
+function PlayerClean:_update_check_actions( t, dt )
+	------------------------------
+	--Check the controller input--
+	------------------------------
+	local input = self:_get_input()
+	
+	--	Determine the move direction
+	self._stick_move = self._controller:get_input_axis( "move" )
+	
+	-- if ( self._stick_move.x == 0 and self._stick_move.y == 0 ) then
+	if mvector3.length( self._stick_move ) < 0.1 then
+		self._move_dir = nil
+	else
+		self._move_dir = mvector3.copy( self._stick_move )
+		local cam_flat_rot = Rotation( self._cam_fwd_flat, math.UP )
+		mvector3.rotate_with( self._move_dir, cam_flat_rot )
+	end
+
+	
+	-----------------------------------------
+	--Check if we should start a new action--
+	-----------------------------------------
+	
+	if input.btn_stats_screen_press then
+		self._unit:base():set_stats_screen_visible( true )
+	elseif input.btn_stats_screen_release then
+		self._unit:base():set_stats_screen_visible( false )
+	end
+	
+	self:_update_foley( t, input )
+	
+	local new_action
+		
+	if not new_action then
+	--	new_action = self:_check_action_interact( t, input )
+	end
+	
+	if not new_action and self._state_data.ducking then
+		self:_end_action_ducking( t )
+	end
 end
 
-PlayerClean._get_walk_headbob = function(l_8_0)
-  return 0.012500000186265
+--------------------------------------------------------------------------------------
+
+function PlayerClean:_get_walk_headbob()
+	return 0.0125
 end
 
-PlayerClean._check_action_interact = function(l_9_0, l_9_1, l_9_2)
-  local new_action = nil
-  local interaction_wanted = l_9_2.btn_interact_press
-  if interaction_wanted then
-    local action_forbidden = l_9_0:chk_action_forbidden("interact")
-    if not action_forbidden then
-      l_9_0:_start_action_state_standard(l_9_1)
-    end
-  end
-  return new_action
+--------------------------------------------------------------------------------------
+
+--	Check if we want to intimidate or use an item
+
+function PlayerClean:_check_action_interact( t, input )
+	
+	local new_action
+	local interaction_wanted = input.btn_interact_press
+	if interaction_wanted then
+		local action_forbidden = self:chk_action_forbidden( "interact" )
+	 	if not action_forbidden then
+	 		self:_start_action_state_standard( t )
+		end
+		
+	end
+	
+	return new_action
 end
 
-PlayerClean._start_action_state_standard = function(l_10_0, l_10_1)
-  managers.player:set_player_state("standard")
+--------------------------------------------------------------------------------------
+
+function PlayerClean:_start_action_state_standard( t )
+	managers.player:set_player_state( "standard" )
 end
 
-PlayerClean.clbk_enemy_weapons_hot = function(l_11_0)
-  managers.groupai:state():remove_listener(l_11_0._enemy_weapons_hot_listen_id)
-  l_11_0._enemy_weapons_hot_listen_id = nil
-  managers.player:set_player_state("standard")
+--------------------------------------------------------------------------------------
+
+function PlayerClean:clbk_enemy_weapons_hot()
+	managers.groupai:state():remove_listener( self._enemy_weapons_hot_listen_id )
+	self._enemy_weapons_hot_listen_id = nil
+	managers.player:set_player_state( "standard" )
 end
 
-
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------

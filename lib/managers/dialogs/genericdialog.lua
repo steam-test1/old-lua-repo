@@ -1,287 +1,331 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\dialogs\genericdialog.luac 
+core:module( "SystemMenuManager" )
 
-core:module("SystemMenuManager")
-require("lib/managers/dialogs/Dialog")
-if not GenericDialog then
-  GenericDialog = class(Dialog)
-end
-GenericDialog.FADE_IN_DURATION = 0.20000000298023
-GenericDialog.FADE_OUT_DURATION = 0.20000000298023
-GenericDialog.MOVE_AXIS_LIMIT = 0.40000000596046
-GenericDialog.MOVE_AXIS_DELAY = 0.40000000596046
-GenericDialog.init = function(l_1_0, l_1_1, l_1_2, l_1_3)
-  Dialog.init(l_1_0, l_1_1, l_1_2)
-  if not l_1_0._data.focus_button then
-    if #l_1_0._button_text_list > 0 then
-      l_1_0._data.focus_button = #l_1_0._button_text_list
-    else
-      l_1_0._data.focus_button = 1
-    end
-  end
-  if not l_1_0._data.ws then
-    l_1_0._ws = l_1_1:_get_ws()
-  end
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
+require "lib/managers/dialogs/Dialog"
 
-end
-l_1_0._panel_script = _G.TextBoxGui:new(l_1_0._ws, l_1_0._data.title or "", l_1_0._data.text or "", l_1_0._data, {type = "system_menu", no_close_legend = true, use_indicator = l_1_2.no_buttons, is_title_outside = l_1_3})
-l_1_0._panel_script:add_background()
-l_1_0._panel_script:set_layer(_G.tweak_data.gui.DIALOG_LAYER)
-l_1_0._panel_script:set_centered()
-l_1_0._panel_script:set_fade(0)
-if not l_1_0._data.controller then
-  l_1_0._controller = l_1_1:_get_controller()
-end
-l_1_0._confirm_func = callback(l_1_0, l_1_0, "button_pressed_callback")
-l_1_0._cancel_func = callback(l_1_0, l_1_0, "dialog_cancel_callback")
-l_1_0._resolution_changed_callback = callback(l_1_0, l_1_0, "resolution_changed_callback")
-managers.viewport:add_resolution_changed_func(l_1_0._resolution_changed_callback)
-if l_1_2.counter then
-  l_1_0._counter = l_1_2.counter
-  l_1_0._counter_time = l_1_0._counter[1]
-end
-end
+GenericDialog = GenericDialog or class( Dialog )
+GenericDialog.FADE_IN_DURATION = 0.2
+GenericDialog.FADE_OUT_DURATION = 0.2
+GenericDialog.MOVE_AXIS_LIMIT = 0.4
+GenericDialog.MOVE_AXIS_DELAY = 0.4
 
-GenericDialog.set_text = function(l_2_0, l_2_1, l_2_2)
-  l_2_0._panel_script:set_text(l_2_1, l_2_2)
-end
+function GenericDialog:init( manager, data, is_title_outside )
+	Dialog.init( self, manager, data )
 
-GenericDialog.set_title = function(l_3_0, l_3_1, l_3_2)
-  l_3_0._panel_script:set_title(l_3_1, l_3_2)
-end
+	if( not self._data.focus_button ) then
+		if #self._button_text_list > 0 then
+			self._data.focus_button = #self._button_text_list -- Fast fix for highlighting NO
+		else
+			self._data.focus_button = 1
+		end
+	end
+	
+-- 	string.upper( data.title or "" ), string.upper( data.text or "" ), data
+	-- TextBoxGui:new( self._ws, string.upper( self._data.title or "" ), string.upper( self._data.text or "" ), self._data )
 
-GenericDialog.mouse_moved = function(l_4_0, l_4_1, l_4_2, l_4_3)
-  if l_4_0._panel_script:moved_scroll_bar(l_4_2, l_4_3) then
-    return 
-  end
-  l_4_2, l_4_3 = managers.mouse_pointer:convert_fullscreen_mouse_pos(l_4_2, l_4_3)
-  for i,panel in ipairs(l_4_0._panel_script._text_box_buttons_panel:children()) do
-    if panel.child and panel:inside(l_4_2, l_4_3) then
-      l_4_0._panel_script:set_focus_button(i)
-    end
-  end
-end
+	self._ws = self._data.ws or manager:_get_ws()
+	self._panel_script = _G.TextBoxGui:new( self._ws, self._data.title or "", self._data.text or "", self._data, { type = "system_menu", no_close_legend = true, use_indicator = data.indicator or data.no_buttons, is_title_outside = is_title_outside } )
+	-- self._panel_script = _G.TextBoxGui:new( self._ws, string.upper( self._data.title or "" ), "kmskdm ks dkmskd mskdm kmasdl awij3 kwse r2jr iowmofdi j8jsif ms8d9uf isodmf s8d9fj sdjf sdfmn lsiujf asod lusndf 89sudu fus8f s8fu 98sufi amwk3m 4isdfk 84wj kmsf sd8f js msfe8f jsd kmnw 84jseif sdjf s34 isjdfi nsdf js38f jskdnf jsaenf sdyf shdf kmskdm ks dkmskd mskdm kmasdl awij3 kwse r2jr iowmofdi j8jsif ms8d9uf isodmf s8d9fj sdjf sdfmn lsiujf asod lusndf 89sudu fus8f s8fu 98sufi amwk3m 4isdfk 84wj kmsf sd8f js msfe8f jsd kmnw 84jseif sdjf s34 isjdfi nsdf js38f jskdnf jsaenf sdyf shdf kmskdm ks dkmskd mskdm kmasdl awij3 kwse r2jr iowmofdi j8jsif ms8d9uf isodmf s8d9fj sdjf sdfmn lsiujf asod lusndf 89sudu fus8f s8fu 98sufi amwk3m 4isdfk 84wj kmsf sd8f js msfe8f jsd kmnw 84jseif sdjf s34 isjdfi nsdf js38f jskdnf jsaenf sdyf shdf kmskdm ks dkmskd mskdm kmasdl awij3 kwse r2jr iowmofdi j8jsif ms8d9uf isodmf s8d9fj sdjf sdfmn lsiujf asod lusndf 89sudu fus8f s8fu 98sufi amwk3m 4isdfk 84wj kmsf sd8f js msfe8f jsd kmnw 84jseif sdjf s34 isjdfi nsdf js38f jskdnf jsaenf sdyf shdf u", self._data, { type = "system_menu", no_close_legend = true, use_indicator = data.indicator or data.no_buttons } )
+	self._panel_script:add_background()
+	self._panel_script:set_layer( _G.tweak_data.gui.DIALOG_LAYER )
+	self._panel_script:set_centered()
+	-- self._panel = self._ws:panel():gui( Idstring( "guis/dialog_manager" ) )
+	-- self._panel:hide()
+	-- self._panel_script = self._panel:script()
+	-- self._panel_script:setup( self._data )
+	self._panel_script:set_fade( 0 )
+	self._controller = self._data.controller or manager:_get_controller()
 
-GenericDialog.mouse_pressed = function(l_5_0, l_5_1, l_5_2, l_5_3, l_5_4)
-  if l_5_2 == Idstring("0") then
-    local x, y = managers.mouse_pointer:convert_fullscreen_mouse_pos(l_5_3, l_5_4)
-    if l_5_0._panel_script:check_grab_scroll_bar(x, y) then
-      return 
-    end
-    for i,panel in ipairs(l_5_0._panel_script._text_box_buttons_panel:children()) do
-      if panel.child and panel:inside(x, y) then
-        l_5_0:button_pressed_callback()
-        return 
-      end
-    end
-  else
-    if l_5_2 == Idstring("mouse wheel down") then
-      return l_5_0._panel_script:mouse_wheel_down(l_5_3, l_5_4)
-    else
-      if l_5_2 == Idstring("mouse wheel up") then
-        return l_5_0._panel_script:mouse_wheel_up(l_5_3, l_5_4)
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+	self._confirm_func = callback( self, self, "button_pressed_callback" )
+	self._cancel_func = callback( self, self, "dialog_cancel_callback" )
+
+	self._resolution_changed_callback = callback( self, self, "resolution_changed_callback" )
+	managers.viewport:add_resolution_changed_func( self._resolution_changed_callback )
+	
+	-- self._panel_script.indicator:set_visible( data.indicator or data.no_buttons ) 
+	
+	if data.counter then
+		self._counter = data.counter
+		self._counter_time = self._counter[1]
+	end
+	
+	--[[local data = {}
+	data.mouse_move = callback( self, self, "mouse_moved" )
+	data.mouse_press = callback( self, self, "mouse_pressed" )
+	managers.mouse_pointer:use_mouse( data )]]
+	
+	--[[ Used variables:
+	self._fade_in_time = nil
+	self._fade_out_time = nil
+	self._input_enabled = nil
+	self._move_button_dir = nil
+	self._move_button_time = nil
+	]]
 end
 
-GenericDialog.mouse_released = function(l_6_0, l_6_1, l_6_2, l_6_3, l_6_4)
-  l_6_0._panel_script:release_scroll_bar()
+function GenericDialog:set_text( text, no_upper )
+	self._panel_script:set_text( text, no_upper )
 end
 
-GenericDialog.update = function(l_7_0, l_7_1, l_7_2)
-  if l_7_0._fade_in_time then
-    local alpha = math.clamp((l_7_1 - l_7_0._fade_in_time) / l_7_0.FADE_IN_DURATION, 0, 1)
-    l_7_0._panel_script:set_fade(alpha)
-    if alpha == 1 then
-      l_7_0:set_input_enabled(true)
-      l_7_0._fade_in_time = nil
-    end
-  end
-  if l_7_0._fade_out_time then
-    local alpha = math.clamp(1 - (l_7_1 - l_7_0._fade_out_time) / l_7_0.FADE_OUT_DURATION, 0, 1)
-    l_7_0._panel_script:set_fade(alpha)
-    if alpha == 0 then
-      l_7_0._fade_out_time = nil
-      l_7_0:close()
-    end
-  end
-  if l_7_0._input_enabled then
-    l_7_0:update_input(l_7_1, l_7_2)
-  end
-  l_7_0._panel_script:update_indicator(l_7_1, l_7_2)
-  if alive(l_7_0._panel_script.indicator) then
-    l_7_0._panel_script.indicator:rotate(180 * l_7_2)
-  end
-  if l_7_0._counter then
-    l_7_0._counter_time = l_7_0._counter_time - l_7_2
-    if l_7_0._counter_time < 0 then
-      l_7_0._counter_time = l_7_0._counter_time + l_7_0._counter[1]
-      l_7_0._counter[2]()
-    end
-  end
-  if managers.menu_component then
-    local x, y = managers.menu_component:get_right_controller_axis()
-    if y > 0 then
-      l_7_0._panel_script:scroll_up(y * 2)
-    elseif y < 0 then
-      l_7_0._panel_script:scroll_down(math.abs(y) * 2)
-    end
-  end
+function GenericDialog:set_title( text, no_upper )
+	self._panel_script:set_title( text, no_upper )
 end
 
-GenericDialog.update_input = function(l_8_0, l_8_1, l_8_2)
-  if l_8_0._data.no_buttons then
-    return 
-  end
-  local dir, move_time = nil, nil
-  local move = l_8_0._controller:get_input_axis("menu_move")
-  if l_8_0._controller:get_input_bool("menu_down") or l_8_0.MOVE_AXIS_LIMIT < move.y then
-    dir = 1
-  else
-    if l_8_0._controller:get_input_bool("menu_up") or move.y < -l_8_0.MOVE_AXIS_LIMIT then
-      dir = -1
-    end
-  end
-  if l_8_0._move_button_dir == dir and l_8_0._move_button_time and l_8_1 < l_8_0._move_button_time + l_8_0.MOVE_AXIS_DELAY then
-    if not l_8_0._move_button_time then
-      move_time = not dir or l_8_1
-    end
-  else
-    l_8_0._panel_script:change_focus_button(dir)
-    move_time = l_8_1
-  end
-  l_8_0._move_button_dir = dir
-  l_8_0._move_button_time = move_time
-  local scroll = l_8_0._controller:get_input_axis("menu_scroll")
-  if l_8_0.MOVE_AXIS_LIMIT < scroll.y then
-    l_8_0._panel_script:scroll_up()
-  else
-    if scroll.y < -l_8_0.MOVE_AXIS_LIMIT then
-      l_8_0._panel_script:scroll_down()
-    end
-  end
+function GenericDialog:mouse_moved( o, x, y )
+	if self._panel_script:moved_scroll_bar( x, y ) then
+		return
+
+	end
+	local x, y = managers.mouse_pointer:convert_1280_mouse_pos( x, y )
+		 
+	for i,panel in ipairs( self._panel_script._text_box_buttons_panel:children() ) do
+		if panel.child and panel:inside( x, y ) then -- CHILD CHECK IS BAD
+			self._panel_script:set_focus_button( i )
+		end
+	end
 end
 
-GenericDialog.set_input_enabled = function(l_9_0, l_9_1)
-  if not l_9_0._input_enabled ~= not l_9_1 then
-    if l_9_1 then
-      l_9_0._controller:add_trigger("confirm", l_9_0._confirm_func)
-      if managers.controller:get_default_wrapper_type() == "pc" then
-        l_9_0._controller:add_trigger("toggle_menu", l_9_0._cancel_func)
-        l_9_0._mouse_id = managers.mouse_pointer:get_id()
-        l_9_0._removed_mouse = nil
-        local data = {}
-        data.mouse_move = callback(l_9_0, l_9_0, "mouse_moved")
-        data.mouse_press = callback(l_9_0, l_9_0, "mouse_pressed")
-        data.mouse_release = callback(l_9_0, l_9_0, "mouse_released")
-        data.id = l_9_0._mouse_id
-        managers.mouse_pointer:use_mouse(data)
-      else
-        l_9_0._removed_mouse = nil
-        l_9_0._controller:add_trigger("cancel", l_9_0._cancel_func)
-        managers.mouse_pointer:disable()
-      end
-    else
-      l_9_0._panel_script:release_scroll_bar()
-      l_9_0._controller:remove_trigger("confirm", l_9_0._confirm_func)
-      if managers.controller:get_default_wrapper_type() == "pc" then
-        l_9_0._controller:remove_trigger("toggle_menu", l_9_0._cancel_func)
-      else
-        l_9_0._controller:remove_trigger("cancel", l_9_0._cancel_func)
-      end
-      l_9_0:remove_mouse()
-    end
-  end
-  l_9_0._input_enabled = l_9_1
-end
+function GenericDialog:mouse_pressed( o, button, x, y )
+	if button == Idstring( "0" ) then
+		local x, y = managers.mouse_pointer:convert_1280_mouse_pos( x, y )
+		if self._panel_script:check_grab_scroll_bar( x, y ) then
+			return
+		end
+		for i,panel in ipairs( self._panel_script._text_box_buttons_panel:children() ) do
+			if panel.child and panel:inside( x, y ) then
+				self:button_pressed_callback()
+				return
+			end
+		end
+	elseif button == Idstring( "mouse wheel down" ) then
+		return self._panel_script:mouse_wheel_down( x, y )
+	elseif button == Idstring( "mouse wheel up" ) then
+		return self._panel_script:mouse_wheel_up( x, y )
+	end
 end
 
-GenericDialog.fade_in = function(l_10_0)
-  l_10_0._fade_in_time = TimerManager:main():time()
+function GenericDialog:mouse_released( o, button, x, y )
+	self._panel_script:release_scroll_bar()
 end
 
-GenericDialog.fade_out_close = function(l_11_0)
-  managers.menu:post_event("prompt_exit")
-  l_11_0:fade_out()
+function GenericDialog:update( t, dt )
+	if( self._fade_in_time ) then
+		local alpha = math.clamp( ( t - self._fade_in_time ) / self.FADE_IN_DURATION, 0, 1 )
+		self._panel_script:set_fade( alpha )
+
+		if( alpha == 1 ) then
+			self:set_input_enabled( true )
+			self._fade_in_time = nil
+		end
+	end
+
+	if( self._fade_out_time ) then
+		local alpha = math.clamp( 1 - ( t - self._fade_out_time ) / self.FADE_OUT_DURATION, 0, 1 )
+		self._panel_script:set_fade( alpha )
+
+		if( alpha == 0 ) then
+			self._fade_out_time = nil
+			self:close()
+		end
+	end
+
+	if( self._input_enabled ) then
+	 	-- This to make scroll arrows work, but causes interference with arrow keys.
+		-- self:mouse_moved( managers.mouse_pointer:mouse(), managers.mouse_pointer:world_position() ) -- managers.mouse_pointer:modified_mouse_pos() ) -- managers.mouse_pointer:world_position())
+		self:update_input( t, dt )
+	end
+	
+	self._panel_script:update_indicator( t, dt )
+	if alive( self._panel_script.indicator ) then
+		self._panel_script.indicator:rotate( 180 * dt )
+	end
+	
+	if self._counter then
+		self._counter_time = self._counter_time - dt
+	
+		if self._counter_time < 0 then
+			self._counter_time = self._counter_time + self._counter[1]
+			self._counter[2]()
+		end
+	end
+
+	if managers.menu_component then
+		local x, y = managers.menu_component:get_right_controller_axis()
+
+		if y > 0 then
+			self._panel_script:scroll_up(y * 4)
+		elseif y < 0 then
+			self._panel_script:scroll_down(math.abs(y) * 4)
+		end
+	end
 end
 
-GenericDialog.fade_out = function(l_12_0)
-  l_12_0._fade_out_time = TimerManager:main():time()
-  if managers.menu:active_menu() then
-    managers.menu:active_menu().renderer:disable_input(0.20000000298023)
-  end
-  l_12_0:set_input_enabled(false)
+function GenericDialog:update_input( t, dt )
+	if self._data.no_buttons then
+		return
+	end
+	
+	local dir, move_time
+	local move = self._controller:get_input_axis( "menu_move" )
+
+	if( self._controller:get_input_bool( "menu_down" ) or ( move.y > self.MOVE_AXIS_LIMIT ) ) then
+		dir = 1
+	elseif( self._controller:get_input_bool( "menu_up" ) or ( move.y < -self.MOVE_AXIS_LIMIT ) ) then
+		dir = -1
+	end
+
+	if( dir ) then
+		if( ( self._move_button_dir == dir ) and self._move_button_time and ( t < self._move_button_time + self.MOVE_AXIS_DELAY ) ) then
+			move_time = self._move_button_time or t
+		else
+			self._panel_script:change_focus_button( dir )
+			move_time = t
+		end
+	end
+
+	self._move_button_dir = dir
+	self._move_button_time = move_time
+	
+	local scroll = self._controller:get_input_axis( "menu_scroll" )
+	-- local sdir
+	if( scroll.y > self.MOVE_AXIS_LIMIT ) then
+		self._panel_script:scroll_up()
+		-- sdir = 1
+	elseif( scroll.y < -self.MOVE_AXIS_LIMIT ) then
+		self._panel_script:scroll_down()
+		-- sdir = -1
+	end
 end
 
-GenericDialog.is_closing = function(l_13_0)
-  return l_13_0._fade_out_time ~= nil
+function GenericDialog:set_input_enabled( enabled )
+	if( not self._input_enabled ~= not enabled ) then
+		if( enabled ) then
+			self._controller:add_trigger( "confirm", self._confirm_func )
+			
+			if( managers.controller:get_default_wrapper_type() == "pc" ) then
+				self._controller:add_trigger( "toggle_menu", self._cancel_func )
+				
+				self._mouse_id = managers.mouse_pointer:get_id()
+				self._removed_mouse = nil
+				local data = {}
+				data.mouse_move = callback( self, self, "mouse_moved" )
+				data.mouse_press = callback( self, self, "mouse_pressed" )
+				data.mouse_release = callback( self, self, "mouse_released" )
+				data.id = self._mouse_id
+				managers.mouse_pointer:use_mouse( data )
+			else
+				self._removed_mouse = nil
+				self._controller:add_trigger( "cancel", self._cancel_func )
+				managers.mouse_pointer:disable()
+			end
+		else
+			self._panel_script:release_scroll_bar()
+			self._controller:remove_trigger( "confirm", self._confirm_func )
+			if( managers.controller:get_default_wrapper_type() == "pc" ) then
+				self._controller:remove_trigger( "toggle_menu", self._cancel_func )
+			else
+				self._controller:remove_trigger( "cancel", self._cancel_func )
+			end
+			
+			self:remove_mouse()
+			-- managers.mouse_pointer:remove_mouse()
+		end
+
+		self._input_enabled = enabled
+	end
 end
 
-GenericDialog.show = function(l_14_0)
-  managers.menu:post_event("prompt_enter")
-  l_14_0._manager:event_dialog_shown(l_14_0)
-  return true
+function GenericDialog:fade_in()
+	self._fade_in_time = TimerManager:main():time()
 end
 
-GenericDialog.hide = function(l_15_0)
-  l_15_0:set_input_enabled(false)
-  l_15_0._fade_in_time = nil
-  l_15_0._panel_script:set_fade(0)
-  l_15_0._manager:event_dialog_hidden(l_15_0)
+function GenericDialog:fade_out_close()
+	-- managers.mouse_pointer:remove_mouse()
+	managers.menu:post_event( "prompt_exit" )
+	self:fade_out()
 end
 
-GenericDialog.close = function(l_16_0)
-  l_16_0:set_input_enabled(false)
-  l_16_0._panel_script:close()
-  managers.viewport:remove_resolution_changed_func(l_16_0._resolution_changed_callback)
-  Dialog.close(l_16_0)
+function GenericDialog:fade_out()
+	self._fade_out_time = TimerManager:main():time()
+	if managers.menu:active_menu() then
+		managers.menu:active_menu().renderer:disable_input( 0.2 )
+	end
+	self:set_input_enabled( false )
 end
 
-GenericDialog.dialog_cancel_callback = function(l_17_0)
-  if SystemInfo:platform() ~= Idstring("WIN32") then
-    return 
-  end
-  if l_17_0._data.no_buttons then
-    return 
-  end
-  if #l_17_0._data.button_list == 1 then
-    l_17_0:remove_mouse()
-    l_17_0:button_pressed(1)
-  end
-  for i,btn in ipairs(l_17_0._data.button_list) do
-    if btn.cancel_button then
-      l_17_0:remove_mouse()
-      l_17_0:button_pressed(i)
-      return 
-    end
-  end
+function GenericDialog:is_closing()
+	return ( self._fade_out_time ~= nil )
 end
 
-GenericDialog.button_pressed_callback = function(l_18_0)
-  if l_18_0._data.no_buttons then
-    return 
-  end
-  l_18_0:remove_mouse()
-  l_18_0:button_pressed(l_18_0._panel_script:get_focus_button())
+function GenericDialog:show()
+	managers.menu:post_event( "prompt_enter" )
+	-- self._panel:show()
+	self._manager:event_dialog_shown( self )
+	return true
 end
 
-GenericDialog.remove_mouse = function(l_19_0)
-  if not l_19_0._removed_mouse then
-    l_19_0._removed_mouse = true
-    if managers.controller:get_default_wrapper_type() == "pc" then
-      managers.mouse_pointer:remove_mouse(l_19_0._mouse_id)
-    else
-      managers.mouse_pointer:enable()
-      l_19_0._mouse_id = nil
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+function GenericDialog:hide()
+	self:set_input_enabled( false )
+	self._fade_in_time = nil
+	-- self._panel:hide()
+	self._panel_script:set_fade( 0 )
+	self._manager:event_dialog_hidden( self )
 end
 
-GenericDialog.resolution_changed_callback = function(l_20_0)
+function GenericDialog:close()
+	self:set_input_enabled( false )
+	-- self._ws:panel():remove( self._panel )
+	-- self._ws:panel():remove( self._panel )
+	self._panel_script:close()
+	managers.viewport:remove_resolution_changed_func( self._resolution_changed_callback )
+	Dialog.close( self )
 end
 
+function GenericDialog:dialog_cancel_callback()
+	if SystemInfo:platform() ~= Idstring( "WIN32" ) then
+		return
+	end
 
+	if self._data.no_buttons then
+		return
+	end
+	
+	if #self._data.button_list == 1 then
+		self:remove_mouse()
+		self:button_pressed( 1 )
+	end
+	
+	for i, btn in ipairs( self._data.button_list ) do
+		if btn.cancel_button then
+			self:remove_mouse()
+			self:button_pressed( i )
+			return
+		end
+	end
+end
+
+function GenericDialog:button_pressed_callback()
+	if self._data.no_buttons then
+		return
+	end
+	
+	self:remove_mouse()
+	self:button_pressed( self._panel_script:get_focus_button() )
+end
+
+function GenericDialog:remove_mouse()
+	if not self._removed_mouse then
+		self._removed_mouse = true
+		
+		if( managers.controller:get_default_wrapper_type() == "pc" ) then
+			managers.mouse_pointer:remove_mouse( self._mouse_id )
+		else
+			managers.mouse_pointer:enable()
+		end
+		
+		self._mouse_id = nil
+	end
+end
+
+function GenericDialog:resolution_changed_callback()
+	-- self._panel_script:setup_shape()
+end

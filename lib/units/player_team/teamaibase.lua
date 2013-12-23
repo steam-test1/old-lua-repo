@@ -1,75 +1,94 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\player_team\teamaibase.luac 
+TeamAIBase = TeamAIBase or class( CopBase )
 
-if not TeamAIBase then
-  TeamAIBase = class(CopBase)
-end
-TeamAIBase.post_init = function(l_1_0)
-  l_1_0._ext_movement = l_1_0._unit:movement()
-  l_1_0._ext_movement:post_init(true)
-  l_1_0._unit:brain():post_init()
-  l_1_0:set_anim_lod(1)
-  l_1_0._lod_stage = 1
-  l_1_0._allow_invisible = true
-  l_1_0:_register()
-  managers.game_play_central:add_contour_unit(l_1_0._unit, "character")
-  managers.occlusion:remove_occlusion(l_1_0._unit)
-end
-
-TeamAIBase.nick_name = function(l_2_0)
-  local name = l_2_0._tweak_table
-  return managers.localization:text("menu_" .. name)
+function TeamAIBase:post_init()
+	self._ext_movement = self._unit:movement()
+	self._ext_movement:post_init( true )
+	self._unit:brain():post_init()
+	
+	self:set_anim_lod( 1 )	-- highest detail
+	self._lod_stage = 1
+	
+	self._allow_invisible = true
+	
+	self:_register()
+	
+	managers.game_play_central:add_contour_unit( self._unit, "character" )
+	managers.occlusion:remove_occlusion( self._unit )
 end
 
-TeamAIBase.default_weapon_name = function(l_3_0, l_3_1)
-  return tweak_data.character[l_3_0._tweak_table].weapon.weapons_of_choice[l_3_1 or "primary"]
+-----------------------------------------------------------------------------------
+
+function TeamAIBase:nick_name()
+	local name = self._tweak_table
+	return managers.localization:text( "menu_"..name )
 end
 
-TeamAIBase.arrest_settings = function(l_4_0)
-  return tweak_data.character[l_4_0._tweak_table].arrest
+-----------------------------------------------------------------------------------
+
+function TeamAIBase:default_weapon_name( slot ) -- fetch this from the mission script instead or something
+	return tweak_data.character[ self._tweak_table ].weapon.weapons_of_choice[ slot or "primary" ]
 end
 
-TeamAIBase.pre_destroy = function(l_5_0, l_5_1)
-  managers.game_play_central:remove_contour_unit(l_5_1)
-  l_5_0:unregister()
-  UnitBase.pre_destroy(l_5_0, l_5_1)
-  l_5_1:brain():pre_destroy(l_5_1)
-  l_5_1:movement():pre_destroy()
-  l_5_1:inventory():pre_destroy(l_5_1)
-  l_5_1:character_damage():pre_destroy()
+-------------------------------------------------------------------------------
+
+function TeamAIBase:arrest_settings()
+	return tweak_data.character[ self._tweak_table ].arrest
 end
 
-TeamAIBase.save = function(l_6_0, l_6_1)
-  l_6_1.base = {tweak_table = l_6_0._tweak_table}
+-----------------------------------------------------------------------------------
+
+function TeamAIBase:pre_destroy( unit )
+	managers.game_play_central:remove_contour_unit( unit )
+	self:unregister()
+	UnitBase.pre_destroy( self, unit )
+	unit:brain():pre_destroy( unit )
+	unit:movement():pre_destroy()
+	unit:inventory():pre_destroy( unit )
+	unit:character_damage():pre_destroy()
 end
 
-TeamAIBase.on_death_exit = function(l_7_0)
-  TeamAIBase.super.on_death_exit(l_7_0)
-  l_7_0:unregister()
-  l_7_0:set_slot(l_7_0._unit, 0)
+-----------------------------------------------------------------------------------
+
+function TeamAIBase:save( data )
+	data.base = { tweak_table = self._tweak_table }
 end
 
-TeamAIBase._register = function(l_8_0)
-  if not l_8_0._registered then
-    managers.groupai:state():register_criminal(l_8_0._unit)
-    l_8_0._registered = true
-  end
+-----------------------------------------------------------------------------------
+-- We can disable all activities
+function TeamAIBase:on_death_exit()
+	TeamAIBase.super.on_death_exit( self )
+	self:unregister()
+	self:set_slot( self._unit, 0 )
 end
 
-TeamAIBase.unregister = function(l_9_0)
-  if l_9_0._registered then
-    if Network:is_server() then
-      l_9_0._unit:brain():attention_handler():set_attention(nil)
-    end
-    if managers.groupai:state():all_AI_criminals()[l_9_0._unit:key()] then
-      managers.groupai:state():unregister_criminal(l_9_0._unit)
-    end
-    l_9_0._char_name = managers.criminals:character_name_by_unit(l_9_0._unit)
-    l_9_0._registered = nil
-  end
+-----------------------------------------------------------------------------------
+
+function TeamAIBase:_register()
+	if not self._registered then
+		managers.groupai:state():register_criminal( self._unit )
+		self._registered = true
+	end
 end
 
-TeamAIBase.chk_freeze_anims = function(l_10_0)
+-----------------------------------------------------------------------------------
+
+function TeamAIBase:unregister()
+	if self._registered then
+		if Network:is_server() then
+			self._unit:brain():attention_handler():set_attention( nil )
+		end
+		if managers.groupai:state():all_AI_criminals()[ self._unit:key() ] then
+			managers.groupai:state():unregister_criminal( self._unit )
+		end
+		self._char_name = managers.criminals:character_name_by_unit( self._unit )
+		self._registered = nil
+	end
 end
 
+-----------------------------------------------------------------------------------
 
+function TeamAIBase:chk_freeze_anims()
+end
+
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------

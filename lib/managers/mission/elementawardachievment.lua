@@ -1,34 +1,37 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\elementawardachievment.luac 
+core:import( "CoreMissionScriptElement" )
 
-core:import("CoreMissionScriptElement")
-if not ElementAwardAchievment then
-  ElementAwardAchievment = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementAwardAchievment.init = function(l_1_0, ...)
-  ElementAwardAchievment.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementAwardAchievment = ElementAwardAchievment or class( CoreMissionScriptElement.MissionScriptElement )
 
-end
-
-ElementAwardAchievment.client_on_executed_end_screen = function(l_2_0, ...)
-  l_2_0:on_executed(...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-ElementAwardAchievment.client_on_executed = function(l_3_0, ...)
-  l_3_0:on_executed(...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-end
-
-ElementAwardAchievment.on_executed = function(l_4_0, l_4_1)
-  if not l_4_0._values.enabled then
-    return 
-  end
-  managers.achievment:award(l_4_0._values.achievment)
-  ElementAwardAchievment.super.on_executed(l_4_0, l_4_1)
+function ElementAwardAchievment:init( ... )
+	ElementAwardAchievment.super.init( self, ... )
 end
 
 
+function ElementAwardAchievment:client_on_executed_end_screen( ... )
+	self:on_executed( ... )
+end
+
+function ElementAwardAchievment:client_on_executed( ... )
+	self:on_executed( ... )
+end
+
+function ElementAwardAchievment:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	managers.achievment:award( self._values.achievment )
+	--[[if ( not managers.statistics:is_dropin() or self._values.achievment == "quick_hands" ) and
+		alive( managers.player:player_unit() ) and
+		not managers.groupai:state()._failed_point_of_no_return then
+		if self._values.achievment == "dozen_angry" then
+			if managers.trade:num_in_trade_queue() == 0 then
+				managers.challenges:set_flag( self._values.achievment )
+			end
+		else
+			managers.challenges:set_flag( self._values.achievment )
+		end
+	end]]
+
+	ElementAwardAchievment.super.on_executed( self, instigator )
+end

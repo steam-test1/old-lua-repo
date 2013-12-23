@@ -1,115 +1,153 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\network\matchmaking\networkvoicechatsteam.luac 
+--[[-----------------------------------------------------------------------------------------------
 
-if not NetworkVoiceChatSTEAM then
-  NetworkVoiceChatSTEAM = class()
-end
-NetworkVoiceChatSTEAM.init = function(l_1_0)
-  l_1_0.handler = Steam:voip_handler()
-  l_1_0._enabled = false
-  l_1_0._users_talking = {}
-end
+ Voice chat abstraction layer - Playstation Network implementation
 
-NetworkVoiceChatSTEAM.set_volume = function(l_2_0, l_2_1)
-  l_2_0.handler:set_out_volume(l_2_1)
-end
+ To do:
 
-NetworkVoiceChatSTEAM.open = function(l_3_0)
-  l_3_0._push_to_talk = managers.user:get_setting("push_to_talk")
-  if not l_3_0._enabled and managers.user:get_setting("voice_chat") then
-    l_3_0.handler:open()
-    l_3_0._enabled = true
-    if not l_3_0._push_to_talk then
-      l_3_0.handler:start_recording()
-    end
-  end
-end
+ open_channel_to(player_info, context):
+ 	player_info: table
+ 		the player info structure that comes from the player_joined callback
+ 	context: string
+ 		"group" - The player info comes from the group abstraction layer
+ 		"game" - The player info comes from the matchmaking abstraction layer
+	Open the voice chat channel on this end. I.e. it will start to listen to
+	what player_info.id is transmitting to me and transmit voice data from
+	me to player_info.id
 
-NetworkVoiceChatSTEAM.destroy_voice = function(l_4_0, l_4_1)
-  if l_4_0._enabled then
-    l_4_0.handler:stop_recording()
-    l_4_0.handler:close()
-    l_4_0._enabled = false
-  end
-end
+ close_channel_to(player_info):
+ 	player_info: table
+ 		the player info structure that comes from the player_joined callback
+	Stop listening to or transmit to player_info.id
 
-NetworkVoiceChatSTEAM._load_globals = function(l_5_0)
-  if Global.steam and Global.steam.voip then
-    l_5_0.handler = Global.steam.voip.handler
-    Global.steam.voip = nil
-  end
+ Implementation notes:
+	This implementation is heavily depending on the XboxLive matchmaking and group
+	abstraction layer. See open_channel_to()
+
+-----------------------------------------------------------------------------------------------]]--
+NetworkVoiceChatSTEAM = NetworkVoiceChatSTEAM or class()
+
+function NetworkVoiceChatSTEAM:init()
+	self.handler = Steam:voip_handler()
+	self._enabled = false
+	
+	self._users_talking = {}
 end
 
-NetworkVoiceChatSTEAM._save_globals = function(l_6_0)
-  if not Global.steam then
-    Global.steam = {}
-  end
-  Global.steam.voip = {}
-  Global.steam.voip.handler = l_6_0.handler
+function NetworkVoiceChatSTEAM:set_volume( volume )
+	self.handler:set_out_volume( volume )
 end
 
-NetworkVoiceChatSTEAM.enabled = function(l_7_0)
-  return managers.user:get_setting("voice_chat")
+function NetworkVoiceChatSTEAM:open()
+	self._push_to_talk = managers.user:get_setting( "push_to_talk" )
+
+	if not self._enabled and managers.user:get_setting( "voice_chat" ) then
+		self.handler:open()
+		self._enabled = true
+		
+		if not self._push_to_talk then
+			self.handler:start_recording()
+		end
+	end
 end
 
-NetworkVoiceChatSTEAM.set_recording = function(l_8_0, l_8_1)
-  if not l_8_0._push_to_talk then
-    return 
-  end
-  if l_8_1 then
-    l_8_0.handler:start_recording()
-  else
-    l_8_0.handler:stop_recording()
-  end
-end
-
-NetworkVoiceChatSTEAM.update = function(l_9_0)
-  l_9_0.handler:update()
-  local t = Application:time()
-  local playing = l_9_0.handler:get_voice_receivers_playing()
-  for id,pl in pairs(playing) do
-    if not l_9_0._users_talking[id] then
-      l_9_0._users_talking[id] = {time = 0}
-    end
-    if pl then
-      l_9_0._users_talking[id].time = t
-    end
-    local active = t < l_9_0._users_talking[id].time + 0.15000000596046
-    if active ~= l_9_0._users_talking[id].active then
-      l_9_0._users_talking[id].active = active
-      if managers.network:session() then
-        local peer = managers.network:session():peer(id)
-        if peer then
-          managers.menu:set_slot_voice(peer, id, active)
-          if managers.hud then
-            local crim_data = managers.criminals:character_data_by_peer_id(id)
-            if crim_data then
-              local mugshot = crim_data.mugshot_id
-              managers.hud:set_mugshot_voice(mugshot, active)
-            end
-          end
-        end
-      end
-    end
-  end
-end
-
-NetworkVoiceChatSTEAM.on_member_added = function(l_10_0, l_10_1)
-  if l_10_1:rpc() then
-    l_10_0.handler:add_receiver(l_10_1:id(), l_10_1:rpc())
-  end
-end
-
-NetworkVoiceChatSTEAM.on_member_removed = function(l_11_0, l_11_1)
-  l_11_0.handler:remove_receiver(l_11_1:id())
-end
-
-NetworkVoiceChatSTEAM.mute_player = function(l_12_0, l_12_1, l_12_2)
-  l_12_0.handler:mute_voice_receiver(l_12_1:id(), l_12_2)
-end
-
-NetworkVoiceChatSTEAM.is_muted = function(l_13_0, l_13_1)
-  return l_13_0.handler:is_voice_receiver_muted(l_13_1:id())
+function NetworkVoiceChatSTEAM:destroy_voice( disconnected )
+	if self._enabled then
+		self.handler:stop_recording()
+		self.handler:close()
+		self._enabled = false
+	end
 end
 
 
+function NetworkVoiceChatSTEAM:_load_globals()
+	if( Global.steam and Global.steam.voip ) then
+		
+		self.handler	= Global.steam.voip.handler
+		
+		Global.steam.voip = nil
+	end
+end
+function NetworkVoiceChatSTEAM:_save_globals()
+	if( not Global.steam ) then
+		Global.steam = {}
+	end
+
+	Global.steam.voip = {}
+	
+	Global.steam.voip.handler = self.handler
+end
+
+
+function NetworkVoiceChatSTEAM:enabled()
+	return managers.user:get_setting( "voice_chat" )
+end
+
+function NetworkVoiceChatSTEAM:set_recording( enabled )
+	if not self._push_to_talk then
+		return
+	end
+
+	if enabled then
+		self.handler:start_recording()
+	else
+		self.handler:stop_recording()
+	end
+end
+
+
+function NetworkVoiceChatSTEAM:update()
+	self.handler:update()
+	
+	local t = Application:time()
+	local playing = self.handler:get_voice_receivers_playing()
+	
+	for id, pl in pairs(playing) do
+		if not self._users_talking[ id ] then
+			self._users_talking[ id ] = { time = 0 }
+		end
+	
+		if pl then
+			self._users_talking[ id ].time = t;
+		end
+		
+		local active = self._users_talking[ id ].time + 0.15 > t
+		if active ~= self._users_talking[ id ].active then
+			self._users_talking[ id ].active = active
+			if managers.network:session() then
+				local peer = managers.network:session():peer( id )
+				if peer then
+					managers.menu:set_slot_voice( peer, id, active )
+					
+					if managers.hud then
+						local crim_data = managers.criminals:character_data_by_peer_id( id )
+						if crim_data then
+							local mugshot = crim_data.mugshot_id
+							managers.hud:set_mugshot_voice( mugshot, active )
+						end
+					end
+				end
+			end
+		end
+	end
+	
+end
+
+function NetworkVoiceChatSTEAM:on_member_added( peer )
+	if peer:rpc() then
+		self.handler:add_receiver( peer:id(), peer:rpc() )
+	end
+end
+
+function NetworkVoiceChatSTEAM:on_member_removed( peer )
+	self.handler:remove_receiver( peer:id() )
+end
+
+
+function NetworkVoiceChatSTEAM:mute_player( peer, mute )
+	self.handler:mute_voice_receiver( peer:id(), mute )
+end
+
+
+function NetworkVoiceChatSTEAM:is_muted( peer )
+	return self.handler:is_voice_receiver_muted( peer:id() )
+end

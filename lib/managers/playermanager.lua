@@ -1,1743 +1,2205 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\playermanager.luac 
-
-if not PlayerManager then
-  PlayerManager = class()
-end
+PlayerManager = PlayerManager or class()
 PlayerManager.WEAPON_SLOTS = 2
-PlayerManager.init = function(l_1_0)
-  l_1_0._player_name = Idstring("units/multiplayer/mp_fps_mover/mp_fps_mover")
-  l_1_0._players = {}
-  l_1_0._nr_players = Global.nr_players or 1
-  l_1_0._last_id = 1
-  l_1_0._viewport_configs = {}
-  l_1_0._viewport_configs[1] = {}
-  l_1_0._viewport_configs[1][1] = {dimensions = {x = 0, y = 0, w = 1, h = 1}}
-  l_1_0._viewport_configs[2] = {}
-  l_1_0._viewport_configs[2][1] = {dimensions = {x = 0, y = 0, w = 1, h = 0.5}}
-  l_1_0._viewport_configs[2][2] = {dimensions = {x = 0, y = 0.5, w = 1, h = 0.5}}
-  l_1_0:_setup_rules()
-  l_1_0._local_player_minions = 0
-  {standard = "ingame_standard", mask_off = "ingame_mask_off"}.bleed_out = "ingame_bleed_out"
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {standard = "ingame_standard", mask_off = "ingame_mask_off"}.fatal = "ingame_fatal"
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {standard = "ingame_standard", mask_off = "ingame_mask_off"}.arrested = "ingame_arrested"
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {standard = "ingame_standard", mask_off = "ingame_mask_off"}.tased = "ingame_electrified"
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {standard = "ingame_standard", mask_off = "ingame_mask_off"}.incapacitated = "ingame_incapacitated"
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {standard = "ingame_standard", mask_off = "ingame_mask_off"}.clean = "ingame_clean"
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {standard = "ingame_standard", mask_off = "ingame_mask_off"}.carry = "ingame_standard"
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  l_1_0._player_states = {standard = "ingame_standard", mask_off = "ingame_mask_off"}
-  l_1_0._DEFAULT_STATE = "mask_off"
-  l_1_0._current_state = l_1_0._DEFAULT_STATE
-  l_1_0._sync_states = {"clean", "mask_off", "standard"}
-  l_1_0._current_sync_state = l_1_0._DEFAULT_STATE
-  local ids_player = Idstring("player")
-  if not TimerManager:timer(ids_player) then
-    l_1_0._player_timer = TimerManager:make_timer(ids_player, TimerManager:pausable())
-  end
-  l_1_0:_setup()
-end
-
-PlayerManager._setup = function(l_2_0)
-  l_2_0._equipment = {selections = {}, specials = {}, selected_index = nil}
-  l_2_0._listener_holder = EventListenerHolder:new()
-  l_2_0._player_mesh_suffix = ""
-  l_2_0._temporary_upgrades = {}
-  if not Global.player_manager then
-    Global.player_manager = {}
-    Global.player_manager.upgrades = {}
-    Global.player_manager.team_upgrades = {}
-    Global.player_manager.weapons = {}
-    Global.player_manager.equipment = {}
-    Global.player_manager.kit = {weapon_slots = {"glock_17"}, equipment_slots = {}, special_equipment_slots = {}}
-  end
-  Global.player_manager.default_kit = {weapon_slots = {"glock_17"}, equipment_slots = {}, special_equipment_slots = {"cable_tie"}}
-  Global.player_manager.synced_bonuses = {}
-  Global.player_manager.synced_equipment_possession = {}
-  Global.player_manager.synced_deployables = {}
-  Global.player_manager.synced_cable_ties = {}
-  Global.player_manager.synced_perks = {}
-  Global.player_manager.synced_ammo_info = {}
-  Global.player_manager.synced_carry = {}
-  Global.player_manager.synced_team_upgrades = {}
-  l_2_0._global = Global.player_manager
-end
-
-PlayerManager._setup_rules = function(l_3_0)
-  l_3_0._rules = {no_run = 0}
-end
-
-PlayerManager.aquire_default_upgrades = function(l_4_0)
-  managers.upgrades:aquire_default("cable_tie")
-  managers.upgrades:aquire_default("player_special_enemy_highlight")
-  managers.upgrades:aquire_default("player_hostage_trade")
-  managers.upgrades:aquire_default("player_sec_camera_highlight")
-  for i = 1, PlayerManager.WEAPON_SLOTS do
-    if not managers.player:weapon_in_slot(i) then
-      l_4_0._global.kit.weapon_slots[i] = managers.player:availible_weapons(i)[1]
-    end
-  end
-  l_4_0:_verify_equipment_kit()
-end
-
-PlayerManager.update_kit_to_peer = function(l_5_0, l_5_1)
-  local peer_id = managers.network:session():local_peer():id()
-  for i = 1, PlayerManager.WEAPON_SLOTS do
-    local weapon = l_5_0:weapon_in_slot(i)
-    if weapon then
-      l_5_1:send_after_load("set_kit_selection", peer_id, "weapon", weapon, i)
-    end
-  end
-  for i = 1, 3 do
-    local equipment = l_5_0:equipment_in_slot(i)
-    if equipment then
-      l_5_1:send_after_load("set_kit_selection", peer_id, "equipment", equipment, i)
-    end
-  end
-end
-
-PlayerManager.update = function(l_6_0, l_6_1, l_6_2)
-end
-
-PlayerManager.add_listener = function(l_7_0, l_7_1, l_7_2, l_7_3)
-  l_7_0._listener_holder:add(l_7_1, l_7_2, l_7_3)
-end
-
-PlayerManager.remove_listener = function(l_8_0, l_8_1)
-  l_8_0._listener_holder:remove(l_8_1)
-end
-
-PlayerManager.preload = function(l_9_0)
-end
-
-PlayerManager._internal_load = function(l_10_0)
-  local player = l_10_0:player_unit()
-  if not player then
-    return 
-  end
-  local secondary = managers.blackmarket:equipped_secondary()
-  player:inventory():add_unit_by_factory_name(secondary.factory_id, true, false, secondary.blueprint)
-  do
-    local primary = managers.blackmarket:equipped_primary()
-    if primary then
-      player:inventory():add_unit_by_factory_name(primary.factory_id, false, false, primary.blueprint)
-    end
-    if l_10_0._respawn then
-      do return end
-    end
-    l_10_0:_add_level_equipment(player)
-    for i,name in ipairs(l_10_0._global.default_kit.special_equipment_slots) do
-      local ok_name = not l_10_0._global.equipment[name] or name
-      if ok_name then
-        local upgrade = tweak_data.upgrades.definitions[ok_name]
-        if (upgrade.slot and upgrade.slot < 2) or not upgrade.slot then
-          l_10_0:add_equipment({equipment = upgrade.equipment_id, silent = true})
-        end
-      end
-    end
-    for i,name in ipairs(l_10_0._global.kit.equipment_slots) do
-      if not l_10_0._global.equipment[name] or not name then
-        local ok_name = l_10_0._global.default_kit.equipment_slots[i]
-      end
-      if ok_name then
-        local upgrade = tweak_data.upgrades.definitions[ok_name]
-        if upgrade then
-          if (upgrade.slot and upgrade.slot < 2) or not upgrade.slot then
-            l_10_0:add_equipment({equipment = upgrade.equipment_id, silent = true})
-            for (for control),i in (for generator) do
-            end
-            if upgrade.slot and upgrade.slot == 2 then
-              managers.hud:set_perk_equipment(HUDManager.PLAYER_PANEL, upgrade)
-              l_10_0:update_synced_perks_to_peers(ok_name)
-            end
-          end
-        end
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-PlayerManager._add_level_equipment = function(l_11_0, l_11_1)
-  if Global.running_simulation then
-    local id = managers.editor:layer("Level Settings"):get_setting("simulation_level_id")
-  end
-  if id == "none" or not id then
-    id = nil
-  end
-  if not id then
-    id = Global.level_data.level_id
-  end
-  if not id then
-    return 
-  end
-  local equipment = tweak_data.levels[id].equipment
-  if not equipment then
-    return 
-  end
-  for _,eq in ipairs(equipment) do
-    l_11_0:add_equipment({equipment = eq, silent = true})
-  end
-end
-
-PlayerManager.spawn_dropin_penalty = function(l_12_0, l_12_1, l_12_2, l_12_3, l_12_4)
-  local player = l_12_0:player_unit()
-  print("[PlayerManager:spawn_dropin_penalty]", l_12_1, l_12_2, l_12_3)
-  if not alive(player) then
-    return 
-  end
-  if l_12_4 then
-    managers.player:clear_equipment()
-  end
-  local min_health = nil
-  if l_12_1 or l_12_2 then
-    min_health = 0
-  else
-    min_health = 0.25
-  end
-  player:character_damage():set_health(math.max(min_health, l_12_3) * player:character_damage():_max_health())
-  player:inventory():set_ammo(0.5)
-  if l_12_1 or l_12_2 then
-    print("[PlayerManager:spawn_dead] Killing")
-    managers.groupai:state():on_player_criminal_death(Global.local_member:peer():id())
-    player:base():set_enabled(false)
-    game_state_machine:change_state_by_name("ingame_waiting_for_respawn")
-    player:character_damage():set_invulnerable(true)
-    player:base():_unregister()
-    player:base():set_slot(player, 0)
-  end
-end
-
-PlayerManager.nr_players = function(l_13_0)
-  return l_13_0._nr_players
-end
-
-PlayerManager.set_nr_players = function(l_14_0, l_14_1)
-  l_14_0._nr_players = l_14_1
-end
-
-PlayerManager.player_id = function(l_15_0, l_15_1)
-  local id = l_15_0._last_id
-  for k,player in ipairs(l_15_0._players) do
-    if player == l_15_1 then
-      id = k
-    end
-  end
-  return id
-end
-
-PlayerManager.viewport_config = function(l_16_0)
-  local configs = l_16_0._viewport_configs[l_16_0._last_id]
-  if configs then
-    return configs[1]
-  end
-end
-
-PlayerManager.setup_viewports = function(l_17_0)
-  local configs = l_17_0._viewport_configs[l_17_0._last_id]
-  if configs then
-    for k,player in ipairs(l_17_0._players) do
-    end
-  else
-    Application:error("Unsupported number of players: " .. tostring(l_17_0._last_id))
-  end
-end
-
-PlayerManager.player_states = function(l_18_0)
-  local ret = {}
-  for k,_ in pairs(l_18_0._player_states) do
-    table.insert(ret, k)
-  end
-  return ret
-end
-
-PlayerManager.current_state = function(l_19_0)
-  return l_19_0._current_state
-end
-
-PlayerManager.default_player_state = function(l_20_0)
-  return l_20_0._DEFAULT_STATE
-end
-
-PlayerManager.set_player_state = function(l_21_0, l_21_1)
-  if not l_21_1 then
-    l_21_1 = l_21_0._current_state
-  end
-  if l_21_1 == "standard" and l_21_0:get_my_carry_data() then
-    l_21_1 = "carry"
-  end
-  if l_21_1 == l_21_0._current_state then
-    return 
-  end
-  if not l_21_0._player_states[l_21_1] then
-    Application:error("State '" .. tostring(l_21_1) .. "' does not exist in list of available states.")
-    l_21_1 = l_21_0._DEFAULT_STATE
-  end
-  if table.contains(l_21_0._sync_states, l_21_1) then
-    l_21_0._current_sync_state = l_21_1
-  end
-  l_21_0._current_state = l_21_1
-  l_21_0:_change_player_state()
-  if l_21_1 == "clean" or l_21_1 == "mask_off" then
-    managers.groupai:state():calm_ai()
-  end
-end
-
-PlayerManager.spawn_players = function(l_22_0, l_22_1, l_22_2, l_22_3)
-  for var = 1, l_22_0._nr_players do
-    l_22_0._last_id = var
-  end
-  l_22_0:spawned_player(l_22_0._last_id, safe_spawn_unit(l_22_0:player_unit_name(), l_22_1, l_22_2))
-  return l_22_0._players[1]
-end
-
-PlayerManager.spawned_player = function(l_23_0, l_23_1, l_23_2)
-  l_23_0._players[l_23_1] = l_23_2
-  l_23_0:setup_viewports()
-  l_23_0:_internal_load()
-  l_23_0:_change_player_state()
-end
-
-PlayerManager._change_player_state = function(l_24_0)
-  local unit = l_24_0:player_unit()
-  if not unit then
-    return 
-  end
-  l_24_0._listener_holder:call(l_24_0._current_state, unit)
-  if game_state_machine:last_queued_state_name() ~= l_24_0._player_states[l_24_0._current_state] then
-    game_state_machine:change_state_by_name(l_24_0._player_states[l_24_0._current_state])
-  end
-  unit:movement():change_state(l_24_0._current_state)
-end
-
-PlayerManager.player_destroyed = function(l_25_0, l_25_1)
-  l_25_0._players[l_25_1] = nil
-  l_25_0._respawn = true
-end
-
-PlayerManager.players = function(l_26_0)
-  return l_26_0._players
-end
-
-PlayerManager.player_unit_name = function(l_27_0)
-  return l_27_0._player_name
-end
-
-PlayerManager.player_unit = function(l_28_0, l_28_1)
-  local p_id = l_28_1 or 1
-  return l_28_0._players[p_id]
-end
-
-PlayerManager.warp_to = function(l_29_0, l_29_1, l_29_2, l_29_3)
-  local player = l_29_0._players[l_29_3 or 1]
-  if alive(player) then
-    player:movement():warp_to(l_29_1, l_29_2)
-  end
-end
-
-PlayerManager.on_out_of_world = function(l_30_0)
-  local player_unit = managers.player:player_unit()
-  if not alive(player_unit) then
-    return 
-  end
-  local player_pos = (player_unit:position())
-  local closest_pos, closest_distance = nil, nil
-  for _,data in pairs(managers.groupai:state():all_player_criminals()) do
-    if data.unit ~= player_unit then
-      local pos = data.unit:position()
-      local distance = mvector3.distance(player_pos, pos)
-      if not closest_distance or distance < closest_distance then
-        closest_distance = distance
-        closest_pos = pos
-      end
-    end
-  end
-  if closest_pos then
-    managers.player:warp_to(closest_pos, player_unit:rotation())
-    return 
-  end
-  local pos = player_unit:movement():nav_tracker():field_position()
-  managers.player:warp_to(pos, player_unit:rotation())
-end
-
-PlayerManager.aquire_weapon = function(l_31_0, l_31_1, l_31_2)
-  if l_31_0._global.weapons[l_31_2] then
-    return 
-  end
-  l_31_0._global.weapons[l_31_2] = l_31_1
-  local player = l_31_0:player_unit()
-  if not player then
-    return 
-  end
-end
-
-PlayerManager.unaquire_weapon = function(l_32_0, l_32_1, l_32_2)
-  l_32_0._global.weapons[l_32_2] = l_32_1
-end
-
-PlayerManager._verify_equipment_kit = function(l_33_0)
-  for i = 1, 3 do
-    if not managers.player:equipment_in_slot(i) then
-      l_33_0._global.kit.equipment_slots[i] = managers.player:availible_equipment(i)[1]
-    end
-  end
-end
-
-PlayerManager.aquire_equipment = function(l_34_0, l_34_1, l_34_2)
-  if l_34_0._global.equipment[l_34_2] then
-    return 
-  end
-  l_34_0._global.equipment[l_34_2] = l_34_1
-  if l_34_1.aquire then
-    managers.upgrades:aquire_default(l_34_1.aquire.upgrade)
-  end
-  l_34_0:_verify_equipment_kit()
-end
-
-PlayerManager.unaquire_equipment = function(l_35_0, l_35_1, l_35_2)
-  if not l_35_0._global.equipment[l_35_2] then
-    return 
-  end
-  local is_equipped = managers.player:equipment_in_slot(l_35_1.slot) == l_35_2
-  l_35_0._global.equipment[l_35_2] = nil
-  if is_equipped then
-    l_35_0._global.kit.equipment_slots[l_35_1.slot] = nil
-    l_35_0:_verify_equipment_kit()
-  end
-  if l_35_1.aquire then
-    managers.upgrades:unaquire(l_35_1.aquire.upgrade)
-  end
-end
-
-PlayerManager.aquire_upgrade = function(l_36_0, l_36_1)
-  if not l_36_0._global.upgrades[l_36_1.category] then
-    l_36_0._global.upgrades[l_36_1.category] = {}
-  end
-  l_36_0._global.upgrades[l_36_1.category][l_36_1.upgrade] = l_36_1.value
-  local value = tweak_data.upgrades.values[l_36_1.category][l_36_1.upgrade][l_36_1.value]
-  if l_36_0[l_36_1.upgrade] then
-    l_36_0[l_36_1.upgrade](l_36_0, value)
-  end
-end
-
-PlayerManager.unaquire_upgrade = function(l_37_0, l_37_1)
-  if not l_37_0._global.upgrades[l_37_1.category] then
-    Application:error("[PlayerManager:unaquire_upgrade] Can't unaquire upgrade of category", l_37_1.category)
-    return 
-  end
-  if not l_37_0._global.upgrades[l_37_1.category][l_37_1.upgrade] then
-    Application:error("[PlayerManager:unaquire_upgrade] Can't unaquire upgrade", l_37_1.upgrade)
-    return 
-  end
-  l_37_0:unaquire_incremental_upgrade(l_37_1)
-end
-
-PlayerManager.aquire_incremental_upgrade = function(l_38_0, l_38_1)
-  if not l_38_0._global.upgrades[l_38_1.category] then
-    l_38_0._global.upgrades[l_38_1.category] = {}
-  end
-  local val = l_38_0._global.upgrades[l_38_1.category][l_38_1.upgrade]
-  l_38_0._global.upgrades[l_38_1.category][l_38_1.upgrade] = (val or 0) + 1
-  local value = tweak_data.upgrades.values[l_38_1.category][l_38_1.upgrade][l_38_0._global.upgrades[l_38_1.category][l_38_1.upgrade]]
-  if l_38_0[l_38_1.upgrade] then
-    l_38_0[l_38_1.upgrade](l_38_0, value)
-  end
-end
-
-PlayerManager.unaquire_incremental_upgrade = function(l_39_0, l_39_1)
-  if not l_39_0._global.upgrades[l_39_1.category] then
-    Application:error("[PlayerManager:unaquire_incremental_upgrade] Can't unaquire upgrade of category", l_39_1.category)
-    return 
-  end
-  if not l_39_0._global.upgrades[l_39_1.category][l_39_1.upgrade] then
-    Application:error("[PlayerManager:unaquire_incremental_upgrade] Can't unaquire upgrade", l_39_1.upgrade)
-    return 
-  end
-  local val = l_39_0._global.upgrades[l_39_1.category][l_39_1.upgrade]
-  val = val - 1
-  l_39_0._global.upgrades[l_39_1.category][l_39_1.upgrade] = val > 0 and val or nil
-  if l_39_0._global.upgrades[l_39_1.category][l_39_1.upgrade] then
-    local value = tweak_data.upgrades.values[l_39_1.category][l_39_1.upgrade][l_39_0._global.upgrades[l_39_1.category][l_39_1.upgrade]]
-    if l_39_0[l_39_1.upgrade] then
-      l_39_0[l_39_1.upgrade](l_39_0, value)
-    end
-  end
-end
-
-PlayerManager.upgrade_value = function(l_40_0, l_40_1, l_40_2, l_40_3)
-  return l_40_0._global.upgrades[l_40_1] or l_40_3 or 0
-  return l_40_0._global.upgrades[l_40_1][l_40_2] or l_40_3 or 0
-  local level = l_40_0._global.upgrades[l_40_1][l_40_2]
-  local value = tweak_data.upgrades.values[l_40_1][l_40_2][level]
-  return value
-end
-
-PlayerManager.activate_temporary_upgrade = function(l_41_0, l_41_1, l_41_2)
-  local upgrade_value = l_41_0:upgrade_value(l_41_1, l_41_2)
-  if upgrade_value == 0 then
-    return 
-  end
-  local time = upgrade_value[2]
-  if not l_41_0._temporary_upgrades[l_41_1] then
-    l_41_0._temporary_upgrades[l_41_1] = {}
-  end
-  l_41_0._temporary_upgrades[l_41_1][l_41_2] = {}
-  l_41_0._temporary_upgrades[l_41_1][l_41_2].expire_time = Application:time() + time
-end
-
-PlayerManager.has_activate_temporary_upgrade = function(l_42_0, l_42_1, l_42_2)
-  local upgrade_value = l_42_0:upgrade_value(l_42_1, l_42_2)
-  if upgrade_value == 0 then
-    return false
-  end
-  if not l_42_0._temporary_upgrades[l_42_1] then
-    return false
-  end
-  if not l_42_0._temporary_upgrades[l_42_1][l_42_2] then
-    return false
-  end
-  return Application:time() < l_42_0._temporary_upgrades[l_42_1][l_42_2].expire_time
-end
-
-PlayerManager.temporary_upgrade_value = function(l_43_0, l_43_1, l_43_2, l_43_3)
-  local upgrade_value = l_43_0:upgrade_value(l_43_1, l_43_2)
-  if not l_43_3 then
-    return upgrade_value ~= 0 or 0
-  end
-  return l_43_0._temporary_upgrades[l_43_1] or l_43_3 or 0
-  return l_43_0._temporary_upgrades[l_43_1][l_43_2] or l_43_3 or 0
-  if not l_43_3 then
-    return l_43_0._temporary_upgrades[l_43_1][l_43_2].expire_time >= Application:time() or 0
-  end
-  return upgrade_value[1]
-end
-
-PlayerManager.equiptment_upgrade_value = function(l_44_0, l_44_1, l_44_2, l_44_3)
-  if l_44_1 == "trip_mine" and l_44_2 == "quantity" then
-    return l_44_0:upgrade_value(l_44_1, "quantity_1", l_44_3) + l_44_0:upgrade_value(l_44_1, "quantity_2", l_44_3) + l_44_0:upgrade_value(l_44_1, "quantity_3", l_44_3)
-  end
-  return l_44_0:upgrade_value(l_44_1, l_44_2, l_44_3)
-end
-
-PlayerManager.upgrade_level = function(l_45_0, l_45_1, l_45_2, l_45_3)
-  return l_45_0._global.upgrades[l_45_1] or l_45_3 or 0
-  return l_45_0._global.upgrades[l_45_1][l_45_2] or l_45_3 or 0
-  local level = l_45_0._global.upgrades[l_45_1][l_45_2]
-  return level
-end
-
-PlayerManager.upgrade_value_by_level = function(l_46_0, l_46_1, l_46_2, l_46_3, l_46_4)
-  return tweak_data.upgrades.values[l_46_1][l_46_2][l_46_3] or l_46_4 or 0
-end
-
-PlayerManager.equipped_upgrade_value = function(l_47_0, l_47_1, l_47_2, l_47_3)
-  if not l_47_0:has_category_upgrade(l_47_2, l_47_3) then
-    return 0
-  end
-  if not table.contains(l_47_0._global.kit.equipment_slots, l_47_1) then
-    return 0
-  end
-  return l_47_0:upgrade_value(l_47_2, l_47_3)
-end
-
-PlayerManager.has_category_upgrade = function(l_48_0, l_48_1, l_48_2)
-  if not l_48_0._global.upgrades[l_48_1] then
-    return false
-  end
-  if not l_48_0._global.upgrades[l_48_1][l_48_2] then
-    return false
-  end
-  return true
-end
-
-PlayerManager.body_armor_value = function(l_49_0)
-  local armor_data = tweak_data.blackmarket.armors[managers.blackmarket:equipped_armor()]
-  return l_49_0:upgrade_value_by_level("player", "body_armor", armor_data.upgrade_level, 0)
-end
-
-PlayerManager.body_armor_movement_penalty = function(l_50_0)
-  local armor_data = tweak_data.blackmarket.armors[managers.blackmarket:equipped_armor()]
-  return l_50_0:upgrade_value_by_level("player", "armor_movement_penalty", armor_data.movement_penalty, 1)
-end
-
-PlayerManager.thick_skin_value = function(l_51_0)
-  if not l_51_0:has_category_upgrade("player", "thick_skin") then
-    return 0
-  end
-  if not table.contains(l_51_0._global.kit.equipment_slots, "thick_skin") then
-    return 0
-  end
-  return l_51_0:upgrade_value("player", "thick_skin")
-end
-
-PlayerManager.toolset_value = function(l_52_0)
-  if not l_52_0:has_category_upgrade("player", "toolset") then
-    return 1
-  end
-  if not table.contains(l_52_0._global.kit.equipment_slots, "toolset") then
-    return 1
-  end
-  return l_52_0:upgrade_value("player", "toolset")
-end
-
-PlayerManager.inspect_current_upgrades = function(l_53_0)
-  for name,upgrades in pairs(l_53_0._global.upgrades) do
-    print("Weapon " .. name .. ":")
-    for upgrade,level in pairs(upgrades) do
-      print("Upgrade:", upgrade, "is at level", level, "and has value", string.format("%.2f", tweak_data.upgrades.values[name][upgrade][level]))
-    end
-    print("\n")
-  end
-end
-
-PlayerManager.spread_multiplier = function(l_54_0)
-  if not alive(l_54_0:player_unit()) then
-    return 
-  end
-  l_54_0:player_unit():movement()._current_state:_update_crosshair_offset()
-end
-
-PlayerManager.weapon_upgrade_progress = function(l_55_0, l_55_1)
-  local current = 0
-  local total = 0
-  if l_55_0._global.upgrades[l_55_1] then
-    for upgrade,value in pairs(l_55_0._global.upgrades[l_55_1]) do
-      current = current + value
-    end
-  end
-  if tweak_data.upgrades.values[l_55_1] then
-    for _,values in pairs(tweak_data.upgrades.values[l_55_1]) do
-      total = total + #values
-    end
-  end
-  return current, total
-end
-
-PlayerManager.equipment_upgrade_progress = function(l_56_0, l_56_1)
-  local current = 0
-  local total = 0
-  if tweak_data.upgrades.values[l_56_1] then
-    if l_56_0._global.upgrades[l_56_1] then
-      for upgrade,value in pairs(l_56_0._global.upgrades[l_56_1]) do
-        current = current + value
-      end
-    end
-    for _,values in pairs(tweak_data.upgrades.values[l_56_1]) do
-      total = total + #values
-    end
-    return current, total
-  end
-  if tweak_data.upgrades.values.player[l_56_1] then
-    if l_56_0._global.upgrades.player and l_56_0._global.upgrades.player[l_56_1] then
-      current = l_56_0._global.upgrades.player[l_56_1]
-    end
-    total = #tweak_data.upgrades.values.player[l_56_1]
-    return current, total
-  end
-  if tweak_data.upgrades.definitions[l_56_1] and tweak_data.upgrades.definitions[l_56_1].aquire then
-    local upgrade = tweak_data.upgrades.definitions[tweak_data.upgrades.definitions[l_56_1].aquire.upgrade]
-    return l_56_0:equipment_upgrade_progress(upgrade.upgrade.upgrade)
-  end
-  return current, total
-end
-
-PlayerManager.has_weapon = function(l_57_0, l_57_1)
-  return managers.player._global.weapons[l_57_1]
-end
-
-PlayerManager.has_aquired_equipment = function(l_58_0, l_58_1)
-  return managers.player._global.equipment[l_58_1]
-end
-
-PlayerManager.availible_weapons = function(l_59_0, l_59_1)
-  local weapons = {}
-  for name,_ in pairs(managers.player._global.weapons) do
-    if not l_59_1 or l_59_1 and tweak_data.weapon[name].use_data.selection_index == l_59_1 then
-      table.insert(weapons, name)
-    end
-  end
-  return weapons
-end
-
-PlayerManager.weapon_in_slot = function(l_60_0, l_60_1)
-  local weapon = l_60_0._global.kit.weapon_slots[l_60_1]
-  if l_60_0._global.weapons[weapon] then
-    return weapon
-  end
-  local weapon = l_60_0._global.default_kit.weapon_slots[l_60_1]
-  return not l_60_0._global.weapons[weapon] or weapon
-end
-
-PlayerManager.availible_equipment = function(l_61_0, l_61_1)
-  local equipment = {}
-  for name,_ in pairs(l_61_0._global.equipment) do
-    if not l_61_1 or l_61_1 and tweak_data.upgrades.definitions[name].slot == l_61_1 then
-      table.insert(equipment, name)
-    end
-  end
-  return equipment
-end
-
-PlayerManager.equipment_in_slot = function(l_62_0, l_62_1)
-  return l_62_0._global.kit.equipment_slots[l_62_1]
-end
-
-PlayerManager.toggle_player_rule = function(l_63_0, l_63_1)
-  l_63_0._rules[l_63_1] = not l_63_0._rules[l_63_1]
-  if l_63_1 == "no_run" and l_63_0._rules[l_63_1] then
-    local player = l_63_0:player_unit()
-    if player:movement():current_state()._interupt_action_running then
-      player:movement():current_state():_interupt_action_running(Application:time())
-    end
-  end
-end
-
-PlayerManager.set_player_rule = function(l_64_0, l_64_1, l_64_2)
-  l_64_0._rules[l_64_1] = l_64_0._rules[l_64_1] + (l_64_2 and 1 or -1)
-  if l_64_1 == "no_run" and l_64_0:get_player_rule(l_64_1) then
-    local player = l_64_0:player_unit()
-    if player:movement():current_state()._interupt_action_running then
-      player:movement():current_state():_interupt_action_running(Application:time())
-    end
-  end
-end
-
-PlayerManager.get_player_rule = function(l_65_0, l_65_1)
-  return l_65_0._rules[l_65_1] > 0
-end
-
-PlayerManager.update_deployable_equipment_to_peer = function(l_66_0, l_66_1)
-  local peer_id = managers.network:session():local_peer():id()
-  if l_66_0._global.synced_deployables[peer_id] then
-    local deployable = l_66_0._global.synced_deployables[peer_id].deployable
-    local amount = l_66_0._global.synced_deployables[peer_id].amount
-    l_66_1:send_after_load("sync_deployable_equipment", peer_id, deployable, amount)
-  end
-end
-
-PlayerManager.update_deployable_equipment_amount_to_peers = function(l_67_0, l_67_1, l_67_2)
-  local peer_id = managers.network:session():local_peer():id()
-  managers.network:session():send_to_peers("sync_deployable_equipment", peer_id, l_67_1, l_67_2)
-  l_67_0:set_synced_deployable_equipment(peer_id, l_67_1, l_67_2)
-end
-
-PlayerManager.set_synced_deployable_equipment = function(l_68_0, l_68_1, l_68_2, l_68_3)
-  local only_update_amount = not l_68_0._global.synced_deployables[l_68_1] or l_68_0._global.synced_deployables[l_68_1].deployable == l_68_2
-  l_68_0._global.synced_deployables[l_68_1] = {deployable = l_68_2, amount = l_68_3}
-  local character_data = managers.criminals:character_data_by_peer_id(l_68_1)
-  if character_data and character_data.panel_id then
-    local icon = tweak_data.equipments[l_68_2].icon
-    if only_update_amount then
-      managers.hud:set_teammate_deployable_equipment_amount(character_data.panel_id, 1, {icon = icon, amount = l_68_3})
-    else
-      managers.hud:set_deployable_equipment(character_data.panel_id, {icon = icon, amount = l_68_3})
-    end
-  end
-  local local_peer_id = managers.network:session():local_peer():id()
-  if l_68_1 ~= local_peer_id and managers.network:game():member(l_68_1) then
-    local unit = managers.network:game():member(l_68_1):unit()
-    if alive(unit) then
-      unit:movement():set_visual_deployable_equipment(l_68_2, l_68_3)
-    end
-  end
-end
-
-PlayerManager.get_synced_deployable_equipment = function(l_69_0, l_69_1)
-  return l_69_0._global.synced_deployables[l_69_1]
-end
-
-PlayerManager.update_cable_ties_to_peer = function(l_70_0, l_70_1)
-  local peer_id = managers.network:session():local_peer():id()
-  if l_70_0._global.synced_cable_ties[peer_id] then
-    local amount = l_70_0._global.synced_cable_ties[peer_id].amount
-    l_70_1:send_after_load("sync_cable_ties", peer_id, amount)
-  end
-end
-
-PlayerManager.update_synced_cable_ties_to_peers = function(l_71_0, l_71_1)
-  local peer_id = managers.network:session():local_peer():id()
-  managers.network:session():send_to_peers("sync_cable_ties", peer_id, l_71_1)
-  l_71_0:set_synced_cable_ties(peer_id, l_71_1)
-end
-
-PlayerManager.set_synced_cable_ties = function(l_72_0, l_72_1, l_72_2)
-  local only_update_amount = false
-  l_72_0._global.synced_cable_ties[l_72_1] = {amount = l_72_2}
-  local character_data = managers.criminals:character_data_by_peer_id(l_72_1)
-  if character_data and character_data.panel_id then
-    local icon = tweak_data.equipments.specials.cable_tie.icon
-    if only_update_amount then
-      managers.hud:set_cable_ties_amount(character_data.panel_id, l_72_2)
-    else
-      managers.hud:set_cable_tie(character_data.panel_id, {icon = icon, amount = l_72_2})
-    end
-  end
-end
-
-PlayerManager.get_synced_cable_ties = function(l_73_0, l_73_1)
-  return l_73_0._global.synced_cable_ties[l_73_1]
-end
-
-PlayerManager.update_perks_to_peer = function(l_74_0, l_74_1)
-  local peer_id = managers.network:session():local_peer():id()
-  if l_74_0._global.synced_perks[peer_id] then
-    local perk = l_74_0._global.synced_perks[peer_id].perk
-    l_74_1:send_after_load("sync_perk_equipment", peer_id, perk)
-  end
-end
-
-PlayerManager.update_synced_perks_to_peers = function(l_75_0, l_75_1)
-  local peer_id = managers.network:session():local_peer():id()
-  managers.network:session():send_to_peers("sync_perk_equipment", peer_id, l_75_1)
-  l_75_0:set_synced_perk(peer_id, l_75_1)
-end
-
-PlayerManager.set_synced_perk = function(l_76_0, l_76_1, l_76_2)
-  l_76_0._global.synced_perks[l_76_1] = {perk = l_76_2}
-  local character_data = managers.criminals:character_data_by_peer_id(l_76_1)
-  if character_data and character_data.panel_id then
-    local icon = tweak_data.upgrades.definitions[l_76_2].icon
-    managers.hud:set_perk_equipment(character_data.panel_id, {icon = icon})
-  end
-end
-
-PlayerManager.get_synced_perk = function(l_77_0, l_77_1)
-  return l_77_0._global.synced_perks[l_77_1]
-end
-
-PlayerManager.update_ammo_info_to_peer = function(l_78_0, l_78_1)
-  local peer_id = managers.network:session():local_peer():id()
-  if l_78_0._global.synced_ammo_info[peer_id] then
-    for selection_index,ammo_info in pairs(l_78_0._global.synced_ammo_info[peer_id]) do
-      l_78_1:send_after_load("sync_ammo_amount", peer_id, selection_index, unpack(ammo_info))
-    end
-  end
-end
-
-PlayerManager.update_synced_ammo_info_to_peers = function(l_79_0, l_79_1, l_79_2, l_79_3, l_79_4, l_79_5)
-  local peer_id = managers.network:session():local_peer():id()
-  managers.network:session():send_to_peers_loaded("sync_ammo_amount", peer_id, l_79_1, l_79_2, l_79_3, l_79_4, l_79_5)
-  l_79_0:set_synced_ammo_info(peer_id, l_79_1, l_79_2, l_79_3, l_79_4, l_79_5)
-end
-
-PlayerManager.set_synced_ammo_info = function(l_80_0, l_80_1, l_80_2, l_80_3, l_80_4, l_80_5, l_80_6)
-  if not l_80_0._global.synced_ammo_info[l_80_1] then
-    l_80_0._global.synced_ammo_info[l_80_1] = {}
-  end
-  l_80_0._global.synced_ammo_info[l_80_1][l_80_2] = {l_80_3, l_80_4, l_80_5, l_80_6}
-  local character_data = managers.criminals:character_data_by_peer_id(l_80_1)
-  if character_data and character_data.panel_id then
-    managers.hud:set_teammate_ammo_amount(character_data.panel_id, l_80_2, l_80_3, l_80_4, l_80_5, l_80_6)
-  end
-end
-
-PlayerManager.get_synced_ammo_info = function(l_81_0, l_81_1)
-  return l_81_0._global.synced_ammo_info[l_81_1]
-end
-
-PlayerManager.update_carry_to_peer = function(l_82_0, l_82_1)
-  local peer_id = managers.network:session():local_peer():id()
-  if l_82_0._global.synced_carry[peer_id] then
-    local carry_id = l_82_0._global.synced_carry[peer_id].carry_id
-    local value = l_82_0._global.synced_carry[peer_id].value
-    local dye_initiated = l_82_0._global.synced_carry[peer_id].dye_initiated
-    local has_dye_pack = l_82_0._global.synced_carry[peer_id].has_dye_pack
-    local dye_value_multiplier = l_82_0._global.synced_carry[peer_id].dye_value_multiplier
-    l_82_1:send_after_load("sync_carry", peer_id, carry_id, value, dye_initiated, has_dye_pack, dye_value_multiplier)
-  end
-end
-
-PlayerManager.update_synced_carry_to_peers = function(l_83_0, l_83_1, l_83_2, l_83_3, l_83_4, l_83_5)
-  local peer_id = managers.network:session():local_peer():id()
-  managers.network:session():send_to_peers("sync_carry", peer_id, l_83_1, l_83_2, l_83_3, l_83_4, l_83_5)
-  l_83_0:set_synced_carry(peer_id, l_83_1, l_83_2, l_83_3, l_83_4, l_83_5)
-end
-
-PlayerManager.set_synced_carry = function(l_84_0, l_84_1, l_84_2, l_84_3, l_84_4, l_84_5, l_84_6)
-  l_84_0._global.synced_carry[l_84_1] = {carry_id = l_84_2, value = l_84_3, dye_initiated = l_84_4, has_dye_pack = l_84_5, dye_value_multiplier = l_84_6}
-  local character_data = managers.criminals:character_data_by_peer_id(l_84_1)
-  if character_data and character_data.panel_id then
-    managers.hud:set_teammate_carry_info(character_data.panel_id, l_84_2, managers.loot:get_real_value(l_84_2, l_84_3))
-  end
-  managers.hud:set_name_label_carry_info(l_84_1, l_84_2, managers.loot:get_real_value(l_84_2, l_84_3))
-  local local_peer_id = managers.network:session():local_peer():id()
-  if l_84_1 ~= local_peer_id and managers.network:game():member(l_84_1) then
-    local unit = managers.network:game():member(l_84_1):unit()
-    if alive(unit) then
-      unit:movement():set_visual_carry(l_84_2)
-    end
-  end
-end
-
-PlayerManager.set_carry_approved = function(l_85_0, l_85_1)
-  l_85_0._global.synced_carry[l_85_1:id()].approved = true
-end
-
-PlayerManager.update_removed_synced_carry_to_peers = function(l_86_0)
-  local peer_id = managers.network:session():local_peer():id()
-  managers.network:session():send_to_peers("sync_remove_carry", peer_id)
-  l_86_0:remove_synced_carry(peer_id)
-end
-
-PlayerManager.remove_synced_carry = function(l_87_0, l_87_1)
-  if not l_87_0._global.synced_carry[l_87_1] then
-    return 
-  end
-  l_87_0._global.synced_carry[l_87_1] = nil
-  local character_data = managers.criminals:character_data_by_peer_id(l_87_1)
-  if character_data and character_data.panel_id then
-    managers.hud:remove_teammate_carry_info(character_data.panel_id)
-  end
-  managers.hud:remove_name_label_carry_info(l_87_1)
-  local local_peer_id = managers.network:session():local_peer():id()
-  if l_87_1 ~= local_peer_id and managers.network:game():member(l_87_1) then
-    local unit = managers.network:game():member(l_87_1):unit()
-    if alive(unit) then
-      unit:movement():set_visual_carry(nil)
-    end
-  end
-end
-
-PlayerManager.get_my_carry_data = function(l_88_0)
-  local peer_id = managers.network:session():local_peer():id()
-  return l_88_0._global.synced_carry[peer_id]
-end
-
-PlayerManager.get_synced_carry = function(l_89_0, l_89_1)
-  return l_89_0._global.synced_carry[l_89_1]
-end
-
-PlayerManager.from_server_interaction_reply = function(l_90_0, l_90_1)
-  l_90_0:player_unit():movement():set_carry_restriction(false)
-  if not l_90_1 then
-    l_90_0:clear_carry()
-  end
-end
-
-PlayerManager.get_all_synced_carry = function(l_91_0)
-  return l_91_0._global.synced_carry
-end
-
-PlayerManager.aquire_team_upgrade = function(l_92_0, l_92_1)
-  if not l_92_0._global.team_upgrades[l_92_1.category] then
-    l_92_0._global.team_upgrades[l_92_1.category] = {}
-  end
-  l_92_0._global.team_upgrades[l_92_1.category][l_92_1.upgrade] = l_92_1.value
-end
-
-PlayerManager.unaquire_team_upgrade = function(l_93_0, l_93_1)
-  if not l_93_0._global.team_upgrades[l_93_1.category] then
-    Application:error("[PlayerManager:unaquire_team_upgrade] Can't unaquire team upgrade of category", l_93_1.category)
-    return 
-  end
-  if not l_93_0._global.team_upgrades[l_93_1.category][l_93_1.upgrade] then
-    Application:error("[PlayerManager:unaquire_team_upgrade] Can't unaquire team upgrade", l_93_1.upgrade)
-    return 
-  end
-  local val = l_93_0._global.team_upgrades[l_93_1.category][l_93_1.upgrade]
-  val = val - 1
-  l_93_0._global.team_upgrades[l_93_1.category][l_93_1.upgrade] = val > 0 and val or nil
-end
-
-PlayerManager.team_upgrade_value = function(l_94_0, l_94_1, l_94_2, l_94_3)
-  for peer_id,categories in pairs(l_94_0._global.synced_team_upgrades) do
-    if categories[l_94_1] and categories[l_94_1][l_94_2] then
-      local level = categories[l_94_1][l_94_2]
-      return tweak_data.upgrades.values.team[l_94_1][l_94_2][level]
-    end
-  end
-  return l_94_0._global.team_upgrades[l_94_1] or l_94_3 or 0
-  return l_94_0._global.team_upgrades[l_94_1][l_94_2] or l_94_3 or 0
-  local level = l_94_0._global.team_upgrades[l_94_1][l_94_2]
-  local value = tweak_data.upgrades.values.team[l_94_1][l_94_2][level]
-  return value
-end
-
-PlayerManager.has_team_category_upgrade = function(l_95_0, l_95_1, l_95_2)
-  for peer_id,categories in pairs(l_95_0._global.synced_team_upgrades) do
-    if categories[l_95_1] and categories[l_95_1][l_95_2] then
-      return true
-    end
-  end
-  if not l_95_0._global.team_upgrades[l_95_1] then
-    return false
-  end
-  if not l_95_0._global.team_upgrades[l_95_1][l_95_2] then
-    return false
-  end
-  return true
-end
-
-PlayerManager.update_team_upgrades_to_peers = function(l_96_0)
-  for category,upgrades in pairs(l_96_0._global.team_upgrades) do
-    for upgrade,level in pairs(upgrades) do
-      managers.network:session():send_to_peers("add_synced_team_upgrade", category, upgrade, level)
-    end
-  end
-end
-
-PlayerManager.update_team_upgrades_to_peer = function(l_97_0, l_97_1)
-  for category,upgrades in pairs(l_97_0._global.team_upgrades) do
-    for upgrade,level in pairs(upgrades) do
-      l_97_1:send_after_load("add_synced_team_upgrade", category, upgrade, level)
-    end
-  end
-end
-
-PlayerManager.add_synced_team_upgrade = function(l_98_0, l_98_1, l_98_2, l_98_3, l_98_4)
-  if not l_98_0._global.synced_team_upgrades[l_98_1] then
-    l_98_0._global.synced_team_upgrades[l_98_1] = {}
-  end
-  if not l_98_0._global.synced_team_upgrades[l_98_1][l_98_2] then
-    l_98_0._global.synced_team_upgrades[l_98_1][l_98_2] = {}
-  end
-  l_98_0._global.synced_team_upgrades[l_98_1][l_98_2][l_98_3] = l_98_4
-end
-
-PlayerManager.remove_equipment_possession = function(l_99_0, l_99_1, l_99_2)
-  if not l_99_0._global.synced_equipment_possession[l_99_1] then
-    return 
-  end
-  l_99_0._global.synced_equipment_possession[l_99_1][l_99_2] = nil
-  local character_data = managers.criminals:character_data_by_peer_id(l_99_1)
-  if character_data and character_data.panel_id then
-    managers.hud:remove_teammate_special_equipment(character_data.panel_id, l_99_2)
-  end
-end
-
-PlayerManager.get_synced_equipment_possession = function(l_100_0, l_100_1)
-  return l_100_0._global.synced_equipment_possession[l_100_1]
-end
-
-PlayerManager.update_equipment_possession_to_peer = function(l_101_0, l_101_1)
-  local peer_id = managers.network:session():local_peer():id()
-  if l_101_0._global.synced_equipment_possession[peer_id] then
-    for name,amount in pairs(l_101_0._global.synced_equipment_possession[peer_id]) do
-      l_101_1:send_after_load("sync_equipment_possession", peer_id, name, amount)
-    end
-  end
-end
-
-PlayerManager.update_equipment_possession_to_peers = function(l_102_0, l_102_1, l_102_2)
-  local peer_id = managers.network:session():local_peer():id()
-  managers.network:session():send_to_peers("sync_equipment_possession", peer_id, l_102_1, l_102_2 or 1)
-  l_102_0:set_synced_equipment_possession(peer_id, l_102_1, l_102_2)
-end
-
-PlayerManager.set_synced_equipment_possession = function(l_103_0, l_103_1, l_103_2, l_103_3)
-  if l_103_0._global.synced_equipment_possession[l_103_1] then
-    local only_update_amount = l_103_0._global.synced_equipment_possession[l_103_1][l_103_2]
-  end
-  if not l_103_0._global.synced_equipment_possession[l_103_1] then
-    l_103_0._global.synced_equipment_possession[l_103_1] = {}
-  end
-  l_103_0._global.synced_equipment_possession[l_103_1][l_103_2] = l_103_3 or 1
-  local character_data = managers.criminals:character_data_by_peer_id(l_103_1)
-  if character_data and character_data.panel_id then
-    local equipment_data = tweak_data.equipments.specials[l_103_2]
-    local icon = equipment_data.icon
-    if only_update_amount then
-      managers.hud:set_teammate_special_equipment_amount(character_data.panel_id, l_103_2, l_103_3)
-    else
-      managers.hud:add_teammate_special_equipment(character_data.panel_id, {id = l_103_2, icon = icon, amount = l_103_3})
-    end
-  end
-end
-
-PlayerManager.peer_dropped_out = function(l_104_0, l_104_1)
-  do
-    local peer_id = l_104_1:id()
-     -- DECOMPILER ERROR: No list found. Setlist fails
-
-    if Network:is_server() then
-      if l_104_0._global.synced_equipment_possession[peer_id] then
-        local peers = {}
-         -- DECOMPILER ERROR: Overwrote pending register.
-
-        for _,p in managers.network:session():local_peer()(managers.network:session():peers()) do
-          table.insert(peers, p)
-        end
-        for name,amount in pairs(l_104_0._global.synced_equipment_possession[peer_id]) do
-          for _,p in pairs(peers) do
-            local id = p:id()
-            if not l_104_0._global.synced_equipment_possession[id] or not l_104_0._global.synced_equipment_possession[id][name] then
-              if p == managers.network:session():local_peer() then
-                managers.player:add_special({name = name, amount = amount})
-                for (for control),name in (for generator) do
-                end
-                p:send("give_equipment", name, amount)
-                for (for control),name in (for generator) do
-                end
-              end
-            end
-          end
-          if l_104_0._global.synced_carry[peer_id] and l_104_0._global.synced_carry[peer_id].approved then
-            local carry_id = l_104_0._global.synced_carry[peer_id].carry_id
-            local carry_value = l_104_0._global.synced_carry[peer_id].value
-            local dye_initiated = l_104_0._global.synced_carry[peer_id].dye_initiated
-            local has_dye_pack = l_104_0._global.synced_carry[peer_id].has_dye_pack
-            local dye_value_multiplier = l_104_0._global.synced_carry[peer_id].dye_value_multiplier
-            local peer_unit = managers.network:game():member(peer_id):unit()
-            if not alive(peer_unit) or not peer_unit:position() then
-              local position = Vector3()
-            end
-            local dir = Vector3(0, 0, 0)
-            l_104_0:server_drop_carry(carry_id, carry_value, dye_initiated, has_dye_pack, dye_value_multiplier, position, Rotation(), dir, 0)
-          end
-        end
-        l_104_0._global.synced_equipment_possession[peer_id] = nil
-        l_104_0._global.synced_deployables[peer_id] = nil
-        l_104_0._global.synced_cable_ties[peer_id] = nil
-        l_104_0._global.synced_perks[peer_id] = nil
-        l_104_0._global.synced_ammo_info[peer_id] = nil
-        l_104_0._global.synced_carry[peer_id] = nil
-        l_104_0._global.synced_team_upgrades[peer_id] = nil
-      end
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-PlayerManager.add_equipment = function(l_105_0, l_105_1)
-  if l_105_1.equipment or tweak_data.equipments[l_105_1.name] then
-    l_105_0:_add_equipment(l_105_1)
-    return 
-  end
-  if l_105_1.equipment or tweak_data.equipments.specials[l_105_1.name] then
-    l_105_0:add_special(l_105_1)
-    return 
-  end
-  if not l_105_1.equipment then
-    Application:error("No equipment or special equipment named", l_105_1.name)
-  end
-end
-
-PlayerManager._add_equipment = function(l_106_0, l_106_1)
-  if l_106_0:has_equipment(l_106_1.equipment) then
-    print("Allready have equipment", l_106_1.equipment)
-    return 
-  end
-  local equipment = l_106_1.equipment
-  local tweak_data = tweak_data.equipments[equipment]
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-local amount = (l_106_1.amount or 0) + l_106_0:equiptment_upgrade_value(equipment, "quantity")
-if not l_106_1.icon and tweak_data then
-  local icon = tweak_data.icon
-end
-if not l_106_1.use_function_name and tweak_data then
-  local use_function_name = tweak_data.use_function_name
-end
-local use_function = use_function_name or nil
-table.insert(l_106_0._equipment.selections, {equipment = equipment, amount = Application:digest_value(0, true), use_function = use_function, action_timer = tweak_data.action_timer})
-l_106_0._equipment.selected_index = l_106_0._equipment.selected_index or 1
-l_106_0:update_deployable_equipment_amount_to_peers(equipment, amount)
-managers.hud:add_item({amount = amount, icon = icon})
-l_106_0:add_equipment_amount(equipment, amount)
-end
-
-PlayerManager.add_equipment_amount = function(l_107_0, l_107_1, l_107_2)
-  local data, index = l_107_0:equipment_data_by_name(l_107_1)
-  if data then
-    local new_amount = Application:digest_value(data.amount, false) + l_107_2
-    data.amount = Application:digest_value(new_amount, true)
-    managers.hud:set_item_amount(index, new_amount)
-  end
-end
-
-PlayerManager.set_equipment_amount = function(l_108_0, l_108_1, l_108_2)
-  local data, index = l_108_0:equipment_data_by_name(l_108_1)
-  if data then
-    local new_amount = l_108_2
-    data.amount = Application:digest_value(new_amount, true)
-    managers.hud:set_item_amount(index, new_amount)
-  end
-end
-
-PlayerManager.equipment_data_by_name = function(l_109_0, l_109_1)
-  for i,equipments in ipairs(l_109_0._equipment.selections) do
-    if equipments.equipment == l_109_1 then
-      return equipments, i
-    end
-  end
-  return nil
-end
-
-PlayerManager.get_equipment_amount = function(l_110_0, l_110_1)
-  for i,equipments in ipairs(l_110_0._equipment.selections) do
-    if equipments.equipment == l_110_1 then
-      return Application:digest_value(equipments.amount, false)
-    end
-  end
-  return 0
-end
-
-PlayerManager.has_equipment = function(l_111_0, l_111_1)
-  for i,equipments in ipairs(l_111_0._equipment.selections) do
-    if equipments.equipment == l_111_1 then
-      return true
-    end
-  end
-  return false
-end
-
-PlayerManager.has_deployable_left = function(l_112_0, l_112_1)
-  return l_112_0:get_equipment_amount(l_112_1) > 0
-end
-
-PlayerManager.select_next_item = function(l_113_0)
-  if not l_113_0._equipment.selected_index then
-    return 
-  end
-  l_113_0._equipment.selected_index = l_113_0._equipment.selected_index + 1 <= #l_113_0._equipment.selections and l_113_0._equipment.selected_index + 1 or 1
-  managers.hud:set_next_item_selected()
-end
-
-PlayerManager.select_previous_item = function(l_114_0)
-  if not l_114_0._equipment.selected_index then
-    return 
-  end
-  if l_114_0._equipment.selected_index - 1 < 1 or not l_114_0._equipment.selected_index - 1 then
-    l_114_0._equipment.selected_index = #l_114_0._equipment.selections
-  end
-  managers.hud:set_previous_item_selected()
-end
-
-PlayerManager.clear_equipment = function(l_115_0)
-  for i,equipment in ipairs(l_115_0._equipment.selections) do
-    equipment.amount = Application:digest_value(0, true)
-    managers.hud:set_item_amount(i, 0)
-    l_115_0:update_deployable_equipment_amount_to_peers(equipment.equipment, 0)
-  end
-end
-
-PlayerManager.from_server_equipment_place_result = function(l_116_0, l_116_1, l_116_2)
-  if l_116_1 == 0 then
-    l_116_2:equipment():from_server_sentry_gun_place_result(not alive(l_116_2))
-  end
-  local equipment = l_116_0._equipment.selections[l_116_1]
-  if not equipment then
-    return 
-  end
-  local new_amount = Application:digest_value(equipment.amount, false) - 1
-  equipment.amount = Application:digest_value(new_amount, true)
-  do return end
-  if new_amount == 0 then
-    if equipment.equipment == "trip_mine" and not l_116_0:has_equipment("sentry_gun") then
-      l_116_0:add_equipment({equipment = "sentry_gun"})
-      l_116_0:select_next_item()
-      return 
-    elseif equipment.equipment == "sentry_gun" and not l_116_0:has_equipment("trip_mine") then
-      l_116_0:add_equipment({equipment = "trip_mine"})
-      l_116_0:select_next_item()
-      return 
-    end
-  end
-  managers.hud:set_item_amount(l_116_0._equipment.selected_index, new_amount)
-  l_116_0:update_deployable_equipment_amount_to_peers(equipment.equipment, new_amount)
-end
-
-PlayerManager.can_use_selected_equipment = function(l_117_0, l_117_1)
-  local equipment = l_117_0._equipment.selections[l_117_0._equipment.selected_index]
-  if not equipment or Application:digest_value(equipment.amount, false) == 0 then
-    return false
-  end
-  return true
-end
-
-PlayerManager.selected_equipment = function(l_118_0)
-  local equipment = l_118_0._equipment.selections[l_118_0._equipment.selected_index]
-  if not equipment or Application:digest_value(equipment.amount, false) == 0 then
-    return nil
-  end
-  return equipment
-end
-
-PlayerManager.selected_equipment_id = function(l_119_0)
-  local equipment_data = l_119_0:selected_equipment()
-  if not equipment_data then
-    return nil
-  end
-  return equipment_data.equipment
-end
-
-PlayerManager.selected_equipment_name = function(l_120_0)
-  local equipment_data = l_120_0:selected_equipment()
-  if not equipment_data then
-    return ""
-  end
-  return managers.localization:text(tweak_data.equipments[equipment_data.equipment].text_id)
-end
-
-PlayerManager.use_selected_equipment = function(l_121_0, l_121_1)
-  local equipment = l_121_0._equipment.selections[l_121_0._equipment.selected_index]
-  if not equipment or Application:digest_value(equipment.amount, false) == 0 then
-    return 
-  end
-  local used_one = false
-  local redirect = nil
-  if equipment.use_function then
-    used_one, redirect = l_121_1:equipment()[equipment.use_function](l_121_1:equipment(), l_121_0._equipment.selected_index)
-  else
-    used_one = true
-  end
-  if used_one then
-    l_121_0:remove_equipment(equipment.equipment)
-  end
-  return {expire_timer = equipment.action_timer, redirect = redirect}
-end
-
-PlayerManager.check_selected_equipment_placement_valid = function(l_122_0, l_122_1)
-  local equipment_data = managers.player:selected_equipment()
-  if not equipment_data then
-    return false
-  end
-  if equipment_data.equipment == "trip_mine" or equipment_data.equipment == "ecm_jammer" then
-     -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-  end
-  return true
-elseif equipment_data.equipment == "sentry_gun" or equipment_data.equipment == "ammo_bag" or equipment_data.equipment == "doctor_bag" then
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-return true
-end
- -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-return true
-end
-
-PlayerManager.selected_equipment_deploy_timer = function(l_123_0)
-  local equipment_data = managers.player:selected_equipment()
-  if not equipment_data then
-    return 0
-  end
-  local equipment_tweak_data = tweak_data.equipments[equipment_data.equipment]
-  local multiplier = 1
-  if equipment_tweak_data.upgrade_deploy_time_multiplier then
-    multiplier = managers.player:upgrade_value(equipment_tweak_data.upgrade_deploy_time_multiplier.category, equipment_tweak_data.upgrade_deploy_time_multiplier.upgrade, 1)
-  end
-  return (equipment_tweak_data.deploy_time or 1) * multiplier
-end
-
-PlayerManager.remove_equipment = function(l_124_0, l_124_1)
-  local equipment, index = l_124_0:equipment_data_by_name(l_124_1)
-  local new_amount = Application:digest_value(equipment.amount, false) - 1
-  equipment.amount = Application:digest_value(new_amount, true)
-  do return end
-  if new_amount == 0 then
-    if equipment.equipment == "trip_mine" and not l_124_0:has_equipment("sentry_gun") then
-      l_124_0:add_equipment({equipment = "sentry_gun"})
-      l_124_0:select_next_item()
-      return 
-    elseif equipment.equipment == "sentry_gun" and not l_124_0:has_equipment("trip_mine") then
-      l_124_0:add_equipment({equipment = "trip_mine"})
-      l_124_0:select_next_item()
-      return 
-    end
-  end
-  managers.hud:set_item_amount(index, new_amount)
-  l_124_0:update_deployable_equipment_amount_to_peers(equipment.equipment, new_amount)
-end
-
-PlayerManager.add_special = function(l_125_0, l_125_1)
-  if not l_125_1.equipment then
-    local name = l_125_1.name
-  end
-  if not tweak_data.equipments.specials[name] then
-    Application:error("Special equipment " .. name .. " doesn't exist!")
-    return 
-  end
-  local unit = l_125_0:player_unit()
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-local respawn = true
-local equipment = tweak_data.equipments.specials[name]
-local special_equipment = l_125_0._equipment.specials[name]
-if not l_125_1.amount then
-  local amount = equipment.quantity
-end
-local extra = l_125_0:_equipped_upgrade_value(equipment) + l_125_0:upgrade_value(name, "quantity")
-if special_equipment and equipment.quantity then
-  local dedigested_amount = Application:digest_value(special_equipment.amount, false)
-  if not l_125_0:has_category_upgrade(name, "quantity_unlimited") or not -1 then
-    local new_amount = math.min(dedigested_amount + amount, equipment.quantity + extra)
-  end
-  special_equipment.amount = Application:digest_value(new_amount, true)
-  if special_equipment.is_cable_tie then
-    managers.hud:set_cable_ties_amount(HUDManager.PLAYER_PANEL, new_amount)
-    l_125_0:update_synced_cable_ties_to_peers(new_amount)
-  else
-    managers.hud:set_special_equipment_amount(name, new_amount)
-    l_125_0:update_equipment_possession_to_peers(name, new_amount)
-  end
-end
-return 
-local icon = equipment.icon
-local action_message = equipment.action_message
-local dialog = equipment.dialog_id
-if not l_125_1.silent then
-  local text = managers.localization:text(equipment.text_id)
-  local title = managers.localization:text("present_obtained_mission_equipment_title")
-  managers.hud:present_mid_text({text = text, title = title, icon = icon, time = 4})
-  if dialog then
-    managers.dialog:queue_dialog(dialog, {})
-  end
-  if action_message and alive(unit) then
-    managers.network:session():send_to_peers("sync_show_action_message", unit, action_message)
-  end
-end
-if ((l_125_0:has_category_upgrade(name, "quantity_unlimited") and -1) or not equipment.quantity or (respawn and math.min(l_125_1.amount, equipment.quantity + extra)) or equipment.quantity) then
-  local quantity = math.min(amount + extra, equipment.quantity + extra)
-end
-local is_cable_tie = name == "cable_tie"
-if not quantity then
-  managers.hud:set_cable_tie(HUDManager.PLAYER_PANEL, {icon = icon, amount = not is_cable_tie or nil})
-end
-l_125_0:update_synced_cable_ties_to_peers(quantity)
-
-l_125_0._equipment.specials[name] = {amount = quantity and Application:digest_value(quantity, true) or nil, is_cable_tie = is_cable_tie}
-if equipment.player_rule then
-  l_125_0:set_player_rule(equipment.player_rule, true)
-end
-end
-
-PlayerManager._equipped_upgrade_value = function(l_126_0, l_126_1)
-  if not l_126_1.extra_quantity then
-    return 0
-  end
-  local equipped_upgrade = l_126_1.extra_quantity.equipped_upgrade
-  local category = l_126_1.extra_quantity.category
-  local upgrade = l_126_1.extra_quantity.upgrade
-  return l_126_0:equipped_upgrade_value(equipped_upgrade, category, upgrade)
-end
-
-PlayerManager.has_special_equipment = function(l_127_0, l_127_1)
-  return l_127_0._equipment.specials[l_127_1]
-end
-
-PlayerManager.can_pickup_equipment = function(l_128_0, l_128_1)
-  local special_equipment = l_128_0._equipment.specials[l_128_1]
-  if special_equipment then
-    if special_equipment.amount then
-      local equipment = tweak_data.equipments.specials[l_128_1]
-      local extra = l_128_0:_equipped_upgrade_value(equipment)
-      return Application:digest_value(special_equipment.amount, false) < equipment.quantity + extra
-    end
-    return false
-  end
-  return true
-end
-
-PlayerManager.remove_special = function(l_129_0, l_129_1)
-  local special_equipment = l_129_0._equipment.specials[l_129_1]
-  if not special_equipment then
-    return 
-  end
-  if special_equipment.amount then
-    local special_amount = Application:digest_value(special_equipment.amount, false)
-  end
-  if special_amount and special_amount ~= -1 then
-    special_amount = math.max(0, special_amount - 1)
-    if special_equipment.is_cable_tie then
-      managers.hud:set_cable_ties_amount(HUDManager.PLAYER_PANEL, special_amount)
-      l_129_0:update_synced_cable_ties_to_peers(special_amount)
-    else
-      managers.hud:set_special_equipment_amount(l_129_1, special_amount)
-      l_129_0:update_equipment_possession_to_peers(l_129_1, special_amount)
-    end
-    special_equipment.amount = Application:digest_value(special_amount, true)
-  end
-  if not special_amount or special_amount == 0 then
-    if not special_equipment.is_cable_tie then
-      managers.hud:remove_special_equipment(l_129_1)
-      managers.network:session():send_to_peers_loaded("sync_remove_equipment_possession", managers.network:session():local_peer():id(), l_129_1)
-      l_129_0:remove_equipment_possession(managers.network:session():local_peer():id(), l_129_1)
-    end
-    l_129_0._equipment.specials[l_129_1] = nil
-    local equipment = tweak_data.equipments.specials[l_129_1]
-    if equipment.player_rule then
-      l_129_0:set_player_rule(equipment.player_rule, false)
-    end
-  end
-end
-
-PlayerManager.set_carry = function(l_130_0, l_130_1, l_130_2, l_130_3, l_130_4, l_130_5)
-  local carry_data = tweak_data.carry[l_130_1]
-  local carry_type = carry_data.type
-  l_130_0:set_player_state("carry")
-  local title = managers.localization:text("hud_carrying_announcement_title")
-  if carry_data.name_id then
-    local type_text = managers.localization:text(carry_data.name_id)
-  end
-  local text = (managers.localization:text("hud_carrying_announcement", {CARRY_TYPE = type_text}))
-  local icon = nil
-  if not l_130_3 then
-    l_130_3 = true
-    if carry_data.dye then
-      local chance = tweak_data.carry.dye.chance * managers.player:upgrade_value("player", "dye_pack_chance_multiplier", 1)
-      do return end
-      l_130_4 = true
-      l_130_5 = math.round(tweak_data.carry.dye.value_multiplier * managers.player:upgrade_value("player", "dye_pack_cash_loss_multiplier", 1))
-    end
-  end
-  l_130_0:update_synced_carry_to_peers(l_130_1, l_130_2 or 100, l_130_3, l_130_4, l_130_5)
-  managers.hud:set_teammate_carry_info(HUDManager.PLAYER_PANEL, l_130_1, managers.loot:get_real_value(l_130_1, l_130_2 or 100))
-  managers.hud:temp_show_carry_bag(l_130_1, managers.loot:get_real_value(l_130_1, l_130_2 or 100))
-  local player = l_130_0:player_unit()
-  if not player then
-    return 
-  end
-  player:movement():current_state():set_tweak_data(carry_type)
-end
-
-PlayerManager.bank_carry = function(l_131_0)
-  local carry_data = l_131_0:get_my_carry_data()
-  managers.loot:secure(carry_data.carry_id, carry_data.value)
-  managers.hud:remove_teammate_carry_info(HUDManager.PLAYER_PANEL)
-  managers.hud:temp_hide_carry_bag()
-  l_131_0:update_removed_synced_carry_to_peers()
-  managers.player:set_player_state("standard")
-end
-
-PlayerManager.drop_carry = function(l_132_0)
-  local carry_data = l_132_0:get_my_carry_data()
-  if not carry_data then
-    return 
-  end
-  l_132_0._carry_blocked_cooldown_t = Application:time() + (1.2000000476837 + math.rand(0.30000001192093))
-  local player = l_132_0:player_unit()
-  local camera_ext = player:camera()
-  local dye_initiated = carry_data.dye_initiated
-  local has_dye_pack = carry_data.has_dye_pack
-  local dye_value_multiplier = carry_data.dye_value_multiplier
-  local throw_distance_multiplier_upgrade_level = managers.player:upgrade_level("carry", "throw_distance_multiplier", 0)
-  if Network:is_client() then
-    managers.network:session():send_to_host("server_drop_carry", carry_data.carry_id, carry_data.value, dye_initiated, has_dye_pack, dye_value_multiplier, camera_ext:position(), camera_ext:rotation(), player:camera():forward(), throw_distance_multiplier_upgrade_level)
-  else
-    l_132_0:server_drop_carry(carry_data.carry_id, carry_data.value, dye_initiated, has_dye_pack, dye_value_multiplier, camera_ext:position(), camera_ext:rotation(), player:camera():forward(), throw_distance_multiplier_upgrade_level)
-  end
-  managers.hud:remove_teammate_carry_info(HUDManager.PLAYER_PANEL)
-  managers.hud:temp_hide_carry_bag()
-  l_132_0:update_removed_synced_carry_to_peers()
-  if l_132_0._current_state == "carry" then
-    managers.player:set_player_state("standard")
-  end
-end
-
-PlayerManager.server_drop_carry = function(l_133_0, l_133_1, l_133_2, l_133_3, l_133_4, l_133_5, l_133_6, l_133_7, l_133_8, l_133_9)
-  if l_133_2 <= 0 then
-    return 
-  end
-  local unit_name = tweak_data.carry[l_133_1].unit or "units/payday2/pickups/gen_pku_lootbag/gen_pku_lootbag"
-  local unit = World:spawn_unit(Idstring(unit_name), l_133_6, l_133_7)
-  managers.network:session():send_to_peers_synched("sync_carry_data", unit, l_133_1, l_133_2, l_133_3, l_133_4, l_133_5, l_133_6, l_133_8, l_133_9)
-  l_133_0:sync_carry_data(unit, l_133_1, l_133_2, l_133_3, l_133_4, l_133_5, l_133_6, l_133_8, l_133_9)
-  return unit
-end
-
-PlayerManager.sync_carry_data = function(l_134_0, l_134_1, l_134_2, l_134_3, l_134_4, l_134_5, l_134_6, l_134_7, l_134_8, l_134_9)
-  local throw_distance_multiplier = l_134_0:upgrade_value_by_level("carry", "throw_distance_multiplier", l_134_9, 1)
-  local carry_type = tweak_data.carry[l_134_2].type
-  throw_distance_multiplier = throw_distance_multiplier * tweak_data.carry.types[carry_type].throw_distance_multiplier
-  l_134_1:push(100, l_134_8 * 600 * (throw_distance_multiplier))
-  l_134_1:carry_data():set_carry_id(l_134_2)
-  l_134_1:carry_data():set_value(l_134_3)
-  l_134_1:carry_data():set_dye_pack_data(l_134_4, l_134_5, l_134_6)
-  l_134_1:interaction():register_collision_callbacks()
-end
-
-PlayerManager.force_drop_carry = function(l_135_0)
-  local carry_data = l_135_0:get_my_carry_data()
-  if not carry_data then
-    return 
-  end
-  local player = l_135_0:player_unit()
-  if not alive(player) then
-    print("COULDN'T FORCE DROP! DIDN'T HAVE A UNIT")
-    return 
-  end
-  local dye_initiated = carry_data.dye_initiated
-  local has_dye_pack = carry_data.has_dye_pack
-  local dye_value_multiplier = carry_data.dye_value_multiplier
-  local camera_ext = player:camera()
-  if Network:is_client() then
-    managers.network:session():send_to_host("server_drop_carry", carry_data.carry_id, carry_data.value, dye_initiated, has_dye_pack, dye_value_multiplier, camera_ext:position(), camera_ext:rotation(), Vector3(0, 0, 0), 0)
-  else
-    l_135_0:server_drop_carry(carry_data.carry_id, carry_data.value, dye_initiated, has_dye_pack, dye_value_multiplier, camera_ext:position(), camera_ext:rotation(), Vector3(0, 0, 0), 0)
-  end
-  managers.hud:remove_teammate_carry_info(HUDManager.PLAYER_PANEL)
-  managers.hud:temp_hide_carry_bag()
-  l_135_0:update_removed_synced_carry_to_peers()
-end
-
-PlayerManager.clear_carry = function(l_136_0)
-  local carry_data = l_136_0:get_my_carry_data()
-  if not carry_data then
-    return 
-  end
-  local player = l_136_0:player_unit()
-  if not alive(player) then
-    print("COULDN'T FORCE DROP! DIDN'T HAVE A UNIT")
-    return 
-  end
-  managers.hud:remove_teammate_carry_info(HUDManager.PLAYER_PANEL)
-  managers.hud:temp_hide_carry_bag()
-  l_136_0:update_removed_synced_carry_to_peers()
-  if l_136_0._current_state == "carry" then
-    managers.player:set_player_state("standard")
-  end
-end
-
-PlayerManager.is_carrying = function(l_137_0)
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-return true
-end
-
-PlayerManager.carry_blocked_by_cooldown = function(l_138_0)
-  return ((not l_138_0._carry_blocked_cooldown_t or Application:time() >= l_138_0._carry_blocked_cooldown_t) and false)
-end
-
-PlayerManager.can_carry = function(l_139_0, l_139_1)
-  return true
-end
-
-PlayerManager.check_damage_carry = function(l_140_0, l_140_1)
-  local carry_data = l_140_0:get_my_carry_data()
-  if not carry_data then
-    return 
-  end
-  local carry_id = carry_data.carry_id
-  local type = tweak_data.carry[carry_id].type
-  if not tweak_data.carry.types[type].looses_value then
-    return 
-  end
-  local dye_initiated = carry_data.dye_initiated
-  local has_dye_pack = carry_data.has_dye_pack
-  local dye_value_multiplier = carry_data.dye_value_multiplier
-  local value = math.max(carry_data.value - tweak_data.carry.types[type].looses_value_per_hit * l_140_1.damage, 0)
-  l_140_0:update_synced_carry_to_peers(carry_id, value, dye_initiated, has_dye_pack, dye_value_multiplier)
-  managers.hud:set_teammate_carry_info(HUDManager.PLAYER_PANEL, carry_id, managers.loot:get_real_value(carry_id, value))
-end
-
-PlayerManager.dye_pack_exploded = function(l_141_0)
-  local carry_data = l_141_0:get_my_carry_data()
-  if not carry_data then
-    return 
-  end
-  local carry_id = carry_data.carry_id
-  local type = tweak_data.carry[carry_id].type
-  local dye_initiated = carry_data.dye_initiated
-  local has_dye_pack = carry_data.has_dye_pack
-  local dye_value_multiplier = carry_data.dye_value_multiplier
-  local value = carry_data.value * (1 - dye_value_multiplier / 100)
-  value = math.round(value)
-  has_dye_pack = false
-  l_141_0:update_synced_carry_to_peers(carry_id, value, dye_initiated, has_dye_pack, dye_value_multiplier)
-  managers.hud:set_teammate_carry_info(HUDManager.PLAYER_PANEL, carry_id, managers.loot:get_real_value(carry_id, value))
-end
-
-PlayerManager.count_up_player_minions = function(l_142_0)
-  l_142_0._local_player_minions = math.min(l_142_0._local_player_minions + 1, l_142_0:upgrade_value("player", "convert_enemies_max_minions", 0))
-end
-
-PlayerManager.count_down_player_minions = function(l_143_0)
-  l_143_0._local_player_minions = math.max(l_143_0._local_player_minions - 1, 0)
-end
-
-PlayerManager.reset_minions = function(l_144_0)
-  l_144_0._local_player_minions = 0
-end
-
-PlayerManager.chk_minion_limit_reached = function(l_145_0)
-  return l_145_0:upgrade_value("player", "convert_enemies_max_minions", 0) <= l_145_0._local_player_minions
-end
-
-PlayerManager.change_player_look = function(l_146_0, l_146_1)
-  l_146_0._player_mesh_suffix = l_146_1
-  for _,unit in pairs(managers.groupai:state():all_char_criminals()) do
-    unit.unit:movement():set_character_anim_variables()
-  end
-end
-
-PlayerManager.player_timer = function(l_147_0)
-  return l_147_0._player_timer
-end
-
-PlayerManager.save = function(l_148_0, l_148_1)
-  local state = {kit = l_148_0._global.kit}
-  l_148_1.PlayerManager = state
-end
-
-PlayerManager.load = function(l_149_0, l_149_1)
-  l_149_0:aquire_default_upgrades()
-  local state = l_149_1.PlayerManager
-  if state then
-    if not state.kit then
-      l_149_0._global.kit = l_149_0._global.kit
-    end
-    l_149_0:_verify_loaded_data()
-  end
-end
-
-PlayerManager._verify_loaded_data = function(l_150_0)
-end
-
-PlayerManager.sync_save = function(l_151_0, l_151_1)
-  local state = {current_sync_state = l_151_0._current_sync_state, player_mesh_suffix = l_151_0._player_mesh_suffix}
-  l_151_1.PlayerManager = state
-end
-
-PlayerManager.sync_load = function(l_152_0, l_152_1)
-  local state = l_152_1.PlayerManager
-  if state then
-    l_152_0:set_player_state(state.current_sync_state)
-    l_152_0:change_player_look(state.player_mesh_suffix)
-  end
-end
-
-PlayerManager.on_simulation_started = function(l_153_0)
-  l_153_0._respawn = false
-end
-
-PlayerManager.reset = function(l_154_0)
-  if managers.hud then
-    managers.hud:clear_items()
-    managers.hud:clear_special_equipments()
-    managers.hud:clear_player_special_equipments()
-  end
-  Global.player_manager = nil
-  l_154_0:_setup()
-  l_154_0:_setup_rules()
-  l_154_0:aquire_default_upgrades()
-end
-
-PlayerManager.soft_reset = function(l_155_0)
-  l_155_0._listener_holder = EventListenerHolder:new()
-end
-
-PlayerManager.on_peer_synch_request = function(l_156_0, l_156_1)
-  l_156_0:player_unit():network():synch_to_peer(l_156_1)
-end
 
-
+function PlayerManager:init()
+	self._player_name = Idstring( "units/multiplayer/mp_fps_mover/mp_fps_mover" )
+	self._players = {}
+	self._nr_players = Global.nr_players or 1
+	self._last_id = 1
+	self._viewport_configs = {}
+
+	self._viewport_configs[ 1 ] = {}
+	self._viewport_configs[ 1 ][ 1 ] = { dimensions = { x = 0, y = 0, w = 1, h = 1 } }
+
+	self._viewport_configs[ 2 ] = {}
+	self._viewport_configs[ 2 ][ 1 ] = { dimensions = { x = 0, y = 0, w = 1, h = 0.5 } }
+	self._viewport_configs[ 2 ][ 2 ] = { dimensions = { x = 0, y = 0.5, w = 1, h = 0.5 } }
+	
+	self:_setup_rules()
+	self._local_player_minions = 0
+
+	-- Translate from player states to game state names in the state machine
+	self._player_states = {
+		standard		= "ingame_standard",
+		mask_off		= "ingame_mask_off",
+		bleed_out		= "ingame_bleed_out",
+		fatal			= "ingame_fatal",
+		arrested		= "ingame_arrested",
+		tased			= "ingame_electrified",
+		incapacitated	= "ingame_incapacitated",
+		clean			= "ingame_clean",
+		carry			= "ingame_standard",
+	}
+	self._DEFAULT_STATE = "mask_off" -- Default state (Player.lua:16 -> sets its default to duel)
+	self._current_state = self._DEFAULT_STATE
+	self._sync_states = { "clean", "mask_off", "standard" } -- If the server player changes to any of this states, ot changes what the drop in sync state should be
+	self._current_sync_state = self._DEFAULT_STATE
+	
+	local ids_player = Idstring( "player" )
+	self._player_timer = TimerManager:timer( ids_player ) or TimerManager:make_timer( ids_player, TimerManager:pausable() )
+	
+	self:_setup()
+end
+
+function PlayerManager:_setup()
+	self._equipment = { selections = {}, specials = {}, selected_index = nil }
+	self._listener_holder = EventListenerHolder:new()
+	self._player_mesh_suffix = ""
+	self._temporary_upgrades = {}
+	
+	if not Global.player_manager then
+		Global.player_manager = {}
+		Global.player_manager.upgrades = {}
+		Global.player_manager.team_upgrades = {} -- Personal team upgrades
+		Global.player_manager.weapons = {}
+		Global.player_manager.equipment = {}
+		-- self:_aquire_default_upgrades()
+		
+		Global.player_manager.kit = {
+									weapon_slots = { "glock_17" },
+									-- equipment_slots = { "trip_mine", "ammo_bag" },
+									equipment_slots = { }, --  "trip_mine", "extra_cable_tie" }, --, "body_armor" },
+									special_equipment_slots = {},
+									-- special_equipment_slots = { "extra_cable_tie", "extra_cable_tie", "body_armor" },
+									-- "extra_cable_tie", "body_armor", "bleed_out_increase", "intimidation", "extra_start_out_ammo"
+								}
+	end
+	
+	Global.player_manager.default_kit = {
+									weapon_slots = { "glock_17" },
+									-- equipment_slots = { "trip_mine", "ammo_bag" },
+									equipment_slots = {}, -- { "ammo_bag" },
+									special_equipment_slots = { "cable_tie" }, -- These can't be overidden
+								}
+	Global.player_manager.synced_bonuses = {}
+	Global.player_manager.synced_equipment_possession = {} -- Table containing peers with their equipment
+	Global.player_manager.synced_deployables = {}
+	Global.player_manager.synced_cable_ties = {}
+	Global.player_manager.synced_perks = {}
+	Global.player_manager.synced_ammo_info = {}
+	Global.player_manager.synced_carry = {}
+	Global.player_manager.synced_team_upgrades = {} -- Synced team upgrades
+	self._global = Global.player_manager
+end
+
+function PlayerManager:_setup_rules()
+	self._rules = {
+				no_run = 0,
+			}
+end	
+
+-- Default upgrades are loaded here. Probably changed later from a "player kit"
+function PlayerManager:aquire_default_upgrades()
+	-- Default weapons
+	-- managers.upgrades:aquire_default( "m4" )
+	
+	-- managers.upgrades:aquire_default( "deagle" )
+	-- managers.upgrades:aquire_default( "new_m4" )
+	
+	-- managers.upgrades:aquire_default( "glock_17" )
+	-- managers.upgrades:aquire_default( "amcar" )
+	--[[
+	managers.upgrades:aquire_default( "olympic" )
+	managers.upgrades:aquire_default( "m16" )
+	managers.upgrades:aquire_default( "new_m4" )
+	managers.upgrades:aquire_default( "glock_18c" )
+	managers.upgrades:aquire_default( "saiga" )
+	managers.upgrades:aquire_default( "akmsu" )
+	managers.upgrades:aquire_default( "ak74" )
+	managers.upgrades:aquire_default( "akm" )
+	managers.upgrades:aquire_default( "ak5" )
+	managers.upgrades:aquire_default( "aug" )
+	managers.upgrades:aquire_default( "g36" )
+	managers.upgrades:aquire_default( "p90" )
+	managers.upgrades:aquire_default( "new_m14" )
+	managers.upgrades:aquire_default( "mp9" )
+	managers.upgrades:aquire_default( "deagle" )
+	managers.upgrades:aquire_default( "new_mp5" )
+	managers.upgrades:aquire_default( "colt_1911" )
+	managers.upgrades:aquire_default( "mac10" )
+	managers.upgrades:aquire_default( "b92fs" )
+	managers.upgrades:aquire_default( "huntsman" )
+	managers.upgrades:aquire_default( "r870" )
+	managers.upgrades:aquire_default( "new_raging_bull" )]]
+											
+	-- Default special equipments
+	managers.upgrades:aquire_default( "cable_tie" )
+	managers.upgrades:aquire_default( "player_special_enemy_highlight" )
+	managers.upgrades:aquire_default( "player_hostage_trade" )
+	managers.upgrades:aquire_default( "player_sec_camera_highlight" )
+	
+	-- managers.upgrades:aquire_default( "temporary_revive_health_boost" )
+	
+	-- Default equipments
+	-- managers.upgrades:aquire_default( "body_armor" )
+	--[[managers.upgrades:aquire_default( "trip_mine" )
+	managers.upgrades:aquire_default( "ammo_bag" )
+	managers.upgrades:aquire_default( "doctor_bag" )]]
+		
+	for i = 1, PlayerManager.WEAPON_SLOTS do
+		if not managers.player:weapon_in_slot( i ) then
+			self._global.kit.weapon_slots[ i ] = managers.player:availible_weapons( i )[ 1 ]
+		end
+	end
+	
+	-- Make sure that newly aquired equipment-slots are used
+	self:_verify_equipment_kit()
+	--[[for i = 1, 3 do
+		if not managers.player:equipment_in_slot( i ) then
+			self._global.kit.equipment_slots[ i ] = managers.player:availible_equipment( i )[ 1 ]
+		end
+	end]]
+	
+	-- managers.blackmarket:setup_weapons()
+end
+
+function PlayerManager:update_kit_to_peer( peer )
+
+	local peer_id = managers.network:session():local_peer():id()
+	
+	for i = 1, PlayerManager.WEAPON_SLOTS do
+		local weapon = self:weapon_in_slot( i )
+		if weapon then
+			peer:send_after_load( "set_kit_selection", peer_id, "weapon", weapon, i )
+		end
+	end
+	
+	for i = 1, 3 do
+		local equipment = self:equipment_in_slot( i )
+		if equipment then
+			peer:send_after_load( "set_kit_selection", peer_id, "equipment", equipment, i )
+		end
+	end
+end
+
+function PlayerManager:update( t, dt )
+	
+end
+
+function PlayerManager:add_listener( key, events, clbk )
+	self._listener_holder:add( key, events, clbk )
+end
+
+function PlayerManager:remove_listener( key )
+	self._listener_holder:remove( key )
+end
+
+function PlayerManager:preload()
+end
+
+function PlayerManager:_internal_load()
+	local player = self:player_unit()
+	if not player then
+		return
+	end
+	
+	local secondary = managers.blackmarket:equipped_secondary()
+	player:inventory():add_unit_by_factory_name( secondary.factory_id, true, false, secondary.blueprint )
+	
+	local primary = managers.blackmarket:equipped_primary()
+	if primary then
+		player:inventory():add_unit_by_factory_name( primary.factory_id, false, false, primary.blueprint )
+	end
+	
+	--[[
+	for i,name in ipairs( self._global.kit.weapon_slots ) do
+		if i <= PlayerManager.WEAPON_SLOTS then -- Skip if we happen to have a weapon in a higher slot then allowed
+			-- Either the pre selected kit if availible or the default if availible
+			local ok_name = self._global.weapons[ name ] and name or self._global.weapons[ self._global.default_kit.weapon_slots[ i ] ] and self._global.default_kit.weapon_slots[ i ] 
+			if ok_name then
+				local upgrade = tweak_data.upgrades.definitions[ ok_name ]
+				if upgrade and upgrade.factory_id then
+					player:inventory():add_unit_by_factory_name( upgrade.factory_id, i == 1 )	
+				elseif upgrade then -- Safety check when testing stripped down upgrade tree
+					player:inventory():add_unit_by_name( upgrade.unit_name, i == 1 )
+				end
+			end
+		end		
+	end]]
+	
+	-- Which weapon to add will be taken from some other kind of setting. For now, add all recieved weapons and consider weapon with selection index 1 to be equipped.
+	--[[for name,_ in pairs( self._global.weapons ) do
+		local upgrade = tweak_data.upgrades.definitions[ name ]
+		player:inventory():add_unit_by_name( upgrade.unit_name, upgrade.weapon_id and tweak_data.weapon[ upgrade.weapon_id ].use_data.selection_index == 1 )
+	end]]
+		
+	if self._respawn then
+		-- This flag is set when player has died and gonna respawn, the start equipment won't be equiped
+	else
+		self:_add_level_equipment( player )
+		
+		for i,name in ipairs( self._global.default_kit.special_equipment_slots ) do
+			local ok_name = self._global.equipment[ name ] and name
+			if ok_name then
+				local upgrade = tweak_data.upgrades.definitions[ ok_name ]
+				if upgrade then -- Safety check when testing stripped down upgrade tree
+					if (upgrade.slot and upgrade.slot < 2) or (not upgrade.slot) then  
+						self:add_equipment( { equipment = upgrade.equipment_id, silent = true } )
+					end
+				end
+			end
+		end
+	
+		
+		for i,name in ipairs( self._global.kit.equipment_slots ) do
+			local ok_name = self._global.equipment[ name ] and name or self._global.default_kit.equipment_slots[ i ]
+			if ok_name then
+				local upgrade = tweak_data.upgrades.definitions[ ok_name ]
+				if upgrade then -- Safety check when testing stripped down upgrade tree
+					if (upgrade.slot and upgrade.slot < 2) or (not upgrade.slot) then
+						self:add_equipment( { equipment = upgrade.equipment_id, silent = true } )
+					elseif (upgrade.slot and upgrade.slot == 2) then -- PD2
+						managers.hud:set_perk_equipment( HUDManager.PLAYER_PANEL, upgrade )
+						self:update_synced_perks_to_peers( ok_name )
+					end
+				end
+			end
+		end
+		
+	end
+	
+	--[[for i,name in ipairs( self._global.kit.special_equipment_slots ) do
+		local ok_name = self._global.equipment[ name ] and name
+		if ok_name then
+			local upgrade = tweak_data.upgrades.definitions[ ok_name ]
+			if upgrade then -- Safety check when testing stripped down upgrade tree
+				self:add_equipment( { equipment = upgrade.equipment_id, silent = true } )
+			end
+		end
+	end]]
+end
+
+function PlayerManager:_add_level_equipment( player )
+	-- Have to get the level id from level settings when running simulation
+	local id = Global.running_simulation and managers.editor:layer( "Level Settings" ):get_setting( "simulation_level_id" )
+	id = id ~= "none" and id or nil
+	id = id or Global.level_data.level_id
+		
+	if not id then
+		return
+	end
+	
+	local equipment = tweak_data.levels[ id ].equipment
+	if not equipment then
+		return
+	end
+	
+	for _,eq in ipairs( equipment ) do
+		self:add_equipment( { equipment = eq, silent = true } )
+	end
+end
+
+function PlayerManager:spawn_dropin_penalty( dead, bleed_out, health, used_deployable, used_cable_ties )
+	local player = self:player_unit()
+	print( "[PlayerManager:spawn_dropin_penalty]", dead, bleed_out, health, used_deployable, used_cable_ties )
+	if not alive( player ) then
+		return
+	end
+	
+	if used_deployable then
+		managers.player:clear_equipment()
+	end
+
+	for i = 1, used_cable_ties do
+		self:remove_special("cable_tie")
+	end
+	
+	local min_health
+	if dead or bleed_out then
+		min_health = 0
+	else
+		min_health = 0.25
+	end
+	player:character_damage():set_health( math.max(min_health, health) * player:character_damage():_max_health() )
+	player:inventory():set_ammo( 0.5 )
+
+	if dead or bleed_out then
+		print( "[PlayerManager:spawn_dead] Killing" )
+		--IngameFatalState.client_died()
+		managers.groupai:state():on_player_criminal_death( Global.local_member:peer():id() )
+		
+		player:base():set_enabled( false )
+		game_state_machine:change_state_by_name( "ingame_waiting_for_respawn" )
+		player:character_damage():set_invulnerable( true )
+		player:base():_unregister() -- remove from GroupAI criminals list
+		player:base():set_slot( player, 0 )
+		
+	end
+end
+
+function PlayerManager:nr_players()
+	return self._nr_players
+end
+
+function PlayerManager:set_nr_players( nr )
+	self._nr_players = nr
+end
+
+function PlayerManager:player_id( unit )
+	local id = self._last_id -- this be hax because the player needs its id during spawn ( before it has been added to the players list )
+	for k, player in ipairs( self._players ) do
+		if( player == unit ) then
+			id = k
+		end
+	end
+
+	return id
+end
+
+function PlayerManager:viewport_config()
+	local configs = self._viewport_configs[ self._last_id ]
+	if configs then
+		return configs[ 1 ]
+	end
+end
+
+function PlayerManager:setup_viewports()
+	local configs = self._viewport_configs[ self._last_id ]
+	if( configs ) then
+
+		for k, player in ipairs( self._players ) do
+			--player:camera():setup_viewport( configs[ k ] )
+		end
+
+	else
+		Application:error( "Unsupported number of players: " .. tostring( self._last_id ) )
+	end
+end
+
+-- This function is intended for the editor so the editor data is in sync with game data
+function PlayerManager:player_states()
+	local ret = {}
+	for k,_ in pairs(self._player_states) do
+		table.insert(ret, k)
+	end
+
+	return ret
+end
+
+function PlayerManager:current_state()
+	return self._current_state
+end
+
+function PlayerManager:default_player_state()
+	return self._DEFAULT_STATE
+end
+
+function PlayerManager:set_player_state(state)
+	state = state or self._current_state
+	
+	if state == "standard" and self:get_my_carry_data() then
+		state = "carry"
+	end
+	
+	if( state == self._current_state ) then
+		return
+	end
+	
+	if not self._player_states[state] then
+		-- This state doesn't exist on the list of available states
+		-- Application:throw_exception("State '"..tostring(state).."' does not exist in list of available states.")
+		-- return
+		Application:error("State '"..tostring(state).."' does not exist in list of available states.")
+		state = self._DEFAULT_STATE
+	end
+	
+	-- If the new state is a sync state, we set the current sync state. This will be synced on drop in.
+	if table.contains( self._sync_states, state ) then
+		self._current_sync_state = state
+	end
+
+	self._current_state = state
+		
+	self:_change_player_state()
+
+
+	if state == "clean" or state == "mask_off" then
+		managers.groupai:state():calm_ai()
+	end
+end
+
+function PlayerManager:spawn_players(position, rotation, state)
+	for var = 1, self._nr_players do
+		self._last_id = var
+	end
+	self:spawned_player( self._last_id, safe_spawn_unit( self:player_unit_name(), position, rotation ) )
+	
+	return self._players[ 1 ]
+end
+
+function PlayerManager:spawned_player( id, unit )
+	self._players[ id ] = unit
+	self:setup_viewports()
+	self:_internal_load()	-- Equips selected weapons and equipment
+	self:_change_player_state()
+end
+
+function PlayerManager:_change_player_state()
+	local unit = self:player_unit()
+	if not unit then -- Don't want to enter a game state where the player is assumed to exist
+		return
+	end
+
+	self._listener_holder:call( self._current_state, unit )
+	if game_state_machine:last_queued_state_name() ~= self._player_states[self._current_state] then -- Started reusing gamestates, carry /Martin
+		game_state_machine:change_state_by_name( self._player_states[self._current_state] )
+	end
+	unit:movement():change_state( self._current_state )
+		
+	--[[local enemies = managers.enemy:all_enemies()
+	for _, enemy in pairs( enemies ) do
+		enemy.unit:base():change_state( self._current_state )
+	end]]
+end
+
+function PlayerManager:player_destroyed( id )
+	self._players[ id ] = nil
+	self._respawn = true
+end
+
+function PlayerManager:players()
+	return self._players
+end
+
+function PlayerManager:player_unit_name()
+	return self._player_name
+end
+
+function PlayerManager:player_unit( id )
+	local p_id = id or 1
+	return self._players[ p_id ]
+end
+
+function PlayerManager:warp_to( pos, rot, id )
+	local player = self._players[ id or 1 ]
+	if( alive( player ) ) then
+		player:movement():warp_to( pos, rot )
+	end
+end
+
+function PlayerManager:on_out_of_world()
+	local player_unit = managers.player:player_unit()
+	if not alive( player_unit ) then
+		return
+	end
+		
+	local player_pos = player_unit:position()
+	
+	local closest_pos = nil
+	local closest_distance = nil
+	for _,data in pairs( managers.groupai:state():all_player_criminals() ) do
+		if data.unit ~= player_unit then
+			local pos = data.unit:position()
+			local distance = mvector3.distance( player_pos, pos )
+			if not closest_distance or distance < closest_distance then
+				closest_distance = distance
+				closest_pos = pos
+			end
+		end
+	end
+	
+	if closest_pos then
+		managers.player:warp_to( closest_pos, player_unit:rotation() )
+		return
+	end
+	
+	local pos = player_unit:movement():nav_tracker():field_position()
+	managers.player:warp_to( pos, player_unit:rotation() )
+end 
+
+function PlayerManager:aquire_weapon( upgrade, id )
+	if self._global.weapons[ id ] then
+		return
+	end
+		
+	-- print( "aquire_weapon", id )
+	-- Application:stack_dump()
+	
+	self._global.weapons[ id ] = upgrade
+	
+	local player = self:player_unit()
+	if not player then
+		return
+	end
+		
+	--[[local slot = tweak_data.weapon[ id ].use_data.selection_index
+	if not player:inventory():available_selections()[ slot ] then
+		if upgrade and upgrade.factory_id then
+			player:inventory():add_unit_by_factory_name( upgrade.factory_id, false )
+		else
+			player:inventory():add_unit_by_name( upgrade.unit_name, false )
+		end
+	end]]
+
+	-- Probably not
+	-- player:inventory():add_unit_by_name( upgrade.unit_name, false )
+end
+
+function PlayerManager:unaquire_weapon( upgrade, id )
+	self._global.weapons[ id ] = upgrade
+end
+
+function PlayerManager:_verify_equipment_kit()
+	-- print( "PlayerManager:_verify_equipment_kit()" )
+	for i = 1, 3 do
+		-- print( self._global.kit.equipment_slots[ i ], managers.player:equipment_in_slot( i ) )
+		if not managers.player:equipment_in_slot( i ) then
+			self._global.kit.equipment_slots[ i ] = managers.player:availible_equipment( i )[ 1 ]
+		end
+	end
+end
+
+function PlayerManager:aquire_equipment( upgrade, id )
+	if self._global.equipment[ id ] then
+		return
+	end
+	
+	self._global.equipment[ id ] = upgrade
+	
+	if upgrade.aquire then
+		managers.upgrades:aquire_default( upgrade.aquire.upgrade )
+	end
+	
+	self:_verify_equipment_kit()
+	
+	--[[local player = self:player_unit()
+	if not player then
+		return
+	end
+	
+	if upgrade.slot == 1 then -- Is a deployable
+		-- Add the deployable if we have none
+		if not self._global.kit.equipment_slots[ upgrade.slot ] then
+			self._global.kit.equipment_slots[ upgrade.slot ] = id
+			self:add_equipment( { equipment = id } )
+		end
+	end]]
+end
+
+function PlayerManager:unaquire_equipment( upgrade, id )
+	if not self._global.equipment[ id ] then
+		return
+	end
+		
+	local is_equipped = managers.player:equipment_in_slot( upgrade.slot ) == id
+	self._global.equipment[ id ] = nil
+	if is_equipped then
+		self._global.kit.equipment_slots[ upgrade.slot ] = nil
+		self:_verify_equipment_kit()
+	end
+	
+	if upgrade.aquire then
+		managers.upgrades:unaquire( upgrade.aquire.upgrade )
+	end
+end
+
+function PlayerManager:aquire_upgrade( upgrade )
+	self._global.upgrades[ upgrade.category ] = self._global.upgrades[ upgrade.category ] or {}
+	self._global.upgrades[ upgrade.category ][ upgrade.upgrade ] = upgrade.value
+		
+	local value = tweak_data.upgrades.values[ upgrade.category ][ upgrade.upgrade ][ upgrade.value ]
+	
+	-- Call special function if available
+	if self[ upgrade.upgrade ] then
+		self[ upgrade.upgrade ]( self, value )
+	end
+end
+
+function PlayerManager:unaquire_upgrade( upgrade )
+	if not self._global.upgrades[ upgrade.category ] then
+		Application:error( "[PlayerManager:unaquire_upgrade] Can't unaquire upgrade of category", upgrade.category )
+		return
+	end
+	
+	if not self._global.upgrades[ upgrade.category ][ upgrade.upgrade ] then
+		Application:error( "[PlayerManager:unaquire_upgrade] Can't unaquire upgrade", upgrade.upgrade )
+		return
+	end
+	
+	self:unaquire_incremental_upgrade( upgrade )
+	-- self._global.upgrades[ upgrade.category ][ upgrade.upgrade ] = upgrade.value
+end
+
+-- Will incremenatly upgrade an upgrade instead of setting the predefined step value (body armor)
+function PlayerManager:aquire_incremental_upgrade( upgrade )
+	self._global.upgrades[ upgrade.category ] = self._global.upgrades[ upgrade.category ] or {}
+	local val = self._global.upgrades[ upgrade.category ][ upgrade.upgrade ]
+	self._global.upgrades[ upgrade.category ][ upgrade.upgrade ] = (val or 0) + 1
+	
+	local value = tweak_data.upgrades.values[ upgrade.category ][ upgrade.upgrade ][ self._global.upgrades[ upgrade.category ][ upgrade.upgrade ] ]
+		
+	-- Call special function if available
+	if self[ upgrade.upgrade ] then
+		self[ upgrade.upgrade ]( self, value )
+	end 
+end
+
+function PlayerManager:unaquire_incremental_upgrade( upgrade )
+	if not self._global.upgrades[ upgrade.category ] then
+		Application:error( "[PlayerManager:unaquire_incremental_upgrade] Can't unaquire upgrade of category", upgrade.category )
+		return
+	end
+	
+	if not self._global.upgrades[ upgrade.category ][ upgrade.upgrade ] then
+		Application:error( "[PlayerManager:unaquire_incremental_upgrade] Can't unaquire upgrade", upgrade.upgrade )
+		return
+	end
+	
+	local val = self._global.upgrades[ upgrade.category ][ upgrade.upgrade ]
+	val = val - 1
+	self._global.upgrades[ upgrade.category ][ upgrade.upgrade ] = val > 0 and val or nil
+	
+	if self._global.upgrades[ upgrade.category ][ upgrade.upgrade ] then
+		local value = tweak_data.upgrades.values[ upgrade.category ][ upgrade.upgrade ][ self._global.upgrades[ upgrade.category ][ upgrade.upgrade ] ]
+			
+		-- Call special function if available
+		if self[ upgrade.upgrade ] then
+			self[ upgrade.upgrade ]( self, value )
+		end
+	end
+end
+
+-- Returns the current upgrade value for a category
+function PlayerManager:upgrade_value( category, upgrade, default )
+	-- First check if any upgrades been made
+	if not self._global.upgrades[ category ] then
+		return default or 0
+	end
+	if not self._global.upgrades[ category ][ upgrade ] then
+		return default or 0
+	end  
+	
+	local level = self._global.upgrades[ category ][ upgrade ] 				-- The current upgrade level
+	local value = tweak_data.upgrades.values[ category ][ upgrade ][ level ]	-- The tweak data value for the level
+	return value
+end
+
+----------------------------------------------------
+
+function PlayerManager:activate_temporary_upgrade( category, upgrade )
+	local upgrade_value = self:upgrade_value( category, upgrade )
+	if upgrade_value == 0 then
+		return
+	end
+	
+	local time = upgrade_value[ 2 ]
+	
+	self._temporary_upgrades[ category ] = self._temporary_upgrades[ category ] or {}
+	self._temporary_upgrades[ category ][ upgrade ] = {}
+	
+	self._temporary_upgrades[ category ][ upgrade ][ "expire_time" ] = Application:time() + time
+end
+
+function PlayerManager:has_activate_temporary_upgrade( category, upgrade )
+	local upgrade_value = self:upgrade_value( category, upgrade )
+	if upgrade_value == 0 then
+		return false
+	end
+	
+	if not self._temporary_upgrades[ category ] then
+		return false
+	end
+	
+	if not self._temporary_upgrades[ category ][ upgrade ] then
+		return false
+	end
+	
+	return self._temporary_upgrades[ category ][ upgrade ][ "expire_time" ] > Application:time()
+end
+
+function PlayerManager:temporary_upgrade_value( category, upgrade, default )
+	local upgrade_value = self:upgrade_value( category, upgrade )
+	if upgrade_value == 0 then
+		return default or 0
+	end
+	
+	if not self._temporary_upgrades[ category ] then
+		return default or 0
+	end
+	
+	if not self._temporary_upgrades[ category ][ upgrade ] then
+		return default or 0
+	end
+	
+	if self._temporary_upgrades[ category ][ upgrade ][ "expire_time" ] < Application:time() then
+		return default or 0
+	end
+	
+	return upgrade_value[ 1 ]
+end
+
+function PlayerManager:equiptment_upgrade_value( category, upgrade, default )
+	if( category == "trip_mine" and upgrade == "quantity" ) then
+		return self:upgrade_value( category, "quantity_1", default ) + self:upgrade_value( category, "quantity_2", default ) + self:upgrade_value( category, "quantity_3", default )
+	end
+	return self:upgrade_value( category, upgrade, default )
+end
+
+----------------------------------------------------
+
+-- Returns the current upgrade level for a category
+function PlayerManager:upgrade_level( category, upgrade, default )
+	-- First check if any upgrades been made
+	if not self._global.upgrades[ category ] then
+		return default or 0
+	end
+	if not self._global.upgrades[ category ][ upgrade ] then
+		return default or 0
+	end  
+	
+	local level = self._global.upgrades[ category ][ upgrade ] 				-- The current upgrade level
+	return level
+end
+
+-- Returns the current upgrade value for a category
+function PlayerManager:upgrade_value_by_level( category, upgrade, level, default )
+	return tweak_data.upgrades.values[ category ][ upgrade ][ level ] or default or 0 -- The tweak data value for the level
+end
+
+-- Checks that a certain upgrade is equipped and if it is, returns a current value from an upgrade.
+function PlayerManager:equipped_upgrade_value( equipped, category, upgrade )
+	if not self:has_category_upgrade( category, upgrade ) then
+		return 0
+	end
+	
+	-- if not table.contains( self._global.kit.special_equipment_slots, equipped ) then
+	if not table.contains( self._global.kit.equipment_slots, equipped ) then
+		return 0
+	end
+		
+	return self:upgrade_value( category, upgrade )
+end
+
+-- Returns if an upgrade in a certain category has been acquired
+function PlayerManager:has_category_upgrade( category, upgrade )
+	if not self._global.upgrades[ category ] then
+		return false
+	end
+	if not self._global.upgrades[ category ][ upgrade ] then
+		return false
+	end 
+	return true
+end
+
+-- Returns current body armor value. Body armor upgrade needs to be unlocked and equipped.
+function PlayerManager:body_armor_value()
+	local armor_data = tweak_data.blackmarket.armors[ managers.blackmarket:equipped_armor() ]
+	return self:upgrade_value_by_level( "player", "body_armor", armor_data.upgrade_level, 0 )
+
+	--[[ old armor upgrade 
+	if not self:has_category_upgrade( "player", "body_armor" ) then
+		return 0
+	end]]
+	
+	-- if not table.contains( self._global.kit.special_equipment_slots, "body_armor" ) then
+	--[[if not table.contains( self._global.kit.special_equipment_slots, "body_armor" ) then
+		return 0
+	end]]
+	
+	-- return self:upgrade_value( "player", "body_armor" )
+end
+
+function PlayerManager:body_armor_movement_penalty()
+	local armor_data = tweak_data.blackmarket.armors[ managers.blackmarket:equipped_armor() ]
+	local movement_penalty = self:upgrade_value_by_level( "player", "armor_movement_penalty", armor_data.movement_penalty, 1 )
+
+	local skill_mods = self:upgrade_value( "player", "passive_armor_movement_penalty_multiplier", 1 )
+	if skill_mods < 1 then
+		local penalty = 1 - movement_penalty
+		penalty = penalty * skill_mods
+
+		movement_penalty = 1 - penalty
+	end
+
+	return movement_penalty
+end
+
+-- Returns current thick skin value. Thick skin upgrade needs to be unlocked and equipped.
+function PlayerManager:thick_skin_value()
+	if not self:has_category_upgrade( "player", "thick_skin" ) then
+		return 0
+	end
+	
+	-- if not table.contains( self._global.kit.special_equipment_slots, "thick_skin" ) then
+	if not table.contains( self._global.kit.equipment_slots, "thick_skin" ) then
+		return 0
+	end
+	
+	return self:upgrade_value( "player", "thick_skin" )
+end
+
+-- Returns current toolset value. Toolset upgrade needs to be unlocked and equipped.
+function PlayerManager:toolset_value()
+	if not self:has_category_upgrade( "player", "toolset" ) then
+		return 1
+	end
+	
+	if not table.contains( self._global.kit.equipment_slots, "toolset" ) then
+		return 1
+	end
+	
+	return self:upgrade_value( "player", "toolset" )
+end
+
+
+function PlayerManager:inspect_current_upgrades()
+	for name,upgrades in pairs( self._global.upgrades ) do
+		print( "Weapon "..name..":" )
+		for upgrade,level in pairs( upgrades ) do
+			print( "Upgrade:", upgrade, "is at level", level, "and has value", string.format( "%.2f", tweak_data.upgrades.values[ name ][ upgrade ][ level ] ) )
+		end
+		print( "\n" )
+	end
+end
+
+function PlayerManager:spread_multiplier()
+	if not alive( self:player_unit() ) then
+		return
+	end
+	
+	self:player_unit():movement()._current_state:_update_crosshair_offset()
+end
+
+-- Returns total upgrade progress for a weapon
+function PlayerManager:weapon_upgrade_progress( weapon_id )
+	local current = 0
+	local total = 0
+	
+	if self._global.upgrades[ weapon_id ] then
+		for upgrade,value in pairs( self._global.upgrades[ weapon_id ] ) do
+			current = current + value
+		end
+	end
+		
+	if tweak_data.upgrades.values[ weapon_id ] then
+		for _,values in pairs( tweak_data.upgrades.values[ weapon_id ] ) do
+			total = total + #values
+		end
+	end
+		
+	return current, total
+end
+
+-- Equipment upgrades are kinda spread out between categories. Try the bets here to find the right one based on upgrade equipment id
+function PlayerManager:equipment_upgrade_progress( equipment_id )
+	local current = 0
+	local total = 0
+	
+	if tweak_data.upgrades.values[ equipment_id ] then
+		if self._global.upgrades[ equipment_id ] then
+			for upgrade,value in pairs( self._global.upgrades[ equipment_id ] ) do
+				current = current + value
+			end
+		end
+				
+		for _,values in pairs( tweak_data.upgrades.values[ equipment_id ] ) do
+			total = total + #values
+		end
+	
+		return current, total
+	end
+	
+	if tweak_data.upgrades.values.player[ equipment_id ] then
+		if self._global.upgrades.player and self._global.upgrades.player[ equipment_id ] then
+			current = self._global.upgrades.player[ equipment_id ]
+		end
+				
+		total = #tweak_data.upgrades.values.player[ equipment_id ]
+		
+		return current, total
+	end
+		
+	if tweak_data.upgrades.definitions[ equipment_id ] then
+		if tweak_data.upgrades.definitions[ equipment_id ].aquire then
+			local upgrade = tweak_data.upgrades.definitions[ tweak_data.upgrades.definitions[ equipment_id ].aquire.upgrade ]
+			 return self:equipment_upgrade_progress( upgrade.upgrade.upgrade )
+		end
+	end
+	
+	return current, total
+end
+
+------------------------------------------------------------------------------
+
+function PlayerManager:has_weapon( name )
+	return managers.player._global.weapons[ name ]
+end
+
+function PlayerManager:has_aquired_equipment( name )
+	return managers.player._global.equipment[ name ]
+end
+
+function PlayerManager:availible_weapons( slot )
+	local weapons = {}
+	for name,_ in pairs( managers.player._global.weapons ) do
+		 if not slot or (slot and tweak_data.weapon[ name ].use_data.selection_index == slot) then
+		 	table.insert( weapons, name )
+		 end
+	end
+	return weapons
+end
+
+function PlayerManager:weapon_in_slot( slot )
+	local weapon = self._global.kit.weapon_slots[ slot ]
+	if self._global.weapons[ weapon ] then
+		return weapon
+	end
+	
+	local weapon = self._global.default_kit.weapon_slots[ slot ]
+	return self._global.weapons[ weapon ] and weapon
+end
+
+function PlayerManager:availible_equipment( slot )
+	local equipment = {}
+	for name,_ in pairs( self._global.equipment ) do
+		 if not slot or (slot and tweak_data.upgrades.definitions[ name ].slot == slot) then
+		 	table.insert( equipment, name )
+		 end
+	end
+	return equipment
+end
+
+function PlayerManager:equipment_in_slot( slot )
+	return self._global.kit.equipment_slots[ slot ]
+	
+	--[[
+	local equipment = self._global.kit.equipment_slots[ slot ]
+	if self._global.equipment[ equipment ] then
+		return equipment
+	end
+	
+	local equipment = self._global.default_kit.equipment_slots[ slot ]
+	return self._global.equipment[ equipment ] and equipment
+	]]
+end
+
+------------------------------------------------------------------------------
+
+-- Not used
+function PlayerManager:toggle_player_rule( rule )
+	self._rules[ rule ] = not self._rules[ rule ]
+	if rule == "no_run" and self._rules[ rule ] then
+		local player = self:player_unit()
+		if player:movement():current_state()._interupt_action_running then
+			player:movement():current_state():_interupt_action_running( Application:time() )
+		end
+	end  
+end
+
+function PlayerManager:set_player_rule( rule, value )
+	self._rules[ rule ] = self._rules[ rule ] + (value and 1 or -1)
+	
+	if rule == "no_run" and self:get_player_rule( rule ) then
+		local player = self:player_unit()
+		if player:movement():current_state()._interupt_action_running then
+			player:movement():current_state():_interupt_action_running( Application:time() )
+		end
+	end
+end
+
+function PlayerManager:get_player_rule( rule )
+	return self._rules[ rule ] > 0
+end
+
+------------------------------------------------------------------------------
+
+-- Called when a peer drops in. 
+function PlayerManager:update_deployable_equipment_to_peer( peer )
+	local peer_id = managers.network:session():local_peer():id()
+	if self._global.synced_deployables[ peer_id ] then
+		local deployable = self._global.synced_deployables[ peer_id ].deployable
+		local amount = self._global.synced_deployables[ peer_id ].amount
+		peer:send_after_load( "sync_deployable_equipment", peer_id, deployable, amount )
+	end
+end
+
+function PlayerManager:update_deployable_equipment_amount_to_peers( equipment, amount )
+	local peer_id = managers.network:session():local_peer():id()
+	managers.network:session():send_to_peers( "sync_deployable_equipment", peer_id, equipment, amount )
+	self:set_synced_deployable_equipment( peer_id, equipment, amount )
+end
+
+function PlayerManager:set_synced_deployable_equipment( peer_id, deployable, amount )
+	local only_update_amount = self._global.synced_deployables[ peer_id ] and self._global.synced_deployables[ peer_id ].deployable == deployable
+	
+	self._global.synced_deployables[ peer_id ] = { deployable = deployable, amount = amount }
+
+	local character_data = managers.criminals:character_data_by_peer_id( peer_id )
+	if character_data and character_data.panel_id then
+		local icon = tweak_data.equipments[ deployable ].icon
+		if only_update_amount then
+			managers.hud:set_teammate_deployable_equipment_amount( character_data.panel_id, 1, { icon = icon, amount = amount } )
+		else
+			managers.hud:set_deployable_equipment( character_data.panel_id, { icon = icon, amount = amount } )
+		end
+	end
+	
+	local local_peer_id = managers.network:session():local_peer():id()
+	if peer_id ~= local_peer_id then
+		if managers.network:game():member( peer_id ) then
+			local unit = managers.network:game():member( peer_id ):unit()
+			if alive( unit ) then
+				unit:movement():set_visual_deployable_equipment( deployable, amount )
+			end
+		end
+	end
+end
+
+function PlayerManager:get_synced_deployable_equipment( peer_id )
+	return self._global.synced_deployables[ peer_id ]
+end
+
+------------------------------------------------------------------------------
+-- Synced Cable ties
+
+-- Called when a peer drops in. 
+function PlayerManager:update_cable_ties_to_peer( peer )
+	local peer_id = managers.network:session():local_peer():id()
+	if self._global.synced_cable_ties[ peer_id ] then
+		local amount = self._global.synced_cable_ties[ peer_id ].amount
+		peer:send_after_load( "sync_cable_ties", peer_id, amount )
+	end
+end
+
+function PlayerManager:update_synced_cable_ties_to_peers( amount )
+	local peer_id = managers.network:session():local_peer():id()
+	managers.network:session():send_to_peers( "sync_cable_ties", peer_id, amount )
+	self:set_synced_cable_ties( peer_id, amount )
+end
+
+function PlayerManager:set_synced_cable_ties( peer_id, amount )
+	-- print( "PlayerManager:set_synced_cable_ties", peer_id, self._global.synced_cable_ties[ peer_id ] )
+	local only_update_amount = false -- self._global.synced_cable_ties[ peer_id ] -- and self._global.synced_cable_ties[ peer_id ].deployable == deployable
+	
+
+	if self._global.synced_cable_ties[ peer_id ] then
+		if amount < self._global.synced_cable_ties[ peer_id ].amount then
+			if managers.network:session() and managers.network:session():peer( peer_id ) then
+				local peer = managers.network:session():peer( peer_id )
+				peer:on_used_cable_tie()
+			end
+		end
+	end
+	
+	self._global.synced_cable_ties[ peer_id ] = { amount = amount }
+
+	local character_data = managers.criminals:character_data_by_peer_id( peer_id )
+	if character_data and character_data.panel_id then
+		local icon = tweak_data.equipments.specials[ "cable_tie" ].icon
+		if only_update_amount then
+			managers.hud:set_cable_ties_amount( character_data.panel_id, amount )
+		else
+			managers.hud:set_cable_tie( character_data.panel_id, { icon = icon, amount = amount } )
+		end
+	end
+end
+
+function PlayerManager:get_synced_cable_ties( peer_id )
+	return self._global.synced_cable_ties[ peer_id ]
+end
+
+------------------------------------------------------------------------------
+-- Synced Perks
+
+-- Called when a peer drops in. 
+function PlayerManager:update_perks_to_peer( peer )
+	local peer_id = managers.network:session():local_peer():id()
+	if self._global.synced_perks[ peer_id ] then
+		local perk = self._global.synced_perks[ peer_id ].perk
+		peer:send_after_load( "sync_perk_equipment", peer_id, perk )
+	end
+end
+
+function PlayerManager:update_synced_perks_to_peers( perk )
+	local peer_id = managers.network:session():local_peer():id()
+	managers.network:session():send_to_peers( "sync_perk_equipment", peer_id, perk )
+	self:set_synced_perk( peer_id, perk )
+end
+
+function PlayerManager:set_synced_perk( peer_id, perk )
+	self._global.synced_perks[ peer_id ] = { perk = perk }
+
+	local character_data = managers.criminals:character_data_by_peer_id( peer_id )
+	if character_data and character_data.panel_id then
+		local icon = tweak_data.upgrades.definitions[ perk ].icon
+		managers.hud:set_perk_equipment( character_data.panel_id, { icon = icon } )
+	end
+end
+
+function PlayerManager:get_synced_perk( peer_id )
+	return self._global.synced_perks[ peer_id ]
+end
+
+------------------------------------------------------------------------------
+-- Ammo Info
+
+-- Called when a peer drops in. 
+function PlayerManager:update_ammo_info_to_peer( peer )
+	local peer_id = managers.network:session():local_peer():id()
+	if self._global.synced_ammo_info[ peer_id ] then
+		for selection_index, ammo_info in pairs( self._global.synced_ammo_info[ peer_id ] ) do
+			peer:send_after_load( "sync_ammo_amount", peer_id, selection_index, unpack( ammo_info ) )
+		end
+	end
+end
+
+function PlayerManager:update_synced_ammo_info_to_peers( selection_index, max_clip, current_clip, current_left, max )
+	local peer_id = managers.network:session():local_peer():id()
+	managers.network:session():send_to_peers_loaded( "sync_ammo_amount", peer_id, selection_index, max_clip, current_clip, current_left, max )
+	self:set_synced_ammo_info( peer_id, selection_index, max_clip, current_clip, current_left, max )
+end
+
+function PlayerManager:set_synced_ammo_info( peer_id, selection_index, max_clip, current_clip, current_left, max )
+	self._global.synced_ammo_info[ peer_id ] = self._global.synced_ammo_info[ peer_id ] or {}
+	self._global.synced_ammo_info[ peer_id ][ selection_index ] = { max_clip, current_clip, current_left, max }
+		
+	-- self._global.synced_ammo_info[ peer_id ][ selection_index ] = { max_clip, current_clip, current_left, max }
+		
+	local character_data = managers.criminals:character_data_by_peer_id( peer_id )
+	if character_data and character_data.panel_id then
+		managers.hud:set_teammate_ammo_amount( character_data.panel_id, selection_index, max_clip, current_clip, current_left, max )
+	end
+end
+
+function PlayerManager:get_synced_ammo_info( peer_id )
+	return self._global.synced_ammo_info[ peer_id ]
+end
+
+------------------------------------------------------------------------------
+-- Synced Carry
+
+-- Called when a peer drops in. 
+function PlayerManager:update_carry_to_peer( peer )
+	local peer_id = managers.network:session():local_peer():id()
+	if self._global.synced_carry[ peer_id ] then
+		local carry_id = self._global.synced_carry[ peer_id ].carry_id
+		local value = self._global.synced_carry[ peer_id ].value
+		local dye_initiated = self._global.synced_carry[ peer_id ].dye_initiated
+		local has_dye_pack = self._global.synced_carry[ peer_id ].has_dye_pack
+		local dye_value_multiplier = self._global.synced_carry[ peer_id ].dye_value_multiplier
+		peer:send_after_load( "sync_carry", peer_id, carry_id, value, dye_initiated, has_dye_pack, dye_value_multiplier )
+	end
+end
+
+function PlayerManager:update_synced_carry_to_peers( carry_id, value, dye_initiated, has_dye_pack, dye_value_multiplier )
+	local peer_id = managers.network:session():local_peer():id()
+	managers.network:session():send_to_peers( "sync_carry", peer_id, carry_id, value, dye_initiated, has_dye_pack, dye_value_multiplier )
+	self:set_synced_carry( peer_id, carry_id, value, dye_initiated, has_dye_pack, dye_value_multiplier )
+end
+
+function PlayerManager:set_synced_carry( peer_id, carry_id, value, dye_initiated, has_dye_pack, dye_value_multiplier )
+	-- print( "PlayerManager:set_synced_carry", peer_id, self._global.synced_carry[ peer_id ] )
+	-- local only_update_amount = false -- self._global.synced_cable_ties[ peer_id ] -- and self._global.synced_cable_ties[ peer_id ].deployable == deployable
+	
+	self._global.synced_carry[ peer_id ] = { 	carry_id = carry_id, 
+												value = value, 
+												dye_initiated = dye_initiated, 
+												has_dye_pack = has_dye_pack, 
+												dye_value_multiplier = dye_value_multiplier }
+
+	local character_data = managers.criminals:character_data_by_peer_id( peer_id )
+	if character_data and character_data.panel_id then
+		--[[local icon = tweak_data.equipments.specials[ "cable_tie" ].icon]]
+		managers.hud:set_teammate_carry_info( character_data.panel_id, carry_id, managers.loot:get_real_value( carry_id, value ) )
+	end
+	managers.hud:set_name_label_carry_info( peer_id, carry_id, managers.loot:get_real_value( carry_id, value ) )
+	
+	local local_peer_id = managers.network:session():local_peer():id()
+	if peer_id ~= local_peer_id then
+		if managers.network:game():member( peer_id ) then
+			local unit = managers.network:game():member( peer_id ):unit()
+			if alive( unit ) then
+				unit:movement():set_visual_carry( carry_id )
+			end
+		end
+	end
+end
+
+function PlayerManager:set_carry_approved( peer )
+	self._global.synced_carry[ peer:id() ].approved = true
+end
+
+function PlayerManager:update_removed_synced_carry_to_peers()
+	local peer_id = managers.network:session():local_peer():id()
+	managers.network:session():send_to_peers( "sync_remove_carry", peer_id )
+	self:remove_synced_carry( peer_id )
+end
+
+function PlayerManager:remove_synced_carry( peer_id )
+	if not self._global.synced_carry[ peer_id ] then
+		return
+	end
+	self._global.synced_carry[ peer_id ] = nil
+	
+	local character_data = managers.criminals:character_data_by_peer_id( peer_id )
+	if character_data and character_data.panel_id then
+		managers.hud:remove_teammate_carry_info( character_data.panel_id )
+		--[[local icon = tweak_data.equipments.specials[ "cable_tie" ].icon
+		if only_update_amount then
+			managers.hud:set_cable_ties_amount( character_data.panel_id, amount )
+		else
+			managers.hud:set_cable_tie( character_data.panel_id, { icon = icon, amount = amount } )
+		end]]
+	end
+	managers.hud:remove_name_label_carry_info( peer_id )
+	
+	local local_peer_id = managers.network:session():local_peer():id()
+	if peer_id ~= local_peer_id then
+		if managers.network:game():member( peer_id ) then
+			local unit = managers.network:game():member( peer_id ):unit()
+			if alive( unit ) then
+				unit:movement():set_visual_carry( nil )
+			end
+		end
+	end
+end
+
+function PlayerManager:get_my_carry_data()
+	local peer_id = managers.network:session():local_peer():id()
+	return self._global.synced_carry[ peer_id ]
+end
+
+function PlayerManager:get_synced_carry( peer_id )
+	return self._global.synced_carry[ peer_id ]
+end
+
+function PlayerManager:from_server_interaction_reply( status )
+	self:player_unit():movement():set_carry_restriction( false )
+	if not status then
+		self:clear_carry()
+	end
+end
+
+function PlayerManager:get_all_synced_carry()
+	return self._global.synced_carry
+end
+
+------------------------------------------------------------------------------
+-- Team upgrades (synced and personal)
+
+-- Aquired from upgrade
+function PlayerManager:aquire_team_upgrade( upgrade )
+	self._global.team_upgrades[ upgrade.category ] = self._global.team_upgrades[ upgrade.category ] or {}
+	self._global.team_upgrades[ upgrade.category ][ upgrade.upgrade ] = upgrade.value
+end
+
+-- Unaquired from upgrade
+function PlayerManager:unaquire_team_upgrade( upgrade )
+	-- self._global.team_upgrades[ upgrade.category ] = nil
+	
+	if not self._global.team_upgrades[ upgrade.category ] then
+		Application:error( "[PlayerManager:unaquire_team_upgrade] Can't unaquire team upgrade of category", upgrade.category )
+		return
+	end
+	
+	if not self._global.team_upgrades[ upgrade.category ][ upgrade.upgrade ] then
+		Application:error( "[PlayerManager:unaquire_team_upgrade] Can't unaquire team upgrade", upgrade.upgrade )
+		return
+	end
+	
+	local val = self._global.team_upgrades[ upgrade.category ][ upgrade.upgrade ]
+	val = val - 1
+	self._global.team_upgrades[ upgrade.category ][ upgrade.upgrade ] = val > 0 and val or nil
+end
+
+-- Checks a team upgrade valeu, either from synced or from personal
+function PlayerManager:team_upgrade_value( category, upgrade, default )
+	
+	-- check synced
+	for peer_id,categories in pairs( self._global.synced_team_upgrades ) do
+		if categories[ category ] and categories[ category ][ upgrade ] then
+			-- print( "has synced", peer_id, category, upgrade, categories[ category ][ upgrade ] )
+			local level = categories[ category ][ upgrade ]
+			return tweak_data.upgrades.values[ "team" ][ category ][ upgrade ][ level ]
+		end
+	end
+	
+	if not self._global.team_upgrades[ category ] then
+		return default or 0
+	end
+	if not self._global.team_upgrades[ category ][ upgrade ] then
+		return default or 0
+	end  
+	
+	local level = self._global.team_upgrades[ category ][ upgrade ] 				-- The current upgrade level
+	local value = tweak_data.upgrades.values[ "team" ][ category ][ upgrade ][ level ]	-- The tweak data value for the level
+	return value
+end
+
+function PlayerManager:has_team_category_upgrade( category, upgrade )
+	for peer_id,categories in pairs( self._global.synced_team_upgrades ) do
+		if categories[ category ] and categories[ category ][ upgrade ] then
+			-- print( "has_team_category_upgrade has synced", peer_id, category, upgrade, categories[ category ][ upgrade ] )
+			return true
+		end
+	end
+	
+	if not self._global.team_upgrades[ category ] then
+		return false
+	end
+	if not self._global.team_upgrades[ category ][ upgrade ] then
+		return false
+	end 
+	return true
+end
+
+-- Sends all team upgrades to all peers
+function PlayerManager:update_team_upgrades_to_peers()
+	for category,upgrades in pairs( self._global.team_upgrades ) do
+		for upgrade,level in pairs( upgrades ) do
+			-- print( "update_team_upgrades_to_peers", "category, upgrade, level", category, upgrade, level )
+			managers.network:session():send_to_peers( "add_synced_team_upgrade", category, upgrade, level )
+		end
+	end
+end
+
+-- Sends all team upgrades to peer (from NetworkMember:sync_data) 
+function PlayerManager:update_team_upgrades_to_peer( peer )
+	for category,upgrades in pairs( self._global.team_upgrades ) do
+		for upgrade,level in pairs( upgrades ) do
+			-- print( "sync to peer", peer, "category, upgrade, level", category, upgrade, level )
+			peer:send_after_load( "add_synced_team_upgrade", category, upgrade, level )
+		end
+	end
+end
+
+-- Recieves an upgrade from a peer
+function PlayerManager:add_synced_team_upgrade( peer_id, category, upgrade, level )
+	-- print( "PlayerManager:add_synced_team_upgrade", peer_id, category, upgrade, level )
+	self._global.synced_team_upgrades[ peer_id ] = self._global.synced_team_upgrades[ peer_id ] or {}
+	self._global.synced_team_upgrades[ peer_id ][ category ] = self._global.synced_team_upgrades[ peer_id ][ category ] or {}
+	self._global.synced_team_upgrades[ peer_id ][ category ][ upgrade ] = level
+end
+
+-- function PlayerManager:remove_synced_team_upgrade( peer_id, category, upgrade, level ) ?
+
+------------------------------------------------------------------------------
+
+function PlayerManager:remove_equipment_possession( peer_id, equipment )
+	if not self._global.synced_equipment_possession[ peer_id ] then
+		return
+	end
+	self._global.synced_equipment_possession[ peer_id ][ equipment ] = nil
+	local character_data = managers.criminals:character_data_by_peer_id( peer_id )
+	if character_data and character_data.panel_id then
+		managers.hud:remove_teammate_special_equipment( character_data.panel_id, equipment )
+	end
+end
+
+function PlayerManager:get_synced_equipment_possession( peer_id )
+ 	return self._global.synced_equipment_possession[ peer_id ]
+end
+
+-- When a peer drops in
+function PlayerManager:update_equipment_possession_to_peer( peer )
+	local peer_id = managers.network:session():local_peer():id()
+	
+	if self._global.synced_equipment_possession[ peer_id ] then
+		for name,amount in pairs( self._global.synced_equipment_possession[ peer_id ] ) do
+			peer:send_after_load( "sync_equipment_possession", peer_id, name, amount )
+		end
+	end
+end
+
+function PlayerManager:update_equipment_possession_to_peers( equipment, amount )
+	local peer_id = managers.network:session():local_peer():id()
+	managers.network:session():send_to_peers( "sync_equipment_possession", peer_id, equipment, amount or 1 )
+	self:set_synced_equipment_possession( peer_id, equipment, amount )
+end
+
+function PlayerManager:set_synced_equipment_possession( peer_id, equipment, amount )
+	local only_update_amount = self._global.synced_equipment_possession[ peer_id ] and self._global.synced_equipment_possession[ peer_id ][ equipment ]
+	
+	self._global.synced_equipment_possession[ peer_id ] = self._global.synced_equipment_possession[ peer_id ] or {}
+	self._global.synced_equipment_possession[ peer_id ][ equipment ] = amount or 1
+	
+	local character_data = managers.criminals:character_data_by_peer_id( peer_id )
+	if character_data and character_data.panel_id then
+		local equipment_data = tweak_data.equipments.specials[ equipment ]
+		local icon = equipment_data.icon
+		if only_update_amount then
+			managers.hud:set_teammate_special_equipment_amount( character_data.panel_id, equipment, amount )
+		else
+			managers.hud:add_teammate_special_equipment( character_data.panel_id, { id = equipment, icon = icon, amount = amount } )
+		end
+	end
+end
+
+-------------------------------------------------------------------------------------------------------------------
+
+-- When peer drops out for whatever reason
+function PlayerManager:peer_dropped_out( peer )
+	local peer_id = peer:id()
+	if Network:is_server() then
+		if self._global.synced_equipment_possession[ peer_id ] then
+			local peers = { managers.network:session():local_peer() }
+			for _,p in pairs( managers.network:session():peers() ) do
+				table.insert( peers, p )
+			end
+			for name,amount in pairs( self._global.synced_equipment_possession[ peer_id ] ) do
+				for _,p in pairs( peers ) do
+					local id = p:id()
+					if not self._global.synced_equipment_possession[ id ] or not self._global.synced_equipment_possession[ id ][ name ] then
+						if p == managers.network:session():local_peer() then
+							managers.player:add_special( { name = name, amount = amount } )
+						else
+							p:send( "give_equipment", name, amount )
+						end
+						break
+					end
+				end
+			end
+		end
+		
+		if self._global.synced_carry[ peer_id ] and self._global.synced_carry[ peer_id ].approved then
+			local carry_id = self._global.synced_carry[ peer_id ].carry_id
+			local carry_value = self._global.synced_carry[ peer_id ].value
+			local dye_initiated = self._global.synced_carry[ peer_id ].dye_initiated
+			local has_dye_pack = self._global.synced_carry[ peer_id ].has_dye_pack
+			local dye_value_multiplier = self._global.synced_carry[ peer_id ].dye_value_multiplier
+			local peer_unit = managers.network:game():member( peer_id ):unit()
+			-- Position be somewhere on graph?
+			local position = alive( peer_unit ) and peer_unit:position() or Vector3()
+			local dir = Vector3(0,0,0) -- Vector3(0,0,0.75)
+			self:server_drop_carry( carry_id, carry_value, dye_initiated, has_dye_pack, dye_value_multiplier, position, Rotation(), dir, 0 )
+		end
+	end
+	self._global.synced_equipment_possession[ peer_id ] = nil
+	self._global.synced_deployables[ peer_id ] = nil
+	self._global.synced_cable_ties[ peer_id ] = nil
+	self._global.synced_perks[ peer_id ] = nil
+	self._global.synced_ammo_info[ peer_id ] = nil
+	self._global.synced_carry[ peer_id ] = nil
+	self._global.synced_team_upgrades[ peer_id ] = nil
+end
+
+------------------------------------------------------------------------------
+-- EQUIPMENT
+------------------------------------------------------------------------------
+
+function PlayerManager:add_equipment( params )
+	if tweak_data.equipments[ params.equipment or params.name ] then
+		self:_add_equipment( params )
+		return
+	end
+	
+	if tweak_data.equipments.specials[ params.equipment or params.name ] then
+		self:add_special( params )
+		return
+	end
+	Application:error( "No equipment or special equipment named", params.equipment or params.name )
+end
+
+function PlayerManager:_add_equipment( params )
+	-- Doesn't support carrying same equipment in several slots
+	if self:has_equipment( params.equipment ) then
+		print( "Allready have equipment", params.equipment )
+		return
+	end
+		
+	local equipment 		= params.equipment
+	local tweak_data 		= tweak_data.equipments[ equipment ]
+	local amount 			= params.amount or ((tweak_data.quantity or 0) + self:equiptment_upgrade_value( equipment, "quantity" ) ) -- self:upgrade_value( equipment, "quantity" ) )
+	local icon 				= params.icon or ( tweak_data and tweak_data.icon )
+	local use_function_name = params.use_function_name or ( tweak_data and tweak_data.use_function_name )
+	local use_function		= use_function_name --[[and callback( self, self, use_function_name )]] or nil
+	table.insert( self._equipment.selections, { equipment = equipment, amount = Application:digest_value( 0, true ), use_function = use_function, action_timer = tweak_data.action_timer } )
+	self._equipment.selected_index = self._equipment.selected_index or 1
+		
+	self:update_deployable_equipment_amount_to_peers( equipment, amount )
+	
+	managers.hud:add_item( { amount = amount, icon = icon } )
+	self:add_equipment_amount( equipment, amount )
+end
+
+function PlayerManager:add_equipment_amount( equipment, amount )
+	local data, index = self:equipment_data_by_name( equipment )
+	if data then
+		local new_amount = Application:digest_value( data.amount, false ) + amount
+		data.amount = Application:digest_value( new_amount, true )
+		managers.hud:set_item_amount( index, new_amount )
+	end
+end
+
+function PlayerManager:set_equipment_amount( equipment, amount )
+	local data, index = self:equipment_data_by_name( equipment )
+	if data then
+		local new_amount = amount
+		data.amount = Application:digest_value( new_amount, true )
+		managers.hud:set_item_amount( index, new_amount )
+	end
+end
+
+function PlayerManager:equipment_data_by_name( equipment )
+	for i,equipments in ipairs( self._equipment.selections ) do
+		if equipments.equipment == equipment then
+			return equipments,i
+		end
+	end
+	return nil
+end
+
+function PlayerManager:get_equipment_amount( equipment )
+	for i,equipments in ipairs( self._equipment.selections ) do
+		if equipments.equipment == equipment then
+			return Application:digest_value( equipments.amount, false )
+		end
+	end
+	return 0
+end
+
+function PlayerManager:has_equipment( equipment )
+	for i,equipments in ipairs( self._equipment.selections ) do
+		if equipments.equipment == equipment then
+			return true
+		end
+	end
+	return false
+end
+
+function PlayerManager:has_deployable_left( equipment )
+	return self:get_equipment_amount( equipment ) > 0
+end
+
+function PlayerManager:select_next_item()
+	if not self._equipment.selected_index then
+		return
+	end
+	self._equipment.selected_index = (self._equipment.selected_index+1) <= #self._equipment.selections and (self._equipment.selected_index+1) or 1
+	managers.hud:set_next_item_selected()
+end
+
+function PlayerManager:select_previous_item()
+	if not self._equipment.selected_index then
+		return
+	end
+	self._equipment.selected_index = (self._equipment.selected_index-1) >= 1 and (self._equipment.selected_index-1) or #self._equipment.selections
+	managers.hud:set_previous_item_selected()
+end
+
+function PlayerManager:clear_equipment()
+	for i, equipment in ipairs( self._equipment.selections ) do
+		equipment.amount = Application:digest_value( 0, true )
+		managers.hud:set_item_amount( i, 0 )
+		
+		self:update_deployable_equipment_amount_to_peers( equipment.equipment, 0 )
+	end
+end
+
+function PlayerManager:from_server_equipment_place_result( selected_index, unit )
+	if alive( unit ) then
+		unit:equipment():from_server_sentry_gun_place_result( selected_index ~= 0 )
+	end
+	local equipment = self._equipment.selections[ selected_index ]
+	if not equipment then
+		return	-- that equipment does not exist any more of failed to equip
+	end 
+	local new_amount = Application:digest_value( equipment.amount, false ) - 1
+	equipment.amount = Application:digest_value( new_amount, true )
+
+	if false then
+		if new_amount == 0 then
+			if equipment.equipment == "trip_mine" and not self:has_equipment( "sentry_gun" ) then
+				self:add_equipment( { equipment = "sentry_gun" } )
+				self:select_next_item()
+				return 
+			elseif equipment.equipment == "sentry_gun" and not self:has_equipment( "trip_mine" ) then
+				self:add_equipment( { equipment = "trip_mine" } )
+				self:select_next_item()
+				return 
+			end
+		end
+	end
+	managers.hud:set_item_amount( self._equipment.selected_index, new_amount )
+	self:update_deployable_equipment_amount_to_peers( equipment.equipment, new_amount )
+end
+
+function PlayerManager:can_use_selected_equipment( unit )
+	local equipment = self._equipment.selections[ self._equipment.selected_index ]
+	if not equipment or Application:digest_value( equipment.amount, false ) == 0 then
+		return false
+	end
+	return true
+end
+
+function PlayerManager:selected_equipment()
+	local equipment = self._equipment.selections[ self._equipment.selected_index ]
+	if not equipment or Application:digest_value( equipment.amount, false ) == 0 then
+		return nil
+	end
+	return equipment
+end
+
+function PlayerManager:selected_equipment_id()
+	local equipment_data = self:selected_equipment()
+	if not equipment_data then
+		return nil
+	end
+	return equipment_data.equipment
+end
+
+function PlayerManager:selected_equipment_name()
+	local equipment_data = self:selected_equipment()
+	if not equipment_data then
+		return ""
+	end
+	return managers.localization:text( tweak_data.equipments[ equipment_data.equipment ].text_id )
+end
+
+function PlayerManager:use_selected_equipment( unit )
+	local equipment = self._equipment.selections[ self._equipment.selected_index ]
+	if not equipment or Application:digest_value( equipment.amount, false ) == 0 then
+		return
+	end
+	
+	local used_one = false
+	local redirect = nil
+	if equipment.use_function then
+		-- used_one,redirect = equipment.use_function()
+		used_one,redirect = unit:equipment()[ equipment.use_function ]( unit:equipment(), self._equipment.selected_index )
+	else
+		used_one = true 
+	end
+	
+	if used_one then
+		self:remove_equipment( equipment.equipment )
+	end
+	
+	return { expire_timer = equipment.action_timer, redirect = redirect }
+end
+
+function PlayerManager:check_selected_equipment_placement_valid( player )
+	local equipment_data = managers.player:selected_equipment()
+	if not equipment_data then
+		return false
+	end
+	
+	if equipment_data.equipment == "trip_mine" or equipment_data.equipment == "ecm_jammer" then
+		return player:equipment():valid_look_at_placement( tweak_data.equipments[ equipment_data.equipment ] ) and true or false
+	elseif equipment_data.equipment == "sentry_gun" or equipment_data.equipment == "ammo_bag" 
+			or equipment_data.equipment == "doctor_bag" then
+		return player:equipment():valid_shape_placement( equipment_data.equipment, tweak_data.equipments[ equipment_data.equipment ] ) and true or false
+	end
+		
+	return player:equipment():valid_placement( tweak_data.equipments[ equipment_data.equipment ] ) and true or false
+end
+
+function PlayerManager:selected_equipment_deploy_timer()
+	local equipment_data = managers.player:selected_equipment()
+	if not equipment_data then
+		return 0
+	end
+	
+	local equipment_tweak_data = tweak_data.equipments[ equipment_data.equipment ]
+	local multiplier = 1
+	if equipment_tweak_data.upgrade_deploy_time_multiplier then
+		multiplier = managers.player:upgrade_value( equipment_tweak_data.upgrade_deploy_time_multiplier.category, equipment_tweak_data.upgrade_deploy_time_multiplier.upgrade, 1 )
+	end
+	return (equipment_tweak_data.deploy_time or 1) * multiplier
+end
+
+function PlayerManager:remove_equipment( equipment_id )
+	local equipment, index = self:equipment_data_by_name( equipment_id )
+	local new_amount = Application:digest_value( equipment.amount, false ) - 1
+	equipment.amount = Application:digest_value(new_amount , true )
+
+	if false then
+		if new_amount == 0 then
+			if equipment.equipment == "trip_mine" and not self:has_equipment( "sentry_gun" ) then
+				self:add_equipment( { equipment = "sentry_gun" } )
+				self:select_next_item()
+				return
+			elseif equipment.equipment == "sentry_gun" and not self:has_equipment( "trip_mine" ) then
+				self:add_equipment( { equipment = "trip_mine" } )
+				self:select_next_item()
+				return
+			end
+		end
+	end
+	managers.hud:set_item_amount( index, new_amount )
+	self:update_deployable_equipment_amount_to_peers( equipment.equipment, new_amount )
+end
+
+function PlayerManager:add_special( params )
+	local name = params.equipment or params.name
+	if not tweak_data.equipments.specials[ name ] then
+		Application:error( "Special equipment "..name.." doesn't exist!" )
+		return
+	end
+	
+	local unit = self:player_unit()
+	
+	-- The amount param is only used when respawning right now.
+	local respawn = params.amount and true or false
+	local equipment = tweak_data.equipments.specials[ name ]
+	local special_equipment = self._equipment.specials[ name ]
+		
+	local amount = (params.amount or equipment.quantity)
+	local extra = self:_equipped_upgrade_value( equipment ) + self:upgrade_value( name, "quantity" ) 
+			
+	if special_equipment then
+		if equipment.quantity then
+			local dedigested_amount = Application:digest_value( special_equipment.amount, false )
+			local new_amount = (self:has_category_upgrade( name, "quantity_unlimited" ) and -1) or math.min( dedigested_amount + amount, equipment.quantity + extra )
+			special_equipment.amount = Application:digest_value( new_amount, true )
+
+			if special_equipment.is_cable_tie then
+				managers.hud:set_cable_ties_amount( HUDManager.PLAYER_PANEL, new_amount )
+				self:update_synced_cable_ties_to_peers( new_amount )
+			else
+				-- managers.hud:set_special_equipment_amount( self._equipment.specials[ name ].hud_id, self._equipment.specials[ name ].amount )
+				managers.hud:set_special_equipment_amount( name, new_amount )
+				self:update_equipment_possession_to_peers( name, new_amount )
+			end
+		end
+		return
+	end
+	
+	local icon = equipment.icon
+	local action_message = equipment.action_message
+	local dialog = equipment.dialog_id
+	if not params.silent then -- Present on hud
+		-- local text = "Obtained "..managers.localization:text( equipment.text_id )	
+		local text = managers.localization:text( equipment.text_id )	
+		local title =  managers.localization:text( "present_obtained_mission_equipment_title" )
+		managers.hud:present_mid_text( { text = text, title = title, icon = icon, time = 4 } )
+		if dialog then
+			managers.dialog:queue_dialog( dialog, {} )
+		end
+		if action_message and alive( unit ) then
+			managers.network:session():send_to_peers( "sync_show_action_message", unit, action_message )
+		end		
+	end
+			
+	-- params-amount is only taken into consideration if the equipment has a max amount
+	local quantity = (self:has_category_upgrade( name, "quantity_unlimited" ) and -1) or equipment.quantity and ((respawn and math.min( params.amount, equipment.quantity + extra)) or (equipment.quantity and math.min( amount + extra, equipment.quantity + extra )))
+--	print( "ADD IT", name )
+	-- local hud_id
+	local is_cable_tie = name == "cable_tie"
+	if is_cable_tie then
+		managers.hud:set_cable_tie( HUDManager.PLAYER_PANEL, { icon = icon, amount = quantity or nil } )
+		self:update_synced_cable_ties_to_peers( quantity )
+	else  
+		managers.hud:add_special_equipment( { id = name, icon = icon, amount = quantity or nil } )
+		self:update_equipment_possession_to_peers( name, quantity  )
+	end
+	self._equipment.specials[ name ] = { --[[hud_id = hud_id,]] amount = quantity and Application:digest_value( quantity, true ) or nil, is_cable_tie = is_cable_tie }
+	if equipment.player_rule then
+		self:set_player_rule( equipment.player_rule, true )
+	end
+		
+	-- if equipment.sync_possession then
+		-- self:update_equipment_possession_to_peers( name, self._equipment.specials[ name ].amount )
+		-- self:update_equipment_possession_to_peers( name, self._equipment.specials[ name ].amount  )
+	-- end
+end
+
+function PlayerManager:_equipped_upgrade_value( equipment )
+	if not equipment.extra_quantity then
+		return 0
+	end
+	
+	local equipped_upgrade = equipment.extra_quantity.equipped_upgrade
+	local category = equipment.extra_quantity.category
+	local upgrade = equipment.extra_quantity.upgrade
+	return self:equipped_upgrade_value( equipped_upgrade, category, upgrade )
+end
+
+function PlayerManager:has_special_equipment( name )
+	return self._equipment.specials[ name ]
+end
+
+function PlayerManager:can_pickup_equipment( name )
+	local special_equipment = self._equipment.specials[ name ]
+	if special_equipment then
+		if special_equipment.amount then
+			local equipment = tweak_data.equipments.specials[ name ]
+			local extra = self:_equipped_upgrade_value( equipment )
+			return Application:digest_value( special_equipment.amount, false ) < equipment.quantity + extra
+		end
+		return false
+	end
+	return true
+end
+
+function PlayerManager:remove_special( name )
+	local special_equipment = self._equipment.specials[ name ]
+	if not special_equipment then
+		return
+	end
+	
+	local special_amount = special_equipment.amount and Application:digest_value( special_equipment.amount, false )
+	if special_amount and special_amount ~= -1 then
+		special_amount = math.max( 0, special_amount - 1 )
+		if special_equipment.is_cable_tie then
+			managers.hud:set_cable_ties_amount( HUDManager.PLAYER_PANEL, special_amount )
+			self:update_synced_cable_ties_to_peers( special_amount )
+		else
+			-- managers.hud:set_special_equipment_amount( self._equipment.specials[ name ].hud_id, self._equipment.specials[ name ].amount )
+			managers.hud:set_special_equipment_amount( name, special_amount )
+			self:update_equipment_possession_to_peers( name, special_amount )
+		end
+
+		special_equipment.amount = Application:digest_value( special_amount, true )
+	end
+	
+	if not special_amount or special_amount == 0 then
+		-- local hud_id = self._equipment.specials[ name ].hud_id
+		if not special_equipment.is_cable_tie then
+			--managers.hud:remove_special_equipment( hud_id )
+			managers.hud:remove_special_equipment( name )
+			
+			managers.network:session():send_to_peers_loaded( "sync_remove_equipment_possession", managers.network:session():local_peer():id(), name )
+			self:remove_equipment_possession( managers.network:session():local_peer():id(), name )
+			
+		end
+		self._equipment.specials[ name ] = nil
+		
+		local equipment = tweak_data.equipments.specials[ name ]
+		if equipment.player_rule then
+			self:set_player_rule( equipment.player_rule, false )
+		end
+		
+		-- if equipment.sync_possession then
+			-- self._unit:network():send( "sync_remove_equipment_possession", name ) -- More, like amount?
+			
+			-- managers.network:session():send_to_peers_loaded( "sync_remove_equipment_possession", managers.network:session():local_peer():id(), name )
+			-- self:remove_equipment_possession( managers.network:session():local_peer():id(), name )
+		-- end
+	end
+end
+
+------------------------------------------------------------------------------
+
+function PlayerManager:set_carry( carry_id, carry_value, dye_initiated, has_dye_pack, dye_value_multiplier )
+	-- print( "PlayerManager:set_carry", carry_id, carry_value, dye_initiated, has_dye_pack, dye_value_multiplier )
+	-- tweak_data.carry[ "gold" ].type
+	local carry_data = tweak_data.carry[ carry_id ]
+	local carry_type = carry_data.type 
+	self:set_player_state( "carry" )
+	
+	-- local text = carry_id -- managers.localization:text( equipment.text_id )	
+	local title = managers.localization:text( "hud_carrying_announcement_title" )
+	local type_text = carry_data.name_id and managers.localization:text( carry_data.name_id )
+	local text = managers.localization:text( "hud_carrying_announcement", { CARRY_TYPE = type_text } ) 
+	-- "You are now carrying something "..carry_data.type..". (not localized!)" -- managers.localization:text( "present_obtained_mission_equipment_title" )
+	local icon = nil
+	-- managers.hud:present_mid_text( { text = text, title = title, icon = icon, time = 4, event = "stinger_objectivecomplete" } )
+		
+	if not dye_initiated then -- Sets player specific data to the carry information
+		-- print( "NEED TO INITIATE DYE INFO" )
+		dye_initiated = true
+		if carry_data.dye then
+			local chance = tweak_data.carry.dye.chance * managers.player:upgrade_value( "player", "dye_pack_chance_multiplier", 1 )
+			-- print( "chance", chance )
+			if false then -- math.rand( 1 ) < chance then -- DISABLED DYEPACKS FOR NOW
+				-- print( "HAS DYE NOW" )
+				has_dye_pack = true
+				dye_value_multiplier = math.round( tweak_data.carry.dye.value_multiplier * managers.player:upgrade_value( "player", "dye_pack_cash_loss_multiplier", 1 ) )
+			end
+		end
+	end
+		
+	self:update_synced_carry_to_peers( carry_id, carry_value or 100, dye_initiated, has_dye_pack, dye_value_multiplier )
+	managers.hud:set_teammate_carry_info( HUDManager.PLAYER_PANEL, carry_id, managers.loot:get_real_value( carry_id, (carry_value or 100) ) )
+	managers.hud:temp_show_carry_bag( carry_id, managers.loot:get_real_value( carry_id, (carry_value or 100) ) )
+	
+	local player = self:player_unit()
+	if not player then
+		return
+	end
+	player:movement():current_state():set_tweak_data( carry_type )
+end
+
+function PlayerManager:bank_carry()
+	-- print( "PlayerManager:bank_carry" )
+	
+	local carry_data = self:get_my_carry_data()
+	
+	managers.loot:secure( carry_data.carry_id, carry_data.value )
+	
+	managers.hud:remove_teammate_carry_info( HUDManager.PLAYER_PANEL )
+	managers.hud:temp_hide_carry_bag()
+	self:update_removed_synced_carry_to_peers()
+	managers.player:set_player_state( "standard" )
+end
+
+function PlayerManager:drop_carry()
+	local carry_data = self:get_my_carry_data()
+	if not carry_data then
+		return
+	end
+	
+	self._carry_blocked_cooldown_t = Application:time() + (1.2 + math.rand( 0.3 ))
+	
+	-- print( "PlayerManager:drop_carry" )
+	local player = self:player_unit()
+	--[[if not player then
+		return
+	end]]
+	local camera_ext = player:camera()
+	
+	local dye_initiated = carry_data.dye_initiated
+	local has_dye_pack = carry_data.has_dye_pack
+	local dye_value_multiplier = carry_data.dye_value_multiplier
+	
+	local throw_distance_multiplier_upgrade_level = managers.player:upgrade_level( "carry", "throw_distance_multiplier", 0 )
+	if Network:is_client() then
+		managers.network:session():send_to_host( "server_drop_carry", carry_data.carry_id, carry_data.value, dye_initiated, has_dye_pack, dye_value_multiplier, camera_ext:position(), camera_ext:rotation(), player:camera():forward(), throw_distance_multiplier_upgrade_level )
+	else 
+		self:server_drop_carry( carry_data.carry_id, carry_data.value, dye_initiated, has_dye_pack, dye_value_multiplier, camera_ext:position(), camera_ext:rotation(), player:camera():forward(), throw_distance_multiplier_upgrade_level )
+	end
+		
+	managers.hud:remove_teammate_carry_info( HUDManager.PLAYER_PANEL )
+	managers.hud:temp_hide_carry_bag()
+	self:update_removed_synced_carry_to_peers()
+	if self._current_state == "carry" then
+		managers.player:set_player_state( "standard" )
+	end
+end
+
+function PlayerManager:server_drop_carry( carry_id, carry_value, dye_initiated, has_dye_pack, dye_value_multiplier, position, rotation, dir, throw_distance_multiplier_upgrade_level )
+	if carry_value <= 0 then
+		return
+	end
+	
+	local unit_name = tweak_data.carry[ carry_id ].unit or "units/payday2/pickups/gen_pku_lootbag/gen_pku_lootbag"
+	local unit = World:spawn_unit( Idstring( unit_name ), position, rotation )
+	-- unit:push( 100, dir * 750 )
+	managers.network:session():send_to_peers_synched( "sync_carry_data", unit, carry_id, carry_value, dye_initiated, has_dye_pack, dye_value_multiplier, position, dir, throw_distance_multiplier_upgrade_level )
+	self:sync_carry_data( unit, carry_id, carry_value, dye_initiated, has_dye_pack, dye_value_multiplier, position, dir, throw_distance_multiplier_upgrade_level )
+	
+	return unit
+end
+
+function PlayerManager:sync_carry_data( unit, carry_id, carry_value, dye_initiated, has_dye_pack, dye_value_multiplier, position, dir, throw_distance_multiplier_upgrade_level )
+	local throw_distance_multiplier = self:upgrade_value_by_level( "carry", "throw_distance_multiplier", throw_distance_multiplier_upgrade_level, 1 )
+		
+	local carry_type = tweak_data.carry[ carry_id ].type
+	throw_distance_multiplier = throw_distance_multiplier * tweak_data.carry.types[ carry_type ].throw_distance_multiplier
+				
+	unit:push( 100, dir * 600 * throw_distance_multiplier )
+	unit:carry_data():set_carry_id( carry_id )
+	unit:carry_data():set_value( carry_value )
+	unit:carry_data():set_dye_pack_data( dye_initiated, has_dye_pack, dye_value_multiplier )
+	
+	unit:interaction():register_collision_callbacks()
+end
+
+-- This would probably be if we are downed or in custody
+function PlayerManager:force_drop_carry()
+	local carry_data = self:get_my_carry_data()
+	if not carry_data then
+		return
+	end
+	
+	local player = self:player_unit()
+	if not alive( player ) then
+		print( "COULDN'T FORCE DROP! DIDN'T HAVE A UNIT" )
+		return
+	end
+	
+	local dye_initiated = carry_data.dye_initiated
+	local has_dye_pack = carry_data.has_dye_pack
+	local dye_value_multiplier = carry_data.dye_value_multiplier
+	
+	local camera_ext = player:camera()
+	if Network:is_client() then
+		managers.network:session():send_to_host( "server_drop_carry", carry_data.carry_id, carry_data.value, dye_initiated, has_dye_pack, dye_value_multiplier, camera_ext:position(), camera_ext:rotation(), Vector3( 0,0,0 ), 0 )
+	else 
+		self:server_drop_carry( carry_data.carry_id, carry_data.value, dye_initiated, has_dye_pack, dye_value_multiplier, camera_ext:position(), camera_ext:rotation(), Vector3( 0,0,0 ), 0 )
+	end
+	
+	managers.hud:remove_teammate_carry_info( HUDManager.PLAYER_PANEL )
+	managers.hud:temp_hide_carry_bag()
+	self:update_removed_synced_carry_to_peers()
+end
+
+function PlayerManager:clear_carry()
+	local carry_data = self:get_my_carry_data()
+	if not carry_data then
+		return
+	end
+	
+	local player = self:player_unit()
+	if not alive( player ) then
+		print( "COULDN'T FORCE DROP! DIDN'T HAVE A UNIT" )
+		return
+	end
+	
+	managers.hud:remove_teammate_carry_info( HUDManager.PLAYER_PANEL )
+	managers.hud:temp_hide_carry_bag()
+	self:update_removed_synced_carry_to_peers()
+	
+	if self._current_state == "carry" then
+		managers.player:set_player_state( "standard" )
+	end
+end
+
+-- Carrying anything
+function PlayerManager:is_carrying()
+	return self:get_my_carry_data() and true or false
+end
+
+function PlayerManager:carry_blocked_by_cooldown()
+	return self._carry_blocked_cooldown_t and self._carry_blocked_cooldown_t > Application:time() or false
+end
+
+function PlayerManager:can_carry( carry_id )
+	return true
+end
+
+-- Called from PlayerDamage
+function PlayerManager:check_damage_carry( attack_data )
+	local carry_data = self:get_my_carry_data()
+	if not carry_data then
+		return
+	end
+	
+	local carry_id = carry_data.carry_id
+	local type = tweak_data.carry[ carry_id ].type
+	
+	if not tweak_data.carry.types[ type ].looses_value then
+		return
+	end
+	
+	local dye_initiated = carry_data.dye_initiated
+	local has_dye_pack = carry_data.has_dye_pack
+	local dye_value_multiplier = carry_data.dye_value_multiplier
+	
+	local value = math.max( carry_data.value - (tweak_data.carry.types[ type ].looses_value_per_hit * attack_data.damage), 0 )
+	self:update_synced_carry_to_peers( carry_id, value, dye_initiated, has_dye_pack, dye_value_multiplier )
+	managers.hud:set_teammate_carry_info( HUDManager.PLAYER_PANEL, carry_id, managers.loot:get_real_value( carry_id, value ) )
+end
+
+function PlayerManager:dye_pack_exploded()
+	local carry_data = self:get_my_carry_data()
+	if not carry_data then
+		return
+	end
+	
+	local carry_id = carry_data.carry_id
+	local type = tweak_data.carry[ carry_id ].type
+
+	local dye_initiated = carry_data.dye_initiated
+	local has_dye_pack = carry_data.has_dye_pack
+	local dye_value_multiplier = carry_data.dye_value_multiplier
+	
+	local value = carry_data.value * (1-(dye_value_multiplier/100))
+	value = math.round( value )
+	
+	has_dye_pack = false
+		
+	self:update_synced_carry_to_peers( carry_id, value, dye_initiated, has_dye_pack, dye_value_multiplier )	
+	managers.hud:set_teammate_carry_info( HUDManager.PLAYER_PANEL, carry_id, managers.loot:get_real_value( carry_id, value ) )
+end
+
+------------------------------------------------------------------------------
+
+function PlayerManager:count_up_player_minions()
+	self._local_player_minions = math.min( self._local_player_minions + 1, self:upgrade_value( "player", "convert_enemies_max_minions", 0 ) )
+end
+
+function PlayerManager:count_down_player_minions()
+	self._local_player_minions = math.max( self._local_player_minions - 1, 0 )
+end
+
+function PlayerManager:reset_minions()
+	self._local_player_minions = 0
+end
+
+function PlayerManager:chk_minion_limit_reached()
+	return self._local_player_minions >= self:upgrade_value( "player", "convert_enemies_max_minions", 0 )
+end
+
+------------------------------------------------------------------------------
+
+function PlayerManager:change_player_look( new_look )
+	self._player_mesh_suffix = new_look
+
+	for _, unit in pairs( managers.groupai:state():all_char_criminals() ) do
+		unit.unit:movement():set_character_anim_variables()
+	end
+end
+
+------------------------------------------------------------------------------
+
+function PlayerManager:player_timer()
+	return self._player_timer
+end
+
+------------------------------------------------------------------------------
+
+-- Save to profile
+function PlayerManager:save( data )
+	local state = {	
+		kit = self._global.kit,
+	}
+	
+	data.PlayerManager = state
+end
+
+-- Load from profile
+function PlayerManager:load( data )
+	self:aquire_default_upgrades()
+	
+	local state = data.PlayerManager
+	if state then
+		self._global.kit = state.kit or self._global.kit
+		self:_verify_loaded_data()
+	end
+end
+
+
+function PlayerManager:_verify_loaded_data()
+
+end
+
+
+
+-- Drop in sync save
+function PlayerManager:sync_save( data )
+	local state = {
+		current_sync_state = self._current_sync_state,
+		player_mesh_suffix = self._player_mesh_suffix
+	}
+
+	data.PlayerManager = state
+end
+
+-- Drop in sync load
+function PlayerManager:sync_load( data )
+	local state = data.PlayerManager
+	if state then
+		self:set_player_state( state.current_sync_state )
+		self:change_player_look( state.player_mesh_suffix )
+	end
+end
+
+-- Called when editor simulation starts
+function PlayerManager:on_simulation_started()
+	self._respawn = false
+end
+
+-- End simulation
+function PlayerManager:reset()
+	if managers.hud then
+		managers.hud:clear_items()
+		managers.hud:clear_special_equipments()
+		managers.hud:clear_player_special_equipments() -- PD2
+	end
+	Global.player_manager = nil
+	self:_setup()
+	self:_setup_rules()
+	self:aquire_default_upgrades()
+end
+
+-- Right now reset isn't called on end simulation, call this instead.
+function PlayerManager:soft_reset()
+	self._listener_holder = EventListenerHolder:new()
+end
+
+-- We are the server, a new peer has just connected. synch all appropriate game data
+function PlayerManager:on_peer_synch_request( peer )
+	self:player_unit():network():synch_to_peer( peer )
+end

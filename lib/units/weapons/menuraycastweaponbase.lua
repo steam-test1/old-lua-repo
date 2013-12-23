@@ -1,304 +1,409 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\weapons\menuraycastweaponbase.luac 
+NewRaycastWeaponBase = NewRaycastWeaponBase or class()
 
-if not NewRaycastWeaponBase then
-  NewRaycastWeaponBase = class()
-end
-NewRaycastWeaponBase.init = function(l_1_0, l_1_1)
-  l_1_0._unit = l_1_1
+function NewRaycastWeaponBase:init( unit )
+	self._unit = unit
 end
 
-NewRaycastWeaponBase.set_factory_data = function(l_2_0, l_2_1)
-  l_2_0._factory_id = l_2_1
+function NewRaycastWeaponBase:set_factory_data( factory_id )
+	self._factory_id = factory_id
+	-- Could/should be blueprint
 end
 
-NewRaycastWeaponBase.set_npc = function(l_3_0, l_3_1)
-  l_3_0._npc = l_3_1
+--[[function NewRaycastWeaponBase:get_name_id()
+	return "m4"
+end]]
+
+function NewRaycastWeaponBase:set_npc( npc )
+	self._npc = npc
 end
 
-NewRaycastWeaponBase.is_npc = function(l_4_0)
-  return l_4_0._npc or false
+function NewRaycastWeaponBase:is_npc()
+	return self._npc or false
 end
 
-NewRaycastWeaponBase.assemble = function(l_5_0, l_5_1, l_5_2)
-  local third_person = l_5_0:is_npc()
-  l_5_0._parts, l_5_0._blueprint = managers.weapon_factory:assemble_default(l_5_1, l_5_0._unit, third_person, callback(l_5_0, l_5_0, "_assemble_completed"), l_5_2), managers.weapon_factory
-  l_5_0:_update_stats_values()
-  return 
-  local third_person = l_5_0:is_npc()
-  l_5_0._parts, l_5_0._blueprint = managers.weapon_factory:assemble_default(l_5_1, l_5_0._unit, third_person), managers.weapon_factory
-  l_5_0:_update_fire_object()
-  l_5_0:_update_stats_values()
+function NewRaycastWeaponBase:assemble( factory_id, skip_queue )
+	local third_person = self:is_npc()
+	self._parts, self._blueprint = managers.weapon_factory:assemble_default( factory_id, self._unit, third_person, callback( self, self, "_assemble_completed" ), skip_queue )
+	self:_update_stats_values()
+	if true then return end
+
+	local third_person = self:is_npc()
+	self._parts, self._blueprint = managers.weapon_factory:assemble_default( factory_id, self._unit, third_person )
+	-- print( "NewRaycastWeaponBase:assemble", inspect( self._blueprint ) )
+	
+	self:_update_fire_object()
+	self:_update_stats_values()
 end
 
-NewRaycastWeaponBase.assemble_from_blueprint = function(l_6_0, l_6_1, l_6_2, l_6_3)
-  local third_person = l_6_0:is_npc()
-  l_6_0._parts, l_6_0._blueprint = managers.weapon_factory:assemble_from_blueprint(l_6_1, l_6_0._unit, l_6_2, third_person, callback(l_6_0, l_6_0, "_assemble_completed"), l_6_3), managers.weapon_factory
-  l_6_0:_update_stats_values()
-  return 
-  local third_person = l_6_0:is_npc()
-  l_6_0._parts, l_6_0._blueprint = managers.weapon_factory:assemble_from_blueprint(l_6_1, l_6_0._unit, l_6_2, third_person), managers.weapon_factory
-  l_6_0:_update_fire_object()
-  l_6_0:_update_stats_values()
+function NewRaycastWeaponBase:assemble_from_blueprint( factory_id, blueprint, skip_queue )
+	local third_person = self:is_npc()
+	self._parts, self._blueprint = managers.weapon_factory:assemble_from_blueprint( factory_id, self._unit, blueprint, third_person, callback( self, self, "_assemble_completed" ), skip_queue )
+	self:_update_stats_values()
+	if true then return end
+	-- print( "1 NewRaycastWeaponBase:assemble_from_blueprint", factory_id, inspect( blueprint ) )
+	-- Application:stack_dump()
+	local third_person = self:is_npc()
+	self._parts, self._blueprint = managers.weapon_factory:assemble_from_blueprint( factory_id, self._unit, blueprint, third_person )
+	-- print( "2 NewRaycastWeaponBase:assemble_from_blueprint", factory_id, inspect( self._blueprint ), inspect( self._parts ) )
+	
+	self:_update_fire_object()
+	self:_update_stats_values()
 end
 
-NewRaycastWeaponBase._assemble_completed = function(l_7_0, l_7_1, l_7_2)
-  print("NewRaycastWeaponBase:_assemble_completed", l_7_1, l_7_2)
-  l_7_0._parts = l_7_1
-  l_7_0._blueprint = l_7_2
-  l_7_0:_update_fire_object()
-  l_7_0:_update_stats_values()
+function NewRaycastWeaponBase:_assemble_completed( parts, blueprint )
+	print( "NewRaycastWeaponBase:_assemble_completed", parts, blueprint )
+	
+	self._parts = parts
+	self._blueprint = blueprint
+	
+	self:_update_fire_object()
+	self:_update_stats_values()
 end
 
-NewRaycastWeaponBase.check_npc = function(l_8_0)
+function NewRaycastWeaponBase:check_npc()
 end
 
-NewRaycastWeaponBase.change_part = function(l_9_0, l_9_1)
-  l_9_0._parts = managers.weapon_factory:change_part(l_9_0._unit, l_9_0._factory_id, l_9_1 or "wpn_fps_m4_uupg_b_sd", l_9_0._parts, l_9_0._blueprint)
-  l_9_0:_update_fire_object()
-  l_9_0:_update_stats_values()
+-----------------------------------------------------------------------------------
+
+function NewRaycastWeaponBase:change_part( part_id )
+	-- print( "self._blueprint", inspect( self._blueprint ) )
+	self._parts = managers.weapon_factory:change_part( self._unit, self._factory_id, part_id or "wpn_fps_m4_uupg_b_sd", self._parts, self._blueprint )
+	-- print( "change", self._parts )
+	self:_update_fire_object()
+	self:_update_stats_values()
 end
 
-NewRaycastWeaponBase.remove_part = function(l_10_0, l_10_1)
-  l_10_0._parts = managers.weapon_factory:remove_part(l_10_0._unit, l_10_0._factory_id, l_10_1, l_10_0._parts, l_10_0._blueprint)
-  l_10_0:_update_fire_object()
-  l_10_0:_update_stats_values()
+function NewRaycastWeaponBase:remove_part( part_id )
+	self._parts = managers.weapon_factory:remove_part( self._unit, self._factory_id, part_id, self._parts, self._blueprint )
+	self:_update_fire_object()
+	self:_update_stats_values()
 end
 
-NewRaycastWeaponBase.remove_part_by_type = function(l_11_0, l_11_1)
-  l_11_0._parts = managers.weapon_factory:remove_part_by_type(l_11_0._unit, l_11_0._factory_id, l_11_1, l_11_0._parts, l_11_0._blueprint)
-  l_11_0:_update_fire_object()
-  l_11_0:_update_stats_values()
+function NewRaycastWeaponBase:remove_part_by_type( type )
+	self._parts = managers.weapon_factory:remove_part_by_type( self._unit, self._factory_id, type, self._parts, self._blueprint )
+	self:_update_fire_object()
+	self:_update_stats_values()
 end
 
-NewRaycastWeaponBase.change_blueprint = function(l_12_0, l_12_1)
-  l_12_0._blueprint = l_12_1
-  l_12_0._parts = managers.weapon_factory:change_blueprint(l_12_0._unit, l_12_0._factory_id, l_12_0._parts, l_12_1)
-  l_12_0:_update_fire_object()
-  l_12_0:_update_stats_values()
+function NewRaycastWeaponBase:change_blueprint( blueprint )
+	self._blueprint = blueprint
+	self._parts = managers.weapon_factory:change_blueprint( self._unit, self._factory_id, self._parts, blueprint )
+	self:_update_fire_object()
+	self:_update_stats_values()
 end
 
-NewRaycastWeaponBase.blueprint_to_string = function(l_13_0)
-  local s = managers.weapon_factory:blueprint_to_string(l_13_0._factory_id, l_13_0._blueprint)
-  return s
+function NewRaycastWeaponBase:blueprint_to_string()
+	-- print( inspect( self._blueprint ) )
+	local s = managers.weapon_factory:blueprint_to_string( self._factory_id, self._blueprint )
+	-- print( s )
+	-- print( inspect( managers.weapon_factory:unpack_blueprint_from_string( self._factory_id, s ) ) )
+	return s 
 end
 
-NewRaycastWeaponBase._update_fire_object = function(l_14_0)
-  if not managers.weapon_factory:get_part_from_weapon_by_type("barrel_ext", l_14_0._parts) and not managers.weapon_factory:get_part_from_weapon_by_type("slide", l_14_0._parts) then
-    local fire = managers.weapon_factory:get_part_from_weapon_by_type("barrel", l_14_0._parts)
-  end
+-----------------------------------------------------------------------------------
+function NewRaycastWeaponBase:_update_fire_object()
+	local fire = managers.weapon_factory:get_part_from_weapon_by_type( "barrel_ext", self._parts )
+						or managers.weapon_factory:get_part_from_weapon_by_type( "slide", self._parts )
+						or managers.weapon_factory:get_part_from_weapon_by_type( "barrel", self._parts )
+	
+	-- self:change_fire_object( fire.unit:get_object( Idstring( "fire" ) ) )
 end
 
-NewRaycastWeaponBase._update_stats_values = function(l_15_0)
-  return 
-  local base_stats = l_15_0:weapon_tweak_data().stats
-  if not base_stats then
-    return 
-  end
-  local parts_stats = managers.weapon_factory:get_stats(l_15_0._factory_id, l_15_0._blueprint)
-  l_15_0._silencer = managers.weapon_factory:has_perk("silencer", l_15_0._factory_id, l_15_0._blueprint)
-  local stats = deep_clone(base_stats)
-  local tweak_data = tweak_data.weapon.stats
-  if stats.zoom then
-    stats.zoom = math.min(stats.zoom + managers.player:upgrade_value(l_15_0:weapon_tweak_data().category, "zoom_increase", 0), #tweak_data.zoom)
-  end
-  for stat,_ in pairs(stats) do
-    if parts_stats[stat] then
-      stats[stat] = math_clamp(stats[stat] + parts_stats[stat], 1, #tweak_data[stat])
-    end
-  end
-  l_15_0._current_stats = {}
-  for stat,i in pairs(stats) do
-    l_15_0._current_stats[stat] = tweak_data[stat][i]
-  end
-  if not l_15_0._current_stats.alert_size then
-    l_15_0._alert_size = l_15_0._alert_size
-  end
-  if not l_15_0._current_stats.suppression then
-    l_15_0._suppression = l_15_0._suppression
-  end
-  if not l_15_0._current_stats.zoom then
-    l_15_0._zoom = l_15_0._zoom
-  end
-  if not l_15_0._current_stats.spread then
-    l_15_0._spread = l_15_0._spread
-  end
-  if not l_15_0._current_stats.recoil then
-    l_15_0._recoil = l_15_0._recoil
-  end
-  if not l_15_0._current_stats.spread_moving then
-    l_15_0._spread_moving = l_15_0._spread_moving
-  end
+function NewRaycastWeaponBase:_update_stats_values()
+	if true then return end
+	
+	local base_stats = self:weapon_tweak_data().stats
+	if not base_stats then
+		--print( "no stats" )
+		return
+	end 
+	
+	-- print( inspect( base_stats ) )
+	local parts_stats = managers.weapon_factory:get_stats( self._factory_id, self._blueprint )
+	-- print( inspect( parts_stats ) )
+	
+	self._silencer = managers.weapon_factory:has_perk( "silencer", self._factory_id, self._blueprint )
+	
+	local stats = deep_clone( base_stats )
+	local tweak_data = tweak_data.weapon.stats
+	
+	if( stats.zoom ) then
+		stats.zoom = math.min( stats.zoom + managers.player:upgrade_value( self:weapon_tweak_data()[ "category" ], "zoom_increase", 0 ), #tweak_data.zoom )		-- not that base + skill increase will ever go off the chart (table), but still
+	end
+
+	for stat,_ in pairs( stats ) do
+		if parts_stats[ stat ] then
+			stats[ stat ] = math_clamp( stats[ stat ] + parts_stats[ stat ], 1, #tweak_data[ stat ] )
+		end
+	end
+	
+	self._current_stats = {}
+	for stat, i in pairs( stats ) do
+		-- print( stat, tweak_data[ stat ][ i ] )
+		self._current_stats[ stat ] = tweak_data[ stat ][ i ]
+	end
+	
+	self._alert_size = self._current_stats.alert_size or self._alert_size
+	self._suppression = self._current_stats.suppression or self._suppression
+	self._zoom = self._current_stats.zoom or self._zoom
+	self._spread = self._current_stats.spread or self._spread
+	self._recoil = self._current_stats.recoil or self._recoil
+	self._spread_moving = self._current_stats.spread_moving or self._spread_moving
 end
 
-NewRaycastWeaponBase.stance_id = function(l_16_0)
-  return "new_m4"
+-----------------------------------------------------------------------------------
+
+function NewRaycastWeaponBase:stance_id()
+	-- Could mayby be base on something else
+	return "new_m4"
 end
 
-NewRaycastWeaponBase.weapon_hold = function(l_17_0)
-  return l_17_0:weapon_tweak_data().weapon_hold
+function NewRaycastWeaponBase:weapon_hold()
+	return self:weapon_tweak_data().weapon_hold
 end
 
-NewRaycastWeaponBase.stance_mod = function(l_18_0)
-  if not l_18_0._parts then
-    return nil
-  end
-  local factory = tweak_data.weapon.factory
-  for part_id,data in pairs(l_18_0._parts) do
-    if factory.parts[part_id].stance_mod and factory.parts[part_id].stance_mod[l_18_0._factory_id] then
-      return {translation = factory.parts[part_id].stance_mod[l_18_0._factory_id].translation}
-    end
-  end
-  return nil
+function NewRaycastWeaponBase:stance_mod()
+	if not self._parts then
+		return nil
+	end
+	
+	local factory = tweak_data.weapon.factory
+	for part_id, data in pairs( self._parts ) do
+		if factory.parts[ part_id ].stance_mod then
+			if factory.parts[ part_id ].stance_mod[ self._factory_id ] then
+				return { translation = factory.parts[ part_id ].stance_mod[ self._factory_id ].translation }
+			end   
+		end
+	end
+	-- Could mayby be base on something else
+	return nil
 end
 
-NewRaycastWeaponBase.tweak_data_anim_play = function(l_19_0, l_19_1, l_19_2)
-  local data = tweak_data.weapon.factory[l_19_0._factory_id]
-  if data.animations and data.animations[l_19_1] then
-    local anim_name = data.animations[l_19_1]
-    local length = l_19_0._unit:anim_length(Idstring(anim_name))
-    if not l_19_2 then
-      l_19_2 = 1
-    end
-    l_19_0._unit:anim_stop(Idstring(anim_name))
-    l_19_0._unit:anim_play_to(Idstring(anim_name), length, l_19_2)
-  end
-  for part_id,data in pairs(l_19_0._parts) do
-    if data.animations and data.animations[l_19_1] then
-      local anim_name = data.animations[l_19_1]
-      local length = data.unit:anim_length(Idstring(anim_name))
-      if not l_19_2 then
-        l_19_2 = 1
-      end
-      data.unit:anim_stop(Idstring(anim_name))
-      data.unit:anim_play_to(Idstring(anim_name), length, l_19_2)
-    end
-  end
-  return true
+-----------------------------------------------------------------------------------
+
+function NewRaycastWeaponBase:tweak_data_anim_play( anim, speed_multiplier )
+	-- print( "NewRaycastWeaponBase:tweak_data_anim_play", anim )
+	
+	-- On Unit
+	local data = tweak_data.weapon.factory[ self._factory_id ]
+	if data.animations and data.animations[ anim ] then
+		local anim_name = data.animations[ anim ]
+		local length = self._unit:anim_length( Idstring( anim_name ) )
+		speed_multiplier = speed_multiplier or 1
+		
+		self._unit:anim_stop( Idstring( anim_name ) )
+		self._unit:anim_play_to( Idstring( anim_name ), length, speed_multiplier )
+	end
+	
+	-- On parts	
+	for part_id, data in pairs( self._parts ) do
+		if data.animations and data.animations[ anim ] then
+			local anim_name = data.animations[ anim ]
+			local length = data.unit:anim_length( Idstring( anim_name ) )
+			speed_multiplier = speed_multiplier or 1
+			-- print( data.unit, anim_name, length )
+		
+			data.unit:anim_stop( Idstring( anim_name ) )
+			data.unit:anim_play_to( Idstring( anim_name ), length, speed_multiplier )
+		end
+	end
+	
+	return true -- NewRaycastWeaponBase.super.tweak_data_anim_play( self, anim, speed_multiplier )
 end
 
-NewRaycastWeaponBase.tweak_data_anim_stop = function(l_20_0, l_20_1)
-  local data = tweak_data.weapon.factory[l_20_0._factory_id]
-  if data.animations and data.animations[l_20_1] then
-    local anim_name = data.animations[l_20_1]
-    l_20_0._unit:anim_stop(Idstring(anim_name))
-  end
-  for part_id,data in pairs(l_20_0._parts) do
-    if data.animations and data.animations[l_20_1] then
-      local anim_name = data.animations[l_20_1]
-      data.unit:anim_stop(Idstring(anim_name))
-    end
-  end
+function NewRaycastWeaponBase:tweak_data_anim_stop( anim )
+	-- print( "NewRaycastWeaponBase:tweak_data_anim_stop", anim )
+	
+	-- On Unit
+	local data = tweak_data.weapon.factory[ self._factory_id ]
+	if data.animations and data.animations[ anim ] then
+		local anim_name = data.animations[ anim ]
+		self._unit:anim_stop( Idstring( anim_name ) )
+	end
+	
+	-- On parts	
+	for part_id, data in pairs( self._parts ) do
+		if data.animations and data.animations[ anim ] then
+			local anim_name = data.animations[ anim ]
+			data.unit:anim_stop( Idstring( anim_name ) )
+		end
+	end
 end
 
-NewRaycastWeaponBase._set_parts_enabled = function(l_21_0, l_21_1)
-  if l_21_0._parts then
-    for part_id,data in pairs(l_21_0._parts) do
-      if alive(data.unit) then
-        data.unit:set_enabled(l_21_1)
-      end
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function NewRaycastWeaponBase:_set_parts_enabled( enabled )
+	if self._parts then
+		for part_id,data in pairs( self._parts ) do
+			if alive( data.unit ) then
+				data.unit:set_enabled( enabled )
+			end
+		end
+	end
 end
 
-NewRaycastWeaponBase.on_enabled = function(l_22_0, ...)
-  NewRaycastWeaponBase.super.on_enabled(l_22_0, ...)
-  l_22_0:_set_parts_enabled(true)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function NewRaycastWeaponBase:on_enabled( ... )
+	NewRaycastWeaponBase.super.on_enabled( self, ... )
+	self:_set_parts_enabled( true )
 end
 
-NewRaycastWeaponBase.on_disabled = function(l_23_0, ...)
-  l_23_0:gadget_off()
-  l_23_0:_set_parts_enabled(false)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function NewRaycastWeaponBase:on_disabled( ... )
+	-- NewRaycastWeaponBase.super.on_disabled( self, ... )
+	self:gadget_off()
+	
+	self:_set_parts_enabled( false )
 end
 
-NewRaycastWeaponBase.has_gadget = function(l_24_0)
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
+-----------------------------------------------------------------------------------
 
-end
-return true
-end
-
-NewRaycastWeaponBase.gadget_on = function(l_25_0)
-  l_25_0._gadget_on = true
-  local gadget = managers.weapon_factory:get_part_from_weapon_by_type("gadget", l_25_0._parts)
-  if gadget then
-    gadget.unit:base():set_state(l_25_0._gadget_on)
-  end
+function NewRaycastWeaponBase:has_gadget()
+	return managers.weapon_factory:get_part_from_weapon_by_type( "gadget", self._parts ) and true or false	
 end
 
-NewRaycastWeaponBase.gadget_off = function(l_26_0)
-  l_26_0._gadget_on = false
-  local gadget = managers.weapon_factory:get_part_from_weapon_by_type("gadget", l_26_0._parts)
-  if gadget then
-    gadget.unit:base():set_state(l_26_0._gadget_on)
-  end
+function NewRaycastWeaponBase:gadget_on()
+	self._gadget_on = true
+	local gadget = managers.weapon_factory:get_part_from_weapon_by_type( "gadget", self._parts )
+	if gadget then
+		gadget.unit:base():set_state( self._gadget_on )
+	end
 end
 
-NewRaycastWeaponBase.toggle_gadget = function(l_27_0)
-  l_27_0._gadget_on = not l_27_0._gadget_on
-  local gadget = managers.weapon_factory:get_part_from_weapon_by_type("gadget", l_27_0._parts)
-  if gadget then
-    gadget.unit:base():set_state(l_27_0._gadget_on)
-  end
+function NewRaycastWeaponBase:gadget_off()
+	self._gadget_on = false
+	local gadget = managers.weapon_factory:get_part_from_weapon_by_type( "gadget", self._parts )
+	if gadget then
+		gadget.unit:base():set_state( self._gadget_on )
+	end
 end
 
-NewRaycastWeaponBase.check_stats = function(l_28_0)
-  local base_stats = l_28_0:weapon_tweak_data().stats
-  if not base_stats then
-    print("no stats")
-    return 
-  end
-  local parts_stats = managers.weapon_factory:get_stats(l_28_0._factory_id, l_28_0._blueprint)
-  local stats = deep_clone(base_stats)
-  local tweak_data = tweak_data.weapon.stats
-  stats.zoom = math.min(stats.zoom + managers.player:upgrade_value(l_28_0:weapon_tweak_data().category, "zoom_increase", 0), #tweak_data.zoom)
-  for stat,_ in pairs(stats) do
-    if parts_stats[stat] then
-      stats[stat] = math_clamp(stats[stat] + parts_stats[stat], 1, #tweak_data[stat])
-    end
-  end
-  l_28_0._current_stats = {}
-  for stat,i in pairs(stats) do
-    l_28_0._current_stats[stat] = tweak_data[stat][i]
-  end
-  l_28_0._current_stats.alert_size = tweak_data.alert_size[math_clamp(stats.suppression, 1, #tweak_data.alert_size)]
-  return stats
+function NewRaycastWeaponBase:toggle_gadget()
+	self._gadget_on = not self._gadget_on
+	local gadget = managers.weapon_factory:get_part_from_weapon_by_type( "gadget", self._parts )
+	if gadget then
+		gadget.unit:base():set_state( self._gadget_on )
+	end
 end
 
-NewRaycastWeaponBase.spread_multiplier = function(l_29_0)
-  local multiplier = NewRaycastWeaponBase.super.spread_multiplier(l_29_0)
-  if l_29_0._silencer then
-    multiplier = multiplier * managers.player:upgrade_value("weapon", "silencer_spread_multiplier", 1)
-    multiplier = multiplier * managers.player:upgrade_value(l_29_0:weapon_tweak_data().category, "silencer_spread_multiplier", 1)
-  end
-  return multiplier
+----------------------------------------------------
+
+function NewRaycastWeaponBase:check_stats()
+	local base_stats = self:weapon_tweak_data().stats
+	if not base_stats then
+		print( "no stats" )
+		return
+	end 
+	
+	-- print( inspect( base_stats ) )
+	local parts_stats = managers.weapon_factory:get_stats( self._factory_id, self._blueprint )
+	-- print( inspect( parts_stats ) )
+	
+	local stats = deep_clone( base_stats )
+	local tweak_data = tweak_data.weapon.stats
+	
+	stats.zoom = math.min( stats.zoom + managers.player:upgrade_value( self:weapon_tweak_data()[ "category" ], "zoom_increase", 0 ), #tweak_data.zoom )		-- not that base + skill increase will ever go off the chart (table), but still
+	
+	for stat,_ in pairs( stats ) do
+		if parts_stats[ stat ] then
+			stats[ stat ] = math_clamp( stats[ stat ] + parts_stats[ stat ], 1, #tweak_data[ stat ] )
+		end
+	end
+	
+	self._current_stats = {}
+	for stat, i in pairs( stats ) do
+		-- print( "stat", stat, inspect( tweak_data.weapon.stats ) )
+		-- print( tweak_data.weapon.stats[ stat ] )
+		-- print( stat, tweak_data[ stat ][ i ] )
+		self._current_stats[ stat ] = tweak_data[ stat ][ i ]
+	end
+	self._current_stats.alert_size = tweak_data.alert_size[ math_clamp( stats.suppression, 1, #tweak_data.alert_size ) ]
+	
+		
+	return stats
 end
 
-NewRaycastWeaponBase.recoil_multiplier = function(l_30_0)
-  local multiplier = NewRaycastWeaponBase.super.recoil_multiplier(l_30_0)
-  multiplier = multiplier * managers.player:upgrade_value("weapon", "passive_recoil_multiplier", 1)
-  if l_30_0._silencer then
-    multiplier = multiplier * managers.player:upgrade_value("weapon", "silencer_recoil_multiplier", 1)
-    multiplier = multiplier * managers.player:upgrade_value(l_30_0:weapon_tweak_data().category, "silencer_recoil_multiplier", 1)
-  end
-  return multiplier
+----------------------------------------------------
+
+function NewRaycastWeaponBase:spread_multiplier()
+	local multiplier = NewRaycastWeaponBase.super.spread_multiplier( self )
+	if( self._silencer ) then
+		multiplier = multiplier * managers.player:upgrade_value( "weapon", "silencer_spread_multiplier", 1 )
+		multiplier = multiplier * managers.player:upgrade_value( self:weapon_tweak_data()[ "category" ], "silencer_spread_multiplier", 1 )
+	end
+	
+	return multiplier
 end
 
-NewRaycastWeaponBase.enter_steelsight_speed_multiplier = function(l_31_0)
-  local multiplier = NewRaycastWeaponBase.super.enter_steelsight_speed_multiplier(l_31_0)
-  if l_31_0._silencer then
-    multiplier = multiplier * managers.player:upgrade_value("weapon", "silencer_enter_steelsight_speed_multiplier", 1)
-    multiplier = multiplier * managers.player:upgrade_value(l_31_0:weapon_tweak_data().category, "silencer_enter_steelsight_speed_multiplier", 1)
-  end
-  return multiplier
+function NewRaycastWeaponBase:recoil_multiplier()
+	local multiplier = NewRaycastWeaponBase.super.recoil_multiplier( self )
+	multiplier = multiplier * managers.player:upgrade_value( "weapon", "passive_recoil_multiplier", 1 )
+	if( self._silencer ) then
+		multiplier = multiplier * managers.player:upgrade_value( "weapon", "silencer_recoil_multiplier", 1 )
+		multiplier = multiplier * managers.player:upgrade_value( self:weapon_tweak_data()[ "category" ], "silencer_recoil_multiplier", 1 )
+	end
+	
+	return multiplier
 end
 
-NewRaycastWeaponBase.destroy = function(l_32_0, l_32_1)
-  managers.weapon_factory:disassemble(l_32_0._parts)
+function NewRaycastWeaponBase:enter_steelsight_speed_multiplier()
+	local multiplier = NewRaycastWeaponBase.super.enter_steelsight_speed_multiplier( self )
+	if( self._silencer ) then
+		multiplier = multiplier * managers.player:upgrade_value( "weapon", "silencer_enter_steelsight_speed_multiplier", 1 )
+		multiplier = multiplier * managers.player:upgrade_value( self:weapon_tweak_data()[ "category" ], "silencer_enter_steelsight_speed_multiplier", 1 )
+	end
+	
+	return multiplier
 end
 
+--[[function NewRaycastWeaponBase:toggle_flashlight()
+	self._flashlight_on = not self._flashlight_on
+	self:check_flashlight_enabled()
+end
 
+function NewRaycastWeaponBase:check_flashlight_enabled()
+	if self._flashlight_on then
+		local gadget = managers.weapon_factory:get_part_from_weapon_by_type( "gadget", self._parts )
+		local obj = gadget.unit:get_object( Idstring( "a_laser" ) )
+			
+		if not alive( self._light ) then
+			self._light = World:create_light( "spot|specular" )
+			self._light:set_spot_angle_end( 45 )
+			self._light:set_far_range( 1000 )
+		end
+		
+		self._light:set_spot_angle_end( 0.5 )
+		self._light:set_far_range( 4000 )
+		self._light:set_color( Vector3( 5, 0, 0 ) )
+		
+		self._light:link( obj )
+		-- self._light:set_rotation( obj:rotation() )
+		self._light:set_rotation( Rotation( obj:rotation():z(), -obj:rotation():x(), -obj:rotation():y() ) )
+		
+		if not self._light_effect then
+			self._light_effect = World:effect_manager():spawn( { effect = Idstring( "effects/particles/weapons/flashlight/fp_flashlight" ), parent = obj } )
+		end
+		self._light:set_enable( true )
+		World:effect_manager():set_hidden( self._light_effect, true )
+	elseif alive( self._light ) then
+		self._light:set_enable( false )
+		World:effect_manager():set_hidden( self._light_effect, true )
+	end
+end]]
+
+-----------------------------------------------------------------------------------
+
+function NewRaycastWeaponBase:destroy( unit )
+	-- NewRaycastWeaponBase.super.destroy( self, unit )
+	
+	--[[if self._light then
+		World:delete_light( self._light )
+	end
+	if self._light_effect then
+		World:effect_manager():kill( self._light_effect )
+		self._light_effect = nil
+	end]]
+	
+	managers.weapon_factory:disassemble( self._parts )
+end
+
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------

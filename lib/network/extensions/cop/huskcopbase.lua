@@ -1,25 +1,29 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\network\extensions\cop\huskcopbase.luac 
+HuskCopBase = HuskCopBase or class( CopBase )
 
-if not HuskCopBase then
-  HuskCopBase = class(CopBase)
-end
-HuskCopBase.post_init = function(l_1_0)
-  l_1_0._ext_movement = l_1_0._unit:movement()
-  l_1_0._ext_movement:post_init()
-  l_1_0._unit:brain():post_init()
-  l_1_0:set_anim_lod(1)
-  l_1_0._lod_stage = 1
-  managers.enemy:register_enemy(l_1_0._unit)
-end
+-----------------------------------------------------------------------------------
 
-HuskCopBase.pre_destroy = function(l_2_0, l_2_1)
-  l_2_0._unit:brain():pre_destroy()
-  l_2_0._ext_movement:pre_destroy()
-  if l_2_1:inventory() then
-    l_2_1:inventory():pre_destroy(l_2_1)
-  end
-  UnitBase.pre_destroy(l_2_0, l_2_1)
+function HuskCopBase:post_init()
+	self._ext_movement = self._unit:movement()
+	self._ext_movement:post_init()
+	
+	self._unit:brain():post_init()
+	
+	self:set_anim_lod( 1 )	-- highest detail
+	self._lod_stage = 1
+	
+	managers.enemy:register_enemy( self._unit )
 end
 
+-----------------------------------------------------------------------------------
 
+function HuskCopBase:pre_destroy( unit )
+	self._unit:brain():pre_destroy()
+	self._ext_movement:pre_destroy()
+	if unit:inventory() then -- civilian husks don't have inventory
+		unit:inventory():pre_destroy( unit )
+	end
+	UnitBase.pre_destroy( self, unit )
+end
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------

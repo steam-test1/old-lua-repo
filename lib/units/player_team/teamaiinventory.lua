@@ -1,21 +1,15 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\player_team\teamaiinventory.luac 
+TeamAIInventory = TeamAIInventory or class( CopInventory )
 
-if not TeamAIInventory then
-  TeamAIInventory = class(CopInventory)
+function TeamAIInventory:add_unit_by_name( new_unit_name, equip )
+	local new_unit = World:spawn_unit( new_unit_name, Vector3(), Rotation() )
+	local setup_data = {}
+	setup_data.user_unit = self._unit
+	setup_data.ignore_units = { self._unit, new_unit }
+	setup_data.expend_ammo = false
+	setup_data.hit_slotmask = managers.slot:get_mask( "bullet_impact_targets_no_criminals" )
+	setup_data.user_sound_variant = tweak_data.character[ self._unit:base()._tweak_table ].weapon_voice
+	setup_data.alert_AI = true
+	setup_data.alert_filter = self._unit:brain():SO_access()
+	new_unit:base():setup( setup_data )
+	self:add_unit( new_unit, equip )
 end
-TeamAIInventory.add_unit_by_name = function(l_1_0, l_1_1, l_1_2)
-  local new_unit = World:spawn_unit(l_1_1, Vector3(), Rotation())
-  local setup_data = {}
-  setup_data.user_unit = l_1_0._unit
-  setup_data.ignore_units = {l_1_0._unit, new_unit}
-  setup_data.expend_ammo = false
-  setup_data.hit_slotmask = managers.slot:get_mask("bullet_impact_targets_no_criminals")
-  setup_data.user_sound_variant = tweak_data.character[l_1_0._unit:base()._tweak_table].weapon_voice
-  setup_data.alert_AI = true
-  setup_data.alert_filter = l_1_0._unit:brain():SO_access()
-  new_unit:base():setup(setup_data)
-  l_1_0:add_unit(new_unit, l_1_2)
-end
-
-

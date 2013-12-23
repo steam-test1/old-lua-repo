@@ -1,82 +1,81 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\utils\corefinitestatemachine.luac 
-
 core:module("CoreFiniteStateMachine")
 core:import("CoreDebug")
-if not FiniteStateMachine then
-  FiniteStateMachine = class()
-end
-FiniteStateMachine.init = function(l_1_0, l_1_1, l_1_2, l_1_3)
-  l_1_0._object = l_1_3
-  l_1_0._object_name = l_1_2
-  if l_1_1 then
-    l_1_0:_set_state(l_1_1)
-  end
-  l_1_0._debug = true
-end
 
-FiniteStateMachine.load = function(l_2_0, l_2_1)
-  local class = _G[l_2_1.class_name]
-  l_2_0._set_state(class)
+FiniteStateMachine = FiniteStateMachine or class()
+
+function FiniteStateMachine:init(state_class, object_name, object)
+	self._object = object
+	self._object_name = object_name
+	if state_class then
+		self:_set_state(state_class)
+	end
+	
+	self._debug = true
 end
 
-FiniteStateMachine.save = function(l_3_0, l_3_1)
-  l_3_1.class_name = class_name(l_3_0._state_class)
+function FiniteStateMachine:load(data)
+	local class = _G[data.class_name]
+	self._set_state(class)
 end
 
-FiniteStateMachine.set_debug = function(l_4_0, l_4_1)
-  l_4_0._debug = l_4_1
+function FiniteStateMachine:save(data)
+	data.class_name = class_name(self._state_class)
 end
 
-FiniteStateMachine.destroy = function(l_5_0)
-  l_5_0:_destroy_current_state()
+function FiniteStateMachine:set_debug(debug_enabled)
+	self._debug = debug_enabled
 end
 
-FiniteStateMachine.transition = function(l_6_0)
-  assert(l_6_0._state)
-  assert(l_6_0._state.transition, "You must at least have a transition method")
-  local new_state_class, arg = l_6_0._state:transition()
-  if new_state_class then
-    l_6_0:_set_state(new_state_class, arg)
-  end
+function FiniteStateMachine:destroy()
+	self:_destroy_current_state()
 end
 
-FiniteStateMachine.state = function(l_7_0)
-  assert(l_7_0._state)
-  return l_7_0._state
+function FiniteStateMachine:transition()
+	assert(self._state)
+	assert(self._state.transition, "You must at least have a transition method")
+	
+	local new_state_class, arg = self._state:transition()
+	if new_state_class then
+		self:_set_state(new_state_class, arg)
+	end
 end
 
-FiniteStateMachine._class_name = function(l_8_0, l_8_1)
-  return CoreDebug.full_class_name(l_8_1)
+function FiniteStateMachine:state()
+	assert(self._state)
+	return self._state
 end
 
-FiniteStateMachine._destroy_current_state = function(l_9_0)
-  if l_9_0._state and l_9_0._state.destroy then
-    l_9_0._state:destroy()
-    l_9_0._state = nil
-  end
+function FiniteStateMachine:_class_name(state_class)
+	return CoreDebug.full_class_name(state_class)
 end
 
-FiniteStateMachine._set_state = function(l_10_0, l_10_1, ...)
-  if l_10_0._debug then
-    cat_print("debug", "transitions from '" .. l_10_0:_class_name(l_10_0._state_class) .. "' to '" .. l_10_0:_class_name(l_10_1) .. "'")
-  end
-  l_10_0:_destroy_current_state()
-  do
-    local init_function = l_10_1.init
-    l_10_1.init = function()
-   end
-    l_10_0._state = l_10_1:new()
-    assert(l_10_0._state ~= nil)
-    l_10_1.init = init_function
-    l_10_0._state[l_10_0._object_name] = l_10_0._object
-    l_10_0._state_class = l_10_1
-    if init_function then
-      l_10_0._state:init(...)
-    end
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-  end
+function FiniteStateMachine:_destroy_current_state()
+	if self._state and self._state.destroy then
+		self._state:destroy()
+		self._state = nil
+	end
 end
 
+function FiniteStateMachine:_set_state(new_state_class, ...)
+	if self._debug then
+		cat_print("debug", "transitions from '" .. self:_class_name(self._state_class) .. "' to '" .. self:_class_name(new_state_class) .. "'")
+	end
+	
 
+	self:_destroy_current_state()
+	
+	local init_function = new_state_class.init
+
+	new_state_class.init = function() end -- kill init to make sure it isn't called in new()
+
+	self._state = new_state_class:new()
+	assert(self._state ~= nil)
+	new_state_class.init = init_function
+
+	self._state[self._object_name] = self._object
+	self._state_class = new_state_class
+
+	if init_function then
+		self._state:init(...)
+	end
+end

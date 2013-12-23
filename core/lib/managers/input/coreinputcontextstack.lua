@@ -1,39 +1,35 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\input\coreinputcontextstack.luac 
-
 core:module("CoreInputContextStack")
 core:import("CoreStack")
-if not Stack then
-  Stack = class()
-end
-Stack.init = function(l_1_0, l_1_1)
-  l_1_0._device_type = l_1_1
-  l_1_0._active_input_context = CoreStack.Stack:new()
-end
 
-Stack.destroy = function(l_2_0)
-  l_2_0._active_input_context:destroy()
+Stack = Stack or class()
+
+function Stack:init(device_type)	
+	self._device_type = device_type
+	self._active_input_context = CoreStack.Stack:new()
 end
 
-Stack.active_device_layout = function(l_3_0)
-  local target_context = l_3_0._active_input_context:top()
-  return target_context:device_layout(l_3_0._device_type)
+function Stack:destroy()
+	self._active_input_context:destroy()
 end
 
-Stack.active_context = function(l_4_0)
-  if l_4_0._active_input_context:is_empty() then
-    return 
-  end
-  return l_4_0._active_input_context:top()
+function Stack:active_device_layout()
+	local target_context = self._active_input_context:top()
+	return target_context:device_layout(self._device_type)
 end
 
-Stack.pop_input_context = function(l_5_0, l_5_1)
-  assert(l_5_0._active_input_context:top() == l_5_1)
-  l_5_0._active_input_context:pop()
+function Stack:active_context()
+	if self._active_input_context:is_empty() then
+		return
+	end
+
+	return self._active_input_context:top()
 end
 
-Stack.push_input_context = function(l_6_0, l_6_1)
-  l_6_0._active_input_context:push(l_6_1)
+function Stack:pop_input_context(input_context)
+	assert(self._active_input_context:top() == input_context)
+	self._active_input_context:pop()
 end
 
-
+function Stack:push_input_context(input_context)
+	self._active_input_context:push(input_context)
+end

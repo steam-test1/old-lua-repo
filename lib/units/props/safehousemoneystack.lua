@@ -1,68 +1,102 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\props\safehousemoneystack.luac 
-
-if not SafehouseMoneyStack then
-  SafehouseMoneyStack = class(UnitBase)
-end
+SafehouseMoneyStack = SafehouseMoneyStack or class( UnitBase )
 SafehouseMoneyStack.SMALL_MAX_SUM = 1000000
-SafehouseMoneyStack.MAX_SUM = 10000000 + SafehouseMoneyStack.SMALL_MAX_SUM - 1
-SafehouseMoneyStack.STEPS = 19
+SafehouseMoneyStack.STEPS = 743
 SafehouseMoneyStack.SMALL_STEPS = 85
-SafehouseMoneyStack.init = function(l_1_0, l_1_1)
-  UnitBase.init(l_1_0, l_1_1, false)
-  l_1_0._unit = l_1_1
-  l_1_0:_setup()
+SafehouseMoneyStack.MAX_SUM = SafehouseMoneyStack.SMALL_MAX_SUM * (SafehouseMoneyStack.STEPS + 1) + SafehouseMoneyStack.SMALL_MAX_SUM - 20
+
+-----------------------------------------------------------------------------------
+
+function SafehouseMoneyStack:init( unit )
+	UnitBase.init( self, unit, false )
+	self._unit = unit
+
+	self:_setup()
 end
 
-SafehouseMoneyStack._setup = function(l_2_0)
-  l_2_0._small_sequences = {}
-  for i = 1, SafehouseMoneyStack.SMALL_STEPS do
-    local post_fix = (i < 10 and "0" or "") .. i
-    table.insert(l_2_0._small_sequences, "var_small_money_grow_" .. post_fix)
-  end
-  l_2_0._sequences = {}
-  for i = 1, SafehouseMoneyStack.STEPS do
-    local post_fix = (i < 10 and "0" or "") .. i
-    table.insert(l_2_0._sequences, "var_money_grow_" .. post_fix)
-  end
-  local money = managers.money:total()
-  l_2_0:_run_sequences(money)
+function SafehouseMoneyStack:_setup()
+	self._small_sequences = {}
+	for i = 1, SafehouseMoneyStack.SMALL_STEPS do
+		local post_fix = (i < 10 and "0" or "")..i
+		table.insert( self._small_sequences, "var_small_money_grow_"..post_fix )
+	end 
+
+	self._sequences = {}
+	self._big_steps = {}
+	for i = 1, SafehouseMoneyStack.STEPS do
+		local post_fix = (i < 10 and "0" or "")..i
+		table.insert( self._sequences, "var_money_grow_"..post_fix )
+		table.insert( self._big_steps, { object = self._unit:get_object( Idstring( "g_money_wrapped_"..i ) ), body = self._unit:body("body_money_stack_"..i ) } )
+	end 
+	
+	local money = managers.money:total()
+	self:_run_sequences(money)
+
+
+
+
+
+
+
 end
 
-SafehouseMoneyStack._run_sequences = function(l_3_0, l_3_1)
-  local small_sum = math.mod(l_3_1, SafehouseMoneyStack.SMALL_MAX_SUM)
-  local where = math.min(small_sum / SafehouseMoneyStack.SMALL_MAX_SUM, 1)
-  local sequence_index = math.ceil(where * #l_3_0._small_sequences)
-  print("where small", where, sequence_index)
-  if sequence_index ~= 0 or not "var_small_money_grow_00" then
-    local sequence = l_3_0._small_sequences[math.clamp(sequence_index, 1, #l_3_0._small_sequences)]
-  end
-  l_3_0._unit:damage():run_sequence_simple(sequence)
-  l_3_1 = l_3_1 - small_sum
-  local where = math.min((l_3_1) / SafehouseMoneyStack.MAX_SUM, 1)
-  local sequence_index = math.ceil(where * #l_3_0._sequences)
-  if sequence_index ~= 0 or not "var_money_grow_00" then
-    local sequence = l_3_0._sequences[math.clamp(sequence_index, 1, #l_3_0._sequences)]
-  end
-  l_3_0._unit:damage():run_sequence_simple(sequence)
+function SafehouseMoneyStack:_run_sequences( money )
+	print( "money", money )
+	local small_sum = math.mod( money, SafehouseMoneyStack.SMALL_MAX_SUM )
+	local where = math.min( small_sum/SafehouseMoneyStack.SMALL_MAX_SUM, 1 )
+	local sequence_index = math.ceil( where * #self._small_sequences )
+	print( "where small", where, sequence_index )
+	local sequence = (sequence_index == 0) and "var_small_money_grow_00" 
+						or self._small_sequences[ math.clamp( sequence_index, 1, #self._small_sequences ) ]
+	self._unit:damage():run_sequence_simple( sequence )
+
+
+	money = money - small_sum
+
+	local where = math.min( money/SafehouseMoneyStack.MAX_SUM, 1 )
+
+	local step_index = math.ceil( where * #self._big_steps )
+	print( "where large", where, step_index )
+	for i = 1, step_index do
+		self._big_steps[i].object:set_visibility( true )
+		self._big_steps[i].body:set_enabled( true )
+	end
+
+
+
+
+
+
+
+
 end
 
-SafehouseMoneyStack.debug_test = function(l_4_0)
-  l_4_0._test_money = 0
-  l_4_0._unit:set_extension_update_enabled(Idstring("base"), true)
+-----------------------------------------------------------------------------------
+
+function SafehouseMoneyStack:debug_test()
+	self:_hide()
+
+	self._test_money = 0
+	self._unit:set_extension_update_enabled( Idstring( "base" ), true )
 end
 
-SafehouseMoneyStack.update = function(l_5_0)
-  if l_5_0._test_money then
-    l_5_0:_run_sequences(l_5_0._test_money)
-    l_5_0._test_money = l_5_0._test_money + 25000
-    if SafehouseMoneyStack.MAX_SUM <= l_5_0._test_money then
-      l_5_0._test_money = nil
-    end
-  end
+function SafehouseMoneyStack:_hide()
+	for _, data in ipairs( self._big_steps ) do
+		data.object:set_visibility( false )
+		data.body:set_enabled( false )
+	end
 end
 
-SafehouseMoneyStack.destroy = function(l_6_0)
+function SafehouseMoneyStack:update()
+	if self._test_money then
+		self:_run_sequences( self._test_money )
+		self._test_money = self._test_money + 500000
+		if self._test_money >= SafehouseMoneyStack.MAX_SUM then
+			self._test_money = nil
+		end
+	end
 end
 
+function SafehouseMoneyStack:destroy()
+
+end
 

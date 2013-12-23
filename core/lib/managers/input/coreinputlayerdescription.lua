@@ -1,31 +1,26 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\input\coreinputlayerdescription.luac 
-
 core:module("CoreInputLayerDescription")
-if not LayerDescription then
-  LayerDescription = class()
-end
-LayerDescription.init = function(l_1_0, l_1_1, l_1_2)
-  l_1_0._name = l_1_1
-  l_1_0._priority = l_1_2
-end
 
-LayerDescription.layer_description_name = function(l_2_0)
-  return l_2_0._name
+LayerDescription = LayerDescription or class()
+
+function LayerDescription:init(name, priority)
+	self._name = name
+	self._priority = priority
 end
 
-LayerDescription.set_context_description = function(l_3_0, l_3_1)
-  assert(l_3_0._context_description == nil)
-  l_3_0._context_description = l_3_1
+function LayerDescription:layer_description_name()
+	return self._name
 end
 
-LayerDescription.context_description = function(l_4_0)
-  assert(l_4_0._context_description, "Must specify context for this layer_description")
-  return l_4_0._context_description
+function LayerDescription:set_context_description(context_description)
+	assert(self._context_description == nil)
+	self._context_description = context_description
 end
 
-LayerDescription.priority = function(l_5_0)
-  return l_5_0._priority
+function LayerDescription:context_description()
+	assert(self._context_description, "Must specify context for this layer_description")
+	return self._context_description
 end
 
-
+function LayerDescription:priority()
+	return self._priority
+end

@@ -1,30 +1,39 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\system\corepatchlua.luac 
+--[[
 
+C o r e P a t c h L u a
+-----------------------
+
+The CorePatchLua fixes some of the worst warts in Lua.
+See also CoreExtendLua.
+  
+]]--
+
+
+--  Make sure that we do not assign to global variables by mistake
 local mt = getmetatable(_G)
 if mt == nil then
   mt = {}
   setmetatable(_G, mt)
 end
+
 mt.__declared = {}
-mt.__newindex = function(l_1_0, l_1_1, l_1_2)
-  if not mt.__declared[l_1_1] then
+
+mt.__newindex = function (t, n, v)
+  if not mt.__declared[n] then
     local info = debug.getinfo(2, "S")
     if info and info.what ~= "main" and info.what ~= "C" then
-      error("cannot assign undeclared global '" .. tostring(l_1_1) .. "'", 2)
+      error("cannot assign undeclared global '" .. tostring( n ) .. "'", 2)
     end
-    mt.__declared[l_1_1] = true
+    mt.__declared[n] = true
   end
-  rawset(l_1_0, l_1_1, l_1_2)
+  rawset(t, n, v)
 end
 
-mt.__index = function(l_2_0, l_2_1)
-  if not mt.__declared[l_2_1] then
-    local info = debug.getinfo(2, "S")
-    if info and info.what ~= "main" and info.what ~= "C" then
-      error("cannot use undeclared global '" .. tostring(l_2_1) .. "'", 2)
-    end
-  end
+mt.__index = function (t,n)
+	if not mt.__declared[n] then
+		local info = debug.getinfo(2, "S")
+		if info and info.what ~= "main" and info.what ~= "C" then
+			error( "cannot use undeclared global '" .. tostring( n ) .. "'", 2 )
+		end
+	end
 end
-
-

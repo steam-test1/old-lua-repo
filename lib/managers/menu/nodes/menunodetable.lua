@@ -1,32 +1,29 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\menu\nodes\menunodetable.luac 
-
 core:import("CoreMenuNode")
 core:import("CoreSerialize")
 core:import("CoreMenuItem")
 core:import("CoreMenuItemToggle")
-if not MenuNodeTable then
-  MenuNodeTable = class(CoreMenuNode.MenuNode)
-end
-MenuNodeTable.init = function(l_1_0, l_1_1)
-  MenuNodeTable.super.init(l_1_0, l_1_1)
-  l_1_0._columns = {}
-  l_1_0:_setup_columns()
-  l_1_0._parameters.total_proportions = 0
-  for _,data in ipairs(l_1_0._columns) do
-    l_1_0._parameters.total_proportions = l_1_0._parameters.total_proportions + data.proportions
-  end
-end
 
-MenuNodeTable._setup_columns = function(l_2_0)
-end
+MenuNodeTable = MenuNodeTable or class( CoreMenuNode.MenuNode )
 
-MenuNodeTable._add_column = function(l_3_0, l_3_1)
-  table.insert(l_3_0._columns, l_3_1)
+function MenuNodeTable:init( data_node )
+	MenuNodeTable.super.init( self, data_node )
+	
+	self._columns = {}
+	self:_setup_columns()
+					
+	self._parameters.total_proportions = 0
+	for _,data in ipairs( self._columns ) do
+		self._parameters.total_proportions = self._parameters.total_proportions + data.proportions
+	end	
 end
 
-MenuNodeTable.columns = function(l_4_0)
-  return l_4_0._columns
+function MenuNodeTable:_setup_columns()
 end
 
+function MenuNodeTable:_add_column( params )
+	table.insert( self._columns, params )
+end
 
+function MenuNodeTable:columns()
+	return self._columns
+end

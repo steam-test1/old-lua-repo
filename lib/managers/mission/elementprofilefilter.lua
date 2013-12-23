@@ -1,67 +1,72 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\elementprofilefilter.luac 
+core:import( "CoreMissionScriptElement" )
 
-core:import("CoreMissionScriptElement")
-if not ElementProfileFilter then
-  ElementProfileFilter = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementProfileFilter.init = function(l_1_0, ...)
-  ElementProfileFilter.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementProfileFilter = ElementProfileFilter or class( CoreMissionScriptElement.MissionScriptElement )
 
+function ElementProfileFilter:init( ... )
+	ElementProfileFilter.super.init( self, ... )
 end
 
-ElementProfileFilter.client_on_executed = function(l_2_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function ElementProfileFilter:client_on_executed( ... )
+	 -- self:on_executed( ... )
 end
 
-ElementProfileFilter.on_executed = function(l_3_0, l_3_1)
-  if not l_3_0._values.enabled then
-    return 
-  end
-  if not l_3_0:_check_player_lvl() then
-    return 
-  end
-  if not l_3_0:_check_total_money_earned() then
-    return 
-  end
-  if not l_3_0:_check_total_money_offshore() then
-    return 
-  end
-  if not l_3_0:_check_achievement() then
-    return 
-  end
-  ElementProfileFilter.super.on_executed(l_3_0, l_3_1)
+function ElementProfileFilter:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	if not self:_check_player_lvl() then
+		-- print( "ElementProfileFilter: Failed lvl check" )
+		return
+	end
+	
+	if not self:_check_total_money_earned() then
+		-- print( "ElementProfileFilter: Failed money earned check" )
+		return
+	end
+	
+	if not self:_check_total_money_offshore() then
+		-- print( "ElementProfileFilter: Failed money offshore check" )
+		return
+	end
+	
+	if not self:_check_achievement() then
+		-- print( "ElementProfileFilter: Failed achievement check" )
+		return
+	end
+
+	-- print( "ElementProfileFilter: All passed" )
+	ElementProfileFilter.super.on_executed( self, instigator )
 end
 
-ElementProfileFilter._check_player_lvl = function(l_4_0)
-  local pass = l_4_0._values.player_lvl <= managers.experience:current_level()
-  return pass
+function ElementProfileFilter:_check_player_lvl()
+	local pass = managers.experience:current_level() >= self._values.player_lvl
+	-- print( "_check_player_lvl", managers.experience:current_level(), self._values.player_lvl, pass )
+	return pass
 end
 
-ElementProfileFilter._check_total_money_earned = function(l_5_0)
-  local pass = l_5_0._values.money_earned * 1000 <= managers.money:total_collected()
-  return pass
+function ElementProfileFilter:_check_total_money_earned()
+	local pass = managers.money:total_collected() >= self._values.money_earned * 1000
+	-- print( "_check_total_money_earned", managers.money:total_collected(), self._values.money_earned * 1000, pass )
+	return pass
 end
 
-ElementProfileFilter._check_total_money_offshore = function(l_6_0)
-  if not l_6_0._values.money_offshore then
-    return false
-  end
-  local pass = l_6_0._values.money_offshore * 1000 <= managers.money:offshore()
-  return pass
+function ElementProfileFilter:_check_total_money_offshore()
+	if not self._values.money_offshore then
+		return false
+	end
+	local pass = managers.money:offshore() >= self._values.money_offshore * 1000
+	-- print( "_check_total_money_offshore", managers.money:offshore(), self._values.money_offshore * 1000, pass )
+	return pass
 end
 
-ElementProfileFilter._check_achievement = function(l_7_0)
-  if l_7_0._values.achievement == "none" then
-    return true
-  end
-  local info = managers.achievment:get_info(l_7_0._values.achievement)
-  if info then
-    local pass = info.awarded
-  end
-  return pass
+function ElementProfileFilter:_check_achievement()
+	if self._values.achievement == "none" then
+		return true
+	end
+	
+	local info = managers.achievment:get_info( self._values.achievement )
+	local pass = info and info.awarded
+	-- print( "_check_achievement", self._values.achievement, pass )
+	return pass
 end
-
-

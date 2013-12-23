@@ -1,58 +1,77 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\network\extensions\player\huskplayerdamage.luac 
+-- This class is not fully implemented. the values received over network are not alwyas representative.
 
-if not HuskPlayerDamage then
-  HuskPlayerDamage = class()
-end
-HuskPlayerDamage.init = function(l_1_0, l_1_1)
-  l_1_0._unit = l_1_1
-  l_1_0._spine2_obj = l_1_1:get_object(Idstring("Spine2"))
-  l_1_0._listener_holder = EventListenerHolder:new()
+HuskPlayerDamage = HuskPlayerDamage or class()
+
+function HuskPlayerDamage:init( unit )
+	self._unit = unit
+	self._spine2_obj = unit:get_object( Idstring( "Spine2" ) )
+	self._listener_holder = EventListenerHolder:new()
 end
 
-HuskPlayerDamage._call_listeners = function(l_2_0, l_2_1)
-  CopDamage._call_listeners(l_2_0, l_2_1)
+------------------------------------------------------------------------------------------
+
+function HuskPlayerDamage:_call_listeners( damage_info )
+	CopDamage._call_listeners( self, damage_info )
 end
 
-HuskPlayerDamage.add_listener = function(l_3_0, ...)
-  CopDamage.add_listener(l_3_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+------------------------------------------------------------------------------------------
+--	events: an indexed table of event types you are interested receiving callbacks from. ex: { "hurt", "death" }. nil or false will listen to all event types
+function HuskPlayerDamage:add_listener( ... )
+	CopDamage.add_listener( self, ... )
 end
 
-HuskPlayerDamage.remove_listener = function(l_4_0, l_4_1)
-  CopDamage.remove_listener(l_4_0, l_4_1)
+------------------------------------------------------------------------------------------
+
+function HuskPlayerDamage:remove_listener( key )
+	CopDamage.remove_listener( self, key )
 end
 
-HuskPlayerDamage.sync_damage_bullet = function(l_5_0, l_5_1, l_5_2, l_5_3, l_5_4)
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
+------------------------------------------------------------------------------------------
 
-end
-local attack_data = {attacker_unit = l_5_1, attack_dir = Vector3(1, 0, 0), pos = mvector3.copy(l_5_0._unit:movement():m_head_pos()), result = {type = "hurt", variant = "bullet"}}
-l_5_0:_call_listeners(attack_data)
-end
-
-HuskPlayerDamage.shoot_pos_mid = function(l_6_0, l_6_1)
-  l_6_0._spine2_obj:m_position(l_6_1)
-end
-
-HuskPlayerDamage.set_last_down_time = function(l_7_0, l_7_1)
-  l_7_0._last_down_time = l_7_1
+function HuskPlayerDamage:sync_damage_bullet( attacker_unit, damage, i_body, height_offset )
+	local attack_data = {
+		attacker_unit = attacker_unit,
+		attack_dir = attacker_unit and ( attacker_unit:movement():m_pos() - self._unit:movement():m_pos() ) or Vector3(1,0,0),
+		pos = mvector3.copy( self._unit:movement():m_head_pos() ),
+		result = { type = "hurt", variant = "bullet" }
+	}
+	self:_call_listeners( attack_data )
 end
 
-HuskPlayerDamage.down_time = function(l_8_0)
-  return l_8_0._last_down_time
+------------------------------------------------------------------------------------------
+
+function HuskPlayerDamage:shoot_pos_mid( m_pos )
+	self._spine2_obj:m_position( m_pos )
 end
 
-HuskPlayerDamage.arrested = function(l_9_0)
-  return l_9_0._unit:movement():current_state_name() == "arrested"
+------------------------------------------------------------------------------------------
+
+function HuskPlayerDamage:set_last_down_time( down_time )
+	self._last_down_time = down_time
 end
 
-HuskPlayerDamage.incapacitated = function(l_10_0)
-  return l_10_0._unit:movement():current_state_name() == "incapacitated"
+------------------------------------------------------------------------------------------
+
+function HuskPlayerDamage:down_time()
+	return self._last_down_time
 end
 
-HuskPlayerDamage.dead = function(l_11_0)
+------------------------------------------------------------------------------------------
+
+function HuskPlayerDamage:arrested()
+	return self._unit:movement():current_state_name() == "arrested"
 end
 
+------------------------------------------------------------------------------------------
 
+function HuskPlayerDamage:incapacitated()
+	return self._unit:movement():current_state_name() == "incapacitated"
+end
+
+------------------------------------------------------------------------------------------
+
+function HuskPlayerDamage:dead()
+end
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------

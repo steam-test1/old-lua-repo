@@ -1,304 +1,256 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\menu\renderers\menunodetablegui.luac 
 
-if not MenuNodeTableGui then
-  MenuNodeTableGui = class(MenuNodeGui)
-end
-MenuNodeTableGui.init = function(l_1_0, l_1_1, l_1_2, l_1_3)
-  MenuNodeTableGui.super.init(l_1_0, l_1_1, l_1_2, l_1_3)
+MenuNodeTableGui = MenuNodeTableGui or class( MenuNodeGui )
+
+function MenuNodeTableGui:init( node, layer, parameters )
+	MenuNodeTableGui.super.init( self, node, layer, parameters )
 end
 
-MenuNodeTableGui._setup_panels = function(l_2_0, l_2_1)
-  MenuNodeTableGui.super._setup_panels(l_2_0, l_2_1)
-  local safe_rect_pixels = l_2_0:_scaled_size()
-  local mini_info = l_2_0.safe_rect_panel:panel({x = 0, y = 0, w = 0, h = 0})
-   -- DECOMPILER ERROR: Confused about usage of registers!
+function MenuNodeTableGui:_setup_panels( node )
+	MenuNodeTableGui.super._setup_panels( self, node )
+			
+	local safe_rect_pixels = self:_scaled_size() -- managers.viewport:get_safe_rect_pixels()
+		
+	local mini_info = self.safe_rect_panel:panel( { x = 0, y = 0, w = 0, h = 0 } )
+	local mini_text = mini_info:text( {
+		x = 0, y = 0, align="left", halign="top", vertical="top",
+		font = tweak_data.menu.pd2_small_font, font_size = tweak_data.menu.pd2_small_font_size, color = Color.white,
+		layer = self.layers.items, text = "", wrap = true, word_wrap = true,
+	} )
 
-   -- DECOMPILER ERROR: Confused about usage of registers!
+	mini_info:set_width( self._info_bg_rect:w() - tweak_data.menu.info_padding * 2 )
+	mini_text:set_width( mini_info:w() )
 
-   -- DECOMPILER ERROR: Confused about usage of registers!
 
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  local mini_text = mini_info:text({x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.pd2_small_font, font_size = tweak_data.menu.pd2_small_font_size, color = Color.white})
-  mini_info:set_width(l_2_0._info_bg_rect:w() - tweak_data.menu.info_padding * 2)
-  {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.pd2_small_font, font_size = tweak_data.menu.pd2_small_font_size, color = Color.white}.word_wrap, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.pd2_small_font, font_size = tweak_data.menu.pd2_small_font_size, color = Color.white}.wrap, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.pd2_small_font, font_size = tweak_data.menu.pd2_small_font_size, color = Color.white}.text, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.pd2_small_font, font_size = tweak_data.menu.pd2_small_font_size, color = Color.white}.layer = true, true, "", l_2_0.layers.items
-  mini_text:set_width(mini_info:w())
-  mini_info:set_height(100)
-  mini_text:set_height(100)
-  mini_info:set_top(l_2_0._info_bg_rect:bottom() + tweak_data.menu.info_padding)
-  mini_text:set_top(0)
-  mini_info:set_left(tweak_data.menu.info_padding)
-  mini_text:set_left(0)
-  l_2_0._mini_info_text = mini_text
+	mini_info:set_height( 100 )
+	mini_text:set_height( 100 )
+	
+	mini_info:set_top( self._info_bg_rect:bottom() + tweak_data.menu.info_padding)
+	mini_text:set_top( 0 )
+	
+	mini_info:set_left( tweak_data.menu.info_padding )
+	mini_text:set_left( 0 )
+	
+	self._mini_info_text = mini_text
 end
 
-MenuNodeTableGui.set_mini_info = function(l_3_0, l_3_1)
-  l_3_0._mini_info_text:set_text(l_3_1)
+function MenuNodeTableGui:set_mini_info( text )
+	self._mini_info_text:set_text( text )
 end
 
-MenuNodeTableGui._create_menu_item = function(l_4_0, l_4_1)
-  if l_4_1.type == "column" then
-    local columns = l_4_1.node:columns()
-    local total_proportions = l_4_1.node:parameters().total_proportions
-    l_4_1.gui_panel = l_4_0.item_panel:panel({x = l_4_0:_right_align(), w = l_4_0.item_panel:w()})
-    l_4_1.gui_columns = {}
-    local x = 0
-    for i,data in ipairs(columns) do
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-      local text = l_4_1.gui_panel:text({font_size = l_4_0.font_size, x = l_4_1.position.x, y = 0, align = data.align})
-      l_4_1.gui_columns[i], {font_size = l_4_0.font_size, x = l_4_1.position.x, y = 0, align = data.align}.text, {font_size = l_4_0.font_size, x = l_4_1.position.x, y = 0, align = data.align}.layer, {font_size = l_4_0.font_size, x = l_4_1.position.x, y = 0, align = data.align}.color, {font_size = l_4_0.font_size, x = l_4_1.position.x, y = 0, align = data.align}.font, {font_size = l_4_0.font_size, x = l_4_1.position.x, y = 0, align = data.align}.vertical, {font_size = l_4_0.font_size, x = l_4_1.position.x, y = 0, align = data.align}.halign = text, l_4_1.item:parameters().columns[i], l_4_0.layers.items, l_4_1.color, l_4_1.font, "center", data.align
-      local _, _, w, h = text:text_rect()
-      text:set_h(h)
-      local w = data.proportions / total_proportions * l_4_1.gui_panel:w()
-      text:set_w(w)
-      text:set_x(x)
-      x = x + w
-    end
-    local x, y, w, h = l_4_1.gui_columns[1]:text_rect()
-    l_4_1.gui_panel:set_height(h)
-  elseif l_4_1.type == "server_column" then
-    local columns = l_4_1.node:columns()
-    local total_proportions = l_4_1.node:parameters().total_proportions
-    local safe_rect = l_4_0:_scaled_size()
-    local xl_pad = 54
-    l_4_1.gui_panel = l_4_0.item_panel:panel({x = safe_rect.width / 2 - xl_pad, w = safe_rect.width / 2 + xl_pad})
-    l_4_1.gui_columns = {}
-    local x = 0
-    for i,data in ipairs(columns) do
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-      local text = l_4_1.gui_panel:text({font_size = tweak_data.menu.server_list_font_size, x = l_4_1.position.x, y = 0, align = data.align})
-      l_4_1.gui_columns[i], {font_size = tweak_data.menu.server_list_font_size, x = l_4_1.position.x, y = 0, align = data.align}.text, {font_size = tweak_data.menu.server_list_font_size, x = l_4_1.position.x, y = 0, align = data.align}.layer, {font_size = tweak_data.menu.server_list_font_size, x = l_4_1.position.x, y = 0, align = data.align}.color, {font_size = tweak_data.menu.server_list_font_size, x = l_4_1.position.x, y = 0, align = data.align}.font, {font_size = tweak_data.menu.server_list_font_size, x = l_4_1.position.x, y = 0, align = data.align}.vertical, {font_size = tweak_data.menu.server_list_font_size, x = l_4_1.position.x, y = 0, align = data.align}.halign = text, l_4_1.item:parameters().columns[i], l_4_0.layers.items, l_4_1.color, l_4_1.font, "center", data.align
-      local _, _, w, h = text:text_rect()
-      text:set_h(h)
-      local w = data.proportions / total_proportions * l_4_1.gui_panel:w()
-      text:set_w(w)
-      text:set_x(x)
-      x = x + w
-    end
-    local x, y, w, h = l_4_1.gui_columns[1]:text_rect()
-    l_4_1.gui_panel:set_height(h)
-    local level_id = l_4_1.item:parameters().level_id
-    l_4_1.gui_info_panel = l_4_0.safe_rect_panel:panel({visible = false, layer = l_4_0.layers.items, x = 0, y = 0, w = l_4_0:_left_align(), h = l_4_0._item_panel_parent:h()})
-    l_4_1.heist_name = l_4_1.gui_info_panel:text({visible = false, text = string.upper(l_4_1.item:parameters().level_name), layer = l_4_0.layers.items, font = l_4_0.font, font_size = tweak_data.menu.challenges_font_size, color = l_4_1.color, align = "left", vertical = "left"})
-    local briefing_text = string.upper(level_id and managers.localization:text(tweak_data.levels[level_id].briefing_id) or "")
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    l_4_1.heist_briefing, {visible = true, x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white, layer = l_4_0.layers.items}.word_wrap, {visible = true, x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white, layer = l_4_0.layers.items}.wrap, {visible = true, x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white, layer = l_4_0.layers.items}.text = l_4_1.gui_info_panel:text({visible = true, x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white, layer = l_4_0.layers.items}), true, true, briefing_text
-    local font_size = tweak_data.menu.lobby_info_font_size
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    l_4_1.server_title, {name = "server_title", text = string.upper(managers.localization:text("menu_lobby_server_title"))}.layer, {name = "server_title", text = string.upper(managers.localization:text("menu_lobby_server_title"))}.h, {name = "server_title", text = string.upper(managers.localization:text("menu_lobby_server_title"))}.w, {name = "server_title", text = string.upper(managers.localization:text("menu_lobby_server_title"))}.vertical, {name = "server_title", text = string.upper(managers.localization:text("menu_lobby_server_title"))}.align, {name = "server_title", text = string.upper(managers.localization:text("menu_lobby_server_title"))}.font_size, {name = "server_title", text = string.upper(managers.localization:text("menu_lobby_server_title"))}.font = l_4_1.gui_info_panel:text({name = "server_title", text = string.upper(managers.localization:text("menu_lobby_server_title"))}), 1, font_size, 256, "center", "left", font_size, tweak_data.menu.default_font
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    l_4_1.server_text, {name = "server_text", text = string.upper(l_4_1.item:parameters().host_name), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.layer, {name = "server_text", text = string.upper(l_4_1.item:parameters().host_name), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.h, {name = "server_text", text = string.upper(l_4_1.item:parameters().host_name), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.w, {name = "server_text", text = string.upper(l_4_1.item:parameters().host_name), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.vertical, {name = "server_text", text = string.upper(l_4_1.item:parameters().host_name), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.align, {name = "server_text", text = string.upper(l_4_1.item:parameters().host_name), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.font_size = l_4_1.gui_info_panel:text({name = "server_text", text = string.upper(l_4_1.item:parameters().host_name), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}), 1, font_size, 256, "center", "left", font_size
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    l_4_1.server_info_title, {name = "server_info_title", text = string.upper(managers.localization:text("menu_lobby_server_state_title"))}.layer, {name = "server_info_title", text = string.upper(managers.localization:text("menu_lobby_server_state_title"))}.h, {name = "server_info_title", text = string.upper(managers.localization:text("menu_lobby_server_state_title"))}.w, {name = "server_info_title", text = string.upper(managers.localization:text("menu_lobby_server_state_title"))}.vertical, {name = "server_info_title", text = string.upper(managers.localization:text("menu_lobby_server_state_title"))}.align, {name = "server_info_title", text = string.upper(managers.localization:text("menu_lobby_server_state_title"))}.font_size, {name = "server_info_title", text = string.upper(managers.localization:text("menu_lobby_server_state_title"))}.font = l_4_1.gui_info_panel:text({name = "server_info_title", text = string.upper(managers.localization:text("menu_lobby_server_state_title"))}), 1, font_size, 256, "center", "left", font_size, l_4_0.font
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    l_4_1.server_info_text, {name = "server_info_text", text = string.upper(l_4_1.item:parameters().state_name), font = l_4_0.font, color = tweak_data.hud.prime_color}.layer, {name = "server_info_text", text = string.upper(l_4_1.item:parameters().state_name), font = l_4_0.font, color = tweak_data.hud.prime_color}.h, {name = "server_info_text", text = string.upper(l_4_1.item:parameters().state_name), font = l_4_0.font, color = tweak_data.hud.prime_color}.w, {name = "server_info_text", text = string.upper(l_4_1.item:parameters().state_name), font = l_4_0.font, color = tweak_data.hud.prime_color}.vertical, {name = "server_info_text", text = string.upper(l_4_1.item:parameters().state_name), font = l_4_0.font, color = tweak_data.hud.prime_color}.align, {name = "server_info_text", text = string.upper(l_4_1.item:parameters().state_name), font = l_4_0.font, color = tweak_data.hud.prime_color}.font_size = l_4_1.gui_info_panel:text({name = "server_info_text", text = string.upper(l_4_1.item:parameters().state_name), font = l_4_0.font, color = tweak_data.hud.prime_color}), 1, font_size, 256, "center", "left", font_size
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    l_4_1.level_title, {name = "level_title", text = string.upper(managers.localization:text("menu_lobby_campaign_title"))}.layer, {name = "level_title", text = string.upper(managers.localization:text("menu_lobby_campaign_title"))}.h, {name = "level_title", text = string.upper(managers.localization:text("menu_lobby_campaign_title"))}.w, {name = "level_title", text = string.upper(managers.localization:text("menu_lobby_campaign_title"))}.vertical, {name = "level_title", text = string.upper(managers.localization:text("menu_lobby_campaign_title"))}.align, {name = "level_title", text = string.upper(managers.localization:text("menu_lobby_campaign_title"))}.font_size, {name = "level_title", text = string.upper(managers.localization:text("menu_lobby_campaign_title"))}.font = l_4_1.gui_info_panel:text({name = "level_title", text = string.upper(managers.localization:text("menu_lobby_campaign_title"))}), 1, font_size, 256, "center", "left", font_size, tweak_data.menu.default_font
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    l_4_1.level_text, {name = "level_text", text = string.upper(l_4_1.item:parameters().real_level_name), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.layer, {name = "level_text", text = string.upper(l_4_1.item:parameters().real_level_name), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.h, {name = "level_text", text = string.upper(l_4_1.item:parameters().real_level_name), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.w, {name = "level_text", text = string.upper(l_4_1.item:parameters().real_level_name), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.vertical, {name = "level_text", text = string.upper(l_4_1.item:parameters().real_level_name), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.align, {name = "level_text", text = string.upper(l_4_1.item:parameters().real_level_name), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.font_size = l_4_1.gui_info_panel:text({name = "level_text", text = string.upper(l_4_1.item:parameters().real_level_name), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}), 1, font_size, 256, "center", "left", font_size
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    l_4_1.difficulty_title, {name = "difficulty_title", text = string.upper(managers.localization:text("menu_lobby_difficulty_title"))}.layer, {name = "difficulty_title", text = string.upper(managers.localization:text("menu_lobby_difficulty_title"))}.h, {name = "difficulty_title", text = string.upper(managers.localization:text("menu_lobby_difficulty_title"))}.w, {name = "difficulty_title", text = string.upper(managers.localization:text("menu_lobby_difficulty_title"))}.vertical, {name = "difficulty_title", text = string.upper(managers.localization:text("menu_lobby_difficulty_title"))}.align, {name = "difficulty_title", text = string.upper(managers.localization:text("menu_lobby_difficulty_title"))}.font_size, {name = "difficulty_title", text = string.upper(managers.localization:text("menu_lobby_difficulty_title"))}.font = l_4_1.gui_info_panel:text({name = "difficulty_title", text = string.upper(managers.localization:text("menu_lobby_difficulty_title"))}), 1, font_size, 256, "center", "left", font_size, tweak_data.menu.default_font
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    l_4_1.difficulty_text, {name = "difficulty_text", text = string.upper(managers.localization:text("menu_difficulty_" .. l_4_1.item:parameters().difficulty)), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.layer, {name = "difficulty_text", text = string.upper(managers.localization:text("menu_difficulty_" .. l_4_1.item:parameters().difficulty)), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.h, {name = "difficulty_text", text = string.upper(managers.localization:text("menu_difficulty_" .. l_4_1.item:parameters().difficulty)), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.w, {name = "difficulty_text", text = string.upper(managers.localization:text("menu_difficulty_" .. l_4_1.item:parameters().difficulty)), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.vertical, {name = "difficulty_text", text = string.upper(managers.localization:text("menu_difficulty_" .. l_4_1.item:parameters().difficulty)), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.align, {name = "difficulty_text", text = string.upper(managers.localization:text("menu_difficulty_" .. l_4_1.item:parameters().difficulty)), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}.font_size = l_4_1.gui_info_panel:text({name = "difficulty_text", text = string.upper(managers.localization:text("menu_difficulty_" .. l_4_1.item:parameters().difficulty)), font = tweak_data.menu.default_font, color = tweak_data.hud.prime_color}), 1, font_size, 256, "center", "left", font_size
-    l_4_0:_align_server_column(l_4_1)
-    if l_4_1.item:menu_unselected_visible(l_4_0, l_4_1) then
-      local visible = not l_4_1.item:parameters().back
-    end
-    l_4_1.menu_unselected = l_4_0.item_panel:bitmap({visible = visible, texture = "guis/textures/menu_unselected", x = 0, y = 0, layer = -1})
-    if not l_4_1.item:parameters().is_expanded or not Color(0.5, 0.5, 0.5) then
-      l_4_1.menu_unselected:set_color(Color.white)
-  else
-    end
-    MenuNodeTableGui.super._create_menu_item(l_4_0, l_4_1)
-  end
+function MenuNodeTableGui:_create_menu_item( row_item )
+	if row_item.type == "column" then
+		local columns = row_item.node:columns()
+		local total_proportions = row_item.node:parameters().total_proportions
+						
+		row_item.gui_panel = self.item_panel:panel( { x = self:_right_align(), w = self.item_panel:w() } )
+				
+		row_item.gui_columns = {}
+		local x = 0
+		for i,data in ipairs( columns ) do
+		
+			local text = row_item.gui_panel:text( {
+														font_size = self.font_size,
+														x = row_item.position.x, y = 0,
+														-- align=row_item.align, halign=row_item.halign, vertical=row_item.vertical,
+														align=data.align, halign=data.align, vertical="center",
+														font = row_item.font,
+														color = row_item.color,
+														layer = self.layers.items,
+														text = row_item.item:parameters().columns[i]
+													} )
+			row_item.gui_columns[i] = text
+			
+			local _,_,w,h = text:text_rect()
+			text:set_h( h )
+						
+			local w = (data.proportions/total_proportions) * row_item.gui_panel:w()
+			text:set_w( w )
+			text:set_x( x )
+			x = x + w
+		end
+		
+		local x,y,w,h = row_item.gui_columns[1]:text_rect()
+		row_item.gui_panel:set_height( h )
+	elseif row_item.type == "server_column" then
+	 	local columns = row_item.node:columns()
+		local total_proportions = row_item.node:parameters().total_proportions
+		
+		local safe_rect = self:_scaled_size() -- managers.viewport:get_safe_rect_pixels()
+		local xl_pad = 54
+				
+		row_item.gui_panel = self.item_panel:panel( { x = safe_rect.width/2-xl_pad, w = safe_rect.width/2+xl_pad } )
+						
+		row_item.gui_columns = {}
+		local x = 0
+		for i,data in ipairs( columns ) do
+		
+			local text = row_item.gui_panel:text( {
+														font_size = tweak_data.menu.server_list_font_size,
+														x = row_item.position.x, y = 0,
+														-- align=row_item.align, halign=row_item.halign, vertical=row_item.vertical,
+														align=data.align, halign=data.align, vertical="center",
+														font = row_item.font,
+														color = row_item.color,
+														layer = self.layers.items,
+														text = row_item.item:parameters().columns[i]
+													} )
+			row_item.gui_columns[i] = text
+			
+			local _,_,w,h = text:text_rect()
+			text:set_h( h )
+						
+			local w = (data.proportions/total_proportions) * row_item.gui_panel:w()
+			text:set_w( w )
+			text:set_x( x )
+			x = x + w
+		end
+		
+		local x,y,w,h = row_item.gui_columns[1]:text_rect()
+		row_item.gui_panel:set_height( h )
+		
+		local level_id = row_item.item:parameters().level_id
+		row_item.gui_info_panel = self.safe_rect_panel:panel( { visible = false, layer = self.layers.items, x = 0, y = 0, w = self:_left_align(), h = self._item_panel_parent:h() } )
+		
+		row_item.heist_name = row_item.gui_info_panel:text( { visible = false, text = utf8.to_upper( row_item.item:parameters().level_name ), layer = self.layers.items, font = self.font, font_size = tweak_data.menu.challenges_font_size, color = row_item.color, align = "left", vertical = "left" } )
+		
+		local briefing_text = level_id and managers.localization:text( tweak_data.levels[ level_id ].briefing_id ) or ""
+		row_item.heist_briefing = row_item.gui_info_panel:text( { visible = true,
+					x = 0, y = 0, align="left", halign="top", vertical="top",
+					font = tweak_data.menu.pd2_small_font, font_size = tweak_data.menu.pd2_small_font_size, color = Color.white,
+					layer = self.layers.items, text = briefing_text, wrap = true, word_wrap = true,
+				} )
+				
+		-- row_item.server_state_topic = row_item.gui_info_panel:text( { text = utf8.to_upper( managers.localization:text( "menu_lobby_server_state_title" ) ), layer = self.layers.items, font = self.font, font_size = tweak_data.menu.challenges_font_size, color = row_item.color, align = "left", vertical = "left" } )
+		
+		local font_size = tweak_data.menu.pd2_small_font_size
+		
+
+		row_item.server_title = row_item.gui_info_panel:text( { name = "server_title", text = utf8.to_upper( managers.localization:text( "menu_lobby_server_title" ) ) .. " ", font = tweak_data.menu.pd2_small_font, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )
+		row_item.server_text = row_item.gui_info_panel:text( { name = "server_text", text = utf8.to_upper( row_item.item:parameters().host_name ), font = tweak_data.menu.pd2_small_font, color = tweak_data.hud.prime_color, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )
+		
+		row_item.server_info_title = row_item.gui_info_panel:text( { name = "server_info_title", text = utf8.to_upper( managers.localization:text( "menu_lobby_server_state_title" ) ) .. " ", font = self.font, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )
+		row_item.server_info_text = row_item.gui_info_panel:text( { name = "server_info_text", text = utf8.to_upper( row_item.item:parameters().state_name ) .. " " .. tostring( row_item.item:parameters().num_plrs ) .. "/4 ", font = self.font, color = tweak_data.hud.prime_color, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )
+		
+		row_item.level_title = row_item.gui_info_panel:text( { name = "level_title", text = utf8.to_upper( managers.localization:text( "menu_lobby_campaign_title" ) ) .. " ", font = tweak_data.menu.pd2_small_font, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )
+		row_item.level_text = row_item.gui_info_panel:text( { name = "level_text", text = utf8.to_upper( row_item.item:parameters().real_level_name ), font = tweak_data.menu.pd2_small_font, color = tweak_data.hud.prime_color, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )
+
+		row_item.difficulty_title = row_item.gui_info_panel:text( { name = "difficulty_title", text = utf8.to_upper( managers.localization:text( "menu_lobby_difficulty_title" ) ) .. " ", font = tweak_data.menu.pd2_small_font, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )	
+		row_item.difficulty_text = row_item.gui_info_panel:text( { name = "difficulty_text", text = utf8.to_upper( managers.localization:text( "menu_difficulty_"..row_item.item:parameters().difficulty ) ), font = tweak_data.menu.pd2_small_font, color = tweak_data.hud.prime_color, font_size = font_size, align = "left", vertical = "center", w = 256, h = font_size, layer = 1} )
+		
+		self:_align_server_column( row_item )
+		
+		local visible = row_item.item:menu_unselected_visible( self, row_item ) and not row_item.item:parameters().back
+		row_item.menu_unselected = self.item_panel:bitmap( { visible = visible, texture = "guis/textures/menu_unselected", x = 0, y = 0, layer = -1 } )
+		row_item.menu_unselected:set_color( row_item.item:parameters().is_expanded and Color( 0.5, 0.5, 0.5) or Color.white )
+		row_item.menu_unselected:hide()
+	else
+		MenuNodeTableGui.super._create_menu_item( self, row_item )
+	end
 end
 
-MenuNodeTableGui._align_server_column = function(l_5_0, l_5_1)
-  local safe_rect = l_5_0:_scaled_size()
-  l_5_0:_align_item_gui_info_panel(l_5_1.gui_info_panel)
-  local font_size = tweak_data.menu.lobby_info_font_size
-  local offset = 22 * tweak_data.scale.lobby_info_offset_multiplier
-  l_5_1.server_title:set_font_size(font_size)
-  l_5_1.server_text:set_font_size(font_size)
-  local x, y, w, h = l_5_1.server_title:text_rect()
-  l_5_1.server_title:set_x(tweak_data.menu.info_padding)
-  l_5_1.server_title:set_y(tweak_data.menu.info_padding)
-  l_5_1.server_title:set_w(w)
-  l_5_1.server_text:set_lefttop(l_5_1.server_title:righttop())
-  l_5_1.server_text:set_w(l_5_1.gui_info_panel:w())
-  l_5_1.server_info_title:set_font_size(font_size)
-  l_5_1.server_info_text:set_font_size(font_size)
-  local x, y, w, h = l_5_1.server_info_title:text_rect()
-  l_5_1.server_info_title:set_x(tweak_data.menu.info_padding)
-  l_5_1.server_info_title:set_y(tweak_data.menu.info_padding + offset)
-  l_5_1.server_info_title:set_w(w)
-  l_5_1.server_info_text:set_lefttop(l_5_1.server_info_title:righttop())
-  l_5_1.server_info_text:set_w(l_5_1.gui_info_panel:w())
-  l_5_1.level_title:set_font_size(font_size)
-  l_5_1.level_text:set_font_size(font_size)
-  local x, y, w, h = l_5_1.level_title:text_rect()
-  l_5_1.level_title:set_x(tweak_data.menu.info_padding)
-  l_5_1.level_title:set_y(tweak_data.menu.info_padding + offset * 2)
-  l_5_1.level_title:set_w(w)
-  l_5_1.level_text:set_lefttop(l_5_1.level_title:righttop())
-  l_5_1.level_text:set_w(l_5_1.gui_info_panel:w())
-  l_5_1.difficulty_title:set_font_size(font_size)
-  l_5_1.difficulty_text:set_font_size(font_size)
-  local x, y, w, h = l_5_1.difficulty_title:text_rect()
-  l_5_1.difficulty_title:set_x(tweak_data.menu.info_padding)
-  l_5_1.difficulty_title:set_y(tweak_data.menu.info_padding + offset * 3)
-  l_5_1.difficulty_title:set_w(w)
-  l_5_1.difficulty_text:set_lefttop(l_5_1.difficulty_title:righttop())
-  l_5_1.difficulty_text:set_w(l_5_1.gui_info_panel:w())
-  local _, _, _, h = l_5_1.heist_name:text_rect()
-  local w = l_5_1.gui_info_panel:w()
-  l_5_1.heist_name:set_height(h)
-  l_5_1.heist_name:set_w(w)
-  l_5_1.heist_briefing:set_w(w)
-  l_5_1.heist_briefing:set_shape(l_5_1.heist_briefing:text_rect())
-  l_5_1.heist_briefing:set_x(0)
-  l_5_1.heist_briefing:set_y(tweak_data.menu.info_padding + offset * 4 + tweak_data.menu.info_padding * 2)
+function MenuNodeTableGui:_align_server_column( row_item )
+	local safe_rect = self:_scaled_size() -- managers.viewport:get_safe_rect_pixels()
+	
+	--[[local x,y,w,h = row_item.upgrade_name:text_rect()
+	row_item.upgrade_name:set_height( h )
+	row_item.upgrade_name:set_left( self:_right_align() )
+	row_item.gui_panel:set_height( h )
+	if row_item.topic_text then
+		row_item.topic_text:set_height( h )
+		row_item.topic_text:set_right( self:_left_align() )
+	end]]
+	
+	
+	-- row_item.heist_name:set_left( self:_right_align() )
+	
+	self:_align_item_gui_info_panel( row_item.gui_info_panel )
+	
+	local font_size = tweak_data.menu.pd2_small_font_size
+	local offset = 22 * tweak_data.scale.lobby_info_offset_multiplier
+	row_item.server_title:set_font_size( font_size )
+	row_item.server_text:set_font_size( font_size )
+	local x,y,w,h = row_item.server_title:text_rect()
+	row_item.server_title:set_x( tweak_data.menu.info_padding )
+	row_item.server_title:set_y( tweak_data.menu.info_padding )
+	row_item.server_title:set_w( w )
+	row_item.server_text:set_lefttop( row_item.server_title:righttop() )
+	row_item.server_text:set_w( row_item.gui_info_panel:w() )
+	row_item.server_text:set_position( math.round( row_item.server_text:x() ), math.round( row_item.server_text:y() ) )
+	
+	row_item.server_info_title:set_font_size( font_size )
+	row_item.server_info_text:set_font_size( font_size )	
+	local x,y,w,h = row_item.server_info_title:text_rect()
+	row_item.server_info_title:set_x( tweak_data.menu.info_padding )
+	row_item.server_info_title:set_y( tweak_data.menu.info_padding + offset )
+	row_item.server_info_title:set_w( w )
+	row_item.server_info_text:set_lefttop( row_item.server_info_title:righttop() )
+	row_item.server_info_text:set_w( row_item.gui_info_panel:w() )
+	row_item.server_info_text:set_position( math.round( row_item.server_info_text:x() ), math.round( row_item.server_info_text:y() ) )
+	
+	row_item.level_title:set_font_size( font_size )
+	row_item.level_text:set_font_size( font_size )
+	local x,y,w,h = row_item.level_title:text_rect()
+	row_item.level_title:set_x( tweak_data.menu.info_padding )
+	row_item.level_title:set_y( tweak_data.menu.info_padding + offset*2 )
+	row_item.level_title:set_w( w )
+	row_item.level_text:set_lefttop( row_item.level_title:righttop() )
+	row_item.level_text:set_w( row_item.gui_info_panel:w() )
+	row_item.level_text:set_position( math.round( row_item.level_text:x() ), math.round( row_item.level_text:y() ) )
+	
+	row_item.difficulty_title:set_font_size( font_size )
+	row_item.difficulty_text:set_font_size( font_size )
+	local x,y,w,h = row_item.difficulty_title:text_rect()
+	row_item.difficulty_title:set_x( tweak_data.menu.info_padding )
+	row_item.difficulty_title:set_y( tweak_data.menu.info_padding + offset*3 )
+	row_item.difficulty_title:set_w( w )
+	row_item.difficulty_text:set_lefttop( row_item.difficulty_title:righttop() )
+	row_item.difficulty_text:set_w( row_item.gui_info_panel:w() )
+	row_item.difficulty_text:set_position( math.round( row_item.difficulty_text:x() ), math.round( row_item.difficulty_text:y() ) )
+	
+	local _,_,_,h = row_item.heist_name:text_rect()
+	local w = row_item.gui_info_panel:w()
+	row_item.heist_name:set_height( h )
+	row_item.heist_name:set_w( w  )
+	
+	row_item.heist_briefing:set_w( w )
+	row_item.heist_briefing:set_shape( row_item.heist_briefing:text_rect() )
+	row_item.heist_briefing:set_x( 0 )
+	row_item.heist_briefing:set_y( tweak_data.menu.info_padding + offset*4 + tweak_data.menu.info_padding * 2 )
+	row_item.heist_briefing:set_position( math.round( row_item.heist_briefing:x() ), math.round( row_item.heist_briefing:y() ) )
+	-- row_item.heist_briefing:set_top( row_item.heist_name:bottom() + tweak_data.menu.info_padding )
+		
+	--[[local w = row_item.gui_info_panel:w() 
+	local m = row_item.image_rect[3]/row_item.image_rect[4]
+	row_item.image:set_size( w, w/m )
+	row_item.image:set_y( 0 )					
+	row_item.image:set_center_x( row_item.gui_info_panel:w()/2 )]]
+
+	-- row_item.gui_panel:set_left( self:_right_align() )
+	
+	-- row_item.gui_panel:set_width( safe_rect.width/2 )
 end
 
-MenuNodeTableGui._setup_item_panel_parent = function(l_6_0, l_6_1)
-  MenuNodeTableGui.super._setup_item_panel_parent(l_6_0, l_6_1)
+function MenuNodeTableGui:_setup_item_panel_parent( safe_rect )
+	MenuNodeTableGui.super._setup_item_panel_parent( self, safe_rect )
 end
 
-MenuNodeTableGui._set_width_and_height = function(l_7_0, l_7_1)
-  MenuNodeTableGui.super._set_width_and_height(l_7_0, l_7_1)
+function MenuNodeTableGui:_set_width_and_height( safe_rect )
+	MenuNodeTableGui.super._set_width_and_height( self, safe_rect )
+	-- self.width = safe_rect.width
+	-- self.height = self._item_panel_parent:h()
 end
 
-MenuNodeTableGui._setup_item_panel = function(l_8_0, l_8_1, l_8_2)
-  MenuNodeTableGui.super._setup_item_panel(l_8_0, l_8_1, l_8_2)
+function MenuNodeTableGui:_setup_item_panel( safe_rect, res )
+	MenuNodeTableGui.super._setup_item_panel( self, safe_rect, res )
+	-- self.item_panel:set_top( 0 )
+	
+	--self.item_panel:set_debug( true )
 end
 
-MenuNodeTableGui.resolution_changed = function(l_9_0)
-  MenuNodeTableGui.super.resolution_changed(l_9_0)
-  local safe_rect_pixels = l_9_0:_scaled_size()
+function MenuNodeTableGui:resolution_changed()
+	MenuNodeTableGui.super.resolution_changed( self )
+	
+	local safe_rect_pixels = self:_scaled_size() -- managers.viewport:get_safe_rect_pixels()
 end
 
 

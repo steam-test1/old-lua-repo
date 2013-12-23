@@ -1,55 +1,50 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\session\coresessioninfo.luac 
-
 core:module("CoreSessionInfo")
-if not Info then
-  Info = class()
-end
-Info.init = function(l_1_0)
-end
 
-Info.is_ranked = function(l_2_0)
-  return l_2_0._is_ranked
+Info = Info or class()
+
+function Info:init()
 end
 
-Info.can_join_in_progress = function(l_3_0)
-  return l_3_0._can_join_in_progress
+function Info:is_ranked()
+	return self._is_ranked
 end
 
-Info.set_can_join_in_progress = function(l_4_0, l_4_1)
-  l_4_0._can_join_in_progress = l_4_1
+function Info:can_join_in_progress()
+	return self._can_join_in_progress
 end
 
-Info.set_level_name = function(l_5_0, l_5_1)
-  l_5_0._level_name = l_5_1
+function Info:set_can_join_in_progress(possible)
+	self._can_join_in_progress = possible
 end
 
-Info.level_name = function(l_6_0)
-  return l_6_0._level_name
+function Info:set_level_name(name)
+	self._level_name = name
 end
 
-Info.set_stage_name = function(l_7_0, l_7_1)
-  l_7_0._stage_name = l_7_1
+function Info:level_name()
+	return self._level_name
 end
 
-Info.stage_name = function(l_8_0)
-  return l_8_0._stage_name
+function Info:set_stage_name(stage_name)
+	self._stage_name = stage_name
 end
 
-Info.set_run_mission_script = function(l_9_0, l_9_1)
-  l_9_0._run_mission_script = l_9_1
+function Info:stage_name()
+	return self._stage_name
 end
 
-Info.should_run_mission_script = function(l_10_0)
-  return l_10_0._run_mission_script
+function Info:set_run_mission_script(with_mission)
+	self._run_mission_script = with_mission
 end
 
-Info.set_should_load_level = function(l_11_0, l_11_1)
-  l_11_0._should_load_level = l_11_1
+function Info:should_run_mission_script()
+	return self._run_mission_script
 end
 
-Info.should_load_level = function(l_12_0)
-  return l_12_0._should_load_level
+function Info:set_should_load_level(load_level)
+	self._should_load_level = load_level
 end
 
-
+function Info:should_load_level()
+	return self._should_load_level
+end

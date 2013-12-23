@@ -1,29 +1,28 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\elementdangerzone.luac 
+core:import( "CoreMissionScriptElement" )
 
-core:import("CoreMissionScriptElement")
-if not ElementDangerZone then
-  ElementDangerZone = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementDangerZone.init = function(l_1_0, ...)
-  ElementDangerZone.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementDangerZone = ElementDangerZone or class( CoreMissionScriptElement.MissionScriptElement )
 
+function ElementDangerZone:init( ... )
+	ElementDangerZone.super.init( self, ... )
 end
 
-ElementDangerZone.on_executed = function(l_2_0, l_2_1)
-  if not l_2_0._values.enabled then
-    return 
-  end
-  if alive(l_2_1) then
-    if l_2_1 == managers.player:player_unit() then
-      l_2_1:character_damage():set_danger_level(l_2_0._values.level)
-    else
-      local rpc_params = {"dangerzone_set_level", l_2_0._values.level}
-      l_2_1:network():send_to_unit(rpc_params)
-    end
-  end
-  ElementDangerZone.super.on_executed(l_2_0, l_2_0._unit or l_2_1)
+--[[function ElementDangerZone:client_on_executed( ... )
+	self:on_executed( ... )
+end]]
+
+function ElementDangerZone:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	if alive( instigator ) then
+		if instigator == managers.player:player_unit() then
+			instigator:character_damage():set_danger_level( self._values.level )
+		else
+			local rpc_params = { "dangerzone_set_level", self._values.level }
+			instigator:network():send_to_unit( rpc_params )
+		end
+	end
+	
+	ElementDangerZone.super.on_executed( self, self._unit or instigator )
 end
-
-

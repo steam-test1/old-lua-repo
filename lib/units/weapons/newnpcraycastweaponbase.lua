@@ -1,308 +1,373 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\weapons\newnpcraycastweaponbase.luac 
-
-if not NewNPCRaycastWeaponBase then
-  NewNPCRaycastWeaponBase = class(NewRaycastWeaponBase)
-end
-NewNPCRaycastWeaponBase._VOICES = {"a", "b", "c"}
+NewNPCRaycastWeaponBase = NewNPCRaycastWeaponBase or class( NewRaycastWeaponBase )
+NewNPCRaycastWeaponBase._VOICES = { "a", "b", "c" }
 NewNPCRaycastWeaponBase._next_i_voice = {}
-NewNPCRaycastWeaponBase.init = function(l_1_0, l_1_1)
-  NewRaycastWeaponBase.super.super.init(l_1_0, l_1_1, false)
-  l_1_0._unit = l_1_1
-  l_1_0._name_id = l_1_0.name_id or "m4_npc"
-  l_1_0.name_id = nil
-  l_1_0._bullet_slotmask = managers.slot:get_mask("bullet_impact_targets")
-  l_1_0._blank_slotmask = managers.slot:get_mask("bullet_blank_impact_targets")
-  l_1_0:_create_use_setups()
-  l_1_0._setup = {}
-  l_1_0._digest_values = false
-  l_1_0:set_ammo_max(tweak_data.weapon[l_1_0._name_id].AMMO_MAX)
-  l_1_0:set_ammo_total(l_1_0:get_ammo_max())
-  l_1_0:set_ammo_max_per_clip(tweak_data.weapon[l_1_0._name_id].CLIP_AMMO_MAX)
-  l_1_0:set_ammo_remaining_in_clip(l_1_0:get_ammo_max_per_clip())
-  l_1_0._damage = tweak_data.weapon[l_1_0._name_id].DAMAGE
-  l_1_0._next_fire_allowed = -1000
-  l_1_0._obj_fire = l_1_0._unit:get_object(Idstring("fire"))
-  l_1_0._sound_fire = SoundDevice:create_source("fire")
-  l_1_0._sound_fire:link(l_1_0._unit:orientation_object())
-  l_1_0._muzzle_effect = Idstring(l_1_0:weapon_tweak_data().muzzleflash or "effects/particles/test/muzzleflash_maingun")
-  l_1_0._muzzle_effect_table = {effect = l_1_0._muzzle_effect, parent = l_1_0._obj_fire, force_synch = false}
-  l_1_0._use_shell_ejection_effect = SystemInfo:platform() == Idstring("WIN32")
-  if l_1_0._use_shell_ejection_effect then
-    l_1_0._obj_shell_ejection = l_1_0._unit:get_object(Idstring("a_shell"))
-    l_1_0._shell_ejection_effect = Idstring(l_1_0:weapon_tweak_data().shell_ejection or "effects/payday2/particles/weapons/shells/shell_556")
-    l_1_0._shell_ejection_effect_table = {effect = l_1_0._shell_ejection_effect, parent = l_1_0._obj_shell_ejection}
-  end
-  l_1_0._trail_effect_table = {effect = l_1_0.TRAIL_EFFECT, position = Vector3(), normal = Vector3()}
-  l_1_0._flashlight_light_lod_enabled = true
-  if l_1_0._multivoice then
-    if not NewNPCRaycastWeaponBase._next_i_voice[l_1_0._name_id] then
-      NewNPCRaycastWeaponBase._next_i_voice[l_1_0._name_id] = 1
-    end
-    l_1_0._voice = NewNPCRaycastWeaponBase._VOICES[NewNPCRaycastWeaponBase._next_i_voice[l_1_0._name_id]]
-    if NewNPCRaycastWeaponBase._next_i_voice[l_1_0._name_id] == #NewNPCRaycastWeaponBase._VOICES then
-      NewNPCRaycastWeaponBase._next_i_voice[l_1_0._name_id] = 1
-    else
-      NewNPCRaycastWeaponBase._next_i_voice[l_1_0._name_id] = NewNPCRaycastWeaponBase._next_i_voice[l_1_0._name_id] + 1
-    end
-  else
-    l_1_0._voice = "a"
-  end
-  if l_1_0._unit:get_object(Idstring("ls_flashlight")) then
-    l_1_0._flashlight_data = {}
-    l_1_0._flashlight_data.light = l_1_0._unit:get_object(Idstring("ls_flashlight"))
-    l_1_0._flashlight_data.effect = l_1_0._unit:effect_spawner(Idstring("flashlight"))
-    l_1_0._flashlight_data.light:set_far_range(400)
-    l_1_0._flashlight_data.light:set_spot_angle_end(25)
-    l_1_0._flashlight_data.light:set_multiplier(2)
-  end
+
+function NewNPCRaycastWeaponBase:init( unit )
+	NewRaycastWeaponBase.super.super.init( self, unit, false )
+	self._unit = unit
+	self._name_id = self.name_id or "m4_npc"	-- This is specified in the unit file
+	self.name_id = nil	-- ??
+	self._bullet_slotmask = managers.slot:get_mask( "bullet_impact_targets" )
+	self._blank_slotmask = managers.slot:get_mask( "bullet_blank_impact_targets" )
+	
+	self:_create_use_setups()
+	self._setup = {}
+	
+	self._digest_values = false
+
+	self:set_ammo_max( tweak_data.weapon[ self._name_id ].AMMO_MAX )
+	self:set_ammo_total( self:get_ammo_max() )
+	self:set_ammo_max_per_clip( tweak_data.weapon[ self._name_id ].CLIP_AMMO_MAX )
+	self:set_ammo_remaining_in_clip( self:get_ammo_max_per_clip() )
+	
+	self._damage = tweak_data.weapon[ self._name_id ].DAMAGE
+	
+	self._next_fire_allowed = -1000
+	
+	self._obj_fire = self._unit:get_object( Idstring( "fire" ) )
+	
+	self._sound_fire = SoundDevice:create_source( "fire" )
+	self._sound_fire:link( self._unit:orientation_object() )
+	
+	self._muzzle_effect = Idstring( self:weapon_tweak_data().muzzleflash or "effects/particles/test/muzzleflash_maingun" )
+	self._muzzle_effect_table = { effect = self._muzzle_effect, parent = self._obj_fire, force_synch = false }
+	
+	self._use_shell_ejection_effect = SystemInfo:platform() == Idstring( "WIN32" )
+	if self._use_shell_ejection_effect then
+		self._obj_shell_ejection = self._unit:get_object( Idstring( "a_shell" ) )
+		self._shell_ejection_effect = Idstring( self:weapon_tweak_data().shell_ejection or "effects/payday2/particles/weapons/shells/shell_556" )
+		self._shell_ejection_effect_table = { effect = self._shell_ejection_effect, parent = self._obj_shell_ejection }
+	end
+	
+	self._trail_effect_table = { effect = self.TRAIL_EFFECT, position = Vector3(), normal = Vector3() }
+	
+	self._flashlight_light_lod_enabled = true
+	
+	if self._multivoice then
+		if not NewNPCRaycastWeaponBase._next_i_voice[ self._name_id ] then
+			NewNPCRaycastWeaponBase._next_i_voice[ self._name_id ] = 1
+		end
+		self._voice = NewNPCRaycastWeaponBase._VOICES[ NewNPCRaycastWeaponBase._next_i_voice[ self._name_id ] ]
+		if NewNPCRaycastWeaponBase._next_i_voice[ self._name_id ] == #NewNPCRaycastWeaponBase._VOICES then
+			NewNPCRaycastWeaponBase._next_i_voice[ self._name_id ] = 1
+		else
+			NewNPCRaycastWeaponBase._next_i_voice[ self._name_id ] = NewNPCRaycastWeaponBase._next_i_voice[ self._name_id ] + 1
+		end
+	else
+		self._voice = "a"
+	end
+	
+	if self._unit:get_object( Idstring( "ls_flashlight" ) ) then
+		self._flashlight_data = {}
+		self._flashlight_data.light 	= self._unit:get_object( Idstring( "ls_flashlight" ) )
+		self._flashlight_data.effect 	= self._unit:effect_spawner( Idstring( "flashlight" ) )
+		
+		self._flashlight_data.light:set_far_range( 400 )
+		self._flashlight_data.light:set_spot_angle_end( 25 )
+		self._flashlight_data.light:set_multiplier( 2 )
+	end
 end
 
-NewNPCRaycastWeaponBase.setup = function(l_2_0, l_2_1)
-  l_2_0._autoaim = l_2_1.autoaim
-  l_2_0._alert_events = l_2_1.alert_AI and {} or nil
-  l_2_0._alert_size = tweak_data.weapon[l_2_0._name_id].alert_size
-  l_2_0._alert_fires = {}
-  l_2_0._suppression = tweak_data.weapon[l_2_0._name_id].suppression
-  if not l_2_1.hit_slotmask then
-    l_2_0._bullet_slotmask = l_2_0._bullet_slotmask
-  end
-  l_2_0._character_slotmask = managers.slot:get_mask("raycastable_characters")
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-l_2_0._hit_player = true
-l_2_0._setup = l_2_1
-end
-
-NewNPCRaycastWeaponBase.is_npc = function(l_3_0)
-  return true
-end
-
-NewNPCRaycastWeaponBase.skip_queue = function(l_4_0)
-  return true
+-----------------------------------------------------------------------------------
+--	setup_data members: { user_unit: the unit operating the weapon,
+--	ignore_units: indexed table. The weapon will never hit any of these units
+--	}
+function NewNPCRaycastWeaponBase:setup( setup_data )
+	
+	self._autoaim = setup_data.autoaim
+	
+	self._alert_events = setup_data.alert_AI and {} or nil
+	self._alert_size = tweak_data.weapon[ self._name_id ].alert_size
+	self._alert_fires = {}
+		
+	self._suppression = tweak_data.weapon[ self._name_id ].suppression
+	
+	self._bullet_slotmask = setup_data.hit_slotmask or self._bullet_slotmask
+	self._character_slotmask = managers.slot:get_mask( "raycastable_characters" )
+	
+	self._hit_player = setup_data.hit_player and true or false
+	
+	self._setup = setup_data
+	
 end
 
-NewNPCRaycastWeaponBase.check_npc = function(l_5_0)
-  local gadget = managers.weapon_factory:get_part_from_weapon_by_type("gadget", l_5_0._parts)
-  if gadget then
-    gadget.unit:base():set_npc()
-  end
+function NewNPCRaycastWeaponBase:is_npc()
+	return true
+end
+function NewNPCRaycastWeaponBase:skip_queue()
+	return true
 end
 
-NewNPCRaycastWeaponBase.start_autofire = function(l_6_0, l_6_1)
-  l_6_0:_sound_autofire_start(l_6_1)
-  l_6_0._next_fire_allowed = math.max(l_6_0._next_fire_allowed, Application:time())
-  l_6_0._shooting = true
+function NewNPCRaycastWeaponBase:check_npc()
+	local gadget = managers.weapon_factory:get_part_from_weapon_by_type( "gadget", self._parts )
+	if gadget then
+		gadget.unit:base():set_npc()
+	end
 end
 
-NewNPCRaycastWeaponBase.stop_autofire = function(l_7_0)
-  l_7_0:_sound_autofire_end()
-  l_7_0._shooting = nil
+-----------------------------------------------------------------------------------
+-- This should be called when the first shot is fired
+function NewNPCRaycastWeaponBase:start_autofire( nr_shots )
+	self:_sound_autofire_start( nr_shots )
+	self._next_fire_allowed = math.max( self._next_fire_allowed, Application:time() )
+	self._shooting = true
 end
 
-NewNPCRaycastWeaponBase.singleshot = function(l_8_0, ...)
-  do
-    local fired = l_8_0:fire(...)
-    if fired then
-      l_8_0:_sound_singleshot()
-    end
-    return fired
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+-----------------------------------------------------------------------------------
+-- This should be called when a shooting sequence ends
+function NewNPCRaycastWeaponBase:stop_autofire()
+	self:_sound_autofire_end()
+	self._shooting = nil
 end
 
-NewNPCRaycastWeaponBase.trigger_held = function(l_9_0, ...)
-   -- DECOMPILER ERROR: Overwrote pending register.
+-----------------------------------------------------------------------------------
 
-  if l_9_0._next_fire_allowed <= Application:time() and nil then
-    l_9_0._next_fire_allowed = l_9_0._next_fire_allowed + tweak_data.weapon[l_9_0._name_id].auto.fire_rate
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  return nil
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function NewNPCRaycastWeaponBase:singleshot( ... )
+	local fired = self:fire( ... )
+	if fired then
+		self:_sound_singleshot()
+	end
+	return fired
 end
+
+-----------------------------------------------------------------------------------
+
+function NewNPCRaycastWeaponBase:trigger_held( ... )
+	local fired
+	if self._next_fire_allowed <= Application:time() then
+		fired = self:fire( ... )
+		if fired then
+			self._next_fire_allowed = self._next_fire_allowed + tweak_data.weapon[ self._name_id ].auto.fire_rate
+		end
+	end
+	return fired
+end
+
+-----------------------------------------------------------------------------------
 
 local mto = Vector3()
 local mfrom = Vector3()
 local mspread = Vector3()
-NewNPCRaycastWeaponBase.fire_blank = function(l_10_0, l_10_1, l_10_2)
-  local user_unit = l_10_0._setup.user_unit
-  l_10_0._unit:m_position(mfrom)
-  local rays = {}
-  if l_10_2 then
-    mvector3.set(mspread, l_10_1)
-    mvector3.spread(mspread, 5)
-    mvector3.set(mto, mspread)
-    mvector3.multiply(mto, 20000)
-    mvector3.add(mto, mfrom)
-    local col_ray = World:raycast("ray", mfrom, mto, "slot_mask", l_10_0._blank_slotmask, "ignore_unit", l_10_0._setup.ignore_units)
-    if alive(l_10_0._obj_fire) then
-      l_10_0._obj_fire:m_position(l_10_0._trail_effect_table.position)
-      mvector3.set(l_10_0._trail_effect_table.normal, mspread)
-    end
-    local trail = not alive(l_10_0._obj_fire) or ((not col_ray or col_ray.distance > 650) and World:effect_manager():spawn(l_10_0._trail_effect_table)) or nil
-    if col_ray then
-      InstantBulletBase:on_collision(col_ray, l_10_0._unit, user_unit, l_10_0._damage, true)
-      if trail then
-        World:effect_manager():set_remaining_lifetime(trail, math.clamp((col_ray.distance - 600) / 10000, 0, col_ray.distance))
-      end
-      table.insert(rays, col_ray)
-    end
-  end
-  if alive(l_10_0._obj_fire) then
-    World:effect_manager():spawn(l_10_0._muzzle_effect_table)
-  end
-  if l_10_0._use_shell_ejection_effect then
-    World:effect_manager():spawn(l_10_0._shell_ejection_effect_table)
-  end
-  l_10_0:_sound_singleshot()
+function NewNPCRaycastWeaponBase:fire_blank( direction, impact )
+	local user_unit = self._setup.user_unit
+	self._unit:m_position( mfrom )
+	
+	local rays = {}
+	
+	if impact then
+		mvector3.set( mspread, direction )
+		mvector3.spread( mspread, 5 )
+		
+		mvector3.set( mto, mspread )
+		mvector3.multiply( mto, 20000 )
+		
+		mvector3.add( mto, mfrom )
+		local col_ray = World:raycast( "ray", mfrom, mto, "slot_mask", self._blank_slotmask, "ignore_unit", self._setup.ignore_units )
+		
+		if alive( self._obj_fire ) then
+			self._obj_fire:m_position( self._trail_effect_table.position )
+			mvector3.set( self._trail_effect_table.normal, mspread )
+		end
+		local trail = alive( self._obj_fire ) and (not col_ray or col_ray.distance > 650) and World:effect_manager():spawn( self._trail_effect_table ) or nil
+		if col_ray then
+			InstantBulletBase:on_collision( col_ray, self._unit, user_unit, self._damage, true )
+			if trail then
+				World:effect_manager():set_remaining_lifetime( trail, math.clamp(( col_ray.distance - 600 ) / 10000, 0, col_ray.distance ))
+			end
+			
+			table.insert( rays, col_ray )
+		end
+	end
+	
+	if alive( self._obj_fire ) then
+		World:effect_manager():spawn( self._muzzle_effect_table )
+	end
+	if self._use_shell_ejection_effect then
+		World:effect_manager():spawn( self._shell_ejection_effect_table )
+	end
+	-- self:tweak_data_anim_play( "fire" )
+	--[[
+	if self._alert_events then
+		self:_check_alert( rays, mfrom, direction, user_unit )
+	end
+	]]
+	
+	self:_sound_singleshot()
 end
 
-NewNPCRaycastWeaponBase.destroy = function(l_11_0, l_11_1)
-  RaycastWeaponBase.super.pre_destroy(l_11_0, l_11_1)
-  managers.weapon_factory:disassemble(l_11_0._parts)
-  if l_11_0._shooting then
-    l_11_0:stop_autofire()
-  end
+-----------------------------------------------------------------------------------
+
+function NewNPCRaycastWeaponBase:destroy( unit )
+	RaycastWeaponBase.super.pre_destroy( self, unit )
+	
+	managers.weapon_factory:disassemble( self._parts )
+	
+	if self._shooting then
+		self:stop_autofire()
+	end
 end
 
-NewNPCRaycastWeaponBase._get_spread = function(l_12_0, l_12_1)
+-----------------------------------------------------------------------------------
+
+function NewNPCRaycastWeaponBase:_get_spread( user_unit ) -- spread has already been applied by npc character
 end
 
-NewNPCRaycastWeaponBase._sound_autofire_start = function(l_13_0, l_13_1)
-  local tweak_sound = tweak_data.weapon[l_13_0._name_id].sounds
-  local sound_name = tweak_sound.prefix .. l_13_0._setup.user_sound_variant .. l_13_0._voice .. (l_13_1 and "_" .. tostring(l_13_1) .. "shot" or "_loop")
-  local sound = l_13_0._sound_fire:post_event(sound_name)
-  if not sound then
-    sound_name = tweak_sound.prefix .. "1" .. l_13_0._voice .. "_end"
-    sound = l_13_0._sound_fire:post_event(sound_name)
-  end
+-----------------------------------------------------------------------------------
+
+function NewNPCRaycastWeaponBase:_sound_autofire_start( nr_shots )
+	local tweak_sound = tweak_data.weapon[ self._name_id ].sounds
+	local sound_name = tweak_sound.prefix..self._setup.user_sound_variant..self._voice..( nr_shots and ( "_"..tostring( nr_shots ).."shot" ) or "_loop" )
+	local sound = self._sound_fire:post_event( sound_name )
+	if not sound then
+		sound_name = tweak_sound.prefix.."1"..self._voice.."_end"
+		sound = self._sound_fire:post_event( sound_name )
+	end
 end
 
-NewNPCRaycastWeaponBase._sound_autofire_end = function(l_14_0)
-  local tweak_sound = tweak_data.weapon[l_14_0._name_id].sounds
-  local sound_name = tweak_sound.prefix .. l_14_0._setup.user_sound_variant .. l_14_0._voice .. "_end"
-  local sound = l_14_0._sound_fire:post_event(sound_name)
-  if not sound then
-    sound_name = tweak_sound.prefix .. "1" .. l_14_0._voice .. "_end"
-    sound = l_14_0._sound_fire:post_event(sound_name)
-  end
+-----------------------------------------------------------------------------------
+
+function NewNPCRaycastWeaponBase:_sound_autofire_end()
+	local tweak_sound = tweak_data.weapon[ self._name_id ].sounds
+	local sound_name = tweak_sound.prefix..self._setup.user_sound_variant..self._voice.."_end"
+	local sound = self._sound_fire:post_event( sound_name )
+	if not sound then
+		sound_name = tweak_sound.prefix.."1"..self._voice.."_end"
+		sound = self._sound_fire:post_event( sound_name )
+	end
 end
 
-NewNPCRaycastWeaponBase._sound_singleshot = function(l_15_0)
-  local tweak_sound = tweak_data.weapon[l_15_0._name_id].sounds
-  local sound_name = tweak_sound.prefix .. l_15_0._setup.user_sound_variant .. l_15_0._voice .. "_1shot"
-  local sound = l_15_0._sound_fire:post_event(sound_name)
-  if not sound then
-    sound_name = tweak_sound.prefix .. "1" .. l_15_0._voice .. "_1shot"
-    sound = l_15_0._sound_fire:post_event(sound_name)
-  end
+-----------------------------------------------------------------------------------
+
+function NewNPCRaycastWeaponBase:_sound_singleshot()
+	local tweak_sound = tweak_data.weapon[ self._name_id ].sounds
+	local sound_name = tweak_sound.prefix..self._setup.user_sound_variant..self._voice.."_1shot"
+	local sound = self._sound_fire:post_event( sound_name )
+	if not sound then
+		sound_name = tweak_sound.prefix.."1"..self._voice.."_1shot"
+		sound = self._sound_fire:post_event( sound_name )
+	end
 end
+
+-----------------------------------------------------------------------------------
 
 local mvec_to = Vector3()
-NewNPCRaycastWeaponBase._fire_raycast = function(l_16_0, l_16_1, l_16_2, l_16_3, l_16_4, l_16_5)
-  local result = {}
-  local hit_unit = nil
-  mvector3.set(mvec_to, l_16_3)
-  mvector3.multiply(mvec_to, 20000)
-  mvector3.add(mvec_to, l_16_2)
-  local damage = l_16_0._damage * (l_16_4 or 1)
-  local col_ray = World:raycast("ray", l_16_2, mvec_to, "slot_mask", l_16_0._bullet_slotmask, "ignore_unit", l_16_0._setup.ignore_units)
-  if col_ray then
-    if col_ray.unit:in_slot(l_16_0._character_slotmask) then
-      hit_unit = InstantBulletBase:on_collision(col_ray, l_16_0._unit, l_16_1, damage)
-    elseif l_16_5 and l_16_0._hit_player and l_16_0:damage_player(col_ray, l_16_2, l_16_3) then
-      InstantBulletBase:on_hit_player(col_ray, l_16_0._unit, l_16_1, l_16_0._damage * (l_16_4 or 1))
-    else
-      hit_unit = InstantBulletBase:on_collision(col_ray, l_16_0._unit, l_16_1, damage)
-    end
-  elseif l_16_5 and l_16_0._hit_player then
-    local hit, ray_data = l_16_0:damage_player(col_ray, l_16_2, l_16_3)
-    if hit then
-      InstantBulletBase:on_hit_player(ray_data, l_16_0._unit, l_16_1, damage)
-    end
-  end
-  if not col_ray or col_ray.distance > 600 then
-    l_16_0:_spawn_trail_effect(l_16_3, col_ray)
-  end
-  result.hit_enemy = hit_unit
-  if l_16_0._alert_events then
-    result.rays = {col_ray}
-  end
-  return result
+function NewNPCRaycastWeaponBase:_fire_raycast( user_unit, from_pos, direction, dmg_mul, shoot_player )
+	local result = {}	
+	local hit_unit
+	
+	mvector3.set( mvec_to, direction )
+	mvector3.multiply( mvec_to, 20000 )
+	mvector3.add( mvec_to, from_pos )
+	local damage = self._damage * ( dmg_mul or 1 )
+	local col_ray = World:raycast( "ray", from_pos, mvec_to, "slot_mask", self._bullet_slotmask, "ignore_unit", self._setup.ignore_units )
+	if col_ray then
+		if col_ray.unit:in_slot( self._character_slotmask ) then
+			hit_unit = InstantBulletBase:on_collision( col_ray, self._unit, user_unit, damage )
+		else
+			if shoot_player and self._hit_player and self:damage_player( col_ray, from_pos, direction ) then -- Check if ray hits player
+				InstantBulletBase:on_hit_player( col_ray, self._unit, user_unit, self._damage * ( dmg_mul or 1 ) )
+			else
+				hit_unit = InstantBulletBase:on_collision( col_ray, self._unit, user_unit, damage )
+			end
+		end
+	elseif shoot_player and self._hit_player then
+		local hit, ray_data = self:damage_player( col_ray, from_pos, direction )
+		if hit then -- Check if hits player without ray
+			InstantBulletBase:on_hit_player( ray_data, self._unit, user_unit, damage )
+		end
+	end
+	
+	-- local rot = Rotation( self._obj_fire:rotation():x():cross( ray.ray ), ray.ray )
+	if not col_ray or col_ray.distance > 600 then
+		-- mvector3.set( self._trail_effect_table.position, self._obj_fire:position() )
+		self:_spawn_trail_effect( direction, col_ray )
+	end
+	
+	result.hit_enemy = hit_unit
+	if self._alert_events then
+		result.rays = { col_ray }
+	end
+	
+	return result
 end
 
-NewNPCRaycastWeaponBase._spawn_trail_effect = function(l_17_0, l_17_1, l_17_2)
-  if alive(not l_17_0._obj_fire) then
-    return 
-  end
-  l_17_0._obj_fire:m_position(l_17_0._trail_effect_table.position)
-  mvector3.set(l_17_0._trail_effect_table.normal, l_17_1)
-  local trail = World:effect_manager():spawn(l_17_0._trail_effect_table)
-  if l_17_2 then
-    World:effect_manager():set_remaining_lifetime(trail, math.clamp((l_17_2.distance - 600) / 10000, 0, l_17_2.distance))
-  end
+-----------------------------------------------------------------------------------
+
+function NewNPCRaycastWeaponBase:_spawn_trail_effect( direction, col_ray )
+	if alive( not self._obj_fire ) then
+		return
+	end
+	self._obj_fire:m_position( self._trail_effect_table.position )
+	mvector3.set( self._trail_effect_table.normal, direction )
+	local trail = World:effect_manager():spawn( self._trail_effect_table )
+	-- local trail = World:effect_manager():spawn( { effect = self.TRAIL_EFFECT, position = self._obj_fire:position(), normal = direction } )
+	if col_ray then
+		World:effect_manager():set_remaining_lifetime( trail, math.clamp(( col_ray.distance - 600 ) / 10000, 0, col_ray.distance ))
+	end
 end
 
-NewNPCRaycastWeaponBase.has_flashlight_on = function(l_18_0)
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
+-----------------------------------------------------------------------------------
 
-end
-return true
-end
-
-NewNPCRaycastWeaponBase.flashlight_data = function(l_19_0)
-  return l_19_0._flashlight_data
+function NewNPCRaycastWeaponBase:has_flashlight_on()
+	return self._flashlight_data and self._flashlight_data.on and true or false
 end
 
-NewNPCRaycastWeaponBase.flashlight_state_changed = function(l_20_0)
-  if not l_20_0._flashlight_data then
-    return 
-  end
-  if not l_20_0._flashlight_data.enabled or l_20_0._flashlight_data.dropped then
-    return 
-  end
-  if managers.game_play_central:flashlights_on() then
-    l_20_0._flashlight_data.light:set_enable(l_20_0._flashlight_light_lod_enabled)
-    l_20_0._flashlight_data.effect:activate()
-    l_20_0._flashlight_data.on = true
-  else
-    l_20_0._flashlight_data.light:set_enable(false)
-    l_20_0._flashlight_data.effect:kill_effect()
-    l_20_0._flashlight_data.on = false
-  end
+function NewNPCRaycastWeaponBase:flashlight_data()
+	return self._flashlight_data
 end
 
-NewNPCRaycastWeaponBase.set_flashlight_enabled = function(l_21_0, l_21_1)
-  if not l_21_0._flashlight_data then
-    return 
-  end
-  l_21_0._flashlight_data.enabled = l_21_1
-  if managers.game_play_central:flashlights_on() and l_21_1 then
-    l_21_0._flashlight_data.light:set_enable(l_21_0._flashlight_light_lod_enabled)
-    l_21_0._flashlight_data.effect:activate()
-    l_21_0._flashlight_data.on = true
-  else
-    l_21_0._flashlight_data.light:set_enable(false)
-    l_21_0._flashlight_data.effect:kill_effect()
-    l_21_0._flashlight_data.on = false
-  end
+function NewNPCRaycastWeaponBase:flashlight_state_changed()
+	if not self._flashlight_data then
+		return
+	end
+	
+	if not self._flashlight_data.enabled or self._flashlight_data.dropped then -- dropped is set from game play central
+		return
+	end
+		
+	if managers.game_play_central:flashlights_on() then
+		self._flashlight_data.light:set_enable( self._flashlight_light_lod_enabled )
+		self._flashlight_data.effect:activate()
+		self._flashlight_data.on = true
+	else
+		self._flashlight_data.light:set_enable( false )
+		self._flashlight_data.effect:kill_effect()
+		self._flashlight_data.on = false
+	end
 end
 
-NewNPCRaycastWeaponBase.set_flashlight_light_lod_enabled = function(l_22_0, l_22_1)
-  if not l_22_0._flashlight_data then
-    return 
-  end
-  l_22_0._flashlight_light_lod_enabled = l_22_1
-  if l_22_0._flashlight_data.on and l_22_1 then
-    l_22_0._flashlight_data.light:set_enable(true)
-  else
-    l_22_0._flashlight_data.light:set_enable(false)
-  end
+function NewNPCRaycastWeaponBase:set_flashlight_enabled( enabled )
+	if not self._flashlight_data then
+		return
+	end
+	
+	self._flashlight_data.enabled = enabled
+		
+	if managers.game_play_central:flashlights_on() and enabled then
+		self._flashlight_data.light:set_enable( self._flashlight_light_lod_enabled )
+		self._flashlight_data.effect:activate()
+		self._flashlight_data.on = true
+	else
+		self._flashlight_data.light:set_enable( false )
+		self._flashlight_data.effect:kill_effect()
+		self._flashlight_data.on = false
+	end
+end
+
+function NewNPCRaycastWeaponBase:set_flashlight_light_lod_enabled( enabled )
+	if not self._flashlight_data then
+		return
+	end
+
+	self._flashlight_light_lod_enabled = enabled
+	
+	if self._flashlight_data.on and enabled then
+		self._flashlight_data.light:set_enable( true )
+	else
+		self._flashlight_data.light:set_enable( false )
+	end
 end
 
 
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------

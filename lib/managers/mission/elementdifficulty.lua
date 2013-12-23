@@ -1,27 +1,22 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\elementdifficulty.luac 
+core:import( "CoreMissionScriptElement" )
 
-core:import("CoreMissionScriptElement")
-if not ElementDifficulty then
-  ElementDifficulty = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementDifficulty.init = function(l_1_0, ...)
-  ElementDifficulty.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementDifficulty = ElementDifficulty or class( CoreMissionScriptElement.MissionScriptElement )
 
+function ElementDifficulty:init( ... )
+	ElementDifficulty.super.init( self, ... )
 end
 
-ElementDifficulty.client_on_executed = function(l_2_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function ElementDifficulty:client_on_executed( ... )
+	-- self:on_executed( ... )
 end
 
-ElementDifficulty.on_executed = function(l_3_0, l_3_1)
-  if not l_3_0._values.enabled then
-    return 
-  end
-  managers.groupai:state():set_difficulty(l_3_0._values.difficulty)
-  ElementDifficulty.super.on_executed(l_3_0, l_3_1)
+function ElementDifficulty:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+		
+
+	managers.groupai:state():set_difficulty( self._values.difficulty )
+	
+	ElementDifficulty.super.on_executed( self, instigator )
 end
-
-

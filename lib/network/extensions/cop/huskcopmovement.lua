@@ -1,62 +1,72 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\network\extensions\cop\huskcopmovement.luac 
+HuskCopMovement = HuskCopMovement or class( CopMovement )
 
-if not HuskCopMovement then
-  HuskCopMovement = class(CopMovement)
-end
-HuskCopMovement.init = function(l_1_0, l_1_1)
-  CopMovement.init(l_1_0, l_1_1)
-  l_1_0._queued_actions = {}
-  l_1_0._m_host_stop_pos = mvector3.copy(l_1_0._m_pos)
+function HuskCopMovement:init( unit )
+	CopMovement.init( self, unit )
+	
+	self._queued_actions = {}
+	self._m_host_stop_pos = mvector3.copy( self._m_pos )
 end
 
-HuskCopMovement._upd_actions = function(l_2_0, l_2_1)
-  CopMovement._upd_actions(l_2_0, l_2_1)
-  l_2_0:_chk_start_queued_action()
+-----------------------------------------------------------------------------------
+
+function HuskCopMovement:_upd_actions( t )
+	CopMovement._upd_actions( self, t )
+	self:_chk_start_queued_action()
 end
 
-HuskCopMovement.action_request = function(l_3_0, l_3_1)
-  l_3_0:enable_update(false)
-  local _chk_would_interrupt = function(l_1_0)
-    if self._active_actions[1] and self._active_actions[1]:type() == "idle" then
-      return 
-    end
-    return not self._active_actions[l_1_0] and ((l_1_0 == 1 and self._active_actions[2]))
-   end
-  if l_3_0:chk_action_forbidden(l_3_1) or not l_3_1.client_interrupt and (next(l_3_0._queued_actions) or _chk_would_interrupt(l_3_1.body_part)) then
-    l_3_0:_push_back_queued_action(l_3_1)
-  else
-    local new_action_body_part = l_3_1.body_part
-    for body_part,active_action in ipairs(l_3_0._active_actions) do
-      if ((body_part == 1 and new_action_body_part ~= 4) or new_action_body_part == 1 or body_part == new_action_body_part) then
-        local old_action_desc = active_action:get_husk_interrupt_desc()
-        l_3_0:_push_front_queued_action(old_action_desc)
-      end
-    end
-    local new_action = HuskCopMovement.super.action_request(l_3_0, l_3_1)
-    l_3_0:_chk_start_queued_action()
-    return new_action
-  end
+-----------------------------------------------------------------------------------
+
+function HuskCopMovement:action_request( action_desc )
+	--print( "[HuskCopMovement:action_request]", self._unit, inspect( action_desc ) )
+	
+	self:enable_update( false )
+	
+	local _chk_would_interrupt = function( b_part )
+		if self._active_actions[ 1 ] and self._active_actions[ 1 ]:type() == "idle" then
+			return
+		end
+		return self._active_actions[ b_part ] or self._active_actions[ 1 ] or b_part == 1 and ( self._active_actions[ 2 ] or self._active_actions[ 3 ] )
+	end
+	if self:chk_action_forbidden( action_desc ) or not action_desc.client_interrupt and ( next( self._queued_actions ) or _chk_would_interrupt( action_desc.body_part ) ) then -- we cannot start this action atm. we queue it instead.
+		--[[print( "[_push_back_queued_action]", self:chk_action_forbidden( action_desc ), next( self._queued_actions ) and true, _chk_would_interrupt( action_desc.body_part ) )
+		for i, k in ipairs( self._queued_actions ) do
+			print( inspect( k ) )
+		end]]
+		self:_push_back_queued_action( action_desc )
+	else	-- interrupt any overlapping actions
+		local new_action_body_part = action_desc.body_part
+		for body_part, active_action in ipairs( self._active_actions ) do
+			if active_action and active_action.get_husk_interrupt_desc and ( ( body_part == 1 and new_action_body_part ~= 4 ) or new_action_body_part == 1 or body_part == new_action_body_part ) then	-- interruptable & overlapping persistent action
+				local old_action_desc = active_action:get_husk_interrupt_desc()
+				self:_push_front_queued_action( old_action_desc )
+				--print( "[_push_front_queued_action]", inspect( old_action_desc ) )
+			end
+		end
+		local new_action = HuskCopMovement.super.action_request( self, action_desc )
+		self:_chk_start_queued_action()
+		return new_action
+	end
 end
 
-HuskCopMovement.chk_action_forbidden = function(l_4_0, l_4_1)
-  local t = TimerManager:game():time()
-  do
-    if not l_4_1.block_type then
-      local block_type = l_4_1.type
-    end
-    for i_action,action in ipairs(l_4_0._active_actions) do
-      if action and action.chk_block_client and action:chk_block_client(l_4_1, block_type, t) then
-        return true
-        for (for control),i_action in (for generator) do
-          if action.chk_block and action:chk_block(block_type, t) then
-            return true
-          end
-        end
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+-------------------------------------------------------------------------------
+
+function HuskCopMovement:chk_action_forbidden( action_desc )
+	local t = TimerManager:game():time()
+	local block_type = action_desc.block_type or action_desc.type
+	for i_action, action in ipairs( self._active_actions ) do
+		if action then
+			if action.chk_block_client then
+				if action:chk_block_client( action_desc, block_type, t ) then
+					return true	--	An ongoing action forbids the requested action
+				end
+			elseif action.chk_block then
+				if action:chk_block( block_type, t ) then
+					return true	--	An ongoing action forbids the requested action
+				end
+			end
+		end
+	end
 end
 
-
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------

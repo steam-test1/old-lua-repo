@@ -1,39 +1,34 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\session\corerequester.luac 
-
 core:module("CoreRequester")
-if not Requester then
-  Requester = class()
-end
-Requester.request = function(l_1_0)
-  l_1_0._requested = true
-end
 
-Requester.cancel_request = function(l_2_0)
-  l_2_0._requested = nil
+Requester = Requester or class()
+
+function Requester:request()
+	self._requested = true
 end
 
-Requester.is_requested = function(l_3_0)
-  return l_3_0._requested == true
+function Requester:cancel_request()
+	self._requested = nil
 end
 
-Requester.task_started = function(l_4_0)
-  l_4_0._task_is_running = true
+function Requester:is_requested()
+	return self._requested == true
 end
 
-Requester.task_completed = function(l_5_0)
-  assert(l_5_0._task_is_running ~= nil, "The task can not be completed, since it hasn't started")
-  l_5_0._task_is_running = nil
-  l_5_0._requested = nil
+function Requester:task_started()
+	self._task_is_running = true
 end
 
-Requester.is_task_running = function(l_6_0)
-  return l_6_0._task_is_running
+function Requester:task_completed()
+	assert(self._task_is_running ~= nil, "The task can not be completed, since it hasn't started")
+	self._task_is_running = nil
+	self._requested = nil
 end
 
-Requester.force_task_completed = function(l_7_0)
-  l_7_0._task_is_running = nil
-  l_7_0._requested = nil
+function Requester:is_task_running()
+	return self._task_is_running
 end
 
-
+function Requester:force_task_completed()
+	self._task_is_running = nil
+	self._requested = nil
+end

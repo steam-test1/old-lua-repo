@@ -1,313 +1,381 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\states\menutitlescreenstate.luac 
+require "lib/states/GameState"
 
-require("lib/states/GameState")
-if not MenuTitlescreenState then
-  MenuTitlescreenState = class(GameState)
-end
-MenuTitlescreenState.init = function(l_1_0, l_1_1, l_1_2)
-  GameState.init(l_1_0, "menu_titlescreen", l_1_1)
-  if l_1_2 then
-    l_1_0:setup()
-  end
-end
+MenuTitlescreenState = MenuTitlescreenState or class( GameState )
 
-local is_ps3 = SystemInfo:platform() == Idstring("PS3")
-local is_x360 = SystemInfo:platform() == Idstring("X360")
-local is_win32 = SystemInfo:platform() == Idstring("WIN32")
-MenuTitlescreenState.setup = function(l_2_0)
-  local res = RenderSettings.resolution
-  local gui = Overlay:gui()
-  l_2_0._workspace = managers.gui_data:create_saferect_workspace()
-  l_2_0._workspace:hide()
-  managers.gui_data:layout_workspace(l_2_0._workspace)
-  l_2_0._full_workspace = gui:create_screen_workspace()
-  l_2_0._full_workspace:hide()
-  l_2_0._back_drop_gui = MenuBackdropGUI:new()
-  l_2_0._back_drop_gui:hide()
-  local bitmap = l_2_0._workspace:panel():bitmap({texture = "guis/textures/menu_title_screen", layer = 1})
-  bitmap:set_center(l_2_0._workspace:panel():w() / 2, l_2_0._workspace:panel():h() / 2)
-  l_2_0._full_workspace:panel():rect({visible = false, color = Color.black, layer = 0})
-  local text_id = (is_ps3 or is_x360) and "menu_press_start" or "menu_visit_forum3"
-   -- DECOMPILER ERROR: Confused about usage of registers!
+function MenuTitlescreenState:init( game_state_machine, setup )
+	GameState.init( self, "menu_titlescreen", game_state_machine )
 
-   -- DECOMPILER ERROR: Confused about usage of registers!
+	if( setup ) then
+		self:setup()
+	end
 
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  local text = l_2_0._workspace:panel():text({text = managers.localization:text(text_id), font = tweak_data.menu.pd2_large_font})
-  text:set_bottom(l_2_0._workspace:panel():h() / 1.25)
-  {text = managers.localization:text(text_id), font = tweak_data.menu.pd2_large_font}.layer, {text = managers.localization:text(text_id), font = tweak_data.menu.pd2_large_font}.h, {text = managers.localization:text(text_id), font = tweak_data.menu.pd2_large_font}.w, {text = managers.localization:text(text_id), font = tweak_data.menu.pd2_large_font}.vertical, {text = managers.localization:text(text_id), font = tweak_data.menu.pd2_large_font}.align, {text = managers.localization:text(text_id), font = tweak_data.menu.pd2_large_font}.color, {text = managers.localization:text(text_id), font = tweak_data.menu.pd2_large_font}.font_size = 2, l_2_0._workspace:panel():h(), l_2_0._workspace:panel():w(), "bottom", "center", Color.white, tweak_data.menu.topic_font_size
-  l_2_0._controller_list = {}
-  for index = 1, managers.controller:get_wrapper_count() do
-    l_2_0._controller_list[index] = managers.controller:create_controller("title_" .. index, index, false)
-    if is_win32 and l_2_0._controller_list[index]:get_type() == "xbox360" then
-      l_2_0._controller_list[index]:add_connect_changed_callback(callback(l_2_0, l_2_0, "_update_pc_xbox_controller_connection", {text_gui = text, text_id = text_id}))
-    end
-  end
-  if is_win32 then
-    l_2_0:_update_pc_xbox_controller_connection({text_gui = text, text_id = text_id})
-  end
-  l_2_0:reset_attract_video()
+	--[[ Used variables:
+	self._controller_index = nil
+	self._attract_video_gui = nil
+	]]
 end
 
-MenuTitlescreenState._update_pc_xbox_controller_connection = function(l_3_0, l_3_1)
-  local text_string = (managers.localization:to_upper_text(l_3_1.text_id))
-  local added_text = nil
-  for _,controller in pairs(l_3_0._controller_list) do
-    if controller:get_type() == "xbox360" and controller:connected() then
-      text_string = text_string .. "\n" .. managers.localization:to_upper_text("menu_or_press_any_xbox_button")
-  else
-    end
-  end
-  l_3_1.text_gui:set_text(text_string)
+local is_ps3 = SystemInfo:platform() == Idstring( "PS3" )
+local is_x360 = SystemInfo:platform() == Idstring( "X360" )
+local is_win32 = SystemInfo:platform() == Idstring( "WIN32" )
+function MenuTitlescreenState:setup()
+	local res = RenderSettings.resolution
+	local gui = Overlay:gui()
+
+	self._workspace = managers.gui_data:create_saferect_workspace() -- gui:create_screen_workspace()
+	self._workspace:hide()
+	managers.gui_data:layout_workspace( self._workspace )
+	-- self._workspace:set_debug( false )
+	
+	self._full_workspace = gui:create_screen_workspace()
+	self._full_workspace:hide()
+	
+	self._back_drop_gui = MenuBackdropGUI:new()
+	self._back_drop_gui:hide()
+	
+	--[[if self.texture then
+		self.texture:set_width( res.x )
+		self.texture:set_height( res.x / 2 )
+		self.texture:set_center_x( safe_rect.x + safe_rect.width/2 )
+		self.texture:set_center_y( safe_rect.y + safe_rect.height/2 )
+	end]]
+		
+	-- bitmap:set_center_y( res.y/2 )
+	local bitmap = self._workspace:panel():bitmap( { texture = "guis/textures/menu_title_screen", layer = 1 } )
+	-- bitmap:set_size( bitmap:texture_width() * tweak_data.scale.title_image_multiplier, bitmap:texture_height() * tweak_data.scale.title_image_multiplier )
+	-- bitmap:set_size( 1024 * tweak_data.scale.title_image_multiplier, 512 * tweak_data.scale.title_image_multiplier )
+	-- bitmap:set_size( bitmap:texture_width(), bitmap:texture_height() )
+	-- bitmap:set_center( res.x/2, res.y/2 )
+	bitmap:set_center( self._workspace:panel():w()/2, self._workspace:panel():h()/2 )
+	self._full_workspace:panel():rect( { visible = false, color = Color.black, layer = 0 } )
+	-- self._workspace:panel():rect( { color = Color.black, w = res.x, h = res.y, layer = 1 } )
+	local text_id = (is_ps3 or is_x360) and "menu_press_start" or "menu_visit_forum3" -- press start or buy dlc
+	local text = self._workspace:panel():text( { text = managers.localization:text( text_id ), font = tweak_data.menu.pd2_large_font, font_size = tweak_data.menu.topic_font_size, color = Color.white, 
+												align = "center", vertical = "bottom", w = self._workspace:panel():w(), h = self._workspace:panel():h(), layer = 2 } )
+	text:set_bottom( self._workspace:panel():h()/1.25)
+	
+	self._controller_list = {}
+	for index=1, managers.controller:get_wrapper_count() do
+		self._controller_list[ index ] = managers.controller:create_controller( "title_" .. index, index, false )
+
+		if is_win32 then
+			if self._controller_list[ index ]:get_type() == "xbox360" then
+				self._controller_list[ index ]:add_connect_changed_callback( callback( self, self, "_update_pc_xbox_controller_connection", { text_gui = text, text_id = text_id } ) )
+			end
+		end
+	end
+
+	if is_win32 then
+		self:_update_pc_xbox_controller_connection( { text_gui = text, text_id = text_id } )
+	end
+
+	self:reset_attract_video()
 end
 
-MenuTitlescreenState.at_enter = function(l_4_0)
-  if not l_4_0._controller_list then
-    l_4_0:setup()
-    Application:stack_dump_error("Shouldn't enter title more than once. Except when toggling freeflight.")
-  end
-  managers.music:post_event("menu_music")
-  managers.menu:input_enabled(false)
-  for index,controller in ipairs(l_4_0._controller_list) do
-    controller:enable()
-  end
-  managers.overlay_effect:play_effect({color = Color.black, fade_in = 0, sustain = 0.10000000149012, fade_out = 0.40000000596046, blend_mode = "normal"})
-  managers.menu_scene:setup_camera()
-  managers.menu_scene:set_scene_template("lobby")
-  l_4_0._workspace:show()
-  l_4_0._full_workspace:show()
-  managers.user:set_index(nil)
-  managers.controller:set_default_wrapper_index(nil)
-  l_4_0._clbk_game_has_music_control_callback = callback(l_4_0, l_4_0, "clbk_game_has_music_control")
-  managers.platform:add_event_callback("media_player_control", l_4_0._clbk_game_has_music_control_callback)
-  l_4_0:reset_attract_video()
+function MenuTitlescreenState:_update_pc_xbox_controller_connection( params )
+	local text_string = managers.localization:to_upper_text( params.text_id )
+	local added_text
+	for _, controller in pairs( self._controller_list ) do
+		if controller:get_type() == "xbox360" then
+			if controller:connected() then
+				text_string = text_string .. "\n" .. managers.localization:to_upper_text( "menu_or_press_any_xbox_button" )
+				break
+			end
+		end
+	end
+
+	params.text_gui:set_text(text_string)
 end
 
-MenuTitlescreenState.clbk_game_has_music_control = function(l_5_0, l_5_1)
-  l_5_0._attract_video_gui:set_volume_gain(not alive(l_5_0._attract_video_gui) or (l_5_1 and 1) or 0)
+function MenuTitlescreenState:at_enter()
+	if( not self._controller_list ) then
+		self:setup()
+		Application:stack_dump_error( "Shouldn't enter title more than once. Except when toggling freeflight." )
+	end
+
+	managers.music:post_event( "menu_music" )
+	managers.menu:input_enabled( false )
+
+	for index,controller in ipairs( self._controller_list ) do
+		controller:enable()
+	end
+	
+	managers.overlay_effect:play_effect( { color = Color.black, fade_in = 0, sustain = 0.1, fade_out = 0.4, blend_mode = "normal" } )
+		
+	managers.menu_scene:setup_camera()
+	managers.menu_scene:set_scene_template( "lobby" )
+
+	self._workspace:show()
+	self._full_workspace:show()
+	-- self._back_drop_gui:show()
+
+	managers.user:set_index( nil )
+	managers.controller:set_default_wrapper_index( nil )
+
+	self._clbk_game_has_music_control_callback = callback( self, self, "clbk_game_has_music_control" )
+	managers.platform:add_event_callback( "media_player_control", self._clbk_game_has_music_control_callback )
+
+	self:reset_attract_video()
 end
 
-MenuTitlescreenState.update = function(l_6_0, l_6_1, l_6_2)
-  if l_6_0._waiting_for_loaded_savegames and not managers.savefile:is_in_loading_sequence() and not l_6_0._user_has_changed then
-    l_6_0:_load_savegames_done()
-  end
-  return 
-  l_6_0:check_confirm_pressed()
-  if managers.system_menu:is_active() then
-    l_6_0:reset_attract_video()
-  else
-    l_6_0._controller_index = l_6_0:get_start_pressed_controller_index()
-    if l_6_0._controller_index then
-      managers.controller:set_default_wrapper_index(l_6_0._controller_index)
-      managers.user:set_index(l_6_0._controller_index)
-      managers.user:check_user(callback(l_6_0, l_6_0, "check_user_callback"), true)
-      if managers.dlc:has_corrupt_data() and not Global.corrupt_dlc_msg_shown then
-        Global.corrupt_dlc_msg_shown = true
-        print("[MenuTitlescreenState:update] showing corrupt_DLC")
-        managers.menu:show_corrupt_dlc()
-      else
-        if not l_6_0:check_attract_video() and l_6_0:is_attract_video_delay_done() then
-          l_6_0:play_attract_video()
-        end
-      end
-    end
-  end
-end
-
-MenuTitlescreenState.get_start_pressed_controller_index = function(l_7_0)
-  for index,controller in ipairs(l_7_0._controller_list) do
-    if (is_ps3 or is_x360) and controller:get_input_pressed("start") then
-      return index
-      for (for control),index in (for generator) do
-        if controller:get_any_input_pressed() then
-          return index
-        end
-        if controller._default_controller_id == "keyboard" and (#Input:keyboard():pressed_list() > 0 or #Input:mouse():pressed_list() > 0) then
-          return index
-        end
-      end
-    end
-    return nil
-     -- Warning: missing end command somewhere! Added here
-  end
-end
-
-MenuTitlescreenState.check_confirm_pressed = function(l_8_0)
-  for index,controller in ipairs(l_8_0._controller_list) do
-    if controller:get_input_pressed("confirm") then
-      print("check_confirm_pressed")
-      local active, dialog = managers.system_menu:is_active_by_id("invite_join_message")
-      if active then
-        print("close")
-        dialog:button_pressed_callback()
-      end
-      local active, dialog = managers.system_menu:is_active_by_id("user_changed")
-      if active then
-        print("close user_changed")
-        dialog:button_pressed_callback()
-      end
-      local active, dialog = managers.system_menu:is_active_by_id("inactive_user_accepted_invite")
-      if active then
-        print("close inactive_user_accepted_invite")
-        dialog:button_pressed_callback()
-      end
-    end
-  end
-end
-
-MenuTitlescreenState.check_user_callback = function(l_9_0, l_9_1)
-  managers.dlc:on_signin_complete()
-  if l_9_1 then
-    managers.user:check_storage(callback(l_9_0, l_9_0, "check_storage_callback"), true)
-  else
-    local dialog_data = {}
-    dialog_data.title = managers.localization:text("dialog_warning_title")
-    dialog_data.text = managers.localization:text("dialog_skip_signin_warning")
-    local yes_button = {}
-    yes_button.text = managers.localization:text("dialog_yes")
-    yes_button.callback_func = callback(l_9_0, l_9_0, "continue_without_saving_yes_callback")
-    local no_button = {}
-    no_button.text = managers.localization:text("dialog_no")
-    no_button.callback_func = callback(l_9_0, l_9_0, "continue_without_saving_no_callback")
-    dialog_data.button_list = {yes_button, no_button}
-    managers.system_menu:show(dialog_data)
-  end
-end
-
-MenuTitlescreenState.check_storage_callback = function(l_10_0, l_10_1)
-  if l_10_1 then
-    l_10_0._waiting_for_loaded_savegames = true
-  else
-    local dialog_data = {}
-    dialog_data.title = managers.localization:text("dialog_warning_title")
-    dialog_data.text = managers.localization:text("dialog_skip_storage_warning")
-    local yes_button = {}
-    yes_button.text = managers.localization:text("dialog_yes")
-    yes_button.callback_func = callback(l_10_0, l_10_0, "continue_without_saving_yes_callback")
-    local no_button = {}
-    no_button.text = managers.localization:text("dialog_no")
-    no_button.callback_func = callback(l_10_0, l_10_0, "continue_without_saving_no_callback")
-    dialog_data.button_list = {yes_button, no_button}
-    managers.system_menu:show(dialog_data)
-  end
-end
-
-MenuTitlescreenState._load_savegames_done = function(l_11_0)
-  local sound_source = SoundDevice:create_source("MenuTitleScreen")
-  sound_source:post_event("menu_start")
-  l_11_0:gsm():change_state_by_name("menu_main")
-end
-
-MenuTitlescreenState.continue_without_saving_yes_callback = function(l_12_0)
-  l_12_0:gsm():change_state_by_name("menu_main")
-end
-
-MenuTitlescreenState.continue_without_saving_no_callback = function(l_13_0)
-  managers.user:set_index(nil)
-  managers.controller:set_default_wrapper_index(nil)
-end
-
-MenuTitlescreenState.check_attract_video = function(l_14_0)
-  if alive(l_14_0._attract_video_gui) then
-    if l_14_0._attract_video_gui:loop_count() > 0 or l_14_0:is_any_input_pressed() then
-      l_14_0:reset_attract_video()
-    else
-      return true
-    end
-  else
-    if l_14_0:is_any_input_pressed() then
-      l_14_0:reset_attract_video()
-    end
-  end
-  return false
-end
-
-MenuTitlescreenState.is_any_input_pressed = function(l_15_0)
-  for _,controller in ipairs(l_15_0._controller_list) do
-    if controller:get_any_input_pressed() then
-      return true
-    end
-  end
-  return false
-end
-
-MenuTitlescreenState.reset_attract_video = function(l_16_0)
-  l_16_0._attract_video_time = TimerManager:main():time()
-  if alive(l_16_0._attract_video_gui) then
-    l_16_0._attract_video_gui:stop()
-    l_16_0._full_workspace:panel():remove(l_16_0._attract_video_gui)
-    l_16_0._attract_video_gui = nil
-  end
-end
-
-MenuTitlescreenState.is_attract_video_delay_done = function(l_17_0)
-  return l_17_0._attract_video_time + _G.tweak_data.states.title.ATTRACT_VIDEO_DELAY < TimerManager:main():time()
-end
-
-MenuTitlescreenState.play_attract_video = function(l_18_0)
-  l_18_0:reset_attract_video()
-  local res = RenderSettings.resolution
-  local src_width, src_height = 1280, 720
-  local dest_width, dest_height = nil, nil
-  if res.x / res.y < src_width / src_height then
-    dest_width = res.x
-    dest_height = src_height * dest_width / src_width
-  else
-    dest_height = res.y
-    dest_width = src_width * dest_height / src_height
-  end
-  local x = (res.x - dest_width) / 2
-  local y = (res.y - dest_height) / 2
-  l_18_0._attract_video_gui = l_18_0._full_workspace:panel():video({video = "movies/attract", x = x, y = y, width = dest_width, height = dest_height, layer = tweak_data.gui.ATTRACT_SCREEN_LAYER})
-  l_18_0._attract_video_gui:play()
-  l_18_0._attract_video_gui:set_volume_gain(managers.music:has_music_control() and 1 or 0)
-end
-
-MenuTitlescreenState.at_exit = function(l_19_0)
-  managers.platform:remove_event_callback("media_player_control", l_19_0._clbk_game_has_music_control_callback)
-  if alive(l_19_0._workspace) then
-    Overlay:gui():destroy_workspace(l_19_0._workspace)
-    l_19_0._workspace = nil
-  end
-  if alive(l_19_0._full_workspace) then
-    Overlay:gui():destroy_workspace(l_19_0._full_workspace)
-    l_19_0._full_workspace = nil
-  end
-  l_19_0._back_drop_gui:destroy()
-  if l_19_0._controller_list then
-    for _,controller in ipairs(l_19_0._controller_list) do
-      controller:destroy()
-    end
-    l_19_0._controller_list = nil
-  end
-  managers.menu_component:test_camera_shutter_tech()
-  managers.menu:input_enabled(true)
-  managers.user:set_active_user_state_change_quit(true)
-  managers.system_menu:init_finalize()
-end
-
-MenuTitlescreenState.on_user_changed = function(l_20_0, l_20_1, l_20_2)
-  print("MenuTitlescreenState:on_user_changed")
-  if l_20_1 and l_20_1.signin_state ~= "not_signed_in" and l_20_0._waiting_for_loaded_savegames then
-    l_20_0._user_has_changed = true
-  end
-end
-
-MenuTitlescreenState.on_storage_changed = function(l_21_0, l_21_1, l_21_2)
-  print("MenuTitlescreenState:on_storage_changed")
-  if l_21_0._waiting_for_loaded_savegames then
-    l_21_0._waiting_for_loaded_savegames = nil
-  end
+function MenuTitlescreenState:clbk_game_has_music_control( status )
+	if( alive( self._attract_video_gui ) ) then
+		self._attract_video_gui:set_volume_gain( status and 1 or 0 )
+	end
 end
 
 
+function MenuTitlescreenState:update( t, dt )
+	if self._waiting_for_loaded_savegames then
+		-- if not managers.savefile:is_active() then
+		if not managers.savefile:is_in_loading_sequence() and not self._user_has_changed then
+			self:_load_savegames_done()
+		end
+		return
+	end
+	
+	self:check_confirm_pressed()
+	if( managers.system_menu:is_active() ) then
+		self:reset_attract_video()
+	else
+		self._controller_index = self:get_start_pressed_controller_index()
+
+		if( self._controller_index ) then
+			managers.controller:set_default_wrapper_index( self._controller_index )
+			managers.user:set_index( self._controller_index )
+			managers.user:check_user( callback( self, self, "check_user_callback" ), true )
+			if managers.dlc:has_corrupt_data() and not Global.corrupt_dlc_msg_shown then
+				Global.corrupt_dlc_msg_shown = true
+				print( "[MenuTitlescreenState:update] showing corrupt_DLC" )
+				managers.menu:show_corrupt_dlc()
+			end
+		elseif( not self:check_attract_video() and self:is_attract_video_delay_done() ) then
+			self:play_attract_video()
+		end
+	end
+end
+
+function MenuTitlescreenState:get_start_pressed_controller_index()
+	for index,controller in ipairs( self._controller_list ) do
+		if is_ps3 or is_x360 then
+			if( controller:get_input_pressed( "start" ) ) then
+				return index
+			end
+		else
+			 --Removed possibility to start game with a game pad (xbox controller for example)
+			if( controller:get_any_input_pressed() ) then
+				return index
+			end
+			-- Hack for enabling ANY button check for controller
+			if controller._default_controller_id == "keyboard" then
+				if #Input:keyboard():pressed_list() > 0 or #Input:mouse():pressed_list() > 0 then
+					return index
+				end
+			end
+		end
+	end
+
+	return nil
+end
+
+function MenuTitlescreenState:check_confirm_pressed()
+	for index,controller in ipairs( self._controller_list ) do
+		if( controller:get_input_pressed( "confirm" ) ) then
+			print( "check_confirm_pressed" )
+			local active, dialog = managers.system_menu:is_active_by_id( "invite_join_message" )
+			if active then
+				print( "close" )
+				dialog:button_pressed_callback()
+				-- managers.system_menu:close( "invite_join_message" )
+			end
+			
+			local active, dialog = managers.system_menu:is_active_by_id( "user_changed" )
+			if active then
+				print( "close user_changed" )
+				dialog:button_pressed_callback()
+			end
+			
+			local active, dialog = managers.system_menu:is_active_by_id( "inactive_user_accepted_invite" )
+			if active then
+				print( "close inactive_user_accepted_invite" )
+				dialog:button_pressed_callback()
+			end
+		end
+	end
+end
+
+function MenuTitlescreenState:check_user_callback( success )
+
+	managers.dlc:on_signin_complete()
+
+	if( success ) then
+		managers.user:check_storage( callback( self, self, "check_storage_callback" ), true )
+	else
+		local dialog_data = {}
+		dialog_data.title = managers.localization:text( "dialog_warning_title" )
+		dialog_data.text = managers.localization:text( "dialog_skip_signin_warning" )
+
+		local yes_button = {}
+		yes_button.text = managers.localization:text( "dialog_yes" )
+		yes_button.callback_func = callback( self, self, "continue_without_saving_yes_callback" )
+
+		local no_button = {}
+		no_button.text = managers.localization:text( "dialog_no" )
+		no_button.callback_func = callback( self, self, "continue_without_saving_no_callback" )
+		dialog_data.button_list = { yes_button, no_button }
+
+		managers.system_menu:show( dialog_data )
+	end
+end
+
+function MenuTitlescreenState:check_storage_callback( success )
+	if( success ) then
+		-- Play the start sound
+		self._waiting_for_loaded_savegames = true
+		--[[local sound_source = SoundDevice:create_source( "MenuTitleScreen" )
+		sound_source:post_event( "menu_start" )
+		
+		self:gsm():change_state_by_name( "menu_main" ) ]]
+	else
+		local dialog_data = {}
+		dialog_data.title = managers.localization:text( "dialog_warning_title" )
+		dialog_data.text = managers.localization:text( "dialog_skip_storage_warning" )
+
+		local yes_button = {}
+		yes_button.text = managers.localization:text( "dialog_yes" )
+		yes_button.callback_func = callback( self, self, "continue_without_saving_yes_callback" )
+
+		local no_button = {}
+		no_button.text = managers.localization:text( "dialog_no" )
+		no_button.callback_func = callback( self, self, "continue_without_saving_no_callback" )
+		dialog_data.button_list = { yes_button, no_button }
+
+		managers.system_menu:show( dialog_data )
+	end
+end
+
+function MenuTitlescreenState:_load_savegames_done()
+	local sound_source = SoundDevice:create_source( "MenuTitleScreen" )
+	sound_source:post_event( "menu_start" )
+		
+	self:gsm():change_state_by_name( "menu_main" )
+end
+
+function MenuTitlescreenState:continue_without_saving_yes_callback()
+	-- TODO: Flag continue without saving on future File/Save manager.
+	self:gsm():change_state_by_name( "menu_main" )
+end
+
+function MenuTitlescreenState:continue_without_saving_no_callback()
+	managers.user:set_index( nil )
+	managers.controller:set_default_wrapper_index( nil )
+end
+
+function MenuTitlescreenState:check_attract_video()
+	if( alive( self._attract_video_gui ) ) then
+		if( ( self._attract_video_gui:loop_count() > 0 ) or self:is_any_input_pressed() ) then
+			self:reset_attract_video()
+		else
+			return true
+		end
+	elseif( self:is_any_input_pressed() ) then
+		self:reset_attract_video()
+	end
+
+	return false
+end
+
+function MenuTitlescreenState:is_any_input_pressed()
+	for _,controller in ipairs( self._controller_list ) do
+		if( controller:get_any_input_pressed() ) then
+			return true
+		end
+	end
+
+	return false
+end
+
+function MenuTitlescreenState:reset_attract_video()
+	self._attract_video_time = TimerManager:main():time()
+
+	if( alive( self._attract_video_gui ) ) then
+		self._attract_video_gui:stop()
+		self._full_workspace:panel():remove( self._attract_video_gui )
+		self._attract_video_gui = nil
+	end
+end
+
+function MenuTitlescreenState:is_attract_video_delay_done()
+	return TimerManager:main():time() > self._attract_video_time + _G.tweak_data.states.title.ATTRACT_VIDEO_DELAY
+end
+
+function MenuTitlescreenState:play_attract_video()
+	self:reset_attract_video()
+
+	local res = RenderSettings.resolution
+	local src_width, src_height = 1280, 720
+	local dest_width, dest_height
+
+	if( src_width / src_height > res.x / res.y ) then
+		dest_width = res.x
+		dest_height = src_height * dest_width / src_width
+	else
+		dest_height = res.y
+		dest_width = src_width * dest_height / src_height
+	end
+
+	local x = ( res.x - dest_width ) / 2
+	local y = ( res.y - dest_height ) / 2
+
+	self._attract_video_gui = self._full_workspace:panel():video( { video = "movies/attract", x = x, y = y, width = dest_width, height = dest_height, layer = tweak_data.gui.ATTRACT_SCREEN_LAYER } )
+	self._attract_video_gui:play()
+	self._attract_video_gui:set_volume_gain( managers.music:has_music_control() and 1 or 0 )
+end
+
+function MenuTitlescreenState:at_exit()	
+	managers.platform:remove_event_callback( "media_player_control", self._clbk_game_has_music_control_callback )
+	
+	if( alive( self._workspace ) ) then
+		Overlay:gui():destroy_workspace( self._workspace )
+		self._workspace = nil
+	end
+	
+	if( alive( self._full_workspace ) ) then
+		Overlay:gui():destroy_workspace( self._full_workspace )
+		self._full_workspace = nil
+	end
+	
+	self._back_drop_gui:destroy()
+	
+	if( self._controller_list ) then
+		for _,controller in ipairs( self._controller_list ) do
+			controller:destroy()
+		end
+
+		self._controller_list = nil
+	end
+	
+	managers.menu_component:test_camera_shutter_tech()
+
+	managers.menu:input_enabled( true )
+
+	managers.user:set_active_user_state_change_quit( true )
+	
+	managers.system_menu:init_finalize()
+end
+
+function MenuTitlescreenState:on_user_changed( old_user_data, user_data )
+	print( "MenuTitlescreenState:on_user_changed" )
+	if old_user_data and old_user_data.signin_state ~= "not_signed_in" then
+		if self._waiting_for_loaded_savegames then
+			self._user_has_changed = true
+		end
+	end
+end
+
+function MenuTitlescreenState:on_storage_changed( old_user_data, user_data )
+	print( "MenuTitlescreenState:on_storage_changed" )
+	if self._waiting_for_loaded_savegames then
+		self._waiting_for_loaded_savegames = nil
+	end
+end

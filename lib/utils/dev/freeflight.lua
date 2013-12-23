@@ -1,37 +1,47 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\utils\dev\freeflight.luac 
+core:module( "FreeFlight" )
 
-core:module("FreeFlight")
-core:import("CoreFreeFlight")
-core:import("CoreClass")
-if not FreeFlight then
-  FreeFlight = class(CoreFreeFlight.FreeFlight)
-end
-FreeFlight.enable = function(l_1_0, ...)
-  FreeFlight.super.enable(l_1_0, ...)
-  if managers.hud then
-    managers.hud:set_freeflight_disabled()
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+core:import( "CoreFreeFlight" )
+core:import( "CoreClass" )
 
-  end
-end
+FreeFlight = FreeFlight or class( CoreFreeFlight.FreeFlight )
 
-FreeFlight.disable = function(l_2_0, ...)
-  FreeFlight.super.disable(l_2_0, ...)
-  if managers.hud then
-    managers.hud:set_freeflight_enabled()
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-  end
+function FreeFlight:enable( ... )
+	FreeFlight.super.enable( self, ... )
+	
+	-- Talked about solving this by having callabck to states instead /Martin
+	--[[self._player_hud_visible = managers.hud and managers.hud:visible( Idstring( "guis/player_hud" ) )
+	if self._player_hud_visible then
+		managers.hud:hide( Idstring( "guis/player_hud" ) )
+		managers.hud:hide( Idstring( "guis/player_info_hud_fullscreen" ) )
+		managers.hud:hide( Idstring( "guis/player_info_hud" ) )
+	end]]
+	if managers.hud then
+		managers.hud:set_freeflight_disabled()
+	end
 end
 
-FreeFlight._pause = function(l_3_0)
-  Application:set_pause(true)
+function FreeFlight:disable( ... )
+	FreeFlight.super.disable( self, ... )
+	--[[if self._player_hud_visible then
+		managers.hud:show( Idstring( "guis/player_hud" ) )
+		managers.hud:show( Idstring( "guis/player_info_hud_fullscreen" ) )
+		managers.hud:show( Idstring( "guis/player_info_hud" ) )
+	end]]
+	if managers.hud then
+		managers.hud:set_freeflight_enabled()
+	end
 end
 
-FreeFlight._unpause = function(l_4_0)
-  Application:set_pause(false)
+function FreeFlight:_pause()
+	-- I've removed the FortressTimerManager /MW
+	-- managers.timer:set_paused( true )
+	Application:set_pause( true )
 end
 
-CoreClass.override_class(CoreFreeFlight.FreeFlight, FreeFlight)
+function FreeFlight:_unpause()
+	-- I've removed the FortressTimerManager /MW
+	-- managers.timer:set_paused( false )
+	Application:set_pause( false )
+end
 
+CoreClass.override_class( CoreFreeFlight.FreeFlight, FreeFlight )

@@ -1,40 +1,47 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\elementexplosion.luac 
+core:import( "CoreMissionScriptElement" )
 
-core:import("CoreMissionScriptElement")
-if not ElementExplosion then
-  ElementExplosion = class(ElementFeedback)
-end
-ElementExplosion.init = function(l_1_0, ...)
-  ElementExplosion.super.init(l_1_0, ...)
-  if Application:editor() and l_1_0._values.explosion_effect ~= "none" then
-    CoreEngineAccess._editor_load(l_1_0.IDS_EFFECT, l_1_0._values.explosion_effect:id())
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementExplosion = ElementExplosion or class( ElementFeedback )
 
-  end
+function ElementExplosion:init( ... )
+	ElementExplosion.super.init( self, ... )
+	
+	if Application:editor() then	
+		if self._values.explosion_effect ~= "none" then
+			CoreEngineAccess._editor_load( self.IDS_EFFECT, self._values.explosion_effect:id() )
+		end
+	end
 end
 
-ElementExplosion.client_on_executed = function(l_2_0, ...)
-  l_2_0:on_executed(...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function ElementExplosion:client_on_executed( ... )
+	self:on_executed( ... )
 end
 
-ElementExplosion.on_executed = function(l_3_0, l_3_1)
-  if not l_3_0._values.enabled then
-    return 
-  end
-  print("ElementExplosion:on_executed( instigator )")
-  local player = managers.player:player_unit()
-  if player then
-    player:character_damage():damage_explosion({position = l_3_0._values.position, range = l_3_0._values.range, damage = l_3_0._values.player_damage})
-  end
-  GrenadeBase._spawn_sound_and_effects(l_3_0._values.position, l_3_0._values.rotation:z(), l_3_0._values.range, l_3_0._values.explosion_effect)
-  if Network:is_server() then
-    GrenadeBase._detect_and_give_dmg({_range = l_3_0._values.range, _collision_slotmask = managers.slot:get_mask("bullet_impact_targets"), _curve_pow = 5, _damage = l_3_0._values.damage, _player_damage = 0}, l_3_0._values.position)
-    managers.network:session():send_to_peers_synched("element_explode_on_client", l_3_0._values.position, l_3_0._values.rotation:z(), l_3_0._values.damage, l_3_0._values.range, 5)
-  end
-  ElementExplosion.super.on_executed(l_3_0, l_3_1)
+function ElementExplosion:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	print( "ElementExplosion:on_executed( instigator )" )
+	
+	local player = managers.player:player_unit()
+	if player then
+		player:character_damage():damage_explosion( { position = self._values.position, range = self._values.range, damage = self._values.player_damage } )
+	end
+	
+	GrenadeBase._spawn_sound_and_effects( self._values.position, self._values.rotation:z(), self._values.range, self._values.explosion_effect )
+	
+	if Network:is_server() then
+		-- First server needs to check what damage is done by the explosion .. 
+		GrenadeBase._detect_and_give_dmg( { _range = self._values.range, 
+											_collision_slotmask = managers.slot:get_mask( "bullet_impact_targets" ), 
+											_curve_pow = 5, 
+											_damage = self._values.damage,
+											_player_damage = 0 },
+											self._values.position )
+		
+		-- .. then server can tell clients that they can push units
+		managers.network:session():send_to_peers_synched( "element_explode_on_client", self._values.position, self._values.rotation:z(), self._values.damage, self._values.range, 5 )
+	end
+		 						
+	ElementExplosion.super.on_executed( self, instigator ) -- This will trigger the feedback (camera shake/rumble etc)
 end
-
-

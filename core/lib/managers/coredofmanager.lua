@@ -1,379 +1,439 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\coredofmanager.luac 
+-- DOFManager handles the Depth Of Field, overrides the current environment settings
 
 core:module("CoreDOFManager")
-if not DOFManager then
-  DOFManager = class()
-end
-DOFManager.init = function(l_1_0)
-  l_1_0._queued_effects = {}
-  l_1_0._sorted_effect_list = {}
-  l_1_0._last_id = 0
-  l_1_0._current_effect = nil
-  l_1_0._enabled = true
-  l_1_0._var_map = {"near_min", "near_max", "far_min", "far_max"}
-  l_1_0._game_timer = TimerManager:game()
-  l_1_0._env_dof_enabled = true
-  l_1_0._environment_parameters = {near_min = 0, near_max = 0, far_min = 0, far_max = 0, clamp = 0}
-  l_1_0._clamp_prev_frame = 0
-end
 
-DOFManager.save = function(l_2_0, l_2_1)
-  if next(l_2_0._queued_effects) then
-    local state = {}
-    state.queued_effects = clone(l_2_0._queued_effects)
-    l_2_1.DOFManager = state
-  end
+DOFManager = DOFManager or class()
+
+function DOFManager:init()	
+	self._queued_effects = {}
+	self._sorted_effect_list = {}
+	self._last_id = 0
+	self._current_effect = nil
+	self._enabled = true 
+	self._var_map = { "near_min", "near_max", "far_min", "far_max" }
+	self._game_timer = TimerManager:game()
+	self._env_dof_enabled = true
+	
+	self._environment_parameters = { near_min = 0, near_max = 0, far_min = 0, far_max = 0, clamp = 0 }
+	--managers.environment:reg_env_change_cb( callback( self, self, "clbk_environment_change" ) )
+	self._clamp_prev_frame = 0
 end
 
-DOFManager.load = function(l_3_0, l_3_1)
-  local state = l_3_1.DOFManager
-  if state then
-    if state.queued_effects then
-      l_3_0._queued_effects = clone(state.queued_effects)
-    else
-      l_3_0._queued_effects = {}
-    end
-  end
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:save( data )
+	if( next( self._queued_effects ) ) then
+		local state = {}
+		state.queued_effects = clone( self._queued_effects )
+		data.DOFManager = state
+	end
 end
 
-DOFManager.update = function(l_4_0, l_4_1, l_4_2)
-  l_4_0:remove_expired_effects(l_4_1, l_4_2)
-  l_4_0._current_effect = l_4_0._sorted_effect_list[1]
-  local new_data, new_clamp = nil, nil
-  if l_4_0._current_effect then
-    l_4_0:update_effect(l_4_1, l_4_2, l_4_0._current_effect)
-    if l_4_0:check_dof_allowed() then
-      new_data = l_4_0._queued_effects[l_4_0._current_effect]
-    end
-  end
-  if new_data then
-    if l_4_0._env_dof_enabled then
-      assert(not l_4_0._dof_modifier)
-      l_4_0._dof_modifier = assert(managers.viewport:viewports()[1]:environment_mixer():create_modifier(false, "shared_dof", function(...)
-        return self:modifier_callback(...)
-         -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+------------------------------------------------------------------------------------------------------------
 
-         end))
-      l_4_0._env_dof_enabled = nil
-    end
-    new_data = new_data.prog_data
-    if new_data.dirty then
-      new_clamp = new_data.clamp
-    end
-    if new_clamp then
-      new_data = new_data.cur_values
-    end
-    if new_data then
-      if l_4_0._clamp_prev_frame ~= new_clamp then
-        l_4_0._clamp_prev_frame = new_clamp
-      end
-      l_4_0:feed_dof(new_data.near_min, new_data.near_max, new_data.far_min, new_data.far_max, new_clamp)
-    elseif not l_4_0._env_dof_enabled and managers.viewport:get_active_vp() then
-      assert(l_4_0._dof_modifier)
-      managers.viewport:viewports()[1]:environment_mixer():destroy_modifier(l_4_0._dof_modifier)
-      l_4_0._env_dof_enabled = true
-    end
-  end
+function DOFManager:load( data )	
+	local state = data.DOFManager
+
+	if( state ) then
+		if( state.queued_effects ) then
+			self._queued_effects = clone( state.queued_effects )
+		else
+			self._queued_effects = {}
+		end
+	end
 end
 
-DOFManager.update_world_camera = function(l_5_0, l_5_1, l_5_2, l_5_3)
-  managers.worldcamera:update_dof(l_5_1, l_5_2, l_5_3)
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:update( t, dt )
+	self:remove_expired_effects( t, dt )
+	
+	self._current_effect = self._sorted_effect_list[ 1 ]
+	
+	local new_data, new_clamp
+	
+	if self._current_effect then
+		self:update_effect( t, dt, self._current_effect )
+		new_data = self:check_dof_allowed()	and self._queued_effects[ self._current_effect ]
+	end
+
+	if new_data then
+		if self._env_dof_enabled then
+			assert(not self._dof_modifier)
+			self._dof_modifier = assert(managers.viewport:viewports()[1]:environment_mixer():create_modifier(false, "shared_dof", function(...) return self:modifier_callback(...) end))
+			self._env_dof_enabled = nil	
+		end
+		new_data = new_data.prog_data
+		new_clamp = new_data.dirty and new_data.clamp
+		new_data = new_clamp and new_data.cur_values
+		if new_data then
+			if self._clamp_prev_frame ~= new_clamp then
+				self._clamp_prev_frame = new_clamp
+			end
+			self:feed_dof( new_data.near_min, new_data.near_max, new_data.far_min, new_data.far_max, new_clamp )
+		end
+	elseif( not self._env_dof_enabled and managers.viewport:get_active_vp() ) then
+		assert(self._dof_modifier)
+		managers.viewport:viewports()[1]:environment_mixer():destroy_modifier(self._dof_modifier)
+		self._env_dof_enabled = true
+	end
 end
 
-DOFManager.paused_update = function(l_6_0, l_6_1, l_6_2)
-  l_6_0:update(l_6_1, l_6_2)
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:update_world_camera( t, dt, effect )
+	managers.worldcamera:update_dof( t, dt, effect )
 end
 
-DOFManager.modifier_callback = function(l_7_0, l_7_1)
-  l_7_0._modifier_output = l_7_1:parameters()
-  return assert(l_7_0._modifier_input)
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:paused_update( t, dt )
+	self:update( t, dt )
 end
 
-DOFManager.feed_dof = function(l_8_0, l_8_1, l_8_2, l_8_3, l_8_4, l_8_5)
-  l_8_0._modifier_input = {}
-  l_8_0._modifier_input.near_focus_distance_min = l_8_1
-  l_8_0._modifier_input.near_focus_distance_max = l_8_2
-  l_8_0._modifier_input.far_focus_distance_min = l_8_3
-  l_8_0._modifier_input.far_focus_distance_max = l_8_4
-  l_8_0._modifier_input.clamp = l_8_5
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:modifier_callback(interface)
+	self._modifier_output = interface:parameters()
+	return assert(self._modifier_input)
 end
 
-DOFManager.get_dof_parameters = function(l_9_0)
-  if l_9_0._current_effect then
-    return l_9_0._queued_effects[l_9_0._current_effect].prog_data.cur_values
-  end
+------------------------------------------------------------------------------------------------------------
+
+-- This can only be done if the environment managers dof is turned off.
+function DOFManager:feed_dof(near_min, near_max, far_min, far_max, clamp)
+	self._modifier_input = {}
+	self._modifier_input["near_focus_distance_min"] = near_min
+	self._modifier_input["near_focus_distance_max"] = near_max
+	self._modifier_input["far_focus_distance_min"] = far_min
+	self._modifier_input["far_focus_distance_max"] = far_max
+	self._modifier_input["clamp"] = clamp
+	
+	--self:debug_draw_feed( near_max, near_min, far_min, far_max, clamp )
 end
 
-DOFManager.get_dof_values = function(l_10_0)
-  assert(l_10_0._modifier_output)
-  return l_10_0._modifier_output.near_focus_distance_min, l_10_0._modifier_output.near_focus_distance_max, l_10_0._modifier_output.far_focus_distance_min, l_10_0._modifier_output.far_focus_distance_max, l_10_0._modifier_output.clamp
+------------------------------------------------------------------------------------------------------------
+
+--	This function will return the results of the DOF manager in table format { near_min, near_max, far_min, far_max, clamp }
+function DOFManager:get_dof_parameters()
+	return self._current_effect and self._queued_effects[ self._current_effect ].prog_data.cur_values
 end
 
-DOFManager.debug_draw_feed = function(l_11_0, l_11_1, l_11_2, l_11_3, l_11_4, l_11_5)
-  local vp = managers.viewport:first_active_viewport()
-  if vp and alive(vp:camera()) then
-    local camera = vp:camera()
-    local cam_dir = camera:rotation():y()
-    local cam_pos = camera:position() - math.UP * 50
-    Application:draw_cone(cam_pos + cam_dir * l_11_2, cam_pos + cam_dir * l_11_1, 49 * l_11_5 + 1, 0, 0, 1)
-    Application:draw_cone(cam_pos + cam_dir * l_11_3, cam_pos + cam_dir * l_11_4, 49 * l_11_5 + 1, 0, 1, 0)
-  end
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:get_dof_values()
+	assert(self._modifier_output)
+	return self._modifier_output["near_focus_distance_min"], self._modifier_output["near_focus_distance_max"], self._modifier_output["far_focus_distance_min"], self._modifier_output["far_focus_distance_max"], self._modifier_output["clamp"]
 end
 
-DOFManager.remove_expired_effects = function(l_12_0, l_12_1, l_12_2)
-  local id, effect = next(l_12_0._queued_effects)
-  repeat
-    if id then
-      if effect.prog_data.finish_t then
-        if not effect.preset.timer then
-          local eff_t = l_12_0._game_timer:time()
-          if effect.prog_data.finish_t <= eff_t then
-            l_12_0:intern_remove_effect(id)
-          end
-        end
-        id, effect = next(l_12_0._queued_effects, id)
-      else
-         -- Warning: missing end command somewhere! Added here
-      end
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+------------------------------------------------------------------------------------------------------------
+
+--	Debug function that visualises FOF as two cones whose radius represents bluriness along the camera's forward local axis
+function DOFManager:debug_draw_feed( near_max, near_min, far_min, far_max, clamp )
+	--print( "DOFManager:feed:", near_max, near_min, far_min, far_max, clamp, self._game_timer:time() )
+	local vp = managers.viewport:first_active_viewport()
+	if vp and alive(vp:camera()) then
+		local camera = vp:camera()
+		local cam_dir = camera:rotation():y()
+		local cam_pos = camera:position() - math.UP * 50
+		Application:draw_cone( cam_pos + cam_dir * near_min, cam_pos + cam_dir * near_max, 49 * clamp + 1, 0,0,1 )
+		Application:draw_cone( cam_pos + cam_dir * far_min, cam_pos + cam_dir * far_max, 49 * clamp + 1, 0,1,0 )
+	end
 end
 
-DOFManager.update_effect = function(l_13_0, l_13_1, l_13_2, l_13_3)
-  local effect = l_13_0._queued_effects[l_13_3]
-  local preset = effect.preset
-  local prog = effect.prog_data
-  local eff_t = preset.timer and preset.timer:time() or l_13_1
-  if prog.fade_in_end and eff_t < prog.fade_in_end then
-    prog.lerp = (eff_t - prog.start_t) / preset.fade_in
-    l_13_0:calculate_current_parameters_fade_in(l_13_1, l_13_2, effect)
-  elseif not prog.sustain_end or eff_t < prog.sustain_end then
-    prog.lerp = 1
-    l_13_0:calculate_current_parameters_sustain(l_13_1, l_13_2, effect)
-  elseif prog.finish_t then
-    prog.lerp = (prog.finish_t - eff_t) / preset.fade_out
-    l_13_0:calculate_current_parameters_fade_out(l_13_1, l_13_2, effect, l_13_3)
-  end
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:remove_expired_effects( t, dt )
+	local id, effect = next( self._queued_effects )
+	while id do
+		if effect.prog_data.finish_t then
+			local eff_t = ( effect.preset.timer or self._game_timer ):time()
+			if eff_t >= effect.prog_data.finish_t then
+				self:intern_remove_effect( id )
+			end
+		end
+		id, effect = next( self._queued_effects, id )
+	end
+	
 end
 
-DOFManager.calculate_current_parameters_fade_in = function(l_14_0, l_14_1, l_14_2, l_14_3)
-  local next_eff_sort = l_14_3.prog_data.sort_index + 1
-  local next_eff_id = l_14_0._sorted_effect_list[next_eff_sort]
-  local init = nil
-  if next_eff_id then
-    l_14_0:update_effect(l_14_1, l_14_2, next_eff_id)
-    init = l_14_0._queued_effects[l_14_0._sorted_effect_list[next_eff_sort]].prog_data.cur_values
-  end
-  if not init then
-    init = l_14_0._environment_parameters
-  end
-  local cur = l_14_3.prog_data.cur_values
-  local tar = l_14_3.prog_data.target_values
-  local eff_lerp = l_14_3.prog_data.lerp
-  for _,v in pairs(l_14_0._var_map) do
-    cur[v] = math.lerp(init[v], tar[v], eff_lerp)
-  end
-  cur.clamp = math.lerp(init.clamp, l_14_3.prog_data.clamp, eff_lerp)
-  l_14_3.prog_data.dirty = true
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:update_effect( t, dt, id )
+	local effect = self._queued_effects[ id ]
+	local preset = effect.preset
+	local prog = effect.prog_data
+	local eff_t = preset.timer and preset.timer:time() or t
+	
+	--fading in
+	if prog.fade_in_end and eff_t < prog.fade_in_end then				--	Fade-in time specified and we are inside that margin	
+		prog.lerp = ( eff_t - prog.start_t ) / preset.fade_in		
+		self:calculate_current_parameters_fade_in( t, dt, effect )
+	--peak reached
+	elseif not prog.sustain_end or eff_t < prog.sustain_end then		--	Infinite duration or inside sustain( peak ) time
+		prog.lerp = 1
+		self:calculate_current_parameters_sustain( t, dt, effect )
+	--fading out
+	elseif prog.finish_t then						--	We are past sustain end time and fading out
+		prog.lerp = ( prog.finish_t - eff_t ) / preset.fade_out
+		self:calculate_current_parameters_fade_out( t, dt, effect, id )
+	end
 end
 
-DOFManager.calculate_current_parameters_sustain = function(l_15_0, l_15_1, l_15_2, l_15_3)
-  if l_15_3.prog_data.peak_reached then
-    l_15_3.prog_data.dirty = nil
-  else
-    l_15_3.prog_data.peak_reached = true
-    local cur = l_15_3.prog_data.cur_values
-    local tar = l_15_3.prog_data.target_values
-    for _,v in pairs(l_15_0._var_map) do
-      cur[v] = tar[v]
-    end
-    cur.clamp = l_15_3.prog_data.clamp
-    l_15_3.prog_data.dirty = true
-  end
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:calculate_current_parameters_fade_in( t, dt, effect )
+	--	Update the effect with the next highest prio in order to get us some fade-in values
+	local next_eff_sort = effect.prog_data.sort_index + 1
+	local next_eff_id = self._sorted_effect_list[ next_eff_sort ]
+	local init
+	if next_eff_id then
+		self:update_effect( t, dt, next_eff_id )	--Should I maybe pass the finish time instead for completely linear interpolation?
+		init = self._queued_effects[ self._sorted_effect_list[ next_eff_sort ] ].prog_data.cur_values
+	end
+	
+	init = init or self._environment_parameters
+	local cur = effect.prog_data.cur_values
+	local tar = effect.prog_data.target_values
+	local eff_lerp = effect.prog_data.lerp
+	for _, v in pairs( self._var_map ) do
+		cur[ v ] = math.lerp( init[ v ], tar[ v ], eff_lerp )
+	end
+	cur.clamp = math.lerp( init.clamp, effect.prog_data.clamp, eff_lerp )
+	effect.prog_data.dirty = true
 end
 
-DOFManager.calculate_current_parameters_fade_out = function(l_16_0, l_16_1, l_16_2, l_16_3, l_16_4)
-  local next_eff_sort = l_16_3.prog_data.sort_index + 1
-  local next_eff_id = l_16_0._sorted_effect_list[next_eff_sort]
-  local out = nil
-  if next_eff_id then
-    l_16_0:update_effect(l_16_1, l_16_2, next_eff_id)
-    out = l_16_0._queued_effects[l_16_0._sorted_effect_list[next_eff_sort]].prog_data.cur_values
-  end
-  if not out then
-    out = l_16_0._environment_parameters
-  end
-  local cur = l_16_3.prog_data.cur_values
-  local tar = l_16_3.prog_data.target_values
-  local eff_lerp = l_16_3.prog_data.lerp
-  for _,v in pairs(l_16_0._var_map) do
-    cur[v] = math.lerp(out[v], tar[v], eff_lerp)
-  end
-  cur.clamp = math.lerp(out.clamp, l_16_3.prog_data.clamp, eff_lerp)
-  l_16_3.prog_data.dirty = true
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:calculate_current_parameters_sustain( t, dt, effect )
+	if effect.prog_data.peak_reached then
+		effect.prog_data.dirty = nil
+	else
+		effect.prog_data.peak_reached = true
+		local cur = effect.prog_data.cur_values
+		local tar = effect.prog_data.target_values
+		for _, v in pairs( self._var_map ) do
+			cur[ v ] = tar[ v ]
+		end
+		cur.clamp = effect.prog_data.clamp
+		effect.prog_data.dirty = true
+	end
+	
 end
 
-DOFManager.play = function(l_17_0, l_17_1, l_17_2)
-  l_17_0._last_id = l_17_0._last_id + 1
-  local new_data = {}
-  if not l_17_1.timer then
-    local timer = l_17_0._game_timer
-  end
-  local t = timer:time()
-  local prog_data = {}
-  if not l_17_2 or not l_17_1.clamp * l_17_2 then
-    prog_data.clamp = l_17_1.clamp
-  end
-  prog_data.fade_in_end = l_17_1.fade_in and t + l_17_1.fade_in or t
-  if l_17_1.sustain then
-    prog_data.sustain_end = prog_data.fade_in_end + l_17_1.sustain
-  end
-  prog_data.finish_t = prog_data.sustain_end + (not prog_data.sustain_end or l_17_1.fade_out or 0)
-  prog_data.start_t = t
-  local cur_values = nil
-  local near_min, near_max, far_min, far_max, clamp = l_17_0:get_dof_values()
-  if clamp > 0 then
-    cur_values = {near_min = near_min, near_max = near_max, far_min = far_min, far_max = far_max, clamp = clamp}
-  else
-    cur_values = {near_min = 0, near_max = 0, far_min = 0, far_max = 0, clamp = 0}
-  end
-  local target_values = {}
-  for _,v in pairs(l_17_0._var_map) do
-    target_values[v] = l_17_1[v]
-  end
-  prog_data.target_values = target_values
-  prog_data.cur_values = cur_values
-  new_data.preset = l_17_1
-  new_data.prog_data = prog_data
-  l_17_0._queued_effects[l_17_0._last_id] = new_data
-  l_17_0:add_to_sorted_list(l_17_0._last_id, l_17_1.prio)
-  return l_17_0._last_id
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:calculate_current_parameters_fade_out( t, dt, effect, id )
+	--	Update the effect with the next highest prio in order to get us some fade-out values
+	local next_eff_sort = effect.prog_data.sort_index + 1
+	local next_eff_id = self._sorted_effect_list[ next_eff_sort ]
+	local out
+	if next_eff_id then
+		self:update_effect( t, dt, next_eff_id )	--Should I maybe pass the finish time instead for completely linear interpolation?
+		out = self._queued_effects[ self._sorted_effect_list[ next_eff_sort ] ].prog_data.cur_values
+	end
+	
+	out = out or self._environment_parameters
+	local cur = effect.prog_data.cur_values
+	local tar = effect.prog_data.target_values
+	local eff_lerp = effect.prog_data.lerp
+	for _, v in pairs( self._var_map ) do
+		cur[ v ] = math.lerp( out[ v ], tar[ v ], eff_lerp )
+	end
+	cur.clamp = math.lerp( out.clamp, effect.prog_data.clamp, eff_lerp )
+	effect.prog_data.dirty = true
 end
 
-DOFManager.add_to_sorted_list = function(l_18_0, l_18_1, l_18_2)
-  local allocated = nil
-  for index,eff_id in ipairs(l_18_0._sorted_effect_list) do
-    if l_18_0._queued_effects[eff_id].preset.prio <= l_18_2 then
-      table.insert(l_18_0._sorted_effect_list, index, l_18_1)
-      allocated = true
-  else
-    end
-  end
-  if not allocated then
-    table.insert(l_18_0._sorted_effect_list, l_18_1)
-  end
-  for index,eff_id in ipairs(l_18_0._sorted_effect_list) do
-    l_18_0._queued_effects[eff_id].prog_data.sort_index = index
-  end
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:play( dof_data, amplitude_multiplier )
+	self._last_id = self._last_id + 1
+	local new_data = {}
+	local timer = dof_data.timer or self._game_timer
+	local t = timer:time()
+	
+	local prog_data = {}
+	
+	prog_data.clamp = amplitude_multiplier and dof_data.clamp * amplitude_multiplier or dof_data.clamp
+	prog_data.fade_in_end = dof_data.fade_in and t + dof_data.fade_in or t
+	prog_data.sustain_end = dof_data.sustain and prog_data.fade_in_end + dof_data.sustain
+	prog_data.finish_t = prog_data.sustain_end and prog_data.sustain_end + ( dof_data.fade_out or 0 )
+	prog_data.start_t = t
+	
+		
+	local cur_values
+	local near_min, near_max, far_min, far_max, clamp = self:get_dof_values()
+	if clamp > 0 then
+		cur_values = { near_min = near_min, near_max = near_max, far_min = far_min, far_max = far_max, clamp = clamp }	
+	else
+		cur_values = { near_min = 0, near_max = 0, far_min = 0, far_max = 0, clamp = 0 }
+	end
+	
+	local target_values = {}
+	for _, v in pairs( self._var_map ) do
+		target_values[ v ] = dof_data[ v ]
+	end
+	
+	prog_data.target_values = target_values
+	prog_data.cur_values = cur_values
+	
+	new_data.preset = dof_data				--	Read-Only table pointing to tweak_data
+	new_data.prog_data = prog_data
+	
+	self._queued_effects[ self._last_id ] = new_data
+	
+	self:add_to_sorted_list( self._last_id, dof_data.prio )
+	
+	return self._last_id
 end
 
-DOFManager.remove_from_sorted_list = function(l_19_0, l_19_1)
-  for index,eff_id in ipairs(l_19_0._sorted_effect_list) do
-    if eff_id == l_19_1 then
-      table.remove(l_19_0._sorted_effect_list, index)
-  else
-    end
-  end
-  for index,eff_id in ipairs(l_19_0._sorted_effect_list) do
-    l_19_0._queued_effects[eff_id].prog_data.sort_index = index
-  end
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:add_to_sorted_list( new_id, prio )
+	local allocated
+	for index, eff_id in ipairs( self._sorted_effect_list ) do
+		if prio >= self._queued_effects[ eff_id ].preset.prio then
+			table.insert( self._sorted_effect_list, index, new_id )
+			allocated = true
+			break
+		end
+	end
+	
+	if not allocated then
+		table.insert( self._sorted_effect_list, new_id )
+	end
+	
+	for index, eff_id in ipairs( self._sorted_effect_list ) do
+		self._queued_effects[ eff_id ].prog_data.sort_index = index
+	end
+	
 end
 
-DOFManager.stop = function(l_20_0, l_20_1, l_20_2)
-  local effect = l_20_0._queued_effects[l_20_1]
-  if effect then
-    if l_20_2 then
-      l_20_0:intern_remove_effect(l_20_1)
-      if l_20_0._current_effect == l_20_1 then
-        l_20_0._current_effect = nil
-      else
-        if not effect.preset.timer then
-          local t = l_20_0._game_timer:time()
-          effect.prog_data.sustain_end = t
-          effect.prog_data.finish_t = t + (effect.preset.fade_out or 0)
-        end
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:remove_from_sorted_list( id )
+	for index, eff_id in ipairs( self._sorted_effect_list ) do
+		if eff_id == id then
+			table.remove( self._sorted_effect_list, index )
+			break
+		end
+	end
+	
+	for index, eff_id in ipairs( self._sorted_effect_list ) do
+		self._queued_effects[ eff_id ].prog_data.sort_index = index
+	end
+	
 end
 
-DOFManager.stop_all = function(l_21_0, l_21_1)
-  l_21_0._queued_effects = {}
-  l_21_0._sorted_effect_list = {}
-  l_21_0._current_effect = nil
-  managers.environment:enable_dof()
-  managers.environment:needs_update("PE")
-  l_21_0._env_dof_enabled = true
-  if managers.viewport:get_active_vp() then
-    l_21_0:feed_dof(0, 0, 0, 0, 0)
-  end
+------------------------------------------------------------------------------------------------------------
+
+--Stop a playing or queued dof effect. it will fade out by default, unless the "instant" parameter is true
+function DOFManager:stop( id, instant )
+	local effect = self._queued_effects[ id ]
+	if effect then
+		if instant then
+			self:intern_remove_effect( id )
+			if self._current_effect == id then
+				self._current_effect = nil
+			end
+		else
+			local t = ( effect.preset.timer or self._game_timer ):time()
+			effect.prog_data.sustain_end = t
+			effect.prog_data.finish_t = t + ( effect.preset.fade_out or 0 )
+		end
+	end
 end
 
-DOFManager.intern_remove_effect = function(l_22_0, l_22_1)
-  l_22_0._queued_effects[l_22_1] = nil
-  l_22_0:remove_from_sorted_list(l_22_1)
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:stop_all( instant )
+	self._queued_effects = {}
+	self._sorted_effect_list = {}
+	self._current_effect = nil
+	
+	managers.environment:enable_dof()
+	managers.environment:needs_update( "PE" )
+	self._env_dof_enabled = true
+		
+	if managers.viewport:get_active_vp() then
+		self:feed_dof( 0, 0, 0, 0, 0 )
+	end
 end
 
-DOFManager.check_dof_allowed = function(l_23_0)
-  return l_23_0._enabled
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:intern_remove_effect( id )
+	self._queued_effects[ id ] = nil
+	self:remove_from_sorted_list( id )
 end
 
-DOFManager.set_enabled = function(l_24_0, l_24_1)
-  l_24_0._enabled = l_24_1
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:check_dof_allowed()
+	return self._enabled --and managers.player and managers.player.is_player_display_busy and not managers.player:is_player_display_busy()
 end
 
-DOFManager.is_effect_playing = function(l_25_0, l_25_1)
-  return not l_25_1 or not l_25_0._queued_effects[l_25_1] or true
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:set_enabled( state )
+	self._enabled = state
 end
 
-DOFManager.from_env_mgr_set_env_dof = function(l_26_0, l_26_1)
-  local env_param = l_26_0._environment_parameters
-  env_param.near_min = l_26_1.near_focus_distance_min
-  env_param.near_max = l_26_1.near_focus_distance_max
-  env_param.far_min = l_26_1.far_focus_distance_min
-  env_param.far_max = l_26_1.far_focus_distance_max
-  env_param.clamp = l_26_1.clamp
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:is_effect_playing( id )
+	return id and self._queued_effects[ id ] and true
 end
 
-DOFManager.clbk_environment_change = function(l_27_0)
-  local env_data = managers.environment:get_posteffect()
-  if env_data then
-    env_data = env_data._post_processors
-  end
-  if env_data then
-    env_data = env_data.hdr_post_processor
-  end
-  if env_data then
-    env_data = env_data._modifiers
-  end
-  if env_data then
-    env_data = env_data.dof
-  end
-  if env_data then
-    env_data = env_data._params
-  end
-  if env_data then
-    l_27_0._environment_parameters = {near_min = env_data.near_focus_distance_min, near_max = env_data.near_focus_distance_max, far_min = env_data.far_focus_distance_min, far_max = env_data.far_focus_distance_max, clamp = env_data.clamp}
-  end
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:from_env_mgr_set_env_dof( env_data )
+	local env_param = self._environment_parameters
+	env_param.near_min = env_data.near_focus_distance_min
+	env_param.near_max = env_data.near_focus_distance_max
+	env_param.far_min = env_data.far_focus_distance_min
+	env_param.far_max = env_data.far_focus_distance_max
+	env_param.clamp = env_data.clamp
 end
 
-DOFManager.set_effect_parameters = function(l_28_0, l_28_1, l_28_2, l_28_3)
-  if l_28_0._queued_effects[l_28_1] then
-    if l_28_2 then
-      for k,v in pairs(l_28_2) do
-        l_28_0._queued_effects[l_28_1].prog_data.target_values[k] = v
-      end
-    end
-    if l_28_3 then
-      l_28_0._queued_effects[l_28_1].prog_data.clamp = l_28_3
-    end
-    l_28_0._queued_effects[l_28_1].prog_data.peak_reached = nil
-    return true
-  end
+------------------------------------------------------------------------------------------------------------
+
+function DOFManager:clbk_environment_change()
+	local env_data = managers.environment:get_posteffect()
+	env_data = env_data and env_data._post_processors
+	env_data = env_data and env_data.hdr_post_processor
+	env_data = env_data and env_data._modifiers
+	env_data = env_data and env_data.dof
+	env_data = env_data and env_data._params
+	
+	if env_data then
+		self._environment_parameters = { near_min = env_data.near_focus_distance_min, near_max = env_data.near_focus_distance_max , far_min = env_data.far_focus_distance_min , far_max = env_data.far_focus_distance_max, clamp = env_data.clamp }
+	end
 end
 
+------------------------------------------------------------------------------------------------------------
 
+--	The return value is true if the effect with the specified id is still in the queued list. format params = { near_min = cm, near_max = cm, far_min = cm, far_max = cm }, clamp = 0->1
+function DOFManager:set_effect_parameters( id, params, clamp )
+	if self._queued_effects[ id ] then
+		
+		if params then
+			for k,v in pairs( params ) do
+				self._queued_effects[ id ].prog_data.target_values[ k ] = v
+			end
+		end
+		
+		if clamp then
+			self._queued_effects[ id ].prog_data.clamp = clamp
+		end
+		
+		self._queued_effects[ id ].prog_data.peak_reached = nil	--Notify the manager's update that this effect has been manually updated
+		
+		return true
+
+	end
+end
+
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------

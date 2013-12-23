@@ -1,308 +1,342 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\network\matchmaking\networkvoicechatpsn.luac 
+--[[-----------------------------------------------------------------------------------------------
 
-if not NetworkVoiceChatPSN then
-  NetworkVoiceChatPSN = class()
-end
-NetworkVoiceChatPSN.init = function(l_1_0)
-  l_1_0._started = false
-  l_1_0._room_id = nil
-  l_1_0._team = 1
-  l_1_0._restart_session = nil
-  l_1_0:_load_globals()
-  l_1_0._muted_players = {}
-end
+ Voice chat abstraction layer - Playstation Network implementation
 
-NetworkVoiceChatPSN.check_status_information = function(l_2_0)
-end
+ To do:
 
-NetworkVoiceChatPSN.open = function(l_3_0)
-end
+ open_channel_to(player_info, context):
+ 	player_info: table
+ 		the player info structure that comes from the player_joined callback
+ 	context: string
+ 		"group" - The player info comes from the group abstraction layer
+ 		"game" - The player info comes from the matchmaking abstraction layer
+	Open the voice chat channel on this end. I.e. it will start to listen to
+	what player_info.id is transmitting to me and transmit voice data from
+	me to player_info.id
 
-NetworkVoiceChatPSN.voice_type = function(l_4_0)
-  return "voice_psn"
-end
+ close_channel_to(player_info):
+ 	player_info: table
+ 		the player info structure that comes from the player_joined callback
+	Stop listening to or transmit to player_info.id
 
-NetworkVoiceChatPSN.pause = function(l_5_0)
-end
+ Implementation notes:
+	This implementation is heavily depending on the XboxLive matchmaking and group
+	abstraction layer. See open_channel_to()
 
-NetworkVoiceChatPSN.resume = function(l_6_0)
-end
+-----------------------------------------------------------------------------------------------]]--
+NetworkVoiceChatPSN = NetworkVoiceChatPSN or class()
 
-NetworkVoiceChatPSN.set_volume = function(l_7_0, l_7_1)
-  PSNVoice:set_volume(l_7_1)
-end
+function NetworkVoiceChatPSN:init()
+	self._started = false
+	
+	self._room_id = nil
+	self._team = 1
+	
+	self._restart_session = nil
 
-NetworkVoiceChatPSN.init_voice = function(l_8_0)
-  if l_8_0._started == false and not l_8_0._starting then
-    l_8_0._starting = true
-    PSNVoice:assign_callback(function(...)
-      self:_callback(...)
-       -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-      end)
-    PSNVoice:init(4, 4, 50, 8000)
-    l_8_0:set_volume(managers.user:get_setting("voice_volume"))
-  end
+	self:_load_globals()
+	
+	self._muted_players = {}
 end
 
-NetworkVoiceChatPSN.destroy_voice = function(l_9_0, l_9_1)
-  if l_9_0._started == true then
-    l_9_0._started = false
-    if l_9_0._room_id and not l_9_1 then
-      l_9_0:close_session()
-    end
-    PSNVoice:destroy()
-    l_9_0._closing = nil
-    l_9_0._room_id = nil
-    l_9_0._restart_session = nil
-    l_9_0._team = 1
-  end
+function NetworkVoiceChatPSN:check_status_information()
 end
 
-NetworkVoiceChatPSN.num_peers = function(l_10_0)
-  local l = PSNVoice:get_players_info()
-  if l then
-    local x = 0
-    for k,v in pairs(l) do
-      if v.joined == 1 then
-        x = x + 1
-      end
-    end
-    return #l <= x
-  end
-  return true
+function NetworkVoiceChatPSN:open()
 end
 
-NetworkVoiceChatPSN.open_session = function(l_11_0, l_11_1)
-  if l_11_0._room_id and l_11_0._room_id == l_11_1 then
-    return 
-  end
-  if l_11_0._restart_session and l_11_0._restart_session == l_11_1 then
-    return 
-  end
-  if l_11_0._closing or l_11_0._joining then
-    l_11_0._restart_session = l_11_1
-    return 
-  end
-  if l_11_0._started == false then
-    l_11_0._restart_session = l_11_1
-    l_11_0:init_voice()
-    return 
-  end
-  if l_11_0._room_id then
-    l_11_0._restart_session = l_11_1
-    l_11_0:close_session()
-    return 
-  end
-  l_11_0._room_id = l_11_1
-  l_11_0._joining = true
-  PSNVoice:start_session(l_11_1)
+function NetworkVoiceChatPSN:voice_type()
+	return "voice_psn"
 end
 
-NetworkVoiceChatPSN.close_session = function(l_12_0)
-  if l_12_0._joining then
-    l_12_0._close = true
-    return 
-  end
-  if l_12_0._room_id and not l_12_0._closing then
-    l_12_0._closing = true
-    if not PSNVoice:stop_session() then
-      l_12_0._closing = nil
-      l_12_0._room_id = nil
-      l_12_0._delay_frame = TimerManager:wall():time() + 1
-    elseif not l_12_0._closing then
-      l_12_0._restart_session = nil
-      l_12_0._delay_frame = nil
-    end
-  end
+function NetworkVoiceChatPSN:pause()
 end
 
-NetworkVoiceChatPSN.open_channel_to = function(l_13_0, l_13_1, l_13_2)
+function NetworkVoiceChatPSN:resume()
 end
 
-NetworkVoiceChatPSN.close_channel_to = function(l_14_0, l_14_1)
+function NetworkVoiceChatPSN:set_volume( volume )
+	PSNVoice:set_volume( volume )
 end
 
-NetworkVoiceChatPSN.lost_peer = function(l_15_0, l_15_1)
+function NetworkVoiceChatPSN:init_voice()
+	if( self._started == false and not self._starting ) then
+		self._starting = true
+		PSNVoice:assign_callback( function(...) self:_callback( ... ) end )
+		PSNVoice:init( 4, 4, 50, 8000 )
+		self:set_volume( managers.user:get_setting( "voice_volume" ) ) -- Should be read from settings file
+	end
+end
+function NetworkVoiceChatPSN:destroy_voice( disconnected )
+	if( self._started == true ) then
+		self._started = false
+		
+		if( self._room_id and not disconnected ) then
+			self:close_session()
+		end
+		
+		PSNVoice:destroy()
+		
+		self._closing = nil
+		self._room_id = nil
+		self._restart_session = nil
+		self._team = 1
+	end
 end
 
-NetworkVoiceChatPSN.close_all = function(l_16_0)
-  if l_16_0._room_id then
-    l_16_0:close_session()
-  end
-  l_16_0._room_id = nil
-  l_16_0._closing = nil
+function NetworkVoiceChatPSN:num_peers()
+	local l = PSNVoice:get_players_info()
+	if( l ) then
+		local x = 0
+		for k, v in pairs( l ) do
+			if( v.joined == 1 ) then
+				x = x + 1
+			end
+		end
+		return (x >= #l)
+	end
+	return true
 end
 
-NetworkVoiceChatPSN.set_team = function(l_17_0, l_17_1)
-  if l_17_0._room_id then
-    PSN:change_team(l_17_0._room_id, PSN:get_local_userid(), l_17_1)
-    PSNVoice:set_team_target(l_17_1)
-  end
-  l_17_0._team = l_17_1
+function NetworkVoiceChatPSN:open_session( roomid )
+	if( self._room_id and self._room_id == roomid ) then
+		return	--why join the room we are in
+	end
+	if( self._restart_session and self._restart_session == roomid ) then
+		return
+	end
+	
+	if( self._closing or self._joining ) then
+		self._restart_session = roomid
+		return
+	end
+
+	if( self._started == false ) then
+		self._restart_session = roomid
+		self:init_voice()
+		return
+	end
+	
+	if( self._room_id ) then
+		self._restart_session = roomid
+		self:close_session()
+		return
+	end
+
+	self._room_id = roomid
+	self._joining = true
+	PSNVoice:start_session( roomid )
 end
 
-NetworkVoiceChatPSN.clear_team = function(l_18_0)
-  if l_18_0._room_id and PSN:get_local_userid() then
-    PSN:change_team(l_18_0._room_id, PSN:get_local_userid(), 1)
-    PSNVoice:set_team_target(1)
-    l_18_0._team = 1
-  end
+function NetworkVoiceChatPSN:close_session()
+	if( self._joining ) then
+		self._close = true
+		return
+	end
+	
+	if( self._room_id and not self._closing ) then
+		self._closing = true
+		if( not PSNVoice:stop_session() ) then
+			self._closing = nil
+			self._room_id = nil
+			self._delay_frame = TimerManager:wall():time()+1.0
+		end
+	else
+		if( not self._closing ) then
+			self._restart_session = nil
+			self._delay_frame = nil
+		end
+	end
 end
 
-NetworkVoiceChatPSN.set_drop_in = function(l_19_0, l_19_1)
-  l_19_0._drop_in = l_19_1
+function NetworkVoiceChatPSN:open_channel_to(player_info, context)
 end
 
-NetworkVoiceChatPSN._load_globals = function(l_20_0)
-  if Global.psn and Global.psn.voice then
-    l_20_0._started = Global.psn.voice.started
-  end
-  if PSN:is_online() and Global.psn and Global.psn.voice then
-    PSNVoice:assign_callback(function(...)
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-   end)
-    l_20_0._room_id = Global.psn.voice.room
-    l_20_0._team = Global.psn.voice.team
-    if Global.psn.voice.drop_in then
-      l_20_0:open_session(Global.psn.voice.drop_in.room_id)
-    end
-    if Global.psn.voice.restart then
-      l_20_0._restart_session = restart
-      l_20_0._delay_frame = TimerManager:wall():time() + 2
-    else
-      PSNVoice:assign_callback(function(...)
-      self:_callback(...)
-       -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-      end)
-      if l_20_0._room_id then
-        l_20_0:set_team(l_20_0._team)
-      end
-    end
-    Global.psn.voice = nil
-  end
+function NetworkVoiceChatPSN:close_channel_to(player_info)
 end
 
-NetworkVoiceChatPSN._save_globals = function(l_21_0, l_21_1)
-  if l_21_1 == nil then
-    return 
-  end
-  if not Global.psn then
-    Global.psn = {}
-  end
-  local f = function(...)
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-   end
-  PSNVoice:assign_callback(f)
-  Global.psn.voice = {}
-  Global.psn.voice.started = l_21_0._started
-  Global.psn.voice.drop_in = l_21_0._drop_in
-  if type(l_21_1) == "boolean" then
-    if l_21_1 == true then
-      Global.psn.voice.room = l_21_0._room_id
-      Global.psn.voice.team = l_21_0._team
-    else
-      Global.psn.voice.team = 1
-    end
-  else
-    l_21_0:close_all()
-    Global.psn.voice.restart = l_21_1
-    Global.psn.voice.team = 1
-  end
+function NetworkVoiceChatPSN:lost_peer( peer )
 end
 
-NetworkVoiceChatPSN._callback = function(l_22_0, l_22_1)
-  if l_22_1 and PSN:get_local_userid() then
-    if l_22_1.load_succeeded ~= nil then
-      l_22_0._starting = nil
-      if l_22_1.load_succeeded then
-        l_22_0._started = true
-        l_22_0._delay_frame = TimerManager:wall():time() + 1
-      end
-      return 
-    end
-    if l_22_1.join_succeeded ~= nil then
-      l_22_0._joining = nil
-      if l_22_1.join_succeeded == false then
-        l_22_0._room_id = nil
-      else
-        l_22_0:set_team(l_22_0._team)
-      end
-      if l_22_0._restart_session then
-        l_22_0._delay_frame = TimerManager:wall():time() + 1
-      end
-      if l_22_0._close then
-        l_22_0._close = nil
-        l_22_0:close_session()
-      end
-    end
-    if l_22_1.leave_succeeded ~= nil then
-      l_22_0._closing = nil
-      l_22_0._room_id = nil
-      if l_22_0._restart_session then
-        l_22_0._delay_frame = TimerManager:wall():time() + 1
-      end
-    end
-    if l_22_1.unload_succeeded ~= nil then
-      local f = function(...)
-       -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-      end
-      PSNVoice:assign_callback(f)
-    end
-  end
+function NetworkVoiceChatPSN:close_all()
+	if( self._room_id ) then
+		self:close_session()
+	end
+	self._room_id = nil
+	self._closing = nil
 end
 
-NetworkVoiceChatPSN.update = function(l_23_0)
-  if l_23_0._delay_frame and l_23_0._delay_frame < TimerManager:wall():time() then
-    l_23_0._delay_frame = nil
-    if l_23_0._restart_session then
-      PSNVoice:assign_callback(function(...)
-      self:_callback(...)
-       -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
-      end)
-      local r = l_23_0._restart_session
-      l_23_0._restart_session = nil
-      l_23_0:open_session(r)
-    end
-  end
+function NetworkVoiceChatPSN:set_team( team )
+	if( self._room_id ) then
+		PSN:change_team( self._room_id, PSN:get_local_userid(), team )
+		PSNVoice:set_team_target( team )
+	end
+	self._team = team
 end
 
-NetworkVoiceChatPSN.psn_session_destroyed = function(l_24_0, l_24_1)
-  if l_24_0._room_id and l_24_0._room_id == l_24_1 then
-    l_24_0._room_id = nil
-    l_24_0._closing = nil
-  end
+-- Reset all peers to be part of the defualt team so everyone can speak to each other. For use at end of game.
+function NetworkVoiceChatPSN:clear_team( )
+	if( self._room_id and PSN:get_local_userid() ) then
+		PSN:change_team( self._room_id, PSN:get_local_userid(), 1 )
+		PSNVoice:set_team_target( 1 )
+		self._team = 1
+	end
 end
 
-NetworkVoiceChatPSN._get_peer_user_id = function(l_25_0, l_25_1)
-  if not l_25_0._room_id then
-    return 
-  end
-  local members = PSN:get_info_session(l_25_0._room_id).memberlist
-  local name = l_25_1:name()
-  for i,member in ipairs(members) do
-    if tostring(member.user_id) == name then
-      return member.user_id
-    end
-  end
+-- // --
+
+-- Table to set when we drop in to a level. Data should contain room_id.
+function NetworkVoiceChatPSN:set_drop_in( data )
+	self._drop_in = data
 end
 
-NetworkVoiceChatPSN.mute_player = function(l_26_0, l_26_1, l_26_2)
-  local id = l_26_0:_get_peer_user_id(l_26_1)
-  if id then
-    l_26_0._muted_players[l_26_1:name()] = l_26_2
-    PSNVoice:mute_player(l_26_2, id)
-  end
+function NetworkVoiceChatPSN:_load_globals()
+	if( Global.psn and Global.psn.voice ) then
+		self._started = Global.psn.voice.started
+	end
+	
+	if( PSN:is_online() and Global.psn and Global.psn.voice ) then
+		PSNVoice:assign_callback( function(...) end )
+		
+		self._room_id = Global.psn.voice.room
+		self._team = Global.psn.voice.team
+		
+		if Global.psn.voice.drop_in then
+			self:open_session( Global.psn.voice.drop_in.room_id )
+		end	
+		
+		if( Global.psn.voice.restart ) then
+			self._restart_session = restart
+			self._delay_frame = TimerManager:wall():time()+2
+		else
+			PSNVoice:assign_callback( function(...) self:_callback( ... ) end )
+			if( self._room_id ) then
+				self:set_team( self._team )
+			end
+		end
+		
+		Global.psn.voice = nil
+	end
+end
+function NetworkVoiceChatPSN:_save_globals( disable_voice )
+	if( disable_voice == nil ) then
+		return
+	end
+	
+	if( not Global.psn ) then
+		Global.psn = {}
+	end
+	
+	local f = function(...) end
+	PSNVoice:assign_callback( f )
+	
+	Global.psn.voice = {}
+	Global.psn.voice.started = self._started
+		
+	Global.psn.voice.drop_in = self._drop_in
+		
+	if( type( disable_voice ) == "boolean" ) then
+		if( disable_voice == true ) then
+			Global.psn.voice.room = self._room_id
+			Global.psn.voice.team = self._team
+		else
+			Global.psn.voice.team = 1
+		end
+	else
+		self:close_all()
+		Global.psn.voice.restart = disable_voice
+		Global.psn.voice.team = 1
+	end
 end
 
-NetworkVoiceChatPSN.is_muted = function(l_27_0, l_27_1)
-  return l_27_0._muted_players[l_27_1:name()] or false
+function NetworkVoiceChatPSN:_callback( info )
+	if( info and PSN:get_local_userid() ) then
+		if( info.load_succeeded ~= nil ) then
+			self._starting = nil
+			if( info.load_succeeded  ) then
+				self._started = true
+				self._delay_frame = TimerManager:wall():time()+1.0
+			end
+			return
+		end
+		
+		if( info.join_succeeded ~= nil ) then
+			self._joining = nil
+			if( info.join_succeeded == false ) then
+				self._room_id = nil
+			else
+				self:set_team( self._team )
+			end
+			if( self._restart_session ) then
+				self._delay_frame = TimerManager:wall():time()+1.0
+			end
+			if( self._close ) then
+				self._close = nil
+				self:close_session()
+			end
+		end
+		
+		if( info.leave_succeeded ~= nil ) then
+			self._closing = nil
+			self._room_id = nil
+			
+			if( self._restart_session ) then
+				self._delay_frame = TimerManager:wall():time()+1.0
+			end
+		end
+		
+		if( info.unload_succeeded ~= nil ) then
+			local f = function(...) end
+			PSNVoice:assign_callback( f )
+		end
+	end
+end
+
+function NetworkVoiceChatPSN:update()
+	if( self._delay_frame and TimerManager:wall():time() > self._delay_frame ) then
+		self._delay_frame = nil
+		if( self._restart_session ) then
+			PSNVoice:assign_callback( function(...) self:_callback( ... ) end )
+			local r = self._restart_session
+			self._restart_session = nil
+			self:open_session( r )
+		end
+	end
+end
+
+function NetworkVoiceChatPSN:psn_session_destroyed( roomid )
+	if( self._room_id and self._room_id == roomid ) then
+		self._room_id = nil
+		self._closing = nil
+	end
 end
 
 
+function NetworkVoiceChatPSN:_get_peer_user_id( peer )
+	if not self._room_id then
+		return
+	end
+
+	local members = PSN:get_info_session( self._room_id ).memberlist
+	local name = peer:name()
+	
+	for i, member in ipairs( members ) do
+		if tostring( member.user_id ) == name then
+			return member.user_id
+		end
+	end
+end
+
+function NetworkVoiceChatPSN:mute_player( peer, mute )
+	local id = self:_get_peer_user_id( peer )
+	
+	if id then
+		self._muted_players[ peer:name() ] = mute
+		PSNVoice:mute_player( mute, id )
+	end 
+end
+
+
+function NetworkVoiceChatPSN:is_muted( peer )
+	return self._muted_players[ peer:name() ] or false
+end

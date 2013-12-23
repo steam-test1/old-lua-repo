@@ -1,465 +1,569 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\props\carrydata.luac 
+CarryData = CarryData or class()
 
-if not CarryData then
-  CarryData = class()
-end
-CarryData.init = function(l_1_0, l_1_1)
-  l_1_0._unit = l_1_1
-  l_1_0._dye_initiated = false
-  l_1_0._has_dye_pack = false
-  l_1_0._dye_value_multiplier = 100
-  if l_1_0._carry_id then
-    l_1_0._value = managers.money:get_bag_value(l_1_0._carry_id)
-  else
-    l_1_0._value = tweak_data:get_value("money_manager", "bag_values", "default")
-  end
+function CarryData:init( unit )
+	self._unit = unit
+	self._dye_initiated = false
+	self._has_dye_pack = false
+	self._dye_value_multiplier = 100
+	-- self._value = tweak_data.money_manager[ self.tweak_value or "bag_value" ] -- Default value
+	if self._carry_id then
+		self._value = managers.money:get_bag_value( self._carry_id )
+	else
+
+		self._value = tweak_data:get_value( "money_manager", "bag_values", "default" ) -- Default value
+	end
 end
 
-CarryData.set_mission_element = function(l_2_0, l_2_1)
-  l_2_0._mission_element = l_2_1
+function CarryData:set_mission_element( mission_element )
+	self._mission_element = mission_element
 end
 
-CarryData.trigger_load = function(l_3_0, l_3_1)
-  if not l_3_0._mission_element then
-    return 
-  end
-  l_3_0._mission_element:trigger("load", l_3_1)
+function CarryData:trigger_load( instigator )
+	if not self._mission_element then
+		return
+	end
+	
+	self._mission_element:trigger( "load", instigator )
 end
 
-CarryData.update = function(l_4_0, l_4_1, l_4_2, l_4_3)
-  if not Network:is_server() then
-    return 
-  end
-  if l_4_0._dye_risk and l_4_0._dye_risk.next_t < l_4_2 then
-    l_4_0:_check_dye_explode()
-  end
+function CarryData:update( unit, t, dt )
+	if not Network:is_server() then
+		return
+	end
+	
+	if self._dye_risk then
+		if self._dye_risk.next_t < t then
+			self:_check_dye_explode()
+		end
+	end
 end
 
-CarryData._check_dye_explode = function(l_5_0)
-  local chance = math.rand(1)
-  if chance < 0.25 then
-    l_5_0._dye_risk = nil
-    l_5_0:_dye_exploded()
-    managers.network:session():send_to_peers_synched("sync_bag_dye_pack_exploded", l_5_0._unit)
-    return 
-  end
-  l_5_0._dye_risk.next_t = Application:time() + 2 + math.random(3)
+function CarryData:_check_dye_explode()
+	local chance = math.rand( 1 )
+	-- print( "CarryData:check", chance )
+	if chance < 0.25 then
+		self._dye_risk = nil
+		self:_dye_exploded()
+		managers.network:session():send_to_peers_synched( "sync_bag_dye_pack_exploded", self._unit )
+				
+		-- managers.network:session():send_to_peers_synched( "sync_carry_data", self._unit, self._carry_id, self._value, self._dye_initiated, self._has_dye_pack, self._dye_value_multiplier, Vector3(), Vector3(), 0 )
+		
+		return
+	end
+	
+	self._dye_risk.next_t = Application:time() + 2 + math.random( 3 )
 end
 
-CarryData.sync_dye_exploded = function(l_6_0)
-  l_6_0:_dye_exploded()
+function CarryData:sync_dye_exploded()
+	self:_dye_exploded()
 end
 
-CarryData._dye_exploded = function(l_7_0)
-  print("CarryData DYE BOOM")
-  l_7_0._value = l_7_0._value * (1 - l_7_0._dye_value_multiplier / 100)
-  l_7_0._value = math.round(l_7_0._value)
-  l_7_0._has_dye_pack = false
-  World:effect_manager():spawn({effect = Idstring("effects/payday2/particles/dye_pack/dye_pack_smoke"), parent = l_7_0._unit:orientation_object()})
+function CarryData:_dye_exploded()
+	print( "CarryData DYE BOOM" )
+	self._value = self._value * (1-(self._dye_value_multiplier/100))
+	self._value = math.round( self._value )
+	self._has_dye_pack = false
+	-- "effects/payday2/particles/dye_pack/dye_pack_smoke"
+		
+	World:effect_manager():spawn( { effect = Idstring( "effects/payday2/particles/dye_pack/dye_pack_smoke" ), parent = self._unit:orientation_object() } )	
 end
 
-CarryData.clbk_out_of_world = function(l_8_0)
-  if l_8_0._bodies_to_revert then
-    for i_body,body in ipairs(l_8_0._bodies_to_revert) do
-      body:set_dynamic()
-    end
-    l_8_0._bodies_to_revert = nil
-    l_8_0._register_out_of_world_dynamic_clbk_id = nil
-    return 
-  else
-    if l_8_0._unit:position().z < PlayerMovement.OUT_OF_WORLD_Z then
-      l_8_0._bodies_to_revert = {}
-      local bodies = l_8_0._unit:num_bodies()
-      for i_body = 0, bodies - 1 do
-        local body = l_8_0._unit:body(i_body)
-        if body:enabled() and body:dynamic() then
-          table.insert(l_8_0._bodies_to_revert, body)
-          body:set_keyframed()
-        end
-      end
-      local tracker = managers.navigation:create_nav_tracker(l_8_0._unit:position(), false)
-      l_8_0._unit:set_position(tracker:field_position())
-      managers.navigation:destroy_nav_tracker(tracker)
-      l_8_0._register_out_of_world_dynamic_clbk_id = "BagOutOfWorldDynamic" .. tostring(l_8_0._unit:key())
-      managers.enemy:add_delayed_clbk(l_8_0._register_out_of_world_dynamic_clbk_id, callback(l_8_0, l_8_0, "clbk_out_of_world"), TimerManager:game():time() + 0.20000000298023)
-      l_8_0._register_out_of_world_clbk_id = nil
-      return 
-    end
-  end
-  managers.enemy:add_delayed_clbk(l_8_0._register_out_of_world_clbk_id, callback(l_8_0, l_8_0, "clbk_out_of_world"), TimerManager:game():time() + 2)
+function CarryData:clbk_out_of_world()
+	if self._bodies_to_revert then
+		for i_body, body in ipairs( self._bodies_to_revert ) do
+			body:set_dynamic()
+		end
+
+		self._bodies_to_revert = nil
+		self._register_out_of_world_dynamic_clbk_id = nil
+
+		return
+	elseif self._unit:position().z < PlayerMovement.OUT_OF_WORLD_Z then
+		self._bodies_to_revert = { }
+		local bodies = self._unit:num_bodies()
+		for i_body = 0, bodies-1, 1 do
+			local body = self._unit:body( i_body )
+			if body:enabled() and body:dynamic() then
+				table.insert( self._bodies_to_revert, body )
+				body:set_keyframed()
+			end
+		end
+
+		local tracker = managers.navigation:create_nav_tracker( self._unit:position(), false )
+		self._unit:set_position( tracker:field_position() )
+		managers.navigation:destroy_nav_tracker( tracker )
+
+		self._register_out_of_world_dynamic_clbk_id = "BagOutOfWorldDynamic" .. tostring( self._unit:key() )
+		managers.enemy:add_delayed_clbk( self._register_out_of_world_dynamic_clbk_id, callback( self, self, "clbk_out_of_world" ), TimerManager:game():time() + 0.2 )
+
+		self._register_out_of_world_clbk_id = nil
+
+		return
+	end
+
+	managers.enemy:add_delayed_clbk( self._register_out_of_world_clbk_id, callback( self, self, "clbk_out_of_world" ), TimerManager:game():time() + 2 )
 end
 
-CarryData.carry_id = function(l_9_0)
-  return l_9_0._carry_id
+function CarryData:carry_id()
+	return self._carry_id
 end
 
-CarryData.set_carry_id = function(l_10_0, l_10_1)
-  l_10_0._carry_id = l_10_1
-  l_10_0._register_steal_SO_clbk_id = "CarryDataregiserSO" .. tostring(l_10_0._unit:key())
-  managers.enemy:add_delayed_clbk(l_10_0._register_steal_SO_clbk_id, callback(l_10_0, l_10_0, "clbk_register_steal_SO"), 0)
+function CarryData:set_carry_id( carry_id )
+	self._carry_id = carry_id
+	
+	self._register_steal_SO_clbk_id = "CarryDataregiserSO"..tostring( self._unit:key() )
+	managers.enemy:add_delayed_clbk( self._register_steal_SO_clbk_id, callback( self, self, "clbk_register_steal_SO" ), 0 )
 end
 
-CarryData.clbk_register_steal_SO = function(l_11_0, l_11_1)
-  l_11_0._register_steal_SO_clbk_id = nil
-  l_11_0:_chk_register_steal_SO()
+function CarryData:clbk_register_steal_SO( carry_id )
+	self._register_steal_SO_clbk_id = nil
+	self:_chk_register_steal_SO()
 end
 
-CarryData.set_dye_initiated = function(l_12_0, l_12_1)
-  l_12_0._dye_initiated = l_12_1
+--[[function CarryData:init_dye_pack()
+	if self._dye_initiated then
+		return
+	end
+	
+	self._dye_initiated = true
+end]]
+
+function CarryData:set_dye_initiated( initiated )
+	self._dye_initiated = initiated 
 end
 
-CarryData.dye_initiated = function(l_13_0)
-  return l_13_0._dye_initiated
+function CarryData:dye_initiated()
+	return self._dye_initiated 
 end
 
-CarryData.has_dye_pack = function(l_14_0)
-  return l_14_0._has_dye_pack
+--[[function CarryData:set_dye_pack_data( has_dye_pack, dye_value_multiplier )
+	self._has_dye_pack = has_dye_pack
+	self._dye_value_multiplier = dye_value_multiplier
+end]]
+
+function CarryData:has_dye_pack()
+	return self._has_dye_pack 
 end
 
-CarryData.dye_value_multiplier = function(l_15_0)
-  return l_15_0._dye_value_multiplier
+function CarryData:dye_value_multiplier()
+	return self._dye_value_multiplier 
 end
 
-CarryData.set_dye_pack_data = function(l_16_0, l_16_1, l_16_2, l_16_3)
-  l_16_0._dye_initiated = l_16_1
-  l_16_0._has_dye_pack = l_16_2
-  l_16_0._dye_value_multiplier = l_16_3
-  if not Network:is_server() then
-    return 
-  end
-  if l_16_0._has_dye_pack then
-    l_16_0._dye_risk = {}
-    l_16_0._dye_risk.next_t = Application:time() + 2 + math.random(3)
-  end
+function CarryData:set_dye_pack_data( dye_initiated, has_dye_pack, dye_value_multiplier )
+	self._dye_initiated = dye_initiated
+	self._has_dye_pack = has_dye_pack
+	self._dye_value_multiplier = dye_value_multiplier
+	
+	if not Network:is_server() then
+		return
+	end
+	
+	if self._has_dye_pack then
+		self._dye_risk = {}
+		self._dye_risk.next_t = Application:time() + 2 + math.random( 3 )
+	end
 end
 
-CarryData.dye_pack_data = function(l_17_0)
-  return l_17_0._dye_initiated, l_17_0._has_dye_pack, l_17_0._dye_value_multiplier
+function CarryData:dye_pack_data()
+	return self._dye_initiated, self._has_dye_pack, self._dye_value_multiplier
 end
 
-CarryData._disable_dye_pack = function(l_18_0)
-  l_18_0._dye_risk = false
+function CarryData:_disable_dye_pack()
+	self._dye_risk = false
 end
 
-CarryData.value = function(l_19_0)
-  return l_19_0._value
+--[[function CarryData:set_dye_pack( dye_pack )
+	self._dye_pack = dye_pack
 end
 
-CarryData.set_value = function(l_20_0, l_20_1)
-  l_20_0._value = l_20_1
+function CarryData:set_dye_value_multiplier( value_multiplier )
+	self._dye_value_multiplier = value_multiplier
+end]]
+
+function CarryData:value()
+	return self._value
 end
 
-CarryData.sequence_clbk_secured = function(l_21_0)
-  l_21_0:_disable_dye_pack()
+function CarryData:set_value( value )
+	self._value = value
 end
 
-CarryData._unregister_steal_SO = function(l_22_0)
-  if not l_22_0._steal_SO_data then
-    return 
-  end
-  if l_22_0._steal_SO_data.SO_registered then
-    managers.groupai:state():remove_special_objective(l_22_0._steal_SO_data.SO_id)
-    managers.groupai:state():unregister_loot(l_22_0._unit:key())
-  else
-    if l_22_0._steal_SO_data.thief then
-      local thief = l_22_0._steal_SO_data.thief
-      l_22_0._steal_SO_data.thief = nil
-      if l_22_0._steal_SO_data.picked_up then
-        l_22_0:unlink()
-      end
-      if alive(thief) then
-        thief:brain():set_objective(nil)
-      end
-    end
-  end
-  l_22_0._steal_SO_data = nil
+-- callback from sequence manager. the value has been awarded to the player already
+function CarryData:sequence_clbk_secured()
+	self:_disable_dye_pack()
 end
 
-CarryData._chk_register_steal_SO = function(l_23_0)
-  if not Network:is_server() or not managers.navigation:is_data_ready() then
-    return 
-  end
-  local tweak_info = tweak_data.carry[l_23_0._carry_id]
-  local AI_carry = tweak_info.AI_carry
-  if not AI_carry then
-    return 
-  end
-  if l_23_0._steal_SO_data then
-    return 
-  end
-  if not l_23_0._unit:body("hinge_body_1") then
-    local body = l_23_0._unit:body(0)
-  end
-  if not l_23_0._has_body_activation_clbk then
-    l_23_0._has_body_activation_clbk = {body:key() = true}
-    l_23_0._unit:add_body_activation_callback(callback(l_23_0, l_23_0, "clbk_body_active_state"))
-    body:set_activate_tag(Idstring("bag_moving"))
-    body:set_deactivate_tag(Idstring("bag_still"))
-  end
-  local is_body_active = body:active()
-  if is_body_active then
-    return 
-  end
-  local SO_category = AI_carry.SO_category
-  local SO_filter = managers.navigation:convert_SO_AI_group_to_access(SO_category)
-  local tracker_pickup = managers.navigation:create_nav_tracker(l_23_0._unit:position(), false)
-  local pickup_nav_seg = tracker_pickup:nav_segment()
-  local pickup_pos = tracker_pickup:field_position()
-  local pickup_area = managers.groupai:state():get_area_from_nav_seg_id(pickup_nav_seg)
-  managers.navigation:destroy_nav_tracker(tracker_pickup)
-  if pickup_area.enemy_loot_drop_points then
-    return 
-  end
-  local drop_pos, drop_nav_seg, drop_area = nil, nil, nil
-  local drop_point = managers.groupai:state():get_safe_enemy_loot_drop_point(pickup_nav_seg)
-  if drop_point then
-    drop_pos = mvector3.copy(drop_point.pos)
-    drop_nav_seg = drop_point.nav_seg
-    drop_area = drop_point.area
-  elseif not l_23_0._register_steal_SO_clbk_id then
-    l_23_0._register_steal_SO_clbk_id = "CarryDataregiserSO" .. tostring(l_23_0._unit:key())
-    managers.enemy:add_delayed_clbk(l_23_0._register_steal_SO_clbk_id, callback(l_23_0, l_23_0, "clbk_register_steal_SO"), TimerManager:game():time() + 10)
-    return 
-  end
-  {type = "act", pose = "crouch", haste = "walk", nav_seg = drop_nav_seg, pos = drop_pos, area = drop_area, interrupt_dis = 700, interrupt_health = 0.89999997615814}.fail_clbk = callback(l_23_0, l_23_0, "on_secure_SO_failed")
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {type = "act", pose = "crouch", haste = "walk", nav_seg = drop_nav_seg, pos = drop_pos, area = drop_area, interrupt_dis = 700, interrupt_health = 0.89999997615814}.complete_clbk = callback(l_23_0, l_23_0, "on_secure_SO_completed")
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {type = "act", pose = "crouch", haste = "walk", nav_seg = drop_nav_seg, pos = drop_pos, area = drop_area, interrupt_dis = 700, interrupt_health = 0.89999997615814}.action = {type = "act", variant = "untie", body_part = 1, align_sync = true}
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {type = "act", pose = "crouch", haste = "walk", nav_seg = drop_nav_seg, pos = drop_pos, area = drop_area, interrupt_dis = 700, interrupt_health = 0.89999997615814}.action_duration = 2
-   -- DECOMPILER ERROR: Confused at declaration of local variable
-
-  {type = "act", haste = "run", pose = "crouch", destroy_clbk_key = false, nav_seg = pickup_nav_seg, area = pickup_area, pos = pickup_pos, interrupt_dis = 700, interrupt_health = 0.89999997615814, fail_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_failed"), complete_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_completed"), action = {type = "act", variant = "untie", body_part = 1, align_sync = true}}.action_duration = math.lerp(1, 2.5, math.random())
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {type = "act", haste = "run", pose = "crouch", destroy_clbk_key = false, nav_seg = pickup_nav_seg, area = pickup_area, pos = pickup_pos, interrupt_dis = 700, interrupt_health = 0.89999997615814, fail_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_failed"), complete_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_completed"), action = {type = "act", variant = "untie", body_part = 1, align_sync = true}}.followup_objective = {type = "act", pose = "crouch", haste = "walk", nav_seg = drop_nav_seg, pos = drop_pos, area = drop_area, interrupt_dis = 700, interrupt_health = 0.89999997615814}
-   -- DECOMPILER ERROR: Confused at declaration of local variable
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {objective = {type = "act", haste = "run", pose = "crouch", destroy_clbk_key = false, nav_seg = pickup_nav_seg, area = pickup_area, pos = pickup_pos, interrupt_dis = 700, interrupt_health = 0.89999997615814, fail_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_failed"), complete_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_completed"), action = {type = "act", variant = "untie", body_part = 1, align_sync = true}}, base_chance = 1}.chance_inc = 0
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {objective = {type = "act", haste = "run", pose = "crouch", destroy_clbk_key = false, nav_seg = pickup_nav_seg, area = pickup_area, pos = pickup_pos, interrupt_dis = 700, interrupt_health = 0.89999997615814, fail_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_failed"), complete_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_completed"), action = {type = "act", variant = "untie", body_part = 1, align_sync = true}}, base_chance = 1}.interval = 0
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {objective = {type = "act", haste = "run", pose = "crouch", destroy_clbk_key = false, nav_seg = pickup_nav_seg, area = pickup_area, pos = pickup_pos, interrupt_dis = 700, interrupt_health = 0.89999997615814, fail_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_failed"), complete_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_completed"), action = {type = "act", variant = "untie", body_part = 1, align_sync = true}}, base_chance = 1}.search_pos = ({type = "act", haste = "run", pose = "crouch", destroy_clbk_key = false, nav_seg = pickup_nav_seg, area = pickup_area, pos = pickup_pos, interrupt_dis = 700, interrupt_health = 0.89999997615814, fail_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_failed"), complete_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_completed"), action = {type = "act", variant = "untie", body_part = 1, align_sync = true}}).pos
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {objective = {type = "act", haste = "run", pose = "crouch", destroy_clbk_key = false, nav_seg = pickup_nav_seg, area = pickup_area, pos = pickup_pos, interrupt_dis = 700, interrupt_health = 0.89999997615814, fail_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_failed"), complete_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_completed"), action = {type = "act", variant = "untie", body_part = 1, align_sync = true}}, base_chance = 1}.verification_clbk = callback(l_23_0, l_23_0, "clbk_pickup_SO_verification")
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {objective = {type = "act", haste = "run", pose = "crouch", destroy_clbk_key = false, nav_seg = pickup_nav_seg, area = pickup_area, pos = pickup_pos, interrupt_dis = 700, interrupt_health = 0.89999997615814, fail_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_failed"), complete_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_completed"), action = {type = "act", variant = "untie", body_part = 1, align_sync = true}}, base_chance = 1}.usage_amount = 1
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {objective = {type = "act", haste = "run", pose = "crouch", destroy_clbk_key = false, nav_seg = pickup_nav_seg, area = pickup_area, pos = pickup_pos, interrupt_dis = 700, interrupt_health = 0.89999997615814, fail_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_failed"), complete_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_completed"), action = {type = "act", variant = "untie", body_part = 1, align_sync = true}}, base_chance = 1}.AI_group = AI_carry.SO_category
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {objective = {type = "act", haste = "run", pose = "crouch", destroy_clbk_key = false, nav_seg = pickup_nav_seg, area = pickup_area, pos = pickup_pos, interrupt_dis = 700, interrupt_health = 0.89999997615814, fail_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_failed"), complete_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_completed"), action = {type = "act", variant = "untie", body_part = 1, align_sync = true}}, base_chance = 1}.admin_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_administered")
-   -- DECOMPILER ERROR: Confused at declaration of local variable
-
-  do
-     -- DECOMPILER ERROR: Confused at declaration of local variable
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    l_23_0._steal_SO_data = {SO_id = "carrysteal" .. tostring(l_23_0._unit:key()), SO_registered = true, pickup_area = pickup_area, picked_up = false, pickup_objective = {type = "act", haste = "run", pose = "crouch", destroy_clbk_key = false, nav_seg = pickup_nav_seg, area = pickup_area, pos = pickup_pos, interrupt_dis = 700, interrupt_health = 0.89999997615814, fail_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_failed"), complete_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_completed"), action = {type = "act", variant = "untie", body_part = 1, align_sync = true}}}
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    managers.groupai:state():add_special_objective("carrysteal" .. tostring(l_23_0._unit:key()), {objective = {type = "act", haste = "run", pose = "crouch", destroy_clbk_key = false, nav_seg = pickup_nav_seg, area = pickup_area, pos = pickup_pos, interrupt_dis = 700, interrupt_health = 0.89999997615814, fail_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_failed"), complete_clbk = callback(l_23_0, l_23_0, "on_pickup_SO_completed"), action = {type = "act", variant = "untie", body_part = 1, align_sync = true}}, base_chance = 1})
-    managers.groupai:state():register_loot(l_23_0._unit, pickup_area)
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function CarryData:_unregister_steal_SO()
+	if not self._steal_SO_data then
+		return
+	end
+	
+	if self._steal_SO_data.SO_registered then
+		managers.groupai:state():remove_special_objective( self._steal_SO_data.SO_id )
+		managers.groupai:state():unregister_loot( self._unit:key() )
+	elseif self._steal_SO_data.thief then
+		local thief = self._steal_SO_data.thief
+		self._steal_SO_data.thief = nil
+		
+		if self._steal_SO_data.picked_up then
+			self:unlink()
+		end
+		if alive( thief ) then
+			thief:brain():set_objective( nil ) -- this will trigger the fail callback of the objective. thats what the above copy is for
+		end
+	end
+	
+	self._steal_SO_data = nil
 end
 
-CarryData.clbk_pickup_SO_verification = function(l_24_0, l_24_1)
-  if not l_24_0._steal_SO_data or not l_24_0._steal_SO_data.SO_id then
-    debug_pause_unit(l_24_0._unit, "[CarryData:clbk_pickup_SO_verification] SO is not registered", l_24_0._unit, l_24_1, inspect(l_24_0._steal_SO_data))
-    return 
-  end
-  if l_24_1:movement():cool() then
-    return 
-  end
-  local nav_seg = l_24_1:movement():nav_tracker():nav_segment()
-  if not l_24_0._steal_SO_data.pickup_area.nav_segs[nav_seg] then
-    return 
-  end
-  return true
+function CarryData:_chk_register_steal_SO()
+	--print( "[CarryData:_chk_register_steal_SO]" )
+	if not ( Network:is_server() and managers.navigation:is_data_ready() ) then
+		--print( "not server" )
+		return
+	end
+	
+	local tweak_info = tweak_data.carry[ self._carry_id ]
+	local AI_carry = tweak_info.AI_carry
+	
+	if not AI_carry then
+		--print( "no AI_carry" )
+		return
+	end
+	
+	if self._steal_SO_data then
+		--print( "already has SO" )
+		return
+	end
+	
+	local body = self._unit:body( "hinge_body_1" ) or self._unit:body(0)
+	
+	if not self._has_body_activation_clbk then
+		--print( "add_body_activation_callback" )
+		self._has_body_activation_clbk = { [body:key()] = true }
+		self._unit:add_body_activation_callback( callback( self, self, "clbk_body_active_state" ) )
+		body:set_activate_tag( Idstring( "bag_moving") )
+		body:set_deactivate_tag( Idstring( "bag_still") )
+	end
+	
+	local is_body_active = body:active()
+	if is_body_active then
+		--print( "body is active" )
+		return
+	end
+	
+	local SO_category = AI_carry.SO_category
+	local SO_filter = managers.navigation:convert_SO_AI_group_to_access( SO_category )
+	
+	local tracker_pickup = managers.navigation:create_nav_tracker( self._unit:position(), false )
+	local pickup_nav_seg = tracker_pickup:nav_segment()
+	local pickup_pos = tracker_pickup:field_position()
+	local pickup_area = managers.groupai:state():get_area_from_nav_seg_id( pickup_nav_seg )
+	managers.navigation:destroy_nav_tracker( tracker_pickup )
+	
+	if pickup_area.enemy_loot_drop_points then
+		return -- no pickup needed. we are already safe
+	end
+	
+	local drop_pos, drop_nav_seg, drop_area
+	local drop_point = managers.groupai:state():get_safe_enemy_loot_drop_point( pickup_nav_seg )
+	if drop_point then
+		drop_pos = mvector3.copy( drop_point.pos )
+		drop_nav_seg = drop_point.nav_seg
+		drop_area = drop_point.area
+	elseif not self._register_steal_SO_clbk_id then
+		self._register_steal_SO_clbk_id = "CarryDataregiserSO"..tostring( self._unit:key() )
+		managers.enemy:add_delayed_clbk( self._register_steal_SO_clbk_id, callback( self, self, "clbk_register_steal_SO" ), TimerManager:game():time() + 10 )
+		return
+	end
+	
+	local drop_objective = {
+		type = "act",
+		pose = "crouch",
+		haste = "walk",
+		nav_seg = drop_nav_seg,
+		pos = drop_pos,
+		area = drop_area,
+		interrupt_dis = 700,
+		interrupt_health = 0.9,
+		fail_clbk = callback( self, self, "on_secure_SO_failed" ),
+		complete_clbk = callback( self, self, "on_secure_SO_completed" ),
+		--action_start_clbk = callback( self, self, "on_secure_SO_started" ),
+		action = {
+			type = "act",
+			variant = "untie",
+			body_part = 1,
+			align_sync = true
+		},
+		action_duration = 2,
+	}
+	
+	local pickup_objective = {
+		type = "act",
+		haste = "run",
+		pose = "crouch",
+		destroy_clbk_key = false,	-- this gets filled later on
+		nav_seg = pickup_nav_seg,
+		area = pickup_area,
+		pos = pickup_pos,
+		interrupt_dis = 700,
+		interrupt_health = 0.9,
+		fail_clbk = callback( self, self, "on_pickup_SO_failed" ),
+		complete_clbk = callback( self, self, "on_pickup_SO_completed" ),
+		--action_start_clbk = callback( self, self, "on_pickup_SO_started" ),
+		action = {
+			type = "act",
+			variant = "untie",
+			body_part = 1,
+			align_sync = true
+		},
+		action_duration = math.lerp( 1, 2.5, math.random() ),
+		followup_objective = drop_objective
+	}
+	
+	local so_descriptor = { 
+		objective = pickup_objective,
+		base_chance = 1,
+		chance_inc = 0,
+		interval = 0,
+		search_pos = pickup_objective.pos,
+		verification_clbk = callback( self, self, "clbk_pickup_SO_verification" ),
+		usage_amount = 1,
+		AI_group = AI_carry.SO_category,
+		admin_clbk = callback( self, self, "on_pickup_SO_administered" )
+	}
+	
+	local so_id = "carrysteal"..tostring( self._unit:key() )
+	self._steal_SO_data = {
+		SO_id = so_id,
+		SO_registered = true,
+		pickup_area = pickup_area,
+		picked_up = false,
+		pickup_objective = pickup_objective
+	}
+	managers.groupai:state():add_special_objective( so_id, so_descriptor )
+	
+	managers.groupai:state():register_loot( self._unit, pickup_area )
 end
 
-CarryData.on_pickup_SO_administered = function(l_25_0, l_25_1)
-  if l_25_0._steal_SO_data.thief then
-    debug_pause("[CarryData:on_pickup_SO_administered] Already had a thief!!!!", l_25_1, l_25_0._steal_SO_data.thief)
-  end
-  l_25_0._steal_SO_data.thief = l_25_1
-  l_25_0._steal_SO_data.SO_registered = false
-  managers.groupai:state():unregister_loot(l_25_0._unit:key())
+function CarryData:clbk_pickup_SO_verification( candidate_unit )
+	--print( "[CarryData:clbk_pickup_SO_verification]", candidate_unit, candidate_unit:movement():cool() )
+	if not ( self._steal_SO_data and self._steal_SO_data.SO_id ) then
+		debug_pause_unit( self._unit, "[CarryData:clbk_pickup_SO_verification] SO is not registered", self._unit, candidate_unit, inspect( self._steal_SO_data ) )
+		return
+	end
+	
+	if candidate_unit:movement():cool() then
+		return
+	end
+	
+	local nav_seg = candidate_unit:movement():nav_tracker():nav_segment()
+	if not self._steal_SO_data.pickup_area.nav_segs[ nav_seg ] then
+		return
+	end
+	
+	return true
 end
 
-CarryData.on_pickup_SO_completed = function(l_26_0, l_26_1)
-  if l_26_1 ~= l_26_0._steal_SO_data.thief then
-    debug_pause_unit(l_26_1, "[CarryData:on_pickup_SO_completed] idiot thinks he is stealing", l_26_1)
-    return 
-  end
-  l_26_0._steal_SO_data.picked_up = true
-  l_26_0:link_to(l_26_1)
+function CarryData:on_pickup_SO_administered( thief )
+	--print( "[CarryData:on_pickup_SO_administered]", thief, self._steal_SO_data.thief )
+	if self._steal_SO_data.thief then
+		debug_pause( "[CarryData:on_pickup_SO_administered] Already had a thief!!!!", thief, self._steal_SO_data.thief )
+	end
+	self._steal_SO_data.thief = thief
+	self._steal_SO_data.SO_registered = false
+	
+	managers.groupai:state():unregister_loot( self._unit:key() )
+end
+--[[
+function CarryData:on_pickup_SO_started( thief )
+	if thief ~= self._steal_SO_data.thief then
+		debug_pause_unit( thief, "[CarryData:on_pickup_SO_started] idiot thinks he is stealing", thief )
+		return
+	end
+end
+]]
+function CarryData:on_pickup_SO_completed( thief )
+	--print( "[CarryData:on_pickup_SO_completed]", thief, self._steal_SO_data.thief )
+	if thief ~= self._steal_SO_data.thief then
+		debug_pause_unit( thief, "[CarryData:on_pickup_SO_completed] idiot thinks he is stealing", thief )
+		return
+	end
+	
+	self._steal_SO_data.picked_up = true
+	
+	self:link_to( thief )
 end
 
-CarryData.on_pickup_SO_failed = function(l_27_0, l_27_1)
-  if not l_27_0._steal_SO_data.thief then
-    return 
-  end
-  if l_27_1 ~= l_27_0._steal_SO_data.thief then
-    debug_pause_unit(l_27_1, "[CarryData:on_pickup_SO_failed] idiot thinks he is stealing", l_27_1)
-    return 
-  end
-  l_27_0._steal_SO_data = nil
-  l_27_0:_chk_register_steal_SO()
+
+function CarryData:on_pickup_SO_failed( thief )
+	--print( "[CarryData:on_pickup_SO_failed]", thief, self._steal_SO_data.thief )
+	if not self._steal_SO_data.thief then
+		return
+	end
+	
+	if thief ~= self._steal_SO_data.thief then
+		debug_pause_unit( thief, "[CarryData:on_pickup_SO_failed] idiot thinks he is stealing", thief )
+		return
+	end
+	
+	self._steal_SO_data = nil
+	self:_chk_register_steal_SO()
 end
 
-CarryData.on_secure_SO_completed = function(l_28_0, l_28_1)
-  if l_28_1 ~= l_28_0._steal_SO_data.thief then
-    debug_pause_unit(sympathy_civ, "[CarryData:on_secure_SO_completed] idiot thinks he is stealing", l_28_1)
-    return 
-  end
-  l_28_0._steal_SO_data = nil
-  managers.mission:call_global_event("loot_lost")
-  l_28_0._steal_SO_data = nil
-  l_28_0:unlink()
+function CarryData:on_secure_SO_completed( thief )
+	--print( "[CarryData:on_secure_SO_completed]", thief, self._steal_SO_data.thief )
+	if thief ~= self._steal_SO_data.thief then
+		debug_pause_unit( sympathy_civ, "[CarryData:on_secure_SO_completed] idiot thinks he is stealing", thief )
+		return
+	end
+	
+	self._steal_SO_data = nil
+	
+	managers.mission:call_global_event( "loot_lost" )
+	
+	self._steal_SO_data = nil
+	self:unlink()
 end
 
-CarryData.on_secure_SO_failed = function(l_29_0, l_29_1)
-  if not l_29_0._steal_SO_data.thief then
-    return 
-  end
-  if l_29_1 ~= l_29_0._steal_SO_data.thief then
-    debug_pause_unit(l_29_1, "[CarryData:on_pickup_SO_failed] idiot thinks he is stealing", l_29_1)
-    return 
-  end
-  l_29_0._steal_SO_data = nil
-  l_29_0:_chk_register_steal_SO()
-  l_29_0:unlink()
+
+function CarryData:on_secure_SO_failed( thief )
+	--print( "[CarryData:on_secure_SO_failed]", thief, self._steal_SO_data.thief )
+	if not self._steal_SO_data.thief then
+		return
+	end
+	
+	if thief ~= self._steal_SO_data.thief then
+		debug_pause_unit( thief, "[CarryData:on_pickup_SO_failed] idiot thinks he is stealing", thief )
+		return
+	end
+	
+	self._steal_SO_data = nil
+	self:_chk_register_steal_SO()
+	
+	self:unlink()
 end
 
-CarryData.link_to = function(l_30_0, l_30_1)
-  if not l_30_0._unit:body("hinge_body_1") then
-    local body = l_30_0._unit:body(0)
-  end
-  body:set_keyframed()
-  local parent_obj_name = Idstring("Neck")
-  l_30_1:link(parent_obj_name, l_30_0._unit)
-  local parent_obj = l_30_1:get_object(parent_obj_name)
-  local parent_obj_rot = parent_obj:rotation()
-  local world_pos = parent_obj:position() - parent_obj_rot:z() * 30 - parent_obj_rot:y() * 10
-  l_30_0._unit:set_position(world_pos)
-  local world_rot = Rotation(parent_obj_rot:x(), -parent_obj_rot:z())
-  l_30_0._unit:set_rotation(world_rot)
-  l_30_0._disabled_collisions = {}
-  local nr_bodies = l_30_0._unit:num_bodies()
-  for i_body = 0, nr_bodies - 1 do
-    local body = l_30_0._unit:body(i_body)
-    if body:collisions_enabled() then
-      table.insert(l_30_0._disabled_collisions, body)
-      body:set_collisions_enabled(false)
-    end
-  end
-  if Network:is_server() then
-    managers.network:session():send_to_peers_synched("loot_link", l_30_0._unit, l_30_1)
-  end
+function CarryData:link_to( parent_unit )
+	local body = self._unit:body( "hinge_body_1" ) or self._unit:body(0)
+	body:set_keyframed()
+	--self._unit:body( "hinge_body_2" ):set_keyframed()
+	
+	local parent_obj_name = Idstring( "Neck" )
+	
+	parent_unit:link( parent_obj_name, self._unit )
+	
+	local parent_obj = parent_unit:get_object( parent_obj_name )
+	local parent_obj_rot = parent_obj:rotation()
+	
+	local world_pos = parent_obj:position() - parent_obj_rot:z() * 30 - parent_obj_rot:y() * 10
+	self._unit:set_position( world_pos )
+	
+	local world_rot = Rotation( parent_obj_rot:x(), -parent_obj_rot:z() )
+	self._unit:set_rotation( world_rot )
+	
+	self._disabled_collisions = {}
+	local nr_bodies = self._unit:num_bodies()
+	for i_body = 0, nr_bodies - 1 do
+		local body = self._unit:body( i_body )
+		if body:collisions_enabled() then
+			table.insert( self._disabled_collisions, body )
+			body:set_collisions_enabled( false )
+		end
+	end
+	
+	if Network:is_server() then
+		managers.network:session():send_to_peers_synched( "loot_link", self._unit, parent_unit )
+	end
 end
 
-CarryData.unlink = function(l_31_0)
-  l_31_0._unit:unlink()
-  if not l_31_0._unit:body("hinge_body_1") then
-    local body = l_31_0._unit:body(0)
-  end
-  body:set_dynamic()
-  if l_31_0._disabled_collisions then
-    for _,body in ipairs(l_31_0._disabled_collisions) do
-      body:set_collisions_enabled(true)
-    end
-    l_31_0._disabled_collisions = nil
-  end
-  if Network:is_server() then
-    managers.network:session():send_to_peers_synched("loot_link", l_31_0._unit, l_31_0._unit)
-  end
+function CarryData:unlink()
+	self._unit:unlink()
+	local body = self._unit:body( "hinge_body_1" ) or self._unit:body(0)
+	body:set_dynamic()
+	--self._unit:body( "hinge_body_2" ):set_dynamic()
+	
+	if self._disabled_collisions then
+		for _, body in ipairs( self._disabled_collisions ) do
+			body:set_collisions_enabled( true )
+		end
+		self._disabled_collisions = nil
+	end
+	
+	if Network:is_server() then
+		managers.network:session():send_to_peers_synched( "loot_link", self._unit, self._unit )
+	end
 end
 
-CarryData.clbk_body_active_state = function(l_32_0, l_32_1, l_32_2, l_32_3, l_32_4)
-  if not l_32_0._has_body_activation_clbk[l_32_3:key()] then
-    return 
-  end
-  if l_32_4 then
-    if not l_32_0._steal_SO_data or not l_32_0._steal_SO_data.picked_up then
-      l_32_0:_unregister_steal_SO()
-    end
-    if not l_32_0._register_out_of_world_clbk_id then
-      l_32_0._register_out_of_world_clbk_id = "BagOutOfWorld" .. tostring(l_32_0._unit:key())
-      managers.enemy:add_delayed_clbk(l_32_0._register_out_of_world_clbk_id, callback(l_32_0, l_32_0, "clbk_out_of_world"), TimerManager:game():time() + 2)
-    else
-      l_32_0:_chk_register_steal_SO()
-      if l_32_0._register_out_of_world_clbk_id then
-        managers.enemy:remove_delayed_clbk(l_32_0._register_out_of_world_clbk_id)
-        l_32_0._register_out_of_world_clbk_id = nil
-      end
-    end
-  end
+function CarryData:clbk_body_active_state( tag, unit, body, activated )
+	--print( "[CarryData:clbk_body_active_state]", body:name():s(), activated, tag )
+	if not self._has_body_activation_clbk[ body:key() ] then
+		--print( "wrong body" )
+		return
+	end
+
+	if activated then
+		if not self._steal_SO_data or not self._steal_SO_data.picked_up then
+			self:_unregister_steal_SO()
+		end
+
+		if not self._register_out_of_world_clbk_id then
+			self._register_out_of_world_clbk_id = "BagOutOfWorld" .. tostring( self._unit:key() )
+			managers.enemy:add_delayed_clbk( self._register_out_of_world_clbk_id, callback( self, self, "clbk_out_of_world" ), TimerManager:game():time() + 2 )
+		end
+	else
+		self:_chk_register_steal_SO()
+
+		if self._register_out_of_world_clbk_id then
+			managers.enemy:remove_delayed_clbk( self._register_out_of_world_clbk_id )
+			self._register_out_of_world_clbk_id = nil
+		end
+	end
 end
 
-CarryData.clbk_send_link = function(l_33_0)
-  if (alive(l_33_0._unit) and l_33_0._steal_SO_data) or not l_33_0._steal_SO_data.thief and l_33_0._steal_SO_data.picked_up then
-    managers.network:session():send_to_peers_synched("loot_link", l_33_0._unit, l_33_0._steal_SO_data.thief)
-  end
+function CarryData:clbk_send_link()
+	if alive( self._unit ) and self._steal_SO_data or not self._steal_SO_data.thief and self._steal_SO_data.picked_up then
+		managers.network:session():send_to_peers_synched( "loot_link", self._unit, self._steal_SO_data.thief ) -- we don't know who it was that was dropping in. send to all.
+	end
 end
 
-CarryData.save = function(l_34_0, l_34_1)
-  local state = {}
-  state.carry_id = l_34_0._carry_id
-  state.value = l_34_0._value
-  state.dye_initiated = l_34_0._dye_initiated
-  state.has_dye_pack = l_34_0._has_dye_pack
-  state.dye_value_multiplier = l_34_0._dye_value_multiplier
-  if l_34_0._steal_SO_data and l_34_0._steal_SO_data.picked_up then
-    managers.enemy:add_delayed_clbk("send_loot_link" .. tostring(l_34_0._unit:key()), callback(l_34_0, l_34_0, "clbk_send_link"), TimerManager:game():time() + 0.10000000149012)
-  end
-  l_34_1.CarryData = state
+function CarryData:save( data )
+	local state 		= {}
+	state.carry_id 		= self._carry_id
+	state.value 		= self._value
+	state.dye_initiated = self._dye_initiated
+	state.has_dye_pack 	= self._has_dye_pack
+	state.dye_value_multiplier = self._dye_value_multiplier
+	
+	if self._steal_SO_data and self._steal_SO_data.picked_up then -- we cannot drop-in synch units due to random load order. need to send the relationship after drop-in
+		managers.enemy:add_delayed_clbk( "send_loot_link"..tostring( self._unit:key() ), callback( self, self, "clbk_send_link" ), TimerManager:game():time() + 0.1 )
+	end
+	
+	data.CarryData = state
 end
 
-CarryData.load = function(l_35_0, l_35_1)
-  local state = l_35_1.CarryData
-  l_35_0._carry_id = state.carry_id
-  l_35_0._value = state.value
-  l_35_0._dye_initiated = state.dye_initiated
-  l_35_0._has_dye_pack = state.has_dye_pack
-  l_35_0._dye_value_multiplier = state.dye_value_multiplier
+function CarryData:load( data )
+	local state 	= data.CarryData
+	self._carry_id 	= state.carry_id
+	self._value	 	= state.value
+	self._dye_initiated = state.dye_initiated
+	self._has_dye_pack 	= state.has_dye_pack
+	self._dye_value_multiplier = state.dye_value_multiplier
 end
 
-CarryData.destroy = function(l_36_0)
-  if l_36_0._register_steal_SO_clbk_id then
-    managers.enemy:remove_delayed_clbk(l_36_0._register_steal_SO_clbk_id)
-    l_36_0._register_steal_SO_clbk_id = nil
-  end
-  if l_36_0._register_out_of_world_clbk_id then
-    managers.enemy:remove_delayed_clbk(l_36_0._register_out_of_world_clbk_id)
-    l_36_0._register_out_of_world_clbk_id = nil
-  end
-  if l_36_0._register_out_of_world_dynamic_clbk_id then
-    managers.enemy:remove_delayed_clbk(l_36_0._register_out_of_world_dynamic_clbk_id)
-    l_36_0._register_out_of_world_dynamic_clbk_id = nil
-  end
-  l_36_0:_unregister_steal_SO()
+function CarryData:destroy()
+	if self._register_steal_SO_clbk_id then
+		managers.enemy:remove_delayed_clbk( self._register_steal_SO_clbk_id )
+		self._register_steal_SO_clbk_id = nil
+	end
+	if self._register_out_of_world_clbk_id then
+		managers.enemy:remove_delayed_clbk( self._register_out_of_world_clbk_id )
+		self._register_out_of_world_clbk_id = nil
+	end
+	if self._register_out_of_world_dynamic_clbk_id then
+		managers.enemy:remove_delayed_clbk( self._register_out_of_world_dynamic_clbk_id )
+		self._register_out_of_world_dynamic_clbk_id = nil
+	end
+	self:_unregister_steal_SO()
 end
-
 

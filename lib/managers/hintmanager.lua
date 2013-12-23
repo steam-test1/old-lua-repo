@@ -1,117 +1,134 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\hintmanager.luac 
-
-if not HintManager then
-  HintManager = class()
-end
+HintManager = HintManager or class()
 HintManager.PATH = "gamedata/hints"
 HintManager.FILE_EXTENSION = "hint"
 HintManager.FULL_PATH = HintManager.PATH .. "." .. HintManager.FILE_EXTENSION
-HintManager.init = function(l_1_0)
-  if not Global.hint_manager then
-    Global.hint_manager = {hints = {}}
-    l_1_0:_parse_hints()
-  end
-  l_1_0._cooldown = {}
+
+-- Hints are stored Global to keep between levels
+function HintManager:init()
+	if not Global.hint_manager then
+		Global.hint_manager = { hints = {} }
+		self:_parse_hints()
+	end
+	self._cooldown = {}
 end
 
-HintManager._parse_hints = function(l_2_0)
-  do
-    local list = PackageManager:script_data(l_2_0.FILE_EXTENSION:id(), l_2_0.PATH:id())
-    for _,data in ipairs(list) do
-      if data._meta == "hint" then
-        l_2_0:_parse_hint(data)
-        for (for control),_ in (for generator) do
-        end
-        Application:error("Unknown node \"" .. tostring(data._meta) .. "\" in \"" .. l_2_0.FULL_PATH .. "\". Expected \"objective\" node.")
-      end
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+function HintManager:_parse_hints()
+	local list = PackageManager:script_data( self.FILE_EXTENSION:id(), self.PATH:id() )
+
+	for _,data in ipairs( list ) do
+		if( data._meta == "hint" ) then
+		 	self:_parse_hint( data )
+		else
+			Application:error( "Unknown node \"" .. tostring( data._meta ) .. "\" in \"" .. self.FULL_PATH .. "\". Expected \"objective\" node." )
+		end
+	end	
 end
 
-HintManager._parse_hint = function(l_3_0, l_3_1)
-  local id = l_3_1.id
-  local text_id = l_3_1.text_id
-  local trigger_times = l_3_1.trigger_times
-  local sync = l_3_1.sync
-  local event = l_3_1.event
-  local level = l_3_1.level
-  Global.hint_manager.hints[id] = {text_id = text_id, trigger_times = trigger_times, trigger_count = 0, sync = sync, event = event, level = level}
+function HintManager:_parse_hint( data )
+	local id =	data.id
+	local text_id = data.text_id
+	
+	local trigger_times = data.trigger_times
+	local sync = data.sync
+	local event = data.event
+	local level = data.level
+	
+	Global.hint_manager.hints[ id ] = { text_id 		= text_id,
+										trigger_times	= trigger_times,
+										trigger_count	= 0,
+										sync			= sync,
+										event			= event,
+										level			= level,
+										 }
 end
 
-HintManager.ids = function(l_4_0)
-  local t = {}
-  for id,_ in pairs(Global.hint_manager.hints) do
-    table.insert(t, id)
-  end
-  table.sort(t)
-  return t
+-- Returns a sorted ipairs with all ids
+function HintManager:ids()
+	local t = {}
+	for id,_ in pairs( Global.hint_manager.hints ) do
+		table.insert( t, id )
+	end
+	table.sort ( t )
+	return t
 end
 
-HintManager.hints = function(l_5_0)
-  return Global.hint_manager.hints
+function HintManager:hints()
+	return Global.hint_manager.hints
 end
 
-HintManager.hint = function(l_6_0, l_6_1)
-  return Global.hint_manager.hints[l_6_1]
+function HintManager:hint( id )
+	return Global.hint_manager.hints[ id ]
 end
 
-HintManager.show_hint = function(l_7_0, l_7_1, l_7_2, l_7_3, l_7_4)
-  if not l_7_1 or not l_7_0:hint(l_7_1) then
-    Application:stack_dump_error("Bad id to show hint, " .. tostring(l_7_1) .. ".")
-    return 
-  end
-  if not l_7_3 then
-    l_7_0:_show_hint(l_7_1, l_7_2, l_7_4)
-  end
-  if l_7_0:hint(l_7_1).sync then
-    managers.network:session():send_to_peers_synched("sync_show_hint", l_7_1)
-  end
+function HintManager:show_hint( id, time, only_sync, params )
+	if not id or not self:hint( id ) then
+		Application:stack_dump_error( "Bad id to show hint, "..tostring( id ).."." )
+		return
+	end
+	
+	if not only_sync then
+		self:_show_hint( id, time, params )
+	end
+		
+	if self:hint( id ).sync then
+		-- if params then
+		-- 	Application:stack_dump_error( "A hint can not be network synced while also taking parameters, "..tostring( id ).."." )
+		--	return	
+		--else
+			managers.network:session():send_to_peers_synched( "sync_show_hint", id )
+		--end
+	end 
 end
 
-HintManager._show_hint = function(l_8_0, l_8_1, l_8_2, l_8_3)
-  if l_8_0:hint(l_8_1).level and l_8_0:hint(l_8_1).level <= managers.experience:current_level() then
-    return 
-  end
-  if l_8_0:hint(l_8_1).stop_at_level and managers.experience:current_level() < l_8_0:hint(l_8_1).stop_at_level then
-    return 
-  end
-  if l_8_0._cooldown[l_8_1] and Application:time() < l_8_0._cooldown[l_8_1] then
-    return 
-  end
-  if not l_8_0:hint(l_8_1).trigger_times or l_8_0:hint(l_8_1).trigger_times ~= l_8_0:hint(l_8_1).trigger_count then
-    l_8_0._cooldown[l_8_1] = Application:time() + 2
-    l_8_0:hint(l_8_1).trigger_count = l_8_0:hint(l_8_1).trigger_count + 1
-    l_8_0._last_shown_id = l_8_1
-    managers.hud:show_hint({text = managers.localization:text(l_8_0:hint(l_8_1).text_id, l_8_3), event = l_8_0:hint(l_8_1).event, time = l_8_2})
-  end
+function HintManager:_show_hint( id, time, params )
+	-- Don't show if there is a level limit and current level is larger or equal to limit
+	if self:hint( id ).level and managers.experience:current_level() >= self:hint( id ).level then
+		return
+	end
+	
+	if self:hint( id ).stop_at_level and managers.experience:current_level() < self:hint( id ).stop_at_level then
+		return
+	end 
+	
+	if self._cooldown[ id ] and self._cooldown[ id ] > Application:time() then
+		return
+	end
+	
+	-- Trigger if unlimted or if trigger count not reach trigger trimes
+	if not self:hint( id ).trigger_times or (self:hint( id ).trigger_times ~= self:hint( id ).trigger_count) then
+		self._cooldown[ id ] = Application:time() + 2
+		self:hint( id ).trigger_count = self:hint( id ).trigger_count + 1
+		self._last_shown_id = id
+		managers.hud:show_hint( { text = managers.localization:text( self:hint( id ).text_id, params ), event = self:hint( id ).event, time = time } )
+	end 
 end
 
-HintManager.sync_show_hint = function(l_9_0, l_9_1)
-  l_9_0:_show_hint(l_9_1, nil, {BTN_INTERACT = managers.localization:btn_macro("interact")})
+function HintManager:sync_show_hint( id )
+	self:_show_hint( id, nil, { BTN_INTERACT = managers.localization:btn_macro( "interact" ) } )
 end
 
-HintManager.last_shown_id = function(l_10_0)
-  return l_10_0._last_shown_id
+function HintManager:last_shown_id()
+	return self._last_shown_id
 end
 
-HintManager.on_simulation_ended = function(l_11_0)
-  for _,hint in pairs(Global.hint_manager.hints) do
-    if hint.trigger_times then
-      hint.trigger_count = 0
-    end
-  end
+function HintManager:on_simulation_ended()
+	for _,hint in pairs( Global.hint_manager.hints ) do
+		if hint.trigger_times then
+			hint.trigger_count = 0
+		end
+	end
 end
 
-HintManager.save = function(l_12_0, l_12_1)
-  local state = {hints = deep_clone(Global.hint_manager.hints)}
-  l_12_1.HintManager = state
+function HintManager:save( data )
+	local state = {
+		hints = deep_clone( Global.hint_manager.hints ),
+	}
+
+	data.HintManager = state
 end
 
-HintManager.load = function(l_13_0, l_13_1)
-  local state = l_13_1.HintManager
-  Global.hint_manager.hints = deep_clone(state.hints)
+function HintManager:load( data )
+	local state = data.HintManager
+
+	Global.hint_manager.hints = deep_clone( state.hints )
 end
-
-

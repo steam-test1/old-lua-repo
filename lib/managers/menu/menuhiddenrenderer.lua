@@ -1,24 +1,16 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\menu\menuhiddenrenderer.luac 
+MenuHiddenRenderer = MenuHiddenRenderer or class( MenuRenderer )
 
-if not MenuHiddenRenderer then
-  MenuHiddenRenderer = class(MenuRenderer)
-end
-MenuHiddenRenderer.open = function(l_1_0, ...)
-  MenuHiddenRenderer.super.open(l_1_0, ...)
-  l_1_0._main_panel:root():hide()
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function MenuHiddenRenderer:open( ... )
+	MenuHiddenRenderer.super.open( self, ... )
+	self._main_panel:root():hide()
 end
 
-MenuHiddenRenderer.show = function(l_2_0)
-  MenuHiddenRenderer.super.show(l_2_0)
-  l_2_0._main_panel:root():hide()
+function MenuHiddenRenderer:show()
+	MenuHiddenRenderer.super.show( self )
+	self._main_panel:root():hide()
 end
 
-MenuHiddenRenderer.hide = function(l_3_0)
-  MenuHiddenRenderer.super.hide(l_3_0)
-  l_3_0._main_panel:root():hide()
+function MenuHiddenRenderer:hide()
+	MenuHiddenRenderer.super.hide( self )
+	self._main_panel:root():hide()
 end
-
-

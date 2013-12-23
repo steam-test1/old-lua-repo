@@ -1,107 +1,130 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\props\moneywrapbase.luac 
+MoneyWrapBase = MoneyWrapBase or class( UnitBase )
 
-if not MoneyWrapBase then
-  MoneyWrapBase = class(UnitBase)
-end
 MoneyWrapBase.taken_wraps = MoneyWrapBase.taken_wraps or 0
-MoneyWrapBase.init = function(l_1_0, l_1_1)
-  UnitBase.init(l_1_0, l_1_1, false)
-  l_1_0._unit = l_1_1
-  l_1_0:_setup()
+
+-----------------------------------------------------------------------------------
+
+function MoneyWrapBase:init( unit )
+	UnitBase.init( self, unit, false )
+	self._unit = unit
+	
+	self:_setup()
 end
 
-MoneyWrapBase._setup = function(l_2_0)
-  l_2_0._MONEY_MAX = l_2_0.max_amount or 1000000
-  l_2_0._money_amount = l_2_0._MONEY_MAX
-  l_2_0._sequence_stage = 10
+-----------------------------------------------------------------------------------
+
+function MoneyWrapBase:_setup()
+	self._MONEY_MAX = self.max_amount or 1000000
+	self._money_amount = self._MONEY_MAX
+	self._sequence_stage = 10
 end
 
-MoneyWrapBase.take_money = function(l_3_0, l_3_1)
-  if l_3_0._empty then
-    return 
-  end
-  if l_3_0.give_exp then
-    l_3_1:sound():play("money_grab")
-    managers.network:session():send_to_peers_synched("sync_money_wrap_money_taken", l_3_0._unit)
-    l_3_0._money_amount = 0
-    MoneyWrapBase.taken_wraps = MoneyWrapBase.taken_wraps + 1
-    if MoneyWrapBase.taken_wraps >= 10 and Global.level_data.level_id == "apartment" then
-      managers.challenges:set_flag("take_money")
-    else
-      local taken = l_3_0:_take_money(l_3_1)
-      if taken > 0 then
-        l_3_1:sound():play("money_grab")
-        managers.network:session():send_to_peers_synched("sync_money_wrap_money_taken", l_3_0._unit)
-      end
-      managers.money:perform_action_money_wrap(taken)
-    end
-  end
-  if l_3_0._money_amount <= 0 then
-    l_3_0:_set_empty()
-  end
-  l_3_0:_update_sequences()
+-----------------------------------------------------------------------------------
+
+function MoneyWrapBase:take_money( unit )
+	if self._empty then
+		return
+	end
+	
+	if self.give_exp then
+		-- managers.experience:perform_action( self.money_action )
+		unit:sound():play( "money_grab" )
+		managers.network:session():send_to_peers_synched( "sync_money_wrap_money_taken", self._unit )--, taken )
+		self._money_amount = 0
+		
+		MoneyWrapBase.taken_wraps = MoneyWrapBase.taken_wraps + 1
+		
+		if MoneyWrapBase.taken_wraps >= 10 and Global.level_data.level_id == "apartment" then
+			managers.challenges:set_flag( "take_money" )
+		end
+		
+	else
+		local taken = self:_take_money( unit )
+		if taken > 0 then
+			unit:sound():play( "money_grab" )
+			managers.network:session():send_to_peers_synched( "sync_money_wrap_money_taken", self._unit )--, taken )
+		end
+		
+		managers.money:perform_action_money_wrap( taken )
+	end
+	
+	if self._money_amount <= 0 then
+		self:_set_empty()
+	end
+	
+	self:_update_sequences()
 end
 
-MoneyWrapBase.sync_money_taken = function(l_4_0)
-  if l_4_0.give_exp then
-    l_4_0._money_amount = 0
-  do
-    elseif not l_4_0.money_action or not tweak_data:get_value("money_manager", "actions", l_4_0.money_action) then
-      local amount = l_4_0._MONEY_MAX / 2
-    end
-    managers.money:perform_action_money_wrap(amount)
-    l_4_0._money_amount = math.max(l_4_0._money_amount - amount, 0)
-  end
-  if l_4_0._money_amount <= 0 then
-    l_4_0:_set_empty()
-  end
-  l_4_0:_update_sequences()
+function MoneyWrapBase:sync_money_taken() -- amount )
+	if self.give_exp then
+		-- managers.experience:perform_action( self.money_action )
+		self._money_amount = 0
+	else
+
+		local amount = self.money_action and tweak_data:get_value("money_manager", "actions", self.money_action) or self._MONEY_MAX/2 -- tweak_data.money_manager.actions[ self.money_action or "money_wrap" ]
+		managers.money:perform_action_money_wrap( amount )
+		self._money_amount = math.max( self._money_amount - amount, 0 )
+	end
+	
+	if self._money_amount <= 0 then
+		self:_set_empty()
+	end
+	self:_update_sequences()
 end
 
-MoneyWrapBase._take_money = function(l_5_0, l_5_1)
-  if not l_5_0.money_action or not tweak_data:get_value("money_manager", "actions", l_5_0.money_action) then
-    local took = l_5_0._MONEY_MAX / 2
-  end
-  l_5_0._money_amount = math.max(l_5_0._money_amount - took, 0)
-  if l_5_0._money_amount <= 0 then
-    l_5_0:_set_empty()
-  end
-  return took
+function MoneyWrapBase:_take_money( unit )
+
+	local took = self.money_action and tweak_data:get_value("money_manager", "actions", self.money_action) or self._MONEY_MAX/2 -- tweak_data.money_manager.actions[ self.money_action or "money_wrap" ]
+	
+	self._money_amount = math.max( self._money_amount - took, 0 )
+	if self._money_amount <= 0 then
+		self:_set_empty()
+	end
+	
+	return took
 end
 
-MoneyWrapBase._update_sequences = function(l_6_0)
-  local stage = math.round(l_6_0._money_amount / l_6_0._MONEY_MAX * 9) + 1
-  if stage < l_6_0._sequence_stage then
-    l_6_0._sequence_stage = stage
-    l_6_0._unit:damage():run_sequence_simple("money_wrap_" .. l_6_0._sequence_stage)
-  end
+function MoneyWrapBase:_update_sequences()
+	local stage = math.round( (self._money_amount / self._MONEY_MAX) * 9 ) + 1
+	
+	if stage < self._sequence_stage then
+		self._sequence_stage = stage
+		self._unit:damage():run_sequence_simple( "money_wrap_"..self._sequence_stage )
+	end
 end
 
-MoneyWrapBase._set_empty = function(l_7_0)
-  l_7_0._empty = true
-  if not l_7_0.skip_remove_unit then
-    l_7_0._unit:set_slot(0)
-  end
+function MoneyWrapBase:_set_empty()
+	self._empty = true
+	
+	if not self.skip_remove_unit then
+		self._unit:set_slot( 0 )
+	end
 end
 
-MoneyWrapBase.update = function(l_8_0, l_8_1, l_8_2, l_8_3)
+-----------------------------------------------------------------------------------
+
+function MoneyWrapBase:update( unit, t, dt )
+	
 end
 
-MoneyWrapBase.save = function(l_9_0, l_9_1)
-  MoneyWrapBase.super.save(l_9_0, l_9_1)
-  local state = {}
-  state.money_amount = l_9_0._money_amount
-  l_9_1.MoneyWrapBase = state
+-----------------------------------------------------------------------------------
+
+function MoneyWrapBase:save( data )
+	MoneyWrapBase.super.save( self, data )
+	local state = {}
+	state.money_amount = self._money_amount
+	data.MoneyWrapBase = state
 end
 
-MoneyWrapBase.load = function(l_10_0, l_10_1)
-  MoneyWrapBase.super.load(l_10_0, l_10_1)
-  local state = l_10_1.MoneyWrapBase
-  l_10_0._money_amount = state.money_amount
+function MoneyWrapBase:load( data )
+	MoneyWrapBase.super.load( self, data )
+	local state = data.MoneyWrapBase
+	self._money_amount = state.money_amount
 end
 
-MoneyWrapBase.destroy = function(l_11_0)
-end
+-----------------------------------------------------------------------------------
 
+function MoneyWrapBase:destroy()
+
+end
 

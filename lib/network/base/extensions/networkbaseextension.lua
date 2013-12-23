@@ -1,50 +1,51 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\network\base\extensions\networkbaseextension.luac 
+NetworkBaseExtension = NetworkBaseExtension or class()
 
-if not NetworkBaseExtension then
-  NetworkBaseExtension = class()
-end
-NetworkBaseExtension.init = function(l_1_0, l_1_1)
-  l_1_0._unit = l_1_1
+function NetworkBaseExtension:init( unit )
+	self._unit = unit
 end
 
-NetworkBaseExtension.send = function(l_2_0, l_2_1, ...)
-  if managers.network:session() then
-    managers.network:session():send_to_peers_synched(l_2_1, l_2_0._unit, ...)
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+-----------------------------------------------------------------------------------
 
-  end
+function NetworkBaseExtension:send( func, ... )
+	if managers.network:session() then
+		managers.network:session():send_to_peers_synched( func, self._unit, ... )
+	end
 end
 
-NetworkBaseExtension.send_to_host = function(l_3_0, l_3_1, ...)
-  if managers.network:session() then
-    managers.network:session():send_to_host(l_3_1, l_3_0._unit, ...)
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+-----------------------------------------------------------------------------------
 
-  end
+function NetworkBaseExtension:send_to_host( func, ... )
+	if managers.network:session() then
+		managers.network:session():send_to_host( func, self._unit, ... )
+	end
 end
 
-NetworkBaseExtension.send_to_unit = function(l_4_0, l_4_1)
-  if managers.network:game() then
-    local member = managers.network:game():member_from_unit(l_4_0._unit)
-    if not member then
-      return 
-    end
-    managers.network:session():send_to_peer(member:peer(), unpack(l_4_1))
-  end
+-----------------------------------------------------------------------------------
+-- Sends to the rpc that owns the unit of this network extension
+function NetworkBaseExtension:send_to_unit( params )
+	if managers.network:game() then
+		local member = managers.network:game():member_from_unit( self._unit )
+		if not member then
+			return
+		end
+		managers.network:session():send_to_peer( member:peer(), unpack( params ) )
+	end
 end
 
-NetworkBaseExtension.member = function(l_5_0)
-  return managers.network:game():member_from_unit(l_5_0._unit)
+-----------------------------------------------------------------------------------
+
+function NetworkBaseExtension:member()
+	return managers.network:game():member_from_unit( self._unit )
 end
 
-NetworkBaseExtension.peer = function(l_6_0)
-  if managers.network:game() then
-    local member = managers.network:game():member_from_unit(l_6_0._unit)
-    if member then
-      return member:peer()
-    end
-  end
+-----------------------------------------------------------------------------------
+
+function NetworkBaseExtension:peer()
+	if managers.network:game() then
+		local member = managers.network:game():member_from_unit( self._unit )
+		return member and member:peer()
+	end
 end
 
-
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------

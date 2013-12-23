@@ -1,31 +1,29 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\elementareaminpoliceforce.luac 
+core:import( "CoreMissionScriptElement" )
 
-core:import("CoreMissionScriptElement")
-if not ElementAreaMinPoliceForce then
-  ElementAreaMinPoliceForce = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementAreaMinPoliceForce.init = function(l_1_0, ...)
-  ElementAreaMinPoliceForce.super.init(l_1_0, ...)
-  l_1_0._network_execute = true
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementAreaMinPoliceForce = ElementAreaMinPoliceForce or class( CoreMissionScriptElement.MissionScriptElement )
 
+function ElementAreaMinPoliceForce:init( ... )
+	ElementAreaMinPoliceForce.super.init( self, ... )
+	self._network_execute = true
 end
 
-ElementAreaMinPoliceForce.on_executed = function(l_2_0, l_2_1)
-  if not l_2_0._values.enabled then
-    return 
-  end
-  l_2_0:operation_add()
-  ElementAreaMinPoliceForce.super.on_executed(l_2_0, l_2_1)
+--[[function ElementAreaMinPoliceForce:client_on_executed( ... )
+	self:on_executed( ... )
+end]]
+
+function ElementAreaMinPoliceForce:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	self:operation_add()
+	ElementAreaMinPoliceForce.super.on_executed( self, instigator )
 end
 
-ElementAreaMinPoliceForce.operation_add = function(l_3_0)
-  managers.groupai:state():set_area_min_police_force(l_3_0._id, l_3_0._values.amount, l_3_0._values.position)
+function ElementAreaMinPoliceForce:operation_add()
+	managers.groupai:state():set_area_min_police_force( self._id, self._values.amount, self._values.position )
 end
 
-ElementAreaMinPoliceForce.operation_remove = function(l_4_0)
-  managers.groupai:state():set_area_min_police_force(l_4_0._id)
+function ElementAreaMinPoliceForce:operation_remove()
+	managers.groupai:state():set_area_min_police_force( self._id )
 end
-
-

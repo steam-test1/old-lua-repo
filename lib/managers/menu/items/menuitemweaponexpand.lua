@@ -1,234 +1,274 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\menu\items\menuitemweaponexpand.luac 
-
 core:import("CoreMenuItem")
 core:import("CoreMenuItemOption")
-if not MenuItemWeaponExpand then
-  MenuItemWeaponExpand = class(MenuItemExpand)
-end
+
+MenuItemWeaponExpand = MenuItemWeaponExpand or class( MenuItemExpand )
 MenuItemWeaponExpand.TYPE = "weapon_expand"
-MenuItemWeaponExpand.init = function(l_1_0, l_1_1, l_1_2)
-  MenuItemWeaponExpand.super.init(l_1_0, l_1_1, l_1_2)
-  l_1_0._type = MenuItemWeaponExpand.TYPE
-  local data_node = {type = "MenuItemWeaponAction", name = l_1_0._parameters.weapon_id .. "buy", text_id = "menu_buy", action_type = "buy", callback = "buy_weapon", visible_callback = "can_buy_weapon", weapon_id = l_1_0._parameters.weapon_id}
-  local item = CoreMenuNode.MenuNode.create_item(l_1_0, data_node)
-  l_1_0:add_item(item)
-  local data_node = {type = "MenuItemWeaponAction", name = l_1_0._parameters.weapon_id .. "equip", text_id = "menu_equip", action_type = "equip", callback = "equip_weapon", visible_callback = "owns_weapon", weapon_id = l_1_0._parameters.weapon_id, weapon_slot = l_1_0._parameters.weapon_slot}
-  local item = CoreMenuNode.MenuNode.create_item(l_1_0, data_node)
-  l_1_0:add_item(item)
-  local data_node = {type = "MenuItemWeaponAction", name = l_1_0._parameters.weapon_id .. "repair", text_id = "menu_repair", action_type = "repair", callback = "repair_weapon", visible_callback = "owns_weapon", weapon_id = l_1_0._parameters.weapon_id, weapon_slot = l_1_0._parameters.weapon_slot}
-  local item = CoreMenuNode.MenuNode.create_item(l_1_0, data_node)
-  l_1_0:add_item(item)
-  {type = "MenuItemWeaponAction", name = l_1_0._parameters.weapon_id .. "buy_upgrades"}.text_id = "menu_buy_upgrades"
-   -- DECOMPILER ERROR: Confused about usage of registers!
 
-  {type = "MenuItemWeaponAction", name = l_1_0._parameters.weapon_id .. "buy_upgrades"}.action_type = "buy_upgrades"
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {type = "MenuItemWeaponAction", name = l_1_0._parameters.weapon_id .. "buy_upgrades"}.callback = "buy_weapon_upgrades"
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {type = "MenuItemWeaponAction", name = l_1_0._parameters.weapon_id .. "buy_upgrades"}.visible_callback = "owns_weapon"
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {type = "MenuItemWeaponAction", name = l_1_0._parameters.weapon_id .. "buy_upgrades"}.weapon_id = l_1_0._parameters.weapon_id
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {type = "MenuItemWeaponAction", name = l_1_0._parameters.weapon_id .. "buy_upgrades"}.weapon_slot = l_1_0._parameters.weapon_slot
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  {type = "MenuItemWeaponAction", name = l_1_0._parameters.weapon_id .. "buy_upgrades"}.next_node = "buy_upgrades"
-   -- DECOMPILER ERROR: Confused at declaration of local variable
-
-   -- DECOMPILER ERROR: Confused at declaration of local variable
-
-   -- DECOMPILER ERROR: Confused about usage of registers!
-
-  do
-     -- DECOMPILER ERROR: Confused at declaration of local variable
-
-    l_1_0:add_item(CoreMenuNode.MenuNode.create_item(l_1_0, {type = "MenuItemWeaponAction", name = l_1_0._parameters.weapon_id .. "buy_upgrades"}, {next_node_parameters = {l_1_0._parameters.weapon_id}}))
-    l_1_0:_show_items(nil)
-  end
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function MenuItemWeaponExpand:init( data_node, parameters )
+	MenuItemWeaponExpand.super.init( self, data_node, parameters )
+	
+	self._type = MenuItemWeaponExpand.TYPE
+	
+	local data_node = {
+					type		= "MenuItemWeaponAction",
+					name		= self._parameters.weapon_id.."buy",
+					text_id		= "menu_buy",
+					action_type = "buy",
+					callback 	= "buy_weapon",
+					visible_callback = "can_buy_weapon",
+					weapon_id	= self._parameters.weapon_id,
+				}
+	local item = CoreMenuNode.MenuNode.create_item( self, data_node )
+	self:add_item( item )
+	
+	local data_node = {
+					type		= "MenuItemWeaponAction",
+					name		= self._parameters.weapon_id.."equip",
+					text_id		= "menu_equip",
+					action_type = "equip",
+					callback 	= "equip_weapon",
+					visible_callback = "owns_weapon",
+					weapon_id	= self._parameters.weapon_id,
+					weapon_slot = self._parameters.weapon_slot,
+				}
+	local item = CoreMenuNode.MenuNode.create_item( self, data_node )
+	self:add_item( item )
+	
+	local data_node = {
+					type		= "MenuItemWeaponAction",
+					name		= self._parameters.weapon_id.."repair",
+					text_id		= "menu_repair",
+					action_type = "repair",
+					callback	= "repair_weapon",
+					visible_callback = "owns_weapon",
+					-- condition	= self._parameters.condition,
+					weapon_id	= self._parameters.weapon_id,
+					weapon_slot = self._parameters.weapon_slot,
+				}
+	local item = CoreMenuNode.MenuNode.create_item( self, data_node )
+	self:add_item( item )
+	
+	local data_node = {
+					type		= "MenuItemWeaponAction",
+					name		= self._parameters.weapon_id.."buy_upgrades",
+					text_id		= "menu_buy_upgrades",
+					action_type = "buy_upgrades",
+					callback	= "buy_weapon_upgrades",
+					visible_callback = "owns_weapon",
+					weapon_id	= self._parameters.weapon_id,
+					weapon_slot = self._parameters.weapon_slot,
+					next_node	= "buy_upgrades",
+				}
+	local parameters = {
+						next_node_parameters = { self._parameters.weapon_id },
+						} 
+	local item = CoreMenuNode.MenuNode.create_item( self, data_node, parameters )
+	self:add_item( item )
+	self:_show_items( nil )
 end
 
-MenuItemWeaponExpand.expand_value = function(l_2_0)
-  return 0
+function MenuItemWeaponExpand:expand_value()
+	return 0
 end
 
-MenuItemWeaponExpand.toggle = function(l_3_0, ...)
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-MenuItemWeaponExpand.super.toggle(l_3_0, ...)
- -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function MenuItemWeaponExpand:toggle( ... )
+	if not self:parameter( "unlocked" ) then
+		-- return
+	end
+	MenuItemWeaponExpand.super.toggle( self, ... )
 end
 
-MenuItemWeaponExpand.can_expand = function(l_4_0)
-  return l_4_0:parameter("unlocked")
+function MenuItemWeaponExpand:can_expand()
+	return self:parameter( "unlocked" )
 end
 
-MenuItemWeaponExpand.setup_gui = function(l_5_0, l_5_1, l_5_2)
-  local scaled_size = managers.gui_data:scaled_size()
-  l_5_2.gui_panel = l_5_1.item_panel:panel({w = l_5_1.item_panel:w()})
-  l_5_2.weapon_name = l_5_1._text_item_part(l_5_1, l_5_2, l_5_2.gui_panel, l_5_1.align_line_padding(l_5_1))
-  l_5_2.weapon_name:set_font_size(22)
-  local _, _, w, h = l_5_2.weapon_name:text_rect()
-  l_5_2.weapon_name:set_h(h)
-  l_5_2.gui_panel:set_left(l_5_1._mid_align(l_5_1) + l_5_0._parameters.expand_value)
-  l_5_2.gui_panel:set_w(scaled_size.width - l_5_2.gui_panel:left())
-  l_5_2.gui_panel:set_h(h)
-  local texture, rect = tweak_data.hud_icons:get_icon_data(tweak_data.weapon[l_5_0._parameters.weapon_id].hud_icon)
-  l_5_2.weapon_icon = l_5_2.gui_panel:bitmap({texture = texture, texture_rect = rect, layer = l_5_1.layers.items})
-  l_5_2.weapon_icon:set_size(h, h)
-  l_5_2.weapon_name:set_left(h + 4)
-  local texture, rect = tweak_data.hud_icons:get_icon_data("icon_equipped")
-  l_5_2.equipped_icon = l_5_2.gui_panel:parent():bitmap({visible = l_5_0._parameters.equipped, texture = texture, texture_rect = rect, layer = l_5_1.layers.items})
-  l_5_2.equipped_icon:set_center(h / 2, l_5_2.gui_panel:y() + h / 2)
-  l_5_2.equipped_icon:set_right(l_5_2.gui_panel:x())
-  local texture, rect = tweak_data.hud_icons:get_icon_data("icon_locked")
-  l_5_2.locked_icon = l_5_2.gui_panel:bitmap({visible = not l_5_0._parameters.unlocked, texture = texture, texture_rect = rect, layer = l_5_1.layers.items})
-  l_5_2.locked_icon:set_center(h / 2, h / 2)
-  l_5_2.locked_icon:set_right(l_5_2.locked_icon:parent():w() - 4)
-  local texture, rect = tweak_data.hud_icons:get_icon_data("icon_circlebg")
-   -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-l_5_2.circlefill = l_5_2.gui_panel:bitmap({visible = l_5_0._parameters.owned, texture = texture, texture_rect = rect, layer = l_5_1.layers.items})
-l_5_2.circlefill:set_position(l_5_2.locked_icon:position())
-local texture, rect = tweak_data.hud_icons:get_icon_data("icon_circlefill" .. l_5_0._parameters.condition)
- -- DECOMPILER ERROR: Confused while interpreting a jump as a 'while'
-
-end
-l_5_2.repair_circle = l_5_2.gui_panel:bitmap({visible = l_5_0._parameters.owned, texture = texture, texture_rect = rect, layer = l_5_1.layers.items + 1, color = l_5_0:_repair_circle_color(l_5_0._parameters.condition)})
-l_5_2.repair_circle:set_position(l_5_2.circlefill:position())
-l_5_2.expanded_indicator = l_5_2.gui_panel:parent():bitmap({visible = false, color = Color.red, texture = "guis/textures/menu_selected", x = 0, y = 0, layer = l_5_1.layers.items - 1})
-l_5_2.expanded_indicator:set_w(l_5_2.gui_panel:w())
-l_5_2.expanded_indicator:set_height(64 * l_5_2.gui_panel:height() / 32)
-l_5_2.bottom_line = l_5_2.gui_panel:parent():bitmap({texture = "guis/textures/headershadowdown", layer = l_5_1.layers.items + 1, color = Color.white, w = l_5_2.gui_panel:w(), y = 100})
-end
-
-MenuItemWeaponExpand.on_item_position = function(l_6_0, l_6_1, l_6_2)
-  l_6_1.expanded_indicator:set_position(l_6_1.gui_panel:position())
-  l_6_1.expanded_indicator:set_center_y(l_6_1.gui_panel:center_y())
-  l_6_1.equipped_icon:set_center_y(l_6_1.gui_panel:center_y())
-  l_6_1.expand_line:set_lefttop(l_6_1.gui_panel:leftbottom())
-  l_6_1.expand_line:set_left(l_6_1.expand_line:left())
-end
-
-MenuItemWeaponExpand.on_item_positions_done = function(l_7_0, l_7_1, l_7_2)
-  if l_7_0:expanded() then
-    local child = l_7_0._items[#l_7_0._items]
-    local row_child = l_7_2.row_item(l_7_2, child)
-    if row_child then
-      l_7_1.bottom_line:set_lefttop(row_child.gui_panel:leftbottom())
-      l_7_1.bottom_line:set_top(l_7_1.bottom_line:top() - 1)
-    end
-  end
+-- GUI
+function MenuItemWeaponExpand:setup_gui( node, row_item )
+	-- print( "MenuItemWeaponExpand:setup_gui", self._parameters.weapon_id )
+	local scaled_size = managers.gui_data:scaled_size()
+	
+	row_item.gui_panel = node.item_panel:panel( { w = node.item_panel:w() } )
+	row_item.weapon_name = node._text_item_part( node, row_item, row_item.gui_panel, node.align_line_padding( node ) )
+	row_item.weapon_name:set_font_size( 22 )
+		
+	local _,_,w,h = row_item.weapon_name:text_rect()
+	row_item.weapon_name:set_h( h )
+		
+	row_item.gui_panel:set_left( node._mid_align( node ) + self._parameters.expand_value )
+	row_item.gui_panel:set_w( scaled_size.width - row_item.gui_panel:left() )
+	row_item.gui_panel:set_h( h )
+	-- row_item.gui_panel:set_debug( true )
+	
+	local texture, rect = tweak_data.hud_icons:get_icon_data( tweak_data.weapon[ self._parameters.weapon_id ].hud_icon )
+	
+	row_item.weapon_icon = row_item.gui_panel:bitmap( { texture = texture, texture_rect = rect, layer = node.layers.items } )
+	row_item.weapon_icon:set_size( h, h )
+	row_item.weapon_name:set_left( h + 4 )
+		
+	local texture, rect = tweak_data.hud_icons:get_icon_data( "icon_equipped" )
+	row_item.equipped_icon = row_item.gui_panel:parent():bitmap( { visible = self._parameters.equipped, texture = texture, texture_rect = rect, layer = node.layers.items } )
+	row_item.equipped_icon:set_center( h/2, row_item.gui_panel:y() + h/2 )
+	row_item.equipped_icon:set_right( row_item.gui_panel:x() )
+		
+	local texture, rect = tweak_data.hud_icons:get_icon_data( "icon_locked" )
+	row_item.locked_icon = row_item.gui_panel:bitmap( { visible = not self._parameters.unlocked, texture = texture, texture_rect = rect, layer = node.layers.items } )
+	row_item.locked_icon:set_center( h/2, h/2 )
+	row_item.locked_icon:set_right( row_item.locked_icon:parent():w() - 4 )
+		
+	local texture, rect = tweak_data.hud_icons:get_icon_data( "icon_circlebg" )
+	-- unlocked and owned
+	row_item.circlefill = row_item.gui_panel:bitmap( { visible = self._parameters.unlocked and self._parameters.owned, texture = texture, texture_rect = rect, layer = node.layers.items } )
+	-- row_item.circlefill:set_center( h/2, h/2 )
+	-- row_item.circlefill:set_right( row_item.locked_icon:parent():w() - 4 )
+	row_item.circlefill:set_position( row_item.locked_icon:position() )
+	
+	local texture, rect = tweak_data.hud_icons:get_icon_data( "icon_circlefill"..self._parameters.condition )
+	row_item.repair_circle = row_item.gui_panel:bitmap( { visible = self._parameters.unlocked and self._parameters.owned, texture = texture, texture_rect = rect, layer = node.layers.items + 1, color = self:_repair_circle_color( self._parameters.condition ) } )
+	row_item.repair_circle:set_position( row_item.circlefill:position() )
+	
+	-- "guis/textures/circlefill"
+		
+	row_item.expanded_indicator = row_item.gui_panel:parent():bitmap ( { visible = false, color = Color.red, texture = "guis/textures/menu_selected", x = 0, y = 0, layer = node.layers.items - 1 } )
+	row_item.expanded_indicator:set_w( row_item.gui_panel:w() )
+	row_item.expanded_indicator:set_height( 64 * row_item.gui_panel:height()/32 )
+	-- row_item.expanded_indicator:set_rotation( 180 )
+	
+	row_item.bottom_line = row_item.gui_panel:parent():bitmap( { texture = "guis/textures/headershadowdown", layer = node.layers.items + 1, color = Color.white, w = row_item.gui_panel:w(), y = 100 } )
+	-- row_item.bottom_line:set_debug( true )
+	-- self:on_item_position( row_item, node )
 end
 
-MenuItemWeaponExpand.on_buy = function(l_8_0, l_8_1)
-  local row_item = l_8_1:row_item(l_8_0)
-  l_8_0:collaps(l_8_1, row_item)
-  l_8_0:_show_items(l_8_0._callback_handler)
-  l_8_0:expand(l_8_1, row_item)
-  l_8_1:need_repositioning()
-  row_item.node:select_item(l_8_0:name())
-  l_8_1:highlight_item(l_8_0, false)
+-- GUI
+function MenuItemWeaponExpand:on_item_position( row_item, node )
+	row_item.expanded_indicator:set_position( row_item.gui_panel:position() )
+	row_item.expanded_indicator:set_center_y( row_item.gui_panel:center_y() )
+	row_item.equipped_icon:set_center_y( row_item.gui_panel:center_y() )
+	
+	row_item.expand_line:set_lefttop( row_item.gui_panel:leftbottom() )
+	row_item.expand_line:set_left( row_item.expand_line:left() )
 end
 
-MenuItemWeaponExpand.on_equip = function(l_9_0, l_9_1)
-  for _,item in ipairs(l_9_0:parameters().parent_item:items()) do
-    local row_item = l_9_1:row_item(item)
-    item:reload(row_item, l_9_1)
-  end
+-- GUI
+function MenuItemWeaponExpand:on_item_positions_done( row_item, node )
+	if self:expanded() then
+		local child = self._items[ #self._items ]
+		local row_child = node.row_item( node, child )
+						
+		if row_child then -- CASE FOR NO CHILDREN
+			row_item.bottom_line:set_lefttop( row_child.gui_panel:leftbottom() )
+			row_item.bottom_line:set_top( row_item.bottom_line:top() - 1 )
+		end
+	end
 end
 
-MenuItemWeaponExpand.on_repair = function(l_10_0, l_10_1)
-  local row_item = l_10_1:row_item(l_10_0)
-  l_10_0._parameters.condition = Global.blackmarket_manager.weapons[l_10_0._parameters.weapon_id].condition
-  local texture, rect = tweak_data.hud_icons:get_icon_data("icon_circlefill" .. l_10_0._parameters.condition)
-  row_item.repair_circle:set_texture_rect(rect[1], rect[2], rect[3], rect[4])
-  row_item.repair_circle:set_size(rect[3], rect[4])
-  row_item.repair_circle:set_color(l_10_0:_repair_circle_color(l_10_0._parameters.condition))
+function MenuItemWeaponExpand:on_buy( node )
+	local row_item = node:row_item( self )
+	self:collaps( node, row_item )
+	self:_show_items( self._callback_handler )
+	self:expand( node, row_item )
+	node:need_repositioning()
+	row_item.node:select_item( self:name() )
+	node:highlight_item( self, false )
+	-- self:_show_items( )
 end
 
-MenuItemWeaponExpand._repair_circle_color = function(l_11_0, l_11_1)
-  if l_11_1 >= 4 or not Color(1, 0.5, 0) then
-    return Color.white
-  end
+function MenuItemWeaponExpand:on_equip( node )
+	for _,item in ipairs( self:parameters().parent_item:items() ) do
+		-- print( "on_equip", item:name() )
+		local row_item = node:row_item( item )
+		item:reload( row_item, node )
+	end
 end
 
-MenuItemWeaponExpand.reload = function(l_12_0, l_12_1, l_12_2)
-  MenuItemWeaponExpand.super.reload(l_12_0, l_12_1, l_12_2)
-  l_12_1.expanded_indicator:set_position(l_12_1.gui_panel:position())
-  l_12_1.expanded_indicator:set_center_y(l_12_1.gui_panel:center_y())
-  l_12_1.expanded_indicator:set_visible(l_12_0:expanded())
-  l_12_1.expand_line:set_w(l_12_1.gui_panel:w())
-  if l_12_0:expanded() then
-    l_12_1.bottom_line:set_visible(l_12_0:parameter("unlocked"))
-  end
-  l_12_1.circlefill:set_visible(((l_12_0:expanded() or l_12_0:parameter("unlocked")) and l_12_0:parameter("owned")))
-  l_12_1.repair_circle:set_visible(((l_12_0:expanded() or l_12_0:parameter("unlocked")) and l_12_0:parameter("owned")))
-  l_12_0._parameters.equipped = Global.blackmarket_manager.weapons[l_12_0:parameter("weapon_id")].equipped
-  l_12_1.equipped_icon:set_visible(l_12_0._parameters.equipped)
-  if l_12_0:expanded() then
-    l_12_1.expanded_indicator:set_color(Color.white)
-    l_12_1.menu_unselected:set_color(Color(1, 0.5, 0))
-  else
-    l_12_1.menu_unselected:set_color(Color(0.5, 0.5, 0.5))
-  end
-  l_12_0:_set_row_item_state(l_12_2, l_12_1)
+function MenuItemWeaponExpand:on_repair( node ) --, condition )
+	local row_item = node:row_item( self )
+	self._parameters.condition = Global.blackmarket_manager.weapons[ self._parameters.weapon_id ].condition
+	local texture, rect = tweak_data.hud_icons:get_icon_data( "icon_circlefill"..self._parameters.condition )
+	row_item.repair_circle:set_texture_rect( rect[1], rect[2], rect[3], rect[4] )
+	row_item.repair_circle:set_size( rect[3], rect[4] )
+	row_item.repair_circle:set_color( self:_repair_circle_color( self._parameters.condition ) )
 end
 
-MenuItemWeaponExpand.highlight_row_item = function(l_13_0, l_13_1, l_13_2, l_13_3)
-  l_13_0:_set_row_item_state(l_13_1, l_13_2)
+function MenuItemWeaponExpand:_repair_circle_color( condition )
+	return condition < 4 and Color( 1, 0.5, 0 ) or Color.white
 end
 
-MenuItemWeaponExpand.fade_row_item = function(l_14_0, l_14_1, l_14_2, l_14_3)
-  l_14_0:_set_row_item_state(l_14_1, l_14_2)
+-- GUI
+function MenuItemWeaponExpand:reload( row_item, node )
+	-- print( "MenuItemWeaponExpand:reload", self:name() )
+	-- print( "  item:parameters().parent_item", self:parameters().parent_item:name() )
+	MenuItemWeaponExpand.super.reload( self, row_item, node )
+	row_item.expanded_indicator:set_position( row_item.gui_panel:position() )
+	row_item.expanded_indicator:set_center_y( row_item.gui_panel:center_y() )
+	row_item.expanded_indicator:set_visible( self:expanded() )
+	
+	row_item.expand_line:set_w( row_item.gui_panel:w() )
+	
+	-- row_item.bottom_line:set_lefttop( row_item.gui_panel:leftbottom() )
+	-- row_item.bottom_line:set_center_y( row_item.gui_panel:center_y() )
+	row_item.bottom_line:set_visible( self:expanded() and self:parameter( "unlocked" ) )
+	row_item.circlefill:set_visible( not self:expanded() and self:parameter( "unlocked" ) and self:parameter( "owned" ) )
+	row_item.repair_circle:set_visible( not self:expanded() and self:parameter( "unlocked" ) and self:parameter( "owned" ) )
+	self._parameters.equipped = Global.blackmarket_manager.weapons[ self:parameter( "weapon_id" ) ].equipped
+	row_item.equipped_icon:set_visible( self._parameters.equipped )
+	-- row_item.expand_line:set_visible( false )
+	if self:expanded() then
+		row_item.expanded_indicator:set_color( Color.white )
+		row_item.menu_unselected:set_color( Color( 1, 0.5, 0 ) )
+	else
+		row_item.menu_unselected:set_color( Color( 0.5, 0.5, 0.5 ) )
+	end
+	
+	self:_set_row_item_state( node, row_item )
 end
 
-MenuItemWeaponExpand._set_row_item_state = function(l_15_0, l_15_1, l_15_2)
-  if l_15_0:expanded() or l_15_2.highlighted then
-    l_15_2.weapon_name:set_color(Color.black)
-    l_15_2.weapon_name:set_font(tweak_data.menu.default_font_no_outline_id)
-  else
-    if not l_15_0:parameter("owned") or not l_15_0:parameter("unlocked") or not l_15_2.color then
-      l_15_2.weapon_name:set_color(Color(1, 0.5, 0.5, 0.5))
-    end
-    l_15_2.weapon_name:set_font(tweak_data.menu.default_font_id)
-  end
+-- GUI
+function MenuItemWeaponExpand:highlight_row_item( node, row_item, mouse_over )
+	self:_set_row_item_state( node, row_item )
+	-- row_item.weapon_name:set_color( row_item.color )
+	-- row_item.weapon_name:set_font( tweak_data.menu.default_font_no_outline_id )
 end
 
-MenuItemWeaponExpand.on_delete_row_item = function(l_16_0, l_16_1, ...)
-  MenuItemWeaponExpand.super.on_delete_row_item(l_16_0, l_16_1, ...)
-  l_16_1.gui_panel:parent():remove(l_16_1.equipped_icon)
-  l_16_1.gui_panel:parent():remove(l_16_1.bottom_line)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+-- GUI
+function MenuItemWeaponExpand:fade_row_item( node, row_item, mouse_over )
+	self:_set_row_item_state( node, row_item )
 end
 
-MenuItemWeaponExpand.condition = function(l_17_0)
-  return l_17_0:parameter("condition")
+-- GUI
+function MenuItemWeaponExpand:_set_row_item_state( node, row_item )
+	if self:expanded() or row_item.highlighted then
+		row_item.weapon_name:set_color( Color.black )
+		row_item.weapon_name:set_font( tweak_data.menu.default_font_no_outline_id )
+	else
+		row_item.weapon_name:set_color( self:parameter( "owned" ) and self:parameter( "unlocked" ) and row_item.color or Color( 1, 0.5, 0.5, 0.5 ) )
+		row_item.weapon_name:set_font( tweak_data.menu.default_font_id )
+	end
 end
 
-MenuItemWeaponExpand._max_condition = function(l_18_0)
-  return 16
+-- GUI
+function MenuItemWeaponExpand:on_delete_row_item( row_item, ... )
+	MenuItemWeaponExpand.super.on_delete_row_item( self, row_item, ... )
+	row_item.gui_panel:parent():remove( row_item.equipped_icon )
+	row_item.gui_panel:parent():remove( row_item.bottom_line )
 end
 
-MenuItemWeaponExpand._at_max_condition = function(l_19_0)
-  return l_19_0._parameters.condition == l_19_0:_max_condition()
+function MenuItemWeaponExpand:condition()
+	 return self:parameter( "condition" )
 end
 
-if not MenuItemWeaponAction then
-  MenuItemWeaponAction = class(MenuItemExpandAction)
-end
-MenuItemWeaponAction.init = function(l_20_0, l_20_1, l_20_2)
-  MenuItemWeaponAction.super.init(l_20_0, l_20_1, l_20_2)
+function MenuItemWeaponExpand:_max_condition()
+	return 16
 end
 
+function MenuItemWeaponExpand:_at_max_condition()
+	return self._parameters.condition == self:_max_condition()
+end
+
+---------------------------------------------------------------
+
+MenuItemWeaponAction = MenuItemWeaponAction or class( MenuItemExpandAction )
+
+function MenuItemWeaponAction:init( data_node, parameters )
+	MenuItemWeaponAction.super.init( self, data_node, parameters )
+end
 

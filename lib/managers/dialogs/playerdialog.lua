@@ -1,24 +1,23 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\dialogs\playerdialog.luac 
+core:module( "SystemMenuManager" )
 
-core:module("SystemMenuManager")
-require("lib/managers/dialogs/BaseDialog")
-if not PlayerDialog then
-  PlayerDialog = class(BaseDialog)
-end
-PlayerDialog.done_callback = function(l_1_0)
-  if l_1_0._data.callback_func then
-    l_1_0._data.callback_func()
-  end
-  l_1_0:fade_out_close()
-end
+require "lib/managers/dialogs/BaseDialog"
 
-PlayerDialog.player_id = function(l_2_0)
-  return l_2_0._data.player_id
+-- Abstract dialog:
+PlayerDialog = PlayerDialog or class( BaseDialog )
+
+function PlayerDialog:done_callback()
+	if( self._data.callback_func ) then
+		self._data.callback_func()
+	end
+
+	self:fade_out_close()
 end
 
-PlayerDialog.to_string = function(l_3_0)
-  return string.format("%s, Player id: %s", tostring(BaseDialog.to_string(l_3_0)), tostring(l_3_0._data.player_id))
+function PlayerDialog:player_id()
+	return self._data.player_id
 end
 
-
+function PlayerDialog:to_string()
+	return string.format( "%s, Player id: %s",
+				tostring( BaseDialog.to_string( self ) ), tostring( self._data.player_id ) )
+end

@@ -1,18 +1,15 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\weapons\npcgrenadelauncherbase.luac 
+NPCGrenadeLauncherBase = NPCGrenadeLauncherBase or class( NPCRaycastWeaponBase )
 
-if not NPCGrenadeLauncherBase then
-  NPCGrenadeLauncherBase = class(NPCRaycastWeaponBase)
-end
-NPCGrenadeLauncherBase.init = function(l_1_0, ...)
-  NPCGrenadeLauncherBase.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function NPCGrenadeLauncherBase:init( ... )
+	NPCGrenadeLauncherBase.super.init( self, ... )
 end
 
-NPCGrenadeLauncherBase.fire_blank = function(l_2_0, l_2_1, l_2_2)
-  World:effect_manager():spawn(l_2_0._muzzle_effect_table)
-  l_2_0:_sound_singleshot()
+-----------------------------------------------------------------------------------
+
+function NPCGrenadeLauncherBase:fire_blank( direction, impact )
+	World:effect_manager():spawn( self._muzzle_effect_table )
+	self:_sound_singleshot()
 end
 
-
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------

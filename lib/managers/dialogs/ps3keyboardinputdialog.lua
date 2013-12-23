@@ -1,28 +1,28 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\dialogs\ps3keyboardinputdialog.luac 
+core:module( "SystemMenuManager" )
 
-core:module("SystemMenuManager")
-require("lib/managers/dialogs/KeyboardInputDialog")
-if not PS3KeyboardInputDialog then
-  PS3KeyboardInputDialog = class(KeyboardInputDialog)
-end
-PS3KeyboardInputDialog.show = function(l_1_0)
-  local data = {}
-  data.title = l_1_0:title()
-  data.text = l_1_0:input_text()
-  data.filter = l_1_0:filter()
-  data.limit = l_1_0:max_count() or 0
-  data.callback = callback(l_1_0, l_1_0, "done_callback")
-  PS3:display_keyboard(data)
-  local success = PS3:is_displaying_box()
-  if success then
-    l_1_0._manager:event_dialog_shown(l_1_0)
-  end
-  return success
-end
+require "lib/managers/dialogs/KeyboardInputDialog"
 
-PS3KeyboardInputDialog.done_callback = function(l_2_0, l_2_1, l_2_2)
-  KeyboardInputDialog.done_callback(l_2_0, l_2_2, l_2_1)
+PS3KeyboardInputDialog = PS3KeyboardInputDialog or class( KeyboardInputDialog )
+
+function PS3KeyboardInputDialog:show()
+	local data = {}
+	data.title = self:title()
+	data.text = self:input_text()
+	data.filter = self:filter()
+	data.limit = self:max_count() or 0
+	data.callback = callback( self, self, "done_callback" )
+
+	PS3:display_keyboard( data )
+
+	local success = PS3:is_displaying_box()		-- Does this extra check since PS3:display_keyboard( data ) fails silently if executed right after a previous one.
+
+	if( success ) then
+		self._manager:event_dialog_shown( self )
+	end
+
+	return success
 end
 
-
+function PS3KeyboardInputDialog:done_callback( input_text, success )
+	KeyboardInputDialog.done_callback( self, success, input_text )
+end

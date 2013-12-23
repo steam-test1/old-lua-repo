@@ -1,68 +1,74 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\mission\elementheat.luac 
+core:import( "CoreMissionScriptElement" )
 
-core:import("CoreMissionScriptElement")
-if not ElementHeat then
-  ElementHeat = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementHeat.init = function(l_1_0, ...)
-  ElementHeat.super.init(l_1_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+ElementHeat = ElementHeat or class( CoreMissionScriptElement.MissionScriptElement )
 
+function ElementHeat:init( ... )
+	ElementHeat.super.init( self, ... )
 end
 
-ElementHeat.client_on_executed = function(l_2_0, ...)
-  l_2_0:on_executed(...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function ElementHeat:client_on_executed( ... )
+	self:on_executed( ... )
 end
 
-ElementHeat.on_executed = function(l_3_0, l_3_1)
-  if not l_3_0._values.enabled then
-    return 
-  end
-  if Network:is_server() then
-    if l_3_0._values.level ~= 0 then
-      managers.groupai:state():force_up_heat_level(l_3_0._values.level)
-  if l_3_0._values.points ~= 0 then
-    end
-  end
-  ElementHeat.super.on_executed(l_3_0, l_3_1)
+function ElementHeat:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	if Network:is_server() then
+		if self._values.level ~= 0 then
+			managers.groupai:state():force_up_heat_level( self._values.level )
+		elseif self._values.points ~= 0 then
+			-- managers.groupai:state():add_heat( self._values.points )
+		end
+	end
+	ElementHeat.super.on_executed( self, instigator )
 end
 
-if not ElementHeatTrigger then
-  ElementHeatTrigger = class(CoreMissionScriptElement.MissionScriptElement)
-end
-ElementHeatTrigger.init = function(l_4_0, ...)
-  ElementHeatTrigger.super.init(l_4_0, ...)
-  if Network:is_server() then
-    l_4_0:add_callback()
-     -- DECOMPILER ERROR: Confused about usage of registers for local variables.
+---------------------------------------------------------------------
 
-  end
-end
+ElementHeatTrigger = ElementHeatTrigger or class( CoreMissionScriptElement.MissionScriptElement )
 
-ElementHeatTrigger.add_callback = function(l_5_0)
+function ElementHeatTrigger:init( ... )
+	ElementHeatTrigger.super.init( self, ... )
+	
+	if Network:is_server() then
+		self:add_callback()
+	end
 end
 
-ElementHeatTrigger.remove_callback = function(l_6_0)
+function ElementHeatTrigger:add_callback()
+	--managers.groupai:state():add_heat_listener( self._id, callback( self, self, "heat_changed" ) )
 end
 
-ElementHeatTrigger.heat_changed = function(l_7_0)
-  if Network:is_client() then
-    return 
-  end
+function ElementHeatTrigger:remove_callback()
+	--managers.groupai:state():remove_heat_listener( self._id )
 end
 
-ElementHeatTrigger.on_executed = function(l_8_0, l_8_1)
-  if not l_8_0._values.enabled then
-    return 
-  end
-  l_8_1 = managers.player:player_unit()
-  ElementHeatTrigger.super.on_executed(l_8_0, l_8_1)
-  if not l_8_0._values.enabled then
-    l_8_0:remove_callback()
-  end
+function ElementHeatTrigger:heat_changed()
+	if Network:is_client() then
+		return
+	end 
+	
+	--[[if self._values.stage == managers.groupai:state():heat_stage() then
+		self:on_executed()
+	end]]
 end
 
+--[[function ElementHeatTrigger:client_on_executed( ... )
+	self:on_executed( ... )
+end]]
 
+function ElementHeatTrigger:on_executed( instigator )
+	if not self._values.enabled then
+		return
+	end
+	
+	instigator = managers.player:player_unit()
+	ElementHeatTrigger.super.on_executed( self, instigator )
+	
+	-- The heat trigger has been disabled due to trigger times == 0
+	if not self._values.enabled then
+		self:remove_callback()
+	end
+end

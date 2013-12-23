@@ -1,40 +1,34 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\units\pickups\ammoclip.luac 
+AmmoClip = AmmoClip or class( Pickup )
 
-if not AmmoClip then
-  AmmoClip = class(Pickup)
-end
-AmmoClip.init = function(l_1_0, l_1_1)
-  AmmoClip.super.init(l_1_0, l_1_1)
-  l_1_0._ammo_type = ""
+function AmmoClip:init( unit )
+	AmmoClip.super.init( self, unit )
+-- 	self._ammo = 0
+	self._ammo_type = ""
 end
 
-AmmoClip._pickup = function(l_2_0, l_2_1)
-  if l_2_0._picked_up then
-    return 
-  end
-  do
-    local inventory = l_2_1:inventory()
-    if not l_2_1:character_damage():dead() and inventory then
-      local picked_up = false
-      for _,weapon in pairs(inventory:available_selections()) do
-      end
-      if not weapon.unit:base():add_ammo() then
-        end
-        if picked_up then
-          l_2_0._picked_up = true
-          if Network:is_client() then
-            managers.network:session():send_to_host("sync_pickup", l_2_0._unit)
-          end
-          l_2_1:sound():play("pickup_ammo", nil, true)
-          l_2_0:consume()
-          return true
-        end
-      end
-      return false
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+function AmmoClip:_pickup( unit )
+	if self._picked_up then
+		return
+	end
+	
+	local inventory = unit:inventory()
+	
+	if not unit:character_damage():dead() and inventory then
+		local picked_up = false
+		for _,weapon in pairs( inventory:available_selections() ) do
+			picked_up = weapon.unit:base():add_ammo() or picked_up
+		end
+		if picked_up then
+			self._picked_up = true
+			if Network:is_client() then
+				managers.network:session():send_to_host( "sync_pickup", self._unit )
+			end
+			
+			unit:sound():play( "pickup_ammo", nil, true )
+			self:consume()
+			return true
+		end
+	end
+
+	return false
 end
-
-

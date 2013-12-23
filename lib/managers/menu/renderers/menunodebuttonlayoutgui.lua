@@ -1,103 +1,142 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\menu\renderers\menunodebuttonlayoutgui.luac 
+MenuNodeButtonLayoutGui = MenuNodeButtonLayoutGui or class( MenuNodeGui )
 
-if not MenuNodeButtonLayoutGui then
-  MenuNodeButtonLayoutGui = class(MenuNodeGui)
-end
-MenuNodeButtonLayoutGui.init = function(l_1_0, l_1_1, l_1_2, l_1_3)
-  MenuNodeButtonLayoutGui.super.init(l_1_0, l_1_1, l_1_2, l_1_3)
-  l_1_0:_setup(l_1_1)
+function MenuNodeButtonLayoutGui:init( node, layer, parameters )
+	MenuNodeButtonLayoutGui.super.init( self, node, layer, parameters )
+		
+	self:_setup( node )
 end
 
-MenuNodeButtonLayoutGui._setup_panels = function(l_2_0, l_2_1)
-  MenuNodeButtonLayoutGui.super._setup_panels(l_2_0, l_2_1)
-  local safe_rect_pixels = managers.viewport:get_safe_rect_pixels()
+function MenuNodeButtonLayoutGui:_setup_panels( node )
+	MenuNodeButtonLayoutGui.super._setup_panels( self, node )
+	
+	local safe_rect_pixels = managers.viewport:get_safe_rect_pixels()
 end
 
-MenuNodeButtonLayoutGui._setup = function(l_3_0)
-  if not tweak_data:get_controller_help_coords() then
-    l_3_0._coords = {}
-  end
-  for id,data in pairs(l_3_0._coords) do
-    data.text = l_3_0.ws:panel():text({text = managers.localization:to_upper_text(id), font_size = l_3_0.font_size, font = l_3_0.font, layer = l_3_0.layers.items, align = data.align, vertical = data.vertical, halign = "center", valign = "center"})
-  end
-  l_3_0._blur = managers.menu_component._fullscreen_ws:panel():bitmap({texture = "guis/textures/test_blur_df", w = managers.menu_component._fullscreen_ws:panel():w(), h = managers.menu_component._fullscreen_ws:panel():h(), render_template = "VertexColorTexturedBlur3D", layer = l_3_0.layers.background})
-  local func = function(l_1_0)
-    local start_blur = 0
-    over(0.60000002384186, function(l_1_0)
-      o:set_alpha(math.lerp(start_blur, 1, l_1_0))
-      end)
-   end
-  l_3_0._blur:animate(func)
-  l_3_0._bg = l_3_0.ws:panel():rect({visible = false, color = Color(1, 0.10000000149012, 0.10000000149012, 0.10000000149012), layer = l_3_0.layers.background})
-  l_3_0._controller = l_3_0.ws:panel():bitmap({texture = "guis/textures/controller", layer = l_3_0.layers.items, w = 512, h = 256})
-  l_3_0:_layout()
+function MenuNodeButtonLayoutGui:_setup()
+	self._coords = tweak_data:get_controller_help_coords() or {}
+	
+	--[[
+	if SystemInfo:platform() == Idstring( "PS3" ) then
+		self._coords[ "menu_button_sprint" ] = { x = 185, y = 255, align = "right", vertical ="top" }
+		self._coords[ "menu_button_move" ] = { x = 185, y = 280, align = "right", vertical ="top" }
+		self._coords[ "menu_button_melee" ] = { x = 329, y = 255, align = "left", vertical ="top" }
+		self._coords[ "menu_button_look" ] = { x = 329, y = 280, align = "left", vertical ="top" }
+		
+		self._coords[ "menu_button_switch_weapon" ] = { x = 511, y = 112, align = "left" }
+		self._coords[ "menu_button_reload" ] = { x = 511, y = 214, align = "left" }
+		self._coords[ "menu_button_crouch" ] = { x = 511, y = 146, align = "left" }
+		self._coords[ "menu_button_jump" ] = { x = 511, y = 178, align = "left" }
+		
+		self._coords[ "menu_button_shout" ] = { x = 511, y = 8, align = "left" }
+		self._coords[ "menu_button_fire_weapon" ] = { x = 511, y = 36, align = "left" }
+		self._coords[ "menu_button_deploy" ] = { x = 0, y = 8, align = "right" }
+		self._coords[ "menu_button_aim_down_sight" ] = { x = 0, y = 36, align = "right" }
+		
+		self._coords[ "menu_button_ingame_menu" ] = { x = 290, y = 0, align = "left", vertical ="bottom" }
+		self._coords[ "menu_button_stats_screen" ] = { x = 220, y = 0, align = "right", vertical ="bottom" }
+		
+		self._coords[ "menu_button_weapon_gadget" ] = { x = 0, y = 171, align = "right", vertical = "center" }
+	else
+		self._coords[ "menu_button_sprint" ] = { x = 0, y = 138, align = "right", vertical ="bottom" }
+		self._coords[ "menu_button_move" ] = { x = 0, y = 138, align = "right", vertical ="top" }
+		self._coords[ "menu_button_melee" ] = { x = 312, y = 256, align = "left", vertical ="top" }
+		self._coords[ "menu_button_look" ] = { x = 312, y = 281, align = "left", vertical ="top" }
+		
+		self._coords[ "menu_button_switch_weapon" ] = { x = 512, y = 97, align = "left" }
+		self._coords[ "menu_button_reload" ] = { x = 512, y = 180, align = "left" }
+		self._coords[ "menu_button_crouch" ] = { x = 512, y = 125, align = "left" }
+		self._coords[ "menu_button_jump" ] = { x = 512, y = 153, align = "left" }
+		
+		self._coords[ "menu_button_shout" ] = { x = 512, y = 49, align = "left" }
+		self._coords[ "menu_button_fire_weapon" ] = { x = 512, y = 19, align = "left" }
+		self._coords[ "menu_button_deploy" ] = { x = 0, y = 49, align = "right" }
+		self._coords[ "menu_button_aim_down_sight" ] = { x = 0, y = 19, align = "right" }
+		
+		self._coords[ "menu_button_ingame_menu" ] = { x = 298, y = 0, align = "left", vertical ="bottom" }
+		self._coords[ "menu_button_stats_screen" ] = { x = 213, y = 0, align = "right", vertical ="bottom" }
+		
+		self._coords[ "menu_button_weapon_gadget" ] = { x = 199, y = 256, align = "right", vertical = "top" }
+	end
+	]]
+	
+	for id,data in pairs( self._coords ) do -- 
+		data.text = self.ws:panel():text( { text = managers.localization:to_upper_text( id ), font_size = self.font_size, font = self.font, layer = self.layers.items,
+											align=data.align, vertical=data.vertical, 
+											halign="center", valign="center", } )
+	end
+	
+	self._blur = managers.menu_component._fullscreen_ws:panel():bitmap( { texture="guis/textures/test_blur_df", w=managers.menu_component._fullscreen_ws:panel():w(), h=managers.menu_component._fullscreen_ws:panel():h(), render_template="VertexColorTexturedBlur3D", layer = self.layers.background } )
+	local func = function(o)
+		local start_blur = 0
+		over( 0.6, function(p) o:set_alpha( math.lerp( start_blur, 1, p ) ) end)
+	end	
+	self._blur:animate( func )
+	
+	self._bg = self.ws:panel():rect( { visible = false, color = Color( 1, 0.1, 0.1, 0.1 ), layer = self.layers.background } )
+	self._controller = self.ws:panel():bitmap( { texture="guis/textures/controller", layer = self.layers.items, w=512, h=256 } )
+	self:_layout()
 end
 
-MenuNodeButtonLayoutGui._layout = function(l_4_0)
-  local safe_rect_pixels = managers.viewport:get_safe_rect_pixels()
-  local res = RenderSettings.resolution
-  do
-    local scale = tweak_data.scale.button_layout_multiplier
-    l_4_0._bg:set_h(res.y - (tweak_data.menu.upper_saferect_border + safe_rect_pixels.y) * 2 + 2)
-    l_4_0._bg:set_center_y(res.y / 2)
-    l_4_0._blur:set_size(managers.menu_component._fullscreen_ws:panel():w(), managers.menu_component._fullscreen_ws:panel():h())
-    l_4_0._controller:set_size(l_4_0._controller:w() * scale, l_4_0._controller:h() * scale)
-    l_4_0._controller:set_center(l_4_0.ws:panel():w() / 2, l_4_0.ws:panel():h() / 2)
-    for id,data in pairs(l_4_0._coords) do
-      local _, _, w, h = data.text:text_rect()
-      data.text:set_size(w, h)
-      if data.x then
-        local x = l_4_0._controller:x() + data.x * scale
-        local y = l_4_0._controller:y() + data.y * scale
-        if data.align == "left" then
-          data.text:set_left(x)
-        elseif data.align == "right" then
-          data.text:set_right(x)
-        elseif data.align == "center" then
-          data.text:set_center_x(x)
-        end
-        if data.vertical == "top" then
-          data.text:set_top(y)
-          for (for control),id in (for generator) do
-          end
-          if data.vertical == "bottom" then
-            data.text:set_bottom(y)
-            for (for control),id in (for generator) do
-            end
-            data.text:set_center_y(y)
-          end
-        end
-      end
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+function MenuNodeButtonLayoutGui:_layout()
+	local safe_rect_pixels = managers.viewport:get_safe_rect_pixels()
+	local res = RenderSettings.resolution
+	local scale = tweak_data.scale.button_layout_multiplier
+	
+	self._bg:set_h( res.y - (tweak_data.menu.upper_saferect_border + safe_rect_pixels.y )* 2 + 2 )
+	self._bg:set_center_y( res.y / 2)
+	
+	self._blur:set_size( managers.menu_component._fullscreen_ws:panel():w(), managers.menu_component._fullscreen_ws:panel():h() )
+	
+	self._controller:set_size( self._controller:w() * scale, self._controller:h() * scale ) 
+	self._controller:set_center( self.ws:panel():w()/2, self.ws:panel():h()/2 )
+	
+	for id,data in pairs( self._coords ) do
+		local _,_,w,h = data.text:text_rect()
+		data.text:set_size( w, h )
+		if data.x then
+			local x = self._controller:x() + data.x * scale
+			local y = self._controller:y() + data.y * scale
+			if data.align == "left" then
+				data.text:set_left( x )
+			elseif data.align == "right" then
+				data.text:set_right( x )
+			elseif data.align == "center" then
+				data.text:set_center_x( x )
+			end
+			if data.vertical == "top" then
+				data.text:set_top( y )
+			elseif data.vertical == "bottom" then
+				data.text:set_bottom( y )
+			else
+				data.text:set_center_y( y )
+			end
+		end
+	end
 end
 
-MenuNodeButtonLayoutGui._create_menu_item = function(l_5_0, l_5_1)
-  MenuNodeButtonLayoutGui.super._create_menu_item(l_5_0, l_5_1)
+function MenuNodeButtonLayoutGui:_create_menu_item( row_item )
+	MenuNodeButtonLayoutGui.super._create_menu_item( self, row_item )
 end
 
-MenuNodeButtonLayoutGui._setup_item_panel_parent = function(l_6_0, l_6_1)
-  MenuNodeButtonLayoutGui.super._setup_item_panel_parent(l_6_0, l_6_1)
+function MenuNodeButtonLayoutGui:_setup_item_panel_parent( safe_rect )
+	MenuNodeButtonLayoutGui.super._setup_item_panel_parent( self, safe_rect )
 end
 
-MenuNodeButtonLayoutGui._setup_item_panel = function(l_7_0, l_7_1, l_7_2)
-  MenuNodeButtonLayoutGui.super._setup_item_panel(l_7_0, l_7_1, l_7_2)
+function MenuNodeButtonLayoutGui:_setup_item_panel( safe_rect, res )
+	MenuNodeButtonLayoutGui.super._setup_item_panel( self, safe_rect, res )
 end
 
-MenuNodeButtonLayoutGui.resolution_changed = function(l_8_0)
-  MenuNodeButtonLayoutGui.super.resolution_changed(l_8_0)
-  l_8_0:_layout()
+function MenuNodeButtonLayoutGui:resolution_changed()
+	MenuNodeButtonLayoutGui.super.resolution_changed( self )
+	
+	self:_layout()
 end
 
-MenuNodeButtonLayoutGui.close = function(l_9_0, ...)
-  l_9_0._bg:parent():remove(l_9_0._bg)
-  l_9_0._blur:parent():remove(l_9_0._blur)
-  MenuNodeButtonLayoutGui.super.close(l_9_0, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function MenuNodeButtonLayoutGui:close( ... )
+	self._bg:parent():remove( self._bg )
+	self._blur:parent():remove( self._blur )
+	
+	MenuNodeButtonLayoutGui.super.close( self, ... )
 end
 
 

@@ -1,34 +1,30 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\menu\items\coremenuitemoption.luac 
-
 core:module("CoreMenuItemOption")
-if not ItemOption then
-  ItemOption = class()
-end
-ItemOption.init = function(l_1_0, l_1_1, l_1_2)
-  if not l_1_2 then
-    local params = {}
-  end
-  if l_1_1 then
-    for key,value in pairs(l_1_1) do
-      if key ~= "_meta" and type(value) ~= "table" then
-        params[key] = value
-      end
-    end
-  end
-  l_1_0:set_parameters(params)
-end
 
-ItemOption.value = function(l_2_0)
-  return l_2_0._parameters.value
+-- Represents an option in a toggle item
+ItemOption = ItemOption or class()
+
+function ItemOption:init( data_node, parameters )
+	-- Load parameters
+	local params = parameters or {}
+	if( data_node ) then
+		for key,value in pairs( data_node ) do
+			if( ( key ~= "_meta" ) and ( type( value ) ~= "table" ) ) then
+				params[ key ] = value
+			end
+		end
+	end
+	
+	self:set_parameters( params )
 end
 
-ItemOption.parameters = function(l_3_0)
-  return l_3_0._parameters
+function ItemOption:value()
+	return self._parameters.value
 end
 
-ItemOption.set_parameters = function(l_4_0, l_4_1)
-  l_4_0._parameters = l_4_1
+function ItemOption:parameters()
+	return self._parameters
 end
 
-
+function ItemOption:set_parameters( parameters )
+	self._parameters = parameters
+end

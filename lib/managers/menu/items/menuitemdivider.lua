@@ -1,63 +1,105 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\menu\items\menuitemdivider.luac 
-
 core:import("CoreMenuItem")
-if not MenuItemDivider then
-  MenuItemDivider = class(CoreMenuItem.Item)
-end
+
+MenuItemDivider = MenuItemDivider or class( CoreMenuItem.Item )
 MenuItemDivider.TYPE = "divider"
-MenuItemDivider.init = function(l_1_0, l_1_1, l_1_2)
-  MenuItemDivider.super.init(l_1_0, l_1_1, l_1_2)
-  l_1_0._type = MenuItemDivider.TYPE
+
+function MenuItemDivider:init( data_node, parameters )
+	MenuItemDivider.super.init( self, data_node, parameters )
+	
+	self._type = MenuItemDivider.TYPE
 end
 
-MenuItemDivider.setup_gui = function(l_2_0, l_2_1, l_2_2)
-  local scaled_size = managers.gui_data:scaled_size()
-  l_2_2.gui_panel = l_2_1.item_panel:panel({w = l_2_1.item_panel:w()})
-  local h = l_2_2.item:parameters().size or 10
-  if l_2_2.text then
-    print("HAS TEXT", l_2_2.text)
-    l_2_2.text = l_2_1._text_item_part(l_2_1, l_2_2, l_2_2.gui_panel, 0)
-    local _, _, tw, th = l_2_2.text:text_rect()
-    l_2_2.text:set_size(tw, th)
-    h = th
-  end
-  l_2_2.gui_panel:set_left(l_2_1._mid_align(l_2_1))
-  l_2_2.gui_panel:set_w(scaled_size.width - l_2_2.gui_panel:left())
-  l_2_2.gui_panel:set_h(h)
-  return true
+-- GUI
+function MenuItemDivider:setup_gui( node, row_item )
+	-- print( "MenuItemDivider:setup_gui", self._parameters.weapon_id )
+	local scaled_size = managers.gui_data:scaled_size()
+	
+	row_item.gui_panel = node.item_panel:panel( { w = node.item_panel:w() } )
+	
+	local h = row_item.item:parameters().size or 10
+	if row_item.text then
+		print ("HAS TEXT", row_item.text )
+		row_item.text = node._text_item_part( node, row_item, row_item.gui_panel, 0 ) --node.align_line_padding( node ) )
+		local _,_,tw,th = row_item.text:text_rect()
+		row_item.text:set_size( tw, th )
+		h = th
+	end
+					
+	row_item.gui_panel:set_left( node._mid_align( node ) )
+	row_item.gui_panel:set_w( scaled_size.width - row_item.gui_panel:left() )
+	row_item.gui_panel:set_h( h )
+	
+	return true
+	-- row_item.bottom_line = row_item.gui_panel:parent():bitmap( { texture = "guis/textures/headershadowdown", layer = node.layers.items + 1, color = Color.white, w = row_item.gui_panel:w(), y = 100 } )
 end
 
-MenuItemDivider.reload = function(l_3_0, l_3_1, l_3_2)
-  MenuItemDivider.super.reload(l_3_0, l_3_1, l_3_2)
-  l_3_0:_set_row_item_state(l_3_2, l_3_1)
-  return true
+-- GUI
+--[[function MenuItemDivider:on_item_position( row_item, node )
+	row_item.expanded_indicator:set_position( row_item.gui_panel:position() )
+	row_item.expanded_indicator:set_center_y( row_item.gui_panel:center_y() )
+	row_item.equipped_icon:set_center_y( row_item.gui_panel:center_y() )
+	
+	row_item.expand_line:set_lefttop( row_item.gui_panel:leftbottom() )
+	row_item.expand_line:set_left( row_item.expand_line:left() )
 end
 
-MenuItemDivider.highlight_row_item = function(l_4_0, l_4_1, l_4_2, l_4_3)
-  l_4_0:_set_row_item_state(l_4_1, l_4_2)
-  return true
+-- GUI
+function MenuItemDivider:on_item_positions_done( row_item, node )
+	if self:expanded() then
+		local child = self._items[ #self._items ]
+		local row_child = node.row_item( node, child )
+						
+		if row_child then -- CASE FOR NO CHILDREN
+			row_item.bottom_line:set_lefttop( row_child.gui_panel:leftbottom() )
+			row_item.bottom_line:set_top( row_item.bottom_line:top() - 1 )
+		end
+	end
+end]]
+
+-- GUI
+function MenuItemDivider:reload( row_item, node )
+	-- print( "MenuItemDivider:reload", self:name() )
+	-- print( "  item:parameters().parent_item", self:parameters().parent_item:name() )
+	MenuItemDivider.super.reload( self, row_item, node )
+	
+	-- row_item.bottom_line:set_lefttop( row_item.gui_panel:leftbottom() )
+	-- row_item.bottom_line:set_center_y( row_item.gui_panel:center_y() )
+	
+	self:_set_row_item_state( node, row_item )
+	return true
 end
 
-MenuItemDivider.fade_row_item = function(l_5_0, l_5_1, l_5_2, l_5_3)
-  l_5_0:_set_row_item_state(l_5_1, l_5_2)
-  return true
+-- GUI
+function MenuItemDivider:highlight_row_item( node, row_item, mouse_over )
+	self:_set_row_item_state( node, row_item )
+	return true
+	-- row_item.clothing_name:set_color( row_item.color )
+	-- row_item.clothing_name:set_font( tweak_data.menu.default_font_no_outline_id )
 end
 
-MenuItemDivider._set_row_item_state = function(l_6_0, l_6_1, l_6_2)
-  if l_6_2.highlighted then
-     -- Warning: missing end command somewhere! Added here
-  end
+-- GUI
+function MenuItemDivider:fade_row_item( node, row_item, mouse_over )
+	self:_set_row_item_state( node, row_item )
+	return true
 end
 
-MenuItemDivider.menu_unselected_visible = function(l_7_0)
-  return false
+-- GUI
+function MenuItemDivider:_set_row_item_state( node, row_item )
+	if row_item.highlighted then
+		-- row_item.clothing_name:set_color( Color.black )
+		-- row_item.clothing_name:set_font( tweak_data.menu.default_font_no_outline_id )
+	else
+		-- row_item.clothing_name:set_color( self:parameter( "owned" ) and self:parameter( "unlocked" ) and row_item.color or Color( 1, 0.5, 0.5, 0.5 ) )
+		-- row_item.clothing_name:set_font( tweak_data.menu.default_font_id )
+	end
 end
 
-MenuItemDivider.on_delete_row_item = function(l_8_0, l_8_1, ...)
-  MenuItemDivider.super.on_delete_row_item(l_8_0, l_8_1, ...)
-   -- DECOMPILER ERROR: Confused about usage of registers for local variables.
-
+function MenuItemDivider:menu_unselected_visible()
+	return false
 end
 
+-- GUI
+function MenuItemDivider:on_delete_row_item( row_item, ... )
+	MenuItemDivider.super.on_delete_row_item( self, row_item, ... )
+end
 

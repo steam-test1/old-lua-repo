@@ -1,183 +1,204 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\menu\items\menuitemupgrade.luac 
-
 core:import("CoreMenuItem")
-if not MenuItemUpgrade then
-  MenuItemUpgrade = class(CoreMenuItem.Item)
-end
+
+MenuItemUpgrade = MenuItemUpgrade or class( CoreMenuItem.Item )
 MenuItemUpgrade.TYPE = "upgrade"
-MenuItemUpgrade.init = function(l_1_0, l_1_1, l_1_2)
-  CoreMenuItem.Item.init(l_1_0, l_1_1, l_1_2)
-  l_1_0._parameters.upgrade_id = l_1_2.upgrade_id
-  l_1_0._parameters.topic_text = l_1_2.topic_text
-  l_1_0._type = MenuItemUpgrade.TYPE
+
+function MenuItemUpgrade:init( data_node, parameters )
+	CoreMenuItem.Item.init( self, data_node, parameters )
+		
+	self._parameters.upgrade_id = parameters.upgrade_id
+	self._parameters.topic_text = parameters.topic_text
+	self._type = MenuItemUpgrade.TYPE
 end
 
-MenuItemUpgrade.setup_gui = function(l_2_0, l_2_1, l_2_2)
-  local upgrade_id = l_2_0:parameters().upgrade_id
-  l_2_2.gui_panel = l_2_1.item_panel:panel({w = l_2_1.item_panel:w()})
-  l_2_2.upgrade_name = l_2_1._text_item_part(l_2_1, l_2_2, l_2_2.gui_panel, l_2_1._right_align(l_2_1))
-  l_2_2.upgrade_name:set_font_size(tweak_data.menu.upgrades_font_size)
-  if l_2_0:parameters().topic_text then
-    l_2_2.topic_text = l_2_1._text_item_part(l_2_1, l_2_2, l_2_2.gui_panel, l_2_1._left_align(l_2_1))
-    l_2_2.topic_text:set_align("right")
-    l_2_2.topic_text:set_font_size(tweak_data.menu.upgrades_font_size)
-    l_2_2.topic_text:set_text(l_2_0:parameters().topic_text)
-  end
-  if l_2_0:name() == "upgrade_lock" then
-    l_2_2.not_aquired = true
-    l_2_2.locked = true
-  else
-    l_2_2.not_aquired = managers.upgrades:progress_by_tree(l_2_0:parameters().tree) < l_2_0:parameters().step
-    l_2_2.locked = managers.upgrades:is_locked(l_2_0:parameters().step)
-  end
-  if (not l_2_2.locked or not tweak_data.menu.upgrade_locked_color) and (not l_2_2.not_aquired or not tweak_data.menu.upgrade_not_aquired_color) then
-    local upg_color = l_2_2.color
-  end
-  if managers.upgrades:aquired(upgrade_id) then
-    upg_color = l_2_2.color
-  end
-  l_2_2.upgrade_name:set_color(upg_color)
-  if l_2_2.topic_text then
-    l_2_2.topic_text:set_color(upg_color)
-  end
-  if l_2_0:name() ~= "upgrade_lock" then
-    l_2_2.gui_info_panel = l_2_1.safe_rect_panel:panel({visible = false, layer = l_2_1.layers.items, x = 0, y = 0, w = l_2_1._left_align(l_2_1), h = l_2_1._item_panel_parent:h()})
-    local image, rect = managers.upgrades:image(upgrade_id)
-    l_2_2.upgrade_info_image_rect = rect
-    l_2_2.upgrade_info_image = l_2_2.gui_info_panel:bitmap({texture = image, texture_rect = rect, visible = true, x = 0, y = 0, w = 340, h = 150})
-     -- DECOMPILER ERROR: Confused about usage of registers!
+-- GUI ----------------------------------------------------
 
-     -- DECOMPILER ERROR: Confused about usage of registers!
+function MenuItemUpgrade:setup_gui( node, row_item )
+	local upgrade_id = self:parameters().upgrade_id
+		
+		row_item.gui_panel = node.item_panel:panel( { w = node.item_panel:w() } )
+		row_item.upgrade_name = node._text_item_part( node, row_item, row_item.gui_panel, node._right_align( node ) )
+		row_item.upgrade_name:set_font_size( tweak_data.menu.upgrades_font_size )
+		
+		if self:parameters().topic_text then
+			row_item.topic_text = node._text_item_part( node, row_item, row_item.gui_panel, node._left_align( node ) )
+			row_item.topic_text:set_align( "right" )
+			row_item.topic_text:set_font_size( tweak_data.menu.upgrades_font_size )
+			row_item.topic_text:set_text( self:parameters().topic_text )
+		end
+				
+		if self:name() == "upgrade_lock" then
+			row_item.not_aquired = true
+			row_item.locked = true		
+		else
+			row_item.not_aquired = managers.upgrades:progress_by_tree( self:parameters().tree ) < self:parameters().step
+			row_item.locked = managers.upgrades:is_locked( self:parameters().step )
+		end
+		
+		local upg_color = row_item.locked and tweak_data.menu.upgrade_locked_color or row_item.not_aquired and tweak_data.menu.upgrade_not_aquired_color or row_item.color
+		if managers.upgrades:aquired( upgrade_id ) then
+			upg_color = row_item.color
+		end
 
-     -- DECOMPILER ERROR: Confused about usage of registers!
+		--row_item.color = upg_color
+		row_item.upgrade_name:set_color( upg_color )
+		if row_item.topic_text then
+			row_item.topic_text:set_color( upg_color )
+		end
+			
+		if self:name() ~= "upgrade_lock" then
+			row_item.gui_info_panel = node.safe_rect_panel:panel( { visible = false, layer = node.layers.items, x = 0, y = 0, w = node._left_align( node ), h = node._item_panel_parent:h() } )
+			
+			local image, rect = managers.upgrades:image( upgrade_id )
+			row_item.upgrade_info_image_rect = rect
+			row_item.upgrade_info_image = row_item.gui_info_panel:bitmap( { texture = image, texture_rect = rect, visible = true, x = 0, y = 0, w = 340, h = 150--[[w = row_item.gui_level_panel:w()/2, h = row_item.gui_level_panel:w()/2,]] --[[texture_rect = { 0, 0, 48, 48 },]] } )
+		
+			row_item.upgrade_info_title = row_item.gui_info_panel:text( {
+							x = 0, y = 0, align="left", halign="top", vertical="top",
+							font_size = node.font_size,	font = row_item.font, color = Color.white, wrap = true, word_wrap = true,
+							layer = node.layers.items, text = string.upper( managers.upgrades:complete_title( upgrade_id, " > " ) ),
+						} )
+						
+			row_item.upgrade_info_text = row_item.gui_info_panel:text( {
+							x = 0, y = 0, align="left", halign="top", vertical="top",
+							font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white,
+							layer = node.layers.items, text = string.upper( managers.upgrades:description( upgrade_id ) ), wrap = true, word_wrap = true,
+						} )
+		
+			if tweak_data.upgrades.visual.upgrade[ upgrade_id ] and not tweak_data.upgrades.visual.upgrade[ upgrade_id ].base then
+				row_item.upgrade_icon = row_item.gui_panel:bitmap( { texture = "guis/textures/icon_star", texture_rect = { 0, 0, 32, 32 }, layer = node.layers.items, color = upg_color } )
+				if managers.upgrades:aquired( upgrade_id ) then
+					row_item.toggle_text = row_item.gui_info_panel:text( {
+						x = 0, y = 0, align="left", halign="top", vertical="top",
+						font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white,
+						layer = node.layers.items, text = "", wrap = true, word_wrap = true,
+					} )
+					self:reload( row_item, node )
+				end
+			end
+		end
+				
+		-- row_item.gui_panel = node._text_item_part( node, row_item, node.item_panel, node._right_align( node )  )
+		-- row_item.gui_panel:set_font_size( 24 )
+		self:_layout( node, row_item )
 
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    l_2_2.upgrade_info_title, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font_size = l_2_1.font_size, font = l_2_2.font, color = Color.white}.text, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font_size = l_2_1.font_size, font = l_2_2.font, color = Color.white}.layer, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font_size = l_2_1.font_size, font = l_2_2.font, color = Color.white}.word_wrap, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font_size = l_2_1.font_size, font = l_2_2.font, color = Color.white}.wrap = l_2_2.gui_info_panel:text({x = 0, y = 0, align = "left", halign = "top", vertical = "top", font_size = l_2_1.font_size, font = l_2_2.font, color = Color.white}), string.upper(managers.upgrades:complete_title(upgrade_id, " > ")), l_2_1.layers.items, true, true
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-     -- DECOMPILER ERROR: Confused about usage of registers!
-
-    l_2_2.upgrade_info_text, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white}.word_wrap, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white}.wrap, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white}.text, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white}.layer = l_2_2.gui_info_panel:text({x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white}), true, true, string.upper(managers.upgrades:description(upgrade_id)), l_2_1.layers.items
-    if tweak_data.upgrades.visual.upgrade[upgrade_id] and not tweak_data.upgrades.visual.upgrade[upgrade_id].base then
-      l_2_2.upgrade_icon = l_2_2.gui_panel:bitmap({texture = "guis/textures/icon_star", texture_rect = {0, 0, 32, 32}, layer = l_2_1.layers.items, color = upg_color})
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-       -- DECOMPILER ERROR: Confused about usage of registers!
-
-      if managers.upgrades:aquired(upgrade_id) then
-        l_2_2.toggle_text, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white}.word_wrap, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white}.wrap, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white}.text, {x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white}.layer = l_2_2.gui_info_panel:text({x = 0, y = 0, align = "left", halign = "top", vertical = "top", font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, color = Color.white}), true, true, "", l_2_1.layers.items
-        l_2_0:reload(l_2_2, l_2_1)
-      end
-    end
-  end
-  l_2_0:_layout(l_2_1, l_2_2)
-  return true
+	return true
 end
 
-MenuItemUpgrade.reload = function(l_3_0, l_3_1, l_3_2)
-  local upgrade_id = l_3_0:parameters().upgrade_id
-  if l_3_1.toggle_text then
-    local text = nil
-    if not managers.upgrades:visual_weapon_upgrade_active(upgrade_id) then
-      text = managers.localization:text("menu_show_upgrade_info", {UPGRADE = managers.localization:text("menu_" .. upgrade_id .. "_info")})
-    else
-      text = managers.localization:text("menu_hide_upgrade_info", {UPGRADE = managers.localization:text("menu_" .. upgrade_id .. "_info")})
-    end
-    l_3_1.toggle_text:set_text(string.upper(text))
-  end
-  return true
+function MenuItemUpgrade:reload( row_item, node )
+	local upgrade_id = self:parameters().upgrade_id
+	if row_item.toggle_text then
+		local text
+		if not managers.upgrades:visual_weapon_upgrade_active( upgrade_id ) then
+			text = managers.localization:text( "menu_show_upgrade_info", { UPGRADE = managers.localization:text( "menu_"..upgrade_id.."_info") } )
+		else
+			text = managers.localization:text( "menu_hide_upgrade_info", { UPGRADE = managers.localization:text( "menu_"..upgrade_id.."_info") } )
+		end
+		
+		row_item.toggle_text:set_text( string.upper( text ) )
+	end
+	
+	return true
 end
 
-MenuItemUpgrade.highlight_row_item = function(l_4_0, l_4_1, l_4_2, l_4_3)
-  if l_4_2.gui_info_panel then
-    l_4_2.gui_info_panel:set_visible(true)
-  end
-  l_4_2.upgrade_name:set_color(l_4_2.color)
-  l_4_2.upgrade_name:set_font(tweak_data.menu.default_font_no_outline_id)
-  if l_4_2.topic_text then
-    l_4_2.topic_text:set_color(l_4_2.color)
-    l_4_2.topic_text:set_font(tweak_data.menu.default_font_no_outline_id)
-  end
-  if l_4_2.upgrade_icon then
-    l_4_2.upgrade_icon:set_image("guis/textures/icon_star", 32, 0, 32, 32)
-  end
-  return true
+function MenuItemUpgrade:highlight_row_item( node, row_item, mouse_over )
+	if row_item.gui_info_panel then
+		row_item.gui_info_panel:set_visible( true )
+	end
+	
+	row_item.upgrade_name:set_color( row_item.color )
+	row_item.upgrade_name:set_font( tweak_data.menu.default_font_no_outline_id )
+	if row_item.topic_text then
+		row_item.topic_text:set_color( row_item.color )
+		row_item.topic_text:set_font( tweak_data.menu.default_font_no_outline_id )
+	end
+	
+	if row_item.upgrade_icon then
+		row_item.upgrade_icon:set_image( "guis/textures/icon_star", 32, 0, 32, 32 )
+	end
+
+	return true
 end
 
-MenuItemUpgrade.fade_row_item = function(l_5_0, l_5_1, l_5_2)
-  if l_5_2.gui_info_panel then
-    l_5_2.gui_info_panel:set_visible(false)
-  end
-  if (not l_5_2.locked or not tweak_data.menu.upgrade_locked_color) and (not l_5_2.not_aquired or not tweak_data.menu.upgrade_not_aquired_color) then
-    local upg_color = l_5_2.color
-  end
-  if managers.upgrades:aquired(l_5_0:parameters().upgrade_id) then
-    upg_color = l_5_2.color
-  end
-  l_5_2.upgrade_name:set_color(upg_color)
-  l_5_2.upgrade_name:set_font(tweak_data.menu.default_font_id)
-  if l_5_2.topic_text then
-    l_5_2.topic_text:set_color(upg_color)
-    l_5_2.topic_text:set_font(tweak_data.menu.default_font_id)
-  end
-  if l_5_2.upgrade_icon then
-    l_5_2.upgrade_icon:set_image("guis/textures/icon_star", 0, 0, 32, 32)
-  end
-  return true
+function MenuItemUpgrade:fade_row_item( node, row_item )
+	if row_item.gui_info_panel then
+		row_item.gui_info_panel:set_visible( false )
+	end
+	
+	local upg_color = row_item.locked and tweak_data.menu.upgrade_locked_color or row_item.not_aquired and tweak_data.menu.upgrade_not_aquired_color or row_item.color
+	if managers.upgrades:aquired( self:parameters().upgrade_id ) then
+		upg_color = row_item.color
+	end
+
+	row_item.upgrade_name:set_color( upg_color )
+	row_item.upgrade_name:set_font( tweak_data.menu.default_font_id )
+	if row_item.topic_text then
+		row_item.topic_text:set_color( upg_color )
+		row_item.topic_text:set_font( tweak_data.menu.default_font_id )
+	end
+	
+	if row_item.upgrade_icon then
+		row_item.upgrade_icon:set_image( "guis/textures/icon_star", 0, 0, 32, 32 )
+	end
+	
+	return true
 end
 
 local xl_pad = 64
-MenuItemUpgrade._layout = function(l_6_0, l_6_1, l_6_2)
-  local safe_rect = managers.gui_data:scaled_size()
-  l_6_2.gui_panel:set_width(safe_rect.width / 2 + xl_pad * 1.5)
-  l_6_2.gui_panel:set_x(safe_rect.width / 2 - xl_pad * 1.5)
-  local x, y, w, h = l_6_2.upgrade_name:text_rect()
-  l_6_2.upgrade_name:set_height(h)
-  l_6_2.upgrade_name:set_left(l_6_1._right_align(l_6_1) - l_6_2.gui_panel:x())
-  l_6_2.gui_panel:set_height(h)
-  if l_6_2.topic_text then
-    l_6_2.topic_text:set_height(h)
-    l_6_2.topic_text:set_right(l_6_2.gui_panel:w())
-  end
-  if l_6_2.upgrade_icon then
-    local s = math.min(32, h * 1.75)
-    l_6_2.upgrade_icon:set_size(s, s)
-    l_6_2.upgrade_icon:set_left(l_6_1._right_align(l_6_1) - l_6_2.gui_panel:x() + w + l_6_1._align_line_padding)
-    l_6_2.upgrade_icon:set_center_y(h / 2)
-  end
-  if l_6_2.gui_info_panel then
-    l_6_1._align_item_gui_info_panel(l_6_1, l_6_2.gui_info_panel)
-    local w = l_6_2.gui_info_panel:w()
-    local m = l_6_2.upgrade_info_image_rect[3] / l_6_2.upgrade_info_image_rect[4]
-    l_6_2.upgrade_info_image:set_size(w, w / m)
-    l_6_2.upgrade_info_image:set_y(0)
-    l_6_2.upgrade_info_image:set_center_x(l_6_2.gui_info_panel:w() / 2)
-    l_6_2.upgrade_info_title:set_width(w)
-    local _, _, _, h = l_6_2.upgrade_info_title:text_rect()
-    l_6_2.upgrade_info_title:set_height(h)
-    l_6_2.upgrade_info_title:set_top(l_6_2.upgrade_info_image:bottom() + tweak_data.menu.info_padding)
-    l_6_2.upgrade_info_text:set_top(l_6_2.upgrade_info_image:bottom() + h + tweak_data.menu.info_padding * 2)
-    l_6_2.upgrade_info_text:set_width(w)
-    local _, _, _, h = l_6_2.upgrade_info_text:text_rect()
-    l_6_2.upgrade_info_text:set_height(h)
-    if l_6_2.toggle_text then
-      l_6_2.toggle_text:set_width(l_6_2.gui_info_panel:w())
-      local _, _, _, h = l_6_2.toggle_text:text_rect()
-      l_6_2.toggle_text:set_height(h)
-      l_6_2.toggle_text:set_bottom(l_6_2.gui_info_panel:height())
-      l_6_2.toggle_text:set_left(0)
-    end
-  end
+function MenuItemUpgrade:_layout( node, row_item )
+	local safe_rect = managers.gui_data:scaled_size() -- managers.viewport:get_safe_rect_pixels()
+	
+	row_item.gui_panel:set_width( safe_rect.width/2 + xl_pad * 1.5 )
+	row_item.gui_panel:set_x( safe_rect.width/2 - xl_pad * 1.5 )
+	
+	local x,y,w,h = row_item.upgrade_name:text_rect()
+	row_item.upgrade_name:set_height( h )
+	row_item.upgrade_name:set_left( node._right_align( node ) - row_item.gui_panel:x() )
+	row_item.gui_panel:set_height( h )
+	
+	if row_item.topic_text then
+		row_item.topic_text:set_height( h )
+		-- row_item.topic_text:set_right( node._left_align( node ) - row_item.gui_panel:x() )
+		row_item.topic_text:set_right( row_item.gui_panel:w() )
+	end
+	
+	if row_item.upgrade_icon then
+		local s = math.min( 32, h * 1.75 )
+		row_item.upgrade_icon:set_size( s, s )
+		row_item.upgrade_icon:set_left( node._right_align( node ) - row_item.gui_panel:x() + w + node._align_line_padding )
+		row_item.upgrade_icon:set_center_y( h / 2 )
+	end
+
+	if row_item.gui_info_panel then
+		node._align_item_gui_info_panel( node, row_item.gui_info_panel )
+		
+		-- row_item.gui_info_panel:set_debug( true )
+		
+		local w = row_item.gui_info_panel:w() 
+		local m = row_item.upgrade_info_image_rect[3] / row_item.upgrade_info_image_rect[4]
+		row_item.upgrade_info_image:set_size( w, w / m )
+		row_item.upgrade_info_image:set_y( 0 )					
+		row_item.upgrade_info_image:set_center_x( row_item.gui_info_panel:w() / 2 )
+
+		row_item.upgrade_info_title:set_width( w )
+		local _,_,_,h = row_item.upgrade_info_title:text_rect()
+		-- row_item.upgrade_info_title:set_width( w )
+		row_item.upgrade_info_title:set_height( h )
+		row_item.upgrade_info_title:set_top( row_item.upgrade_info_image:bottom() + tweak_data.menu.info_padding )
+		row_item.upgrade_info_text:set_top( row_item.upgrade_info_image:bottom() + h + tweak_data.menu.info_padding * 2 )
+
+		row_item.upgrade_info_text:set_width( w )
+		local _,_,_,h = row_item.upgrade_info_text:text_rect()
+		row_item.upgrade_info_text:set_height( h )
+		
+		
+		if row_item.toggle_text then
+			row_item.toggle_text:set_width( row_item.gui_info_panel:w() )
+			local _,_,_,h = row_item.toggle_text:text_rect()
+			row_item.toggle_text:set_height( h )
+			
+			row_item.toggle_text:set_bottom( row_item.gui_info_panel:height() )
+			row_item.toggle_text:set_left( 0 )
+		end
+	end
 end
-
-

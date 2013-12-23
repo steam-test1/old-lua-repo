@@ -1,64 +1,66 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\managers\cutscene\keys\corechangeenvcutscenekey.luac 
+require "core/lib/managers/cutscene/keys/CoreCutsceneKeyBase"
 
-require("core/lib/managers/cutscene/keys/CoreCutsceneKeyBase")
-if not CoreChangeEnvCutsceneKey then
-  CoreChangeEnvCutsceneKey = class(CoreCutsceneKeyBase)
-end
+CoreChangeEnvCutsceneKey = CoreChangeEnvCutsceneKey or class(CoreCutsceneKeyBase)
 CoreChangeEnvCutsceneKey.ELEMENT_NAME = "change_env"
 CoreChangeEnvCutsceneKey.NAME = "Environment Change"
 CoreChangeEnvCutsceneKey:register_serialized_attribute("name", "")
 CoreChangeEnvCutsceneKey:register_serialized_attribute("transition_time", 0, tonumber)
-CoreChangeEnvCutsceneKey.__tostring = function(l_1_0)
-  return "Change environment to \"" .. l_1_0:name() .. "\"."
+
+function CoreChangeEnvCutsceneKey:__tostring()
+	return "Change environment to \"" .. self:name() .. "\"."
 end
 
-CoreChangeEnvCutsceneKey.prime = function(l_2_0, l_2_1)
-  managers.environment:preload_environment(l_2_0:name(), false)
+function CoreChangeEnvCutsceneKey:prime(player)
+	managers.environment:preload_environment(self:name(), false)
 end
 
-CoreChangeEnvCutsceneKey.unload = function(l_3_0, l_3_1)
-  if l_3_0.__previous_environment_name then
-    managers.viewport:first_active_viewport():set_environment(l_3_0.__previous_environment_name)
-  end
+function CoreChangeEnvCutsceneKey:unload(player)
+	if self.__previous_environment_name then	
+		--managers.environment:set(self.__previous_environment_name)
+		managers.viewport:first_active_viewport():set_environment(self.__previous_environment_name)
+	end
 end
 
-CoreChangeEnvCutsceneKey.evaluate = function(l_4_0, l_4_1, l_4_2)
-  if not l_4_0.__previous_environment_name then
-    l_4_0.__previous_environment_name = managers.environment:get_current_environment_name()
-  end
-  local transition_time = l_4_0:transition_time()
-  if transition_time and transition_time > 0 then
-    managers.viewport:first_active_viewport():set_environment(l_4_0:name(), transition_time)
-  else
-    managers.viewport:first_active_viewport():set_environment(l_4_0:name())
-  end
+function CoreChangeEnvCutsceneKey:evaluate(player, fast_forward)
+	self.__previous_environment_name = self.__previous_environment_name or managers.environment:get_current_environment_name()
+	
+	local transition_time = self:transition_time()
+	if transition_time and transition_time > 0 then
+		--managers.environment:change_environment(self:name(), transition_time)
+		managers.viewport:first_active_viewport():set_environment(self:name(), transition_time)
+	else
+		-- In the cutscene system we use the set function and pass the force parameter
+		-- to avoid stalls. We can do this because we are "almost" sure no one else is
+		-- changing the environment during cutscenes.
+		
+		--managers.environment:set(self:name(), true)
+		managers.viewport:first_active_viewport():set_environment(self:name())
+	end
 end
 
-CoreChangeEnvCutsceneKey.can_evaluate_with_player = function(l_5_0, l_5_1)
-  return true
+function CoreChangeEnvCutsceneKey:can_evaluate_with_player(player)
+	return true
 end
 
-CoreChangeEnvCutsceneKey.is_valid_name = function(l_6_0, l_6_1)
-  return Database:has("environment", l_6_1)
+function CoreChangeEnvCutsceneKey:is_valid_name(name)
+	return Database:has("environment", name)
 end
 
-CoreChangeEnvCutsceneKey.is_valid_transition_time = function(l_7_0, l_7_1)
-  return not l_7_1 or l_7_1 >= 0
+function CoreChangeEnvCutsceneKey:is_valid_transition_time(value)
+	return value and value >= 0
 end
 
 CoreChangeEnvCutsceneKey.control_for_name = CoreCutsceneKeyBase.standard_combo_box_control
-CoreChangeEnvCutsceneKey.refresh_control_for_name = function(l_8_0, l_8_1)
-  l_8_1:freeze()
-  l_8_1:clear()
-  local value = l_8_0:name()
-  for _,name in ipairs(managers.database:list_entries_of_type("environment")) do
-    l_8_1:append(name)
-    if name == value then
-      l_8_1:set_value(value)
-    end
-  end
-  l_8_1:thaw()
+
+function CoreChangeEnvCutsceneKey:refresh_control_for_name(control)
+	control:freeze()
+	control:clear()
+	local value = self:name()
+	for _, name in ipairs(managers.database:list_entries_of_type("environment")) do
+		control:append(name)
+		if name == value then
+			control:set_value(value)
+		end
+	end
+	control:thaw()
 end
-
-

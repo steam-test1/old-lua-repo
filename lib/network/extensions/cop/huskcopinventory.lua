@@ -1,53 +1,68 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\network\extensions\cop\huskcopinventory.luac 
+HuskCopInventory = HuskCopInventory or class( HuskPlayerInventory )
 
-if not HuskCopInventory then
-  HuskCopInventory = class(HuskPlayerInventory)
-end
-HuskCopInventory.init = function(l_1_0, l_1_1)
-  CopInventory.init(l_1_0, l_1_1)
+function HuskCopInventory:init( unit )
+	CopInventory.init( self, unit )
 end
 
-HuskCopInventory.set_visibility_state = function(l_2_0, l_2_1)
-  CopInventory.set_visibility_state(l_2_0, l_2_1)
+-----------------------------------------------------------------------------------
+
+function HuskCopInventory:set_visibility_state( state )
+	CopInventory.set_visibility_state( self, state )
 end
 
-HuskCopInventory.add_unit_by_name = function(l_3_0, l_3_1, l_3_2)
-  local new_unit = World:spawn_unit(l_3_1, Vector3(), Rotation())
-  CopInventory._chk_spawn_shield(l_3_0, new_unit)
-  local setup_data = {}
-  setup_data.user_unit = l_3_0._unit
-  setup_data.ignore_units = {l_3_0._unit, new_unit, l_3_0._shield_unit}
-  setup_data.expend_ammo = false
-  setup_data.hit_slotmask = managers.slot:get_mask("bullet_impact_targets_no_AI")
-  setup_data.hit_player = true
-  setup_data.user_sound_variant = tweak_data.character[l_3_0._unit:base()._tweak_table].weapon_voice
-  new_unit:base():setup(setup_data)
-  CopInventory.add_unit(l_3_0, new_unit, l_3_2)
+-----------------------------------------------------------------------------------
+
+function HuskCopInventory:add_unit_by_name( new_unit_name, equip )
+	local new_unit = World:spawn_unit( new_unit_name, Vector3(), Rotation() )
+	
+	CopInventory._chk_spawn_shield( self, new_unit )
+	
+	local setup_data = {}
+	setup_data.user_unit = self._unit
+	setup_data.ignore_units = { self._unit, new_unit, self._shield_unit }
+	setup_data.expend_ammo = false
+	setup_data.hit_slotmask = managers.slot:get_mask( "bullet_impact_targets_no_AI" )
+	setup_data.hit_player = true
+	setup_data.user_sound_variant = tweak_data.character[ self._unit:base()._tweak_table ].weapon_voice
+	new_unit:base():setup( setup_data )
+	CopInventory.add_unit( self, new_unit, equip )
 end
 
-HuskCopInventory.get_weapon = function(l_4_0)
-  CopInventory.get_weapon(l_4_0)
+-----------------------------------------------------------------------------------
+
+function HuskCopInventory:get_weapon()
+	CopInventory.get_weapon( self )
 end
 
-HuskCopInventory.drop_weapon = function(l_5_0)
-  CopInventory.drop_weapon(l_5_0)
+-----------------------------------------------------------------------------------
+
+function HuskCopInventory:drop_weapon()
+	CopInventory.drop_weapon( self )
 end
 
-HuskCopInventory.drop_shield = function(l_6_0)
-  CopInventory.drop_shield(l_6_0)
+-----------------------------------------------------------------------------------
+
+function HuskCopInventory:drop_shield()
+	CopInventory.drop_shield( self )
 end
 
-HuskCopInventory.destroy_all_items = function(l_7_0)
-  CopInventory.destroy_all_items(l_7_0)
+-----------------------------------------------------------------------------------
+
+function HuskCopInventory:destroy_all_items()
+	CopInventory.destroy_all_items( self )
 end
 
-HuskCopInventory.add_unit = function(l_8_0, l_8_1, l_8_2)
-  CopInventory.add_unit(l_8_0, l_8_1, l_8_2)
+-----------------------------------------------------------------------------------
+
+function HuskCopInventory:add_unit( new_unit, equip )
+	CopInventory.add_unit( self, new_unit, equip )
 end
 
-HuskCopInventory.set_visibility_state = function(l_9_0, l_9_1)
-  CopInventory.set_visibility_state(l_9_0, l_9_1)
+-----------------------------------------------------------------------------------
+
+function HuskCopInventory:set_visibility_state( state )
+	CopInventory.set_visibility_state( self, state )
 end
 
-
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------

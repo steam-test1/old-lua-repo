@@ -1,88 +1,91 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\core\lib\units\coreeditablegui.luac 
+CoreEditableGui = CoreEditableGui or class()
 
-if not CoreEditableGui then
-  CoreEditableGui = class()
-end
-CoreEditableGui.init = function(l_1_0, l_1_1)
-  l_1_0._unit = l_1_1
-  l_1_0._text = l_1_0._text or "Default Text"
-  l_1_0._cull_distance = l_1_0._cull_distance or 5000
-  l_1_0._sides = l_1_0._sides or 1
-  l_1_0._gui_movie = l_1_0._gui_movie or "default_text"
-  l_1_0._gui_object = l_1_0._gui_object or "gui_name"
-  l_1_0._font = l_1_0._font or "core/fonts/diesel"
-  l_1_0._gui = World:newgui()
-  l_1_0._guis = {}
-  if l_1_0._sides == 1 then
-    l_1_0:add_workspace(l_1_0._unit:get_object(Idstring(l_1_0._gui_object)))
-  else
-    for i = 1, l_1_0._sides do
-      l_1_0:add_workspace(l_1_0._unit:get_object(Idstring(l_1_0._gui_object .. i)))
-    end
-  end
-  local text_object = l_1_0._guis[1].gui:child("std_text")
-  l_1_0._font_size = text_object:font_size()
-  l_1_0:set_font_size(l_1_0._font_size)
-  l_1_0._font_color = Vector3(text_object:color().red, text_object:color().green, text_object:color().blue)
-end
+function CoreEditableGui:init( unit )
+	self._unit = unit
+		
+	self._text = self._text or "Default Text"
+	self._cull_distance = self._cull_distance or 5000
+	self._sides = self._sides or 1
+	self._gui_movie = self._gui_movie or "default_text"
+	self._gui_object = self._gui_object or "gui_name"
+	self._font = self._font or "core/fonts/diesel"
+	
+	self._gui = World:newgui()
 
-CoreEditableGui.add_workspace = function(l_2_0, l_2_1)
-  local ws = l_2_0._gui:create_object_workspace(0, 0, l_2_1, Vector3(0, 0, 0))
-  local gui = ws:panel():gui(Idstring("core/guis/core_editable_gui"))
-  local panel = gui:panel()
-  gui:child("std_text"):set_font(Idstring(l_2_0._font))
-  gui:child("std_text"):set_text(l_2_0._text)
-  table.insert(l_2_0._guis, {workspace = ws, gui = gui, panel = panel})
+	-- self._gui:preload_font( self._font )
+	
+	self._guis = {}
+	
+	if self._sides == 1 then
+		self:add_workspace( self._unit:get_object( Idstring( self._gui_object ) ) )
+	else
+		for i = 1, self._sides do
+			self:add_workspace( self._unit:get_object( Idstring( self._gui_object..i ) ) )
+		end
+	end
+	
+	local text_object = self._guis[ 1 ].gui:child( "std_text" )
+	self._font_size = text_object:font_size()
+	self:set_font_size( self._font_size )
+	self._font_color = Vector3( text_object:color().red, text_object:color().green, text_object:color().blue )
 end
 
-CoreEditableGui.text = function(l_3_0)
-  return l_3_0._text
+function CoreEditableGui:add_workspace( gui_object )
+	local ws = self._gui:create_object_workspace( 0, 0, gui_object, Vector3(0,0,0) )
+	local gui = ws:panel():gui( Idstring( "core/guis/core_editable_gui" ) )
+	local panel = gui:panel()
+		
+	gui:child( "std_text" ):set_font( Idstring( self._font ) )
+	gui:child( "std_text" ):set_text( self._text )
+	
+	table.insert( self._guis, { workspace = ws, gui = gui, panel = panel } )
 end
 
-CoreEditableGui.set_text = function(l_4_0, l_4_1)
-  l_4_0._text = l_4_1
-  for _,gui in ipairs(l_4_0._guis) do
-    gui.gui:child("std_text"):set_text(l_4_0._text)
-  end
+function CoreEditableGui:text()
+	return self._text
 end
 
-CoreEditableGui.font_size = function(l_5_0)
-  return l_5_0._font_size
+function CoreEditableGui:set_text( text )
+	self._text = text
+	for _,gui in ipairs( self._guis ) do
+		gui.gui:child( "std_text" ):set_text( self._text )
+	end
 end
 
-CoreEditableGui.set_font_size = function(l_6_0, l_6_1)
-  l_6_0._font_size = l_6_1
-  for _,gui in ipairs(l_6_0._guis) do
-    gui.gui:child("std_text"):set_font_size(l_6_0._font_size * (10 * gui.gui:child("std_text"):height() / 100))
-  end
+function CoreEditableGui:font_size()
+	return self._font_size
 end
 
-CoreEditableGui.font_color = function(l_7_0)
-  return l_7_0._font_color
+function CoreEditableGui:set_font_size( font_size )
+	self._font_size = font_size
+	for _,gui in ipairs( self._guis ) do
+		gui.gui:child( "std_text" ):set_font_size( self._font_size * ( 10 * gui.gui:child( "std_text" ):height() / 100 ) )
+	end
 end
 
-CoreEditableGui.set_font_color = function(l_8_0, l_8_1)
-  l_8_0._font_color = l_8_1
-  for _,gui in ipairs(l_8_0._guis) do
-    gui.gui:child("std_text"):set_color(Color(1, l_8_1.x, l_8_1.y, l_8_1.z))
-  end
+function CoreEditableGui:font_color()
+	return self._font_color
 end
 
-CoreEditableGui.lock_gui = function(l_9_0)
-  for _,gui in ipairs(l_9_0._guis) do
-    gui.workspace:set_cull_distance(l_9_0._cull_distance)
-    gui.workspace:set_frozen(true)
-  end
+function CoreEditableGui:set_font_color( font_color )
+	self._font_color = font_color
+	for _,gui in ipairs( self._guis ) do
+		gui.gui:child( "std_text" ):set_color( Color( 1, font_color.x, font_color.y, font_color.z) )
+	end
 end
 
-CoreEditableGui.destroy = function(l_10_0)
-  for _,gui in ipairs(l_10_0._guis) do
-    if alive(l_10_0._gui) and alive(gui.workspace) then
-      l_10_0._gui:destroy_workspace(gui.workspace)
-    end
-  end
-  l_10_0._guis = nil
+function CoreEditableGui:lock_gui()
+	for _,gui in ipairs( self._guis ) do
+		gui.workspace:set_cull_distance( self._cull_distance )
+		gui.workspace:set_frozen( true )
+	end
 end
 
-
+function CoreEditableGui:destroy()
+	for _,gui in ipairs( self._guis ) do
+		if alive( self._gui ) and alive( gui.workspace ) then
+			self._gui:destroy_workspace( gui.workspace )
+		end
+	end
+	self._guis = nil
+end

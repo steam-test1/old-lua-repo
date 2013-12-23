@@ -1,166 +1,279 @@
--- Decompiled using luadec 2.0.1 by sztupy (http://winmo.sztupy.hu)
--- Command line was: F:\SteamLibrary\SteamApps\common\PAYDAY 2\lua\lib\managers\objectinteractionmanager.luac 
-
-if not ObjectInteractionManager then
-  ObjectInteractionManager = class()
-end
+ObjectInteractionManager = ObjectInteractionManager or class()
 ObjectInteractionManager.FRAMES_TO_COMPLETE = 15
-ObjectInteractionManager.init = function(l_1_0)
-  l_1_0._interactive_objects = {}
-  l_1_0._interactive_count = 0
-  l_1_0._update_index = 0
-  l_1_0._close_objects = {}
-  l_1_0._close_index = 0
-  l_1_0._close_freq = 1
-  l_1_0._active_object = nil
+
+function ObjectInteractionManager:init()
+	self._interactive_objects = {}
+	self._interactive_count = 0
+	
+	self._update_index = 0
+	
+	self._close_objects = {}
+	self._close_index = 0
+	self._close_freq = 1
+	
+	self._active_object = nil
+
+	self._slotmask_world_geometry = managers.slot:get_mask( "world_geometry" )
 end
 
-ObjectInteractionManager.update = function(l_2_0, l_2_1, l_2_2)
-  local player_unit = managers.player:player_unit()
-  if l_2_0._interactive_count > 0 and alive(player_unit) then
-    local player_pos = player_unit:movement():m_head_pos()
-    l_2_0:_update_targeted(player_pos, player_unit)
-  end
+function ObjectInteractionManager:update( t, dt ) 
+	local player_unit = managers.player:player_unit()
+	if( self._interactive_count > 0 and alive( player_unit ) ) then
+		-- local player_pos = player_unit:position()
+		local player_pos = player_unit:movement():m_head_pos()
+		-- self:_update_in_culling_range( player_pos )
+		self:_update_targeted( player_pos, player_unit )
+	end
 end
 
-ObjectInteractionManager.interact = function(l_3_0, l_3_1)
-  if alive(l_3_0._active_object) then
-    local interacted, timer = l_3_0._active_object:interaction():interact_start(l_3_1)
-    if timer then
-      l_3_0._active_object_locked_data = true
-    end
-    return not interacted and ((interacted ~= nil and false)), timer, l_3_0._active_object
-  end
-  return false
+--//----------------
+
+function ObjectInteractionManager:interact( player )
+	if( alive( self._active_object ) ) then
+		local interacted,timer = self._active_object:interaction():interact_start( player )
+		if timer then
+			-- local distance = mvector3.distance( player:movement():m_head_pos(), self._active_object:interaction():interact_position() )
+			-- self._active_object_locked_data = { distance = distance }
+			self._active_object_locked_data = true
+		end
+		return interacted or interacted == nil or false, timer, self._active_object
+	end
+	return false
 end
 
-ObjectInteractionManager.end_action_interact = function(l_4_0, l_4_1)
-  l_4_0._active_object_locked_data = nil
-  if alive(l_4_0._active_object) then
-    l_4_0._active_object:interaction():interact(l_4_1)
-  end
+function ObjectInteractionManager:end_action_interact( player )
+	self._active_object_locked_data = nil
+	if( alive( self._active_object ) ) then
+		self._active_object:interaction():interact( player )
+	end
 end
 
-ObjectInteractionManager.interupt_action_interact = function(l_5_0)
-  l_5_0._active_object_locked_data = nil
+function ObjectInteractionManager:interupt_action_interact()
+	self._active_object_locked_data = nil
 end
 
-ObjectInteractionManager.active_object = function(l_6_0)
-  return l_6_0._active_object
+--//----------------
+
+function ObjectInteractionManager:active_object()
+	return self._active_object
 end
 
-ObjectInteractionManager.add_object = function(l_7_0, l_7_1)
-  table.insert(l_7_0._interactive_objects, l_7_1)
-  l_7_0._interactive_count = l_7_0._interactive_count + 1
-  l_7_0._close_freq = math.max(1, math.floor(#l_7_0._interactive_objects / l_7_0.FRAMES_TO_COMPLETE))
+--//----------------
+
+function ObjectInteractionManager:add_object( obj )
+	table.insert( self._interactive_objects, obj )
+	
+	self._interactive_count = self._interactive_count + 1
+	self._close_freq = math.max( 1, math.floor(#self._interactive_objects / self.FRAMES_TO_COMPLETE) )
 end
 
-ObjectInteractionManager.remove_object = function(l_8_0, l_8_1)
-  for k,v in pairs(l_8_0._interactive_objects) do
-    if v == l_8_1 then
-      table.remove(l_8_0._interactive_objects, k)
-      l_8_0._interactive_count = l_8_0._interactive_count - 1
-      l_8_0._close_freq = math.max(1, math.floor(#l_8_0._interactive_objects / l_8_0.FRAMES_TO_COMPLETE))
-      if l_8_0._interactive_count == 0 then
-        l_8_0._close_objects = {}
-        if alive(l_8_0._active_object) then
-          l_8_0._active_object:interaction():remove_interact()
-        end
-        l_8_0._active_object = nil
-      end
-      return 
-    end
-  end
+function ObjectInteractionManager:remove_object( obj )
+	for k, v in pairs( self._interactive_objects ) do
+		if( v == obj ) then
+			table.remove( self._interactive_objects, k )
+			
+			self._interactive_count = self._interactive_count - 1
+			self._close_freq = math.max( 1, math.floor(#self._interactive_objects / self.FRAMES_TO_COMPLETE) )
+			
+			if self._interactive_count == 0 then
+				self._close_objects = {}
+				if alive( self._active_object ) then
+					self._active_object:interaction():remove_interact()
+				end
+				self._active_object = nil
+			end
+						
+			return
+		end
+	end
 end
+
+--//----------------
+
+--[[ Don't need this now /Martin 100531
+function ObjectInteractionManager:_update_in_culling_range( player_pos )
+	--update one object in the culling range
+	local i = self._interactive_count
+	while( i>0 ) do
+		if( self._update_index >= self._interactive_count ) then
+			self._update_index = 1
+		else
+			self._update_index = self._update_index + 1
+		end
+		
+		local obj = self._interactive_objects[ self._update_index ]
+		if( alive( obj ) ) then
+			local dist = mvector3.distance( player_pos, obj:position() )
+			
+			if( dist < tweak_data.interaction.CULLING_DISTANCE ) then
+				obj:interaction():update( dist )
+				return --only one update per frame
+			end
+		else
+			self:remove_object( obj )
+		end
+		
+		i = i - 1
+	end
+end
+]]
 
 local mvec1 = Vector3()
-ObjectInteractionManager._update_targeted = function(l_9_0, l_9_1, l_9_2)
-  local mvec3_dis = mvector3.distance
-  if #l_9_0._close_objects > 0 then
-    for k,v in pairs(l_9_0._close_objects) do
-       -- DECOMPILER ERROR: unhandled construct in 'if'
+local index_table = {}
+function ObjectInteractionManager:_update_targeted( player_pos, player_unit )
+	local mvec3_dis = mvector3.distance
+	--clean out far away objects
+	if( #self._close_objects > 0 ) then
+		for k, v in pairs( self._close_objects ) do
+			if( alive( v ) and v:interaction():active() ) then
+				if mvec3_dis( player_pos, v:interaction():interact_position() ) > v:interaction():interact_distance() then
+					table.remove( self._close_objects, k )
+				end
+			else
+				table.remove( self._close_objects, k )
+			end
+		end
+	end
+	
+	--check for new objects
+	for i = 1, self._close_freq, 1 do
+		if( self._close_index >= self._interactive_count ) then
+			self._close_index = 1
+		else
+			self._close_index = self._close_index + 1
+		end
+		
+		local obj = self._interactive_objects[ self._close_index ]
+		if( alive(obj) and obj:interaction():active() and not self:_in_close_list( obj ) ) then
+			if( mvec3_dis(player_pos, obj:interaction():interact_position()) <= obj:interaction():interact_distance()  ) then
+				table.insert( self._close_objects, obj )
+			end
+		end
+	end
+	
+	-- local locked = self._active_object_locked_data and alive( self._active_object )
+	local locked = false
+	if self._active_object_locked_data then
+		if not alive( self._active_object ) or not self._active_object:interaction():active() then
+			self._active_object_locked_data = nil	
+		else
+			-- print( "dist", mvec3_dis(player_pos, self._active_object:interaction():interact_position()) )
+			-- locked = ( mvec3_dis(player_pos, self._active_object:interaction():interact_position()) - self._active_object_locked_data.distance ) < 20
+			locked = ( mvec3_dis(player_pos, self._active_object:interaction():interact_position()) <= self._active_object:interaction():interact_distance() )
+		end
+	end
+			
+	if locked then
+		return
+	end
+	
+	local optimized = true
+	local last_active = self._active_object
+	local last_dot = optimized and last_active and self._current_dot or nil
+	local blocked = player_unit:movement():object_interaction_blocked()
+	if( #self._close_objects > 0 ) and not blocked then
+		--find the one the player is looking at
+		local active_obj = nil
+		local current_dot = last_dot or 0.9
 
-      if alive(v) and v:interaction():active() and v:interaction():interact_distance() < mvec3_dis(l_9_1, v:interaction():interact_position()) then
-        table.remove(l_9_0._close_objects, k)
-        for (for control),k in (for generator) do
-          table.remove(l_9_0._close_objects, k)
-        end
-      end
-    end
-    for i = 1, l_9_0._close_freq do
-      if l_9_0._interactive_count <= l_9_0._close_index then
-        l_9_0._close_index = 1
-      else
-        l_9_0._close_index = l_9_0._close_index + 1
-      end
-      local obj = l_9_0._interactive_objects[l_9_0._close_index]
-      if alive(obj) and obj:interaction():active() and not l_9_0:_in_close_list(obj) and mvec3_dis(l_9_1, obj:interaction():interact_position()) <= obj:interaction():interact_distance() then
-        table.insert(l_9_0._close_objects, obj)
-      end
-    end
-    local locked = false
-    if l_9_0._active_object_locked_data then
-      if not alive(l_9_0._active_object) or not l_9_0._active_object:interaction():active() then
-        l_9_0._active_object_locked_data = nil
-      else
-        locked = mvec3_dis(l_9_1, l_9_0._active_object:interaction():interact_position()) <= l_9_0._active_object:interaction():interact_distance()
-      end
-      if locked then
-        return 
-      end
-      local last_active = l_9_0._active_object
-      local blocked = l_9_2:movement():object_interaction_blocked()
-      if #l_9_0._close_objects > 0 and not blocked then
-        local active_obj = nil
-        local current_dot = 0.89999997615814
-        local player_fwd = l_9_2:camera():forward()
-        local camera_pos = l_9_2:camera():position()
-        for k,v in pairs(l_9_0._close_objects) do
-          if alive(v) then
-            mvector3.set(mvec1, v:interaction():interact_position())
-            mvector3.subtract(mvec1, camera_pos)
-            mvector3.normalize(mvec1)
-            local dot = mvector3.dot(player_fwd, mvec1)
-            if current_dot < dot then
-              local interact_axis = v:interaction():interact_axis()
-              if not interact_axis or mvector3.dot(mvec1, interact_axis) < 0 then
-                current_dot = dot
-                active_obj = v
-              end
-            end
-          end
-        end
-        if active_obj and l_9_0._active_object ~= active_obj then
-          if alive(l_9_0._active_object) then
-            l_9_0._active_object:interaction():unselect()
-          end
-          if not active_obj:interaction():selected(l_9_2) then
-            active_obj = nil
-          end
-        end
-        l_9_0._active_object = active_obj
-      else
-        l_9_0._active_object = nil
-      end
-      if alive(last_active) and not l_9_0._active_object then
-        l_9_0._active_object = nil
-        last_active:interaction():unselect()
-      end
-       -- Warning: missing end command somewhere! Added here
-    end
-     -- Warning: missing end command somewhere! Added here
-  end
+		local player_fwd = player_unit:camera():forward()
+		local camera_pos = player_unit:camera():position()
+
+		self._close_test_index = self._close_test_index or 0
+		self._close_test_index = self._close_test_index + 1
+		if ( self._close_test_index > #self._close_objects ) then
+			self._close_test_index = 1
+		end
+
+
+
+		local contains = table.contains( self._close_objects, last_active )
+		for k, v in pairs( optimized and { contains and last_active, self._close_objects[ self._close_test_index ] } or self._close_objects ) do
+
+			if( alive( v ) and v:interaction():can_select( player_unit ) ) then
+				mvector3.set( mvec1, v:interaction():interact_position() )
+				mvector3.subtract( mvec1, camera_pos )
+				mvector3.normalize( mvec1 )
+				local dot = mvector3.dot( player_fwd, mvec1 )
+				if dot > current_dot or optimized and alive( last_active ) and v == last_active and dot > 0.9 then
+					local interact_axis = v:interaction():interact_axis()
+					-- Check if we only are allowed to access it from one side
+					if not interact_axis or mvector3.dot( mvec1, interact_axis ) < 0.0 then
+						if self:_raycheck_ok( v, camera_pos ) then
+							current_dot = dot
+							active_obj = v
+						end
+					end
+				end
+			end
+		end
+		
+		if( active_obj and self._active_object ~= active_obj ) then
+			if alive( self._active_object ) then
+				self._active_object:interaction():unselect()
+			end
+			if not active_obj:interaction():selected( player_unit ) then
+				active_obj = nil
+			end
+		end
+
+		self._active_object = active_obj
+		self._current_dot = current_dot
+	else
+		self._active_object = nil
+	end
+	
+
+	--unselect the last one
+	if( alive( last_active ) ) then
+		if( not self._active_object ) then
+			self._active_object = nil
+
+			last_active:interaction():unselect()
+		end
+	end
 end
 
-ObjectInteractionManager._in_close_list = function(l_10_0, l_10_1)
-  if #l_10_0._close_objects > 0 then
-    for k,v in pairs(l_10_0._close_objects) do
-      if v == l_10_1 then
-        return true
-      end
-    end
-  end
-  return false
+local m_obj_pos = Vector3()
+
+
+function ObjectInteractionManager:_raycheck_ok( obj, camera_pos )
+
+
+	local check_objects = obj:interaction():ray_objects()
+	if not check_objects then
+		return true
+	end
+
+
+
+
+
+
+	for _, object in ipairs( check_objects ) do
+		object:m_position( m_obj_pos )
+
+		local obstructed = obj:raycast( "ray", m_obj_pos, camera_pos, "ray_type", "bag body", "slot_mask", self._slotmask_world_geometry, "report" )
+
+
+		if not obstructed then
+
+			return true
+		end
+	end
+
+
+
+	return false
 end
 
-
+function ObjectInteractionManager:_in_close_list( obj )
+	if( #self._close_objects > 0 ) then
+		for k, v in pairs( self._close_objects ) do
+			if( v == obj ) then
+				return true
+			end
+		end
+	end
+	return false
+end
