@@ -530,7 +530,7 @@ function CoreAreaOperatorUnitElement:init( unit )
 	CoreAreaOperatorUnitElement.super.init( self, unit )
 	
 	self._hed.elements = {}
-	self._hed.interval = 0.10000000149012
+	self._hed.interval = 0.1
 	self._hed.trigger_on = "on_enter"
 	self._hed.instigator = managers.mission:default_area_instigator()
 	self._hed.amount = "1"

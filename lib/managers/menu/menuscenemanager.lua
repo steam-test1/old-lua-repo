@@ -356,7 +356,7 @@ function MenuSceneManager:_setup_bg()
 		end
 	end
 	
-	
+	--[[
 	local a = self._bg_unit:get_object( Idstring( "a_reference" ) )
 	local is_xmas = true
 	if is_xmas then
@@ -370,6 +370,7 @@ function MenuSceneManager:_setup_bg()
 			e_money:set_enabled( false )
 		end
 	end
+	]]
 	--   self:_set_character_unit( "units/payday2/characters/npc_criminal_casual_1/npc_criminal_casual_1_menu" )
 	--[[local a = self._bg_unit:get_object( Idstring( "a_reference" ) )
 	
