@@ -599,21 +599,31 @@ function ExperienceManager:get_xp_by_params( params )
 	
 	
 	
-	local limited_bonus = tweak_data:get_value( "experience_manager", "limited_bonus_multiplier" ) or 1
-	if limited_bonus > 1 then
-		base_xp = base_xp * limited_bonus
-		total_xp = total_xp * limited_bonus
+	
+	local bonus_xp = tweak_data:get_value( "experience_manager", "limited_bonus_multiplier" ) or 1
+	
+	if managers.experience:current_rank() > 0 then
+		for infamy, item in pairs( tweak_data.infamy.items ) do
+			if managers.infamy:owned( infamy ) and item.upgrades and item.upgrades.infamous_xp then
+				bonus_xp = bonus_xp + math.abs( item.upgrades.infamous_xp - 1 )
+			end
+		end
+	end
+	
+	if bonus_xp > 1 then
+		base_xp = base_xp * bonus_xp
+		total_xp = total_xp * bonus_xp
 		
-		risk_dissect = risk_dissect * limited_bonus
-		alive_crew_dissect = alive_crew_dissect * limited_bonus
-		failed_level_dissect = failed_level_dissect * limited_bonus
-		level_limit_dissect = level_limit_dissect * limited_bonus
-		skill_dissect = skill_dissect * limited_bonus
-		days_dissect = days_dissect * limited_bonus
-		days_dissect_job = days_dissect_job * limited_bonus
-		days_dissect_risk = days_dissect_risk * limited_bonus
-		stage_xp_dissect = stage_xp_dissect * limited_bonus
-		job_xp_dissect = job_xp_dissect * limited_bonus
+		risk_dissect = risk_dissect * bonus_xp
+		alive_crew_dissect = alive_crew_dissect * bonus_xp
+		failed_level_dissect = failed_level_dissect * bonus_xp
+		level_limit_dissect = level_limit_dissect * bonus_xp
+		skill_dissect = skill_dissect * bonus_xp
+		days_dissect = days_dissect * bonus_xp
+		days_dissect_job = days_dissect_job * bonus_xp
+		days_dissect_risk = days_dissect_risk * bonus_xp
+		stage_xp_dissect = stage_xp_dissect * bonus_xp
+		job_xp_dissect = job_xp_dissect * bonus_xp
 	end
 	
 	

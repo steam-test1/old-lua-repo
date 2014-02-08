@@ -217,6 +217,19 @@ function MenuSceneManager:update( t, dt )
 		self:_one_frame_delayed_clbk()
 		self._one_frame_delayed_clbk = nil
 	end
+	
+	if self._delayed_callbacks then
+		local callbacks = self._delayed_callbacks
+		if callbacks[1] and callbacks[1][1] < t then
+			local clbk = table.remove( callbacks, 1 )[2]
+			if #callbacks == 0 then
+				self._delayed_callbacks = nil
+			end
+			
+			clbk()
+		end
+	end
+	
 	if self._camera_values and self._transition_time then
 		self._transition_time = math.min( self._transition_time + dt, 1 )
 		local bezier_value = math.bezier( self._transition_bezier, self._transition_time )
@@ -324,6 +337,23 @@ function MenuSceneManager:update( t, dt )
 	if alive( self._vp ) then
 		self._vp:feed_params()
 	end
+end
+
+function MenuSceneManager:add_callback( clbk, delay )
+	if not clbk then
+		debug_pause("[MenuSceneManager:add_callback] Empty callback object!")
+	end
+	
+	local clbk_data = { Application:time() + delay, clbk }
+	
+	self._delayed_callbacks = self._delayed_callbacks or {}
+	local callbacks = self._delayed_callbacks
+	local i = #callbacks
+	while i > 0 and delay < callbacks[i][1] do
+		i = i - 1
+	end
+	
+	table.insert( callbacks, i + 1, clbk_data )
 end
 
 function MenuSceneManager:on_blackmarket_reset()
@@ -1365,6 +1395,7 @@ end
 
 function MenuSceneManager:destroy_infamy_card()
 	self._disable_rotate = nil
+	self._disable_dragging = nil
 	self._infamy_card_shown = nil
 	self:destroy_item_weapon()
 	self:remove_item()
@@ -1379,6 +1410,7 @@ function MenuSceneManager:_spawn_infamy_card( card )
 	mrotation.set_zero( self._item_rot_mod )
 	
 	self._disable_rotate = true
+	self._disable_dragging = true
 	self._infamy_card_shown = true
 	
 	local unit = World:spawn_unit( Idstring( "units/menu/menu_scene/infamy_card" ), self._item_pos, self._item_rot )
@@ -1386,8 +1418,15 @@ function MenuSceneManager:_spawn_infamy_card( card )
 	unit:damage():run_sequence_simple( "enable_card_" .. ( card < 10 and "0" or "" ) .. tostring( card ) )
 	unit:damage():run_sequence_simple( "card_flip_01" )
 	
+	local anim_time = 2.666 + unit:anim_length( Idstring( "card" ) )
+	self:add_callback( callback( self, self, "_infamy_enable_dragging" ), anim_time )
+	
 	self._test_weapon = unit
 	self:_set_item_unit( self._test_weapon )
+end
+
+function MenuSceneManager:_infamy_enable_dragging()
+	self._disable_dragging = nil
 end
 
 
@@ -1904,7 +1943,7 @@ function MenuSceneManager:mouse_pressed( o, button, x, y )
 		end
 	end
 	
-	if not self._use_item_grab then
+	if not self._use_item_grab or self._disable_dragging then
 		return
 	end
 	

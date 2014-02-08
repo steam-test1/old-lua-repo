@@ -1437,7 +1437,7 @@ end
 -----------------------------------------------------------------------------
 
 function CopLogicIdle._perform_objective_action( data, my_data, objective )
-	if objective and objective.action and not my_data.action_started and not data.unit:movement():chk_action_forbidden( "action" ) then
+	if objective and objective.action and not my_data.action_started and ( data.unit:anim_data().act_idle or not data.unit:movement():chk_action_forbidden( "action" ) ) then
 		my_data.action_started = data.unit:brain():action_request( objective.action )
 		if my_data.action_started then
 			if objective.action_duration then
@@ -1474,7 +1474,7 @@ end
 
 function CopLogicIdle._chk_has_old_action( data, my_data )
 	local anim_data = data.unit:anim_data()
-	my_data.has_old_action = anim_data.to_idle or anim_data.act
+	my_data.has_old_action = anim_data.to_idle or anim_data.act and not anim_data.act_idle
 	if not my_data.has_old_action then
 		local lower_body_action = data.unit:movement()._active_actions[2]
 		my_data.advancing = lower_body_action and lower_body_action:type() == "walk" and lower_body_action
