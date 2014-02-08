@@ -1251,6 +1251,9 @@ function GroupAIStateBase:on_simulation_ended()
 	self._hostage_data = {}
 	self._spawn_events = {}
 	self._special_objectives = {}
+	self._recurring_grp_SO = nil
+	self._grp_SO = nil
+	self._grp_SO_task_queue = nil
 	self._occasional_events = {}
 	self._attention_objects = { all={} }
 	self._nav_seg_to_area_map = {}
@@ -2194,6 +2197,185 @@ end
 
 -----------------------------------------------------------------------------
 
+function GroupAIStateBase:add_grp_SO( id, element )
+
+end
+
+-----------------------------------------------------------------------------
+
+function GroupAIStateBase:remove_grp_SO( id )
+	if self._grp_SO_task_queue then
+		table.insert( self._grp_SO_task_queue, { "rem", id } )
+	elseif self._grp_SO then
+		self._grp_SO[ id ] = nil
+	end
+end
+
+-----------------------------------------------------------------------------
+
+function GroupAIStateBase:_upd_grp_SO()
+	if self._grp_SO then
+		self._grp_SO_task_queue = {}
+		for grp_so_id, element in pairs( self._grp_SO ) do
+			self:_process_grp_SO( grp_so_id, element )
+		end
+		
+		self._grp_SO = nil
+		
+		local task_queue = self._grp_SO_task_queue
+		self._grp_SO_task_queue = nil
+		for _, task_info in ipairs( task_queue ) do
+			if task_info[1] == "add" then
+				self:add_grp_SO( task_info[2], task_info[3] )
+			else
+				self:remove_grp_SO( task_info[2] )
+			end
+		end
+	end
+	
+	if self._recurring_grp_SO and not next( self._spawning_groups ) then
+		for recurring_id, data in pairs( self._recurring_grp_SO ) do
+			if self:_process_recurring_grp_SO( recurring_id, data ) then
+				break
+			end
+		end
+	end
+	
+end
+
+-----------------------------------------------------------------------------
+
+function GroupAIStateBase:_process_grp_SO( grp_so_id, element )
+	
+	local mode = element:value( "mode" )
+	if mode ~= "forced_spawn" then
+		self._recurring_grp_SO = self._recurring_grp_SO or {}
+		if not self._recurring_grp_SO[ mode ] then
+			self._recurring_grp_SO[ mode ] = {
+				elements = {},
+				delay_t = 0
+			}
+			
+			self._recurring_grp_SO[ mode ].interval = tweak_data.group_ai.besiege.recurring_group_SO_intervals[ mode ]
+		end
+		
+		table.insert( self._recurring_grp_SO[ mode ].elements, element )
+		return
+	end
+	
+	
+	local spawn_grp_type = element:get_SO_spawn_group_type()
+	
+	
+	local grp_objective = element:get_grp_objective()
+	
+	
+	local grp_desc = tweak_data.group_ai.enemy_spawn_groups[ spawn_grp_type ]
+	if not grp_desc then
+		debug_pause( "[GroupAIStateBase:_process_grp_SO] Inexistent group type:", spawn_grp_type, "element_id:", grp_so_id )
+		return
+	end
+	
+	
+	
+end
+
+-----------------------------------------------------------------------------
+
+function GroupAIStateBase:_process_recurring_grp_SO( recurring_id, data )
+	if self._t < data.delay_t then
+		return
+	end
+	
+	if data.groups then
+		local junk_groups
+		for group_id, group in pairs( data.groups ) do
+			if group.has_spawned then
+				local is_junk
+				if not self._groups[ group_id ] or self._groups[ group_id ] ~= group then
+					is_junk = true
+				end
+				if not is_junk then
+					is_junk = true
+					for u_key, unit_data in pairs( group.units ) do
+						local objective = unit_data.unit:brain():objective()
+						if objective and objective.grp_objective == group.objective then
+							is_junk = nil
+							break
+						end
+					end
+					if is_junk then
+						if group.objective.fail_t then
+							if ( self._t - group.objective.fail_t ) < 30 then
+								is_junk = nil
+							end
+						else
+							group.objective.fail_t = self._t
+							is_junk = nil
+						end
+					end
+				end
+				if is_junk then
+					junk_groups = junk_groups or {}
+					table.insert( junk_groups, group_id )
+				end
+			end
+		end
+		
+		if junk_groups then
+			for _, group_id in ipairs( junk_groups ) do
+				local group = data.groups[ group_id ]
+				if next( group.units ) then
+					self:_assign_group_to_retire( group )
+				end
+				data.groups[ group_id ] = nil
+			end
+			if not next( data.groups ) then
+				data.groups = nil
+			end
+			data.delay_t = self._t + math.lerp( data.interval[1], data.interval[2], math.random() )
+			return
+		end
+	end
+	
+	
+	local total_w = 0
+	for i, element in ipairs( data.elements ) do
+		total_w = total_w + element:value( "base_chance" )
+	end
+	
+	local rand_w = total_w * math.random()
+	local element
+	for i, test_element in ipairs( data.elements ) do
+		rand_w = rand_w - test_element:value( "base_chance" )
+		if rand_w <= 0 then
+			element = test_element
+			break
+		end
+	end
+	
+	
+	local grp_objective = element:get_grp_objective()
+	local spawn_group, spawn_group_type = self:_find_spawn_group_near_area( grp_objective.area, tweak_data.group_ai.besiege.cloaker.groups, element:value( "position" ), nil, nil )
+	
+	if not spawn_group then
+		return
+	end
+	
+	
+	local new_group = self:_spawn_in_group( spawn_group, spawn_group_type, grp_objective, nil )
+	if new_group then
+		data.groups = data.groups or {}
+		data.groups[ new_group.id ] = new_group
+	end
+	
+	data.delay_t = self._t + 5
+	
+	return new_group and true
+end
+
+-----------------------------------------------------------------------------
+
 function GroupAIStateBase:save( save_data )
 	local my_save_data = {}
 	save_data.group_ai = my_save_data
@@ -2374,7 +2556,7 @@ function GroupAIStateBase:spawn_one_teamAI( is_drop_in, char_name, spawn_on_unit
 		local tracker = player:movement():nav_tracker()
 		local spawn_pos, spawn_rot
 		
-		if is_drop_in or spawn_on_unit then
+		if ( is_drop_in or spawn_on_unit ) and not self:whisper_mode() then
 			local spawn_fwd = player:movement():m_head_rot():y()
 			mvector3.set_z( spawn_fwd, 0 )
 			mvector3.normalize( spawn_fwd )
@@ -3992,6 +4174,7 @@ function GroupAIStateBase.clone_objective( objective )
 	local followup_SO = objective.followup_SO
 	local grp_objective = objective.grp_objective
 	local followup_objective = objective.followup_objective
+	local element = objective.element
 	
 	objective.complete_clbk = nil
 	objective.fail_clbk = nil
@@ -4001,6 +4184,7 @@ function GroupAIStateBase.clone_objective( objective )
 	objective.followup_SO = nil
 	objective.grp_objective = nil
 	objective.followup_objective = nil
+	objective.element = nil
 	
 	local new_objective = deep_clone( objective )
 	
@@ -4012,6 +4196,7 @@ function GroupAIStateBase.clone_objective( objective )
 	objective.followup_SO = followup_SO
 	objective.grp_objective = grp_objective
 	objective.followup_objective = followup_objective
+	objective.element = element
 	
 	new_objective.complete_clbk = cmpl_clbk
 	new_objective.fail_clbk = fail_clbk
@@ -4021,6 +4206,7 @@ function GroupAIStateBase.clone_objective( objective )
 	new_objective.followup_SO = followup_SO
 	new_objective.grp_objective = grp_objective
 	new_objective.followup_objective = followup_objective
+	new_objective.element = element
 	
 	return new_objective
 end
@@ -4080,7 +4266,12 @@ function GroupAIStateBase:convert_hostage_to_criminal( unit, peer_unit )
 	unit:brain():convert_to_criminal( peer_unit )
 	-- unit:character_damage():convert_to_criminal()	-- unit:brain():convert_to_criminal already do this
 	unit:character_damage():add_listener( "Converted"..tostring(player_unit:key()), {"death"}, callback( self, self, "clbk_minion_dies", player_unit:key() ) )
-	managers.game_play_central:add_friendly_contour( unit )
+	-- managers.game_play_central:add_friendly_contour( unit )
+	if not unit:contour() then
+		debug_pause_unit( unit, "[GroupAIStateBase:convert_hostage_to_criminal]: Unit doesn't have Contour Extension" )
+	end
+	unit:contour():add( "friendly" )
+	
 	u_data.so_access = unit:brain():SO_access()
 	
 	self._converted_police[ u_key ] = unit

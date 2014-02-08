@@ -54,7 +54,7 @@ function SpecialObjectiveTriggerUnitElement:add_element()
 end
 
 function SpecialObjectiveTriggerUnitElement:_correct_unit( u_name )
-	local names = { "point_special_objective" }
+	local names = { "point_special_objective", "ai_so_group" }
 	for _,name in ipairs( names ) do
 		if string.find( u_name, name, 1 ,true ) then
 			return true

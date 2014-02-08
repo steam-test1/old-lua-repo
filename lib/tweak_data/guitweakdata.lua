@@ -6,14 +6,19 @@ function GuiTweakData:init()
 		{ id = "halloween", name_id = "menu_content_halloween", desc_id = "menu_content_halloween_desc", date_id = "menu_content_halloween_date", webpage = "http://www.overkillsoftware.com/halloween/", image = "guis/textures/pd2/content_updates/halloween" },
 		{ id = "armored_transport", name_id = "menu_content_armored_transport", desc_id = "menu_content_armored_transport_desc", date_id = "menu_content_armored_transport_date", store = 264610, image = "guis/textures/pd2/content_updates/armored_transport" },
 		{ id = "gage_pack", name_id = "menu_content_gage_pack", desc_id = "menu_content_gage_pack_desc", date_id = "menu_content_gage_pack_date", store = 267380, image = "guis/textures/pd2/content_updates/gage_pack" },
-		
 		{ id = "charliesierra", name_id = "menu_content_charliesierra", desc_id = "menu_content_charliesierra_desc", date_id = "menu_content_charliesierra_date", webpage = "http://www.overkillsoftware.com/charliesanta/", image = "guis/textures/pd2/content_updates/charliesierra" },
 		{ id = "christmas", name_id = "menu_content_christmas", desc_id = "menu_content_christmas_desc", date_id = "menu_content_christmas_date", store = 267381, image = "guis/textures/pd2/content_updates/christmas" },
+		{ id = "infamy", name_id = "menu_content_infamy", desc_id = "menu_content_infamy_desc", date_id = "menu_content_infamy_date", webpage = "http://www.overkillsoftware.com/infamy", image = "guis/textures/pd2/content_updates/infamy_introduction" },
 		
 	}
 	self.num_previous_updates = 6
 	
-						-- self.stats.concealment				= { 1, 1, 1, 1.2, 1.2, 1.2, 1.2, 1.3, 1.3, 1.3 }
+	
+	
+	self.infamy_masks_sort_order = { "aviator", "plague", "welder", "smoker", "ghost" }
+	
+	
+	-- self.stats.concealment				= { 1, 1, 1, 1.2, 1.2, 1.2, 1.2, 1.3, 1.3, 1.3 }
 	self.suspicion_to_visibility = {}
 	self.suspicion_to_visibility[1] = {}
 	self.suspicion_to_visibility[1].name_id = "bm_menu_concealment_low"

@@ -14,8 +14,11 @@ function PlayerProfileGuiObject:init( ws )
 	local bg_ring = panel:bitmap( { texture="guis/textures/pd2/level_ring_small", w=font_size*4, h=font_size*4, x=10, y=10, color=Color.black, alpha=0.4 } )
 	local exp_ring = panel:bitmap( { texture="guis/textures/pd2/level_ring_small", w=font_size*4, h=font_size*4, x=10, y=10, color=Color((next_level_data.current_points or 1) / (next_level_data.points or 1), 1, 1), render_template="VertexColorTexturedRadial", blend_mode="add", layer=1 } )
 	
-	
-	local level_text = panel:text( { font=tweak_data.menu.pd2_medium_font, font_size=tweak_data.menu.pd2_medium_font_size, text=tostring(managers.experience:current_level()), color=tweak_data.screen_colors.text } )	
+	local player_level = managers.experience:current_level()
+	local player_rank = managers.experience:current_rank()
+	local is_infamous = player_rank > 0
+	local level_string = ( is_infamous and managers.experience:rank_string( player_rank ) .. "-" or "" ) .. tostring( player_level )
+	local level_text = panel:text( { font=tweak_data.menu.pd2_medium_font, font_size=tweak_data.menu.pd2_medium_font_size + ( is_infamous and -5 or 0 ), text=level_string, color=tweak_data.screen_colors.text } )	
 	self:_make_fine_text( level_text )
 	level_text:set_center( exp_ring:center() )
 	max_left_len = math.max( max_left_len, level_text:w() )

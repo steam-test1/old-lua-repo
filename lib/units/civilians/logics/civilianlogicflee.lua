@@ -661,21 +661,6 @@ function CivilianLogicFlee.register_rescue_SO( ignore_this, data )
 	
 	local my_tracker = data.unit:movement():nav_tracker()
 	local objective_pos = my_tracker:field_position()
-	local followup_objective = {
-		type = "act",
-		stance = "hos",
-		scan = true,
-		action = { 
-			type = "act",
-			variant = "idle",
-			body_part = 1,
-			blocks = {
-				action = -1,
-				walk = -1
-			}
-		},
-		action_duration = tweak_data.interaction.free.timer,
-	}
 	
 	local side = data.unit:movement():m_rot():x()
 	mvector3.multiply( side, 65 )
@@ -727,10 +712,9 @@ function CivilianLogicFlee.register_rescue_SO( ignore_this, data )
 			}
 		},
 		action_duration = tweak_data.interaction.free.timer,
-		followup_objective = followup_objective
+		-- followup_objective = followup_objective
 	}
 	
-
 	--[[
 	local brush = Draw:brush( Color(0.2, 1,0,1), 30)
 	brush:sphere( objective.pos, 50, 4 )
@@ -822,9 +806,6 @@ end
 -----------------------------------------------------------------------------
 -- we have been cleared to flee
 function CivilianLogicFlee.on_rescue_SO_completed( ignore_this, data, good_pig )
---	print( "[CivilianLogicFlee.on_rescue_SO_completed]", inspect( data ), data.unit, good_pig )
---	Application:stack_dump()
-	
 	if data.internal_data.rescuer and good_pig:key() == data.internal_data.rescuer:key() then
 		data.internal_data.rescue_active = nil
 		

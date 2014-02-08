@@ -740,10 +740,10 @@ end
 
 -------------------------------------------------------------------------------
 -- This comes from the brain extension. Server only!!!
-function CopMovement:set_stance( new_stance_name )
+function CopMovement:set_stance( new_stance_name, instant )
 	for i_stance, stance_name in ipairs( CopMovement._stance.names ) do
 		if stance_name == new_stance_name then
-			self:set_stance_by_code( i_stance )
+			self:set_stance_by_code( i_stance, instant )
 			break
 		end
 	end
@@ -751,16 +751,16 @@ end
 
 -------------------------------------------------------------------------------
 -- This comes from the brain extension. Server only!!!
-function CopMovement:set_stance_by_code( new_stance_code )
+function CopMovement:set_stance_by_code( new_stance_code, instant )
 	if self._stance.code ~= new_stance_code then
 		self._ext_network:send( "set_stance", new_stance_code )
-		self:_change_stance( new_stance_code )
+		self:_change_stance( new_stance_code, instant )
 	end
 end
 
 -------------------------------------------------------------------------------
 -- internal function
-function CopMovement:_change_stance( stance_code )
+function CopMovement:_change_stance( stance_code, instant )
 	--print( "[CopMovement:_change_stance]", stance_code )
 	--Application:stack_dump()
 	
@@ -775,69 +775,86 @@ function CopMovement:_change_stance( stance_code )
 	end
 	
 	local stance = self._stance
-	local end_values = {}
-	if stance_code == 4 then	--"wnd" : wounded combines with other stances
-		if stance.transition then
-			end_values = stance.transition.end_values
-		else
-			for i, value in ipairs( stance.values ) do
-				end_values[i] = value
+	
+	if instant then
+		if stance.transition or stance.code ~= stance_code then
+			stance.transition = nil
+			stance.code = stance_code
+			stance.name = CopMovement._stance.names[ stance_code ]
+			for i = 1, 3 do
+				stance.values[ i ] = 0
+			end
+			stance.values[ stance_code ] = 1
+			for i, v in ipairs( stance.values ) do
+				self._machine:set_global( CopMovement._stance.names[ i ], v )
 			end
 		end
 	else
-		if stance.transition then
-			end_values = { 0, 0, 0, stance.transition.end_values[4] }
+		local end_values = {}
+		if stance_code == 4 then	--"wnd" : wounded combines with other stances
+			if stance.transition then
+				end_values = stance.transition.end_values
+			else
+				for i, value in ipairs( stance.values ) do
+					end_values[i] = value
+				end
+			end
 		else
-			end_values = { 0, 0, 0, stance.values[4] }
-		end
-	end
-	end_values[ stance_code ] = 1
-	
-	if stance_code ~= 4 then -- wounded stance is a stance on top of hos/cbt. it doesn't count as a normal stance
-		stance.code = stance_code
-		stance.name = CopMovement._stance.names[ stance_code ]
-	end
-	
-	local delay
-	
-	local vis_state = self._ext_base:lod_stage()
-	if vis_state then
-		delay = CopMovement._stance.blend[ stance_code ]
-		if vis_state > 2 then
-			delay = delay * 0.5
-		end
-	else
-		stance.transition = nil
-		if stance_code ~= 1 then
-			self:_chk_play_equip_weapon()
-		end
-		
-		local names = CopMovement._stance.names
-		for i, v in ipairs( end_values ) do
-			if v ~= stance.values[ i ] then
-				stance.values[ i ] = v
-				self._machine:set_global( names[ i ], v )
+			if stance.transition then
+				end_values = { 0, 0, 0, stance.transition.end_values[4] }
+			else
+				end_values = { 0, 0, 0, stance.values[4] }
 			end
 		end
+		end_values[ stance_code ] = 1
 		
-		return
+		if stance_code ~= 4 then -- wounded stance is a stance on top of hos/cbt. it doesn't count as a normal stance
+			stance.code = stance_code
+			stance.name = CopMovement._stance.names[ stance_code ]
+		end
+		
+		local delay
+		
+		local vis_state = self._ext_base:lod_stage()
+		if vis_state then
+			delay = CopMovement._stance.blend[ stance_code ]
+			if vis_state > 2 then
+				delay = delay * 0.5
+			end
+		else
+			stance.transition = nil
+			if stance_code ~= 1 then
+				self:_chk_play_equip_weapon()
+			end
+			
+			local names = CopMovement._stance.names
+			for i, v in ipairs( end_values ) do
+				if v ~= stance.values[ i ] then
+					stance.values[ i ] = v
+					self._machine:set_global( names[ i ], v )
+				end
+			end
+			
+			return
+		end
+		
+		local start_values = {}
+		for _, value in ipairs( stance.values ) do
+			table.insert( start_values, value )
+		end
+		
+		local t = TimerManager:game():time()
+		local transition = {
+			end_values = end_values,
+			start_values = start_values,
+			duration = delay,
+			start_t = t,
+			next_upd_t = t + 0.07
+		}
+		
+		stance.transition = transition
 	end
 	
-	local start_values = {}
-	for _, value in ipairs( stance.values ) do
-		table.insert( start_values, value )
-	end
-	
-	local t = TimerManager:game():time()
-	local transition = {
-		end_values = end_values,
-		start_values = start_values,
-		duration = delay,
-		start_t = t,
-		next_upd_t = t + 0.07
-	}
-	
-	stance.transition = transition
 	if stance_code ~= 1 then
 		self:_chk_play_equip_weapon()
 	end
@@ -870,7 +887,7 @@ end
 -------------------------------------------------------------------------------
 
 function CopMovement:_chk_play_equip_weapon()
-	if self._stance.values[1] == 1 and not self._ext_anim.equip and not self._tweak_data.no_equip_anim then
+	if self._stance.values[1] == 1 and not self._ext_anim.equip and not self._tweak_data.no_equip_anim and not self:chk_action_forbidden( "action" ) then
 		local redir_res = self:play_redirect( "equip" )
 		if redir_res then
 			local weapon_unit = self._ext_inventory:equipped_unit()
@@ -1133,7 +1150,7 @@ function CopMovement:on_suppressed( state )
 	
 	self._action_common_data.is_suppressed = state or nil
 	
-	if Network:is_server() and state and self._tweak_data.allow_crouch and not ( self._tweak_data.no_stand or self:chk_action_forbidden( "walk" ) ) then
+	if Network:is_server() and state and ( not self._tweak_data.allowed_poses or self._tweak_data.allowed_poses.crouch ) and ( not self._tweak_data.allowed_poses or self._tweak_data.allowed_poses.stand ) and not self:chk_action_forbidden( "walk" ) then
 		if self._ext_anim.idle and not ( self._active_actions[2] and self._active_actions[2]:type() ~= "idle" ) then
 			local action_desc = {
 				type = "act",
@@ -1144,7 +1161,7 @@ function CopMovement:on_suppressed( state )
 				}
 			}
 			self:action_request( action_desc )
-		elseif not self._ext_anim.crouch and self._tweak_data.crouch_move and self._tweak_data.allow_crouch then
+		elseif not self._ext_anim.crouch and self._tweak_data.crouch_move and ( not self._tweak_data.allowed_poses or self._tweak_data.allowed_poses.crouch ) then
 			local action_desc = {
 				type = "crouch",
 				body_part = 4
@@ -1387,7 +1404,7 @@ end
 -----------------------------------------------------------------------------------
 
 function CopMovement:anim_clbk_stance( unit, stance_name, instant )
-	self:set_stance( stance_name )
+	self:set_stance( stance_name, instant )
 end
 
 -----------------------------------------------------------------------------------
@@ -1828,10 +1845,6 @@ function CopMovement:sync_action_walk_stop( pos )
 	--print( "[CopMovement:sync_action_walk_stop]", self._unit, inspect( self._active_actions ), inspect( self._queued_actions ) )
 	local walk_action, is_queued = self:_get_latest_walk_action()
 	if is_queued then
-		--[[if not walk_action.nav_path[ #walk_action.nav_path ].x then -- this nav_link was never performed on the server side
-			walk_action.nav_path[ #walk_action.nav_path ] = self._actions.walk._nav_point_pos( walk_action.nav_path[ #walk_action.nav_path ] )
-		end]]
-		
 		table.insert( walk_action.nav_path, pos )
 		walk_action.persistent = nil
 	elseif walk_action then
@@ -1843,29 +1856,29 @@ end
 
 -----------------------------------------------------------------------------------
 
-function CopMovement:_get_latest_spooc_action()
+function CopMovement:_get_latest_spooc_action( action_id )
 	-- We need to figure out if the nav pos refers to an ongoing or a queued action. search queued actions first
 	if self._queued_actions then
 		for i = #self._queued_actions, 1, -1 do
-			if self._queued_actions[i].type == "spooc" and not self._queued_actions[i].stop_pos then --If it has a stop_pos then this action is complete and cannot receive more data
+			local action = self._queued_actions[ i ]
+			if action.type == "spooc" and action_id == action.action_id then --If it has a stop_pos then this action is complete and cannot receive more data
 				return self._queued_actions[i], true
 			end
 		end
 	end
 	
 	-- Case 2. we have an ongoing spooc action
-	if self._active_actions[1] and self._active_actions[1]:type() == "spooc" then
+	if self._active_actions[1] and self._active_actions[1]:type() == "spooc" and action_id == self._active_actions[ 1 ]:action_id() then
 		return self._active_actions[1]
 	end
-	
-	--debug_pause( "[CopMovement:_get_latest_spooc_action] no queued or ongoing spooc action", self._unit, inspect( self._queued_actions ), inspect( self._active_actions ) )
 end
 
 -----------------------------------------------------------------------------------
 
-function CopMovement:sync_action_spooc_nav_point( pos )
+function CopMovement:sync_action_spooc_nav_point( pos, action_id )
 	--print( "[CopMovement:sync_action_spooc_nav_point]", self._unit, inspect( self._active_actions ), inspect( self._queued_actions ) )
-	local spooc_action, is_queued = self:_get_latest_spooc_action()
+	local spooc_action, is_queued = self:_get_latest_spooc_action( action_id )
+	
 	if is_queued then
 		if not spooc_action.stop_pos or spooc_action.nr_expected_nav_points then
 			table.insert( spooc_action.nav_path, pos )
@@ -1885,9 +1898,9 @@ end
 
 -----------------------------------------------------------------------------------
 
-function CopMovement:sync_action_spooc_stop( pos, nav_index )
+function CopMovement:sync_action_spooc_stop( pos, nav_index, action_id )
 	--print( "[CopMovement:sync_action_spooc_stop]", pos, nav_index )
-	local spooc_action, is_queued = self:_get_latest_spooc_action()
+	local spooc_action, is_queued = self:_get_latest_spooc_action( action_id )
 	if is_queued then
 		if spooc_action.host_stop_pos_inserted then
 			nav_index = nav_index + spooc_action.host_stop_pos_inserted
@@ -1909,15 +1922,19 @@ function CopMovement:sync_action_spooc_stop( pos, nav_index )
 			spooc_action.path_index = math.max( 1, math.min( spooc_action.path_index, #nav_path - 1 ) )
 		end
 	elseif spooc_action then
-		spooc_action:sync_stop( pos, nav_index )
+		if Network:is_server() then
+			self:action_request( { type = "idle", body_part = 1, sync = true } )
+		else
+			spooc_action:sync_stop( pos, nav_index )
+		end
 	end
 end
 
 -----------------------------------------------------------------------------------
 
-function CopMovement:sync_action_spooc_strike( pos )
+function CopMovement:sync_action_spooc_strike( pos, action_id )
 	--print( "[CopMovement:sync_action_spooc_strike]", self._unit, "pos", pos )
-	local spooc_action, is_queued = self:_get_latest_spooc_action()
+	local spooc_action, is_queued = self:_get_latest_spooc_action( action_id )
 	if is_queued then
 		if spooc_action.stop_pos and not spooc_action.nr_expected_nav_points then
 			--print( "[CopMovement:sync_action_spooc_strike] too late" )
@@ -1975,6 +1992,7 @@ function CopMovement:sync_action_act_start( index, blocks_hurt, start_rot, start
 		action_data.blocks.light_hurt = -1
 		action_data.blocks.hurt = -1
 		action_data.blocks.heavy_hurt = -1
+		action_data.blocks.expl_hurt = -1
 	end
 	
 	self:action_request( action_data )

@@ -51,8 +51,10 @@ function Drill:start()
 			
 			managers.dialog:queue_dialog( "Play_pln_drl_wrn", {} )
 			
-			self._ene_weap_hot_listen_id = "Drill_ene_w_hot"..tostring(self._unit:key())
-			managers.groupai:state():add_listener( self._ene_weap_hot_listen_id, { "enemy_weapons_hot" }, callback( self, self, "clbk_enemy_weapons_hot" ) )
+			if not self._ene_weap_hot_listen_id then
+				self._ene_weap_hot_listen_id = "Drill_ene_w_hot"..tostring( self._unit:key() )
+				managers.groupai:state():add_listener( self._ene_weap_hot_listen_id, { "enemy_weapons_hot" }, callback( self, self, "clbk_enemy_weapons_hot" ) )
+			end
 		end
 	end
 end
@@ -214,7 +216,7 @@ end
 function Drill:load( data )
 	local state = data.Drill
 	
-	self:set_skill_upgrades( state.skill_upgrades )
+	--self:set_skill_upgrades( state.skill_upgrades )
 end
 
 function Drill:set_powered( powered )
@@ -432,7 +434,7 @@ function Drill:set_skill_upgrades( upgrades )
 		local timer_multiplier = 1
 		
 		
-		local background_icon_template = { texture = "guis/textures/pd2/skilltree/", w = 128, h = 128, x = 30, y = 100, alpha = 0.60000002384186, layer = 2 }
+		local background_icon_template = { texture = "guis/textures/pd2/skilltree/", w = 128, h = 128, x = 30, y = 100, alpha = 1, layer = 2 }
 		local background_icon_x = 30
 		
 		
@@ -463,13 +465,13 @@ function Drill:set_skill_upgrades( upgrades )
 		if self._skill_upgrades[2] or upgrades[2] then
 			timer_multiplier = drill_speed_multiplier[2]
 			
-			add_bg_icon_func( background_icons, "drillgui_icon_faster", tweak_data.hud.prime_color )
+			add_bg_icon_func( background_icons, "drillgui_icon_faster", timer_gui_ext:get_upgrade_icon_color( "upgrade_color_2" ) )
 		elseif self._skill_upgrades[1] or upgrades[1] then
 			timer_multiplier = drill_speed_multiplier[1]
 			
-			add_bg_icon_func( background_icons, "drillgui_icon_faster", tweak_data.screen_colors.text )
+			add_bg_icon_func( background_icons, "drillgui_icon_faster", timer_gui_ext:get_upgrade_icon_color( "upgrade_color_1" ) )
 		else
-			add_bg_icon_func( background_icons, "drillgui_icon_faster", tweak_data.screen_colors.item_stage_3 )
+			add_bg_icon_func( background_icons, "drillgui_icon_faster", timer_gui_ext:get_upgrade_icon_color( "upgrade_color_0" ) )
 		end
 		
 		local got_reduced_alert = self._skill_upgrades[3] or upgrades[3] or false
@@ -483,16 +485,16 @@ function Drill:set_skill_upgrades( upgrades )
 			self:set_alert_radius( nil )
 			timer_gui_ext:set_skill( BaseInteractionExt.SKILL_IDS.aced )
 			
-			add_bg_icon_func( background_icons, "drillgui_icon_silent", tweak_data.hud.prime_color )
+			add_bg_icon_func( background_icons, "drillgui_icon_silent", timer_gui_ext:get_upgrade_icon_color( "upgrade_color_2" ) )
 		elseif got_reduced_alert then
 			self:set_alert_radius( drill_alert_rad )
 			timer_gui_ext:set_skill( BaseInteractionExt.SKILL_IDS.basic )
 			
-			add_bg_icon_func( background_icons, "drillgui_icon_silent", tweak_data.screen_colors.text )
+			add_bg_icon_func( background_icons, "drillgui_icon_silent", timer_gui_ext:get_upgrade_icon_color( "upgrade_color_1" ) )
 		else
 			self:set_alert_radius( tweak_data.upgrades.drill_alert_radius or 2500 )
 			timer_gui_ext:set_skill( BaseInteractionExt.SKILL_IDS.none )
-			add_bg_icon_func( background_icons, "drillgui_icon_silent", tweak_data.screen_colors.item_stage_3 )
+			add_bg_icon_func( background_icons, "drillgui_icon_silent", timer_gui_ext:get_upgrade_icon_color( "upgrade_color_0" ) )
 		end
 		
 		if got_auto_repair then
@@ -500,9 +502,9 @@ function Drill:set_skill_upgrades( upgrades )
 				self:set_autorepair( true )
 			end
 			
-			add_bg_icon_func( background_icons, "drillgui_icon_restarter", tweak_data.screen_colors.text )
+			add_bg_icon_func( background_icons, "drillgui_icon_restarter", timer_gui_ext:get_upgrade_icon_color( "upgrade_color_1" ) )
 		else
-			add_bg_icon_func( background_icons, "drillgui_icon_restarter", tweak_data.screen_colors.item_stage_3 )
+			add_bg_icon_func( background_icons, "drillgui_icon_restarter", timer_gui_ext:get_upgrade_icon_color( "upgrade_color_0" ) )
 		end
 	end
 	

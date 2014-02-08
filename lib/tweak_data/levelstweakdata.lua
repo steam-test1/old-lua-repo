@@ -574,7 +574,7 @@ function LevelsTweakData:init()
 	self.big.name_id = "heist_big_hl"
 	self.big.briefing_id = "heist_big_briefing"
 	self.big.briefing_dialog = "Play_pln_big_brief"
-	self.big.world_name = "wip/big_3"
+	self.big.world_name = "wip/big_4"
 	self.big.intro_event = "Play_pln_firestarter_stage3_intro_a"
 	self.big.outro_event = { "Play_pln_firestarter_stage3_end_a", "Play_pln_firestarter_stage3_end_b" }
 	
@@ -631,6 +631,20 @@ function LevelsTweakData:init()
 	self.monolithic_1.music = "heist"
 	self.monolithic_1.package = "packages/level_debug"
 	self.monolithic_1.cube = "cube_apply_heist_bank"
+	
+	
+	
+	self.blueharvest_2 = {}
+	self.blueharvest_2.name_id = "heist_blueharvest_2_hl"
+	self.blueharvest_2.briefing_id = "heist_blueharvest_2_briefing"
+	
+	self.blueharvest_2.world_name = "wip/blueharvest/stage_2"
+	self.blueharvest_2.intro_event = "lol"
+	self.blueharvest_2.outro_event = { "lol", "lolo" }
+	
+	self.blueharvest_2.music = "heist"
+	self.blueharvest_2.package = "packages/level_debug"
+	self.blueharvest_2.cube = "cube_apply_heist_bank"
 	
 	
 	------------------------ TESTS -----------------------
@@ -974,6 +988,7 @@ function LevelsTweakData:init()
 					"branchbank_cloaker",
 					"heat",
 					"monolithic_1",
+					"blueharvest_2",
 					
 					
 					"test01", "test02", "test03", "test04", "test05", "test06", "test07", "test08", "test09", "test10", "escape_chain_test_1", "escape_chain_test_2", "vehicle_van_test"
@@ -1061,9 +1076,29 @@ function LevelsTweakData:get_music_switches()
 		return nil
 	end
 	
+	local infamous = nil
+	if managers.experience:current_rank() > 0 then
+		infamous = true
+	elseif managers.network and managers.network:game() then
+		for id, member in pairs( managers.network:game():all_members() ) do
+			if member:peer() and member:peer():rank() > 0 then
+				infamous = true
+				break
+			end
+		end
+	end
+	
 	local level_data = Global.level_data.level_id and tweak_data.levels[ Global.level_data.level_id ]
 	local music_id = level_data and level_data.music or "default"
-	return tweak_data.music[ music_id ].switches
+	
+	local switches = deep_clone( tweak_data.music[ music_id ].switches )
+	if infamous and tweak_data.music[ music_id ].switches_infamous then
+		for _, data in pairs( tweak_data.music[ music_id ].switches_infamous ) do
+			table.insert( switches, data )
+		end
+	end
+	
+	return switches
 end
 
 function LevelsTweakData:get_music_event( stage )

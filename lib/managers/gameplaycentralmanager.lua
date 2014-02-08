@@ -2,9 +2,9 @@ local tmp_vec1 = Vector3()
 local tmp_vec2 = Vector3()
 local empty_idstr = Idstring( "" )
 local idstr_concrete = Idstring( "concrete" )
-local idstr_contour_color = Idstring( "contour_color" )
+--[[local idstr_contour_color = Idstring( "contour_color" )
 local idstr_contour_opacity = Idstring( "contour_opacity" )
-local idstr_material = Idstring( "material" )
+local idstr_material = Idstring( "material" )]]
 local idstr_blood_spatter = Idstring( "blood_spatter" )
 local idstr_blood_screen = Idstring( "effects/particles/character/player/blood_screen" )
 local idstr_bullet_hit_blood = Idstring( "effects/payday2/particles/impacts/blood/blood_impact_a" )
@@ -29,10 +29,10 @@ function GamePlayCentralManager:init()
 	self._slotmask_footstep = managers.slot:get_mask( "footstep" )
 	self._slotmask_bullet_impact_targets = managers.slot:get_mask( "bullet_impact_targets" )
 	
-	self._contour = { index = 1, units = {} }
+	--[[self._contour = { index = 1, units = {} }
 	self._enemy_contour_units = {}
 	self._friendly_contour_units = {}
-	self._marked_contour_units = {}
+	self._marked_contour_units = {}]]
 		
 	self:_init_impact_sources()
 	
@@ -141,6 +141,7 @@ function GamePlayCentralManager:update( t, dt )
 		end	
 	end
 	
+	--[[
 	if #self._contour.units > 0 then
 	
 		local cam_pos = managers.viewport:get_current_camera_position()
@@ -278,9 +279,15 @@ function GamePlayCentralManager:update( t, dt )
 			end
 		end
 	end
-
-
-
+	]]
+	
+	
+	
+	
+	
+	
+	
+	
 	-- Update flashlights on dropped weapons 
 	if #self._dropped_weapons.units > 0 then
 		local data = self._dropped_weapons.units[ self._dropped_weapons.index ]
@@ -339,6 +346,7 @@ function GamePlayCentralManager:update( t, dt )
 	end
 end
 
+--[[
 function GamePlayCentralManager:add_enemy_contour( unit, marking_strength, time_multiplier )
 	if not self._enemy_contour_units[unit:key()] then
 		unit:base():swap_material_config()
@@ -471,6 +479,12 @@ function GamePlayCentralManager:flash_contour( unit )
 		end
 	end
 end
+]]
+
+
+
+
+
 
 
 function GamePlayCentralManager:end_update( t, dt )
@@ -566,8 +580,9 @@ function GamePlayCentralManager:request_play_footstep( unit, m_pos )
 	end
 end
 
-function GamePlayCentralManager:physics_push( col_ray )
+function GamePlayCentralManager:physics_push( col_ray, push_multiplier )
 	local unit = col_ray.unit
+	push_multiplier = push_multiplier or 1
 	if unit:in_slot( self._slotmask_physics_push ) then
 		local body = col_ray.body
 		if not body:dynamic() then -- The body hit by the ray is not dynamic. see if there is another body to use
@@ -588,7 +603,7 @@ function GamePlayCentralManager:physics_push( col_ray )
 			end
 		end
 		
-		local body_mass = math.min( 50, body:mass() )
+		local body_mass = math.min( 50, body:mass() ) * push_multiplier
 		local len = mvector3.distance( col_ray.position, body:center_of_mass() )
 		local body_vel = body:velocity()
 		mvector3.set( tmp_vec1, col_ray.ray )
@@ -596,7 +611,7 @@ function GamePlayCentralManager:physics_push( col_ray )
 		local max_vel = 600
 		if vel_dot < max_vel then
 			local push_vel = ( max_vel - math.max( vel_dot, 0 ) )
-			push_vel = math.lerp( push_vel * 0.7, push_vel, math.random() )
+			push_vel = math.lerp( push_vel * 0.7, push_vel, math.random() ) * push_multiplier
 			mvector3.multiply( tmp_vec1, push_vel )
 			body:push_at( body_mass, tmp_vec1, col_ray.position )
 		end
@@ -752,7 +767,7 @@ function GamePlayCentralManager:_play_bullet_hit( params )
 	
 	-- print( "material_name", material_name, col_ray.unit:name():s() )
 		
-	local effect
+	local effect = params.effect
 		
 	if material_name then
 		-- local redir_name, pos, norm = World:pick_decal_effect( Idstring( "bullet_hit" ), decal_ray_from, decal_ray_to, slot_mask )
@@ -772,14 +787,14 @@ function GamePlayCentralManager:_play_bullet_hit( params )
 		-- print( "redir_name", redir_name:s() )
 				
 		if need_effect then
-			effect = { effect = redir_name, position = hit_pos+offset, normal = col_ray.normal }
+			effect = { effect = effect or redir_name, position = hit_pos+offset, normal = col_ray.normal }
 		end
 		
 		sound_switch_name = need_sound and material_name
 	else
 		-- print( "NO material" )
 		if need_effect then
-			local generic_effect = idstr_fallback
+			local generic_effect = effect or idstr_fallback
 			effect = { effect = generic_effect, position = hit_pos, normal = col_ray.normal }
 		end
 		

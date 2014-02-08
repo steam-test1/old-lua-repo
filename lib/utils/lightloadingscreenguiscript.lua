@@ -23,7 +23,7 @@ function LightLoadingScreenGuiScript:init( scene_gui, res, progress, base_layer,
 	self._gui_tweak_data.upper_saferect_border 		= 64	-- Y value for upper saferect border lon 
 	self._gui_tweak_data.border_pad			 		= 8		-- Padding used for placing objects near borders
 	
-	self._title_text = self._saferect_panel:text( { y = 0, text_id = "debug_loading_level", font = "fonts/font_medium_shadow_mf", font_size = 32, color = Color.white, align="left", halign="left", vertical="bottom", layer = self._base_layer + 1, h = 24 } )
+	self._title_text = self._saferect_panel:text( { y = 0, text_id = "debug_loading_level", font = "fonts/font_medium_mf", font_size = 32, color = Color.white, align="left", halign="left", vertical="bottom", layer = self._base_layer + 1, h = 24 } )
 	self._title_text:set_text( string.upper( self._title_text:text() ) )
 	
 	self._stonecold_small_logo = self._saferect_panel:bitmap( { name = "stonecold_small_logo", texture = "guis/textures/game_small_logo", texture_rect = {0,0,256,56}, layer = self._base_layer + 1, h = 56, } )

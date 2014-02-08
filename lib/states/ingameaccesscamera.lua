@@ -252,7 +252,11 @@ function IngameAccessCamera:add_enemy_contour( unit )
 	
 	local marked_extra_damage = managers.player:has_category_upgrade( "player", "marked_enemy_extra_damage" ) or false
 	local time_multiplier = managers.player:upgrade_value( "player", "mark_enemy_time_multiplier", 1 )
-	managers.game_play_central:add_enemy_contour( unit, marked_extra_damage, time_multiplier )
+	-- managers.game_play_central:add_enemy_contour( unit, marked_extra_damage, time_multiplier )
+	if not unit:contour() then
+		debug_pause_unit( unit, "[IngameAccessCamera:add_enemy_contour]: Unit doesn't have Contour Extension" )
+	end
+	unit:contour():add( "mark_enemy", marked_extra_damage, time_multiplier )
 	managers.network:session():send_to_peers_synched( "mark_enemy", unit, marked_extra_damage, time_multiplier )
 end
 

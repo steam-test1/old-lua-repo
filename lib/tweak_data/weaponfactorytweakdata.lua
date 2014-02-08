@@ -463,9 +463,8 @@ function WeaponFactoryTweakData:_init_content_dlc2_dec16()
 																			wpn_fps_smg_mp7 = { translation = Vector3( 0,0,-3 ) },
 																			wpn_fps_ass_scar = { translation = Vector3( 0,0,-0.25 ) },
 																			
-																			wpn_fps_smg_tec9 = { translation = Vector3( 0,0,-3.2 ) },
-																			wpn_fps_shot_benelli = { translation = Vector3( 0,0,-0.25 ) },
-																			wpn_fps_pis_g22c = { translation = Vector3( 0,0,-1 ) },
+																			wpn_fps_lmg_hk21 = { translation = Vector3( 0,0,-3.2 ) },
+																			wpn_fps_lmg_m249 = { translation = Vector3( 0,0,-3.2 ) },
 																		},
 															forbids = { "wpn_fps_amcar_uupg_body_upperreciever", "wpn_fps_ass_m16_os_frontsight", "wpn_fps_ass_scar_o_flipups_up" }
 														}
@@ -1559,6 +1558,8 @@ function WeaponFactoryTweakData:_init_ak5()
 	self.parts.wpn_fps_ass_ak5_s_ak5b 						= { pc = 40 , type = "stock", name_id = "bm_wp_ak5_s_ak5b", a_obj = "a_s", unit = "units/payday2/weapons/wpn_fps_ass_ak5_pts/wpn_fps_ass_ak5_s_ak5b",
 																stats = { value = 5, recoil = 0, spread_moving = -3, spread = 1, concealment = -1 },
 																adds = { "wpn_fps_ass_ak5_s_ak5a" },
+																stance_mod = { wpn_fps_ass_ak5 = { translation = Vector3( 0, -8, 0 ) },
+																},
 															}
 	-- Stock, lightweight, bad spread and best moving spread
 	self.parts.wpn_fps_ass_ak5_s_ak5c 						= { pc = 40 , type = "stock", name_id = "bm_wp_ak5_s_ak5c", a_obj = "a_s", unit = "units/payday2/weapons/wpn_fps_ass_ak5_pts/wpn_fps_ass_ak5_s_ak5c",

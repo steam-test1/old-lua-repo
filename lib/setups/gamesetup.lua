@@ -147,6 +147,7 @@ require "lib/units/equipment/sentry_gun/SentryGunMovement"
 require "lib/units/equipment/sentry_gun/SentryGunDamage"
 require "lib/units/equipment/ecm_jammer/ECMJammerBase"
 require "lib/units/equipment/grenade_crate/GrenadeCrateBase"
+require "lib/units/ContourExt"
 
 -- Weapons
 require "lib/units/weapons/RaycastWeaponBase"

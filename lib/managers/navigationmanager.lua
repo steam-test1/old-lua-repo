@@ -232,7 +232,13 @@ function NavigationManager:_draw_pos_reservations( t )
 			Application:draw_sphere( entry.position, entry.radius,  0,0,0 )
 			
 			if res.unit then
-				Application:draw_cylinder( entry.position, res.unit:movement():m_pos(),  3,  0,0,0 )
+				if alive( res.unit ) then
+					Application:draw_cylinder( entry.position, res.unit:movement():m_pos(),  3,  0,0,0 )
+				else
+					Application:error( "[NavigationManager:_draw_pos_reservations] dead unit. reserved from:", res.stack, "unit name:", res.u_name )
+					Application:draw_sphere( entry.position, entry.radius + 5, 1, 0, 1 )
+					Application:set_pause( true )
+				end
 			end
 		else
 			Application:draw_sphere( entry.position, entry.radius,  0.3,0.3,0.3 )
@@ -682,6 +688,10 @@ end
 -- complete_clbk is a callback object
 function NavigationManager:build_visibility_graph( complete_clbk, all_visible, neg_filter, pos_filter, ray_dis  )
 	--print( "[NavigationManager:build_visibility_graph] all_visible", all_visible, "pos_filter", inspect( pos_filter ), "neg_filter", inspect( neg_filter ), "ray_dis", ray_dis )
+	if not next( self._nav_segments ) then
+		Application:error( "[NavigationManager:build_visibility_graph] ground needs to be built before visibilty graph" )
+		return 
+	end
 	local draw_options = self._draw_enabled
 	self:set_debug_draw_state( false )
 	self._build_complete_clbk = complete_clbk
@@ -2317,6 +2327,8 @@ function NavigationManager:add_pos_reservation( desc )
 			for u_key, u_data in pairs( managers.enemy:all_enemies() ) do
 				if u_data.unit:movement():pos_rsrv_id() == desc.filter then
 					self._pos_reservations[desc.id].unit = u_data.unit
+					self._pos_reservations[desc.id].u_name = u_data.unit:name()
+					self._pos_reservations[desc.id].stack = Application:stack()
 					return
 				end	
 			end

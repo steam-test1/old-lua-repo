@@ -382,6 +382,13 @@ end
 
 -----------------------------------------------------------------------------
 
+function SentryGunMovement:switch_on()
+	self._switched_off = false
+	self:set_active( true )
+end
+
+-----------------------------------------------------------------------------
+
 function SentryGunMovement:save( save_data )
 	local my_save_data = {}
 	if self._attention then

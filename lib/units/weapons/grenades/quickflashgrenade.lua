@@ -90,7 +90,6 @@ function QuickFlashGrenade:_chk_dazzle_local_player( detonate_pos, range, ignore
 	end
 	
 	-- no line of sight, check bounce
-	
 	--local bounce_brush = Draw:brush( Color.green:with_alpha( 0.5 ), 2 )
 	--local bounce_brush_fail = Draw:brush( Color.red:with_alpha( 0.5 ), 2 )
 	
@@ -123,8 +122,6 @@ function QuickFlashGrenade:_chk_dazzle_local_player( detonate_pos, range, ignore
 						return true, false, travel_dis, linear_dis
 					end
 				end
-			--else -- no bounce
-				--bounce_brush_fail:sphere( bounce_ray.position, 20 )
 			end
 		end
 	end

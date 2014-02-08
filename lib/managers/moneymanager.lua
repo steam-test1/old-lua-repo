@@ -260,7 +260,13 @@ function MoneyManager:get_money_by_params( params )
 	local contract_money_multiplier = 1 + money_multiplier / 10
 	local small_loot_multiplier = managers.money:get_small_loot_difficulty_multiplier( total_difficulty_stars ) or 0
 	
+	local cash_skill_bonus = 1
 	local bag_skill_bonus = managers.player:upgrade_value( "player", "secured_bags_money_multiplier", 1 )
+	if managers.groupai and managers.groupai:state():whisper_mode() then
+		cash_skill_bonus = cash_skill_bonus * managers.player:team_upgrade_value( "cash", "stealth_money_multiplier", 1 )
+		bag_skill_bonus = bag_skill_bonus * managers.player:team_upgrade_value( "cash", "stealth_bags_multiplier", 1 )
+	end
+	
 	local bonus_bags = params.secured_bags or managers.loot:get_secured_bonus_bags_value()
 	local mandatory_bags = params.secured_bags or managers.loot:get_secured_mandatory_bags_value()
 	local real_small_value = params.small_value or math.round( managers.loot:get_real_total_small_loot_value() )
@@ -278,7 +284,7 @@ function MoneyManager:get_money_by_params( params )
 	local bag_risk = 0
 	local small_risk = 0
 
-	local static_value = self:get_money_by_job( job_id, difficulty_stars + 1 )
+	local static_value = self:get_money_by_job( job_id, difficulty_stars + 1 ) * cash_skill_bonus
 	if static_value then
 	
 	
@@ -785,7 +791,7 @@ end
 ------------------------------------------------------------------
 
 function MoneyManager:refund_weapon_part( weapon_id, part_id, global_value )
-	local pc_value = tweak_data.blackmarket.weapon_mods[ part_id ] and tweak_data.blackmarket.weapon_mods[ part_id ].value or 1 	-- Changed system to used value instead of PC
+	local pc_value = tweak_data.blackmarket.weapon_mods and tweak_data.blackmarket.weapon_mods[ part_id ] and tweak_data.blackmarket.weapon_mods[ part_id ].value or 1 	-- Changed system to used value instead of PC
 
 	local mod_price = tweak_data:get_value( "money_manager", "modify_weapon_cost", pc_value ) -- Changed system to used value instead of PC
 	
@@ -802,7 +808,7 @@ function MoneyManager:get_weapon_modify_price( weapon_id, part_id, global_value 
 	-- local pc_value = self:_get_pc_entry( tweak_data.weapon.factory.parts[ part_id ] )
 	-- local mod_price = tweak_data.money_manager.modify_weapon_cost[ (pc_value and math.ceil( pc_value/10 ) or 1) ]
 	
-	local pc_value = tweak_data.blackmarket.weapon_mods[part_id].value or 1 -- Changed system to used value instead of PC
+	local pc_value = tweak_data.blackmarket.weapon_mods and tweak_data.blackmarket.weapon_mods[part_id] and tweak_data.blackmarket.weapon_mods[part_id].value or 1 -- Changed system to used value instead of PC
 
 	local mod_price = tweak_data:get_value( "money_manager", "modify_weapon_cost", pc_value ) -- Changed system to used value instead of PC
 	
@@ -918,7 +924,7 @@ function MoneyManager:get_mask_crafting_price_modified( mask_id, global_value, b
 end
 
 function MoneyManager:get_mask_part_price( category, id, global_value )
-	local part_pc = self:_get_pc_entry( tweak_data.blackmarket[category][id] ) or 0
+	local part_pc = tweak_data.blackmarket[category] and self:_get_pc_entry( tweak_data.blackmarket[category][id] ) or 0
 	local star_value = (part_pc == 0 and part_pc) or math.ceil( part_pc / 10 )
 	
 	local part_name_converter = { textures="pattern", materials="material", colors="color" }
@@ -927,10 +933,10 @@ function MoneyManager:get_mask_part_price( category, id, global_value )
 
 	local gv_multiplier = tweak_data:get_value( "money_manager", "global_value_multipliers", global_value )
 	
-	local value = tweak_data.blackmarket[category][ id ].value or 1 -- Changed system to used value instead of PC
+	local value = tweak_data.blackmarket[ category ] and tweak_data.blackmarket[ category ][ id ] and tweak_data.blackmarket[ category ][ id ].value or 1 -- Changed system to used value instead of PC
 	
 
-	local pv = tweak_data:get_value( "money_manager", "masks", part_name_converter[category] .. "_value", value ) or 0
+	local pv = tweak_data:get_value( "money_manager", "masks", part_name_converter[ category ] .. "_value", value ) or 0
 	
 	return math.round( pv * gv_multiplier )
 end
@@ -939,7 +945,7 @@ function MoneyManager:get_mask_crafting_price( mask_id, global_value, blueprint 
 	local bonus_global_values = { normal=0, superior=0, exceptional=0, infamous=0}
 	
 	-- local pc_value = self:_get_pc_entry( tweak_data.blackmarket.masks[ mask_id ] )
-	local pc_value = tweak_data.blackmarket.masks[ mask_id ] and tweak_data.blackmarket.masks[ mask_id ].value or 1 -- Changed system to used value instead of PC
+	local pc_value = tweak_data.blackmarket.masks and tweak_data.blackmarket.masks[ mask_id ] and tweak_data.blackmarket.masks[ mask_id ].value or 1 -- Changed system to used value instead of PC
 	
 	local base_value
 	
@@ -959,10 +965,10 @@ function MoneyManager:get_mask_crafting_price( mask_id, global_value, blueprint 
 		blueprint = managers.blackmarket:get_default_mask_blueprint()
 	end
 	for id, data in pairs( blueprint ) do
-		local part_pc = self:_get_pc_entry( tweak_data.blackmarket[part_name_converter[id]][data.id] ) or 0
+		local part_pc = tweak_data.blackmarket[part_name_converter[id]] and self:_get_pc_entry( tweak_data.blackmarket[part_name_converter[id]][data.id] ) or 1
 		
 		-- star_value = (part_pc == 0 and part_pc) or math.ceil( part_pc / 10 )
-		local star_value = tweak_data.blackmarket[part_name_converter[id]][ data.id ].value or 1 -- Changed system to used value instead of PC
+		local star_value = tweak_data.blackmarket[part_name_converter[id]] and tweak_data.blackmarket[part_name_converter[id]][ data.id ] and tweak_data.blackmarket[part_name_converter[id]][ data.id ].value or 1 -- Changed system to used value instead of PC
 		if star_value > 0 then
 			
 			local gv_multiplier = tweak_data:get_value( "money_manager", "global_value_multipliers", data.global_value )
@@ -1034,6 +1040,14 @@ function MoneyManager:get_skillpoint_cost( tree, tier, points )
 
 	local tier_cost = (not tier and 0) or tweak_data:get_value( "money_manager", "skilltree", "respec", "point_tier_cost", tier ) * points
 	local cost = tweak_data:get_value( "money_manager", "skilltree", "respec", "base_point_cost" ) + tier_cost
+	
+	if managers.experience:current_rank() > 0 then
+		for infamy, item in pairs( tweak_data.infamy.items ) do
+			if managers.infamy:owned( infamy ) and item.upgrades and item.upgrades.skillcost then
+				cost = cost * item.upgrades.skillcost.multiplier or 1
+			end
+		end
+	end
 	
 	return math.round( cost )
 end

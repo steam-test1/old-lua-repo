@@ -108,7 +108,7 @@ function MissionBriefingTabItem:mouse_moved( x, y )
 		self._tab_text:set_color( self._selected and tweak_data.screen_colors.button_stage_1 or tweak_data.screen_colors.button_stage_3 ) -- set_alpha( self._selected and 1 or 0.5 )
 	end
 	]]
-	return self._panel:inside( x, y ) and self._selected
+	return self._selected, self._highlighted
 end
 
 function MissionBriefingTabItem:mouse_pressed( button, x, y )
@@ -369,7 +369,7 @@ function DescriptionItem:deselect()
 end
 
 function DescriptionItem:mouse_moved( x, y )
-	DescriptionItem.super.mouse_moved( self, x, y )
+	return DescriptionItem.super.mouse_moved( self, x, y )
 end
 
 function DescriptionItem:mouse_pressed( button, x, y )
@@ -443,8 +443,16 @@ function AssetsItem:create_assets( assets_names, max_assets )
 		rect:hide()
 		
 		if( i <= #assets_names ) then
-			local asset = self._panel:bitmap( { name="asset_"..tostring(i), texture=assets_names[i][1], w=65, h=65, rotation=math.random(2)-1.5, layer=1, valign="top" } )
+			local texture = assets_names[i][1]
+			local asset
+			
+			if texture and DB:has( Idstring( "texture" ), texture ) then
+				asset = self._panel:bitmap( { name="asset_"..tostring(i), texture=texture, w=65, h=65, rotation=math.random(2)-1.5, layer=1, valign="top" } )
+			else
+				asset = self._panel:bitmap( { name="asset_"..tostring(i), texture="guis/textures/pd2/endscreen/what_is_this", rotation=math.random(2)-1.5, alpha=0, w=65, h=65, layer=1, valign="top" } )
+			end
 			local aspect = asset:texture_width() / math.max( 1, asset:texture_height() )
+			
 			asset:set_w( asset:h() * aspect )
 			
 			rect:set_w( rect:h() * aspect )
@@ -715,7 +723,7 @@ function AssetsItem:mouse_moved( x, y )
 				self:check_deselect_item()
 			end
 			self._asset_text:set_text("")
-			return
+			return false, true
 		elseif self._move_left_highlighted then
 			self._move_left_rect:set_color( tweak_data.screen_colors.button_stage_3 )
 			self._move_left_highlighted = false
@@ -728,16 +736,17 @@ function AssetsItem:mouse_moved( x, y )
 				self:check_deselect_item()
 			end
 			self._asset_text:set_text("")
-			return
+			return false, true
 		elseif self._move_right_highlighted then
 			self._move_right_rect:set_color( tweak_data.screen_colors.button_stage_3 )
 			self._move_right_highlighted = false
 		end
 	end
 	
-	if( AssetsItem.super.mouse_moved( self, x, y ) == false ) then
+	local selected, highlighted = AssetsItem.super.mouse_moved( self, x, y )
+	if not ( self._panel:inside( x, y ) and selected ) then
 		self:check_deselect_item()
-		return
+		return selected, highlighted
 	end
 	
 	self._assets_list = self._assets_list or {}
@@ -769,11 +778,16 @@ function AssetsItem:mouse_moved( x, y )
 					self._assets_list[ self._asset_selected ]:animate( self.animate_deselect, self._panel:child("bg_rect_"..tostring(self._asset_selected)) )
 				end]]
 				
+				update_select = false
 				self:select_asset( i )
 				break
 			end
 		end
 	end
+	if not update_select then
+		return false, true
+	end
+	return selected, highlighted
 end
 
 function AssetsItem:mouse_pressed( button, x, y )
@@ -961,7 +975,7 @@ function LoadoutItem:init( panel, text, i, assets_names, menu_component_data )
 		-- self._assets_list[ 1 ]:hide()
 	end
 	
-	local when_to_split = 7
+	local when_to_split = 6
 	do
 		local equipped_weapon = managers.blackmarket:equipped_primary()
 		local primary_slot = managers.blackmarket:equipped_weapon_slot( "primaries" )
@@ -1066,7 +1080,7 @@ function LoadoutItem:deselect()
 end
 
 function LoadoutItem:mouse_moved( x, y )
-	LoadoutItem.super.mouse_moved( self, x, y )
+	return LoadoutItem.super.mouse_moved( self, x, y )
 	-- self._panel:child("wip"):set_color( Color.white:with_alpha( self._panel:child("wip"):inside( x, y ) and 0.6 or 1 ) )
 end
 
@@ -1328,6 +1342,16 @@ function LoadoutItem:create_deployable_loadout()
 	table.insert( data, { name="bm_menu_deployables", category="deployables", on_create_func_name="populate_deployables", override_slots={ 3, 2 }, identifier=Idstring( "deployable" ) } )
 	data.topic_id = "menu_loadout_blackmarket"
 	data.topic_params = { category=managers.localization:text( "bm_menu_deployables" ) }
+	
+	return data
+end
+
+function LoadoutItem:create_melee_weapon_loadout()
+	local data = {}
+	table.insert( data, { name="bm_menu_melee_weapons", category="melee_weapons", on_create_func_name="populate_melee_weapons", override_slots={ 3, 2 }, identifier=Idstring("melee_weapon") } )
+	-- table.insert( data, { name="bm_menu_melee_weapons", category="melee_weapons", on_create_func=callback(self, self, "populate_melee_weapons") } )
+	data.topic_id = "menu_loadout_blackmarket"
+	data.topic_params = { category=managers.localization:text( "bm_menu_melee_weapons" ) }
 	
 	return data
 end
@@ -1666,22 +1690,25 @@ function MissionBriefingGui:init( saferect_ws, fullrect_ws, node )
 	
 	local primary_texture = "guis/textures/pd2/endscreen/what_is_this"
 	local secondary_texture = "guis/textures/pd2/endscreen/what_is_this"
-	local deployable_texture = "guis/textures/pd2/endscreen/what_is_this"
+	local melee_weapon_texture = "guis/textures/pd2/endscreen/what_is_this"
 	local armor_texture = "guis/textures/pd2/endscreen/what_is_this"
+	local deployable_texture = "guis/textures/pd2/endscreen/what_is_this"
 	
 	local empty_string = managers.localization:to_upper_text( "menu_loadout_empty" )
 	local primary_string = empty_string
 	local secondary_string = empty_string
-	local deployable_string = empty_string
+	local melee_weapon_string = empty_string
 	local armor_string = empty_string
+	local deployable_string = empty_string
 	
 	local primary_perks = {}
 	local secondary_perks = {}
 	
 	local primary = managers.blackmarket:equipped_primary()
 	local secondary = managers.blackmarket:equipped_secondary()
-	local deployable = managers.player:equipment_in_slot( 1 )
+	local melee_weapon = managers.blackmarket:equipped_melee_weapon()
 	local armor = managers.blackmarket:equipped_armor()
+	local deployable = managers.player:equipment_in_slot( 1 )
 	
 	if( primary ) then
 		local guis_catalog = "guis/"
@@ -1711,15 +1738,7 @@ function MissionBriefingGui:init( saferect_ws, fullrect_ws, node )
 		secondary_perks = managers.blackmarket:get_perks_from_weapon_blueprint( secondary.factory_id, secondary.blueprint )
 	end
 	
-	if( deployable ) then
-		local guis_catalog = "guis/"
-		local bundle_folder = tweak_data.blackmarket.deployables[ deployable ] and tweak_data.blackmarket.deployables[ deployable ].texture_bundle_folder
-		if bundle_folder then
-			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
-		end
-		
-		deployable_texture = guis_catalog .. "textures/pd2/blackmarket/icons/deployables/" .. tostring( deployable )
-		deployable_string = managers.localization:text( tweak_data.upgrades.definitions[ deployable ].name_id )
+	if( melee_weapon ) then
 	end
 	
 	if( armor ) then
@@ -1731,6 +1750,17 @@ function MissionBriefingGui:init( saferect_ws, fullrect_ws, node )
 		
 		armor_texture = guis_catalog .. "textures/pd2/blackmarket/icons/armors/" .. tostring( armor )
 		armor_string = managers.localization:text( tweak_data.blackmarket.armors[ armor ].name_id )
+	end
+	
+	if( deployable ) then
+		local guis_catalog = "guis/"
+		local bundle_folder = tweak_data.blackmarket.deployables[ deployable ] and tweak_data.blackmarket.deployables[ deployable ].texture_bundle_folder
+		if bundle_folder then
+			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
+		end
+		
+		deployable_texture = guis_catalog .. "textures/pd2/blackmarket/icons/deployables/" .. tostring( deployable )
+		deployable_string = managers.localization:text( tweak_data.upgrades.definitions[ deployable ].name_id )
 	end
 	
 	local loadout = 
@@ -2118,18 +2148,26 @@ end
 
 function MissionBriefingGui:mouse_moved( x, y )
 	if( not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled ) then
-		return
+		return false, "arrow"
 	end
 	if( self._displaying_asset ) then
-		return
+		return false, "arrow"
 	end
 	if game_state_machine:current_state().blackscreen_started and game_state_machine:current_state():blackscreen_started() then
-		return
+		return false, "arrow"
 	end
 	
+	local mouse_over_tab = false
 	for _, tab in ipairs(self._items) do
-		tab:mouse_moved( x, y )
+		local selected, highlighted = tab:mouse_moved( x, y )
+		if highlighted and not selected then
+			mouse_over_tab = true
+		end
 	end
+	if mouse_over_tab then
+		return true, "link"
+	end
+	
 	
 	if( self._ready_button:inside( x, y ) or self._ready_tick_box:inside( x, y ) ) then
 		if not self._ready_highlighted then
@@ -2137,6 +2175,7 @@ function MissionBriefingGui:mouse_moved( x, y )
 			self._ready_button:set_color( tweak_data.screen_colors.button_stage_2 )
 			managers.menu_component:post_event( "highlight" )
 		end
+		return true, "link"
 	elseif self._ready_highlighted then
 		self._ready_button:set_color( tweak_data.screen_colors.button_stage_3 )
 		self._ready_highlighted = false
@@ -2145,6 +2184,7 @@ function MissionBriefingGui:mouse_moved( x, y )
 	if( managers.hud._hud_mission_briefing and managers.hud._hud_mission_briefing._backdrop ) then
 		managers.hud._hud_mission_briefing._backdrop:mouse_moved( x, y )
 	end
+	return false, "arrow"
 end
 
 function MissionBriefingGui:set_description_text_id( text_id )
@@ -2183,7 +2223,7 @@ function MissionBriefingGui:on_ready_pressed( ready )
 	managers.network:session():local_peer():set_waiting_for_player_ready( self._ready )
 	managers.network:session():chk_send_local_player_ready()
 	
-	managers.network:game():on_set_member_ready( managers.network:session():local_peer():id(), self._ready )
+	managers.network:game():on_set_member_ready( managers.network:session():local_peer():id(), self._ready, ready_changed )
 	
 	local ready_text = self:ready_text()
 	self._ready_button:set_text( ready_text )
@@ -2474,22 +2514,25 @@ end
 function MissionBriefingGui:reload_loadout()
 	local primary_texture = "guis/textures/pd2/endscreen/what_is_this"
 	local secondary_texture = "guis/textures/pd2/endscreen/what_is_this"
-	local deployable_texture = "guis/textures/pd2/endscreen/what_is_this"
+	local melee_weapon_texture = "guis/textures/pd2/endscreen/what_is_this"
 	local armor_texture = "guis/textures/pd2/endscreen/what_is_this"
+	local deployable_texture = "guis/textures/pd2/endscreen/what_is_this"
 	
 	local empty_string = managers.localization:to_upper_text( "menu_loadout_empty" )
 	local primary_string = empty_string
 	local secondary_string = empty_string
-	local deployable_string = empty_string
+	local melee_weapon_string = empty_string
 	local armor_string = empty_string
+	local deployable_string = empty_string
 	
 	local primary_perks = {}
 	local secondary_perks = {}
 	
 	local primary = managers.blackmarket:equipped_primary()
 	local secondary = managers.blackmarket:equipped_secondary()
-	local deployable = managers.player:equipment_in_slot( 1 )
+	local melee_weapon = managers.blackmarket:equipped_melee_weapon()
 	local armor = managers.blackmarket:equipped_armor()
+	local deployable = managers.player:equipment_in_slot( 1 )
 	
 	if( primary ) then
 		local guis_catalog = "guis/"
@@ -2513,21 +2556,13 @@ function MissionBriefingGui:reload_loadout()
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
 		
-		local texture_name = tweak_data.weapon[ weapon_id ].texture_name or tostring( weapon_id )
+		local texture_name = tweak_data.weapon[ secondary.weapon_id ].texture_name or tostring( secondary.weapon_id )
 		secondary_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
 		secondary_string = managers.weapon_factory:get_weapon_name_by_factory_id( secondary.factory_id )
 		secondary_perks = managers.blackmarket:get_perks_from_weapon_blueprint( secondary.factory_id, secondary.blueprint )
 	end
 	
-	if( deployable ) then
-		local guis_catalog = "guis/"
-		local bundle_folder = tweak_data.blackmarket.deployables[ deployable ] and tweak_data.blackmarket.deployables[ deployable ].texture_bundle_folder
-		if bundle_folder then
-			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
-		end
-		
-		deployable_texture = guis_catalog .. "textures/pd2/blackmarket/icons/deployables/" .. tostring( deployable )
-		deployable_string = managers.localization:text( tweak_data.upgrades.definitions[ deployable ].name_id )
+	if( melee_weapon ) then
 	end
 	
 	if( armor ) then
@@ -2539,6 +2574,17 @@ function MissionBriefingGui:reload_loadout()
 		
 		armor_texture = guis_catalog .. "textures/pd2/blackmarket/icons/armors/" .. tostring( armor )
 		armor_string = managers.localization:text( tweak_data.blackmarket.armors[ armor ].name_id )
+	end
+	
+	if( deployable ) then
+		local guis_catalog = "guis/"
+		local bundle_folder = tweak_data.blackmarket.deployables[ deployable ] and tweak_data.blackmarket.deployables[ deployable ].texture_bundle_folder
+		if bundle_folder then
+			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
+		end
+		
+		deployable_texture = guis_catalog .. "textures/pd2/blackmarket/icons/deployables/" .. tostring( deployable )
+		deployable_string = managers.localization:text( tweak_data.upgrades.definitions[ deployable ].name_id )
 	end
 	
 	local loadout = 

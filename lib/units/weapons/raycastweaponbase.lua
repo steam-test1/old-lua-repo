@@ -83,6 +83,10 @@ function RaycastWeaponBase:get_stance_id()
 	return self:weapon_tweak_data().use_stance or self:get_name_id()
 end
 
+function RaycastWeaponBase:movement_penalty()
+	return tweak_data.upgrades.weapon_movement_penalty[ self:weapon_tweak_data().category ] or 1
+end
+
 -----------------------------------------------------------------------------------
 
 function RaycastWeaponBase:_create_use_setups()
@@ -252,6 +256,13 @@ end
 -----------------------------------------------------------------------------------
 
 function RaycastWeaponBase:fire( from_pos, direction, dmg_mul, shoot_player, spread_mul, autohit_mul, suppr_mul, target_unit )
+	if managers.player:has_activate_temporary_upgrade( "temporary", "no_ammo_cost_buff" ) then
+		managers.player:deactivate_temporary_upgrade( "temporary", "no_ammo_cost_buff" )
+		if managers.player:has_category_upgrade( "temporary", "no_ammo_cost" ) then
+			managers.player:activate_temporary_upgrade( "temporary", "no_ammo_cost" )
+		end
+	end
+	
 	if not managers.player:has_activate_temporary_upgrade( "temporary", "no_ammo_cost" ) then
 		if self:get_ammo_remaining_in_clip() == 0 then	-- clip is empty. cannot fire
 			return
@@ -690,6 +701,12 @@ function RaycastWeaponBase:get_ammo_total ()
 	return self._ammo_total and self:digest_value( self._ammo_total, false ) or self:digest_value( self._ammo_total2, false )
 end
 
+function RaycastWeaponBase:get_ammo_ratio()
+	local ammo_max = self:get_ammo_max()
+	local ammo_total = self:get_ammo_total()
+	return ammo_total / math.max( ammo_max, 1 )
+end
+
 -----------------------------------------------------------------------------------
 
 function RaycastWeaponBase:set_ammo_remaining_in_clip ( ammo_remaining_in_clip )
@@ -1001,11 +1018,26 @@ function RaycastWeaponBase:add_ammo_from_bag( available )
 	local can_have = math.min( wanted, available ) 
 	
 	self:set_ammo_total( math.min(ammo_max, ammo_total + math.ceil( can_have * ammo_max ) ) )
-	
-
 	print( wanted, can_have, math.ceil(can_have * ammo_max), self:get_ammo_total() )
 	
 	return can_have
+end
+
+function RaycastWeaponBase:reduce_ammo_by_procentage_of_total( ammo_procentage )
+	local ammo_max = self:get_ammo_max()
+	local ammo_total = self:get_ammo_total()
+	local ammo_ratio = self:get_ammo_ratio()
+	
+	if ammo_total == 0 then
+		return 
+	end
+	
+	local ammo_after_reduction = math.max( math.ceil( ammo_total - ammo_max * ammo_procentage ), 0 )
+	self:set_ammo_total( math.min( ammo_total, ammo_after_reduction ) )
+	print( math.min( ammo_total, ammo_after_reduction ), ammo_after_reduction, ammo_max * ammo_procentage )
+	
+	local ammo_remaining_in_clip = self:get_ammo_remaining_in_clip()
+	self:set_ammo_remaining_in_clip( math.min( ammo_after_reduction, ammo_remaining_in_clip ) )
 end
 
 -----------------------------------------------------------------------------------
@@ -1129,16 +1161,29 @@ function InstantBulletBase:on_collision( col_ray, weapon_unit, user_unit, damage
 		end
 	end
 	
-	managers.game_play_central:physics_push( col_ray )
-	
 	if hit_unit:character_damage() and hit_unit:character_damage().damage_bullet then
-		return self:give_impact_damage( col_ray, weapon_unit, user_unit, damage )
+		local is_alive = not hit_unit:character_damage():dead()
+		local result = self:give_impact_damage( col_ray, weapon_unit, user_unit, damage )
+		local is_dead = hit_unit:character_damage():dead()
+		local push_multiplier = self:_get_character_push_multiplier( weapon_unit, is_alive and is_dead )
+		managers.game_play_central:physics_push( col_ray, push_multiplier )
+		return result
 	else
 		-- self:play_impact_sound_and_effects( col_ray )
 	end
+	
+	managers.game_play_central:physics_push( col_ray )
+	
 	return nil
 end
 
+function InstantBulletBase:_get_character_push_multiplier( weapon_unit, died )
+	if alive( weapon_unit ) and weapon_unit:base():weapon_tweak_data().category == "shotgun" then
+		return nil
+	end
+	
+	return died and 2.5 or nil
+end
 
 function InstantBulletBase:on_hit_player( col_ray, weapon_unit, user_unit, damage )
 	local armor_piercing = alive( weapon_unit ) and weapon_unit:base():weapon_tweak_data().armor_piercing or nil

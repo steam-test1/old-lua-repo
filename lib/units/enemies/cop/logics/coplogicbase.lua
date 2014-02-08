@@ -967,7 +967,7 @@ end
 -----------------------------------------------------------------------------
 
 function CopLogicBase.should_duck_on_alert( data, alert_data )
-	if not ( data.important and data.char_tweak.allow_crouch and alert_data[1] ~= "voice" ) or data.unit:anim_data().crouch or data.unit:movement():chk_action_forbidden( "walk" ) then
+	if not ( data.important and ( not data.char_tweak.allowed_poses or data.char_tweak.allowed_poses.crouch ) and alert_data[1] ~= "voice" ) or data.unit:anim_data().crouch or data.unit:movement():chk_action_forbidden( "walk" ) then
 		return
 	end
 	
@@ -1012,15 +1012,16 @@ function CopLogicBase.is_obstructed( data, objective, strictness, attention )
 	end
 	
 	if objective.interrupt_dis then
-		if attention and attention.reaction >= AIAttentionObject.REACT_SURPRISED then
+		if attention and ( ( attention.reaction >= AIAttentionObject.REACT_COMBAT ) or ( data.cool and attention.reaction >= AIAttentionObject.REACT_SURPRISED ) ) then
 			if objective.interrupt_dis == -1 then
 				return true, true
 			elseif math.abs( attention.m_pos.z - data.m_pos.z ) < 250 then
-				local enemy_dis
-				if attention.verified then
-					enemy_dis = attention.verified_dis * (1-strictness)
-				else
-					enemy_dis = 1.5 * mvector3.distance( attention.m_pos, data.m_pos ) * (1-strictness) -- non visible enemies must come closer to interrupt
+				local enemy_dis = attention.dis * (1-strictness)
+				if not attention.verified then
+					enemy_dis = 2 * attention.dis * (1-strictness)
+				end
+				if attention.is_very_dangerous then
+					enemy_dis = enemy_dis * 0.25
 				end
 				if objective.interrupt_dis > enemy_dis then
 					return true, true -- threat is too near. allow_transition & interrupt

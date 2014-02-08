@@ -6,8 +6,7 @@ function CoreMusicManager:init()
 	 	Global.music_manager.source = SoundDevice:create_source( "music" )
 	 	Global.music_manager.volume = 0
 	end
-	self:_check_music_switch()
-
+	
 	self._path_list = {}
 	self._path_map = {}
 	self._event_map = {}
@@ -57,6 +56,8 @@ function CoreMusicManager:init_finalize()
 		
 		self:set_volume( Global.music_manager.volume )
 	end
+	
+	self:_check_music_switch()
 	
 	managers.savefile:add_load_sequence_done_callback_handler( callback( self, self, "on_load_complete" ) )
 end

@@ -1006,6 +1006,10 @@ function PlayerMovement:running()
 	return self._is_running
 end
 
+function PlayerMovement:crouching()
+	return self._state_data.ducking
+end
+
 -------------------------------------------------------------------------------
 
 function PlayerMovement:on_enter_ladder( ladder_unit )

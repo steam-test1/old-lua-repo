@@ -233,12 +233,12 @@ function TeamAILogicTravel.update( data )
 	
 	-- Check if we should crouch or stand
 	if not action_taken then
-		if want_to_take_cover or data.char_tweak.no_stand then  -- I do not have cover or my cover is low and I am not crouched
+		if want_to_take_cover or ( data.char_tweak.allowed_poses and not data.char_tweak.allowed_poses.stand ) then  -- I do not have cover or my cover is low and I am not crouched
 			if not unit:anim_data().crouch then
 				action_taken = CopLogicAttack._chk_request_action_crouch( data )
 			end
 		elseif unit:anim_data().crouch then
-			if not data.char_tweak.allow_crouch then
+			if ( data.char_tweak.allowed_poses and not data.char_tweak.allowed_poses.crouch ) then
 				action_taken = CopLogicAttack._chk_request_action_stand( data )
 			end
 		end

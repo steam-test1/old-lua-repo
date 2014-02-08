@@ -14,6 +14,12 @@ function PlayerArrested:enter( state_data, enter_data )
 	
 	self._revive_SO_data = { unit = self._unit }
 	
+	self:_interupt_action_throw_grenade()
+	
+	self:_interupt_action_steelsight()
+	
+	self:_interupt_action_ladder( managers.player:player_timer():time() )
+	
 	self._old_selection = self._unit:inventory():equipped_selection()
 	self:_start_action_handcuffed( managers.player:player_timer():time() )
 	self:_start_action_unequip_weapon( managers.player:player_timer():time(), { selection_wanted = 1 } )
@@ -197,13 +203,13 @@ function PlayerArrested:call_teammate( line, t, no_gesture, skip_alert, skip_mar
 			if managers.player:has_category_upgrade( "player", "special_enemy_highlight" ) then
 				local marked_extra_damage = managers.player:has_category_upgrade( "player", "marked_enemy_extra_damage" ) or false
 				local time_multiplier = managers.player:upgrade_value( "player", "mark_enemy_time_multiplier", 1 )
-				managers.game_play_central:add_enemy_contour( prime_target.unit, marked_extra_damage, time_multiplier )
+				-- managers.game_play_central:add_enemy_contour( prime_target.unit, marked_extra_damage, time_multiplier )
+				prime_target.unit:contour():add( "mark_enemy", marked_extra_damage, time_multiplier )
 				managers.network:session():send_to_peers_synched( "mark_enemy", prime_target.unit, marked_extra_damage, time_multiplier )
-				managers.challenges:set_flag( "eagle_eyes" )
+				-- managers.challenges:set_flag( "eagle_eyes" )
 			end
 		end
 	end
-	
 	if interact_type then
 		self:_do_action_intimidate(t, (not no_gesture) and interact_type or nil, queue_name, skip_alert)
 		return true

@@ -112,6 +112,9 @@ function PlayerEquipment:use_ammo_bag()
 		if managers.player:has_category_upgrade( "temporary", "no_ammo_cost" ) then
 			managers.player:activate_temporary_upgrade( "temporary", "no_ammo_cost" )
 		end
+		
+		
+		
 		return true
 	end
 	return false

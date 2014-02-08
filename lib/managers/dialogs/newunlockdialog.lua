@@ -18,7 +18,7 @@ function NewUnlockDialog:init( manager, data, is_title_outside )
 
 	self._ws = self._data.ws or manager:_get_ws()
 
-	local text_config = { w = 420, h = 400, no_close_legend = true, no_scroll_legend = true, use_indicator = data.indicator or data.no_buttons, is_title_outside = is_title_outside, use_text_formating = data.use_text_formating, text_formating_color = data.text_formating_color, text_formating_color_table = data.text_formating_color_table, text_blend_mode = data.text_blend_mode }
+	local text_config = { w = data.w or 420, h = data.h or 400, no_close_legend = true, no_scroll_legend = true, use_indicator = data.indicator or data.no_buttons, is_title_outside = is_title_outside, use_text_formating = data.use_text_formating, text_formating_color = data.text_formating_color, text_formating_color_table = data.text_formating_color_table, text_blend_mode = data.text_blend_mode }
 	local image_config = {w = 128, h = 128, padding = 10, layer = 2, keep_ratio = true, texture = data.texture, render_template = data.render_template, shapes = data.shapes}
 
 	if not data.texture and not data.shapes then
@@ -50,7 +50,7 @@ end
 function NewUnlockDialog:fade_in()
 	NewUnlockDialog.super.fade_in( self )
 	
-	self._start_sound_t = TimerManager:main():time() + 0.2
+	self._start_sound_t = self._sound_event and ( TimerManager:main():time() + 0.2 )
 end
 
 function NewUnlockDialog:update( t, dt )

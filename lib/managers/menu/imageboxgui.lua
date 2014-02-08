@@ -126,11 +126,11 @@ function ImageBoxGui:_create_image_box( image_config )
 	main:set_center( main:parent():w() / 2, main:parent():h() / 2 )
 end
 
-function ImageBoxGui:mouse_moved( x, y )
+--[[function ImageBoxGui:mouse_moved( x, y )
 end
 
 function ImageBoxGui:mouse_pressed( button, x, y )
-end
+end]]
 
 --[[function ImageBoxGui:close()
   if alive( self._panel ) then

@@ -123,6 +123,7 @@ function MoneyTweakData:init()
 	self.global_value_multipliers.superior = 1
 	self.global_value_multipliers.exceptional = 1
 	self.global_value_multipliers.infamous = 5
+	self.global_value_multipliers.infamy = 0
 	self.global_value_multipliers.preorder = 1 / 1
 	self.global_value_multipliers.overkill = 0.01
 	self.global_value_multipliers.pd2_clan = 1
@@ -130,6 +131,7 @@ function MoneyTweakData:init()
 	self.global_value_multipliers.xmas = 1
 	self.global_value_multipliers.armored_transport = 1.2
 	self.global_value_multipliers.gage_pack = 1.4
+	self.global_value_multipliers.gage_pack_lmg = 1.8
 	self.global_value_multipliers.xmas_soundtrack = 1
 	self.global_value_multipliers.sweettooth = 1
 	self.global_value_multipliers.legendary = 1
@@ -139,6 +141,7 @@ function MoneyTweakData:init()
 	self.global_value_bonus_multiplier.superior = 0.1				-- example 2. an infamous mask with all three parts infamous = 0 normal, 4 infamous = 0 bonus normal + 3 bonus infamous = sell value increased with 9 times its value ( 0 * 0 + 3 * 3 )
 	self.global_value_bonus_multiplier.exceptional = 0.2		-- example 3. an infamous mask with all three parts normal = 3 normal, 1 infamous = 3 bonus normal + 0 bonus infamous = sell value increased with 0 times its value ( 3 * 0 + 0 * 3 )
 	self.global_value_bonus_multiplier.infamous = 1
+	self.global_value_bonus_multiplier.infamy = 1
 	self.global_value_bonus_multiplier.preorder = 0
 	self.global_value_bonus_multiplier.overkill = 20
 	self.global_value_bonus_multiplier.pd2_clan = 0
@@ -146,6 +149,7 @@ function MoneyTweakData:init()
 	self.global_value_bonus_multiplier.xmas = 0
 	self.global_value_bonus_multiplier.armored_transport = 0.5
 	self.global_value_bonus_multiplier.gage_pack = 0.5
+	self.global_value_bonus_multiplier.gage_pack_lmg = 0.5
 	self.global_value_bonus_multiplier.xmas_soundtrack = 0
 	self.global_value_bonus_multiplier.sweettooth = 0
 	self.global_value_bonus_multiplier.legendary = 0

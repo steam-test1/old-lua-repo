@@ -191,7 +191,7 @@ function NewsFeedGui:mouse_moved( x, y )
 	local inside = self._panel:inside( x, y )
 	self._mouse_over = inside
 	--self._title_panel:child( "title" ):set_color( inside and Color.white or Color( 0.75, 0.75, 0.75 ) )
-	return false, inside and "link"
+	return inside, inside and "link"
 end
 
 function NewsFeedGui:mouse_pressed( button, x, y )

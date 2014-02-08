@@ -1,7 +1,7 @@
 DLCManager = DLCManager or class()
 DLCManager.PLATFORM_CLASS_MAP = {}
 
-DLCManager.BUNDLED_DLC_PACKAGES = { dlc1 = true, gage_pack = true, season_pass = false, animal = false }
+DLCManager.BUNDLED_DLC_PACKAGES = { dlc1 = true, gage_pack = true, infamous = true, season_pass = false, animal = false }
 
 function DLCManager:new( ... )
 	local platform = SystemInfo:platform()
@@ -91,6 +91,10 @@ function GenericDLCManager:on_achievement_award_loot()
 end
 
 function GenericDLCManager:on_signin_complete()
+end
+
+function GenericDLCManager:is_dlc_unlocked( dlc )
+	return tweak_data.dlc[ dlc ] and tweak_data.dlc[ dlc ].free or self:has_dlc( dlc )
 end
 
 function GenericDLCManager:has_dlc( dlc )

@@ -164,8 +164,9 @@ function MenuInput:mouse_moved( o, x, y, mouse_ws )
 	x, y = self:_modified_mouse_pos( x, y )
 	
 	local used, pointer = managers.menu:active_menu().renderer:mouse_moved( o, x, y )
-	managers.mouse_pointer:set_pointer_image( pointer )
+	
 	if used then
+		managers.mouse_pointer:set_pointer_image( pointer )
 		return
 	end
 	
@@ -179,11 +180,14 @@ function MenuInput:mouse_moved( o, x, y, mouse_ws )
 		local item = self._slider_marker.item
 		item:set_value_by_percentage( where*100 )
 		self._logic:trigger_item( true, item )
+		
+		managers.mouse_pointer:set_pointer_image( "grab" )
 		return
 	end
 	
 	local node_gui = managers.menu:active_menu().renderer:active_node_gui()
-	local select_item = nil
+	local select_item, select_row_item
+	
 	if node_gui then
 		local inside_item_panel_parent = node_gui:item_panel_parent():inside( x, y )
 		for _,row_item in pairs( node_gui.row_items ) do
@@ -191,12 +195,14 @@ function MenuInput:mouse_moved( o, x, y, mouse_ws )
 				if( row_item.gui_text:inside( x, y ) ) then
 					if self._logic:get_item( row_item.name ).TYPE ~= "divider" then 
 						select_item = row_item.name -- Continue search even if one is found (a back button hack for now)
+						select_row_item = row_item
 					end
 				end
 			elseif inside_item_panel_parent then
 				if row_item.gui_panel:inside( x, y ) then
 					if self._logic:get_item( row_item.name ).TYPE ~= "divider" then 
 						select_item = row_item.name -- Continue search even if one is found (a back button hack for now)
+						select_row_item = row_item
 						-- managers.menu:active_menu().logic:select_item( row_item.name, true )
 						-- return
 					end
@@ -208,8 +214,23 @@ function MenuInput:mouse_moved( o, x, y, mouse_ws )
 		local selected_item = managers.menu:active_menu().logic:selected_item()
 		if (not selected_item or select_item ~= selected_item:name()) then -- and selected_item.TYPE ~= "divider" then
 			managers.menu:active_menu().logic:mouse_over_select_item( select_item, false )
+			
+		elseif selected_item.TYPE == "slider" then
+			managers.mouse_pointer:set_pointer_image( "hand" )
+		elseif selected_item.TYPE == "multi_choice" then
+			if select_row_item.arrow_right:inside( x, y ) or select_row_item.arrow_left:inside( x, y ) or select_row_item.gui_text:inside( x, y ) or not select_row_item.choice_panel:inside( x, y ) then
+				managers.mouse_pointer:set_pointer_image( "link" )
+			else
+				managers.mouse_pointer:set_pointer_image( "arrow" )
+			end
+		else
+			managers.mouse_pointer:set_pointer_image( "link" )
 		end
+		
+		return
 	end
+	
+	managers.mouse_pointer:set_pointer_image( "arrow" )
 end
 
 -- MenuInput handling for slider items
@@ -394,7 +415,8 @@ function MenuInput:mouse_pressed( o, button, x, y )
 					end
 				end
 			elseif row_item.gui_panel:inside( x, y ) then
-				if row_item.type == "slider" then							-- Is slider
+				if row_item.type == "divider" then							-- Is divider
+				elseif row_item.type == "slider" then							-- Is slider
 					self:post_event( "slider_grab" )
 					if row_item.gui_slider_marker:inside( x, y ) then 			-- Slider marker
 						self._slider_marker = {

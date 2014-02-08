@@ -255,6 +255,10 @@ function CrimeNetManager:start( skip_servers )
 	end
 end
 
+function CrimeNetManager:no_servers()
+	return self._skip_servers
+end
+
 function CrimeNetManager:stop()
 	self._active = false
 	for _,data in pairs( self._active_jobs ) do
@@ -785,10 +789,10 @@ function CrimeNetGui:init( ws, fullscreeen_ws, node )
 	self._fullscreen_panel:bitmap( { name="blur_bottom",	texture="guis/textures/test_blur_df", w=self._fullscreen_ws:panel():w(), h=full_16_9.convert_y*2, x=0, y=self._fullscreen_ws:panel():h()-full_16_9.convert_y, render_template="VertexColorTexturedBlur3D", layer=1001, rotation=360  } )
 	self._fullscreen_panel:bitmap( { name="blur_left",		texture="guis/textures/test_blur_df", w=full_16_9.convert_x*2, h=self._fullscreen_ws:panel():h(), x=-full_16_9.convert_x, y=0, render_template="VertexColorTexturedBlur3D", layer=1001, rotation=360  } )
 	
-	self._panel:rect( { w=self._panel:w(), h=2, x=0, y=0, layer=2, color=tweak_data.screen_colors.crimenet_lines, blend_mode="add" } )
-	self._panel:rect( { w=self._panel:w(), h=2, x=0, y=0, layer=2, color=tweak_data.screen_colors.crimenet_lines, blend_mode="add" } ):set_bottom( self._panel:h() )
-	self._panel:rect( { w=2, h=self._panel:h(), x=0, y=0, layer=2, color=tweak_data.screen_colors.crimenet_lines, blend_mode="add" } ):set_right( self._panel:w() )
-	self._panel:rect( { w=2, h=self._panel:h(), x=0, y=0, layer=2, color=tweak_data.screen_colors.crimenet_lines, blend_mode="add" } )
+	self._panel:rect( { w=self._panel:w(), h=2, x=0, y=0, layer=1, color=tweak_data.screen_colors.crimenet_lines, blend_mode="add" } )
+	self._panel:rect( { w=self._panel:w(), h=2, x=0, y=0, layer=1, color=tweak_data.screen_colors.crimenet_lines, blend_mode="add" } ):set_bottom( self._panel:h() )
+	self._panel:rect( { w=2, h=self._panel:h(), x=0, y=0, layer=1, color=tweak_data.screen_colors.crimenet_lines, blend_mode="add" } ):set_right( self._panel:w() )
+	self._panel:rect( { w=2, h=self._panel:h(), x=0, y=0, layer=1, color=tweak_data.screen_colors.crimenet_lines, blend_mode="add" } )
 	
 	self._rasteroverlay = self._fullscreen_panel:bitmap( { name="rasteroverlay", texture = "guis/textures/crimenet_map_rasteroverlay", texture_rect = { 0, 0, 32, 256 }, wrap_mode="wrap", blend_mode="mul", layer = 3, color = Color( 1.0, 1, 1, 1 ), w = self._fullscreen_panel:w(), h = self._fullscreen_panel:h() } )
 	self._fullscreen_panel:bitmap( { name="vignette", texture = "guis/textures/crimenet_map_vignette", layer = 2, color = Color( 1, 1, 1, 1 ), blend_mode="mul", w = self._fullscreen_panel:w(), h = self._fullscreen_panel:h() } )
@@ -909,6 +913,13 @@ function CrimeNetGui:init( ws, fullscreeen_ws, node )
 		mw = math.max( mw, self:make_fine_text( friends_text ) )
 		self:make_color_text( friends_text, tweak_data.screen_colors.friend_color )
 		
+		if managers.crimenet:no_servers() then
+			join_icon:hide()
+			join_text:hide()
+			
+			friends_text:hide()
+			friends_text:set_bottom( host_text:bottom() )
+		end
 		
 		local pc_icon = legend_panel:bitmap( { texture="guis/textures/pd2/crimenet_legend_payclass", x=10, y=friends_text:bottom() } )
 		local pc_text = legend_panel:text( { font=tweak_data.menu.pd2_small_font, font_size=tweak_data.menu.pd2_small_font_size, x=host_text:left(), y=pc_icon:top(), text=managers.localization:to_upper_text( "menu_cn_legend_pc" ), color=tweak_data.screen_colors.text, blend_mode="add" } )
@@ -927,8 +938,14 @@ function CrimeNetGui:init( ws, fullscreeen_ws, node )
 		local kick_icon = legend_panel:bitmap( { texture="guis/textures/pd2/cn_kick_marker", x=10, y=pro_text:bottom()+2 } )
 		local kick_text = legend_panel:text( { font=tweak_data.menu.pd2_small_font, font_size=tweak_data.menu.pd2_small_font_size, x=host_text:left(), y=pro_text:bottom(), text=managers.localization:to_upper_text( "menu_cn_kick_disabled" ), blend_mode="add" } )
 		mw = math.max( mw, self:make_fine_text( kick_text ) )
-
-
+		
+		
+		if managers.crimenet:no_servers() then
+			kick_icon:hide()
+			kick_text:hide()
+			kick_text:set_bottom( pro_text:bottom() )
+		end
+		
 		legend_panel:set_size( host_text:left() + mw + 10, kick_text:bottom() + 10 )
 		legend_panel:rect( { color=Color.black, alpha=0.4, layer=-1 } )
 		
@@ -3050,7 +3067,7 @@ end
 
 function CrimeNetGui:mouse_moved( o, x, y )
 	if( not self._crimenet_enabled ) then
-		return
+		return false
 	end
 	-- self._pan_panel:child( "test" ):set_position( -self._panel:x() - self._pan_panel:x() + x, -self._panel:y() - self._pan_panel:y() + y )
 	
@@ -3061,7 +3078,7 @@ function CrimeNetGui:mouse_moved( o, x, y )
 				self._panel:child("back_button"):set_color( tweak_data.screen_colors.button_stage_2 )
 				managers.menu_component:post_event( "highlight" )
 			end
-			return false, "link"
+			return true, "link"
 		elseif self._back_highlighted then
 			self._back_highlighted = false
 			self._panel:child("back_button"):set_color( tweak_data.screen_colors.button_stage_3 )
@@ -3073,7 +3090,7 @@ function CrimeNetGui:mouse_moved( o, x, y )
 				self._panel:child("legends_button"):set_color( tweak_data.screen_colors.button_stage_2 )
 				managers.menu_component:post_event( "highlight" )
 			end
-			return false, "link"
+			return true, "link"
 		elseif self._legend_highlighted then
 			self._legend_highlighted = false
 			self._panel:child("legends_button"):set_color( tweak_data.screen_colors.button_stage_3 )
@@ -3086,7 +3103,7 @@ function CrimeNetGui:mouse_moved( o, x, y )
 					self._panel:child("filter_button"):set_color( tweak_data.screen_colors.button_stage_2 )
 					managers.menu_component:post_event( "highlight" )
 				end
-				return false, "link"
+				return true, "link"
 			elseif self._filter_highlighted then
 				self._filter_highlighted = false
 				self._panel:child("filter_button"):set_color( tweak_data.screen_colors.button_stage_3 )
@@ -3274,11 +3291,11 @@ function CrimeNetGui:mouse_moved( o, x, y )
 	end
 	
 	if inside_any_job then
-		return false, "link"
+		return true, "link"
 	end
 	
 	if self._panel:inside( x, y ) then		
-		return false, "hand"
+		return true, "hand"
 	end
 end
 

@@ -255,6 +255,26 @@ end
 
 -----------------------------------------------------------------------------
 
+function SentryGunWeapon:ammo_ratio()
+	if self._ammo_total then
+		return self._ammo_total / self._ammo_max
+	else
+		return self._ammo_ratio
+	end
+end
+
+-----------------------------------------------------------------------------
+
+function SentryGunWeapon:ammo_total()
+	return self._ammo_total
+end
+
+function SentryGunWeapon:ammo_max()
+	return self._ammo_max
+end
+
+-----------------------------------------------------------------------------
+
 function SentryGunWeapon:save( save_data )
 	local my_save_data = {}
 	

@@ -135,7 +135,6 @@ function CharacterTweakData:_init_cop( presets )
 	self.cop.speech_prefix_count = 4
 	self.cop.access = "cop"
 	self.cop.dodge = presets.dodge.average
-	self.cop.follower = true
 	self.cop.deathguard = true
 	self.cop.chatter = presets.enemy_chatter.cop
 end
@@ -168,7 +167,6 @@ function CharacterTweakData:_init_fbi( presets )
 	self.fbi.speech_prefix_count = 4
 	self.fbi.access = "fbi"
 	self.fbi.dodge = presets.dodge.athletic
-	self.fbi.follower = true
 	self.fbi.deathguard = true
 	self.fbi.no_arrest = true			-- The character will never attempt to arrest a criminal. He will fire instead
 	self.fbi.chatter = presets.enemy_chatter.cop
@@ -202,7 +200,6 @@ function CharacterTweakData:_init_swat( presets )
 	self.swat.speech_prefix_count = 4
 	self.swat.access = "swat"
 	self.swat.dodge = presets.dodge.athletic
-	self.swat.follower = true
 	self.swat.no_arrest = true			-- The character will never attempt to arrest a criminal. He will fire instead
 	self.swat.chatter = presets.enemy_chatter.swat
 end
@@ -235,7 +232,6 @@ function CharacterTweakData:_init_heavy_swat( presets )
 	self.heavy_swat.speech_prefix_count = 4
 	self.heavy_swat.access = "swat"
 	self.heavy_swat.dodge = presets.dodge.heavy
-	self.heavy_swat.follower = true
 	self.heavy_swat.no_arrest = true			-- The character will never attempt to arrest a criminal. He will fire instead
 	self.heavy_swat.chatter = presets.enemy_chatter.swat
 end
@@ -267,7 +263,6 @@ function CharacterTweakData:_init_fbi_swat( presets )
 	self.fbi_swat.speech_prefix_count = 4
 	self.fbi_swat.access = "swat"
 	self.fbi_swat.dodge = presets.dodge.athletic
-	self.fbi_swat.follower = true
 	self.fbi_swat.no_arrest = true			-- The character will never attempt to arrest a criminal. He will fire instead
 	self.fbi_swat.chatter = presets.enemy_chatter.swat
 end
@@ -284,7 +279,7 @@ function CharacterTweakData:_init_fbi_heavy_swat( presets )
 -- HEALTH
 	self.fbi_heavy_swat.HEALTH_INIT = 20
 	self.fbi_heavy_swat.headshot_dmg_mul = self.fbi_heavy_swat.HEALTH_INIT/10	-- damage multiplier on received headshots. nil means insta-death
-	self.fbi_heavy_swat.damage.explosion_damage_mul = 0.5
+	self.fbi_heavy_swat.damage.explosion_damage_mul = 0.6
 	self.fbi_heavy_swat.move_speed = presets.move_speed.fast
 	self.fbi_heavy_swat.surrender_break_time = { 6, 8 } -- How quickly does the character snap back to combat after surrendering. { min, max }. (sec)
 	self.fbi_heavy_swat.suppression = presets.suppression.hard_agg
@@ -298,7 +293,6 @@ function CharacterTweakData:_init_fbi_heavy_swat( presets )
 	self.fbi_heavy_swat.speech_prefix_count = 4
 	self.fbi_heavy_swat.access = "swat"
 	self.fbi_heavy_swat.dodge = presets.dodge.heavy
-	self.fbi_heavy_swat.follower = true
 	self.fbi_heavy_swat.no_arrest = true			-- The character will never attempt to arrest a criminal. He will fire instead
 	self.fbi_heavy_swat.chatter = presets.enemy_chatter.swat
 end
@@ -424,12 +418,11 @@ function CharacterTweakData:_init_tank( presets )
 -- HEALTH
 	self.tank.HEALTH_INIT = 550
 	self.tank.headshot_dmg_mul = self.tank.HEALTH_INIT/24	-- damage multiplier on received headshots. nil means insta-death
-	self.tank.damage.explosion_damage_mul = 0.33
+	self.tank.damage.explosion_damage_mul = 0.5
 	self.tank.move_speed = presets.move_speed.very_slow
 	self.tank.allowed_stances = { cbt = true }
 	self.tank.allowed_poses = { stand = true }
 	self.tank.crouch_move = false
-	self.tank.allow_crouch = false
 	self.tank.no_run_start = true
 	self.tank.no_run_stop = true
 	self.tank.no_retreat = true		-- The character will never retreat regardless of health ratio
@@ -478,7 +471,6 @@ end
 
 
 
-
 -----------------------
 -------- SPOOC --------
 -----------------------
@@ -486,15 +478,14 @@ end
 function CharacterTweakData:_init_spooc( presets )
 	self.spooc = deep_clone( presets.base )
 	self.spooc.experience = {}
-	self.spooc.weapon = deep_clone( presets.weapon.good )
+	self.spooc.weapon = deep_clone( presets.weapon.expert )
 	self.spooc.detection = presets.detection.normal
 	
 -- HEALTH
-	self.spooc.HEALTH_INIT = 48
+	self.spooc.HEALTH_INIT = 60
 	self.spooc.headshot_dmg_mul = self.spooc.HEALTH_INIT/12	-- damage multiplier on received headshots. nil means insta-death
 	
 	self.spooc.move_speed = presets.move_speed.lightning
-	self.spooc.SPEED_SPRINT = 1000		-- max sprint velocity. Used in spooc attack. (cm/sec)
 	self.spooc.no_retreat = true		-- The character will never retreat regardless of health ratio
 	self.spooc.no_arrest = true
 	self.spooc.damage.hurt_severity = presets.hurt_severities.no_hurts
@@ -504,26 +495,35 @@ function CharacterTweakData:_init_spooc( presets )
 	-- self.spooc.ecm_vulnerability = 0.5 -- chance of puking when exposed to ecm feedback
 	-- self.spooc.ecm_hurts = { ears = { min_duration = 3, max_duration = 5 } } 					-- what type of hurts ecm feedback can inflict (puking, covering ears ect) and their durations
 	self.spooc.priority_shout = "f33"
+	self.spooc.priority_shout_max_dis = 700
 	self.spooc.rescue_hostages = false
+	self.spooc.spooc_attack_timeout = { 7, 9 }
+	self.spooc.spooc_attack_beating_time = { 3, 3 }
 	
--- TODO : How to we solve this without to much reduntant code
-	self.spooc.weapon.beretta92.choice_chance = 0
-	self.spooc.weapon.m4.choice_chance = 1
-	self.spooc.weapon.r870.choice_chance = 0
-	self.spooc.weapon.mp5.choice_chance = 1
 	self.spooc.weapon_voice = "3"
 	
 	self.spooc.experience.cable_tie = "tie_swat"
 	self.spooc.speech_prefix_p1 = "clk"
 	-- self.spooc.speech_prefix_p2 = "n"
-	self.spooc.speech_prefix_count = 4
+	self.spooc.speech_prefix_count = nil
 	self.spooc.access = "spooc"
 	
 	self.spooc.dodge = presets.dodge.ninja
+	self.spooc.dodge_with_grenade = {
+		flash = true,
+		smoke = true
+	}
+	self.spooc.dodge_with_grenade.check = function( t, nr_grenades_used )
+		local delay_till_next_use = math.lerp( 17, 45, math.min( 1, ( nr_grenades_used or 0 ) / 4 ) )
+		local chance = math.lerp( 1, 0.5, math.min( 1, ( nr_grenades_used or 0 ) / 10 ) )
+		if math.random() < chance then
+			return true, t + delay_till_next_use
+		end
+		return false, t + delay_till_next_use
+   end
 	
-	self.spooc.follower = false
 	self.spooc.chatter = presets.enemy_chatter.no_chatter
-	self.spooc.announce_incomming = "incomming_spooc"	-- swats will anounce the arrival of this unit
+	-- self.spooc.announce_incomming = "incomming_spooc"	-- swats will anounce the arrival of this unit
 end
 
 -----------------------
@@ -547,7 +547,6 @@ function CharacterTweakData:_init_shield( presets )
 	self.shield.no_run_start = true
 	self.shield.no_run_stop = true
 	self.shield.no_retreat = true		-- The character will never retreat regardless of health ratio
-	self.shield.no_stand = true			-- The unit may not be in standing pose
 	self.shield.no_arrest = true		-- The character will never attempt to arrest a criminal. He will fire instead
 	self.shield.surrender = nil
 	self.shield.ecm_vulnerability = 0.85 -- chance of puking when exposed to ecm feedback
@@ -563,7 +562,6 @@ function CharacterTweakData:_init_shield( presets )
 	self.shield.damage.shield_knocked = true
 	
 	self.shield.weapon.mp9 = {}
-	self.shield.weapon.mp9.choice_chance = 1
 	self.shield.weapon.mp9.aim_delay = { 0, 0.1 }
 	self.shield.weapon.mp9.focus_delay = 2
 	self.shield.weapon.mp9.focus_dis = 250
@@ -583,7 +581,6 @@ function CharacterTweakData:_init_shield( presets )
 	}
 	
 	self.shield.weapon.c45 = {}
-	self.shield.weapon.c45.choice_chance = 1
 	self.shield.weapon.c45.aim_delay = { 0, 0.3 }
 	self.shield.weapon.c45.focus_delay = 2
 	self.shield.weapon.c45.focus_dis = 250
@@ -670,7 +667,6 @@ function CharacterTweakData:_init_taser( presets )
 	self.taser.dodge = presets.dodge.athletic
 	self.taser.priority_shout = "f32"
 	self.taser.rescue_hostages = false
-	self.taser.follower = true
 	self.taser.deathguard = true
 	self.taser.chatter = {
 		aggressive = true,
@@ -975,7 +971,6 @@ function CharacterTweakData:_presets( tweak_data )
 	presets.base.SPEED_WALK = { ntl=120, hos=180, cbt=160, pnc=160 }
 	presets.base.SPEED_RUN = 370							-- max run velocity. (cm/sec)
 	presets.base.crouch_move = true						-- The character may walk/run while crouched
-	presets.base.allow_crouch = true				-- Allow this unit to crouch at all
 	presets.base.shooting_death = true				-- The character will sometimes empty his magazine spraying random when killed
 	presets.base.suspicious = true -- Should this unit attack a criminal just because he has looked at him for a long time?
 	presets.base.surrender_break_time = { 20, 30 } -- How quickly does the character snap back to combat after surrendering. { min, max }. (sec)
@@ -1775,22 +1770,22 @@ function CharacterTweakData:_presets( tweak_data )
 		lightning = {
 			stand = {
 				walk = { ntl={ fwd=150, strafe=120, bwd=110 }, hos={ fwd=285, strafe=225, bwd=215 }, cbt={ fwd=285, strafe=225, bwd=215 } },
-				run = { hos={ fwd=900, strafe=500, bwd=500 }, cbt={ fwd=800, strafe=500, bwd=500 } }
+				run = { hos={ fwd=900, strafe=400, bwd=350 }, cbt={ fwd=800, strafe=380, bwd=320 } }
 			},
 			crouch = {
 				walk = { hos={ fwd=245, strafe=210, bwd=190 }, cbt={ fwd=255, strafe=190, bwd=190 } },
-				run = { hos={ fwd=700, strafe=500, bwd=468 }, cbt={ fwd=512, strafe=500, bwd=468 } }
+				run = { hos={ fwd=700, strafe=340, bwd=250 }, cbt={ fwd=512, strafe=320, bwd=280 } }
 			}
 		},
 		
 		very_slow = {
 			stand = {
 				walk = { ntl={ fwd=144, strafe=120, bwd=113 }, hos={ fwd=144, strafe=120, bwd=113 }, cbt={ fwd=144, strafe=120, bwd=113 } },
-				run = { hos={ fwd=144, strafe=120, bwd=113 }, cbt={ fwd=144, strafe=100, bwd=125 } }
+				run = { hos={ fwd=144, strafe=140, bwd=113 }, cbt={ fwd=144, strafe=100, bwd=125 } }
 			},
 			crouch = {
 				walk = { hos={ fwd=144, strafe=120, bwd=113 }, cbt={ fwd=144, strafe=120, bwd=113 } },
-				run = { hos={ fwd=144, strafe=120, bwd=113 }, cbt={ fwd=144, strafe=100, bwd=125 } }
+				run = { hos={ fwd=144, strafe=130, bwd=113 }, cbt={ fwd=144, strafe=100, bwd=125 } }
 			}
 		},
 		
@@ -1798,11 +1793,11 @@ function CharacterTweakData:_presets( tweak_data )
 		slow = {
 			stand = {
 				walk = { ntl={ fwd=144, strafe=120, bwd=113 }, hos={ fwd=144, strafe=120, bwd=113 }, cbt={ fwd=144, strafe=120, bwd=113 } },
-				run = { hos={ fwd=360, strafe=300, bwd=355 }, cbt={ fwd=360, strafe=300, bwd=355 } }
+				run = { hos={ fwd=360, strafe=150, bwd=135 }, cbt={ fwd=360, strafe=150, bwd=155 } }
 			},
 			crouch = {
 				walk = { hos={ fwd=144, strafe=120, bwd=113 }, cbt={ fwd=144, strafe=120, bwd=113 } },
-				run = { hos={ fwd=360, strafe=300, bwd=355 }, cbt={ fwd=360, strafe=300, bwd=355 } }
+				run = { hos={ fwd=360, strafe=140, bwd=150 }, cbt={ fwd=360, strafe=140, bwd=155 } }
 			}
 		},
 		normal = {

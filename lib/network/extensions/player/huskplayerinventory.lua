@@ -55,6 +55,11 @@ HuskPlayerInventory._index_to_weapon_list = {
 	"wpn_fps_pis_p226_npc",
 	
 	
+	"wpn_fps_lmg_hk21_npc",
+	"wpn_fps_lmg_m249_npc",
+	"wpn_fps_lmg_rpk_npc",
+	
+	
  	"wpn_fps_pis_beretta_primary_npc",
  	"wpn_fps_ass_m4_secondary_npc",
  	"wpn_fps_ass_aug_secondary_npc",

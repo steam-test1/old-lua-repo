@@ -22,13 +22,15 @@ function TextBoxGui._update( o, self )
   		-- print( "update" )
   		if self._up_alpha then
   			self._up_alpha.current = math.step( self._up_alpha.current, self._up_alpha.target, dt*5 )
-  			self._text_box:child( "scroll_up_indicator_shade" ):set_color( self._text_box:child( "scroll_up_indicator_shade" ):color():with_alpha( self._up_alpha.current ) )
-			self._text_box:child( "scroll_up_indicator_arrow" ):set_color( self._text_box:child( "scroll_up_indicator_arrow" ):color():with_alpha( self._up_alpha.current ) )
+  			-- self._text_box:child( "scroll_up_indicator_shade" ):set_color( self._text_box:child( "scroll_up_indicator_shade" ):color():with_alpha( self._up_alpha.current ) )
+  			self._text_box:child( "scroll_up_indicator_shade" ):set_alpha( self._up_alpha.current )
+				self._text_box:child( "scroll_up_indicator_arrow" ):set_color( self._text_box:child( "scroll_up_indicator_arrow" ):color():with_alpha( self._up_alpha.current ) )
   		end
   		if self._down_alpha then
   			self._down_alpha.current = math.step( self._down_alpha.current, self._down_alpha.target, dt*5 )
-  			self._text_box:child( "scroll_down_indicator_shade" ):set_color( self._text_box:child( "scroll_down_indicator_shade" ):color():with_alpha( self._down_alpha.current ) )
-			self._text_box:child( "scroll_down_indicator_arrow" ):set_color( self._text_box:child( "scroll_down_indicator_arrow" ):color():with_alpha( self._down_alpha.current ) )
+  			-- self._text_box:child( "scroll_down_indicator_shade" ):set_color( self._text_box:child( "scroll_down_indicator_shade" ):color():with_alpha( self._down_alpha.current ) )
+  			self._text_box:child( "scroll_down_indicator_shade" ):set_alpha( self._down_alpha.current )
+				self._text_box:child( "scroll_down_indicator_arrow" ):set_color( self._text_box:child( "scroll_down_indicator_arrow" ):color():with_alpha( self._down_alpha.current ) )
   		end
   		
   	end
@@ -128,7 +130,7 @@ function TextBoxGui:_create_text_box( ws, title, text, content_data, config )
 	local use_indicator 	= config and config.use_indicator or false
 	local no_close_legend 	= config and config.no_close_legend
 	local no_scroll_legend	= config and config.no_scroll_legend
-	self._no_scroll_legend = no_scroll_legend
+	self._no_scroll_legend = true
 	local only_buttons		= config and config.only_buttons
 	local use_minimize_legend 	= config and config.use_minimize_legend or false
 	local w = preset and preset.w or config and config.w or scaled_size.width/2.25
@@ -278,22 +280,38 @@ function TextBoxGui:_create_text_box( ws, title, text, content_data, config )
 	self._info_box = BoxGuiObject:new( info_area, { sides = { 1, 1, 1, 1 } } )
 		
 	-- Scroll indicators
-	local scroll_up_indicator_shade = main:bitmap( { name = "scroll_up_indicator_shade", texture = "guis/textures/headershadow", rotation = 180, layer = 5, color = Color.white, w = main:w() - buttons_panel:w(), y = 100, halign = "right", valign = "top" } )
+	-- local scroll_up_indicator_shade = main:bitmap( { name = "scroll_up_indicator_shade", texture = "guis/textures/headershadow", rotation = 180, layer = 5, color = Color.white, w = main:w() - buttons_panel:w(), y = 100, halign = "right", valign = "top" } )
+	local scroll_up_indicator_shade = main:panel( { name = "scroll_up_indicator_shade", layer = 5, w = main:w() - buttons_panel:w(), y = 100, halign = "right", valign = "top" } )
 	scroll_up_indicator_shade:set_top( top_line:bottom() )
-	local texture, rect = tweak_data.hud_icons:get_icon_data( "scroll_up" )
+	BoxGuiObject:new( scroll_up_indicator_shade, { sides = { 0, 0, 2, 0 } } )
+	
+	local texture, rect = tweak_data.hud_icons:get_icon_data( "scrollbar_arrow" )
 	local scroll_up_indicator_arrow = main:bitmap( { name = "scroll_up_indicator_arrow", texture = texture, texture_rect = rect, layer = 3, color = Color.white, halign = "right", valign = "top" } )
 	scroll_up_indicator_arrow:set_righttop( scroll_panel:right() + 2 , scroll_up_indicator_shade:top() + 8 )
 		
-	local scroll_down_indicator_shade = main:bitmap( { name = "scroll_down_indicator_shade", texture = "guis/textures/headershadow", layer = 5, color = Color.white, w = main:w() - buttons_panel:w(), y = 100, halign = "right", valign = "bottom" } )
+	--local scroll_down_indicator_shade = main:bitmap( { name = "scroll_down_indicator_shade", texture = "guis/textures/headershadow", layer = 5, color = Color.white, w = main:w() - buttons_panel:w(), y = 100, halign = "right", valign = "bottom" } )
+	local scroll_down_indicator_shade = main:panel( { name = "scroll_down_indicator_shade", layer = 5, w = main:w() - buttons_panel:w(), y = 100, halign = "right", valign = "bottom" } )
 	scroll_down_indicator_shade:set_bottom( bottom_line:top() )
-	local texture, rect = tweak_data.hud_icons:get_icon_data( "scroll_dn" )
-	local scroll_down_indicator_arrow = main:bitmap( { name = "scroll_down_indicator_arrow", texture = texture, texture_rect = rect, layer = 3, color = Color.white, halign = "right", valign = "bottom" } )
+	BoxGuiObject:new( scroll_down_indicator_shade, { sides = { 0, 0, 0, 2 } } )
+	
+	local texture, rect = tweak_data.hud_icons:get_icon_data( "scrollbar_arrow" )
+	local scroll_down_indicator_arrow = main:bitmap( { name = "scroll_down_indicator_arrow", texture = texture, texture_rect = rect, layer = 3, color = Color.white, halign = "right", valign = "bottom", rotation = 180 } )
 	scroll_down_indicator_arrow:set_rightbottom( scroll_panel:right() + 2, scroll_down_indicator_shade:bottom() - 8 )
 	
-	-- Scroll bar	
+	scroll_panel:grow( -scroll_down_indicator_arrow:w(), 0 )
+	text:set_w( scroll_panel:w() )
+	
 	local bar_h = scroll_down_indicator_arrow:top() - scroll_up_indicator_arrow:bottom()
-	local texture, rect = tweak_data.hud_icons:get_icon_data( "scrollbar" )
-	local scroll_bar = main:bitmap( { name = "scroll_bar", texture = texture, texture_rect = rect, layer = 4, h = bar_h, color = Color.white, halign = "right" } )
+	
+	
+	-- Scroll bar	
+	-- local texture, rect = tweak_data.hud_icons:get_icon_data( "scrollbar" )
+	-- local scroll_bar = main:bitmap( { name = "scroll_bar", texture = texture, texture_rect = rect, layer = 4, h = bar_h, color = Color.white, halign = "right" } )
+	
+	local scroll_bar = main:panel( { name = "scroll_bar", layer = 4, h = bar_h, w = 4, halign = "right" } )
+	self._scroll_bar_box_class = BoxGuiObject:new( scroll_bar, { sides = { 2, 2, 0, 0 } } )
+	self._scroll_bar_box_class:set_aligns( "scale", "scale" )
+	scroll_bar:set_w( 8 )
 	scroll_bar:set_bottom( scroll_down_indicator_arrow:top() )
 	scroll_bar:set_center_x( scroll_down_indicator_arrow:center_x() )
 	
@@ -563,7 +581,7 @@ function TextBoxGui:_set_scroll_indicator()
 
 	local bar_h = self._text_box:child( "scroll_down_indicator_arrow" ):top() - self._text_box:child( "scroll_up_indicator_arrow" ):bottom()
 
-	local is_visible = scroll_text:h() > info_area:h()
+	local is_visible = scroll_text:h() > scroll_panel:h()
 	if scroll_text:h() ~= 0 then
 		scroll_bar:set_h( bar_h * scroll_panel:h()/scroll_text:h())
 	end
@@ -583,13 +601,15 @@ function TextBoxGui:_check_scroll_indicator_states()
 		
 	if not self._up_alpha then
 		self._up_alpha = { current = 0 }
-		self._text_box:child( "scroll_up_indicator_shade" ):set_color( self._text_box:child( "scroll_up_indicator_shade" ):color():with_alpha( self._up_alpha.current ) )
+		-- self._text_box:child( "scroll_up_indicator_shade" ):set_color( self._text_box:child( "scroll_up_indicator_shade" ):color():with_alpha( self._up_alpha.current ) )
+		self._text_box:child( "scroll_up_indicator_shade" ):set_alpha( self._up_alpha.current )
 		self._text_box:child( "scroll_up_indicator_arrow" ):set_color( self._text_box:child( "scroll_up_indicator_arrow" ):color():with_alpha( self._up_alpha.current ) )
 	end
 	
 	if not self._down_alpha then
 		self._down_alpha = { current = 1 }
-		self._text_box:child( "scroll_down_indicator_shade" ):set_color( self._text_box:child( "scroll_down_indicator_shade" ):color():with_alpha( self._down_alpha.current ) )
+		-- self._text_box:child( "scroll_down_indicator_shade" ):set_color( self._text_box:child( "scroll_down_indicator_shade" ):color():with_alpha( self._down_alpha.current ) )
+		self._text_box:child( "scroll_down_indicator_shade" ):set_alpha( self._down_alpha.current )
 		self._text_box:child( "scroll_down_indicator_arrow" ):set_color( self._text_box:child( "scroll_down_indicator_arrow" ):color():with_alpha( self._down_alpha.current ) )
 	end
 		
@@ -649,7 +669,7 @@ function TextBoxGui:check_minimize( x, y )
 end
 
 function TextBoxGui:check_grab_scroll_bar( x, y )
-	if not self:can_take_input() then
+	if not self:can_take_input() or not self._text_box:child( "scroll_bar" ):visible() then
 		return false
 	end
 		
@@ -691,11 +711,103 @@ function TextBoxGui:release_scroll_bar()
 end
 
 function TextBoxGui:mouse_moved( x, y )
+	if not self:can_take_input() or not alive( self._panel ) then
+		return false, "arrow"
+	end
+	
+	if self._grabbed_scroll_bar then
+		self:scroll_with_bar( y, self._current_y )
+		self._current_y = y
+		return true, "grab"
+	elseif self._grabbed_title then
+		local _x = x + self._grabbed_offset_x
+		local _y = y + self._grabbed_offset_y
+		if _x + self:w() > self._ws:panel():w() then
+			self._grabbed_offset_x = self:x() - x
+			_x = self._ws:panel():w() - self:w()
+		elseif _x < self._ws:panel():x() then
+			self._grabbed_offset_x = self:x() - x
+			_x = self._ws:panel():x()
+		end
+		if _y + self:h() > self._ws:panel():h() then
+			self._grabbed_offset_y = self:y() - y
+			_y = self._ws:panel():h() - self:h()
+		elseif _y < self._ws:panel():y() then
+			self._grabbed_offset_y = self:y() - y
+			_y = self._ws:panel():y()
+		end
+		self:set_position( _x, _y )
+		return true, "grab"
+	elseif self._text_box:child( "scroll_bar" ) and self._text_box:child( "scroll_bar" ):visible() and self._text_box:child( "scroll_bar" ):inside( x, y ) then
+		return true, "hand"
+	elseif self._text_box:child( "scroll_up_indicator_arrow" ):visible() and self._text_box:child( "scroll_up_indicator_arrow" ):inside( x, y ) then
+		if self._pressing_arrow_up then
+			self:scroll_up()
+		end
+		return true, "link"
+	elseif self._text_box:child( "scroll_down_indicator_arrow" ):visible() and self._text_box:child( "scroll_down_indicator_arrow" ):inside( x, y ) then
+		if self._pressing_arrow_down then
+			self:scroll_down()
+		end
+		return true, "link"
+	else
+		for i, panel in ipairs( self._text_box_buttons_panel:children() ) do
+			if panel.child and panel:inside( x, y ) then
+				return true, "link"
+			end
+		end
+	end
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	return false, "arrow"
 end
 
 function TextBoxGui:moved_scroll_bar( x, y )
+	self._x = x
+	self._y = y
+	
+	do return end
+	
 	if not self:can_take_input() then
-		return false
+		return false, "arrow"
 	end
 	
 	if self._pressing_arrow_up then
@@ -711,7 +823,7 @@ function TextBoxGui:moved_scroll_bar( x, y )
 	if self._grabbed_scroll_bar then
 		self:scroll_with_bar( y, self._current_y )
 		self._current_y = y
-		return true
+		return true, "grab"
 	end
 	if self._grabbed_title then
 		local _x = x + self._grabbed_offset_x
@@ -733,7 +845,7 @@ function TextBoxGui:moved_scroll_bar( x, y )
 		self:set_position( _x, _y )
 		return true, "grab"
 	end
-	return false
+	return false, "hand"
 end
 
 function TextBoxGui:mouse_wheel_up( x, y )
@@ -768,15 +880,18 @@ function TextBoxGui:scroll_up( y )
 		return
 	end
 	
-	local scroll_panel = self._text_box:child( "info_area" ):child( "scroll_panel" )
+	local info_area = self._text_box:child( "info_area" )
+	local scroll_panel = info_area:child( "scroll_panel" )
 	local scroll_text = scroll_panel:child( "text" )
 		
-	local top_y = self._is_title_outside and 5 or math.round( self._text_box:child("title"):bottom() + 5 )
-	if 0 > scroll_text:top() then
-		scroll_text:set_y( scroll_text:y() + (y or TimerManager:main():delta_time() * 200) )
-	end
-	if top_y < scroll_text:top() then
-		scroll_text:set_top( top_y )
+	if scroll_text:top() < 0 then
+		if scroll_text:top() < 0 then
+			scroll_text:set_y( scroll_text:y() + (y or TimerManager:main():delta_time() * 200) )
+		end
+		
+		if scroll_text:top() > 0 then
+			scroll_text:set_top( 0 )
+		end
 	end
 	
 	self:_check_scroll_indicator_states()
@@ -828,6 +943,12 @@ end
 function TextBoxGui:update_indicator( t, dt )
 	if alive( self._indicator ) then 
 		self._indicator:rotate( 180 * dt )
+	end
+	
+	
+	if self._x and self._y then
+		local used, pointer = self:mouse_moved( self._x, self._y )
+		managers.mouse_pointer:set_pointer_image( pointer )
 	end
 end
 

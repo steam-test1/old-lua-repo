@@ -66,13 +66,13 @@ function HUDChat:_create_input_panel()
 	-- self._input_panel:rect( { color = Color( math.rand( 1 ), math.rand( 1 ), 0 ):with_alpha( 0.2 ) } )
 	self._input_panel:rect( { name = "focus_indicator", visible = false, color = Color.white:with_alpha( 0.2 ), layer = 0 } )
 			
-	local say = self._input_panel:text( { name = "say", text = utf8.to_upper( managers.localization:text( "debug_chat_say" ) ), font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, x = 0, y = 0,
+	local say = self._input_panel:text( { name = "say", text = utf8.to_upper( managers.localization:text( "debug_chat_say" ) ), font = tweak_data.menu.pd2_small_font, font_size = tweak_data.menu.pd2_small_font_size, x = 0, y = 0,
 									align="left", halign="left", vertical="center", hvertical="center", blend_mode="normal",
 									color = Color.white, layer = 1 } )
 	local _,_,w,h = say:text_rect()
 	say:set_size( w, self._input_panel:h() )
 	
-	local input_text = self._input_panel:text( { name = "input_text", text = "", font = tweak_data.menu.small_font_noshadow, font_size = tweak_data.menu.small_font_size, x = 0, y = 0,
+	local input_text = self._input_panel:text( { name = "input_text", text = "", font = tweak_data.menu.pd2_small_font, font_size = tweak_data.menu.pd2_small_font_size, x = 0, y = 0,
 									align="left", halign="left", vertical="center", hvertical="center", blend_mode="normal",
 									color = Color.white, layer = 1, wrap = true, word_wrap = false } )
 	local caret = self._input_panel:rect( { name="caret", layer = 2, x = 0, y = 0, w = 0, h = 0, color = Color(0.05, 1, 1, 1) } )
@@ -89,7 +89,8 @@ function HUDChat:_layout_output_panel()
 	-- Adjust size of lines and calculates number of lines
 	local lines = 0
 	for i = #self._lines ,1 , -1 do
-		local line = self._lines[ i ]
+		local line = self._lines[ i ][1]
+		local icon = self._lines[ i ][2]
 		line:set_w( output_panel:w() )
 		local _,_,w,h = line:text_rect()
 		line:set_h( h )
@@ -102,9 +103,13 @@ function HUDChat:_layout_output_panel()
 	-- Position each line in the outputpanel
 	local y = 0
 	for i = #self._lines ,1 , -1 do
-		local line = self._lines[ i ]
+		local line = self._lines[ i ][1]
+		local icon = self._lines[ i ][2]
 		local _,_,w,h = line:text_rect()
 		line:set_bottom( output_panel:h() - y )
+		if icon then
+			icon:set_top( line:top() + 1 )
+		end
 		y = y + h
 	end
 	
@@ -202,7 +207,7 @@ function HUDChat:_on_focus()
         self:key_release(nil)
     end]]
     
-   self:set_layer( 2000 )
+   self:set_layer( 1100 )
    self:update_caret()
 end
 
@@ -232,7 +237,7 @@ function HUDChat:_loose_focus()
 	
 	self._input_panel:child( "input_bg" ):stop()
 	
-	self:set_layer( 0 )
+	self:set_layer( 1 )
 	self:update_caret()
 end
 
@@ -462,13 +467,20 @@ function HUDChat:send_message( name, message )
 
 end
 
-function HUDChat:receive_message( name, message, color )
+function HUDChat:receive_message( name, message, color, icon )
 	-- print( "receive_message", name, message, color )
 	local output_panel = self._panel:child( "output_panel" )
 	
 	local len = utf8.len( name )+1
 	
-	local line = output_panel:text( { text = name..": "..message, font = tweak_data.menu.small_font, font_size = tweak_data.menu.small_font_size, x = 0, y = 0,
+	local x = 0
+	local icon_bitmap = nil
+	if icon then
+		local icon_texture, icon_texture_rect = tweak_data.hud_icons:get_icon_data( icon )
+		icon_bitmap = output_panel:bitmap( { texture = icon_texture, texture_rect = icon_texture_rect, color = color, y = 1 } )
+		x = icon_bitmap:right()
+	end
+	local line = output_panel:text( { text = name..": "..message, font = tweak_data.menu.pd2_small_font, font_size = tweak_data.menu.pd2_small_font_size, x = x, y = 0,
 									align="left", halign="left", vertical="top", hvertical="top", blend_mode="normal", wrap = true, word_wrap = true,
 									color = color, layer = 0 } )
 	-- line:set_debug( true )
@@ -481,7 +493,7 @@ function HUDChat:receive_message( name, message, color )
 	line:set_h( h )
 	
 	-- LIMIT AMOUNT OF LINES
-	table.insert( self._lines, line )
+	table.insert( self._lines, { line, icon_bitmap } )
 	
 	self:_layout_output_panel()
 	-- utf8.len

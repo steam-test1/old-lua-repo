@@ -500,7 +500,7 @@ function NavFieldBuilder:_expand_rooms()
 				if gnd_ray then
 					mvector3.set_z( new_enter_pos, gnd_ray.position.z )
 				else
-					print( "! Error. NavFieldBuilder:_expand_rooms() ground ray failed! segment", segment[1], segment[2] )
+					Application:error( "! Error. NavFieldBuilder:_expand_rooms() ground ray failed! segment", segment[1], segment[2] )
 					Application:draw_cylinder( new_enter_pos + self._up_vec, new_enter_pos + self._down_vec, self._gnd_ray_rad, 1,0,0 )
 					managers.navigation:_draw_room( room, true )
 					Application:set_pause( true )
@@ -1287,8 +1287,7 @@ function NavFieldBuilder:_split_room( i_room, split_pos_along_dim, split_dim )
 	--	Set the two rooms to be neighbours
 	new_room.neighbours[ split_side ] = { { room = i_room, overlap = { space[1], space[2] } } }
 	
-	self:_add_room( new_room )
-	local i_new_room = #self._rooms
+	local i_new_room = #self._rooms + 1
 	
 	for neighbour_index, neighbour_data in pairs( room.neighbours[ split_opp_side ] ) do
 		if self._rooms[ neighbour_data.room ].neighbours then
@@ -1340,8 +1339,9 @@ function NavFieldBuilder:_split_room( i_room, split_pos_along_dim, split_dim )
 		self:_update_neighbour_data( neighbour_data.room, i_room, new_data, split_perp_neg_side )
 	end
 	
-	return i_new_room
+	self:_add_room( new_room )
 	
+	return i_new_room
 end
 
 -----------------------------------------------------------------------------------
@@ -1540,6 +1540,10 @@ end
 -----------------------------------------------------------------------------------
 
 function NavFieldBuilder:_add_room( room )
+	if not room.area then
+		debug_pause( "[NavFieldBuilder:_add_room] missing area", inspect( room ) )
+		room.area = 0
+	end
 	table.insert( self._rooms, room )
 end
 
@@ -1744,10 +1748,8 @@ function NavFieldBuilder:_create_room_doors( i_room )
 			--	The room on the negative side is first
 			if self._neg_dir_str_map[ side ] then
 				door.rooms = { i_neighbour, i_room }
-				door.room_access = { self._door_access_types.walk, self._door_access_types.walk }
 			else
 				door.rooms = { i_room, i_neighbour }
-				door.room_access = { self._door_access_types.walk, self._door_access_types.walk }
 			end
 			
 			door.pos = neightbour_data.overlap[1]

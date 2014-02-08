@@ -349,7 +349,7 @@ function ContractBoxGui:update( t, dt )
 	end
 end
 
-function ContractBoxGui:create_character_text( peer_id, x, y, text )
+function ContractBoxGui:create_character_text( peer_id, x, y, text, icon )
 	self._peers = self._peers or {}
 	
 	-- local color_id = managers.criminals:character_color_id_by_name( managers.criminals:character_workname_by_peer_id( peer_id ) )
@@ -373,6 +373,17 @@ function ContractBoxGui:create_character_text( peer_id, x, y, text )
 	self._peers_state[peer_id] = self._peers_state[peer_id] or self._panel:text( { name=tostring( peer_id ) .. "_state", text="", align="center", vertical="top", font_size=tweak_data.menu.pd2_medium_font_size, font=tweak_data.menu.pd2_medium_font, layer=0, color=tweak_data.screen_colors.text, blend_mode="add" } )
 	self._peers_state[peer_id]:set_top( self._peers[peer_id]:bottom() )
 	self._peers_state[peer_id]:set_center_x( self._peers[peer_id]:center_x() )
+	
+	if icon then
+		local texture = tweak_data.hud_icons:get_icon_data( "infamy_icon" )
+		self._peers_icon = self._peers_icon or {}
+		self._peers_icon[ peer_id ] = self._peers_icon[ peer_id ] or self._panel:bitmap( { w = 16, h = 32, texture = texture, color = color } )
+		self._peers_icon[ peer_id ]:set_right( self._peers[ peer_id ]:x() )
+		self._peers_icon[ peer_id ]:set_top( self._peers[ peer_id ]:y() )
+	elseif self._peers_icon and self._peers_icon[ peer_id ] then
+		self._panel:remove( self._peers_icon[ peer_id ] )
+		self._peers_icon[ peer_id ] = nil
+	end
 end
 
 function ContractBoxGui:update_character( peer_id )
@@ -384,6 +395,7 @@ function ContractBoxGui:update_character( peer_id )
 	local y = 0
 	local text = ""
 	
+	local player_rank = 0
 	local peer = managers.network:session():peer( peer_id )
 	if peer then
 		local local_peer = managers.network:session() and managers.network:session():local_peer()
@@ -395,15 +407,15 @@ function ContractBoxGui:update_character( peer_id )
 		
 		local player_level = peer == local_peer and managers.experience:current_level() or peer:level()
 		if player_level then
-			local player_rank = peer == local_peer and managers.experience:current_rank() or peer:rank()
-			local experience = ( player_rank > 0 and managers.experience:rank_string( player_rank ) .. ":" or "" ) .. player_level
+			player_rank = peer == local_peer and managers.experience:current_rank() or peer:rank()
+			local experience = ( player_rank > 0 and managers.experience:rank_string( player_rank ) .. "-" or "" ) .. player_level
 			
 			text = text .. " ("..experience..")"
 		end
 	else
 		self:update_character_menu_state( peer_id, nil )
 	end
-	self:create_character_text( peer_id, x, y, text )
+	self:create_character_text( peer_id, x, y, text, player_rank > 0 )
 end
 
 function ContractBoxGui:update_character_menu_state( peer_id, state )

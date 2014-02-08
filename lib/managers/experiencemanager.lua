@@ -290,8 +290,7 @@ function ExperienceManager:current_level()
 end
 
 function ExperienceManager:current_rank()
-	-- return self._global.rank and Application:digest_value( self._global.rank, false ) or 0
-	return 0
+	return self._global.rank and Application:digest_value( self._global.rank, false ) or 0
 end
 
 function ExperienceManager:_set_current_level( value )
@@ -299,44 +298,40 @@ function ExperienceManager:_set_current_level( value )
 end
 
 function ExperienceManager:set_current_rank( value )
-	-- self._global.rank = Application:digest_value( value, true )
-	
-	
-	
-	
-	
+	if value < #tweak_data.infamy.ranks + 1 then
+		managers.infamy:aquire_point()
+		self._global.rank = Application:digest_value( value, true )
+		managers.achievment:award( "ignominy_" .. tostring( value ) )
+	end
 end
 
 function ExperienceManager:rank_string( rank )
+	if not rank or rank <= 0 then
+		return ""
+	end
 	
+	local numbers = { 1, 5, 10, 50, 100, 500, 1000 }
+	local chars = { "I", "V", "X", "L", "C", "D", "M" }
 	
+	local roman = ""
+	for i = #numbers, 1, -1 do
+		local num = numbers[i]
+		while rank - num >= 0 and rank > 0 do
+			roman = roman .. chars[i]
+			rank = rank - num
+		end
+		
+		for j = 1, i - 1 do
+			local num2 = numbers[j]
+			if rank - ( num - num2 ) >= 0 and rank < num and rank > 0 and num - num2 ~= num2 then
+				roman = roman .. chars[j] .. chars[i]
+				rank = rank - ( num - num2 )
+				break
+			end
+		end
+	end
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	return ""
+	return roman
 end
 
 function ExperienceManager:level_to_stars()
@@ -586,7 +581,10 @@ function ExperienceManager:get_xp_by_params( params )
 	local multiplier = managers.player:upgrade_value("player", "xp_multiplier", 1)
 	multiplier = multiplier * managers.player:upgrade_value("player", "passive_xp_multiplier", 1)
 	multiplier = multiplier * managers.player:team_upgrade_value("xp", "multiplier", 1)
-
+	if managers.groupai and managers.groupai:state():whisper_mode() then
+		multiplier = multiplier * managers.player:team_upgrade_value( "xp", "stealth_multiplier", 1 )
+	end
+	
 	skill_dissect = math.round(contract_xp * (multiplier) - contract_xp)
 	total_xp = total_xp + skill_dissect
 
@@ -734,17 +732,39 @@ end
 ---------------------------------------------------------------------
 
 function ExperienceManager:chk_ask_use_backup( savegame_data, backup_savegame_data )
-	local savegame_exp_total, backup_savegame_exp_total
+	local savegame_exp_total, backup_savegame_exp_total, savegame_rank, backup_savegame_rank
+	
 	
 	local state = savegame_data.ExperienceManager
 	if state then
 		savegame_exp_total = state.total
+		savegame_rank = state.rank
 	end
 	
 	state = backup_savegame_data.ExperienceManager
 	if state then
 		backup_savegame_exp_total = state.total
+		backup_savegame_rank = state.rank
 	end
+	
+	local rank = savegame_rank and Application:digest_value( savegame_rank, false ) or 0
+	local backup_rank = backup_savegame_rank and Application:digest_value( backup_savegame_rank, false ) or 0
+	
+	if rank < backup_rank then
+		return true
+	elseif backup_rank < rank then
+		return false
+	end
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	if savegame_exp_total and backup_savegame_exp_total and Application:digest_value( savegame_exp_total, false ) < Application:digest_value( backup_savegame_exp_total, false ) then
 		return true

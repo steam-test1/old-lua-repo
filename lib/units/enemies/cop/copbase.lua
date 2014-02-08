@@ -274,8 +274,8 @@ end
 -----------------------------------------------------------------------------
 
 -- Callback function from action animation triggers
-function CopBase:anim_act_clbk( unit, anim_act, nav_link )
-	if nav_link then
+function CopBase:anim_act_clbk( unit, anim_act, send_to_action )
+	if send_to_action then
 		unit:movement():on_anim_act_clbk( anim_act )
 	else
 		if unit:unit_data().mission_element then
@@ -287,11 +287,13 @@ end
 -----------------------------------------------------------------------------------
 
 function CopBase:save( data )
+	--[[
 	if self._contour_state then
 		data.base_contour_on = true
 	elseif not self._is_in_original_material then
 		data.swap_material = true
 	end
+	]]
 	
 	if self._unit:interaction() and self._unit:interaction().tweak_data == "hostage_trade" then
 		data.is_hostage_trade = true
@@ -301,10 +303,12 @@ end
 -----------------------------------------------------------------------------------
 
 function CopBase:load( data )
+	--[[
 	if data.base_contour_on or data.swap_material then
 		self._contour_on_clbk_id = "clbk_set_contour_on"..tostring( self._unit:key() )
 		managers.enemy:add_delayed_clbk( self._contour_on_clbk_id, callback( self, self, "clbk_set_contour_on", data.swap_material ), TimerManager:game():time() + 1 ) -- this does not work if called immediately
 	end
+	]]
 	
 	if data.is_hostage_trade then
 		CopLogicTrade.hostage_trade( self._unit, true, false )
@@ -313,7 +317,7 @@ end
 
 -----------------------------------------------------------------------------------
 
-function CopBase:clbk_set_contour_on( swap_material_only )
+--[[function CopBase:clbk_set_contour_on( swap_material_only )
 	if not self._contour_on_clbk_id or not alive( self._unit ) then
 		return
 	end
@@ -372,7 +376,7 @@ function CopBase:set_contour( state, swap_material_only )
 	end
 
 	self._contour_state = state
-end
+end]]
 
 -----------------------------------------------------------------------------------
 
@@ -418,9 +422,12 @@ function CopBase:pre_destroy( unit )
 		managers.secret_assignment:unregister_unit( unit )
 	end
 	
+	--[[
 	if self._contour_on_clbk_id then
 		managers.enemy:remove_delayed_clbk( self._contour_on_clbk_id )
 	end
+	]]
+	
 	unit:brain():pre_destroy( unit )
 	self._ext_movement:pre_destroy()
 	self._unit:inventory():pre_destroy()

@@ -22,6 +22,11 @@ function TaserLogicAttack.enter( data, new_logic_name, enter_params )
 	if old_internal_data then --	Stuff inheritted from the previous state
 		my_data.rsrv_pos = old_internal_data.rsrv_pos or my_data.rsrv_pos
 		
+		my_data.turning = old_internal_data.turning
+		my_data.firing = old_internal_data.firing
+		my_data.shooting = old_internal_data.shooting
+		my_data.attention_unit = old_internal_data.attention_unit
+		
 		CopLogicAttack._set_best_cover( data, my_data, old_internal_data.best_cover )
 		CopLogicAttack._set_nearest_cover( my_data, old_internal_data.nearest_cover )
 	end
@@ -38,10 +43,7 @@ function TaserLogicAttack.enter( data, new_logic_name, enter_params )
 	
 	data.unit:brain():set_update_enabled_state( false )
 	
-	--my_data.cover_update_task_key = "CopLogicAttack._update_cover"..key_str
-	--CopLogicBase.queue_task( my_data, my_data.cover_update_task_key, CopLogicAttack._update_cover, data, data.t )
-	
-	CopLogicTravel.reset_actions( data, my_data, old_internal_data, CopLogicTravel.allowed_transitional_actions)
+	CopLogicIdle._chk_has_old_action( data, my_data )
 	
 	local objective = data.objective
 	if objective then
@@ -50,11 +52,6 @@ function TaserLogicAttack.enter( data, new_logic_name, enter_params )
 	my_data.weapon_range = data.char_tweak.weapon[ data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage ].range
 	
 	my_data.cover_test_step = 1
-	
-	local upper_body_action = data.unit:movement()._active_actions[3]
-	if not (upper_body_action and upper_body_action:type() == "shoot") then 
-		data.unit:movement():set_stance( "hos" )
-	end
 	
 	data.tase_delay_t = data.tase_delay_t or -1
 	
@@ -105,19 +102,9 @@ end
 
 function TaserLogicAttack.queued_update( data )
 	
-	if CopLogicIdle._chk_relocate( data ) then
-		return
-	end
-	
-	CopLogicAttack._update_cover( data )
-	
-	local t = TimerManager:game():time()
-	data.t = t
-	local unit = data.unit
 	local my_data = data.internal_data
-	local objective = data.objective
-	
 	TaserLogicAttack._upd_enemy_detection( data )
+	
 	if my_data ~= data.internal_data then
 		CopLogicBase._report_detections( data.detected_attention_objects )
 		return
@@ -126,6 +113,23 @@ function TaserLogicAttack.queued_update( data )
 		CopLogicBase._report_detections( data.detected_attention_objects )
 		return
 	end
+	
+	if my_data.has_old_action then
+		CopLogicAttack._upd_stop_old_action( data, my_data )
+		CopLogicBase.queue_task( my_data, my_data.update_task_key, TaserLogicAttack.queued_update, data, data.t + 1.5, data.important )
+		return 
+	end
+	
+	if CopLogicIdle._chk_relocate( data ) then
+		return 
+	end
+	
+	CopLogicAttack._update_cover( data )
+	
+	local t = TimerManager:game():time()
+	data.t = t
+	local unit = data.unit
+	local objective = data.objective
 	
 	local focus_enemy = data.attention_obj
 	
@@ -335,6 +339,7 @@ function TaserLogicAttack.action_complete_clbk( data, action )
 	local my_data = data.internal_data
 	local action_type = action:type()
 	if action_type == "walk" then
+		my_data.advancing = nil
 		if my_data.moving_to_cover then
 			if action:expired() then	-- The walk action ended normally. ( was not interrupted )
 				my_data.in_cover = my_data.moving_to_cover

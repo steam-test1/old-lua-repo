@@ -910,6 +910,13 @@ function HudIconsTweakData:init()
 						texture = "guis/textures/pd2/lootscreen/loot_cards",
 						texture_coords = { { 340+170, 360 }, { 340+170, 360+122 }, { 340, 360 }, { 340, 360+122 } },
 		}]]
+	
+	
+	
+	self.infamy_icon = {
+						texture = "guis/textures/pd2/infamous_symbol",
+						texture_rect = { 0, 4, 16, 16 }
+		}
 end
 
 

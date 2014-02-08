@@ -1375,6 +1375,18 @@ function TweakData:init()
 	self.interaction.trip_mine.contour = "deployable"
 	self.interaction.trip_mine.requires_upgrade = { category = "trip_mine", upgrade = "can_switch_on_off" }
 		
+	self.interaction.sentry_gun_refill = {}
+	self.interaction.sentry_gun_refill.icon = "equipment_ammo_bag"
+	self.interaction.sentry_gun_refill.text_id = "debug_interact_grenade_crate_take_grenades"
+	self.interaction.sentry_gun_refill.contour = "deployable"
+	self.interaction.sentry_gun_refill.requires_upgrade = { category = "sentry_gun", upgrade = "can_reload" }
+	self.interaction.sentry_gun_refill.timer = 1.5
+	self.interaction.sentry_gun_refill.blocked_hint = "full_grenades"
+	self.interaction.sentry_gun_refill.sound_start 		= "bar_bag_generic"
+	self.interaction.sentry_gun_refill.sound_interupt 	= "bar_bag_generic_cancel"
+	self.interaction.sentry_gun_refill.sound_done		= "bar_bag_generic_finished"
+	self.interaction.sentry_gun_refill.action_text_id	= "hud_action_taking_grenades"
+	
 	self.interaction.grenade_crate = {}
 	self.interaction.grenade_crate.icon = "equipment_ammo_bag"
 	self.interaction.grenade_crate.text_id = "debug_interact_grenade_crate_take_grenades"
@@ -2220,6 +2232,25 @@ function TweakData:init()
 	self.interaction.need_boards.sound_done = "bar_barricade_window_finished"
 	self.interaction.need_boards.axis = "z"
 	
+	self.interaction.uload_database = {}
+	self.interaction.uload_database.text_id = "hud_int_hold_use_computer"
+	self.interaction.uload_database.action_text_id = "hud_action_using_computer"
+	self.interaction.uload_database.timer = 0.5
+	self.interaction.uload_database.start_active = false
+	self.interaction.uload_database.sound_start = "bar_keyboard"
+	self.interaction.uload_database.sound_interupt = "bar_keyboard_cancel"
+	self.interaction.uload_database.sound_done = "bar_keyboard_finished"
+	self.interaction.uload_database.axis = "x"
+	
+	self.interaction.uload_database_jammed = {}
+	self.interaction.uload_database_jammed.text_id = "hud_int_hold_resume_upload"
+	self.interaction.uload_database_jammed.action_text_id = "hud_action_resuming_upload"
+	self.interaction.uload_database_jammed.timer = 1
+	self.interaction.uload_database_jammed.sound_start = "bar_keyboard"
+	self.interaction.uload_database_jammed.sound_interupt = "bar_keyboard_cancel"
+	self.interaction.uload_database_jammed.sound_done = "bar_keyboard_finished"
+	self.interaction.uload_database_jammed.axis = "x"
+	
 	-------------- PD2 Interactions End
 	
 	
@@ -2594,6 +2625,7 @@ function TweakData:init()
 	self.achievement.heat_around_the_corner = "heat"
 	self.achievement.fire_in_the_hole = { grenade="frag", stat="gage_9_stats" }
 	
+	self.achievement.infamous = { "ignominy_1", "ignominy_2", "ignominy_3", "ignominy_4", "ignominy_5" }
 	
 	
 	self.achievement.enemy_kill_achievements = {
@@ -2718,6 +2750,7 @@ function TweakData:init()
 	self.music.heist.fake_assault		= "music_heist_assault"
 	self.music.heist.control			= "music_heist_control"
 	self.music.heist.switches			= { "track_01", "track_02", "track_03", "track_04", "track_05", "track_06", "track_07", "track_08", "track_09", "track_10" }
+	self.music.heist.switches_infamous			= { "track_11" }
 	
 	self.music.default = deep_clone( self.music.heist )
 	

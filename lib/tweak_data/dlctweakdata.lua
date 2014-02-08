@@ -172,8 +172,6 @@ function DLCTweakData:init( tweak_data )
 	
 	
 	
-	
-	
 	self.charliesierra = {}
 	self.charliesierra.content = {}
 	self.charliesierra.free = true
