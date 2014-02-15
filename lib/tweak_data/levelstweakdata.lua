@@ -426,6 +426,18 @@ function LevelsTweakData:init()
 	self.escape_garage.package			= "packages/escape_garage"
 	self.escape_garage.cube				= "cube_apply_heist_bank"
 	
+	self.escape_hell = {}
+	self.escape_hell.name_id = "heist_escape_hell_hl"
+	self.escape_hell.briefing_id = "heist_escape_hell_briefing"
+	self.escape_hell.briefing_dialog = "nothing"
+	self.escape_hell.world_name = "narratives/escapes/escape_hell"
+	self.escape_hell.intro_event = "Play_dr1_a01"
+	self.escape_hell.outro_event = "nothing"
+	
+	self.escape_hell.music = "heist"
+	self.escape_hell.package = "packages/level_debug"
+	self.escape_hell.cube = "cube_apply_heist_bank"
+	
 	------------------------ SAFEHOUSE -------------------
 
 	self.safehouse					= {}
@@ -662,7 +674,7 @@ function LevelsTweakData:init()
 	self.test02						= {}
 	self.test02.name_id 			= "heist_test02_hl"
 	self.test02.briefing_id 		= "heist_test02"
-	self.test02.world_name 			= "narratives/armadillo/arm_for"
+	self.test02.world_name 			= "narratives/escapes/escape_hell"
 	self.test02.intro_event			= "nothing"
 	self.test02.outro_event				= "nothing"
 	-- self.test02.intro_cues			= { "intro_test0201", "intro_test0202", "intro_test0203", "intro_test0204" }
@@ -977,7 +989,7 @@ function LevelsTweakData:init()
 					"alex_1", "alex_2", "alex_3",
 					"firestarter_1", "firestarter_2", "firestarter_3",
 					"ukrainian_job", "jewelry_store", "four_stores", "mallcrasher", "nightclub", "branchbank", "fwb",
-					"escape_cafe", "escape_park", "escape_cafe_day", "escape_park_day", "escape_street", "escape_overpass", "escape_garage", "escape_overpass_night",
+					"escape_cafe", "escape_park", "escape_cafe_day", "escape_park_day", "escape_street", "escape_overpass", "escape_garage", "escape_overpass_night", "escape_hell",
 					"safehouse",
 					"arm_fac", "arm_par", "arm_hcm", "arm_bri", "arm_cro", "arm_und", "arm_for",
 					"family",
@@ -995,7 +1007,7 @@ function LevelsTweakData:init()
 					
 				}
 	
-	self.escape_levels =	{	"escape_cafe", "escape_park", "escape_street", "escape_overpass", "escape_garage", "escape_overpass_night", "escape_cafe_day", "escape_park_day", "election_day_3", "arm_for" }
+	self.escape_levels =	{	"escape_cafe", "escape_park", "escape_street", "escape_overpass", "escape_garage", "escape_overpass_night", "escape_cafe_day", "escape_park_day", "election_day_3", "arm_for", "escape_hell" }
 end
 
 ------------------------------------------------------------------

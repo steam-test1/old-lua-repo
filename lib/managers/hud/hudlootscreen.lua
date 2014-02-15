@@ -170,9 +170,9 @@ function HUDLootScreen:create_peer( peers_panel, peer_id )
 	local card_info_panel = panel:panel( { name="card_info", w=300 } )
 	card_info_panel:set_right( panel:w() )
 	
-	local main_text = card_info_panel:text( { name="main_text", font=medium_font, font_size=medium_font_size, text=managers.localization:to_upper_text( (is_local_peer and "menu_l_choose_card_local") or "menu_l_choose_card_peer" ), blend_mode="add", wrap=true, word_wrap=true } )
+	local main_text = card_info_panel:text( { name="main_text", font=medium_font, font_size=medium_font_size, text=managers.localization:to_upper_text( (is_local_peer and "menu_l_choose_card_local") or "menu_l_choose_card_peer" ), blend_mode="add", wrap=true, word_wrap=true, rotation = 360 } )
 	local quality_text = card_info_panel:text( { name="quality_text", font=small_font, font_size=small_font_size, text=" ", blend_mode="add", visible=false } )
-	local global_value_text = card_info_panel:text( { name="global_value_text", font=small_font, font_size=small_font_size, text=managers.localization:to_upper_text("menu_l_global_value_infamous"), color=tweak_data.lootdrop.global_values.infamous.color, blend_mode="add" } )
+	local global_value_text = card_info_panel:text( { name="global_value_text", font=small_font, font_size=small_font_size, text=managers.localization:to_upper_text("menu_l_global_value_infamous"), color=tweak_data.lootdrop.global_values.infamous.color, blend_mode="add", rotation = 360 } )
 	global_value_text:hide()
 	
 	local _, _, _, hh = main_text:text_rect()
@@ -839,8 +839,9 @@ function HUDLootScreen:show_item( peer_id )
 		quality_text:set_text( managers.localization:to_upper_text( "menu_l_quality", { quality=((item_pc==0 and "?") or item_pc) } ) )
 
 		if global_value and global_value ~= "normal" then
-			global_value_text:set_text( managers.localization:to_upper_text( "menu_l_global_value_" .. global_value ) )
-			global_value_text:set_color( tweak_data.lootdrop.global_values[ global_value ].color )
+			local gv_tweak_data = tweak_data.lootdrop.global_values[ global_value ] or {}
+			global_value_text:set_text( managers.localization:to_upper_text( gv_tweak_data.desc_id ) )
+			global_value_text:set_color( gv_tweak_data.color )
 			self:make_fine_text( global_value_text )
 
 			global_value_text:set_visible( true )

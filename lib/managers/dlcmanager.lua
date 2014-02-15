@@ -1,7 +1,7 @@
 DLCManager = DLCManager or class()
 DLCManager.PLATFORM_CLASS_MAP = {}
 
-DLCManager.BUNDLED_DLC_PACKAGES = { dlc1 = true, gage_pack = true, infamous = true, season_pass = false, animal = false }
+DLCManager.BUNDLED_DLC_PACKAGES = { dlc1 = true, gage_pack = true, gage_pack_lmg = true, infamous = true, season_pass = false, animal = false }
 
 function DLCManager:new( ... )
 	local platform = SystemInfo:platform()
@@ -171,6 +171,12 @@ end
 
 function GenericDLCManager:has_gage_pack()
 	return Global.dlc_manager.all_dlc_data.gage_pack and Global.dlc_manager.all_dlc_data.gage_pack.verified
+end
+
+------------------------------------------------------------------------------
+
+function GenericDLCManager:has_gage_pack_lmg()
+	return Global.dlc_manager.all_dlc_data.gage_pack_lmg and Global.dlc_manager.all_dlc_data.gage_pack_lmg.verified
 end
 
 ------------------------------------------------------------------------------
@@ -463,6 +469,10 @@ function WINDLCManager:init()
 			},
 			gage_pack = {
 				app_id = "267380",
+				no_install = true	-- check only ownership here, since this DLC does not require installation
+			},
+			gage_pack_lmg = {
+				app_id = "275590",
 				no_install = true	-- check only ownership here, since this DLC does not require installation
 			},
 			xmas_soundtrack = {

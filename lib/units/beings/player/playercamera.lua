@@ -98,8 +98,8 @@ end
 
 -------------------------------------------------------------------------------
 
-function PlayerCamera:play_redirect( redirect_name, at_time )
-	local result = self._camera_unit:base():play_redirect( redirect_name, at_time )
+function PlayerCamera:play_redirect( redirect_name, speed, offset_time )
+	local result = self._camera_unit:base():play_redirect( redirect_name, speed, offset_time )
 	return result ~= PlayerCamera.IDS_NOTHING and result
 end
 

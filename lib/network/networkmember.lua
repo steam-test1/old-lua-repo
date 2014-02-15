@@ -194,6 +194,9 @@ function NetworkMember:set_unit( unit, character_name )
 		managers.player:spawned_player( 1, unit )
 	end
 	
+	if is_new_unit then
+		unit:inventory():set_melee_weapon_by_peer( self:peer() )
+	end
 	if SystemInfo:platform() == Idstring( "PS3" ) and is_new_unit and self ~= Global.local_member and unit:inventory() then
 		unit:inventory():add_peer_blackmarket_outfit( self:peer() )
 	end

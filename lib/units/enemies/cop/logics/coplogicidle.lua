@@ -104,6 +104,11 @@ function CopLogicIdle.enter( data, new_logic_name, enter_params )
 	my_data.weapon_range = data.char_tweak.weapon[ data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage ].range
 	
 	data.unit:brain():set_update_enabled_state( false )
+	
+	CopLogicIdle._perform_objective_action( data, my_data, objective )
+	if my_data ~= data.internal_data then
+		return 
+	end
 end
 
 -----------------------------------------------------------------------------
@@ -1437,8 +1442,12 @@ end
 -----------------------------------------------------------------------------
 
 function CopLogicIdle._perform_objective_action( data, my_data, objective )
-	if objective and objective.action and not my_data.action_started and ( data.unit:anim_data().act_idle or not data.unit:movement():chk_action_forbidden( "action" ) ) then
-		my_data.action_started = data.unit:brain():action_request( objective.action )
+	if objective and not my_data.action_started and ( data.unit:anim_data().act_idle or not data.unit:movement():chk_action_forbidden( "action" ) ) then
+		if objective.action then
+			my_data.action_started = data.unit:brain():action_request( objective.action )
+		else
+			my_data.action_started = true
+		end
 		if my_data.action_started then
 			if objective.action_duration then
 				my_data.action_timeout_clbk_id = "CopLogicIdle_action_timeout" .. tostring( data.key )
@@ -1463,7 +1472,7 @@ function CopLogicIdle._upd_stop_old_action( data, my_data, objective )
 			end
 		elseif not data.unit:movement():chk_action_forbidden( "idle" ) and data.unit:anim_data().needs_idle then
 			CopLogicIdle._start_idle_action_from_act( data )
-		elseif data.unit:anim_data().idle then
+		elseif data.unit:anim_data().act_idle then
 			data.unit:brain():action_request( { type = "idle", body_part = 2, sync = true } )
 		end
 		CopLogicIdle._chk_has_old_action( data, my_data )
@@ -1474,11 +1483,10 @@ end
 
 function CopLogicIdle._chk_has_old_action( data, my_data )
 	local anim_data = data.unit:anim_data()
-	my_data.has_old_action = anim_data.to_idle or anim_data.act and not anim_data.act_idle
-	if not my_data.has_old_action then
-		local lower_body_action = data.unit:movement()._active_actions[2]
-		my_data.advancing = lower_body_action and lower_body_action:type() == "walk" and lower_body_action
-	end
+	my_data.has_old_action = anim_data.to_idle or anim_data.act
+	
+	local lower_body_action = data.unit:movement()._active_actions[2]
+	my_data.advancing = lower_body_action and lower_body_action:type() == "walk" and lower_body_action
 end
 
 -----------------------------------------------------------------------------

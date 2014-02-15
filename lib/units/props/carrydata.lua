@@ -521,6 +521,10 @@ function CarryData:clbk_pickup_SO_verification( candidate_unit )
 		return
 	end
 	
+	if not candidate_unit:base():char_tweak().steal_loot then
+		return 
+	end
+	
 	return true
 end
 

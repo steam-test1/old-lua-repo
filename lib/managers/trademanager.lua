@@ -738,8 +738,8 @@ function TradeManager:begin_hostage_trade( )
 	if rescuing_criminal then
 		rescuing_criminal_pos = rescuing_criminal.m_pos
 	else
-		local _, first_civ = next(civilians)
-		rescuing_criminal_pos = first_civ and first_civ.m_pos
+		managers.enemy:add_delayed_clbk( self._hostage_trade_clbk, callback( self, self, "begin_hostage_trade"), self._t + 5 )
+		return
 	end
 	
 

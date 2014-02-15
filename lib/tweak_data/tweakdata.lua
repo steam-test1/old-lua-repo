@@ -117,11 +117,12 @@ function TweakData:_set_easy()
 	self.player:_set_easy()
 	self.character:_set_easy()
 	self.group_ai:_set_easy()
-		
+	self.weapon:_set_easy()
+	
 	self.experience_manager.civilians_killed					= 15		-- Amount of XP penalty recieved from each killed civilian during a heist
-
+	
 	self.difficulty_name_id = self.difficulty_name_ids.easy
-		
+	
 	-- old
 	self.experience_manager.total_level_objectives		= 1000	-- How much XP should be divided in a level from objectives 
 	self.experience_manager.total_criminals_finished	= 25		-- Amount of XP bonus recieved from each alive criminal at heist end
@@ -132,9 +133,10 @@ function TweakData:_set_normal()
 	self.player:_set_normal()
 	self.character:_set_normal()
 	self.group_ai:_set_normal()
-		
+	self.weapon:_set_normal()
+	
 	self.experience_manager.civilians_killed					= 35		-- Amount of XP penalty recieved from each killed civilian during a heist
-
+	
 	self.difficulty_name_id = self.difficulty_name_ids.normal
 	
 	-- old
@@ -147,9 +149,10 @@ function TweakData:_set_hard()
 	self.player:_set_hard()
 	self.character:_set_hard()
 	self.group_ai:_set_hard()
-		
+	self.weapon:_set_hard()
+	
 	self.experience_manager.civilians_killed					= 75		-- Amount of XP penalty recieved from each killed civilian during a heist
-
+	
 	self.difficulty_name_id = self.difficulty_name_ids.hard
 	
 	-- old
@@ -162,9 +165,10 @@ function TweakData:_set_overkill()
 	self.player:_set_overkill()
 	self.character:_set_overkill()
 	self.group_ai:_set_overkill()
-		
+	self.weapon:_set_overkill()
+	
 	self.experience_manager.civilians_killed					= 150		-- Amount of XP penalty recieved from each killed civilian during a heist
-
+	
 	self.difficulty_name_id = self.difficulty_name_ids.overkill
 	
 	-- old
@@ -177,9 +181,10 @@ function TweakData:_set_overkill_145()
 	self.player:_set_overkill_145()
 	self.character:_set_overkill_145()
 	self.group_ai:_set_overkill_145()
-		
+	self.weapon:_set_overkill_145()
+	
 	self.experience_manager.civilians_killed					= 550		-- Amount of XP penalty recieved from each killed civilian during a heist
-
+	
 	self.difficulty_name_id = self.difficulty_name_ids.overkill_145
 	
 	-- old
@@ -2626,6 +2631,12 @@ function TweakData:init()
 	self.achievement.fire_in_the_hole = { grenade="frag", stat="gage_9_stats" }
 	
 	self.achievement.infamous = { "ignominy_1", "ignominy_2", "ignominy_3", "ignominy_4", "ignominy_5" }
+	self.achievement.final_rule = { stat = "gage2_3_stats", melee_type = "fists", heist = "nightclub" }
+	self.achievement.easy_as_breathing = { award = "gage2_4", count = 10, weapon_type = "lmg" }
+	self.achievement.first_blood = { award = "gage2_5", weapon_type = "lmg", count = 220 }
+	self.achievement.in_town_you_are_law = { award = "gage2_6", weapon_type = "shotgun" }
+	self.achievement.dont_push_it = { award = "gage2_7", weapon = "deagle" }
+	self.achievement.finally = { award = "gage2_8" }
 	
 	
 	self.achievement.enemy_kill_achievements = {
@@ -2640,6 +2651,13 @@ function TweakData:init()
 		inception = { weapon="scar", stat="gage_5_stats" },
 		hard_corps = { weapon="mp7", stat="gage_6_stats" },
 		above_the_law = { weapon="p226", stat="gage_7_stats" },
+	}
+	
+	
+	self.achievement.enemy_melee_kill_achievements = {
+		cloak_n_dagger = { award = "gage2_2", enemy = "spooc", melee_type = "knife" },
+		are_you_kidding_me = { award = "gage2_10", enemy = "tank", melee_type = "knife" },
+		no_time_to_bleed = { stat = "gage2_9_stats", enemies = { "fbi_swat", "fbi_heavy_swat" }, melee_type = "knife", difficulty = "overkill_145", health = 25 },
 	}
 	
 	
@@ -3403,8 +3421,8 @@ function TweakData:get_controller_help_coords()
 		
 		coords[ "menu_button_weapon_gadget" ] = { x = 0, y = 171, align = "right", vertical = "center" }
 		
-		coords[ "menu_button_throw_grenade" ] = { x = 0, y = 0, align = "left", vertical = "top" }
-		coords[ "menu_button_weapon_firemode" ] = { x = 0, y = 0, align = "left", vertical = "top" }
+		coords[ "menu_button_throw_grenade" ] = { x = 0, y = 150, align = "right", vertical = "center" }
+		coords[ "menu_button_weapon_firemode" ] = { x = 0, y = 130, align = "right", vertical = "center" }
 		
 	else
 		coords[ "menu_button_sprint" ] = { x = 0, y = 138, align = "right", vertical ="bottom" }

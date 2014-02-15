@@ -532,8 +532,8 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 	self.enemy_spawn_groups.CS_heavys = {
 		amount = { 3, 4 },
 		spawn = {
-			{ unit = "CS_heavy_M4", freq = 1, tactics = tactics_CS_swat_rifle, rank = 1 },
-			{ unit = "CS_heavy_M4", freq = 0.35, tactics = tactics_CS_swat_rifle_flank, rank = 2 },
+			{ unit = "CS_heavy_M4", freq = 1, tactics = tactics_CS_swat_rifle, rank = 2 },
+			{ unit = "CS_heavy_M4", freq = 0.35, tactics = tactics_CS_swat_rifle_flank, rank = 3 },
 		}
 	}
 	
@@ -619,7 +619,8 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 		spawn = {
 			{ unit = "FBI_swat_M4", freq = 1, amount_min = 1, tactics = tactics_FBI_swat_rifle, rank = 2 },
 			{ unit = "FBI_swat_M4", freq = 0.75, tactics = tactics_FBI_swat_rifle_flank, rank = 3 },
-			{ unit = "FBI_swat_R870", freq = 0.5, amount_max = 2, tactics = tactics_FBI_swat_shotgun, rank = 1 }
+			{ unit = "FBI_swat_R870", freq = 0.5, amount_max = 2, tactics = tactics_FBI_swat_shotgun, rank = 1 },
+			{ unit = "spooc", freq = 0.15, amount_max = 2, tactics = tactics_spooc, rank = 1 }
 		}
 	}
 	
@@ -644,6 +645,8 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 		}
 	}
 	
+	
+	
 	-- FBI Tanks
 	self.enemy_spawn_groups.FBI_tanks = {
 		amount = { 3, 4 },
@@ -662,6 +665,7 @@ function GroupAITweakData:_init_enemy_spawn_groups()
 		}
 	}
 	
+	self.enemy_spawn_groups.FBI_spoocs = self.enemy_spawn_groups.single_spooc
 end
 
 -----------------------------------------------------------------------------
@@ -675,9 +679,14 @@ function GroupAITweakData:_init_task_data()
 	self.bain_assault_praise_limits = { 1, 3 }
 	
 	------------ BESIEGE GROUP AI ------------
-	self.besiege.recurring_group_SO_intervals = {
-		recurring_cloaker_spawn = { 180, 300 },
-		recurring_spawn_1 = { 30, 60 }
+	self.besiege.recurring_group_SO = {
+		recurring_cloaker_spawn = {
+			interval = { 180, 300 },
+			retire_delay = 30
+		},
+		recurring_spawn_1 = {
+			interval = { 30, 60 }
+		}
 	}
 	
 	self.besiege.regroup.duration = { 15, 15, 15 }				-- maximum duration of regroup phase. Can also expire due to low drama. (sec)
@@ -773,7 +782,7 @@ function GroupAITweakData:_set_normal()
 	
 	
 	
-	self.unit_categories.tank.max_amount = 0
+	self.unit_categories.tank.max_amount = 1
 	self.unit_categories.taser.max_amount = 1
 	self.unit_categories.spooc.max_amount = 0
 	self.unit_categories.shield.max_amount = 2
@@ -833,7 +842,7 @@ function GroupAITweakData:_set_hard()
 	self.unit_categories.shield.max_amount = 4
 	
 	self.besiege.recurring_group_SO_intervals = {
-		recurring_cloaker_spawn = { 100, 150 },
+		recurring_cloaker_spawn = { 60, 120 },
 		recurring_spawn_1 = { 30, 60 },
 	}
 	
@@ -888,11 +897,10 @@ function GroupAITweakData:_set_overkill()
 	
 	self.unit_categories.tank.max_amount = 3
 	self.unit_categories.taser.max_amount = 4
-	self.unit_categories.spooc.max_amount = 2
+	self.unit_categories.spooc.max_amount = 4
 	self.unit_categories.shield.max_amount = 5
-	
 	self.besiege.recurring_group_SO_intervals = {
-		recurring_cloaker_spawn = { 60, 90 },
+		recurring_cloaker_spawn = { 45, 60 },
 		recurring_spawn_1 = { 30, 60 }
 	}
 	
@@ -948,7 +956,7 @@ function GroupAITweakData:_set_overkill_145()
 	
 	self.unit_categories.tank.max_amount = 4
 	self.unit_categories.taser.max_amount = 4
-	self.unit_categories.spooc.max_amount = 3
+	self.unit_categories.spooc.max_amount = 6
 	self.unit_categories.shield.max_amount = 6
 	
 	

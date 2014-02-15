@@ -104,6 +104,7 @@ end
 ---------------------------------------------------------
 ChatGui = ChatGui or class( ChatBase ) -- TextBoxGui )
 
+ChatGui.line_height = 22
 function ChatGui:init( ws ) -- , title, text, content_data, config, type )
 	self._ws = ws
 	self._hud_panel = ws:panel() -- hud.panel
@@ -296,6 +297,9 @@ function ChatGui:_layout_output_panel( force_update_scroll_indicators )
 	scroll_panel:set_w( self._output_width )
 	output_panel:set_w( self._output_width )
 	
+	local line_height = ChatGui.line_height
+	local max_lines = self._max_lines
+	
 	-- Adjust size of lines and calculates number of lines
 	local lines = 0
 	for i = #self._lines ,1 , -1 do
@@ -306,13 +310,11 @@ function ChatGui:_layout_output_panel( force_update_scroll_indicators )
 		local _,_,w,h = line:text_rect()
 		line:set_h( h )
 		line_bg:set_w( w + line:left() + 2 )
-		line_bg:set_h( h )
+		line_bg:set_h( line_height )
 		
 		lines = lines + line:number_of_lines()
 	end
 	
-	local line_height = 22 -- tweak_data.menu.pd2_small_font_size
-	local max_lines = self._max_lines -- 15
 	
 	local scroll_at_bottom = scroll_panel:bottom() == output_panel:h()
 	
@@ -470,7 +472,7 @@ function ChatGui:moved_scroll_bar( x, y )
 end
 
 function ChatGui:scroll_with_bar( target_y, current_y )
-	local line_height = 22 -- tweak_data.menu.pd2_small_font_size
+	local line_height = ChatGui.line_height
 	local diff = current_y - target_y
 	
 	if( diff == 0 ) then
@@ -580,7 +582,7 @@ function ChatGui:scroll_up()
 		if( scroll_panel:top() == 0 ) then
 			self._one_scroll_dn_delay = true
 		end
-		scroll_panel:set_top( math.min( 0, scroll_panel:top() + 22 ) )
+		scroll_panel:set_top( math.min( 0, scroll_panel:top() + ChatGui.line_height ) )
 		return true
 	end
 end
@@ -592,7 +594,7 @@ function ChatGui:scroll_down()
 		if( scroll_panel:bottom() == output_panel:h() ) then
 			self._one_scroll_up_delay = true
 		end
-		scroll_panel:set_bottom( math.max( scroll_panel:bottom() - 22, output_panel:h() ) )
+		scroll_panel:set_bottom( math.max( scroll_panel:bottom() - ChatGui.line_height, output_panel:h() ) )
 		return true
 	end
 end
