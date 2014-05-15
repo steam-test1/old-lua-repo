@@ -1099,3 +1099,947 @@ function MenuNodeCrimenetContactInfoGui:mouse_moved(o, x, y)
 end
 
 function MenuNodeCrimenetContactInfoGui:mouse_pressed(button, x, y)
+	local files_menu = self._panel:child("files_menu")
+	if alive(files_menu) then
+		local (for generator), (for state), (for control) = ipairs(files_menu:children())
+		do
+			do break end
+			if file:inside(x, y) and not self:is_file_locked(self._files[i].lock) then
+				self._file_pressed = i
+				return
+			end
+
+		end
+
+	end
+
+end
+
+function MenuNodeCrimenetContactInfoGui:mouse_released(button, x, y)
+	if self._file_pressed and self._file_pressed ~= self._current_file then
+		local files_menu = self._panel:child("files_menu")
+		if alive(files_menu) then
+			local file = files_menu:children()[self._file_pressed]
+			if file and file:inside(x, y) then
+				self:set_file(self._file_pressed)
+			end
+
+		end
+
+	end
+
+	self._file_pressed = false
+end
+
+function MenuNodeCrimenetContactInfoGui:previous_page()
+	self:change_file(-1)
+end
+
+function MenuNodeCrimenetContactInfoGui:next_page()
+	self:change_file(1)
+end
+
+function MenuNodeCrimenetContactInfoGui:input_focus()
+	return false
+end
+
+function MenuNodeCrimenetContactInfoGui:_setup_item_panel(safe_rect, res)
+	MenuNodeCrimenetContactInfoGui.super._setup_item_panel(self, safe_rect, res)
+	self:_setup_menu()
+end
+
+function MenuNodeCrimenetContactInfoGui:_setup_menu()
+	if not self._init_finish then
+		return
+	end
+
+	local safe_rect = managers.gui_data:scaled_size()
+	do
+		local (for generator), (for state), (for control) = ipairs(self.item_panel:children())
+		do
+			do break end
+			child:set_halign("right")
+		end
+
+	end
+
+	(for control) = self.item_panel:children() and child.set_halign
+	self.item_panel:set_w(safe_rect.width * (1 - self._align_line_proportions) + 4)
+	self.item_panel:set_world_position(self._panel:world_position())
+	self.item_panel:move(self.PADDING, self.PADDING)
+	do
+		local (for generator), (for state), (for control) = ipairs(self.item_panel:children())
+		do
+			do break end
+			child:set_halign("left")
+		end
+
+	end
+
+	(for control) = self.item_panel:children() and child.set_halign
+	self.item_panel:set_w(self.MENU_WIDTH)
+	self._align_data.panel:set_left(self.item_panel:left())
+	local row_x = 0
+	do
+		local (for generator), (for state), (for control) = pairs(self.row_items)
+		do
+			do break end
+			if alive(row_item.icon) then
+				row_item.icon:set_left(0)
+			end
+
+			if alive(row_item.gui_panel) then
+				row_x = math.max(row_x, row_item.gui_panel:world_x())
+			end
+
+		end
+
+	end
+
+	(for control) = self.item_panel:left() and alive
+	if self._back_row_item and alive(self._back_row_item.gui_text) then
+		self._back_row_item.gui_text:set_w(self.MENU_WIDTH)
+		self._back_row_item.gui_text:set_world_left(math.round(self._panel:world_left() + self.PADDING * 2))
+		self._back_row_item.gui_text:set_world_bottom(math.round(self._panel:world_bottom() - self.PADDING))
+	end
+
+	do
+		local (for generator), (for state), (for control) = pairs(self.row_items)
+		do
+			do break end
+			if alive(row_item.gui_panel) then
+				row_item.gui_panel:set_w(self.MENU_WIDTH)
+			end
+
+		end
+
+	end
+
+	(for control) = math.round(self._panel:world_bottom() - self.PADDING) and alive
+	local (for generator), (for state), (for control) = ipairs(self.item_panel:children())
+	do
+		do break end
+		child:set_world_y(math.round(child:world_y()))
+	end
+
+end
+
+function MenuNodeCrimenetContactInfoGui:_fade_row_item(row_item)
+	MenuNodeCrimenetContactInfoGui.super._fade_row_item(self, row_item)
+	if row_item.icon then
+		row_item.icon:set_left(0)
+	end
+
+end
+
+function MenuNodeCrimenetContactInfoGui:_highlight_row_item(row_item, mouse_over)
+	MenuNodeCrimenetContactInfoGui.super._highlight_row_item(self, row_item, mouse_over)
+	if row_item.icon then
+		row_item.icon:set_left(0)
+	end
+
+end
+
+function MenuNodeCrimenetContactInfoGui:refresh_gui(node)
+	self:update_item_icon_visibility()
+	local row_x = 0
+	local (for generator), (for state), (for control) = pairs(self.row_items)
+	do
+		do break end
+		if alive(row_item.icon) then
+			row_item.icon:set_left(0)
+		end
+
+		if alive(row_item.gui_panel) then
+			row_x = math.max(row_x, row_item.gui_panel:world_x())
+		end
+
+	end
+
+end
+
+function MenuNodeCrimenetContactInfoGui:_setup_layout()
+	local safe_rect = managers.gui_data:scaled_size()
+	local mc_full_ws = managers.menu_component:fullscreen_ws()
+	local ws = self.ws
+	if alive(self._fullscreen_panel) then
+		mc_full_ws:panel():remove(self._fullscreen_panel)
+	end
+
+	if alive(ws:panel():child("main_panel")) then
+		ws:panel():remove(ws:panel():child("main_panel"))
+	end
+
+	local panel = ws:panel():panel({name = "main_panel"})
+	self._fullscreen_panel = mc_full_ws:panel():panel({layer = 50})
+	local blur = self._fullscreen_panel:bitmap({
+		texture = "guis/textures/test_blur_df",
+		w = self._fullscreen_panel:w(),
+		h = self._fullscreen_panel:h(),
+		render_template = "VertexColorTexturedBlur3D"
+	})
+	local func = function(o)
+		local start_blur = 0
+		over(0.6, function(p)
+			o:set_alpha(math.lerp(start_blur, 1, p))
+		end
+)
+	end
+
+	blur:animate(func)
+	local width = self.WIDTH
+	local height = self.HEIGHT
+	self._panel = panel:panel({
+		h = height,
+		w = width,
+		layer = 51
+	})
+	self._panel:set_center(panel:w() / 2, panel:h() / 2)
+	self._panel:rect({
+		color = Color.black,
+		alpha = 0.6,
+		layer = 0
+	})
+	BoxGuiObject:new(self._panel, {
+		sides = {
+			1,
+			1,
+			1,
+			1
+		}
+	})
+	local title_text = panel:text({
+		name = "title_text",
+		text = self._codex_text,
+		font = tweak_data.menu.pd2_medium_font,
+		font_size = tweak_data.menu.pd2_medium_font_size,
+		color = tweak_data.screen_colors.text,
+		layer = 51
+	})
+	make_fine_text(title_text)
+	title_text:set_left(self._panel:left())
+	title_text:set_bottom(self._panel:top() - 2)
+	local contact_title_text = self._panel:text({
+		name = "contact_title_text",
+		text = self._codex_text .. ": ",
+		font = tweak_data.menu.pd2_medium_font,
+		font_size = tweak_data.menu.pd2_medium_font_size,
+		color = tweak_data.screen_colors.text,
+		layer = 52
+	})
+	make_fine_text(contact_title_text)
+	contact_title_text:set_left(self.MENU_WIDTH + self.PADDING * 3)
+	contact_title_text:set_top(self.PADDING)
+	local video_panel = self._panel:panel({
+		name = "video_panel",
+		layer = 2,
+		w = self.WIDTH - self.MENU_WIDTH - self.PADDING * 5
+	})
+	video_panel:set_h(video_panel:w() / 1.7777778)
+	video_panel:set_top(contact_title_text:bottom() + self.PADDING)
+	video_panel:set_left(contact_title_text:left())
+	local box = BoxGuiObject:new(video_panel, {
+		sides = {
+			2,
+			2,
+			2,
+			2
+		}
+	})
+	box:set_color(Color(0.2, 1, 1, 1))
+	box:set_blend_mode("add")
+	local contact_desc_title_text = self._panel:text({
+		name = "contact_desc_title_text",
+		text = self._codex_text .. ": ",
+		font = tweak_data.menu.pd2_medium_font,
+		font_size = tweak_data.menu.pd2_medium_font_size,
+		color = tweak_data.screen_colors.text,
+		layer = 52
+	})
+	make_fine_text(contact_desc_title_text)
+	contact_desc_title_text:set_left(contact_title_text:left())
+	contact_desc_title_text:set_top(video_panel:bottom() + self.PADDING)
+	contact_desc_title_text:hide()
+	local files_menu = self._panel:panel({
+		name = "files_menu",
+		x = contact_desc_title_text:x(),
+		y = contact_desc_title_text:y(),
+		h = 26,
+		w = video_panel:w()
+	})
+	local contact_desc_text = self._panel:text({
+		name = "contact_desc_text",
+		text = "",
+		font = tweak_data.menu.pd2_small_font,
+		font_size = tweak_data.menu.pd2_small_font_size,
+		color = tweak_data.screen_colors.text,
+		layer = 52,
+		wrap = true,
+		word_wrap = true
+	})
+	make_fine_text(contact_desc_text)
+	contact_desc_text:set_left(files_menu:left())
+	contact_desc_text:set_top(files_menu:bottom())
+	contact_desc_text:set_w(video_panel:w())
+	contact_desc_text:set_h(self._panel:h() - self.PADDING - contact_desc_text:top())
+	self._init_finish = true
+	self:_setup_menu()
+end
+
+function MenuNodeCrimenetContactInfoGui:gui_node_custom(row_item)
+	row_item.gui_panel = self._item_panel_parent:panel({
+		layer = self.layers.items,
+		w = 3,
+		h = 3
+	})
+	row_item.gui_pd2_panel = self.ws:panel():panel({
+		layer = self.layers.items
+	})
+	local row_item_panel = row_item.gui_pd2_panel
+	row_item.gui_text = row_item_panel:text({
+		font_size = tweak_data.menu.pd2_small_font_size,
+		x = 0,
+		y = 0,
+		align = "left",
+		vertical = "bottom",
+		font = tweak_data.menu.pd2_small_font,
+		color = tweak_data.screen_colors.button_stage_3,
+		layer = 0,
+		text = utf8.to_upper(row_item.text),
+		blend_mode = "add",
+		render_template = Idstring("VertexColorTextured")
+	})
+	local _, _, w, h = row_item.gui_text:text_rect()
+	row_item.gui_text:set_size(math.round(w), math.round(h))
+	self._back_row_item = row_item
+end
+
+function MenuNodeCrimenetContactInfoGui:_align_marker(row_item)
+	MenuNodeCrimenetContactInfoGui.super._align_marker(self, row_item)
+	if row_item.item:parameters().pd2_corner then
+		self._marker_data.marker:set_visible(true)
+		self._marker_data.gradient:set_visible(true)
+		self._marker_data.gradient:set_rotation(360)
+		self._marker_data.marker:set_height(64 * row_item.gui_text:height() / 32)
+		self._marker_data.gradient:set_height(64 * row_item.gui_text:height() / 32)
+		self._marker_data.marker:set_w(self.MENU_WIDTH)
+		self._marker_data.gradient:set_w(self._marker_data.marker:w())
+		self._marker_data.marker:set_left(row_item.menu_unselected:x())
+		self._marker_data.marker:set_world_center_y(row_item.gui_text:world_center_y())
+		self._marker_data.marker:set_y(math.round(self._marker_data.marker:y()))
+		return
+	end
+
+end
+
+function MenuNodeCrimenetContactInfoGui:close()
+	self._fullscreen_panel:parent():remove(self._fullscreen_panel)
+	self._fullscreen_panel = nil
+	local active_menu = managers.menu:active_menu()
+	if active_menu then
+		active_menu.input:set_force_input(false)
+	end
+
+	self._sound_source:stop()
+	if not managers.menu:is_pc_controller() then
+		managers.menu:active_menu().input:activate_controller_mouse()
+	end
+
+	MenuNodeCrimenetContactInfoGui.super.close(self)
+	managers.menu_component:enable_crimenet()
+end
+
+MenuNodeCrimenetGageAssignmentGui = MenuNodeCrimenetGageAssignmentGui or class(MenuNodeCrimenetContactInfoGui)
+MenuNodeCrimenetGageAssignmentGui.WIDTH = 1000
+MenuNodeCrimenetGageAssignmentGui.HEIGHT = 530
+MenuNodeCrimenetGageAssignmentGui.MENU_WIDTH = 220
+MenuNodeCrimenetGageAssignmentGui.PADDING = 10
+MenuNodeCrimenetGageAssignmentGui.CODEX_TEXT_ID = "menu_gage_assignment_title"
+MenuNodeCrimenetGageAssignmentGui.SOUND_SOURCE_NAME = "MenuNodeCrimenetGageAssignmentGui"
+function MenuNodeCrimenetGageAssignmentGui:set_contact_info(id, name, files, override_file)
+	self:unretrieve_textures()
+	self._requested_textures = {}
+	self._info_panel:clear()
+	local ids = Idstring(id)
+	local num_assignments = 5
+	if tweak_data.gage_assignment:exists(id) then
+		local right_width = (self._info_panel:w() - self.PADDING * (num_assignments - 1)) / num_assignments
+		local left_width = self._info_panel:w() - self.PADDING - right_width
+		local left_panel = self._info_panel:panel({
+			name = "left_panel",
+			x = 0,
+			y = 0,
+			w = left_width
+		})
+		local right_panel = self._info_panel:panel({
+			name = "right_panel",
+			x = left_panel:right() + self.PADDING,
+			y = 0,
+			w = right_width,
+			h = right_width * 1.75
+		})
+		local rewards = tweak_data.gage_assignment:get_value(id, "rewards") or {}
+		local reward_width = (left_panel:w() - self.PADDING * 4) / 3
+		local reward_height = (left_panel:h() - self.PADDING * 3) / 2
+		local all_weapon_families = managers.weapon_factory:get_all_weapon_families()
+		local all_weapon_categories = managers.weapon_factory:get_all_weapon_categories()
+		do
+			local (for generator), (for state), (for control) = ipairs(rewards)
+			do
+				do break end
+				local x = (i - 1) % 3
+				local y = math.ceil(i / 3) - 1
+				local panel = left_panel:panel({
+					x = self.PADDING + x * (self.PADDING + reward_width),
+					y = self.PADDING + y * (self.PADDING + reward_height),
+					w = reward_width,
+					h = reward_height
+				})
+				local item_panel = panel:panel({
+					h = panel:w() * 0.5
+				})
+				item_panel:set_center_y(panel:h() * 0.25)
+				local item_text = panel:text({
+					name = "item_text",
+					text = "",
+					font = tweak_data.menu.pd2_small_font,
+					font_size = tweak_data.menu.pd2_small_font_size,
+					color = tweak_data.screen_colors.text,
+					wrap = true,
+					word_wrap = true,
+					align = "center"
+				})
+				item_text:set_shape(0, item_panel:bottom() + self.PADDING / 2, panel:w(), panel:h() - item_panel:bottom() - self.PADDING / 2)
+				local part_name_id = tweak_data.blackmarket[data[2]][data[3]].name_id
+				local text_sting = managers.localization:text(part_name_id)
+				if data[2] == "weapon_mods" then
+					local weapon_uses_part = managers.weapon_factory:get_weapons_uses_part(data[3]) or {}
+					text_sting = text_sting .. [[
+
+(]]
+					if managers.localization:exists(part_name_id .. "_fits") then
+						text_sting = text_sting .. managers.localization:text(part_name_id .. "_fits")
+					elseif #weapon_uses_part == 1 then
+						local weapon_id = managers.weapon_factory:get_weapon_id_by_factory_id(weapon_uses_part[1])
+						text_sting = text_sting .. managers.weapon_factory:get_weapon_name_by_weapon_id(weapon_id)
+					else
+						local all_families = deep_clone(all_weapon_families)
+						local all_categories = deep_clone(all_weapon_categories)
+						local family, weapon_id, category
+						do
+							local (for generator), (for state), (for control) = ipairs(weapon_uses_part)
+							do
+								do break end
+								family = tweak_data.weapon.factory[factory_id].family
+								if family then
+									table.delete(all_families[family], factory_id)
+								end
+
+								weapon_id = managers.weapon_factory:get_weapon_id_by_factory_id(factory_id)
+								category = tweak_data.weapon[weapon_id].category
+								if category then
+									table.delete(all_categories[category], factory_id)
+								end
+
+							end
+
+						end
+
+						local need_string = true
+						local categories = nil and {}
+						do
+							local (for generator), (for state), (for control) = pairs(all_categories)
+							do
+								do break end
+								if #weapons == 0 then
+									table.insert(categories, category)
+								end
+
+							end
+
+						end
+
+						(for control) = table.delete and #weapons
+						if #categories > 0 then
+							do
+								local (for generator), (for state), (for control) = ipairs(categories)
+								do
+									do break end
+									text_sting = text_sting .. managers.localization:text("menu_" .. category)
+									if i < #categories then
+										text_sting = text_sting .. ", "
+									end
+
+								end
+
+							end
+
+							need_string = false
+						end
+
+						(for control) = table.delete and text_sting
+						if need_string then
+							local families = {}
+							do
+								local (for generator), (for state), (for control) = pairs(all_families)
+								do
+									do break end
+									if #weapons == 0 then
+										table.insert(families, family)
+									end
+
+								end
+
+							end
+
+							(for control) = all_categories[category] and #weapons
+							if #families > 0 then
+								do
+									local (for generator), (for state), (for control) = ipairs(families)
+									do
+										do break end
+										text_sting = text_sting .. managers.localization:text("menu_family_" .. family)
+										if i < #families then
+											text_sting = text_sting .. ", "
+										end
+
+									end
+
+								end
+
+								need_string = false
+							end
+
+							(for control) = all_categories[category] and text_sting
+							if need_string then
+								if #weapon_uses_part < 4 then
+									local (for generator), (for state), (for control) = ipairs(weapon_uses_part)
+									do
+										do break end
+										text_sting = text_sting .. managers.weapon_factory:get_weapon_name_by_factory_id(factory_id)
+										if i < #weapon_uses_part then
+											text_sting = text_sting .. ", "
+										end
+
+									end
+
+								else
+									(for control) = all_categories[category] and text_sting
+									print("[MenuNodeCrimenetGageAssignmentGui]", i, inspect(all_categories), inspect(all_families))
+								end
+
+							end
+
+						end
+
+					end
+
+					text_sting = text_sting .. ")"
+				end
+
+				item_text:set_text(text_sting)
+				item_text:set_world_position(math.round(item_text:world_x()), math.round(item_text:world_y()))
+				self:populate_item_panel(item_panel, data)
+			end
+
+		end
+
+		(for control) = nil and i - 1
+		self:create_insigna(right_panel, id)
+		BoxGuiObject:new(left_panel, {
+			sides = {
+				1,
+				1,
+				1,
+				1
+			}
+		})
+		BoxGuiObject:new(right_panel, {
+			sides = {
+				1,
+				1,
+				1,
+				1
+			}
+		})
+	elseif ids == Idstring("_introduction") then
+		local introduction_text = self._info_panel:text({
+			name = "introduction_text",
+			text = managers.localization:text("menu_gage_assignment_introduction_desc"),
+			font = tweak_data.menu.pd2_small_font,
+			font_size = tweak_data.menu.pd2_small_font_size,
+			color = tweak_data.screen_colors.text,
+			wrap = true,
+			word_wrap = true
+		})
+	elseif ids == Idstring("_summary") then
+		local width = (self._info_panel:w() - self.PADDING * (num_assignments - 1)) / num_assignments
+		local x = 0
+		local summary_panel = self._info_panel:panel({
+			name = "summary_panel"
+		})
+		summary_panel:set_h(width * 1.75)
+		summary_panel:set_bottom(self._info_panel:h())
+		do
+			local (for generator), (for state), (for control) = ipairs(self.node:items())
+			do
+				do break end
+				if tweak_data.gage_assignment:exists(node:parameters().name) then
+					local panel = summary_panel:panel({
+						name = node:parameters().name
+					})
+					panel:set_w(width)
+					panel:set_x(x)
+					self:create_insigna(panel, node:parameters().name)
+					x = panel:right() + self.PADDING
+				end
+
+			end
+
+		end
+
+		(for control) = self.node:items() and tweak_data
+		local summary_text = self._info_panel:text({
+			name = "summary_text",
+			text = managers.localization:text("menu_gage_assignment_summary_desc"),
+			font = tweak_data.menu.pd2_small_font,
+			font_size = tweak_data.menu.pd2_small_font_size,
+			color = tweak_data.screen_colors.text,
+			wrap = true,
+			word_wrap = true
+		})
+		summary_text:set_h(summary_panel:top() - self.PADDING)
+		BoxGuiObject:new(summary_panel, {
+			sides = {
+				1,
+				1,
+				1,
+				1
+			}
+		})
+	else
+		if ids == Idstring("_video") then
+			local video_panel = self._info_panel:panel()
+			video_panel:rect({
+				color = Color.black,
+				alpha = 0.85,
+				halign = "scale",
+				valign = "scale"
+			})
+			local video = video_panel:video({
+				video = "movies/tutorials/gage_assignment",
+				blend_mode = "add",
+				loop = true,
+				halign = "scale",
+				valign = "scale",
+				layer = 1
+			})
+			local video_width = video:video_width()
+			local video_height = video:video_height()
+			local ratio = video_width / video_height
+			local sh = math.min(self._info_panel:h(), self._info_panel:w() / ratio)
+			local sw = math.min(self._info_panel:w(), self._info_panel:h() * ratio)
+			video_panel:set_size(sw, sh)
+			video:play()
+			BoxGuiObject:new(video_panel, {
+				sides = {
+					2,
+					2,
+					2,
+					2
+				}
+			})
+		else
+		end
+
+	end
+
+	local contact_title_text = self._panel:child("contact_title_text")
+	contact_title_text:set_text(utf8.to_upper(name))
+	make_fine_text(contact_title_text)
+	self._current_contact_info = id
+end
+
+function MenuNodeCrimenetGageAssignmentGui:create_insigna(panel, assignment)
+	local assignment_insignia = panel:panel({
+		w = panel:w(),
+		h = panel:w() * 2
+	})
+	local progress, to_aquire, completed = managers.gage_assignment:get_assignment_data(assignment)
+	local dlc = tweak_data.gage_assignment:get_value(assignment, "dlc")
+	local has_dlc = not dlc or managers.dlc:is_dlc_unlocked(dlc)
+	local progress_text = panel:text({
+		name = "progress_text",
+		text = "",
+		font = tweak_data.menu.pd2_small_font,
+		font_size = tweak_data.menu.pd2_small_font_size,
+		color = tweak_data.screen_colors.text,
+		wrap = true,
+		word_wrap = true,
+		align = "center"
+	})
+	progress_text:set_text(tostring(progress) .. "/" .. tostring(to_aquire))
+	make_fine_text(progress_text)
+	progress_text:set_bottom(panel:h())
+	progress_text:set_center_x(panel:w() / 2)
+	progress_text:set_position(math.round(progress_text:x()), math.round(progress_text:y()))
+	local step = 2
+	local x = self.PADDING
+	local max_aquire = tweak_data.gage_assignment:get_max_aquire()
+	local w = (panel:w() - x * 2 - step * (max_aquire - 1)) / max_aquire
+	local rounded_width = math.max(math.round(w), 1)
+	local diff = panel:w() - (w * max_aquire + step * (max_aquire - 1) + x * 2)
+	x = math.clamp(math.round(x + diff / 2), 0, panel:w())
+	local padding = x
+	local w = math.max((panel:w() - x * 2 - step * (to_aquire - 1)) / to_aquire, 1)
+	local rounded_width = math.round(w)
+	local estimated_width = x * 2 + step * (to_aquire - 1) + rounded_width * to_aquire
+	diff = panel:w() - (w * to_aquire + x * 2)
+	if to_aquire > 1 then
+		step = math.clamp(diff / (to_aquire - 1), 0, 2)
+	end
+
+	local w = math.max((panel:w() - x * 2 - step * (to_aquire - 1)) / to_aquire, 1)
+	local rounded_width = math.round(w)
+	local pin_bottom = progress_text:top() - self.PADDING / 2
+	local pin, is_progressed
+	local mvec1 = Vector3()
+	local mvec2 = Vector3()
+	for i = 1, to_aquire do
+		is_progressed = progress >= i
+		pin = panel:rect({
+			x = x,
+			w = w,
+			h = is_progressed and 10 or 3,
+			color = Color.white,
+			alpha = is_progressed and 1 or 0.3
+		})
+		pin:set_bottom(pin_bottom)
+		x = pin:right() + step
+	end
+
+	local insignia = tweak_data.gage_assignment:get_value(assignment, "insignia")
+	if insignia then
+		local texture_count = managers.menu_component:request_texture(insignia, callback(self, self, "texture_done_clbk", {
+			assignment_insignia,
+			false,
+			"add"
+		}))
+		table.insert(self._requested_textures, {texture_count = texture_count, texture = insignia})
+	else
+		assignment_insignia:rect({
+			color = Color.red,
+			blend_mode = "add"
+		})
+	end
+
+end
+
+function MenuNodeCrimenetGageAssignmentGui:populate_item_panel(item_panel, item_data)
+	local global_value, category, item_id = unpack(item_data)
+	if category == "weapon_mods" then
+		category = "mods"
+	end
+
+	if category == "colors" then
+		local colors = tweak_data.blackmarket.colors[item_id].colors
+		local bg = item_panel:bitmap({
+			texture = "guis/textures/pd2/blackmarket/icons/colors/color_bg",
+			w = item_panel:h(),
+			h = item_panel:h(),
+			layer = 1
+		})
+		local c1 = item_panel:bitmap({
+			texture = "guis/textures/pd2/blackmarket/icons/colors/color_01",
+			w = item_panel:h(),
+			h = item_panel:h(),
+			layer = 0
+		})
+		local c2 = item_panel:bitmap({
+			texture = "guis/textures/pd2/blackmarket/icons/colors/color_02",
+			w = item_panel:h(),
+			h = item_panel:h(),
+			layer = 0
+		})
+		c1:set_color(colors[1])
+		c2:set_color(colors[2])
+		bg:set_center(item_panel:w() / 2, item_panel:h() / 2)
+		c1:set_center(bg:center())
+		c2:set_center(bg:center())
+	else
+		local texture_path
+		if category == "textures" then
+			texture_path = tweak_data.blackmarket.textures[item_id] and tweak_data.blackmarket.textures[item_id].texture
+			if not texture_path then
+				Application:error("Pattern missing", item_id)
+				return
+			end
+
+		elseif category == "cash" then
+			texture_path = "guis/textures/pd2/blackmarket/cash_drop"
+		elseif category == "xp" then
+			texture_path = "guis/textures/pd2/blackmarket/xp_drop"
+		else
+			local guis_catalog = "guis/"
+			local tweak_data_category = category == "mods" and "weapon_mods" or category
+			local bundle_folder = tweak_data.blackmarket[tweak_data_category] and tweak_data.blackmarket[tweak_data_category][item_id] and tweak_data.blackmarket[tweak_data_category][item_id].texture_bundle_folder
+			if bundle_folder then
+				guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
+			end
+
+			texture_path = guis_catalog .. "textures/pd2/blackmarket/icons/" .. tostring(category) .. "/" .. tostring(item_id)
+		end
+
+		if DB:has(Idstring("texture"), texture_path) then
+			local texture_count = managers.menu_component:request_texture(texture_path, callback(self, self, "texture_done_clbk", {
+				item_panel,
+				category == "textures"
+			}))
+			table.insert(self._requested_textures, {texture_count = texture_count, texture = texture_path})
+		else
+			Application:error("[MenuNodeCrimenetGageAssignmentGui]", item_id, "Texture not in DB", texture_path)
+			item_panel:rect({
+				color = Color.red
+			})
+		end
+
+	end
+
+end
+
+function MenuNodeCrimenetGageAssignmentGui:unretrieve_textures()
+	if self._requested_textures then
+		local (for generator), (for state), (for control) = pairs(self._requested_textures)
+		do
+			do break end
+			managers.menu_component:unretrieve_texture(data.texture, data.texture_count)
+		end
+
+	end
+
+end
+
+function MenuNodeCrimenetGageAssignmentGui:texture_done_clbk(params, texture_ids)
+	local panel = params[1]
+	local is_pattern = params[2]
+	local blend_mode = params[3] or "normal"
+	local image = panel:bitmap({
+		name = "texture",
+		texture = texture_ids,
+		blend_mode = blend_mode
+	})
+	if is_pattern then
+		image:set_render_template(Idstring("VertexColorTexturedPatterns"))
+	end
+
+	local texture_width = image:texture_width()
+	local texture_height = image:texture_height()
+	local panel_width = panel:w()
+	local panel_height = panel:h()
+	local tw = texture_width
+	local th = texture_height
+	local pw = panel_width
+	local ph = panel_height
+	if tw == 0 or th == 0 then
+		Application:error("[MenuNodeCrimenetGageAssignmentGui:texture_done_clbk] Texture size error!:", "width", tw, "height", th)
+		tw = 1
+		th = 1
+	end
+
+	local sw = math.min(pw, ph * (tw / th))
+	local sh = math.min(ph, pw / (tw / th))
+	image:set_size(math.round(sw), math.round(sh))
+	image:set_center(panel:w() * 0.5, panel:h() * 0.5)
+end
+
+function MenuNodeCrimenetGageAssignmentGui:_setup_layout()
+	local safe_rect = managers.gui_data:scaled_size()
+	local mc_full_ws = managers.menu_component:fullscreen_ws()
+	local ws = self.ws
+	if alive(self._fullscreen_panel) then
+		mc_full_ws:panel():remove(self._fullscreen_panel)
+	end
+
+	if alive(ws:panel():child("main_panel")) then
+		ws:panel():remove(ws:panel():child("main_panel"))
+	end
+
+	local panel = ws:panel():panel({name = "main_panel"})
+	self._fullscreen_panel = mc_full_ws:panel():panel({layer = 50})
+	local blur = self._fullscreen_panel:bitmap({
+		texture = "guis/textures/test_blur_df",
+		w = self._fullscreen_panel:w(),
+		h = self._fullscreen_panel:h(),
+		render_template = "VertexColorTexturedBlur3D"
+	})
+	local func = function(o)
+		local start_blur = 0
+		over(0.6, function(p)
+			o:set_alpha(math.lerp(start_blur, 1, p))
+		end
+)
+	end
+
+	blur:animate(func)
+	local width = self.WIDTH
+	local height = self.HEIGHT
+	self._panel = panel:panel({
+		h = height,
+		w = width,
+		layer = 51
+	})
+	self._panel:set_center(panel:w() / 2, panel:h() / 2)
+	self._panel:rect({
+		color = Color.black,
+		alpha = 0.6,
+		layer = 0
+	})
+	BoxGuiObject:new(self._panel, {
+		sides = {
+			1,
+			1,
+			1,
+			1
+		}
+	})
+	local title_text = panel:text({
+		name = "title_text",
+		text = self._codex_text,
+		font = tweak_data.menu.pd2_medium_font,
+		font_size = tweak_data.menu.pd2_medium_font_size,
+		color = tweak_data.screen_colors.text,
+		layer = 51
+	})
+	make_fine_text(title_text)
+	title_text:set_left(self._panel:left())
+	title_text:set_bottom(self._panel:top() - 2)
+	local contact_title_text = self._panel:text({
+		name = "contact_title_text",
+		text = " ",
+		font = tweak_data.menu.pd2_medium_font,
+		font_size = tweak_data.menu.pd2_medium_font_size,
+		color = tweak_data.screen_colors.text,
+		layer = 52
+	})
+	make_fine_text(contact_title_text)
+	contact_title_text:set_left(self.MENU_WIDTH + self.PADDING * 3)
+	contact_title_text:set_top(self.PADDING)
+	self._info_panel = self._panel:panel({
+		x = self.MENU_WIDTH + self.PADDING * 3,
+		y = contact_title_text:bottom() + self.PADDING,
+		layer = 1
+	})
+	self._info_panel:set_w(self._panel:w() - self._info_panel:x() - self.PADDING)
+	self._info_panel:set_h(self._panel:h() - self._info_panel:y() - self.PADDING)
+	self._init_finish = true
+	self:_setup_menu()
+end
+
+function MenuNodeCrimenetGageAssignmentGui:set_file(index)
+end
+
+function MenuNodeCrimenetGageAssignmentGui:close()
+	self:unretrieve_textures()
+	MenuNodeCrimenetGageAssignmentGui.super.close(self)
+end
+

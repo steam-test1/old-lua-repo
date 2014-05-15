@@ -13,3 +13,25 @@ function Prioritizer:add_layer_description(input_layer_description_description)
 end
 
 function Prioritizer:remove_layer_description(input_layer_description_description)
+	local needs_to_search = self._layer_description == input_layer_description_description
+	assert(self._layer_descriptions[input_layer_description_description] ~= nil)
+	self._layer_descriptions[input_layer_description_description] = nil
+	local best_layer_description
+	do
+		local (for generator), (for state), (for control) = pairs(self._layer_descriptions)
+		do
+			do break end
+			if not best_layer_description or layer_description:priority() < best_layer_description:priority() then
+				best_layer_description = layer_description
+			end
+
+		end
+
+	end
+
+end
+
+function Prioritizer:active_layer_description()
+	return self._layer_description
+end
+

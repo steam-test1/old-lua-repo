@@ -72,3 +72,12 @@ function ListenerHolder:_set_new(key, clbk)
 end
 
 function ListenerHolder:_append_new_additions()
+end
+
+function ListenerHolder:_dispose_trash()
+end
+
+function ListenerHolder:_not_trash(key)
+	return not self._trash or not self._trash[key]
+end
+

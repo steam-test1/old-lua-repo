@@ -258,3 +258,339 @@ null
 -- fail 54
 null
 9
+end
+
+function CoreUnitTestBrowser:destroy()
+	if alive(self._error_frame) then
+		self._error_frame:destroy()
+		self._error_frame = nil
+	end
+
+	if alive(self._search_frame) then
+		self._search_frame:destroy()
+		self._search_frame = nil
+	end
+
+end
+
+function CoreUnitTestBrowser:close()
+	self._error_frame:destroy()
+	self:close_search()
+end
+
+function CoreUnitTestBrowser:close_search()
+	if self._search_frame then
+		self._search_frame:destroy()
+		self._search_frame = nil
+	end
+
+end
+
+function CoreUnitTestBrowser:on_find_unit()
+	self:search_frame()
+end
+
+function CoreUnitTestBrowser:on_close()
+	if self._autorun then
+		self:close()
+	else
+		managers.toolhub:close("Unit Test Browser")
+	end
+
+end
+
+function CoreUnitTestBrowser:on_close_search()
+	self:close_search()
+end
+
+function CoreUnitTestBrowser:on_search()
+	self._search_box.list_box:clear()
+	local search_str = self._search_box.search_text_ctrl:get_value()
+	if search_str ~= "" then
+		local (for generator), (for state), (for control) = pairs(self._unit_msg)
+		do
+			do break end
+			if value.author and value.diesel and value.id then
+				local str = value.author
+				if self._search_box.type_combobox:get_value() == "Search By Name" then
+					str = key
+				elseif self._search_box.type_combobox:get_value() == "Search By Diesel Path" then
+					str = value.diesel
+				end
+
+				if string.len(search_str) <= string.len(str) and (value.note == "failed" or value.note == "critical") then
+					str = string.sub(str, 1, string.len(search_str))
+					if search_str == str then
+						self._search_box.list_box:append(key)
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+
+end
+
+function CoreUnitTestBrowser:on_listbox_selected()
+	local unit_msg = self._unit_msg[self._search_box.list_box:get_string(self._search_box.list_box:selected_index())]
+	if unit_msg and unit_msg.id then
+		self._error_box.tree_ctrl:expand(self._root_id)
+		self._error_box.tree_ctrl:collapse(self._passed_id)
+		self._error_box.tree_ctrl:expand(self._failed_id)
+		self._error_box.tree_ctrl:expand(self._critical_id)
+		self._error_box.tree_ctrl:select_item(unit_msg.id, true)
+	end
+
+end
+
+function CoreUnitTestBrowser:on_send_emails()
+	if self._warning_mail_dialog:show_modal() == "ID_OK" then
+		local call = "ruby unit_test_report"
+		do
+			local (for generator), (for state), (for control) = self._report_xml:children()
+			do
+				do break end
+				local found = false
+				local found_failed = true
+				do
+					local (for generator), (for state), (for control) = ipairs(self._ignore_list)
+					do
+						do break end
+						if unit_node:parameter("name") == self._error_box.tree_ctrl:get_item_text(ignore_id) then
+							found = true
+					end
+
+					else
+					end
+
+				end
+
+				(for control) = nil and unit_node.parameter
+				do
+					local (for generator), (for state), (for control) = ipairs(self._error_box.tree_ctrl:get_children(self._passed_id))
+					do
+						do break end
+						if self._error_box.tree_ctrl:get_item_text(id) == unit_node:parameter("name") then
+							found_failed = false
+					end
+
+					else
+					end
+
+				end
+
+				do break end
+				if found_failed then
+					call = call .. " -u" .. unit_node:parameter("name")
+				end
+
+			end
+
+		end
+
+		(for control) = nil or false
+		Application:system(call, false)
+	end
+
+end
+
+function CoreUnitTestBrowser:on_send_emails_to()
+	if self._receiver_dialog:show_modal() then
+		local receiver_name = self._receiver_dialog:get_value()
+		local call = "ruby unit_test_report"
+		do
+			local (for generator), (for state), (for control) = self._report_xml:children()
+			do
+				do break end
+				local found = false
+				local found_failed = true
+				do
+					local (for generator), (for state), (for control) = ipairs(self._ignore_list)
+					do
+						do break end
+						if unit_node:parameter("name") == self._error_box.tree_ctrl:get_item_text(ignore_id) then
+							found = true
+					end
+
+					else
+					end
+
+				end
+
+				(for control) = nil and unit_node.parameter
+				do
+					local (for generator), (for state), (for control) = ipairs(self._error_box.tree_ctrl:get_children(self._passed_id))
+					do
+						do break end
+						if self._error_box.tree_ctrl:get_item_text(id) == unit_node:parameter("name") then
+							found_failed = false
+					end
+
+					else
+					end
+
+				end
+
+				do break end
+				if found_failed then
+					call = call .. " -to" .. receiver_name .. " -u" .. unit_node:parameter("name")
+				end
+
+			end
+
+		end
+
+		(for control) = nil or false
+		Application:system(call, false)
+	end
+
+end
+
+function CoreUnitTestBrowser:on_tree_ctrl_change()
+	local id = self._error_box.tree_ctrl:selected_item()
+	if id > -1 then
+		local text = self._error_box.tree_ctrl:get_item_text(id)
+		if text then
+			local str = self._unit_msg[text]
+			if str then
+				self._error_box.text_ctrl:set_value(str.msg)
+			else
+				self._error_box.text_ctrl:set_value("")
+			end
+
+		end
+
+	end
+
+end
+
+function CoreUnitTestBrowser:init_tree_view()
+	self._error_box.tree_ctrl:clear()
+	local num_units = 0
+	local num_passed = 0
+	local num_failed = 0
+	local num_critical = 0
+	self._root_id = self._error_box.tree_ctrl:append_root("Units")
+	self._passed_id = self._error_box.tree_ctrl:append(self._root_id, "Passed")
+	self._failed_id = self._error_box.tree_ctrl:append(self._root_id, "Failed")
+	self._critical_id = self._error_box.tree_ctrl:append(self._root_id, "Critical")
+	self._error_box.tree_ctrl:expand(self._root_id)
+	do
+		local (for generator), (for state), (for control) = self._report_xml:children()
+		do
+			do break end
+			if unit_node:name() == "unit" then
+				num_units = num_units + 1
+				local found_error = false
+				local found_critical = false
+				self._unit_msg[unit_node:parameter("name")] = {}
+				self._unit_msg[unit_node:parameter("name")].msg = ""
+				self._unit_msg[unit_node:parameter("name")].author = unit_node:parameter("author")
+				self._unit_msg[unit_node:parameter("name")].diesel = unit_node:parameter("diesel")
+				do
+					local (for generator), (for state), (for control) = unit_node:children()
+					do
+						do break end
+						if info_node:data() ~= "" then
+							if info_node:name() == "crash_output" then
+								found_critical = true
+							else
+								found_error = true
+							end
+
+							self._unit_msg[unit_node:parameter("name")].msg = self._unit_msg[unit_node:parameter("name")].msg .. "---------------------- " .. unit_node:parameter("author") .. " - " .. unit_node:parameter("name") .. " - " .. info_node:name() .. " ----------------------\n" .. info_node:data() .. "\n"
+						end
+
+					end
+
+				end
+
+				do break end
+				num_critical = num_critical + 1
+				self._unit_msg[unit_node:parameter("name")].note = "critical"
+				self._unit_msg[unit_node:parameter("name")].id = self._error_box.tree_ctrl:append(self._critical_id, unit_node:parameter("name"))
+				self._error_box.tree_ctrl:set_item_text_colour(self._unit_msg[unit_node:parameter("name")].id, Vector3(1, 0, 0))
+				do break end
+				if found_error then
+					num_failed = num_failed + 1
+					self._unit_msg[unit_node:parameter("name")].note = "failed"
+					self._unit_msg[unit_node:parameter("name")].id = self._error_box.tree_ctrl:append(self._failed_id, unit_node:parameter("name"))
+					self._error_box.tree_ctrl:set_item_text_colour(self._unit_msg[unit_node:parameter("name")].id, Vector3(0.5, 0, 0))
+				else
+					num_passed = num_passed + 1
+					self._unit_msg[unit_node:parameter("name")].note = "passed"
+					self._unit_msg[unit_node:parameter("name")].msg = "Unit is OK and exported by: " .. unit_node:parameter("author")
+					self._unit_msg[unit_node:parameter("name")].id = self._error_box.tree_ctrl:append(self._passed_id, unit_node:parameter("name"))
+					self._error_box.tree_ctrl:set_item_text_colour(self._unit_msg[unit_node:parameter("name")].id, Vector3(0, 0.5, 0))
+				end
+
+			end
+
+		end
+
+	end
+
+	self._unit_msg.Units, (for control) = {}, "Critical" and unit_node.name
+	self._unit_msg.Units.msg = tostring(num_units) .. " units tested."
+	self._unit_msg.Passed = {}
+	self._unit_msg.Passed.msg = tostring(num_passed) .. " / " .. tostring(num_units) .. " units passed the test."
+	self._unit_msg.Failed = {}
+	self._unit_msg.Failed.msg = tostring(num_failed) .. " / " .. tostring(num_units) .. " units failed the test."
+	self._unit_msg.Critical = {}
+	self._unit_msg.Critical.msg = tostring(num_critical) .. " / " .. tostring(num_units) .. " units is in a critical condition."
+end
+
+CoreUnitTestBrowserInputDialog = CoreUnitTestBrowserInputDialog or class()
+function CoreUnitTestBrowserInputDialog:init(p)
+	self._dialog = EWS:Dialog(p, "Receiver", "", Vector3(0, 0, 0), Vector3(300, 86, 0), "CAPTION,SYSTEM_MENU")
+	local box = EWS:BoxSizer("VERTICAL")
+	local text_box = EWS:BoxSizer("HORIZONTAL")
+	self._key_text_ctrl = EWS:TextCtrl(self._dialog, "", "", "TE_PROCESS_ENTER")
+	self._key_text_ctrl:connect("", "EVT_COMMAND_TEXT_ENTER", callback(self, self, "on_send_button"), "")
+	text_box:add(self._key_text_ctrl, 1, 0, "EXPAND")
+	box:add(text_box, 0, 4, "ALL,EXPAND")
+	local button_box = EWS:BoxSizer("HORIZONTAL")
+	self._create = EWS:Button(self._dialog, "Send", "", "")
+	self._create:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_send_button"), "")
+	button_box:add(self._create, 1, 4, "ALL,EXPAND")
+	self._cancel = EWS:Button(self._dialog, "Cancel", "", "")
+	self._cancel:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_cancel_button"), "")
+	button_box:add(self._cancel, 1, 4, "ALL,EXPAND")
+	box:add(button_box, 0, 0, "EXPAND")
+	self._dialog:set_sizer(box)
+end
+
+function CoreUnitTestBrowserInputDialog:show_modal()
+	self._key_text_ctrl:set_value("")
+	self._key = nil
+	self._done = false
+	self._return_val = true
+	self._dialog:show_modal()
+	while true do
+		if not self._done then
+		end
+
+	end
+
+	return self._return_val
+end
+
+function CoreUnitTestBrowserInputDialog:on_send_button()
+	self._done = true
+	self._key = self._key_text_ctrl:get_value()
+	self._dialog:end_modal("")
+end
+
+function CoreUnitTestBrowserInputDialog:on_cancel_button()
+	self._done = true
+	self._return_val = false
+	self._dialog:end_modal("")
+end
+
+function CoreUnitTestBrowserInputDialog:get_value()
+	return self._key
+end
+

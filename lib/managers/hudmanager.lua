@@ -4090,3 +4090,43 @@ function HUDManager:debug_hide_coordinates()
 end
 
 function HUDManager:save(data)
+	local state = {
+		waypoints = {},
+		in_assault = self._hud.in_assault
+	}
+	do
+		local (for generator), (for state), (for control) = pairs(self._hud.waypoints)
+		do
+			do break end
+			if not data.no_sync then
+				state.waypoints[id] = data.init_data
+				state.waypoints[id].timer = data.timer
+				state.waypoints[id].pause_timer = data.pause_timer
+				state.waypoints[id].unit = nil
+			end
+
+		end
+
+	end
+
+end
+
+function HUDManager:load(data)
+	local state = data.HUDManager
+	do
+		local (for generator), (for state), (for control) = pairs(state.waypoints)
+		do
+			do break end
+			self:add_waypoint(id, init_data)
+		end
+
+	end
+
+	(for control) = nil and self.add_waypoint
+	if state.in_assault then
+		self:sync_start_assault()
+	end
+
+end
+
+require("lib/managers/HUDManagerPD2")

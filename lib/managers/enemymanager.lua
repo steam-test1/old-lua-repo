@@ -900,3 +900,105 @@ end
 
 function EnemyManager:save(data)
 	local my_data
+	if not managers.groupai:state():enemy_weapons_hot() then
+		my_data = my_data or {}
+		local (for generator), (for state), (for control) = pairs(self._enemy_data.corpses)
+		do
+			do break end
+			my_data.corpses = my_data.corpses or {}
+			local corpse_data = {
+				u_data.u_id,
+				u_data.unit:movement():m_pos(),
+				u_data.is_civilian and true or false,
+				u_data.unit:interaction():active() and true or false,
+				u_data.unit:interaction().tweak_data,
+				u_data.unit:contour():is_flashing()
+			}
+			table.insert(my_data.corpses, corpse_data)
+		end
+
+	end
+
+end
+
+function EnemyManager:load(data)
+	local my_data = data.enemy_manager
+	if not my_data then
+		return
+	end
+
+	if my_data.corpses then
+		local civ_spawn_state = Idstring("civilian_death_dummy")
+		local ene_spawn_state = Idstring("enemy_death_dummy")
+		local civ_corpse_u_name = Idstring("units/payday2/characters/civ_male_dummy_corpse/civ_male_dummy_corpse")
+		local ene_corpse_u_name = Idstring("units/payday2/characters/ene_dummy_corpse/ene_dummy_corpse")
+		local (for generator), (for state), (for control) = pairs(my_data.corpses)
+		do
+			do break end
+			local u_id = corpse_data[1]
+			local spawn_pos = corpse_data[2]
+			local is_civilian = corpse_data[3]
+			local interaction_active = corpse_data[4]
+			local interaction_tweak_data = corpse_data[5]
+			local contour_flashing = corpse_data[6]
+			local grnd_ray = World:raycast("ray", spawn_pos + Vector3(0, 0, 50), spawn_pos - Vector3(0, 0, 100), "slot_mask", managers.slot:get_mask("AI_graph_obstacle_check"), "ray_type", "walk")
+			spawn_pos = grnd_ray and grnd_ray.position or spawn_pos
+			local corpse = World:spawn_unit(is_civilian and civ_corpse_u_name or ene_corpse_u_name, spawn_pos, Rotation(math.random() * 360, 0, 0))
+			if corpse then
+				corpse:play_state(is_civilian and civ_spawn_state or ene_spawn_state)
+				corpse:interaction():set_tweak_data(interaction_tweak_data)
+				corpse:interaction():set_active(interaction_active)
+				if contour_flashing then
+					corpse:interaction():set_outline_flash_state(contour_flashing, nil)
+				end
+
+				local mover_blocker_body = corpse:body("mover_blocker")
+				if mover_blocker_body then
+					mover_blocker_body:set_enabled(false)
+				end
+
+				corpse:base():add_destroy_listener("EnemyManager_corpse_dummy" .. tostring(corpse:key()), callback(self, self, is_civilian and "on_civilian_destroyed" or "on_enemy_destroyed"))
+				self._enemy_data.corpses[corpse:key()] = {
+					death_t = 0,
+					unit = corpse,
+					u_id = u_id,
+					m_pos = corpse:position()
+				}
+				self._enemy_data.nr_corpses = self._enemy_data.nr_corpses + 1
+			end
+
+		end
+
+	end
+
+end
+
+function EnemyManager:get_corpse_unit_data_from_key(u_key)
+	return self._enemy_data.corpses[u_key]
+end
+
+function EnemyManager:get_corpse_unit_data_from_id(u_id)
+	local (for generator), (for state), (for control) = pairs(self._enemy_data.corpses)
+	do
+		do break end
+		if u_id == u_data.u_id then
+			return u_data
+		end
+
+	end
+
+end
+
+function EnemyManager:remove_corpse_by_id(u_id)
+	local (for generator), (for state), (for control) = pairs(self._enemy_data.corpses)
+	do
+		do break end
+		if u_id == u_data.u_id then
+			u_data.unit:set_slot(0)
+	end
+
+	else
+	end
+
+end
+

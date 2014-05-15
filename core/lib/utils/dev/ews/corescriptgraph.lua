@@ -385,3 +385,5 @@ function ScriptGraph:_write_node_color(cfg_node, node)
 end
 
 function ScriptGraph:_write_slots(cfg_node, node, id_map)
+end
+

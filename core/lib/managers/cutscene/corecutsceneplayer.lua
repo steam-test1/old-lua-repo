@@ -828,3 +828,109 @@ function CoreCutscenePlayer:_notify_discontinuity()
 end
 
 function CoreCutscenePlayer:_resume_discontinuity()
+end
+
+function CoreCutscenePlayer:_process_discontinuity_cutscene_keys_between(start_time, end_time)
+	local (for generator), (for state), (for control) = self:keys_between(start_time, end_time, CoreDiscontinuityCutsceneKey.ELEMENT_NAME)
+	do
+		do break end
+		self:evaluate_cutscene_key(key, end_time, start_time)
+	end
+
+end
+
+function CoreCutscenePlayer:_process_camera_cutscene_keys_between(start_time, end_time)
+-- fail 8
+null
+5
+	do
+		local (for generator), (for state), (for control) = self:keys_between(start_time, end_time, CoreChangeCameraCutsceneKey.ELEMENT_NAME)
+		do
+			do break end
+			if start_time < end_time then
+				self:evaluate_cutscene_key(key, end_time, start_time)
+			else
+				self:revert_cutscene_key(key, end_time, start_time)
+			end
+
+		end
+
+	end
+
+	local (for generator), (for state), (for control) = self:keys_to_update(end_time, CoreChangeCameraCutsceneKey.ELEMENT_NAME)
+	do
+		do break end
+		self:update_cutscene_key(key, end_time - key:time(), math.max(0, start_time - key:time()))
+	end
+
+end
+
+function CoreCutscenePlayer:_process_non_camera_cutscene_keys_between(start_time, end_time)
+	do
+		local (for generator), (for state), (for control) = self:keys_between(start_time, end_time)
+		do
+			do break end
+			if key.ELEMENT_NAME ~= CoreChangeCameraCutsceneKey.ELEMENT_NAME and key.ELEMENT_NAME ~= CoreDiscontinuityCutsceneKey.ELEMENT_NAME then
+				if start_time < end_time then
+					self:evaluate_cutscene_key(key, end_time, start_time)
+				else
+					self:revert_cutscene_key(key, end_time, start_time)
+				end
+
+			end
+
+		end
+
+	end
+
+	(for control) = end_time and key.ELEMENT_NAME
+	local (for generator), (for state), (for control) = self:keys_to_update(end_time)
+	do
+		do break end
+		if key.ELEMENT_NAME ~= CoreChangeCameraCutsceneKey.ELEMENT_NAME and key.ELEMENT_NAME ~= CoreDiscontinuityCutsceneKey.ELEMENT_NAME then
+			self:update_cutscene_key(key, end_time - key:time(), math.max(0, start_time - key:time()))
+		end
+
+	end
+
+end
+
+function CoreCutscenePlayer:_reparent_camera()
+	local camera_object = self._camera_name and assert(self:_camera_object(), string.format("Camera \"%s\" not found in cutscene \"%s\".", self._camera_name, self:cutscene_name()))
+	if camera_object ~= nil and camera_object ~= self:_camera_controller():get_camera() then
+		self:_camera_controller():set_both(camera_object)
+		if self._listener_id then
+			managers.listener:set_listener(self._listener_id, camera_object)
+		else
+			self._listener_id = managers.listener:add_listener("cutscene", camera_object)
+		end
+
+	end
+
+end
+
+function CoreCutscenePlayer:_update_future_camera()
+	if self._cutscene:is_optimized() then
+		local position, rotation = self._cast:evaluate_object_at_time(self._cutscene, "camera", "locator", self._time + 0.16666667)
+		self._future_camera_locator:warp_to(rotation, position)
+		World:effect_manager():add_camera(self._future_camera)
+		World:lod_viewers():add_viewer(self._future_camera)
+	end
+
+end
+
+function CoreCutscenePlayer:_camera_has_cut()
+	self._last_frame_camera_position = self._last_frame_camera_position or Vector3(0, 0, 0)
+	self._last_frame_camera_rotation = self._last_frame_camera_rotation or Rotation()
+	local camera = self:_camera()
+	local camera_position = camera:position()
+	local camera_rotation = camera:rotation()
+	local position_difference = self._last_frame_camera_position - camera_position
+	local rotation_difference = Rotation:rotation_difference(self._last_frame_camera_rotation, camera_rotation)
+	local position_threshold_reached = position_difference:length() > 50
+	local rotation_threshold_reached = rotation_difference:yaw() > 5 or 5 < rotation_difference:pitch() or 5 < rotation_difference:roll()
+	self._last_frame_camera_position = camera_position
+	self._last_frame_camera_rotation = camera_rotation
+	return position_threshold_reached or rotation_threshold_reached
+end
+

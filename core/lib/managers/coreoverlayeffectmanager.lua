@@ -118,3 +118,134 @@ function OverlayEffectManager:paused_update(t, dt)
 end
 
 function OverlayEffectManager:check_pause_state(paused)
+	if self._paused then
+		if not paused then
+			do
+				local (for generator), (for state), (for control) = pairs(self._playing_effects)
+				do
+					do break end
+					effect.rectangle:show()
+				end
+
+			end
+
+			self._paused = nil
+		end
+
+		(for control) = nil and effect.rectangle
+end
+
+function OverlayEffectManager:play_effect(data)
+	if data then
+		local spawn_alpha = data.color.alpha * (data.fade_in > 0 and 0 or 1)
+		local rectangle
+		if data.gradient_points then
+			rectangle = self._ws:panel():gradient({
+				w = RenderSettings.resolution.x,
+				h = RenderSettings.resolution.y,
+				color = data.color:with_alpha(spawn_alpha),
+				gradient_points = data.gradient_points,
+				orientation = data.orientation
+			})
+		else
+			rectangle = self._ws:panel():rect({
+				w = RenderSettings.resolution.x,
+				h = RenderSettings.resolution.y,
+				color = data.color:with_alpha(spawn_alpha)
+			})
+		end
+
+		rectangle:set_layer(self._default_layer)
+		rectangle:set_blend_mode(data.blend_mode)
+		if data.play_paused or not self._paused then
+			rectangle:show()
+		else
+			rectangle:hide()
+		end
+
+		local effect = {
+			rectangle = rectangle,
+			start_t = data.timer or TimerManager:game():time(),
+			data = {},
+			current_alpha = spawn_alpha,
+			gradient_points = data.gradient_points
+		}
+		do
+			local (for generator), (for state), (for control) = pairs(data)
+			do
+				do break end
+				effect.data[key] = value
+			end
+
+		end
+
+		local id = 1
+		(for control) = data.color and effect.data
+		while self._playing_effects[id] do
+			id = id + 1
+		end
+
+		table.insert(self._playing_effects, id, effect)
+		return id
+	else
+		cat_error("georgios", "OverlayEffectManager, no effect_data sent to play_effect")
+	end
+
+end
+
+function OverlayEffectManager:stop_effect(id)
+	if id then
+		if self._playing_effects[id] then
+			self._ws:panel():remove(self._playing_effects[id].rectangle)
+			self._playing_effects[id] = nil
+		end
+
+	else
+		local (for generator), (for state), (for control) = pairs(self._playing_effects)
+		do
+			do break end
+			self._ws:panel():remove(effect.rectangle)
+			self._playing_effects[key] = nil
+		end
+
+	end
+
+end
+
+function OverlayEffectManager:fade_out_effect(id)
+	if id then
+		local effect = self._playing_effects[id]
+		if effect then
+			effect.start_t = effect.data.timer or TimerManager:game():time()
+			effect.data.sustain = 0
+			effect.data.fade_in = 0
+			effect.data.color = effect.data.color:with_alpha(effect.current_alpha)
+		end
+
+	else
+		local (for generator), (for state), (for control) = pairs(self._playing_effects)
+		do
+			do break end
+			effect.start_t = effect.data.timer or TimerManager:game():time()
+			effect.data.sustain = 0
+			effect.data.fade_in = 0
+			effect.data.color = effect.data.color:with_alpha(effect.current_alpha)
+		end
+
+	end
+
+end
+
+function OverlayEffectManager:change_resolution()
+	local res = RenderSettings.resolution
+	local (for generator), (for state), (for control) = pairs(self._playing_effects)
+	do
+		do break end
+		effect.rectangle:configure({
+			w = res.x,
+			h = res.y
+		})
+	end
+
+end
+

@@ -734,3 +734,159 @@ function BaseNetworkSession:destroy()
 end
 
 function BaseNetworkSession:_flush_soft_remove_peers()
+	if self._soft_remove_peers then
+		local (for generator), (for state), (for control) = pairs(self._soft_remove_peers)
+		do
+			do break end
+			cat_print("multiplayer_base", "[BaseNetworkSession:destroy] soft-removed peer", peer_remove_info.peer:id(), ip)
+			peer_remove_info.peer:destroy()
+		end
+
+	end
+
+end
+
+function BaseNetworkSession:on_load_complete()
+	print("[BaseNetworkSession:on_load_complete]")
+	self._local_peer:set_loading(false)
+	local (for generator), (for state), (for control) = pairs(self._peers)
+	do
+		do break end
+		if peer:ip_verified() then
+			peer:send("set_loading_state", false)
+		end
+
+	end
+
+end
+
+function BaseNetworkSession:on_steam_p2p_ping(sender_rpc)
+	local user_id = sender_rpc:ip_at_index(0)
+	local peer = self:peer_by_user_id(user_id)
+	if not peer then
+		print("[BaseNetworkSession:on_steam_p2p_ping] unknown peer", user_id)
+		return
+	end
+
+	if self._server_protocol ~= "TCP_IP" then
+		print("[BaseNetworkSession:on_steam_p2p_ping] wrong server protocol", self._server_protocol)
+		return
+	end
+
+	local final_rpc = self:resolve_new_peer_rpc(peer)
+	if not final_rpc then
+		return
+	end
+
+	if peer:rpc() and final_rpc:ip_at_index(0) == peer:rpc():ip_at_index(0) and final_rpc:protocol_at_index(0) == peer:rpc():protocol_at_index(0) then
+		local sender_ip = Network:get_ip_address_from_user_id(user_id)
+		print("[BaseNetworkSession:on_steam_p2p_ping] already had IP", peer:rpc():ip_at_index(0), peer:rpc():protocol_at_index(0))
+		return
+	end
+
+	peer:set_rpc(final_rpc)
+	Network:add_co_client(final_rpc)
+	self:remove_connection_from_trash(final_rpc)
+	self:remove_connection_from_soft_remove_peers(final_rpc)
+	self:chk_send_connection_established(nil, user_id)
+end
+
+function BaseNetworkSession:chk_send_connection_established(name, user_id, peer)
+	if SystemInfo:platform() == Idstring("PS3") then
+		peer = self:peer_by_name(name)
+		if not peer then
+			print("[BaseNetworkSession:chk_send_connection_established] no peer yet", name)
+			return
+		end
+
+		local connection_info = managers.network.matchmake:get_connection_info(name)
+		if not connection_info then
+			print("[BaseNetworkSession:chk_send_connection_established] no connection_info yet", name)
+			return
+		end
+
+		if connection_info.dead then
+			if peer:id() ~= 1 then
+				print("[BaseNetworkSession:chk_send_connection_established] reporting dead connection", name)
+				if self._server_peer then
+					self._server_peer:send_queued_load("report_dead_connection", peer:id())
+				end
+
+			end
+
+			return
+		end
+
+		local rpc = Network:handshake(connection_info.external_ip, connection_info.port, "TCP_IP")
+		peer:set_rpc(rpc)
+		Network:add_co_client(rpc)
+		self:remove_connection_from_trash(rpc)
+		self:remove_connection_from_soft_remove_peers(rpc)
+	else
+		peer = peer or self:peer_by_user_id(user_id)
+		if not peer then
+			print("[BaseNetworkSession:chk_send_connection_established] no peer yet", user_id)
+			return
+		end
+
+		if not peer:rpc() then
+			print("[BaseNetworkSession:chk_send_connection_established] no rpc yet", user_id)
+			return
+		end
+
+	end
+
+	print("[BaseNetworkSession:chk_send_connection_established] success", name or "", user_id or "", peer:id())
+	if self._server_peer then
+		self._server_peer:send("connection_established", peer:id())
+	end
+
+end
+
+function BaseNetworkSession:send_steam_p2p_msgs(wall_t)
+	if self._server_protocol ~= "TCP_IP" then
+		return
+	end
+
+	if SystemInfo:platform() ~= self._ids_WIN32 then
+		return
+	end
+
+	local (for generator), (for state), (for control) = pairs(self._peers)
+	do
+		do break end
+		if peer ~= self._server_peer and not peer:ip_verified() and (not peer:next_steam_p2p_send_t() or wall_t > peer:next_steam_p2p_send_t()) then
+			peer:steam_rpc():steam_p2p_ping()
+			peer:set_next_steam_p2p_send_t(wall_t + self._STEAM_P2P_SEND_INTERVAL)
+		end
+
+	end
+
+end
+
+function BaseNetworkSession:resolve_new_peer_rpc(new_peer, incomming_rpc)
+	if SystemInfo:platform() ~= self._ids_WIN32 then
+		return incomming_rpc
+	end
+
+	local new_peer_ip_address = Network:get_ip_address_from_user_id(new_peer:user_id())
+	print("new_peer_ip_address", new_peer_ip_address)
+	if new_peer_ip_address then
+		local new_peer_ip_address_split = string.split(new_peer_ip_address, ":")
+		local new_peer_ip = new_peer_ip_address_split[1]
+		local new_peer_port = new_peer_ip_address_split[2]
+		local connect_port = new_peer_port
+		print("new_peer_ip", new_peer_ip, "new_peer_port", new_peer_port)
+		if string.begins(new_peer_ip, "192.168.") then
+			print("using internal port", NetworkManager.DEFAULT_PORT)
+			connect_port = NetworkManager.DEFAULT_PORT
+		end
+
+		return Network:handshake(new_peer_ip, connect_port, "TCP_IP")
+	else
+		Application:error("[BaseNetworkSession:resolve_new_peer_rpc] could not resolve IP address!!!")
+		return incomming_rpc
+	end
+
+end
+

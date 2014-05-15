@@ -11,3 +11,17 @@ function DebugManager:get_qa_debug_enabled()
 end
 
 function DebugManager:set_qa_debug_enabled(username, enabled)
+	enabled = not not enabled
+	local cat_print_list = {"qa"}
+	do
+		local (for generator), (for state), (for control) = ipairs(cat_print_list)
+		do
+			do break end
+			Global.category_print[cat] = enabled
+		end
+
+	end
+
+end
+
+CoreClass.override_class(CoreDebugManager.DebugManager, DebugManager)

@@ -169,3 +169,234 @@ function MissionDoor:device_resumed(type)
 end
 
 function MissionDoor:_check_placed_counter(type)
+	if self._devices[type].placed_counter ~= self._devices[type].amount then
+		CoreDebug.cat_debug("gaspode", "MissionDoor:_check_placed_counter", "All", type, "are not placed yet")
+		return
+	end
+
+	CoreDebug.cat_debug("gaspode", "MissionDoor:_check_placed_counter", "All of type", type, "has been placed")
+	self:trigger_sequence("all_" .. type .. "_placed")
+	if type == "c4" and self._devices[type].placed_counter == self._devices[type].amount then
+		self:_initiate_c4_sequence()
+		return
+	end
+
+end
+
+function MissionDoor:_check_completed_counter(type)
+	if self._devices[type].completed_counter == self._devices[type].amount then
+		self:_destroy_devices()
+		self:trigger_sequence("door_opened")
+		local sequence_name = "open_door"
+		if type == "drill" then
+		elseif type == "c4" then
+			sequence_name = "explode_door"
+			if Network:is_server() then
+				if self._unit:base() then
+					self._unit:base().c4 = true
+				end
+
+				local alert_event = {
+					"aggression",
+					self._unit:position(),
+					tweak_data.weapon.trip_mines.alert_radius,
+					managers.groupai:state():get_unit_type_filter("civilians_enemies"),
+					self._unit
+				}
+				managers.groupai:state():propagate_alert(alert_event)
+			end
+
+		elseif type == "key" then
+			sequence_name = "open_door_keycard"
+		elseif type == "ecm" then
+			sequence_name = "open_door_ecm"
+		end
+
+		if managers.network:session() then
+			managers.network:session():send_to_peers_synched("run_mission_door_sequence", self._unit, sequence_name)
+		end
+
+		self:run_sequence_simple(sequence_name)
+	end
+
+end
+
+function MissionDoor:_initiate_c4_sequence()
+-- fail 5
+null
+3
+	do
+		local (for generator), (for state), (for control) = pairs(self._devices)
+		do
+			do break end
+			if type ~= "c4" then
+				local (for generator), (for state), (for control) = ipairs(device.units)
+				do
+					do break end
+					if alive(unit_data.unit) then
+						unit_data.unit:set_slot(0)
+					end
+
+				end
+
+			end
+
+		end
+
+		(for control) = nil and alive
+	end
+
+	do
+		local (for generator), (for state), (for control) = ipairs(self._devices.c4.units)
+		do
+			do break end
+			MissionDoor.run_mission_door_device_sequence(unit_data.unit, "activate_explode_sequence")
+			if managers.network:session() then
+				managers.network:session():send_to_peers_synched("run_mission_door_device_sequence", unit_data.unit, "activate_explode_sequence")
+			end
+
+		end
+
+	end
+
+	(for control) = nil and MissionDoor
+	self._explode_t = Application:time() + 5
+	self._unit:set_extension_update_enabled(Idstring("base"), true)
+end
+
+function MissionDoor:_c4_sequence_done()
+	self._explode_t = nil
+	self._unit:set_extension_update_enabled(Idstring("base"), false)
+	if not self._devices.c4 then
+		return
+	end
+
+	local (for generator), (for state), (for control) = ipairs(self._devices.c4.units)
+	do
+		do break end
+		self:device_completed("c4")
+	end
+
+end
+
+function MissionDoor:run_sequence_simple(sequence_name)
+	self:_run_sequence_simple(sequence_name)
+end
+
+function MissionDoor:trigger_sequence(trigger_sequence_name)
+	CoreDebug.cat_debug("gaspode", "MissionDoor:trigger_sequence", trigger_sequence_name)
+	self:_run_sequence_simple(trigger_sequence_name)
+end
+
+function MissionDoor:_run_sequence_simple(sequence_name)
+	self._unit:damage():run_sequence_simple(sequence_name)
+end
+
+function MissionDoor:_destroy_devices()
+	do
+		local (for generator), (for state), (for control) = pairs(self._devices)
+		do
+			do break end
+			local (for generator), (for state), (for control) = ipairs(device.units)
+			do
+				do break end
+				if alive(unit_data.unit) then
+					unit_data.unit:set_slot(0)
+				end
+
+			end
+
+		end
+
+		(for control) = nil and alive
+	end
+
+	self._devices = nil and {}
+end
+
+function MissionDoor:destroy()
+	local (for generator), (for state), (for control) = pairs(self._devices)
+	do
+		do break end
+		local (for generator), (for state), (for control) = ipairs(device.units)
+		do
+			do break end
+			if alive(unit_data.unit) then
+				unit_data.unit:set_slot(0)
+			end
+
+		end
+
+	end
+
+end
+
+MissionDoorDevice = MissionDoorDevice or class()
+function MissionDoorDevice:init(unit)
+	self._unit = unit
+end
+
+function MissionDoorDevice:set_parent_data(door_unit, device_type)
+	self._parent_door = door_unit
+	self._device_type = device_type
+end
+
+function MissionDoorDevice:placed()
+	if not alive(self._parent_door) then
+		CoreDebug.cat_debug("gaspode", "MissionDoor:placed", "Had no parent door unit")
+		return
+	end
+
+	self._placed = true
+	self._parent_door:base():device_placed(self._unit, self._device_type)
+end
+
+function MissionDoorDevice:can_place()
+	return not self._placed
+end
+
+function MissionDoorDevice:report_jammed_state(jammed)
+	if not alive(self._parent_door) then
+		CoreDebug.cat_debug("gaspode", "MissionDoor:report_jammed_state", "Had no parent door unit")
+		return
+	end
+
+	if jammed then
+		self._parent_door:base():device_jammed(self._device_type)
+	else
+		self._parent_door:base():device_resumed(self._device_type)
+	end
+
+end
+
+function MissionDoorDevice:report_resumed()
+	if not alive(self._parent_door) then
+		CoreDebug.cat_debug("gaspode", "MissionDoor:report_jammed_state", "Had no parent door unit")
+		return
+	end
+
+	self._parent_door:base():device_resumed(self._device_type)
+end
+
+function MissionDoorDevice:report_completed()
+	if not alive(self._parent_door) then
+		CoreDebug.cat_debug("gaspode", "MissionDoor:report_completed", "Had no parent door unit")
+		return
+	end
+
+	self._parent_door:base():device_completed(self._device_type)
+end
+
+function MissionDoorDevice:report_trigger_sequence(trigger_sequence_name)
+	CoreDebug.cat_debug("gaspode", "MissionDoor:report_trigger_sequence", trigger_sequence_name)
+	if not alive(self._parent_door) then
+		CoreDebug.cat_debug("gaspode", "MissionDoor:report_trigger_sequence", "Had no parent door unit")
+		return
+	end
+
+	self._parent_door:base():trigger_sequence(trigger_sequence_name)
+end
+
+function MissionDoorDevice:destroy()
+end
+

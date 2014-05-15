@@ -637,3 +637,214 @@ function NewRaycastWeaponBase:gadget_off()
 end
 
 function NewRaycastWeaponBase:set_gadget_on(gadget_on, ignore_enable, gadgets)
+	if not ignore_enable and not self._enabled then
+		return
+	end
+
+	self._gadget_on = gadget_on or self._gadget_on
+	gadgets = gadgets or managers.weapon_factory:get_parts_from_weapon_by_type_or_perk("gadget", self._factory_id, self._blueprint)
+end
+
+function NewRaycastWeaponBase:toggle_gadget()
+	if not self._enabled then
+		return false
+	end
+
+	local gadget_on = self._gadget_on or 0
+	local gadgets = managers.weapon_factory:get_parts_from_weapon_by_type_or_perk("gadget", self._factory_id, self._blueprint)
+	if gadgets then
+		gadget_on = (gadget_on + 1) % (#gadgets + 1)
+		self:set_gadget_on(gadget_on, false, gadgets)
+		return true
+	end
+
+	do return false end
+	if not self._enabled then
+		return
+	end
+
+	self._gadget_on = self._gadget_on or 0
+	local gadgets = managers.weapon_factory:get_parts_from_weapon_by_type_or_perk("gadget", self._factory_id, self._blueprint)
+	if gadgets then
+		self._gadget_on = ((self._gadget_on or 0) + 1) % (#gadgets + 1)
+		local gadget
+		local (for generator), (for state), (for control) = ipairs(gadgets)
+		do
+			do break end
+			gadget = self._parts[i]
+			gadget.unit:base():set_state(self._gadget_on == i, self._sound_fire)
+		end
+
+	end
+
+end
+
+function NewRaycastWeaponBase:gadget_update()
+	self:set_gadget_on(false, true)
+end
+
+function NewRaycastWeaponBase:gadget_toggle_requires_stance_update()
+	if not self._enabled then
+		return false
+	end
+
+	if not self._has_gadget then
+		return false
+	end
+
+	do
+		local (for generator), (for state), (for control) = ipairs(self._has_gadget)
+		do
+			do break end
+			if self._parts[part_id].unit:base():toggle_requires_stance_update() then
+				return true
+			end
+
+		end
+
+	end
+
+	(for control) = nil and self._parts
+end
+
+function NewRaycastWeaponBase:check_stats()
+	local base_stats = self:weapon_tweak_data().stats
+	if not base_stats then
+		print("no stats")
+		return
+	end
+
+	local parts_stats = managers.weapon_factory:get_stats(self._factory_id, self._blueprint)
+	local stats = deep_clone(base_stats)
+	local tweak_data = tweak_data.weapon.stats
+	local modifier_stats = self:weapon_tweak_data().stats_modifiers
+	stats.zoom = math.min(stats.zoom + managers.player:upgrade_value(self:weapon_tweak_data().category, "zoom_increase", 0), #tweak_data.zoom)
+	do
+		local (for generator), (for state), (for control) = pairs(stats)
+		do
+			do break end
+			if parts_stats[stat] then
+				stats[stat] = math_clamp(stats[stat] + parts_stats[stat], 1, #tweak_data[stat])
+			end
+
+		end
+
+	end
+
+	self._current_stats = managers.player and {}
+	do
+		local (for generator), (for state), (for control) = pairs(stats)
+		do
+			do break end
+			self._current_stats[stat] = tweak_data[stat][i]
+			if modifier_stats and modifier_stats[stat] then
+				self._current_stats[stat] = self._current_stats[stat] * modifier_stats[stat]
+			end
+
+		end
+
+	end
+
+	(for control) = managers.player and self._current_stats
+	self._current_stats.alert_size = tweak_data.alert_size[math_clamp(stats.alert_size, 1, #tweak_data.alert_size)]
+	if modifier_stats and modifier_stats.alert_size then
+		self._current_stats.alert_size = self._current_stats.alert_size * modifier_stats.alert_size
+	end
+
+	return stats
+end
+
+function NewRaycastWeaponBase:_convert_add_to_mul(value)
+	if value > 1 then
+		return 1 / value
+	elseif value < 1 then
+		return math.abs(value - 1) + 1
+	else
+		return 1
+	end
+
+end
+
+function NewRaycastWeaponBase:_get_spread(user_unit)
+	local current_state = user_unit:movement()._current_state
+	local spread_multiplier = self:spread_multiplier(current_state)
+	return self._spread * spread_multiplier
+end
+
+function NewRaycastWeaponBase:fire_rate_multiplier()
+	local user_unit = self._setup and self._setup.user_unit
+	local current_state = alive(user_unit) and user_unit:movement() and user_unit:movement()._current_state
+	return managers.blackmarket:fire_rate_multiplier(self._name_id, self:weapon_tweak_data().category, self._silencer, nil, current_state, self._blueprint)
+end
+
+function NewRaycastWeaponBase:damage_multiplier()
+	local user_unit = self._setup and self._setup.user_unit
+	local current_state = alive(user_unit) and user_unit:movement() and user_unit:movement()._current_state
+	return managers.blackmarket:damage_multiplier(self._name_id, self:weapon_tweak_data().category, self._silencer, nil, current_state, self._blueprint)
+end
+
+function NewRaycastWeaponBase:melee_damage_multiplier()
+	return managers.player:upgrade_value(self._name_id, "melee_multiplier", 1)
+end
+
+function NewRaycastWeaponBase:spread_multiplier(current_state)
+	return managers.blackmarket:accuracy_multiplier(self._name_id, self:weapon_tweak_data().category, self._silencer, current_state, self:fire_mode(), self._blueprint)
+end
+
+function NewRaycastWeaponBase:recoil_multiplier()
+	return managers.blackmarket:recoil_multiplier(self._name_id, self:weapon_tweak_data().category, self._silencer, self._blueprint)
+end
+
+function NewRaycastWeaponBase:enter_steelsight_speed_multiplier()
+	local multiplier = 1
+	multiplier = multiplier + (1 - managers.player:upgrade_value(self:weapon_tweak_data().category, "enter_steelsight_speed_multiplier", 1))
+	multiplier = multiplier + (1 - managers.player:temporary_upgrade_value("temporary", "combat_medic_enter_steelsight_speed_multiplier", 1))
+	multiplier = multiplier + (1 - managers.player:upgrade_value(self._name_id, "enter_steelsight_speed_multiplier", 1))
+	if self._silencer then
+		multiplier = multiplier + (1 - managers.player:upgrade_value("weapon", "silencer_enter_steelsight_speed_multiplier", 1))
+		multiplier = multiplier + (1 - managers.player:upgrade_value(self:weapon_tweak_data().category, "silencer_enter_steelsight_speed_multiplier", 1))
+	end
+
+	return self:_convert_add_to_mul(multiplier)
+end
+
+function NewRaycastWeaponBase:fire_rate_multiplier()
+	local multiplier = 1
+	multiplier = multiplier + (1 - managers.player:upgrade_value(self:weapon_tweak_data().category, "fire_rate_multiplier", 1))
+	multiplier = multiplier + (1 - managers.player:upgrade_value(self._name_id, "fire_rate_multiplier", 1))
+	multiplier = multiplier + (1 - managers.player:upgrade_value("weapon", "fire_rate_multiplier", 1))
+	return self:_convert_add_to_mul(multiplier)
+end
+
+function NewRaycastWeaponBase:reload_speed_multiplier()
+	local multiplier = 1
+	multiplier = multiplier + (1 - managers.player:upgrade_value(self:weapon_tweak_data().category, "reload_speed_multiplier", 1))
+	multiplier = multiplier + (1 - managers.player:upgrade_value("weapon", "passive_reload_speed_multiplier", 1))
+	multiplier = multiplier + (1 - managers.player:upgrade_value(self._name_id, "reload_speed_multiplier", 1))
+	if self._setup and alive(self._setup.user_unit) and self._setup.user_unit:movement() then
+		local morale_boost_bonus = self._setup.user_unit:movement():morale_boost()
+		if morale_boost_bonus then
+			multiplier = multiplier + (1 - morale_boost_bonus.reload_speed_bonus)
+		end
+
+	end
+
+	return self:_convert_add_to_mul(multiplier)
+end
+
+function NewRaycastWeaponBase:destroy(unit)
+	NewRaycastWeaponBase.super.destroy(self, unit)
+	if self._parts_texture_switches then
+		local (for generator), (for state), (for control) = pairs(self._parts_texture_switches)
+		do
+			do break end
+			print("BYE BYE ")
+			TextureCache:unretrieve(texture_ids)
+		end
+
+	end
+
+	(for control) = nil and print
+	managers.weapon_factory:disassemble(self._parts)
+end
+

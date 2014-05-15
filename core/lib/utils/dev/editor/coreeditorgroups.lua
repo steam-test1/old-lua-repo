@@ -278,3 +278,263 @@ end
 
 CoreEditorGroup = CoreEditorGroup or class()
 function CoreEditorGroup:init(name, reference, units)
+	self._name = name
+	self._reference = reference
+	self._units = {}
+	self._continent = managers.editor:current_continent()
+	do
+		local (for generator), (for state), (for control) = ipairs(units)
+		do
+			do break end
+			self:add_unit(unit)
+		end
+
+	end
+
+end
+
+function CoreEditorGroup:closed()
+	return self._closed
+end
+
+function CoreEditorGroup:set_closed(closed)
+	self._closed = closed
+end
+
+function CoreEditorGroup:name()
+	return self._name
+end
+
+function CoreEditorGroup:units()
+	return self._units
+end
+
+function CoreEditorGroup:continent()
+	return self._continent
+end
+
+function CoreEditorGroup:set_continent(continent)
+	self._continent = continent
+end
+
+function CoreEditorGroup:continent_name()
+	return tostring(self._continent and self._continent:name())
+end
+
+function CoreEditorGroup:add(units)
+end
+
+function CoreEditorGroup:add_unit(unit)
+	if not unit then
+		return
+	end
+
+	table.insert(self._units, unit)
+	unit:unit_data().editor_groups = unit:unit_data().editor_groups or {}
+	table.insert(unit:unit_data().editor_groups, self)
+end
+
+function CoreEditorGroup:remove_unit(unit)
+	table.delete(self._units, unit)
+	table.delete(unit:unit_data().editor_groups, self)
+	if unit == self._reference then
+		if #self._units > 0 then
+			self._reference = self._units[1]
+		else
+			managers.editor:remove_group(self._name)
+		end
+
+	end
+
+end
+
+function CoreEditorGroup:remove()
+	local (for generator), (for state), (for control) = ipairs(self._units)
+	do
+		do break end
+		table.delete(unit:unit_data().editor_groups, self)
+	end
+
+end
+
+function CoreEditorGroup:reference()
+	return self._reference
+end
+
+function CoreEditorGroup:set_reference(reference)
+	self._reference = reference
+end
+
+function CoreEditorGroup:save_to_file()
+	local path = managers.database:save_file_dialog(Global.frame, true, "XML-file (*.xml)|*.xml", self:name())
+	if path then
+		local f = SystemFS:open(path, "w")
+		f:puts("<group name=\"" .. self:name() .. "\" layer=\"" .. managers.editor:current_layer_name() .. "\">")
+		f:puts("\t<ref_unit name=\"" .. self._reference:name():s() .. "\">")
+		self:save_edited_settings(f, "\t\t", self._reference)
+		f:puts("\t</ref_unit>")
+		do
+			local (for generator), (for state), (for control) = ipairs(self._units)
+			do
+				do break end
+				if unit ~= self._reference then
+					local name = unit:name():s()
+					local local_pos = unit:unit_data().local_pos
+					local local_rot = unit:unit_data().local_rot
+					local x = string.format("%.4f", local_pos.x)
+					local y = string.format("%.4f", local_pos.y)
+					local z = string.format("%.4f", local_pos.z)
+					local_pos = "" .. x .. " " .. y .. " " .. z
+					local yaw = string.format("%.4f", local_rot:yaw())
+					local pitch = string.format("%.4f", local_rot:pitch())
+					local roll = string.format("%.4f", local_rot:roll())
+					local_rot = "" .. yaw .. " " .. pitch .. " " .. roll
+					f:puts("\t<unit name=\"" .. name .. "\" local_pos=\"" .. local_pos .. "\" local_rot=\"" .. local_rot .. "\">")
+					self:save_edited_settings(f, "\t\t", unit)
+					f:puts("\t</unit>")
+				end
+
+			end
+
+		end
+
+		(for control) = "\t\t" and self._reference
+		f:puts("</group>")
+		SystemFS:close(f)
+	end
+
+end
+
+function CoreEditorGroup:save_edited_settings(...)
+	self:save_lights(...)
+	self:save_variation(...)
+	self:save_editable_gui(...)
+end
+
+function CoreEditorGroup:save_lights(file, t, unit, data_table)
+	local lights = CoreEditorUtils.get_editable_lights(unit)
+	local (for generator), (for state), (for control) = ipairs(lights)
+	do
+		do break end
+		local c_s = "" .. light:color().x .. " " .. light:color().y .. " " .. light:color().z
+		local as = light:spot_angle_start()
+		local ae = light:spot_angle_end()
+		local multiplier = CoreEditorUtils.get_intensity_preset(light:multiplier()):s()
+		local falloff_exponent = light:falloff_exponent()
+		file:puts(t .. "<light name=\"" .. light:name():s() .. "\" enabled=\"" .. tostring(light:enable()) .. "\" far_range=\"" .. light:far_range() .. "\" color=\"" .. c_s .. "\" angle_start=\"" .. as .. "\" angle_end=\"" .. ae .. "\" multiplier=\"" .. multiplier .. "\" falloff_exponent=\"" .. falloff_exponent .. "\"/>")
+	end
+
+end
+
+function CoreEditorGroup:save_variation(file, t, unit, data_table)
+	if unit:unit_data().mesh_variation and #managers.sequence:get_editable_state_sequence_list(unit:name()) > 0 then
+		file:puts(t .. "<variation value=\"" .. unit:unit_data().mesh_variation .. "\"/>")
+	end
+
+	if unit:unit_data().material and unit:unit_data().material ~= "default" then
+		file:puts(t .. "<material_variation value=\"" .. unit:unit_data().material .. "\"/>")
+	end
+
+end
+
+function CoreEditorGroup:save_editable_gui(file, t, unit, data_table)
+	if unit:editable_gui() then
+		local text = unit:editable_gui():text()
+		local font_color = unit:editable_gui():font_color()
+		local font_size = unit:editable_gui():font_size()
+		file:puts(t .. "<editable_gui text=\"" .. text .. "\" font_size=\"" .. font_size .. "\" font_color=\"" .. math.vector_to_string(font_color) .. "\"/>")
+	end
+
+end
+
+function CoreEditorGroup:draw(t, dt)
+	local i = 0.25
+	if managers.editor:using_groups() then
+		if self._continent ~= managers.editor:current_continent() then
+			return
+		end
+
+		i = 0.65
+	elseif not managers.editor:debug_draw_groups() then
+		return
+	end
+
+	do
+		local (for generator), (for state), (for control) = ipairs(self._units)
+		do
+			do break end
+			Application:draw(unit, 1 * i, 1 * i, 1 * i)
+		end
+
+	end
+
+	(for control) = nil and Application
+	Application:draw(self._reference, 0, 1 * i, 0)
+end
+
+GroupPresetsDialog = GroupPresetsDialog or class(CoreEditorEwsDialog)
+function GroupPresetsDialog:init(files, path)
+	self._path = path
+	CoreEditorEwsDialog.init(self, nil, "Group Presets", "", Vector3(300, 150, 0), Vector3(200, 300, 0), "DEFAULT_DIALOG_STYLE,RESIZE_BORDER,STAY_ON_TOP")
+	self:create_panel("VERTICAL")
+	self._hide_on_create = true
+	local option_sizer = EWS:BoxSizer("VERTICAL")
+	local hide = EWS:CheckBox(self._panel, "Hide on create", "")
+	hide:set_value(self._hide_on_create)
+	hide:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "hide_on_create"), hide)
+	hide:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")
+	option_sizer:add(hide, 0, 2, "RIGHT,LEFT")
+	self._panel_sizer:add(option_sizer, 0, 0, "ALIGN_RIGHT")
+	self._list = EWS:ListBox(self._panel, "", "LB_SINGLE,LB_HSCROLL,LB_NEEDED_SB,LB_SORT")
+	self._panel_sizer:add(self._list, 1, 0, "EXPAND")
+	do
+		local (for generator), (for state), (for control) = ipairs(files)
+		do
+			do break end
+			self._list:append(file)
+		end
+
+	end
+
+	(for control) = 1 and self._list
+	self._list:connect("EVT_COMMAND_LISTBOX_SELECTED", callback(self, self, "select_group"), nil)
+	self._list:connect("EVT_COMMAND_LISTBOX_DOUBLECLICKED", callback(self, self, "create_group"), nil)
+	self._list:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")
+	local button_sizer = EWS:BoxSizer("HORIZONTAL")
+	local create_btn = EWS:Button(self._panel, "Create", "", "")
+	button_sizer:add(create_btn, 0, 2, "RIGHT,LEFT")
+	create_btn:connect("EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "create_group"), "")
+	create_btn:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")
+	local cancel_btn = EWS:Button(self._panel, "Cancel", "", "")
+	button_sizer:add(cancel_btn, 0, 2, "RIGHT,LEFT")
+	cancel_btn:connect("EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_cancel"), "")
+	cancel_btn:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")
+	self._panel_sizer:add(button_sizer, 0, 0, "ALIGN_RIGHT")
+	self._dialog_sizer:add(self._panel, 1, 0, "EXPAND")
+	self._dialog:set_visible(true)
+end
+
+function GroupPresetsDialog:select_group()
+	local i = self._list:selected_index()
+	if i > -1 then
+		local name = self._list:get_string(i)
+		self._file = managers.database:base_path() .. self._path .. "\\" .. name
+	end
+
+end
+
+function GroupPresetsDialog:create_group()
+	if self._file then
+		if self._hide_on_create then
+			self._dialog:set_visible(false)
+		end
+
+		managers.editor:groups():load_group_file(self._file)
+	end
+
+end
+
+function GroupPresetsDialog:hide_on_create(hide)
+	self._hide_on_create = hide:get_value()
+end
+

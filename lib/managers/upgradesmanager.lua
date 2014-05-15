@@ -839,3 +839,39 @@ function UpgradesManager:tree_stats()
 end
 
 function UpgradesManager:save(data)
+	local state = {
+		automanage = self._global.automanage,
+		progress = self._global.progress,
+		target_tree = self._global.target_tree,
+		disabled_visual_upgrades = self._global.disabled_visual_upgrades
+	}
+	if self._global.incompatible_data_loaded and self._global.incompatible_data_loaded.progress then
+		state.progress = clone(self._global.progress)
+		local (for generator), (for state), (for control) = pairs(self._global.incompatible_data_loaded.progress)
+		do
+			do break end
+			print("saving incompatible data", i, k)
+			state.progress[i] = math.max(state.progress[i], k)
+		end
+
+	end
+
+end
+
+function UpgradesManager:load(data)
+	local state = data.UpgradesManager
+	self._global.automanage = state.automanage
+	self._global.progress = state.progress
+	self._global.target_tree = state.target_tree
+	self._global.disabled_visual_upgrades = state.disabled_visual_upgrades
+	self:_verify_loaded_data()
+end
+
+function UpgradesManager:_verify_loaded_data()
+end
+
+function UpgradesManager:reset()
+	Global.upgrades_manager = nil
+	self:_setup()
+end
+

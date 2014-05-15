@@ -651,3 +651,144 @@ function CopActionAct:chk_block(action_type, t)
 end
 
 function CopActionAct:_create_blocks_table(block_desc)
+	local blocks = self._blocks or {}
+	if block_desc then
+		local t = TimerManager:game():time()
+		local (for generator), (for state), (for control) = pairs(block_desc)
+		do
+			do break end
+			blocks[action_type] = block_duration == -1 and -1 or t + block_duration
+		end
+
+	end
+
+end
+
+function CopActionAct:_get_act_index(anim_name)
+	local cat_offset = 0
+	do
+		local (for generator), (for state), (for control) = ipairs(self._ACT_CATEGORY_INDEX)
+		do
+			do break end
+			local category = self._act_redirects[category_name]
+			do
+				local (for generator), (for state), (for control) = ipairs(category)
+				do
+					do break end
+					if test_anim_name == anim_name then
+						return i_anim + cat_offset
+					end
+
+				end
+
+			end
+
+			cat_offset = nil and cat_offset + #category
+		end
+
+	end
+
+	(for control) = nil and self._act_redirects
+	debug_pause("[CopActionAct:_get_act_index] animation", anim_name, "not found on look-up table.")
+	return 1
+end
+
+function CopActionAct:_get_act_name_from_index(index)
+	do
+		local (for generator), (for state), (for control) = ipairs(self._ACT_CATEGORY_INDEX)
+		do
+			do break end
+			local category = self._act_redirects[category_name]
+			if index <= #category then
+				return category[index]
+			end
+
+			index = index - #category
+		end
+
+	end
+
+	(for control) = nil and self._act_redirects
+	debug_pause("[CopActionAct:_get_act_name_from_index] index", index, "is out of limits.")
+end
+
+function CopActionAct:_play_anim()
+	if self._ext_anim.upper_body_active and not self._ext_anim.upper_body_empty then
+		self._ext_movement:play_redirect("up_idle")
+	end
+
+	local redir_name, redir_res
+	if type(self._action_desc.variant) == "number" then
+		redir_name = self._machine:index_to_state_name(self._action_desc.variant)
+		redir_res = self._ext_movement:play_state_idstr(redir_name, self._action_desc.start_anim_time)
+		self._unit:movement():set_position(self._unit:movement():m_pos():with_z(self._action_desc.pos_z))
+	else
+		redir_name = self._action_desc.variant
+		redir_res = self._ext_movement:play_redirect(redir_name, self._action_desc.start_anim_time)
+	end
+
+	if not redir_res then
+		debug_pause_unit(self._unit, "[CopActionAct:_play_anim] redirect", redir_name, "failed in", self._machine:segment_state(Idstring("base")), self._unit)
+		self._expired = true
+		return
+	end
+
+	if Network:is_client() and self._action_desc.start_rot then
+		self._ext_movement:set_rotation(self._action_desc.start_rot)
+		self._ext_movement:set_position(self._action_desc.start_pos)
+	end
+
+	if self._action_desc.clamp_to_graph then
+		self:_set_updator("_clamping_update")
+	else
+		if not self._ext_anim.freefall then
+			self._unit:set_driving("animation")
+			self._changed_driving = true
+		end
+
+		self:_set_updator()
+	end
+
+	if self._ext_anim.freefall then
+		self._freefall = true
+		self._last_vel_z = 0
+	end
+
+	self._ext_movement:set_root_blend(false)
+	self._ext_movement:spawn_wanted_items()
+	if self._ext_anim.ik_type then
+		self:_update_ik_type()
+	end
+
+	return true
+end
+
+function CopActionAct:_sync_anim_play()
+	if Network:is_server() then
+		local action_index = self:_get_act_index(self._action_desc.variant)
+		if action_index then
+			if self._action_desc.align_sync then
+				local yaw = mrotation.yaw(self._common_data.rot)
+				if yaw < 0 then
+					yaw = 360 + yaw
+				end
+
+				local sync_yaw = 1 + math.ceil(yaw * 254 / 360)
+				self._common_data.ext_network:send("action_act_start_align", action_index, self._blocks.heavy_hurt and true or false, self._action_desc.clamp_to_graph or false, sync_yaw, mvector3.copy(self._common_data.pos))
+			else
+				self._common_data.ext_network:send("action_act_start", action_index, self._blocks.heavy_hurt and true or false, self._action_desc.clamp_to_graph or false)
+			end
+
+		else
+			print("[CopActionAct:_sync_anim_play] redirect", self._action_desc.variant, "not found")
+		end
+
+	end
+
+end
+
+function CopActionAct:_set_updator(func_name)
+	self.update = func_name and self[func_name] or nil
+end
+
+CopActionAct._apply_freefall = CopActionWalk._apply_freefall

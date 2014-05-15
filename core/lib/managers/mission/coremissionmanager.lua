@@ -343,3 +343,242 @@ function MissionManager:get_global_event_list()
 end
 
 function MissionManager:save(data)
+	local state = {}
+	do
+		local (for generator), (for state), (for control) = pairs(self._scripts)
+		do
+			do break end
+			script:save(state)
+		end
+
+	end
+
+end
+
+function MissionManager:load(data)
+	local state = data.MissionManager
+	local (for generator), (for state), (for control) = pairs(self._scripts)
+	do
+		do break end
+		script:load(state)
+	end
+
+end
+
+function MissionManager:pre_destroy()
+	local (for generator), (for state), (for control) = pairs(self._scripts)
+	do
+		do break end
+		script:pre_destroy()
+	end
+
+end
+
+function MissionManager:destroy()
+	local (for generator), (for state), (for control) = pairs(self._scripts)
+	do
+		do break end
+		script:destroy()
+	end
+
+end
+
+MissionScript = MissionScript or CoreClass.class(CoreEvent.CallbackHandler)
+function MissionScript:init(data)
+	MissionScript.super.init(self)
+	self._elements = {}
+	self._element_groups = {}
+	self._name = data.name
+	self._activate_on_parsed = data.activate_on_parsed
+	CoreDebug.cat_debug("gaspode", "New MissionScript:", self._name)
+	do
+		local (for generator), (for state), (for control) = ipairs(data.elements)
+		do
+			do break end
+			local class = element.class
+			local new_element = self:_element_class(element.module, class):new(self, element)
+			self._elements[element.id] = new_element
+			self._element_groups[class] = self._element_groups[class] or {}
+			table.insert(self._element_groups[class], new_element)
+		end
+
+	end
+
+	self._updators = self._name and {}
+	self._save_states = {}
+	self:_on_created()
+end
+
+function MissionScript:activate_on_parsed()
+	return self._activate_on_parsed
+end
+
+function MissionScript:_on_created()
+	local (for generator), (for state), (for control) = pairs(self._elements)
+	do
+		do break end
+		element:on_created()
+	end
+
+end
+
+function MissionScript:_element_class(module_name, class_name)
+	local element_class = rawget(_G, class_name)
+	if not element_class and module_name and module_name ~= "none" then
+		element_class = core:import(module_name)[class_name]
+	end
+
+	if not element_class then
+		element_class = CoreMissionScriptElement.MissionScriptElement
+		Application:error("[MissionScript]SCRIPT ERROR: Didn't find class", class_name, module_name)
+	end
+
+	return element_class
+end
+
+function MissionScript:activate(...)
+	managers.mission:add_persistent_debug_output("")
+	managers.mission:add_persistent_debug_output("Activate mission " .. self._name, Color(1, 0, 1, 0))
+	do
+		local (for generator), (for state), (for control) = pairs(self._elements)
+		do
+			do break end
+			element:on_script_activated()
+		end
+
+	end
+
+	(for control) = Color(1, 0, 1, 0) and element.on_script_activated
+	local (for generator), (for state), (for control) = pairs(self._elements)
+	do
+		do break end
+		if element:value("execute_on_startup") then
+			element:on_executed(...)
+		end
+
+	end
+
+end
+
+function MissionScript:add_updator(id, updator)
+	self._updators[id] = updator
+end
+
+function MissionScript:remove_updator(id)
+	self._updators[id] = nil
+end
+
+function MissionScript:update(t, dt)
+	MissionScript.super.update(self, dt)
+	local (for generator), (for state), (for control) = pairs(self._updators)
+	do
+		do break end
+		updator(t, dt)
+	end
+
+end
+
+function MissionScript:name()
+	return self._name
+end
+
+function MissionScript:element_groups()
+	return self._element_groups
+end
+
+function MissionScript:element_group(name)
+	return self._element_groups[name]
+end
+
+function MissionScript:elements()
+	return self._elements
+end
+
+function MissionScript:element(id)
+	return self._elements[id]
+end
+
+function MissionScript:debug_output(debug, color)
+	managers.mission:add_persistent_debug_output(Application:date("%X") .. ": " .. debug, color)
+	CoreDebug.cat_print("editor", debug)
+end
+
+function MissionScript:is_debug()
+	return true
+end
+
+function MissionScript:add_save_state_cb(id)
+	self._save_states[id] = true
+end
+
+function MissionScript:remove_save_state_cb(id)
+	self._save_states[id] = nil
+end
+
+function MissionScript:save(data)
+	local state = {}
+	do
+		local (for generator), (for state), (for control) = pairs(self._save_states)
+		do
+			do break end
+			state[id] = {}
+			self._elements[id]:save(state[id])
+		end
+
+	end
+
+	data[self._name] = nil and state
+end
+
+function MissionScript:load(data)
+	local state = data[self._name]
+	local (for generator), (for state), (for control) = pairs(state)
+	do
+		do break end
+		self._elements[id]:load(mission_state)
+	end
+
+end
+
+function MissionScript:stop_simulation(...)
+	do
+		local (for generator), (for state), (for control) = pairs(self._elements)
+		do
+			do break end
+			element:stop_simulation(...)
+		end
+
+	end
+
+	(for control) = nil and element.stop_simulation
+	MissionScript.super.clear(self)
+end
+
+function MissionScript:pre_destroy(...)
+	do
+		local (for generator), (for state), (for control) = pairs(self._elements)
+		do
+			do break end
+			element:pre_destroy(...)
+		end
+
+	end
+
+	(for control) = nil and element.pre_destroy
+	MissionScript.super.clear(self)
+end
+
+function MissionScript:destroy(...)
+	do
+		local (for generator), (for state), (for control) = pairs(self._elements)
+		do
+			do break end
+			element:destroy(...)
+		end
+
+	end
+
+	(for control) = nil and element.destroy
+	MissionScript.super.clear(self)
+end
+

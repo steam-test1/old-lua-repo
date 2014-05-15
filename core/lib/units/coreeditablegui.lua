@@ -90,3 +90,17 @@ function CoreEditableGui:lock_gui()
 end
 
 function CoreEditableGui:destroy()
+	do
+		local (for generator), (for state), (for control) = ipairs(self._guis)
+		do
+			do break end
+			if alive(self._gui) and alive(gui.workspace) then
+				self._gui:destroy_workspace(gui.workspace)
+			end
+
+		end
+
+	end
+
+end
+

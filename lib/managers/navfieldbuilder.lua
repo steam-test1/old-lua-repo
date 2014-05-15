@@ -2903,3 +2903,630 @@ function NavFieldBuilder:_on_helper_hit(unit)
 end
 
 function NavFieldBuilder:_set_new_blockers_used()
+	do
+		local (for generator), (for state), (for control) = pairs(self._new_blockers)
+		do
+			do break end
+			self._helper_blockers[unit_id] = self._building.id
+		end
+
+	end
+
+end
+
+function NavFieldBuilder:_disable_blocker(unit)
+	local u_id = unit:unit_data().unit_id
+	self._disabled_blockers[u_id] = unit
+	unit:set_enabled(false)
+end
+
+function NavFieldBuilder:_enable_blocker(unit)
+	local u_id = unit:unit_data().unit_id
+	self._disabled_blockers[u_id] = nil
+	unit:set_enabled(true)
+end
+
+function NavFieldBuilder:_reenable_all_blockers()
+	if self._disabled_blockers then
+		local (for generator), (for state), (for control) = pairs(self._disabled_blockers)
+		do
+			do break end
+			if alive(blocker_unit) then
+				blocker_unit:set_enabled(true)
+			end
+
+		end
+
+	end
+
+end
+
+function NavFieldBuilder:_disable_all_blockers()
+	local all_blockers = World:find_units_quick("all", 15)
+	self._disabled_blockers = self._disabled_blockers or {}
+	local (for generator), (for state), (for control) = ipairs(all_blockers)
+	do
+		do break end
+		self:_disable_blocker(unit)
+	end
+
+end
+
+function NavFieldBuilder:_chk_line_overlap(line1, line2)
+	local overlap_max = math.min(line1[2], line2[2])
+	local overlap_min = math.max(line1[1], line2[1])
+	return overlap_max > overlap_min and {overlap_min, overlap_max}
+end
+
+function NavFieldBuilder:_measure_init_room_expansion(room, enter_pos)
+	local perp_pos_dir_str_map = self._perp_pos_dir_str_map
+	local perp_neg_dir_str_map = self._perp_neg_dir_str_map
+	local dim_str_map = self._dim_str_map
+	local perp_dim_str_map = self._perp_dim_str_map
+	local borders = room.borders
+	local expansion = room.expansion
+	local height = room.height
+	local inclination = room.inclination
+	do
+		local (for generator), (for state), (for control) = pairs(perp_neg_dir_str_map)
+		do
+			do break end
+			local perp_pos_dir_str = perp_pos_dir_str_map[dir_str]
+			local dim_str = dim_str_map[dir_str]
+			local perp_dim_str = perp_dim_str_map[dir_str]
+			local init_space = {
+				Vector3(),
+				Vector3()
+			}
+			mvector3["set_" .. dim_str](init_space[1], borders[dir_str])
+			mvector3["set_" .. dim_str](init_space[2], borders[dir_str])
+			mvector3["set_" .. perp_dim_str](init_space[1], borders[perp_neg_dir_str])
+			mvector3["set_" .. perp_dim_str](init_space[2], borders[perp_pos_dir_str])
+			mvector3.set_z(init_space[1], enter_pos.z)
+			mvector3.set_z(init_space[2], enter_pos.z)
+			table.insert(expansion[dir_str].unsorted, init_space)
+		end
+
+	end
+
+	(for control) = nil and perp_pos_dir_str_map[dir_str]
+	local ray_from_pos = expansion.x_pos.unsorted[1][2]
+	local ground_ray = self:_sphere_ray(ray_from_pos + self._up_vec, ray_from_pos + self._down_vec, self._gnd_ray_rad)
+	height.xp_yp = ground_ray and ground_ray.position.z or enter_pos.z
+	mvector3.set_z(expansion.x_pos.unsorted[1][2], height.xp_yp)
+	mvector3.set_z(expansion.y_pos.unsorted[1][2], height.xp_yp)
+	local ray_from_pos = expansion.x_pos.unsorted[1][1]
+	ground_ray = self:_sphere_ray(ray_from_pos + self._up_vec, ray_from_pos + self._down_vec, self._gnd_ray_rad)
+	height.xp_yn = ground_ray and ground_ray.position.z or enter_pos.z
+	mvector3.set_z(expansion.x_pos.unsorted[1][1], height.xp_yn)
+	mvector3.set_z(expansion.y_neg.unsorted[1][2], height.xp_yn)
+	local ray_from_pos = expansion.x_neg.unsorted[1][2]
+	ground_ray = self:_sphere_ray(ray_from_pos + self._up_vec, ray_from_pos + self._down_vec, self._gnd_ray_rad)
+	height.xn_yp = ground_ray and ground_ray.position.z or enter_pos.z
+	mvector3.set_z(expansion.x_neg.unsorted[1][2], height.xn_yp)
+	mvector3.set_z(expansion.y_pos.unsorted[1][1], height.xn_yp)
+	local ray_from_pos = expansion.x_neg.unsorted[1][1]
+	ground_ray = self:_sphere_ray(ray_from_pos + self._up_vec, ray_from_pos + self._down_vec, self._gnd_ray_rad)
+	height.xn_yn = ground_ray and ground_ray.position.z or enter_pos.z
+	mvector3.set_z(expansion.x_neg.unsorted[1][1], height.xn_yn)
+	mvector3.set_z(expansion.y_neg.unsorted[1][1], height.xn_yn)
+	local z_x_pos = (height.xp_yp + height.xp_yn) * 0.5
+	local z_x_neg = (height.xn_yp + height.xn_yn) * 0.5
+	local z_y_pos = (height.xp_yp + height.xn_yp) * 0.5
+	local z_y_neg = (height.xp_yn + height.xn_yn) * 0.5
+	inclination.x = (z_x_pos - z_x_neg) / self._grid_size
+	inclination.y = (z_y_pos - z_y_neg) / self._grid_size
+end
+
+function NavFieldBuilder:_calculate_expanded_border(dir_str, border, grid_step)
+	return self._neg_dir_str_map[dir_str] and border - grid_step or border + grid_step
+end
+
+function NavFieldBuilder:_find_room_height_from_expansion(expansion, height, side)
+-- fail 9
+null
+13
+	local y_max, y_min
+	do
+		local (for generator), (for state), (for control) = pairs(expansion[side])
+		do
+			do break end
+			local (for generator), (for state), (for control) = pairs(obs_list)
+			do
+				do break end
+				if not y_min or y_min > obs_seg[1].y then
+					height.xp_yn = obs_seg[1].z
+					y_min = obs_seg[1].y
+				end
+
+				if not y_max or y_max < obs_seg[2].y then
+					height.xp_yp = obs_seg[2].z
+					y_max = obs_seg[2].y
+				end
+
+			end
+
+		end
+
+	end
+
+	y_max, y_min = nil, nil
+	(for control) = nil and pairs
+	local (for generator), (for state), (for control) = pairs(expansion[self._opposite_side_str[side]])
+	do
+		do break end
+		local (for generator), (for state), (for control) = pairs(obs_list)
+		do
+			do break end
+			if not y_min or y_min > obs_seg[1].y then
+				height.xn_yn = obs_seg[1].z
+				y_min = obs_seg[1].y
+			end
+
+			if not y_max or y_max < obs_seg[2].y then
+				height.xn_yp = obs_seg[2].z
+				y_max = obs_seg[2].y
+			end
+
+		end
+
+	end
+
+end
+
+function NavFieldBuilder._get_room_height_at_pos(height, borders, pos)
+	local lerp_x = (pos.x - borders.x_neg) / (borders.x_pos - borders.x_neg)
+	local lerp_y = (pos.y - borders.y_neg) / (borders.y_pos - borders.y_neg)
+	local side_x_pos_z = math.lerp(height.xp_yn, height.xp_yp, lerp_y)
+	local side_x_neg_z = math.lerp(height.xn_yn, height.xn_yp, lerp_y)
+	local plane_z = math.lerp(side_x_neg_z, side_x_pos_z, lerp_x)
+	return plane_z
+end
+
+function NavFieldBuilder:_ground_ray(air_pos)
+	return World:raycast("ray", air_pos, air_pos + self._down_vec, "slot_mask", self._slotmask, "ray_type", "walk")
+end
+
+function NavFieldBuilder:_sphere_ray(from, to, raycast_radius)
+	return World:raycast("ray", from, to, "slot_mask", self._slotmask, "sphere_cast_radius", raycast_radius, "ray_type", "walk")
+end
+
+function NavFieldBuilder:_bundle_ray(from, to, raycast_radius)
+	return World:raycast("ray", from, to, "slot_mask", self._slotmask, "sphere_cast_radius", raycast_radius, "bundle", math.max(3, math.ceil(raycast_radius)), "ray_type", "walk")
+end
+
+function NavFieldBuilder:_check_line_z_overlap_bool(overlap_room_borders, ext_room_borders, overlap_room_height, ext_room_height, dir_str, clamp_a, segment)
+	local is_x = dir_str == "x_pos" or dir_str == "x_neg"
+	local seg_pos_1, seg_pos_2
+	if is_x then
+		seg_pos_1 = Vector3(clamp_a, segment[1], 0)
+		seg_pos_2 = Vector3(clamp_a, segment[2], 0)
+	else
+		seg_pos_1 = Vector3(segment[1], clamp_a, 0)
+		seg_pos_2 = Vector3(segment[2], clamp_a, 0)
+	end
+
+	local exp_z_1 = self._get_room_height_at_pos(ext_room_height, ext_room_borders, seg_pos_1)
+	local exp_z_2 = self._get_room_height_at_pos(ext_room_height, ext_room_borders, seg_pos_2)
+	mvector3.set_z(seg_pos_1, exp_z_1)
+	mvector3.set_z(seg_pos_2, exp_z_2)
+	local overlap_z_1 = self._get_room_height_at_pos(overlap_room_height, overlap_room_borders, seg_pos_1)
+	local overlap_z_2 = self._get_room_height_at_pos(overlap_room_height, overlap_room_borders, seg_pos_2)
+	local min_h_diff = 150
+	if min_h_diff < overlap_z_1 - exp_z_1 and min_h_diff < overlap_z_2 - exp_z_2 or overlap_z_1 - exp_z_1 < -min_h_diff and overlap_z_2 - exp_z_2 < -min_h_diff then
+		return false
+	end
+
+	return true
+end
+
+function NavFieldBuilder._check_room_overlap_bool(rect_1, rect_2)
+	return not (rect_1.y_neg > rect_2.y_pos) and not (rect_1.y_pos < rect_2.y_neg) and not (rect_1.x_pos < rect_2.x_neg) and not (rect_1.x_neg > rect_2.x_pos)
+end
+
+function NavFieldBuilder:_commence_vis_graph_build()
+	if self._building.stage == 1 then
+		local i_room_a = self._building.current_i_room_a
+		local i_room_b = self._building.current_i_room_b
+		local text = "Checking visibility between " .. tostring(i_room_a) .. " and " .. tostring(i_room_b) .. " of " .. tostring(#self._rooms)
+		self:_update_progress_bar(1, text)
+		local complete = self:_create_room_to_room_visibility_data(self._building)
+		if complete then
+			self._building.stage = 2
+			self._building.current_i_room_a = nil
+			self._building.current_i_room_b = nil
+			self._building.old_rays = nil
+		end
+
+	elseif self._building.stage == 2 then
+		self:_update_progress_bar(2, "creating visibility groups")
+		self:_create_visibility_groups()
+		self._building.stage = 3
+	elseif self._building.stage == 3 then
+		self:_update_progress_bar(3, "linking visibility groups")
+		self:_link_visibility_groups()
+		self._room_visibility_data = nil
+		self._building.stage = 4
+	elseif self._building.stage == 4 then
+		self:_update_progress_bar(4, "generating geographic segments")
+		self:_generate_geographic_segments()
+		self._building.stage = 5
+	elseif self._building.stage == 5 then
+		self:_update_progress_bar(5, "generating coarse navigation graph")
+		self:_generate_coarse_navigation_graph()
+		self:_cleanup_room_data_1()
+		self:_reenable_all_blockers()
+		self._building = false
+		self:_destroy_progress_bar()
+		self._build_complete_clbk()
+	end
+
+end
+
+function NavFieldBuilder:_create_room_to_room_visibility_data(build_data)
+	local i_room_a = build_data.current_i_room_a
+	local i_room_b = build_data.current_i_room_b
+	local all_rooms = self._rooms
+	local nr_rooms = #all_rooms
+	local room_a = all_rooms[i_room_a]
+	local room_b = all_rooms[i_room_b]
+	local current_nr_raycasts = 0
+	local max_nr_raycasts = 300
+	local ray_dis = build_data.ray_dis
+	repeat
+		local filtered, visibility, nr_raycasts, rays_x_a, rays_y_a, rays_x_b, rays_y_b
+		if build_data.new_pair and (build_data.pos_vis_filter or build_data.neg_vis_filter) then
+			visibility = self:_chk_room_vis_filter(room_a, room_b, build_data.pos_vis_filter, build_data.neg_vis_filter)
+			if visibility ~= nil then
+				filtered = true
+				nr_raycasts = 1
+			end
+
+		end
+
+		local old_rays = build_data.old_rays or {}
+		if not filtered then
+			visibility, nr_raycasts, rays_x_a, rays_y_a, rays_x_b, rays_y_b = self:_chk_room_to_room_visibility(room_a, room_b, old_rays.x_a or 1, old_rays.y_a or 1, old_rays.x_b or 1, old_rays.y_b or 1, max_nr_raycasts - current_nr_raycasts, ray_dis)
+		end
+
+		current_nr_raycasts = current_nr_raycasts + nr_raycasts
+		local pair_completed = filtered or visibility or not rays_x_a
+		if visibility then
+			self:_set_rooms_visible(i_room_a, i_room_b)
+		end
+
+		if pair_completed then
+			build_data.old_rays = nil
+			repeat
+				if i_room_b == nr_rooms then
+					if not self._room_visibility_data[i_room_a] then
+						self._room_visibility_data[i_room_a] = {}
+					end
+
+					if i_room_a == #self._rooms - 1 then
+						return true
+					else
+						i_room_a = i_room_a + 1
+						i_room_b = i_room_a + 1
+						room_a = all_rooms[i_room_a]
+						room_b = all_rooms[i_room_b]
+					end
+
+				else
+					i_room_b = i_room_b + 1
+					room_b = all_rooms[i_room_b]
+				end
+
+				build_data.new_pair = true
+				break
+			until i_room_a == nr_rooms
+		else
+			old_rays.x_a = rays_x_a
+			old_rays.y_a = rays_y_a
+			old_rays.x_b = rays_x_b
+			old_rays.y_b = rays_y_b
+			build_data.old_rays = old_rays
+			build_data.new_pair = nil
+		end
+
+	until current_nr_raycasts == max_nr_raycasts
+	build_data.current_i_room_a = i_room_a
+	build_data.current_i_room_b = i_room_b
+end
+
+function NavFieldBuilder:_chk_room_to_room_visibility(room_a, room_b, old_rays_x_a, old_rays_y_a, old_rays_x_b, old_rays_y_b, nr_raycasts_allowed, ray_dis)
+	local borders_a = room_a.borders
+	local borders_b = room_b.borders
+	local min_ray_dis = ray_dis
+	local nr_rays_x_a = math.max(2, 1 + math.floor((borders_a.x_pos - borders_a.x_neg) / min_ray_dis))
+	local nr_rays_y_a = math.max(2, 1 + math.floor((borders_a.y_pos - borders_a.y_neg) / min_ray_dis))
+	local nr_rays_x_b = math.max(2, 1 + math.floor((borders_b.x_pos - borders_b.x_neg) / min_ray_dis))
+	local nr_rays_y_b = math.max(2, 1 + math.floor((borders_b.y_pos - borders_b.y_neg) / min_ray_dis))
+	local nr_rays = 0
+	local i_ray_x_a = old_rays_x_a
+	local i_ray_y_a = old_rays_y_a
+	local i_ray_x_b = old_rays_x_b
+	local i_ray_y_b = old_rays_y_b
+	local pos_from = Vector3()
+	local pos_to = Vector3()
+	local mvec3_set_static = mvector3.set_static
+	local mvec3_set_z = mvector3.set_z
+	local m_lerp = math.lerp
+	local x_a, x_b, y_a, y_b
+	while nr_rays_x_a >= i_ray_x_a do
+		x_a = i_ray_x_a == 1 and borders_a.x_neg or i_ray_x_a == nr_rays_x_a and borders_a.x_pos or m_lerp(borders_a.x_neg, borders_a.x_pos, i_ray_x_a / nr_rays_x_a)
+		while nr_rays_y_a >= i_ray_y_a do
+			y_a = i_ray_y_a == 1 and borders_a.y_neg or i_ray_y_a == nr_rays_y_a and borders_a.y_pos or m_lerp(borders_a.y_neg, borders_a.y_pos, i_ray_y_a / nr_rays_y_a)
+			mvec3_set_static(pos_from, x_a, y_a)
+			local room_a_z = self._get_room_height_at_pos(room_a.height, room_a.borders, pos_from) + 120
+			mvec3_set_z(pos_from, room_a_z)
+			while nr_rays_x_b >= i_ray_x_b do
+				x_b = i_ray_x_b == 1 and borders_b.x_neg or i_ray_x_b == nr_rays_x_b and borders_b.x_pos or m_lerp(borders_b.x_neg, borders_b.x_pos, i_ray_x_b / nr_rays_x_b)
+				while nr_rays_y_b >= i_ray_y_b do
+					nr_rays = nr_rays + 1
+					y_b = i_ray_y_b == 1 and borders_b.y_neg or i_ray_y_b == nr_rays_y_b and borders_b.y_pos or m_lerp(borders_b.y_neg, borders_b.y_pos, i_ray_y_b / nr_rays_y_b)
+					mvec3_set_static(pos_to, x_b, y_b)
+					local room_b_z = self._get_room_height_at_pos(room_b.height, room_b.borders, pos_to) + 120
+					mvec3_set_z(pos_to, room_b_z)
+					local vis_ray = World:raycast("ray", pos_from, pos_to, "slot_mask", self._slotmask, "ray_type", "vis_graph")
+					if not vis_ray then
+						return true, nr_rays
+					elseif nr_rays == nr_raycasts_allowed then
+						return false, nr_rays, i_ray_x_a, i_ray_y_a, i_ray_x_b, i_ray_y_b + 1
+					end
+
+					i_ray_y_b = i_ray_y_b + 1
+				end
+
+				i_ray_y_b = 1
+				i_ray_x_b = i_ray_x_b + 1
+			end
+
+			i_ray_x_b = 1
+			i_ray_y_a = i_ray_y_a + 1
+		end
+
+		i_ray_y_a = 1
+		i_ray_x_a = i_ray_x_a + 1
+	end
+
+	return false, nr_rays
+end
+
+function NavFieldBuilder:_set_rooms_visible(i_room_a, i_room_b)
+	local room_a = self._rooms[i_room_a]
+	local room_b = self._rooms[i_room_b]
+	self._room_visibility_data[i_room_a] = self._room_visibility_data[i_room_a] or {}
+	self._room_visibility_data[i_room_b] = self._room_visibility_data[i_room_b] or {}
+	self._room_visibility_data[i_room_a][i_room_b] = true
+	self._room_visibility_data[i_room_b][i_room_a] = true
+end
+
+function NavFieldBuilder:_create_visibility_groups(nav_seg_id)
+	local all_rooms = self._rooms
+	local nav_segments = self._nav_segments
+	self._visibility_groups = {}
+	local vis_groups = self._visibility_groups
+	if nav_seg_id then
+		nav_segments[nav_seg_id].vis_groups = {}
+	else
+		local (for generator), (for state), (for control) = pairs(nav_segments)
+		do
+			do break end
+			nav_seg.vis_groups = {}
+		end
+
+	end
+
+	local sorted_vis_list = nil and self:_sort_rooms_according_to_visibility()
+	local search_index = #sorted_vis_list
+	while search_index > 0 do
+		local search_i = sorted_vis_list[search_index].i_room
+		if not self._rooms[search_i].vis_group then
+			local search_stack = {search_i}
+			local searched_rooms = {}
+			local room = all_rooms[search_i]
+			local pos = self:_calculate_room_center(room)
+			local segment = room.segment
+			local my_vis_group = {
+				rooms = {},
+				pos = pos,
+				vis_groups = {},
+				seg = segment
+			}
+			table.insert(vis_groups, my_vis_group)
+			local i_vis_group = #vis_groups
+			table.insert(nav_segments[segment].vis_groups, i_vis_group)
+			repeat
+				local top_stack_room_i = search_stack[1]
+				my_vis_group.rooms[top_stack_room_i] = true
+				self:_add_visible_neighbours_to_stack(top_stack_room_i, search_stack, searched_rooms, self._room_visibility_data[top_stack_room_i], my_vis_group.rooms, my_vis_group.pos)
+				searched_rooms[top_stack_room_i] = true
+				all_rooms[top_stack_room_i].vis_group = i_vis_group
+				table.remove(search_stack, 1)
+			until not next(search_stack)
+		end
+
+		search_index = search_index - 1
+	end
+
+end
+
+function NavFieldBuilder:_add_visible_neighbours_to_stack(i_room, search_stack, searched_rooms, vip_list, rooms_in_group, node_pos)
+	local rooms = self._rooms
+	local room = rooms[i_room]
+	local segment = room.segment
+	local (for generator), (for state), (for control) = pairs(room.doors)
+	do
+		do break end
+		local (for generator), (for state), (for control) = pairs(door_list)
+		do
+			do break end
+			local door_data = self._room_doors[door_id]
+			local i_neighbour_room = door_data.rooms[1] == i_room and door_data.rooms[2] or door_data.rooms[1]
+			local neighbour_room = rooms[i_neighbour_room]
+			if vip_list[i_neighbour_room] and not searched_rooms[i_neighbour_room] and not neighbour_room.vis_group and segment == neighbour_room.segment then
+				local accepted = true
+				do
+					local (for generator), (for state), (for control) = pairs(rooms_in_group)
+					do
+						do break end
+						if not self._room_visibility_data[i_neighbour_room][i_room] then
+							accepted = false
+					end
+
+					else
+					end
+
+				end
+
+				do break end
+				table.insert(search_stack, i_neighbour_room)
+			end
+
+		end
+
+	end
+
+end
+
+function NavFieldBuilder:_sort_rooms_according_to_visibility()
+	local sorted_vis_list = {}
+	do
+		local (for generator), (for state), (for control) = ipairs(self._room_visibility_data)
+		do
+			do break end
+			local my_borders = self._rooms[i_room].borders
+			local my_total_area = self:_calc_room_area(my_borders)
+			local my_data = {i_room = i_room, area = my_total_area}
+			local search_index = #sorted_vis_list
+			while search_index > 0 and my_total_area < sorted_vis_list[search_index].area do
+				search_index = search_index - 1
+			end
+
+			table.insert(sorted_vis_list, search_index + 1, my_data)
+		end
+
+	end
+
+end
+
+function NavFieldBuilder:_calc_room_area(borders)
+	return (borders.x_pos - borders.x_neg) * (borders.y_pos - borders.y_neg)
+end
+
+function NavFieldBuilder:_calculate_room_center(room)
+	local borders = room.borders
+	local pos = Vector3((borders.x_pos + borders.x_neg) * 0.5, (borders.y_pos + borders.y_neg) * 0.5, 0)
+	local pos_z = self._get_room_height_at_pos(room.height, borders, pos)
+	mvector3.set_z(pos, pos_z)
+	return pos
+end
+
+function NavFieldBuilder:_link_visibility_groups()
+	local (for generator), (for state), (for control) = ipairs(self._visibility_groups)
+	do
+		do break end
+		local (for generator), (for state), (for control) = pairs(group.rooms)
+		do
+			do break end
+			local visible_rooms = self._room_visibility_data[i_room]
+			local (for generator), (for state), (for control) = pairs(visible_rooms)
+			do
+				do break end
+				local test_vis_group = self._rooms[i_vis_room].vis_group
+				if not group.vis_groups[test_vis_group] and test_vis_group ~= i_group then
+					group.vis_groups[test_vis_group] = true
+				end
+
+			end
+
+		end
+
+	end
+
+end
+
+function NavFieldBuilder:_generate_coarse_navigation_graph()
+	local neg_dir_str = self._neg_dir_str_map
+	local all_vis_groups = self._visibility_groups
+	local all_segments = self._nav_segments
+	local all_rooms = self._rooms
+	local all_doors = self._room_doors
+	do
+		local (for generator), (for state), (for control) = pairs(self._nav_segments)
+		do
+			do break end
+			seg.neighbours = {}
+		end
+
+	end
+
+	(for control) = nil and {}
+	local (for generator), (for state), (for control) = pairs(self._nav_segments)
+	do
+		do break end
+		local my_discovered_segments = {}
+		local neighbours = seg.neighbours
+		local vis_groups = seg.vis_groups
+		local (for generator), (for state), (for control) = ipairs(vis_groups)
+		do
+			do break end
+			local vis_group = all_vis_groups[i_vis_group]
+			if vis_group then
+				local group_rooms = vis_group.rooms
+				local (for generator), (for state), (for control) = pairs(group_rooms)
+				do
+					do break end
+					local room = all_rooms[i_room]
+					local (for generator), (for state), (for control) = pairs(room.doors)
+					do
+						do break end
+						local is_neg = neg_dir_str[dir_str]
+						local (for generator), (for state), (for control) = pairs(door_list)
+						do
+							do break end
+							local door = all_doors[id_door]
+							local i_neighbour_room = door.rooms[is_neg and 1 or 2]
+							local neighbour_seg_id = all_rooms[i_neighbour_room].segment
+							if neighbour_seg_id ~= seg_id then
+								local neighbour_doors = neighbours[neighbour_seg_id]
+								if not neighbour_doors then
+									neighbour_doors = {}
+									neighbours[neighbour_seg_id] = neighbour_doors
+									all_segments[neighbour_seg_id].neighbours[seg_id] = neighbour_doors
+									my_discovered_segments[neighbour_seg_id] = true
+									table.insert(neighbour_doors, id_door)
+								elseif my_discovered_segments[neighbour_seg_id] then
+									table.insert(neighbour_doors, id_door)
+								end
+
+							end
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+
+end
+
+function NavFieldBuilder:set_nav_seg_metadata(nav_seg_id, param_name, param_value)
+	if not self._nav_segments then
+		return
+	end
+
+	local nav_seg = self._nav_segments[nav_seg_id]
+	if not nav_seg then
+		return
+	end
+
+	nav_seg[param_name] = param_value
+end
+

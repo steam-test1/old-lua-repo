@@ -532,3 +532,61 @@ function CoreCutsceneSequencerPanel:_on_start_box_selection(event)
 end
 
 function CoreCutsceneSequencerPanel:_on_drag_box_selection(event)
+	local all_clips_within_box = {}
+	do
+		local (for generator), (for state), (for control) = ipairs(self._box_selection_ornaments)
+		do
+			do break end
+			selection_box:set_end_point(event:get_position_on_screen())
+			all_clips_within_box = table.list_add(all_clips_within_box, selection_box:clips_within_box())
+		end
+
+	end
+
+	(for control) = nil and selection_box.set_end_point
+	do
+		local (for generator), (for state), (for control) = ipairs(self._all_clips_within_box_at_last_update or {})
+		do
+			do break end
+			clip:set_selected(false)
+		end
+
+	end
+
+	(for control) = nil and clip.set_selected
+	do
+		local (for generator), (for state), (for control) = ipairs(all_clips_within_box)
+		do
+			do break end
+			clip:set_selected(true)
+		end
+
+	end
+
+end
+
+function CoreCutsceneSequencerPanel:_on_commit_box_selection(event)
+	do
+		local (for generator), (for state), (for control) = ipairs(self._box_selection_ornaments)
+		do
+			do break end
+			selection_box:set_visible(false)
+		end
+
+	end
+
+	self._all_clips_within_box_at_last_update = nil
+	(for control) = nil and selection_box.set_visible
+	self:_send_event("EVT_SELECTION_CHANGED")
+end
+
+function CoreCutsceneSequencerPanel:_on_scrolled_area_paint(data, event)
+	local x_offset = self._scrolled_area:calc_scrolled_position(Vector3(0, 0, 0)).x
+	self._ruler:set_offset_pixels(x_offset)
+	event:skip()
+end
+
+function CoreCutsceneSequencerPanel:change_track_behaviour(new_behaviour)
+	self._track_behaviour = new_behaviour
+end
+

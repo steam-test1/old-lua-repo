@@ -119,3 +119,12 @@ function EventListenerHolder:_set_new(key, event_types, clbk)
 end
 
 function EventListenerHolder:_append_new_additions()
+end
+
+function EventListenerHolder:_dispose_trash()
+end
+
+function EventListenerHolder:_not_trash(key)
+	return not self._trash or not self._trash[key]
+end
+

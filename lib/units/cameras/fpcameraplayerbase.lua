@@ -923,3 +923,232 @@ function FPCameraPlayerBase:spawn_melee_item()
 end
 
 function FPCameraPlayerBase:unspawn_melee_item()
+	if not self._melee_item_units then
+		return
+	end
+
+	do
+		local (for generator), (for state), (for control) = ipairs(self._melee_item_units)
+		do
+			do break end
+			if alive(unit) then
+				unit:unlink()
+				World:delete_unit(unit)
+			end
+
+		end
+
+	end
+
+end
+
+function FPCameraPlayerBase:hide_weapon()
+	if alive(self._parent_unit) then
+		self._parent_unit:inventory():hide_equipped_unit()
+	end
+
+end
+
+function FPCameraPlayerBase:show_weapon()
+	if alive(self._parent_unit) then
+		self._parent_unit:inventory():show_equipped_unit()
+	end
+
+end
+
+function FPCameraPlayerBase:enter_shotgun_reload_loop(unit, state, ...)
+	if alive(self._parent_unit) then
+		local speed_multiplier = self._parent_unit:inventory():equipped_unit():base():reload_speed_multiplier()
+		self._unit:anim_state_machine():set_speed(Idstring(state), speed_multiplier)
+	end
+
+end
+
+function FPCameraPlayerBase:spawn_mask()
+	if not self._mask_unit then
+		local align_obj_l_name = Idstring("a_weapon_left")
+		local align_obj_r_name = Idstring("a_weapon_right")
+		local align_obj_l = self._unit:get_object(align_obj_l_name)
+		local align_obj_r = self._unit:get_object(align_obj_r_name)
+		local mask_unit_name = "units/payday2/masks/fps_temp_dallas/temp_mask_dallas"
+		local equipped_mask = managers.blackmarket:equipped_mask()
+		local peer_id = managers.network:session():local_peer():id()
+		local blueprint
+		if equipped_mask.mask_id then
+			mask_unit_name = managers.blackmarket:mask_unit_name_by_mask_id(equipped_mask.mask_id, peer_id)
+			blueprint = equipped_mask.blueprint
+		else
+			mask_unit_name = tweak_data.blackmarket.masks[equipped_mask].unit
+		end
+
+		managers.dyn_resource:load(Idstring("unit"), Idstring(mask_unit_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
+		self._mask_unit = World:spawn_unit(Idstring(mask_unit_name), align_obj_r:position(), align_obj_r:rotation())
+		local glass_id_string = Idstring("glass")
+		local mtr_hair_solid_id_string = Idstring("mtr_hair_solid")
+		local mtr_hair_effect_id_string = Idstring("mtr_hair_effect")
+		do
+			local (for generator), (for state), (for control) = ipairs(self._mask_unit:get_objects_by_type(Idstring("material")))
+			do
+				do break end
+				if material:name() == glass_id_string then
+					material:set_render_template(Idstring("opacity:CUBE_ENVIRONMENT_MAPPING:CUBE_FRESNEL:DIFFUSE_TEXTURE:FPS"))
+				elseif material:name() == mtr_hair_solid_id_string then
+				elseif material:name() == mtr_hair_effect_id_string then
+				else
+					material:set_render_template(Idstring("solid_mask:DEPTH_SCALING"))
+				end
+
+			end
+
+		end
+
+		do break end
+		print("FPCameraPlayerBase:spawn_mask", inspect(blueprint))
+		self._mask_unit:base():apply_blueprint(blueprint)
+		print(inspect(self._mask_unit:get_objects_by_type(Idstring("material"))))
+		self._mask_unit:set_timer(managers.player:player_timer())
+		self._mask_unit:set_animation_timer(managers.player:player_timer())
+		self._mask_unit:anim_stop()
+		if not tweak_data.blackmarket.masks[equipped_mask.mask_id].type then
+			local backside = World:spawn_unit(Idstring("units/payday2/masks/msk_fps_back_straps/msk_fps_back_straps"), align_obj_r:position(), align_obj_r:rotation())
+			do
+				local (for generator), (for state), (for control) = ipairs(backside:get_objects_by_type(Idstring("material")))
+				do
+					do break end
+					material:set_render_template(Idstring("generic:DEPTH_SCALING:DIFFUSE_TEXTURE:NORMALMAP:SKINNED_3WEIGHTS"))
+				end
+
+			end
+
+			(for control) = backside:get_objects_by_type(Idstring("material")) and material.set_render_template
+			backside:set_timer(managers.player:player_timer())
+			backside:set_animation_timer(managers.player:player_timer())
+			backside:anim_play(Idstring("mask_on"))
+			self._mask_unit:link(self._mask_unit:orientation_object():name(), backside, backside:orientation_object():name())
+		end
+
+		self._unit:link(align_obj_l:name(), self._mask_unit, self._mask_unit:orientation_object():name())
+	end
+
+end
+
+function FPCameraPlayerBase:relink_mask()
+	print("FPCameraPlayerBase:relink_mask()")
+end
+
+function FPCameraPlayerBase:unspawn_mask()
+	if alive(self._mask_unit) then
+		do
+			local (for generator), (for state), (for control) = ipairs(self._mask_unit:children())
+			do
+				do break end
+				linked_unit:unlink()
+				World:delete_unit(linked_unit)
+			end
+
+		end
+
+		(for control) = self._mask_unit:children() and linked_unit.unlink
+		self._mask_unit:unlink()
+		local name = self._mask_unit:name()
+		World:delete_unit(self._mask_unit)
+		managers.dyn_resource:unload(Idstring("unit"), name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
+		self._mask_unit = nil
+	end
+
+end
+
+function FPCameraPlayerBase:counter_taser()
+	local current_state = self._parent_movement_ext._current_state
+	if current_state and current_state.give_shock_to_taser then
+		current_state:give_shock_to_taser()
+		if alive(self._taser_hooks_unit) then
+			local align_obj = self._unit:get_object(Idstring("a_weapon_right"))
+			World:effect_manager():spawn({
+				effect = Idstring("effects/payday2/particles/character/taser_stop"),
+				position = align_obj:position(),
+				normal = align_obj:rotation():y()
+			})
+		end
+
+	end
+
+end
+
+function FPCameraPlayerBase:spawn_taser_hooks()
+	if not alive(self._taser_hooks_unit) and alive(self._parent_unit) then
+		local hooks_align = self._unit:get_object(Idstring("a_weapon_right"))
+		local taser_hooks_unit_name = "units/payday2/weapons/wpn_fps_taser_hooks/wpn_fps_taser_hooks"
+		managers.dyn_resource:load(Idstring("unit"), Idstring(taser_hooks_unit_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
+		self._taser_hooks_unit = World:spawn_unit(Idstring(taser_hooks_unit_name), hooks_align:position(), hooks_align:rotation())
+		self._taser_hooks_unit:set_timer(managers.player:player_timer())
+		self._taser_hooks_unit:set_animation_timer(managers.player:player_timer())
+		self._taser_hooks_unit:anim_play(Idstring("taser_hooks"))
+		self._unit:link(hooks_align:name(), self._taser_hooks_unit, self._taser_hooks_unit:orientation_object():name())
+	end
+
+end
+
+function FPCameraPlayerBase:unspawn_taser_hooks()
+	if alive(self._taser_hooks_unit) then
+		self._taser_hooks_unit:unlink()
+		local name = self._taser_hooks_unit:name()
+		World:delete_unit(self._taser_hooks_unit)
+		managers.dyn_resource:unload(Idstring("unit"), name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
+		self._taser_hooks_unit = nil
+	end
+
+end
+
+function FPCameraPlayerBase:end_tase()
+	local current_state = self._parent_movement_ext._current_state
+	if current_state and current_state.clbk_exit_to_std then
+		current_state:clbk_exit_to_std()
+	end
+
+end
+
+function FPCameraPlayerBase:anim_clbk_check_bullet_object()
+	if alive(self._parent_unit) then
+		local weapon = self._parent_unit:inventory():equipped_unit()
+		if alive(weapon) then
+			weapon:base():predict_bullet_objects()
+		end
+
+	end
+
+end
+
+function FPCameraPlayerBase:load_fps_mask_units()
+	if not self._mask_backface_loaded then
+		self._mask_backface_loaded = true
+		managers.dyn_resource:load(Idstring("unit"), Idstring("units/payday2/masks/msk_fps_back_straps/msk_fps_back_straps"), "packages/dyn_resources", false)
+	end
+
+end
+
+function FPCameraPlayerBase:destroy()
+	if self._parent_unit then
+		self._parent_unit:base():remove_destroy_listener("FPCameraPlayerBase")
+	end
+
+	if self._light then
+		World:delete_light(self._light)
+	end
+
+	if self._light_effect then
+		World:effect_manager():kill(self._light_effect)
+		self._light_effect = nil
+	end
+
+	self:anim_clbk_unspawn_handcuffs()
+	self:unspawn_mask()
+	self:unspawn_grenade()
+	self:unspawn_melee_item()
+	if self._mask_backface_loaded then
+		self._mask_backface_loaded = nil
+		managers.dyn_resource:unload(Idstring("unit"), Idstring("units/payday2/masks/msk_fps_back_straps/msk_fps_back_straps"), "packages/dyn_resources", false)
+	end
+
+end
+

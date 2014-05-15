@@ -1152,3 +1152,304 @@ function CopLogicAttack._get_cover_offset_pos(data, cover_data, threat_pos)
 end
 
 function CopLogicAttack._find_flank_pos(data, my_data, flank_tracker, max_dist)
+	local pos = flank_tracker:position()
+	local vec_to_pos = pos - data.m_pos
+	mvector3.set_z(vec_to_pos, 0)
+	local max_dis = max_dist or 1500
+	mvector3.set_length(vec_to_pos, max_dis)
+	local accross_positions = managers.navigation:find_walls_accross_tracker(flank_tracker, vec_to_pos, 160, 5)
+end
+
+function CopLogicAttack.damage_clbk(data, damage_info)
+	CopLogicIdle.damage_clbk(data, damage_info)
+end
+
+function CopLogicAttack.is_available_for_assignment(data, new_objective)
+	local my_data = data.internal_data
+	if my_data.exiting then
+		return
+	end
+
+	if new_objective and new_objective.forced then
+		return true
+	end
+
+	if data.unit:movement():chk_action_forbidden("walk") then
+		return
+	end
+
+	if data.path_fail_t and data.t < data.path_fail_t + 6 then
+		return
+	end
+
+	if data.is_suppressed then
+		return
+	end
+
+	local att_obj = data.attention_obj
+	if not att_obj or att_obj.reaction < AIAttentionObject.REACT_AIM then
+		return true
+	end
+
+	if not new_objective or new_objective.type == "free" then
+		return true
+	end
+
+	if new_objective then
+		local allow_trans, obj_fail = CopLogicBase.is_obstructed(data, new_objective, 0.2)
+		if obj_fail then
+			return
+		end
+
+	end
+
+	return true
+end
+
+function CopLogicAttack._chk_wants_to_take_cover(data, my_data)
+	if not data.attention_obj or data.attention_obj.reaction < AIAttentionObject.REACT_COMBAT then
+		return
+	end
+
+	if my_data.moving_to_cover or data.is_suppressed or my_data.attitude ~= "engage" or data.unit:anim_data().reload then
+		return true
+	end
+
+	local ammo_max, ammo = data.unit:inventory():equipped_unit():base():ammo_info()
+	if ammo / ammo_max < 0.2 then
+		return true
+	end
+
+end
+
+function CopLogicAttack._set_best_cover(data, my_data, cover_data)
+	local best_cover = my_data.best_cover
+	if best_cover then
+		managers.navigation:release_cover(best_cover[1])
+		CopLogicAttack._cancel_cover_pathing(data, my_data)
+	end
+
+	if cover_data then
+		managers.navigation:reserve_cover(cover_data[1], data.pos_rsrv_id)
+		my_data.best_cover = cover_data
+		if not my_data.in_cover and not my_data.walking_to_cover_shoot_pos and not my_data.moving_to_cover and mvec3_dis_sq(cover_data[1][1], data.m_pos) < 100 then
+			my_data.in_cover = my_data.best_cover
+			my_data.cover_enter_t = data.t
+		end
+
+	else
+		my_data.best_cover = nil
+		my_data.flank_cover = nil
+	end
+
+end
+
+function CopLogicAttack._set_nearest_cover(my_data, cover_data)
+	local nearest_cover = my_data.nearest_cover
+	if nearest_cover then
+		managers.navigation:release_cover(nearest_cover[1])
+	end
+
+	if cover_data then
+		local pos_rsrv_id = my_data.unit:movement():pos_rsrv_id()
+		managers.navigation:reserve_cover(cover_data[1], pos_rsrv_id)
+		my_data.nearest_cover = cover_data
+	else
+		my_data.nearest_cover = nil
+	end
+
+end
+
+function CopLogicAttack._can_move(data)
+	return not data.objective or not data.objective.pos or not data.objective.in_place
+end
+
+function CopLogicAttack.on_new_objective(data, old_objective)
+	CopLogicIdle.on_new_objective(data, old_objective)
+end
+
+function CopLogicAttack.queue_update(data, my_data)
+	CopLogicBase.queue_task(my_data, my_data.update_queue_id, data.logic.queued_update, data, data.t + (data.important and 0.5 or 2), true)
+end
+
+function CopLogicAttack._get_expected_attention_position(data, my_data)
+	local main_enemy = data.attention_obj
+	local e_nav_tracker = main_enemy.nav_tracker
+	if not e_nav_tracker then
+		return
+	end
+
+	local my_nav_seg = data.unit:movement():nav_tracker():nav_segment()
+	local e_pos = main_enemy.m_pos
+	local e_nav_seg = e_nav_tracker:nav_segment()
+	if e_nav_seg == my_nav_seg then
+		mvec3_set(temp_vec1, e_pos)
+		mvec3_set_z(temp_vec1, temp_vec1.z + 140)
+		return temp_vec1
+	end
+
+	local expected_path = my_data.expected_pos_path
+	local from_nav_seg, to_nav_seg
+	if expected_path then
+		local i_from_seg
+		do
+			local (for generator), (for state), (for control) = ipairs(expected_path)
+			do
+				do break end
+				if k[1] == my_nav_seg then
+					i_from_seg = i
+			end
+
+			else
+			end
+
+		end
+
+		do break end
+		do
+			local function _find_aim_pos(from_nav_seg, to_nav_seg)
+				local closest_dis = 1000000000
+				local closest_door
+				local min_point_dis_sq = 10000
+				local found_doors = managers.navigation:find_segment_doors(from_nav_seg, callback(CopLogicAttack, CopLogicAttack, "_chk_is_right_segment", to_nav_seg))
+				do
+					local (for generator), (for state), (for control) = pairs(found_doors)
+					do
+						do break end
+						mvec3_set(temp_vec1, door.center)
+						local dis = mvec3_dis_sq(e_pos, temp_vec1)
+						if closest_dis > dis then
+							closest_dis = dis
+							closest_door = door
+						end
+
+					end
+
+				end
+
+				do break end
+				mvec3_set(temp_vec1, closest_door.center)
+				mvec3_sub(temp_vec1, data.m_pos)
+				mvec3_set_z(temp_vec1, 0)
+				if min_point_dis_sq < mvector3.length_sq(temp_vec1) then
+					mvec3_set(temp_vec1, closest_door.center)
+					mvec3_set_z(temp_vec1, temp_vec1.z + 140)
+					return temp_vec1
+				else
+					return false, true
+				end
+
+			end
+
+			local i = #expected_path
+			while i > 0 do
+				if expected_path[i][1] == e_nav_seg then
+					to_nav_seg = expected_path[math.clamp(i, i_from_seg - 1, i_from_seg + 1)][1]
+					local aim_pos, too_close = _find_aim_pos(my_nav_seg, to_nav_seg)
+					if aim_pos then
+						do return aim_pos end
+						break
+					end
+
+					if too_close then
+						local next_nav_seg = expected_path[math.clamp(i, i_from_seg - 2, i_from_seg + 2)][1]
+						if next_nav_seg ~= to_nav_seg then
+							local from_nav_seg = to_nav_seg
+							to_nav_seg = next_nav_seg
+							aim_pos = _find_aim_pos(from_nav_seg, to_nav_seg)
+						end
+
+						return aim_pos
+					end
+
+					break
+				end
+
+				i = i - 1
+			end
+
+		end
+
+		if not i_from_seg or not to_nav_seg then
+			expected_path = nil
+			my_data.expected_pos_path = nil
+		end
+
+	end
+
+	if not expected_path and not my_data.expected_pos_path_search_id then
+		my_data.expected_pos_path_search_id = "ExpectedPos" .. tostring(data.key)
+		data.unit:brain():search_for_coarse_path(my_data.expected_pos_path_search_id, e_nav_seg)
+	end
+
+end
+
+function CopLogicAttack._chk_is_right_segment(ignore_this, enemy_nav_seg, test_nav_seg)
+	return enemy_nav_seg == test_nav_seg
+end
+
+function CopLogicAttack.is_advancing(data)
+	if data.internal_data.moving_to_cover then
+		return data.internal_data.moving_to_cover[1][1]
+	end
+
+	if data.internal_data.walking_to_cover_shoot_pos then
+		return data.internal_data.walking_to_cover_shoot_pos._last_pos
+	end
+
+end
+
+function CopLogicAttack._get_all_paths(data)
+	return {
+		cover_path = data.internal_data.cover_path,
+		flank_path = data.internal_data.flank_path
+	}
+end
+
+function CopLogicAttack._set_verified_paths(data, verified_paths)
+	data.internal_data.cover_path = verified_paths.cover_path
+	data.internal_data.flank_path = verified_paths.flank_path
+end
+
+function CopLogicAttack._chk_exit_attack_logic(data, new_reaction)
+	if not data.unit:movement():chk_action_forbidden("walk") then
+		local wanted_state = CopLogicBase._get_logic_state_from_reaction(data, new_reaction)
+		if wanted_state ~= data.name then
+			local allow_trans, obj_failed = CopLogicBase.is_obstructed(data, data.objective, nil, nil)
+			if allow_trans then
+				if obj_failed then
+					managers.groupai:state():on_objective_failed(data.unit, data.objective)
+				elseif wanted_state ~= "idle" or not managers.groupai:state():on_cop_jobless(data.unit) then
+					CopLogicBase._exit(data.unit, wanted_state)
+				end
+
+				CopLogicBase._report_detections(data.detected_attention_objects)
+			end
+
+		end
+
+	end
+
+end
+
+function CopLogicAttack.action_taken(data, my_data)
+	return my_data.turning or my_data.moving_to_cover or my_data.walking_to_cover_shoot_pos or my_data.surprised or my_data.has_old_action or data.unit:movement():chk_action_forbidden("walk")
+end
+
+function CopLogicAttack._upd_stop_old_action(data, my_data)
+	if data.unit:anim_data().to_idle then
+		return
+	end
+
+	if data.unit:movement():chk_action_forbidden("walk") then
+		if not data.unit:movement():chk_action_forbidden("idle") then
+			CopLogicIdle._start_idle_action_from_act(data)
+		end
+
+	elseif data.unit:anim_data().act and data.unit:anim_data().needs_idle then
+		CopLogicIdle._start_idle_action_from_act(data)
+	end
+
+	CopLogicIdle._chk_has_old_action(data, my_data)
+end
+

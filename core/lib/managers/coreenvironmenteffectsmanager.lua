@@ -209,3 +209,63 @@ function EnvironmentEffectsManager:_kill_mission_effect(name, type)
 end
 
 function EnvironmentEffectsManager:save(data)
+	local state = {
+		mission_effects = {}
+	}
+	do
+		local (for generator), (for state), (for control) = pairs(self._mission_effects)
+		do
+			do break end
+			state.mission_effects[name] = {}
+			local (for generator), (for state), (for control) = pairs(effects)
+			do
+				do break end
+				if World:effect_manager():alive(params.effect_id) then
+					table.insert(state.mission_effects[name], params)
+				end
+
+			end
+
+		end
+
+		(for control) = nil and World
+	end
+
+end
+
+function EnvironmentEffectsManager:load(data)
+	local state = data.EnvironmentEffectsManager
+	local (for generator), (for state), (for control) = pairs(state.mission_effects)
+	do
+		do break end
+		local (for generator), (for state), (for control) = ipairs(effects)
+		do
+			do break end
+			self:spawn_mission_effect(name, params)
+		end
+
+	end
+
+end
+
+EnvironmentEffect = EnvironmentEffect or class()
+function EnvironmentEffect:init(default)
+	self._default = default
+end
+
+function EnvironmentEffect:load_effects()
+end
+
+function EnvironmentEffect:update(t, dt)
+end
+
+function EnvironmentEffect:start()
+end
+
+function EnvironmentEffect:stop()
+end
+
+function EnvironmentEffect:default()
+	return self._default
+end
+

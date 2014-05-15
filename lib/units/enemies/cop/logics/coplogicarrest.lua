@@ -658,3 +658,198 @@ function CopLogicArrest._get_priority_attention(data, attention_objects, reactio
 end
 
 function CopLogicArrest._process_pathing_results(data, my_data)
+end
+
+function CopLogicArrest._cancel_advance(data, my_data)
+	if my_data.processing_path then
+		if data.active_searches[my_data.path_search_id] then
+			managers.navigation:cancel_pathing_search(my_data.path_search_id)
+			data.active_searches[my_data.path_search_id] = nil
+		elseif data.pathing_results then
+			data.pathing_results[my_data.path_search_id] = nil
+		end
+
+		my_data.processing_path = nil
+		my_data.path_search_id = nil
+	end
+
+	my_data.advance_path = nil
+	if my_data.advancing then
+		local action_data = {type = "idle", body_part = 2}
+		data.unit:brain():action_request(action_data)
+	end
+
+	my_data.in_position = false
+end
+
+function CopLogicArrest._get_att_obj_close_pos(data, my_data)
+	local nav_manager = managers.navigation
+	local my_nav_tracker = data.unit:movement():nav_tracker()
+	local destroy_att_nav_tracker, att_nav_tracker
+	if data.attention_obj.nav_tracker then
+		att_nav_tracker = data.attention_obj.nav_tracker
+	else
+		destroy_att_nav_tracker = true
+		att_nav_tracker = nav_manager:create_nav_tracker(data.attention_obj.m_pos)
+	end
+
+	local att_obj_pos = att_nav_tracker:field_position()
+	local attention_dir = Vector3()
+	local my_dis = mvector3.direction(attention_dir, my_nav_tracker:field_position(), att_obj_pos)
+	local optimal_dis = 250 + math.random() * 150
+	if my_dis > optimal_dis * 0.8 and my_dis < optimal_dis * 1.2 then
+		if nav_manager:is_pos_free({
+			position = my_nav_tracker:field_position(),
+			radius = 40,
+			filter = data.pos_rsrv_id
+		}) then
+			if destroy_att_nav_tracker then
+				nav_manager:destroy_nav_tracker(att_nav_tracker)
+			end
+
+			return (not my_nav_tracker:lost() or not my_nav_tracker:field_position()) and false, false
+		end
+
+	end
+
+	local optimal_pos = att_obj_pos - optimal_dis * attention_dir
+	local ray_params = {
+		tracker_from = att_nav_tracker,
+		allow_entry = false,
+		pos_to = optimal_pos,
+		trace = true
+	}
+	local ray_res = nav_manager:raycast(ray_params)
+	if not ray_res then
+		if nav_manager:is_pos_free({
+			position = optimal_pos,
+			radius = 40,
+			filter = data.pos_rsrv_id
+		}) then
+			if destroy_att_nav_tracker then
+				nav_manager:destroy_nav_tracker(att_nav_tracker)
+			end
+
+			return optimal_pos, false
+		end
+
+	end
+
+	local hit_pos = ray_params.trace[1]
+	local hit_dis = mvector3.distance(hit_pos, att_obj_pos)
+	local hit_dis_error = math.abs(optimal_dis - hit_dis)
+	local my_error = math.abs(optimal_dis - my_dis)
+	if hit_dis_error < my_error then
+		if nav_manager:is_pos_free({
+			position = hit_pos,
+			radius = 40,
+			filter = data.pos_rsrv_id
+		}) then
+			if destroy_att_nav_tracker then
+				nav_manager:destroy_nav_tracker(att_nav_tracker)
+			end
+
+			return hit_pos, true
+		end
+
+	end
+
+	local pos_on_wall = CopLogicTravel._get_pos_on_wall(att_obj_pos, optimal_dis, nil, false)
+	return pos_on_wall, true
+end
+
+function CopLogicArrest._say_scary_stuff_discovered(data)
+	if not data.attention_obj then
+		return
+	end
+
+	data.unit:sound():stop()
+	data.unit:sound():say("a07a", true)
+end
+
+function CopLogicArrest.death_clbk(data, damage_info)
+	if not alive(damage_info.attacker_unit) then
+		return
+	end
+
+	local my_data = data.internal_data
+	local attacker_u_key = damage_info.attacker_unit:key()
+	local arrest_data = my_data.arrest_targets[attacker_u_key]
+	if arrest_data then
+		local record = managers.groupai:state():criminal_record(attacker_u_key)
+		if record then
+			record.arrest_timeout = data.t + damage_info.attacker_unit:base():arrest_settings().arrest_timeout
+		end
+
+	end
+
+end
+
+function CopLogicArrest._mark_call_in_event(data, my_data, attention_obj)
+	if not attention_obj then
+		return
+	end
+
+	if attention_obj.reaction == AIAttentionObject.REACT_ARREST then
+		my_data.call_in_event = "criminal"
+	elseif attention_obj.reaction >= AIAttentionObject.REACT_SCARED then
+		local unit_base = attention_obj.unit:base()
+		local unit_brain = attention_obj.unit:brain()
+		if attention_obj.unit:in_slot(17) then
+			my_data.call_in_event = managers.enemy:get_corpse_unit_data_from_key(attention_obj.unit:key()).is_civilian and "dead_civ" or "dead_cop"
+		elseif attention_obj.unit:in_slot(managers.slot:get_mask("enemies")) then
+			my_data.call_in_event = "w_hot"
+		elseif unit_brain and unit_brain.is_hostage and unit_brain:is_hostage() then
+			my_data.call_in_event = managers.enemy:is_civilian(attention_obj.unit) and "hostage_civ" or "hostage_cop"
+		elseif unit_base and unit_base.is_drill then
+			my_data.call_in_event = "drill"
+		elseif unit_base and unit_base.sentry_gun then
+			my_data.call_in_event = "sentry_gun"
+		elseif unit_base and unit_base.is_tripmine then
+			my_data.call_in_event = "trip_mine"
+		elseif attention_obj.unit:carry_data() and attention_obj.unit:carry_data():carry_id() == "person" then
+			my_data.call_in_event = "body_bag"
+		elseif attention_obj.unit:in_slot(21) then
+			my_data.call_in_event = "civilian"
+		end
+
+	end
+
+end
+
+function CopLogicArrest._chk_say_discovery(data, my_data, attention_obj)
+	if not attention_obj then
+		return
+	end
+
+	if not my_data.discovery_said and attention_obj.reaction == AIAttentionObject.REACT_SCARED then
+		my_data.discovery_said = true
+		data.unit:sound():say("a07a", true)
+	end
+
+end
+
+function CopLogicArrest._chk_say_approach(data, my_data, attention_obj)
+end
+
+function CopLogicArrest.on_police_call_success(data)
+	data.internal_data.called_the_police = true
+end
+
+function CopLogicArrest._say_call_the_police(data, my_data)
+	local blame_list = {
+		dead_civ = "a11",
+		dead_cop = "a12",
+		hostage_civ = "a13",
+		hostage_cop = "a14",
+		civilian = "a15",
+		w_hot = "a16",
+		body_bag = "a19",
+		sentry_gun = "a20",
+		trip_mine = "a21",
+		criminal = "a23",
+		drill = "a25"
+	}
+	data.unit:sound():say(blame_list[my_data.call_in_event] or "a23", true)
+end
+

@@ -768,3 +768,904 @@ function CoreDatabaseBrowser:on_set_metadata()
 end
 
 function CoreDatabaseBrowser:append_all_types(gui)
+	if self._browser_data and self._browser_data.type_to_pick ~= "" then
+		gui:append(self._browser_data.type_to_pick)
+		gui:set_value(self._browser_data.type_to_pick)
+end
+
+function CoreDatabaseBrowser:set_position(newpos)
+	if self._main_frame then
+		self._main_frame:set_position(newpos)
+	end
+
+end
+
+function CoreDatabaseBrowser:on_close(custom_data, event_object)
+	if self._browser_data then
+		self:close()
+		self._browser_data.destroy = custom_data
+	else
+		managers.toolhub:close("Database Browser")
+	end
+
+end
+
+function CoreDatabaseBrowser:destroy()
+	if alive(self._main_frame) then
+		self._main_frame:destroy()
+		self._main_frame = nil
+	end
+
+end
+
+function CoreDatabaseBrowser:close()
+	if self._main_frame then
+		self._main_frame:destroy()
+		if not self._browser_data then
+			open_editor = nil
+		end
+
+	end
+
+end
+
+function CoreDatabaseBrowser:update(t, dt)
+	if self._search_flag then
+		self:on_read_database()
+		self:on_search()
+		self._search_flag = nil
+	end
+
+end
+
+function CoreDatabaseBrowser:on_reload()
+	self:on_read_database()
+end
+
+function CoreDatabaseBrowser:on_notebook_changing()
+	self._search_flag = true
+end
+
+function CoreDatabaseBrowser:on_select()
+	if #self._search_box.list_box:selected_indices() == 1 then
+		local selected = self._search_box.list_box:get_string(self._search_box.list_box:selected_indices()[1])
+		self:update_preview(self._entrys[selected])
+		if self._browser_data then
+			self._browser_data.entry = self._entrys[selected]
+		end
+
+	end
+
+end
+
+function CoreDatabaseBrowser:on_tree_ctrl_change()
+	if #self._tree_box.tree_ctrl:selected_items() > 0 then
+		local ids = self._tree_box.tree_ctrl:selected_items()
+		if #ids == 1 then
+			local selected = self._tree_box.tree_ctrl:get_item_text(ids[1])
+			self:update_preview(self._entrys[selected])
+			if self._browser_data then
+				self._browser_data.entry = self._entrys[selected]
+			end
+
+		end
+
+	end
+
+end
+
+function CoreDatabaseBrowser:get_node(node, name)
+	local (for generator), (for state), (for control) = node:children()
+	do
+		do break end
+		if n:name() == name then
+			return n
+		end
+
+	end
+
+end
+
+function CoreDatabaseBrowser:find_node(node, name, key, value)
+	local (for generator), (for state), (for control) = node:children()
+	do
+		do break end
+		if n:parameter(key) == value and (not name or n:name() == name) then
+			return n
+		end
+
+	end
+
+end
+
+function CoreDatabaseBrowser:update_preview(entry)
+	local valid_node = function(node)
+		return node and node:to_xml() ~= "</>\n"
+	end
+
+	local preview_model_xml = function(self, node, valid_node)
+		if valid_node(node) then
+			local diesel_node = self:get_node(node, "diesel")
+			if diesel_node and diesel_node:parameter("file") then
+				local preview = self._active_database:lookup("preview_texture", diesel_node:parameter("file"))
+				if preview:valid() then
+					self._preview_image:set_label_bitmap(Application:base_path() .. self._active_database:root() .. "/" .. preview:path())
+					self._preview_image:set_visible(true)
+					return true
+				end
+
+			end
+
+		end
+
+	end
+
+	self._main_frame:freeze()
+	self._preview_panel:set_visible(false)
+	self._preview_text_ctrl:text_ctrl():set_visible(false)
+	self._preview_image:set_visible(false)
+	if entry then
+		local node = self._active_database:load_node(entry)
+		if entry:type() == "unit" then
+			local flag
+			if valid_node(node) then
+				local model_node = self:get_node(node, "model")
+				if model_node and model_node:parameter("file") then
+					local model_xml_entry = self._active_database:lookup("object", model_node:parameter("file"))
+					if model_xml_entry:valid() then
+						local model_xml_node = self._active_database:load_node(model_xml_entry)
+						flag = preview_model_xml(self, model_xml_node, valid_node)
+					end
+
+				end
+
+			end
+
+			if not flag then
+				self._preview_panel:set_visible(true)
+			end
+
+		elseif entry:type() == "object" then
+			if not preview_model_xml(self, node, valid_node) then
+				self._preview_panel:set_visible(true)
+			end
+
+		elseif entry:type() == "model" then
+			local preview = self._active_database:lookup("preview_texture", entry:name())
+			if preview:valid() then
+				self._preview_image:set_label_bitmap(Application:base_path() .. self._active_database:root() .. "/" .. preview:path())
+				self._preview_image:set_visible(true)
+			else
+				self._preview_panel:set_visible(true)
+			end
+
+		elseif valid_node(node) then
+			self._preview_text_ctrl:set_value(node:to_xml())
+			self._preview_text_ctrl:text_ctrl():set_visible(true)
+		else
+			self._preview_panel:set_visible(true)
+		end
+
+	else
+		self._preview_panel:set_visible(true)
+	end
+
+	self._main_frame:layout()
+	self._main_frame:thaw()
+	self._main_frame:refresh()
+end
+
+function CoreDatabaseBrowser:reset_preview()
+	self._main_frame:freeze()
+	self._preview_panel:set_visible(true)
+	self._preview_text_ctrl:text_ctrl():set_visible(false)
+	self._preview_image:set_visible(false)
+	self._main_frame:layout()
+	self._main_frame:thaw()
+	self._main_frame:refresh()
+end
+
+function CoreDatabaseBrowser:hide_preview()
+	self._main_frame:freeze()
+	self._preview_panel:set_visible(false)
+	self._preview_text_ctrl:text_ctrl():set_visible(false)
+	self._preview_image:set_visible(false)
+	self._main_frame:layout()
+	self._main_frame:thaw()
+	self._main_frame:refresh()
+end
+
+function CoreDatabaseBrowser:on_move()
+	if self._main_notebook:get_current_page() ~= self._main_notebook:get_page(0) and self._move_dialog:show_modal() then
+		local path = self._move_dialog:get_value()
+		if self:check_path(path) then
+			self:move_entry(path)
+			self:on_search()
+			self:get_tree_id(path, true)
+			self._dirty_flag = false
+			self._active_database:save()
+		else
+			self._invalid_path_dialog:show_modal()
+		end
+
+	end
+
+end
+
+function CoreDatabaseBrowser:check_path(path)
+	if path ~= "" and (string.sub(path, 1, 1) ~= "/" or string.sub(path, string.len(path), string.len(path)) == "/") then
+		return false
+	end
+
+	return true
+end
+
+function CoreDatabaseBrowser:move_entry(path)
+	if #self._tree_box.tree_ctrl:selected_items() > 0 then
+		local ids = self:filter_folders(self._tree_box.tree_ctrl:selected_items())
+		local (for generator), (for state), (for control) = ipairs(ids)
+		do
+			do break end
+			local selected = self._tree_box.tree_ctrl:get_item_text(id)
+			local entry = self._entrys[selected]
+			if path == "" and entry:has_metadata("db_browser_folder") then
+				self._active_database:clear_metadata(entry, "db_browser_folder")
+			else
+				self._active_database:set_metadata(entry, "db_browser_folder", path)
+			end
+
+		end
+
+	end
+
+end
+
+function CoreDatabaseBrowser:filter_folders(ids)
+	local out_table = {}
+	do
+		local (for generator), (for state), (for control) = ipairs(ids)
+		do
+			do break end
+			if id ~= self._folder_table.id and not self:is_folder(self._folder_table, id) then
+				table.insert(out_table, id)
+			end
+
+		end
+
+	end
+
+end
+
+function CoreDatabaseBrowser:is_folder(folder_table, id)
+	do
+		local (for generator), (for state), (for control) = pairs(folder_table.children)
+		do
+			do break end
+			if child.id == id then
+				return true
+			elseif self:is_folder(child, id) then
+				return true
+			end
+
+		end
+
+	end
+
+	(for control) = nil and child.id
+end
+
+function CoreDatabaseBrowser:build_tree(path)
+	local parent = self._folder_table
+	local (for generator), (for state), (for control) = string.gmatch(path, "[%w_]+")
+	do
+		do break end
+		if not parent.children[folder_name] then
+			local new_folder_table = {}
+			new_folder_table.id = self._tree_box.tree_ctrl:append(parent.id, folder_name)
+			new_folder_table.children = {}
+			self._tree_box.tree_ctrl:set_item_bold(new_folder_table.id, true)
+			parent.children[folder_name] = new_folder_table
+			parent = new_folder_table
+		else
+			parent = parent.children[folder_name]
+		end
+
+	end
+
+end
+
+function CoreDatabaseBrowser:get_tree_id(path, expand)
+-- fail 8
+null
+6
+	local parent = self._folder_table
+	do
+		local (for generator), (for state), (for control) = string.gmatch(path, "[%w_]+")
+		do
+			do break end
+			if expand then
+				self._tree_box.tree_ctrl:expand(parent.id)
+			end
+
+			parent = parent.children[folder_name]
+		end
+
+	end
+
+	self._tree_box.tree_ctrl:expand(parent.id)
+	return parent.id
+end
+
+function CoreDatabaseBrowser:on_search()
+	if self._main_notebook:get_current_page() == self._main_notebook:get_page(0) then
+		self._search_box.list_box:freeze()
+		self._search_box.list_box:clear()
+		self:reset_preview()
+		local search_str = self._search_box.search_text_ctrl:get_value()
+		local type_filter = self._search_box.type_combobox:get_value()
+		if type_filter ~= "[all]" or #search_str > 2 then
+			local (for generator), (for state), (for control) = pairs(self._entrys)
+			do
+				do break end
+				if string.find(key, search_str) then
+					self._search_box.list_box:append(key)
+				end
+
+			end
+
+		end
+
+		(for control) = nil and string
+		self._search_box.list_box:thaw()
+		self._search_box.list_box:refresh()
+		self._search_box.search_text_ctrl:set_focus()
+	elseif self._main_notebook:get_current_page() == self._main_notebook:get_page(1) then
+		self._tree_box.tree_ctrl:freeze()
+		self._tree_box.tree_ctrl:clear()
+		self:reset_preview()
+		self._folder_table = {}
+		self._folder_table.id = self._tree_box.tree_ctrl:append_root("root")
+		self._folder_table.children = {}
+		self._tree_box.tree_ctrl:set_item_bold(self._folder_table.id, true)
+		local search_str = self._tree_box.search_text_ctrl:get_value()
+		local type_filter = self._tree_box.type_combobox:get_value()
+		if type_filter ~= "[all]" or #search_str > 2 then
+			local (for generator), (for state), (for control) = pairs(self._entrys)
+			do
+				do break end
+				if string.find(key, search_str) then
+					local folder = value:metadata("db_browser_folder")
+					if folder ~= "" then
+						self:build_tree(folder)
+						local expand = search_str ~= ""
+						local folder_id = self:get_tree_id(folder, expand)
+						self._tree_box.tree_ctrl:append(folder_id, key)
+						if expand then
+							self._tree_box.tree_ctrl:expand(folder_id)
+						end
+
+					else
+						self._tree_box.tree_ctrl:append(self._folder_table.id, key)
+					end
+
+				end
+
+			end
+
+		end
+
+		(for control) = nil and string
+		self._tree_box.tree_ctrl:expand(self._folder_table.id)
+		self._tree_box.tree_ctrl:thaw()
+		self._tree_box.tree_ctrl:refresh()
+		self._tree_box.search_text_ctrl:set_focus()
+	elseif self._main_notebook:get_current_page() == self._main_notebook:get_page(2) then
+		self:append_local_changes()
+		self:hide_preview()
+	end
+
+end
+
+function CoreDatabaseBrowser:on_remove()
+	if not self._browser_data then
+		if self._main_notebook:get_current_page() == self._main_notebook:get_page(0) then
+			local ids = self._search_box.list_box:selected_indices()
+			if #ids > 0 and self._remove_dialog:show_modal() == "ID_YES" then
+				do
+					local (for generator), (for state), (for control) = ipairs(ids)
+					do
+						do break end
+						local selected = self._search_box.list_box:get_string(id)
+						self._active_database:remove(self._entrys[selected]:type(), self._entrys[selected]:name(), self._entrys[selected]:properties())
+						self._entrys[selected] = nil
+						self._dirty_flag = false
+						self._active_database:save()
+					end
+
+				end
+
+				(for control) = nil and self._search_box
+			end
+
+		elseif self._main_notebook:get_current_page() == self._main_notebook:get_page(1) then
+			if 0 < #self._tree_box.tree_ctrl:selected_items() and self._remove_dialog:show_modal() == "ID_YES" then
+				local ids = self:filter_folders(self._tree_box.tree_ctrl:selected_items())
+				do
+					local (for generator), (for state), (for control) = ipairs(ids)
+					do
+						do break end
+						local selected = self._tree_box.tree_ctrl:get_item_text(id)
+						self._active_database:remove(self._entrys[selected]:type(), self._entrys[selected]:name(), self._entrys[selected]:properties())
+						self._entrys[selected] = nil
+						self._dirty_flag = false
+						self._active_database:save()
+					end
+
+				end
+
+				(for control) = self._tree_box.tree_ctrl:selected_items() and self._tree_box
+			end
+
+		elseif self._main_notebook:get_current_page() == self._main_notebook:get_page(2) then
+			self:on_revert_btn()
+		end
+
+	else
+		self._not_available_dialog:show_modal()
+	end
+
+end
+
+function CoreDatabaseBrowser:on_special_rename(new_entry, old_name)
+	if new_entry:type() == "unit" then
+		local node = self._active_database:load_node(new_entry)
+		assert(node)
+		node:set_parameter("name", new_entry:name())
+		self._active_database:save_node(node, new_entry)
+	elseif new_entry:type() == "model" then
+		local preview = self._active_database:lookup("preview_texture", old_name)
+		if preview:valid() then
+			self._active_database:rename(preview, "preview_texture", new_entry:name(), preview:properties())
+		end
+
+	end
+
+end
+
+function CoreDatabaseBrowser:_rename_and_transfer_metadata(entry, new_name)
+	local old_name = entry:name()
+	local old_ref = self._active_database:lookup(entry:type(), old_name, entry:properties())
+	local metadatas = old_ref and old_ref:metadatas() or {}
+	do
+		local (for generator), (for state), (for control) = pairs(metadatas)
+		do
+			do break end
+			self._active_database:clear_metadata(old_ref, k)
+		end
+
+	end
+
+	(for control) = entry:properties() and self._active_database
+	local new_ref = self._active_database:rename(old_ref, old_ref:type(), new_name, old_ref:properties())
+	do
+		local (for generator), (for state), (for control) = pairs(metadatas)
+		do
+			do break end
+			self._active_database:set_metadata(new_ref, k, v)
+		end
+
+	end
+
+end
+
+function CoreDatabaseBrowser:on_rename()
+	if not self._browser_data then
+		if self._main_notebook:get_current_page() == self._main_notebook:get_page(0) then
+			local ids = self._search_box.list_box:selected_indices()
+			if #ids > 0 then
+				self._rename_dialog:set_value(self._entrys[self._search_box.list_box:get_string(ids[1])]:name())
+				if self._rename_dialog:show_modal() then
+					do
+						local (for generator), (for state), (for control) = ipairs(ids)
+						do
+							do break end
+							local selected = self._search_box.list_box:get_string(id)
+							if not self._active_database:has(self._entrys[selected]:type(), self._rename_dialog:get_value(), self._entrys[selected]:properties()) then
+								local old_name = self._entrys[selected]:name()
+								local new_ref = self:_rename_and_transfer_metadata(self._entrys[selected], self._rename_dialog:get_value())
+								self._entrys[selected] = nil
+								self._entrys[new_ref:type() .. " - " .. new_ref:name()] = new_ref
+								self._dirty_flag = false
+								self:on_special_rename(new_ref, old_name)
+								self._active_database:save()
+								self._active_database:load()
+							else
+								self._rename_error_dialog:show_modal()
+							end
+
+						end
+
+					end
+
+					(for control) = self._entrys[self._search_box.list_box:get_string(ids[1])]:name() and self._search_box
+				end
+
+			end
+
+		elseif self._main_notebook:get_current_page() == self._main_notebook:get_page(1) and 0 < #self._tree_box.tree_ctrl:selected_items() then
+			local id = self:filter_folders(self._tree_box.tree_ctrl:selected_items())[1]
+			local selected = self._tree_box.tree_ctrl:get_item_text(id)
+			self._rename_dialog:set_value(self._entrys[self._tree_box.tree_ctrl:get_item_text(id)]:name())
+			if self._rename_dialog:show_modal() then
+				if not self._active_database:has(self._entrys[selected]:type(), self._rename_dialog:get_value(), self._entrys[selected]:properties()) then
+					local selected = self._tree_box.tree_ctrl:get_item_text(id)
+					local old_name = self._entrys[selected]:name()
+					local new_ref = self:_rename_and_transfer_metadata(self._entrys[selected], self._rename_dialog:get_value())
+					self._entrys[selected] = nil
+					self._entrys[new_ref:type() .. " - " .. self._rename_dialog:get_value()] = new_ref
+					self._dirty_flag = false
+					self:on_special_rename(new_ref, old_name)
+					self._active_database:save()
+					self._active_database:load()
+				else
+					self._rename_error_dialog:show_modal()
+				end
+
+				self:on_read_database()
+			end
+
+		end
+
+	else
+		self._not_available_dialog:show_modal()
+	end
+
+end
+
+function CoreDatabaseBrowser:unpack_prop(in_table, target)
+	local str = " "
+	do
+		local (for generator), (for state), (for control) = pairs(in_table)
+		do
+			do break end
+			str = str .. "-" .. target .. " " .. key .. "=" .. value .. " "
+		end
+
+	end
+
+end
+
+function CoreDatabaseBrowser:convert_to_x360(entry)
+	if self._op_menu:is_checked("OP_AUTO_CONVERT_TEXTURES") then
+		local prop = entry:properties()
+		prop.platform = "x360raw"
+		local raw_texture = self._active_database:lookup("texture", entry:name(), prop)
+		if not raw_texture:valid() or raw_texture:property("platform") ~= "x360raw" then
+			prop.platform = "raw"
+			raw_texture = self._active_database:lookup("texture", entry:name(), prop)
+			if not raw_texture:valid() or raw_texture:property("platform") ~= "raw" then
+				cat_print("debug", "[CoreDatabaseBrowser] Could not find any raw texture for " .. entry:name() .. " during x360 conversion.")
+				return
+			end
+
+		end
+
+		prop.platform = "x360"
+		local str = "imageexportertool -d \"" .. Application:base_path() .. "db\" -sn " .. raw_texture:name() .. self:unpack_prop(raw_texture:properties(), "sp") .. "-qpf A8L8"
+		if Application:system(str, true, true) == 0 then
+			str = "imageexportertool -d \"" .. Application:base_path() .. "db\" -sn " .. raw_texture:name() .. self:unpack_prop(raw_texture:properties(), "sp") .. "-dn " .. raw_texture:name() .. self:unpack_prop(prop, "dp") .. "-p 3DC -f dds"
+			cat_print("debug", "[CoreDatabaseBrowser] " .. str)
+			Application:system(str, true, true)
+			self._active_database:load()
+			return self._active_database:lookup("texture", raw_texture:name(), prop)
+		end
+
+		self._active_database:load()
+	end
+
+end
+
+function CoreDatabaseBrowser:convert_to_ps3(entry)
+	if self._op_menu:is_checked("OP_AUTO_CONVERT_TEXTURES") then
+		local prop = entry:properties()
+		prop.platform = "ps3raw"
+		local raw_texture = self._active_database:lookup("texture", entry:name(), prop)
+		if not raw_texture:valid() or raw_texture:property("platform") ~= "ps3raw" then
+			prop.platform = "raw"
+			raw_texture = self._active_database:lookup("texture", entry:name(), prop)
+			if not raw_texture:valid() or raw_texture:property("platform") ~= "raw" then
+				cat_print("debug", "[CoreDatabaseBrowser] Could not find any raw texture for " .. entry:name() .. " during ps3 conversion.")
+				return
+			end
+
+		end
+
+		prop.platform = "ps3"
+		local str = "imageexportertool -d \"" .. Application:base_path() .. "db\" -sn " .. raw_texture:name() .. self:unpack_prop(raw_texture:properties(), "sp") .. "-qpf A8L8"
+		if Application:system(str, true, true) == 0 then
+			str = "imageexportertool -d \"" .. Application:base_path() .. "db\" -sn " .. raw_texture:name() .. self:unpack_prop(raw_texture:properties(), "sp") .. "-dn " .. raw_texture:name() .. self:unpack_prop(prop, "dp") .. "-f gtf -p DXT5_NM"
+		else
+			str = "imageexportertool -d \"" .. Application:base_path() .. "db\" -sn " .. raw_texture:name() .. self:unpack_prop(raw_texture:properties(), "sp") .. "-dn " .. raw_texture:name() .. self:unpack_prop(prop, "dp") .. "-f gtf"
+		end
+
+		cat_print("debug", "[CoreDatabaseBrowser] " .. str)
+		Application:system(str, true, true)
+		self._active_database:load()
+		return self._active_database:lookup("texture", raw_texture:name(), prop)
+	end
+
+end
+
+CoreDatabaseBrowserMoveDialog = CoreDatabaseBrowserMoveDialog or class()
+function CoreDatabaseBrowserMoveDialog:init(editor, p)
+	self._dialog = EWS:Dialog(p, "Move", "", Vector3(-1, -1, 0), Vector3(300, 75, 0), "CAPTION,SYSTEM_MENU,STAY_ON_TOP")
+	local box = EWS:BoxSizer("VERTICAL")
+	self._text_ctrl = EWS:TextCtrl(self._dialog, "", "", "TE_PROCESS_ENTER")
+	self._text_ctrl:connect("", "EVT_COMMAND_TEXT_ENTER", callback(self, self, "on_move_button"), "")
+	box:add(self._text_ctrl, 0, 0, "EXPAND")
+	local button_box = EWS:BoxSizer("HORIZONTAL")
+	self._move = EWS:Button(self._dialog, "Move", "", "")
+	self._move:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_move_button"), "")
+	button_box:add(self._move, 1, 0, "EXPAND")
+	self._cancel = EWS:Button(self._dialog, "Cancel", "", "")
+	self._cancel:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_cancel_button"), "")
+	button_box:add(self._cancel, 1, 0, "EXPAND")
+	box:add(button_box, 0, 0, "EXPAND")
+	self._dialog:set_sizer(box)
+	self._text_ctrl:set_focus()
+end
+
+function CoreDatabaseBrowserMoveDialog:show_modal()
+	self._text_ctrl:set_value("")
+	self._resault = nil
+	self._done = false
+	self._return_val = true
+	self._dialog:show_modal()
+	while true do
+		if not self._done then
+		end
+
+	end
+
+	return self._return_val
+end
+
+function CoreDatabaseBrowserMoveDialog:on_move_button()
+	self._done = true
+	self._resault = self._text_ctrl:get_value()
+	self._dialog:end_modal("")
+end
+
+function CoreDatabaseBrowserMoveDialog:on_cancel_button()
+	self._done = true
+	self._return_val = false
+	self._dialog:end_modal("")
+end
+
+function CoreDatabaseBrowserMoveDialog:get_value()
+	return self._resault
+end
+
+CoreDatabaseBrowserImportDialog = CoreDatabaseBrowserImportDialog or class()
+function CoreDatabaseBrowserImportDialog:init(editor, p)
+	self._dialog = EWS:Dialog(p, "New Entry", "", Vector3(-1, -1, 0), Vector3(300, 86, 0), "CAPTION,SYSTEM_MENU,STAY_ON_TOP")
+	local box = EWS:BoxSizer("VERTICAL")
+	local text_box = EWS:BoxSizer("HORIZONTAL")
+	self._type_combobox = EWS:ComboBox(self._dialog, "", "", "")
+	self._type_combobox:connect("", "EVT_COMMAND_TEXT_ENTER", callback(self, self, "on_import_button"), "")
+	editor:append_all_types(self._type_combobox)
+	text_box:add(self._type_combobox, 1, 0, "EXPAND")
+	self._name_text_ctrl = EWS:TextCtrl(self._dialog, "", "", "TE_PROCESS_ENTER")
+	self._name_text_ctrl:connect("", "EVT_COMMAND_TEXT_ENTER", callback(self, self, "on_import_button"), "")
+	text_box:add(self._name_text_ctrl, 1, 0, "EXPAND")
+	box:add(text_box, 0, 4, "ALL,EXPAND")
+	local button_box = EWS:BoxSizer("HORIZONTAL")
+	self._move = EWS:Button(self._dialog, "Import", "", "")
+	self._move:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_import_button"), "")
+	button_box:add(self._move, 1, 4, "ALL,EXPAND")
+	self._cancel = EWS:Button(self._dialog, "Cancel", "", "")
+	self._cancel:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_cancel_button"), "")
+	button_box:add(self._cancel, 1, 4, "ALL,EXPAND")
+	box:add(button_box, 0, 0, "EXPAND")
+	self._dialog:set_sizer(box)
+end
+
+function CoreDatabaseBrowserImportDialog:show_modal()
+	self._type_combobox:set_value("")
+	self._name_text_ctrl:set_value("")
+	self._type = nil
+	self._name = nil
+	self._done = false
+	self._return_val = true
+	self._dialog:show_modal()
+	while true do
+		if not self._done then
+		end
+
+	end
+
+	return self._return_val
+end
+
+function CoreDatabaseBrowserImportDialog:on_import_button()
+	self._done = true
+	self._type = self._type_combobox:get_value()
+	self._name = self._name_text_ctrl:get_value()
+	self._dialog:end_modal("")
+end
+
+function CoreDatabaseBrowserImportDialog:on_cancel_button()
+	self._done = true
+	self._return_val = false
+	self._dialog:end_modal("")
+end
+
+function CoreDatabaseBrowserImportDialog:get_value()
+	return self._type, self._name
+end
+
+CoreDatabaseBrowserMetadataDialog = CoreDatabaseBrowserMetadataDialog or class()
+function CoreDatabaseBrowserMetadataDialog:init(p)
+	self._dialog = EWS:Dialog(p, "Set Metadata", "", Vector3(-1, -1, 0), Vector3(300, 86, 0), "CAPTION,SYSTEM_MENU,STAY_ON_TOP")
+	local box = EWS:BoxSizer("VERTICAL")
+	local text_box = EWS:BoxSizer("HORIZONTAL")
+	self._key_text_ctrl = EWS:TextCtrl(self._dialog, "", "", "TE_PROCESS_ENTER")
+	self._key_text_ctrl:connect("", "EVT_COMMAND_TEXT_ENTER", callback(self, self, "on_set_button"), "")
+	text_box:add(self._key_text_ctrl, 1, 0, "EXPAND")
+	self._value_text_ctrl = EWS:TextCtrl(self._dialog, "", "", "TE_PROCESS_ENTER")
+	self._value_text_ctrl:connect("", "EVT_COMMAND_TEXT_ENTER", callback(self, self, "on_set_button"), "")
+	text_box:add(self._value_text_ctrl, 1, 0, "EXPAND")
+	box:add(text_box, 0, 4, "ALL,EXPAND")
+	local button_box = EWS:BoxSizer("HORIZONTAL")
+	self._move = EWS:Button(self._dialog, "Set", "", "")
+	self._move:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_set_button"), "")
+	button_box:add(self._move, 1, 4, "ALL,EXPAND")
+	self._cancel = EWS:Button(self._dialog, "Cancel", "", "")
+	self._cancel:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_cancel_button"), "")
+	button_box:add(self._cancel, 1, 4, "ALL,EXPAND")
+	box:add(button_box, 0, 0, "EXPAND")
+	self._dialog:set_sizer(box)
+	self._key_text_ctrl:set_focus()
+end
+
+function CoreDatabaseBrowserMetadataDialog:show_modal()
+	self._key_text_ctrl:set_value("")
+	self._value_text_ctrl:set_value("")
+	self._key = nil
+	self._value = nil
+	self._done = false
+	self._return_val = true
+	self._dialog:show_modal()
+	while true do
+		if not self._done then
+		end
+
+	end
+
+	return self._return_val
+end
+
+function CoreDatabaseBrowserMetadataDialog:on_set_button()
+	self._done = true
+	self._key = self._key_text_ctrl:get_value()
+	self._value = self._value_text_ctrl:get_value()
+	self._dialog:end_modal("")
+end
+
+function CoreDatabaseBrowserMetadataDialog:on_cancel_button()
+	self._done = true
+	self._return_val = false
+	self._dialog:end_modal("")
+end
+
+function CoreDatabaseBrowserMetadataDialog:get_value()
+	return self._key, self._value
+end
+
+CoreDatabaseBrowserInputDialog = CoreDatabaseBrowserInputDialog or class()
+function CoreDatabaseBrowserInputDialog:init(p)
+	self._dialog = EWS:Dialog(p, "Comment", "", Vector3(-1, -1, 0), Vector3(300, 86, 0), "CAPTION,SYSTEM_MENU,STAY_ON_TOP")
+	local box = EWS:BoxSizer("VERTICAL")
+	local text_box = EWS:BoxSizer("HORIZONTAL")
+	self._key_text_ctrl = EWS:TextCtrl(self._dialog, "", "", "TE_PROCESS_ENTER")
+	self._key_text_ctrl:connect("", "EVT_COMMAND_TEXT_ENTER", callback(self, self, "on_ok_button"), "")
+	text_box:add(self._key_text_ctrl, 1, 0, "EXPAND")
+	box:add(text_box, 0, 4, "ALL,EXPAND")
+	local button_box = EWS:BoxSizer("HORIZONTAL")
+	self._ok = EWS:Button(self._dialog, "OK", "", "")
+	self._ok:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_ok_button"), "")
+	button_box:add(self._ok, 1, 4, "ALL,EXPAND")
+	self._cancel = EWS:Button(self._dialog, "Cancel", "", "")
+	self._cancel:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_cancel_button"), "")
+	button_box:add(self._cancel, 1, 4, "ALL,EXPAND")
+	box:add(button_box, 0, 0, "EXPAND")
+	self._dialog:set_sizer(box)
+	self._key_text_ctrl:set_focus()
+end
+
+function CoreDatabaseBrowserInputDialog:show_modal()
+	self._key_text_ctrl:set_value("")
+	self._key = nil
+	self._done = false
+	self._return_val = true
+	self._dialog:show_modal()
+	while true do
+		if not self._done then
+		end
+
+	end
+
+	return self._return_val
+end
+
+function CoreDatabaseBrowserInputDialog:on_ok_button()
+	self._done = true
+	self._key = self._key_text_ctrl:get_value()
+	self._dialog:end_modal("")
+end
+
+function CoreDatabaseBrowserInputDialog:on_cancel_button()
+	self._done = true
+	self._return_val = false
+	self._dialog:end_modal("")
+end
+
+function CoreDatabaseBrowserInputDialog:get_value()
+	return self._key
+end
+
+CoreDatabaseBrowserRenameDialog = CoreDatabaseBrowserRenameDialog or class()
+function CoreDatabaseBrowserRenameDialog:init(p)
+	self._dialog = EWS:Dialog(p, "Rename", "", Vector3(-1, -1, 0), Vector3(300, 86, 0), "CAPTION,SYSTEM_MENU,STAY_ON_TOP")
+	local box = EWS:BoxSizer("VERTICAL")
+	local text_box = EWS:BoxSizer("HORIZONTAL")
+	self._key_text_ctrl = EWS:TextCtrl(self._dialog, "", "", "TE_PROCESS_ENTER")
+	self._key_text_ctrl:connect("", "EVT_COMMAND_TEXT_ENTER", callback(self, self, "on_ok_button"), "")
+	text_box:add(self._key_text_ctrl, 1, 0, "EXPAND")
+	box:add(text_box, 0, 4, "ALL,EXPAND")
+	local button_box = EWS:BoxSizer("HORIZONTAL")
+	self._ok = EWS:Button(self._dialog, "Rename", "", "")
+	self._ok:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_ok_button"), "")
+	button_box:add(self._ok, 1, 4, "ALL,EXPAND")
+	self._cancel = EWS:Button(self._dialog, "Cancel", "", "")
+	self._cancel:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_cancel_button"), "")
+	button_box:add(self._cancel, 1, 4, "ALL,EXPAND")
+	box:add(button_box, 0, 0, "EXPAND")
+	self._dialog:set_sizer(box)
+	self._key_text_ctrl:set_focus()
+end
+
+function CoreDatabaseBrowserRenameDialog:show_modal()
+	self._key = nil
+	self._done = false
+	self._return_val = true
+	self._dialog:show_modal()
+	while true do
+		if not self._done then
+		end
+
+	end
+
+	return self._return_val
+end
+
+function CoreDatabaseBrowserRenameDialog:on_ok_button()
+	self._done = true
+	self._key = self._key_text_ctrl:get_value()
+	self._dialog:end_modal("")
+end
+
+function CoreDatabaseBrowserRenameDialog:on_cancel_button()
+	self._done = true
+	self._return_val = false
+	self._dialog:end_modal("")
+end
+
+function CoreDatabaseBrowserRenameDialog:get_value()
+	return self._key
+end
+
+function CoreDatabaseBrowserRenameDialog:set_value(str)
+	self._key_text_ctrl:set_value(str)
+end
+

@@ -3719,3 +3719,754 @@ function CoreEditor:load_level(dir, path)
 end
 
 function CoreEditor:do_load()
+	self._loading = true
+	self:clear_all()
+	self._max_id = self._world_holder:get_max_id("world")
+	self._max_id = math.ceil(self._max_id / 10) * 10
+	local offset = Vector3(0, 0, 0)
+	self:load_markers(self._world_holder, offset)
+	self:load_continents(self._world_holder, offset)
+	self:load_values(self._world_holder, offset)
+	local progress_i = 50
+	local layers_amount = table.size(self._layers)
+	do
+		local (for generator), (for state), (for control) = pairs(self._layers)
+		do
+			do break end
+			progress_i = progress_i + 50 / layers_amount
+			self:update_load_progress(progress_i, "Create Layer: " .. name)
+			layer:load(self._world_holder, offset)
+		end
+
+	end
+
+	(for control) = nil and 50 / layers_amount
+	self._groups:load(self._world_holder, offset)
+	do
+		local (for generator), (for state), (for control) = pairs(self._continents)
+		do
+			do break end
+			continent:set_need_saving(false)
+		end
+
+	end
+
+	(for control) = offset and continent.set_need_saving
+	self:_recreate_dialogs()
+	do
+		local (for generator), (for state), (for control) = pairs(self._layer_replace_dialogs)
+		do
+			do break end
+			dialog:reset()
+		end
+
+	end
+
+end
+
+function CoreEditor:loading()
+	return self._loading
+end
+
+function CoreEditor:clear_all()
+	if self._reset_camera_on_new and self._camera_controller then
+		self._camera_controller:set_camera_pos(Vector3(0, 0, 0))
+		self._camera_controller:set_camera_rot(Rotation())
+	end
+
+	self._max_id = 0
+	self._continents = {}
+	self._continents_panel:destroy_all_continents()
+	self:create_continent("world", {})
+	self:set_simulation_world_setting_path(nil)
+	do
+		local (for generator), (for state), (for control) = pairs(self._layers)
+		do
+			do break end
+			layer:clear()
+		end
+
+	end
+
+	(for control) = {} and layer.clear
+	self:has_editables()
+	self:_clear_values()
+	self:_recreate_dialogs()
+end
+
+function CoreEditor:load_markers(world_holder, offset)
+	local markers = world_holder:create_world("world", "markers", offset)
+	local (for generator), (for state), (for control) = pairs(markers)
+	do
+		do break end
+		local n = marker._name
+		local p = marker._pos
+		local r = marker._rot
+		self:create_marker(n, p, r)
+		self._ews_markers:append(n)
+	end
+
+end
+
+function CoreEditor:load_values(world_holder, offset)
+	local values = world_holder:create_world("world", "values", offset)
+	if not values.world then
+		return
+	end
+
+	self._values = clone(values)
+end
+
+function CoreEditor:load_continents(world_holder, offset)
+	local continents = world_holder:create_world("world", "continents", offset)
+	do
+		local (for generator), (for state), (for control) = pairs(continents)
+		do
+			do break end
+			local continent = self:create_continent(name, data)
+		end
+
+	end
+
+	(for control) = offset and self.create_continent
+	self:set_continent("world")
+end
+
+function CoreEditor:invert_move_shift()
+	return self._invert_move_shift
+end
+
+function CoreEditor:always_global_select_unit()
+	return self._always_global_select_unit
+end
+
+function CoreEditor:dialogs_stay_on_top()
+	return self._dialogs_stay_on_top
+end
+
+function CoreEditor:add_unit_edit_page(name)
+	if not self._dialogs.edit_unit then
+		self:show_dialog("edit_unit", "EditUnitDialog")
+	end
+
+	return self._dialogs.edit_unit:add_page(name)
+end
+
+function CoreEditor:toggle_edit_unit_dialog()
+	if self._dialogs.edit_unit then
+		if self._dialogs.edit_unit:visible() then
+			self:hide_dialog("edit_unit")
+		else
+			self:show_dialog("edit_unit")
+		end
+
+	end
+
+end
+
+function CoreEditor:has_editables(unit, units)
+	if self._dialogs.edit_unit then
+		self._dialogs.edit_unit:set_enabled(unit, units)
+	end
+
+	local enable = self:check_has_editables(unit, units)
+	local is_any_visible = self:is_any_editable_visible()
+	if not enable or not is_any_visible then
+		self._edit_panel:set_visible(false)
+		self._info_frame:set_visible(true)
+	end
+
+	self._edit_panel:layout()
+	self._lower_panel:layout()
+end
+
+function CoreEditor:check_has_editables(unit, units)
+	return false
+end
+
+function CoreEditor:is_any_editable_visible()
+	return false
+end
+
+function CoreEditor:category_name(n)
+	n = string.gsub(n, "_", " ")
+	n = string.upper(string.sub(n, 1, 1)) .. string.sub(n, 2)
+	local s = ""
+	local toupper = false
+	for i = 1, string.len(n) do
+		if toupper then
+			toupper = false
+			s = s .. string.upper(string.sub(n, i, i))
+		else
+			s = s .. string.sub(n, i, i)
+		end
+
+		if string.sub(n, i, i) == " " then
+			toupper = true
+		end
+
+	end
+
+	return s
+end
+
+function CoreEditor:selected_unit()
+	if self._current_layer and self._current_layer:selected_unit() then
+		return self._current_layer:selected_unit()
+	end
+
+end
+
+function CoreEditor:current_selected_units()
+	if self._current_layer and self._current_layer:selected_units() then
+		return self._current_layer:selected_units()
+	end
+
+end
+
+function CoreEditor:select_units(units)
+	local id = Profiler:start("select_units")
+	local layers = {}
+	do
+		local (for generator), (for state), (for control) = ipairs(units)
+		do
+			do break end
+			local layer = self:unit_in_layer(unit)
+			if layer then
+				if layers[layer] then
+					table.insert(layers[layer], unit)
+				else
+					layers[layer] = {unit}
+				end
+
+			end
+
+		end
+
+	end
+
+	(for control) = nil and self.unit_in_layer
+	do
+		local (for generator), (for state), (for control) = pairs(layers)
+		do
+			do break end
+			layer:set_selected_units(units)
+		end
+
+	end
+
+	(for control) = nil and layer.set_selected_units
+	Profiler:stop(id)
+	Profiler:counter_time("select_units")
+end
+
+function CoreEditor:select_group(group)
+	self._current_layer:select_group(group)
+end
+
+function CoreEditor:center_view_on_unit(unit)
+	if alive(unit) then
+		local rot = Rotation:look_at(managers.editor:camera_position(), unit:position(), Vector3(0, 0, 1))
+		local pos = unit:position() - rot:y() * unit:bounding_sphere_radius() * 2
+		managers.editor:set_camera(pos, rot)
+	end
+
+end
+
+function CoreEditor:change_layer_based_on_unit(unit)
+	if not unit then
+		return
+	end
+
+	local ud = CoreEngineAccess._editor_unit_data(unit:name():id())
+	local (for generator), (for state), (for control) = pairs(self._layers)
+	do
+		do break end
+		local (for generator), (for state), (for control) = ipairs(layer:unit_types())
+		do
+			do break end
+			if ud:type():s() == u_type then
+				for i = 0, self._notebook:get_page_count() - 1 do
+					if self._notebook:get_page_text(i) == layer_name then
+						self._notebook:set_page(i)
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+
+end
+
+function CoreEditor:unit_in_layer(unit)
+	local (for generator), (for state), (for control) = pairs(self._layers)
+	do
+		do break end
+		if table.contains(layer:created_units(), unit) then
+			return layer
+		end
+
+	end
+
+end
+
+function CoreEditor:unit_in_layer_name(unit)
+	local (for generator), (for state), (for control) = pairs(self._layers)
+	do
+		do break end
+		if table.contains(layer:created_units(), unit) then
+			return name
+		end
+
+	end
+
+end
+
+function CoreEditor:delete_unit(unit)
+	self:unit_in_layer(unit):delete_unit(unit)
+end
+
+function CoreEditor:delete_selected_unit()
+	if self._current_layer then
+		self._current_layer:delete_unit(self._current_layer:selected_unit())
+	end
+
+end
+
+function CoreEditor:unit_with_id(id)
+	local (for generator), (for state), (for control) = pairs(self._layers)
+	do
+		do break end
+		local (for generator), (for state), (for control) = ipairs(layer:created_units())
+		do
+			do break end
+			if alive(unit) and unit:unit_data().unit_id == id then
+				return unit
+			end
+
+		end
+
+	end
+
+end
+
+function CoreEditor:mission_element_panel()
+	return self._layers[self._mission_layer_name]:missionelement_panel()
+end
+
+function CoreEditor:hub_element_panel()
+	Application:stack_dump_error("CoreEditor:hub_element_panel is deprecated, use CoreEditor:mission_element_panel instead.")
+	return self:mission_element_panel()
+end
+
+function CoreEditor:mission_element_sizer()
+	return self._layers[self._mission_layer_name]:missionelement_sizer()
+end
+
+function CoreEditor:hub_element_sizer()
+	Application:stack_dump_error("CoreEditor:hub_element_sizer is deprecated, use CoreEditor:mission_element_sizer instead.")
+	return self:mission_element_sizer()
+end
+
+function CoreEditor:create_continent(name, values)
+	if self._continents[name] then
+		self._continents[name]:load_values(values)
+		self._continents_panel:update_continent_panel(self._continents[name])
+		return self._continents[name]
+	end
+
+	values.base_id = values.base_id or self:_new_base_id()
+	self._continents[name] = CoreEditorContinent:new(name, values)
+	local continent = self._continents[name]
+	self._continents_panel:add_continent({
+		visible = continent:value("visible"),
+		locked = continent:value("locked"),
+		enabled_in_simulation = continent:value("enabled_in_simulation"),
+		editor_only = continent:value("editor_only"),
+		continent = continent
+	})
+	self:set_continent(name)
+	self._values[name] = {}
+	self._values[name].workviews = {}
+	self:_recreate_dialogs()
+	return self._continents[name]
+end
+
+function CoreEditor:_new_base_id()
+	local i = 100000
+	while not self:_base_id_availible(i) do
+		i = i + 100000
+	end
+
+	return i
+end
+
+function CoreEditor:_base_id_availible(id)
+	do
+		local (for generator), (for state), (for control) = pairs(self._continents)
+		do
+			do break end
+			if continent:value("base_id") == id then
+				return false
+			end
+
+		end
+
+	end
+
+	(for control) = nil and continent.value
+end
+
+function CoreEditor:delete_continent(name)
+	local continent = name and self._continents[name] or self._current_continent
+	if not continent then
+		return
+	end
+
+	name = name or continent:name()
+	if name == "world" then
+		EWS:message_box(Global.frame_panel, "Continent " .. name .. " can currently not be deleted", "Continent", "OK,ICON_INFORMATION", Vector3(-1, -1, 0))
+		return
+	end
+
+	local confirm = EWS:message_box(Global.frame_panel, "Delete continent " .. name .. "? This will delete all units in the continent.", "Continent", "YES_NO,ICON_QUESTION", Vector3(-1, -1, 0))
+	if confirm == "NO" then
+		return
+	end
+
+	continent:delete()
+	self._continents_panel:destroy_continent(continent)
+	if continent == self._current_continent then
+		self:set_continent("world")
+	end
+
+	self._continents[name] = nil
+	self:_recreate_dialogs()
+end
+
+function CoreEditor:set_continent(name)
+	local changed = not self._current_continent or self._current_continent ~= self._continents[name]
+	self._current_continent = self._continents[name]
+	self._continents_panel:set_continent(self._current_continent)
+	if not changed then
+		return
+	end
+
+	local (for generator), (for state), (for control) = pairs(self._layers)
+	do
+		do break end
+		if layer:uses_continents() then
+			layer:clear_selected_units()
+		end
+
+	end
+
+end
+
+function CoreEditor:current_continent()
+	return self._current_continent
+end
+
+function CoreEditor:current_continent_name()
+	return self:current_continent() and self:current_continent():name()
+end
+
+function CoreEditor:continents()
+	return self._continents
+end
+
+function CoreEditor:continent(name)
+	return self._continents[name]
+end
+
+function CoreEditor:add_unit_to_continent(name, unit)
+	self._continents[name]:add_unit(unit)
+end
+
+function CoreEditor:change_continent_for_unit(unit, continent)
+	unit:unit_data().continent:remove_unit(unit)
+	continent:add_unit(unit)
+end
+
+function CoreEditor:change_continent_by_unit()
+	local ray = self:unit_by_raycast({
+		mask = managers.slot:get_mask("all"),
+		sample = true,
+		ray_type = "body editor"
+	})
+	if ray and ray.unit and ray.unit:unit_data().continent then
+		self:set_continent(ray.unit:unit_data().continent:name())
+	end
+
+end
+
+function CoreEditor:simulation_world_setting_path()
+	return self._simulation_world_setting_path
+end
+
+function CoreEditor:set_simulation_world_setting_path(path)
+	if path and not DB:has("world_setting", path) then
+		local confirm = EWS:message_box(Global.frame_panel, "Can't set simulation world setting path to " .. path, "Continent", "OK,ICON_ERROR", Vector3(-1, -1, 0))
+		return
+	end
+
+	self._simulation_world_setting_path = path
+	self._continents_panel:set_world_setting_path(self._simulation_world_setting_path)
+end
+
+function CoreEditor:parse_simulation_world_setting_path(path)
+	local settings = SystemFS:parse_xml(managers.database:entry_expanded_path("world_setting", path))
+	if settings:name() == "settings" then
+		local t = {}
+		do
+			local (for generator), (for state), (for control) = settings:children()
+			do
+				do break end
+				t[continent:parameter("name")] = toboolean(continent:parameter("exclude"))
+			end
+
+		end
+
+		do return t end
+		(for control) = managers.database:entry_expanded_path("world_setting", path) and continent.parameter
+	else
+		return PackageManager:editor_load_script_data(("world_setting"):id(), path:id())
+	end
+
+end
+
+function CoreEditor:values(continent)
+	return continent and self._values[continent] or self._values
+end
+
+function CoreEditor:add_workview(name)
+	local continent = self:current_continent_name()
+	self._values[continent].workviews[name] = {
+		position = self:camera():position(),
+		rotation = self:camera():rotation(),
+		text = ""
+	}
+	if self._dialogs.workview_by_name then
+		self._dialogs.workview_by_name:workview_added()
+	end
+
+end
+
+function CoreEditor:goto_workview(view)
+	self:set_camera(view.position, view.rotation)
+end
+
+function CoreEditor:delete_workview(continent, view_name)
+	self._values[continent].workviews[view_name] = nil
+end
+
+function CoreEditor:set_ruler_points()
+	if not shift() then
+		return
+	end
+
+	if not self._ruler_points then
+		self._ruler_points = {}
+	end
+
+	local ray = self:select_unit_by_raycast(managers.slot:get_mask("all"), "body editor")
+	if not ray or not ray.position then
+		return
+	end
+
+	if #self._ruler_points == 0 then
+		table.insert(self._ruler_points, ray.position)
+		self:set_value_info_visibility(true)
+	else
+		self:set_value_info_visibility(false)
+		self._ruler_points = {}
+	end
+
+end
+
+function CoreEditor:add_special_unit(unit, for_layer)
+	self._special_units[unit:key()] = for_layer
+end
+
+function CoreEditor:dump_mesh(...)
+	CoreEditorUtils.dump_mesh(...)
+end
+
+function CoreEditor:dump_all(...)
+	CoreEditorUtils.dump_all(...)
+end
+
+function CoreEditor:destroy()
+	if self._editor_data.virtual_controller then
+		Input:destroy_virtual_controller(self._editor_data.virtual_controller)
+	end
+
+	if self._ctrl then
+		Input:destroy_virtual_controller(self._ctrl)
+	end
+
+	if self._listener_id then
+		managers.listener:remove_listener(self._listener_id)
+		managers.listener:remove_set("editor")
+		self._listener_id = nil
+	end
+
+	if self._vp then
+		self._vp:destroy()
+		self._vp = nil
+	end
+
+end
+
+CoreEditorContinent = CoreEditorContinent or class()
+function CoreEditorContinent:init(name, values)
+	self._unit_ids = {}
+	self._name = name
+	self._need_saving = true
+	self._units = {}
+	self._values = {}
+	self._values.name = name
+	self:load_values(values)
+end
+
+function CoreEditorContinent:load_values(values)
+	self._values.base_id = values.base_id
+	self._values.visible = values.visible or values.visible == nil and true
+	self._values.enabled = values.enabled or values.enabled == nil and true
+	self._values.locked = values.locked or values.locked == nil and false
+	self._values.enabled_in_simulation = values.enabled_in_simulation or values.enabled_in_simulation == nil and true
+	self._values.editor_only = values.editor_only or values.editor_only == nil and false
+end
+
+function CoreEditorContinent:values()
+	return self._values
+end
+
+function CoreEditorContinent:base_id()
+	return self._values.base_id
+end
+
+function CoreEditorContinent:get_unit_id(unit)
+	local i = self._values.base_id
+	while self._unit_ids[i] do
+		i = i + 1
+	end
+
+	unit:unit_data().unit_id = i
+	self:register_unit_id(unit)
+	return i
+end
+
+function CoreEditorContinent:register_unit_id(unit)
+	self._unit_ids[unit:unit_data().unit_id] = unit
+end
+
+function CoreEditorContinent:remove_unit_id(unit)
+	self._unit_ids[unit:unit_data().unit_id] = nil
+end
+
+function CoreEditorContinent:name()
+	return self._name
+end
+
+function CoreEditorContinent:set_name(name)
+	self._name = name
+end
+
+function CoreEditorContinent:set_need_saving(need_saving)
+	self._need_saving = need_saving
+end
+
+function CoreEditorContinent:add_unit(unit)
+	unit:unit_data().continent = self
+	table.insert(self._units, unit)
+	unit:set_enabled(not self._values.locked)
+	self:set_need_saving(true)
+end
+
+function CoreEditorContinent:remove_unit(unit)
+	table.delete(self._units, unit)
+	self:set_need_saving(true)
+end
+
+function CoreEditorContinent:set_visible(visible)
+	self._values.visible = visible
+	local (for generator), (for state), (for control) = ipairs(self._units)
+	do
+		do break end
+		managers.editor:set_unit_visible(unit, self._values.visible)
+	end
+
+end
+
+function CoreEditorContinent:set_simulation_state(exclude)
+	local enabled = self._values.enabled_in_simulation and not exclude
+	if not self._values.locked and enabled or self._values.locked and not enabled then
+		return
+	end
+
+	local (for generator), (for state), (for control) = ipairs(self._units)
+	do
+		do break end
+		unit:set_enabled(enabled)
+	end
+
+end
+
+function CoreEditorContinent:set_locked(locked)
+	self._values.locked = locked
+	do
+		local (for generator), (for state), (for control) = ipairs(self._units)
+		do
+			do break end
+			unit:set_enabled(not locked)
+			if locked then
+				managers.editor:unselect_unit(unit)
+			end
+
+		end
+
+	end
+
+	(for control) = nil and unit.set_enabled
+	managers.editor:reset_dialog("select_by_name")
+end
+
+function CoreEditorContinent:set_enabled(enabled)
+	self._values.enabled = enabled
+	local (for generator), (for state), (for control) = ipairs(self._units)
+	do
+		do break end
+		unit:set_enabled(enabled)
+	end
+
+end
+
+function CoreEditorContinent:set_enabled_in_simulation(enabled_in_simulation)
+	self:set_value("enabled_in_simulation", enabled_in_simulation)
+end
+
+function CoreEditorContinent:set_editor_only(editor_only)
+	self:set_value("editor_only", editor_only)
+end
+
+function CoreEditorContinent:set_value(value, new_value)
+	self._values[value] = new_value
+end
+
+function CoreEditorContinent:value(value)
+	return self._values[value]
+end
+
+function CoreEditorContinent:delete()
+	local (for generator), (for state), (for control) = ipairs(clone(self._units))
+	do
+		do break end
+		managers.editor:delete_unit(unit)
+	end
+
+end
+

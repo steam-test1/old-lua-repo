@@ -525,3 +525,114 @@ function FreeFlight:_update_controller(t, dt)
 end
 
 function FreeFlight:_update_gui(t, dt)
+	if self._action_vis_time and t > self._action_vis_time then
+		do
+			local (for generator), (for state), (for control) = ipairs(self._action_gui)
+			do
+				do break end
+				text:stop()
+				text:animate(text:script().fade_out)
+			end
+
+		end
+
+		self._action_vis_time = nil
+	end
+
+	(for control) = nil and text.stop
+end
+
+function FreeFlight:_update_camera(t, dt)
+	local axis_move = self._con:get_input_axis("freeflight_axis_move")
+	local axis_look = self._con:get_input_axis("freeflight_axis_look")
+	local btn_move_up = self._con:get_input_float("freeflight_move_up")
+	local btn_move_down = self._con:get_input_float("freeflight_move_down")
+	local move_dir = self._camera_rot:x() * axis_move.x + self._camera_rot:y() * axis_move.y
+	move_dir = move_dir + btn_move_up * Vector3(0, 0, 1) + btn_move_down * Vector3(0, 0, -1)
+	local move_delta = move_dir * self._move_speed:value() * MOVEMENT_SPEED_BASE * dt
+	local pos_new = self._camera_pos + move_delta
+	local yaw_new = self._camera_rot:yaw() + axis_look.x * -1 * self._turn_speed:value() * TURN_SPEED_BASE
+	local pitch_new = math.clamp(self._camera_rot:pitch() + axis_look.y * self._turn_speed:value() * TURN_SPEED_BASE, PITCH_LIMIT_MIN, PITCH_LIMIT_MAX)
+	local rot_new = Rotation(yaw_new, pitch_new, 0)
+	if not CoreApp.arg_supplied("-vpslave") then
+		self:_set_camera(pos_new, rot_new)
+	end
+
+end
+
+function FreeFlight:_attach_unit()
+	local cam = self._camera_object
+	local ray = World:raycast("ray", cam:position(), cam:position() + cam:rotation():y() * 10000)
+	if ray then
+		print("ray hit", ray.unit:name():s(), ray.body:name())
+		if alive(self._attached_to_unit) and self._attached_to_unit == ray.unit then
+			print("[FreeFlight] Detach")
+			self:attach_to_unit(nil)
+		else
+			print("[FreeFlight] Attach")
+			self:attach_to_unit(ray.unit)
+		end
+
+	end
+
+end
+
+function FreeFlight:attach_to_unit(unit)
+	if not alive(unit) or alive(self._attached_to_unit) and unit ~= self._attached_to_unit then
+		local pos = self._camera_pos + self._attached_to_unit:position()
+		self:_set_camera(pos, self._camera_rot)
+	end
+
+	if alive(unit) and unit ~= self._attached_to_unit then
+		self._attached_to_unit_pos = unit:position()
+		local pos = self._camera_pos - self._attached_to_unit_pos
+		self:_set_camera(pos, self._camera_rot)
+	end
+
+	self._attached_to_unit = unit
+end
+
+function FreeFlight:_update_frustum_debug_box(t, dt)
+	if self._frozen_camera then
+		local near = self._frozen_camera:near_range()
+		local far = self._frozen_camera:far_range()
+		local R, G, B = 1, 0, 1
+		local n1 = self._frozen_camera:screen_to_world(Vector3(-1, -1, near))
+		local n2 = self._frozen_camera:screen_to_world(Vector3(1, -1, near))
+		local n3 = self._frozen_camera:screen_to_world(Vector3(1, 1, near))
+		local n4 = self._frozen_camera:screen_to_world(Vector3(-1, 1, near))
+		local f1 = self._frozen_camera:screen_to_world(Vector3(-1, -1, far))
+		local f2 = self._frozen_camera:screen_to_world(Vector3(1, -1, far))
+		local f3 = self._frozen_camera:screen_to_world(Vector3(1, 1, far))
+		local f4 = self._frozen_camera:screen_to_world(Vector3(-1, 1, far))
+		Application:draw_line(n1, n2, R, G, B)
+		Application:draw_line(n2, n3, R, G, B)
+		Application:draw_line(n3, n4, R, G, B)
+		Application:draw_line(n4, n1, R, G, B)
+		Application:draw_line(n1, f1, R, G, B)
+		Application:draw_line(n2, f2, R, G, B)
+		Application:draw_line(n3, f3, R, G, B)
+		Application:draw_line(n4, f4, R, G, B)
+		Application:draw_line(f1, f2, R, G, B)
+		Application:draw_line(f2, f3, R, G, B)
+		Application:draw_line(f3, f4, R, G, B)
+		Application:draw_line(f4, f1, R, G, B)
+	end
+
+end
+
+function FreeFlight:destroy()
+	if alive(self._con_toggle) then
+		Input:destroy_virtual_controller(self._con_toggle)
+		self._con_toggle = nil
+	end
+
+	if alive(self._con) then
+		self._con:destroy()
+		self._con = nil
+	end
+
+	self._vp:destroy()
+	self._vp = nil
+end
+

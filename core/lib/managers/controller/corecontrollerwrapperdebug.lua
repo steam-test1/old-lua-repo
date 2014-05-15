@@ -226,3 +226,131 @@ function ControllerWrapperDebug:set_enabled(...)
 end
 
 function ControllerWrapperDebug:enable(...)
+	do
+		local (for generator), (for state), (for control) = ipairs(self._controller_wrapper_list)
+		do
+			do break end
+			controller_wrapper:enable(...)
+		end
+
+	end
+
+end
+
+function ControllerWrapperDebug:disable(...)
+	do
+		local (for generator), (for state), (for control) = ipairs(self._controller_wrapper_list)
+		do
+			do break end
+			controller_wrapper:disable(...)
+		end
+
+	end
+
+end
+
+function ControllerWrapperDebug:add_trigger(...)
+	local (for generator), (for state), (for control) = ipairs(self._controller_wrapper_list)
+	do
+		do break end
+		if controller_wrapper:connection_exist(...) then
+			controller_wrapper:add_trigger(...)
+		end
+
+	end
+
+end
+
+function ControllerWrapperDebug:add_release_trigger(...)
+	local (for generator), (for state), (for control) = ipairs(self._controller_wrapper_list)
+	do
+		do break end
+		if controller_wrapper:connection_exist(...) then
+			controller_wrapper:add_release_trigger(...)
+		end
+
+	end
+
+end
+
+function ControllerWrapperDebug:remove_trigger(...)
+	local (for generator), (for state), (for control) = ipairs(self._controller_wrapper_list)
+	do
+		do break end
+		if controller_wrapper:connection_exist(...) then
+			controller_wrapper:remove_trigger(...)
+		end
+
+	end
+
+end
+
+function ControllerWrapperDebug:clear_triggers(...)
+	local (for generator), (for state), (for control) = ipairs(self._controller_wrapper_list)
+	do
+		do break end
+		controller_wrapper:clear_triggers(...)
+	end
+
+end
+
+function ControllerWrapperDebug:reset_cache(...)
+	local (for generator), (for state), (for control) = ipairs(self._controller_wrapper_list)
+	do
+		do break end
+		controller_wrapper:reset_cache(...)
+	end
+
+end
+
+function ControllerWrapperDebug:restore_triggers(...)
+	local (for generator), (for state), (for control) = ipairs(self._controller_wrapper_list)
+	do
+		do break end
+		controller_wrapper:restore_triggers(...)
+	end
+
+end
+
+function ControllerWrapperDebug:clear_connections(...)
+	local (for generator), (for state), (for control) = ipairs(self._controller_wrapper_list)
+	do
+		do break end
+		controller_wrapper:clear_connections(...)
+	end
+
+end
+
+function ControllerWrapperDebug:get_setup(...)
+	return self._default_controller_wrapper and self._default_controller_wrapper:get_setup(...)
+end
+
+function ControllerWrapperDebug:get_connection_settings(...)
+	return self._default_controller_wrapper and self._default_controller_wrapper:get_connection_settings(...)
+end
+
+function ControllerWrapperDebug:get_connection_enabled(...)
+	do
+		local (for generator), (for state), (for control) = ipairs(self._controller_wrapper_list)
+		do
+			do break end
+			if controller_wrapper:get_connection_enabled(...) then
+				return true
+			end
+
+		end
+
+	end
+
+	(for control) = nil and controller_wrapper.get_connection_enabled
+end
+
+function ControllerWrapperDebug:set_connection_enabled(...)
+	local (for generator), (for state), (for control) = ipairs(self._controller_wrapper_list)
+	do
+		do break end
+		controller_wrapper:set_connection_enabled(...)
+	end
+
+end
+
