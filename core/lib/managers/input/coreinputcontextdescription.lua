@@ -1,7 +1,5 @@
 core:module("CoreInputContextDescription")
-
 ContextDescription = ContextDescription or class()
-
 function ContextDescription:init(name)
 	self._input_target_descriptions = {}
 	self._layout_descriptions = {}
@@ -25,7 +23,6 @@ end
 function ContextDescription:device_layout_description(device_type, layout_name)
 	layout_name = layout_name or "default"
 	local layout_description = self._layout_descriptions[layout_name]
-	
 	if layout_description == nil then
 		return
 	end
@@ -54,3 +51,4 @@ function ContextDescription:input_target_description(target_name)
 	assert(input_target ~= nil, "Input Target with name '" .. target_name .. "' can not be found in context '" .. self._name .. "'")
 	return input_target
 end
+

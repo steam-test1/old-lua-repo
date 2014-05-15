@@ -1,1 +1,1 @@
-NPCShotgunBase = NPCShotgunBase or class( NPCRaycastWeaponBase )
+NPCShotgunBase = NPCShotgunBase or class(NPCRaycastWeaponBase)

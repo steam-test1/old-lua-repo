@@ -1,117 +1,99 @@
-core:import( "CoreMissionScriptElement" )
-
-ElementInventoryDummy = ElementInventoryDummy or class( CoreMissionScriptElement.MissionScriptElement )
-
-function ElementInventoryDummy:init( ... )
-	ElementInventoryDummy.super.init( self, ... )
+core:import("CoreMissionScriptElement")
+ElementInventoryDummy = ElementInventoryDummy or class(CoreMissionScriptElement.MissionScriptElement)
+function ElementInventoryDummy:init(...)
+	ElementInventoryDummy.super.init(self, ...)
 end
 
-function ElementInventoryDummy:client_on_executed( ... )
-	-- self:on_executed( ... )
+function ElementInventoryDummy:client_on_executed(...)
 end
 
-function ElementInventoryDummy:on_executed( instigator )
-	if not ( self._values.enabled ) then
+function ElementInventoryDummy:on_executed(instigator)
+	if not self._values.enabled then
 		return
 	end
-	
-	-- print( "ElementInventoryDummy:on_executed", self._values.category, self._values.slot )
-		
+
 	if self._values.category ~= "none" then
 		if self._values.category == "primaries" or self._values.category == "secondaries" then
-			self:_spawn_weapon( self._values.category, self._values.slot, self._values.position, self._values.rotation )
+			self:_spawn_weapon(self._values.category, self._values.slot, self._values.position, self._values.rotation)
 		elseif self._values.category == "masks" then
-			self:_spawn_mask( self._values.category, self._values.slot, self._values.position, self._values.rotation )
+			self:_spawn_mask(self._values.category, self._values.slot, self._values.position, self._values.rotation)
 		end
+
 	end
-	
-	ElementInventoryDummy.super.on_executed( self, instigator )
+
+	ElementInventoryDummy.super.on_executed(self, instigator)
 end
 
-function ElementInventoryDummy:_spawn_weapon( category, slot, position, rotation )
-	-- print( "ElementInventoryDummy:_spawn_weapon", category, slot )
-	
-	local category = managers.blackmarket:get_crafted_category( category )
+function ElementInventoryDummy:_spawn_weapon(category, slot, position, rotation)
+	local category = managers.blackmarket:get_crafted_category(category)
 	if not category then
 		return
 	end
-	local slot_data = category[ slot ]
+
+	local slot_data = category[slot]
 	if not slot_data then
 		return
-	end	
-	
-	-- print( "   Gonna spawn weapon", inspect( slot_data ) )
+	end
 
-	local unit_name = tweak_data.weapon.factory[ slot_data.factory_id ].unit
-	managers.dyn_resource:load( Idstring( "unit" ), Idstring( unit_name ), DynamicResourceManager.DYN_RESOURCES_PACKAGE, false )
-	
-	self._weapon_unit = World:spawn_unit( Idstring( unit_name ), position, rotation )
-	-- self._weapon_unit:base():assemble_from_blueprint( slot_data.factory_id, slot_data.blueprint )
-	-- self._parts, self._blueprint = managers.weapon_factory:assemble_from_blueprint( slot_data.factory_id, self._weapon_unit, slot_data.blueprint, true )
-	self._parts, self._blueprint = managers.weapon_factory:assemble_from_blueprint( slot_data.factory_id, self._weapon_unit, slot_data.blueprint, true, callback( self, self, "_assemble_completed" ) )
-	self._weapon_unit:set_moving( true )
+	local unit_name = tweak_data.weapon.factory[slot_data.factory_id].unit
+	managers.dyn_resource:load(Idstring("unit"), Idstring(unit_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
+	self._weapon_unit = World:spawn_unit(Idstring(unit_name), position, rotation)
+	self._parts, self._blueprint = managers.weapon_factory:assemble_from_blueprint(slot_data.factory_id, self._weapon_unit, slot_data.blueprint, true, callback(self, self, "_assemble_completed"))
+	self._weapon_unit:set_moving(true)
 end
 
-function ElementInventoryDummy:_assemble_completed( parts, blueprint )
+function ElementInventoryDummy:_assemble_completed(parts, blueprint)
 	self._parts = parts
 	self._blueprint = blueprint
-	self._weapon_unit:set_moving( true )
+	self._weapon_unit:set_moving(true)
 end
 
-function ElementInventoryDummy:_spawn_mask( category, slot, position, rotation )
-	-- print( "ElementInventoryDummy:_spawn_mask", category, slot )
-	local category = managers.blackmarket:get_crafted_category( category )
+function ElementInventoryDummy:_spawn_mask(category, slot, position, rotation)
+	local category = managers.blackmarket:get_crafted_category(category)
 	if not category then
 		return
 	end
-	local slot_data = category[ slot ]
+
+	local slot_data = category[slot]
 	if not slot_data then
 		return
 	end
-	
-	-- print( "   Gonna spawn mask", inspect( slot_data ) )
-	
-	local mask_unit_name = managers.blackmarket:mask_unit_name_by_mask_id( slot_data.mask_id ) -- tweak_data.blackmarket.masks[ slot_data.mask_id ].unit
-	managers.dyn_resource:load( Idstring( "unit" ), Idstring( mask_unit_name ), DynamicResourceManager.DYN_RESOURCES_PACKAGE, false )
-	
-	self._mask_unit = World:spawn_unit( Idstring( mask_unit_name ), position, rotation )
-	
-	local backside = World:spawn_unit( Idstring( "units/payday2/masks/msk_backside/msk_backside" ), position, rotation, position, rotation )
-	self._mask_unit:link( self._mask_unit:orientation_object():name(), backside, backside:orientation_object():name() )
-	
-	self._mask_unit:base():apply_blueprint( slot_data.blueprint )
-	-- managers.blackmarket:apply_mask_craft_on_unit( self._mask_unit, slot_data.blueprint )
-	
-	self._mask_unit:set_moving( true )
+
+	local mask_unit_name = managers.blackmarket:mask_unit_name_by_mask_id(slot_data.mask_id)
+	managers.dyn_resource:load(Idstring("unit"), Idstring(mask_unit_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
+	self._mask_unit = World:spawn_unit(Idstring(mask_unit_name), position, rotation)
+	local backside = World:spawn_unit(Idstring("units/payday2/masks/msk_backside/msk_backside"), position, rotation, position, rotation)
+	self._mask_unit:link(self._mask_unit:orientation_object():name(), backside, backside:orientation_object():name())
+	self._mask_unit:base():apply_blueprint(slot_data.blueprint)
+	self._mask_unit:set_moving(true)
 end
 
 function ElementInventoryDummy:pre_destroy()
-	-- print( "               ElementInventoryDummy:pre_destroy()" )
-	ElementInventoryDummy.super.pre_destroy( self )
-	
-	if alive( self._weapon_unit ) then
-		managers.weapon_factory:disassemble( self._parts )
-	
+	ElementInventoryDummy.super.pre_destroy(self)
+	if alive(self._weapon_unit) then
+		managers.weapon_factory:disassemble(self._parts)
 		local name = self._weapon_unit:name()
-		
-		self._weapon_unit:base():set_slot( self._weapon_unit, 0 )
-		World:delete_unit( self._weapon_unit )
-		managers.dyn_resource:unload( Idstring("unit"), name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false )
+		self._weapon_unit:base():set_slot(self._weapon_unit, 0)
+		World:delete_unit(self._weapon_unit)
+		managers.dyn_resource:unload(Idstring("unit"), name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
 	end
-	
-	if alive( self._mask_unit ) then
-		for _,linked_unit in ipairs( self._mask_unit:children() ) do
-			linked_unit:unlink()
-			World:delete_unit( linked_unit )
+
+	if alive(self._mask_unit) then
+		do
+			local (for generator), (for state), (for control) = ipairs(self._mask_unit:children())
+			do
+				do break end
+				linked_unit:unlink()
+				World:delete_unit(linked_unit)
+			end
+
 		end
-			
+
+		(for control) = self._mask_unit:children() and linked_unit.unlink
 		local name = self._mask_unit:name()
-		World:delete_unit( self._mask_unit )
-		managers.dyn_resource:unload( Idstring( "unit" ), name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false )
+		World:delete_unit(self._mask_unit)
+		managers.dyn_resource:unload(Idstring("unit"), name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
 	end
+
 end
 
---[[function ElementInventoryDummy:destroy()
-	print( "               ElementInventoryDummy:destroy()" )
-	ElementInventoryDummy.super.destroy( self )
-end]]

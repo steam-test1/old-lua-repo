@@ -1,24 +1,23 @@
-core:import( "CoreMissionScriptElement" )
-
-ElementPlayerNumberCheck = ElementPlayerNumberCheck or class( CoreMissionScriptElement.MissionScriptElement )
-
-function ElementPlayerNumberCheck:init( ... )
-	ElementPlayerNumberCheck.super.init( self, ... )
+core:import("CoreMissionScriptElement")
+ElementPlayerNumberCheck = ElementPlayerNumberCheck or class(CoreMissionScriptElement.MissionScriptElement)
+function ElementPlayerNumberCheck:init(...)
+	ElementPlayerNumberCheck.super.init(self, ...)
 end
 
-function ElementPlayerNumberCheck:client_on_executed( ... )
-	 self:on_executed( ... )
+function ElementPlayerNumberCheck:client_on_executed(...)
+	self:on_executed(...)
 end
 
-function ElementPlayerNumberCheck:on_executed( instigator )
+function ElementPlayerNumberCheck:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-	
+
 	local num_plrs = managers.network:game():amount_of_members()
 	if not self._values["num" .. num_plrs] then
 		return
-	end 
+	end
 
-	ElementPlayerNumberCheck.super.on_executed( self, instigator )
+	ElementPlayerNumberCheck.super.on_executed(self, instigator)
 end
+

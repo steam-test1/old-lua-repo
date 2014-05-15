@@ -1,12 +1,8 @@
-core:module( "SystemMenuManager" )
-
-require "lib/managers/dialogs/BaseDialog"
-
--- Abstract dialog:
-MarketplaceDialog = MarketplaceDialog or class( BaseDialog )
-
+core:module("SystemMenuManager")
+require("lib/managers/dialogs/BaseDialog")
+MarketplaceDialog = MarketplaceDialog or class(BaseDialog)
 function MarketplaceDialog:done_callback()
-	if( self._data.callback_func ) then
+	if self._data.callback_func then
 		self._data.callback_func()
 	end
 
@@ -22,6 +18,6 @@ function MarketplaceDialog:item_id()
 end
 
 function MarketplaceDialog:to_string()
-	return string.format( "%s, Item type: %s, Item id: %s",
-				tostring( BaseDialog.to_string( self ) ), tostring( self._data.item_type ), tostring( self._data.item_id ) )
+	return string.format("%s, Item type: %s, Item id: %s", tostring(BaseDialog.to_string(self)), tostring(self._data.item_type), tostring(self._data.item_id))
 end
+

@@ -1,34 +1,30 @@
-
-core:module('CoreEnvironmentAreaManager')
-
-core:import('CoreShapeManager')
-
-
+core:module("CoreEnvironmentAreaManager")
+core:import("CoreShapeManager")
 EnvironmentAreaManager = EnvironmentAreaManager or class()
-	
-function EnvironmentAreaManager:init()	
+function EnvironmentAreaManager:init()
 	self._areas = {}
 	self._current_area = nil
 	self._area_iterator = 1
 	self._areas_per_frame = 1
-		
 	self._blocks = 0
-	
 	self.GAME_DEFAULT_ENVIRONMENT = "core/environments/default"
 	self._default_environment = self.GAME_DEFAULT_ENVIRONMENT
 	self._current_environment = self.GAME_DEFAULT_ENVIRONMENT
-	
-	for _,vp in ipairs(managers.viewport:viewports()) do
-		self:_set_environment(self.GAME_DEFAULT_ENVIRONMENT, 0, vp)
+	do
+		local (for generator), (for state), (for control) = ipairs(managers.viewport:viewports())
+		do
+			do break end
+			self:_set_environment(self.GAME_DEFAULT_ENVIRONMENT, 0, vp)
+		end
+
 	end
-	
-	self._environment_changed_callback = {}
-		
-	self:set_default_transition_time( 0.1 )
-	self.POSITION_OFFSET = 50 -- This is used to move the sampling camera position into the view.
+
+	self._environment_changed_callback = managers.viewport:viewports() and {}
+	self:set_default_transition_time(0.1)
+	self.POSITION_OFFSET = 50
 end
 
-function EnvironmentAreaManager:set_default_transition_time( time )
+function EnvironmentAreaManager:set_default_transition_time(time)
 	self._default_transition_time = time
 end
 
@@ -48,143 +44,157 @@ function EnvironmentAreaManager:default_environment()
 	return self._default_environment
 end
 
-function EnvironmentAreaManager:set_default_environment( environment, time, vp )
+function EnvironmentAreaManager:set_default_environment(environment, time, vp)
 	self._default_environment = environment
 	if not self._current_area then
 		if not vp then
-			-- I think the correct function would be active_viewports() but I'm not sure.
-			for _,viewport in ipairs(managers.viewport:viewports()) do
-				self:_set_environment( self._default_environment, time, viewport )
+			local (for generator), (for state), (for control) = ipairs(managers.viewport:viewports())
+			do
+				do break end
+				self:_set_environment(self._default_environment, time, viewport)
 			end
+
 		else
-			self:_set_environment( self._default_environment, time, vp )
+			(for control) = managers.viewport:viewports() and self._set_environment
+			self:_set_environment(self._default_environment, time, vp)
 		end
+
 	end
+
 end
 
-function EnvironmentAreaManager:set_to_current_environment( vp )
-	self:_set_environment( self._current_environment, nil, vp )
+function EnvironmentAreaManager:set_to_current_environment(vp)
+	self:_set_environment(self._current_environment, nil, vp)
 end
 
-function EnvironmentAreaManager:_set_environment( environment, time, vp )
+function EnvironmentAreaManager:_set_environment(environment, time, vp)
 	self._current_environment = environment
-	vp:set_environment( environment, time )
+	vp:set_environment(environment, time)
 end
 
 function EnvironmentAreaManager:current_environment()
 	return self._current_environment
 end
 
--- Sets all data back to default, used by editor when creating a new level for example
 function EnvironmentAreaManager:set_to_default()
 	local vps = managers.viewport:active_viewports()
-	for _,vp in ipairs(vps) do
-		self:set_default_environment( self.GAME_DEFAULT_ENVIRONMENT, nil, vp )
+	local (for generator), (for state), (for control) = ipairs(vps)
+	do
+		do break end
+		self:set_default_environment(self.GAME_DEFAULT_ENVIRONMENT, nil, vp)
 	end
+
 end
 
-function EnvironmentAreaManager:add_area( area_params )
-	local area = EnvironmentArea:new( area_params )
-	table.insert( self._areas, area )
+function EnvironmentAreaManager:add_area(area_params)
+	local area = EnvironmentArea:new(area_params)
+	table.insert(self._areas, area)
 	return area
 end
 
-function EnvironmentAreaManager:remove_area( area )
+function EnvironmentAreaManager:remove_area(area)
 	if area == self._current_area then
-		self:_leave_current_area( self._current_area:transition_time() )
+		self:_leave_current_area(self._current_area:transition_time())
 	end
-	table.delete( self._areas, area )
+
+	table.delete(self._areas, area)
 	self._area_iterator = 1
 end
 
 local mvec1 = Vector3()
 local mvec2 = Vector3()
-function EnvironmentAreaManager:update( t, dt )
+function EnvironmentAreaManager:update(t, dt)
 	local vps = managers.viewport:active_viewports()
-	for _,vp in ipairs(vps) do
+	local (for generator), (for state), (for control) = ipairs(vps)
+	do
+		do break end
 		local camera = vp:camera()
 		if not camera then
 			return
 		end
-		
+
 		if self._blocks > 0 then
 			return
 		end
-		
-		--[[	
-		for _,area in ipairs( self._areas ) do
-			area:draw( t, dt, 1, 1, 1 )
-		end
-		]]
-		
-		-- local check_pos = camera:position() + camera:rotation():y() * self.POSITION_OFFSET
+
 		local check_pos = mvec1
 		local c_fwd = mvec2
-		camera:m_position( check_pos )
-		-- mvector3.set( check_pos, camera:position() )
-		mrotation.y( camera:rotation(), c_fwd )
-		mvector3.multiply( c_fwd, self.POSITION_OFFSET )
-		mvector3.add( check_pos, c_fwd )
-		
+		camera:m_position(check_pos)
+		mrotation.y(camera:rotation(), c_fwd)
+		mvector3.multiply(c_fwd, self.POSITION_OFFSET)
+		mvector3.add(check_pos, c_fwd)
 		local still_inside
 		if self._current_area then
-			still_inside = self._current_area:still_inside( check_pos )
+			still_inside = self._current_area:still_inside(check_pos)
 			if still_inside then
 				return
 			end
+
 			local transition_time = self._current_area:transition_time()
 			self._current_area = nil
-			-- It will set _current_area if finds a new area (ie, they overlapped)
-			self:_check_inside( check_pos, vp )
+			self:_check_inside(check_pos, vp)
 			if self._current_area then
 				return
 			end
-			self:_leave_current_area( transition_time, vp )
+
+			self:_leave_current_area(transition_time, vp)
 		end
-		
-		self:_check_inside( check_pos, vp )
+
+		self:_check_inside(check_pos, vp)
 	end
+
 end
 
-function EnvironmentAreaManager:_check_inside( check_pos, vp )
+function EnvironmentAreaManager:_check_inside(check_pos, vp)
 	if #self._areas > 0 then
 		for i = 1, self._areas_per_frame do
-			local area = self._areas[ self._area_iterator ]
-			self._area_iterator = math.mod( self._area_iterator, #self._areas ) + 1
-			if area:is_inside( check_pos ) then
+			local area = self._areas[self._area_iterator]
+			self._area_iterator = math.mod(self._area_iterator, #self._areas) + 1
+			if area:is_inside(check_pos) then
 				if area:environment() ~= self._current_environment then
 					local transition_time = area:transition_time()
 					if area:permanent() then
-						self:set_default_environment( area:environment(), transition_time, vp )
+						self:set_default_environment(area:environment(), transition_time, vp)
 						return
 					else
-						self:_set_environment( area:environment(), transition_time, vp )
+						self:_set_environment(area:environment(), transition_time, vp)
 					end
+
 				end
+
 				self._current_area = area
 				break
 			end
+
 		end
+
 	end
+
 end
 
-function EnvironmentAreaManager:_leave_current_area( transition_time, vp )
+function EnvironmentAreaManager:_leave_current_area(transition_time, vp)
 	self._current_area = nil
 	if self._default_environment ~= self._current_environment then
-		self:_set_environment( self._default_environment, transition_time, vp )
+		self:_set_environment(self._default_environment, transition_time, vp)
 	end
+
 end
 
--- Returns what environment it is in a certain position
-function EnvironmentAreaManager:environment_at_position( pos )
+function EnvironmentAreaManager:environment_at_position(pos)
 	local environment = self._default_environment
-	for _,area in ipairs( self._areas ) do
-		if area:is_inside( pos ) then
-			environment = area:environment()
-			break
+	do
+		local (for generator), (for state), (for control) = ipairs(self._areas)
+		do
+			do break end
+			if area:is_inside(pos) then
+				environment = area:environment()
 		end
+
+		else
+		end
+
 	end
-	return environment
+
 end
 
 function EnvironmentAreaManager:add_block()
@@ -195,65 +205,48 @@ function EnvironmentAreaManager:remove_block()
 	self._blocks = self._blocks - 1
 end
 
--- Systems or extensions that want to know when the environmment is changed can register here.
--- Remember to remove the function when done using it, from destroy in extension for example.
-function EnvironmentAreaManager:add_environment_changed_callback( func )
-	table.insert( self._environment_changed_callback, func )
+function EnvironmentAreaManager:add_environment_changed_callback(func)
+	table.insert(self._environment_changed_callback, func)
 end
 
--- Call this to remove the added function when no longer interested in environment change. 
--- Destroy on extensions for example.
-function EnvironmentAreaManager:remove_environment_changed_callback( func )
-	table.delete( self._environment_changed_callback, func )
+function EnvironmentAreaManager:remove_environment_changed_callback(func)
+	table.delete(self._environment_changed_callback, func)
 end
 
-------------------------------------------------------------------------
-
-EnvironmentArea = EnvironmentArea or class( CoreShapeManager.ShapeBox )
-
-function EnvironmentArea:init( params )
+EnvironmentArea = EnvironmentArea or class(CoreShapeManager.ShapeBox)
+function EnvironmentArea:init(params)
 	params.type = "box"
-	EnvironmentArea.super.init( self, params )
+	EnvironmentArea.super.init(self, params)
 	self._properties.environment = params.environment or managers.environment_area:game_default_environment()
 	self._properties.permanent = params.permanent or false
 	self._properties.transition_time = params.transition_time or managers.environment_area:default_transition_time()
-	--managers.environment:preload_environment( self._properties.environment )
-	-- This preload is actually a hack for BC at the moment.
-	--if managers.environment:exists_on_disk( self._properties.environment .. "_uw") then
-	 	--managers.environment:preload_environment( self._properties.environment .. "_uw" )
-	--end
---	self._environment = params.environment or managers.environment_area:game_default_environment()
---	self._name = params.name or ""
 end
 
 function EnvironmentArea:name()
-	return ( self._unit and self._unit:unit_data().name_id ) or self._name
+	return self._unit and self._unit:unit_data().name_id or self._name
 end
 
 function EnvironmentArea:environment()
-	return self:property( "environment" )
+	return self:property("environment")
 end
 
-function EnvironmentArea:set_environment( environment )
-	self:set_property_string( "environment", environment )
+function EnvironmentArea:set_environment(environment)
+	self:set_property_string("environment", environment)
 end
 
 function EnvironmentArea:permanent()
-	return self:property( "permanent" )
+	return self:property("permanent")
 end
 
-function EnvironmentArea:set_permanent( permanent )
+function EnvironmentArea:set_permanent(permanent)
 	self._properties.permanent = permanent
 end
 
 function EnvironmentArea:transition_time()
-	return self:property( "transition_time" )
+	return self:property("transition_time")
 end
 
-function EnvironmentArea:set_transition_time( time )
+function EnvironmentArea:set_transition_time(time)
 	self._properties.transition_time = time
 end
-
-------------------------------------------------------------------------
-
 

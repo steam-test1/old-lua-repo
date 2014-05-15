@@ -1,7 +1,5 @@
 core:module("CoreInputLayoutDescription")
-
 LayoutDescription = LayoutDescription or class()
-
 function LayoutDescription:init(name)
 	self._name = name
 	self._device_layout_descriptions = {}
@@ -18,3 +16,4 @@ end
 function LayoutDescription:device_layout_description(device_type)
 	return self._device_layout_descriptions[device_type]
 end
+

@@ -1,6 +1,5 @@
-require "core/lib/utils/dev/ews/tree_control/CoreBaseTreeNode"
+require("core/lib/utils/dev/ews/tree_control/CoreBaseTreeNode")
 CoreTreeNode = CoreTreeNode or class(CoreBaseTreeNode)
-
 function CoreTreeNode:init(text)
 	self._text = text or ""
 	self._parent = nil
@@ -14,17 +13,16 @@ end
 
 function CoreTreeNode:_invoke_callback(event_name, ...)
 	local callback_table = self._callbacks
-	if not callback_table then return end
-	
+	if not callback_table then
+		return
+	end
+
 	local callback = callback_table[event_name]
 	if callback then
 		callback(...)
-	end	
+	end
+
 end
-
-
-
--- Common interface
 
 function CoreTreeNode:text()
 	return self._text
@@ -34,13 +32,12 @@ function CoreTreeNode:parent()
 	if self._parent and self._parent._parent then
 		return self._parent
 	end
+
 end
 
--- HACK: DEBUG! REMOVE!
 function CoreTreeNode:remove_children()
 	return self.super.remove_children(self)
 end
-
 
 function CoreTreeNode:children()
 	return self._children
@@ -57,12 +54,12 @@ end
 
 function CoreTreeNode:remove()
 	self:_invoke_callback("on_remove", self)
-	
 	if self._parent then
 		table.delete(self._parent._children, self)
 	end
-	
+
 	self._text = ""
 	self._parent = nil
 	self._children = {}
 end
+

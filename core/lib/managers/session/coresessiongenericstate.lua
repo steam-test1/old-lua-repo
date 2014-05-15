@@ -1,7 +1,5 @@
 core:module("CoreSessionGenericState")
-
 State = State or class()
-
 function State:init()
 end
 
@@ -20,3 +18,4 @@ end
 function State:transition()
 	assert(false, "you must override transition()")
 end
+

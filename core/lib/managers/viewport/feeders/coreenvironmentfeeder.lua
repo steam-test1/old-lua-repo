@@ -1,20 +1,10 @@
 core:module("CoreEnvironmentFeeder")
-
 core:import("CoreClass")
-
 core:import("CoreEnvironmentNetworkFeeder")
 core:import("CoreEnvironmentPostProcessorFeeder")
 core:import("CoreEnvironmentUnderlayFeeder")
 core:import("CoreEnvironmentOthersFeeder")
-
 EnvironmentFeeder = EnvironmentFeeder or CoreClass.class()
-
-----------------------------------------------------------------------------
---
---    P U B L I C
---
-----------------------------------------------------------------------------
-
 function EnvironmentFeeder:init()
 	self._production_feeders = {
 		CoreEnvironmentNetworkFeeder.EnvironmentNetworkFeeder:new(),
@@ -22,7 +12,6 @@ function EnvironmentFeeder:init()
 		CoreEnvironmentUnderlayFeeder.EnvironmentUnderlayFeeder:new(),
 		CoreEnvironmentOthersFeeder.EnvironmentOthersFeeder:new()
 	}
-	
 	self._feeders = {
 		CoreEnvironmentPostProcessorFeeder.EnvironmentPostProcessorFeeder:new(),
 		CoreEnvironmentUnderlayFeeder.EnvironmentUnderlayFeeder:new(),
@@ -30,25 +19,34 @@ function EnvironmentFeeder:init()
 	}
 end
 
-function EnvironmentFeeder:feed( data, nr, scene, vp )
-	data:for_each(
-		function(block, ...)
-			for _,feeder in ipairs(self:feeders()) do
+function EnvironmentFeeder:feed(data, nr, scene, vp)
+	data:for_each(function(block, ...)
+		do
+			local (for generator), (for state), (for control) = ipairs(self:feeders())
+			do
+				do break end
 				if feeder:feed(nr, scene, vp, data, block, ...) then
 					return
 				end
+
 			end
-			error("[EnvironmentFeeder] No suitable feeder found! Data: ", ... )
+
 		end
-	)
-	for _,feeder in ipairs(self:feeders()) do
+
+		(for control) = self:feeders() and feeder.feed
+		error("[EnvironmentFeeder] No suitable feeder found! Data: ", ...)
+	end
+)
+	local (for generator), (for state), (for control) = ipairs(self:feeders())
+	do
+		do break end
 		feeder:end_feed(nr)
 	end
+
 end
 
 function EnvironmentFeeder:feeders()
-	-- Maby we should check mode to speed this up? /AJ
-	return (managers.slave:connected() and self._enable_slaving) and self._production_feeders or self._feeders
+	return managers.slave:connected() and self._enable_slaving and self._production_feeders or self._feeders
 end
 
 function EnvironmentFeeder:slaving()
@@ -58,3 +56,4 @@ end
 function EnvironmentFeeder:set_slaving(slaving)
 	self._enable_slaving = slaving
 end
+

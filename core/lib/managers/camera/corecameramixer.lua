@@ -1,6 +1,5 @@
 core:module("CoreCameraMixer")
 core:import("CoreClass")
-
 local mvector3_add = mvector3.add
 local mvector3_sub = mvector3.subtract
 local mvector3_mul = mvector3.multiply
@@ -9,102 +8,139 @@ local mvector3_copy = mvector3.copy
 local mrotation_mul = mrotation.multiply
 local mrotation_slerp = mrotation.slerp
 local mrotation_set_zero = mrotation.set_zero
-
-local function safe_divide(a, b)
-	if b == 0.0 then
-		return 1.0
+local safe_divide = function(a, b)
+	if b == 0 then
+		return 1
 	end
-	return a/b
+
+	return a / b
 end
 
 CameraMixer = CameraMixer or CoreClass.class()
-
 function CameraMixer:init(name)
 	self._name = name
-	self._cameras = {}	
-end
-
-function CameraMixer:destroy()
-	for index, camera in ipairs(self._cameras) do
-		camera.camera:destroy()
-	end	
 	self._cameras = {}
 end
 
-function CameraMixer:add_camera(camera, blend_time)	
+function CameraMixer:destroy()
+	do
+		local (for generator), (for state), (for control) = ipairs(self._cameras)
+		do
+			do break end
+			camera.camera:destroy()
+		end
+
+	end
+
+	self._cameras = nil and {}
+end
+
+function CameraMixer:add_camera(camera, blend_time)
 	table.insert(self._cameras, {
-		camera = camera, 
-		blend_time = blend_time, 
+		camera = camera,
+		blend_time = blend_time,
 		time = 0,
 		cam_data = nil
 	})
 end
 
 function CameraMixer:stop()
-	for index, camera in ipairs(self._cameras) do
-		camera.camera:destroy()
+	do
+		local (for generator), (for state), (for control) = ipairs(self._cameras)
+		do
+			do break end
+			camera.camera:destroy()
+		end
+
 	end
-	self._cameras = {}
+
+	self._cameras = nil and {}
 end
 
 function CameraMixer:update(cud, cud_class, time, dt)
+	do
+		local (for generator), (for state), (for control) = ipairs(self._cameras)
+		do
+			do break end
+			local _camera = camera.camera
+			local cam_data = cud_class:new(cud)
+			do
+				local (for generator), (for state), (for control) = ipairs(_camera._nodes)
+				do
+					do break end
+					local local_cam_data = cud_class:new()
+					cam:update(time, dt, cam_data, local_cam_data)
+					cam_data:transform_with(local_cam_data)
+					mvector3_set(cam._position, cam_data._position)
+					mrotation_set_zero(cam._rotation)
+					mrotation_mul(cam._rotation, cam_data._rotation)
+				end
 
-	for index, camera in ipairs(self._cameras) do
-		local _camera = camera.camera
+			end
 
-		local cam_data = cud_class:new(cud) 		
-		
-		for _, cam in ipairs(_camera._nodes) do
-			local local_cam_data = cud_class:new()
-			cam:update(time, dt, cam_data, local_cam_data)
-			cam_data:transform_with(local_cam_data)
-			
-			mvector3_set(cam._position, cam_data._position)
-			mrotation_set_zero(cam._rotation)
-			mrotation_mul(cam._rotation, cam_data._rotation)	 		
+			camera.cam_data = cam_data
 		end
-				
-		camera.cam_data = cam_data
+
+		(for control) = nil and cud_class.new
 	end
-	
+
 	local full_blend_index = 1
-	for index, _camera in ipairs(self._cameras) do
-		_camera.time = _camera.time + dt
-		local factor
-		if index > 1 then
-			factor = math.sin(math.clamp(safe_divide(_camera.time,_camera.blend_time), 0, 1)*90)
-		else
-			factor = 1.0
+	(for control) = nil and camera.camera
+	do
+		local (for generator), (for state), (for control) = ipairs(self._cameras)
+		do
+			do break end
+			_camera.time = _camera.time + dt
+			local factor
+			if index > 1 then
+				factor = math.sin(math.clamp(safe_divide(_camera.time, _camera.blend_time), 0, 1) * 90)
+			else
+				factor = 1
+			end
+
+			cud:interpolate_to_target(_camera.cam_data, factor)
+			if factor >= 1 then
+				full_blend_index = index
+			end
+
 		end
-		cud:interpolate_to_target(_camera.cam_data, factor)		
-		if factor >= 1 then
-			full_blend_index = index
-		end		
+
 	end
-			
-	for i=1, full_blend_index-1 do
+
+	(for control) = nil and _camera.time
+	for i = 1, full_blend_index - 1 do
 		self._cameras[1].camera:destroy()
 		table.remove(self._cameras, 1)
-	end	
-	
-	for index, camera in ipairs(self._cameras) do
+	end
+
+	local (for generator), (for state), (for control) = ipairs(self._cameras)
+	do
+		do break end
 		assert(not camera.camera._destroyed)
-	end	
+	end
+
 end
 
 function CameraMixer:debug_render(t, dt)
-	local pen = Draw:pen(Color(0.05, 0.0, 0.0, 1.0))
-	for _, camera in ipairs(self._cameras) do
+	local pen = Draw:pen(Color(0.05, 0, 0, 1))
+	local (for generator), (for state), (for control) = ipairs(self._cameras)
+	do
+		do break end
 		local cam = camera.camera
-		local parent_node = nil
-		for _, node in ipairs(cam._nodes) do
+		local parent_node
+		local (for generator), (for state), (for control) = ipairs(cam._nodes)
+		do
+			do break end
 			node:debug_render(t, dt)
 			if parent_node then
 				pen:line(parent_node._position, node._position)
 			end
+
 			parent_node = node
 		end
-	end	
+
+	end
+
 end
 
 function CameraMixer:active_camera()
@@ -112,13 +148,20 @@ function CameraMixer:active_camera()
 	if camera_count == 0 then
 		return nil
 	end
+
 	return self._cameras[camera_count].camera
 end
 
 function CameraMixer:cameras()
 	local cameras = {}
-	for _, camera in ipairs(self._cameras) do
-		table.insert(cameras, camera.camera)
+	do
+		local (for generator), (for state), (for control) = ipairs(self._cameras)
+		do
+			do break end
+			table.insert(cameras, camera.camera)
+		end
+
 	end
-	return cameras
+
 end
+

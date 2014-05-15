@@ -1,8 +1,6 @@
-require "core/lib/utils/dev/ews/tree_control/CoreManagedTreeControl"
-require "core/lib/utils/dev/ews/tree_control/CoreTreeNode"
-
+require("core/lib/utils/dev/ews/tree_control/CoreManagedTreeControl")
+require("core/lib/utils/dev/ews/tree_control/CoreTreeNode")
 CoreFilteredTreeControl = CoreFilteredTreeControl or class(CoreManagedTreeControl)
-
 function CoreFilteredTreeControl:init(parent_frame, styles)
 	self.super.init(self, parent_frame, styles)
 	self._virtual_root_node = CoreTreeNode:new()
@@ -24,44 +22,50 @@ function CoreFilteredTreeControl:remove_filter(predicate)
 end
 
 function CoreFilteredTreeControl:refresh_tree()
-	if self._freeze_count ~= 0 then return end
+	if self._freeze_count ~= 0 then
+		return
+	end
 
 	self:freeze()
 	self:_view_tree_root():remove_children()
-	
 	local function append_to_visible_tree(child)
 		if self:_node_passes_filters(child) then
 			self:_view_tree_root():append_path(child:path())
 		end
+
 		return true
 	end
-	
+
 	self:_tree_root():for_each_child(append_to_visible_tree, true)
 	self:thaw(true)
 end
 
 function CoreFilteredTreeControl:_node_passes_filters(node)
-	for _, predicate in ipairs(self._filters) do
-		if not predicate(node) then return false end
-	end	
-	return true
+	do
+		local (for generator), (for state), (for control) = ipairs(self._filters)
+		do
+			do break end
+			if not predicate(node) then
+				return false
+			end
+
+		end
+
+	end
+
+	(for control) = nil and predicate
 end
 
-
-
--- Event callbacks
-
 function CoreFilteredTreeControl:_on_node_appended(new_node)
-	-- Find the node in the visible tree that we should append the visual representation of this node to.
 	local visible_parent_node = self:_view_tree_root()
 	if new_node:parent() then
 		visible_parent_node = self:_view_tree_root():child_at_path(new_node:parent():path())
 	end
-	
-	-- If the visible parent node was hidden because of filtering, it would be nil here.
+
 	if visible_parent_node and self:_node_passes_filters(new_node) then
 		visible_parent_node:append_copy_of_node(new_node)
 	end
+
 end
 
 function CoreFilteredTreeControl:_on_node_removed(removed_node)
@@ -69,11 +73,8 @@ function CoreFilteredTreeControl:_on_node_removed(removed_node)
 	if visible_node then
 		visible_node:remove()
 	end
+
 end
-
-
-
--- Base class method overrides
 
 function CoreFilteredTreeControl:clear()
 	self.super.clear(self)
@@ -88,6 +89,7 @@ function CoreFilteredTreeControl:freeze()
 	if self._freeze_count == 0 then
 		self.super.freeze(self)
 	end
+
 	self._freeze_count = self._freeze_count + 1
 end
 
@@ -97,6 +99,9 @@ function CoreFilteredTreeControl:thaw(already_refreshed)
 		if not already_refreshed then
 			self:refresh_tree()
 		end
+
 		self.super.thaw(self)
 	end
+
 end
+

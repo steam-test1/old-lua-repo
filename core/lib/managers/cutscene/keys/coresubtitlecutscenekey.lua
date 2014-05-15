@@ -1,5 +1,4 @@
-require "core/lib/managers/cutscene/keys/CoreCutsceneKeyBase"
-
+require("core/lib/managers/cutscene/keys/CoreCutsceneKeyBase")
 CoreSubtitleCutsceneKey = CoreSubtitleCutsceneKey or class(CoreCutsceneKeyBase)
 CoreSubtitleCutsceneKey.ELEMENT_NAME = "subtitle"
 CoreSubtitleCutsceneKey.NAME = "Subtitle"
@@ -13,7 +12,6 @@ CoreSubtitleCutsceneKey:attribute_affects("string_id", "localized_text")
 CoreSubtitleCutsceneKey.control_for_category = CoreCutsceneKeyBase.standard_combo_box_control
 CoreSubtitleCutsceneKey.control_for_string_id = CoreCutsceneKeyBase.standard_combo_box_control
 CoreSubtitleCutsceneKey.control_for_divider = CoreCutsceneKeyBase.standard_divider_control
-
 function CoreSubtitleCutsceneKey:__tostring()
 	return "Display subtitle \"" .. self:string_id() .. "\"."
 end
@@ -32,6 +30,7 @@ function CoreSubtitleCutsceneKey:play(player, undo, fast_forward)
 	elseif not fast_forward then
 		managers.subtitle:show_subtitle(self:string_id(), self:duration())
 	end
+
 end
 
 function CoreSubtitleCutsceneKey:is_valid_category(value)
@@ -62,14 +61,19 @@ function CoreSubtitleCutsceneKey:refresh_control_for_category(control)
 	else
 		control:set_enabled(true)
 		local value = self:category()
-		for _, category in ipairs(categories) do
+		local (for generator), (for state), (for control) = ipairs(categories)
+		do
+			do break end
 			control:append(category)
 			if category == value then
 				control:set_value(value)
 			end
+
 		end
+
 	end
-	control:thaw()
+
+	(for control) = nil and control.append
 end
 
 function CoreSubtitleCutsceneKey:refresh_control_for_string_id(control)
@@ -81,14 +85,19 @@ function CoreSubtitleCutsceneKey:refresh_control_for_string_id(control)
 	else
 		control:set_enabled(true)
 		local value = self:string_id()
-		for _, string_id in ipairs(string_ids) do
+		local (for generator), (for state), (for control) = ipairs(string_ids)
+		do
+			do break end
 			control:append(string_id)
 			if string_id == value then
 				control:set_value(value)
 			end
+
 		end
+
 	end
-	control:thaw()
+
+	(for control) = self:category() and control.append
 end
 
 function CoreSubtitleCutsceneKey:refresh_control_for_localized_text(control)
@@ -97,13 +106,14 @@ function CoreSubtitleCutsceneKey:refresh_control_for_localized_text(control)
 	else
 		control:set_value("<No String Id>")
 	end
+
 end
 
 function CoreSubtitleCutsceneKey:validate_control_for_attribute(attribute_name)
 	if attribute_name ~= "localized_text" then
-		-- Validation changes the background color. Since this is not actually an editable text area, we just skip that.
 		return self.super.validate_control_for_attribute(self, attribute_name)
 	end
-	
+
 	return true
 end
+

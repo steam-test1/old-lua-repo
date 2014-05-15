@@ -1,11 +1,9 @@
-require "core/lib/managers/cutscene/keys/CoreCutsceneKeyBase"
-
+require("core/lib/managers/cutscene/keys/CoreCutsceneKeyBase")
 CoreTimerSpeedCutsceneKey = CoreTimerSpeedCutsceneKey or class(CoreCutsceneKeyBase)
 CoreTimerSpeedCutsceneKey.ELEMENT_NAME = "timer_speed"
 CoreTimerSpeedCutsceneKey.NAME = "Timer Speed"
 CoreTimerSpeedCutsceneKey:register_serialized_attribute("speed", 1, tonumber)
 CoreTimerSpeedCutsceneKey:register_serialized_attribute("duration", 0, tonumber)
-
 function CoreTimerSpeedCutsceneKey:__tostring()
 	return string.format("Change timer speed to \"%g\" over \"%g\" seconds.", self:speed(), self:duration())
 end
@@ -22,20 +20,20 @@ function CoreTimerSpeedCutsceneKey:play(player, undo, fast_forward)
 		else
 			self:_set_timer_speed(1, 0)
 		end
+
 	else
 		self:_set_timer_speed(self:speed(), self:duration())
 	end
+
 end
 
 function CoreTimerSpeedCutsceneKey:_set_timer_speed(speed, duration)
 	speed = math.max(speed, 0)
 	duration = math.max(duration, 0)
-
-	-- Clamp values to prevent instabilities in the physics system.
 	if speed > 0 and speed < 0.035 then
 		speed = 0.035
 	end
-	
+
 	if duration > 0 and duration < 0.035 then
 		duration = 0
 	end
@@ -51,3 +49,4 @@ end
 function CoreTimerSpeedCutsceneKey:is_valid_duration(duration)
 	return duration ~= nil and duration >= 0
 end
+

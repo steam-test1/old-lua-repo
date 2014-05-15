@@ -1,16 +1,13 @@
-core:module "CoreColorPickerDialog"
-core:import "CoreClass"
-core:import "CoreEvent"
-core:import "CoreEws"
-core:import "CoreColorPickerPanel"
-
+core:module("CoreColorPickerDialog")
+core:import("CoreClass")
+core:import("CoreEvent")
+core:import("CoreEws")
+core:import("CoreColorPickerPanel")
 ColorPickerDialog = ColorPickerDialog or CoreClass.mixin(CoreClass.class(), CoreEvent.BasicEventHandling)
 ColorPickerDialog.EDITOR_TITLE = "Color Picker"
-
 function ColorPickerDialog:init(parent_frame, enable_alpha, orientation, enable_value)
 	orientation = orientation or "HORIZONTAL"
 	assert(orientation == "HORIZONTAL" or orientation == "VERTICAL", "Invalid orientation.")
-	
 	local frame_size = orientation == "HORIZONTAL" and Vector3(366, 166) or Vector3(186, 300, 0)
 	self._window = EWS:Frame(ColorPickerDialog.EDITOR_TITLE, Vector3(-1, -1, 0), frame_size, "SYSTEM_MENU,CAPTION,CLOSE_BOX,CLIP_CHILDREN", parent_frame)
 	local sizer = EWS:BoxSizer("HORIZONTAL")
@@ -65,3 +62,4 @@ function ColorPickerDialog:_on_close()
 	self:_send_event("EVT_CLOSE_WINDOW", self._window)
 	managers.toolhub:close(ColorPickerDialog.EDITOR_TITLE)
 end
+

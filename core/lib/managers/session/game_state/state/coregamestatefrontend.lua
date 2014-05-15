@@ -1,8 +1,6 @@
 core:module("CoreGameStateFrontEnd")
 core:import("CoreGameStatePrepareLoadingGame")
-
 FrontEnd = FrontEnd or class()
-
 function FrontEnd:init()
 	self.game_state._is_in_front_end = true
 end
@@ -19,4 +17,6 @@ function FrontEnd:transition()
 	if self.game_state._session_manager:_main_systems_are_stable_for_loading() then
 		return CoreGameStatePrepareLoadingGame.PrepareLoadingGame
 	end
+
 end
+

@@ -1,7 +1,5 @@
 core:module("CoreSession")
-
 Session = Session or class()
-
 function Session:init()
 end
 
@@ -19,3 +17,4 @@ end
 
 function Session:join_remote_user(remote_user)
 end
+

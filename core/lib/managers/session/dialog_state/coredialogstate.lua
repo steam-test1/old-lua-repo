@@ -2,9 +2,7 @@ core:module("CoreDialogState")
 core:import("CoreFiniteStateMachine")
 core:import("CoreDialogStateNone")
 core:import("CoreSessionGenericState")
-
 DialogState = DialogState or class(CoreSessionGenericState.State)
-
 function DialogState:init()
 	self._state = CoreFiniteStateMachine.FiniteStateMachine:new(CoreDialogStateNone.None, "dialog_state", self)
 end
@@ -24,3 +22,4 @@ end
 function DialogState:transition()
 	self._state:transition()
 end
+

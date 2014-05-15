@@ -1,8 +1,6 @@
 core:module("CoreSessionStateInSessionEnd")
 core:import("CoreSessionStateInit")
-
 InSessionEnd = InSessionEnd or class()
-
 function InSessionEnd:init(session)
 	assert(session)
 	self._session = session
@@ -15,3 +13,4 @@ end
 function InSessionEnd:transition()
 	return CoreSessionStateInit
 end
+

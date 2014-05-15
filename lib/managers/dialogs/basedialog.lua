@@ -1,18 +1,9 @@
-core:module( "SystemMenuManager" )
-
-core:import( "CoreDebug" )
-
--- Abstract dialog:
+core:module("SystemMenuManager")
+core:import("CoreDebug")
 BaseDialog = BaseDialog or class()
-
-function BaseDialog:init( manager, data )
+function BaseDialog:init(manager, data)
 	self._manager = manager
 	self._data = data or {}
-
-	--[[ Used variables:
-	self._ws = nil
-	self._controller = nil
-	]]
 end
 
 function BaseDialog:id()
@@ -24,7 +15,7 @@ function BaseDialog:priority()
 end
 
 function BaseDialog:get_platform_id()
-	return managers.user:get_platform_id( self._data.user_index ) or 0
+	return managers.user:get_platform_id(self._data.user_index) or 0
 end
 
 function BaseDialog:is_generic()
@@ -43,7 +34,7 @@ function BaseDialog:fade_out()
 end
 
 function BaseDialog:close()
-	self._manager:event_dialog_closed( self )
+	self._manager:event_dialog_closed(self)
 end
 
 function BaseDialog:is_closing()
@@ -51,7 +42,7 @@ function BaseDialog:is_closing()
 end
 
 function BaseDialog:show()
-	Application:error( "[SystemMenuManager] Unable to display dialog since the logic for it hasn't been implemented." )
+	Application:error("[SystemMenuManager] Unable to display dialog since the logic for it hasn't been implemented.")
 	return false
 end
 
@@ -64,9 +55,10 @@ function BaseDialog:_get_controller()
 end
 
 function BaseDialog:to_string()
-	return string.format( "Class: %s, Id: %s, User index: %s", CoreDebug.class_name( getmetatable( self ), _M ), tostring( self._data.id ), tostring( self._data.user_index ) )
+	return string.format("Class: %s, Id: %s, User index: %s", CoreDebug.class_name(getmetatable(self), _M), tostring(self._data.id), tostring(self._data.user_index))
 end
 
 function BaseDialog:blocks_exec()
 	return true
 end
+

@@ -1,10 +1,6 @@
-require "core/lib/utils/dev/tools/material_editor/CoreSmartNode"
-
+require("core/lib/utils/dev/tools/material_editor/CoreSmartNode")
 local CoreMaterialEditorParameter = require("core/lib/utils/dev/tools/material_editor/parameter_widgets/CoreMaterialEditorParameter")
 local CoreMaterialEditorSeparator = CoreMaterialEditorSeparator or class(CoreMaterialEditorParameter)
-
---------------------------------- P u b l i c - F u n c t i o n s ----------------------------
-
 function CoreMaterialEditorSeparator:init(parent)
 	self._panel = EWS:Panel(parent, "", "")
 	self._box = EWS:BoxSizer("HORIZONTAL")
@@ -14,7 +10,6 @@ function CoreMaterialEditorSeparator:init(parent)
 end
 
 function CoreMaterialEditorSeparator:update(t, dt)
-
 end
 
 function CoreMaterialEditorSeparator:destroy()

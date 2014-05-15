@@ -1,7 +1,5 @@
-require "core/lib/managers/cutscene/keys/CoreCutsceneKeyBase"
-
-core:import( "CoreEngineAccess" )
-
+require("core/lib/managers/cutscene/keys/CoreCutsceneKeyBase")
+core:import("CoreEngineAccess")
 CoreVisualFXCutsceneKey = CoreVisualFXCutsceneKey or class(CoreCutsceneKeyBase)
 CoreVisualFXCutsceneKey.ELEMENT_NAME = "visual_fx"
 CoreVisualFXCutsceneKey.NAME = "Visual Effect"
@@ -13,7 +11,6 @@ CoreVisualFXCutsceneKey:register_serialized_attribute("offset", Vector3(0, 0, 0)
 CoreVisualFXCutsceneKey:register_serialized_attribute("rotation", Rotation(), CoreCutsceneKeyBase.string_to_rotation)
 CoreVisualFXCutsceneKey:register_serialized_attribute("force_synch", false, toboolean)
 CoreVisualFXCutsceneKey.control_for_effect = CoreCutsceneKeyBase.standard_combo_box_control
-
 function CoreVisualFXCutsceneKey:__tostring()
 	return "Trigger visual effect \"" .. self:effect() .. "\" on \"" .. self:object_name() .. " in " .. self:unit_name() .. "\"."
 end
@@ -26,6 +23,7 @@ function CoreVisualFXCutsceneKey:prime(player)
 	if Application:production_build() then
 		CoreEngineAccess._editor_load(Idstring("effect"), self:effect():id())
 	end
+
 end
 
 function CoreVisualFXCutsceneKey:unload(player)
@@ -38,17 +36,31 @@ function CoreVisualFXCutsceneKey:play(player, undo, fast_forward)
 	elseif not fast_forward then
 		self:stop()
 		self:prime(player)
-		local effect_manager = World:effect_manager()
-		local parent_object = self:_unit_object(self:unit_name(), self:object_name(), true)
-		local effect_id = effect_manager:spawn{ effect = self:effect(), parent = parent_object, position = self:offset(), rotation = self:rotation(), force_synch = self:force_synch() }
-		self._effect_abort_func = function() effect_manager:kill(effect_id) end
+		do
+			local effect_manager = World:effect_manager()
+			local parent_object = self:_unit_object(self:unit_name(), self:object_name(), true)
+			local effect_id = effect_manager:spawn({
+				effect = self:effect(),
+				parent = parent_object,
+				position = self:offset(),
+				rotation = self:rotation(),
+				force_synch = self:force_synch()
+			})
+			function self._effect_abort_func()
+				effect_manager:kill(effect_id)
+			end
+
+		end
+
 	end
+
 end
 
 function CoreVisualFXCutsceneKey:update(player, time)
 	if self:duration() and time > self:duration() then
 		self:stop()
 	end
+
 end
 
 function CoreVisualFXCutsceneKey:is_valid_unit_name(value)
@@ -81,6 +93,7 @@ function CoreVisualFXCutsceneKey:refresh_control_for_unit_name(control)
 	if self:unit_name() == "" then
 		control:set_value("")
 	end
+
 end
 
 function CoreVisualFXCutsceneKey:refresh_control_for_object_name(control)
@@ -88,9 +101,9 @@ function CoreVisualFXCutsceneKey:refresh_control_for_object_name(control)
 	control:append("")
 	if self:object_name() == "" or not self:is_valid_object_name(self:object_name()) then
 		self:set_object_name("")
-		control:set_value("")		
+		control:set_value("")
 	end
-	
+
 	control:set_enabled(self:unit_name() ~= "")
 end
 
@@ -98,13 +111,20 @@ function CoreVisualFXCutsceneKey:refresh_control_for_effect(control)
 	control:freeze()
 	control:clear()
 	local value = self:effect()
-	for _, name in ipairs(managers.database:list_entries_of_type("effect")) do
-		control:append(name)
-		if name == value then
-			control:set_value(value)
+	do
+		local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type("effect"))
+		do
+			do break end
+			control:append(name)
+			if name == value then
+				control:set_value(value)
+			end
+
 		end
+
 	end
-	control:thaw()
+
+	(for control) = managers.database:list_entries_of_type("effect") and control.append
 end
 
 function CoreVisualFXCutsceneKey:on_attribute_before_changed(attribute_name, value, previous_value)
@@ -116,4 +136,6 @@ function CoreVisualFXCutsceneKey:stop()
 		self._effect_abort_func()
 		self._effect_abort_func = nil
 	end
+
 end
+

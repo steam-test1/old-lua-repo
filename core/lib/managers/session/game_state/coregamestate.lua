@@ -3,15 +3,12 @@ core:import("CoreFiniteStateMachine")
 core:import("CoreGameStateInit")
 core:import("CoreSessionGenericState")
 core:import("CoreRequester")
-
 GameState = GameState or class(CoreSessionGenericState.State)
-
 function GameState:init(player_slots, session_manager)
 	self._player_slots = player_slots
 	self._session_manager = session_manager
 	self._game_requester = CoreRequester.Requester:new()
 	self._front_end_requester = CoreRequester.Requester:new()
-	
 	assert(self._session_manager)
 	self._state = CoreFiniteStateMachine.FiniteStateMachine:new(CoreGameStateInit.Init, "game_state", self)
 end
@@ -32,12 +29,14 @@ function GameState:update(t, dt)
 	if self._state:state().update then
 		self._state:update(t, dt)
 	end
+
 end
 
 function GameState:end_update(t, dt)
 	if self._state:state().end_update then
 		self._state:state():end_update(t, dt)
 	end
+
 end
 
 function GameState:transition()
@@ -87,3 +86,4 @@ end
 function GameState:request_front_end()
 	self._front_end_requester:request()
 end
+

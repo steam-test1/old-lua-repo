@@ -1,5 +1,4 @@
 MenuMovement = MenuMovement or class()
-
-function MenuMovement:init( unit )
-	
+function MenuMovement:init(unit)
 end
+

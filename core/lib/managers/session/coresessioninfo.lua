@@ -1,7 +1,5 @@
 core:module("CoreSessionInfo")
-
 Info = Info or class()
-
 function Info:init()
 end
 
@@ -48,3 +46,4 @@ end
 function Info:should_load_level()
 	return self._should_load_level
 end
+

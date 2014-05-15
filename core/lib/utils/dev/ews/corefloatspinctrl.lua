@@ -1,24 +1,14 @@
 core:module("CoreFloatSpinCtrl")
-
--- FloatSpinCtrl.init: All parameters except 'parent' are optional.
--- FloatSpinCtrl.get_value: Guarantees to always return a valid number within the valid range.
--- FloatSpinCtrl.change_value: Sets the value without sending EVT_FLOAT_SPIN_CTRL_TEXT.
--- FloatSpinCtrl.window: Returns the widgets main panel. (Used for adding it to sizers.)
-
--- Hitting the return button will send the EVT_FLOAT_SPIN_CTRL_SCROLL_ENTER event and guarantees to set the state and value to a valide one.
--- if the value is out of range the value will be clamped to fitt the valid range. If the value specified is not a valid number,
--- it will set the value to 'math.clamp(0, min, max)' and by doing that it guarrantes a valid state and value.
-
 core:import("CoreClass")
 core:import("CoreEvent")
-
-INVALID_COLOR = {255, 128, 128}
-
+INVALID_COLOR = {
+	255,
+	128,
+	128
+}
 FloatSpinCtrl = FloatSpinCtrl or CoreClass.mixin(CoreClass.class(), CoreEvent.BasicEventHandling)
-
 function FloatSpinCtrl:init(parent, min, max, step, value, dec, style)
 	assert(parent)
-	
 	self._min = min or 0
 	self._max = max or 1
 	self._step = step or 0.1
@@ -26,25 +16,20 @@ function FloatSpinCtrl:init(parent, min, max, step, value, dec, style)
 	self._value = value or self._min
 	self._style = style or ""
 	self._use_colors = not string.find(self._style, "TC_NO_COLOR")
-	
 	self:_add_style(string.find(self._style, "SP_HORIZONTAL") and "SP_HORIZONTAL" or "SP_VERTICAL")
-	
 	self._panel = EWS:Panel(parent)
 	local box = EWS:BoxSizer("HORIZONTAL")
-	
 	self._text = EWS:TextCtrl(self._panel, "", str, "TE_PROCESS_ENTER")
-	self._text:connect("", "EVT_COMMAND_TEXT_UPDATED", callback( self, self, "_text_update_cb" ), "")
-	self._text:connect("", "EVT_COMMAND_TEXT_ENTER", callback( self, self, "_text_enter_cb" ), "")
+	self._text:connect("", "EVT_COMMAND_TEXT_UPDATED", callback(self, self, "_text_update_cb"), "")
+	self._text:connect("", "EVT_COMMAND_TEXT_ENTER", callback(self, self, "_text_enter_cb"), "")
 	box:add(self._text, 1, 0, "EXPAND")
-	
 	self._btn = EWS:SpinButton(self._panel, "", self._sp_style)
-	self._btn:set_min_size(Vector3(16,1,1))
-	self._btn:connect("", "EVT_SCROLL_LINEUP", callback( self, self, "_btn_up_cb" ), "")
-	self._btn:connect("", "EVT_SCROLL_LINEDOWN", callback( self, self, "_btn_down_cb" ), "")
+	self._btn:set_min_size(Vector3(16, 1, 1))
+	self._btn:connect("", "EVT_SCROLL_LINEUP", callback(self, self, "_btn_up_cb"), "")
+	self._btn:connect("", "EVT_SCROLL_LINEDOWN", callback(self, self, "_btn_down_cb"), "")
 	box:add(self._btn, 0, 0, "EXPAND")
-	
 	self._panel:set_sizer(box)
-	self._bg_color = self._text:background_colour() -- Dont know the name of the bgcolor. :(
+	self._bg_color = self._text:background_colour()
 	self:_update_text()
 end
 
@@ -92,6 +77,7 @@ function FloatSpinCtrl:_text_update_cb(data, event)
 	else
 		self:_set_valid(false)
 	end
+
 end
 
 function FloatSpinCtrl:_text_enter_cb(data, event)
@@ -109,6 +95,7 @@ function FloatSpinCtrl:_update_text(send_event)
 	else
 		self._text:change_value(str)
 	end
+
 end
 
 function FloatSpinCtrl:_set_valid(valid)
@@ -118,10 +105,13 @@ function FloatSpinCtrl:_set_valid(valid)
 		else
 			self._text:set_background_colour(unpack(INVALID_COLOR))
 		end
+
 		self._text:refresh()
 	end
+
 end
 
 function FloatSpinCtrl:_add_style(style)
 	self._sp_style = self._sp_style and self._sp_style .. "," .. style or style
 end
+

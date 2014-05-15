@@ -1,9 +1,6 @@
 core:module("CoreSessionResponse")
-
 Done = Done or class()
-
 Done.DONE = 1
-
 function Done:done()
 	self:_set_response(Done.DONE)
 end
@@ -24,18 +21,16 @@ function Done:_set_response(value)
 end
 
 function Done:destroy()
-	self._is_destroyed = true 
+	self._is_destroyed = true
 end
 
-
 DoneOrFinished = DoneOrFinished or class(Done)
-
 DoneOrFinished.FINISHED = 2
-
 function DoneOrFinished:finished()
-	self:_set_response(DoneOrFinished.FINISHED) 
+	self:_set_response(DoneOrFinished.FINISHED)
 end
 
 function DoneOrFinished:is_finished()
 	return self:_is_response_value(DoneOrFinished.FINISHED)
 end
+

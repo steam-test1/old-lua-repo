@@ -1,24 +1,16 @@
-core:module( "CoreInteractionEditorGenericPanel" )
-
-core:import( "CoreClass" )
-core:import( "CoreCode" )
-
-core:import( "CoreFloatSpinCtrl" )
-
+core:module("CoreInteractionEditorGenericPanel")
+core:import("CoreClass")
+core:import("CoreCode")
+core:import("CoreFloatSpinCtrl")
 NAME = "generic"
-
 InteractionEditorGenericPanel = InteractionEditorGenericPanel or CoreClass.class()
-
 function InteractionEditorGenericPanel:init(parent, box, owner)
 	self._scrolled_window = EWS:ScrolledWindow(parent, "", "HSCROLL")
-	self._scrolled_window:set_scrollbars(Vector3(8, 8, 1), Vector3(1, 1, 1), Vector3(0,0,0), false)
-	
+	self._scrolled_window:set_scrollbars(Vector3(8, 8, 1), Vector3(1, 1, 1), Vector3(0, 0, 0), false)
 	box:add(self._scrolled_window, 1, 0, "EXPAND")
-	
 	self._lua_widgets = {}
 	self._events = {}
 	self._owner = owner
-	
 	self._update_prop_cb = callback(self, self, "on_update_prop")
 	self._add_pat_cb = callback(self, self, "on_add_pat")
 	self._remove_pat_cb = callback(self, self, "on_remove_pat")
@@ -38,159 +30,157 @@ function InteractionEditorGenericPanel:set_visible(b, desc, node)
 		self:_build_ui(desc, node)
 		self:_connect_events()
 	end
+
 	self._scrolled_window:set_visible(b)
 end
 
--------------------------------------------------------------------------------------------------
-
 function InteractionEditorGenericPanel:_new_pattern_name()
-	local name = EWS:get_text_from_user(self._scrolled_window, "New instance name:", "Instance", "", Vector3(-1,-1,-1), true)
-	return string.find(name, "[^%w_]") and nil or name
+	local name = EWS:get_text_from_user(self._scrolled_window, "New instance name:", "Instance", "", Vector3(-1, -1, -1), true)
+	if string.find(name, "[^%w_]") then
+	end
+
+	return name
 end
 
 function InteractionEditorGenericPanel:_could_not_add_pat(name)
-	EWS:message_box(self._scrolled_window, name and "Could not instance: " .. name or "Could not instance!", "Instance", "OK,ICON_ERROR", Vector3(-1,-1,-1))
+	EWS:message_box(self._scrolled_window, name and "Could not instance: " .. name or "Could not instance!", "Instance", "OK,ICON_ERROR", Vector3(-1, -1, -1))
 end
 
 function InteractionEditorGenericPanel:_disconnect_events()
-	for _,v in ipairs(self._events) do
+	local (for generator), (for state), (for control) = ipairs(self._events)
+	do
+		do break end
 		v.widget:disconnect(v.t, v.cb)
 	end
+
 end
 
 function InteractionEditorGenericPanel:_connect_events()
-	for _,v in ipairs(self._events) do
+	local (for generator), (for state), (for control) = ipairs(self._events)
+	do
+		do break end
 		v.widget:connect(v.t, v.cb, v)
 	end
+
 end
 
 function InteractionEditorGenericPanel:_build_ui(desc, node)
 	self._prop_box = EWS:BoxSizer("VERTICAL")
-	
 	local properties = desc:node_properties(node)
 	if #properties > 0 then
 		local static_prop_box = EWS:StaticBoxSizer(self._scrolled_window, "VERTICAL", "Properties")
-		for _,prop in ipairs(properties) do
-			local prop_type = desc:property_type(node, prop)
-			local prop_value = desc:property_value(node, prop)
-			local box = EWS:StaticBoxSizer(self._scrolled_window, "VERTICAL", prop)
-	
-			local widget
-			if prop_type == "number" then
-				local w = CoreFloatSpinCtrl.FloatSpinCtrl:new(self._scrolled_window, 0, 1, 0.05, prop_value)
-				local d = {
-					widget = w,
-					t = "EVT_FLOAT_SPIN_CTRL_UPDATED",
-					cb = self._update_prop_cb,
-					dtype = prop_type,
-					desc = desc,
-					node = node,
-					prop = prop
-				}
-				
-				w:connect(d.t, d.cb, d)
-				table.insert(self._events, d)
-				table.insert(self._lua_widgets, w)
-				widget = w:window()
-			elseif prop_type == "vector3" then
-				local w = CoreVector3SpinCtrl.FloatVector3Ctrl:new(self._scrolled_window, Vector3(0,0,0), Vector3(1,1,1), Vector3(0.05,0.05,0.05), prop_value)
-				local d = {
-					widget = w,
-					t = "EVT_VECTOR3_SPIN_CTRL_UPDATED",
-					cb = self._update_prop_cb,
-					dtype = prop_type,
-					desc = desc,
-					node = node,
-					prop = prop
-				}
-				
-				w:connect(d.t, d.cb, d)
-				table.insert(self._events, d)
-				table.insert(self._lua_widgets, w)
-				widget = w:window()
-			--[[elseif prop_type == "color" then
-				local w = CoreColorPickerPanel.ColorPickerPanel:new(self._scrolled_window, false, "HORIZONTAL", prop_value)
-				--self._picker_panel:connect("EVT_COLOR_UPDATED", CoreEvent.callback(self, self, "on_changed"), self._picker_panel)
-				--self._picker_panel:connect("EVT_COLOR_CHANGED", CoreEvent.callback(self, self, "on_leftup"))
-				table.insert(self._lua_widgets, w)
-				widget = w:panel()]]
-			elseif prop_type == "boolean" then
-				widget = EWS:CheckBox(self._scrolled_window, "", "", "")
-				widget:set_value(prop_value)
-				local d = {
-					widget = widget,
-					t = "EVT_COMMAND_CHECKBOX_CLICKED",
-					cb = self._update_prop_cb,
-					dtype = prop_type,
-					desc = desc,
-					node = node,
-					prop = prop
-				}
-				
-				widget:connect(d.t, d.cb, d)
-				table.insert(self._events, d.t)
-			elseif prop_type == "string" then
-				widget = EWS:TextCtrl(self._scrolled_window, prop_value:s(), "", "")
-				local d = {
-					widget = widget,
-					t = "EVT_COMMAND_TEXT_ENTER",
-					cb = self._update_prop_cb,
-					dtype = prop_type,
-					desc = desc,
-					node = node,
-					prop = prop
-				}
-				
-				widget:connect(d.t, d.cb, d)
-				table.insert(self._events, d)
-				
-				d = {
-					widget = widget,
-					t = "EVT_KILL_FOCUS",
-					cb = self._update_prop_cb,
-					dtype = prop_type,
-					desc = desc,
-					node = node,
-					prop = prop
-				}
-				
-				widget:connect(d.t, d.cb, d)
-				table.insert(self._events, d)
-			elseif prop_type == "event" then
-				widget = EWS:TextCtrl(self._scrolled_window, tostring(prop_value), "", "")
-				widget:set_enabled(false)
-			else
-				widget = EWS:TextCtrl(self._scrolled_window, tostring(prop_value), "", "")
-				local d = {
-					widget = widget,
-					t = "EVT_COMMAND_TEXT_ENTER",
-					cb = self._update_prop_cb,
-					dtype = prop_type,
-					desc = desc,
-					node = node,
-					prop = prop
-				}
-				
-				widget:connect(d.t, d.cb, d)
-				table.insert(self._events, d)
-				
-				d = {
-					widget = widget,
-					t = "EVT_KILL_FOCUS",
-					cb = self._update_prop_cb,
-					dtype = prop_type,
-					desc = desc,
-					node = node,
-					prop = prop
-				}
-				
-				widget:connect(d.t, d.cb, d)
-				table.insert(self._events, d)
-			end	
-			
-			box:add(widget, 0, 0, "EXPAND")
-			static_prop_box:add(box, 0, 2, "EXPAND,ALL")
+		do
+			local (for generator), (for state), (for control) = ipairs(properties)
+			do
+				do break end
+				local prop_type = desc:property_type(node, prop)
+				local prop_value = desc:property_value(node, prop)
+				local box = EWS:StaticBoxSizer(self._scrolled_window, "VERTICAL", prop)
+				local widget
+				if prop_type == "number" then
+					local w = CoreFloatSpinCtrl.FloatSpinCtrl:new(self._scrolled_window, 0, 1, 0.05, prop_value)
+					local d = {
+						widget = w,
+						t = "EVT_FLOAT_SPIN_CTRL_UPDATED",
+						cb = self._update_prop_cb,
+						dtype = prop_type,
+						desc = desc,
+						node = node,
+						prop = prop
+					}
+					w:connect(d.t, d.cb, d)
+					table.insert(self._events, d)
+					table.insert(self._lua_widgets, w)
+					widget = w:window()
+				elseif prop_type == "vector3" then
+					local w = CoreVector3SpinCtrl.FloatVector3Ctrl:new(self._scrolled_window, Vector3(0, 0, 0), Vector3(1, 1, 1), Vector3(0.05, 0.05, 0.05), prop_value)
+					local d = {
+						widget = w,
+						t = "EVT_VECTOR3_SPIN_CTRL_UPDATED",
+						cb = self._update_prop_cb,
+						dtype = prop_type,
+						desc = desc,
+						node = node,
+						prop = prop
+					}
+					w:connect(d.t, d.cb, d)
+					table.insert(self._events, d)
+					table.insert(self._lua_widgets, w)
+					widget = w:window()
+				elseif prop_type == "boolean" then
+					widget = EWS:CheckBox(self._scrolled_window, "", "", "")
+					widget:set_value(prop_value)
+					local d = {
+						widget = widget,
+						t = "EVT_COMMAND_CHECKBOX_CLICKED",
+						cb = self._update_prop_cb,
+						dtype = prop_type,
+						desc = desc,
+						node = node,
+						prop = prop
+					}
+					widget:connect(d.t, d.cb, d)
+					table.insert(self._events, d.t)
+				elseif prop_type == "string" then
+					widget = EWS:TextCtrl(self._scrolled_window, prop_value:s(), "", "")
+					local d = {
+						widget = widget,
+						t = "EVT_COMMAND_TEXT_ENTER",
+						cb = self._update_prop_cb,
+						dtype = prop_type,
+						desc = desc,
+						node = node,
+						prop = prop
+					}
+					widget:connect(d.t, d.cb, d)
+					table.insert(self._events, d)
+					d = {
+						widget = widget,
+						t = "EVT_KILL_FOCUS",
+						cb = self._update_prop_cb,
+						dtype = prop_type,
+						desc = desc,
+						node = node,
+						prop = prop
+					}
+					widget:connect(d.t, d.cb, d)
+					table.insert(self._events, d)
+				elseif prop_type == "event" then
+					widget = EWS:TextCtrl(self._scrolled_window, tostring(prop_value), "", "")
+					widget:set_enabled(false)
+				else
+					widget = EWS:TextCtrl(self._scrolled_window, tostring(prop_value), "", "")
+					local d = {
+						widget = widget,
+						t = "EVT_COMMAND_TEXT_ENTER",
+						cb = self._update_prop_cb,
+						dtype = prop_type,
+						desc = desc,
+						node = node,
+						prop = prop
+					}
+					widget:connect(d.t, d.cb, d)
+					table.insert(self._events, d)
+					d = {
+						widget = widget,
+						t = "EVT_KILL_FOCUS",
+						cb = self._update_prop_cb,
+						dtype = prop_type,
+						desc = desc,
+						node = node,
+						prop = prop
+					}
+					widget:connect(d.t, d.cb, d)
+					table.insert(self._events, d)
+				end
+
+				box:add(widget, 0, 0, "EXPAND")
+				static_prop_box:add(box, 0, 2, "EXPAND,ALL")
+			end
+
 		end
+
+		(for control) = "Properties" and desc.property_type
 		self._prop_box:add(static_prop_box, 0, 2, "EXPAND,ALL")
 	end
 
@@ -203,41 +193,65 @@ function InteractionEditorGenericPanel:_build_ui(desc, node)
 		local list_box = EWS:ListBox(self._scrolled_window, "", "")
 		local remove_btn = EWS:Button(self._scrolled_window, "Remove", "", "")
 		local list_box_sizer = EWS:BoxSizer("VERTICAL")
-		
 		cb_box:add(combo_box, 1, 2, "EXPAND,ALL")
 		cb_box:add(add_btn, 0, 2, "EXPAND,ALL")
-		
-		for _,pat in ipairs(patterns) do
-			combo_box:append(pat)
-		end
-		
-		for _,prop in ipairs(properties) do
-			local pat = desc:property_pattern(node, prop)
-			if pat then
-				local pat_type = desc:pattern_type(node, pat)
-				list_box:append(prop .. " - " .. pat_type)
+		do
+			local (for generator), (for state), (for control) = ipairs(patterns)
+			do
+				do break end
+				combo_box:append(pat)
 			end
+
 		end
-		
-		for _,trans in ipairs(desc:node_inputs(node)) do
-			local pat = desc:transput_pattern(node, trans)
-			if pat then
-				local pat_type = desc:pattern_type(node, pat)
-				list_box:append(trans .. " - " .. pat_type)
+
+		(for control) = 0 and combo_box.append
+		do
+			local (for generator), (for state), (for control) = ipairs(properties)
+			do
+				do break end
+				local pat = desc:property_pattern(node, prop)
+				if pat then
+					local pat_type = desc:pattern_type(node, pat)
+					list_box:append(prop .. " - " .. pat_type)
+				end
+
 			end
+
 		end
-		
-		for _,trans in ipairs(desc:node_outputs(node)) do
-			local pat = desc:transput_pattern(node, trans)
-			if pat then
-				local pat_type = desc:pattern_type(node, pat)
-				list_box:append(trans .. " - " .. pat_type)
+
+		(for control) = 0 and desc.property_pattern
+		do
+			local (for generator), (for state), (for control) = ipairs(desc:node_inputs(node))
+			do
+				do break end
+				local pat = desc:transput_pattern(node, trans)
+				if pat then
+					local pat_type = desc:pattern_type(node, pat)
+					list_box:append(trans .. " - " .. pat_type)
+				end
+
 			end
+
 		end
-		
+
+		(for control) = desc:node_inputs(node) and desc.transput_pattern
+		do
+			local (for generator), (for state), (for control) = ipairs(desc:node_outputs(node))
+			do
+				do break end
+				local pat = desc:transput_pattern(node, trans)
+				if pat then
+					local pat_type = desc:pattern_type(node, pat)
+					list_box:append(trans .. " - " .. pat_type)
+				end
+
+			end
+
+		end
+
+		(for control) = desc:node_outputs(node) and desc.transput_pattern
 		combo_box:set_value(patterns[1])
 		remove_btn:set_enabled(false)
-		
 		local d = {
 			widget = add_btn,
 			t = "EVT_COMMAND_BUTTON_CLICKED",
@@ -248,7 +262,6 @@ function InteractionEditorGenericPanel:_build_ui(desc, node)
 			node = node
 		}
 		add_btn:connect(d.t, d.cb, d)
-				
 		d = {
 			widget = list_box,
 			t = "EVT_COMMAND_LISTBOX_SELECTED",
@@ -258,7 +271,6 @@ function InteractionEditorGenericPanel:_build_ui(desc, node)
 			node = node
 		}
 		list_box:connect(d.t, d.cb, d)
-		
 		d = {
 			widget = remove_btn,
 			t = "EVT_COMMAND_BUTTON_CLICKED",
@@ -268,10 +280,8 @@ function InteractionEditorGenericPanel:_build_ui(desc, node)
 			node = node
 		}
 		remove_btn:connect(d.t, d.cb, d)
-		
 		list_box_sizer:add(list_box, 1, 2, "EXPAND,ALL")
 		list_box_sizer:add(remove_btn, 0, 2, "EXPAND,ALL")
-		
 		static_patterns_box:add(cb_box, 0, 0, "EXPAND")
 		static_patterns_box:add(list_box_sizer, 1, 0, "EXPAND")
 		self._prop_box:add(static_patterns_box, 1, 2, "EXPAND,ALL")
@@ -289,6 +299,7 @@ function InteractionEditorGenericPanel:on_update_prop(data, event)
 	else
 		v = data.widget:get_value()
 	end
+
 	assert(data.desc:property_set(data.node, data.prop, v))
 end
 
@@ -296,16 +307,15 @@ function InteractionEditorGenericPanel:on_add_pat(data, event)
 	local system = assert(self._owner:active_system())
 	local pat = data.combo_box:get_value()
 	local name = self:_new_pattern_name()
-	
 	if name == "" then
 		return
 	end
-	
+
 	if not name then
 		self:_could_not_add_pat(name)
 		return
 	end
-	
+
 	local full_name = data.desc:pattern_instantiate(data.node, pat, name)
 	if not full_name then
 		self:_could_not_add_pat(name)
@@ -313,12 +323,9 @@ function InteractionEditorGenericPanel:on_add_pat(data, event)
 	end
 
 	data.list_box:append(full_name)
-	
 	local node = assert(system:graph_node(data.node))
 	local ptype = data.desc:pattern_type(data.node, pat)
-	
 	system:add_pattern_data(data.node, pat, ptype, name, full_name)
-	
 	if ptype == "input" then
 		node:add_input(full_name)
 		system:set_node_colors(node, data.node)
@@ -337,63 +344,24 @@ function InteractionEditorGenericPanel:on_remove_pat(data, event)
 		local selected = data.list_box:get_string(idx)
 		local system = assert(self._owner:active_system())
 		local node, pat, ptype, name, full_name = system:pattern_data(data.node, selected)
-		
 		system:remove_pattern_data(data.node, selected)
-		
 		if ptype == "input" then
 			assert(system:desc():transput_remove(node, full_name))
 			assert(system:graph_node(node)):remove_input(full_name)
-			
-			
-			
-			
-			
-			
-			
-			
-			-- need to remove connection too!
-			
-			
-			
-			
-			
-			
-			
-			
-			
 		elseif ptype == "output" then
 			assert(system:desc():transput_remove(node, full_name))
 			assert(system:graph_node(node)):remove_output(full_name)
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			-- need to remove connection too!
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
 		else
 			assert(system:desc():property_remove(node, full_name))
 		end
-		
+
 		self._owner:ui():clean_prop_panel()
 		self._owner:ui():rebuild_prop_panel(data.desc, data.node)
 	end
+
 end
 
 function InteractionEditorGenericPanel:on_list_box_update(data, event)
 	data.remove_btn:set_enabled(true)
 end
+

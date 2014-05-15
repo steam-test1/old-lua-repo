@@ -1,5 +1,4 @@
-CriminalActionWalk = CriminalActionWalk or class( CopActionWalk )
-
+CriminalActionWalk = CriminalActionWalk or class(CopActionWalk)
 CriminalActionWalk._anim_block_presets = {
 	block_all = {
 		idle = -1,
@@ -35,11 +34,7 @@ CriminalActionWalk._anim_block_presets = {
 		stand = -1,
 		crouch = -1
 	},
-	block_none = {
-		stand = -1,
-		crouch = -1
-	}
+	block_none = {stand = -1, crouch = -1}
 }
-
 CriminalActionWalk._walk_anim_velocities = HuskPlayerMovement._walk_anim_velocities
 CriminalActionWalk._walk_anim_lengths = HuskPlayerMovement._walk_anim_lengths

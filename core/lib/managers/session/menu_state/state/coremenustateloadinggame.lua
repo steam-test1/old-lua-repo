@@ -1,12 +1,10 @@
 core:module("CoreMenuStateLoadingGame")
 core:import("CoreMenuStateInGame")
 core:import("CoreMenuStateStopLoadingGame")
-
 LoadingGame = LoadingGame or class()
-
 function LoadingGame:init()
 	self.menu_state:_set_stable_for_loading()
-	local menu_handler = self.menu_state._menu_handler 
+	local menu_handler = self.menu_state._menu_handler
 	menu_handler:start_loading_game_environment()
 end
 
@@ -19,4 +17,6 @@ function LoadingGame:transition()
 	if game_state:is_in_game() then
 		return CoreMenuStateStopLoadingGame.StopLoadingGame
 	end
+
 end
+

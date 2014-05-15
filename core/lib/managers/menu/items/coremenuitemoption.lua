@@ -1,20 +1,23 @@
 core:module("CoreMenuItemOption")
-
--- Represents an option in a toggle item
 ItemOption = ItemOption or class()
-
-function ItemOption:init( data_node, parameters )
-	-- Load parameters
+function ItemOption:init(data_node, parameters)
+-- fail 10
+null
+6
 	local params = parameters or {}
-	if( data_node ) then
-		for key,value in pairs( data_node ) do
-			if( ( key ~= "_meta" ) and ( type( value ) ~= "table" ) ) then
-				params[ key ] = value
+	if data_node then
+		local (for generator), (for state), (for control) = pairs(data_node)
+		do
+			do break end
+			if key ~= "_meta" and type(value) ~= "table" then
+				params[key] = value
 			end
+
 		end
+
 	end
-	
-	self:set_parameters( params )
+
+	self:set_parameters(params)
 end
 
 function ItemOption:value()
@@ -25,6 +28,7 @@ function ItemOption:parameters()
 	return self._parameters
 end
 
-function ItemOption:set_parameters( parameters )
+function ItemOption:set_parameters(parameters)
 	self._parameters = parameters
 end
+

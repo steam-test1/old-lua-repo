@@ -1,4 +1,1 @@
-HostStateGameEnd = HostStateGameEnd or class( HostStateBase )
-
-------------------------------------------------------------------
-------------------------------------------------------------------
+HostStateGameEnd = HostStateGameEnd or class(HostStateBase)

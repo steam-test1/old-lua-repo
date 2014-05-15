@@ -1,19 +1,29 @@
-local ids_lod = Idstring( "lod" )
-local ids_lod1 = Idstring( "lod1" )
-local ids_ik_aim = Idstring( "ik_aim" )
-
-CopBase = CopBase or class( UnitBase )
-
--- int period, float close_radius, float frustum_extension, float far_clip
+local ids_lod = Idstring("lod")
+local ids_lod1 = Idstring("lod1")
+local ids_ik_aim = Idstring("ik_aim")
+CopBase = CopBase or class(UnitBase)
 CopBase._anim_lods = {
-		{ 2, 500, 100, 5000 },
-		{ 2,   0, 100,    1 },
-		{ 3,   0, 100,    1 }
+	{
+		2,
+		500,
+		100,
+		5000
+	},
+	{
+		2,
+		0,
+		100,
+		1
+	},
+	{
+		3,
+		0,
+		100,
+		1
 	}
-
-local material_translation_map = {}
-
-do	 -- payday 2
+}
+CopBase._material_translation_map = {}
+do
 	local payday2_characters_map = {
 		"civ_female_bank_1",
 		"civ_female_bank_manager_1",
@@ -24,6 +34,8 @@ do	 -- payday 2
 		"civ_female_casual_3",
 		"civ_female_casual_4",
 		"civ_female_casual_5",
+		"civ_female_casual_6",
+		"civ_female_casual_7",
 		"civ_female_crackwhore_1",
 		"civ_female_hostess_apron_1",
 		"civ_female_hostess_jacket_1",
@@ -37,6 +49,8 @@ do	 -- payday 2
 		"civ_male_bank_1",
 		"civ_male_bank_2",
 		"civ_male_bank_manager_1",
+		"civ_male_bank_manager_3",
+		"civ_male_bank_manager_4",
 		"civ_male_business_1",
 		"civ_male_business_2",
 		"civ_male_casual_1",
@@ -57,6 +71,9 @@ do	 -- payday 2
 		"civ_male_party_3",
 		"civ_male_scientist_1",
 		"civ_male_trucker_1",
+		"civ_male_worker_1",
+		"civ_male_worker_2",
+		"civ_male_worker_3",
 		"civ_male_worker_docks_1",
 		"civ_male_worker_docks_2",
 		"civ_male_worker_docks_3",
@@ -66,6 +83,10 @@ do	 -- payday 2
 		"ene_biker_4",
 		"ene_bulldozer_1",
 		"ene_bulldozer_2",
+		"ene_bulldozer_3",
+		"ene_city_swat_1",
+		"ene_city_swat_2",
+		"ene_city_swat_3",
 		"ene_cop_1",
 		"ene_cop_2",
 		"ene_cop_3",
@@ -87,11 +108,14 @@ do	 -- payday 2
 		"ene_gang_russian_1",
 		"ene_gang_russian_2",
 		"ene_gang_russian_3",
+		"ene_gang_russian_4",
+		"ene_gang_russian_5",
+		"ene_guard_national_1",
 		"ene_secret_service_1",
 		"ene_secret_service_2",
 		"ene_security_1",
 		"ene_security_2",
-		"ene_security_3",	
+		"ene_security_3",
 		"ene_shield_1",
 		"ene_shield_2",
 		"ene_sniper_1",
@@ -100,339 +124,258 @@ do	 -- payday 2
 		"ene_swat_1",
 		"ene_swat_2",
 		"ene_swat_heavy_1",
-		"ene_tazer_1"
+		"ene_tazer_1",
+		"ene_veteran_cop_1"
 	}
-
 	local path_string = "units/payday2/characters/"
 	local character_path = ""
-	for _, character in ipairs( payday2_characters_map ) do
-		character_path = path_string .. character .. "/" .. character
-		
-		material_translation_map[ tostring( Idstring( character_path ):key() ) ]							= character_path.."_contour"
-		material_translation_map[ tostring( Idstring( character_path.."_contour" ):key() ) ]	= character_path
+	do
+		local (for generator), (for state), (for control) = ipairs(payday2_characters_map)
+		do
+			do break end
+			character_path = path_string .. character .. "/" .. character
+			CopBase._material_translation_map[tostring(Idstring(character_path):key())] = Idstring(character_path .. "_contour")
+			CopBase._material_translation_map[tostring(Idstring(character_path .. "_contour"):key())] = Idstring(character_path)
+		end
+
 	end
-	
-	
+
+	(for control) = "ene_biker_4" and path_string
 	local pd2_dlc1_characters_map = {
+		"civ_male_bank_manager_2",
+		"civ_male_casual_10",
+		"civ_male_casual_11",
 		"civ_male_firefighter_1",
 		"civ_male_paramedic_1",
 		"civ_male_paramedic_2",
 		"ene_security_gensec_1",
 		"ene_security_gensec_2"
 	}
-
 	local path_string = "units/pd2_dlc1/characters/"
 	local character_path = ""
-	for _, character in ipairs( pd2_dlc1_characters_map ) do
-		character_path = path_string .. character .. "/" .. character
-		
-		material_translation_map[ tostring( Idstring( character_path ):key() ) ]							= character_path.."_contour"
-		material_translation_map[ tostring( Idstring( character_path.."_contour" ):key() ) ]	= character_path
+	do
+		local (for generator), (for state), (for control) = ipairs(pd2_dlc1_characters_map)
+		do
+			do break end
+			character_path = path_string .. character .. "/" .. character
+			CopBase._material_translation_map[tostring(Idstring(character_path):key())] = Idstring(character_path .. "_contour")
+			CopBase._material_translation_map[tostring(Idstring(character_path .. "_contour"):key())] = Idstring(character_path)
+		end
+
 	end
+
+	(for control) = "civ_male_paramedic_2" and path_string
+	local pd2_dlc1_characters_map = {
+		"civ_female_bank_assistant_1",
+		"civ_female_bank_assistant_2"
+	}
+	local path_string = "units/pd2_dlc2/characters/"
+	local character_path = ""
+	local (for generator), (for state), (for control) = ipairs(pd2_dlc1_characters_map)
+	do
+		do break end
+		character_path = path_string .. character .. "/" .. character
+		CopBase._material_translation_map[tostring(Idstring(character_path):key())] = Idstring(character_path .. "_contour")
+		CopBase._material_translation_map[tostring(Idstring(character_path .. "_contour"):key())] = Idstring(character_path)
+	end
+
 end
 
-
-function CopBase:init( unit )
-	UnitBase.init( self, unit, false )
-	
-	self._char_tweak = tweak_data.character[ self._tweak_table ]
-	
+CopBase.init, (for control) = function(self, unit)
+	UnitBase.init(self, unit, false)
+	self._char_tweak = tweak_data.character[self._tweak_table]
 	self._unit = unit
-	
 	self._visibility_state = true
-	
 	self._foot_obj_map = {}
-	self._foot_obj_map[ "right" ] = self._unit:get_object( Idstring( "RightToeBase" ) )
-	self._foot_obj_map[ "left" ]  = self._unit:get_object( Idstring( "LeftToeBase" ) )
-	
+	self._foot_obj_map.right = self._unit:get_object(Idstring("RightToeBase"))
+	self._foot_obj_map.left = self._unit:get_object(Idstring("LeftToeBase"))
 	self._is_in_original_material = true
 end
-
------------------------------------------------------------------------------------
-
+, tostring(Idstring(character_path .. "_contour"):key()) and path_string
 function CopBase:post_init()
 	self._ext_movement = self._unit:movement()
-	
-	self:set_anim_lod( 1 )	-- highest detail
+	self:set_anim_lod(1)
 	self._lod_stage = 1
-	
-	self._ext_movement:post_init( true )
-	
+	self._ext_movement:post_init(true)
 	self._unit:brain():post_init()
-	managers.enemy:register_enemy( self._unit )
-	
+	managers.enemy:register_enemy(self._unit)
 	self._allow_invisible = true
 end
 
------------------------------------------------------------------------------------
-
-function CopBase:default_weapon_name() -- fetch this from the mission script instead or something
+function CopBase:default_weapon_name()
 	local default_weapon_id = self._default_weapon_id
 	local weap_ids = tweak_data.character.weap_ids
-	for i_weap_id, weap_id in ipairs( weap_ids ) do
+	local (for generator), (for state), (for control) = ipairs(weap_ids)
+	do
+		do break end
 		if default_weapon_id == weap_id then
-			return tweak_data.character.weap_unit_names[ i_weap_id ]
+			return tweak_data.character.weap_unit_names[i_weap_id]
 		end
-	end
-end
 
------------------------------------------------------------------------------------
+	end
+
+end
 
 function CopBase:visibility_state()
 	return self._visibility_state
 end
 
------------------------------------------------------------------------------------
-
 function CopBase:lod_stage()
 	return self._lod_stage
 end
 
------------------------------------------------------------------------------------
-
-function CopBase:set_allow_invisible( allow )
+function CopBase:set_allow_invisible(allow)
 	self._allow_invisible = allow
 end
 
------------------------------------------------------------------------------------
--- stage is anim LOD step. 1 to 3 or false. false means hidden
-function CopBase:set_visibility_state( stage )
+function CopBase:set_visibility_state(stage)
 	local state = stage and true
-	
 	if not state and not self._allow_invisible then
 		state = true
 		stage = 1
-	end 
-	
+	end
+
 	if self._lod_stage == stage then
 		return
 	end
-	
+
 	local inventory = self._unit:inventory()
 	local weapon = inventory and inventory.get_weapon and inventory:get_weapon()
 	if weapon then
-		weapon:base():set_flashlight_light_lod_enabled( not (stage == 2 or not stage) )
+		weapon:base():set_flashlight_light_lod_enabled(stage ~= 2 and not not stage)
 	end
 
-	
 	if self._visibility_state ~= state then
 		local unit = self._unit
 		if inventory then
-			inventory:set_visibility_state( state )
+			inventory:set_visibility_state(state)
 		end
-		--self._unit:set_animations_enabled( state ) -- this also disables triggers and transitions. no good
-		--self._unit:anim_state_machine():set_enabled( state ) -- this also disables triggers and transitions. no good
-		unit:set_visible( state )
+
+		unit:set_visible(state)
 		if state or self._unit:anim_data().can_freeze then
-			unit:set_animatable_enabled( ids_lod, state )
-			unit:set_animatable_enabled( ids_ik_aim, state )
+			unit:set_animatable_enabled(ids_lod, state)
+			unit:set_animatable_enabled(ids_ik_aim, state)
 		end
+
 		self._visibility_state = state
 	end
+
 	if state then
-		self:set_anim_lod( stage )
-		self._unit:movement():enable_update( true )	-- this is to force m_pos and m_com etc correction from freezing
+		self:set_anim_lod(stage)
+		self._unit:movement():enable_update(true)
 		if stage == 1 then
-			self._unit:set_animatable_enabled( ids_lod1, true )
-		elseif self._lod_stage == 1 then	-- disable some bones
-			self._unit:set_animatable_enabled( ids_lod1, false )
+			self._unit:set_animatable_enabled(ids_lod1, true)
+		elseif self._lod_stage == 1 then
+			self._unit:set_animatable_enabled(ids_lod1, false)
 		end
+
 	end
-	
+
 	self._lod_stage = stage
 	self:chk_freeze_anims()
 end
 
------------------------------------------------------------------------------------
-
-function CopBase:set_anim_lod( stage )
-	self._unit:set_animation_lod( unpack( self._anim_lods[ stage ] ) )
+function CopBase:set_anim_lod(stage)
+	self._unit:set_animation_lod(unpack(self._anim_lods[stage]))
 end
 
------------------------------------------------------------------------------------
--- We can disable all activities
 function CopBase:on_death_exit()
-	self._unit:set_animations_enabled( false )
+	self._unit:set_animations_enabled(false)
 end
-
------------------------------------------------------------------------------------
 
 function CopBase:chk_freeze_anims()
-	if ( not self._lod_stage or self._lod_stage > 1 ) and self._unit:anim_data().can_freeze then
+	if (not self._lod_stage or self._lod_stage > 1) and self._unit:anim_data().can_freeze then
 		if not self._anims_frozen then
 			self._anims_frozen = true
-			self._unit:set_animations_enabled( false )
-			self._ext_movement:on_anim_freeze( true )
+			self._unit:set_animations_enabled(false)
+			self._ext_movement:on_anim_freeze(true)
 		end
+
 	elseif self._anims_frozen then
 		self._anims_frozen = nil
-		self._unit:set_animations_enabled( true )
-		self._ext_movement:on_anim_freeze( false )
+		self._unit:set_animations_enabled(true)
+		self._ext_movement:on_anim_freeze(false)
 	end
+
 end
 
------------------------------------------------------------------------------
-
--- Callback function from action animation triggers
-function CopBase:anim_act_clbk( unit, anim_act, send_to_action )
+function CopBase:anim_act_clbk(unit, anim_act, send_to_action)
 	if send_to_action then
-		unit:movement():on_anim_act_clbk( anim_act )
-	else
-		if unit:unit_data().mission_element then
-			unit:unit_data().mission_element:event( anim_act, unit )
-		end
+		unit:movement():on_anim_act_clbk(anim_act)
+	elseif unit:unit_data().mission_element then
+		unit:unit_data().mission_element:event(anim_act, unit)
 	end
+
 end
 
------------------------------------------------------------------------------------
-
-function CopBase:save( data )
-	--[[
-	if self._contour_state then
-		data.base_contour_on = true
-	elseif not self._is_in_original_material then
-		data.swap_material = true
-	end
-	]]
-	
+function CopBase:save(data)
 	if self._unit:interaction() and self._unit:interaction().tweak_data == "hostage_trade" then
 		data.is_hostage_trade = true
+	elseif self._unit:interaction() and self._unit:interaction().tweak_data == "hostage_convert" then
+		data.is_hostage_convert = true
 	end
+
 end
 
------------------------------------------------------------------------------------
-
-function CopBase:load( data )
-	--[[
-	if data.base_contour_on or data.swap_material then
-		self._contour_on_clbk_id = "clbk_set_contour_on"..tostring( self._unit:key() )
-		managers.enemy:add_delayed_clbk( self._contour_on_clbk_id, callback( self, self, "clbk_set_contour_on", data.swap_material ), TimerManager:game():time() + 1 ) -- this does not work if called immediately
-	end
-	]]
-	
+function CopBase:load(data)
 	if data.is_hostage_trade then
-		CopLogicTrade.hostage_trade( self._unit, true, false )
+		CopLogicTrade.hostage_trade(self._unit, true, false)
+	elseif data.is_hostage_convert then
+		self._unit:interaction():set_tweak_data("hostage_convert")
 	end
+
 end
 
------------------------------------------------------------------------------------
-
---[[function CopBase:clbk_set_contour_on( swap_material_only )
-	if not self._contour_on_clbk_id or not alive( self._unit ) then
-		return
-	end
-	self._contour_on_clbk_id = nil
-	self:set_contour( true, swap_material_only )
-end
-
------------------------------------------------------------------------------------
-
-local ids_materials = Idstring( "material" )
-local ids_contour_color = Idstring( "contour_color" )
-local ids_contour_opacity = Idstring( "contour_opacity" )
-
-function CopBase:set_contour( state, swap_material_only )
-	if not alive( self._unit ) then
-		return
-	end
-	
-	if ( self._contour_state or false ) == ( state or false ) then
-		return
-	end
-	
-	if Network:is_server() then
-		self._unit:network():send( "set_contour", state )
-	end
-	
-	if not self._unit:interaction() then
-		return
-	end
-	
-	self:swap_material_config()
-	
-	if swap_material_only then
-		return
-	end
-	
-	local opacity
-	if state then
-		managers.occlusion:remove_occlusion( self._unit )
-		self._unit:interaction():set_tweak_data( self._unit:interaction().orig_tweak_data_contour or "intimidate_with_contour" )
-		self._unit:base():set_allow_invisible( false )
-		self:set_visibility_state( 1 )
-		opacity = 1
-	else
-		managers.occlusion:add_occlusion( self._unit )
-		self._unit:interaction():set_tweak_data( self._unit:interaction().orig_tweak_data or "intimidate" )
-		self._unit:base():set_allow_invisible( true )
-		opacity = 0
-	end
-
-	
-	local materials = self._unit:get_objects_by_type( ids_materials )
-	for _,m in ipairs( materials ) do
-		m:set_variable( ids_contour_color, tweak_data.contour[ "interactable" ][ "standard_color" ] )
-		m:set_variable( ids_contour_opacity, opacity )
-	end
-
-	self._contour_state = state
-end]]
-
------------------------------------------------------------------------------------
-
-function CopBase:swap_material_config()
-	local new_material = material_translation_map[ tostring( self._unit:material_config():key() ) ]
+function CopBase:swap_material_config(material_applied_clbk)
+	local new_material = self._material_translation_map[tostring(self._unit:material_config():key())]
 	if new_material then
 		self._is_in_original_material = not self._is_in_original_material
-		self._unit:set_material_config( Idstring( new_material ), true )
-		
-		if self._unit:interaction() then
-			self._unit:interaction():refresh_material()
+		self._unit:set_material_config(new_material, true, material_applied_clbk and callback(self, self, "on_material_applied", material_applied_clbk))
+		if not material_applied_clbk then
+			self:on_material_applied()
 		end
+
 	else
-		print( "[CopBase:swap_material_config] fail", self._unit:material_config(), self._unit )
+		print("[CopBase:swap_material_config] fail", self._unit:material_config(), self._unit)
 		Application:stack_dump()
 	end
+
 end
 
------------------------------------------------------------------------------------
+function CopBase:on_material_applied(material_applied_clbk)
+	if self._unit:interaction() then
+		self._unit:interaction():refresh_material()
+	end
+
+	if material_applied_clbk then
+		material_applied_clbk()
+	end
+
+end
 
 function CopBase:is_in_original_material()
 	return self._is_in_original_material
 end
 
------------------------------------------------------------------------------------
-
-function CopBase:set_material_state( original )
+function CopBase:set_material_state(original)
 	if original and not self._is_in_original_material or not original and self._is_in_original_material then
 		self:swap_material_config()
 	end
-end
 
------------------------------------------------------------------------------------
+end
 
 function CopBase:char_tweak()
 	return self._char_tweak
 end
 
------------------------------------------------------------------------------------
+function CopBase:pre_destroy(unit)
+	if unit:unit_data().secret_assignment_id and alive(unit) then
+		managers.secret_assignment:unregister_unit(unit)
+	end
 
-function CopBase:pre_destroy( unit )
-	if unit:unit_data().secret_assignment_id and alive( unit ) then
-		managers.secret_assignment:unregister_unit( unit )
-	end
-	
-	--[[
-	if self._contour_on_clbk_id then
-		managers.enemy:remove_delayed_clbk( self._contour_on_clbk_id )
-	end
-	]]
-	
-	unit:brain():pre_destroy( unit )
+	unit:brain():pre_destroy(unit)
 	self._ext_movement:pre_destroy()
 	self._unit:inventory():pre_destroy()
-	UnitBase.pre_destroy( self, unit )
+	UnitBase.pre_destroy(self, unit)
 end
 
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------

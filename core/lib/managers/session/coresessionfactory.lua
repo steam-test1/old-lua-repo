@@ -1,7 +1,5 @@
 core:module("CoreSessionFactory")
-
 Factory = Factory or class()
-
 function Factory:create_level_handler()
 end
 
@@ -22,3 +20,4 @@ end
 
 function Factory:create_local_user_handler()
 end
+

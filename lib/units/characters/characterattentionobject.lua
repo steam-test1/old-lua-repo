@@ -1,154 +1,181 @@
-require "lib/units/props/AIAttentionObject"
-
-CharacterAttentionObject = CharacterAttentionObject or class( AIAttentionObject )
-
-function CharacterAttentionObject:init( unit )
-	CharacterAttentionObject.super.init( self, unit, true ) -- true because this is not a unit extension
+require("lib/units/props/AIAttentionObject")
+CharacterAttentionObject = CharacterAttentionObject or class(AIAttentionObject)
+function CharacterAttentionObject:init(unit)
+	CharacterAttentionObject.super.init(self, unit, true)
 end
 
---------------------------------------------------------------------------------------
-
-function CharacterAttentionObject:setup_attention_positions( m_head_pos, m_pos )
+function CharacterAttentionObject:setup_attention_positions(m_head_pos, m_pos)
 	self._m_head_pos = m_head_pos or self._unit:movement():m_head_pos()
 	self._m_pos = m_pos or self._unit:movement():m_pos()
 end
 
---------------------------------------------------------------------------------------
--- settings_set={ string_id1, string_id2, ... } returns all ids in settings_set not found in this handler
-function CharacterAttentionObject:chk_settings_diff( settings_set )
+function CharacterAttentionObject:chk_settings_diff(settings_set)
+-- fail 9
+null
+6
+-- fail 60
+null
+12
 	local attention_data = self._attention_data
-	
 	local changes
 	if settings_set then
-		for _, id in ipairs( settings_set ) do -- find settings we need to add
-			if not ( attention_data and attention_data[ id ] ) then
+		local (for generator), (for state), (for control) = ipairs(settings_set)
+		do
+			do break end
+			if not attention_data or not attention_data[id] then
 				changes = changes or {}
 				changes.added = changes.added or {}
-				table.insert( changes.added, id )
+				table.insert(changes.added, id)
 			elseif attention_data then
 				changes = changes or {}
 				changes.maintained = changes.maintained or {}
-				table.insert( changes.maintained, id )
+				table.insert(changes.maintained, id)
 			end
+
 		end
+
 	end
-	
-	if attention_data then
-		for old_id, setting in pairs( attention_data ) do -- find settings we need to remove
+
+	do break end
+	do
+		local (for generator), (for state), (for control) = pairs(attention_data)
+		do
+			do break end
 			local found
 			if settings_set then
-				for _, new_id in ipairs( settings_set ) do
+				local (for generator), (for state), (for control) = ipairs(settings_set)
+				do
+					do break end
 					if old_id == new_id then
 						found = true
-						break
-					end
 				end
+
+				else
+				end
+
 			end
-			if not found then
-				changes = changes or {}
-				changes.removed = changes.removed or {}
-				table.insert( changes.removed, old_id )
-			end
+
+			do break end
+			changes = changes or {}
+			changes.removed = changes.removed or {}
+			table.insert(changes.removed, old_id)
 		end
+
 	end
-		
-	return changes
+
 end
 
---------------------------------------------------------------------------------------
-
-function CharacterAttentionObject:set_settings_set( settings_set )
+function CharacterAttentionObject:set_settings_set(settings_set)
 	local attention_data = self._attention_data
-	--print( "[CharacterAttentionObject:set_settings_set] settings_set", self._unit, settings_set and inspect( settings_set ), "attention_data", attention_data and inspect( attention_data ) )
-	
 	local changed, register, unregister
-	
 	if attention_data then
-		if not ( settings_set and next( settings_set ) ) then -- remove all
+		if not settings_set or not next(settings_set) then
 			settings_set = nil
 			unregister = true
 		else
-			for id, settings in pairs( attention_data ) do
-				if not settings_set[ id ] then
-					changed = true
-					break
-				end
-			end
-			
-			if not changed then
-				for id, settings in pairs( settings_set ) do
-					if not attention_data[ id ] then
+			do
+				local (for generator), (for state), (for control) = pairs(attention_data)
+				do
+					do break end
+					if not settings_set[id] then
 						changed = true
-						break
-					end
 				end
+
+				else
+				end
+
 			end
+
+			do break end
+			local (for generator), (for state), (for control) = pairs(settings_set)
+			do
+				do break end
+				if not attention_data[id] then
+					changed = true
+			end
+
+			else
+			end
+
 		end
-	elseif settings_set and next( settings_set ) then -- copy over all
-		register = true
+
+	else
+		(for control) = nil and attention_data[id]
+		if settings_set and next(settings_set) then
+			register = true
+		end
+
 	end
-	
+
 	if self._overrides then
 		if settings_set then
-			for id, overrride_setting in pairs( self._overrides ) do -- update the restore values
-				if settings_set[ id ] then
-					self._override_restore = self._override_restore or {}
-					self._override_restore[ id ] = settings_set[ id ]
-					settings_set[ id ] = overrride_setting
-				end
-			end
-			
-			if attention_data and self._override_restore then -- check which restore values are no longer needed
-				for id, setting in pairs( attention_data ) do
-					if not settings_set[ id ] then
-						self._override_restore[ id ] = nil
+			do
+				local (for generator), (for state), (for control) = pairs(self._overrides)
+				do
+					do break end
+					if settings_set[id] then
+						self._override_restore = self._override_restore or {}
+						self._override_restore[id] = settings_set[id]
+						settings_set[id] = overrride_setting
 					end
+
 				end
-				if not next( self._override_restore ) then
+
+			end
+
+			do break end
+			if self._override_restore then
+				do
+					local (for generator), (for state), (for control) = pairs(attention_data)
+					do
+						do break end
+						if not settings_set[id] then
+							self._override_restore[id] = nil
+						end
+
+					end
+
+				end
+
+				(for control) = nil and settings_set[id]
+				if not next(self._override_restore) then
 					self._override_restore = nil
 				end
+
 			end
+
 		else
 			self._override_restore = nil
 		end
+
 	end
-	
+
 	self._attention_data = settings_set
-	
 	if register then
 		self:_register()
 	elseif unregister then
-		managers.groupai:state():unregister_AI_attention_object( ( self._parent_unit or self._unit ):key() )
+		managers.groupai:state():unregister_AI_attention_object(self._parent_unit or self._unit:key())
 	end
-	
+
 	if changed or unregister then
 		self:_call_listeners()
 	end
+
 end
 
---------------------------------------------------------------------------------------
-
-function CharacterAttentionObject:get_attention_m_pos( settings )
+function CharacterAttentionObject:get_attention_m_pos(settings)
 	return self._m_head_pos
 end
-
---------------------------------------------------------------------------------------
 
 function CharacterAttentionObject:get_detection_m_pos()
 	return self._m_head_pos
 end
 
---------------------------------------------------------------------------------------
-
 function CharacterAttentionObject:get_ground_m_pos()
 	return self._m_pos
 end
 
---------------------------------------------------------------------------------------
-
 function CharacterAttentionObject:_register()
-	managers.groupai:state():register_AI_attention_object( self._parent_unit or self._unit, self, self._unit:movement() and self._unit:movement():nav_tracker() )
+	managers.groupai:state():register_AI_attention_object(self._parent_unit or self._unit, self, self._unit:movement() and self._unit:movement():nav_tracker())
 end
 
---------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------

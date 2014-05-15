@@ -1,9 +1,6 @@
 core:module("CoreSmoketestSuite")
-
 core:import("CoreClass")
-
 Suite = Suite or CoreClass.class()
-
 function Suite:start(session_state, reporter, suite_arguments)
 	assert(false, "Not implemented")
 end
@@ -15,3 +12,4 @@ end
 function Suite:update(t, dt)
 	assert(false, "Not implemented")
 end
+
