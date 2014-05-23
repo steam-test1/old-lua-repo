@@ -1,37 +1,31 @@
-require "lib/network/base/BaseNetworkSession"
-require "lib/network/base/ClientNetworkSession"
-require "lib/network/base/HostNetworkSession"
-
-require "lib/network/matchmaking/NetworkAccount"
-require "lib/network/matchmaking/NetworkAccountPSN"
-require "lib/network/matchmaking/NetworkAccountSTEAM"
-require "lib/network/matchmaking/NetworkAccountXBL"
-require "lib/network/matchmaking/NetworkFriend"
-require "lib/network/matchmaking/NetworkFriendsPSN"
-require "lib/network/matchmaking/NetworkFriendsXBL"
-require "lib/network/matchmaking/NetworkGenericPSN"
-require "lib/network/matchmaking/NetworkGroupLobby"
-require "lib/network/matchmaking/NetworkGroupLobbyPSN"
-require "lib/network/matchmaking/NetworkMatchMakingPSN"
-require "lib/network/matchmaking/NetworkMatchMakingSTEAM"
-require "lib/network/matchmaking/NetworkMatchMakingXBL"
-require "lib/network/matchmaking/NetworkVoiceChatDisabled"
-require "lib/network/matchmaking/NetworkVoiceChatPSN"
-require "lib/network/matchmaking/NetworkVoiceChatSTEAM"
-require "lib/network/matchmaking/NetworkVoiceChatXBL"
-
-require "lib/network/base/NetworkPeer"
-
-require "lib/network/base/handlers/BaseNetworkHandler"
-require "lib/network/base/handlers/DefaultNetworkHandler"
-require "lib/network/base/handlers/ConnectionNetworkHandler"
-require "lib/network/base/handlers/PacketNetworkHandler"
-
-require "lib/units/beings/player/PlayerDamage"
-require "lib/units/beings/player/PlayerMovement"
-
+require("lib/network/base/BaseNetworkSession")
+require("lib/network/base/ClientNetworkSession")
+require("lib/network/base/HostNetworkSession")
+require("lib/network/matchmaking/NetworkAccount")
+require("lib/network/matchmaking/NetworkAccountPSN")
+require("lib/network/matchmaking/NetworkAccountSTEAM")
+require("lib/network/matchmaking/NetworkAccountXBL")
+require("lib/network/matchmaking/NetworkFriend")
+require("lib/network/matchmaking/NetworkFriendsPSN")
+require("lib/network/matchmaking/NetworkFriendsXBL")
+require("lib/network/matchmaking/NetworkGenericPSN")
+require("lib/network/matchmaking/NetworkGroupLobby")
+require("lib/network/matchmaking/NetworkGroupLobbyPSN")
+require("lib/network/matchmaking/NetworkMatchMakingPSN")
+require("lib/network/matchmaking/NetworkMatchMakingSTEAM")
+require("lib/network/matchmaking/NetworkMatchMakingXBL")
+require("lib/network/matchmaking/NetworkVoiceChatDisabled")
+require("lib/network/matchmaking/NetworkVoiceChatPSN")
+require("lib/network/matchmaking/NetworkVoiceChatSTEAM")
+require("lib/network/matchmaking/NetworkVoiceChatXBL")
+require("lib/network/base/NetworkPeer")
+require("lib/network/base/handlers/BaseNetworkHandler")
+require("lib/network/base/handlers/DefaultNetworkHandler")
+require("lib/network/base/handlers/ConnectionNetworkHandler")
+require("lib/network/base/handlers/PacketNetworkHandler")
+require("lib/units/beings/player/PlayerDamage")
+require("lib/units/beings/player/PlayerMovement")
 NetworkManager = NetworkManager or class()
-
 if SystemInfo:platform() == Idstring("X360") then
 	NetworkManager.DEFAULT_PORT = 1000
 else
@@ -39,38 +33,41 @@ else
 end
 
 NetworkManager.DROPIN_ENABLED = true
-if SystemInfo:platform() == Idstring( "X360" ) or SystemInfo:platform() == Idstring( "PS3" ) then
+if SystemInfo:platform() == Idstring("X360") or SystemInfo:platform() == Idstring("PS3") then
 	NetworkManager.PROTOCOL_TYPE = "TCP_IP"
 else
 	NetworkManager.PROTOCOL_TYPE = "STEAM"
 end
 
-function NetworkManager:init( game_class )
-	
+function NetworkManager:init(game_class)
 	self.OVERWRITEABLE_MSGS = {
-		request_character = { clbk = NetworkManager.clbk_msg_overwrite },
-		set_look_dir = { clbk = NetworkManager.clbk_msg_overwrite },
-		set_kit_selection = { clbk = MenuItemKitSlot.clbk_msg_set_kit_selection, categories = {} },
-		set_mask_set = { clbk = NetworkManager.clbk_msg_overwrite },
-		criminal_hurt = { clbk = PlayerDamage.clbk_msg_overwrite_criminal_hurt, indexes = {} },
-		suspicion = { clbk = PlayerMovement.clbk_msg_overwrite_suspicion, indexes = {} },
+		set_look_dir = {
+			clbk = NetworkManager.clbk_msg_overwrite
+		},
+		criminal_hurt = {
+			clbk = PlayerDamage.clbk_msg_overwrite_criminal_hurt,
+			indexes = {}
+		},
+		suspicion = {
+			clbk = PlayerMovement.clbk_msg_overwrite_suspicion,
+			indexes = {}
+		}
 	}
-
-	if SystemInfo:platform() == Idstring( "PS3" ) then
+	if SystemInfo:platform() == Idstring("PS3") then
 		self._is_ps3 = true
-	elseif SystemInfo:platform() == Idstring( "X360" ) then
+	elseif SystemInfo:platform() == Idstring("X360") then
 		self._is_x360 = true
 	else
 		self._is_win32 = true
 	end
-	
+
 	self._spawn_points = {}
-	
 	if self._is_ps3 then
-		Network:set_use_psn_network( true )
+		Network:set_use_psn_network(true)
 		if #PSN:get_world_list() == 0 then
 			PSN:init_matchmaking()
 		end
+
 		self:_register_PSN_matchmaking_callbacks()
 	elseif self._is_win32 then
 		self.account = NetworkAccountSTEAM:new()
@@ -79,129 +76,97 @@ function NetworkManager:init( game_class )
 		self.account = NetworkAccountXBL:new()
 		self.voice_chat = NetworkVoiceChatXBL:new()
 	end
-	
+
 	self._started = false
-	
 	self._game_class = game_class
-	
-	managers.network = self --HACK
-	
-	self:_create_lobby()		-- Create cross platform lobby.
-	
+	managers.network = self
+	self:_create_lobby()
 	self:load()
-	
 end
 
---------------------------------------------------------------------
-
 function NetworkManager:init_finalize()
-	print( "NetworkManager:init_finalize()" )
+	print("NetworkManager:init_finalize()")
 	if Network:multiplayer() and not Application:editor() then
 		self._session:on_load_complete()
 		self._game:on_load_complete()
 	end
+
 end
 
 function NetworkManager:_create_lobby()
 	if self._is_win32 then
-		cat_print( 'lobby', "Online Lobby is PC")
-		--[[self.friends = NetworkFriendsRDV:new()
-		self.group = NetworkGroupLobbyRDV:new()]]
+		cat_print("lobby", "Online Lobby is PC")
 		self.matchmake = NetworkMatchMakingSTEAM:new()
-		--[[self.shared_rdv = NetworkGenericRDV:new()
-		self.shared = self.shared_rdv]]
-		
-		--self.voice_chat = NetworkVoiceChatDisabled:new()
-		
-		--[[self.match = nil
-		self.generic = NetworkGeneric:new()
-		self.systemlink = NetworkSystemLinkRDV:new()
-		
-		self._shared_update = self.shared_rdv			-- This so we can call updated on the shared code with the same name on all platform.
-		]]
 	elseif self._is_ps3 then
-		cat_print( 'lobby', "Online Lobby is PS3")
+		cat_print("lobby", "Online Lobby is PS3")
 		self.friends = NetworkFriendsPSN:new()
 		self.group = NetworkGroupLobbyPSN:new()
 		self.matchmake = NetworkMatchMakingPSN:new()
-		-- self.shared_rdv = NetworkGenericRDV:new()
 		self.shared_psn = NetworkGenericPSN:new()
 		self.shared = self.shared_psn
 		self.account = NetworkAccountPSN:new()
 		self.match = nil
-		-- self.generic = NetworkGeneric:new()
-		-- self.systemlink = NetworkSystemLinkRDV:new()
-		
 		self:ps3_determine_voice()
-		
 		self._shared_update = self.shared_psn
 	elseif self._is_x360 then
 		self.friends = NetworkFriendsXBL:new()
 		self.matchmake = NetworkMatchMakingXBL:new()
 	else
 		Global._boot_invite_mp = nil
-		Application:error( "NetworkManager:create_lobby failed to get a valid lobby for online play." )
+		Application:error("NetworkManager:create_lobby failed to get a valid lobby for online play.")
 		return
 	end
 
-	-- self.account:register_post_username( callback( self, self, "post_username" ) )
 end
 
---------------------------------------------------------------------
-
-function NetworkManager:ps3_determine_voice( lan )
-	-- lan = lan or self.systemlink:is_lan()
-	
+function NetworkManager:ps3_determine_voice(lan)
 	local voice = "voice_quiet"
-	if( lan == true ) then
+	if lan == true then
 		voice = "voice_quiet"
-	else
-		if( PSN:is_online() ) then
-			if( PSN:online_chat_allowed() ) then
-				voice = "voice_psn"
-			else
-				voice = "voice_disabled"
-			end
+	elseif PSN:is_online() then
+		if PSN:online_chat_allowed() then
+			voice = "voice_psn"
+		else
+			voice = "voice_disabled"
 		end
+
 	end
-	
-	if( self.voice_chat and self.voice_chat:voice_type() == voice ) then
-		return --already started
+
+	if self.voice_chat and self.voice_chat:voice_type() == voice then
+		return
 	end
-	
-	if( self.voice_chat and self.voice_chat:voice_type() ~= voice ) then
+
+	if self.voice_chat and self.voice_chat:voice_type() ~= voice then
 		self.voice_chat:close_all(true)
 		self.voice_chat = nil
 	end
-		
-	if( voice == "voice_psn" ) then
+
+	if voice == "voice_psn" then
 		self.voice_chat = NetworkVoiceChatPSN:new()
-	elseif( voice == "voice_disabled" ) then
+	elseif voice == "voice_disabled" then
 		self.voice_chat = NetworkVoiceChatDisabled:new()
 	else
-		self.voice_chat = NetworkVoiceChatDisabled:new( true )
+		self.voice_chat = NetworkVoiceChatDisabled:new(true)
 	end
+
 end
 
---------------------------------------------------------------------
+function NetworkManager:session()
+	return self._session
+end
 
-function NetworkManager:session() return self._session end
+function NetworkManager:game()
+	return self._game
+end
 
---------------------------------------------------------------------
-
-function NetworkManager:game() return self._game end
-
---------------------------------------------------------------------
-
-function NetworkManager:shared_handler_data() return self._shared_handler_data end
-
---------------------------------------------------------------------
+function NetworkManager:shared_handler_data()
+	return self._shared_handler_data
+end
 
 function NetworkManager:load()
 	if Global.network then
 		self._network_bound = Global.network.network_bound
 		self:start_network()
-		
 		if Global.network.session then
 			if Global.network.session_host then
 				self._session = HostNetworkSession:new()
@@ -209,343 +174,295 @@ function NetworkManager:load()
 			else
 				self._session = ClientNetworkSession:new()
 			end
+
 		end
-		self._session:load( Global.network.session )
-		self._game:load( Global.network_game )
+
+		self._session:load(Global.network.session)
+		self._game:load(Global.network_game)
 		managers.network.matchmake:_load_globals()
 		if self._is_x360 then
 			managers.network.voice_chat:resume()
 		else
 			managers.network.voice_chat:_load_globals()
 		end
-		
+
 		Global.network_game = nil
 		Global.network = nil
-		
 		if self._is_win32 then
 			managers.network.voice_chat:open()
 		end
-	end
-end
 
---------------------------------------------------------------------
+	end
+
+end
 
 function NetworkManager:save()
 	if self._started then
 		Global.network = {}
 		Global.network.network_bound = self._network_bound
-		
 		if self._session then
 			Global.network.session_host = self._session:is_host()
 			Global.network.session = {}
-			self._session:save( Global.network.session )
+			self._session:save(Global.network.session)
 		end
-		
+
 		managers.network.matchmake:_save_globals()
-		managers.network.voice_chat:_save_globals( true )
-		
+		managers.network.voice_chat:_save_globals(true)
 		self._game:save()
 		if self._is_win32 then
 			managers.network.voice_chat:destroy_voice()
 		end
-		-- CAN'T STOP NETWORK HERE WHEN LOADING LEVEL SINCE LOADING LEVEL MESSAGE NEED TO BE SENT /MARTIN
-		-- self:stop_network()
+
 	end
+
 end
 
---------------------------------------------------------------------
-
-function NetworkManager:update(t,dt)
+function NetworkManager:update(t, dt)
 	if self._stop_next_frame then
-		self:stop_network( true )
+		self:stop_network(true)
 		self._stop_next_frame = nil
 		return
 	end
-	
+
 	if self._session then
 		self._session:update()
 	end
-	
+
 	if self.matchmake then
 		self.matchmake:update()
 	end
-	if self.voice_chat then
-		self.voice_chat:update( t )
-	end
-end
 
-------------------------------------------------------------------
+	if self.voice_chat then
+		self.voice_chat:update(t)
+	end
+
+end
 
 function NetworkManager:end_update()
 	if self._stop_network then
 		self._stop_next_frame = true
-		-- self:stop_network( true )
 		self._stop_network = nil
 	end
+
 	if self._session then
 		self._session:end_update()
 	end
-end
 
-------------------------------------------------------------------
+end
 
 function NetworkManager:start_network()
 	if not self._started then
-		Global.category_print[ "multiplayer_base" ] = true
-		
+		Global.category_print.multiplayer_base = true
 		if self._game_class then
-			self._game = _G[ self._game_class ]:new()
+			self._game = _G[self._game_class]:new()
 		end
-		
-		self:register_handler( "connection", ConnectionNetworkHandler )
-		self:register_handler( "packet", PacketNetworkHandler )
-		
+
+		self:register_handler("connection", ConnectionNetworkHandler)
+		self:register_handler("packet", PacketNetworkHandler)
 		self._game:on_network_started()
-				
-		Network:bind( self._network_bound and -1 or self.DEFAULT_PORT, DefaultNetworkHandler:new() )
+		Network:bind(self._network_bound and -1 or self.DEFAULT_PORT, DefaultNetworkHandler:new())
 		self._network_bound = true
-				
 		self._started = true
-				
-		cat_print( "multiplayer_base", "[NetworkManager:start_network]")
+		cat_print("multiplayer_base", "[NetworkManager:start_network]")
 	end
+
 end
 
-------------------------------------------------------------------
-
-function NetworkManager:register_handler( name, handler_class )
-	if( not self._handlers ) then
+function NetworkManager:register_handler(name, handler_class)
+	if not self._handlers then
 		self._handlers = {}
 		self._shared_handler_data = {}
 	end
-	
+
 	local new_handler = handler_class:new()
-	self._handlers[ name ] = new_handler
-	Network:set_receiver( Idstring(name), new_handler )
+	self._handlers[name] = new_handler
+	Network:set_receiver(Idstring(name), new_handler)
 end
 
-------------------------------------------------------------------
-
-function NetworkManager:prepare_stop_network( ... )
+function NetworkManager:prepare_stop_network(...)
 	if self._session then
-		self._session:prepare_to_close( ... )
+		self._session:prepare_to_close(...)
 		if self.voice_chat and self._is_win32 then
 			self.voice_chat:destroy_voice()
 		end
+
 	end
+
 end
 
-------------------------------------------------------------------
-
-function NetworkManager:stop_network( clean )
+function NetworkManager:stop_network(clean)
 	if self._started then
-		
 		self._game:on_network_stopped()
-		
 		self._started = false
-		
 		if clean and self._session then
 			local peers = self._session:peers()
-			for k, peer in pairs( peers ) do
+			local (for generator), (for state), (for control) = pairs(peers)
+			do
+				do break end
 				local rpc = peer:rpc()
 				if rpc then
-					Network:reset_connection( rpc )
-					Network:remove_client( rpc )
+					Network:reset_connection(rpc)
+					Network:remove_client(rpc)
 				end
+
 			end
+
 		end
-		
+
 		self._handlers = nil
-		self._shared_handler_data = nil
-		
+		self._shared_handler_data = nil and nil
 		self._session:destroy()
 		self._session = nil
-		
 		self._game = nil
-		
 		self._stop_network = nil
 		self._stop_next_frame = nil
-				
 		self._network_bound = nil
 		Network:unbind()
 		Network:set_disconnected()
 		if not Application:editor() then
-			Network:set_multiplayer( false )
+			Network:set_multiplayer(false)
 		end
-				
-		cat_print( "multiplayer_base", "[NetworkManager:stop_network]")
-		print( "---------------------------------------------------------" )
-	end
-end
 
-------------------------------------------------------------------
+		cat_print("multiplayer_base", "[NetworkManager:stop_network]")
+		print("---------------------------------------------------------")
+	end
+
+end
 
 function NetworkManager:queue_stop_network()
 	self._stop_network = true
 end
 
-------------------------------------------------------------------
-
 function NetworkManager:is_ready_to_load()
 	if self._stop_next_frame or self._stop_network then
 		return false
 	end
+
 	return not self._session or self._session:is_ready_to_close()
 end
-
-------------------------------------------------------------------
 
 function NetworkManager:stopping()
 	if not self._started then
 		return true
 	end
-	
+
 	if self._stop_next_frame or self._stop_network then
 		return true
 	end
-	
+
 	return false
 end
 
-------------------------------------------------------------------
-
--- START CLIENT NETWORK SESSION
 function NetworkManager:start_client()
-	self:stop_network( true )
+	self:stop_network(true)
 	self:start_network()
-	
 	if self._is_win32 then
 		self.voice_chat:open()
 	end
-	
+
 	self._session = ClientNetworkSession:new()
-	
 end
 
-------------------------------------------------------------------
-
--- Broadcast for people hosting games
-function NetworkManager:discover_hosts( result_cb )
-	self:stop_network( true )
+function NetworkManager:discover_hosts(result_cb)
+	self:stop_network(true)
 	self:start_network()
-	
 	self._session = ClientNetworkSession:new()
 	self._discover_hosts_cb = result_cb
 	self._session:discover_hosts()
 end
 
-------------------------------------------------------------------
-
--- Someone ( the sender ) is looking for running servers. Reply if we are hosting and want to accept their connection
-function NetworkManager:on_discover_host_received( sender )
+function NetworkManager:on_discover_host_received(sender)
 	if Global.game_settings.single_player then
 		return
 	end
-	
+
 	local level_name = Global.level_data.level
-	local level_id = tweak_data.levels:get_index_from_world_name( level_name )
+	local level_id = tweak_data.levels:get_index_from_world_name(level_name)
 	if level_id then
 		level_name = ""
 	else
 		level_id = 1
 	end
-	-- Global.game_settings
+
 	local peer = managers.network:session():local_peer()
 	local state = peer:in_lobby() and 1 or 2
 	local difficulty = Global.game_settings.difficulty
-	level_id = tweak_data.levels:get_index_from_level_id( Global.game_settings.level_id )
-	print( "on_discover_host_received", level_id )
+	level_id = tweak_data.levels:get_index_from_level_id(Global.game_settings.level_id)
+	print("on_discover_host_received", level_id)
 	local my_name
-	if SystemInfo:platform() == Idstring( "PS3" ) then
+	if SystemInfo:platform() == Idstring("PS3") then
 		my_name = "Player 1"
 	else
 		my_name = Network:hostname()
 	end
-	sender:discover_host_reply( my_name, level_id, level_name, sender:ip_at_index(0), state, difficulty )	-- Yes, we are hosting and accepting connections
+
+	sender:discover_host_reply(my_name, level_id, level_name, sender:ip_at_index(0), state, difficulty)
 end
 
-------------------------------------------------------------------
-
--- Someone ( the sender ) has replied to our host discovery request
-function NetworkManager:on_discover_host_reply( host, host_name, level_name, my_ip, state, difficulty )
-	print( "on_discover_host_reply", host, host_name, level_name, my_ip, state )
-	if self._discover_hosts_cb then -- Are we still interested in discovering hosts?
+function NetworkManager:on_discover_host_reply(host, host_name, level_name, my_ip, state, difficulty)
+	print("on_discover_host_reply", host, host_name, level_name, my_ip, state)
+	if self._discover_hosts_cb then
 		local cb = self._discover_hosts_cb
-		self._session:on_host_discovered( host, host_name, level_name, my_ip, state, difficulty )
-		cb( host, host_name, level_name, my_ip, state, difficulty )
+		self._session:on_host_discovered(host, host_name, level_name, my_ip, state, difficulty)
+		cb(host, host_name, level_name, my_ip, state, difficulty)
 	end
-end
 
-------------------------------------------------------------------
+end
 
 function NetworkManager:host_game()
-	self:stop_network( true )
+	self:stop_network(true)
 	self:start_network()
-	
 	if self._is_win32 then
 		self.voice_chat:open()
 	end
-	
+
 	self._session = HostNetworkSession:new()
 	self._game:on_server_session_created()
-	
 	if self.is_ps3 then
 		self._session:broadcast_server_up()
 	end
-		
-	--[[
-	if not Application:editor() and self.is_ps3 or Global.game_settings.playing_lan then
-		self._session:broadcast_server_up()
-	end
-	]]
+
 end
 
-------------------------------------------------------------------
-
-function NetworkManager:join_game_at_host_rpc( host_rpc, result_cb )
+function NetworkManager:join_game_at_host_rpc(host_rpc, result_cb)
 	self._discover_hosts_cb = nil
 	if self._session then
-		self._session:request_join_host( host_rpc, result_cb )
+		self._session:request_join_host(host_rpc, result_cb)
 	else
-		print( "[NetworkManager:join_game_at_host_rpc] no session!!!" )
+		print("[NetworkManager:join_game_at_host_rpc] no session!!!")
 	end
+
 end
 
-------------------------------------------------------------------
-
-function NetworkManager:register_spawn_point( id, data )
-	local runtime_data = { pos_rot = { data.position, data.rotation }, id = id }
-	self._spawn_points[ id ] = runtime_data
+function NetworkManager:register_spawn_point(id, data)
+	local runtime_data = {
+		pos_rot = {
+			data.position,
+			data.rotation
+		},
+		id = id
+	}
+	self._spawn_points[id] = runtime_data
 end
 
-------------------------------------------------------------------
-
-function NetworkManager:unregister_spawn_point( id )
-	self._spawn_points[ id ] = nil
+function NetworkManager:unregister_spawn_point(id)
+	self._spawn_points[id] = nil
 end
-
-------------------------------------------------------------------
 
 function NetworkManager:unregister_all_spawn_points()
 	self._spawn_points = {}
 end
 
-------------------------------------------------------------------
-
 function NetworkManager:has_spawn_points()
-	return next( self._spawn_points )
+	return next(self._spawn_points)
 end
 
-------------------------------------------------------------------
-
-function NetworkManager:spawn_point( sp_id )
-	return self._spawn_points[ sp_id ]
+function NetworkManager:spawn_point(sp_id)
+	return self._spawn_points[sp_id]
 end
-
-------------------------------------------------------------------
 
 function NetworkManager:_register_PSN_matchmaking_callbacks()
-	local gen_clbk = callback( self, self, "clbk_PSN_event" )
+	local gen_clbk = callback(self, self, "clbk_PSN_event")
 	PSN:set_matchmaking_callback("session_destroyed", gen_clbk)
 	PSN:set_matchmaking_callback("session_created", gen_clbk)
 	PSN:set_matchmaking_callback("session_kickout", gen_clbk)
@@ -570,53 +487,48 @@ function NetworkManager:_register_PSN_matchmaking_callbacks()
 	PSN:set_matchmaking_callback("error", gen_clbk)
 end
 
-------------------------------------------------------------------
-
-function NetworkManager:clbk_PSN_event( ... )
-	print( "[NetworkManager:clbk_PSN_event]", inspect( ... ) )
+function NetworkManager:clbk_PSN_event(...)
+	print("[NetworkManager:clbk_PSN_event]", inspect(...))
 end
-
-------------------------------------------------------------------
 
 function NetworkManager:search_ses()
-	PSN:set_matchmaking_callback( "session_search", callback( self, self, "clbk_search_session" ) )
-	
+	PSN:set_matchmaking_callback("session_search", callback(self, self, "clbk_search_session"))
 	local search_params = {
-		numbers = { 1, 3 },
-		--strings = { 1 }
+		numbers = {1, 3}
 	}
-	PSN:search_session( search_params, {}, PSN:get_world_list()[1].world_id )
+	PSN:search_session(search_params, {}, PSN:get_world_list()[1].world_id)
 end
 
-------------------------------------------------------------------
-
-function NetworkManager:clbk_search_session( search_results )
-	print( "[NetworkManager:clbk_search_session]", search_results )
-	for i, k in pairs( search_results ) do
-		print( i, k and inspect( k ) )
+function NetworkManager:clbk_search_session(search_results)
+	print("[NetworkManager:clbk_search_session]", search_results)
+	local (for generator), (for state), (for control) = pairs(search_results)
+	do
+		do break end
+		print(i, k and inspect(k))
 	end
+
 end
 
-------------------------------------------------------------------
--- ... is the rpc params including the function name
-function NetworkManager.clbk_msg_overwrite( overwrite_data, msg_queue, ... )
+function NetworkManager.clbk_msg_overwrite(overwrite_data, msg_queue, ...)
 	if msg_queue then
 		if overwrite_data.index then
-			msg_queue[ overwrite_data.index ] = { ... }	-- We already had such a message. Overwrite
+			msg_queue[overwrite_data.index] = {
+				...
+			}
 		else
-			table.insert( msg_queue, { ... } )
-			overwrite_data.index = #msg_queue	-- mark the position on the queue of the overwiteable message of this type
+			table.insert(msg_queue, {
+				...
+			})
+			overwrite_data.index = #msg_queue
 		end
+
 	else
 		overwrite_data.index = nil
 	end
-end
 
-------------------------------------------------------------------
+end
 
 function NetworkManager:protocol_type()
 	return self.PROTOCOL_TYPE
 end
 
-------------------------------------------------------------------
-------------------------------------------------------------------

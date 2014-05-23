@@ -1,22 +1,20 @@
-core:import( "CoreEditorUtils" )
-
-SpawnEnemyUnitElement = SpawnEnemyUnitElement or class( MissionElement )
+core:import("CoreEditorUtils")
+SpawnEnemyUnitElement = SpawnEnemyUnitElement or class(MissionElement)
 SpawnEnemyUnitElement.USES_POINT_ORIENTATION = true
-
 SpawnEnemyUnitElement._options = {
-	--Previs test remove later
 	"units/test/payday2/previs/previs_npc_chains/previs_npc_chains",
 	"units/test/payday2/previs/previs_npc_dallas/previs_npc_dallas",
 	"units/test/payday2/previs/previs_npc_wolf/previs_npc_wolf",
-	
-	
-	--Payday 2 Units
 	"units/payday2/characters/ene_biker_1/ene_biker_1",
 	"units/payday2/characters/ene_biker_2/ene_biker_2",
 	"units/payday2/characters/ene_biker_3/ene_biker_3",
 	"units/payday2/characters/ene_biker_4/ene_biker_4",
 	"units/payday2/characters/ene_bulldozer_1/ene_bulldozer_1",
 	"units/payday2/characters/ene_bulldozer_2/ene_bulldozer_2",
+	"units/payday2/characters/ene_bulldozer_3/ene_bulldozer_3",
+	"units/payday2/characters/ene_city_swat_1/ene_city_swat_1",
+	"units/payday2/characters/ene_city_swat_2/ene_city_swat_2",
+	"units/payday2/characters/ene_city_swat_3/ene_city_swat_3",
 	"units/payday2/characters/ene_cop_1/ene_cop_1",
 	"units/payday2/characters/ene_cop_2/ene_cop_2",
 	"units/payday2/characters/ene_cop_3/ene_cop_3",
@@ -54,20 +52,17 @@ SpawnEnemyUnitElement._options = {
 	"units/payday2/characters/ene_swat_2/ene_swat_2",
 	"units/payday2/characters/ene_swat_heavy_1/ene_swat_heavy_1",
 	"units/payday2/characters/ene_tazer_1/ene_tazer_1",
+	"units/payday2/characters/ene_veteran_cop_1/ene_veteran_cop_1",
 	"units/payday2/characters/ene_biker_escape/ene_biker_escape",
-	
 	"units/pd2_dlc1/characters/ene_security_gensec_1/ene_security_gensec_1",
 	"units/pd2_dlc1/characters/ene_security_gensec_2/ene_security_gensec_2",
 	"units/payday2/characters/ene_guard_national_1/ene_guard_national_1",
-	
-	
+	"units/payday2/characters/ene_murkywater_1/ene_murkywater_1",
+	"units/payday2/characters/ene_murkywater_2/ene_murkywater_2"
 }
-
-function SpawnEnemyUnitElement:init( unit )
-	SpawnEnemyUnitElement.super.init( self, unit )
-	
+function SpawnEnemyUnitElement:init(unit)
+	SpawnEnemyUnitElement.super.init(self, unit)
 	self._enemies = {}
-	
 	self._hed.enemy = "units/payday2/characters/ene_swat_1/ene_swat_1"
 	self._hed.force_pickup = "none"
 	self._hed.spawn_action = "none"
@@ -75,221 +70,267 @@ function SpawnEnemyUnitElement:init( unit )
 	self._hed.interval = 5
 	self._hed.amount = 0
 	self._hed.accessibility = "any"
-	
-	table.insert( self._save_values, "enemy" )
-	table.insert( self._save_values, "force_pickup" )
-	table.insert( self._save_values, "spawn_action" )
-	table.insert( self._save_values, "participate_to_group_ai" )
-	table.insert( self._save_values, "interval" )
-	table.insert( self._save_values, "amount" )
-	table.insert( self._save_values, "accessibility" )
+	self._hed.voice = 0
+	table.insert(self._save_values, "enemy")
+	table.insert(self._save_values, "force_pickup")
+	table.insert(self._save_values, "spawn_action")
+	table.insert(self._save_values, "participate_to_group_ai")
+	table.insert(self._save_values, "interval")
+	table.insert(self._save_values, "amount")
+	table.insert(self._save_values, "accessibility")
+	table.insert(self._save_values, "voice")
 end
 
-function SpawnEnemyUnitElement:post_init( ... )
-	SpawnEnemyUnitElement.super.post_init( self, ... )
+function SpawnEnemyUnitElement:post_init(...)
+	SpawnEnemyUnitElement.super.post_init(self, ...)
 	self:_load_pickup()
 end
 
 function SpawnEnemyUnitElement:test_element()
 	if self._hed.enemy ~= "none" then
-		local enemy = safe_spawn_unit( Idstring( self._hed.enemy ), self._unit:position(), self._unit:rotation() )
-		table.insert( self._enemies, enemy )
-		ElementSpawnEnemyDummy.produce_test( self._hed, enemy )
+		local unit = safe_spawn_unit(Idstring(self._hed.enemy), self._unit:position(), self._unit:rotation())
+		table.insert(self._enemies, unit)
+		local action_desc = ElementSpawnEnemyDummy._create_action_data(self:get_spawn_anim())
+		unit:movement():action_request(action_desc)
+		unit:movement():set_position(unit:position())
 	end
+
+end
+
+function SpawnEnemyUnitElement:get_spawn_anim()
+	return self._hed.spawn_action
 end
 
 function SpawnEnemyUnitElement:stop_test_element()
-	for _,enemy in ipairs( self._enemies ) do
-		enemy:set_slot( 0 )
+	do
+		local (for generator), (for state), (for control) = ipairs(self._enemies)
+		do
+			do break end
+			enemy:set_slot(0)
+		end
+
 	end
-	self._enemies = {}
+
+	self._enemies = nil and {}
 end
 
 function SpawnEnemyUnitElement:add_unit_list_btn()
-	local dialog = SelectNameModal:new( "Select unit", self._options )
+	local dialog = SelectNameModal:new("Select unit", self._options)
 	if dialog:cancelled() then
 		return
 	end
-	for _,unit in ipairs( dialog:_selected_item_assets() ) do
+
+	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
+	do
+		do break end
 		self._hed.enemy = unit
-		CoreEws.change_combobox_value( self._enemies_params, self._hed.enemy )
+		CoreEws.change_combobox_value(self._enemies_params, self._hed.enemy)
 	end
+
 end
 
 function SpawnEnemyUnitElement:select_spawn_action_btn()
-	local dialog = SelectNameModal:new( "Select unit", clone( CopActionAct._act_redirects.enemy_spawn ) )
+	local dialog = SelectNameModal:new("Select unit", clone(CopActionAct._act_redirects.enemy_spawn))
 	if dialog:cancelled() then
 		return
 	end
-	for _,action in ipairs( dialog:_selected_item_assets() ) do
+
+	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
+	do
+		do break end
 		self._hed.spawn_action = action
-		CoreEws.change_combobox_value( self._spawn_action_params, self._hed.spawn_action )
+		CoreEws.change_combobox_value(self._spawn_action_params, self._hed.spawn_action)
 	end
+
 end
 
-function SpawnEnemyUnitElement:_build_panel( panel, panel_sizer )
+function SpawnEnemyUnitElement:_build_panel(panel, panel_sizer)
 	self:_create_panel()
-		
 	panel = panel or self._panel
 	panel_sizer = panel_sizer or self._panel_sizer
-		
-	local enemy_sizer = EWS:BoxSizer( "HORIZONTAL" )
-	panel_sizer:add( enemy_sizer, 0, 1, "EXPAND,LEFT" )
-	
-	-- enemies
+	local enemy_sizer = EWS:BoxSizer("HORIZONTAL")
+	panel_sizer:add(enemy_sizer, 0, 1, "EXPAND,LEFT")
 	local enemies_params = {
-		name 				= "Enemy:",
-		panel 				= panel,
-		sizer 				= enemy_sizer,
-		options				= self._options,
-		value 				= self._hed.enemy,
-		tooltip 			= "Select an enemy from the combobox",
-		name_proportions 	= 1,
-		ctrlr_proportions 	= 2,
-		sizer_proportions	= 1,
-		sorted				= true
+		name = "Enemy:",
+		panel = panel,
+		sizer = enemy_sizer,
+		options = self._options,
+		value = self._hed.enemy,
+		tooltip = "Select an enemy from the combobox",
+		name_proportions = 1,
+		ctrlr_proportions = 2,
+		sizer_proportions = 1,
+		sorted = true
 	}
-	local enemies = CoreEWS.combobox( enemies_params )
-	
-	enemies:connect( "EVT_COMMAND_COMBOBOX_SELECTED", callback( self, self, "set_element_data" ), { ctrlr = enemies, value = "enemy" } )
+	local enemies = CoreEWS.combobox(enemies_params)
+	enemies:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {ctrlr = enemies, value = "enemy"})
 	self._enemies_params = enemies_params
-	
-	local toolbar = EWS:ToolBar( panel, "", "TB_FLAT,TB_NODIVIDER" )
-		toolbar:add_tool( "ADD_UNIT_LIST", "Add unit from unit list", CoreEws.image_path( "world_editor\\unit_by_name_list.png" ), nil )
-		toolbar:connect( "ADD_UNIT_LIST", "EVT_COMMAND_MENU_SELECTED", callback( self, self, "add_unit_list_btn" ), nil )
-		toolbar:realize()
-	enemy_sizer:add( toolbar, 0, 1, "EXPAND,LEFT" )
-		
-	local participate_to_group_ai = EWS:CheckBox( panel, "Participate to group ai", "" )
-	participate_to_group_ai:set_value( self._hed.participate_to_group_ai )
-	participate_to_group_ai:connect( "EVT_COMMAND_CHECKBOX_CLICKED", callback( self, self, "set_element_data" ), { ctrlr = participate_to_group_ai, value = "participate_to_group_ai" } )
-	panel_sizer:add( participate_to_group_ai, 0, 0, "EXPAND" )
-	
-	---- Spawn action
-	local spawn_action_sizer = EWS:BoxSizer( "HORIZONTAL" )
-	panel_sizer:add( spawn_action_sizer, 0, 1, "EXPAND,LEFT" )
-		
-	-- spawn action
+	local toolbar = EWS:ToolBar(panel, "", "TB_FLAT,TB_NODIVIDER")
+	toolbar:add_tool("ADD_UNIT_LIST", "Add unit from unit list", CoreEws.image_path("world_editor\\unit_by_name_list.png"), nil)
+	toolbar:connect("ADD_UNIT_LIST", "EVT_COMMAND_MENU_SELECTED", callback(self, self, "add_unit_list_btn"), nil)
+	toolbar:realize()
+	enemy_sizer:add(toolbar, 0, 1, "EXPAND,LEFT")
+	local participate_to_group_ai = EWS:CheckBox(panel, "Participate to group ai", "")
+	participate_to_group_ai:set_value(self._hed.participate_to_group_ai)
+	participate_to_group_ai:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "set_element_data"), {
+		ctrlr = participate_to_group_ai,
+		value = "participate_to_group_ai"
+	})
+	panel_sizer:add(participate_to_group_ai, 0, 0, "EXPAND")
+	local spawn_action_sizer = EWS:BoxSizer("HORIZONTAL")
+	panel_sizer:add(spawn_action_sizer, 0, 1, "EXPAND,LEFT")
 	local spawn_action_params = {
-		name 				= "Spawn action:",
-		panel 				= panel,
-		sizer 				= spawn_action_sizer,
-		options				= clone( CopActionAct._act_redirects.enemy_spawn ),
-		value 				= self._hed.spawn_action,
-		default				= "none",
-		tooltip 			= "Select a action that the unit should start with.",
-		name_proportions 	= 1,
-		ctrlr_proportions 	= 2,
-		sizer_proportions	= 1,
-		sorted				= true
+		name = "Spawn action:",
+		panel = panel,
+		sizer = spawn_action_sizer,
+		options = clone(CopActionAct._act_redirects.enemy_spawn),
+		value = self._hed.spawn_action,
+		default = "none",
+		tooltip = "Select a action that the unit should start with.",
+		name_proportions = 1,
+		ctrlr_proportions = 2,
+		sizer_proportions = 1,
+		sorted = true
 	}
-	local spawn_action = CoreEWS.combobox( spawn_action_params )
+	local spawn_action = CoreEWS.combobox(spawn_action_params)
 	self._spawn_action_params = spawn_action_params
-	
-	spawn_action:connect( "EVT_COMMAND_COMBOBOX_SELECTED", callback( self, self, "set_element_data" ), { ctrlr = spawn_action, value = "spawn_action" } )
-	
-	local toolbar = EWS:ToolBar( panel, "", "TB_FLAT,TB_NODIVIDER" )
-		toolbar:add_tool( "ADD_UNIT_LIST", "Select spawn action", CoreEws.image_path( "world_editor\\unit_by_name_list.png" ), nil )
-		toolbar:connect( "ADD_UNIT_LIST", "EVT_COMMAND_MENU_SELECTED", callback( self, self, "select_spawn_action_btn" ), nil )
-		toolbar:realize()
-	spawn_action_sizer:add( toolbar, 0, 1, "EXPAND,LEFT" )
-	
-	-- Interval
+	spawn_action:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {
+		ctrlr = spawn_action,
+		value = "spawn_action"
+	})
+	local toolbar = EWS:ToolBar(panel, "", "TB_FLAT,TB_NODIVIDER")
+	toolbar:add_tool("ADD_UNIT_LIST", "Select spawn action", CoreEws.image_path("world_editor\\unit_by_name_list.png"), nil)
+	toolbar:connect("ADD_UNIT_LIST", "EVT_COMMAND_MENU_SELECTED", callback(self, self, "select_spawn_action_btn"), nil)
+	toolbar:realize()
+	spawn_action_sizer:add(toolbar, 0, 1, "EXPAND,LEFT")
 	local interval_params = {
-		name 				= "Interval:",
-		panel 				= panel,
-		sizer 				= panel_sizer,
-		value 				= self._hed.interval,
-		floats 				= 2,
-		tooltip 			= "Used to specify how often this spawn can be used. 0 means no interval",
-		min 				= 0,
-		name_proportions 	= 1,
-		ctrlr_proportions 	= 2
+		name = "Interval:",
+		panel = panel,
+		sizer = panel_sizer,
+		value = self._hed.interval,
+		floats = 2,
+		tooltip = "Used to specify how often this spawn can be used. 0 means no interval",
+		min = 0,
+		name_proportions = 1,
+		ctrlr_proportions = 2
 	}
-	local interval = CoreEWS.number_controller( interval_params )
-	
-	interval:connect( "EVT_COMMAND_TEXT_ENTER", callback( self, self, "set_element_data" ), { ctrlr = interval, value = "interval" } )
-	interval:connect( "EVT_KILL_FOCUS", callback( self, self, "set_element_data" ), { ctrlr = interval, value = "interval" } )
-	
-	-- Amount
+	local interval = CoreEWS.number_controller(interval_params)
+	interval:connect("EVT_COMMAND_TEXT_ENTER", callback(self, self, "set_element_data"), {ctrlr = interval, value = "interval"})
+	interval:connect("EVT_KILL_FOCUS", callback(self, self, "set_element_data"), {ctrlr = interval, value = "interval"})
 	local amount_params = {
-		name 				= "Amount:",
-		panel 				= panel,
-		sizer 				= panel_sizer,
-		value 				= self._hed.amount,
-		floats 				= 0,
-		tooltip 			= "Used to specify how many enemies can be spawned. 0 means no limit",
-		min 				= 0,
-		name_proportions 	= 1,
-		ctrlr_proportions 	= 2
+		name = "Amount:",
+		panel = panel,
+		sizer = panel_sizer,
+		value = self._hed.amount,
+		floats = 0,
+		tooltip = "Used to specify how many enemies can be spawned. 0 means no limit",
+		min = 0,
+		name_proportions = 1,
+		ctrlr_proportions = 2
 	}
-	local amount = CoreEWS.number_controller( amount_params )
-	
-	amount:connect( "EVT_COMMAND_TEXT_ENTER", callback( self, self, "set_element_data" ), { ctrlr = amount, value = "amount" } )
-	amount:connect( "EVT_KILL_FOCUS", callback( self, self, "set_element_data" ), { ctrlr = amount, value = "amount" } )
-		
-	-- accessibility
+	local amount = CoreEWS.number_controller(amount_params)
+	amount:connect("EVT_COMMAND_TEXT_ENTER", callback(self, self, "set_element_data"), {ctrlr = amount, value = "amount"})
+	amount:connect("EVT_KILL_FOCUS", callback(self, self, "set_element_data"), {ctrlr = amount, value = "amount"})
+	local voice_params = {
+		name = "Voice:",
+		panel = panel,
+		sizer = panel_sizer,
+		value = self._hed.voice,
+		floats = 0,
+		tooltip = "Voice variant. 1-5. 0 for random.",
+		min = 0,
+		max = 5,
+		name_proportions = 1,
+		ctrlr_proportions = 2
+	}
+	local voice = CoreEWS.number_controller(voice_params)
+	voice:connect("EVT_COMMAND_TEXT_ENTER", callback(self, self, "set_element_data"), {ctrlr = voice, value = "voice"})
+	voice:connect("EVT_KILL_FOCUS", callback(self, self, "set_element_data"), {ctrlr = voice, value = "voice"})
 	local accessibility_params = {
-		name 				= "Accessibility:",
-		panel 				= panel,
-		sizer 				= panel_sizer,
-		options				= { "any", "walk", "acrobatic" },
-		value 				= self._hed.accessibility,
-		tooltip 			= "Only units with this movement type will be spawned from this element.",
-		name_proportions 	= 1,
-		ctrlr_proportions 	= 2,
-		sorted				= true
+		name = "Accessibility:",
+		panel = panel,
+		sizer = panel_sizer,
+		options = ElementSpawnEnemyDummy.ACCESSIBILITIES,
+		value = self._hed.accessibility,
+		tooltip = "Only units with this movement type will be spawned from this element.",
+		name_proportions = 1,
+		ctrlr_proportions = 2,
+		sorted = true
 	}
-	local accessibility = CoreEWS.combobox( accessibility_params )
-	
-	accessibility:connect( "EVT_COMMAND_COMBOBOX_SELECTED", callback( self, self, "set_element_data" ), { ctrlr = accessibility, value = "accessibility" } )
-	
+	local accessibility = CoreEWS.combobox(accessibility_params)
+	accessibility:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {
+		ctrlr = accessibility,
+		value = "accessibility"
+	})
 	local pickups = {}
-	for name,_ in pairs( tweak_data.pickups ) do
-		table.insert( pickups, name )
+	do
+		local (for generator), (for state), (for control) = pairs(tweak_data.pickups)
+		do
+			do break end
+			table.insert(pickups, name)
+		end
+
 	end
-	
-	-- pickup
+
+	(for control) = {
+		ctrlr = accessibility,
+		value = "accessibility"
+	} and table
 	local pickup_params = {
-		name 				= "Force Pickup:",
-		panel 				= panel,
-		sizer 				= panel_sizer,
-		options				= pickups,
-		value 				= self._hed.force_pickup,
-		default				= "none",
-		tooltip 			= "Select a pickup to be forced spawned when characters from this element dies.",
-		name_proportions 	= 1,
-		ctrlr_proportions 	= 2,
-		sorted				= true
+		name = "Force Pickup:",
+		panel = panel,
+		sizer = panel_sizer,
+		options = pickups,
+		value = self._hed.force_pickup,
+		default = "none",
+		tooltip = "Select a pickup to be forced spawned when characters from this element dies.",
+		name_proportions = 1,
+		ctrlr_proportions = 2,
+		sorted = true
 	}
-	local force_pickup = CoreEWS.combobox( pickup_params )
-	
-	force_pickup:connect( "EVT_COMMAND_COMBOBOX_SELECTED", callback( self, self, "set_element_data" ), { ctrlr = force_pickup, value = "force_pickup" } )
-	force_pickup:connect( "EVT_COMMAND_COMBOBOX_SELECTED", callback( self, self, "_load_pickup" ), nil )
+	local force_pickup = CoreEWS.combobox(pickup_params)
+	force_pickup:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {
+		ctrlr = force_pickup,
+		value = "force_pickup"
+	})
+	force_pickup:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "_load_pickup"), nil)
 end
 
 function SpawnEnemyUnitElement:_load_pickup()
 	if self._hed.force_pickup ~= "none" then
-		local unit_name = tweak_data.pickups[ self._hed.force_pickup ].unit
-		CoreUnit.editor_load_unit( unit_name )
+		local unit_name = tweak_data.pickups[self._hed.force_pickup].unit
+		CoreUnit.editor_load_unit(unit_name)
 	end
+
 end
 
 function SpawnEnemyUnitElement:add_to_mission_package()
- 	-- Wait with this until they are no longer loaded in game_base.package and uses different weapons then player (unit,model,etc)
-	-- managers.editor:add_to_world_package( { category = "units", name = self._hed.enemy, continent = self._unit:unit_data().continent } )
 	if self._hed.force_pickup ~= "none" then
-		local unit_name = tweak_data.pickups[ self._hed.force_pickup ].unit
-		managers.editor:add_to_world_package( { category = "units", name = unit_name:s(), continent = self._unit:unit_data().continent } )
+		local unit_name = tweak_data.pickups[self._hed.force_pickup].unit
+		managers.editor:add_to_world_package({
+			category = "units",
+			name = unit_name:s(),
+			continent = self._unit:unit_data().continent
+		})
 		local sequence_files = {}
-		CoreEditorUtils.get_sequence_files_by_unit_name( unit_name, sequence_files )
-		for _,file in ipairs( sequence_files ) do
-			managers.editor:add_to_world_package( {category = "script_data", name = file:s()..".sequence_manager", continent = self._unit:unit_data().continent, init = true } )
+		CoreEditorUtils.get_sequence_files_by_unit_name(unit_name, sequence_files)
+		local (for generator), (for state), (for control) = ipairs(sequence_files)
+		do
+			do break end
+			managers.editor:add_to_world_package({
+				category = "script_data",
+				name = file:s() .. ".sequence_manager",
+				continent = self._unit:unit_data().continent,
+				init = true
+			})
 		end
+
 	end
+
 end
 
-function SpawnEnemyUnitElement:destroy( ... )
-	SpawnEnemyUnitElement.super.destroy( self, ... )
+function SpawnEnemyUnitElement:destroy(...)
+	SpawnEnemyUnitElement.super.destroy(self, ...)
 	self:stop_test_element()
 end
+

@@ -2,9 +2,7 @@ core:module("CoreMenuState")
 core:import("CoreSessionGenericState")
 core:import("CoreFiniteStateMachine")
 core:import("CoreMenuStateNone")
-
 MenuState = MenuState or class(CoreSessionGenericState.State)
-
 function MenuState:init(game_state, menu_handler, player_slots)
 	self._game_state = game_state
 	assert(self._game_state)

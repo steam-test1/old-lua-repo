@@ -1,94 +1,93 @@
-core:import( "CoreMissionScriptElement" )
-
-ElementEnemyPreferedAdd = ElementEnemyPreferedAdd or class( CoreMissionScriptElement.MissionScriptElement )
-
-function ElementEnemyPreferedAdd:init( ... )
-	ElementEnemyPreferedAdd.super.init( self, ... )
-	
-	-- self._group_data = nil
-	-- self._group_data.spawn_points = nil
-	-- self._group_data.spawn_groups = nil
+core:import("CoreMissionScriptElement")
+ElementEnemyPreferedAdd = ElementEnemyPreferedAdd or class(CoreMissionScriptElement.MissionScriptElement)
+function ElementEnemyPreferedAdd:init(...)
+	ElementEnemyPreferedAdd.super.init(self, ...)
 end
 
 function ElementEnemyPreferedAdd:on_script_activated()
-
-	self._values.spawn_points = self._values.spawn_points or self._values.elements -- backwards compatibility
-	
-	--print("[ElementEnemyPreferedAdd:on_script_activated] self._values", inspect( self._values ) )
-	
-	if not ( self._values.spawn_points or self._values.spawn_groups ) then
+	self._values.spawn_points = self._values.spawn_points or self._values.elements
+	if not self._values.spawn_points and not self._values.spawn_groups then
 		return
 	end
-	
+
 	self._group_data = {}
-	
 	if self._values.spawn_points then
 		self._group_data.spawn_points = {}
-		for _, id in ipairs( self._values.spawn_points ) do
-			local element = self:get_mission_element( id )
-			table.insert( self._group_data.spawn_points, element )
+		local (for generator), (for state), (for control) = ipairs(self._values.spawn_points)
+		do
+			do break end
+			local element = self:get_mission_element(id)
+			table.insert(self._group_data.spawn_points, element)
 		end
+
 	end
-	
+
+	(for control) = nil and self.get_mission_element
 	if self._values.spawn_groups then
 		self._group_data.spawn_groups = {}
-		for _, id in ipairs( self._values.spawn_groups ) do
-			local element = self:get_mission_element( id )
-			table.insert( self._group_data.spawn_groups, element )
+		local (for generator), (for state), (for control) = ipairs(self._values.spawn_groups)
+		do
+			do break end
+			local element = self:get_mission_element(id)
+			table.insert(self._group_data.spawn_groups, element)
 		end
+
 	end
-	
-	--print("[ElementEnemyPreferedAdd:on_script_activated] end: self._group_data", inspect( self._group_data ) )
+
 end
 
 function ElementEnemyPreferedAdd:add()
-	--print("[ElementEnemyPreferedAdd:add] self._group_data", inspect( self._group_data ) )
 	if not self._group_data then
 		return
 	end
-	
+
 	if self._group_data.spawn_points then
-		managers.groupai:state():add_preferred_spawn_points( self._id, self._group_data.spawn_points )
+		managers.groupai:state():add_preferred_spawn_points(self._id, self._group_data.spawn_points)
 	end
-	
+
 	if self._group_data.spawn_groups then
-		managers.groupai:state():add_preferred_spawn_groups( self._id, self._group_data.spawn_groups )
+		managers.groupai:state():add_preferred_spawn_groups(self._id, self._group_data.spawn_groups)
 	end
+
 end
 
 function ElementEnemyPreferedAdd:remove()
-	managers.groupai:state():remove_preferred_spawn_points( self._id )
+	managers.groupai:state():remove_preferred_spawn_points(self._id)
 end
 
-function ElementEnemyPreferedAdd:on_executed( instigator )
+function ElementEnemyPreferedAdd:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-	
+
 	self:add()
-	
-	ElementEnemyPreferedAdd.super.on_executed( self, instigator )
+	ElementEnemyPreferedAdd.super.on_executed(self, instigator)
 end
 
--------------------------------------------------------------------------------------
-
-ElementEnemyPreferedRemove = ElementEnemyPreferedRemove or class( CoreMissionScriptElement.MissionScriptElement )
-
-function ElementEnemyPreferedRemove:init( ... )
-	ElementEnemyPreferedRemove.super.init( self, ... )
+ElementEnemyPreferedRemove = ElementEnemyPreferedRemove or class(CoreMissionScriptElement.MissionScriptElement)
+function ElementEnemyPreferedRemove:init(...)
+	ElementEnemyPreferedRemove.super.init(self, ...)
 end
 
-function ElementEnemyPreferedRemove:on_executed( instigator )
+function ElementEnemyPreferedRemove:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-	
-	for _,id in ipairs( self._values.elements ) do
-		local element = self:get_mission_element( id )
-		if element then
-			element:remove()
+
+	do
+		local (for generator), (for state), (for control) = ipairs(self._values.elements)
+		do
+			do break end
+			local element = self:get_mission_element(id)
+			if element then
+				element:remove()
+			end
+
 		end
-	end	
-		
-	ElementEnemyPreferedRemove.super.on_executed( self, instigator )
+
+	end
+
+	(for control) = nil and self.get_mission_element
+	ElementEnemyPreferedRemove.super.on_executed(self, instigator)
 end
+

@@ -1,23 +1,12 @@
---[[-----------------------------------------------------------------------------------------------
-
- Voice chat abstraction layer - Disabled
-
- To do:
-
- Implementation notes:
- 	This is for when the voice should be disabled.
-
------------------------------------------------------------------------------------------------]]--
 NetworkVoiceChatDisabled = NetworkVoiceChatDisabled or class()
-
-function NetworkVoiceChatDisabled:init( quiet )
+function NetworkVoiceChatDisabled:init(quiet)
 	self._quiet = quiet or false
-	
-	if( self._quiet ) then
-		cat_print( 'lobby', "Voice is quiet.")
+	if self._quiet then
+		cat_print("lobby", "Voice is quiet.")
 	else
-		cat_print( 'lobby', "Voice is disabled.")
+		cat_print("lobby", "Voice is disabled.")
 	end
+
 end
 
 function NetworkVoiceChatDisabled:check_status_information()
@@ -27,18 +16,19 @@ end
 function NetworkVoiceChatDisabled:open()
 end
 
-function NetworkVoiceChatDisabled:set_volume( volume )
+function NetworkVoiceChatDisabled:set_volume(volume)
 end
 
 function NetworkVoiceChatDisabled:voice_type()
-	if( self._quiet == true ) then
+	if self._quiet == true then
 		return "voice_quiet"
 	else
 		return "voice_disabled"
 	end
+
 end
 
-function NetworkVoiceChatDisabled:set_drop_in( data )
+function NetworkVoiceChatDisabled:set_drop_in(data)
 end
 
 function NetworkVoiceChatDisabled:pause()
@@ -49,6 +39,7 @@ end
 
 function NetworkVoiceChatDisabled:init_voice()
 end
+
 function NetworkVoiceChatDisabled:destroy_voice()
 end
 
@@ -56,7 +47,7 @@ function NetworkVoiceChatDisabled:num_peers()
 	return true
 end
 
-function NetworkVoiceChatDisabled:open_session( roomid )
+function NetworkVoiceChatDisabled:open_session(roomid)
 	self:_display_warning()
 end
 
@@ -70,19 +61,17 @@ end
 function NetworkVoiceChatDisabled:close_channel_to(player_info)
 end
 
-function NetworkVoiceChatDisabled:lost_peer( peer )
+function NetworkVoiceChatDisabled:lost_peer(peer)
 end
 
-function NetworkVoiceChatDisabled:close_all( )
+function NetworkVoiceChatDisabled:close_all()
 end
 
 function NetworkVoiceChatDisabled:set_team(team)
 end
 
-function NetworkVoiceChatDisabled:peer_team( xuid, team, rpc )
+function NetworkVoiceChatDisabled:peer_team(xuid, team, rpc)
 end
-
--- // --
 
 function NetworkVoiceChatDisabled:_open_close_peers()
 end
@@ -92,50 +81,33 @@ end
 
 function NetworkVoiceChatDisabled:_load_globals()
 end
-function NetworkVoiceChatDisabled:_save_globals( disable_voice )
+
+function NetworkVoiceChatDisabled:_save_globals(disable_voice)
 end
 
 function NetworkVoiceChatDisabled:_display_warning()
-	if( self._quiet == false ) then
-		if( self:_have_displayed_warning() == true ) then
-			managers.menu:show_err_no_chat_parental_control()
-			--[[local options = {
-				label=managers.localizer:text("mpm_err_no_chat_parental_control"),
-				text="",
-				buttons=
-				{
-					{
-						button="a",
-						label=managers.localizer:text("mpm_mm_dlg_ok"),
-						callback=function() managers.menu:pop_screen() end
-					}
-				}
-			}
-			
-			managers.menu:push_screen(DlgMessage, options, false )]]
-		end	
+	if self._quiet == false and self:_have_displayed_warning() == true then
+		managers.menu:show_err_no_chat_parental_control()
 	end
+
 end
+
 function NetworkVoiceChatDisabled:_have_displayed_warning()
-	if( Global.psn_parental_voice and Global.psn_parental_voice == true ) then
+	if Global.psn_parental_voice and Global.psn_parental_voice == true then
 		return false
 	end
-	
+
 	Global.psn_parental_voice = true
-	
 	return true
 end
 
--- Reset all peers to be part of the defualt team so everyone can speak to each other. For use at end of game.
-function NetworkVoiceChatDisabled:clear_team( )
-
+function NetworkVoiceChatDisabled:clear_team()
 end
 
--- // --
-
---PSN function
 function NetworkVoiceChatDisabled:psn_session_destroyed()
-	if( Global.psn and Global.psn.voice ) then
+	if Global.psn and Global.psn.voice then
 		Global.psn.voice.restart = nil
 	end
+
 end
+

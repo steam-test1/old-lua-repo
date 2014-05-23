@@ -1,22 +1,17 @@
 core:module("CoreLocalUserStorageStates")
-
--- Init
 Init = Init or class()
-
 function Init:transition()
 	if self.storage._load:is_requested() then
 		return Loading
 	end
+
 end
 
 DetectSignOut = DetectSignOut or class()
-
 function DetectSignOut:init()
 end
 
--- Loading
 Loading = Loading or class(DetectSignOut)
-
 function Loading:init()
 	DetectSignOut.init(self)
 	self.storage:_start_load_task()
@@ -39,12 +34,10 @@ function Loading:transition()
 	else
 		return LoadError
 	end
+
 end
 
-
--- Ready
 Ready = Ready or class()
-
 function Ready:init()
 	self.storage:_set_stable_for_loading()
 end
@@ -56,10 +49,7 @@ end
 function Ready:transition()
 end
 
-
--- No Save Game Found
 NoSaveGameFound = NoSaveGameFound or class()
-
 function NoSaveGameFound:init()
 	self.storage:_set_stable_for_loading()
 end
@@ -68,9 +58,7 @@ function NoSaveGameFound:transition()
 	self.storage:_not_stable_for_loading()
 end
 
-
--- Load Error
 LoadError = LoadError or class()
-
 function LoadError:transition()
 end
+

@@ -1,128 +1,58 @@
 FeedBackManager = FeedBackManager or class()
-
---[[
-	To add a new effekt.
-	1. create a new class that inherits FeedbackEffeckt
-	2. add that class to the self._effect_types table
-	3. write a nice litle description of how to use the new effect
-
-
-
-	To inherit.
-	overide setup_preset_effects, and if you need to add effekttypees overide init as well
-
-	Use
-	1.declare an effect in setup_preset_effects.
-	2. create an effect with create_effect
-	3.play effect with effect:play(), stop with stop()
-	
-	some effects need a unit to or viewport to play. you can set up that when you create the effect
-	FeedBackManager:craete_effect(effect_name, "unit", unit)
-	
-	Some effects need diffrent units for sound and rumble for instance. theese are best set up with effect:set_unit(unit, effect), effect:set_viewpport(vp, effect)
-	
-	set_param() 		are ment to be used to set varibles in a playing effekt, they will not be saved
-	set_static_param()	are used to change the initial value of an effect
-	is_playing()		currently only implemented on sound,rumble,dof, camera_shake others will return false,
-	
-	
-	
-	
-	
-	to stop all effects use:
-	managers.feedback:stop_all()
-	
-	it will stop all effects off all effecttypes EXEPT camera_shakes, sound and hudshakes
-]]
-
-
---[[ types
-
-	rumble
-	camera shake
-	above_camera_effect
-]]
-
 function FeedBackManager:init()
-	
-	self._effect_types = {rumble = FeedBackrumble,
-						camera_shake = FeedBackCameraShake,
-						-- overlay = FeedBackOverlay,
-						above_camera_effect = FeedBackAboveCameraEffect,
-						}
-	
+	self._effect_types = {
+		rumble = FeedBackrumble,
+		camera_shake = FeedBackCameraShake,
+		above_camera_effect = FeedBackAboveCameraEffect
+	}
 	self:setup_preset_effects()
 	self._feedback_map = {}
 end
 
 function FeedBackManager:setup_preset_effects()
 	self._feedback = {}
-
-
-	--[[
-		rumble 			string that indicates a rumble that needs to be set up in the rumblemanager + need set_unit
-		hud_shake 		string that indicates a hudeffect that needs to be set up in the hud
-		camera			table check documentation "CameraShakeMixer"
-		overlay			tables from tweak data
-				
-		all effect types uses tables to make it easier to add and change params
-	]]
-
-
---weapons
-	--tungsten
-	-- self._feedback.tungsten_fire = {}
-	-- self._feedback.tungsten_fire.rumble = {name = "tungsten"}
-	--self._feedback.tungsten_fire.camera_shake = {name = "tungsten_fire", amplitude = tweak_data.player.weapon.maingun.CAM_SHAKE_AMPLITUDE_ZOOM}
-	--self._feedback.tungsten_fire.hud_shake = tweak_data.hud.shaker.tungsten
-
-	-- self._feedback.tungsten_zoomed = {}
-	-- self._feedback.tungsten_zoomed.rumble = {name = "tungsten"}
-	--self._feedback.tungsten_zoomed.camera_shake = {name = "tungsten_fire", amplitude = tweak_data.player.weapon.maingun.CAM_SHAKE_AMPLITUDE}
-	--self._feedback.tungsten_zoomed.overlay = tweak_data.player.overlay.maingun_zoomed
-	--self._feedback.tungsten_zoomed.hud_shake = tweak_data.hud.shaker.tungsten_zoom
-		
-	--[[self._feedback.bullet_damage = {}
-	self._feedback.bullet_damage.rumble = {name="bullet_damage"}
-	self._feedback.bullet_damage.hud_shake = tweak_data.hud.shaker.bullet_damage]]
-		
-	--[[self._feedback.player_electrical_damage = {}
-	self._feedback.player_electrical_damage.rumble = { name = "electrical_damage" }
-	self._feedback.player_electrical_damage.camera_shake = { name = "electrical_hit", amplitude = 0.5, frequency =1, offset = 0.25}]]
-
-	-- mission manager
 	self._feedback.mission_triggered = {}
-	self._feedback.mission_triggered.camera_shake = {name = "mission_triggered" }
-	self._feedback.mission_triggered.rumble = { name = "mission_triggered" }
-	self._feedback.mission_triggered.above_camera_effect = { effect = "none" }
+	self._feedback.mission_triggered.camera_shake = {
+		name = "mission_triggered"
+	}
+	self._feedback.mission_triggered.rumble = {
+		name = "mission_triggered"
+	}
+	self._feedback.mission_triggered.above_camera_effect = {effect = "none"}
 end
 
 function FeedBackManager:get_effect_names()
 	local names = {}
-	for name,_ in pairs( self._feedback ) do
-		table.insert( names, name )
+	do
+		local (for generator), (for state), (for control) = pairs(self._feedback)
+		do
+			do break end
+			table.insert(names, name)
+		end
+
 	end
-	return names
+
 end
 
 function FeedBackManager:create(feedback, ...)
-
-	local extra_params = {...}
+	local extra_params = {
+		...
+	}
 	local f = FeedBack:new(feedback, self._feedback[feedback])
-
-	if(not f) then
+	if not f then
 		Application:stack_dump_error("no effect called " .. tostring(feedback))
 		return nil
 	end
-	
+
 	for i = 1, #extra_params, 2 do
-		if(extra_params[i] and extra_params[i +1] and f["set_" .. extra_params[i]]) then
-			f["set_" .. extra_params[i]](f,extra_params[i+1])
+		if extra_params[i] and extra_params[i + 1] and f["set_" .. extra_params[i]] then
+			f["set_" .. extra_params[i]](f, extra_params[i + 1])
 		else
-			Application:stack_dump_error("bad params to create_feedback " .. tostring(extra_params[i]) .. " " .. tostring(extra_params[i+1]))
+			Application:stack_dump_error("bad params to create_feedback " .. tostring(extra_params[i]) .. " " .. tostring(extra_params[i + 1]))
 		end
+
 	end
-		
+
 	return f
 end
 
@@ -130,176 +60,201 @@ function FeedBackManager:reload(feedback)
 	self:setup_preset_effects()
 end
 
---function FeedBackManager:is_playing(feedback)
---end
-
 function FeedBackManager:get_effect_table(name)
 	return self._feedback[name]
 end
 
 function FeedBackManager:stop_all(name)
-	--rumble
 	managers.rumble:stop("all")
-	
-	--camera
---	managers.viewport:get_active_vp():director():shaker():stop_all()
---	if(alive(script_data.player)) then
---		script_data.player:camera():stop_all_shakers()
---	end
-	
-	--overlay
-	-- managers.overlay_effect:stop_effect()
 end
 
---- --- --- --- --- --- ---
 FeedBack = FeedBack or class()
-
--- if I break out FeedBack, I can set uniqe units and cameras on effects with the same name used at different occasions
--- if it crashes here its probobly because of misspeliing of an effect typ (camera_shake, rumble...)
 function FeedBack:init(effect_name, effect_table)
 	self._name = effect_name
 	self._feedback = {}
-	for name, param in pairs(effect_table) do
+	local (for generator), (for state), (for control) = pairs(effect_table)
+	do
+		do break end
 		self._feedback[name] = managers.feedback._effect_types[name]:new(self._name)
 	end
+
 end
 
-function FeedBack:set_enabled( feedback_type, enabled )
-	if( self._feedback[ feedback_type ] ) then
-		self._feedback[ feedback_type ]:set_enabled( enabled )
+function FeedBack:set_enabled(feedback_type, enabled)
+	if self._feedback[feedback_type] then
+		self._feedback[feedback_type]:set_enabled(enabled)
 	end
+
 end
 
-function FeedBack:is_enabled( feedback_type )
-	local effect = self._feedback[ feedback_type ]
+function FeedBack:is_enabled(feedback_type)
+	local effect = self._feedback[feedback_type]
 	return effect and effect:is_enabled()
 end
 
 function FeedBack:set_unit(unit, effect)
-	if( not effect ) then
-		for _, effect in pairs(self._feedback) do
+	if not effect then
+		local (for generator), (for state), (for control) = pairs(self._feedback)
+		do
+			do break end
 			effect:set_unit(unit)
-		end	
-	elseif(self._feedback[effect]) then
-		self._feedback[effect]:set_unit(unit)
+		end
+
+	else
+		(for control) = nil and effect.set_unit
+		if self._feedback[effect] then
+			self._feedback[effect]:set_unit(unit)
+		end
+
 	end
+
 end
 
-function FeedBack:set_viewport(vp,effect)
-	if(effect) then
+function FeedBack:set_viewport(vp, effect)
+	if effect then
 		self._feedback[effect]:set_viewport(vp)
 	else
-		for _, effect in pairs(self._feedback) do
+		local (for generator), (for state), (for control) = pairs(self._feedback)
+		do
+			do break end
 			effect:set_viewport(vp)
 		end
+
 	end
+
 end
 
 function FeedBack:set_param(effect, param_name, value)
-	if(self._feedback[effect]) then
+	if self._feedback[effect] then
 		self._feedback[effect]:set_param(param_name, value)
 	end
+
 end
 
 function FeedBack:reset_params(effect)
-	if(self._feedback[effect]) then
+	if self._feedback[effect] then
 		self._feedback[effect]:reset_params()
 	end
+
 end
 
-function FeedBack:extra_params( effect )
-	return self._extra_params[ effect ]
+function FeedBack:extra_params(effect)
+	return self._extra_params[effect]
 end
 
 function FeedBack:play(...)
-	local extra_params = {...}
+	local extra_params = {
+		...
+	}
 	self._extra_params = {}
 	for i = 1, #extra_params, 3 do
-		if extra_params[i] and extra_params[i +1] and extra_params[i +2] and self._feedback[extra_params[i]] then
-			self._extra_params[ extra_params[i] ] = self._extra_params[ extra_params[i] ] or {}
-			self._extra_params[ extra_params[i] ][ extra_params[i +1] ] = extra_params[i +2]
+		if extra_params[i] and extra_params[i + 1] and extra_params[i + 2] and self._feedback[extra_params[i]] then
+			self._extra_params[extra_params[i]] = self._extra_params[extra_params[i]] or {}
+			self._extra_params[extra_params[i]][extra_params[i + 1]] = extra_params[i + 2]
 		end
+
 	end
 
-	for name in pairs(managers.feedback:get_effect_table(self._name)) do
-		local effect = self._feedback[ name ]
-		if( effect:is_enabled() ) then
-			if( effect ) then
-				effect:play( self._extra_params[ name ] )
-			else
-				self._feedback[ name ] = managers.feedback._effect_types[ name ]:new( self._name )
+	do
+		local (for generator), (for state), (for control) = pairs(managers.feedback:get_effect_table(self._name))
+		do
+			do break end
+			local effect = self._feedback[name]
+			if effect:is_enabled() then
+				if effect then
+					effect:play(self._extra_params[name])
+				else
+					self._feedback[name] = managers.feedback._effect_types[name]:new(self._name)
+				end
+
 			end
+
 		end
+
 	end
 
+	(for control) = managers.feedback:get_effect_table(self._name) and self._feedback
 	for i = 1, #extra_params, 3 do
-		if(extra_params[i] and extra_params[i +1] and extra_params[i +2] and
-			self._feedback[extra_params[i]] and self._feedback[extra_params[i]]:is_enabled()) then
-			self._feedback[extra_params[i]]:set_param(extra_params[i+1], extra_params[i+2])
+		if extra_params[i] and extra_params[i + 1] and extra_params[i + 2] and self._feedback[extra_params[i]] and self._feedback[extra_params[i]]:is_enabled() then
+			self._feedback[extra_params[i]]:set_param(extra_params[i + 1], extra_params[i + 2])
 		else
 			local msg = ""
-			if(not self._feedback[extra_params[i]]) then
+			if not self._feedback[extra_params[i]] then
 				msg = "no effect called " .. tostring(extra_params[i])
 			else
-				-- msg = "at least one argument for effect " .. tostring(extra_params[i]) .. " are nil"
 			end
-		
-			-- Application:stack_dump_error("bad arguments to play in FeedbackEffect. " .. msg)
+
 		end
+
 	end
+
 end
 
 function FeedBack:stop(effect, ...)
-	local extra_params = {...}
+	local extra_params = {
+		...
+	}
 	for i = 1, #extra_params, 2 do
-		if(extra_params[i] and extra_params[i +1] and f["set_" .. extra_params[i]]) then
-			f["set_" .. extra_params[i]](f,extra_params[i+1])
+		if extra_params[i] and extra_params[i + 1] and f["set_" .. extra_params[i]] then
+			f["set_" .. extra_params[i]](f, extra_params[i + 1])
 		else
-			Application:stack_dump_error("bad params to create_feedback " .. tostring(extra_params[i]) .. " " .. tostring(extra_params[i+1]))
+			Application:stack_dump_error("bad params to create_feedback " .. tostring(extra_params[i]) .. " " .. tostring(extra_params[i + 1]))
 		end
+
 	end
-	
-	if(not effect) then
-		for name, effect in pairs(self._feedback) do
+
+	if not effect then
+		local (for generator), (for state), (for control) = pairs(self._feedback)
+		do
+			do break end
 			effect:stop()
 		end
+
 	else
+		(for control) = ... and effect.stop
 		self._feedback[effect]:stop()
 	end
+
 end
 
-function FeedBack:is_playing(effect) -- you can specify effect if you want to see if a specific effect plays for example rumble or dof
-	if(not effect) then
-		for name, effect in pairs(self._feedback) do
-			if(effect:is_playing()) then
-				return true
+function FeedBack:is_playing(effect)
+	if not effect then
+		do
+			local (for generator), (for state), (for control) = pairs(self._feedback)
+			do
+				do break end
+				if effect:is_playing() then
+					return true
+				end
+
 			end
+
 		end
-		return false
+
+		(for control) = nil and effect.is_playing
 	else
 		return self._feedback[effect]:is_playing()
 	end
+
 end
 
------------------------------------------------------- FeedBackEffect ------------------------------------------------------
 FeedBackEffect = FeedBackEffect or class()
-
 function FeedBackEffect:init(name)
 	self._params = {}
 	self._name = name
 	self._enabled = true
 end
 
-function FeedBackEffect:set_enabled( enabled )
-	if( not self._enabled ~= not enabled ) then
-		if( self._enabled ) then
+function FeedBackEffect:set_enabled(enabled)
+	if not self._enabled ~= not enabled then
+		if self._enabled then
 			self:stop()
 		end
 
 		self._enabled = enabled
 	end
-end
 
+end
 
 function FeedBackEffect:is_enabled()
 	return self._enabled
@@ -336,10 +291,9 @@ function FeedBackEffect:is_playing()
 	return false
 end
 
------------------------------------------------------- rumble ------------------------------------------------------
-FeedBackrumble = FeedBackrumble or class (FeedBackEffect)
+FeedBackrumble = FeedBackrumble or class(FeedBackEffect)
 function FeedBackrumble:init(name)
-	FeedBackEffect.init(self,name)
+	FeedBackEffect.init(self, name)
 	self._type = "rumble"
 end
 
@@ -348,21 +302,20 @@ function FeedBackrumble:set_unit(unit)
 end
 
 function FeedBackrumble:set_param(name, value)
-	if("multiplier_data" == name and self._id) then
-		managers.rumble:set_multiplier( self._id, value )
+	if "multiplier_data" == name and self._id then
+		managers.rumble:set_multiplier(self._id, value)
 	end
+
 end
 
-function FeedBackrumble:play( extra_params )
--- alive check is done in core rumble manager
+function FeedBackrumble:play(extra_params)
 	local params = FeedBackEffect.play(self)
-	
-	if(self._unit) then
-		-- self._id = managers.rumble:play(params["name"], self._unit,params["multiplier_data"])
-		self._id = managers.rumble:play( params["name"], nil, params["multiplier_data"], extra_params )
-	elseif(not self._unit) then
+	if self._unit then
+		self._id = managers.rumble:play(params.name, nil, params.multiplier_data, extra_params)
+	elseif not self._unit then
 		Application:stack_dump_error("no unit set to rumble in feedbackRumble use either set_unit or send unit at create")
 	end
+
 end
 
 function FeedBackrumble:stop()
@@ -372,29 +325,32 @@ end
 
 function FeedBackrumble:is_playing()
 	local rumble
-	
-	if(not self._id) then
+	if not self._id then
 		return false
 	end
-	
-	for _, controller in pairs( self._id.controllers ) do
-		rumble = controller:is_rumble_playing ( self._id[ 1 ] )
-		if self._id[ 2 ] then
-			rumble = rumble or controller:is_rumble_playing ( self._id[ 2 ] )
+
+	do
+		local (for generator), (for state), (for control) = pairs(self._id.controllers)
+		do
+			do break end
+			rumble = controller:is_rumble_playing(self._id[1])
+			if self._id[2] and not rumble then
+				rumble = controller:is_rumble_playing(self._id[2])
+			end
+
+			if rumble then
+				return rumble
+			end
+
 		end
-		if(rumble) then
-			return rumble
-		end
+
 	end
-	
-	return rumble
+
 end
 
------------------------------------------------------- camera shaker ------------------------------------------------------
 FeedBackCameraShake = FeedBackCameraShake or class(FeedBackEffect)
-
 function FeedBackCameraShake:init(name)
-	FeedBackEffect.init(self,name)
+	FeedBackEffect.init(self, name)
 	self._type = "camera_shake"
 end
 
@@ -403,136 +359,113 @@ function FeedBackEffect:set_viewport(vp)
 	self._playing_camera = self._camera
 end
 
-function FeedBackEffect:set_unit( unit )
-	self._unit_camera = unit:camera()	--	the camera extension of the unit, the effect will be associated with
+function FeedBackEffect:set_unit(unit)
+	self._unit_camera = unit:camera()
 end
 
 function FeedBackCameraShake:set_param(name, value)
 	if name == "multiplier" then
 		return
 	end
-	
+
 	if name == "name" then
 		return
 	end
-	
+
 	if name == "amplitude" then
 		value = value * self._multiplier
 	end
-	
+
 	if self._unit_camera then
-		self._unit_camera:shaker():set_parameter( self._id, name, value )
-	elseif( alive( self._playing_camera ) ) then
+		self._unit_camera:shaker():set_parameter(self._id, name, value)
+	elseif alive(self._playing_camera) then
 		self._playing_camera:set_parameter(self._id, name, value)
 	end
+
 end
 
-function FeedBackCameraShake:play( extra_params )
+function FeedBackCameraShake:play(extra_params)
 	local params = managers.feedback:get_effect_table(self._name)[self._type]
 	local name = extra_params.name or params.name
 	self._multiplier = extra_params.multiplier or 1
 	if self._unit_camera then
-		self._id = self._unit_camera:play_shaker( name, params.amplitude or 1, params.frequency or 1, params.offset or 0 )
+		self._id = self._unit_camera:play_shaker(name, params.amplitude or 1, params.frequency or 1, params.offset or 0)
 	else
-		
-		self._playing_camera = alive( self._camera ) and self._camera or managers.viewport:get_current_shaker()
-	
+		self._playing_camera = alive(self._camera) and self._camera or managers.viewport:get_current_shaker()
 		if self._playing_camera then
-	--		self._id = managers.viewport:get_current_shaker():play(self._params.shake, self._params.amplitude, self._params.frequency, self._params.offset)
-	--	else
-	--		self._id = self._playing_camera:play(params.name, params.amplitude, params.frequency, params.offset)
 			self._id = self._playing_camera:play(name)
-	
-			if(self._playing_camera:is_playing(self._id)) then		
-				-- set params
+			if self._playing_camera:is_playing(self._id) then
 				local t = {}
 				mixin(t, params, self._params)
 				t.name = nil
-				for param, value in pairs(t) do
+				local (for generator), (for state), (for control) = pairs(t)
+				do
+					do break end
 					self._playing_camera:set_parameter(self._id, param, value)
 				end
+
 			end
+
 		end
+
 	end
+
 end
 
 function FeedBackCameraShake:stop()
 	if self._unit_camera then
-		self._unit_camera:stop_shaker( self._id )
+		self._unit_camera:stop_shaker(self._id)
 	else
 		managers.viewport:get_current_shaker():stop(self._id)
 	end
+
 	self._id = nil
 end
 
 function FeedBackCameraShake:is_playing()
 	if self._unit_camera and self._id then
-		return self._unit_camera:shaker():is_playing( self._id )
-	elseif(self._playing_camera and self._id) then
+		return self._unit_camera:shaker():is_playing(self._id)
+	elseif self._playing_camera and self._id then
 		return self._playing_camera:is_playing(self._id)
 	else
 		return false
 	end
+
 end
-
------------------------------------------------------- overlay ------------------------------------------------------
---[[FeedBackOverlay = FeedBackOverlay or class(FeedBackEffect)
-
-function FeedBackOverlay:init(name)
-	FeedBackEffect.init(self,name)
-	self._type = "overlay"
-end
-
-function FeedBackOverlay:set_param(name, value)
-	self[name] = value
-end
-
-function FeedBackOverlay:play()
-	local params = FeedBackEffect.play(self)
-	self._id = managers.overlay_effect:play_effect( params )
-end
-
-function FeedBackOverlay:stop()
-	managers.overlay_effect:stop_effect(self._id)
-	self._id = nil
-end]]
-
------------------------------------------------------- FeedBackAboveCameraEffect ------------------------------------------------------
 
 FeedBackAboveCameraEffect = FeedBackAboveCameraEffect or class(FeedBackEffect)
-
-function FeedBackAboveCameraEffect:init( name )
-	FeedBackAboveCameraEffect.super.init( self,name )
+function FeedBackAboveCameraEffect:init(name)
+	FeedBackAboveCameraEffect.super.init(self, name)
 	self._type = "above_camera_effect"
-	self._offset = Vector3( 0, 0, 100 )
+	self._offset = Vector3(0, 0, 100)
 end
 
 function FeedBackAboveCameraEffect:set_unit(unit)
-	self._unit_camera = unit:camera()	--	the camera extension of the unit, the effect will be associated with
+	self._unit_camera = unit:camera()
 end
 
-function FeedBackAboveCameraEffect:set_param( name, value)
+function FeedBackAboveCameraEffect:set_param(name, value)
 	self._params[name] = value
 end
 
-function FeedBackAboveCameraEffect:play( extra_params )
-	local params = FeedBackAboveCameraEffect.super.play( self )
-	
+function FeedBackAboveCameraEffect:play(extra_params)
+	local params = FeedBackAboveCameraEffect.super.play(self)
 	local name = extra_params and extra_params.effect or params.effect
 	if name == "none" then
 		return
 	end
-	
+
 	local effect_params = {}
-	effect_params.effect = Idstring( name )
+	effect_params.effect = Idstring(name)
 	effect_params.position = self._unit_camera:position() + self._offset
 	effect_params.rotation = self._unit_camera:rotation()
-	self._id = World:effect_manager():spawn( effect_params )
+	self._id = World:effect_manager():spawn(effect_params)
 end
 
 function FeedBackAboveCameraEffect:stop()
 	if self._id then
-		World:effect_manager():kill( self._id )
+		World:effect_manager():kill(self._id)
 	end
+
 end
 

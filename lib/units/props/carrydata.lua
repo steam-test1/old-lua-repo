@@ -1,67 +1,52 @@
 CarryData = CarryData or class()
-CarryData.EVENT_IDS = { will_explode = 1, explode = 2 }
-
-function CarryData:init( unit )
+CarryData.EVENT_IDS = {will_explode = 1, explode = 2}
+function CarryData:init(unit)
 	self._unit = unit
 	self._dye_initiated = false
 	self._has_dye_pack = false
 	self._dye_value_multiplier = 100
-	-- self._value = tweak_data.money_manager[ self.tweak_value or "bag_value" ] -- Default value
 	if self._carry_id then
-		self._value = managers.money:get_bag_value( self._carry_id )
+		self._value = managers.money:get_bag_value(self._carry_id, self._multiplier)
 	else
-
-		self._value = tweak_data:get_value( "money_manager", "bag_values", "default" ) -- Default value
+		self._value = tweak_data:get_value("money_manager", "bag_values", "default")
 	end
+
 end
 
-function CarryData:set_mission_element( mission_element )
+function CarryData:set_mission_element(mission_element)
 	self._mission_element = mission_element
 end
 
-function CarryData:trigger_load( instigator )
+function CarryData:trigger_load(instigator)
 	if not self._mission_element then
 		return
 	end
-	
-	self._mission_element:trigger( "load", instigator )
+
+	self._mission_element:trigger("load", instigator)
 end
 
-function CarryData:update( unit, t, dt )
+function CarryData:update(unit, t, dt)
 	if not Network:is_server() then
 		return
 	end
-	
-	--[[if self._dye_risk then
-		if self._dye_risk.next_t < t then
-			self:_check_dye_explode()
-		end
-	end]]
-	
-	if self._explode_t then
-		if self._explode_t < t then
-			self._explode_t = nil
-			self:_explode()
-		end
+
+	if self._explode_t and t > self._explode_t then
+		self._explode_t = nil
+		self:_explode()
 	end
+
 end
 
 function CarryData:_check_dye_explode()
 	do return end
-	
-	local chance = math.rand( 1 )
-	-- print( "CarryData:check", chance )
+	local chance = math.rand(1)
 	if chance < 0.25 then
 		self._dye_risk = nil
 		self:_dye_exploded()
-		--managers.network:session():send_to_peers_synched( "sync_bag_dye_pack_exploded", self._unit )
-				
-		-- managers.network:session():send_to_peers_synched( "sync_carry_data", self._unit, self._carry_id, self._value, self._dye_initiated, self._has_dye_pack, self._dye_value_multiplier, Vector3(), Vector3(), 0 )
-		
 		return
 	end
-	
-	self._dye_risk.next_t = Application:time() + 2 + math.random( 3 )
+
+	self._dye_risk.next_t = Application:time() + 2 + math.random(3)
 end
 
 function CarryData:sync_dye_exploded()
@@ -70,45 +55,44 @@ end
 
 function CarryData:_dye_exploded()
 	do return end
-	
-	print( "CarryData DYE BOOM" )
-	self._value = self._value * (1-(self._dye_value_multiplier/100))
-	self._value = math.round( self._value )
+	print("CarryData DYE BOOM")
+	self._value = self._value * (1 - self._dye_value_multiplier / 100)
+	self._value = math.round(self._value)
 	self._has_dye_pack = false
-	-- "effects/payday2/particles/dye_pack/dye_pack_smoke"
-		
-	World:effect_manager():spawn( { effect = Idstring( "effects/payday2/particles/dye_pack/dye_pack_smoke" ), parent = self._unit:orientation_object() } )	
+	World:effect_manager():spawn({
+		effect = Idstring("effects/payday2/particles/dye_pack/dye_pack_smoke"),
+		parent = self._unit:orientation_object()
+	})
 end
 
-function CarryData:check_explodes_on_impact( velocity, air_time )
+function CarryData:check_explodes_on_impact(velocity, air_time)
 	if not Network:is_server() then
-		return 
+		return
 	end
-	
+
 	if self._explode_t then
-		return 
+		return
 	end
-	
+
 	if self:can_explode() then
-		
 		if air_time < 0.5 then
-			
-			return 
+			return
 		end
+
 		local vel = mvector3.length(velocity)
 		local vel_limit = 500
 		if vel < vel_limit then
-			
-			return 
+			return
 		end
-		local chance = math.lerp( 0, 0.9, math.min( ( vel - vel_limit ) / ( 1200 - vel_limit ), 1 ) )
-		
-		
-		if math.rand( 1 ) <= chance then
+
+		local chance = math.lerp(0, 0.9, math.min((vel - vel_limit) / (1200 - vel_limit), 1))
+		if chance >= math.rand(1) then
 			self:start_explosion()
 			return true
 		end
+
 	end
+
 end
 
 function CarryData:explode_sequence_started()
@@ -119,29 +103,28 @@ function CarryData:can_explode()
 	if self._disarmed then
 		return false
 	end
-	
-	local tweak_info = tweak_data.carry[ self._carry_id ]
-	return tweak_data.carry.types[ tweak_info.type ].can_explode
+
+	local tweak_info = tweak_data.carry[self._carry_id]
+	return tweak_data.carry.types[tweak_info.type].can_explode
 end
 
 function CarryData:start_explosion()
 	if self._explode_t then
-		return 
+		return
 	end
-	
+
 	if not self:can_explode() then
-		return 
+		return
 	end
-	
+
 	self:_unregister_steal_SO()
 	self:_start_explosion()
-	managers.network:session():send_to_peers_synched( "sync_unit_event_id_8", self._unit, "carry_data", CarryData.EVENT_IDS.will_explode )
-	
-	self._explode_t = Application:time() + 1 + math.rand( 3 )
+	managers.network:session():send_to_peers_synched("sync_unit_event_id_16", self._unit, "carry_data", CarryData.EVENT_IDS.will_explode)
+	self._explode_t = Application:time() + 1 + math.rand(3)
 end
 
 function CarryData:_start_explosion()
-	self._unit:interaction():set_active( false )
+	self._unit:interaction():set_active(false)
 end
 
 function CarryData:disarm()
@@ -149,23 +132,28 @@ function CarryData:disarm()
 	self._disarmed = true
 end
 
-CarryData.EXPLOSION_SETTINGS = { range = 1000, player_damage = 20, damage = 40, curve_pow = 3, effect = "effects/payday2/particles/explosions/bag_explosion" }
-CarryData.EXPLOSION_CUSTOM_PARAMS = { effect = CarryData.EXPLOSION_SETTINGS.effect, camera_shake_mul = 4 }
-
-
+CarryData.EXPLOSION_SETTINGS = {
+	range = 1000,
+	player_damage = 20,
+	damage = 40,
+	curve_pow = 3,
+	effect = "effects/payday2/particles/explosions/bag_explosion"
+}
+CarryData.EXPLOSION_CUSTOM_PARAMS = {
+	effect = CarryData.EXPLOSION_SETTINGS.effect,
+	camera_shake_mul = 4
+}
 local mvec1 = Vector3()
 function CarryData:_explode()
-	managers.mission:call_global_event( "loot_exploded" )
-	
+	managers.mission:call_global_event("loot_exploded")
 	local pos = self._unit:position()
 	local normal = math.UP
 	local range = CarryData.EXPLOSION_SETTINGS.range
 	local effect = CarryData.EXPLOSION_SETTINGS.effect
-	local slot_mask = managers.slot:get_mask( "bullet_impact_targets" )
+	local slot_mask = managers.slot:get_mask("explosion_targets")
 	self:_local_player_explosion_damage()
-	managers.explosion:play_sound_and_effects( pos, normal, range, CarryData.EXPLOSION_CUSTOM_PARAMS )
-	
-	local hit_units, splinters = managers.explosion:detect_and_give_dmg( {
+	managers.explosion:play_sound_and_effects(pos, normal, range, CarryData.EXPLOSION_CUSTOM_PARAMS)
+	local hit_units, splinters = managers.explosion:detect_and_give_dmg({
 		hit_pos = pos,
 		range = range,
 		collision_slotmask = slot_mask,
@@ -173,154 +161,149 @@ function CarryData:_explode()
 		damage = CarryData.EXPLOSION_SETTINGS.damage,
 		player_damage = 0,
 		ignore_unit = self._unit
-	} )
-	
-	for _, unit in pairs( hit_units ) do
-		if unit ~= self._unit then
-			if unit:carry_data() then
-				mvector3.set( mvec1, unit:position() )
-				local distance = mvector3.distance( pos, mvec1 )
-				local chance = math.lerp( 1, 0, math.max( distance - range / 2, 0 ) / range )
-				
-				if chance > math.rand( 1 ) then
-					for i_splinter, s_pos in ipairs( splinters ) do
-						local ray_hit = not World:raycast( "ray", s_pos, mvec1, "slot_mask", slot_mask, "ignore_unit", { self._unit, unit }, "report" )
+	})
+	do
+		local (for generator), (for state), (for control) = pairs(hit_units)
+		do
+			do break end
+			if unit ~= self._unit and unit:carry_data() then
+				mvector3.set(mvec1, unit:position())
+				local distance = mvector3.distance(pos, mvec1)
+				local chance = math.lerp(1, 0, math.max(distance - range / 2, 0) / range)
+				if chance > math.rand(1) then
+					local (for generator), (for state), (for control) = ipairs(splinters)
+					do
+						do break end
+						local ray_hit = not World:raycast("ray", s_pos, mvec1, "slot_mask", slot_mask, "ignore_unit", {
+							self._unit,
+							unit
+						}, "report")
 						if ray_hit then
-							
-							
-							unit:carry_data():start_explosion( 0 )
-							break
-						end
+							unit:carry_data():start_explosion(0)
 					end
+
+					else
+					end
+
 				end
+
 			end
+
 		end
+
+		(for control) = distance - range / 2 and World
 	end
-	
-	QuickFlashGrenade:make_flash( pos, range, { self._unit } )
-	
-	managers.network:session():send_to_peers_synched( "sync_unit_event_id_8", self._unit, "carry_data", CarryData.EVENT_IDS.explode )
-	
-	self._unit:set_slot( 0 )
+
+	(for control) = CarryData.EXPLOSION_CUSTOM_PARAMS and self._unit
+	QuickFlashGrenade:make_flash(pos, range, {
+		self._unit
+	})
+	managers.network:session():send_to_peers_synched("sync_unit_event_id_16", self._unit, "carry_data", CarryData.EVENT_IDS.explode)
+	self._unit:set_slot(0)
 end
 
 function CarryData:_local_player_explosion_damage()
 	local pos = self._unit:position()
 	local range = CarryData.EXPLOSION_SETTINGS.range
-	
-	managers.explosion:give_local_player_dmg( pos, range, CarryData.EXPLOSION_SETTINGS.player_damage )
-	
-	
-	
-	
-	
+	managers.explosion:give_local_player_dmg(pos, range, CarryData.EXPLOSION_SETTINGS.player_damage)
 end
 
-function CarryData:sync_net_event( event_id )
+function CarryData:sync_net_event(event_id)
 	if event_id == CarryData.EVENT_IDS.explode then
 		local range = CarryData.EXPLOSION_SETTINGS.range
 		self:_local_player_explosion_damage()
-		QuickFlashGrenade:make_flash( self._unit:position(), range, { self._unit } )
-		managers.explosion:explode_on_client( self._unit:position(), math.UP, nil, CarryData.EXPLOSION_SETTINGS.damage, range, CarryData.EXPLOSION_SETTINGS.curve_pow, CarryData.EXPLOSION_CUSTOM_PARAMS )
+		QuickFlashGrenade:make_flash(self._unit:position(), range, {
+			self._unit
+		})
+		managers.explosion:explode_on_client(self._unit:position(), math.UP, nil, CarryData.EXPLOSION_SETTINGS.damage, range, CarryData.EXPLOSION_SETTINGS.curve_pow, CarryData.EXPLOSION_CUSTOM_PARAMS)
 	elseif event_id == CarryData.EVENT_IDS.will_explode then
 		self:_start_explosion()
 	end
+
 end
 
 function CarryData:clbk_out_of_world()
 	if self._bodies_to_revert then
-		for i_body, body in ipairs( self._bodies_to_revert ) do
-			body:set_dynamic()
+		do
+			local (for generator), (for state), (for control) = ipairs(self._bodies_to_revert)
+			do
+				do break end
+				body:set_dynamic()
+			end
+
 		end
 
 		self._bodies_to_revert = nil
-		self._register_out_of_world_dynamic_clbk_id = nil
-
+		self._register_out_of_world_dynamic_clbk_id = nil and nil
 		return
 	elseif self._unit:position().z < PlayerMovement.OUT_OF_WORLD_Z then
-		self._bodies_to_revert = { }
+		self._bodies_to_revert = {}
 		local bodies = self._unit:num_bodies()
-		for i_body = 0, bodies-1, 1 do
-			local body = self._unit:body( i_body )
+		for i_body = 0, bodies - 1 do
+			local body = self._unit:body(i_body)
 			if body:enabled() and body:dynamic() then
-				table.insert( self._bodies_to_revert, body )
+				table.insert(self._bodies_to_revert, body)
 				body:set_keyframed()
 			end
+
 		end
 
-		local tracker = managers.navigation:create_nav_tracker( self._unit:position(), false )
-		self._unit:set_position( tracker:field_position() )
-		managers.navigation:destroy_nav_tracker( tracker )
-
-		self._register_out_of_world_dynamic_clbk_id = "BagOutOfWorldDynamic" .. tostring( self._unit:key() )
-		managers.enemy:add_delayed_clbk( self._register_out_of_world_dynamic_clbk_id, callback( self, self, "clbk_out_of_world" ), TimerManager:game():time() + 0.2 )
-
+		local tracker = managers.navigation:create_nav_tracker(self._unit:position(), false)
+		self._unit:set_position(tracker:field_position())
+		managers.navigation:destroy_nav_tracker(tracker)
+		self._register_out_of_world_dynamic_clbk_id = "BagOutOfWorldDynamic" .. tostring(self._unit:key())
+		managers.enemy:add_delayed_clbk(self._register_out_of_world_dynamic_clbk_id, callback(self, self, "clbk_out_of_world"), TimerManager:game():time() + 0.2)
 		self._register_out_of_world_clbk_id = nil
-
 		return
 	end
 
-	managers.enemy:add_delayed_clbk( self._register_out_of_world_clbk_id, callback( self, self, "clbk_out_of_world" ), TimerManager:game():time() + 2 )
+	managers.enemy:add_delayed_clbk(self._register_out_of_world_clbk_id, callback(self, self, "clbk_out_of_world"), TimerManager:game():time() + 2)
 end
 
 function CarryData:carry_id()
 	return self._carry_id
 end
 
-function CarryData:set_carry_id( carry_id )
+function CarryData:set_carry_id(carry_id)
 	self._carry_id = carry_id
-	
-	self._register_steal_SO_clbk_id = "CarryDataregiserSO"..tostring( self._unit:key() )
-	managers.enemy:add_delayed_clbk( self._register_steal_SO_clbk_id, callback( self, self, "clbk_register_steal_SO" ), 0 )
+	self._register_steal_SO_clbk_id = "CarryDataregiserSO" .. tostring(self._unit:key())
+	managers.enemy:add_delayed_clbk(self._register_steal_SO_clbk_id, callback(self, self, "clbk_register_steal_SO"), 0)
 end
 
-function CarryData:clbk_register_steal_SO( carry_id )
+function CarryData:clbk_register_steal_SO(carry_id)
 	self._register_steal_SO_clbk_id = nil
 	self:_chk_register_steal_SO()
 end
 
---[[function CarryData:init_dye_pack()
-	if self._dye_initiated then
-		return
-	end
-	
-	self._dye_initiated = true
-end]]
-
-function CarryData:set_dye_initiated( initiated )
-	self._dye_initiated = initiated 
+function CarryData:set_dye_initiated(initiated)
+	self._dye_initiated = initiated
 end
 
 function CarryData:dye_initiated()
-	return self._dye_initiated 
+	return self._dye_initiated
 end
 
---[[function CarryData:set_dye_pack_data( has_dye_pack, dye_value_multiplier )
-	self._has_dye_pack = has_dye_pack
-	self._dye_value_multiplier = dye_value_multiplier
-end]]
-
 function CarryData:has_dye_pack()
-	return self._has_dye_pack 
+	return self._has_dye_pack
 end
 
 function CarryData:dye_value_multiplier()
-	return self._dye_value_multiplier 
+	return self._dye_value_multiplier
 end
 
-function CarryData:set_dye_pack_data( dye_initiated, has_dye_pack, dye_value_multiplier )
+function CarryData:set_dye_pack_data(dye_initiated, has_dye_pack, dye_value_multiplier)
 	self._dye_initiated = dye_initiated
 	self._has_dye_pack = has_dye_pack
 	self._dye_value_multiplier = dye_value_multiplier
-	
 	if not Network:is_server() then
 		return
 	end
-	
+
 	if self._has_dye_pack then
 		self._dye_risk = {}
-		self._dye_risk.next_t = Application:time() + 2 + math.random( 3 )
+		self._dye_risk.next_t = Application:time() + 2 + math.random(3)
 	end
+
 end
 
 function CarryData:dye_pack_data()
@@ -331,23 +314,22 @@ function CarryData:_disable_dye_pack()
 	self._dye_risk = false
 end
 
---[[function CarryData:set_dye_pack( dye_pack )
-	self._dye_pack = dye_pack
-end
-
-function CarryData:set_dye_value_multiplier( value_multiplier )
-	self._dye_value_multiplier = value_multiplier
-end]]
-
 function CarryData:value()
 	return self._value
 end
 
-function CarryData:set_value( value )
+function CarryData:set_value(value)
 	self._value = value
 end
 
--- callback from sequence manager. the value has been awarded to the player already
+function CarryData:multiplier()
+	return self._multiplier
+end
+
+function CarryData:set_multiplier(multiplier)
+	self._multiplier = multiplier
+end
+
 function CarryData:sequence_clbk_secured()
 	self:_disable_dye_pack()
 end
@@ -356,86 +338,79 @@ function CarryData:_unregister_steal_SO()
 	if not self._steal_SO_data then
 		return
 	end
-	
+
 	if self._steal_SO_data.SO_registered then
-		managers.groupai:state():remove_special_objective( self._steal_SO_data.SO_id )
-		managers.groupai:state():unregister_loot( self._unit:key() )
+		managers.groupai:state():remove_special_objective(self._steal_SO_data.SO_id)
+		managers.groupai:state():unregister_loot(self._unit:key())
 	elseif self._steal_SO_data.thief then
 		local thief = self._steal_SO_data.thief
 		self._steal_SO_data.thief = nil
-		
 		if self._steal_SO_data.picked_up then
 			self:unlink()
 		end
-		if alive( thief ) then
-			thief:brain():set_objective( nil ) -- this will trigger the fail callback of the objective. thats what the above copy is for
+
+		if alive(thief) then
+			thief:brain():set_objective(nil)
 		end
+
 	end
-	
+
 	self._steal_SO_data = nil
 end
 
 function CarryData:_chk_register_steal_SO()
-	--print( "[CarryData:_chk_register_steal_SO]" )
-	if not ( Network:is_server() and managers.navigation:is_data_ready() ) then
-		--print( "not server" )
+	if not Network:is_server() or not managers.navigation:is_data_ready() then
 		return
 	end
-	
-	local tweak_info = tweak_data.carry[ self._carry_id ]
+
+	local tweak_info = tweak_data.carry[self._carry_id]
 	local AI_carry = tweak_info.AI_carry
-	
 	if not AI_carry then
-		--print( "no AI_carry" )
 		return
 	end
-	
+
 	if self._steal_SO_data then
-		--print( "already has SO" )
 		return
 	end
-	
-	local body = self._unit:body( "hinge_body_1" ) or self._unit:body(0)
-	
+
+	local body = self._unit:body("hinge_body_1") or self._unit:body(0)
 	if not self._has_body_activation_clbk then
-		--print( "add_body_activation_callback" )
-		self._has_body_activation_clbk = { [body:key()] = true }
-		self._unit:add_body_activation_callback( callback( self, self, "clbk_body_active_state" ) )
-		body:set_activate_tag( Idstring( "bag_moving") )
-		body:set_deactivate_tag( Idstring( "bag_still") )
+		self._has_body_activation_clbk = {
+			[body:key()] = true
+		}
+		self._unit:add_body_activation_callback(callback(self, self, "clbk_body_active_state"))
+		body:set_activate_tag(Idstring("bag_moving"))
+		body:set_deactivate_tag(Idstring("bag_still"))
 	end
-	
+
 	local is_body_active = body:active()
 	if is_body_active then
-		--print( "body is active" )
 		return
 	end
-	
+
 	local SO_category = AI_carry.SO_category
-	local SO_filter = managers.navigation:convert_SO_AI_group_to_access( SO_category )
-	
-	local tracker_pickup = managers.navigation:create_nav_tracker( self._unit:position(), false )
+	local SO_filter = managers.navigation:convert_SO_AI_group_to_access(SO_category)
+	local tracker_pickup = managers.navigation:create_nav_tracker(self._unit:position(), false)
 	local pickup_nav_seg = tracker_pickup:nav_segment()
 	local pickup_pos = tracker_pickup:field_position()
-	local pickup_area = managers.groupai:state():get_area_from_nav_seg_id( pickup_nav_seg )
-	managers.navigation:destroy_nav_tracker( tracker_pickup )
-	
+	local pickup_area = managers.groupai:state():get_area_from_nav_seg_id(pickup_nav_seg)
+	managers.navigation:destroy_nav_tracker(tracker_pickup)
 	if pickup_area.enemy_loot_drop_points then
-		return -- no pickup needed. we are already safe
+		return
 	end
-	
+
 	local drop_pos, drop_nav_seg, drop_area
-	local drop_point = managers.groupai:state():get_safe_enemy_loot_drop_point( pickup_nav_seg )
+	local drop_point = managers.groupai:state():get_safe_enemy_loot_drop_point(pickup_nav_seg)
 	if drop_point then
-		drop_pos = mvector3.copy( drop_point.pos )
+		drop_pos = mvector3.copy(drop_point.pos)
 		drop_nav_seg = drop_point.nav_seg
 		drop_area = drop_point.area
 	elseif not self._register_steal_SO_clbk_id then
-		self._register_steal_SO_clbk_id = "CarryDataregiserSO"..tostring( self._unit:key() )
-		managers.enemy:add_delayed_clbk( self._register_steal_SO_clbk_id, callback( self, self, "clbk_register_steal_SO" ), TimerManager:game():time() + 10 )
+		self._register_steal_SO_clbk_id = "CarryDataregiserSO" .. tostring(self._unit:key())
+		managers.enemy:add_delayed_clbk(self._register_steal_SO_clbk_id, callback(self, self, "clbk_register_steal_SO"), TimerManager:game():time() + 10)
 		return
 	end
-	
+
 	local drop_objective = {
 		type = "act",
 		pose = "crouch",
@@ -445,54 +420,49 @@ function CarryData:_chk_register_steal_SO()
 		area = drop_area,
 		interrupt_dis = 700,
 		interrupt_health = 0.9,
-		fail_clbk = callback( self, self, "on_secure_SO_failed" ),
-		complete_clbk = callback( self, self, "on_secure_SO_completed" ),
-		--action_start_clbk = callback( self, self, "on_secure_SO_started" ),
+		fail_clbk = callback(self, self, "on_secure_SO_failed"),
+		complete_clbk = callback(self, self, "on_secure_SO_completed"),
 		action = {
 			type = "act",
 			variant = "untie",
 			body_part = 1,
 			align_sync = true
 		},
-		action_duration = 2,
+		action_duration = 2
 	}
-	
 	local pickup_objective = {
 		type = "act",
 		haste = "run",
 		pose = "crouch",
-		destroy_clbk_key = false,	-- this gets filled later on
+		destroy_clbk_key = false,
 		nav_seg = pickup_nav_seg,
 		area = pickup_area,
 		pos = pickup_pos,
 		interrupt_dis = 700,
 		interrupt_health = 0.9,
-		fail_clbk = callback( self, self, "on_pickup_SO_failed" ),
-		complete_clbk = callback( self, self, "on_pickup_SO_completed" ),
-		--action_start_clbk = callback( self, self, "on_pickup_SO_started" ),
+		fail_clbk = callback(self, self, "on_pickup_SO_failed"),
+		complete_clbk = callback(self, self, "on_pickup_SO_completed"),
 		action = {
 			type = "act",
 			variant = "untie",
 			body_part = 1,
 			align_sync = true
 		},
-		action_duration = math.lerp( 1, 2.5, math.random() ),
+		action_duration = math.lerp(1, 2.5, math.random()),
 		followup_objective = drop_objective
 	}
-	
-	local so_descriptor = { 
+	local so_descriptor = {
 		objective = pickup_objective,
 		base_chance = 1,
 		chance_inc = 0,
 		interval = 0,
 		search_pos = pickup_objective.pos,
-		verification_clbk = callback( self, self, "clbk_pickup_SO_verification" ),
+		verification_clbk = callback(self, self, "clbk_pickup_SO_verification"),
 		usage_amount = 1,
 		AI_group = AI_carry.SO_category,
-		admin_clbk = callback( self, self, "on_pickup_SO_administered" )
+		admin_clbk = callback(self, self, "on_pickup_SO_administered")
 	}
-	
-	local so_id = "carrysteal"..tostring( self._unit:key() )
+	local so_id = "carrysteal" .. tostring(self._unit:key())
 	self._steal_SO_data = {
 		SO_id = so_id,
 		SO_registered = true,
@@ -500,168 +470,147 @@ function CarryData:_chk_register_steal_SO()
 		picked_up = false,
 		pickup_objective = pickup_objective
 	}
-	managers.groupai:state():add_special_objective( so_id, so_descriptor )
-	
-	managers.groupai:state():register_loot( self._unit, pickup_area )
+	managers.groupai:state():add_special_objective(so_id, so_descriptor)
+	managers.groupai:state():register_loot(self._unit, pickup_area)
 end
 
-function CarryData:clbk_pickup_SO_verification( candidate_unit )
-	--print( "[CarryData:clbk_pickup_SO_verification]", candidate_unit, candidate_unit:movement():cool() )
-	if not ( self._steal_SO_data and self._steal_SO_data.SO_id ) then
-		debug_pause_unit( self._unit, "[CarryData:clbk_pickup_SO_verification] SO is not registered", self._unit, candidate_unit, inspect( self._steal_SO_data ) )
+function CarryData:clbk_pickup_SO_verification(candidate_unit)
+	if not self._steal_SO_data or not self._steal_SO_data.SO_id then
+		debug_pause_unit(self._unit, "[CarryData:clbk_pickup_SO_verification] SO is not registered", self._unit, candidate_unit, inspect(self._steal_SO_data))
 		return
 	end
-	
+
 	if candidate_unit:movement():cool() then
 		return
 	end
-	
+
 	local nav_seg = candidate_unit:movement():nav_tracker():nav_segment()
-	if not self._steal_SO_data.pickup_area.nav_segs[ nav_seg ] then
+	if not self._steal_SO_data.pickup_area.nav_segs[nav_seg] then
 		return
 	end
-	
+
 	if not candidate_unit:base():char_tweak().steal_loot then
-		return 
+		return
 	end
-	
+
 	return true
 end
 
-function CarryData:on_pickup_SO_administered( thief )
-	--print( "[CarryData:on_pickup_SO_administered]", thief, self._steal_SO_data.thief )
+function CarryData:on_pickup_SO_administered(thief)
 	if self._steal_SO_data.thief then
-		debug_pause( "[CarryData:on_pickup_SO_administered] Already had a thief!!!!", thief, self._steal_SO_data.thief )
+		debug_pause("[CarryData:on_pickup_SO_administered] Already had a thief!!!!", thief, self._steal_SO_data.thief)
 	end
+
 	self._steal_SO_data.thief = thief
 	self._steal_SO_data.SO_registered = false
-	
-	managers.groupai:state():unregister_loot( self._unit:key() )
+	managers.groupai:state():unregister_loot(self._unit:key())
 end
---[[
-function CarryData:on_pickup_SO_started( thief )
+
+function CarryData:on_pickup_SO_completed(thief)
 	if thief ~= self._steal_SO_data.thief then
-		debug_pause_unit( thief, "[CarryData:on_pickup_SO_started] idiot thinks he is stealing", thief )
+		debug_pause_unit(thief, "[CarryData:on_pickup_SO_completed] idiot thinks he is stealing", thief)
 		return
 	end
-end
-]]
-function CarryData:on_pickup_SO_completed( thief )
-	--print( "[CarryData:on_pickup_SO_completed]", thief, self._steal_SO_data.thief )
-	if thief ~= self._steal_SO_data.thief then
-		debug_pause_unit( thief, "[CarryData:on_pickup_SO_completed] idiot thinks he is stealing", thief )
-		return
-	end
-	
+
 	self._steal_SO_data.picked_up = true
-	
-	self:link_to( thief )
+	self:link_to(thief)
 end
 
-
-function CarryData:on_pickup_SO_failed( thief )
-	--print( "[CarryData:on_pickup_SO_failed]", thief, self._steal_SO_data.thief )
+function CarryData:on_pickup_SO_failed(thief)
 	if not self._steal_SO_data.thief then
 		return
 	end
-	
+
 	if thief ~= self._steal_SO_data.thief then
-		debug_pause_unit( thief, "[CarryData:on_pickup_SO_failed] idiot thinks he is stealing", thief )
+		debug_pause_unit(thief, "[CarryData:on_pickup_SO_failed] idiot thinks he is stealing", thief)
 		return
 	end
-	
+
 	self._steal_SO_data = nil
 	self:_chk_register_steal_SO()
 end
 
-function CarryData:on_secure_SO_completed( thief )
-	--print( "[CarryData:on_secure_SO_completed]", thief, self._steal_SO_data.thief )
+function CarryData:on_secure_SO_completed(thief)
 	if thief ~= self._steal_SO_data.thief then
-		debug_pause_unit( sympathy_civ, "[CarryData:on_secure_SO_completed] idiot thinks he is stealing", thief )
+		debug_pause_unit(sympathy_civ, "[CarryData:on_secure_SO_completed] idiot thinks he is stealing", thief)
 		return
 	end
-	
+
 	self._steal_SO_data = nil
-	
-	managers.mission:call_global_event( "loot_lost" )
-	
+	managers.mission:call_global_event("loot_lost")
 	self._steal_SO_data = nil
 	self:unlink()
 end
 
-
-function CarryData:on_secure_SO_failed( thief )
-	--print( "[CarryData:on_secure_SO_failed]", thief, self._steal_SO_data.thief )
+function CarryData:on_secure_SO_failed(thief)
 	if not self._steal_SO_data.thief then
 		return
 	end
-	
+
 	if thief ~= self._steal_SO_data.thief then
-		debug_pause_unit( thief, "[CarryData:on_pickup_SO_failed] idiot thinks he is stealing", thief )
+		debug_pause_unit(thief, "[CarryData:on_pickup_SO_failed] idiot thinks he is stealing", thief)
 		return
 	end
-	
+
 	self._steal_SO_data = nil
 	self:_chk_register_steal_SO()
-	
 	self:unlink()
 end
 
-function CarryData:link_to( parent_unit )
-	local body = self._unit:body( "hinge_body_1" ) or self._unit:body(0)
+function CarryData:link_to(parent_unit)
+	local body = self._unit:body("hinge_body_1") or self._unit:body(0)
 	body:set_keyframed()
-	--self._unit:body( "hinge_body_2" ):set_keyframed()
-	
-	local parent_obj_name = Idstring( "Neck" )
-	
-	parent_unit:link( parent_obj_name, self._unit )
-	
-	local parent_obj = parent_unit:get_object( parent_obj_name )
+	local parent_obj_name = Idstring("Neck")
+	parent_unit:link(parent_obj_name, self._unit)
+	local parent_obj = parent_unit:get_object(parent_obj_name)
 	local parent_obj_rot = parent_obj:rotation()
-	
 	local world_pos = parent_obj:position() - parent_obj_rot:z() * 30 - parent_obj_rot:y() * 10
-	self._unit:set_position( world_pos )
-	
-	local world_rot = Rotation( parent_obj_rot:x(), -parent_obj_rot:z() )
-	self._unit:set_rotation( world_rot )
-	
+	self._unit:set_position(world_pos)
+	local world_rot = Rotation(parent_obj_rot:x(), -parent_obj_rot:z())
+	self._unit:set_rotation(world_rot)
 	self._disabled_collisions = {}
 	local nr_bodies = self._unit:num_bodies()
 	for i_body = 0, nr_bodies - 1 do
-		local body = self._unit:body( i_body )
+		local body = self._unit:body(i_body)
 		if body:collisions_enabled() then
-			table.insert( self._disabled_collisions, body )
-			body:set_collisions_enabled( false )
+			table.insert(self._disabled_collisions, body)
+			body:set_collisions_enabled(false)
 		end
+
 	end
-	
+
 	if Network:is_server() then
-		managers.network:session():send_to_peers_synched( "loot_link", self._unit, parent_unit )
+		managers.network:session():send_to_peers_synched("loot_link", self._unit, parent_unit)
 	end
+
 end
 
 function CarryData:unlink()
 	self._unit:unlink()
-	local body = self._unit:body( "hinge_body_1" ) or self._unit:body(0)
+	local body = self._unit:body("hinge_body_1") or self._unit:body(0)
 	body:set_dynamic()
-	--self._unit:body( "hinge_body_2" ):set_dynamic()
-	
 	if self._disabled_collisions then
-		for _, body in ipairs( self._disabled_collisions ) do
-			body:set_collisions_enabled( true )
+		do
+			local (for generator), (for state), (for control) = ipairs(self._disabled_collisions)
+			do
+				do break end
+				body:set_collisions_enabled(true)
+			end
+
 		end
+
 		self._disabled_collisions = nil
 	end
-	
+
+	(for control) = nil or body.set_collisions_enabled
 	if Network:is_server() then
-		managers.network:session():send_to_peers_synched( "loot_link", self._unit, self._unit )
+		managers.network:session():send_to_peers_synched("loot_link", self._unit, self._unit)
 	end
+
 end
 
-function CarryData:clbk_body_active_state( tag, unit, body, activated )
-	--print( "[CarryData:clbk_body_active_state]", body:name():s(), activated, tag )
-	if not self._has_body_activation_clbk[ body:key() ] then
-		--print( "wrong body" )
+function CarryData:clbk_body_active_state(tag, unit, body, activated)
+	if not self._has_body_activation_clbk[body:key()] then
 		return
 	end
 
@@ -671,62 +620,102 @@ function CarryData:clbk_body_active_state( tag, unit, body, activated )
 		end
 
 		if not self._register_out_of_world_clbk_id then
-			self._register_out_of_world_clbk_id = "BagOutOfWorld" .. tostring( self._unit:key() )
-			managers.enemy:add_delayed_clbk( self._register_out_of_world_clbk_id, callback( self, self, "clbk_out_of_world" ), TimerManager:game():time() + 2 )
+			self._register_out_of_world_clbk_id = "BagOutOfWorld" .. tostring(self._unit:key())
+			managers.enemy:add_delayed_clbk(self._register_out_of_world_clbk_id, callback(self, self, "clbk_out_of_world"), TimerManager:game():time() + 2)
 		end
+
 	else
 		self:_chk_register_steal_SO()
-
 		if self._register_out_of_world_clbk_id then
-			managers.enemy:remove_delayed_clbk( self._register_out_of_world_clbk_id )
+			managers.enemy:remove_delayed_clbk(self._register_out_of_world_clbk_id)
 			self._register_out_of_world_clbk_id = nil
 		end
+
 	end
+
 end
 
 function CarryData:clbk_send_link()
-	if alive( self._unit ) and self._steal_SO_data or not self._steal_SO_data.thief and self._steal_SO_data.picked_up then
-		managers.network:session():send_to_peers_synched( "loot_link", self._unit, self._steal_SO_data.thief ) -- we don't know who it was that was dropping in. send to all.
+	if alive(self._unit) and self._steal_SO_data or not self._steal_SO_data.thief and self._steal_SO_data.picked_up then
+		managers.network:session():send_to_peers_synched("loot_link", self._unit, self._steal_SO_data.thief)
 	end
+
 end
 
-function CarryData:save( data )
-	local state 		= {}
-	state.carry_id 		= self._carry_id
-	state.value 		= self._value
-	state.dye_initiated = self._dye_initiated
-	state.has_dye_pack 	= self._has_dye_pack
-	state.dye_value_multiplier = self._dye_value_multiplier
-	
-	if self._steal_SO_data and self._steal_SO_data.picked_up then -- we cannot drop-in synch units due to random load order. need to send the relationship after drop-in
-		managers.enemy:add_delayed_clbk( "send_loot_link"..tostring( self._unit:key() ), callback( self, self, "clbk_send_link" ), TimerManager:game():time() + 0.1 )
+function CarryData:set_zipline_unit(zipline_unit)
+	self._zipline_unit = zipline_unit
+	if not Network:is_server() then
+		return
 	end
-	
+
+	if self._zipline_unit and self._zipline_unit:zipline():ai_ignores_bag() then
+		if self._unit:attention() then
+			self._saved_attention_data = deep_clone(self._unit:attention():attention_data())
+			local (for generator), (for state), (for control) = pairs(self._saved_attention_data)
+			do
+				do break end
+				self._unit:attention():remove_attention(attention_id)
+			end
+
+		end
+
+end
+
+function CarryData:is_attached_to_zipline_unit()
+	return self._zipline_unit and true
+end
+
+function CarryData:_on_load_attach_to_zipline(zipline_unit)
+	if alive(zipline_unit) then
+		zipline_unit:zipline():attach_bag(self._unit)
+	end
+
+end
+
+function CarryData:save(data)
+	local state = {}
+	state.carry_id = self._carry_id
+	state.value = self._value
+	state.dye_initiated = self._dye_initiated
+	state.has_dye_pack = self._has_dye_pack
+	state.dye_value_multiplier = self._dye_value_multiplier
+	if self._steal_SO_data and self._steal_SO_data.picked_up then
+		managers.enemy:add_delayed_clbk("send_loot_link" .. tostring(self._unit:key()), callback(self, self, "clbk_send_link"), TimerManager:game():time() + 0.1)
+	end
+
+	data.zip_line_unit_id = self._zipline_unit and self._zipline_unit:editor_id()
 	data.CarryData = state
 end
 
-function CarryData:load( data )
-	local state 	= data.CarryData
-	self._carry_id 	= state.carry_id
-	self._value	 	= state.value
+function CarryData:load(data)
+	local state = data.CarryData
+	self._carry_id = state.carry_id
+	self._value = state.value
 	self._dye_initiated = state.dye_initiated
-	self._has_dye_pack 	= state.has_dye_pack
+	self._has_dye_pack = state.has_dye_pack
 	self._dye_value_multiplier = state.dye_value_multiplier
+	if data.zip_line_unit_id then
+		self:_on_load_attach_to_zipline(managers.worlddefinition:get_unit_on_load(data.zip_line_unit_id, callback(self, self, "_on_load_attach_to_zipline")))
+	end
+
 end
 
 function CarryData:destroy()
 	if self._register_steal_SO_clbk_id then
-		managers.enemy:remove_delayed_clbk( self._register_steal_SO_clbk_id )
+		managers.enemy:remove_delayed_clbk(self._register_steal_SO_clbk_id)
 		self._register_steal_SO_clbk_id = nil
 	end
+
 	if self._register_out_of_world_clbk_id then
-		managers.enemy:remove_delayed_clbk( self._register_out_of_world_clbk_id )
+		managers.enemy:remove_delayed_clbk(self._register_out_of_world_clbk_id)
 		self._register_out_of_world_clbk_id = nil
 	end
+
 	if self._register_out_of_world_dynamic_clbk_id then
-		managers.enemy:remove_delayed_clbk( self._register_out_of_world_dynamic_clbk_id )
+		managers.enemy:remove_delayed_clbk(self._register_out_of_world_dynamic_clbk_id)
 		self._register_out_of_world_dynamic_clbk_id = nil
 	end
+
 	self:_unregister_steal_SO()
 end
 

@@ -1,7 +1,5 @@
 core:module("CoreRequester")
-
 Requester = Requester or class()
-
 function Requester:request()
 	self._requested = true
 end
@@ -32,3 +30,4 @@ function Requester:force_task_completed()
 	self._task_is_running = nil
 	self._requested = nil
 end
+

@@ -1,11 +1,9 @@
 CoreTableEditorPanel = CoreTableEditorPanel or class()
-
 function CoreTableEditorPanel:init(parent)
 	self.__column_names = {}
 	self.__panel = EWS:Panel(parent)
 	local panel_sizer = EWS:BoxSizer("VERTICAL")
 	self.__panel:set_sizer(panel_sizer)
-	
 	panel_sizer:add(self:_create_list_ctrl(self.__panel), 1, 5, "TOP,LEFT,RIGHT,EXPAND")
 	panel_sizer:add(self:_create_buttons_panel(self.__panel), 0, 4, "ALL,EXPAND")
 	panel_sizer:add(self:_create_fields_panel(self.__panel), 0, 0, "EXPAND")
@@ -44,6 +42,7 @@ function CoreTableEditorPanel:thaw()
 		self:_refresh_fields_panel()
 		self:_refresh_buttons_panel()
 	end
+
 end
 
 function CoreTableEditorPanel:add_column(heading, format_style)
@@ -53,13 +52,14 @@ function CoreTableEditorPanel:add_column(heading, format_style)
 end
 
 function CoreTableEditorPanel:add_item(...)
-	local values = { ... }
+	local values = {
+		...
+	}
 	local item_index = self.__list_ctrl:append_item(tostring(values[1]))
-	
 	for i = 2, #values do
 		self.__list_ctrl:set_item(item_index, i - 1, tostring(values[i]))
 	end
-	
+
 	self:set_selected_item(item_index)
 	return item_index
 end
@@ -98,6 +98,7 @@ function CoreTableEditorPanel:set_selected_item_value(column_name, value)
 	if selected_item_index then
 		self:set_item_value(selected_item_index, column_name, value)
 	end
+
 end
 
 function CoreTableEditorPanel:_create_list_ctrl(parent)
@@ -111,16 +112,12 @@ function CoreTableEditorPanel:_create_buttons_panel(parent)
 	self.__buttons_panel = EWS:Panel(parent)
 	local panel_sizer = EWS:BoxSizer("HORIZONTAL")
 	self.__buttons_panel:set_sizer(panel_sizer)
-	
 	self.__add_button = EWS:Button(self.__buttons_panel, "Add")
 	self.__add_button:connect("EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "_on_add_button_clicked"), self.__add_button)
-	
 	self.__remove_button = EWS:Button(self.__buttons_panel, "Remove")
 	self.__remove_button:connect("EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "_on_remove_button_clicked"), self.__add_button)
-	
 	panel_sizer:add(self.__add_button, 1, 1, "RIGHT,EXPAND")
 	panel_sizer:add(self.__remove_button, 1, 2, "LEFT,EXPAND")
-	
 	return self.__buttons_panel
 end
 
@@ -141,7 +138,6 @@ function CoreTableEditorPanel:_refresh_fields_panel()
 		self.__fields_panel:freeze()
 		self.__fields_panel:destroy_children()
 		local new_sizer = self:_sizer_with_editable_fields(self.__fields_panel)
-		
 		if new_sizer then
 			self.__fields_panel:set_sizer(new_sizer)
 			self.__fields_panel:fit_inside()
@@ -149,22 +145,28 @@ function CoreTableEditorPanel:_refresh_fields_panel()
 
 		self.__fields_panel:thaw()
 	end
+
 end
 
 function CoreTableEditorPanel:_sizer_with_editable_fields(parent)
-	local sizer = EWS:BoxSizer("VERTICAL")	
-	local first_control = nil
-	
-	for _, column_name in ipairs(self.__column_names) do
-		local control = self:_create_labeled_text_field(column_name, parent, sizer)
-		first_control = first_control or control
+	local sizer = EWS:BoxSizer("VERTICAL")
+	local first_control
+	do
+		local (for generator), (for state), (for control) = ipairs(self.__column_names)
+		do
+			do break end
+			local control = self:_create_labeled_text_field(column_name, parent, sizer)
+			first_control = first_control or control
+		end
+
 	end
-	
-	if first_control and self:selected_item() ~= nil then
-		first_control:set_selection(-1, -1) -- Select all.
+
+	do break end
+	if self:selected_item() ~= nil then
+		first_control:set_selection(-1, -1)
 		first_control:set_focus()
 	end
-	
+
 	return sizer
 end
 
@@ -173,14 +175,12 @@ function CoreTableEditorPanel:_create_labeled_text_field(column_name, parent, si
 	local label = EWS:StaticText(parent, string.pretty(column_name, true) .. ":")
 	local control = EWS:TextCtrl(parent, self:selected_item_value(column_name))
 	local callback_func = self:_make_control_edited_callback(control, column_name)
-	
 	label:set_enabled(enabled)
 	control:set_enabled(enabled)
 	control:set_min_size(control:get_min_size():with_x(0))
 	control:connect("EVT_COMMAND_TEXT_UPDATED", callback_func)
 	sizer:add(label, 0, 5, "TOP,LEFT,RIGHT")
 	sizer:add(control, 0, 5, "ALL,EXPAND")
-	
 	return control
 end
 
@@ -190,26 +190,27 @@ function CoreTableEditorPanel:_column_index(column_name)
 end
 
 function CoreTableEditorPanel:_string_to_value(str, column_name)
-	-- Overridable. Default implementation returns a string.
 	return str or ""
 end
 
 function CoreTableEditorPanel:_value_to_string(value, column_name)
-	-- Overridable. Default implementation simply calls tostring.
-	return value == nil and "" or tostring(value)
+	if value ~= nil or not "" then
+	end
+
+	return (tostring(value))
 end
 
 function CoreTableEditorPanel:_make_control_edited_callback(control, column_name, value_method_name)
 	return function()
 		self:_on_control_edited(control, column_name, value_method_name)
 	end
+
 end
 
 function CoreTableEditorPanel:_top_level_window(window)
 	window = window or self.__panel
 	return (type_name(window) == "EWSFrame" or type_name(window) == "EWSDialog") and window or self:_top_level_window(assert(window:parent()))
 end
-
 
 function CoreTableEditorPanel:_on_selection_changed(sender)
 	self:_refresh_fields_panel()
@@ -229,3 +230,4 @@ function CoreTableEditorPanel:_on_control_edited(control, column_name, value_met
 	local value = control[value_method_name](control)
 	self:set_selected_item_value(column_name, value)
 end
+

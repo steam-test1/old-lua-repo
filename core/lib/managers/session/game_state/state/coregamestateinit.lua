@@ -1,9 +1,7 @@
 core:module("CoreGameStateInit")
 core:import("CoreGameStateInEditor")
 core:import("CoreGameStatePreFrontEnd")
-
 Init = Init or class()
-
 function Init:init()
 	self.game_state._is_in_init = true
 end
@@ -17,5 +15,7 @@ function Init:transition()
 		return CoreGameStateInEditor.InEditor
 	else
 		return CoreGameStatePreFrontEnd.PreFrontEnd
-	end	
+	end
+
 end
+

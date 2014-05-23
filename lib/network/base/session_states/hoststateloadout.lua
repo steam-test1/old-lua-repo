@@ -1,4 +1,1 @@
-HostStateLoadout = HostStateLoadout or class( HostStateInGame )
-
-------------------------------------------------------------------
-------------------------------------------------------------------
+HostStateLoadout = HostStateLoadout or class(HostStateInGame)

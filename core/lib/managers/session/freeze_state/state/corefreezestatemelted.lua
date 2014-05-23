@@ -1,7 +1,5 @@
 core:module("CoreFreezeStateMelted")
-
 Melted = Melted or class()
-
 function Melted:init()
 	self.freeze_state:_set_stable_for_loading()
 end
@@ -12,3 +10,4 @@ end
 
 function Melted:transition()
 end
+

@@ -1,8 +1,6 @@
 core:module("CoreSessionStateJoinSession")
 core:import("CoreSessionStateInSession")
-
 JoinSession = JoinSession or class()
-
 function JoinSession:init(session_id)
 	self.session_state._join_session_requester:task_started()
 	self._session = self.session_state._session_creator:join_session(session_id)
@@ -15,5 +13,6 @@ function JoinSession:destroy()
 end
 
 function JoinSession:transition()
-	return CoreSessionStateInSession.InSession, self._session 
+	return CoreSessionStateInSession.InSession, self._session
 end
+

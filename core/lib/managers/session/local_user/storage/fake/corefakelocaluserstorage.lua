@@ -1,8 +1,6 @@
 core:module("CoreFakeLocalUserStorage")
 core:import("CoreLocalUserStorage")
-
 Storage = Storage or class(CoreLocalUserStorage.Storage)
-
 function Storage:save()
 end
 
@@ -16,8 +14,10 @@ function Storage:_load_status()
 		self:_create_profile_data()
 		return SaveData.OK
 	end
+
 end
 
 function Storage:_close_load_task()
 	self._load_started_time = nil
 end
+

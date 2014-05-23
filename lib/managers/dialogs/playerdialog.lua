@@ -1,12 +1,8 @@
-core:module( "SystemMenuManager" )
-
-require "lib/managers/dialogs/BaseDialog"
-
--- Abstract dialog:
-PlayerDialog = PlayerDialog or class( BaseDialog )
-
+core:module("SystemMenuManager")
+require("lib/managers/dialogs/BaseDialog")
+PlayerDialog = PlayerDialog or class(BaseDialog)
 function PlayerDialog:done_callback()
-	if( self._data.callback_func ) then
+	if self._data.callback_func then
 		self._data.callback_func()
 	end
 
@@ -18,6 +14,6 @@ function PlayerDialog:player_id()
 end
 
 function PlayerDialog:to_string()
-	return string.format( "%s, Player id: %s",
-				tostring( BaseDialog.to_string( self ) ), tostring( self._data.player_id ) )
+	return string.format("%s, Player id: %s", tostring(BaseDialog.to_string(self)), tostring(self._data.player_id))
 end
+

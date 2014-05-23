@@ -1,5 +1,4 @@
-require "core/lib/managers/cutscene/keys/CoreCutsceneKeyBase"
-
+require("core/lib/managers/cutscene/keys/CoreCutsceneKeyBase")
 CoreSequenceCutsceneKey = CoreSequenceCutsceneKey or class(CoreCutsceneKeyBase)
 CoreSequenceCutsceneKey.ELEMENT_NAME = "sequence"
 CoreSequenceCutsceneKey.NAME = "Sequence"
@@ -7,7 +6,6 @@ CoreSequenceCutsceneKey:register_serialized_attribute("unit_name", "")
 CoreSequenceCutsceneKey:register_serialized_attribute("name", "")
 CoreSequenceCutsceneKey:attribute_affects("unit_name", "name")
 CoreSequenceCutsceneKey.control_for_name = CoreCutsceneKeyBase.standard_combo_box_control
-
 function CoreSequenceCutsceneKey:__tostring()
 	return "Trigger sequence \"" .. self:name() .. "\" on \"" .. self:unit_name() .. "\"."
 end
@@ -35,7 +33,12 @@ end
 
 function CoreSequenceCutsceneKey:is_valid_name(name)
 	local unit = self:_unit(self:unit_name(), true)
-	return unit ~= nil and not string.begins(name, "undo_") and not string.begins(name, "skip_") and managers.sequence:has_sequence_name(self:unit_name(), name)
+	if unit ~= nil and not string.begins(name, "undo_") and not string.begins(name, "skip_") then
+		-- unhandled boolean indicator
+	else
+	end
+
+	return true
 end
 
 function CoreSequenceCutsceneKey:refresh_control_for_name(control)
@@ -46,15 +49,21 @@ function CoreSequenceCutsceneKey:refresh_control_for_name(control)
 	if not table.empty(sequence_names) then
 		control:set_enabled(true)
 		local value = self:name()
-		for _, name in ipairs(sequence_names) do
+		local (for generator), (for state), (for control) = ipairs(sequence_names)
+		do
+			do break end
 			control:append(name)
 			if name == value then
 				control:set_value(value)
 			end
+
 		end
+
 	else
+		(for control) = self:unit_name() and control.append
 		control:set_enabled(false)
 	end
+
 	control:thaw()
 end
 
@@ -63,4 +72,6 @@ function CoreSequenceCutsceneKey:_run_sequence_if_exists(sequence_name)
 	if managers.sequence:has_sequence_name(self:unit_name(), sequence_name) then
 		self:_unit_extension(self:unit_name(), "damage"):run_sequence_simple(sequence_name)
 	end
+
 end
+

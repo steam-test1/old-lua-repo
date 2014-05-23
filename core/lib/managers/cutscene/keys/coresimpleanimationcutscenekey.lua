@@ -1,5 +1,4 @@
-require "core/lib/managers/cutscene/keys/CoreCutsceneKeyBase"
-
+require("core/lib/managers/cutscene/keys/CoreCutsceneKeyBase")
 CoreSimpleAnimationCutsceneKey = CoreSimpleAnimationCutsceneKey or class(CoreCutsceneKeyBase)
 CoreSimpleAnimationCutsceneKey.ELEMENT_NAME = "simple_animation"
 CoreSimpleAnimationCutsceneKey.NAME = "Simple Animation"
@@ -7,7 +6,6 @@ CoreSimpleAnimationCutsceneKey:register_serialized_attribute("unit_name", "")
 CoreSimpleAnimationCutsceneKey:register_serialized_attribute("group", "")
 CoreSimpleAnimationCutsceneKey:attribute_affects("unit_name", "group")
 CoreSimpleAnimationCutsceneKey.control_for_group = CoreCutsceneKeyBase.standard_combo_box_control
-
 function CoreSimpleAnimationCutsceneKey:__tostring()
 	return "Trigger simple animation \"" .. self:group() .. "\" on \"" .. self:unit_name() .. "\"."
 end
@@ -15,7 +13,6 @@ end
 function CoreSimpleAnimationCutsceneKey:skip(player)
 	local unit = self:_unit(self:unit_name())
 	local group = self:group()
-	
 	unit:anim_play(group, 0)
 	unit:anim_set_time(group, unit:anim_length(group))
 end
@@ -27,11 +24,11 @@ end
 function CoreSimpleAnimationCutsceneKey:revert(player)
 	local unit = self:_unit(self:unit_name())
 	local group = self:group()
-	
 	if unit:anim_is_playing(group) then
 		unit:anim_set_time(group, 0)
 		unit:anim_stop(group)
 	end
+
 end
 
 function CoreSimpleAnimationCutsceneKey:update(player, time)
@@ -53,14 +50,21 @@ function CoreSimpleAnimationCutsceneKey:refresh_control_for_group(control)
 	if not table.empty(groups) then
 		control:set_enabled(true)
 		local value = self:group()
-		for _, group in ipairs(groups) do
+		local (for generator), (for state), (for control) = ipairs(groups)
+		do
+			do break end
 			control:append(group)
 			if group == value then
 				control:set_value(group)
 			end
+
 		end
+
 	else
+		(for control) = self:unit_name() and control.append
 		control:set_enabled(false)
 	end
+
 	control:thaw()
 end
+

@@ -2,9 +2,7 @@ core:module("CoreInputLayer")
 core:import("CoreInputContextStack")
 core:import("CoreInputProvider")
 core:import("CoreInputContext")
-
 Layer = Layer or class()
-
 function Layer:init(input_provider, layer_description)
 	self._input_context_stack = CoreInputContextStack.Stack:new()
 	self._layer_description = layer_description
@@ -26,5 +24,6 @@ end
 
 function Layer:create_context()
 	local context_description = self._layer_description:context_description()
-	return CoreInputContext.Context:new(context_description, self._input_context_stack) 
+	return CoreInputContext.Context:new(context_description, self._input_context_stack)
 end
+

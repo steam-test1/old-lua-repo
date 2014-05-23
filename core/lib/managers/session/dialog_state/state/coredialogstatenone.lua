@@ -1,7 +1,5 @@
 core:module("CoreDialogStateNone")
-
 None = None or class()
-
 function None:init()
 	self.dialog_state:_set_stable_for_loading()
 end
@@ -12,3 +10,4 @@ end
 
 function None:transition()
 end
+

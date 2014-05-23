@@ -1,12 +1,10 @@
 core:module("CoreUnitCamera")
 core:import("CoreClass")
 core:import("CoreEvent")
-
 UnitCamera = UnitCamera or CoreClass.class()
-
 function UnitCamera:init(unit)
-	self._unit = unit	
-	self._active_count = 0	
+	self._unit = unit
+	self._active_count = 0
 end
 
 function UnitCamera:destroy()
@@ -16,11 +14,12 @@ function UnitCamera:create_layers()
 end
 
 function UnitCamera:activate()
-	local is_deactivated = self._active_count == 0 
+	local is_deactivated = self._active_count == 0
 	self._active_count = self._active_count + 1
 	if is_deactivated then
 		self:on_activate(true)
-	end	
+	end
+
 end
 
 function UnitCamera:deactivate()
@@ -30,6 +29,7 @@ function UnitCamera:deactivate()
 	if should_deactivate then
 		self:on_activate(false)
 	end
+
 	return should_deactivate
 end
 
@@ -40,11 +40,6 @@ function UnitCamera:is_active()
 	return self._active_count > 0
 end
 
--- Calculate active camera 
---function UnitCamera:update( t, dt )
---end
-
--- Apply and set data on active camera 
 function UnitCamera:apply_camera(camera_manager)
-	--
 end
+

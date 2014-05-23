@@ -1,5 +1,4 @@
-require "core/lib/managers/cutscene/keys/CoreCutsceneKeyBase"
-
+require("core/lib/managers/cutscene/keys/CoreCutsceneKeyBase")
 CoreLocatorConstraintCutsceneKey = CoreLocatorConstraintCutsceneKey or class(CoreCutsceneKeyBase)
 CoreLocatorConstraintCutsceneKey.ELEMENT_NAME = "locator_constraint"
 CoreLocatorConstraintCutsceneKey.NAME = "Locator Constraint"
@@ -9,13 +8,12 @@ CoreLocatorConstraintCutsceneKey:register_serialized_attribute("parent_object_na
 CoreLocatorConstraintCutsceneKey.control_for_locator_name = CoreCutsceneKeyBase.standard_combo_box_control
 CoreLocatorConstraintCutsceneKey.control_for_parent_unit_name = CoreCutsceneKeyBase.standard_combo_box_control
 CoreLocatorConstraintCutsceneKey.control_for_parent_object_name = CoreCutsceneKeyBase.standard_combo_box_control
-
 function CoreLocatorConstraintCutsceneKey:__tostring()
 	local attach_point_name = "disabled"
 	if self:parent_unit_name() ~= "" and self:parent_object_name() ~= "" then
 		attach_point_name = string.format("\"%s/%s\"", self:parent_unit_name(), self:parent_object_name())
 	end
-	
+
 	return string.format("Set constaint of locator \"%s\" to %s.", self:locator_name(), attach_point_name)
 end
 
@@ -29,12 +27,15 @@ function CoreLocatorConstraintCutsceneKey:evaluate(player, fast_forward)
 end
 
 function CoreLocatorConstraintCutsceneKey:revert(player)
-	local preceeding_key = self:preceeding_key{ locator_name = self:locator_name() }
+	local preceeding_key = self:preceeding_key({
+		locator_name = self:locator_name()
+	})
 	if preceeding_key then
 		preceeding_key:evaluate(player, false)
 	else
 		self:_constrain_locator_to_object(nil)
 	end
+
 end
 
 function CoreLocatorConstraintCutsceneKey:update_gui(time, delta_time, player)
@@ -44,7 +45,6 @@ function CoreLocatorConstraintCutsceneKey:update_gui(time, delta_time, player)
 		pen:set("no_z")
 		pen:set(Color(1, 0.5, 0))
 		pen:sphere(locator_object:position(), 1, 5, 1)
-			
 		local parent_object = self:_unit_object(self:parent_unit_name(), self:parent_object_name(), true)
 		if parent_object then
 			pen:set(Color(1, 0, 1))
@@ -53,7 +53,9 @@ function CoreLocatorConstraintCutsceneKey:update_gui(time, delta_time, player)
 			pen:set(Color(0, 1, 1))
 			pen:sphere(parent_object:position(), 1, 10, 1)
 		end
+
 	end
+
 end
 
 function CoreLocatorConstraintCutsceneKey:is_valid_locator_name(locator_name)
@@ -71,12 +73,20 @@ end
 function CoreLocatorConstraintCutsceneKey:refresh_control_for_locator_name(control)
 	control:freeze()
 	control:clear()
-	
-	local locator_names = table.find_all_values(self:_unit_names(), function(unit_name) return self:is_valid_locator_name(unit_name) end)
-	for _, locator_name in ipairs(locator_names) do
-		control:append(locator_name)
+	local locator_names = table.find_all_values(self:_unit_names(), function(unit_name)
+		return self:is_valid_locator_name(unit_name)
 	end
-	
+)
+	do
+		local (for generator), (for state), (for control) = ipairs(locator_names)
+		do
+			do break end
+			control:append(locator_name)
+		end
+
+	end
+
+	(for control) = nil and control.append
 	control:set_enabled(not table.empty(locator_names))
 	control:append("")
 	control:set_value(self:locator_name())
@@ -89,6 +99,7 @@ function CoreLocatorConstraintCutsceneKey:refresh_control_for_parent_unit_name(c
 	if self:parent_unit_name() == "" then
 		control:set_value("")
 	end
+
 end
 
 function CoreLocatorConstraintCutsceneKey:refresh_control_for_parent_object_name(control)
@@ -97,6 +108,7 @@ function CoreLocatorConstraintCutsceneKey:refresh_control_for_parent_object_name
 	if self:parent_object_name() == "" then
 		control:set_value("")
 	end
+
 end
 
 function CoreLocatorConstraintCutsceneKey:on_attribute_before_changed(attribute_name, value, previous_value)
@@ -109,17 +121,16 @@ end
 
 function CoreLocatorConstraintCutsceneKey:_constrain_locator_to_object(parent_object)
 	local locator_unit = self:_unit(self:locator_name(), true)
-	if locator_unit == nil then return end
-	
+	if locator_unit == nil then
+		return
+	end
+
 	if parent_object then
-		-- Let's parent!
 		locator_unit:set_animations_enabled(false)
-		
 		local locator_object = locator_unit:get_object("locator")
 		local position = locator_object:position()
 		local rotation = locator_object:rotation()
 		local parent_unit = self:_unit(self:parent_unit_name())
-		
 		locator_object:set_local_position(Vector3(0, 0, 0))
 		locator_object:set_local_rotation(Rotation())
 		locator_object:link(parent_object)
@@ -127,10 +138,11 @@ function CoreLocatorConstraintCutsceneKey:_constrain_locator_to_object(parent_ob
 		locator_object:set_rotation(rotation)
 		parent_unit:link(locator_unit)
 	else
-		-- Let's unparent!
 		local locator_object = locator_unit:get_object("locator")
 		locator_object:unlink()
 		locator_unit:unlink()
 		locator_unit:set_animations_enabled(true)
 	end
+
 end
+

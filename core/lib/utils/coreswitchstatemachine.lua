@@ -1,8 +1,6 @@
 core:module("CoreSwitchStateMachine")
 core:import("CoreFiniteStateMachine")
-
 SwitchStateMachine = SwitchStateMachine or class(CoreFiniteStateMachine.FiniteStateMachine)
-
 function SwitchStateMachine:init(object_name, object)
 	assert(object_name ~= nil)
 	self._object_name = object_name
@@ -18,6 +16,7 @@ function SwitchStateMachine:switch_state(state_class, ...)
 	if self._state_class == state_class then
 		return
 	end
-	
+
 	self:_set_state(state_class, ...)
 end
+

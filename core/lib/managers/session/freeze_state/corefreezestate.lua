@@ -2,9 +2,7 @@ core:module("CoreFreezeState")
 core:import("CoreFiniteStateMachine")
 core:import("CoreFreezeStateMelted")
 core:import("CoreSessionGenericState")
-
 FreezeState = FreezeState or class(CoreSessionGenericState.State)
-
 function FreezeState:init()
 	self._state = CoreFiniteStateMachine.FiniteStateMachine:new(CoreFreezeStateMelted.Melted, "freeze_state", self)
 end
@@ -24,3 +22,4 @@ end
 function FreezeState:transition()
 	self._state:transition()
 end
+

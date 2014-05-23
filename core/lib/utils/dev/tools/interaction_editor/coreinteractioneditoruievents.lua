@@ -1,13 +1,9 @@
-core:module( "CoreInteractionEditorUIEvents" )
-
-core:import( "CoreClass" )
-core:import( "CoreCode" )
-core:import( "CoreMath" )
-
-core:import( "CoreInteractionEditorConfig" )
-
+core:module("CoreInteractionEditorUIEvents")
+core:import("CoreClass")
+core:import("CoreCode")
+core:import("CoreMath")
+core:import("CoreInteractionEditorConfig")
 InteractionEditorUIEvents = InteractionEditorUIEvents or CoreClass.class()
-
 function InteractionEditorUIEvents:on_close()
 	managers.toolhub:close(CoreInteractionEditorConfig.EDITOR_TITLE)
 end
@@ -53,12 +49,12 @@ function InteractionEditorUIEvents:on_open()
 	if path and managers.database:has(path) then
 		self:open_system(path)
 	end
+
 end
 
 function InteractionEditorUIEvents:on_undo()
-	--self:undo()
 end
 
 function InteractionEditorUIEvents:on_redo()
-	--self:redo()
 end
+

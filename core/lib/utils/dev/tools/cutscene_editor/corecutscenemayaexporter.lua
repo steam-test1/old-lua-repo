@@ -1,8 +1,7 @@
-require "core/lib/utils/dev/tools/cutscene_editor/CoreCutsceneFrameVisitor"
-require "core/lib/utils/dev/tools/cutscene_editor/CoreCutsceneMayaExporterCurve"
+require("core/lib/utils/dev/tools/cutscene_editor/CoreCutsceneFrameVisitor")
+require("core/lib/utils/dev/tools/cutscene_editor/CoreCutsceneMayaExporterCurve")
 CoreCutsceneMayaExporter = CoreCutsceneMayaExporter or class(CoreCutsceneFrameVisitor)
 CoreCutsceneMayaExporter.MAYA_VERSION = 8.5
-
 function CoreCutsceneMayaExporter:init(parent_window, cutscene_editor, start_frame, end_frame, output_path)
 	self.super.init(self, parent_window, cutscene_editor, start_frame, end_frame)
 	self.__output_path = output_path
@@ -18,6 +17,7 @@ function CoreCutsceneMayaExporter:add_unit(unit_name, unit)
 	elseif existing_unit ~= unit then
 		error(string.format("Duplicate unit name \"%s\" used for \"%s\" and \"%s\".", unit_name, existing_unit:name(), unit:name()))
 	end
+
 end
 
 function CoreCutsceneMayaExporter:_visit_frame(frame)
@@ -26,20 +26,18 @@ end
 
 function CoreCutsceneMayaExporter:_done(aborted)
 	if not aborted then
-		local file = io.open(self.__output_path, "w");
+		local file = io.open(self.__output_path, "w")
 		self:_write_header(file)
 		self:_write_hierarchies(file)
 		self:_write_camera_node(file, self:_combined_camera_node_name())
 		self:_write_animation_curves(file)
-
 		io.close(file)
 	end
+
 end
 
 function CoreCutsceneMayaExporter:_combined_camera_node_name()
 	local node_name = "camera_directed"
-
-	-- If needed, add a numeric suffix and keep increasing it until the name isn't taken.
 	while self.__sampled_units[node_name] ~= nil do
 		local node_name, num_suffix = string.match(node_name, "(.-)(%d*)$")
 		num_suffix = tonumber(num_suffix)
@@ -120,11 +118,13 @@ function CoreCutsceneMayaExporter:_write_header(file)
 	file:write("\tsetAttr \".o\" 0;\n")
 	file:write("createNode script -name \"sceneConfigurationScriptNode\";\n")
 	file:write("\tsetAttr \".before\" -type \"string\" \"playbackOptions -loop once -minTime " .. self.__start_frame .. " -maxTime " .. self.__end_frame .. " -animationStartTime " .. self.__start_frame .. " -animationEndTime " .. self.__end_frame .. "\";\n")
-	file:write("\tsetAttr \".scriptType\" 6;\n") -- Scene Configuration
+	file:write("\tsetAttr \".scriptType\" 6;\n")
 end
 
 function CoreCutsceneMayaExporter:_write_hierarchies(file)
-	for unit_name, unit in pairs(self.__sampled_units) do
+	local (for generator), (for state), (for control) = pairs(self.__sampled_units)
+	do
+		do break end
 		if string.begins(unit_name, "camera") then
 			self:_write_camera_node(file, unit_name)
 		elseif string.begins(unit_name, "locator") then
@@ -136,12 +136,16 @@ function CoreCutsceneMayaExporter:_write_hierarchies(file)
 			file:write(string.format("createNode transform -name \"%s\";\n", self:_maya_node_name(unit_name, object)))
 			file:write("\taddAttr -longName \"unitTypeName\" -dataType \"string\";\n")
 			file:write("\tsetAttr -type \"string\" \".unitTypeName\" " .. unit:name() .. ";\n")
-
-			for _, child in ipairs(object.children and object:children() or {}) do
+			local (for generator), (for state), (for control) = ipairs(object.children and object:children() or {})
+			do
+				do break end
 				self:_write_hierarchy_entry_for_object(file, unit_name, child, object)
 			end
+
 		end
+
 	end
+
 end
 
 function CoreCutsceneMayaExporter:_write_hierarchy_entry_for_object(file, unit_name, object, parent_object)
@@ -149,21 +153,24 @@ function CoreCutsceneMayaExporter:_write_hierarchy_entry_for_object(file, unit_n
 		local object_name = self:_maya_node_name(unit_name, object)
 		local full_object_name = self:_maya_node_name(unit_name, object, true)
 		local full_parent_object_name = parent_object and self:_maya_node_name(unit_name, parent_object, true)
-
 		file:write(string.format("createNode joint -name \"%s\"", object_name))
 		if full_parent_object_name then
 			file:write(string.format(" -parent \"%s\"", full_parent_object_name))
 		end
-		file:write(";\n")
 
+		file:write(";\n")
 		if full_parent_object_name then
 			file:write(string.format("\tconnectAttr \"%s.scale\" \"%s.inverseScale\";\n", full_parent_object_name, full_object_name))
 		end
+
 	end
 
-	for _, child in ipairs(object.children and object:children() or {}) do
+	local (for generator), (for state), (for control) = ipairs(object.children and object:children() or {})
+	do
+		do break end
 		self:_write_hierarchy_entry_for_object(file, unit_name, child, object)
 	end
+
 end
 
 function CoreCutsceneMayaExporter:_write_camera_node(file, camera_name)
@@ -173,7 +180,7 @@ function CoreCutsceneMayaExporter:_write_camera_node(file, camera_name)
 	file:write("\tsetAttr \".renderable\" no;\n")
 	file:write("\tsetAttr \".cameraAperture\" -type \"double2\" 1.78 1.0;\n")
 	file:write("\tsetAttr \".lensSqueezeRatio\" 1.0;\n")
-	file:write("\tsetAttr \".filmFit\" 0;\n") -- Fill
+	file:write("\tsetAttr \".filmFit\" 0;\n")
 	file:write("\tsetAttr \".nearClipPlane\" 1;\n")
 	file:write("\tsetAttr \".farClipPlane\" 10000;\n")
 	file:write("\tsetAttr \".orthographicWidth\" 30;\n")
@@ -183,34 +190,51 @@ function CoreCutsceneMayaExporter:_write_camera_node(file, camera_name)
 end
 
 function CoreCutsceneMayaExporter:_write_animation_curves(file)
-	for unit_name, curve_sets in pairs(self.__curve_sets) do
-		for _, curve_set in pairs(curve_sets) do
-			curve_set:write(file)
+	do
+		local (for generator), (for state), (for control) = pairs(self.__curve_sets)
+		do
+			do break end
+			local (for generator), (for state), (for control) = pairs(curve_sets)
+			do
+				do break end
+				curve_set:write(file)
+			end
+
 		end
+
+		(for control) = nil and curve_set.write
 	end
-	
+
+	(for control) = nil and pairs
 	if self.__combined_camera_focal_length_curve then
 		self.__combined_camera_focal_length_curve:write(file)
 	end
+
 end
 
 function CoreCutsceneMayaExporter:_sample_animation_curves()
-	for unit_name, unit in pairs(self.__sampled_units) do
-		if string.begins(unit_name, "camera") or string.begins(unit_name, "locator") then
-			local object = assert(unit:get_object("locator"), "Object \"locator\" not found inside locator Unit.")
-			self:_curve_set(unit_name, object):add_sample(self.__frame, object)
-		else
-			self:_sample_animation_curves_for_hierarchy(unit_name, unit:orientation_object())
+	do
+		local (for generator), (for state), (for control) = pairs(self.__sampled_units)
+		do
+			do break end
+			if string.begins(unit_name, "camera") or string.begins(unit_name, "locator") then
+				local object = assert(unit:get_object("locator"), "Object \"locator\" not found inside locator Unit.")
+				self:_curve_set(unit_name, object):add_sample(self.__frame, object)
+			else
+				self:_sample_animation_curves_for_hierarchy(unit_name, unit:orientation_object())
+			end
+
 		end
+
 	end
 
-	-- Sample the directed camera.
-	local cutscene_player = self.__cutscene_editor._player
+	local cutscene_player = nil and self.__cutscene_editor._player
 	local camera_object = cutscene_player:_camera_object()
 	if camera_object then
 		self:_curve_set(self:_combined_camera_node_name(), "just_an_identifier"):add_sample(self.__frame, camera_object)
 		self:_combined_camera_focal_length_curve():add_sample(self.__frame, self:_fov_to_focal_length(cutscene_player:camera_attributes().fov))
 	end
+
 end
 
 function CoreCutsceneMayaExporter:_sample_animation_curves_for_hierarchy(unit_name, object)
@@ -218,16 +242,17 @@ function CoreCutsceneMayaExporter:_sample_animation_curves_for_hierarchy(unit_na
 		self:_curve_set(unit_name, object):add_sample(self.__frame, object)
 	end
 
-	-- Recursively sample values for each child node.
-	for _, child in ipairs(object.children and object:children() or {}) do
+	local (for generator), (for state), (for control) = ipairs(object.children and object:children() or {})
+	do
+		do break end
 		self:_sample_animation_curves_for_hierarchy(unit_name, child)
 	end
+
 end
 
 function CoreCutsceneMayaExporter:_curve_set(unit_name, object)
 	local curve_sets_for_unit = self.__curve_sets[unit_name]
 	local curve_set = curve_sets_for_unit and curve_sets_for_unit[object]
-
 	if curve_set == nil then
 		if curve_sets_for_unit == nil then
 			curve_sets_for_unit = {}
@@ -246,15 +271,13 @@ function CoreCutsceneMayaExporter:_combined_camera_focal_length_curve()
 	if self.__combined_camera_focal_length_curve == nil then
 		self.__combined_camera_focal_length_curve = CoreCutsceneMayaExporterCurve:new("animCurveTU", self:_combined_camera_node_name() .. "Shape", "focalLength")
 	end
-	
+
 	return self.__combined_camera_focal_length_curve
 end
 
 function CoreCutsceneMayaExporter:_fov_to_focal_length(fov)
-	-- Based on AEadjustFocal proc in AETemplates/AEcameraTemplate.mel
-	-- HACK: Assumes 16:9 aspect ratio.
 	local focal_length = math.tan(math.deg(0.00872665 * fov))
-	return (0.5 * 1.78) / (focal_length * 0.03937)
+	return 0.89 / (focal_length * 0.03937)
 end
 
 function CoreCutsceneMayaExporter:_should_export(unit_name, object)
@@ -266,10 +289,9 @@ function CoreCutsceneMayaExporter:_maya_node_name(unit_name, object, full_path)
 		return unit_name
 	end
 
-	local valid_node_name = string.match(unit_name, "^%d") and ("actor" .. unit_name) or unit_name
+	local valid_node_name = string.match(unit_name, "^%d") and "actor" .. unit_name or unit_name
 	local long_name = valid_node_name .. ":" .. object:name()
 	local parent = full_path and object:parent()
-
-	-- TODO: Actors are all parented to a locator unit, which objects will be included in the path unless we do the parent:parent():parent() check here.
 	return parent and parent:parent() and parent:parent():parent() and self:_maya_node_name(unit_name, parent, full_path) .. "|" .. long_name or long_name
 end
+

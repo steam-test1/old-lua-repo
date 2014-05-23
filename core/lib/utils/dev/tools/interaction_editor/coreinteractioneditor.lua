@@ -1,14 +1,10 @@
-core:module( "CoreInteractionEditor" )
-
-core:import( "CoreClass" )
-core:import( "CoreCode" )
-
-core:import( "CoreInteractionEditorUI" )
-core:import( "CoreInteractionEditorUIEvents" )
-core:import( "CoreInteractionEditorSystem" )
-
+core:module("CoreInteractionEditor")
+core:import("CoreClass")
+core:import("CoreCode")
+core:import("CoreInteractionEditorUI")
+core:import("CoreInteractionEditorUIEvents")
+core:import("CoreInteractionEditorSystem")
 InteractionEditor = InteractionEditor or CoreClass.class(CoreInteractionEditorUIEvents.InteractionEditorUIEvents)
-
 function InteractionEditor:init()
 	self._ui = CoreInteractionEditorUI.InteractionEditorUI:new(self)
 	self._systems = {}
@@ -19,9 +15,12 @@ function InteractionEditor:set_position(pos)
 end
 
 function InteractionEditor:update(t, dt)
-	for _,sys in pairs(self._systems) do
+	local (for generator), (for state), (for control) = pairs(self._systems)
+	do
+		do break end
 		sys:update(t, dt)
 	end
+
 end
 
 function InteractionEditor:ui()
@@ -29,17 +28,31 @@ function InteractionEditor:ui()
 end
 
 function InteractionEditor:close()
-	for _,sys in pairs(self._systems) do
-		sys:close()
+	do
+		local (for generator), (for state), (for control) = pairs(self._systems)
+		do
+			do break end
+			sys:close()
+		end
+
 	end
+
 	self._system = nil
+	(for control) = nil and sys.close
 	self._ui:destroy()
 end
 
 function InteractionEditor:open_system(path)
-	for _,sys in pairs(self._systems) do
-		sys:deactivate()
+	do
+		local (for generator), (for state), (for control) = pairs(self._systems)
+		do
+			do break end
+			sys:deactivate()
+		end
+
 	end
+
+	(for control) = nil and sys.deactivate
 	local sys = CoreInteractionEditorSystem.InteractionEditorSystem:new(self._ui, path)
 	self._systems[sys] = sys
 end
@@ -58,32 +71,49 @@ function InteractionEditor:close_system(sys)
 			elseif res == "YES" then
 				self:do_save(system)
 			end
+
 		end
-		
+
 		system:close()
 		assert(self._systems[system])
 		self._systems[system] = nil
 	end
+
 end
 
 function InteractionEditor:active_system()
-	for _,sys in pairs(self._systems) do
+	local (for generator), (for state), (for control) = pairs(self._systems)
+	do
+		do break end
 		if sys:active() then
 			return sys
 		end
+
 	end
+
 end
 
 function InteractionEditor:activate_system(panel)
-	for _,sys in pairs(self._systems) do
-		sys:deactivate()
+	do
+		local (for generator), (for state), (for control) = pairs(self._systems)
+		do
+			do break end
+			sys:deactivate()
+		end
+
 	end
-	for _,sys in pairs(self._systems) do
+
+	(for control) = nil and sys.deactivate
+	local (for generator), (for state), (for control) = pairs(self._systems)
+	do
+		do break end
 		if sys:panel() == panel then
 			sys:activate()
 			return
 		end
+
 	end
+
 end
 
 function InteractionEditor:do_save(sys)
@@ -94,32 +124,35 @@ function InteractionEditor:do_save(sys)
 		else
 			self:save_system(system, system:path())
 		end
+
 	end
+
 end
 
 function InteractionEditor:do_save_as(sys)
 	local system = sys or self:active_system()
 	if system then
-		local path, dir = managers.database:save_file_dialog(
-			self._ui:frame(),
-			true,
-			"*.interaction_project",
-			managers.database:entry_name(managers.database:base_path() .. "/" .. string.lower(system:caption()))
-		)		
+		local path, dir = managers.database:save_file_dialog(self._ui:frame(), true, "*.interaction_project", managers.database:entry_name(managers.database:base_path() .. "/" .. string.lower(system:caption())))
 		if path then
 			self:save_system(system, path)
 		end
+
 	end
+
 end
 
 function InteractionEditor:do_save_all()
-	for _,system in pairs(self._systems) do
+	local (for generator), (for state), (for control) = pairs(self._systems)
+	do
+		do break end
 		if system:is_new() then
 			self:do_save_as(system)
 		else
 			self:save_system(system, system:path())
 		end
+
 	end
+
 end
 
 function InteractionEditor:undo(sys)
@@ -127,6 +160,7 @@ function InteractionEditor:undo(sys)
 	if system then
 		system:undo()
 	end
+
 end
 
 function InteractionEditor:redo(sys)
@@ -134,4 +168,6 @@ function InteractionEditor:redo(sys)
 	if system then
 		system:redo()
 	end
+
 end
+

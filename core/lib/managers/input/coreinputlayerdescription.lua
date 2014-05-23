@@ -1,7 +1,5 @@
 core:module("CoreInputLayerDescription")
-
 LayerDescription = LayerDescription or class()
-
 function LayerDescription:init(name, priority)
 	self._name = name
 	self._priority = priority
@@ -24,3 +22,4 @@ end
 function LayerDescription:priority()
 	return self._priority
 end
+

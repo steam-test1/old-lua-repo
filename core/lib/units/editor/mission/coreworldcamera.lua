@@ -1,91 +1,171 @@
-CoreWorldCameraUnitElement = CoreWorldCameraUnitElement or class( MissionElement )
-
-WorldCameraUnitElement = WorldCameraUnitElement or class( CoreWorldCameraUnitElement )
-
-function WorldCameraUnitElement:init( ... )
-	CoreWorldCameraUnitElement.init( self, ... )
+CoreWorldCameraUnitElement = CoreWorldCameraUnitElement or class(MissionElement)
+WorldCameraUnitElement = WorldCameraUnitElement or class(CoreWorldCameraUnitElement)
+function WorldCameraUnitElement:init(...)
+	CoreWorldCameraUnitElement.init(self, ...)
 end
 
-function CoreWorldCameraUnitElement:init( unit )
-	MissionElement.init( self, unit )
-	
+function CoreWorldCameraUnitElement:init(unit)
+	MissionElement.init(self, unit)
 	self._hed.worldcamera = "none"
 	self._hed.worldcamera_sequence = "none"
-	
-	table.insert( self._save_values, "worldcamera" )
-	table.insert( self._save_values, "worldcamera_sequence" )
+	table.insert(self._save_values, "worldcamera")
+	table.insert(self._save_values, "worldcamera_sequence")
 end
 
 function CoreWorldCameraUnitElement:test_element()
 	if self._hed.worldcamera_sequence ~= "none" then
-		managers.worldcamera:play_world_camera_sequence( self._hed.worldcamera_sequence )
+		managers.worldcamera:play_world_camera_sequence(self._hed.worldcamera_sequence)
 	elseif self._hed.worldcamera ~= "none" then
-		managers.worldcamera:play_world_camera( self._hed.worldcamera )
+		managers.worldcamera:play_world_camera(self._hed.worldcamera)
 	end
+
 end
 
--- The values in the combobox differs between layers and can be changed from an other layer therefor it needs
--- to be updated.
 function CoreWorldCameraUnitElement:selected()
-	MissionElement.selected( self )
+	MissionElement.selected(self)
 	self:_populate_worldcameras()
-	if not managers.worldcamera:all_world_cameras()[ self._hed.worldcamera ] then
+	if not managers.worldcamera:all_world_cameras()[self._hed.worldcamera] then
 		self._hed.worldcamera = "none"
-		self._worldcameras:set_value( self._hed.worldcamera )
+		self._worldcameras:set_value(self._hed.worldcamera)
 	end
-	
+
 	self:_populate_sequences()
-	if not managers.worldcamera:all_world_camera_sequences()[ self._hed.worldcamera_sequence ] then
+	if not managers.worldcamera:all_world_camera_sequences()[self._hed.worldcamera_sequence] then
 		self._hed.worldcamera_sequence = "none"
-		self._sequences:set_value( self._hed.worldcamera_sequence )
+		self._sequences:set_value(self._hed.worldcamera_sequence)
 	end
+
 end
 
 function CoreWorldCameraUnitElement:_populate_worldcameras()
 	self._worldcameras:clear()
-	self._worldcameras:append( "none" )
-	for name,_ in pairs( managers.worldcamera:all_world_cameras() ) do 
-	 	self._worldcameras:append( name )
+	self._worldcameras:append("none")
+	do
+		local (for generator), (for state), (for control) = ipairs(self:_sorted_worldcameras())
+		do
+			do break end
+			self._worldcameras:append(name)
+		end
+
 	end
-	self._worldcameras:set_value( self._hed.worldcamera )
+
+	(for control) = self:_sorted_worldcameras() and self._worldcameras
+	self._worldcameras:set_value(self._hed.worldcamera)
 end
 
 function CoreWorldCameraUnitElement:_populate_sequences()
 	self._sequences:clear()
-	self._sequences:append( "none" )
-	for name,_ in pairs( managers.worldcamera:all_world_camera_sequences() ) do 
-	 	self._sequences:append( name )
+	self._sequences:append("none")
+	do
+		local (for generator), (for state), (for control) = ipairs(self:_sorted_worldcamera_sequences())
+		do
+			do break end
+			self._sequences:append(name)
+		end
+
 	end
-	self._sequences:set_value( self._hed.worldcamera_sequence )
+
+	(for control) = self:_sorted_worldcamera_sequences() and self._sequences
+	self._sequences:set_value(self._hed.worldcamera_sequence)
 end
 
-function CoreWorldCameraUnitElement:_build_panel( panel, panel_sizer )	
+function CoreWorldCameraUnitElement:_sorted_worldcameras()
+	local t = {}
+	do
+		local (for generator), (for state), (for control) = pairs(managers.worldcamera:all_world_cameras())
+		do
+			do break end
+			table.insert(t, name)
+		end
+
+	end
+
+	(for control) = managers.worldcamera:all_world_cameras() and table
+	table.sort(t)
+	return t
+end
+
+function CoreWorldCameraUnitElement:_sorted_worldcamera_sequences()
+	local t = {}
+	do
+		local (for generator), (for state), (for control) = pairs(managers.worldcamera:all_world_camera_sequences())
+		do
+			do break end
+			table.insert(t, name)
+		end
+
+	end
+
+	(for control) = managers.worldcamera:all_world_camera_sequences() and table
+	table.sort(t)
+	return t
+end
+
+function CoreWorldCameraUnitElement:select_camera_btn()
+	local dialog = SelectNameModal:new("Select camera", self:_sorted_worldcameras())
+	if dialog:cancelled() then
+		return
+	end
+
+	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
+	do
+		do break end
+		self._hed.worldcamera = worldcamera
+		self._worldcameras:set_value(self._hed.worldcamera)
+	end
+
+end
+
+function CoreWorldCameraUnitElement:select_sequence_btn()
+	local dialog = SelectNameModal:new("Select sequence", self:_sorted_worldcamera_sequences())
+	if dialog:cancelled() then
+		return
+	end
+
+	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
+	do
+		do break end
+		self._hed.worldcamera_sequence = worldcamera_sequence
+		self._sequences:set_value(self._hed.worldcamera_sequence)
+	end
+
+end
+
+function CoreWorldCameraUnitElement:_build_panel(panel, panel_sizer)
 	self:_create_panel()
-	
 	panel = panel or self._panel
 	panel_sizer = panel_sizer or self._panel_sizer
-		
-	local sequence_sizer = EWS:BoxSizer( "HORIZONTAL" )
-		sequence_sizer:add( EWS:StaticText( self._panel, "Sequence:", 0, "" ), 1, 0, "ALIGN_CENTER_VERTICAL" )
-		self._sequences = EWS:ComboBox( self._panel, "", "", "CB_DROPDOWN,CB_READONLY" )
-		self:_populate_sequences()
-		self._sequences:set_value( self._hed.worldcamera_sequence )
-
-		self._sequences:connect( "EVT_COMMAND_COMBOBOX_SELECTED", callback( self, self, "set_element_data" ), { ctrlr = self._sequences, value = "worldcamera_sequence" } )
-		
-		sequence_sizer:add( self._sequences, 3, 0, "EXPAND" )
-		
-	self._panel_sizer:add( sequence_sizer, 0, 0, "EXPAND" )
-		
-	local worldcamera_sizer = EWS:BoxSizer( "HORIZONTAL" )
-		worldcamera_sizer:add( EWS:StaticText( self._panel, "Camera:", 0, "" ), 1, 0, "ALIGN_CENTER_VERTICAL" )
-		self._worldcameras = EWS:ComboBox( self._panel, "", "", "CB_DROPDOWN,CB_READONLY" )
-		self:_populate_worldcameras()
-		self._worldcameras:set_value( self._hed.worldcamera )
-
-		self._worldcameras:connect( "EVT_COMMAND_COMBOBOX_SELECTED", callback( self, self, "set_element_data" ), { ctrlr = self._worldcameras, value = "worldcamera" } )
-		
-		worldcamera_sizer:add( self._worldcameras, 3, 0, "EXPAND" )
-		
-	self._panel_sizer:add( worldcamera_sizer, 0, 0, "EXPAND" )
+	local sequence_sizer = EWS:BoxSizer("HORIZONTAL")
+	sequence_sizer:add(EWS:StaticText(self._panel, "Sequence:", 0, ""), 1, 0, "ALIGN_CENTER_VERTICAL")
+	self._sequences = EWS:ComboBox(self._panel, "", "", "CB_DROPDOWN,CB_READONLY")
+	self:_populate_sequences()
+	self._sequences:set_value(self._hed.worldcamera_sequence)
+	self._sequences:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {
+		ctrlr = self._sequences,
+		value = "worldcamera_sequence"
+	})
+	sequence_sizer:add(self._sequences, 3, 0, "EXPAND")
+	local toolbar = EWS:ToolBar(panel, "", "TB_FLAT,TB_NODIVIDER")
+	toolbar:add_tool("SELECT_EFFECT", "Select sequence", CoreEws.image_path("world_editor\\unit_by_name_list.png"), nil)
+	toolbar:connect("SELECT_EFFECT", "EVT_COMMAND_MENU_SELECTED", callback(self, self, "select_sequence_btn"), nil)
+	toolbar:realize()
+	sequence_sizer:add(toolbar, 0, 1, "EXPAND,LEFT")
+	self._panel_sizer:add(sequence_sizer, 0, 0, "EXPAND")
+	local worldcamera_sizer = EWS:BoxSizer("HORIZONTAL")
+	worldcamera_sizer:add(EWS:StaticText(self._panel, "Camera:", 0, ""), 1, 0, "ALIGN_CENTER_VERTICAL")
+	self._worldcameras = EWS:ComboBox(self._panel, "", "", "CB_DROPDOWN,CB_READONLY")
+	self:_populate_worldcameras()
+	self._worldcameras:set_value(self._hed.worldcamera)
+	self._worldcameras:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {
+		ctrlr = self._worldcameras,
+		value = "worldcamera"
+	})
+	worldcamera_sizer:add(self._worldcameras, 3, 0, "EXPAND")
+	local toolbar = EWS:ToolBar(panel, "", "TB_FLAT,TB_NODIVIDER")
+	toolbar:add_tool("SELECT_EFFECT", "Select camera", CoreEws.image_path("world_editor\\unit_by_name_list.png"), nil)
+	toolbar:connect("SELECT_EFFECT", "EVT_COMMAND_MENU_SELECTED", callback(self, self, "select_camera_btn"), nil)
+	toolbar:realize()
+	worldcamera_sizer:add(toolbar, 0, 1, "EXPAND,LEFT")
+	self._panel_sizer:add(worldcamera_sizer, 0, 0, "EXPAND")
 end
+

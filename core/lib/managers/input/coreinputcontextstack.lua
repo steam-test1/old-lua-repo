@@ -1,9 +1,7 @@
 core:module("CoreInputContextStack")
 core:import("CoreStack")
-
 Stack = Stack or class()
-
-function Stack:init(device_type)	
+function Stack:init(device_type)
 	self._device_type = device_type
 	self._active_input_context = CoreStack.Stack:new()
 end
@@ -33,3 +31,4 @@ end
 function Stack:push_input_context(input_context)
 	self._active_input_context:push(input_context)
 end
+

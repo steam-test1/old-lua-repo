@@ -1,227 +1,296 @@
-core:import( "CoreEditorUtils" )
-
--- Searched for units with projection lights and starts cube generator
-function CoreEditor:create_projection_light( type )
+core:import("CoreEditorUtils")
+function CoreEditor:create_projection_light(type)
 	local lights = {}
 	local units = {}
 	if type == "all" then
-		local s_units = self:layer( "Statics" ):created_units()
-		for _,unit in ipairs( s_units ) do
-			local light_name = CoreEditorUtils.has_projection_light( unit )
+		local s_units = self:layer("Statics"):created_units()
+		local (for generator), (for state), (for control) = ipairs(s_units)
+		do
+			do break end
+			local light_name = CoreEditorUtils.has_projection_light(unit)
 			if light_name then
-				table.insert( units, { unit = unit, light_name = light_name } )
+				table.insert(units, {unit = unit, light_name = light_name})
 			end
+
 		end
-	elseif type == "selected" then
-		local s_units = self:current_selected_units()
-		-- if alive( self:selected_unit() ) then
-		for _,unit in ipairs( s_units ) do
-			local light_name = CoreEditorUtils.has_projection_light( unit )
-			if light_name then
-				table.insert( units, { unit = unit, light_name = light_name } )
+
+	else
+		(for control) = nil and CoreEditorUtils
+		if type == "selected" then
+			local s_units = self:current_selected_units()
+			local (for generator), (for state), (for control) = ipairs(s_units)
+			do
+				do break end
+				local light_name = CoreEditorUtils.has_projection_light(unit)
+				if light_name then
+					table.insert(units, {unit = unit, light_name = light_name})
+				end
+
 			end
+
 		end
+
 	end
-	
-	self._saved_all_lights = {}
-	for _,light in ipairs( CoreEditorUtils.all_lights() ) do
-		table.insert( self._saved_all_lights, { light = light, enabled = light:enable() } )
+
+	self._saved_all_lights = nil and {}
+	do
+		local (for generator), (for state), (for control) = ipairs(CoreEditorUtils.all_lights())
+		do
+			do break end
+			table.insert(self._saved_all_lights, {
+				light = light,
+				enabled = light:enable()
+			})
+		end
+
 	end
-	
-	for _,data in ipairs( units ) do
-		local unit = data.unit
-		local light = unit:get_object( Idstring( data.light_name ) )
-		local enabled = light:enable()
-		local resolution = unit:unit_data().projection_lights and unit:unit_data().projection_lights[ light:name():s() ] and unit:unit_data().projection_lights[ light:name():s() ].x
-		resolution = resolution or EditUnitLight.DEFAULT_SHADOW_RESOLUTION
-		table.insert( lights, { position 	= light:position(),
-								unit		= unit, 
-								light 		= light,
-								enabled 	= enabled,
-								name 		= "",
-								spot		= string.find( light:properties(), "spot" ) and true or false,
-								resolution	= resolution,	
-								output_name = unit:unit_data().unit_id } )
-		light:set_enable( false )
+
+	(for control) = CoreEditorUtils.all_lights() and table
+	do
+		local (for generator), (for state), (for control) = ipairs(units)
+		do
+			do break end
+			local unit = data.unit
+			local light = unit:get_object(Idstring(data.light_name))
+			local enabled = light:enable()
+			local resolution = unit:unit_data().projection_lights and unit:unit_data().projection_lights[light:name():s()] and unit:unit_data().projection_lights[light:name():s()].x
+			resolution = resolution or EditUnitLight.DEFAULT_SHADOW_RESOLUTION
+			table.insert(lights, {
+				position = light:position(),
+				unit = unit,
+				light = light,
+				enabled = enabled,
+				name = "",
+				spot = string.find(light:properties(), "spot") and true or false,
+				resolution = resolution,
+				output_name = unit:unit_data().unit_id
+			})
+			light:set_enable(false)
+		end
+
 	end
-	
+
+	(for control) = CoreEditorUtils.all_lights() and data.unit
 	if #lights == 0 then
 		return
 	end
-	
-	-- Disable all lights
-	for _,data in ipairs( self._saved_all_lights ) do
-		data.light:set_enable( false )
+
+	do
+		local (for generator), (for state), (for control) = ipairs(self._saved_all_lights)
+		do
+			do break end
+			data.light:set_enable(false)
+		end
+
 	end
-	
-	-- self:change_visualization( "depth_visualization" )
-	self:viewport():vp():set_post_processor_effect( "World", Idstring("hdr_post_processor"), Idstring("empty") )
-	self:viewport():vp():set_post_processor_effect( "World", Idstring("bloom_combine_post_processor"), Idstring( "bloom_combine_empty" ) )
-	self:viewport():vp():set_post_processor_effect( "World", Idstring("deferred"), Idstring("projection_generation") )
-	self:viewport():vp():set_post_processor_effect( "World", Idstring("depth_projection"), Idstring("depth_project") )
-	
+
+	(for control) = CoreEditorUtils.all_lights() and data.light
+	self:viewport():vp():set_post_processor_effect("World", Idstring("hdr_post_processor"), Idstring("empty"))
+	self:viewport():vp():set_post_processor_effect("World", Idstring("bloom_combine_post_processor"), Idstring("bloom_combine_empty"))
+	self:viewport():vp():set_post_processor_effect("World", Idstring("deferred"), Idstring("projection_generation"))
+	self:viewport():vp():set_post_processor_effect("World", Idstring("depth_projection"), Idstring("depth_project"))
 	local saved_environment = managers.environment_area:default_environment()
-	managers.environment_area:set_default_environment( "core/environments/default_depthlight" )
-	self:_create_cube_light( { cubes = lights, simple_postfix = true, saved_environment = saved_environment } )
+	managers.environment_area:set_default_environment("core/environments/default_depthlight")
+	self:_create_cube_light({
+		cubes = lights,
+		simple_postfix = true,
+		saved_environment = saved_environment
+	})
 end
 
--- Create folders for source and output files
-function CoreEditor:_create_cube_light( params )
+function CoreEditor:_create_cube_light(params)
 	if not self._lastdir then
 		return
 	end
-	
+
 	params.lights = true
-	local folder_name = 'cube_lights'
-	params.source_path = self:create_temp_saves( folder_name ).."\\"
-	self:_make_dir( self._lastdir..'\\'..folder_name )
-	params.output_path = self._lastdir..'\\'..folder_name.."\\"
-	self:create_cube_map( params )
+	local folder_name = "cube_lights"
+	params.source_path = self:create_temp_saves(folder_name) .. "\\"
+	self:_make_dir(self._lastdir .. "\\" .. folder_name)
+	params.output_path = self._lastdir .. "\\" .. folder_name .. "\\"
+	self:create_cube_map(params)
 end
 
--- Calls start generating of cubemap
--- function CoreEditor:create_cube_map( cubes, simple_postfix )
-function CoreEditor:create_cube_map( params )
+function CoreEditor:create_cube_map(params)
 	assert(self._vp:push_ref_fov(500))
-	self._vp:set_width_mul_enabled( false )
-	-- self:_set_appwin_fixed_resolution( Vector3( 516, 516, 0 ) )
-	
+	self._vp:set_width_mul_enabled(false)
 	self._cubemap_params = params
-	self._cubes_que = clone( params.cubes )
-	if #self._cubes_que == 0 then -- If no cubes provided, generate from camera
-		table.insert( self._cubes_que, { position = self:camera():position(), name = "camera" } )
+	self._cubes_que = clone(params.cubes)
+	if #self._cubes_que == 0 then
+		table.insert(self._cubes_que, {
+			position = self:camera():position(),
+			name = "camera"
+		})
 	end
-	
+
 	self._saved_camera = {}
 	self._saved_camera.aspect_ratio = self:camera():aspect_ratio()
-	self._saved_camera.pos			= self:camera():position()
-	self._saved_camera.rot			= self:camera():rotation()
-	self._saved_camera.fov			= self:camera_fov()
-	self._saved_camera.near_range	= self:camera():near_range()
-	self._saved_camera.far_range	= self:camera():far_range()
-	
-	self:camera():set_aspect_ratio( 1 )
-	self:camera():set_width_multiplier( 1 )
-	
-	self:set_show_camera_info( false )						-- Hide camera info
-	self._layers[ self._mission_layer_name ]:set_enabled( false )		-- Disable mission elements
-	self._saved_show_center = self._show_center				
-	self._show_center = false								-- Disable world origo
-	self:on_hide_helper_units( false )						-- Hide all helpers
-	
-	-- All the rest to unhide leveltools that is shadow casters, and hide those object in it that is not.
-	-- Also hide flagged units that should not be visible when generating the cube lights
+	self._saved_camera.pos = self:camera():position()
+	self._saved_camera.rot = self:camera():rotation()
+	self._saved_camera.fov = self:camera_fov()
+	self._saved_camera.near_range = self:camera():near_range()
+	self._saved_camera.far_range = self:camera():far_range()
+	self:camera():set_aspect_ratio(1)
+	self:camera():set_width_multiplier(1)
+	self:set_show_camera_info(false)
+	self._layers[self._mission_layer_name]:set_enabled(false)
+	self._saved_show_center = self._show_center
+	self._show_center = false
+	self:on_hide_helper_units(false)
 	self._saved_hidden_object = {}
 	self._saved_hidden_units = {}
-	for name,layer in pairs( self._layers ) do
-		for _,unit in ipairs( layer:created_units() ) do
-			if unit:has_material_assigned( Idstring( "leveltools" ) ) then
-				self:set_unit_visible( unit, true )
-				for _,obj in ipairs( unit:get_objects( "*" ) ) do
-					local match = string.find( obj:name(), "s_", 1, true )
-					if not match or match ~= 1 then
-						obj:set_visibility( false )
-						table.insert( self._saved_hidden_object, obj )
+	do
+		local (for generator), (for state), (for control) = pairs(self._layers)
+		do
+			do break end
+			local (for generator), (for state), (for control) = ipairs(layer:created_units())
+			do
+				do break end
+				if unit:has_material_assigned(Idstring("leveltools")) then
+					self:set_unit_visible(unit, true)
+					local (for generator), (for state), (for control) = ipairs(unit:get_objects("*"))
+					do
+						do break end
+						local match = string.find(obj:name(), "s_", 1, true)
+						if not match or match ~= 1 then
+							obj:set_visibility(false)
+							table.insert(self._saved_hidden_object, obj)
+						end
+
 					end
+
+				else
+					(for control) = unit:get_objects("*") and string
+					if unit:unit_data().hide_on_projection_light then
+						self:set_unit_visible(unit, false)
+						table.insert(self._saved_hidden_units, unit)
+					end
+
 				end
-			elseif unit:unit_data().hide_on_projection_light then
-				self:set_unit_visible( unit, false )
-				table.insert( self._saved_hidden_units, unit ) 
+
 			end
+
 		end
+
+		(for control) = layer:created_units() and unit.has_material_assigned
 	end
+
+	(for control) = self:camera():position() and ipairs
 	if self._current_layer then
 		self._current_layer:update_unit_settings()
 	end
-	
-	if managers.viewport and managers.viewport._sun_flare_effect then	-- Hide the BC lensflare
+
+	if managers.viewport and managers.viewport._sun_flare_effect then
 		managers.viewport._sun_flare_effect._sf_panel:hide()
 	end
-	
+
 	self:next_cube()
 end
 
 function CoreEditor:next_cube()
 	if #self._cubes_que > 0 then
-		local cube = table.remove( self._cubes_que, 1 )
-		self:set_camera( cube.position, self._saved_camera.rot )
+		local cube = table.remove(self._cubes_que, 1)
+		self:set_camera(cube.position, self._saved_camera.rot)
 		local resolution = cube.resolution or 512
-		self:_set_appwin_fixed_resolution( Vector3( resolution+4, resolution+4, 0 ) ) -- For some reason the resolution must be 4 higher 
+		self:_set_appwin_fixed_resolution(Vector3(resolution + 4, resolution + 4, 0))
 		local params = {
-			done_callback 	= callback( self, self, "cube_map_done" ),
-			name			= cube.name,
-			simple_postfix	= self._cubemap_params.simple_postfix,
-			source_path		= self._cubemap_params.source_path,
-			output_path		= self._cubemap_params.output_path,
-			output_name		= cube.output_name,
-			unit			= cube.unit,
-			light			= cube.light,
-			spot			= cube.spot
+			done_callback = callback(self, self, "cube_map_done"),
+			name = cube.name,
+			simple_postfix = self._cubemap_params.simple_postfix,
+			source_path = self._cubemap_params.source_path,
+			output_path = self._cubemap_params.output_path,
+			output_name = cube.output_name,
+			unit = cube.unit,
+			light = cube.light,
+			spot = cube.spot
 		}
-		self._camera_controller:start_cube_map( params )
+		self._camera_controller:start_cube_map(params)
 		return true
 	end
+
 	return false
 end
 
--- Called when cubemap generating is done
 function CoreEditor:cube_map_done()
 	if self:next_cube() then
 		return
 	end
-	
-	-- Reset saved environment
+
 	if self._cubemap_params.saved_environment then
-		managers.environment_area:set_default_environment( self._cubemap_params.saved_environment )
+		managers.environment_area:set_default_environment(self._cubemap_params.saved_environment)
 	end
-	
-	-- Enable all lights
+
 	if self._saved_all_lights then
-		for _,data in ipairs( self._saved_all_lights ) do
-			data.light:set_enable( data.enabled )
+		do
+			local (for generator), (for state), (for control) = ipairs(self._saved_all_lights)
+			do
+				do break end
+				data.light:set_enable(data.enabled)
+			end
+
 		end
+
 		self._saved_all_lights = nil
 	end
-	
-	-- Compile and assign projection cubes
+
+	(for control) = nil and data.light
 	if self._cubemap_params.lights then
-		self:viewport():vp():set_post_processor_effect( "World", Idstring("hdr_post_processor"), self._default_post_processor_effect )
-		local bloom_combine_effect = self._default_post_processor_effect == Idstring( "empty" ) and Idstring( "bloom_combine_empty" ) or Idstring( "bloom_combine" )
-		self:viewport():vp():set_post_processor_effect( "World", Idstring("bloom_combine_post_processor"), bloom_combine_effect )
-		self:viewport():vp():set_post_processor_effect( "World", Idstring("deferred"), Idstring("deferred_lighting") )
-		self:viewport():vp():set_post_processor_effect( "World", Idstring("depth_projection"), Idstring("depth_project_empty") )
-		
-		-- self:change_visualization( "deferred_lighting" )
-		self:_recompile( self._cubemap_params.output_path )
-		for _,cube in ipairs( self._cubemap_params.cubes ) do -- Assign textures
-			cube.light:set_enable( cube.enabled )
-			local texture_path = managers.database:entry_path( self._cubemap_params.output_path..cube.output_name )
-			cube.light:set_projection_texture( texture_path, not cube.spot )
+		self:viewport():vp():set_post_processor_effect("World", Idstring("hdr_post_processor"), self._default_post_processor_effect)
+		local bloom_combine_effect = self._default_post_processor_effect == Idstring("empty") and Idstring("bloom_combine_empty") or Idstring("bloom_combine")
+		self:viewport():vp():set_post_processor_effect("World", Idstring("bloom_combine_post_processor"), bloom_combine_effect)
+		self:viewport():vp():set_post_processor_effect("World", Idstring("deferred"), Idstring("deferred_lighting"))
+		self:viewport():vp():set_post_processor_effect("World", Idstring("depth_projection"), Idstring("depth_project_empty"))
+		self:_recompile(self._cubemap_params.output_path)
+		local (for generator), (for state), (for control) = ipairs(self._cubemap_params.cubes)
+		do
+			do break end
+			cube.light:set_enable(cube.enabled)
+			local texture_path = managers.database:entry_path(self._cubemap_params.output_path .. cube.output_name)
+			cube.light:set_projection_texture(texture_path, not cube.spot)
 		end
+
 	end
-	
-	self:set_show_camera_info( true )						-- Show camera info
-	self._layers[ self._mission_layer_name ]:set_enabled( true )		-- Enable mission elements
-	self._show_center = self._saved_show_center				-- Reset show origo state
-	self:on_hide_helper_units( true )						-- Show all helper objects
-	for _,obj in ipairs( self._saved_hidden_object ) do		-- Show all hidden objects
-		obj:set_visibility( true )
+
+	(for control) = Idstring("depth_projection") and cube.light
+	self:set_show_camera_info(true)
+	self._layers[self._mission_layer_name]:set_enabled(true)
+	self._show_center = self._saved_show_center
+	self:on_hide_helper_units(true)
+	do
+		local (for generator), (for state), (for control) = ipairs(self._saved_hidden_object)
+		do
+			do break end
+			obj:set_visibility(true)
+		end
+
 	end
-	for _,unit in ipairs( self._saved_hidden_units ) do		-- Show all hidden units 
-		self:set_unit_visible( unit, true )
+
+	(for control) = ipairs(self._cubemap_params.cubes) or obj.set_visibility
+	do
+		local (for generator), (for state), (for control) = ipairs(self._saved_hidden_units)
+		do
+			do break end
+			self:set_unit_visible(unit, true)
+		end
+
 	end
-	if managers.viewport and managers.viewport._sun_flare_effect then	-- Show the BC lensflare
+
+	(for control) = ipairs(self._cubemap_params.cubes) and self.set_unit_visible
+	if managers.viewport and managers.viewport._sun_flare_effect then
 		managers.viewport._sun_flare_effect._sf_panel:show()
 	end
+
 	if self._saved_camera then
-		self:set_camera( self._saved_camera.pos, self._saved_camera.rot )
-		self:set_camera_fov( self._saved_camera.fov )
-		self:camera():set_aspect_ratio( self._saved_camera.aspect_ratio )
-		self:camera():set_near_range( self._saved_camera.near_range )
-		self:camera():set_far_range( self._saved_camera.far_range )
+		self:set_camera(self._saved_camera.pos, self._saved_camera.rot)
+		self:set_camera_fov(self._saved_camera.fov)
+		self:camera():set_aspect_ratio(self._saved_camera.aspect_ratio)
+		self:camera():set_near_range(self._saved_camera.near_range)
+		self:camera():set_far_range(self._saved_camera.far_range)
 		self._saved_camera = nil
 	end
-	self:_set_appwin_fixed_resolution( nil )
-	self._vp:set_width_mul_enabled( true )
+
+	self:_set_appwin_fixed_resolution(nil)
+	self._vp:set_width_mul_enabled(true)
 	assert(self._vp:pop_ref_fov())
 end
+

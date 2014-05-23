@@ -1,68 +1,58 @@
-require "lib/states/GameState"
-
-IngameStandardState = IngameStandardState or class( IngamePlayerBaseState )
-
-function IngameStandardState:init( game_state_machine )
-	IngameStandardState.super.init( self, "ingame_standard", game_state_machine )
+require("lib/states/GameState")
+IngameStandardState = IngameStandardState or class(IngamePlayerBaseState)
+function IngameStandardState:init(game_state_machine)
+	IngameStandardState.super.init(self, "ingame_standard", game_state_machine)
 end
 
 function IngameStandardState:at_enter()
 	local players = managers.player:players()
-	
-	for k, player in ipairs( players ) do
-		local vp = player:camera():viewport()
-		
-		if( vp ) then
-			vp:set_active( true )
-		else
-			Application:error( "No viewport for player " .. tostring( k ) )	
+	do
+		local (for generator), (for state), (for control) = ipairs(players)
+		do
+			do break end
+			local vp = player:camera():viewport()
+			if vp then
+				vp:set_active(true)
+			else
+				Application:error("No viewport for player " .. tostring(k))
+			end
+
 		end
+
 	end
-	
+
+	(for control) = nil and player.camera
 	local player = managers.player:player_unit()
 	if player then
-		player:base():set_enabled( true )
+		player:base():set_enabled(true)
 	end
-	
-	managers.hud:show( PlayerBase.PLAYER_HUD )
-	-- managers.hud:show( Idstring( "guis/player_info_hud_fullscreen" ) )
-	managers.hud:show( PlayerBase.PLAYER_INFO_HUD )
-	managers.hud:show( PlayerBase.PLAYER_INFO_HUD_FULLSCREEN )
+
+	managers.hud:show(PlayerBase.PLAYER_HUD)
+	managers.hud:show(PlayerBase.PLAYER_INFO_HUD)
+	managers.hud:show(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN)
 end
 
 function IngameStandardState:at_exit()
-	--[[
-	local players = managers.player:players()
-
-	for _, player in ipairs( players ) do
-		local vp = player:camera():viewport()
-		
-		if( vp ) then
-			vp:set_active( false )
-		end
-	end
-	]]
 	managers.environment_controller:set_dof_distance()
-	managers.hud:hide( PlayerBase.PLAYER_HUD )
-	-- managers.hud:hide( Idstring( "guis/player_info_hud_fullscreen" ) )
-	managers.hud:hide( PlayerBase.PLAYER_INFO_HUD )
-	managers.hud:hide( PlayerBase.PLAYER_INFO_HUD_FULLSCREEN )
-		
+	managers.hud:hide(PlayerBase.PLAYER_HUD)
+	managers.hud:hide(PlayerBase.PLAYER_INFO_HUD)
+	managers.hud:hide(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN)
 	local player = managers.player:player_unit()
 	if player then
-		player:base():set_enabled( false )
+		player:base():set_enabled(false)
 	end
-	
+
 end
 
 function IngameStandardState:on_server_left()
-	IngameCleanState.on_server_left( self )
+	IngameCleanState.on_server_left(self)
 end
 
 function IngameStandardState:on_kicked()
-	IngameCleanState.on_kicked( self )
+	IngameCleanState.on_kicked(self)
 end
 
 function IngameStandardState:on_disconnected()
-	IngameCleanState.on_disconnected( self )
+	IngameCleanState.on_disconnected(self)
 end
+

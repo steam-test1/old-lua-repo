@@ -1,102 +1,106 @@
-
-core:module( "CoreDependencyNode" )
-
-core:import( "CoreClass" )
-
-GAME            = 0
-LEVEL           = 1
-UNIT            = 2
-OBJECT          = 3
+core:module("CoreDependencyNode")
+core:import("CoreClass")
+GAME = 0
+LEVEL = 1
+UNIT = 2
+OBJECT = 3
 MATERIAL_CONFIG = 4
-TEXTURE         = 6
-CUTSCENE        = 7
-EFFECT          = 8
-MATERIALS_FILE  = 9
-MODEL           = 10
-
-
+TEXTURE = 6
+CUTSCENE = 7
+EFFECT = 8
+MATERIALS_FILE = 9
+MODEL = 10
 DependencyNodeBase = DependencyNodeBase or CoreClass.class()
-
-function DependencyNodeBase:init( type_, db_type, name, get_dn_cb, database )
-	assert( type( type_ ) == 'number' )
-	assert( type( name ) == 'string' )
-	assert( type( get_dn_cb ) == 'function' )
-	assert( type( database ) == 'userdata' )
-
-	self._type     = type_
-	self._db_type  = db_type
-	self._name     = name
-	self._get_dn   = get_dn_cb
+function DependencyNodeBase:init(type_, db_type, name, get_dn_cb, database)
+	assert(type(type_) == "number")
+	assert(type(name) == "string")
+	assert(type(get_dn_cb) == "function")
+	assert(type(database) == "userdata")
+	self._type = type_
+	self._db_type = db_type
+	self._name = name
+	self._get_dn = get_dn_cb
 	self._database = database
-
 	self._parsed = false
-	self._depends_on = {}  -- all nodes that this node depends on
---	self._dependents = {}  -- all nodes that depends on this node
+	self._depends_on = {}
 end
 
 function DependencyNodeBase:isdependencynode()
 	return true
 end
 
-function DependencyNodeBase:type_() --> UNIT/OBJECT/...
+function DependencyNodeBase:type_()
 	return self._type
 end
 
-function DependencyNodeBase:name() --> "name"
+function DependencyNodeBase:name()
 	return self._name
 end
 
-function DependencyNodeBase:match(pattern) --> true/false
-	-- pattern is overloaded, it can be one of:
-	--
-	--  type   | value           | comment
-	-- --------+-----------------+-------------------
-	--  nil    | nil             | always return true
-	--  number | GAME, LEVEL ... | true if same as .type_()
-	--  string | pattern         | true if pattern match ._name() 
-	--  table  | {dn1, dn2 ...}  | true if node on list
-	--  dn     | dn              | true if node is dn
+function DependencyNodeBase:match(pattern)
+-- fail 61
+null
+4
 	if pattern == nil then
 		return true
-	elseif type(pattern)==type(GAME) then
+	elseif type(pattern) == type(GAME) then
 		return pattern == self:type_()
-	elseif type(pattern)=="string" then
-		return ( string.match( self:name(), string.format( '^%s$', pattern ) ) ~= nil )
+	elseif type(pattern) == "string" then
+		return string.match(self:name(), string.format("^%s$", pattern)) ~= nil
 	elseif pattern.isdependencynode then
-		return pattern == self  
-	elseif type(pattern)== "table" then
-		for _,f in ipairs(pattern) do
-			if f == self then
-				return true
+		return pattern == self
+	elseif type(pattern) == "table" then
+		do
+			local (for generator), (for state), (for control) = ipairs(pattern)
+			do
+				do break end
+				if f == self then
+					return true
+				end
+
 			end
+
 		end
-		return false
+
 	else
-		error( string.format( "Filter '%s' not supported", pattern ) )
+		error(string.format("Filter '%s' not supported", pattern))
 	end
+
 end
 
-function DependencyNodeBase:get_dependencies() --> { dn1, dn2 ... }
+function DependencyNodeBase:get_dependencies()
 	if not self._parsed then
-		for _,xmlnode in ipairs( self:_parse() ) do
-			self:_walkxml(xmlnode)
+		do
+			local (for generator), (for state), (for control) = ipairs(self:_parse())
+			do
+				do break end
+				self:_walkxml(xmlnode)
+			end
+
 		end
+
 		self._parsed = true
 	end
-	local dn_list = {}
-	for dn,_ in pairs( self._depends_on ) do
-		table.insert( dn_list, dn )
+
+	local dn_list = self:_parse() and {}
+	do
+		local (for generator), (for state), (for control) = pairs(self._depends_on)
+		do
+			do break end
+			table.insert(dn_list, dn)
+		end
+
 	end
-	return dn_list
+
 end
 
-function DependencyNodeBase:reached( pattern ) --> { dn1, dn2 ... }
+function DependencyNodeBase:reached(pattern)
 	local found = {}
-	self:_reached( pattern, {}, found )
+	self:_reached(pattern, {}, found)
 	return found
 end
 
-function DependencyNodeBase:_reached( pattern, traversed, found )
+function DependencyNodeBase:_reached(pattern, traversed, found)
 	if traversed[self] then
 		return
 	else
@@ -104,52 +108,58 @@ function DependencyNodeBase:_reached( pattern, traversed, found )
 		if self:match(pattern) then
 			table.insert(found, self)
 		end
-		for _,dn in ipairs( self:get_dependencies() ) do
-			dn:_reached( pattern, traversed, found )
+
+		local (for generator), (for state), (for control) = ipairs(self:get_dependencies())
+		do
+			do break end
+			dn:_reached(pattern, traversed, found)
 		end
+
 	end
+
 end
 
-function DependencyNodeBase:_parse() --> { xmlnode1, xmlbode2 ... }
-	local entry = self._database:lookup( self._db_type, self._name )
-	assert( entry:valid() )
-	local xmlnode = self._database:load_node( entry )
-	return { xmlnode }
+function DependencyNodeBase:_parse()
+	local entry = self._database:lookup(self._db_type, self._name)
+	assert(entry:valid())
+	local xmlnode = self._database:load_node(entry)
+	return {xmlnode}
 end
 
-function DependencyNodeBase:_walkxml( xmlnode )
+function DependencyNodeBase:_walkxml(xmlnode)
 	local deps = _Deps:new()
-	self:_walkxml2dependencies( xmlnode, deps )
-	for _,dn in deps:get_pairs() do
-		self._depends_on[dn] = true
---		dn._dependents[self] = true	
+	self:_walkxml2dependencies(xmlnode, deps)
+	do
+		local (for generator), (for state), (for control) = deps:get_pairs()
+		do
+			do break end
+			self._depends_on[dn] = true
+		end
+
 	end
-	for child in xmlnode:children() do
-		self:_walkxml( child )
+
+	local (for generator), (for state), (for control) = deps and xmlnode:children(), xmlnode:children()
+	do
+		do break end
+		self:_walkxml(child)
 	end
+
 end
 
-function DependencyNodeBase:_walkxml2dependencies( xmlnode, deps )
-	error( "Not Implemented" )
+function DependencyNodeBase:_walkxml2dependencies(xmlnode, deps)
+	error("Not Implemented")
 end
 
-
-
--- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
---  class: _ D e p s
---  helperclass for dependencies when walking xml...
 _Deps = _Deps or CoreClass.class()
-
 function _Deps:init()
 	self._dnlist = {}
 end
 
-function _Deps:add( dn )
-	table.insert( self._dnlist, dn )
+function _Deps:add(dn)
+	table.insert(self._dnlist, dn)
 end
 
 function _Deps:get_pairs()
-	return ipairs( self._dnlist )
+	return ipairs(self._dnlist)
 end
--- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

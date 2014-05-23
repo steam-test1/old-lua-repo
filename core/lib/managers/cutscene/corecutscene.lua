@@ -1,12 +1,8 @@
-require "core/lib/managers/cutscene/CoreCutsceneKeys"
-require "core/lib/managers/cutscene/CoreCutsceneKeyCollection"
-
+require("core/lib/managers/cutscene/CoreCutsceneKeys")
+require("core/lib/managers/cutscene/CoreCutsceneKeyCollection")
 CoreCutscene = CoreCutscene or frozen_class()
 mixin(CoreCutscene, CoreCutsceneKeyCollection)
-
 local CUTSCENE_FRAMES_PER_SECOND = 30
-
--- Required by the CoreCutsceneKeyCollection mixin.
 function CoreCutscene:_all_keys_sorted_by_time()
 	return self._keys or {}
 end
@@ -14,7 +10,6 @@ end
 function CoreCutscene:init(cutscene_node, cutscene_manager)
 	assert(cutscene_node, "No cutscene XML node supplied.")
 	assert(cutscene_manager, "Must supply a reference to the CutsceneManager.")
-	
 	self._name = cutscene_node:parameter("name")
 	self._unit_name = cutscene_node:parameter("unit")
 	self._frame_count = tonumber(cutscene_node:parameter("frames"))
@@ -24,30 +19,50 @@ function CoreCutscene:init(cutscene_node, cutscene_manager)
 	self._unit_blend_sets = {}
 	self._camera_names = {}
 	self._animation_blobs = self:_parse_animation_blobs(cutscene_node)
-	
-	for collection_node in cutscene_node:children() do
-		if collection_node:name() == "controlled_units" then
-			for child_node in collection_node:children() do
-				local unit_name = child_node:parameter("name")
-				self._unit_types[unit_name] = cutscene_manager:cutscene_actor_unit_type(self:_cutscene_specific_unit_type(child_node:parameter("type")))
-				self._unit_animations[unit_name] = child_node:parameter("animation")
-				self._unit_blend_sets[unit_name] = child_node:parameter("blend_set")
-				
-				if string.begins(unit_name, "camera") then
-					table.insert(self._camera_names, unit_name)
+	do
+		local (for generator), (for state), (for control) = cutscene_node:children()
+		do
+			do break end
+			if collection_node:name() == "controlled_units" then
+				local (for generator), (for state), (for control) = collection_node:children()
+				do
+					do break end
+					local unit_name = child_node:parameter("name")
+					self._unit_types[unit_name] = cutscene_manager:cutscene_actor_unit_type(self:_cutscene_specific_unit_type(child_node:parameter("type")))
+					self._unit_animations[unit_name] = child_node:parameter("animation")
+					self._unit_blend_sets[unit_name] = child_node:parameter("blend_set")
+					if string.begins(unit_name, "camera") then
+						table.insert(self._camera_names, unit_name)
+					end
+
 				end
+
+			else
+				(for control) = cutscene_node:parameter("frames") and child_node.parameter
+				if collection_node:name() == "keys" then
+					local (for generator), (for state), (for control) = collection_node:children()
+					do
+						do break end
+						local cutscene_key = CoreCutsceneKey:create(child_node:name(), self)
+						cutscene_key:load(child_node)
+						table.insert(self._keys, freeze(cutscene_key))
+					end
+
+				end
+
 			end
-		elseif collection_node:name() == "keys" then
-			for child_node in collection_node:children() do
-				local cutscene_key = CoreCutsceneKey:create(child_node:name(), self)
-				cutscene_key:load(child_node)
-				table.insert(self._keys, freeze(cutscene_key))
-			end
+
 		end
+
+		(for control) = cutscene_node:parameter("frames") and CoreCutsceneKey
 	end
-	
+
+	(for control) = cutscene_node:parameter("frames") and collection_node.name
 	table.sort(self._camera_names)
-	table.sort(self._keys, function(a, b) return a:frame() < b:frame() end)
+	table.sort(self._keys, function(a, b)
+		return a:frame() < b:frame()
+	end
+)
 	freeze(self._keys, self._unit_types, self._unit_animations, self._unit_blend_sets, self._camera_names)
 end
 
@@ -76,10 +91,6 @@ function CoreCutscene:duration()
 end
 
 function CoreCutscene:is_optimized()
-	-- This is used to check if the cutscene is playable in a public build.
-	-- A video-based cutscene might not need character animation at all, so  
-	-- we check if there are un-optimized animations present, rather than
-	-- if there is an optimized animation blob.
 	return table.empty(self._unit_animations)
 end
 
@@ -91,16 +102,20 @@ function CoreCutscene:has_unit(unit_name, include_units_spawned_through_keys)
 	if self:controlled_unit_types()[unit_name] ~= nil then
 		return true
 	end
-	
+
 	if include_units_spawned_through_keys then
-		for spawn_key in self:keys(CoreSpawnUnitCutsceneKey.ELEMENT_NAME) do
+		local (for generator), (for state), (for control) = self:keys(CoreSpawnUnitCutsceneKey.ELEMENT_NAME)
+		do
+			do break end
 			if spawn_key:name() == unit_name then
 				return true
 			end
+
 		end
+
 	end
 
-	return false
+	(for control) = nil and spawn_key.name
 end
 
 function CoreCutscene:controlled_unit_types()
@@ -112,9 +127,12 @@ function CoreCutscene:camera_names()
 end
 
 function CoreCutscene:default_camera()
-	for _, name in ipairs(self:camera_names()) do
+	local (for generator), (for state), (for control) = ipairs(self:camera_names())
+	do
+		do break end
 		return name
 	end
+
 end
 
 function CoreCutscene:objects_in_unit(unit_name)
@@ -139,49 +157,70 @@ end
 
 function CoreCutscene:find_spawned_orientation_unit()
 	local spawned_cutscene_units = World:unit_manager():get_units(managers.slot:get_mask("cutscenes"))
-	for _, unit in ipairs(spawned_cutscene_units) do
+	local (for generator), (for state), (for control) = ipairs(spawned_cutscene_units)
+	do
+		do break end
 		if unit:name() == self:unit_name() then
 			return unit
 		end
+
 	end
+
 end
-
-
---------------------------------------------------
--- Private or internal methods
---------------------------------------------------
 
 function CoreCutscene:_parse_animation_blobs(cutscene_node)
 	return self:_parse_animation_blob_list(cutscene_node) or self:_parse_single_animation_blob(cutscene_node)
 end
 
 function CoreCutscene:_parse_animation_blob_list(cutscene_node)
-	for collection_node in cutscene_node:children() do
-		if collection_node:name() == "animation_blobs" then
-			local animation_blobs = {}
-			for animation_blob_node in collection_node:children() do
-				local value = animation_blob_node:name() == "part" and animation_blob_node:parameter("animation_blob") or nil
-				if value then
-					table.insert(animation_blobs, value)
+	do
+		local (for generator), (for state), (for control) = cutscene_node:children()
+		do
+			do break end
+			if collection_node:name() == "animation_blobs" then
+				local animation_blobs = {}
+				do
+					local (for generator), (for state), (for control) = collection_node:children()
+					do
+						do break end
+						local value = animation_blob_node:name() == "part" and animation_blob_node:parameter("animation_blob") or nil
+						if value then
+							table.insert(animation_blobs, value)
+						end
+
+					end
+
 				end
+
+				return animation_blobs
 			end
-			
-			return animation_blobs
+
 		end
+
+		(for control) = nil and animation_blob_node.name
 	end
-	
-	return nil
+
+	(for control) = nil and collection_node.name
 end
 
 function CoreCutscene:_parse_single_animation_blob(cutscene_node)
-	for collection_node in cutscene_node:children() do
-		if collection_node:name() == "controlled_units" then
-			local animation_blob = collection_node:parameter("animation_blob")
-			return animation_blob and { animation_blob }
+-- fail 15
+null
+7
+	do
+		local (for generator), (for state), (for control) = cutscene_node:children()
+		do
+			do break end
+			if collection_node:name() == "controlled_units" then
+				local animation_blob = collection_node:parameter("animation_blob")
+				return {animation_blob}
+			end
+
 		end
+
 	end
-	
-	return nil
+
+	(for control) = nil and collection_node.name
 end
 
 function CoreCutscene:_actor_database_info(unit_name)
@@ -191,34 +230,36 @@ function CoreCutscene:_actor_database_info(unit_name)
 end
 
 function CoreCutscene:_cutscene_specific_unit_type(unit_type)
-	if unit_type ~= "locator" then
-		-- Look for a cutscene specific unit first, and fall back on the standard unit type if none is found.
-		if DB:has("unit", unit_type .. "_cutscene") then
-			unit_type = unit_type .. "_cutscene"
-		end
+	if unit_type ~= "locator" and DB:has("unit", unit_type .. "_cutscene") then
+		unit_type = unit_type .. "_cutscene"
 	end
-	
+
 	return unit_type
 end
-
-
---------------------------------------------------
--- Debugging / development methods
---------------------------------------------------
 
 function CoreCutscene:_debug_persistent_keys()
 	local persistent_keys = {}
 	local unit_types = self:controlled_unit_types()
-	
-	for sequence_key in self:keys(CoreSequenceCutsceneKey.ELEMENT_NAME) do
-		local unit_type = unit_types[sequence_key:unit_name()]
-		persistent_keys[string.format("Sequence %s.%s", unit_type or ("\"" .. sequence_key:unit_name() .. "\""), sequence_key:name())] = true
+	do
+		local (for generator), (for state), (for control) = self:keys(CoreSequenceCutsceneKey.ELEMENT_NAME)
+		do
+			do break end
+			local unit_type = unit_types[sequence_key:unit_name()]
+			persistent_keys[string.format("Sequence %s.%s", unit_type or "\"" .. sequence_key:unit_name() .. "\"", sequence_key:name())] = true
+		end
+
 	end
-	
-	for callback_key in self:keys(CoreUnitCallbackCutsceneKey.ELEMENT_NAME) do
-		local unit_type = unit_types[callback_key:unit_name()]
-		persistent_keys[string.format("Callback %s:%s():%s()", unit_type or ("\"" .. callback_key:unit_name() .. "\""), callback_key:extension(), callback_key:method())] = true
+
+	(for control) = nil and sequence_key.unit_name
+	do
+		local (for generator), (for state), (for control) = self:keys(CoreUnitCallbackCutsceneKey.ELEMENT_NAME)
+		do
+			do break end
+			local unit_type = unit_types[callback_key:unit_name()]
+			persistent_keys[string.format("Callback %s:%s():%s()", unit_type or "\"" .. callback_key:unit_name() .. "\"", callback_key:extension(), callback_key:method())] = true
+		end
+
 	end
-	
-	return persistent_keys
+
 end
+

@@ -1,9 +1,6 @@
-core:module( "CoreWorkbook" )
-
-core:import( "CoreClass" )
-
-
-local EMPTY_WORKBOOK_XML1 = [==[
+core:module("CoreWorkbook")
+core:import("CoreClass")
+local EMPTY_WORKBOOK_XML1 = [[
 <?xml version="1.0"?>
 <?mso-application progid="Excel.Sheet"?>
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
@@ -21,28 +18,31 @@ local EMPTY_WORKBOOK_XML1 = [==[
   <Style ss:ID="header2">
    <Font x:Family="Swiss" ss:Bold="1" ss:Italic="1"/>
   </Style>
- </Styles>]==]
-
-local EMPTY_WORKBOOK_XML2 = [==[
-</Workbook> ]==]
-
-
+ </Styles>]]
+local EMPTY_WORKBOOK_XML2 = "</Workbook> "
 Workbook = Workbook or CoreClass.class()
-
 function Workbook:init()
 	self._worksheets = {}
 end
 
-function Workbook:add_worksheet( worksheet )
-	table.insert( self._worksheets, worksheet )
+function Workbook:add_worksheet(worksheet)
+	table.insert(self._worksheets, worksheet)
 end
 
-function Workbook:to_xml( f )
-    f:write( EMPTY_WORKBOOK_XML1 )
-	local ws_xml = ''
-	for _,ws in ipairs( self._worksheets ) do
-        f:write( '\n' )
-		ws:to_xml( f )
+function Workbook:to_xml(f)
+	f:write(EMPTY_WORKBOOK_XML1)
+	local ws_xml = ""
+	do
+		local (for generator), (for state), (for control) = ipairs(self._worksheets)
+		do
+			do break end
+			f:write("\n")
+			ws:to_xml(f)
+		end
+
 	end
-    f:write( EMPTY_WORKBOOK_XML2 )
+
+	(for control) = nil and f.write
+	f:write(EMPTY_WORKBOOK_XML2)
 end
+

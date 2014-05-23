@@ -1,4 +1,1 @@
-HostStateClosing = HostStateClosing or class( HostStateBase )
-
-------------------------------------------------------------------
-------------------------------------------------------------------
+HostStateClosing = HostStateClosing or class(HostStateBase)
