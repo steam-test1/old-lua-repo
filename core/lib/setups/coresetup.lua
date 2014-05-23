@@ -465,10 +465,6 @@ function CoreSetup:__end_frame(t, dt)
 			managers.menu_scene:unload()
 		end
 
-		if managers.worlddefinition then
-			managers.worlddefinition:flush_remaining_lights_textures()
-		end
-
 		if managers.blackmarket then
 			managers.blackmarket:release_preloaded_blueprints()
 		end

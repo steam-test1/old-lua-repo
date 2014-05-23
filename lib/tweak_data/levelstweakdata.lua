@@ -794,6 +794,8 @@ function LevelsTweakData:init()
 		"Play_pln_ko1_end_01"
 	}
 	self.kosugi.music = "no_music"
+	self.kosugi.music_ext = "kosugi_music"
+	self.kosugi.music_ext_start = "suspense_1"
 	self.kosugi.package = "packages/kosugi"
 	self.kosugi.cube = "cube_apply_heist_bank"
 	self.kosugi.ghost_bonus = 0.1
@@ -1502,5 +1504,12 @@ function LevelsTweakData:get_music_event(stage)
 	end
 
 	return tweak_data.music[music_id][stage]
+end
+
+function LevelsTweakData:get_music_event_ext()
+	local level_data = Global.level_data.level_id and tweak_data.levels[Global.level_data.level_id]
+	local music = level_data and level_data.music_ext
+	local music_start = level_data and level_data.music_ext_start
+	return music, music_start
 end
 

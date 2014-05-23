@@ -958,6 +958,14 @@ function AssetsTweakData:_init_assets(tweak_data)
 	self.kosugi_zipline.unlock_desc_id = "menu_asset_kosugi_zipline_desc"
 	self.kosugi_zipline.no_mystery = true
 	self.kosugi_zipline.money_lock = tweak_data:get_value("money_manager", "mission_asset_cost_small", 4)
+	self.kosugi_thermite = {}
+	self.kosugi_thermite.name_id = "menu_asset_kosugi_thermite"
+	self.kosugi_thermite.texture = "guis/textures/pd2/mission_briefing/assets/kosugi/assets_thermite"
+	self.kosugi_thermite.stages = {"kosugi"}
+	self.kosugi_thermite.visible_if_locked = true
+	self.kosugi_thermite.unlock_desc_id = "menu_asset_kosugi_thermite_desc"
+	self.kosugi_thermite.no_mystery = true
+	self.kosugi_thermite.money_lock = tweak_data:get_value("money_manager", "mission_asset_cost_small", 4)
 end
 
 function AssetsTweakData:_init_debug_assets(tweak_data)

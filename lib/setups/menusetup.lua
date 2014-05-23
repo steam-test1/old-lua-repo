@@ -28,15 +28,23 @@ function MenuSetup:load_packages()
 	local prefix = "packages/dlcs/"
 	local sufix = "/start_menu"
 	local package = ""
-	local (for generator), (for state), (for control) = pairs(DLCManager.BUNDLED_DLC_PACKAGES)
 	do
-		do break end
-		package = prefix .. tostring(dlc_package) .. sufix
-		Application:debug("DLC PACKAGE LOCATION: " .. package, "IS PACKAGE OK TO LOAD?: " .. tostring(bundled))
-		if bundled and not PackageManager:loaded(package) then
-			PackageManager:load(package)
+		local (for generator), (for state), (for control) = pairs(DLCManager.BUNDLED_DLC_PACKAGES)
+		do
+			do break end
+			package = prefix .. tostring(dlc_package) .. sufix
+			Application:debug("DLC PACKAGE LOCATION: " .. package, "IS PACKAGE OK TO LOAD?: " .. tostring(bundled))
+			if bundled and not PackageManager:loaded(package) then
+				PackageManager:load(package)
+			end
+
 		end
 
+	end
+
+	(for control) = nil and prefix
+	if not PackageManager:loaded("packages/game_base_streamed") then
+		PackageManager:load("packages/game_base_streamed")
 	end
 
 end

@@ -1203,39 +1203,7 @@ function WorldDefinition:_setup_projection_light(unit, data)
 	end
 
 	local omni = string.find(light:properties(), "omni") and true or false
-	if Application:editor() then
-		light:set_projection_texture(texture_name, omni)
-	else
-		self._requested_light_textures = self._requested_light_textures or {}
-		self._requested_light_textures[texture_name] = Idstring(texture_name)
-		TextureCache:request(texture_name, omni and "CUBEMAP" or "NORMAL", callback(self, self, "_light_loaded_cbk", {
-			light = light,
-			omni = omni,
-			texture_name = texture_name
-		}))
-	end
-
-end
-
-function WorldDefinition:_light_loaded_cbk(data, texture_idstring)
-	data.light:set_projection_texture(data.texture_name, data.omni)
-	if self._requested_light_textures[data.texture_name] then
-		TextureCache:unretrieve(self._requested_light_textures[data.texture_name])
-		self._requested_light_textures[data.texture_name] = nil
-	end
-
-end
-
-function WorldDefinition:flush_remaining_lights_textures()
-	if self._requested_light_textures then
-		local (for generator), (for state), (for control) = pairs(self._requested_light_textures)
-		do
-			do break end
-			TextureCache:unretrieve(texture_name)
-		end
-
-	end
-
+	light:set_projection_texture(Idstring(texture_name), omni, true)
 end
 
 function WorldDefinition:setup_projection_light(...)

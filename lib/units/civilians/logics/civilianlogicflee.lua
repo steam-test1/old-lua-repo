@@ -750,7 +750,7 @@ function CivilianLogicFlee.on_rescue_SO_administered(ignore_this, data, receiver
 end
 
 function CivilianLogicFlee.rescue_SO_verification(ignore_this, areas, unit)
-	if not tweak_data.character[unit:base()._tweak_table].rescue_hostages then
+	if not unit:base():char_tweak().rescue_hostages or unit:movement():cool() then
 		return
 	end
 

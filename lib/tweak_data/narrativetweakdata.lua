@@ -1670,7 +1670,7 @@ function NarrativeTweakData:init()
 	self.jobs.kosugi.briefing_id = "heist_kosugi_crimenet"
 	self.jobs.kosugi.contact = "bain"
 	self.jobs.kosugi.region = "street"
-	self.jobs.kosugi.jc = 30
+	self.jobs.kosugi.jc = 70
 	self.jobs.kosugi.chain = {
 		{
 			level_id = "kosugi",

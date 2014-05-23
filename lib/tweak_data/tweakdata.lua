@@ -1471,6 +1471,7 @@ function TweakData:init()
 	self.interaction.cash_register.interact_distance = 110
 	self.interaction.atm_interaction = deep_clone(self.interaction.invisible_interaction_open)
 	self.interaction.atm_interaction.start_active = false
+	self.interaction.atm_interaction.contour = "interactable_icon"
 	self.interaction.weapon_case = deep_clone(self.interaction.invisible_interaction_open)
 	self.interaction.weapon_case.axis = "x"
 	self.interaction.weapon_case.interact_distance = 110
@@ -2042,6 +2043,7 @@ function TweakData:init()
 	self.interaction.gen_pku_thermite_paste = {}
 	self.interaction.gen_pku_thermite_paste.text_id = "hud_int_take_thermite_paste"
 	self.interaction.gen_pku_thermite_paste.special_equipment_block = "thermite_paste"
+	self.interaction.gen_pku_thermite_paste.contour = "deployable"
 	self.interaction.button_infopad = {}
 	self.interaction.button_infopad.text_id = "hud_int_press_for_info"
 	self.interaction.button_infopad.start_active = false

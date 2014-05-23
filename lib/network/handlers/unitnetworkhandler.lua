@@ -541,6 +541,7 @@ function UnitNetworkHandler:sync_interacted_by_id(unit_id, tweak_setting, sender
 
 	local u_data = managers.enemy:get_corpse_unit_data_from_id(unit_id)
 	if not u_data then
+		sender:sync_interaction_reply(false)
 		return
 	end
 

@@ -70,6 +70,12 @@ function IngameWaitingForPlayersState:sync_start(variant)
 	self._briefing_start_t = nil
 	managers.briefing:stop_event()
 	managers.music:post_event(tweak_data.levels:get_music_event("intro"))
+	local music, start_switch = tweak_data.levels:get_music_event_ext()
+	if music then
+		managers.music:post_event(music)
+		managers.music:post_event(start_switch)
+	end
+
 	self._fade_out_id = managers.overlay_effect:play_effect(tweak_data.overlay_effects.fade_out_permanent)
 	local level_data = Global.level_data.level_id and tweak_data.levels[Global.level_data.level_id]
 	self._intro_text_id = level_data and level_data.intro_text_id
@@ -312,8 +318,9 @@ function IngameWaitingForPlayersState:clbk_file_streamer_status(workload)
 	self._file_streamer_max_workload = math.max(self._file_streamer_max_workload, workload)
 	local progress = self._file_streamer_max_workload > 0 and 1 - workload / self._file_streamer_max_workload or 1
 	progress = math.ceil(progress * 100)
-	managers.network:session():local_peer():set_streaming_status(progress)
-	managers.network:game():on_streaming_progress_received(managers.network:session():local_peer(), progress)
+	local local_peer = managers.network:session():local_peer()
+	local_peer:set_streaming_status(progress)
+	managers.network:game():on_streaming_progress_received(local_peer, progress)
 	managers.hud:set_blackscreen_loading_text_status(progress)
 	if self._last_sent_streaming_status ~= progress then
 		managers.network:session():send_to_peers_loaded("set_member_ready", progress, 2)
@@ -393,6 +400,14 @@ function IngameWaitingForPlayersState:at_exit()
 	managers.hud:hide(self.LEVEL_INTRO_GUI)
 	if self._started_from_beginning then
 		managers.music:post_event(tweak_data.levels:get_music_event("intro"))
+	else
+		local music = tweak_data.levels:get_music_event_ext()
+		if music then
+			local music_ext = Global.music_manager.current_event
+			managers.music:post_event(music)
+			managers.music:post_event(music_ext)
+		end
+
 	end
 
 	managers.platform:set_presence("Playing")
