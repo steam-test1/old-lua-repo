@@ -185,7 +185,7 @@ function TweakData:_init_pd2()
 		texture = "guis/textures/pd2/hud_pickups",
 		texture_rect = {
 			64,
-			0,
+			64,
 			32,
 			32
 		}

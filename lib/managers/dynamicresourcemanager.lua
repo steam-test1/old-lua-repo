@@ -1,12 +1,34 @@
 DynamicResourceManager = DynamicResourceManager or class()
 DynamicResourceManager.DYN_RESOURCES_PACKAGE = "packages/dyn_resources"
+DynamicResourceManager.listener_events = {file_streamer_workload = 1}
 function DynamicResourceManager:init()
 	self._dyn_resources = Global.dyn_resource_manager_data or {}
 	Global.dyn_resource_manager_data = self._dyn_resources
 	self._to_unload = nil
+	self._listener_holder = EventListenerHolder:new()
+	self._max_streaming_chunk_kb = 256
+	self:set_file_streaming_settings(self._max_streaming_chunk_kb, 3)
 end
 
 function DynamicResourceManager:update()
+	if self._to_unload then
+		do
+			local (for generator), (for state), (for control) = ipairs(self._to_unload)
+			do
+				do break end
+				PackageManager:package(unload_params.package_name):unload_resource(unload_params.resource_type, unload_params.resource_name, unload_params.keep_using)
+			end
+
+		end
+
+		self._to_unload = nil
+	end
+
+	(for control) = nil and PackageManager
+	if self._listener_holder:has_listeners_for_event(self.listener_events.file_streamer_workload) then
+		self:_check_file_streamer_status()
+	end
+
 end
 
 function DynamicResourceManager:is_ready_to_close()
@@ -143,5 +165,36 @@ function DynamicResourceManager:on_material_applied(unit)
 
 	end
 
+end
+
+function DynamicResourceManager:_check_file_streamer_status()
+	local nr_tasks = Application:file_streamer_workload()
+	self._listener_holder:call(self.listener_events.file_streamer_workload, nr_tasks)
+end
+
+function DynamicResourceManager:is_file_streamer_idle()
+	local nr_tasks = Application:file_streamer_workload()
+	return nr_tasks == 0
+end
+
+function DynamicResourceManager:set_file_streaming_settings(chunk_size_kb, sleep_time)
+	chunk_size_kb = math.min(chunk_size_kb, self._max_streaming_chunk_kb)
+	Application:set_file_streamer_settings(chunk_size_kb * 1024, sleep_time)
+end
+
+function DynamicResourceManager:add_listener(key, events, clbk)
+	self._listener_holder:add(key, events, clbk)
+end
+
+function DynamicResourceManager:remove_listener(key)
+	self._listener_holder:remove(key)
+end
+
+function DynamicResourceManager:set_max_streaming_chunk(size_kb)
+	self._max_streaming_chunk_kb = size_kb
+end
+
+function DynamicResourceManager:max_streaming_chunk()
+	return self._max_streaming_chunk_kb
 end
 

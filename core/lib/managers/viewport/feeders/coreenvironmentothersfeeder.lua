@@ -38,7 +38,7 @@ function EnvironmentOthersFeeder:feed(nr, scene, vp, data, block, ...)
 				CoreEngineAccess._editor_load(Idstring("scene"), entry_path:id())
 			end
 
-			Underlay:load(entry_path)
+			Underlay:load(entry_path, false)
 			managers.environment_controller:feed_params()
 		end
 

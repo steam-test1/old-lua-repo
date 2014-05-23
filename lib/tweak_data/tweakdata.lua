@@ -1500,7 +1500,6 @@ function TweakData:init()
 	self.interaction.sewer_manhole.text_id = "debug_interact_sewer_manhole"
 	self.interaction.sewer_manhole.timer = 3
 	self.interaction.sewer_manhole.start_active = false
-	self.interaction.sewer_manhole.axis = "z"
 	self.interaction.sewer_manhole.interact_distance = 200
 	self.interaction.sewer_manhole.equipment_text_id = "debug_interact_equipment_crowbar"
 	self.interaction.circuit_breaker = {}
@@ -1952,6 +1951,10 @@ function TweakData:init()
 	self.interaction.barrier_numpad.text_id = "hud_int_barrier_numpad"
 	self.interaction.barrier_numpad.start_active = false
 	self.interaction.barrier_numpad.axis = "z"
+	self.interaction.timelock_numpad = {}
+	self.interaction.timelock_numpad.text_id = "hud_int_timelock_numpad"
+	self.interaction.timelock_numpad.start_active = false
+	self.interaction.timelock_numpad.axis = "z"
 	self.interaction.pickup_asset = {}
 	self.interaction.pickup_asset.text_id = "hud_int_pickup_asset"
 	self.interaction.pickup_asset.sound_event = "ammo_bag_drop"
@@ -2033,6 +2036,12 @@ function TweakData:init()
 	self.interaction.gen_pku_crowbar = {}
 	self.interaction.gen_pku_crowbar.text_id = "hud_int_take_crowbar"
 	self.interaction.gen_pku_crowbar.special_equipment_block = "crowbar"
+	self.interaction.gen_pku_thermite = {}
+	self.interaction.gen_pku_thermite.text_id = "hud_int_take_thermite"
+	self.interaction.gen_pku_thermite.special_equipment_block = "thermite"
+	self.interaction.gen_pku_thermite_paste = {}
+	self.interaction.gen_pku_thermite_paste.text_id = "hud_int_take_thermite_paste"
+	self.interaction.gen_pku_thermite_paste.special_equipment_block = "thermite_paste"
 	self.interaction.button_infopad = {}
 	self.interaction.button_infopad.text_id = "hud_int_press_for_info"
 	self.interaction.button_infopad.start_active = false
@@ -2229,6 +2238,38 @@ function TweakData:init()
 	self.interaction.gen_int_thermite_apply.sound_start = "bar_thermal_lance_fix"
 	self.interaction.gen_int_thermite_apply.sound_interupt = "bar_thermal_lance_fix_cancel"
 	self.interaction.gen_int_thermite_apply.sound_done = "bar_thermal_lance_fix_finished"
+	self.interaction.apply_thermite_paste = {}
+	self.interaction.apply_thermite_paste.text_id = "hud_int_hold_ignite_thermite_paste"
+	self.interaction.apply_thermite_paste.action_text_id = "hud_action_ignite_thermite_paste"
+	self.interaction.apply_thermite_paste.special_equipment = "thermite_paste"
+	self.interaction.apply_thermite_paste.equipment_text_id = "hud_int_need_thermite_paste"
+	self.interaction.apply_thermite_paste.equipment_consume = true
+	self.interaction.apply_thermite_paste.start_active = false
+	self.interaction.apply_thermite_paste.contour = "interactable_icon"
+	self.interaction.apply_thermite_paste.timer = 2
+	self.interaction.apply_thermite_paste.sound_start = "bar_thermal_lance_fix"
+	self.interaction.apply_thermite_paste.sound_interupt = "bar_thermal_lance_fix_cancel"
+	self.interaction.apply_thermite_paste.sound_done = "bar_thermal_lance_fix_finished"
+	self.interaction.set_off_alarm = {}
+	self.interaction.set_off_alarm.text_id = "hud_int_set_off_alarm"
+	self.interaction.set_off_alarm.action_text_id = "hud_action_setting_off_alarm"
+	self.interaction.set_off_alarm.timer = 0.5
+	self.interaction.set_off_alarm.start_active = false
+	self.interaction.hold_open_vault = {}
+	self.interaction.hold_open_vault.text_id = "hud_int_hold_open_vault"
+	self.interaction.hold_open_vault.action_text_id = "hud_action_opening_vault"
+	self.interaction.hold_open_vault.timer = 4
+	self.interaction.hold_open_vault.axis = "y"
+	self.interaction.hold_open_vault.start_active = false
+	self.interaction.samurai_armor = {}
+	self.interaction.samurai_armor.text_id = "hud_int_hold_bag_sa_armor"
+	self.interaction.samurai_armor.action_text_id = "hud_action_bagging_sa_armor"
+	self.interaction.samurai_armor.blocked_hint = "carry_block"
+	self.interaction.samurai_armor.start_active = false
+	self.interaction.samurai_armor.timer = 3
+	self.interaction.samurai_armor.sound_start = "bar_bag_armor"
+	self.interaction.samurai_armor.sound_interupt = "bar_bag_armor_cancel"
+	self.interaction.samurai_armor.sound_done = "bar_bag_armor_finished"
 	self.gui = self.gui or {}
 	self.gui.BOOT_SCREEN_LAYER = 1
 	self.gui.TITLE_SCREEN_LAYER = 1
@@ -3086,6 +3127,13 @@ function TweakData:init()
 				"overkill_290"
 			},
 			job = "election_day_prof"
+		},
+		death_kosugi = {
+			award = "kosugi_6",
+			difficulty = {
+				"overkill_290"
+			},
+			job = "kosugi"
 		}
 	}
 	self.achievement.job_list = {}
@@ -3122,7 +3170,8 @@ function TweakData:init()
 		"arm_hcm",
 		"arm_fac",
 		"arm_par",
-		"arm_und"
+		"arm_und",
+		"kosugi"
 	}
 	self.achievement.complete_heist_stats_achievements = {
 		death_vlad = {

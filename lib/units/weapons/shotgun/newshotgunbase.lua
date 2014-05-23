@@ -140,10 +140,22 @@ function NewShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, s
 	end
 
 	managers.statistics:shot_fired({
-		hit = result.hit_enemy,
+		hit = false,
 		weapon_unit = self._unit
 	})
-	return result
+	do
+		local (for generator), (for state), (for control) = pairs(hit_enemies)
+		do
+			do break end
+			managers.statistics:shot_fired({
+				hit = true,
+				weapon_unit = self._unit,
+				skip_bullet_count = true
+			})
+		end
+
+	end
+
 end
 
 function NewShotgunBase:reload_expire_t()

@@ -1630,52 +1630,58 @@ function UnitNetworkHandler:add_synced_team_upgrade(category, upgrade, level, se
 	managers.player:add_synced_team_upgrade(peer_id, category, upgrade, level)
 end
 
-function UnitNetworkHandler:sync_deployable_equipment(peer_id, deployable, amount, sender)
-	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not self._verify_sender(sender) then
+function UnitNetworkHandler:sync_deployable_equipment(deployable, amount, sender)
+	local peer = self._verify_sender(sender)
+	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not peer then
 		return
 	end
 
-	managers.player:set_synced_deployable_equipment(peer_id, deployable, amount)
+	managers.player:set_synced_deployable_equipment(peer:id(), deployable, amount)
 end
 
-function UnitNetworkHandler:sync_cable_ties(peer_id, amount, sender)
-	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not self._verify_sender(sender) then
+function UnitNetworkHandler:sync_cable_ties(amount, sender)
+	local peer = self._verify_sender(sender)
+	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not peer then
 		return
 	end
 
-	managers.player:set_synced_cable_ties(peer_id, amount)
+	managers.player:set_synced_cable_ties(peer:id(), amount)
 end
 
-function UnitNetworkHandler:sync_grenades(peer_id, grenade, amount, sender)
-	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not self._verify_sender(sender) then
+function UnitNetworkHandler:sync_grenades(grenade, amount, sender)
+	local peer = self._verify_sender(sender)
+	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not peer then
 		return
 	end
 
-	managers.player:set_synced_grenades(peer_id, grenade, amount)
+	managers.player:set_synced_grenades(peer:id(), grenade, amount)
 end
 
-function UnitNetworkHandler:sync_ammo_amount(peer_id, selection_index, max_clip, current_clip, current_left, max, sender)
-	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not self._verify_sender(sender) then
+function UnitNetworkHandler:sync_ammo_amount(selection_index, max_clip, current_clip, current_left, max, sender)
+	local peer = self._verify_sender(sender)
+	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not peer then
 		return
 	end
 
-	managers.player:set_synced_ammo_info(peer_id, selection_index, max_clip, current_clip, current_left, max)
+	managers.player:set_synced_ammo_info(peer:id(), selection_index, max_clip, current_clip, current_left, max)
 end
 
-function UnitNetworkHandler:sync_carry(peer_id, carry_id, multiplier, dye_initiated, has_dye_pack, dye_value_multiplier, sender)
-	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not self._verify_sender(sender) then
+function UnitNetworkHandler:sync_carry(carry_id, multiplier, dye_initiated, has_dye_pack, dye_value_multiplier, sender)
+	local peer = self._verify_sender(sender)
+	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not peer then
 		return
 	end
 
-	managers.player:set_synced_carry(peer_id, carry_id, multiplier, dye_initiated, has_dye_pack, dye_value_multiplier)
+	managers.player:set_synced_carry(peer:id(), carry_id, multiplier, dye_initiated, has_dye_pack, dye_value_multiplier)
 end
 
-function UnitNetworkHandler:sync_remove_carry(peer_id, sender)
-	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not self._verify_sender(sender) then
+function UnitNetworkHandler:sync_remove_carry(sender)
+	local peer = self._verify_sender(sender)
+	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not peer then
 		return
 	end
 
-	managers.player:remove_synced_carry(peer_id)
+	managers.player:remove_synced_carry(peer:id())
 end
 
 function UnitNetworkHandler:server_drop_carry(carry_id, carry_multiplier, dye_initiated, has_dye_pack, dye_value_multiplier, position, rotation, dir, throw_distance_multiplier_upgrade_level, zipline_unit, sender)
@@ -1722,10 +1728,6 @@ end
 function UnitNetworkHandler:server_secure_loot(carry_id, multiplier_level, sender)
 	local peer = self._verify_sender(sender)
 	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not peer then
-		return
-	end
-
-	if not tweak_data.carry.small_loot[carry_id] and not managers.player:verify_carry(peer:id(), carry_id) then
 		return
 	end
 
@@ -1813,14 +1815,6 @@ function UnitNetworkHandler:result_place_mission_door_device(unit, result, sende
 	end
 
 	unit:interaction():result_place_mission_door_device(result)
-end
-
-function UnitNetworkHandler:set_kit_selection(peer_id, category, id, slot, sender)
-	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not self._verify_sender(sender) then
-		return
-	end
-
-	managers.menu:get_menu("kit_menu").renderer:set_kit_selection(peer_id, category, id, slot)
 end
 
 function UnitNetworkHandler:set_armor(unit, percent, sender)
@@ -2052,12 +2046,17 @@ function UnitNetworkHandler:begin_gameover_fadeout()
 	managers.groupai:state():begin_gameover_fadeout()
 end
 
-function UnitNetworkHandler:send_statistics(peer_id, total_kills, total_specials_kills, total_head_shots, accuracy, downs)
+function UnitNetworkHandler:send_statistics(total_kills, total_specials_kills, total_head_shots, accuracy, downs, sender)
 	if not self._verify_gamestate(self._gamestate_filter.any_end_game) then
 		return
 	end
 
-	managers.network:game():on_statistics_recieved(peer_id, total_kills, total_specials_kills, total_head_shots, accuracy, downs)
+	local peer = self._verify_sender(sender)
+	if not peer then
+		return
+	end
+
+	managers.network:game():on_statistics_recieved(peer:id(), total_kills, total_specials_kills, total_head_shots, accuracy, downs)
 end
 
 function UnitNetworkHandler:sync_statistics_result(...)
@@ -2086,12 +2085,13 @@ function UnitNetworkHandler:bain_comment(bain_line, sender)
 
 end
 
-function UnitNetworkHandler:is_inside_point_of_no_return(is_inside, peer_id, sender)
-	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not self._verify_sender(sender) then
+function UnitNetworkHandler:is_inside_point_of_no_return(is_inside, sender)
+	local peer = self._verify_sender(sender)
+	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not peer then
 		return
 	end
 
-	managers.groupai:state():set_is_inside_point_of_no_return(peer_id, is_inside)
+	managers.groupai:state():set_is_inside_point_of_no_return(peer:id(), is_inside)
 end
 
 function UnitNetworkHandler:mission_ended(win, num_is_inside, sender)
@@ -2115,12 +2115,8 @@ function UnitNetworkHandler:mission_ended(win, num_is_inside, sender)
 
 end
 
-function UnitNetworkHandler:sync_level_up(peer_id, level, sender)
-	if not self._verify_sender(sender) then
-		return
-	end
-
-	local peer = managers.network:session():peer(peer_id)
+function UnitNetworkHandler:sync_level_up(level, sender)
+	local peer = self._verify_sender(sender)
 	if not peer then
 		return
 	end

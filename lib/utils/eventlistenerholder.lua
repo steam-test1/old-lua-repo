@@ -128,3 +128,7 @@ function EventListenerHolder:_not_trash(key)
 	return not self._trash or not self._trash[key]
 end
 
+function EventListenerHolder:has_listeners_for_event(event)
+	return self._listeners and self._listeners[event]
+end
+

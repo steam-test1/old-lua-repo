@@ -158,6 +158,10 @@ function MenuSetup:init_finalize()
 		managers.music:init_finalize()
 	end
 
+	if not Application:editor() then
+		TextureCache:set_streaming_enabled(true)
+	end
+
 end
 
 function MenuSetup:update_wait_for_savegame_info(t, dt)

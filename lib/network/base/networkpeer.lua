@@ -51,6 +51,7 @@ function NetworkPeer:init(name, rpc, id, loading, synced, in_lobby, character, u
 		outfit_string = ""
 	}
 	self._handshakes = {}
+	self._streaming_status = 0
 end
 
 function NetworkPeer:set_rpc(rpc)
@@ -66,6 +67,34 @@ function NetworkPeer:set_rpc(rpc)
 
 	end
 
+end
+
+function NetworkPeer:create_ticket()
+	return ""
+end
+
+function NetworkPeer:begin_ticket_session(ticket)
+	return true
+end
+
+function NetworkPeer:end_ticket_session()
+end
+
+function NetworkPeer:change_ticket_callback()
+end
+
+function NetworkPeer:is_cheater()
+	return self._cheater
+end
+
+function NetworkPeer:mark_cheater()
+	self._cheater = true
+	if managers.hud then
+		managers.hud:mark_cheater(self._id)
+		return true
+	end
+
+	return false
 end
 
 function NetworkPeer:set_steam_rpc(rpc)
@@ -119,6 +148,12 @@ function NetworkPeer:load(data)
 	self._join_attempt_identifier = data.join_attempt_identifier
 	self._muted = data.muted
 	self._rank = data.rank
+	self._streaming_status = data.streaming_status
+	self._ticket_wait_response = data.wait_ticket_response
+	if self._ticket_wait_response then
+		self:change_ticket_callback()
+	end
+
 	self:chk_enable_queue()
 	self:_chk_flush_msg_queues()
 	if self._rpc and not self._loading and managers.network.voice_chat.on_member_added then
@@ -152,6 +187,8 @@ function NetworkPeer:save(data)
 	data.join_attempt_identifier = self._join_attempt_identifier
 	data.muted = self._muted
 	data.rank = self._rank
+	data.streaming_status = self._streaming_status
+	data.wait_ticket_response = self._ticket_wait_response
 	print("[NetworkPeer:save]", inspect(data))
 end
 
@@ -279,7 +316,6 @@ function NetworkPeer:set_loaded(state)
 end
 
 function NetworkPeer:set_synched(state)
-	cat_print("multiplayer_base", "[NetworkPeer:set_synched]", self._id, state)
 	if state and self.chk_timeout == self.pre_handshake_chk_timeout then
 		self._default_timeout_check_reset = TimerManager:wall():time() + NetworkPeer.PRE_HANDSHAKE_CHK_TIME
 	end
@@ -822,5 +858,17 @@ end
 
 function NetworkPeer:is_muted()
 	return self._muted
+end
+
+function NetworkPeer:set_streaming_status(status)
+	self._streaming_status = status
+end
+
+function NetworkPeer:is_streaming_complete()
+	return self._streaming_status == 100
+end
+
+function NetworkPeer:streaming_status()
+	return self._streaming_status
 end
 

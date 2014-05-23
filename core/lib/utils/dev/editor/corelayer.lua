@@ -21,6 +21,7 @@ function Layer:init(owner, save_name)
 	self._unit_map = {}
 	self._unit_types = {}
 	self._created_units = {}
+	self._created_units_pairs = {}
 	self._selected_units = {}
 	self._name_ids = {}
 	self._notebook_units_lists = {}
@@ -66,18 +67,23 @@ function Layer:load(world_holder, offset)
 		local (for generator), (for state), (for control) = ipairs(world_units)
 		do
 			do break end
-			if unit:unit_data().unit_id == 0 then
-				unit:unit_data().unit_id = self._owner:get_unit_id(unit)
-			else
-				self._owner:register_unit_id(unit)
-			end
-
-			self:set_up_name_id(unit)
-			table.insert(self._created_units, unit)
+			self:add_unit_to_created_units(unit)
 		end
 
 	end
 
+end
+
+function Layer:add_unit_to_created_units(unit)
+	if unit:unit_data().unit_id == 0 then
+		unit:unit_data().unit_id = self._owner:get_unit_id(unit)
+	else
+		self._owner:register_unit_id(unit)
+	end
+
+	self:set_up_name_id(unit)
+	table.insert(self._created_units, unit)
+	self._created_units_pairs[unit:unit_data().unit_id] = unit
 end
 
 function Layer:set_up_name_id(unit)
@@ -1377,6 +1383,7 @@ function Layer:delete_unit(unit)
 	end
 
 	table.delete(self._created_units, unit)
+	self._created_units_pairs[unit:unit_data().unit_id] = nil
 	self:remove_unit(unit)
 	self:update_unit_settings()
 end
@@ -1565,6 +1572,7 @@ function Layer:clear()
 	self:set_reference_unit(nil)
 	self:clear_selected_units_table()
 	self._created_units = {}
+	self._created_units_pairs = {}
 	self._name_ids = {}
 	if self._name_id then
 		self._name_id:set_value("-")
@@ -1629,34 +1637,37 @@ function Layer:save()
 	local (for generator), (for state), (for control) = ipairs(self._created_units)
 	do
 		do break end
-		local t = {
-			entry = self._save_name,
-			continent = unit:unit_data().continent and unit:unit_data().continent:name(),
-			data = {
-				unit_data = CoreEditorSave.save_data_table(unit)
+		if not unit:unit_data().instance then
+			local t = {
+				entry = self._save_name,
+				continent = unit:unit_data().continent and unit:unit_data().continent:name(),
+				data = {
+					unit_data = CoreEditorSave.save_data_table(unit)
+				}
 			}
-		}
-		self:_add_project_unit_save_data(unit, t.data)
-		managers.editor:add_save_data(t)
-		if unit:type() ~= Idstring("wpn") then
-			managers.editor:add_to_world_package({
-				category = "units",
-				name = unit:name():s(),
-				continent = unit:unit_data().continent
-			})
-		end
+			self:_add_project_unit_save_data(unit, t.data)
+			managers.editor:add_save_data(t)
+			if unit:type() ~= Idstring("wpn") then
+				managers.editor:add_to_world_package({
+					category = "units",
+					name = unit:name():s(),
+					continent = unit:unit_data().continent
+				})
+			end
 
-		local sequence_files = {}
-		self:_get_sequence_file(PackageManager:unit_data(unit:name()), sequence_files)
-		local (for generator), (for state), (for control) = ipairs(sequence_files)
-		do
-			do break end
-			managers.editor:add_to_world_package({
-				category = "script_data",
-				name = file:s() .. ".sequence_manager",
-				continent = unit:unit_data().continent,
-				init = true
-			})
+			local sequence_files = {}
+			self:_get_sequence_file(PackageManager:unit_data(unit:name()), sequence_files)
+			local (for generator), (for state), (for control) = ipairs(sequence_files)
+			do
+				do break end
+				managers.editor:add_to_world_package({
+					category = "script_data",
+					name = file:s() .. ".sequence_manager",
+					continent = unit:unit_data().continent,
+					init = true
+				})
+			end
+
 		end
 
 	end

@@ -182,7 +182,7 @@ function IngameManualGui:open_manual_page(page)
 	print(new_page)
 	if DB:has(Idstring("texture"), new_page) then
 		self._loading = new_page
-		TextureCache:request(new_page, "NORMAL", callback(managers.menu_component, managers.menu_component, "ingame_manual_texture_done"))
+		TextureCache:request(new_page, "NORMAL", callback(managers.menu_component, managers.menu_component, "ingame_manual_texture_done"), 100)
 	end
 
 	self:remove_page()

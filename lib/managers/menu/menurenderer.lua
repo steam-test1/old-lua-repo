@@ -1,5 +1,6 @@
 core:import("CoreMenuRenderer")
 require("lib/managers/menu/MenuNodeGui")
+require("lib/managers/menu/renderers/MenuNodeBaseGui")
 require("lib/managers/menu/renderers/MenuNodeTableGui")
 require("lib/managers/menu/renderers/MenuNodeStatsGui")
 require("lib/managers/menu/renderers/MenuNodeCreditsGui")
@@ -8,6 +9,7 @@ require("lib/managers/menu/renderers/MenuNodeHiddenGui")
 require("lib/managers/menu/renderers/MenuNodeCrimenetGui")
 require("lib/managers/menu/renderers/MenuNodeUpdatesGui")
 require("lib/managers/menu/renderers/MenuNodeReticleSwitchGui")
+require("lib/managers/menu/renderers/MenuNodePrePlanningGui")
 MenuRenderer = MenuRenderer or class(CoreMenuRenderer.Renderer)
 function MenuRenderer:init(logic, ...)
 	MenuRenderer.super.init(self, logic, ...)
@@ -379,6 +381,15 @@ end
 
 function MenuRenderer:mouse_moved(o, x, y)
 	local wanted_pointer = "arrow"
+	if self:active_node_gui() and self:active_node_gui().mouse_moved and managers.menu_component:input_focus() ~= true then
+		local used, pointer = self:active_node_gui():mouse_moved(o, x, y)
+		wanted_pointer = pointer or wanted_pointer
+		if used then
+			return true, wanted_pointer
+		end
+
+	end
+
 	local used, pointer = managers.menu_component:mouse_moved(o, x, y)
 	wanted_pointer = pointer or wanted_pointer
 	if used then
@@ -387,15 +398,6 @@ function MenuRenderer:mouse_moved(o, x, y)
 
 	if managers.menu_scene then
 		local used, pointer = managers.menu_scene:mouse_moved(o, x, y)
-		wanted_pointer = pointer or wanted_pointer
-		if used then
-			return true, wanted_pointer
-		end
-
-	end
-
-	if self:active_node_gui() and self:active_node_gui().mouse_moved then
-		local used, pointer = self:active_node_gui():mouse_moved(o, x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer

@@ -644,6 +644,21 @@ end
 
 function CarryData:set_zipline_unit(zipline_unit)
 	self._zipline_unit = zipline_unit
+	if not Network:is_server() then
+		return
+	end
+
+	if self._zipline_unit and self._zipline_unit:zipline():ai_ignores_bag() then
+		if self._unit:attention() then
+			self._saved_attention_data = deep_clone(self._unit:attention():attention_data())
+			local (for generator), (for state), (for control) = pairs(self._saved_attention_data)
+			do
+				do break end
+				self._unit:attention():remove_attention(attention_id)
+			end
+
+		end
+
 end
 
 function CarryData:is_attached_to_zipline_unit()

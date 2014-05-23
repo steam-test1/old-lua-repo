@@ -62,6 +62,8 @@ do
 		"civ_male_casual_7",
 		"civ_male_casual_8",
 		"civ_male_casual_9",
+		"civ_male_casual_12",
+		"civ_male_casual_14",
 		"civ_male_dj_1",
 		"civ_male_italian_robe_1",
 		"civ_male_janitor_1",
@@ -87,6 +89,8 @@ do
 		"ene_city_swat_1",
 		"ene_city_swat_2",
 		"ene_city_swat_3",
+		"ene_murkywater_1",
+		"ene_murkywater_2",
 		"ene_cop_1",
 		"ene_cop_2",
 		"ene_cop_3",
@@ -111,6 +115,7 @@ do
 		"ene_gang_russian_4",
 		"ene_gang_russian_5",
 		"ene_guard_national_1",
+		"ene_murkywater_2",
 		"ene_secret_service_1",
 		"ene_secret_service_2",
 		"ene_security_1",
@@ -140,7 +145,7 @@ do
 
 	end
 
-	(for control) = "ene_biker_4" and path_string
+	(for control) = "ene_veteran_cop_1" and path_string
 	local pd2_dlc1_characters_map = {
 		"civ_male_bank_manager_2",
 		"civ_male_casual_10",

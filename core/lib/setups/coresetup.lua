@@ -214,7 +214,7 @@ function CoreSetup:__init()
 
 	self:load_packages()
 	World:set_raycast_bounds(Vector3(-50000, -80000, -20000), Vector3(90000, 50000, 30000))
-	World:load(Application:editor() and "core/levels/editor/editor" or "core/levels/zone")
+	World:load((not Application:editor() or not "core/levels/editor/editor") and "core/levels/zone", false)
 	min_exe_version("1.0.0.7000", "Core Systems")
 	rawset(_G, "UnitDamage", rawget(_G, "UnitDamage") or CoreUnitDamage)
 	rawset(_G, "EditableGui", rawget(_G, "EditableGui") or CoreEditableGui)
@@ -485,6 +485,7 @@ function CoreSetup:__end_frame(t, dt)
 		self:start_loading_screen()
 		managers.music:stop()
 		SoundDevice:stop()
+		managers.dyn_resource:set_file_streaming_settings(1, 1)
 		if managers.worlddefinition then
 			managers.worlddefinition:unload_packages()
 		end
@@ -495,6 +496,7 @@ function CoreSetup:__end_frame(t, dt)
 		Application:cleanup_thread_garbage()
 		PackageManager:reload_lua()
 		managers.music:post_event("loadout_music")
+		managers.dyn_resource:set_file_streaming_settings(managers.dyn_resource:max_streaming_chunk() * 0.25, 10)
 		CoreEngineAccess._exec("core/lib/CoreEntry", self.__context)
 	end
 

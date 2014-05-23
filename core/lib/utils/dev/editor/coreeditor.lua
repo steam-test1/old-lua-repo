@@ -3221,8 +3221,13 @@ function CoreEditor:add_to_sound_package(params)
 end
 
 function CoreEditor:_save_packages(dir)
+	local streaming_options = {
+		win32 = {"texture"},
+		ps3 = {"texture"},
+		x360 = {"texture"}
+	}
 	local package = SystemFS:open(dir .. "\\world.package", "w")
-	self:_save_package(package, self._world_package_table)
+	self:_save_package(package, self._world_package_table, streaming_options)
 	local init_package = SystemFS:open(dir .. "\\world_init.package", "w")
 	self:_save_package(init_package, self._world_init_package_table)
 	do
@@ -3230,7 +3235,7 @@ function CoreEditor:_save_packages(dir)
 		do
 			do break end
 			local file = SystemFS:open(dir .. "\\" .. continent .. "\\" .. continent .. ".package", "w")
-			self:_save_package(file, package_table)
+			self:_save_package(file, package_table, streaming_options)
 		end
 
 	end
@@ -3289,11 +3294,48 @@ null
 
 end
 
-function CoreEditor:_save_package(file, package_table)
--- fail 56
+function CoreEditor:_save_package(file, package_table, streaming_options)
+-- fail 78
 null
-11
+12
 	file:puts("<package>")
+	if streaming_options then
+		do
+			local streaming_element = "\t<streaming"
+			local function fill_platform_streaming_params(platform)
+-- fail 20
+null
+4
+				if streaming_options[platform] and next(streaming_options[platform]) then
+					local platform_param = " " .. platform .. "=\""
+					do
+						local (for generator), (for state), (for control) = ipairs(streaming_options[platform])
+						do
+							do break end
+							if i ~= 1 then
+								platform_param = platform_param .. " "
+							end
+
+							platform_param = platform_param .. asset_type
+						end
+
+					end
+
+					platform_param = platform_param .. "\""
+					streaming_element = streaming_element .. platform_param
+				end
+
+			end
+
+			fill_platform_streaming_params("win32")
+			fill_platform_streaming_params("ps3")
+			fill_platform_streaming_params("x360")
+			streaming_element = streaming_element .. "/>"
+			file:puts(streaming_element)
+		end
+
+	end
+
 	do
 		local (for generator), (for state), (for control) = pairs(package_table)
 		do
@@ -3339,7 +3381,7 @@ null
 
 	end
 
-	(for control) = nil and nil
+	(for control) = file and nil
 	file:puts("</package>")
 	SystemFS:close(file)
 end

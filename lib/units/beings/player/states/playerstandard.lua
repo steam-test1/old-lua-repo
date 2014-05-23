@@ -1978,13 +1978,13 @@ function PlayerStandard:_get_unit_intimidation_action(intimidate_enemies, intimi
 					if u_data.char_tweak.silent_priority_shout and u_data.unit:movement():cool() then
 						self:_add_unit_to_char_table(char_table, u_data.unit, unit_type_enemy, highlight_range, false, false, 0.01, my_head_pos, cam_fwd)
 					elseif not u_data.unit:movement():cool() then
-						self:_add_unit_to_char_table(char_table, u_data.unit, unit_type_enemy, intimidate_range_ene, false, false, 10000, my_head_pos, cam_fwd)
+						self:_add_unit_to_char_table(char_table, u_data.unit, unit_type_enemy, intimidate_range_ene, false, false, 100, my_head_pos, cam_fwd)
 					end
 
 				elseif u_data.char_tweak.priority_shout then
 					self:_add_unit_to_char_table(char_table, u_data.unit, unit_type_enemy, highlight_range, false, false, 0.01, my_head_pos, cam_fwd)
 				else
-					self:_add_unit_to_char_table(char_table, u_data.unit, unit_type_enemy, intimidate_range_ene, false, false, 10000, my_head_pos, cam_fwd)
+					self:_add_unit_to_char_table(char_table, u_data.unit, unit_type_enemy, intimidate_range_ene, false, false, 100, my_head_pos, cam_fwd)
 				end
 
 			end
@@ -2032,7 +2032,7 @@ function PlayerStandard:_get_unit_intimidation_action(intimidate_enemies, intimi
 
 					if needs_revive then
 						added = true
-						self:_add_unit_to_char_table(char_table, u_data.unit, unit_type_teammate, 100000, true, true, 0.01, my_head_pos, cam_fwd)
+						self:_add_unit_to_char_table(char_table, u_data.unit, unit_type_teammate, 100000, true, true, 5000, my_head_pos, cam_fwd)
 					end
 
 				end
@@ -2243,7 +2243,7 @@ function PlayerStandard:_play_interact_redirect(t)
 		return
 	end
 
-	if self:_is_reloading() or self:_changing_weapon() or self:_is_meleeing() then
+	if self:_is_reloading() or self:_changing_weapon() or self:_is_meleeing() or self:in_steelsight() then
 		return
 	end
 

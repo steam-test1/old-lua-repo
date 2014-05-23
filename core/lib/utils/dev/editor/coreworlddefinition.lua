@@ -1105,6 +1105,7 @@ function WorldDefinition:_setup_zipline(unit, data)
 	unit:zipline():set_speed(data.zipline.speed)
 	unit:zipline():set_slack(data.zipline.slack)
 	unit:zipline():set_usage_type(data.zipline.usage_type)
+	unit:zipline():set_ai_ignores_bag(data.zipline.ai_ignores_bag)
 end
 
 function WorldDefinition:external_set_only_visible_in_editor(unit)

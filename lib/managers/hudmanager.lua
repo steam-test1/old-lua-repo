@@ -1939,10 +1939,11 @@ function HUDManager:add_mugshot_by_unit(unit)
 
 	end
 
-	local peer_id
+	local peer, peer_id
 	(for control) = nil and data.character_name_id
 	if is_husk_player then
-		peer_id = unit:network():peer():id()
+		peer = unit:network():peer()
+		peer_id = peer:id()
 	end
 
 	local mask_name = managers.criminals:character_data_by_name(character_name_id).mask_icon
@@ -1958,6 +1959,10 @@ function HUDManager:add_mugshot_by_unit(unit)
 		location_text = location_text
 	})
 	unit:unit_data().mugshot_id = mugshot_id
+	if peer and peer:is_cheater() then
+		self:mark_cheater(peer_id)
+	end
+
 	return mugshot_id
 end
 
