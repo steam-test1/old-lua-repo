@@ -470,7 +470,6 @@ function SkillTreePage:init(tree, data, parent_panel, fullscreen_panel, tree_tab
 
 			end
 
-			(for control) = tree_panel:child("rect" .. tostring(tier + 1)):top() and SkillTreeSkillItem
 			local tier_string = tostring(tier)
 			local debug_text = tier_panel:text({
 				name = "debug_text",
@@ -517,7 +516,6 @@ function SkillTreePage:init(tree, data, parent_panel, fullscreen_panel, tree_tab
 
 			end
 
-			(for control) = tier and managers
 			local cost_string = (managers.skilltree:tier_cost(tree, tier) < 10 and "0" or "") .. tostring(managers.skilltree:tier_cost(tree, tier))
 			local cost_text = tier_panel:text({
 				name = "cost_text",
@@ -576,7 +574,6 @@ function SkillTreePage:init(tree, data, parent_panel, fullscreen_panel, tree_tab
 
 	end
 
-	(for control) = item and managers
 	local ps = managers.skilltree:points_spent(self._tree)
 	local max_points = 1
 	do
@@ -594,14 +591,12 @@ function SkillTreePage:init(tree, data, parent_panel, fullscreen_panel, tree_tab
 
 			end
 
-			(for control) = debug_text:text_rect() and managers
 		end
 
-		(for control) = tostring(tier) and ipairs
 	end
 
 	local prev_tier_p = 0
-	local next_tier_p = managers.skilltree:tier_unlocked(tree, tier) and max_points
+	local next_tier_p = max_points
 	local ct = 0
 	for i = 1, 6 do
 		local tier_unlocks = managers.skilltree:tier_cost(self._tree, i)
@@ -693,14 +688,12 @@ function SkillTreePage:on_points_spent()
 
 			end
 
-			(for control) = nil and managers
 		end
 
-		(for control) = nil and ipairs
 	end
 
 	local prev_tier_p = 0
-	local next_tier_p = nil and max_points
+	local next_tier_p = max_points
 	local ct = 0
 	for i = 1, 6 do
 		local tier_unlocks = managers.skilltree:tier_cost(self._tree, i)
@@ -1009,10 +1002,8 @@ function SkillTreeGui:_setup()
 
 		end
 
-		(for control) = points_text:left() and skill_prerequisites[id]
 	end
 
-	(for control) = math.round(tab_x + w + 15) and data.prerequisites
 	do
 		local (for generator), (for state), (for control) = pairs(tweak_data.skilltree.trees)
 		do
@@ -1029,7 +1020,6 @@ function SkillTreeGui:_setup()
 
 	end
 
-	(for control) = math.round(tab_x + w + 15) and math
 	local top_tier_panel = self._panel:child("1"):child("tier_panels"):child("tier_panel" .. tostring(#tweak_data.skilltree.trees[1].tiers))
 	local bottom_tier_panel = self._panel:child("1"):child("tier_panels"):child("tier_panel1")
 	skill_description_panel:set_right(self._panel:w())
@@ -1106,7 +1096,7 @@ function SkillTreeGui:_rec_round_object(object)
 
 	end
 
-	local x, y = object:children() and object:position(), object:position()
+	local x, y = object:position()
 	object:set_position(math.round(x), math.round(y))
 end
 
@@ -1147,9 +1137,6 @@ function SkillTreeGui:activate_prev_tree_panel(play_sound)
 end
 
 function SkillTreeGui:set_active_page(tree_panel_name, play_sound)
--- fail 5
-null
-5
 	do
 		local (for generator), (for state), (for control) = pairs(self._pages)
 		do
@@ -1212,9 +1199,6 @@ function SkillTreeGui:layer()
 end
 
 function SkillTreeGui:set_selected_item(item, no_sound)
--- fail 264
-null
-26
 	if self._selected_item ~= item then
 		if self._selected_item then
 			self._selected_item:deselect()
@@ -1244,7 +1228,7 @@ null
 
 	end
 
-	self._prerequisites_links = nil and {}
+	self._prerequisites_links = {}
 	local skill_stat_color = tweak_data.screen_colors.resource
 	local color_replace_table = {}
 	local tier_bonus_text = ""
@@ -1348,10 +1332,8 @@ null
 
 		end
 
-		(for control) = "\n" and item._skill_id
 	end
 
-	(for control) = managers.localization:text(tweak_data.skilltree.skills[tweak_data.skilltree.trees[self._selected_item._tree].skill][self._selected_item._tier].desc_id, tier_descs) and managers
 	self._skill_title_panel:child("text"):set_text(title_text)
 	local desc_pre_text = self._skill_description_panel:child("prerequisites_text")
 	if prerequisite_text == "" then
@@ -1392,7 +1374,6 @@ null
 
 	end
 
-	(for control) = managers.skilltree:points() and Idstring
 	if #start_ci ~= #end_ci then
 	else
 		for i = 1, #start_ci do
@@ -1474,7 +1455,6 @@ function SkillTreeGui:mouse_moved(o, x, y)
 
 	end
 
-	(for control) = y and item.inside
 	do
 		local (for generator), (for state), (for control) = ipairs(self._tab_items)
 		do
@@ -1489,7 +1469,6 @@ function SkillTreeGui:mouse_moved(o, x, y)
 
 	end
 
-	(for control) = y and tab_item.inside
 	if managers.menu:is_pc_controller() then
 		if self._panel:child("back_button"):inside(x, y) then
 			if not self._back_highlight then
@@ -1549,7 +1528,6 @@ function SkillTreeGui:mouse_pressed(button, x, y)
 
 		end
 
-		(for control) = y and item.inside
 		local (for generator), (for state), (for control) = ipairs(self._tab_items)
 		do
 			do break end
@@ -1678,7 +1656,6 @@ function SkillTreeGui:place_point(item)
 
 	end
 
-	(for control) = nil and managers
 	if not managers.money:can_afford_spend_skillpoint(tree, tier, points) then
 		self:flash_item(item)
 		return

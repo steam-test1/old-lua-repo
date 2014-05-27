@@ -41,7 +41,6 @@ function EnableUnitUnitElement:update_selected()
 
 	end
 
-	(for control) = nil and alive
 	local (for generator), (for state), (for control) = pairs(self._units)
 	do
 		do break end
@@ -78,7 +77,6 @@ function EnableUnitUnitElement:update_unselected(t, dt, selected_unit, all_units
 
 	end
 
-	(for control) = nil and alive
 	local (for generator), (for state), (for control) = pairs(self._units)
 	do
 		do break end

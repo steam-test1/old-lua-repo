@@ -102,7 +102,6 @@ function InteractionEditorUI:create_graph_context_menu(system)
 
 	end
 
-	(for control) = InteractionDescription:node_types() and add_menu.append_item
 	local menu = EWS:Menu("")
 	menu:append_menu("ADD_NODE", "Add Node", add_menu, "")
 	menu:append_separator()

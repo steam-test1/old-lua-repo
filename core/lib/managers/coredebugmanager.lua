@@ -8,9 +8,6 @@ DebugManager = DebugManager or class()
 DebugManager.ROT_LINE_LENGTH = 20
 DebugManager.reload = true
 function DebugManager:init()
--- fail 77
-null
-3
 	self._enabled = false
 	self._enabled_paused = false
 	DebugManager.reload = false
@@ -295,6 +292,7 @@ function DebugManager.args_to_string(...)
 
 	end
 
+	return s
 end
 
 function DebugManager:qa_debug(username)
@@ -775,6 +773,7 @@ function FuncDebug:delete(func, all)
 
 	end
 
+	return count
 end
 
 function FuncDebug:remove(index)
@@ -1036,7 +1035,6 @@ function GUIDebug:clear()
 
 		end
 
-		(for control) = nil and text.set_text
 		self._workspace:panel():clear()
 		Overlay:gui():destroy_workspace(self._workspace)
 		self._workspace = nil
@@ -1218,9 +1216,6 @@ function GraphDebug:set_range(min, max)
 end
 
 function GraphDebug:update(t, dt)
--- fail 26
-unluac.decompile.expression.FunctionCall@6e1b0caf
--1
 	local contains_values
 	do
 		local (for generator), (for state), (for control) = pairs(self._pos_list)
@@ -1232,13 +1227,114 @@ unluac.decompile.expression.FunctionCall@6e1b0caf
 
 	end
 
-	do break end
-	if not self._workspace_map then
-		self:setup()
-	end
+	if contains_values then
+		if not self._workspace_map then
+			self:setup()
+		end
 
-	do break end
-	if self._workspace_map then
+		local camera = not self._camera and managers.viewport and managers.viewport:get_current_camera()
+		local rotation, origo
+		if camera then
+			rotation = camera:rotation()
+			origo = camera:position() + rotation:y() * self._cam_offset.y + rotation:z() * self._cam_offset.z
+			rotation = self._fixed_rot or rotation
+		else
+			origo = Vector3()
+			rotation = self._fixed_rot or Rotation()
+		end
+
+		if self._invalidated then
+			if not self._fixed_range then
+				local min_x = 0
+				local max_x = 0
+				local min_y = 0
+				local max_y = 0
+				local min_z = 0
+				local max_z = 0
+				do
+					local (for generator), (for state), (for control) = pairs(self._pos_list)
+					do
+						do break end
+						local (for generator), (for state), (for control) = ipairs(list)
+						do
+							do break end
+							if min_x > point._pos.x then
+								min_x = point._pos.x
+							end
+
+							if max_x < point._pos.x then
+								max_x = point._pos.x
+							end
+
+							if min_y > point._pos.y then
+								min_y = point._pos.y
+							end
+
+							if max_y < point._pos.y then
+								max_y = point._pos.y
+							end
+
+							if min_z > point._pos.z then
+								min_z = point._pos.z
+							end
+
+							if max_z < point._pos.z then
+								max_z = point._pos.z
+							end
+
+						end
+
+					end
+
+				end
+
+				self:set_range(Vector3(min_x, min_y, min_z), Vector3(max_x, max_y, max_z))
+			end
+
+			self._invalidated = false
+		end
+
+		local offset = Vector3(self._min_x + self._span_x / 2, self._min_y + self._span_y / 2, self._min_z + self._span_z / 2)
+		local offset_origo = origo - self:get_scaled_pos(offset):rotate_with(rotation)
+		local offset_max_x = offset_origo + Vector3(self._max_x * self._scale_x, 0, 0):rotate_with(rotation)
+		local offset_max_y = offset_origo + Vector3(0, self._max_y * self._scale_y, 0):rotate_with(rotation)
+		local offset_max_z = offset_origo + Vector3(0, 0, self._max_z * self._scale_z):rotate_with(rotation)
+		local offset_min_x = offset_origo + Vector3(self._min_x * self._scale_x, 0, 0):rotate_with(rotation)
+		local offset_min_y = offset_origo + Vector3(0, self._min_y * self._scale_y, 0):rotate_with(rotation)
+		local offset_min_z = offset_origo + Vector3(0, 0, self._min_z * self._scale_z):rotate_with(rotation)
+		Application:draw_line_unpaused(offset_min_x, offset_max_x, 1, 0, 0)
+		Application:draw_line_unpaused(offset_min_y, offset_max_y, 0, 1, 0)
+		Application:draw_line_unpaused(offset_min_z, offset_max_z, 0, 0, 1)
+		Application:draw_cone(offset_max_x + Vector3(GraphDebug.AXIS_ARROW_SIZE, 0, 0):rotate_with(rotation), offset_max_x, GraphDebug.AXIS_ARROW_SIZE / 4, 1, 0, 0)
+		Application:draw_cone(offset_max_y + Vector3(0, GraphDebug.AXIS_ARROW_SIZE, 0):rotate_with(rotation), offset_max_y, GraphDebug.AXIS_ARROW_SIZE / 4, 0, 1, 0)
+		Application:draw_cone(offset_max_z + Vector3(0, 0, GraphDebug.AXIS_ARROW_SIZE):rotate_with(rotation), offset_max_z, GraphDebug.AXIS_ARROW_SIZE / 4, 0, 0, 1)
+		local old_point
+		do
+			local (for generator), (for state), (for control) = pairs(self._pos_list)
+			do
+				do break end
+				old_point = nil
+				local (for generator), (for state), (for control) = ipairs(list)
+				do
+					do break end
+					local graph_point = clone(point)
+					graph_point._pos = offset_origo + self:get_scaled_pos(point._pos):rotate_with(rotation)
+					DebugManager.draw_point(index, #list, old_point, graph_point, self._skip_lines_map[list_index])
+					old_point = graph_point
+				end
+
+			end
+
+		end
+
+		self:set_gui_text("max_x", offset_max_x, rotation, "", self._max_x)
+		self:set_gui_text("max_y", offset_max_y, Rotation(-rotation:x(), rotation:z()), "", self._max_y)
+		self:set_gui_text("max_z", offset_max_z, rotation, "", self._max_z)
+		self:set_gui_text("min_x", offset_min_x, rotation, "", self._min_x)
+		self:set_gui_text("min_y", offset_min_y, Rotation(-rotation:x(), rotation:z()), "", self._min_y)
+		self:set_gui_text("min_z", offset_min_z, rotation, "", self._min_z)
+		self:set_visible(true)
+	elseif self._workspace_map then
 		self:set_visible(false)
 	end
 
@@ -1383,7 +1479,6 @@ function GraphDebug:set_max_count(list_index, max_count)
 
 	end
 
-	(for control) = list_index and #list
 	GraphDebug.super.set_max_count(self, list_index, max_count)
 end
 
@@ -1799,7 +1894,6 @@ function SimpleDebug:update(time, rel_time)
 
 	end
 
-	(for control) = nil and dep.time
 	local (for generator), (for state), (for control) = ipairs(remove_list)
 	do
 		do break end
@@ -1839,7 +1933,6 @@ function PrintDebug:node(node, indent, indent_string)
 
 	end
 
-	(for control) = node:parameter_map() and str
 	if 0 < node:num_children() then
 		cat_print("debug", str .. ">")
 		do
@@ -1851,7 +1944,6 @@ function PrintDebug:node(node, indent, indent_string)
 
 		end
 
-		(for control) = ">" and self.node
 		cat_print("debug", string.rep(tostring(indent_string), indent) .. "</" .. tostring(node:name()) .. ">")
 	else
 		cat_print("debug", str .. "/>")
@@ -1876,7 +1968,7 @@ function ProfilerDebug:clear()
 
 	end
 
-	self._counter_list = nil and {}
+	self._counter_list = {}
 	self._counter_map = {}
 end
 
@@ -1969,10 +2061,9 @@ function ProfilerDebug:set_unit_enabled(unit, enabled, function_name_list, ignor
 
 			end
 
-			(for control) = unit:extensions() and unit.name
 		end
 
-		(for control) = unit:extensions() and ipairs
+		self:update_colors()
 	end
 
 end
@@ -1992,7 +2083,7 @@ function ProfilerDebug:set_managers_enabled(enabled, ignore_map, include_only_ma
 
 	end
 
-	(for control) = nil and "managers."
+	self:update_colors()
 end
 
 function ProfilerDebug:reloaded()
@@ -2124,7 +2215,6 @@ function ProfilerDebug:toggle_compare_find(slotmask, find_type, radius, length, 
 
 		end
 
-		(for control) = find_type and Application
 		managers.debug.func:set(1, nil)
 		Global.spherecast_cost_counter_list = nil
 		return
@@ -2155,7 +2245,6 @@ function ProfilerDebug:toggle_compare_find(slotmask, find_type, radius, length, 
 
 	end
 
-	(for control) = nil and table
 	managers.debug:set_enabled(true)
 	managers.debug:set_enabled_paused(true)
 	managers.debug.func:set_enabled(true)
@@ -2772,9 +2861,9 @@ function MemoryDebug:extensions()
 
 		end
 
-		(for control) = nil and unit[extension_name]
 	end
 
+	return extension_class_map
 end
 
 function MemoryDebug:find_instance(find_value, is_meta_data, print_path, find_all, seen_map, map)
@@ -2860,7 +2949,6 @@ function MemoryDebug:traverse_instances(func, seen_map, map)
 
 				end
 
-				(for control) = unit:extensions() and self.traverse_instances_recursively
 				if next(next_unit_map) ~= nil then
 					unit_map[unit:name()] = next_unit_map
 					next_unit_map = {}
@@ -2870,7 +2958,6 @@ function MemoryDebug:traverse_instances(func, seen_map, map)
 
 		end
 
-		(for control) = nil and unit.name
 		if next(unit_map) ~= nil then
 			populate_map.Units = unit_map
 		end
@@ -3157,6 +3244,7 @@ function ConsoleDebug:get_arg_text(...)
 
 	end
 
+	return text
 end
 
 function ConsoleDebug:add_text(text, color)
@@ -3569,7 +3657,7 @@ function MenuDebug:setup_menu()
 
 		end
 
-		(for control) = callback(self, self, "setup_menu") and option_data.font
+		self:setup_menu_shape()
 	end
 
 end
@@ -3605,8 +3693,10 @@ function MenuDebug:setup_menu_shape()
 
 	end
 
-	do break end
-	option_h = option_h - option_spacing
+	if option_h > 0 then
+		option_h = option_h - option_spacing
+	end
+
 	local panel_y = (res.y - option_h) / 2
 	local safe_rect = managers.viewport:get_safe_rect_pixels()
 	local fade_dist = 200
@@ -3632,7 +3722,6 @@ function MenuDebug:setup_menu_shape()
 
 	end
 
-	(for control) = self._option_panel:children() and math
 	do
 		local (for generator), (for state), (for control) = ipairs(self._option_panel:children())
 		do
@@ -3643,7 +3732,6 @@ function MenuDebug:setup_menu_shape()
 
 	end
 
-	(for control) = self._option_panel:children() and option.text_rect
 	self._option_panel:set_shape((res.x - option_w) / 2, panel_y, option_w, option_h)
 end
 
@@ -3692,8 +3780,10 @@ function MenuDebug:update(t, dt)
 
 		end
 
-		do break end
-		self:setup_menu_shape()
+		if shape_changed then
+			self:setup_menu_shape()
+		end
+
 	end
 
 end

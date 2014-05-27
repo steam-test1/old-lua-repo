@@ -34,7 +34,6 @@ function CoreAnimationStateTreePanel:_refresh_tree()
 
 	end
 
-	(for control) = nil and self._tree_control
 	self:_tree_control():thaw()
 end
 

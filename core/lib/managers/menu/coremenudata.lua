@@ -33,6 +33,7 @@ function Data:get_node(node_name, ...)
 
 	end
 
+	return node
 end
 
 function Data:load_data(file_path, menu_id)
@@ -51,9 +52,11 @@ function Data:load_data(file_path, menu_id)
 
 	end
 
-	do break end
-	Application:error("Data:load_data(): No menu with id '" .. menu_id .. "' in '" .. file_path .. "'")
-	do return end
+	if not menu then
+		Application:error("Data:load_data(): No menu with id '" .. menu_id .. "' in '" .. file_path .. "'")
+		return
+	end
+
 	local (for generator), (for state), (for control) = ipairs(menu)
 	do
 		do break end

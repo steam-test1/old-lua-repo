@@ -127,5 +127,6 @@ function CoreCutsceneKeyCollection:last_key_before(time, element_name, propertie
 
 	end
 
+	return last_key
 end
 

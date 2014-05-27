@@ -34,7 +34,7 @@ function UnitDamage:_has_body_collision_damage(body_name)
 
 	end
 
-	(for control) = nil and Idstring
+	return false
 end
 
 function UnitDamage:can_play_collision_sfx()

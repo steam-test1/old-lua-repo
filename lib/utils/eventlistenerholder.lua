@@ -35,7 +35,6 @@ function EventListenerHolder:call(event, ...)
 			end
 
 			self._calling = nil
-			(for control) = nil and self._not_trash
 			self:_append_new_additions()
 			self:_dispose_trash()
 		end
@@ -59,7 +58,6 @@ function EventListenerHolder:_remove(key)
 
 	end
 
-	(for control) = nil and listeners[event]
 	if next(listeners) then
 		self._listener_keys[key] = nil
 	else
@@ -92,7 +90,7 @@ function EventListenerHolder:_add(key, event_types, clbk)
 
 	end
 
-	self._listener_keys[key] = clbk and event_types
+	self._listener_keys[key] = event_types
 end
 
 function EventListenerHolder:_set_trash(key)
@@ -119,9 +117,52 @@ function EventListenerHolder:_set_new(key, event_types, clbk)
 end
 
 function EventListenerHolder:_append_new_additions()
+	if self._additions then
+		local listeners = self._listeners
+		if not listeners then
+			self._listeners = {}
+			self._listener_keys = {}
+			listeners = self._listeners
+		end
+
+		do
+			local (for generator), (for state), (for control) = pairs(self._additions)
+			do
+				do break end
+				do
+					local (for generator), (for state), (for control) = ipairs(new_entry[2])
+					do
+						do break end
+						listeners[event] = listeners[event] or {}
+						listeners[event][key] = new_entry[1]
+					end
+
+				end
+
+				self._listener_keys[key] = new_entry[2]
+			end
+
+		end
+
+		self._additions = nil
+	end
+
 end
 
 function EventListenerHolder:_dispose_trash()
+	if self._trash then
+		do
+			local (for generator), (for state), (for control) = pairs(self._trash)
+			do
+				do break end
+				self:_remove(key)
+			end
+
+		end
+
+		self._trash = nil
+	end
+
 end
 
 function EventListenerHolder:_not_trash(key)

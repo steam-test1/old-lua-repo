@@ -14,25 +14,21 @@ function CoreEditor:create_projection_light(type)
 
 		end
 
-	else
-		(for control) = nil and CoreEditorUtils
-		if type == "selected" then
-			local s_units = self:current_selected_units()
-			local (for generator), (for state), (for control) = ipairs(s_units)
-			do
-				do break end
-				local light_name = CoreEditorUtils.has_projection_light(unit)
-				if light_name then
-					table.insert(units, {unit = unit, light_name = light_name})
-				end
-
+	elseif type == "selected" then
+		local s_units = self:current_selected_units()
+		local (for generator), (for state), (for control) = ipairs(s_units)
+		do
+			do break end
+			local light_name = CoreEditorUtils.has_projection_light(unit)
+			if light_name then
+				table.insert(units, {unit = unit, light_name = light_name})
 			end
 
 		end
 
 	end
 
-	self._saved_all_lights = nil and {}
+	self._saved_all_lights = {}
 	do
 		local (for generator), (for state), (for control) = ipairs(CoreEditorUtils.all_lights())
 		do
@@ -45,7 +41,6 @@ function CoreEditor:create_projection_light(type)
 
 	end
 
-	(for control) = CoreEditorUtils.all_lights() and table
 	do
 		local (for generator), (for state), (for control) = ipairs(units)
 		do
@@ -70,7 +65,6 @@ function CoreEditor:create_projection_light(type)
 
 	end
 
-	(for control) = CoreEditorUtils.all_lights() and data.unit
 	if #lights == 0 then
 		return
 	end
@@ -84,7 +78,6 @@ function CoreEditor:create_projection_light(type)
 
 	end
 
-	(for control) = CoreEditorUtils.all_lights() and data.light
 	self:viewport():vp():set_post_processor_effect("World", Idstring("hdr_post_processor"), Idstring("empty"))
 	self:viewport():vp():set_post_processor_effect("World", Idstring("bloom_combine_post_processor"), Idstring("bloom_combine_empty"))
 	self:viewport():vp():set_post_processor_effect("World", Idstring("deferred"), Idstring("projection_generation"))
@@ -159,23 +152,17 @@ function CoreEditor:create_cube_map(params)
 
 					end
 
-				else
-					(for control) = unit:get_objects("*") and string
-					if unit:unit_data().hide_on_projection_light then
-						self:set_unit_visible(unit, false)
-						table.insert(self._saved_hidden_units, unit)
-					end
-
+				elseif unit:unit_data().hide_on_projection_light then
+					self:set_unit_visible(unit, false)
+					table.insert(self._saved_hidden_units, unit)
 				end
 
 			end
 
 		end
 
-		(for control) = layer:created_units() and unit.has_material_assigned
 	end
 
-	(for control) = self:camera():position() and ipairs
 	if self._current_layer then
 		self._current_layer:update_unit_settings()
 	end
@@ -233,7 +220,6 @@ function CoreEditor:cube_map_done()
 		self._saved_all_lights = nil
 	end
 
-	(for control) = nil and data.light
 	if self._cubemap_params.lights then
 		self:viewport():vp():set_post_processor_effect("World", Idstring("hdr_post_processor"), self._default_post_processor_effect)
 		local bloom_combine_effect = self._default_post_processor_effect == Idstring("empty") and Idstring("bloom_combine_empty") or Idstring("bloom_combine")
@@ -251,7 +237,6 @@ function CoreEditor:cube_map_done()
 
 	end
 
-	(for control) = Idstring("depth_projection") and cube.light
 	self:set_show_camera_info(true)
 	self._layers[self._mission_layer_name]:set_enabled(true)
 	self._show_center = self._saved_show_center
@@ -265,7 +250,6 @@ function CoreEditor:cube_map_done()
 
 	end
 
-	(for control) = ipairs(self._cubemap_params.cubes) or obj.set_visibility
 	do
 		local (for generator), (for state), (for control) = ipairs(self._saved_hidden_units)
 		do
@@ -275,7 +259,6 @@ function CoreEditor:cube_map_done()
 
 	end
 
-	(for control) = ipairs(self._cubemap_params.cubes) and self.set_unit_visible
 	if managers.viewport and managers.viewport._sun_flare_effect then
 		managers.viewport._sun_flare_effect._sf_panel:show()
 	end

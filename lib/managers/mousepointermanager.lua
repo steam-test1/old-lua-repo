@@ -210,8 +210,10 @@ function MousePointerManager:remove_mouse(id)
 
 	end
 
-	do break end
-	table.remove(self._mouse_callbacks)
+	if not removed then
+		table.remove(self._mouse_callbacks)
+	end
+
 	if #self._mouse_callbacks <= 0 then
 		self:_deactivate()
 	end

@@ -90,7 +90,7 @@ function SequenceManager:init(area_damage_mask, target_world_mask, beings_mask)
 
 	end
 
-	self._proximity_masks = nil and {}
+	self._proximity_masks = {}
 	self._collisions_enabled = true
 	self._proximity_enabled = true
 	self._global_unit_element = nil
@@ -254,10 +254,8 @@ function SequenceManager:editor_info(unit_name)
 
 		end
 
-		(for control) = nil and endurance_type_list[endurance_type]
 	end
 
-	(for control) = nil and body_element.get_first_endurance_element_list
 	return self:get_keys_as_string(endurance_type_list, "[None]", true, false)
 end
 
@@ -311,7 +309,6 @@ function SequenceManager:get_keys_as_string(key_value_list, none_string, dot_at_
 
 	end
 
-	(for control) = nil and func
 	return func(count, true)
 end
 
@@ -453,8 +450,7 @@ function SequenceManager:update(time, delta_time)
 
 	end
 
-	do break end
-	do
+	if remove_time_callback_list then
 		local (for generator), (for state), (for control) = ipairs(remove_time_callback_list)
 		do
 			do break end
@@ -463,7 +459,6 @@ function SequenceManager:update(time, delta_time)
 
 	end
 
-	(for control) = nil and self._time_callback_map
 	do
 		local (for generator), (for state), (for control) = pairs(self._retry_callback_list)
 		do
@@ -488,7 +483,6 @@ function SequenceManager:update(time, delta_time)
 
 	end
 
-	(for control) = nil and self._retry_callback_list
 	local (for generator), (for state), (for control) = pairs(self._callback_map)
 	do
 		do break end
@@ -507,9 +501,6 @@ function SequenceManager:_serialize_to_script(type, name)
 end
 
 function SequenceManager:_add_sequences_from_unit_data(unit_data)
--- fail 18
-null
-6
 	local unit_name = unit_data:name()
 	if self._sequence_file_map[unit_name:key()] then
 		return
@@ -590,7 +581,7 @@ function SequenceManager:reload_all()
 
 	end
 
-	(for control) = nil and CoreEngineAccess
+	self:preload()
 end
 
 function SequenceManager:clear()
@@ -696,6 +687,7 @@ function SequenceManager:test_unit_damage(unit)
 
 				end
 
+				do break end
 				break
 			end
 
@@ -722,9 +714,11 @@ function SequenceManager:save(data)
 
 	end
 
-	do break end
-	state.unit_element_map = unit_element_map
-	data.CoreSequenceManager = state
+	if changed then
+		state.unit_element_map = unit_element_map
+		data.CoreSequenceManager = state
+	end
+
 end
 
 function SequenceManager:load(data)
@@ -743,7 +737,6 @@ function SequenceManager:load(data)
 
 		end
 
-		(for control) = nil and self.get
 		self:load_global_save_data(state)
 	end
 
@@ -876,7 +869,6 @@ THIS WILL CRASH SOON, SO FIX IT!
 
 	end
 
-	(for control) = pos and alive
 	local unit_sphere = attack_unit:find_units("sphere", pos, range, self._beings_mask - ignore_mask)
 	do
 		local (for generator), (for state), (for control) = ipairs(unit_sphere)
@@ -923,11 +915,13 @@ THIS WILL CRASH SOON, SO FIX IT!
 
 	end
 
-	do break end
-	if mass then
-		World:play_physic_effect(physic_effect, pos, range, mass)
-	else
-		World:play_physic_effect(physic_effect, pos, range)
+	if physic_effect then
+		if mass then
+			World:play_physic_effect(physic_effect, pos, range, mass)
+		else
+			World:play_physic_effect(physic_effect, pos, range)
+		end
+
 	end
 
 	do
@@ -939,7 +933,6 @@ THIS WILL CRASH SOON, SO FIX IT!
 
 	end
 
-	(for control) = pos and func
 	return killed_being_map, damaged_being_map, killed_prop_map, damaged_prop_map, hit_being_map, hit_prop_map
 end
 
@@ -973,10 +966,12 @@ function SequenceManager:is_hit_by_area_damage(dest_unit, position, ray_caller, 
 
 	end
 
-	do break end
-	ray = ray_caller:raycast("ray", dest_unit:position(), position, "slot_mask", self._target_world_mask, "ignore_unit", {dest_unit, ignore_unit})
-	if not ray then
-		return true, dest_unit:position()
+	if not had_target_object then
+		ray = ray_caller:raycast("ray", dest_unit:position(), position, "slot_mask", self._target_world_mask, "ignore_unit", {dest_unit, ignore_unit})
+		if not ray then
+			return true, dest_unit:position()
+		end
+
 	end
 
 	return false
@@ -1049,6 +1044,7 @@ function SequenceManager:get_unit_count()
 
 	end
 
+	return count
 end
 
 function SequenceManager.set_effect_spawner_enabled(effect_spawner, enabled)
@@ -1313,6 +1309,7 @@ function SequenceEnvironment.rot_sum(...)
 
 	end
 
+	return rot_sum
 end
 
 function SequenceEnvironment.rot_mul(rot, float)
@@ -1334,18 +1331,6 @@ function SequenceEnvironment.t()
 end
 
 function SequenceEnvironment.print_vars()
--- fail 118
-null
-3
--- fail 146
-null
-3
--- fail 174
-null
-3
--- fail 202
-null
-3
 	cat_print("debug", "damage_type: " .. tostring(SequenceEnvironment.self.damage_type))
 	cat_print("debug", "src_unit: " .. tostring(SequenceEnvironment.self.src_unit))
 	cat_print("debug", "dest_unit: " .. tostring(SequenceEnvironment.self.dest_unit))
@@ -1572,9 +1557,6 @@ BaseElement.BASE_ATTRIBUTE_MAP = BaseElement.BASE_ATTRIBUTE_MAP or {
 }
 BaseElement.SAVE_STATE = true
 function BaseElement:init(node, unit_element)
--- fail 19
-null
-7
 	self._unit_element = unit_element
 	local __filter_name, __delayed_filter_name
 	if node then
@@ -1699,6 +1681,7 @@ function BaseElement:run_parsed_func_list(env, list)
 
 	end
 
+	return parsed_list
 end
 
 function BaseElement:run_parsed_func_map(env, map)
@@ -1712,6 +1695,7 @@ function BaseElement:run_parsed_func_map(env, map)
 
 	end
 
+	return parsed_map
 end
 
 function BaseElement:activate(env)
@@ -1880,7 +1864,6 @@ function BaseElement:get_xml_element_string(node)
 
 	end
 
-	(for control) = nil and str
 	return str .. "/>"
 end
 
@@ -1953,19 +1936,15 @@ function UnitElement:init(node, name, is_global)
 
 					end
 
-				else
-					(for control) = nil and v_data._meta
-					if element_name == "global_variables" then
-						local (for generator), (for state), (for control) = ipairs(data)
-						do
-							do break end
-							local name = v_data._meta
-							self._global_vars = self._global_vars or {}
-							self._global_vars[name] = self:get_static("value", v_data.value, nil, data)
-							if self._global_vars[name] then
-								self._global_vars[name] = self._global_vars[name](SequenceEnvironment)
-							end
-
+				elseif element_name == "global_variables" then
+					local (for generator), (for state), (for control) = ipairs(data)
+					do
+						do break end
+						local name = v_data._meta
+						self._global_vars = self._global_vars or {}
+						self._global_vars[name] = self:get_static("value", v_data.value, nil, data)
+						if self._global_vars[name] then
+							self._global_vars[name] = self._global_vars[name](SequenceEnvironment)
 						end
 
 					end
@@ -1974,11 +1953,10 @@ function UnitElement:init(node, name, is_global)
 
 			end
 
-			(for control) = nil and v_data._meta
 		end
 
 		local sequence_nodes = {}
-		local water_node_list = table.map_copy(vars) and {}
+		local water_node_list = {}
 		local body_nodes = {}
 		do
 			local (for generator), (for state), (for control) = ipairs(node)
@@ -2027,7 +2005,6 @@ function UnitElement:init(node, name, is_global)
 
 		end
 
-		(for control) = ipairs(data) and data._meta
 		do
 			local (for generator), (for state), (for control) = pairs(sequence_nodes)
 			do
@@ -2037,7 +2014,6 @@ function UnitElement:init(node, name, is_global)
 
 		end
 
-		(for control) = ipairs(data) and self._sequence_elements
 		do
 			local (for generator), (for state), (for control) = ipairs(water_node_list)
 			do
@@ -2054,7 +2030,6 @@ function UnitElement:init(node, name, is_global)
 
 		end
 
-		(for control) = ipairs(data) and WaterElement
 		do
 			local (for generator), (for state), (for control) = ipairs(body_nodes)
 			do
@@ -2070,7 +2045,6 @@ function UnitElement:init(node, name, is_global)
 
 		end
 
-		(for control) = ipairs(data) and RootBodyElement
 		if self._global_vars then
 			local (for generator), (for state), (for control) = pairs(self._global_vars)
 			do
@@ -2109,6 +2083,7 @@ function UnitElement:get_startup_sequence_map(unit, damage_ext)
 
 	end
 
+	return map
 end
 
 function UnitElement:get_editor_startup_sequence_map(unit, damage_ext)
@@ -2135,6 +2110,7 @@ function UnitElement:get_editor_startup_sequence_map(unit, damage_ext)
 
 	end
 
+	return map
 end
 
 function UnitElement:get_name()
@@ -2164,6 +2140,7 @@ function UnitElement:get_trigger_name_list()
 
 	end
 
+	return trigger_name_list
 end
 
 function UnitElement:has_trigger_name(trigger_name)
@@ -2185,7 +2162,6 @@ function UnitElement:get_sequence_name_list()
 
 	end
 
-	(for control) = nil and table
 	do
 		local (for generator), (for state), (for control) = pairs(managers.sequence:get_global_sequence_map())
 		do
@@ -2195,6 +2171,7 @@ function UnitElement:get_sequence_name_list()
 
 	end
 
+	return sequence_name_list
 end
 
 function UnitElement:get_parameter_sequence_name_list(parameter_name, parameter_value)
@@ -2212,6 +2189,7 @@ function UnitElement:get_parameter_sequence_name_list(parameter_name, parameter_
 
 	end
 
+	return sequence_name_list
 end
 
 function UnitElement:has_sequence_name(sequence_name)
@@ -2250,10 +2228,8 @@ function UnitElement:reset_damage(unit)
 
 		end
 
-		(for control) = nil and extension._endurance
 	end
 
-	(for control) = nil and unit.body
 	unit:damage()._damage = 0
 end
 
@@ -2303,8 +2279,10 @@ function UnitElement:save_by_unit(unit, data)
 
 	end
 
-	do break end
-	data.UnitElement = state
+	if changed then
+		data.UnitElement = state
+	end
+
 	return changed
 end
 
@@ -2346,8 +2324,10 @@ function UnitElement:save(data)
 
 	end
 
-	do break end
-	data[self._name] = state
+	if changed then
+		data[self._name] = state
+	end
+
 end
 
 function UnitElement:load(data)
@@ -2425,6 +2405,7 @@ function FilterElement:is_allowed(env)
 
 	end
 
+	return allowed
 end
 
 CheckFilterElement = CheckFilterElement or class(BaseElement)
@@ -2546,8 +2527,7 @@ function ZoneFilterElement:is_allowed(env)
 
 		end
 
-		do return allowed end
-		(for control) = obj:rotation():inverse() and func
+		return allowed
 	else
 		self:print_attribute_error("ref_object", obj, nil, true, env, nil)
 		return false
@@ -2700,7 +2680,6 @@ function ProximityTypeElement:init(node, unit_element)
 
 	end
 
-	(for control) = self._interval(SequenceEnvironment) and child_node._meta
 	if (not self._within_element or #self._within_element._elements == 0) and (not self._outside_element or #self._outside_element._elements == 0) then
 		Application:throw_exception("\"" .. tostring(node:name()) .. "\" element on unit \"" .. tostring(unit_element._name) .. "\" doesn't have a \"within\" nor a \"outside\" element or they doesn't contain any \"run_sequence\" elements.")
 	end
@@ -2855,7 +2834,6 @@ function WaterElement:init(node, unit_element)
 
 	end
 
-	(for control) = true and child_node.name
 	if self:is_empty() then
 		self:print_error("Water element \"" .. tostring(self._name) .. "\" is empty.", false, nil)
 	end
@@ -3002,7 +2980,6 @@ function RootBodyElement:init(node, unit_element)
 				end
 
 			else
-				(for control) = unit_element and self._first_endurance
 				self:check_invalid_node(data, {"inflict", "endurance"})
 			end
 
@@ -3010,7 +2987,7 @@ function RootBodyElement:init(node, unit_element)
 
 	end
 
-	self._body_params = "\" element for unit \"" and {}
+	self._body_params = {}
 	local (for generator), (for state), (for control) = pairs(self._parameters)
 	do
 		do break end
@@ -3292,7 +3269,7 @@ function EnduranceElement:init(node, unit_element)
 
 	end
 
-	self._elements = unit_element and {}
+	self._elements = {}
 	local (for generator), (for state), (for control) = ipairs(node)
 	do
 		do break end
@@ -3590,12 +3567,12 @@ function AreaDamageElement:get_params(env)
 
 			end
 
-			(for control) = nil and parsed_key.get_variable
 			table.insert(params.parsed_key_list, index or #params.parsed_key_list + 1, parsed_key)
 		end
 
 	end
 
+	return params
 end
 
 function AreaDamageElement:do_area_damage(env, damage_type, attack_unit, pos, range, constant_damage, damage, physic_effect, mass, ignore_unit, direct_attack_unit, ignore_mask, get_damage_func, velocity)
@@ -3625,8 +3602,7 @@ function AreaDamageElement:get_falloff_key_damage(params, unit, body, dir, hit_p
 
 	end
 
-	do break end
-	do
+	if key then
 		local prev_key = params.parsed_key_list[index + 1]
 		local prev_key_damage, prev_key_range
 		if prev_key then
@@ -3642,10 +3618,10 @@ function AreaDamageElement:get_falloff_key_damage(params, unit, body, dir, hit_p
 		end
 
 		return key:get_key_element():get_distance_damage(key, distance, prev_key_range, prev_key_damage)
+	else
+		return damage
 	end
 
-	do break end
-	return damage
 end
 
 function AreaDamageElement:get_falloff_preset1_damage(params, unit, body, dir, hit_pos, damage_type, attack_unit, pos, range, constant_damage, damage, velocity, ignore_unit, direct_attack_unit, ignore_mask)
@@ -3790,7 +3766,7 @@ function BodyElement:activate_callback(env)
 
 	end
 
-	local body_name_list = nil and {}
+	local body_name_list = {}
 	for i = 1, env.dest_unit:num_bodies() do
 		local body = env.dest_unit:body(i - 1)
 		if alive(body) then
@@ -4214,7 +4190,6 @@ function EffectSpawnerElement:activate_callback(env)
 			end
 
 		else
-			(for control) = name:id() and func
 			self:print_error("Effect spawner \"" .. tostring(name) .. "\" not found.", true, env)
 		end
 
@@ -4474,7 +4449,6 @@ function LightElement:activate_callback(env)
 		end
 
 	else
-		(for control) = name:id() and func
 		self:print_attribute_error("name", name, nil, true, env, nil)
 	end
 
@@ -4647,7 +4621,6 @@ function MaterialElement:activate_callback(env)
 
 			end
 
-			(for control) = name:id() and func
 			local color = self:run_parsed_func(env, self._diffuse_color)
 			local alpha = self:run_parsed_func(env, self._diffuse_color_alpha)
 			if color or alpha then
@@ -4782,7 +4755,6 @@ function ObjectElement:activate_callback(env)
 		end
 
 	else
-		(for control) = env.dest_unit:get_object(Idstring(name)) and func
 		self:print_attribute_error("name", name, nil, true, env)
 	end
 
@@ -5024,7 +4996,6 @@ function RunSequenceElement:activate_callback(env)
 
 			end
 
-			(for control) = nil and env.__run_params
 			sequence:activate(env)
 			env.params = old_params
 		else
@@ -5101,7 +5072,6 @@ function SetDamageElement:activate_callback(env)
 			end
 
 		else
-			(for control) = nil and func
 			self:print_error("Unable to set body damage on unit \"" .. tostring(env.dest_unit) .. "\" with body \"" .. env.dest_body:name() .. "\" since it didn't have a damage extension on the body.", true, env)
 		end
 
@@ -5237,7 +5207,6 @@ function SetInflictElement:activate_callback(env)
 		end
 
 	else
-		(for control) = nil and self.run_parsed_func
 		self:print_attribute_error("body", body_name, nil, true, env)
 	end
 
@@ -5282,7 +5251,6 @@ function SetPhysicEffectElement:activate_callback(env)
 
 		end
 
-		(for control) = id and self.run_parsed_func
 		local (for generator), (for state), (for control) = pairs(self._body_list)
 		do
 			do break end
@@ -5395,7 +5363,6 @@ function SetProximityElement:activate_callback(env)
 		end
 
 	else
-		(for control) = nil and func
 		local supported_values = SequenceManager:get_keys_as_string(proximity_map, "", true, true)
 		self:print_attribute_error("name", name, supported_values, true, env)
 	end
@@ -6117,7 +6084,7 @@ function SpawnUnitElement:get_params(env)
 
 	end
 
-	params.spawn_unit = nil and env.dest_unit
+	params.spawn_unit = env.dest_unit
 	return params
 end
 

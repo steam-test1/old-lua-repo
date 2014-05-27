@@ -228,9 +228,6 @@ function AIAttentionElement:_raycast()
 end
 
 function AIAttentionElement:_lmb()
--- fail 36
-null
-5
 	local unit = self:_find_att_obj_raycast()
 	if unit then
 		if self._att_obj_unit == unit then

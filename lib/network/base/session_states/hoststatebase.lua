@@ -107,7 +107,6 @@ function HostStateBase:on_handshake_confirmation(data, peer, introduced_peer_id)
 
 	end
 
-	(for control) = peer and data.session
 	managers.network:game():_check_start_game_intro()
 end
 
@@ -120,9 +119,6 @@ function HostStateBase:_is_kicked(data, peer_name, peer_rpc)
 end
 
 function HostStateBase:_chk_peer_owns_current_dlc(data, peer_dlcs)
--- fail 19
-null
-7
 	local requires_dlc = tweak_data.levels[Global.game_settings.level_id].dlc
 	if requires_dlc then
 		local i_dlcs = string.split(peer_dlcs, " ")
@@ -137,6 +133,7 @@ null
 
 	end
 
+	return false
 end
 
 function HostStateBase:on_peer_finished_loading(data, peer)

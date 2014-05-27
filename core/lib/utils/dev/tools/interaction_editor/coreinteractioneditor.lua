@@ -38,7 +38,6 @@ function InteractionEditor:close()
 	end
 
 	self._system = nil
-	(for control) = nil and sys.close
 	self._ui:destroy()
 end
 
@@ -52,7 +51,6 @@ function InteractionEditor:open_system(path)
 
 	end
 
-	(for control) = nil and sys.deactivate
 	local sys = CoreInteractionEditorSystem.InteractionEditorSystem:new(self._ui, path)
 	self._systems[sys] = sys
 end
@@ -103,7 +101,6 @@ function InteractionEditor:activate_system(panel)
 
 	end
 
-	(for control) = nil and sys.deactivate
 	local (for generator), (for state), (for control) = pairs(self._systems)
 	do
 		do break end

@@ -47,7 +47,7 @@ function InteractionEditorSystem:init(ui, path)
 
 		end
 
-		local (for generator), (for state), (for control) = assert(managers.database:load_node(path)) and md:children(), md:children()
+		local (for generator), (for state), (for control) = md:children()
 		do
 			do break end
 			if child:name() == "patterns" then
@@ -226,7 +226,6 @@ function InteractionEditorSystem:set_node_colors(node, id)
 
 	end
 
-	(for control) = self._desc:node_inputs(id) and assert
 	local (for generator), (for state), (for control) = ipairs(self._desc:node_outputs(id))
 	do
 		do break end

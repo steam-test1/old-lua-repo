@@ -160,7 +160,6 @@ function CoreEditor:sequence_file(unit)
 
 		end
 
-		(for control) = object_file:s() and child.name
 		managers.editor:output_warning(unit:name():s() .. " didn't have a sequence xml.")
 	end
 
@@ -194,6 +193,7 @@ function CoreEditor:check_edit_buttons()
 
 	end
 
+	return value
 end
 
 function CoreEditor:layout_edit_panel()
@@ -226,7 +226,6 @@ function CoreEditor:unit_output(unit)
 
 		end
 
-		(for control) = self:_unit_materials(unit) and text
 		text = text .. "Last export from:" .. t .. unit:last_export_source() .. n
 		local models_text = ""
 		models_text = models_text .. "Models:" .. t .. unit:nr_models() .. n
@@ -255,7 +254,6 @@ function CoreEditor:unit_output(unit)
 
 		end
 
-		(for control) = unit:used_texture_names() and models_text
 		self._unit_info:set_value(text)
 		self._gfx_unit_info:set_value(models_text)
 		local (for generator), (for state), (for control) = ipairs(self._open_unit_file_buttons)
@@ -265,7 +263,6 @@ function CoreEditor:unit_output(unit)
 		end
 
 	else
-		(for control) = unit:used_texture_names() and self._unit_info_toolbar
 		self._unit_info:set_value("")
 		self._gfx_unit_info:set_value("")
 		local (for generator), (for state), (for control) = ipairs(self._open_unit_file_buttons)
@@ -292,5 +289,6 @@ function CoreEditor:_unit_materials(unit)
 
 	end
 
+	return names
 end
 

@@ -191,7 +191,6 @@ function CoreCutsceneBatchOptimizerDialog:_on_export_button_clicked(sender)
 
 		end
 
-		(for control) = nil and self.__batch
 		self.__progress_dialog = EWS:ProgressDialog(self.__window, "Exporting Projects...", "Preparing export", self.__batch:queue_size(), "PD_AUTO_HIDE,PD_APP_MODAL,PD_CAN_ABORT,PD_REMAINING_TIME")
 		self.__progress_dialog:set_visible(true)
 	end

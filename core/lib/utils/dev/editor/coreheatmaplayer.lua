@@ -46,7 +46,6 @@ function HeatmapLayer:_draw(t, dt)
 
 		end
 
-		(for control) = colors[j % 5] and self._draw_path
 		do
 			local (for generator), (for state), (for control) = pairs(set.teamai)
 			do
@@ -56,7 +55,6 @@ function HeatmapLayer:_draw(t, dt)
 
 		end
 
-		(for control) = colors[j % 5] and self._draw_path
 		do
 			local (for generator), (for state), (for control) = pairs(set.civilians)
 			do
@@ -66,7 +64,6 @@ function HeatmapLayer:_draw(t, dt)
 
 		end
 
-		(for control) = colors[j % 5] and self._draw_path
 		local (for generator), (for state), (for control) = ipairs(set.events)
 		do
 			do break end

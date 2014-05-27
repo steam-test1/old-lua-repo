@@ -59,7 +59,7 @@ function CoreMaterialEditor:update(t, dt)
 
 	end
 
-	(for control) = dt and v.update
+	self:_find_selected_unit()
 	if not self._disable_live_feedback then
 		self:_live_update()
 	end
@@ -363,7 +363,6 @@ function CoreMaterialEditor:_load_shaders(load_only)
 
 	end
 
-	(for control) = nil and child.name
 	local shader_libs_node = DB:has("shader_libs", self.SHADER_LIB_PATH) and DB:load_node("shader_libs", self.SHADER_LIB_PATH)
 	if shader_libs_node then
 		local (for generator), (for state), (for control) = shader_libs_node:children()
@@ -378,8 +377,10 @@ function CoreMaterialEditor:_load_shaders(load_only)
 
 	end
 
-	do break end
-	self:_find_render_template()
+	if not load_only then
+		self:_find_render_template()
+	end
+
 end
 
 function CoreMaterialEditor:_save_current()
@@ -443,7 +444,6 @@ function CoreMaterialEditor:_ok_by_law(node)
 
 		end
 
-		(for control) = nil and code
 		code = code .. "return " .. rule
 		return assert(loadstring(code))()
 	end
@@ -464,7 +464,6 @@ function CoreMaterialEditor:_is_options_valid_by_law()
 
 	end
 
-	(for control) = nil and v._checked
 	return true, ""
 end
 
@@ -490,7 +489,6 @@ function CoreMaterialEditor:_find_render_template()
 
 	end
 
-	(for control) = nil and v._checked
 	self._current_render_template_name = RenderTemplateDatabase:render_template_name_from_defines(self._compilable_shader_combo_box:get_value(), t)
 	self._current_render_template = RenderTemplateDatabase:render_template(self._current_render_template_name:id())
 	local msg = ""
@@ -535,13 +533,14 @@ function CoreMaterialEditor:_clean_parameters()
 
 				end
 
-				do break end
-				table.insert(remove_list, param)
+				if not found then
+					table.insert(remove_list, param)
+				end
+
 			end
 
 		end
 
-		(for control) = nil and nil
 		local (for generator), (for state), (for control) = ipairs(remove_list)
 		do
 			do break end
@@ -716,10 +715,8 @@ function CoreMaterialEditor:_load_shader_dropdown()
 
 		end
 
-		(for control) = nil and self._get_node
 	end
 
-	(for control) = nil and self._get_node
 	self._compilable_shader_combo_box:set_value(self.DEFAULT_COMPILABLE_SHADER)
 	self:_unfreeze_frame()
 end
@@ -740,7 +737,6 @@ function CoreMaterialEditor:_load_parent_dropdown()
 
 	end
 
-	(for control) = nil and material.parameter
 	self._parent_combo_box:set_value("[NONE]")
 	self:_unfreeze_frame()
 end

@@ -73,9 +73,6 @@ function CoreUnitReloader:close()
 end
 
 function CoreUnitReloader:check_extensions()
--- fail 22
-null
-9
 	local units = World:find_units_quick("all")
 	do
 		local (for generator), (for state), (for control) = ipairs(units)
@@ -97,7 +94,7 @@ null
 
 	end
 
-	(for control) = nil and unit.name
+	return true
 end
 
 function CoreUnitReloader:on_reload()

@@ -20,7 +20,7 @@ function InfamyManager:_setup(reset)
 
 	end
 
-	self._global, (for control) = Global.infamy_manager, 0 and self._global
+	self._global = Global.infamy_manager
 end
 
 function InfamyManager:points()
@@ -67,7 +67,6 @@ function InfamyManager:unlock_item(item)
 
 		end
 
-		(for control) = infamy_item.cost and item[1]
 		self:_set_points(self:points() - Application:digest_value(infamy_item.cost, false))
 		self._global.unlocks[item] = true
 	end
@@ -79,9 +78,6 @@ function InfamyManager:owned(item)
 end
 
 function InfamyManager:available(item)
--- fail 18
-null
-7
 	local tier_count = 0
 	local points_curr_tier = 0
 	local points_prev_tier = 0
@@ -109,6 +105,7 @@ null
 
 	end
 
+	return false
 end
 
 function InfamyManager:reset_items()
@@ -150,7 +147,7 @@ function InfamyManager:load(data, version)
 
 		end
 
-		self._global.VERSION, (for control) = state.VERSION, nil and self._global
+		self._global.VERSION = state.VERSION
 		self._global.reset_message = state.reset_message
 		if not self._global.VERSION or self._global.VERSION < InfamyManager.VERSION then
 			managers.savefile:add_load_done_callback(callback(self, self, "reset_items"))

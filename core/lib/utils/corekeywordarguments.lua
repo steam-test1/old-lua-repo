@@ -22,7 +22,6 @@ function parse_kwargs(args, ...)
 
 	end
 
-	(for control) = ... and string
 	do
 		local (for generator), (for state), (for control) = pairs(kwargs)
 		do
@@ -32,7 +31,6 @@ function parse_kwargs(args, ...)
 
 	end
 
-	(for control) = ... and assert
 	return unpack(result)
 end
 
@@ -73,7 +71,6 @@ function KeywordArguments:mandatory(...)
 
 	end
 
-	(for control) = ... and self._kwargs
 	return unpack(ret_list)
 end
 
@@ -94,7 +91,6 @@ function KeywordArguments:mandatory_string(...)
 
 	end
 
-	(for control) = ... and self._kwargs
 	return unpack(ret_list)
 end
 
@@ -115,7 +111,6 @@ function KeywordArguments:mandatory_number(...)
 
 	end
 
-	(for control) = ... and self._kwargs
 	return unpack(ret_list)
 end
 
@@ -136,7 +131,6 @@ function KeywordArguments:mandatory_table(...)
 
 	end
 
-	(for control) = ... and self._kwargs
 	return unpack(ret_list)
 end
 
@@ -157,7 +151,6 @@ function KeywordArguments:mandatory_function(...)
 
 	end
 
-	(for control) = ... and self._kwargs
 	return unpack(ret_list)
 end
 
@@ -178,7 +171,6 @@ function KeywordArguments:mandatory_object(...)
 
 	end
 
-	(for control) = ... and self._kwargs
 	return unpack(ret_list)
 end
 
@@ -196,7 +188,6 @@ function KeywordArguments:optional(...)
 
 	end
 
-	(for control) = ... and table
 	return unpack(ret_list)
 end
 
@@ -216,7 +207,6 @@ function KeywordArguments:optional_string(...)
 
 	end
 
-	(for control) = ... and self._kwargs
 	return unpack(ret_list)
 end
 
@@ -236,7 +226,6 @@ function KeywordArguments:optional_number(...)
 
 	end
 
-	(for control) = ... and self._kwargs
 	return unpack(ret_list)
 end
 
@@ -256,7 +245,6 @@ function KeywordArguments:optional_table(...)
 
 	end
 
-	(for control) = ... and self._kwargs
 	return unpack(ret_list)
 end
 
@@ -276,7 +264,6 @@ function KeywordArguments:optional_function(...)
 
 	end
 
-	(for control) = ... and self._kwargs
 	return unpack(ret_list)
 end
 
@@ -296,7 +283,6 @@ function KeywordArguments:optional_object(...)
 
 	end
 
-	(for control) = ... and self._kwargs
 	return unpack(ret_list)
 end
 

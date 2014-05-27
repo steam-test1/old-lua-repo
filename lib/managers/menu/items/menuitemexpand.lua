@@ -29,7 +29,6 @@ function MenuItemExpand:init(data_node, parameters)
 	end
 
 	self._enabled = true
-	(for control) = parameters and c._meta
 	self:_show_items(nil)
 end
 
@@ -62,8 +61,10 @@ function MenuItemExpand:_show_items(callback_handler)
 
 		end
 
-		do break end
-		table.insert(self._items, item)
+		if show then
+			table.insert(self._items, item)
+		end
+
 	end
 
 end
@@ -86,13 +87,10 @@ function MenuItemExpand:get_item(name)
 
 	end
 
-	(for control) = nil and item.parameters
+	return nil
 end
 
 function MenuItemExpand:visible_items()
--- fail 5
-null
-3
 	do
 		local (for generator), (for state), (for control) = ipairs(self._items)
 		do
@@ -101,6 +99,7 @@ null
 
 	end
 
+	return self._items
 end
 
 function MenuItemExpand:items()
@@ -122,12 +121,6 @@ function MenuItemExpand:update_expanded_items(node)
 end
 
 function MenuItemExpand:expand(node, row_item)
--- fail 32
-null
-11
--- fail 46
-null
-11
 	local need_repos = false
 	do
 		local (for generator), (for state), (for control) = ipairs(self._items)
@@ -162,6 +155,7 @@ null
 
 	end
 
+	return need_repos
 end
 
 function MenuItemExpand:collaps(node, row_item)
@@ -185,6 +179,7 @@ function MenuItemExpand:collaps(node, row_item)
 
 	end
 
+	return need_repos
 end
 
 function MenuItemExpand:get_h(row_item, node)
@@ -202,7 +197,7 @@ function MenuItemExpand:get_h(row_item, node)
 
 	end
 
-	(for control) = self:items() and node.row_item
+	return nil
 end
 
 function MenuItemExpand:on_item_position(row_item, node)
@@ -313,7 +308,7 @@ function MenuItemExpand:set_value(value)
 
 	end
 
-	(for control) = nil and item.parameters
+	self:dirty()
 end
 
 function MenuItemExpand:value()
@@ -340,6 +335,7 @@ function MenuItemExpand:_highest_item_index()
 
 	end
 
+	return index
 end
 
 function MenuItemExpand:_lowest_item_index()
@@ -367,9 +363,6 @@ function MenuItemExpand:toggle()
 end
 
 function MenuItemExpand:is_parent_to_item(child_item)
--- fail 5
-null
-4
 	do
 		local (for generator), (for state), (for control) = ipairs(self._items)
 		do
@@ -382,6 +375,7 @@ null
 
 	end
 
+	return false
 end
 
 MenuItemExpandAction = MenuItemExpandAction or class(CoreMenuItem.Item)

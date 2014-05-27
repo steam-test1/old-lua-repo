@@ -73,10 +73,8 @@ function CoreSoundEnvironmentManager:_find_emitter_events()
 
 		end
 
-		(for control) = SoundDevice:events(soundbank) and string
 	end
 
-	(for control) = SoundDevice:sound_banks() and pairs
 	table.sort(self._emitter.paths)
 end
 
@@ -101,10 +99,8 @@ function CoreSoundEnvironmentManager:_find_ambience_events()
 
 		end
 
-		(for control) = SoundDevice:events(soundbank) and string
 	end
 
-	(for control) = SoundDevice:sound_banks() and pairs
 	table.sort(self._ambience.events)
 end
 
@@ -132,10 +128,8 @@ function CoreSoundEnvironmentManager:_find_scene_events()
 
 		end
 
-		(for control) = SoundDevice:events(soundbank) and table
 	end
 
-	(for control) = SoundDevice:sound_banks() and pairs
 	table.sort(self._scene.paths)
 end
 
@@ -160,10 +154,8 @@ function CoreSoundEnvironmentManager:_find_occasional_events()
 
 		end
 
-		(for control) = SoundDevice:events(soundbank) and string
 	end
 
-	(for control) = SoundDevice:sound_banks() and pairs
 	table.sort(self._occasional.events)
 end
 
@@ -302,7 +294,6 @@ function CoreSoundEnvironmentManager:_environment_effects()
 
 	end
 
-	(for control) = SoundDevice:effects() and table
 	table.sort(effects)
 	return effects
 end
@@ -336,7 +327,6 @@ function CoreSoundEnvironmentManager:_set_environment(environment)
 	end
 
 	self._current_environment = environment
-	(for control) = nil and func
 	SoundDevice:set_default_environment({effect = environment, gain = 1})
 end
 
@@ -431,7 +421,6 @@ function CoreSoundEnvironmentManager:remove_area(area)
 
 	end
 
-	(for control) = nil and data.area
 	table.delete(self._areas, area)
 end
 
@@ -516,7 +505,7 @@ function CoreSoundEnvironmentManager:remove_check_object(id)
 
 	end
 
-	self._check_objects[id] = nil and nil
+	self._check_objects[id] = nil
 	self:_enable_fallback()
 end
 
@@ -539,7 +528,6 @@ function CoreSoundEnvironmentManager:set_check_object_active(id, active)
 		end
 
 	else
-		(for control) = nil and surround_data.source
 		self:_check_inside(object)
 		if not object.area then
 			self:_change_ambience(object, 1)
@@ -567,9 +555,6 @@ function CoreSoundEnvironmentManager:_disable_fallback()
 end
 
 function CoreSoundEnvironmentManager:_enable_fallback()
--- fail 13
-null
-4
 	local fallback = self._check_objects[self._fallback_id]
 	if fallback and not fallback.active then
 		do
@@ -699,7 +684,6 @@ function CoreSoundEnvironmentManager:_change_ambience(data, sound_gain)
 
 	end
 
-	(for control) = nil and func
 	do
 		local (for generator), (for state), (for control) = ipairs(self._ambience_changed_callback)
 		do
@@ -709,7 +693,6 @@ function CoreSoundEnvironmentManager:_change_ambience(data, sound_gain)
 
 	end
 
-	(for control) = nil and func
 	if not self._ambience_enabled then
 		return
 	end
@@ -812,7 +795,6 @@ function CoreSoundEnvironmentManager:environment_at_position(pos)
 
 	end
 
-	(for control) = nil and area.is_inside
 	return environment, ambience, occasional
 end
 
@@ -853,7 +835,7 @@ function CoreSoundEnvironmentManager:destroy()
 
 	end
 
-	self._emitters = nil and {}
+	self._emitters = {}
 	do
 		local (for generator), (for state), (for control) = ipairs(self._areas)
 		do
@@ -863,7 +845,7 @@ function CoreSoundEnvironmentManager:destroy()
 
 	end
 
-	self._areas = nil and {}
+	self._areas = {}
 	self._occasional_sound_source:stop()
 end
 

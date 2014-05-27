@@ -81,7 +81,7 @@ function EditUnitDialog:dialog_closed(data, event)
 
 	end
 
-	(for control) = nil and page.class
+	event:skip()
 end
 
 EditUnitBase = EditUnitBase or class()

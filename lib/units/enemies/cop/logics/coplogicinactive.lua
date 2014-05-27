@@ -29,7 +29,6 @@ function CopLogicInactive.enter(data, new_logic_name, enter_params)
 
 	end
 
-	(for control) = managers.groupai:state():all_char_criminals() and c_data.engaged
 	data.brain:rem_all_pos_rsrv()
 	if data.objective and data.objective.type == "follow" and data.objective.destroy_clbk_key then
 		data.objective.follow_unit:base():remove_destroy_listener(data.objective.destroy_clbk_key)

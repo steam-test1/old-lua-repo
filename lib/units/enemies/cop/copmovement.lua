@@ -339,9 +339,6 @@ function CopMovement:update(unit, t, dt)
 end
 
 function CopMovement:_upd_actions(t)
--- fail 7
-null
-6
 	local a_actions = self._active_actions
 	local has_no_action = true
 	do
@@ -376,7 +373,7 @@ null
 					end
 
 				else
-					has_no_action = nil and nil
+					has_no_action = nil
 				end
 
 			end
@@ -385,8 +382,7 @@ null
 
 	end
 
-	do break end
-	if not self._queued_actions or not next(self._queued_actions) then
+	if has_no_action and (not self._queued_actions or not next(self._queued_actions)) then
 		self:action_request({type = "idle", body_part = 1})
 	end
 
@@ -407,9 +403,6 @@ null
 end
 
 function CopMovement:_upd_stance(t)
--- fail 50
-null
-8
 	if self._stance.transition then
 		local stance = self._stance
 		local transition = stance.transition
@@ -430,7 +423,7 @@ null
 
 				end
 
-				transition.next_upd_t = nil and t + 0.033
+				transition.next_upd_t = t + 0.033
 			else
 				do
 					local (for generator), (for state), (for control) = ipairs(transition.end_values)
@@ -455,7 +448,6 @@ null
 
 	end
 
-	(for control) = t + 0.033 and self._machine
 	if self._suppression.transition then
 		local suppression = self._suppression
 		local transition = suppression.transition
@@ -655,7 +647,6 @@ function CopMovement:action_request(action_desc)
 
 	end
 
-	(for control) = inspect(action_desc) and self._ext_brain
 	self._ext_base:chk_freeze_anims()
 	return success and action
 end
@@ -744,9 +735,6 @@ function CopMovement:set_stance_by_code(new_stance_code, instant, execute_queued
 end
 
 function CopMovement:_change_stance(stance_code, instant)
--- fail 84
-null
-7
 	if self._tweak_data.allowed_stances then
 		if stance_code == 1 and not self._tweak_data.allowed_stances.ntl then
 			return
@@ -778,7 +766,7 @@ null
 		end
 
 	else
-		local end_values = nil and {}
+		local end_values = {}
 		if stance_code == 4 then
 			if stance.transition then
 				end_values = stance.transition.end_values
@@ -844,7 +832,7 @@ null
 			return
 		end
 
-		local start_values = CopMovement._stance.names[i] and {}
+		local start_values = {}
 		do
 			local (for generator), (for state), (for control) = ipairs(stance.values)
 			do
@@ -854,7 +842,6 @@ null
 
 		end
 
-		(for control) = CopMovement._stance.names[i] and table
 		local t = TimerManager:game():time()
 		local transition = {
 			end_values = end_values,
@@ -1034,9 +1021,6 @@ function CopMovement:set_allow_fire(state)
 end
 
 function CopMovement:synch_allow_fire(state)
--- fail 5
-null
-4
 	do
 		local (for generator), (for state), (for control) = pairs(self._active_actions)
 		do
@@ -1179,9 +1163,6 @@ function CopMovement:on_suppressed(state)
 end
 
 function CopMovement:damage_clbk(my_unit, damage_info)
--- fail 49
-null
-6
 	local hurt_type = damage_info.result.type
 	if hurt_type == "death" and self._queued_actions then
 		self._queued_actions = {}
@@ -1429,6 +1410,19 @@ function CopMovement:anim_clbk_stance(unit, stance_name, instant)
 end
 
 function CopMovement:spawn_wanted_items()
+	if self._wanted_items then
+		do
+			local (for generator), (for state), (for control) = ipairs(self._wanted_items)
+			do
+				do break end
+				self:_equip_item(unpack(spawn_info))
+			end
+
+		end
+
+		self._wanted_items = nil
+	end
+
 end
 
 function CopMovement:_equip_item(item_type, align_place, droppable)
@@ -1468,12 +1462,6 @@ function CopMovement:anim_clbk_flush_wanted_items()
 end
 
 function CopMovement:drop_held_items()
--- fail 20
-null
-9
--- fail 53
-null
-9
 	if not self._droppable_gadgets then
 		return
 	end
@@ -1499,6 +1487,7 @@ null
 								end
 
 								else
+									do break end
 									break
 								end
 
@@ -1510,6 +1499,7 @@ null
 
 				end
 
+				drop_item_unit:unlink()
 				drop_item_unit:set_slot(0)
 			else
 				local (for generator), (for state), (for control) = pairs(self._equipped_gadgets)
@@ -1529,13 +1519,13 @@ null
 
 				end
 
-				(for control) = nil and alive
 			end
 
 		end
 
 	end
 
+	self._droppable_gadgets = nil
 end
 
 function CopMovement:_destroy_gadgets()
@@ -1558,11 +1548,10 @@ function CopMovement:_destroy_gadgets()
 
 		end
 
-		(for control) = nil and alive
 	end
 
 	self._equipped_gadgets = nil
-	self._droppable_gadgets = nil and nil
+	self._droppable_gadgets = nil
 end
 
 function CopMovement:anim_clbk_enemy_spawn_melee_item()
@@ -1654,9 +1643,6 @@ function CopMovement:sync_taser_fire()
 end
 
 function CopMovement:save(save_data)
--- fail 23
-null
-5
 	local my_save_data = {}
 	if self._stance.transition then
 		my_save_data.stance = self._stance.transition.end_values
@@ -1754,10 +1740,8 @@ null
 
 		end
 
-		(for control) = self._unit:key() and alive
 	end
 
-	(for control) = "clbk_sync_attention" and ipairs
 	if next(my_save_data) then
 		save_data.movement = my_save_data
 	end
@@ -1765,9 +1749,6 @@ null
 end
 
 function CopMovement:load(load_data)
--- fail 32
-null
-6
 	local my_load_data = load_data.movement
 	if not my_load_data then
 		return
@@ -1807,7 +1788,6 @@ null
 
 	end
 
-	(for control) = self._machine:segment_state(Idstring("base")) and self.action_request
 	if my_load_data.equipped_gadgets then
 		local (for generator), (for state), (for control) = ipairs(my_load_data.equipped_gadgets)
 		do
@@ -1867,9 +1847,6 @@ function CopMovement:_push_front_queued_action(action_desc)
 end
 
 function CopMovement:_cancel_latest_action(search_type, explicit)
--- fail 22
-null
-5
 	for i = #self._queued_actions, 1, -1 do
 		if self._queued_actions[i].type == search_type then
 			table.remove(self._queued_actions, i)
@@ -1897,8 +1874,10 @@ null
 
 	end
 
-	do break end
-	debug_pause_unit(self._unit, "[CopMovement:_cancel_latest_action] no queued or ongoing ", search_type, "action", self._unit, inspect(self._queued_actions), inspect(self._active_actions))
+	if explicit then
+		debug_pause_unit(self._unit, "[CopMovement:_cancel_latest_action] no queued or ongoing ", search_type, "action", self._unit, inspect(self._queued_actions), inspect(self._active_actions))
+	end
+
 end
 
 function CopMovement:_get_latest_walk_action()
@@ -2224,9 +2203,6 @@ function CopMovement:on_nav_link_unregistered(element_id)
 end
 
 function CopMovement:pre_destroy()
--- fail 56
-null
-3
 	tweak_data:remove_reload_callback(self)
 	if alive(self._rope) then
 		self._rope:base():retract()

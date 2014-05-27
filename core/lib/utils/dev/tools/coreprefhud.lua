@@ -92,7 +92,6 @@ function PrefHud:build_gui()
 		end
 
 		s = nil
-		(for control) = c._bar_space and it_v._obj
 		v._obj = self._panel:rect()
 		v._obj:set_layer(1)
 		v._obj:set_color(Color(0, 1, 0))
@@ -181,7 +180,6 @@ function PrefHud:update_bars(t, dt)
 		end
 
 	else
-		(for control) = nil and v._func
 		self._prev_upd = self._prev_upd + dt
 	end
 

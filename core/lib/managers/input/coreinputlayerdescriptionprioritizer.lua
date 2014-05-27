@@ -29,6 +29,7 @@ function Prioritizer:remove_layer_description(input_layer_description_descriptio
 
 	end
 
+	self._layer_description = best_layer_description
 end
 
 function Prioritizer:active_layer_description()

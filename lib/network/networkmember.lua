@@ -68,12 +68,6 @@ function NetworkMember:_get_old_entry()
 end
 
 function NetworkMember:_get_drop_in_spawn_on_unit()
--- fail 46
-null
-3
--- fail 79
-null
-3
 	if Global.local_member and alive(Global.local_member:unit()) then
 		if Global.local_member:unit():movement():zipline_unit() then
 			return Global.local_member:unit():movement():zipline_unit()
@@ -110,6 +104,7 @@ null
 
 	end
 
+	return nil
 end
 
 function NetworkMember:spawn_unit(spawn_point_id, is_drop_in, spawn_as)

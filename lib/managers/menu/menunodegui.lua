@@ -192,9 +192,6 @@ function MenuNodeGui:set_mini_info(text)
 end
 
 function MenuNodeGui:_create_legends(node)
--- fail 37
-null
-10
 	local safe_rect_pixels = self:_scaled_size()
 	local res = RenderSettings.resolution
 	local visible = not managers.menu:is_pc_controller()
@@ -225,8 +222,10 @@ null
 
 	end
 
-	do break end
-	self._legends_panel:set_visible(has_pc_legend)
+	if is_pc then
+		self._legends_panel:set_visible(has_pc_legend)
+	end
+
 	local text = self._legends_panel:text({
 		text = t_text,
 		font = self.font,
@@ -973,7 +972,6 @@ function MenuNodeGui:_key_press(o, key, input_id, item, no_add)
 
 	end
 
-	(for control) = "num abnt c2" and Idstring
 	local connections = managers.controller:get_settings(managers.controller:get_default_wrapper_type()):get_connection_map()
 	do
 		local (for generator), (for state), (for control) = ipairs(MenuCustomizeControllerCreator.CONTROLS)
@@ -996,7 +994,6 @@ function MenuNodeGui:_key_press(o, key, input_id, item, no_add)
 				end
 
 			else
-				(for control) = managers.controller:get_default_wrapper_type() and btn_connection.name
 				local (for generator), (for state), (for control) = ipairs(connection:get_input_name_list())
 				do
 					do break end
@@ -1015,10 +1012,8 @@ function MenuNodeGui:_key_press(o, key, input_id, item, no_add)
 
 		end
 
-		(for control) = connection:get_input_name_list() and tostring
 	end
 
-	(for control) = managers.controller:get_default_wrapper_type() and connections[name]
 	if item:parameters().axis then
 		connections[item:parameters().axis]._btn_connections[item:parameters().button].name = key_name
 		managers.controller:set_user_mod(item:parameters().connection_name, {
@@ -1116,6 +1111,7 @@ function MenuNodeGui:_text_item_part(row_item, panel, align_x, text_align)
 
 	end
 
+	return new_text
 end
 
 function MenuNodeGui:scroll_update(dt)
@@ -1218,7 +1214,6 @@ function MenuNodeGui:_delete_row_item(item)
 
 	end
 
-	(for control) = nil and row_item.item
 	MenuNodeGui.super._delete_row_item(self, item)
 end
 
@@ -1235,7 +1230,6 @@ function MenuNodeGui:_clear_gui()
 
 	end
 
-	(for control) = nil and alive
 	MenuNodeGui.super._clear_gui(self)
 end
 
@@ -1298,59 +1292,54 @@ function MenuNodeGui:_highlight_row_item(row_item, mouse_over)
 				gui:set_font(tweak_data.menu.pd2_medium_font_id)
 			end
 
-		else
-			(for control) = row_item.item and gui.set_color
-			if row_item.type == "server_column" then
+		elseif row_item.type == "server_column" then
+			do
+				local (for generator), (for state), (for control) = ipairs(row_item.gui_columns)
 				do
-					local (for generator), (for state), (for control) = ipairs(row_item.gui_columns)
-					do
-						do break end
-						gui:set_color(row_item.color)
-						gui:set_font(tweak_data.menu.pd2_medium_font_id)
-					end
-
+					do break end
+					gui:set_color(row_item.color)
+					gui:set_font(tweak_data.menu.pd2_medium_font_id)
 				end
 
-				(for control) = row_item.item and gui.set_color
+			end
+
+			row_item.gui_info_panel:set_visible(true)
+		elseif row_item.type == "level" then
+			row_item.gui_level_panel:set_visible(true)
+			MenuNodeGui.super._highlight_row_item(self, row_item)
+		elseif row_item.type == "friend" then
+			row_item.friend_name:set_color(row_item.color * row_item.color_mod)
+			row_item.friend_name:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.default_font_no_outline_id)
+			row_item.signin_status:set_color(row_item.color * row_item.color_mod)
+			row_item.signin_status:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.default_font_no_outline_id)
+		elseif row_item.type == "chat" then
+			self.ws:connect_keyboard(Input:keyboard())
+			row_item.border:set_visible(true)
+			if not mouse_over then
+				row_item.chat_input:script().set_focus(true)
+			end
+
+		elseif row_item.type == "weapon_expand" or row_item.type == "weapon_upgrade_expand" then
+			row_item.item:highlight_row_item(self, row_item, mouse_over)
+		elseif row_item.item:parameters().back then
+			row_item.arrow_selected:set_visible(true)
+			row_item.arrow_unselected:set_visible(false)
+		elseif row_item.item:parameters().pd2_corner then
+			row_item.gui_text:set_color(tweak_data.screen_colors.button_stage_2)
+		elseif not row_item.item:highlight_row_item(self, row_item, mouse_over) then
+			if row_item.gui_panel.set_text then
+				row_item.gui_panel:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.pd2_medium_font_id)
+			end
+
+			if row_item.gui_info_panel then
 				row_item.gui_info_panel:set_visible(true)
-			elseif row_item.type == "level" then
-				row_item.gui_level_panel:set_visible(true)
-				MenuNodeGui.super._highlight_row_item(self, row_item)
-			elseif row_item.type == "friend" then
-				row_item.friend_name:set_color(row_item.color * row_item.color_mod)
-				row_item.friend_name:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.default_font_no_outline_id)
-				row_item.signin_status:set_color(row_item.color * row_item.color_mod)
-				row_item.signin_status:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.default_font_no_outline_id)
-			elseif row_item.type == "chat" then
-				self.ws:connect_keyboard(Input:keyboard())
-				row_item.border:set_visible(true)
-				if not mouse_over then
-					row_item.chat_input:script().set_focus(true)
-				end
+			end
 
-			elseif row_item.type == "weapon_expand" or row_item.type == "weapon_upgrade_expand" then
-				row_item.item:highlight_row_item(self, row_item, mouse_over)
-			elseif row_item.item:parameters().back then
-				row_item.arrow_selected:set_visible(true)
-				row_item.arrow_unselected:set_visible(false)
-			elseif row_item.item:parameters().pd2_corner then
-				row_item.gui_text:set_color(tweak_data.screen_colors.button_stage_2)
-			elseif not row_item.item:highlight_row_item(self, row_item, mouse_over) then
-				if row_item.gui_panel.set_text then
-					row_item.gui_panel:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.pd2_medium_font_id)
-				end
-
-				if row_item.gui_info_panel then
-					row_item.gui_info_panel:set_visible(true)
-				end
-
-				MenuNodeGui.super._highlight_row_item(self, row_item)
-				if row_item.icon then
-					row_item.icon:set_left(row_item.gui_panel:right())
-					row_item.icon:set_center_y(row_item.gui_panel:center_y())
-					row_item.icon:set_color(row_item.gui_panel:color())
-				end
-
+			MenuNodeGui.super._highlight_row_item(self, row_item)
+			if row_item.icon then
+				row_item.icon:set_left(row_item.gui_panel:right())
+				row_item.icon:set_center_y(row_item.gui_panel:center_y())
+				row_item.icon:set_color(row_item.gui_panel:color())
 			end
 
 		end
@@ -1467,56 +1456,51 @@ function MenuNodeGui:_fade_row_item(row_item)
 				gui:set_font(tweak_data.menu.pd2_medium_font_id)
 			end
 
-		else
-			(for control) = nil and gui.set_color
-			if row_item.type == "server_column" then
+		elseif row_item.type == "server_column" then
+			do
+				local (for generator), (for state), (for control) = ipairs(row_item.gui_columns)
 				do
-					local (for generator), (for state), (for control) = ipairs(row_item.gui_columns)
-					do
-						do break end
-						gui:set_color(row_item.color)
-						gui:set_font(tweak_data.menu.pd2_medium_font_id)
-					end
-
+					do break end
+					gui:set_color(row_item.color)
+					gui:set_font(tweak_data.menu.pd2_medium_font_id)
 				end
 
-				(for control) = nil and gui.set_color
+			end
+
+			row_item.gui_info_panel:set_visible(false)
+		elseif row_item.type == "level" then
+			row_item.gui_level_panel:set_visible(false)
+			MenuNodeGui.super._fade_row_item(self, row_item)
+		elseif row_item.type == "friend" then
+			row_item.friend_name:set_color(row_item.color * row_item.color_mod)
+			row_item.friend_name:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.pd2_medium_font_id)
+			row_item.signin_status:set_color(row_item.color * row_item.color_mod)
+			row_item.signin_status:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.pd2_medium_font_id)
+		elseif row_item.type == "chat" then
+			row_item.border:set_visible(false)
+			row_item.chat_input:script().set_focus(false)
+			self.ws:disconnect_keyboard()
+		elseif row_item.type == "weapon_expand" or row_item.type == "weapon_upgrade_expand" then
+			row_item.item:fade_row_item(self, row_item)
+		elseif row_item.item:parameters().back then
+			row_item.arrow_selected:set_visible(false)
+			row_item.arrow_unselected:set_visible(true)
+		elseif row_item.item:parameters().pd2_corner then
+			row_item.gui_text:set_color(tweak_data.screen_colors.button_stage_3)
+		elseif not row_item.item:fade_row_item(self, row_item) then
+			if row_item.gui_panel.set_text then
+				row_item.gui_panel:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.pd2_medium_font_id)
+			end
+
+			if row_item.gui_info_panel then
 				row_item.gui_info_panel:set_visible(false)
-			elseif row_item.type == "level" then
-				row_item.gui_level_panel:set_visible(false)
-				MenuNodeGui.super._fade_row_item(self, row_item)
-			elseif row_item.type == "friend" then
-				row_item.friend_name:set_color(row_item.color * row_item.color_mod)
-				row_item.friend_name:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.pd2_medium_font_id)
-				row_item.signin_status:set_color(row_item.color * row_item.color_mod)
-				row_item.signin_status:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.pd2_medium_font_id)
-			elseif row_item.type == "chat" then
-				row_item.border:set_visible(false)
-				row_item.chat_input:script().set_focus(false)
-				self.ws:disconnect_keyboard()
-			elseif row_item.type == "weapon_expand" or row_item.type == "weapon_upgrade_expand" then
-				row_item.item:fade_row_item(self, row_item)
-			elseif row_item.item:parameters().back then
-				row_item.arrow_selected:set_visible(false)
-				row_item.arrow_unselected:set_visible(true)
-			elseif row_item.item:parameters().pd2_corner then
-				row_item.gui_text:set_color(tweak_data.screen_colors.button_stage_3)
-			elseif not row_item.item:fade_row_item(self, row_item) then
-				if row_item.gui_panel.set_text then
-					row_item.gui_panel:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.pd2_medium_font_id)
-				end
+			end
 
-				if row_item.gui_info_panel then
-					row_item.gui_info_panel:set_visible(false)
-				end
-
-				MenuNodeGui.super._fade_row_item(self, row_item)
-				if row_item.icon then
-					row_item.icon:set_left(row_item.gui_panel:right())
-					row_item.icon:set_center_y(row_item.gui_panel:center_y())
-					row_item.icon:set_color(row_item.gui_panel:color())
-				end
-
+			MenuNodeGui.super._fade_row_item(self, row_item)
+			if row_item.icon then
+				row_item.icon:set_left(row_item.gui_panel:right())
+				row_item.icon:set_center_y(row_item.gui_panel:center_y())
+				row_item.icon:set_color(row_item.gui_panel:color())
 			end
 
 		end
@@ -1622,7 +1606,6 @@ function MenuNodeGui:resolution_changed()
 
 	end
 
-	(for control) = tweak_data.load_level.upper_saferect_border and row_item.item
 	MenuNodeGui.super.resolution_changed(self)
 	self._align_data.panel:set_center_x(self:_mid_align())
 	self._list_arrows.up:set_world_left(self._align_data.panel:world_left())
@@ -1680,7 +1663,6 @@ function MenuNodeGui:set_visible(visible)
 			end
 
 		else
-			(for control) = self._stencil_align_percent and row_item.highlighted
 			active_menu.renderer:set_bottom_text(nil)
 		end
 
@@ -1704,7 +1686,6 @@ function MenuNodeGui:close(...)
 
 	end
 
-	(for control) = nil and row_item.item
 	MenuNodeGui.super.close(self, ...)
 end
 

@@ -12,7 +12,6 @@ local debug_assert = function(chk, ...)
 
 		end
 
-		(for control) = ... and s
 		debug_assert(chk, s)
 	end
 
@@ -275,7 +274,7 @@ function PrePlanningLocation:init(panel, index, size)
 	end
 
 	self._index = index
-	self._group = math.abs(y2 - y1) and location_group
+	self._group = location_group
 	self._points = {}
 	self._points_by_type = {}
 	self._active = true
@@ -329,7 +328,6 @@ function PrePlanningLocation:set_type_filter(type_filter)
 			end
 
 		else
-			(for control) = nil and point.set_state
 			do
 				local (for generator), (for state), (for control) = pairs(self._points)
 				do
@@ -339,7 +337,6 @@ function PrePlanningLocation:set_type_filter(type_filter)
 
 			end
 
-			(for control) = nil and point.set_state
 			if self._points_by_type[self._current_type_filter] then
 				local (for generator), (for state), (for control) = pairs(self._points_by_type[self._current_type_filter])
 				do
@@ -370,7 +367,6 @@ function PrePlanningLocation:_get_point(type, id)
 		end
 
 	else
-		(for control) = nil and point.element
 		local (for generator), (for state), (for control) = pairs(self._points)
 		do
 			do break end
@@ -418,7 +414,6 @@ function PrePlanningLocation:mouse_moved(x, y)
 
 		end
 
-		(for control) = nil and point.mouse_moved
 		return used, icon
 	end
 
@@ -464,7 +459,7 @@ function PrePlanningLocation:set_selected_point(element_id)
 
 	end
 
-	(for control) = nil and point.set_state
+	self:update_me()
 end
 
 PrePlanningMapGui = PrePlanningMapGui or class()
@@ -679,9 +674,9 @@ function PrePlanningMapGui:init(saferect_ws, fullscreen_ws)
 
 		end
 
-		(for control) = managers.preplanning:get_mission_elements_by_type(type) and element.value
 	end
 
+	self._enabled = false
 end
 
 function PrePlanningMapGui:end_draw_lines(peer_id)
@@ -743,7 +738,6 @@ function PrePlanningMapGui:set_location(group)
 
 		end
 
-		(for control) = nil and location.set_active
 		do
 			local (for generator), (for state), (for control) = ipairs(self._text_buttons)
 			do
@@ -753,7 +747,7 @@ function PrePlanningMapGui:set_location(group)
 
 		end
 
-		(for control) = nil and button.text
+		return true
 	end
 
 end
@@ -888,7 +882,6 @@ function PrePlanningMapGui:create_text_button(params)
 
 	end
 
-	(for control) = button_panel:size() and alive
 	table.insert(self._text_buttons, {
 		panel = button_panel,
 		text = gui_text,
@@ -1010,7 +1003,6 @@ function PrePlanningMapGui:set_map_position(x, y, location)
 
 	end
 
-	(for control) = nil and self._location_group
 	self:_set_map_position(self._panel:w() * 0.5 - x, self._panel:h() * 0.5 - y, location)
 end
 
@@ -1070,7 +1062,7 @@ function PrePlanningMapGui:_set_zoom(zoom, x, y)
 
 		end
 
-		(for control) = (h1 - h2) * wy1 and location.update_me
+		return true
 	else
 		self._one_scroll_in_delay = true
 	end
@@ -1152,23 +1144,24 @@ function PrePlanningMapGui:mouse_moved(o, x, y)
 
 		end
 
-		do break end
-		local eused, eicon
-		local (for generator), (for state), (for control) = pairs(self._locations)
-		do
-			do break end
-			eused, eicon = location:mouse_moved(x, y)
-			if eused then
-				self:set_selected_element_index(i)
-				used, icon = eused, eicon
+		if not used then
+			local eused, eicon
+			local (for generator), (for state), (for control) = pairs(self._locations)
+			do
+				do break end
+				eused, eicon = location:mouse_moved(x, y)
+				if eused then
+					self:set_selected_element_index(i)
+					used, icon = eused, eicon
+				end
+
 			end
 
 		end
 
 	end
 
-	do break end
-	if self._grabbed_map then
+	if not used and self._grabbed_map then
 		local left = x > self._grabbed_map.x
 		local right = not left
 		local up = y > self._grabbed_map.y
@@ -1222,7 +1215,6 @@ function PrePlanningMapGui:mouse_pressed(button, x, y)
 
 			end
 
-			(for control) = nil and alive
 			local (for generator), (for state), (for control) = pairs(self._locations)
 			do
 				do break end
@@ -1232,24 +1224,20 @@ function PrePlanningMapGui:mouse_pressed(button, x, y)
 
 			end
 
-		else
-			(for control) = nil and location.mouse_pressed
-			if button == Idstring("mouse wheel down") then
-				if self._one_scroll_out_delay then
-					self._one_scroll_out_delay = nil
-				end
-
-				self:zoom_out(x, y)
-				return true
-			elseif button == Idstring("mouse wheel up") then
-				if self._one_scroll_in_delay then
-					self._one_scroll_in_delay = nil
-				end
-
-				self:zoom_in(x, y)
-				return true
+		elseif button == Idstring("mouse wheel down") then
+			if self._one_scroll_out_delay then
+				self._one_scroll_out_delay = nil
 			end
 
+			self:zoom_out(x, y)
+			return true
+		elseif button == Idstring("mouse wheel up") then
+			if self._one_scroll_in_delay then
+				self._one_scroll_in_delay = nil
+			end
+
+			self:zoom_in(x, y)
+			return true
 		end
 
 	end
@@ -1288,7 +1276,6 @@ function PrePlanningMapGui:mouse_released(button, x, y)
 
 		end
 
-		(for control) = nil and values[1]
 		dx = dx / #self._grabbed_map.dirs
 		dy = dy / #self._grabbed_map.dirs
 		self._released_map = {

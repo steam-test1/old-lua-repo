@@ -165,7 +165,7 @@ function NetworkVoiceChatXBL:set_team(team)
 
 	end
 
-	(for control) = team and v.rpc
+	self:_update_all()
 end
 
 function NetworkVoiceChatXBL:peer_team(xuid, team, rpc)
@@ -194,7 +194,7 @@ function NetworkVoiceChatXBL:clear_team()
 
 	end
 
-	(for control) = nil and self.DEFAULT_TEAM
+	self:_update_all()
 end
 
 function NetworkVoiceChatXBL:update(time)
@@ -516,7 +516,6 @@ function NetworkVoiceChatXBL:info_engine()
 
 	end
 
-	(for control) = nil and nil
 	cat_print("lobby", "   Registred Sends")
 	local sends = XboxVoice:active_sends()
 	local (for generator), (for state), (for control) = pairs(sends)

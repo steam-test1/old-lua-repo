@@ -241,6 +241,7 @@ function CarryTweakData:get_carry_ids()
 
 	end
 
+	return t
 end
 
 function CarryTweakData:get_zipline_offset(carry_id)

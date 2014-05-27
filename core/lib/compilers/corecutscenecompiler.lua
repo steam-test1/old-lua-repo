@@ -30,7 +30,6 @@ function CoreCutsceneCompiler:compile(file, dest, force_recompile)
 
 		end
 
-		(for control) = optimizer:problems() and error_msg
 		Application:error(error_msg)
 	end
 
@@ -64,7 +63,6 @@ function CoreCutsceneCompiler:_create_optimizer_for_project(project)
 
 	end
 
-	(for control) = project and self._create_clip
 	do
 		local (for generator), (for state), (for control) = ipairs(project:cutscene_keys())
 		do
@@ -74,7 +72,6 @@ function CoreCutsceneCompiler:_create_optimizer_for_project(project)
 
 	end
 
-	(for control) = project:cutscene_keys() and optimizer.add_key
 	do
 		local (for generator), (for state), (for control) = pairs(project:animation_patches())
 		do
@@ -87,9 +84,9 @@ function CoreCutsceneCompiler:_create_optimizer_for_project(project)
 
 		end
 
-		(for control) = project:animation_patches() and optimizer.add_animation_patch
 	end
 
+	return optimizer
 end
 
 function CoreCutsceneCompiler:_create_clip(clip_descriptor)

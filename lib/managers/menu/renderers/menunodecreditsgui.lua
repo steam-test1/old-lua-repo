@@ -184,7 +184,6 @@ function MenuNodeCreditsGui:_build_credits_panel(file)
 
 	end
 
-	(for control) = Color(1, 0, 0, 0) and data._meta
 	self._credits_panel:set_height(ypos + 50)
 	local function scroll_func(o)
 		local y = o:top()

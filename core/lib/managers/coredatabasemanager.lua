@@ -15,7 +15,7 @@ function DatabaseManager:list_unit_types()
 
 	end
 
-	(for control) = self:list_entries_of_type("unit") and CoreEngineAccess
+	return self.__unit_types
 end
 
 function DatabaseManager:list_units_of_type(type)
@@ -35,7 +35,6 @@ function DatabaseManager:list_units_of_type(type)
 
 	end
 
-	(for control) = self:list_entries_of_type("unit") and CoreEngineAccess
 	return self.__units_by_type[type:key()] or {}
 end
 
@@ -68,7 +67,6 @@ function DatabaseManager:recompile(...)
 
 	end
 
-	(for control) = ... and table
 	Application:data_compile({
 		platform = string.lower(SystemInfo:platform():s()),
 		source_root = self:base_path(),

@@ -260,7 +260,6 @@ function MenuManager:close_all_menus()
 
 	end
 
-	(for control) = nil and table
 	local (for generator), (for state), (for control) = ipairs(names)
 	do
 		do break end
@@ -282,7 +281,7 @@ function MenuManager:is_open(menu_name)
 
 	end
 
-	(for control) = nil and menu.name
+	return false
 end
 
 function MenuManager:is_in_root(menu_name)
@@ -298,7 +297,7 @@ function MenuManager:is_in_root(menu_name)
 
 	end
 
-	(for control) = nil and menu.name
+	return false
 end
 
 function MenuManager:is_pc_controller()
@@ -531,12 +530,6 @@ function MenuManager:invert_camera_y_changed(name, old_value, new_value)
 end
 
 function MenuManager:southpaw_changed(name, old_value, new_value)
--- fail 34
-null
-13
--- fail 53
-null
-13
 	if self._controller.TYPE ~= "xbox360" and self._controller.TYPE ~= "ps3" then
 		return
 	end
@@ -581,8 +574,7 @@ null
 
 		end
 
-		do break end
-		if got_input_right ~= 1 then
+		if got_input_left ~= 1 or got_input_right ~= 1 then
 			Application:error("[MenuManager:southpaw_changed] Controller look and move are not binded as expected", "got_input_left: " .. tostring(got_input_left), "got_input_right: " .. tostring(got_input_right), "look_input_name_list: " .. inspect(look_input_name_list), "move_input_name_list: " .. inspect(move_input_name_list))
 		end
 
@@ -705,7 +697,6 @@ function MenuManager:_source_files(dir)
 
 	end
 
-	(for control) = SystemFS:list(dir) and table
 	do
 		local (for generator), (for state), (for control) = ipairs(SystemFS:list(dir, true))
 		do
@@ -718,9 +709,9 @@ function MenuManager:_source_files(dir)
 
 		end
 
-		(for control) = SystemFS:list(dir .. "/" .. sub_dir) and table
 	end
 
+	return files
 end
 
 function MenuManager:progress_resetted()
@@ -750,7 +741,6 @@ function MenuManager:relay_chat_message(message, id)
 
 	end
 
-	(for control) = nil and menu.renderer
 	if self:is_console() then
 		return
 	end
@@ -1238,7 +1228,7 @@ function MenuCallbackHandler:is_dlc_latest_locked(check_dlc)
 
 	end
 
-	(for control) = "armored_transport" and dlc_tweak_data[dlc]
+	return false
 end
 
 function MenuCallbackHandler:visible_callback_armored_transport()
@@ -3069,7 +3059,6 @@ function MenuChallenges:modify_node(node, up)
 
 	end
 
-	(for control) = managers.challenges:get_near_completion() and managers
 	managers.menu:add_back_button(new_node)
 	return new_node
 end
@@ -3097,14 +3086,6 @@ function MenuChallengesAwarded:modify_node(node, up)
 
 	end
 
-	(for control) = managers.challenges:get_completed() and {
-		name = data.id,
-		text_id = string.upper(data.name),
-		description_text = string.upper(data.description),
-		localize = "false",
-		challenge = data.id,
-		awarded = true
-	}
 	managers.menu:add_back_button(new_node)
 	return new_node
 end
@@ -3138,7 +3119,6 @@ function MenuModifyActiveChallenges:modify_node(node, up)
 
 	end
 
-	(for control) = managers.challenges:get_near_completion() and data.count
 	managers.menu:add_back_button(new_node)
 	return new_node
 end
@@ -3189,7 +3169,6 @@ function MenuUpgrades:modify_node(node, up, ...)
 
 	end
 
-	(for control) = nil and managers
 	managers.menu:add_back_button(new_node)
 	return new_node
 end
@@ -3253,6 +3232,7 @@ function InviteFriendsPSN:refresh_node(node, friends)
 
 	end
 
+	return node
 end
 
 function InviteFriendsPSN:update_node(node)
@@ -3298,15 +3278,6 @@ function KickPlayer:modify_node(node, up)
 
 	end
 
-	(for control) = managers.network:session():peers() and {
-		name = peer:name(),
-		text_id = peer:name(),
-		callback = "kick_player",
-		to_upper = false,
-		localize = "false",
-		rpc = peer:rpc(),
-		peer = peer
-	}
 	managers.menu:add_back_button(new_node)
 	return new_node
 end
@@ -3365,15 +3336,6 @@ function MutePlayer:modify_node(node, up)
 
 	end
 
-	(for control) = managers.network:session():peers() and {
-		name = peer:name(),
-		text_id = peer:name(),
-		callback = "mute_player",
-		to_upper = false,
-		localize = "false",
-		rpc = peer:rpc(),
-		peer = peer
-	}
 	managers.menu:add_back_button(new_node)
 	return new_node
 end
@@ -3433,16 +3395,6 @@ function MutePlayerX360:modify_node(node, up)
 
 	end
 
-	(for control) = managers.network:session():peers() and {
-		name = peer:name(),
-		text_id = peer:name(),
-		callback = "mute_xbox_player",
-		to_upper = false,
-		localize = "false",
-		rpc = peer:rpc(),
-		peer = peer,
-		xuid = peer:xuid()
-	}
 	managers.menu:add_back_button(new_node)
 	return new_node
 end
@@ -3468,14 +3420,6 @@ function ViewGamerCard:modify_node(node, up)
 
 	end
 
-	(for control) = managers.network:session():peers() and {
-		name = peer:name(),
-		text_id = peer:name(),
-		callback = "view_gamer_card",
-		to_upper = false,
-		localize = "false",
-		xuid = peer:xuid()
-	}
 	managers.menu:add_back_button(new_node)
 	return new_node
 end
@@ -3571,7 +3515,6 @@ function MenuPSNHostBrowser:refresh_node(node, info_list, friends_only)
 
 	end
 
-	(for control) = node:items() and item.parameters
 	do
 		local (for generator), (for state), (for control) = ipairs(info_list)
 		do
@@ -3657,10 +3600,8 @@ function MenuPSNHostBrowser:refresh_node(node, info_list, friends_only)
 
 		end
 
-		(for control) = node:items() and tostring
 	end
 
-	(for control) = node:items() and info.room_list
 	do
 		local (for generator), (for state), (for control) = pairs(dead_list)
 		do
@@ -3670,6 +3611,7 @@ function MenuPSNHostBrowser:refresh_node(node, info_list, friends_only)
 
 	end
 
+	return new_node
 end
 
 MenuSTEAMHostBrowser = MenuSTEAMHostBrowser or class()
@@ -3796,7 +3738,6 @@ function MenuSTEAMHostBrowser:refresh_node(node, info, friends_only)
 
 	end
 
-	(for control) = node:items() and item.parameters
 	do
 		local (for generator), (for state), (for control) = ipairs(room_list)
 		do
@@ -3877,7 +3818,6 @@ function MenuSTEAMHostBrowser:refresh_node(node, info, friends_only)
 
 	end
 
-	(for control) = node:items() and tostring
 	do
 		local (for generator), (for state), (for control) = pairs(dead_list)
 		do
@@ -3887,7 +3827,6 @@ function MenuSTEAMHostBrowser:refresh_node(node, info, friends_only)
 
 	end
 
-	(for control) = node:items() and new_node.delete_item
 	managers.menu:add_back_button(new_node)
 	return new_node
 end
@@ -3958,7 +3897,6 @@ function MenuLANHostBrowser:refresh_node(node)
 
 	end
 
-	(for control) = nil and host_data.rpc
 	managers.menu:add_back_button(new_node)
 	return new_node
 end
@@ -4033,7 +3971,6 @@ function MenuMPHostBrowser:refresh_node(node)
 
 	end
 
-	(for control) = nil and host_data.rpc
 	managers.menu:add_back_button(new_node)
 	return new_node
 end
@@ -4065,7 +4002,6 @@ function MenuResolutionCreator:modify_node(node)
 
 	end
 
-	(for control) = nil and string
 	managers.menu:add_back_button(new_node)
 	return new_node
 end
@@ -4146,7 +4082,6 @@ function MenuManager.refresh_level_select(node, verify_dlc_owned)
 
 	end
 
-	(for control) = node:items() and item.parameter
 	if not (min_difficulty < tweak_data:difficulty_to_index(Global.game_settings.difficulty)) or not Global.game_settings.difficulty then
 	end
 
@@ -4162,7 +4097,6 @@ function MenuManager.refresh_level_select(node, verify_dlc_owned)
 
 		end
 
-		(for control) = item_difficulty:options() and option.parameters
 		item_difficulty:set_value(Global.game_settings.difficulty)
 	end
 
@@ -4192,7 +4126,6 @@ function MenuManager.refresh_level_select(node, verify_dlc_owned)
 			end
 
 		else
-			(for control) = option:parameters().difficulty and table
 			table.insert(data_node, {
 				_meta = "option",
 				localize = false,
@@ -4290,7 +4223,6 @@ function DynamicLevelCreator:modify_node(node)
 
 	end
 
-	(for control) = tweak_data.levels:get_level_index() and tweak_data
 	managers.menu:add_back_button(new_node)
 	return new_node
 end
@@ -4426,7 +4358,6 @@ function MenuCustomizeControllerCreator:modify_node(node)
 				end
 
 			else
-				(for control) = managers.controller:get_default_wrapper_type() and connection._btn_connections
 				local params = {
 					name = name_id,
 					connection_name = name,
@@ -4445,7 +4376,6 @@ function MenuCustomizeControllerCreator:modify_node(node)
 
 	end
 
-	(for control) = managers.controller:get_default_wrapper_type() and name
 	local params = {
 		name = "set_default_controller",
 		text_id = "menu_set_default_controller",
@@ -4558,19 +4488,17 @@ function MenuCrimeNetContactInfoInitiator:modify_node(original_node, data)
 
 					end
 
-					(for control) = nil and {}
 					table.insert(codex, data)
 				end
 
 			end
 
-			(for control) = ")" and {}
 			table.insert(codex_data, codex)
 		end
 
 	end
 
-	(for control) = nil and {}
+	node:clean_items()
 	do
 		local (for generator), (for state), (for control) = ipairs(codex_data)
 		do
@@ -4585,13 +4513,11 @@ function MenuCrimeNetContactInfoInitiator:modify_node(original_node, data)
 
 			end
 
-			(for control) = codex.id and self.create_item
 			self:create_divider(node, i)
 		end
 
 	end
 
-	(for control) = nil and self.create_divider
 	local params = {
 		name = "back",
 		text_id = "menu_back",
@@ -4653,12 +4579,6 @@ end
 
 MenuPrePlanningInitiator = MenuPrePlanningInitiator or class(MenuCrimeNetContactInfoInitiator)
 function MenuPrePlanningInitiator:modify_node(node, category, type)
--- fail 41
-null
-10
--- fail 148
-null
-10
 	node:clean_items()
 	local first_in_line
 	if category then
@@ -4711,9 +4631,7 @@ null
 
 		end
 
-		(for control) = "div_" .. tostring(index) and data.element
 	else
-		(for control) = tweak_data.screen_colors.text and self.create_divider
 		local categories = managers.preplanning:categories_with_mission_elements()
 		if not categories or #categories == 0 then
 			return node
@@ -4854,7 +4772,6 @@ function MenuCrimeNetGageAssignmentInitiator:modify_node(original_node, data)
 
 	end
 
-	(for control) = tweak_data.gage_assignment:get_assignments() and table
 	table.sort(node_data, function(x, y)
 		return x.aquire < y.aquire
 	end
@@ -4868,7 +4785,6 @@ function MenuCrimeNetGageAssignmentInitiator:modify_node(original_node, data)
 
 	end
 
-	(for control) = tweak_data.gage_assignment:get_assignments() and self.create_item
 	local params = {
 		name = "back",
 		text_id = "menu_back",
@@ -4923,7 +4839,6 @@ function MenuCrimeNetSpecialInitiator:setup_node(node)
 
 			end
 
-			(for control) = nil and table
 			table.sort(contacts, function(x, y)
 				return x < y
 			end
@@ -4949,7 +4864,6 @@ function MenuCrimeNetSpecialInitiator:setup_node(node)
 
 			end
 
-			(for control) = tweak_data.narrative:get_jobs_index() and tweak_data
 			local job_tweak = tweak_data.narrative.jobs
 			do
 				local (for generator), (for state), (for control) = pairs(jobs)
@@ -4979,7 +4893,6 @@ function MenuCrimeNetSpecialInitiator:setup_node(node)
 
 			end
 
-			(for control) = tweak_data.narrative:get_jobs_index() and table
 			local params = {
 				name = "contact_filter",
 				text_id = "menu_contact_filter",
@@ -5011,7 +4924,6 @@ function MenuCrimeNetSpecialInitiator:setup_node(node)
 
 			end
 
-			(for control) = contacts[#contacts] .. "#" and jobs[contact]
 			table.insert(data_node, {
 				_meta = "option",
 				no_text = true,
@@ -5032,7 +4944,6 @@ function MenuCrimeNetSpecialInitiator:setup_node(node)
 
 			end
 
-			(for control) = "title" and self.create_job
 			self:create_divider(node, "end")
 		end
 
@@ -5167,7 +5078,6 @@ function MenuReticleSwitchInitiator:setup_node(node, data)
 
 		end
 
-		(for control) = nil and reticle_data.dlc
 		local new_item = node:create_item(data_node, params)
 		node:add_item(new_item)
 		new_item:set_value(type_index)
@@ -5200,7 +5110,6 @@ function MenuReticleSwitchInitiator:setup_node(node, data)
 
 		end
 
-		(for control) = "gui" and color_data.dlc
 		local new_item = node:create_item(data_node, params)
 		node:add_item(new_item)
 		new_item:set_value(color_index)
@@ -5751,7 +5660,6 @@ function MenuCrimeNetFiltersInitiator:add_filters(node)
 
 	end
 
-	(for control) = tweak_data.narrative:get_jobs_index() and table
 	local new_item = node:create_item(data_node, params)
 	new_item:set_value(managers.network.matchmake:get_lobby_filter("job_id") or -1)
 	node:add_item(new_item)
@@ -5793,12 +5701,6 @@ function MenuCrimeNetFiltersInitiator:add_filters(node)
 
 	end
 
-	(for control) = {
-		_meta = "option",
-		text_id = tweak_data.narrative.jobs[job_id].name_id,
-		value = index,
-		color = tweak_data.narrative.jobs[job_id].professional and tweak_data.screen_colors.pro_color or Color.white
-	} and table
 	local new_item = node:create_item(data_node, params)
 	new_item:set_value(managers.network.matchmake:get_lobby_filter("kicking_allowed") or -1)
 	node:add_item(new_item)

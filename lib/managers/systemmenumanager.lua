@@ -125,9 +125,6 @@ function GenericSystemMenuManager:paused_update(t, dt)
 end
 
 function GenericSystemMenuManager:update_queue()
--- fail 14
-null
-5
 	if not self:is_active(true) and self._dialog_queue then
 		local dialog, index
 		do
@@ -248,7 +245,7 @@ function GenericSystemMenuManager:is_active_by_id(id)
 
 	end
 
-	(for control) = nil and dialog.id
+	return false
 end
 
 function GenericSystemMenuManager:_show_result(success, data)

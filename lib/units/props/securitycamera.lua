@@ -445,11 +445,7 @@ function SecurityCamera:on_detected_attention_obj_modified(modified_u_key)
 		return
 	end
 
-	if not attention_info.identified then
-		-- unhandled boolean indicator
-	else
-		local old_notice_clbk = true
-	end
+	local old_notice_clbk = attention_info.identified
 
 	if new_settings then
 		local switch_from_suspicious = new_settings.reaction >= AIAttentionObject.REACT_SCARED and attention_info.reaction == AIAttentionObject.REACT_SUSPICIOUS
@@ -526,7 +522,7 @@ function SecurityCamera:_destroy_all_detected_attention_object_data()
 
 	end
 
-	self._detected_attention_objects = nil and {}
+	self._detected_attention_objects = {}
 end
 
 function SecurityCamera:_upd_suspicion(t)
@@ -619,9 +615,7 @@ function SecurityCamera:_upd_suspicion(t)
 
 	end
 
-	do break end
-	-- unhandled boolean indicator
-	self._suspicion = true
+	self._suspicion = max_suspicion > 0 and max_suspicion
 end
 
 function SecurityCamera:_sound_the_alarm(detected_unit)
@@ -716,10 +710,12 @@ function SecurityCamera:_upd_sound(unit, t)
 
 	end
 
-	do break end
-	self:_set_suspicion_sound(0)
-	self:_stop_all_sounds()
-	do return end
+	if not suspicion_level then
+		self:_set_suspicion_sound(0)
+		self:_stop_all_sounds()
+		return
+	end
+
 	self:_set_suspicion_sound(suspicion_level)
 end
 

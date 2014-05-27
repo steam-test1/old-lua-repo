@@ -25,7 +25,6 @@ function LootDropManager:add_qlvl_to_weapon_mods(override_tweak_data)
 
 	end
 
-	(for control) = nil and data.factory_id
 	local (for generator), (for state), (for control) = pairs(tweak_data.weapon.factory.parts)
 	do
 		do break end
@@ -43,7 +42,7 @@ function LootDropManager:add_qlvl_to_weapon_mods(override_tweak_data)
 
 		end
 
-		weapon_mods_tweak_data[part_id].qlvl = nil and min_level
+		weapon_mods_tweak_data[part_id].qlvl = min_level
 	end
 
 end
@@ -52,9 +51,6 @@ function LootDropManager:_setup_items()
 	local pc_items = {}
 	Global.lootdrop_manager.pc_items = pc_items
 	local function sort_pc(type, data)
--- fail 26
-null
-12
 		local (for generator), (for state), (for control) = pairs(data)
 		do
 			do break end
@@ -74,20 +70,22 @@ null
 
 			end
 
-			do break end
-			if item_data.pc then
-				pc_items[item_data.pc] = pc_items[item_data.pc] or {}
-				pc_items[item_data.pc][type] = pc_items[item_data.pc][type] or {}
-				table.insert(pc_items[item_data.pc][type], id)
-			end
+			if has_dlc then
+				if item_data.pc then
+					pc_items[item_data.pc] = pc_items[item_data.pc] or {}
+					pc_items[item_data.pc][type] = pc_items[item_data.pc][type] or {}
+					table.insert(pc_items[item_data.pc][type], id)
+				end
 
-			if item_data.pcs then
-				local (for generator), (for state), (for control) = ipairs(item_data.pcs)
-				do
-					do break end
-					pc_items[pc] = pc_items[pc] or {}
-					pc_items[pc][type] = pc_items[pc][type] or {}
-					table.insert(pc_items[pc][type], id)
+				if item_data.pcs then
+					local (for generator), (for state), (for control) = ipairs(item_data.pcs)
+					do
+						do break end
+						pc_items[pc] = pc_items[pc] or {}
+						pc_items[pc][type] = pc_items[pc][type] or {}
+						table.insert(pc_items[pc][type], id)
+					end
+
 				end
 
 			end

@@ -527,6 +527,22 @@ function BaseInteractionExt:destroy()
 		managers.occlusion:add_occlusion(self._unit)
 	end
 
+	if self._interacting_units then
+		do
+			local (for generator), (for state), (for control) = pairs(self._interacting_units)
+			do
+				do break end
+				if alive(unit) then
+					unit:base():remove_destroy_listener(self._interacting_unit_destroy_listener_key)
+				end
+
+			end
+
+		end
+
+		self._interacting_units = nil
+	end
+
 end
 
 UseInteractionExt = UseInteractionExt or class(BaseInteractionExt)
@@ -914,6 +930,7 @@ function AmmoBagInteractionExt:interact(player)
 
 	end
 
+	return interacted
 end
 
 GrenadeCrateInteractionExt = GrenadeCrateInteractionExt or class(UseInteractionExt)

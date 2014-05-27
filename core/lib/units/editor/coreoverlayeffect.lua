@@ -72,7 +72,6 @@ function CoreOverlayEffectHubElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = managers.overlay_effect:presets() and table
 	table.sort(t)
 	do
 		local (for generator), (for state), (for control) = ipairs(t)
@@ -83,7 +82,6 @@ function CoreOverlayEffectHubElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = managers.overlay_effect:presets() and effects.append
 	effects:set_value(self._hed.overlay_effect)
 	effects_sizer:add(effects, 2, 0, "EXPAND")
 	effects:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {

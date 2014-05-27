@@ -278,6 +278,39 @@ function HUDAssaultCorner:_animate_text(text_panel, bg_box, color)
 		}
 	end
 
+	while true do
+		local dt = coroutine.yield()
+		local last_text = texts[text_index]
+		if last_text and last_text.text then
+			if last_text.x + last_text.text:w() * 0.5 + padding < text_panel:w() then
+				text_index = text_index % #text_list + 1
+				create_new_text(text_panel, text_list, text_index, texts)
+			end
+
+		else
+			text_index = text_index % #text_list + 1
+			create_new_text(text_panel, text_list, text_index, texts)
+		end
+
+		local speed = 90
+		local (for generator), (for state), (for control) = pairs(texts)
+		do
+			do break end
+			if data.text then
+				data.x = data.x - dt * speed
+				data.text:set_center_x(data.x)
+				data.text:set_center_y(text_panel:h() * 0.5)
+				if 0 > data.x + data.text:w() * 0.5 then
+					text_panel:remove(data.text)
+					data.text = nil
+				end
+
+			end
+
+		end
+
+	end
+
 end
 
 function HUDAssaultCorner:sync_start_assault(data)
@@ -336,7 +369,6 @@ function HUDAssaultCorner:_start_assault(text_list)
 	end
 
 	self._assault = true
-	(for control) = nil and table
 	if self._bg_box:child("text_panel") then
 		self._bg_box:child("text_panel"):stop()
 		self._bg_box:child("text_panel"):clear()
@@ -480,7 +512,6 @@ function HUDAssaultCorner:show_casing()
 
 	end
 
-	(for control) = "hud_assault_end_line" and table
 	if self._casing_bg_box:child("text_panel") then
 		self._casing_bg_box:child("text_panel"):stop()
 		self._casing_bg_box:child("text_panel"):clear()
@@ -588,7 +619,7 @@ function HUDAssaultCorner:_animate_show_texts(anim_object, texts)
 	end
 
 	local TOTAL_T = 0.5
-	local t = nil or TOTAL_T
+	local t = TOTAL_T
 	while t > 0 do
 		local dt = coroutine.yield()
 		t = t - dt
@@ -601,7 +632,6 @@ function HUDAssaultCorner:_animate_show_texts(anim_object, texts)
 
 	end
 
-	(for control) = math.abs((math.sin(t * 360 * 3))) and text.set_alpha
 	local (for generator), (for state), (for control) = ipairs(texts)
 	do
 		do break end

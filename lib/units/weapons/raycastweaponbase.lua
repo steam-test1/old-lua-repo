@@ -140,7 +140,6 @@ function RaycastWeaponBase:setup(setup_data)
 		end
 
 	else
-		(for control) = nil and "_"
 		debug_pause("[RaycastWeaponBase] Weapon \"" .. tostring(self._name_id) .. "\" is missing stats block!")
 		self._zoom = 60
 		self._alert_size = 5000
@@ -274,6 +273,7 @@ function RaycastWeaponBase:fire(from_pos, direction, dmg_mul, shoot_player, spre
 
 	end
 
+	return ray_res
 end
 
 function RaycastWeaponBase:_check_ammo_total(unit)
@@ -460,6 +460,7 @@ function RaycastWeaponBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul
 
 	end
 
+	return result
 end
 
 function RaycastWeaponBase:check_autoaim(from_pos, direction, max_dist, use_aim_assist)
@@ -522,7 +523,6 @@ function RaycastWeaponBase:check_autoaim(from_pos, direction, max_dist, use_aim_
 
 	end
 
-	(for control) = nil and enemy_data.unit
 	return closest_ray, suppression_enemies
 end
 
@@ -581,7 +581,7 @@ function RaycastWeaponBase:_check_alert(rays, fire_pos, direction, user_unit)
 	end
 
 	local fire_alerts = self._alert_fires
-	local cached = nil and false
+	local cached = false
 	for i = #fire_alerts, 1, -1 do
 		if t > fire_alerts[i][2] then
 			table.remove(fire_alerts, i)

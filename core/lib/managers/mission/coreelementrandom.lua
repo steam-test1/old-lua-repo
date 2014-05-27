@@ -28,7 +28,7 @@ function ElementRandom:on_executed(instigator)
 
 	end
 
-	self._values.on_executed, (for control) = {}, nil and self._values
+	self._values.on_executed = {}
 	local amount = self._values.amount or 1
 	if self._values.counter_id then
 		local element = self:get_mission_element(self._values.counter_id)

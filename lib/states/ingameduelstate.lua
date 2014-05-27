@@ -46,7 +46,6 @@ function IngameDuelState:at_enter()
 
 	end
 
-	(for control) = nil and player.camera
 	self._ws:show()
 end
 
@@ -65,7 +64,6 @@ function IngameDuelState:at_exit()
 
 	end
 
-	(for control) = nil and player.camera
 	self._ws:hide()
 end
 

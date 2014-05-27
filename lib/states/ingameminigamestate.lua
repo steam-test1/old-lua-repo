@@ -54,7 +54,6 @@ function IngameMinigameState:at_enter()
 
 	end
 
-	(for control) = nil and player.camera
 	self:set_controller_enabled(false)
 	self:_start_game()
 	self._ws:show()
@@ -75,7 +74,6 @@ function IngameMinigameState:at_exit()
 
 	end
 
-	(for control) = nil and player.camera
 	self:set_controller_enabled(true)
 	self._ws:hide()
 end

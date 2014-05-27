@@ -179,7 +179,6 @@ function CoreAreaHubElement:update_selected(time)
 
 	end
 
-	(for control) = nil and self.draw
 	if self._current_shape then
 		self:draw(self._hed.shapes[self._current_shape], 0, 1, 1)
 	end
@@ -255,12 +254,8 @@ function CoreAreaHubElement:update_editing(t, dt)
 				shape.position = self._current_pos + shape.move_offset
 			end
 
-		else
-			(for control) = self and self._current_pos
-			if current_shape then
-				current_shape.position = self._current_pos + current_shape.move_offset
-			end
-
+		elseif current_shape then
+			current_shape.position = self._current_pos + current_shape.move_offset
 		end
 
 	end
@@ -286,12 +281,8 @@ function CoreAreaHubElement:update_editing(t, dt)
 					shape.position = shape.position + mov_vec * self._kb_move_grid_size
 				end
 
-			else
-				(for control) = 0 and shape.position
-				if current_shape then
-					current_shape.position = current_shape.position + mov_vec * self._kb_move_grid_size
-				end
-
+			elseif current_shape then
+				current_shape.position = current_shape.position + mov_vec * self._kb_move_grid_size
 			end
 
 		end
@@ -423,7 +414,7 @@ function CoreAreaHubElement:move_shape()
 
 	end
 
-	self._move_all_shapes, (for control) = shift(), nil and shape.position
+	self._move_all_shapes = shift()
 end
 
 function CoreAreaHubElement:release_shape()
@@ -485,7 +476,6 @@ function CoreAreaHubElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = "on_exit" and area_type.append
 	area_type:set_value(self._hed.area_type)
 	types_sizer:add(area_type, 3, 0, "EXPAND")
 	area_type:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {ctrlr = area_type, value = "area_type"})
@@ -502,7 +492,6 @@ function CoreAreaHubElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = "" and shape_names.append
 	shape_names:set_value(self._shape_type)
 	shape_names_sizer:add(shape_names, 3, 0, "EXPAND")
 	shape_names:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_shape_type"), shape_names)

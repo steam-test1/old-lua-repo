@@ -122,9 +122,6 @@ function AIAttentionObject:remove_attention(id)
 end
 
 function AIAttentionObject:set_attention(settings, id)
--- fail 8
-null
-5
 	if self._override_restore then
 		do
 			local (for generator), (for state), (for control) = pairs(self._attention_data)
@@ -229,6 +226,7 @@ function AIAttentionObject:get_attention(filter, min, max)
 
 	end
 
+	return settings_match
 end
 
 function AIAttentionObject:verify_attention(test_settings, min, max)

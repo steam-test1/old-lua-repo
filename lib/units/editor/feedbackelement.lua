@@ -46,7 +46,6 @@ function FeedbackUnitElement:update_selected(t, dt, selected_unit, all_units)
 		end
 
 	else
-		(for control) = nil and all_units[id]
 		self:_draw_ranges(self._unit:position())
 	end
 
@@ -377,6 +376,7 @@ function FeedbackUnitElement:_effect_options()
 
 	end
 
+	return effect_options
 end
 
 function FeedbackUnitElement:add_to_mission_package()

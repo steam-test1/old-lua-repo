@@ -78,7 +78,6 @@ function MenuNodeStatsGui:_setup_stats(node)
 
 		end
 
-		(for control) = managers.statistics:total_head_shots() and panel.h
 		local safe_rect = managers.viewport:get_safe_rect_pixels()
 		local panel = self._item_panel_parent:panel({y = y})
 		local text = panel:text({
@@ -113,7 +112,6 @@ function MenuNodeStatsGui:_add_stats(params)
 
 	end
 
-	(for control) = nil and panel.h
 	local panel = self._item_panel_parent:panel({y = y})
 	local topic = panel:text({
 		font_size = tweak_data.menu.stats_font_size,

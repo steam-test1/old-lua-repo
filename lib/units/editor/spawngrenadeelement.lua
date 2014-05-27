@@ -66,7 +66,6 @@ function SpawnGrenadeUnitElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = nil and table
 	local grenade_type_params = {
 		name = "Grenade:",
 		panel = panel,

@@ -246,7 +246,6 @@ function SentryGunBase:get_net_event_id(player)
 
 	end
 
-	(for control) = player:inventory():available_selections() and weapon.unit
 	ammo_got = ammo_got / math.max(i, 1)
 	local ammo_wanted = ammo_needed
 	local wanted_event_id

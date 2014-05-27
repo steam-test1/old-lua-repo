@@ -102,5 +102,6 @@ function CoreEditableGui:destroy()
 
 	end
 
+	self._guis = nil
 end
 

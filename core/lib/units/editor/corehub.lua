@@ -78,7 +78,6 @@ function CoreHub:_action_names()
 
 	end
 
-	(for control) = nil and table
 	table.sort(names)
 	return names
 end
@@ -128,7 +127,6 @@ function CoreHub:_trigger_names()
 
 	end
 
-	(for control) = nil and table
 	table.sort(names)
 	return names
 end
@@ -222,7 +220,6 @@ function CoreHub:select_action(s, actions, action_types, action_delay)
 
 		end
 
-		(for control) = nil and action_types.append
 		action_types:set_value(self._selected_action.type)
 	else
 		action_types:set_enabled(false)
@@ -255,7 +252,6 @@ function CoreHub:select_trigger(s, triggers, trigger_types)
 
 		end
 
-		(for control) = nil and trigger_types.append
 		trigger_types:set_value(self._selected_trigger.type)
 	else
 		trigger_types:set_enabled(false)
@@ -283,7 +279,6 @@ function CoreHub:draw_actions(t, dt)
 
 	end
 
-	(for control) = nil and action.hub_element
 	if self._selected_action and alive(self:action_unit(self._selected_action.unit_id)) then
 		local action = self:action_unit(self._selected_action.unit_id)
 		local r, g, b = action:hub_element():get_color(self._selected_action.type)
@@ -309,7 +304,6 @@ function CoreHub:draw_triggers(t, dt)
 
 	end
 
-	(for control) = nil and 1
 	if self._selected_trigger and alive(self:trigger_unit(self._selected_trigger.unit_id)) then
 		local r, g, b = 1, 1, 0
 		local trigger = self:trigger_unit(self._selected_trigger.unit_id)
@@ -344,7 +338,6 @@ function CoreHub:draw_connections_unselected()
 
 	end
 
-	(for control) = 50 and 1
 	local (for generator), (for state), (for control) = ipairs(self._hed.actions)
 	do
 		do break end
@@ -401,7 +394,6 @@ function CoreHub:layer_finished()
 	end
 
 	hed.actions_data = t
-	(for control) = nil and managers
 	do
 		local (for generator), (for state), (for control) = pairs(hed.actions_data)
 		do
@@ -414,7 +406,6 @@ function CoreHub:layer_finished()
 	end
 
 	local tt = {}
-	(for control) = nil and managers
 	do
 		local (for generator), (for state), (for control) = pairs(hed.triggers_data)
 		do
@@ -431,7 +422,6 @@ function CoreHub:layer_finished()
 	end
 
 	hed.triggers_data = tt
-	(for control) = nil and value
 	local (for generator), (for state), (for control) = pairs(hed.triggers_data)
 	do
 		do break end

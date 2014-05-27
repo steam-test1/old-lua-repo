@@ -11,9 +11,6 @@ function CoreXMLEditor:on_check_news()
 end
 
 function CoreXMLEditor:check_news(new_only)
--- fail 27
-null
-6
 	local news
 	if new_only then
 		news = managers.news:get_news("xml_editor", self._main_frame_table._main_frame)

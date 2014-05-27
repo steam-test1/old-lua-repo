@@ -24,7 +24,6 @@ function DynamicResourceManager:update()
 		self._to_unload = nil
 	end
 
-	(for control) = nil and PackageManager
 	if self._listener_holder:has_listeners_for_event(self.listener_events.file_streamer_workload) then
 		self:_check_file_streamer_status()
 	end
@@ -36,12 +35,6 @@ function DynamicResourceManager:is_ready_to_close()
 end
 
 function DynamicResourceManager:load(resource_type, resource_name, package_name, complete_clbk)
--- fail 18
-null
-14
--- fail 9
-null
-9
 	local resource_type_key = resource_type:key()
 	local resource_name_key = resource_name:key()
 	do
@@ -89,8 +82,10 @@ null
 
 		end
 
-		do break end
-		PackageManager:package(package_name):load_temp_resource(resource_type, resource_name, complete_clbk)
+		if needs_loading then
+			PackageManager:package(package_name):load_temp_resource(resource_type, resource_name, complete_clbk)
+		end
+
 	end
 
 end

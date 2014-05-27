@@ -154,7 +154,6 @@ function CoreHubElement:save_mission_action(file, t, hub, dont_save_values)
 
 		end
 
-		(for control) = "<action type=\"" and self.save_value
 		file:puts(t .. "</action>")
 	end
 
@@ -176,7 +175,6 @@ function CoreHubElement:save_mission_action_enemy(file, t, hub)
 
 		end
 
-		(for control) = "\t<enemy name=\"" and self.save_value
 		file:puts(t .. "\t</enemy>")
 	end
 
@@ -199,7 +197,6 @@ function CoreHubElement:save_values(file, t)
 
 	end
 
-	(for control) = "<values>" and self.save_value
 	file:puts(t .. "</values>")
 end
 
@@ -223,7 +220,6 @@ function CoreHubElement:save_mission_trigger(file, t, hub)
 
 			end
 
-			(for control) = "<trigger type=\"" and self.save_value
 			file:puts(t .. "</trigger>")
 		end
 

@@ -143,8 +143,10 @@ function probability(chance_table, result_table)
 
 	end
 
-	do break end
-	do return result_table[choice] end
+	if result_table then
+		return result_table[choice]
+	end
+
 	return choice
 end
 

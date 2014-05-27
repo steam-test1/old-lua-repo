@@ -71,7 +71,6 @@ function BookBoxGui:_layout_page_panels()
 	end
 
 	local w = 0
-	(for control) = nil and p.child
 	local (for generator), (for state), (for control) = ipairs(self._page_panels)
 	do
 		do break end
@@ -123,7 +122,7 @@ function BookBoxGui:remove_page(name)
 
 	end
 
-	(for control) = self and panel.name
+	self:_layout_page_panels()
 end
 
 function BookBoxGui:set_size(x, y)
@@ -222,7 +221,6 @@ function BookBoxGui:set_page(name)
 	end
 
 	self._active_page_name = name
-	(for control) = nil and page.box_gui
 	self._pages[self._active_page_name].box_gui:open_page()
 end
 
@@ -255,7 +253,6 @@ function BookBoxGui:mouse_pressed(button, x, y)
 
 	end
 
-	(for control) = nil and page.panel
 	if not self._active_page_name then
 		return false
 	end
@@ -388,6 +385,6 @@ function BookBoxGui:_mouse_over_page_panel(x, y)
 
 	end
 
-	(for control) = nil and panel.inside
+	return nil
 end
 

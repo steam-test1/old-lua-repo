@@ -19,7 +19,6 @@ function AwardAchievmentElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = nil and table
 	local achievment_params = {
 		name = "Achievment:",
 		panel = panel,

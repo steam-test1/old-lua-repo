@@ -1165,6 +1165,87 @@ function CopLogicAttack._find_flank_pos(data, my_data, flank_tracker, max_dist)
 	local max_dis = max_dist or 1500
 	mvector3.set_length(vec_to_pos, max_dis)
 	local accross_positions = managers.navigation:find_walls_accross_tracker(flank_tracker, vec_to_pos, 160, 5)
+	if accross_positions then
+		local optimal_dis = max_dis
+		local best_error_dis, best_pos, best_is_hit, best_is_miss, best_has_too_much_error
+		do
+			local (for generator), (for state), (for control) = ipairs(accross_positions)
+			do
+				do break end
+				local error_dis = math.abs(mvector3.distance(accross_pos[1], pos) - optimal_dis)
+				local too_much_error = error_dis / optimal_dis > 0.2
+				local is_hit = accross_pos[2]
+				if best_is_hit then
+					if is_hit then
+						if best_error_dis > error_dis then
+							local reservation = {
+								position = accross_pos[1],
+								radius = 30,
+								filter = data.pos_rsrv_id
+							}
+							if managers.navigation:is_pos_free(reservation) then
+								best_pos = accross_pos[1]
+								best_error_dis = error_dis
+								best_has_too_much_error = too_much_error
+							end
+
+						end
+
+					elseif best_has_too_much_error then
+						local reservation = {
+							position = accross_pos[1],
+							radius = 30,
+							filter = data.pos_rsrv_id
+						}
+						if managers.navigation:is_pos_free(reservation) then
+							best_pos = accross_pos[1]
+							best_error_dis = error_dis
+							best_is_miss = true
+							best_is_hit = nil
+						end
+
+					end
+
+				elseif best_is_miss then
+					if not too_much_error then
+						local reservation = {
+							position = accross_pos[1],
+							radius = 30,
+							filter = data.pos_rsrv_id
+						}
+						if managers.navigation:is_pos_free(reservation) then
+							best_pos = accross_pos[1]
+							best_error_dis = error_dis
+							best_has_too_much_error = nil
+							best_is_miss = nil
+							best_is_hit = true
+						end
+
+					end
+
+				else
+					local reservation = {
+						position = accross_pos[1],
+						radius = 30,
+						filter = data.pos_rsrv_id
+					}
+					if managers.navigation:is_pos_free(reservation) then
+						best_pos = accross_pos[1]
+						best_is_hit = is_hit
+						best_is_miss = not is_hit
+						best_has_too_much_error = too_much_error
+						best_error_dis = error_dis
+					end
+
+				end
+
+			end
+
+		end
+
+		return best_pos
+	end
+
 end
 
 function CopLogicAttack.damage_clbk(data, damage_info)
@@ -1312,8 +1393,7 @@ function CopLogicAttack._get_expected_attention_position(data, my_data)
 
 		end
 
-		do break end
-		do
+		if i_from_seg then
 			local function _find_aim_pos(from_nav_seg, to_nav_seg)
 				local closest_dis = 1000000000
 				local closest_door
@@ -1334,16 +1414,18 @@ function CopLogicAttack._get_expected_attention_position(data, my_data)
 
 				end
 
-				do break end
-				mvec3_set(temp_vec1, closest_door.center)
-				mvec3_sub(temp_vec1, data.m_pos)
-				mvec3_set_z(temp_vec1, 0)
-				if min_point_dis_sq < mvector3.length_sq(temp_vec1) then
+				if closest_door then
 					mvec3_set(temp_vec1, closest_door.center)
-					mvec3_set_z(temp_vec1, temp_vec1.z + 140)
-					return temp_vec1
-				else
-					return false, true
+					mvec3_sub(temp_vec1, data.m_pos)
+					mvec3_set_z(temp_vec1, 0)
+					if min_point_dis_sq < mvector3.length_sq(temp_vec1) then
+						mvec3_set(temp_vec1, closest_door.center)
+						mvec3_set_z(temp_vec1, temp_vec1.z + 140)
+						return temp_vec1
+					else
+						return false, true
+					end
+
 				end
 
 			end

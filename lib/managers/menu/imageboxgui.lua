@@ -129,7 +129,6 @@ function ImageBoxGui:_create_image_box(image_config)
 
 	end
 
-	(for control) = math.max(image_width, 1) / math.max(image_height, 1) and shape.type
 	self._info_box:create_sides(info_area, {
 		sides = {
 			1,

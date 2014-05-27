@@ -74,6 +74,6 @@ function CoreGuiCutsceneKey:refresh_control_for_name(control)
 
 	end
 
-	(for control) = managers.database:list_entries_of_type("gui") and control.append
+	control:thaw()
 end
 

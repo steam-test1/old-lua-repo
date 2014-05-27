@@ -453,7 +453,6 @@ function TeamAIDamage:_on_hurt()
 
 	end
 
-	(for control) = managers.groupai:state():all_player_criminals() and mvector3
 	self._regenerate_t = TimerManager:game():time() + regen_time
 end
 

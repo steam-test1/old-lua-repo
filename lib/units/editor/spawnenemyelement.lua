@@ -111,7 +111,7 @@ function SpawnEnemyUnitElement:stop_test_element()
 
 	end
 
-	self._enemies = nil and {}
+	self._enemies = {}
 end
 
 function SpawnEnemyUnitElement:add_unit_list_btn()
@@ -272,10 +272,6 @@ function SpawnEnemyUnitElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = {
-		ctrlr = accessibility,
-		value = "accessibility"
-	} and table
 	local pickup_params = {
 		name = "Force Pickup:",
 		panel = panel,

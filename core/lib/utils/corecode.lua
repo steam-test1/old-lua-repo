@@ -99,7 +99,6 @@ local sort_iterator = function(t, raw)
 
 	end
 
-	(for control) = nil and #sorted
 	table.sort(sorted, function(a, b)
 		if type(a) == "number" then
 			if type(b) == "number" then
@@ -160,7 +159,6 @@ function line_representation(x, seen, raw)
 
 		end
 
-		(for control) = nil and r
 		r = r .. "}"
 		return r
 	elseif type(x) == "string" then
@@ -214,7 +212,6 @@ function properties(x)
 
 	end
 
-	(for control) = nil and x[p]
 	CoreDebug.cat_print("debug", ascii_table(t))
 end
 
@@ -254,7 +251,6 @@ function help(o)
 
 		end
 
-		(for control) = k .. "(C++ function)" and type
 		if getmetatable(t) then
 			add_methods(getmetatable(t))
 		end
@@ -272,7 +268,6 @@ function help(o)
 
 	end
 
-	(for control) = nil and table
 	table.sort(sorted_methods)
 	local (for generator), (for state), (for control) = ipairs(sorted_methods)
 	do
@@ -304,7 +299,6 @@ function ascii_table(t, raw)
 
 	end
 
-	(for control) = nil and line_representation
 	out = out .. ("-"):rep(klen + vlen + 5) .. "\n"
 	do
 		local (for generator), (for state), (for control) = sort_iterator(t, raw)
@@ -315,7 +309,6 @@ function ascii_table(t, raw)
 
 	end
 
-	(for control) = klen + vlen + 5 and out
 	out = out .. ("-"):rep(klen + vlen + 5) .. "\n"
 	return out
 end
@@ -371,7 +364,6 @@ function memory_report(limit)
 
 		end
 
-		(for control) = nil and count
 		if CoreClass.type_name(item) == "Unit" then
 			local (for generator), (for state), (for control) = ipairs(item:extensions())
 			do
@@ -381,7 +373,6 @@ function memory_report(limit)
 
 		end
 
-		(for control) = item:extensions() and recurse
 		if getmetatable(item) and not seen[getmetatable(item)] then
 			recurse(getmetatable(item), t, "metatable")
 		end
@@ -404,7 +395,7 @@ function memory_report(limit)
 	end
 
 	local total = 0
-	local res = nil and {}
+	local res = {}
 	do
 		local (for generator), (for state), (for control) = pairs(count)
 		do
@@ -418,7 +409,6 @@ function memory_report(limit)
 
 	end
 
-	(for control) = recurse and total + v
 	table.sort(res)
 	do
 		local (for generator), (for state), (for control) = ipairs(res)
@@ -429,7 +419,6 @@ function memory_report(limit)
 
 	end
 
-	(for control) = recurse and CoreDebug
 	CoreDebug.cat_print("debug", string.format([[
 
 %6i  TOTAL]], total))
@@ -446,7 +435,7 @@ if __profiled then
 
 end
 
-__profiled = nil and {}
+__profiled = {}
 function profile(s)
 	if __profiled[s] then
 		return
@@ -514,6 +503,6 @@ function reprofile()
 
 	end
 
-	__old_profiled = nil and {}
+	__old_profiled = {}
 end
 

@@ -508,9 +508,6 @@ function CivilianLogicFlee._cancel_pathing(data, my_data)
 end
 
 function CivilianLogicFlee._find_hide_cover(data)
--- fail 33
-null
-7
 	local my_data = data.internal_data
 	my_data.cover_search_task_key = nil
 	if data.unit:anim_data().dont_flee then
@@ -537,13 +534,15 @@ null
 
 		end
 
-		do break end
-		avoid_pos = closest_crim.m_pos
-		do break end
-		avoid_pos = Vector3()
-		mvector3.random_orthogonal(avoid_pos, math.UP)
-		mvector3.multiply(avoid_pos, 100)
-		mvector3.add(data.m_pos, 100)
+		if closest_crim then
+			avoid_pos = closest_crim.m_pos
+		else
+			avoid_pos = Vector3()
+			mvector3.random_orthogonal(avoid_pos, math.UP)
+			mvector3.multiply(avoid_pos, 100)
+			mvector3.add(data.m_pos, 100)
+		end
+
 	end
 
 	if my_data.best_cover then
@@ -930,8 +929,7 @@ function CivilianLogicFlee.clbk_chk_call_the_police(ignore_this, data)
 
 	end
 
-	do break end
-	if not my_data.calling_the_police or not data.unit:movement():chk_action_forbidden("walk") then
+	if not already_calling and (not my_data.calling_the_police or not data.unit:movement():chk_action_forbidden("walk")) then
 		local action = {
 			type = "act",
 			body_part = 1,

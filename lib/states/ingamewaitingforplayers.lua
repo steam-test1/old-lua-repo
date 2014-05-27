@@ -430,7 +430,6 @@ function IngameWaitingForPlayersState:_get_cameras()
 
 	end
 
-	(for control) = managers.helper_unit:get_units_by_type("waiting_camera") and table
 	if #self._cameras == 0 then
 		table.insert(self._cameras, {
 			pos = Vector3(-196, -496, 851),

@@ -70,9 +70,6 @@ function out(...)
 	end
 
 	local function do_print(c, ...)
--- fail 10
-null
-6
 		local cat = CAT_TYPE
 		local args = {
 			...
@@ -179,7 +176,6 @@ function catprint_save()
 
 	end
 
-	(for control) = nil and Global
 	local path = managers.database:base_path() .. "settings/catprint.catprint"
 	local file = SystemFS:open(path, "w")
 	file:print(ScriptSerializer:to_custom_xml(data))
@@ -198,7 +194,7 @@ function catprint_load()
 	end
 
 	local file_path = "settings/catprint"
-	local file_extension = nil and "catprint"
+	local file_extension = "catprint"
 	if DB:has(file_extension, file_path) then
 		local xml = DB:open(file_extension, file_path):read()
 		local data = ScriptSerializer:from_custom_xml(xml)
@@ -354,7 +350,6 @@ function trace_ref(class_name, init_name, destroy_name)
 
 			end
 
-			(for control) = rawget(_G, "_trace_ref_table") and c + 1
 			cat_print("debug", string.format("[CoreTraceRef] ---------------------- %i Script References Lost --------------------------", c))
 			local (for generator), (for state), (for control) = pairs(t)
 			do

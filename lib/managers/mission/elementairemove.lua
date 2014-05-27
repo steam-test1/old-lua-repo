@@ -35,7 +35,6 @@ function ElementAIRemove:on_executed(instigator)
 
 	end
 
-	(for control) = 0 and self.get_mission_element
 	ElementAIRemove.super.on_executed(self, instigator)
 end
 

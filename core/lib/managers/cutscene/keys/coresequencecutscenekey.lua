@@ -60,7 +60,6 @@ function CoreSequenceCutsceneKey:refresh_control_for_name(control)
 		end
 
 	else
-		(for control) = self:unit_name() and control.append
 		control:set_enabled(false)
 	end
 

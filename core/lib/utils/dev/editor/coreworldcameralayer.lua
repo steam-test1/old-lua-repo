@@ -137,7 +137,6 @@ function WorldCameraLayer:build_panel(notebook)
 
 	end
 
-	(for control) = "linear" and self._in_acc
 	self._in_acc:set_value("linear")
 	self._in_acc:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "change_acc"), "in")
 	in_sizer:add(self._in_acc, 1, 0, "EXPAND")
@@ -157,7 +156,6 @@ function WorldCameraLayer:build_panel(notebook)
 
 	end
 
-	(for control) = "linear" and self._out_acc
 	self._out_acc:set_value("linear")
 	self._out_acc:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "change_acc"), "out")
 	out_sizer:add(self._out_acc, 1, 0, "EXPAND")
@@ -460,7 +458,6 @@ function WorldCameraLayer:select_camera()
 
 		end
 
-		(for control) = self._current_world_camera:get_points() and self._point_list
 		self._in_acc:set_value(self._current_world_camera:in_acc_string())
 		self._out_acc:set_value(self._current_world_camera:out_acc_string())
 		self._keys_toolbar:set_enabled(true)
@@ -829,8 +826,7 @@ function WorldCameraLayer:populate_keys(index)
 
 	end
 
-	do break end
-	index = 1
+	index = index or 1
 	local key = camera:key(index)
 	local time = key.time
 	local fov = key.fov
@@ -871,11 +867,13 @@ function WorldCameraLayer:set_key_values(time, fov, near_dof, far_dof, roll)
 
 	end
 
-	do break end
-	self._key_types.fov:set_enabled(true)
-	self._key_types.fov:set_value(fov)
-	self._key_types.fov_text:set_enabled(true)
-	self._key_types.fov_text:set_value(fov)
+	if fov then
+		self._key_types.fov:set_enabled(true)
+		self._key_types.fov:set_value(fov)
+		self._key_types.fov_text:set_enabled(true)
+		self._key_types.fov_text:set_value(fov)
+	end
+
 	if near_dof then
 		self._key_types.near_dof:set_enabled(true)
 		self._key_types.near_dof:change_value(near_dof)
@@ -1136,8 +1134,10 @@ function WorldCameraLayer:update_sequence_camera_list(index)
 
 	end
 
-	do break end
-	self._sequence_camera_list:select_index(index)
+	if index then
+		self._sequence_camera_list:select_index(index)
+	end
+
 end
 
 function WorldCameraLayer:deselect()

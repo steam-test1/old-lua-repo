@@ -4,9 +4,6 @@ core:import("CoreMenuItem")
 core:import("CoreMenuItemToggle")
 MenuNode = MenuNode or class()
 function MenuNode:init(data_node)
--- fail 6
-null
-5
 	local parameters = {}
 	do
 		local (for generator), (for state), (for control) = pairs(data_node)
@@ -201,6 +198,7 @@ function MenuNode:item(item_name)
 
 	end
 
+	return item
 end
 
 function MenuNode:items()
@@ -229,7 +227,6 @@ function MenuNode:select_item(item_name)
 
 	end
 
-	(for control) = self:items() and item.visible
 	self._selected_item = self:item(item_name)
 end
 
@@ -244,7 +241,6 @@ function MenuNode:set_callback_handler(callback_handler)
 
 	end
 
-	(for control) = nil and table
 	do
 		local (for generator), (for state), (for control) = pairs(self._parameters.focus_changed_callback_name)
 		do
@@ -254,7 +250,6 @@ function MenuNode:set_callback_handler(callback_handler)
 
 	end
 
-	(for control) = nil and table
 	local (for generator), (for state), (for control) = ipairs(self._items)
 	do
 		do break end
@@ -278,6 +273,7 @@ function MenuNode:trigger_back()
 
 	end
 
+	return block_back
 end
 
 function MenuNode:trigger_focus_changed(in_focus, ...)

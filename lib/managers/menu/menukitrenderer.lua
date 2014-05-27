@@ -86,7 +86,7 @@ function MenuKitRenderer:sync_chat_message(message, id)
 
 	end
 
-	(for control) = nil and node_gui.row_item_by_name
+	return false
 end
 
 function MenuKitRenderer:set_all_items_enabled(enabled)

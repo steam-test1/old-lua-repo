@@ -28,8 +28,7 @@ function MaskExt:apply_blueprint(blueprint)
 
 	end
 
-	do break end
-	material = materials[#materials]
+	material = material or materials[#materials]
 	local tint_color_a = mvec1
 	local tint_color_b = mvec2
 	local pattern_id = blueprint.pattern.id
@@ -77,7 +76,7 @@ function MaskExt:unretrieve_blueprint(new_blueprint)
 
 	end
 
-	self._blueprint = nil and {}
+	self._blueprint = {}
 end
 
 function MaskExt:destroy(unit)

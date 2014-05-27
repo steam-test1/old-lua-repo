@@ -62,7 +62,7 @@ function ControllerWrapperDebug:connected(...)
 
 	end
 
-	(for control) = nil and controller_wrapper.connected
+	return false
 end
 
 function ControllerWrapperDebug:rebind_connections(setup, setup_map)
@@ -91,7 +91,7 @@ function ControllerWrapperDebug:get_any_input(...)
 
 	end
 
-	(for control) = nil and controller_wrapper.get_any_input
+	return false
 end
 
 function ControllerWrapperDebug:get_any_input_pressed(...)
@@ -107,7 +107,7 @@ function ControllerWrapperDebug:get_any_input_pressed(...)
 
 	end
 
-	(for control) = nil and controller_wrapper.get_any_input_pressed
+	return false
 end
 
 function ControllerWrapperDebug:get_input_pressed(...)
@@ -123,7 +123,7 @@ function ControllerWrapperDebug:get_input_pressed(...)
 
 	end
 
-	(for control) = nil and controller_wrapper.connection_exist
+	return false
 end
 
 function ControllerWrapperDebug:get_input_bool(...)
@@ -139,7 +139,7 @@ function ControllerWrapperDebug:get_input_bool(...)
 
 	end
 
-	(for control) = nil and controller_wrapper.connection_exist
+	return false
 end
 
 function ControllerWrapperDebug:get_input_float(...)
@@ -156,6 +156,7 @@ function ControllerWrapperDebug:get_input_float(...)
 
 	end
 
+	return input_float
 end
 
 function ControllerWrapperDebug:get_input_axis(...)
@@ -176,12 +177,10 @@ function ControllerWrapperDebug:get_input_axis(...)
 
 	end
 
+	return input_axis
 end
 
 function ControllerWrapperDebug:get_connection_map(...)
--- fail 13
-null
-11
 	local map = {}
 	do
 		local (for generator), (for state), (for control) = ipairs(self._controller_wrapper_list)
@@ -198,6 +197,7 @@ null
 
 	end
 
+	return map
 end
 
 function ControllerWrapperDebug:connection_exist(...)
@@ -213,7 +213,7 @@ function ControllerWrapperDebug:connection_exist(...)
 
 	end
 
-	(for control) = nil and controller_wrapper.connection_exist
+	return false
 end
 
 function ControllerWrapperDebug:set_enabled(...)
@@ -235,6 +235,7 @@ function ControllerWrapperDebug:enable(...)
 
 	end
 
+	self._enabled = true
 end
 
 function ControllerWrapperDebug:disable(...)
@@ -247,6 +248,7 @@ function ControllerWrapperDebug:disable(...)
 
 	end
 
+	self._enabled = false
 end
 
 function ControllerWrapperDebug:add_trigger(...)
@@ -342,7 +344,7 @@ function ControllerWrapperDebug:get_connection_enabled(...)
 
 	end
 
-	(for control) = nil and controller_wrapper.get_connection_enabled
+	return false
 end
 
 function ControllerWrapperDebug:set_connection_enabled(...)

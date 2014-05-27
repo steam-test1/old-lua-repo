@@ -1766,8 +1766,7 @@ function PlayerStandard:_get_interaction_target(char_table, my_head_pos, cam_fwd
 
 	end
 
-	do break end
-	do
+	if not prime_target then
 		local low_wgt
 		local (for generator), (for state), (for control) = pairs(char_table)
 		do
@@ -1782,6 +1781,7 @@ function PlayerStandard:_get_interaction_target(char_table, my_head_pos, cam_fwd
 
 	end
 
+	return prime_target
 end
 
 function PlayerStandard:_get_intimidation_action(prime_target, char_table, amount, primary_only, detect_only)
@@ -1906,8 +1906,7 @@ function PlayerStandard:_get_intimidation_action(prime_target, char_table, amoun
 
 				end
 
-				do break end
-				plural = true or false
+				plural = num_affected > 1 and true or false
 			end
 
 			local max_inv_wgt = 0
@@ -1923,8 +1922,10 @@ function PlayerStandard:_get_intimidation_action(prime_target, char_table, amoun
 
 			end
 
-			do break end
-			max_inv_wgt = 1
+			if max_inv_wgt < 1 then
+				max_inv_wgt = 1
+			end
+
 			if detect_only then
 				voice_type = "come"
 			else
@@ -1952,7 +1953,6 @@ function PlayerStandard:_get_intimidation_action(prime_target, char_table, amoun
 
 	end
 
-	(for control) = managers.network:session() and char.unit_type
 	return voice_type, plural, prime_target
 end
 
@@ -1993,8 +1993,7 @@ function PlayerStandard:_get_unit_intimidation_action(intimidate_enemies, intimi
 
 	end
 
-	do break end
-	do
+	if intimidate_civilians then
 		local civilians = managers.enemy:all_civilians()
 		local (for generator), (for state), (for control) = pairs(civilians)
 		do
@@ -2013,8 +2012,7 @@ function PlayerStandard:_get_unit_intimidation_action(intimidate_enemies, intimi
 
 	end
 
-	do break end
-	if not managers.groupai:state():whisper_mode() then
+	if intimidate_teammates and not managers.groupai:state():whisper_mode() then
 		local criminals = managers.groupai:state():all_char_criminals()
 		local (for generator), (for state), (for control) = pairs(criminals)
 		do
@@ -2047,7 +2045,6 @@ function PlayerStandard:_get_unit_intimidation_action(intimidate_enemies, intimi
 
 	end
 
-	(for control) = nil and nil
 	if managers.groupai:state():whisper_mode() then
 		local (for generator), (for state), (for control) = ipairs(SecurityCamera.cameras)
 		do
@@ -2062,7 +2059,6 @@ function PlayerStandard:_get_unit_intimidation_action(intimidate_enemies, intimi
 
 	end
 
-	(for control) = pairs(criminals) and alive
 	local prime_target = self:_get_interaction_target(char_table, my_head_pos, cam_fwd)
 	return self:_get_intimidation_action(prime_target, char_table, intimidation_amount, primary_only, detect_only)
 end
@@ -2941,7 +2937,6 @@ function PlayerStandard:inventory_clbk_listener(unit, event)
 
 		end
 
-		(for control) = self._ext_inventory:available_selections() and managers
 		managers.hud:set_weapon_name(tweak_data.weapon[weapon:base():get_name_id()].name_id)
 		self:_update_crosshair_offset()
 		self:_stance_entered()

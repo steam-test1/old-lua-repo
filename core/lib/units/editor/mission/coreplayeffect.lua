@@ -69,6 +69,7 @@ function CorePlayEffectUnitElement:_effect_options()
 
 	end
 
+	return effect_options
 end
 
 function CorePlayEffectUnitElement:_build_panel(panel, panel_sizer)

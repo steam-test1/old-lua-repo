@@ -33,7 +33,6 @@ function ListenerHolder:call(...)
 		end
 
 		self._calling = nil
-		(for control) = nil and self._not_trash
 		self:_append_new_additions()
 		self:_dispose_trash()
 	end
@@ -72,9 +71,35 @@ function ListenerHolder:_set_new(key, clbk)
 end
 
 function ListenerHolder:_append_new_additions()
+	if self._additions then
+		do
+			local (for generator), (for state), (for control) = pairs(self._additions)
+			do
+				do break end
+				self:_add(key, clbk)
+			end
+
+		end
+
+		self._additions = nil
+	end
+
 end
 
 function ListenerHolder:_dispose_trash()
+	if self._trash then
+		do
+			local (for generator), (for state), (for control) = pairs(self._trash)
+			do
+				do break end
+				self:_remove(key)
+			end
+
+		end
+
+		self._trash = nil
+	end
+
 end
 
 function ListenerHolder:_not_trash(key)

@@ -37,6 +37,7 @@ function CoreMaterialEditor:_get_all_nodes(node, name)
 
 	end
 
+	return t
 end
 
 function CoreMaterialEditor:_find_node(node, name, key, value)
@@ -65,6 +66,7 @@ function CoreMaterialEditor:_find_all_nodes(node, name, key, value)
 
 	end
 
+	return t
 end
 
 function CoreMaterialEditor:_read_config()
@@ -132,7 +134,6 @@ function CoreMaterialEditor:_remot_compile()
 
 	end
 
-	(for control) = nil and v._checked
 	local cmd = string.format("start /D \"%score\\utils\\shader_server\" lua5.1.exe client.lua %s %s %s %s", managers.database:base_path(), self._remote_host, Application:short_game_name(), self._compilable_shader_combo_box:get_value(), defines)
 	assert(os.execute(cmd) == 0)
 end
@@ -164,7 +165,6 @@ function CoreMaterialEditor:_create_make_file(rebuild)
 
 		end
 
-		(for control) = "\" defines=\"" and v._checked
 		file:write((defines or "") .. "\"/>\n")
 	end
 
@@ -178,7 +178,6 @@ function CoreMaterialEditor:_create_make_file(rebuild)
 
 	end
 
-	(for control) = (defines or "") .. "\"/>\n" and file.write
 	file:write([[
 	/>
 </make>
@@ -278,6 +277,7 @@ function CoreMaterialEditor:_create_rt_name(rt)
 
 	end
 
+	return rt_str
 end
 
 function CoreMaterialEditor:_try_convert_parameter(mat, child, rt)
@@ -306,7 +306,6 @@ function CoreMaterialEditor:_version_error(mat)
 
 		end
 
-		(for control) = self.MATERIAL_VERSION_TAG and self._try_convert_parameter
 		mat:set_parameter("render_template", self:_create_rt_name(rt))
 		return true
 	else
@@ -346,7 +345,7 @@ function CoreMaterialEditor:_live_update()
 
 		end
 
-		self._live_update_parameter_list = nil and {}
+		self._live_update_parameter_list = {}
 	end
 
 end
@@ -368,11 +367,9 @@ function CoreMaterialEditor:_check_valid_xml_on_save(node)
 
 		end
 
-		(for control) = nil and var.parameter
 	end
 
-	(for control) = nil and mat.children
-	return true or node:children(), str
+	return str == nil, str
 end
 
 function CoreMaterialEditor:_set_channels_default_texture(node)

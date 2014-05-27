@@ -46,7 +46,6 @@ function IngameBattleState:at_enter()
 
 	end
 
-	(for control) = nil and player.camera
 	self._ws:show()
 end
 

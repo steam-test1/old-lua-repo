@@ -130,6 +130,7 @@ function LocalizationManager:debug_file(file)
 
 	end
 
+	return t
 end
 
 CoreClass.override_class(CoreLocalizationManager.LocalizationManager, LocalizationManager)

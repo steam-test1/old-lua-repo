@@ -133,7 +133,6 @@ function CoreMaterialEditorDecal:_fill_decal_materials()
 
 	end
 
-	(for control) = nil and material.name
 	self._combo_box:set_value(self._value)
 end
 

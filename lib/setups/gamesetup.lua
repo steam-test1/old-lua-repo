@@ -186,7 +186,6 @@ function GameSetup:load_packages()
 	end
 
 	local level_package
-	(for control) = nil and prefix
 	if not Global.level_data or not Global.level_data.level_id then
 		level_package = "packages/level_debug"
 	else
@@ -206,13 +205,9 @@ function GameSetup:load_packages()
 
 			end
 
-		else
-			(for control) = nil and PackageManager
-			if not PackageManager:loaded(level_package) then
-				self._loaded_level_package = level_package
-				PackageManager:load(level_package)
-			end
-
+		elseif not PackageManager:loaded(level_package) then
+			self._loaded_level_package = level_package
+			PackageManager:load(level_package)
 		end
 
 	end
@@ -270,7 +265,6 @@ function GameSetup:unload_packages()
 
 	end
 
-	(for control) = nil and prefix
 	if self._loaded_level_package then
 		if type(self._loaded_level_package) == "table" then
 			local (for generator), (for state), (for control) = ipairs(self._loaded_level_package)
@@ -282,12 +276,8 @@ function GameSetup:unload_packages()
 
 			end
 
-		else
-			(for control) = pairs(DLCManager.BUNDLED_DLC_PACKAGES) and PackageManager
-			if PackageManager:loaded(self._loaded_level_package) then
-				PackageManager:unload(self._loaded_level_package)
-			end
-
+		elseif PackageManager:loaded(self._loaded_level_package) then
+			PackageManager:unload(self._loaded_level_package)
 		end
 
 		self._loaded_level_package = nil

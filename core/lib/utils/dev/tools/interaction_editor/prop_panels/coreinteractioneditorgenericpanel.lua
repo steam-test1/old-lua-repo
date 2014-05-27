@@ -180,7 +180,6 @@ function InteractionEditorGenericPanel:_build_ui(desc, node)
 
 		end
 
-		(for control) = "Properties" and desc.property_type
 		self._prop_box:add(static_prop_box, 0, 2, "EXPAND,ALL")
 	end
 
@@ -204,7 +203,6 @@ function InteractionEditorGenericPanel:_build_ui(desc, node)
 
 		end
 
-		(for control) = 0 and combo_box.append
 		do
 			local (for generator), (for state), (for control) = ipairs(properties)
 			do
@@ -219,7 +217,6 @@ function InteractionEditorGenericPanel:_build_ui(desc, node)
 
 		end
 
-		(for control) = 0 and desc.property_pattern
 		do
 			local (for generator), (for state), (for control) = ipairs(desc:node_inputs(node))
 			do
@@ -234,7 +231,6 @@ function InteractionEditorGenericPanel:_build_ui(desc, node)
 
 		end
 
-		(for control) = desc:node_inputs(node) and desc.transput_pattern
 		do
 			local (for generator), (for state), (for control) = ipairs(desc:node_outputs(node))
 			do
@@ -249,7 +245,6 @@ function InteractionEditorGenericPanel:_build_ui(desc, node)
 
 		end
 
-		(for control) = desc:node_outputs(node) and desc.transput_pattern
 		combo_box:set_value(patterns[1])
 		remove_btn:set_enabled(false)
 		local d = {

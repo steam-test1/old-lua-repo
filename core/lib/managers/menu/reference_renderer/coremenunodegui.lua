@@ -2,9 +2,6 @@ core:module("CoreMenuNodeGui")
 core:import("CoreUnit")
 NodeGui = NodeGui or class()
 function NodeGui:init(node, layer, parameters)
--- fail 97
-null
-7
 	self.node = node
 	self.name = node:parameters().name
 	self.font = "core/fonts/diesel"
@@ -119,7 +116,7 @@ function NodeGui:_setup_item_rows(node)
 
 	end
 
-	(for control) = nil and item.visible
+	self:_setup_size()
 	self:scroll_setup()
 	self:_set_item_positions()
 	self._highlighted_item = nil
@@ -430,7 +427,7 @@ function NodeGui:row_item(item)
 
 	end
 
-	(for control) = nil and row_item.name
+	return nil
 end
 
 function NodeGui:row_item_by_name(item_name)
@@ -446,7 +443,7 @@ function NodeGui:row_item_by_name(item_name)
 
 	end
 
-	(for control) = nil and row_item.name
+	return nil
 end
 
 function NodeGui:update(t, dt)
@@ -483,6 +480,7 @@ function NodeGui:_item_panel_height()
 
 	end
 
+	return height
 end
 
 function NodeGui:_set_item_positions()
@@ -523,7 +521,6 @@ function NodeGui:_set_item_positions()
 
 	end
 
-	(for control) = nil and row_item.item
 	local (for generator), (for state), (for control) = pairs(self.row_items)
 	do
 		do break end

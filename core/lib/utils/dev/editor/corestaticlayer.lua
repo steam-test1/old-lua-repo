@@ -60,7 +60,7 @@ function StaticLayer:clone()
 
 		end
 
-		(for control) = nil and unit.position
+		self:update_unit_settings()
 	end
 
 	managers.editor:thaw_gui_lists()
@@ -112,9 +112,6 @@ function StaticLayer:use_grab_info()
 end
 
 function StaticLayer:set_unit_positions(pos)
--- fail 14
-null
-5
 	if not self._grab then
 		managers.editor:set_grid_altitude(pos.z)
 	end
@@ -286,7 +283,6 @@ function StaticLayer:delete_selected_unit(btn, pressed)
 
 	end
 
-	(for control) = nil and table
 	managers.editor:thaw_gui_lists()
 end
 
@@ -475,7 +471,6 @@ function StaticLayer:draw_units(t, dt)
 
 	end
 
-	(for control) = nil and alive
 	if not alive(self._selected_unit) then
 		return
 	end

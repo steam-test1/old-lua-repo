@@ -103,7 +103,6 @@ function OverlayPresenter:set_font(font_name, font_size)
 
 	end
 
-	(for control) = "label" and self.__subtitle_panel
 	local string_width_measure_text_field = CoreCode.alive(self.__ws) and self.__ws:panel():child("string_width")
 	if string_width_measure_text_field then
 		string_width_measure_text_field:set_font(Idstring(self.__font_name))
@@ -178,6 +177,7 @@ function OverlayPresenter:preprocess_sequence(sequence)
 
 	end
 
+	return new_sequence
 end
 
 function OverlayPresenter:_clear_workspace()

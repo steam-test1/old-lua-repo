@@ -83,7 +83,7 @@ function CoreSpawnUnitCutsceneKey:refresh_control_for_unit_category(control)
 
 	end
 
-	(for control) = managers.database:list_unit_types() and control.append
+	control:thaw()
 end
 
 function CoreSpawnUnitCutsceneKey:refresh_control_for_unit_type(control)
@@ -103,7 +103,7 @@ function CoreSpawnUnitCutsceneKey:refresh_control_for_unit_type(control)
 
 	end
 
-	(for control) = managers.database:list_units_of_type(self:unit_category()) and control.append
+	control:thaw()
 end
 
 function CoreSpawnUnitCutsceneKey:refresh_control_for_parent_unit_name(control)
@@ -127,7 +127,7 @@ function CoreSpawnUnitCutsceneKey:refresh_control_for_parent_unit_name(control)
 
 	end
 
-	(for control) = self:name() and control.append
+	control:thaw()
 end
 
 function CoreSpawnUnitCutsceneKey:refresh_control_for_parent_object_name(control)
@@ -151,7 +151,7 @@ function CoreSpawnUnitCutsceneKey:refresh_control_for_parent_object_name(control
 
 	end
 
-	(for control) = self:parent_unit_name() and control.append
+	control:thaw()
 end
 
 function CoreSpawnUnitCutsceneKey:on_attribute_changed(attribute_name, value, previous_value)

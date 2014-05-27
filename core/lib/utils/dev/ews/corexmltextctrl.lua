@@ -98,7 +98,6 @@ function CoreXMLTextCtrl:_draw_text_with_color(level, node)
 
 		end
 
-		(for control) = child:parameters() and self._set_tc_color
 		self:_set_tc_color("NODE")
 		if child:num_children() == 0 then
 			self._text_ctrl:append("/>\n")

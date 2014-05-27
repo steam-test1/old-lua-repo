@@ -210,7 +210,7 @@ function MenuNodeReticleSwitchGui:_rec_round_object(object)
 
 	end
 
-	local x, y = object:children() and object:position(), object:position()
+	local x, y = object:position()
 	object:set_position(math.round(x), math.round(y))
 end
 

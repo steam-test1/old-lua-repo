@@ -190,7 +190,6 @@ function PlayerManager:_internal_load()
 
 		end
 
-		(for control) = self and self._global
 		local (for generator), (for state), (for control) = ipairs(self._global.kit.equipment_slots)
 		do
 			do break end
@@ -298,6 +297,7 @@ function PlayerManager:player_id(unit)
 
 	end
 
+	return id
 end
 
 function PlayerManager:viewport_config()
@@ -309,9 +309,6 @@ function PlayerManager:viewport_config()
 end
 
 function PlayerManager:setup_viewports()
--- fail 10
-null
-4
 	local configs = self._viewport_configs[self._last_id]
 	if configs then
 		local (for generator), (for state), (for control) = ipairs(self._players)
@@ -336,6 +333,7 @@ function PlayerManager:player_states()
 
 	end
 
+	return ret
 end
 
 function PlayerManager:current_state()
@@ -459,9 +457,11 @@ function PlayerManager:on_out_of_world()
 
 	end
 
-	do break end
-	managers.player:warp_to(closest_pos, player_unit:rotation())
-	do return end
+	if closest_pos then
+		managers.player:warp_to(closest_pos, player_unit:rotation())
+		return
+	end
+
 	local pos = player_unit:movement():nav_tracker():field_position()
 	managers.player:warp_to(pos, player_unit:rotation())
 end
@@ -748,6 +748,7 @@ function PlayerManager:get_infamy_exp_multiplier()
 
 	end
 
+	return multiplier
 end
 
 function PlayerManager:get_skill_exp_multiplier(whisper_mode)
@@ -981,7 +982,6 @@ function PlayerManager:inspect_current_upgrades()
 
 		end
 
-		(for control) = ":" and print
 		print("\n")
 	end
 
@@ -1007,7 +1007,6 @@ function PlayerManager:weapon_upgrade_progress(weapon_id)
 
 	end
 
-	(for control) = nil and current + value
 	if tweak_data.upgrades.values[weapon_id] then
 		local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.values[weapon_id])
 		do
@@ -1017,7 +1016,6 @@ function PlayerManager:weapon_upgrade_progress(weapon_id)
 
 	end
 
-	(for control) = nil and #values
 	return current, total
 end
 
@@ -1034,7 +1032,6 @@ function PlayerManager:equipment_upgrade_progress(equipment_id)
 
 		end
 
-		(for control) = nil and current + value
 		do
 			local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.values[equipment_id])
 			do
@@ -1044,7 +1041,6 @@ function PlayerManager:equipment_upgrade_progress(equipment_id)
 
 		end
 
-		(for control) = nil and #values
 		return current, total
 	end
 
@@ -1087,6 +1083,7 @@ function PlayerManager:availible_weapons(slot)
 
 	end
 
+	return weapons
 end
 
 function PlayerManager:weapon_in_slot(slot)
@@ -1113,6 +1110,7 @@ function PlayerManager:availible_equipment(slot)
 
 	end
 
+	return equipment
 end
 
 function PlayerManager:equipment_in_slot(slot)
@@ -1403,7 +1401,6 @@ function PlayerManager:team_upgrade_value(category, upgrade, default)
 
 	end
 
-	(for control) = nil and categories[category]
 	if not self._global.team_upgrades[category] then
 		return default or 0
 	end
@@ -1430,7 +1427,6 @@ function PlayerManager:has_team_category_upgrade(category, upgrade)
 
 	end
 
-	(for control) = nil and categories[category]
 	if not self._global.team_upgrades[category] then
 		return false
 	end
@@ -1550,7 +1546,6 @@ function PlayerManager:peer_dropped_out(peer)
 
 			end
 
-			(for control) = managers.network:session():peers() and table
 			local (for generator), (for state), (for control) = pairs(self._global.synced_equipment_possession[peer_id])
 			do
 				do break end
@@ -1572,10 +1567,8 @@ function PlayerManager:peer_dropped_out(peer)
 
 			end
 
-			(for control) = managers.network:session():peers() and p.id
 		end
 
-		(for control) = managers.network:session():peers() and pairs
 		if self._global.synced_carry[peer_id] and self._global.synced_carry[peer_id].approved then
 			local carry_id = self._global.synced_carry[peer_id].carry_id
 			local carry_multiplier = self._global.synced_carry[peer_id].multiplier
@@ -1679,7 +1672,7 @@ function PlayerManager:equipment_data_by_name(equipment)
 
 	end
 
-	(for control) = nil and equipments.equipment
+	return nil
 end
 
 function PlayerManager:get_equipment_amount(equipment)
@@ -1695,7 +1688,7 @@ function PlayerManager:get_equipment_amount(equipment)
 
 	end
 
-	(for control) = nil and equipments.equipment
+	return 0
 end
 
 function PlayerManager:has_equipment(equipment)
@@ -1711,7 +1704,7 @@ function PlayerManager:has_equipment(equipment)
 
 	end
 
-	(for control) = nil and equipments.equipment
+	return false
 end
 
 function PlayerManager:has_deployable_left(equipment)

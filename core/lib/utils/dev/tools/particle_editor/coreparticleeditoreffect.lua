@@ -59,7 +59,6 @@ function CoreEffectStackMember:reads_writes()
 
 	end
 
-	(for control) = nil and a.access
 	return reads, writes
 end
 
@@ -142,7 +141,6 @@ function CoreEffectStack:validate(channels)
 	end
 
 	local position_written = false
-	(for control) = nil and m.name
 	do
 		local (for generator), (for state), (for control) = ipairs(self._stack)
 		do
@@ -186,10 +184,8 @@ function CoreEffectStack:validate(channels)
 
 		end
 
-		(for control) = ret.message and a.access
 	end
 
-	(for control) = nil and m.validate_properties
 	if self._type == "simulator" and not position_written then
 		ret.valid = false
 		ret.message = "Position channel not fully written in simulator stack, this is needed for effect bounding box to be valid"
@@ -232,7 +228,6 @@ function CoreEffectStack:load(node)
 
 	end
 
-	(for control) = nil and stack_members
 end
 
 CoreEffectAtom = CoreEffectAtom or class(CoreEffectPropertyContainer)
@@ -471,19 +466,15 @@ function CoreEffectAtom:collect_stack_time_events()
 				traverse_property(pref, ret, q)
 			end
 
-		else
-			(for control) = p._variants[p._value] and traverse_property
-			if p._type == "keys" then
-				local (for generator), (for state), (for control) = ipairs(p._keys)
-				do
-					do break end
-					table.insert(ret, {
-						pref .. p:name(),
-						k,
-						"t"
-					})
-				end
-
+		elseif p._type == "keys" then
+			local (for generator), (for state), (for control) = ipairs(p._keys)
+			do
+				do break end
+				table.insert(ret, {
+					pref .. p:name(),
+					k,
+					"t"
+				})
 			end
 
 		end
@@ -506,12 +497,11 @@ function CoreEffectAtom:collect_stack_time_events()
 
 			end
 
-			(for control) = nil and stack._type
 		end
 
-		(for control) = nil and ipairs
 	end
 
+	return ret
 end
 
 function CoreEffectAtom:collect_time_events()
@@ -530,7 +520,6 @@ function CoreEffectAtom:collect_time_events()
 
 	end
 
-	(for control) = nil and e[1]
 	table.insert(ret, {
 		"start_time",
 		start_time,
@@ -572,7 +561,6 @@ function CoreEffectAtom:scale_timeline(istart, iend, tstart, tend)
 
 	end
 
-	(for control) = nil and e[2]
 	table.insert(events, {
 		"start_time",
 		start_time,
@@ -602,7 +590,6 @@ function CoreEffectAtom:scale_timeline(istart, iend, tstart, tend)
 
 	end
 
-	(for control) = "start_time" and e[1]
 	local new_start_time_v = tonumber(start_time._value)
 	local (for generator), (for state), (for control) = ipairs(events)
 	do
@@ -638,7 +625,6 @@ function CoreEffectAtom:extend_timeline(istart, iend, tstart, tend)
 
 	end
 
-	(for control) = nil and e[2]
 	table.insert(events, {
 		"start_time",
 		start_time,
@@ -661,7 +647,6 @@ function CoreEffectAtom:extend_timeline(istart, iend, tstart, tend)
 
 	end
 
-	(for control) = "start_time" and e[1]
 	local new_start_time_v = tonumber(start_time._value)
 	local (for generator), (for state), (for control) = ipairs(events)
 	do
@@ -790,7 +775,7 @@ function CoreEffectDefinition:find_atom(name)
 
 	end
 
-	(for control) = nil and atom.name
+	return nil
 end
 
 function CoreEffectDefinition:add_atom(atom)
@@ -830,6 +815,7 @@ function CoreEffectDefinition:validate()
 
 	end
 
+	return ret
 end
 
 function CoreEffectDefinition:save(n)

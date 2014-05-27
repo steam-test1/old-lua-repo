@@ -79,7 +79,7 @@ function SpecialObjectiveTriggerUnitElement:_correct_unit(u_name)
 
 	end
 
-	(for control) = nil and string
+	return false
 end
 
 function SpecialObjectiveTriggerUnitElement:remove_links(unit)

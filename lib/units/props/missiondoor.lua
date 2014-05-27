@@ -181,6 +181,19 @@ function MissionDoor:_check_placed_counter(type)
 		return
 	end
 
+	if (type == "key" or type == "ecm") and self._devices[type].placed_counter == self._devices[type].amount then
+		do
+			local (for generator), (for state), (for control) = ipairs(self._devices[type].units)
+			do
+				do break end
+				self:device_completed(type)
+			end
+
+		end
+
+		return
+	end
+
 end
 
 function MissionDoor:_check_completed_counter(type)
@@ -222,9 +235,6 @@ function MissionDoor:_check_completed_counter(type)
 end
 
 function MissionDoor:_initiate_c4_sequence()
--- fail 5
-null
-3
 	do
 		local (for generator), (for state), (for control) = pairs(self._devices)
 		do
@@ -243,7 +253,6 @@ null
 
 		end
 
-		(for control) = nil and alive
 	end
 
 	do
@@ -259,7 +268,6 @@ null
 
 	end
 
-	(for control) = nil and MissionDoor
 	self._explode_t = Application:time() + 5
 	self._unit:set_extension_update_enabled(Idstring("base"), true)
 end
@@ -308,10 +316,9 @@ function MissionDoor:_destroy_devices()
 
 		end
 
-		(for control) = nil and alive
 	end
 
-	self._devices = nil and {}
+	self._devices = {}
 end
 
 function MissionDoor:destroy()

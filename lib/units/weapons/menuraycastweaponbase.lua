@@ -80,7 +80,6 @@ function NewRaycastWeaponBase:apply_texture_switches()
 
 					end
 
-					(for control) = Idstring("material") and print
 					Application:debug(switch_material)
 					if switch_material then
 						local texture_id = managers.blackmarket:get_texture_switch_from_data(texture_data, part_id)
@@ -177,7 +176,7 @@ function NewRaycastWeaponBase:_update_stats_values()
 
 	end
 
-	self._current_stats = managers.player and {}
+	self._current_stats = {}
 	do
 		local (for generator), (for state), (for control) = pairs(stats)
 		do
@@ -191,7 +190,6 @@ function NewRaycastWeaponBase:_update_stats_values()
 
 	end
 
-	(for control) = managers.player and self._current_stats
 	self._alert_size = self._current_stats.alert_size or self._alert_size
 	self._suppression = self._current_stats.suppression or self._suppression
 	self._zoom = self._current_stats.zoom or self._zoom
@@ -228,7 +226,7 @@ function NewRaycastWeaponBase:stance_mod()
 
 	end
 
-	(for control) = nil and factory.parts
+	return nil
 end
 
 function NewRaycastWeaponBase:tweak_data_anim_play(anim, speed_multiplier)
@@ -257,7 +255,7 @@ function NewRaycastWeaponBase:tweak_data_anim_play(anim, speed_multiplier)
 
 	end
 
-	(for control) = self._unit and data.animations
+	return true
 end
 
 function NewRaycastWeaponBase:tweak_data_anim_stop(anim)
@@ -362,7 +360,7 @@ function NewRaycastWeaponBase:check_stats()
 
 	end
 
-	self._current_stats = managers.player and {}
+	self._current_stats = {}
 	do
 		local (for generator), (for state), (for control) = pairs(stats)
 		do
@@ -376,7 +374,6 @@ function NewRaycastWeaponBase:check_stats()
 
 	end
 
-	(for control) = managers.player and self._current_stats
 	self._current_stats.alert_size = tweak_data.alert_size[math_clamp(stats.alert_size, 1, #tweak_data.alert_size)]
 	if modifier_stats and modifier_stats.alert_size then
 		self._current_stats.alert_size = self._current_stats.alert_size * modifier_stats.alert_size
@@ -426,7 +423,6 @@ function NewRaycastWeaponBase:destroy(unit)
 
 	end
 
-	(for control) = nil and TextureCache
 	managers.weapon_factory:disassemble(self._parts)
 end
 

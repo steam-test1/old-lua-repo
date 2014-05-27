@@ -32,7 +32,6 @@ function ToolHub:destroy()
 
 		end
 
-		(for control) = nil and tool.destroy
 		self._main_frame:set_visible(false)
 		self._main_frame:destroy_children()
 		self._main_frame:destroy()
@@ -61,7 +60,6 @@ function ToolHub:update(time, rel_time)
 
 	end
 
-	(for control) = Idstring("f4") and value.update
 	do
 		local (for generator), (for state), (for control) = pairs(self._closelist)
 		do
@@ -82,7 +80,7 @@ function ToolHub:update(time, rel_time)
 
 	end
 
-	self._closelist = Idstring("f4") and {}
+	self._closelist = {}
 end
 
 function ToolHub:end_update(time, delta_time)
@@ -123,7 +121,6 @@ function ToolHub:get_tool_menu(frame)
 
 	end
 
-	(for control) = nil and #sortkeys
 	table.sort(sortkeys)
 	local tool_menu = EWS:Menu("")
 	do
@@ -136,6 +133,7 @@ function ToolHub:get_tool_menu(frame)
 
 	end
 
+	return tool_menu
 end
 
 function ToolHub:buildmenu()
@@ -151,7 +149,6 @@ function ToolHub:buildmenu()
 
 	end
 
-	(for control) = nil and #sortkeys
 	table.sort(sortkeys)
 	do
 		local (for generator), (for state), (for control) = pairs(sortkeys)
@@ -163,7 +160,7 @@ function ToolHub:buildmenu()
 
 	end
 
-	(for control) = nil and file_menu.append_item
+	file_menu:append_separator()
 	file_menu:append_item("TB_CLOSE", "Close", "")
 	menu_bar:append(file_menu, "File")
 	self._dbgmenu = EWS:Menu("")
@@ -192,7 +189,6 @@ function ToolHub:buildmenu()
 
 	end
 
-	(for control) = callback(self, self, "on_catprint_drawdebug") and table
 	table.sort(sorted_category_list)
 	do
 		local (for generator), (for state), (for control) = ipairs(sorted_category_list)
@@ -205,7 +201,6 @@ function ToolHub:buildmenu()
 
 	end
 
-	(for control) = callback(self, self, "on_catprint_drawdebug") and self._catprintmenu
 	menu_bar:append(self._catprintmenu, "CatPrint")
 	self._settingsmenu = EWS:Menu("")
 	menu_bar:append(self._settingsmenu, "Settings")
@@ -242,7 +237,7 @@ function ToolHub:buildmenu()
 
 		end
 
-		(for control) = callback(self, self, "change_visualization") and res.x
+		resolution_menu:append_separator()
 		resolution_menu:append_item("4/3", "4/3", "")
 		resolution_menu:append_item("16/9", "16/9", "")
 		resolution_menu:append_item("16/10", "16/10", "")

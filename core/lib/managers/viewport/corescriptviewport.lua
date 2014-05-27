@@ -165,9 +165,6 @@ function _ScriptViewport:visualization_modes()
 end
 
 function _ScriptViewport:is_rendering_scene(scene_name)
--- fail 6
-null
-4
 	do
 		local (for generator), (for state), (for control) = ipairs(self:render_params())
 		do
@@ -180,6 +177,7 @@ null
 
 	end
 
+	return false
 end
 
 function _ScriptViewport:set_dof(clamp, near_focus_distance_min, near_focus_distance_max, far_focus_distance_min, far_focus_distance_max)

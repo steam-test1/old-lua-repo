@@ -72,7 +72,7 @@ function SessionManager:_check_if_stable_for_loading(collection)
 
 	end
 
-	(for control) = nil and state.is_stable_for_loading
+	return true
 end
 
 function SessionManager:_update(t, dt)

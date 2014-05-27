@@ -203,6 +203,7 @@ function TeamAILogicAssault.find_enemy_to_mark(enemies)
 
 	end
 
+	return best_nmy
 end
 
 function TeamAILogicAssault.mark_enemy(data, criminal, to_mark, play_sound, play_action)

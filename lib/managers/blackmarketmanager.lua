@@ -59,11 +59,6 @@ function BlackMarketManager:_setup_armors()
 
 	end
 
-	(for control) = nil and {
-		unlocked = false,
-		owned = false,
-		equipped = false
-	}
 	armors[self._defaults.armor].owned = true
 	armors[self._defaults.armor].equipped = true
 	armors[self._defaults.armor].unlocked = true
@@ -85,11 +80,6 @@ function BlackMarketManager:_setup_grenades()
 
 	end
 
-	(for control) = nil and {
-		unlocked = true,
-		equipped = false,
-		amount = 0
-	}
 	grenades[self._defaults.grenade].equipped = true
 	grenades[self._defaults.grenade].unlocked = true
 	grenades[self._defaults.grenade].amount = 0
@@ -117,14 +107,6 @@ function BlackMarketManager:_setup_melee_weapons()
 
 	end
 
-	(for control) = nil and {
-		unlocked = false,
-		equipped = false,
-		owned = false,
-		durability = 1,
-		level = 0,
-		skill_based = false
-	}
 	melee_weapons[self._defaults.melee_weapon].equipped = true
 	melee_weapons[self._defaults.melee_weapon].owned = true
 	melee_weapons[self._defaults.melee_weapon].level = 0
@@ -149,6 +131,7 @@ function BlackMarketManager:_setup_track_global_values()
 
 	end
 
+	return new_to_track
 end
 
 function BlackMarketManager:_setup_masks()
@@ -167,11 +150,6 @@ function BlackMarketManager:_setup_masks()
 
 	end
 
-	(for control) = nil and {
-		unlocked = true,
-		owned = true,
-		equipped = false
-	}
 	masks[self._defaults.mask].owned = true
 	masks[self._defaults.mask].equipped = true
 end
@@ -192,11 +170,6 @@ function BlackMarketManager:_setup_characters()
 
 	end
 
-	(for control) = nil and {
-		unlocked = true,
-		owned = true,
-		equipped = false
-	}
 	characters[self._defaults.character].owned = true
 	characters[self._defaults.character].equipped = true
 	Global.blackmarket_manager._preferred_character = self._defaults.preferred_character
@@ -225,13 +198,10 @@ function BlackMarketManager:_setup_weapon_upgrades()
 
 			end
 
-			(for control) = nil and weapon_upgrades[weapon]
 		end
 
-		(for control) = nil and ipairs
 	end
 
-	(for control) = nil and {}
 	weapon_upgrades.m4.m4_scope1.attached = false
 	weapon_upgrades.m4.scope2.owned = false
 	weapon_upgrades.m4.scope3.unlocked = false
@@ -305,9 +275,6 @@ function BlackMarketManager:weapon_unlocked(weapon_id)
 end
 
 function BlackMarketManager:weapon_level(weapon_id)
--- fail 11
-null
-9
 	do
 		local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.level_tree)
 		do
@@ -325,7 +292,7 @@ null
 
 	end
 
-	(for control) = nil and ipairs
+	return 0
 end
 
 function BlackMarketManager:equipped_item(category)
@@ -404,7 +371,6 @@ function BlackMarketManager:equipped_armor()
 
 	end
 
-	(for control) = nil and Global
 	return self._defaults.armor
 end
 
@@ -423,7 +389,6 @@ function BlackMarketManager:equipped_grenade()
 
 	end
 
-	(for control) = nil and Global
 	return self._defaults.grenade, Global.blackmarket_manager.grenades[self._defaults.grenade].amount
 end
 
@@ -442,7 +407,7 @@ function BlackMarketManager:equipped_melee_weapon()
 
 	end
 
-	(for control) = nil and Global
+	self:aquire_default_weapons()
 	return self._defaults.melee_weapon
 end
 
@@ -472,7 +437,7 @@ function BlackMarketManager:equipped_secondary()
 
 	end
 
-	(for control) = nil and data.equipped
+	self:aquire_default_weapons()
 end
 
 function BlackMarketManager:equipped_primary()
@@ -492,7 +457,7 @@ function BlackMarketManager:equipped_primary()
 
 	end
 
-	(for control) = nil and data.equipped
+	return nil
 end
 
 function BlackMarketManager:equipped_weapon_slot(category)
@@ -512,7 +477,7 @@ function BlackMarketManager:equipped_weapon_slot(category)
 
 	end
 
-	(for control) = nil and data.equipped
+	return nil
 end
 
 function BlackMarketManager:equipped_armor_slot()
@@ -532,7 +497,7 @@ function BlackMarketManager:equipped_armor_slot()
 
 	end
 
-	(for control) = nil and data.equipped
+	return nil
 end
 
 function BlackMarketManager:equipped_melee_weapon_slot()
@@ -552,13 +517,10 @@ function BlackMarketManager:equipped_melee_weapon_slot()
 
 	end
 
-	(for control) = nil and data.equipped
+	return nil
 end
 
 function BlackMarketManager:equip_weapon(category, slot)
--- fail 16
-null
-5
 	if not Global.blackmarket_manager.crafted_items[category] then
 		return nil
 	end
@@ -572,8 +534,7 @@ null
 
 	end
 
-	do break end
-	do
+	if category == "secondaries" then
 		local equipped = self:equipped_secondary()
 		if equipped.weapon_id == tweak_data.achievement.unique_selling_point then
 			managers.achievment:award("halloween_9")
@@ -581,15 +542,12 @@ null
 
 		if equipped.weapon_id == tweak_data.achievement.vote_for_change then
 			managers.achievment:award("bob_1")
-			do break end
-			if category == "primaries" then
-				local equipped = self:equipped_primary()
-				if equipped.weapon_id == tweak_data.achievement.steam_500k then
-					managers.achievment:award("gage3_1")
-				end
+		end
 
-			end
-
+	elseif category == "primaries" then
+		local equipped = self:equipped_primary()
+		if equipped.weapon_id == tweak_data.achievement.steam_500k then
+			managers.achievment:award("gage3_1")
 		end
 
 	end
@@ -612,9 +570,6 @@ function BlackMarketManager:equip_deployable(deployable_id)
 end
 
 function BlackMarketManager:equip_character(character_id)
--- fail 7
-null
-4
 	do
 		local (for generator), (for state), (for control) = pairs(Global.blackmarket_manager.characters)
 		do
@@ -632,9 +587,6 @@ null
 end
 
 function BlackMarketManager:equip_armor(armor_id)
--- fail 7
-null
-4
 	do
 		local (for generator), (for state), (for control) = pairs(Global.blackmarket_manager.armors)
 		do
@@ -670,9 +622,6 @@ function BlackMarketManager:equip_grenade(grenade_id)
 end
 
 function BlackMarketManager:equip_melee_weapon(melee_weapon_id)
--- fail 7
-null
-4
 	do
 		local (for generator), (for state), (for control) = pairs(Global.blackmarket_manager.melee_weapons)
 		do
@@ -713,9 +662,6 @@ function BlackMarketManager:_update_cached_mask()
 end
 
 function BlackMarketManager:equip_mask(slot)
--- fail 17
-null
-5
 	local category = "masks"
 	if not Global.blackmarket_manager.crafted_items[category] then
 		return nil
@@ -907,7 +853,6 @@ function BlackMarketManager:outfit_string()
 
 	end
 
-	(for control) = nil and Global
 	do
 		local (for generator), (for state), (for control) = pairs(tweak_data.blackmarket.characters)
 		do
@@ -920,7 +865,7 @@ function BlackMarketManager:outfit_string()
 
 	end
 
-	local equipped_primary = nil and self:equipped_primary()
+	local equipped_primary = self:equipped_primary()
 	if equipped_primary then
 		local primary_string = managers.weapon_factory:blueprint_to_string(equipped_primary.factory_id, equipped_primary.blueprint)
 		primary_string = string.gsub(primary_string, " ", "_")
@@ -977,7 +922,6 @@ function BlackMarketManager:load_all_crafted_weapons()
 
 	end
 
-	(for control) = nil and print
 	print("--SECONDARIES-----------------------")
 	local (for generator), (for state), (for control) = pairs(self._global.crafted_items.secondaries)
 	do
@@ -1032,7 +976,6 @@ function BlackMarketManager:preload_done_callback(category, preload_table, parts
 
 	end
 
-	(for control) = inspect(parts) and _preload.package
 	table.insert(self._preloading_list, {
 		category,
 		preload_table,
@@ -1058,7 +1001,7 @@ function BlackMarketManager:resource_loaded_callback(category, loaded_table, par
 
 	end
 
-	self._category_resource_loaded[category] = inspect(loaded_category) and loaded_table
+	self._category_resource_loaded[category] = loaded_table
 end
 
 function BlackMarketManager:release_preloaded_blueprints()
@@ -1080,10 +1023,9 @@ function BlackMarketManager:release_preloaded_blueprints()
 
 		end
 
-		(for control) = inspect(self._category_resource_loaded) and unload.package
 	end
 
-	self._category_resource_loaded = inspect(self._category_resource_loaded) and {}
+	self._category_resource_loaded = {}
 end
 
 function BlackMarketManager:is_preloading_weapons()
@@ -1147,7 +1089,6 @@ function BlackMarketManager:create_preload_ws()
 
 	end
 
-	(for control) = nil and preload.package
 	local rows = math.max(1, math.ceil(num_squares / 8))
 	local next_row_at = math.ceil(num_squares / rows)
 	local row_index = 0
@@ -1297,7 +1238,7 @@ function BlackMarketManager:is_weapon_modified(factory_id, blueprint)
 
 	end
 
-	(for control) = factory_id and table
+	return false
 end
 
 function BlackMarketManager:update(t, dt)
@@ -1476,7 +1417,6 @@ function BlackMarketManager:fetch_new_items_unlocked()
 					end
 
 				else
-					(for control) = category and self._global
 					self._global.new_item_type_unlocked[category] = false
 				end
 
@@ -1486,6 +1426,7 @@ function BlackMarketManager:fetch_new_items_unlocked()
 
 	end
 
+	return data
 end
 
 function BlackMarketManager:remove_new_drop(global_value, category, id)
@@ -1530,9 +1471,9 @@ function BlackMarketManager:get_weapon_new_part_drops(id)
 
 		end
 
-		(for control) = nil and self.check_new_drop
 	end
 
+	return new_parts
 end
 
 function BlackMarketManager:check_new_drop(global_value, category, id)
@@ -1587,103 +1528,93 @@ function BlackMarketManager:got_new_drop(global_value, category, id)
 
 		end
 
-		(for control) = nil and tweak_data
-	else
-		(for control) = nil and ipairs
-		if category_ids == Idstring("weapon_mods") then
-			if self:check_new_drop(global_value, "weapon_mods", id) then
+	elseif category_ids == Idstring("weapon_mods") then
+		if self:check_new_drop(global_value, "weapon_mods", id) then
+			return true
+		end
+
+	elseif category_ids == Idstring("weapon_tabs") then
+		local uses_parts = managers.weapon_factory:get_parts_from_factory_id(id)
+		local tab_parts = uses_parts and uses_parts[global_value] or {}
+		local (for generator), (for state), (for control) = ipairs(tab_parts)
+		do
+			do break end
+			if self:check_new_drop("normal", "weapon_mods", part) then
 				return true
 			end
 
-		elseif category_ids == Idstring("weapon_tabs") then
-			local uses_parts = managers.weapon_factory:get_parts_from_factory_id(id)
-			local tab_parts = uses_parts and uses_parts[global_value] or {}
-			local (for generator), (for state), (for control) = ipairs(tab_parts)
-			do
-				do break end
-				if self:check_new_drop("normal", "weapon_mods", part) then
-					return true
-				end
-
-				if self:check_new_drop("infamous", "weapon_mods", part) then
-					return true
-				end
-
-			end
-
-		else
-			(for control) = nil and self.check_new_drop
-			if category_ids == Idstring("mask_mods") then
-				local textures = managers.blackmarket:get_inventory_category("textures")
-				local colors = managers.blackmarket:get_inventory_category("colors")
-				local got_table = {}
-				do
-					local (for generator), (for state), (for control) = ipairs({
-						"colors",
-						"materials",
-						"textures"
-					})
-					do
-						do break end
-						if self:check_new_drop_category("normal", mmod) then
-							got_table[mmod] = true
-						elseif self:check_new_drop_category("infamous", mmod) then
-							got_table[mmod] = true
-						end
-
-					end
-
-				end
-
-				(for control) = "materials" and self.check_new_drop_category
-				if got_table.textures then
-					return #colors > 0
-				end
-
-				if got_table.colors then
-					return #textures > 0
-				end
-
-				return 0 < table.size(got_table)
-			elseif category_ids == Idstring("mask_buy") then
-				if self:check_new_drop_category("normal", "masks") then
-					return true
-				end
-
-				if self:check_new_drop_category("infamous", "masks") then
-					return true
-				end
-
-			elseif category_ids == Idstring("weapon_buy") then
-				if self:check_new_drop("normal", global_value, id) then
-					return true
-				end
-
-			elseif category_ids == Idstring("weapon_buy_empty") then
-				if self:check_new_drop_category("normal", global_value) then
-					return true
-				end
-
-			elseif not id then
-				if not global_value then
-					if self:check_new_drop_category("normal", category) then
-						return true
-					end
-
-					if self:check_new_drop_category("infamous", category) then
-						return true
-					end
-
-				else
-					return self:check_new_drop_category(global_value, category)
-				end
-
-			else
-				return self:check_new_drop(global_value, category, id)
+			if self:check_new_drop("infamous", "weapon_mods", part) then
+				return true
 			end
 
 		end
 
+	elseif category_ids == Idstring("mask_mods") then
+		local textures = managers.blackmarket:get_inventory_category("textures")
+		local colors = managers.blackmarket:get_inventory_category("colors")
+		local got_table = {}
+		do
+			local (for generator), (for state), (for control) = ipairs({
+				"colors",
+				"materials",
+				"textures"
+			})
+			do
+				do break end
+				if self:check_new_drop_category("normal", mmod) then
+					got_table[mmod] = true
+				elseif self:check_new_drop_category("infamous", mmod) then
+					got_table[mmod] = true
+				end
+
+			end
+
+		end
+
+		if got_table.textures then
+			return #colors > 0
+		end
+
+		if got_table.colors then
+			return #textures > 0
+		end
+
+		return 0 < table.size(got_table)
+	elseif category_ids == Idstring("mask_buy") then
+		if self:check_new_drop_category("normal", "masks") then
+			return true
+		end
+
+		if self:check_new_drop_category("infamous", "masks") then
+			return true
+		end
+
+	elseif category_ids == Idstring("weapon_buy") then
+		if self:check_new_drop("normal", global_value, id) then
+			return true
+		end
+
+	elseif category_ids == Idstring("weapon_buy_empty") then
+		if self:check_new_drop_category("normal", global_value) then
+			return true
+		end
+
+	elseif not id then
+		if not global_value then
+			if self:check_new_drop_category("normal", category) then
+				return true
+			end
+
+			if self:check_new_drop_category("infamous", category) then
+				return true
+			end
+
+		else
+			return self:check_new_drop_category(global_value, category)
+		end
+
+	else
+		return self:check_new_drop(global_value, category, id)
 	end
 
 	return false
@@ -1710,15 +1641,12 @@ function BlackMarketManager:get_inventory_category(category)
 
 		end
 
-		(for control) = nil and table
 	end
 
+	return t
 end
 
 function BlackMarketManager:merge_inventory_masks()
--- fail 13
-null
-4
 	local normals = self._global.inventory.normal.masks or {}
 	do
 		local (for generator), (for state), (for control) = pairs(self._global.inventory)
@@ -1736,7 +1664,6 @@ null
 
 		end
 
-		(for control) = nil and normals[mask_id]
 	end
 
 	if self._global.inventory.superior then
@@ -1770,9 +1697,9 @@ function BlackMarketManager:get_inventory_masks()
 
 		end
 
-		(for control) = nil and table
 	end
 
+	return masks
 end
 
 function BlackMarketManager:get_crafted_category(category)
@@ -1860,6 +1787,7 @@ function BlackMarketManager:get_weapon_category(category)
 
 	end
 
+	return t
 end
 
 function BlackMarketManager:get_weapon_blueprint(category, slot)
@@ -1918,6 +1846,7 @@ function BlackMarketManager:get_weapon_stats(category, slot)
 
 	end
 
+	return weapon_stats
 end
 
 function BlackMarketManager:get_weapon_stats_without_mod(category, slot, part_id)
@@ -1948,6 +1877,7 @@ function BlackMarketManager:get_weapon_stats_with_mod(category, slot, part_id, r
 
 	end
 
+	return weapon_stats
 end
 
 function BlackMarketManager:calculate_weapon_visibility(weapon)
@@ -2088,9 +2018,6 @@ function BlackMarketManager:visibility_modifiers()
 end
 
 function BlackMarketManager:get_dropable_mods_by_weapon_id(weapon_id, weapon_data)
--- fail 147
-null
-29
 	local parts_tweak_data = tweak_data.weapon.factory.parts
 	local all_mods = tweak_data.blackmarket.weapon_mods
 	local weapon_mods = managers.weapon_factory:get_parts_from_weapon_id(weapon_id)
@@ -2129,7 +2056,6 @@ null
 
 						end
 
-						(for control) = nil and table
 						if part.dlc then
 							table.insert(dlcs, part.dlc)
 						end
@@ -2155,7 +2081,6 @@ null
 
 						end
 
-						(for control) = nil and tweak_data
 						local dropped_global_values = {normal = true, infamous = true}
 						if part_dropable then
 							table.insert(dropable_mods[category], {part_id, global_value})
@@ -2180,8 +2105,7 @@ null
 
 						end
 
-						do break end
-						local bp_global_value = blueprint_gv[part_id]
+						local bp_global_value = blueprint_gv and blueprint_gv[part_id]
 						if bp_global_value and not dropped_global_values[bp_global_value] then
 							local has_in_blueprint = table.contains(blueprint, part_id)
 							if has_in_blueprint then
@@ -2199,10 +2123,8 @@ null
 
 		end
 
-		(for control) = nil and all_mods[part_id]
 	end
 
-	(for control) = nil and dropable_mods[category]
 	do
 		local (for generator), (for state), (for control) = pairs(dropable_mods)
 		do
@@ -2215,6 +2137,7 @@ null
 
 	end
 
+	return dropable_mods
 end
 
 function BlackMarketManager:sell_item(item_data)
@@ -2306,7 +2229,6 @@ function BlackMarketManager:has_parts_for_blueprint(category, blueprint)
 
 	end
 
-	(for control) = nil and self.has_item
 	print("has all parts")
 	return true
 end
@@ -2343,6 +2265,7 @@ function BlackMarketManager:get_crafted_item_amount(category, id)
 
 	end
 
+	return item_amount
 end
 
 function BlackMarketManager:get_crafted_part_global_value(category, slot, part_id)
@@ -2367,6 +2290,7 @@ function BlackMarketManager:get_inventory_item_global_values(category, id)
 
 	end
 
+	return global_values
 end
 
 function BlackMarketManager:has_inventory_item(default_global_value, category, id)
@@ -2484,7 +2408,6 @@ function BlackMarketManager:craft_item(category, slot, blueprint)
 
 	end
 
-	(for control) = category and self.remove_item
 	self._global.crafted_items[category] = self._global.crafted_items[category] or {}
 	self._global.crafted_items[category][slot] = blueprint
 end
@@ -2515,7 +2438,6 @@ function BlackMarketManager:sell_crafted_item(category, slot)
 
 	end
 
-	(for control) = "in slot" and self._sell_item
 	self:alter_global_value_item(self._global.crafted_items[category][slot].global_value, category, slot, self._global.crafted_items[category][slot].id, CRAFT_TO_INV)
 	self._global.crafted_items[category][slot] = nil
 end
@@ -2541,7 +2463,6 @@ function BlackMarketManager:uncraft_item(category, slot)
 
 	end
 
-	(for control) = "in slot" and self.add_to_inventory
 	self._global.crafted_items[category][slot] = nil
 end
 
@@ -2753,7 +2674,6 @@ function BlackMarketManager:on_sell_weapon(category, slot, skip_verification)
 
 	end
 
-	(for control) = nil and table
 	do
 		local (for generator), (for state), (for control) = pairs(blueprint)
 		do
@@ -2765,7 +2685,6 @@ function BlackMarketManager:on_sell_weapon(category, slot, skip_verification)
 
 	end
 
-	(for control) = nil and global_values[part_id]
 	managers.money:on_sell_weapon(category, slot)
 	self._global.crafted_items[category][slot] = nil
 	if not skip_verification then
@@ -2859,9 +2778,6 @@ function BlackMarketManager:remove_weapon_part(category, slot, global_value, par
 end
 
 function BlackMarketManager:modify_weapon(category, slot, global_value, part_id, remove_part)
--- fail 131
-null
-16
 	if not self._global.crafted_items[category] or not self._global.crafted_items[category][slot] then
 		Application:error("[BlackMarketManager:modify_weapon] Trying to modify weapon that doesn't exist", category, slot)
 		return
@@ -2887,7 +2803,6 @@ null
 
 	end
 
-	(for control) = nil and parts_tweak_data[part]
 	do
 		local (for generator), (for state), (for control) = pairs(removes)
 		do
@@ -2900,7 +2815,6 @@ null
 
 	end
 
-	(for control) = nil and parts_tweak_data[part]
 	local default_blueprint = managers.weapon_factory:get_default_blueprint_by_factory_id(craft_data.factory_id)
 	do
 		local (for generator), (for state), (for control) = ipairs(default_blueprint)
@@ -2912,7 +2826,6 @@ null
 	end
 
 	local global_value = "normal"
-	(for control) = nil and table
 	do
 		local (for generator), (for state), (for control) = pairs(removed_parts)
 		do
@@ -2976,13 +2889,14 @@ function BlackMarketManager:_on_modified_weapon(category, slot)
 
 			end
 
-			do break end
-			managers.achievment:award(achievement)
+			if pass_achievement then
+				managers.achievment:award(achievement)
+			end
+
 		end
 
 	end
 
-	(for control) = nil and true
 	if self:equipped_weapon_slot(category) ~= slot then
 		return
 	end
@@ -3771,9 +3685,6 @@ function BlackMarketManager:on_sell_inventory_mask(mask_id, global_value)
 end
 
 function BlackMarketManager:on_sell_mask(slot, skip_verification)
--- fail 35
-null
-9
 	local category = "masks"
 	if not self._global.crafted_items[category] or not self._global.crafted_items[category][slot] then
 		return
@@ -4068,12 +3979,6 @@ function BlackMarketManager:save(data)
 end
 
 function BlackMarketManager:load(data)
--- fail 394
-null
-16
--- fail 573
-null
-6
 	if data.blackmarket then
 		local default_global = self._global or {}
 		Global.blackmarket_manager = data.blackmarket
@@ -4101,7 +4006,6 @@ null
 
 		end
 
-		(for control) = nil and self._global
 		if not self._global.equipped_armor or not self._global.armors[self._global.equipped_armor] then
 			self._global.equipped_armor = self._defaults.armor
 		end
@@ -4147,7 +4051,7 @@ null
 
 		end
 
-		self._global.equipped_melee_weapon = nil and nil
+		self._global.equipped_melee_weapon = nil
 		self._global.weapons = default_global.weapons or {}
 		do
 			local (for generator), (for state), (for control) = pairs(tweak_data.weapon)
@@ -4169,7 +4073,6 @@ null
 
 		end
 
-		(for control) = nil and self._global
 		do
 			local (for generator), (for state), (for control) = pairs(self._global.weapons)
 			do
@@ -4181,7 +4084,6 @@ null
 
 		end
 
-		(for control) = nil and managers
 		self._global._preferred_character = self._global._preferred_character or self._defaults.preferred_character
 		if not CriminalsManager.convert_old_to_new_character_workname(self._global._preferred_character) then
 			self._global._preferred_character = self._defaults.preferred_character
@@ -4203,7 +4105,6 @@ null
 
 		end
 
-		(for control) = nil and self._global
 		do
 			local (for generator), (for state), (for control) = pairs(clone(self._global.characters))
 			do
@@ -4216,7 +4117,6 @@ null
 
 		end
 
-		(for control) = clone(self._global.characters) and tweak_data
 		if not self:equipped_character() then
 			self._global.characters[self._defaults.character].equipped = true
 		end
@@ -4269,10 +4169,8 @@ null
 
 			end
 
-			(for control) = clone(self._global.characters) and pairs
 		end
 
-		(for control) = clone(self._global.characters) and pairs
 		do
 			local (for generator), (for state), (for control) = pairs(old_drops)
 			do
@@ -4302,13 +4200,10 @@ null
 
 				end
 
-				(for control) = clone(self._global.characters) and self._global
 			end
 
-			(for control) = clone(self._global.characters) and pairs
 		end
 
-		(for control) = clone(self._global.characters) and pairs
 		do
 			local (for generator), (for state), (for control) = pairs(self._global.new_item_type_unlocked)
 			do
@@ -4341,9 +4236,11 @@ null
 
 						end
 
-						do break end
-						debug_pause("[BlackMarketManager:load] Unknown weapon in 'new item type unlocked'", self._global.new_item_type_unlocked[category], "category", category)
-						self._global.new_item_type_unlocked[category] = false
+						if not fixed then
+							debug_pause("[BlackMarketManager:load] Unknown weapon in 'new item type unlocked'", self._global.new_item_type_unlocked[category], "category", category)
+							self._global.new_item_type_unlocked[category] = false
+						end
+
 					end
 
 				end
@@ -4358,9 +4255,6 @@ null
 end
 
 function BlackMarketManager:refill_track_global_values()
--- fail 87
-null
-19
 	Application:debug("[BlackMarketManager:refill_track_global_values] Refilling Global.blackmarket_manager.global_value_items")
 	local global_value_items = Global.blackmarket_manager.global_value_items
 	local new_global_value_items = {}
@@ -4375,7 +4269,6 @@ null
 
 	end
 
-	(for control) = nil and {}
 	local crafted_items = Global.blackmarket_manager.crafted_items or {}
 	local primaries = crafted_items.primaries
 	local secondaries = crafted_items.secondaries
@@ -4417,13 +4310,10 @@ null
 
 			end
 
-			(for control) = nil and add_crafted_item_func
 		end
 
-		(for control) = nil and data.global_values
 	end
 
-	(for control) = nil and pairs
 	do
 		local (for generator), (for state), (for control) = pairs(masks)
 		do
@@ -4441,7 +4331,6 @@ null
 
 	end
 
-	(for control) = nil and data.global_value
 	do
 		local (for generator), (for state), (for control) = pairs(Global.blackmarket_manager.inventory)
 		do
@@ -4457,13 +4346,10 @@ null
 
 			end
 
-			(for control) = item.global_value and add_inventory_item_func
 		end
 
-		(for control) = pairs(data.blueprint or {}) and pairs
 	end
 
-	(for control) = nil and pairs
 	Application:debug("[BlackMarketManager:refill_track_global_values] Refill done")
 	Global.blackmarket_manager.global_value_items = new_global_value_items
 end
@@ -4516,15 +4402,6 @@ function BlackMarketManager:verify_dlc_items()
 end
 
 function BlackMarketManager:_cleanup_blackmarket()
--- fail 67
-null
-13
--- fail 216
-null
-28
--- fail 375
-null
-29
 	Application:debug("[BlackMarketManager:_cleanup_blackmarket] STARTING BLACKMARKET CLEANUP")
 	Application:debug("----------------------------------------------------------------------")
 	local crafted_items = self._global.crafted_items
@@ -4542,7 +4419,7 @@ null
 	end
 
 	local crafted_masks = crafted_items.masks
-	local chk_global_value_func = nil and function(global_value)
+	local chk_global_value_func = function(global_value)
 		return tweak_data.lootdrop.global_values[global_value or "normal"] and true or false
 	end
 
@@ -4569,13 +4446,15 @@ null
 
 			end
 
-			do break end
-			if i == 1 then
-				self._global.crafted_items.masks[i] = false
-				self:on_buy_mask(self._defaults.mask, "normal", 1)
-			else
-				Application:error("BlackMarketManager:_cleanup_blackmarket() Mask or component of mask invalid, Selling the mask!", "mask_id", mask.mask_id, "global_value", mask.global_value, "blueprint", inspect(blueprint))
-				self:on_sell_mask(i)
+			if cleanup_mask then
+				if i == 1 then
+					self._global.crafted_items.masks[i] = false
+					self:on_buy_mask(self._defaults.mask, "normal", 1)
+				else
+					Application:error("BlackMarketManager:_cleanup_blackmarket() Mask or component of mask invalid, Selling the mask!", "mask_id", mask.mask_id, "global_value", mask.global_value, "blueprint", inspect(blueprint))
+					self:on_sell_mask(i)
+				end
+
 			end
 
 		end
@@ -4583,7 +4462,7 @@ null
 	end
 
 	local invalid_weapons = {}
-	local invalid_parts = {} and {}
+	local invalid_parts = {}
 	local function invalid_add_weapon_remove_parts_func(slot, item, part_id)
 		table.insert(invalid_weapons, slot)
 		Application:error("BlackMarketManager:_cleanup_blackmarket() Part non-existent, weapon invalid", "weapon_id", item.weapon_id, "slot", slot)
@@ -4657,19 +4536,21 @@ null
 
 										end
 
-										do break end
-										table.insert(invalid_parts, {
-											slot = slot,
-											global_value = "normal",
-											default_mod = default_mod,
-											part_id = part_id
-										})
-										do break end
-										table.insert(invalid_parts, {
-											slot = slot,
-											global_value = item.global_values[part_id] or "normal",
-											part_id = part_id
-										})
+										if default_mod then
+											table.insert(invalid_parts, {
+												slot = slot,
+												global_value = "normal",
+												default_mod = default_mod,
+												part_id = part_id
+											})
+										else
+											table.insert(invalid_parts, {
+												slot = slot,
+												global_value = item.global_values[part_id] or "normal",
+												part_id = part_id
+											})
+										end
+
 									else
 										invalid_add_weapon_remove_parts_func(slot, item, part_id)
 									end
@@ -4683,39 +4564,39 @@ null
 
 					end
 
-					do break end
-					local invalid_texture_switches = {}
-					do
-						local (for generator), (for state), (for control) = pairs(texture_switches)
+					if texture_switches then
+						local invalid_texture_switches = {}
 						do
-							do break end
-							if not tweak_data.weapon.factory.parts[part_id] then
-								table.insert(invalid_texture_switches, part_id)
-							else
-								local texture = self:get_part_texture_switch(category, slot, part_id)
-								if not texture or type(texture) ~= "string" or texture == "" then
+							local (for generator), (for state), (for control) = pairs(texture_switches)
+							do
+								do break end
+								if not tweak_data.weapon.factory.parts[part_id] then
 									table.insert(invalid_texture_switches, part_id)
+								else
+									local texture = self:get_part_texture_switch(category, slot, part_id)
+									if not texture or type(texture) ~= "string" or texture == "" then
+										table.insert(invalid_texture_switches, part_id)
+									end
+
 								end
 
 							end
 
 						end
 
-					end
+						local (for generator), (for state), (for control) = ipairs(invalid_texture_switches)
+						do
+							do break end
+							texture_switches[part_id] = nil
+							Application:error("BlackMarketManager:_cleanup_blackmarket() Removing invalid weapon texture switch", "category", category, "slot", slot, "part_id", part_id)
+						end
 
-					(for control) = inspect(blueprint) and tweak_data
-					local (for generator), (for state), (for control) = ipairs(invalid_texture_switches)
-					do
-						do break end
-						texture_switches[part_id] = nil
-						Application:error("BlackMarketManager:_cleanup_blackmarket() Removing invalid weapon texture switch", "category", category, "slot", slot, "part_id", part_id)
 					end
 
 				end
 
 			end
 
-			(for control) = "blueprint" and item.factory_id
 			do
 				local (for generator), (for state), (for control) = ipairs(invalid_weapons)
 				do
@@ -4726,7 +4607,6 @@ null
 
 			end
 
-			(for control) = "blueprint" and Application
 			local (for generator), (for state), (for control) = ipairs(invalid_parts)
 			do
 				do break end
@@ -4747,10 +4627,9 @@ null
 
 		end
 
-		(for control) = "blueprint" and data.slot
 	end
 
-	local bm_tweak_data = "secondaries" and tweak_data.blackmarket
+	local bm_tweak_data = tweak_data.blackmarket
 	local invalid_items = {}
 	local function add_invalid_global_value_func(global_value)
 		invalid_items[global_value] = true
@@ -4808,7 +4687,6 @@ null
 
 								end
 
-								(for control) = inspect(data) and table
 								if item_tweak_data.global_value then
 									table.insert(global_values, item_tweak_data.global_value)
 								end
@@ -4832,20 +4710,16 @@ null
 
 						end
 
-						(for control) = inspect(data) and chk_global_value_func
 					end
 
 				end
 
-				(for control) = true and bm_tweak_data[category]
 			end
 
 		end
 
-		(for control) = "BlackMarketManager:_cleanup_blackmarket() No crafted item in slot" and bm_tweak_data[category]
 	end
 
-	(for control) = ipairs(invalid_parts) and chk_global_value_func
 	do
 		local (for generator), (for state), (for control) = pairs(invalid_items)
 		do
@@ -4881,15 +4755,12 @@ null
 
 				end
 
-				(for control) = global_value and self._global
 			end
 
 		end
 
-		(for control) = "BlackMarketManager:_cleanup_blackmarket() No crafted item in slot" and type
 	end
 
-	(for control) = ipairs(invalid_parts) and type
 	Application:debug("----------------------------------------------------------------------")
 	Application:debug("[BlackMarketManager:_cleanup_blackmarket] BLACKMARKET CLEANUP DONE")
 end
@@ -4898,12 +4769,6 @@ function BlackMarketManager:test_clean()
 end
 
 function BlackMarketManager:_verify_dlc_items()
--- fail 105
-null
-20
--- fail 194
-null
-20
 	Application:debug("-----------------------BlackMarketManager:_verify_dlc_items-----------------------")
 	local owns_dlc
 	do
@@ -4952,10 +4817,12 @@ null
 
 										end
 
-										do break end
-										self:buy_and_modify_weapon("primaries", slot, "normal", default_mod, true, true)
-										do break end
-										self:remove_weapon_part("primaries", slot, package_id, part_id)
+										if default_mod then
+											self:buy_and_modify_weapon("primaries", slot, "normal", default_mod, true, true)
+										else
+											self:remove_weapon_part("primaries", slot, package_id, part_id)
+										end
+
 										managers.money:refund_weapon_part(crafted.weapon_id, part_id, package_id)
 									end
 
@@ -4967,7 +4834,6 @@ null
 
 					end
 
-					(for control) = not data.free and managers
 					do
 						local (for generator), (for state), (for control) = pairs(secondaries)
 						do
@@ -5001,10 +4867,12 @@ null
 
 										end
 
-										do break end
-										self:buy_and_modify_weapon("secondaries", slot, "normal", default_mod, true, true)
-										do break end
-										self:remove_weapon_part("secondaries", slot, package_id, part_id)
+										if default_mod then
+											self:buy_and_modify_weapon("secondaries", slot, "normal", default_mod, true, true)
+										else
+											self:remove_weapon_part("secondaries", slot, package_id, part_id)
+										end
+
 										managers.money:refund_weapon_part(crafted.weapon_id, part_id, package_id)
 									end
 
@@ -5016,7 +4884,6 @@ null
 
 					end
 
-					(for control) = not data.free and managers
 					local mask = managers.blackmarket:equipped_mask()
 					local is_locked = mask.global_value == package_id
 					if not is_locked then
@@ -5032,8 +4899,10 @@ null
 
 					end
 
-					do break end
-					self:equip_mask(1)
+					if is_locked then
+						self:equip_mask(1)
+					end
+
 				end
 
 			end
@@ -5042,7 +4911,6 @@ null
 
 	end
 
-	(for control) = nil and tweak_data
 	local player_level = managers.experience:current_level()
 	local unlocked, level, skill_based, weapon_def, weapon_dlc, has_dlc
 	local (for generator), (for state), (for control) = pairs(Global.blackmarket_manager.weapons)
@@ -5082,18 +4950,6 @@ function BlackMarketManager:_verfify_equipped()
 end
 
 function BlackMarketManager:_verfify_equipped_category(category)
--- fail 29
-null
-5
--- fail 96
-null
-5
--- fail 152
-null
-5
--- fail 203
-null
-5
 	if category == "armors" then
 		local armor_id = self._defaults.armor
 		do
@@ -5108,7 +4964,6 @@ null
 
 		end
 
-		(for control) = nil and craft.equipped
 		do
 			local (for generator), (for state), (for control) = pairs(Global.blackmarket_manager.armors)
 			do
@@ -5141,7 +4996,6 @@ null
 
 		end
 
-		(for control) = nil and craft.equipped
 		do
 			local (for generator), (for state), (for control) = pairs(Global.blackmarket_manager.grenades)
 			do
@@ -5170,7 +5024,6 @@ null
 
 		end
 
-		(for control) = nil and tweak_data
 		do
 			local (for generator), (for state), (for control) = pairs(Global.blackmarket_manager.melee_weapons)
 			do
@@ -5210,7 +5063,6 @@ null
 
 	end
 
-	(for control) = nil and craft.equipped
 	do
 		local (for generator), (for state), (for control) = pairs(self._global.crafted_items[category])
 		do
@@ -5232,8 +5084,7 @@ null
 
 	end
 
-	do break end
-	if category == "primaries" then
+	if category == "secondaries" or category == "primaries" then
 		local free_slot = self:_get_free_weapon_slot(category) or 1
 		self:on_sell_weapon(category, free_slot)
 		local weapon_id = category == "primaries" and "amcar" or "glock_17"
@@ -5407,13 +5258,10 @@ function BlackMarketManager:debug_inventory()
 
 			end
 
-			(for control) = nil and t[type]
 		end
 
-		(for control) = nil and t[type]
 	end
 
-	(for control) = nil and pairs
 	print(inspect(t))
 end
 

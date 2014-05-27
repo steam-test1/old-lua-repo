@@ -76,7 +76,6 @@ function MenuTitlescreenState:_update_pc_xbox_controller_connection(params)
 
 	end
 
-	(for control) = nil and controller.get_type
 	params.text_gui:set_text(text_string)
 end
 
@@ -97,7 +96,6 @@ function MenuTitlescreenState:at_enter()
 
 	end
 
-	(for control) = nil and controller.enable
 	managers.overlay_effect:play_effect({
 		color = Color.black,
 		fade_in = 0,
@@ -180,7 +178,7 @@ function MenuTitlescreenState:get_start_pressed_controller_index()
 
 	end
 
-	(for control) = nil and is_ps3
+	return nil
 end
 
 function MenuTitlescreenState:check_confirm_pressed()
@@ -295,7 +293,7 @@ function MenuTitlescreenState:is_any_input_pressed()
 
 	end
 
-	(for control) = nil and controller.get_any_input_pressed
+	return false
 end
 
 function MenuTitlescreenState:reset_attract_video()
@@ -365,7 +363,6 @@ function MenuTitlescreenState:at_exit()
 		self._controller_list = nil
 	end
 
-	(for control) = self._clbk_game_has_music_control_callback and controller.destroy
 	managers.menu:input_enabled(true)
 	managers.user:set_active_user_state_change_quit(true)
 	managers.system_menu:init_finalize()

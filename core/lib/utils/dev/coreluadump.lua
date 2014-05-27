@@ -73,7 +73,6 @@ local function dump_collect(tab, t, level, max_level)
 		end
 
 	else
-		(for control) = nil and nil
 		t["(" .. tostring({}) .. ") UNKNOWN"] = {
 			_type = "unexplored",
 			_value = "(" .. tostring({}) .. ") UNKNOWN"

@@ -1477,7 +1477,6 @@ function LevelsTweakData:get_music_switches()
 
 	end
 
-	(for control) = managers.network:game():all_members() and member.peer
 	local level_data = Global.level_data.level_id and tweak_data.levels[Global.level_data.level_id]
 	local music_id = level_data and level_data.music or "default"
 	if music_id == "no_music" then
@@ -1494,6 +1493,7 @@ function LevelsTweakData:get_music_switches()
 
 	end
 
+	return switches
 end
 
 function LevelsTweakData:get_music_event(stage)

@@ -107,6 +107,7 @@ function CoreCutscenePlayer:camera_attributes()
 
 	end
 
+	return attributes
 end
 
 function CoreCutscenePlayer:depth_of_field_attributes()
@@ -131,7 +132,6 @@ function CoreCutscenePlayer:prime()
 
 		end
 
-		(for control) = nil and cutscene_key.is_valid
 		self:_process_camera_cutscene_keys_between(-1, 0)
 		if self:_camera_object() ~= nil then
 			self:_reparent_camera()
@@ -206,7 +206,6 @@ function CoreCutscenePlayer:unload()
 
 	end
 
-	(for control) = -math.huge and key.unload
 	if self._owned_cast then
 		self._owned_cast:unload()
 	end
@@ -226,7 +225,6 @@ function CoreCutscenePlayer:destroy()
 	end
 
 	self._owned_gui_objects = nil
-	(for control) = string.format("[CoreCutscenePlayer] Destroying CutscenePlayer for \"%s\".", self:cutscene_name()) and self.invoke_callback_in_gui
 	self:unload()
 	self._viewport:environment_mixer():destroy_modifier(self._dof_environment_modifier)
 	if self._listener_id and managers.listener then
@@ -384,7 +382,6 @@ function CoreCutscenePlayer:skip_to_end()
 
 	end
 
-	(for control) = math.huge and key.skip
 	if alive(self._driving_sound_instance) then
 		self._driving_sound_instance:stop()
 	end
@@ -828,6 +825,19 @@ function CoreCutscenePlayer:_notify_discontinuity()
 end
 
 function CoreCutscenePlayer:_resume_discontinuity()
+	if self._disabled_bodies then
+		do
+			local (for generator), (for state), (for control) = ipairs(self._disabled_bodies)
+			do
+				do break end
+				body:enable_with_no_velocity()
+			end
+
+		end
+
+		self._disabled_bodies = nil
+	end
+
 end
 
 function CoreCutscenePlayer:_process_discontinuity_cutscene_keys_between(start_time, end_time)
@@ -840,9 +850,6 @@ function CoreCutscenePlayer:_process_discontinuity_cutscene_keys_between(start_t
 end
 
 function CoreCutscenePlayer:_process_camera_cutscene_keys_between(start_time, end_time)
--- fail 8
-null
-5
 	do
 		local (for generator), (for state), (for control) = self:keys_between(start_time, end_time, CoreChangeCameraCutsceneKey.ELEMENT_NAME)
 		do
@@ -883,7 +890,6 @@ function CoreCutscenePlayer:_process_non_camera_cutscene_keys_between(start_time
 
 	end
 
-	(for control) = end_time and key.ELEMENT_NAME
 	local (for generator), (for state), (for control) = self:keys_to_update(end_time)
 	do
 		do break end

@@ -39,15 +39,16 @@ function CoreLuaPreprocessor:regx(str, nr, path)
 
 			end
 
-			do break end
-			local rep = 0
-			output, rep = string.gsub(output, exp.regx, exp.sub)
-			nr = nr + rep
+			if not skip_file then
+				local rep = 0
+				output, rep = string.gsub(output, exp.regx, exp.sub)
+				nr = nr + rep
+			end
+
 		end
 
 	end
 
-	(for control) = nil and false
 	return output, nr
 end
 
@@ -64,7 +65,6 @@ function CoreLuaPreprocessor:adjust_size(macro, args)
 
 	end
 
-	(for control) = nil and addlines + 1
 	return macro .. string.rep("\n", addlines)
 end
 

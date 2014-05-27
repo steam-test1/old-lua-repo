@@ -104,11 +104,13 @@ function Logic:_refresh_node(node_name, ...)
 
 	end
 
-	do break end
-	self:_call_callback("renderer_refresh_node", node)
-	local selected_item = node:selected_item()
-	node:select_item(selected_item and selected_item:name())
-	self:_call_callback("renderer_select_item", node:selected_item())
+	if node then
+		self:_call_callback("renderer_refresh_node", node)
+		local selected_item = node:selected_item()
+		node:select_item(selected_item and selected_item:name())
+		self:_call_callback("renderer_select_item", node:selected_item())
+	end
+
 end
 
 function Logic:update_node(node_name, queue, ...)
@@ -128,7 +130,6 @@ function Logic:_update_node(node_name, ...)
 		end
 
 	else
-		(for control) = nil and update_func
 		Application:error("[CoreLogic:_update_node] Trying to update selected node, but none is selected!")
 	end
 

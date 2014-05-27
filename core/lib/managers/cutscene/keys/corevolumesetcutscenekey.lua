@@ -73,6 +73,6 @@ function CoreVolumeSetCutsceneKey:refresh_control_for_name(control)
 
 	end
 
-	(for control) = managers.volume:volume_set_names() and control.append
+	control:thaw()
 end
 

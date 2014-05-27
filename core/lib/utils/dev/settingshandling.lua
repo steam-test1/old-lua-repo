@@ -46,15 +46,6 @@ function EWSControlSettingSync:update_setting_box(custom_data, event_object)
 end
 
 function EWSControlSettingSync:update_setting(custom_data, event_object)
--- fail 30
-null
-10
--- fail 53
-null
-11
--- fail 68
-null
-12
 	local id = event_object:get_id()
 	local control_info = self:get_control_info(id)
 	local value = self:get_ews_control_value(custom_data, control_info)
@@ -175,6 +166,7 @@ function EWSControlSettingSync:do_set_ews_value(id, value)
 
 	end
 
+	return main_value
 end
 
 function EWSControlSettingSync:set_ews_value(id, value)
@@ -559,7 +551,6 @@ function EWSControlSettingSync:append_to_control(id, map)
 		end
 
 	else
-		(for control) = nil and list_data.append
 		local (for generator), (for state), (for control) = pairs(map)
 		do
 			do break end
@@ -601,7 +592,6 @@ function EWSControlSettingSync:create_properties_list(id, add_vector, read_only)
 
 		end
 
-		(for control) = id and combo.append
 		add_sizer:add(combo, 1, 0, "EXPAND")
 		add_sizer:add(add_btn, 0, 2, "LEFT,EXPAND")
 		sizer:add(add_sizer, 0, 4, "TOP,EXPAND")
@@ -643,7 +633,6 @@ function EWSControlSettingSync:load_properties_list(id, properties_map)
 	end
 
 	local controls_type = control_info.controls_type
-	(for control) = nil and list_data.append_item
 	local (for generator), (for state), (for control) = pairs(controls_type)
 	do
 		do break end
@@ -668,6 +657,7 @@ function EWSControlSettingSync:save_properties_list(id)
 
 	end
 
+	return saved_map
 end
 
 function EWSControlSettingSync:add_property_to_list(custom_data, event_object)

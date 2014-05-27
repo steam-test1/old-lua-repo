@@ -1,8 +1,5 @@
 CopActionReload = CopActionReload or class()
 function CopActionReload:init(action_desc, common_data)
--- fail 17
-null
-6
 	self._ext_movement = common_data.ext_movement
 	self._ext_anim = common_data.ext_anim
 	self._ext_inventory = common_data.ext_inventory
@@ -23,8 +20,7 @@ null
 
 	end
 
-	do break end
-	if self:_play_reload() then
+	if reload_t or self:_play_reload() then
 		local action_data = {}
 		if reload_t then
 			self._reload_t = reload_t

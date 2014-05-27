@@ -102,7 +102,7 @@ function CoreSoundCutsceneKey:refresh_control_for_bank(control)
 
 	end
 
-	(for control) = Sound:soundbanks() and control.append
+	control:thaw()
 end
 
 function CoreSoundCutsceneKey:refresh_control_for_unit_name(control)

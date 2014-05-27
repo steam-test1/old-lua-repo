@@ -116,7 +116,6 @@ function StatsTabItem:set_stats(stats_data)
 
 			end
 
-			(for control) = gage_tweak_data:get_assignments() and table
 			table.sort(assignment_list, function(x, y)
 				return gage_tweak_data:get_value(x, "aquire") < gage_tweak_data:get_value(y, "aquire")
 			end
@@ -250,7 +249,6 @@ function StatsTabItem:set_stats(stats_data)
 
 		end
 
-		(for control) = prev_stat_panel:bottom() and gage_tweak_data.get_value
 	else
 		local (for generator), (for state), (for control) = ipairs(self._stats)
 		do
@@ -332,7 +330,6 @@ function StatsTabItem:feed_statistics(stats_data)
 	end
 
 	local desc, stat, prev_stat_panel
-	(for control) = nil and stats_data[stat]
 	local (for generator), (for state), (for control) = ipairs(self._panel:children())
 	do
 		do break end
@@ -381,7 +378,6 @@ function StatsTabItem:feed_statistics(stats_data)
 
 				end
 
-				(for control) = self._panel:children() and Idstring
 				if #start_ci ~= #end_ci then
 				else
 					for i = 1, #start_ci do
@@ -497,12 +493,6 @@ end
 
 StageEndScreenGui = StageEndScreenGui or class()
 function StageEndScreenGui:init(saferect_ws, fullrect_ws, statistics_data)
--- fail 206
-unluac.decompile.expression.FunctionCall@2647e53a
--1
--- fail 401
-unluac.decompile.expression.FunctionCall@3a1a5678
--1
 	self._safe_workspace = saferect_ws
 	self._full_workspace = fullrect_ws
 	self._fullscreen_panel = self._full_workspace:panel():panel({layer = 1})
@@ -841,7 +831,6 @@ function StageEndScreenGui:mouse_pressed(button, x, y)
 
 	end
 
-	(for control) = y and tab.mouse_pressed
 	if not self._button_not_clickable and self._continue_button:inside(x, y) and game_state_machine:current_state()._continue_cb then
 		managers.menu_component:post_event("menu_enter")
 		game_state_machine:current_state()._continue_cb()
@@ -878,8 +867,10 @@ function StageEndScreenGui:mouse_moved(x, y)
 
 	end
 
-	do break end
-	do return true, "link" end
+	if mouse_over_tab then
+		return true, "link"
+	end
+
 	if alive(self._prev_page) then
 		if self._prev_page:visible() and self._prev_page:inside(x, y) then
 			if not self._prev_page_highlighted then

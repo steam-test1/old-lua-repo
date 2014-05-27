@@ -62,7 +62,6 @@ function MissionManager:parse(params, stage_name, offset, file_type)
 
 	end
 
-	(for control) = string.sub(reverse, i) and managers
 	self:_activate_mission(activate_mission)
 	return true
 end
@@ -163,7 +162,7 @@ function MissionManager:stop_simulation(...)
 
 	end
 
-	self._scripts = nil and {}
+	self._scripts = {}
 	self._runned_unit_sequences_callbacks = {}
 	self._global_event_listener = rawget(_G, "EventListenerHolder"):new()
 end
@@ -353,6 +352,7 @@ function MissionManager:save(data)
 
 	end
 
+	data.MissionManager = state
 end
 
 function MissionManager:load(data)
@@ -404,7 +404,7 @@ function MissionScript:init(data)
 
 	end
 
-	self._updators = self._name and {}
+	self._updators = {}
 	self._save_states = {}
 	self:_on_created()
 end
@@ -448,7 +448,6 @@ function MissionScript:activate(...)
 
 	end
 
-	(for control) = Color(1, 0, 1, 0) and element.on_script_activated
 	local (for generator), (for state), (for control) = pairs(self._elements)
 	do
 		do break end
@@ -527,7 +526,7 @@ function MissionScript:save(data)
 
 	end
 
-	data[self._name] = nil and state
+	data[self._name] = state
 end
 
 function MissionScript:load(data)
@@ -550,7 +549,6 @@ function MissionScript:stop_simulation(...)
 
 	end
 
-	(for control) = nil and element.stop_simulation
 	MissionScript.super.clear(self)
 end
 
@@ -564,7 +562,6 @@ function MissionScript:pre_destroy(...)
 
 	end
 
-	(for control) = nil and element.pre_destroy
 	MissionScript.super.clear(self)
 end
 
@@ -578,7 +575,6 @@ function MissionScript:destroy(...)
 
 	end
 
-	(for control) = nil and element.destroy
 	MissionScript.super.clear(self)
 end
 

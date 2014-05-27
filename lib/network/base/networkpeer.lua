@@ -506,8 +506,10 @@ function NetworkPeer:_flush_queue(queue_name)
 
 		end
 
-		do break end
-		self:send(unpack(msg))
+		if ok then
+			self:send(unpack(msg))
+		end
+
 	end
 
 end
@@ -605,7 +607,6 @@ function NetworkPeer:flush_overwriteable_msgs()
 
 	end
 
-	(for control) = nil and data.clbk
 	do
 		local (for generator), (for state), (for control) = pairs(overwriteable_queue)
 		do
@@ -634,16 +635,18 @@ function NetworkPeer:flush_overwriteable_msgs()
 
 			end
 
-			do break end
-			self:send(unpack(rpc_params))
-			do break end
-			Application:error("[NetworkPeer:flush_overwriteable_msgs] msg with dead params peer_id:", self._id, "msg", msg_name, "params", unpack(rpc_params))
-			Application:stack_dump("error")
+			if ok then
+				self:send(unpack(rpc_params))
+			else
+				Application:error("[NetworkPeer:flush_overwriteable_msgs] msg with dead params peer_id:", self._id, "msg", msg_name, "params", unpack(rpc_params))
+				Application:stack_dump("error")
+			end
+
 		end
 
 	end
 
-	self._overwriteable_queue = nil and {}
+	self._overwriteable_queue = {}
 end
 
 function NetworkPeer:set_expecting_drop_in_pause_confirmation(dropin_peer_id, state)
@@ -797,7 +800,6 @@ function NetworkPeer:has_queued_rpcs()
 
 				end
 
-				(for control) = nil and print
 			end
 
 			return queue_name
@@ -805,7 +807,6 @@ function NetworkPeer:has_queued_rpcs()
 
 	end
 
-	(for control) = nil and print
 end
 
 function NetworkPeer:set_xuid(xuid)

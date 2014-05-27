@@ -27,6 +27,7 @@ function AIGraphUnitElement:_get_unit(id)
 
 	end
 
+	return
 end
 
 function AIGraphUnitElement:update_selected(t, dt)

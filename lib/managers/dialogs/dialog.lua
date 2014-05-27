@@ -18,7 +18,6 @@ function Dialog:init_button_text_list()
 
 	end
 
-	(for control) = nil and table
 	if #self._button_text_list == 0 and not self._data.no_buttons then
 		Application:error("[SystemMenuManager] Invalid dialog with no button texts. Adds an ok-button.")
 		self._data.button_list = self._data.button_list or {}
@@ -75,7 +74,6 @@ function Dialog:to_string()
 
 	end
 
-	(for control) = nil and buttons
 	return string.format("%s, Title: %s, Text: %s, Buttons: %s", tostring(BaseDialog.to_string(self)), tostring(self._data.title), tostring(self:_strip_to_string_text(self._data.text)), buttons)
 end
 

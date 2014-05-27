@@ -158,7 +158,6 @@ function FriendsBoxGui:update_friends()
 
 	end
 
-	(for control) = nil and nil
 	local friends_panel = self._scroll_panel:child("friends_panel")
 	local ingame_panel = friends_panel:child("ingame_panel")
 	local online_panel = friends_panel:child("online_panel")
@@ -183,7 +182,6 @@ function FriendsBoxGui:update_friends()
 
 	end
 
-	(for control) = user:state() and self._users
 	do
 		local (for generator), (for state), (for control) = pairs(self._users)
 		do
@@ -234,7 +232,7 @@ function FriendsBoxGui:update_friends()
 
 	end
 
-	(for control) = user:state() and user.main_state
+	self:_layout_friends_panel()
 end
 
 function FriendsBoxGui:_update_sub_state(user_data)
@@ -294,7 +292,6 @@ function FriendsBoxGui:_get_state_h(panel)
 
 	end
 
-	(for control) = panel:children() and child.set_y
 	panel:set_h(h)
 	return h
 end
@@ -570,7 +567,6 @@ function FriendsBoxGui:_inside_user(x, y)
 
 	end
 
-	(for control) = ingame_panel:children() and user_panel.inside
 	do
 		local (for generator), (for state), (for control) = ipairs(online_panel:children())
 		do
@@ -583,7 +579,6 @@ function FriendsBoxGui:_inside_user(x, y)
 
 	end
 
-	(for control) = online_panel:children() and user_panel.inside
 	do
 		local (for generator), (for state), (for control) = ipairs(offline_panel:children())
 		do
@@ -596,7 +591,7 @@ function FriendsBoxGui:_inside_user(x, y)
 
 	end
 
-	(for control) = offline_panel:children() and user_panel.inside
+	return nil
 end
 
 function FriendsBoxGui:_get_user_panel(id)

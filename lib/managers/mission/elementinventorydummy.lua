@@ -92,7 +92,6 @@ function ElementInventoryDummy:pre_destroy()
 
 		end
 
-		(for control) = self._mask_unit:children() and linked_unit.unlink
 		local name = self._mask_unit:name()
 		World:delete_unit(self._mask_unit)
 		managers.dyn_resource:unload(Idstring("unit"), name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)

@@ -86,7 +86,6 @@ function CoreLocatorConstraintCutsceneKey:refresh_control_for_locator_name(contr
 
 	end
 
-	(for control) = nil and control.append
 	control:set_enabled(not table.empty(locator_names))
 	control:append("")
 	control:set_value(self:locator_name())

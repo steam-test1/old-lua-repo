@@ -129,7 +129,6 @@ function EditUnitLight:init(editor)
 
 	end
 
-	(for control) = LightIntensityDB:list() and table
 	self._intensity_params = {
 		name = "Intensity:",
 		panel = panel,
@@ -248,6 +247,7 @@ function EditUnitLight:get_spot_projection_textures()
 
 	end
 
+	return textures
 end
 
 function EditUnitLight:change_light()
@@ -445,6 +445,7 @@ function EditUnitLight:_selected_lights()
 
 	end
 
+	return lights
 end
 
 function EditUnitLight:_reference_light()
@@ -471,7 +472,6 @@ function EditUnitLight:is_editable(unit, units)
 
 		end
 
-		(for control) = nil and table
 		CoreEws.update_combobox_options(self._lights_params, options)
 		if lights[1] then
 			self._reference_unit = unit

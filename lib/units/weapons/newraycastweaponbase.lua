@@ -121,7 +121,6 @@ function NewRaycastWeaponBase:apply_texture_switches()
 
 					end
 
-					(for control) = Idstring("material") and print
 					Application:debug(switch_material)
 					if switch_material then
 						local texture_id = managers.blackmarket:get_texture_switch_from_data(texture_data, part_id)
@@ -171,7 +170,7 @@ function NewRaycastWeaponBase:has_range_distance_scope()
 
 	end
 
-	(for control) = nil and self._parts
+	return false
 end
 
 function NewRaycastWeaponBase:set_scope_range_distance(distance)
@@ -302,7 +301,7 @@ function NewRaycastWeaponBase:_update_stats_values()
 
 	end
 
-	self._current_stats = managers.player and {}
+	self._current_stats = {}
 	do
 		local (for generator), (for state), (for control) = pairs(stats)
 		do
@@ -316,7 +315,6 @@ function NewRaycastWeaponBase:_update_stats_values()
 
 	end
 
-	(for control) = managers.player and self._current_stats
 	self._current_stats.alert_size = tweak_data.alert_size[math_clamp(stats.alert_size, 1, #tweak_data.alert_size)]
 	if modifier_stats and modifier_stats.alert_size then
 		self._current_stats.alert_size = self._current_stats.alert_size * modifier_stats.alert_size
@@ -452,7 +450,6 @@ function NewRaycastWeaponBase:stance_mod()
 
 	end
 
-	(for control) = nil and factory.parts
 	return {translation = translation, rotation = rotation}
 end
 
@@ -482,7 +479,6 @@ function NewRaycastWeaponBase:tweak_data_anim_play(anim, speed_multiplier)
 
 	end
 
-	(for control) = self._unit and data.animations
 	NewRaycastWeaponBase.super.tweak_data_anim_play(self, anim, speed_multiplier)
 	return true
 end
@@ -507,7 +503,6 @@ function NewRaycastWeaponBase:tweak_data_anim_stop(anim)
 
 	end
 
-	(for control) = Idstring(anim_name) and data.animations
 	NewRaycastWeaponBase.super.tweak_data_anim_stop(self, anim)
 end
 
@@ -566,13 +561,7 @@ function NewRaycastWeaponBase:can_toggle_firemode()
 end
 
 function NewRaycastWeaponBase:toggle_firemode()
-	if not self._locked_fire_mode then
-		-- unhandled boolean indicator
-	else
-		local can_toggle = true
-	end
-
-	if can_toggle then
+	if self._locked_fire_mode then
 		if self._fire_mode == ids_single then
 			self._fire_mode = ids_auto
 			self._sound_fire:post_event("wp_auto_switch_on")
@@ -643,6 +632,39 @@ function NewRaycastWeaponBase:set_gadget_on(gadget_on, ignore_enable, gadgets)
 
 	self._gadget_on = gadget_on or self._gadget_on
 	gadgets = gadgets or managers.weapon_factory:get_parts_from_weapon_by_type_or_perk("gadget", self._factory_id, self._blueprint)
+	if gadgets then
+		do
+			local xd, yd
+			local part_factory = tweak_data.weapon.factory.parts
+			table.sort(gadgets, function(x, y)
+				xd = self._parts[x]
+				yd = self._parts[y]
+				if not xd then
+					return false
+				end
+
+				if not yd then
+					return true
+				end
+
+				return xd.unit:base().GADGET_TYPE > yd.unit:base().GADGET_TYPE
+			end
+)
+			local gadget
+			local (for generator), (for state), (for control) = ipairs(gadgets)
+			do
+				do break end
+				gadget = self._parts[id]
+				if gadget then
+					gadget.unit:base():set_state(self._gadget_on == i, self._sound_fire)
+				end
+
+			end
+
+		end
+
+	end
+
 end
 
 function NewRaycastWeaponBase:toggle_gadget()
@@ -704,7 +726,7 @@ function NewRaycastWeaponBase:gadget_toggle_requires_stance_update()
 
 	end
 
-	(for control) = nil and self._parts
+	return false
 end
 
 function NewRaycastWeaponBase:check_stats()
@@ -731,7 +753,7 @@ function NewRaycastWeaponBase:check_stats()
 
 	end
 
-	self._current_stats = managers.player and {}
+	self._current_stats = {}
 	do
 		local (for generator), (for state), (for control) = pairs(stats)
 		do
@@ -745,7 +767,6 @@ function NewRaycastWeaponBase:check_stats()
 
 	end
 
-	(for control) = managers.player and self._current_stats
 	self._current_stats.alert_size = tweak_data.alert_size[math_clamp(stats.alert_size, 1, #tweak_data.alert_size)]
 	if modifier_stats and modifier_stats.alert_size then
 		self._current_stats.alert_size = self._current_stats.alert_size * modifier_stats.alert_size
@@ -844,7 +865,6 @@ function NewRaycastWeaponBase:destroy(unit)
 
 	end
 
-	(for control) = nil and print
 	managers.weapon_factory:disassemble(self._parts)
 end
 

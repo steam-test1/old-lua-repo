@@ -426,7 +426,7 @@ function CopActionShoot:update(t)
 					end
 
 				else
-					firemode = "ai_vision" and 1
+					firemode = 1
 				end
 
 				if firemode > 1 then
@@ -499,7 +499,6 @@ function CopActionShoot:_get_shoot_falloff(target_dis, falloff)
 
 	end
 
-	(for control) = nil and range_data.r
 	return falloff[#falloff], #falloff
 end
 

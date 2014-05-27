@@ -40,7 +40,6 @@ function CoreRumbleHubElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = "left" and engines.append
 	engines:set_value(self._hed.rumble_engine)
 	engines_sizer:add(engines, 2, 0, "EXPAND")
 	engines:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {

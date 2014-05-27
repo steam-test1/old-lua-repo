@@ -40,7 +40,6 @@ function IngameIncapacitatedState:at_enter()
 
 	end
 
-	(for control) = nil and player.camera
 	managers.statistics:downed({incapacitated = true})
 	local player = managers.player:player_unit()
 	if player then

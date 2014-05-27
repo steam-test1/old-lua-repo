@@ -72,7 +72,7 @@ function DLCTweakData:init(tweak_data)
 
 		end
 
-		self.starter_kit_mask = "irondoom" and {}
+		self.starter_kit_mask = {}
 		self.starter_kit_mask.free = true
 		self.starter_kit_mask.content = {}
 		self.starter_kit_mask.content.loot_global_value = "normal"

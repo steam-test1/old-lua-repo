@@ -226,7 +226,6 @@ function CoreMaterialEditor:_create_parameter_panel()
 
 	end
 
-	(for control) = nil and v.destroy
 	self._parent_combo_box:set_value(self._current_material_node and self._current_material_node:parameter("src") or "[NONE]")
 	self._material_parameter_widgets = {}
 	local len = #self._current_render_template:variables()
@@ -260,7 +259,6 @@ function CoreMaterialEditor:_create_parameter_panel()
 
 	end
 
-	(for control) = self._current_render_template:variables() and nil
 	local widget = self._parameter_widgets.separator:new(self._parameter_collapse_box:lower_panel())
 	self._material_parameter_widgets.separator = widget
 	self._parameter_collapse_box:box():add(widget:panel(), 0, 4, "ALL,EXPAND")

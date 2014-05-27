@@ -95,7 +95,6 @@ function MenuNodeUpdatesGui:_db_result_recieved(success, page)
 	end
 
 	self._db_items = items
-	(for control) = nil and self._get_text
 	if alive(self._loading_bitmap) then
 		self._loading_bitmap:parent():remove(self._loading_bitmap)
 	end
@@ -117,7 +116,7 @@ function MenuNodeUpdatesGui:_db_result_recieved(success, page)
 
 	end
 
-	(for control) = nil and self._db_items
+	self:set_latest_text()
 end
 
 function MenuNodeUpdatesGui:_get_text(s, sp, ep)
@@ -429,7 +428,6 @@ function MenuNodeUpdatesGui:setup()
 
 	end
 
-	(for control) = previous_updates_panel:top() and small_width
 	BoxGuiObject:new(previous_updates_panel, {
 		sides = {
 			1,
@@ -447,14 +445,6 @@ function MenuNodeUpdatesGui:setup()
 
 	end
 
-	(for control) = {
-		sides = {
-			1,
-			1,
-			1,
-			1
-		}
-	} and box.hide
 	self:set_latest_content(latest_update, true)
 	self._current_page = current_page
 	self._num_pages = math.ceil(#content_updates / num_previous_updates)
@@ -544,7 +534,7 @@ function MenuNodeUpdatesGui:check_inside(x, y)
 
 	end
 
-	(for control) = nil and previous_updates_panel.child
+	return nil
 end
 
 function MenuNodeUpdatesGui:mouse_moved(o, x, y)
@@ -624,7 +614,6 @@ function MenuNodeUpdatesGui:mouse_moved(o, x, y)
 
 				end
 
-				(for control) = top_button:children() and child.set_color
 				managers.menu_component:post_event("highlight")
 			end
 
@@ -641,7 +630,6 @@ function MenuNodeUpdatesGui:mouse_moved(o, x, y)
 
 	end
 
-	(for control) = top_button:children() and child.set_color
 	local content_highlighted = self:check_inside(x, y)
 	if self:set_latest_content(content_highlighted, moved) then
 		return true, self._pressed and (self._pressed == content_highlighted and "link" or "arrow") or "link"
@@ -817,6 +805,7 @@ function MenuNodeUpdatesGui:set_latest_content(content_highlighted, moved, refre
 
 	end
 
+	return result
 end
 
 function MenuNodeUpdatesGui:move_highlight(x, y)
@@ -896,7 +885,6 @@ function MenuNodeUpdatesGui:unretrieve_textures()
 
 	end
 
-	(for control) = nil and managers
 	if self._lastest_texture_request then
 		managers.menu_component:unretrieve_texture(self._lastest_texture_request.texture, self._lastest_texture_request.texture_count)
 	end

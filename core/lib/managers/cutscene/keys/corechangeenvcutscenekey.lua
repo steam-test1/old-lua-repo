@@ -60,6 +60,6 @@ function CoreChangeEnvCutsceneKey:refresh_control_for_name(control)
 
 	end
 
-	(for control) = managers.database:list_entries_of_type("environment") and control.append
+	control:thaw()
 end
 

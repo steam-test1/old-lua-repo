@@ -236,7 +236,6 @@ function WorldDefinition:parse_continents(node, t)
 					end
 
 				else
-					(for control) = nil and self._continent_definitions
 					Application:error("Continent file " .. path .. ".continent doesnt exist.")
 				end
 
@@ -269,7 +268,6 @@ function WorldDefinition:init_done()
 
 	end
 
-	(for control) = nil and self._unload_package
 	self:_unload_package(self._current_world_init_package)
 	self._continent_definitions = nil
 	self._definition = nil
@@ -302,7 +300,6 @@ function WorldDefinition:create(layer, offset)
 		return_data = t
 	end
 
-	(for control) = nil and continent.values
 	if layer == "editor_groups" then
 		return_data = self:_create_editor_groups()
 	end
@@ -324,8 +321,7 @@ function WorldDefinition:create(layer, offset)
 
 	end
 
-	do break end
-	if layer == "all" and self._definition.ai_nav_graphs then
+	if (layer == "ai" or layer == "all") and self._definition.ai_nav_graphs then
 		self:_load_ai_nav_graphs(self._definition.ai_nav_graphs, offset)
 		Application:cleanup_thread_garbage()
 	end
@@ -361,10 +357,8 @@ function WorldDefinition:create(layer, offset)
 
 			end
 
-			(for control) = unit and return_data.scripts
 		end
 
-		(for control) = offset and pairs
 		local (for generator), (for state), (for control) = pairs(self._continent_definitions)
 		do
 			do break end
@@ -380,26 +374,22 @@ function WorldDefinition:create(layer, offset)
 
 				end
 
-				(for control) = nil and return_data.scripts
 			end
 
 		end
 
-		(for control) = unit and pairs
 	end
 
-	do break end
-	if self._definition.mission then
-		local (for generator), (for state), (for control) = ipairs(self._definition.mission)
-		do
-			do break end
-			table.insert(return_data, self:_create_mission_unit(values, offset))
+	if layer == "mission" then
+		if self._definition.mission then
+			local (for generator), (for state), (for control) = ipairs(self._definition.mission)
+			do
+				do break end
+				table.insert(return_data, self:_create_mission_unit(values, offset))
+			end
+
 		end
 
-	end
-
-	(for control) = offset and table
-	do
 		local (for generator), (for state), (for control) = pairs(self._continent_definitions)
 		do
 			do break end
@@ -414,11 +404,9 @@ function WorldDefinition:create(layer, offset)
 
 		end
 
-		(for control) = self:_create_mission_unit(values, offset) and table
 	end
 
-	do break end
-	if layer == "all" and self._definition.brush then
+	if (layer == "brush" or layer == "all") and self._definition.brush then
 		self:_create_massunit(self._definition.brush, offset)
 	end
 
@@ -442,8 +430,7 @@ function WorldDefinition:create(layer, offset)
 
 	end
 
-	do break end
-	if layer == "all" then
+	if layer == "statics" or layer == "all" then
 		if self._definition.statics then
 			local (for generator), (for state), (for control) = ipairs(self._definition.statics)
 			do
@@ -457,7 +444,6 @@ function WorldDefinition:create(layer, offset)
 
 		end
 
-		(for control) = environment and self._create_statics_unit
 		local (for generator), (for state), (for control) = pairs(self._continent_definitions)
 		do
 			do break end
@@ -476,11 +462,9 @@ function WorldDefinition:create(layer, offset)
 
 		end
 
-		(for control) = unit and self._create_statics_unit
 	end
 
-	do break end
-	if layer == "all" then
+	if layer == "dynamics" or layer == "all" then
 		if self._definition.dynamics then
 			local (for generator), (for state), (for control) = ipairs(self._definition.dynamics)
 			do
@@ -490,7 +474,6 @@ function WorldDefinition:create(layer, offset)
 
 		end
 
-		(for control) = environment and table
 		local (for generator), (for state), (for control) = pairs(self._continent_definitions)
 		do
 			do break end
@@ -509,9 +492,9 @@ function WorldDefinition:create(layer, offset)
 
 		end
 
-		(for control) = self:_create_dynamics_unit(values, offset) and self._create_dynamics_unit
 	end
 
+	return return_data
 end
 
 function WorldDefinition:_load_level_settings(data, offset)
@@ -552,7 +535,7 @@ function WorldDefinition:_create_portal(data, offset)
 			end
 
 			local top = portal.top
-			local bottom = nil and portal.bottom
+			local bottom = portal.bottom
 			if top == 0 and bottom == 0 then
 				top, bottom = nil, nil
 			end
@@ -562,7 +545,7 @@ function WorldDefinition:_create_portal(data, offset)
 
 	end
 
-	data.unit_groups._meta = nil and nil
+	data.unit_groups._meta = nil
 	local (for generator), (for state), (for control) = pairs(data.unit_groups)
 	do
 		do break end
@@ -577,7 +560,6 @@ function WorldDefinition:_create_portal(data, offset)
 
 		end
 
-		(for control) = t and group.add_shape
 		group:set_ids(data.ids)
 	end
 
@@ -599,7 +581,6 @@ function WorldDefinition:_create_editor_groups()
 
 	end
 
-	(for control) = nil and values.name
 	do
 		local (for generator), (for state), (for control) = pairs(self._continent_definitions)
 		do
@@ -619,10 +600,8 @@ function WorldDefinition:_create_editor_groups()
 
 		end
 
-		(for control) = nil and values.name
 	end
 
-	(for control) = nil and continent.editor_groups
 	return {groups = groups, group_names = group_names}
 end
 
@@ -647,7 +626,6 @@ function WorldDefinition:_create_sounds(data)
 
 	end
 
-	(for control) = "No sound will be loaded!" and managers
 	do
 		local (for generator), (for state), (for control) = ipairs(values.sound_emitters)
 		do
@@ -657,7 +635,6 @@ function WorldDefinition:_create_sounds(data)
 
 	end
 
-	(for control) = "No sound will be loaded!" and managers
 	local (for generator), (for state), (for control) = ipairs(values.sound_area_emitters)
 	do
 		do break end
@@ -692,7 +669,6 @@ function WorldDefinition:_create_massunit(data, offset)
 
 	end
 
-	(for control) = path:id() and DB
 	MassUnitManager:delete_all_units()
 	MassUnitManager:load(path:id(), offset, self._massunit_replace_names)
 end
@@ -759,7 +735,6 @@ function WorldDefinition:_create_environment(data, offset)
 
 	end
 
-	(for control) = (wind.speed_variation or 1) and Idstring
 	do
 		local (for generator), (for state), (for control) = ipairs(data.environment_areas)
 		do
@@ -769,7 +744,6 @@ function WorldDefinition:_create_environment(data, offset)
 
 	end
 
-	(for control) = (wind.speed_variation or 1) and managers
 	if Application:editor() then
 		local units = {}
 		do
@@ -785,7 +759,6 @@ function WorldDefinition:_create_environment(data, offset)
 		data.units = units
 	end
 
-	(for control) = 5 and self.make_unit
 	if data.dome_occ_shapes then
 		local shape_data = data.dome_occ_shapes[1]
 		if shape_data then
@@ -830,7 +803,6 @@ function WorldDefinition:_create_mission_unit(data, offset)
 
 		end
 
-		(for control) = nil and unit.mission_element_data
 		unit:mission_element():post_init()
 	end
 
@@ -873,6 +845,7 @@ function WorldDefinition:_create_ai_editor_unit(data, offset)
 
 	end
 
+	return unit
 end
 
 function WorldDefinition:preload_unit(name)
@@ -1256,7 +1229,7 @@ function WorldDefinition:use_me(unit, is_editor)
 
 		end
 
-		self._trigger_units[id] = nil and nil
+		self._trigger_units[id] = nil
 	end
 
 	if self._use_unit_callbacks[id] then
@@ -1269,7 +1242,7 @@ function WorldDefinition:use_me(unit, is_editor)
 
 		end
 
-		self._use_unit_callbacks[id] = nil and nil
+		self._use_unit_callbacks[id] = nil
 	end
 
 end

@@ -71,7 +71,6 @@ function SimpleGUIEffectSpewer:_particles_update(t, dt)
 
 	end
 
-	(for control) = self._spew_panel:tree_visible() and particle_data.pt
 	local (for generator), (for state), (for control) = ipairs(dead_particles)
 	do
 		do break end

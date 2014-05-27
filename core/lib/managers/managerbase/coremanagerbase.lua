@@ -76,12 +76,6 @@ function ManagerBase:_all_active_requested_by_prio(prio)
 end
 
 function ManagerBase:_prioritize_and_activate()
--- fail 26
-null
-4
--- fail 60
-null
-4
 	self.__active_requested = table.find_all_values(self.__aos, function(ao)
 		return ao:active_requested()
 	end
@@ -96,7 +90,6 @@ null
 
 	end
 
-	(for control) = nil and math
 	do
 		local (for generator), (for state), (for control) = pairs(self.__ao2prio)
 		do
@@ -139,5 +132,36 @@ null
 end
 
 function ManagerBase:end_update(t, dt)
+	if self.__changed then
+		local p2aos = {}
+		do
+			local (for generator), (for state), (for control) = pairs(self.__ao2prio)
+			do
+				do break end
+				p2aos[p] = p2aos[p] or {}
+				table.insert(p2aos[p], ao)
+			end
+
+		end
+
+		cat_print("spam", "[ManagerBase] During this frame activation states changed for manager " .. string.upper(self.__name) .. ":")
+		cat_print("spam", "[ManagerBase]   <name>           <prio> <active> <really_active>")
+		do
+			local (for generator), (for state), (for control) = ipairs(table.map_keys(p2aos))
+			do
+				do break end
+				local (for generator), (for state), (for control) = ipairs(p2aos[p])
+				do
+					do break end
+					cat_print("spam", string.format("[ManagerBase]    %-15s %5d   %-6s   %s", tostring(ao:name()), p, ao:active_requested() and "YES" or "no", ao:really_active() and "YES" or "no"))
+				end
+
+			end
+
+		end
+
+		self.__changed = false
+	end
+
 end
 

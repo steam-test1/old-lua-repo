@@ -18,7 +18,7 @@ function CoreMacroToolbar:reload_macros()
 
 	end
 
-	self._macros = nil and {}
+	self._macros = {}
 	local node = File:parse_xml(self._macro_file)
 	if node then
 		do
@@ -42,7 +42,6 @@ function CoreMacroToolbar:reload_macros()
 
 		end
 
-		(for control) = nil and macro.parameter
 		self._toolbar_panel:layout()
 	end
 

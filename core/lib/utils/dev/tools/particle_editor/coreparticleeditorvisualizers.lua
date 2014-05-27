@@ -19,7 +19,6 @@ To scale the intensity over time, use the color.]])
 
 	end
 
-	(for control) = defintensity and p.add_value
 	visualizer:add_property(p)
 	help = [[
 Determines alignment type of billboard:
@@ -313,7 +312,6 @@ To scale the intensity over time, use the color.]])
 
 	end
 
-	(for control) = "value_list" and p.add_value
 	visualizer:add_property(p)
 	help = [[
 Determines how billboard is blended against the background:

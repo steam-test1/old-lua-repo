@@ -55,7 +55,6 @@ function TextTemplateBase:_stock_ticker()
 
 	end
 
-	(for control) = "GenSEC" and TextTemplateBase
 	local (for generator), (for state), (for control) = ipairs(companies)
 	do
 		do break end
@@ -101,7 +100,6 @@ function TextTemplateBase:_big_bank_welcome()
 
 	end
 
-	(for control) = "Stock" and self._unit
 	local (for generator), (for state), (for control) = ipairs(texts2)
 	do
 		do break end

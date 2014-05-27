@@ -116,7 +116,7 @@ function DigitalGui:update(unit, t, dt)
 
 		end
 
-		(for control) = managers.network:session():peers() and math
+		self:_update_timer_text()
 	end
 
 end

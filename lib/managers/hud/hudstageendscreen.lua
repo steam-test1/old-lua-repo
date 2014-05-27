@@ -283,7 +283,6 @@ function HUDStageEndScreen:init(hud, workspace)
 
 		end
 
-		(for control) = managers.localization:text("menu_risk") and tweak_data
 		pg_text:set_color(risk_color)
 		self._paygrade_panel:set_h(panel_h)
 		self._paygrade_panel:set_w(panel_w)
@@ -699,6 +698,7 @@ function HUDStageEndScreen:_create_bonus(params)
 
 	end
 
+	return bonus_panel
 end
 
 function HUDStageEndScreen:bonus_risk(panel, delay, bonus)
@@ -1077,6 +1077,19 @@ function HUDStageEndScreen:_check_special_packages()
 		table.insert(package_items, gage_package)
 	end
 
+	if #package_items > 0 then
+		do
+			local (for generator), (for state), (for control) = ipairs(self._package_items)
+			do
+				do break end
+				item:close()
+			end
+
+		end
+
+		self._package_items = package_items
+	end
+
 end
 
 function HUDStageEndScreen:stop_stage()
@@ -1185,7 +1198,7 @@ function HUDStageEndScreen:create_money_counter(t, dt)
 
 		end
 
-		(for control) = nil and d[2]
+		return true
 	end
 
 	self._money = {}
@@ -1534,7 +1547,7 @@ function HUDStageEndScreen:stage_init(t, dt)
 	end
 
 	local delay = 0.8
-	local y = (heat >= 0 and "menu_es_heat_bonus" or "menu_es_heat_reduction") and 0
+	local y = 0
 	if SystemInfo:platform() == Idstring("WIN32") then
 	end
 
@@ -1901,7 +1914,7 @@ function HUDStageEndScreen:level_up(level)
 
 		end
 
-		self._package_items, (for control) = {}, nil and item.close
+		self._package_items = {}
 		wait(0.6)
 		local new_items = {}
 		if data.announcements then
@@ -1913,7 +1926,6 @@ function HUDStageEndScreen:level_up(level)
 
 		end
 
-		(for control) = nil and table
 		if data.upgrades then
 			local (for generator), (for state), (for control) = ipairs(data.upgrades)
 			do
@@ -1926,7 +1938,6 @@ function HUDStageEndScreen:level_up(level)
 
 		end
 
-		(for control) = nil and managers
 		self._package_forepanel:child("title_text"):set_text(managers.localization:to_upper_text("menu_es_package_unlocked_" .. (#new_items == 1 and "singular" or "plural")))
 		if #new_items > 2 then
 			Application:error("HUDStageEndScreen: Please, max 2 announcements+upgrades per level in tweak_data.level_tree, rest will not be shown in gui!")
@@ -2227,66 +2238,59 @@ function HUDStageEndScreen:animate_level_progress(o, data)
 						item_string = item_string .. managers.localization:text(string_id) .. "\n"
 					end
 
-				else
-					(for control) = utf8.to_upper(managers.localization:text("menu_es_announcements")) and item_string
-					if data.upgrades then
-						self._package_unlocked_text:set_text(utf8.to_upper(managers.localization:text("menu_package_unlocked") .. ": '" .. managers.localization:text(data.name_id) .. "'"))
-						self._package_upgrade_text:set_text(utf8.to_upper(managers.localization:text("menu_package_upgrade", {
-							package = data.name_id
-						})))
-						self._package_unlocked_text:set_align("left")
+				elseif data.upgrades then
+					self._package_unlocked_text:set_text(utf8.to_upper(managers.localization:text("menu_package_unlocked") .. ": '" .. managers.localization:text(data.name_id) .. "'"))
+					self._package_upgrade_text:set_text(utf8.to_upper(managers.localization:text("menu_package_upgrade", {
+						package = data.name_id
+					})))
+					self._package_unlocked_text:set_align("left")
+					do
+						local (for generator), (for state), (for control) = ipairs(data.upgrades)
 						do
-							local (for generator), (for state), (for control) = ipairs(data.upgrades)
-							do
-								do break end
-								local upgrade = tweak_data.upgrades.definitions[id]
-								if upgrade then
-									local category = upgrade.category
-									local upgrade_string = ""
-									local localized = false
-									if category == "weapon" then
-										upgrade_string = managers.weapon_factory:get_weapon_name_by_factory_id(upgrade.factory_id)
-										localized = true
-									elseif category == "crafting" then
-										upgrade_string = tweak_data.weapon[upgrade.weapon_id].name_id
-									elseif category == "equipment" or category == "armor" or category == "ammo" or category == "what_is_this" then
-										upgrade_string = upgrade.name_id
-									elseif category == "rep_upgrade" then
-										upgrade_string = "menu_es_rep_upgrade"
-									end
-
-									if not localized then
-										item_string = item_string .. managers.localization:text(upgrade_string) .. "\n"
-									else
-										item_string = item_string .. upgrade_string .. "\n"
-									end
-
-								else
-									item_string = item_string .. "! " .. id .. " !" .. "\n"
+							do break end
+							local upgrade = tweak_data.upgrades.definitions[id]
+							if upgrade then
+								local category = upgrade.category
+								local upgrade_string = ""
+								local localized = false
+								if category == "weapon" then
+									upgrade_string = managers.weapon_factory:get_weapon_name_by_factory_id(upgrade.factory_id)
+									localized = true
+								elseif category == "crafting" then
+									upgrade_string = tweak_data.weapon[upgrade.weapon_id].name_id
+								elseif category == "equipment" or category == "armor" or category == "ammo" or category == "what_is_this" then
+									upgrade_string = upgrade.name_id
+								elseif category == "rep_upgrade" then
+									upgrade_string = "menu_es_rep_upgrade"
 								end
 
+								if not localized then
+									item_string = item_string .. managers.localization:text(upgrade_string) .. "\n"
+								else
+									item_string = item_string .. upgrade_string .. "\n"
+								end
+
+							else
+								item_string = item_string .. "! " .. id .. " !" .. "\n"
 							end
 
 						end
 
-						(for control) = utf8.to_upper(managers.localization:text("menu_package_upgrade", {
-							package = data.name_id
-						})) and tweak_data
-						local first_upgrade = tweak_data.upgrades.definitions[data.upgrades[1]]
-						if first_upgrade and first_upgrade.category == "weapon" then
-							local guis_catalog = "guis/"
-							local weapon_id = first_upgrade.weapon_id
-							local bundle_folder = tweak_data.weapon[weapon_id] and tweak_data.weapon[weapon_id].texture_bundle_folder
-							if bundle_folder then
-								guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
-							end
+					end
 
-							local texture_name = tweak_data.weapon[weapon_id].texture_name or tostring(weapon_id)
-							self._package_picture:set_image(guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name)
-						else
-							self._package_picture:set_image("guis/textures/pd2/endscreen/test_icon_package")
+					local first_upgrade = tweak_data.upgrades.definitions[data.upgrades[1]]
+					if first_upgrade and first_upgrade.category == "weapon" then
+						local guis_catalog = "guis/"
+						local weapon_id = first_upgrade.weapon_id
+						local bundle_folder = tweak_data.weapon[weapon_id] and tweak_data.weapon[weapon_id].texture_bundle_folder
+						if bundle_folder then
+							guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 						end
 
+						local texture_name = tweak_data.weapon[weapon_id].texture_name or tostring(weapon_id)
+						self._package_picture:set_image(guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name)
+					else
+						self._package_picture:set_image("guis/textures/pd2/endscreen/test_icon_package")
 					end
 
 				end

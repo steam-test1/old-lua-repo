@@ -21,15 +21,17 @@ function AmmoClip:_pickup(unit)
 
 		end
 
-		do break end
-		self._picked_up = true
-		if Network:is_client() then
-			managers.network:session():send_to_host("sync_pickup", self._unit)
+		if picked_up then
+			self._picked_up = true
+			if Network:is_client() then
+				managers.network:session():send_to_host("sync_pickup", self._unit)
+			end
+
+			unit:sound():play("pickup_ammo", nil, true)
+			self:consume()
+			return true
 		end
 
-		unit:sound():play("pickup_ammo", nil, true)
-		self:consume()
-		return true
 	end
 
 	return false

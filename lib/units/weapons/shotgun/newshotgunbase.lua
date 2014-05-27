@@ -123,8 +123,7 @@ function NewShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, s
 
 	end
 
-	do break end
-	if self._suppression then
+	if dodge_enemies and self._suppression then
 		local (for generator), (for state), (for control) = pairs(dodge_enemies)
 		do
 			do break end
@@ -133,7 +132,6 @@ function NewShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, s
 
 	end
 
-	(for control) = nil and enemy_data.unit
 	result.hit_enemy = next(hit_enemies) and true or false
 	if self._alert_events then
 		result.rays = #col_rays > 0 and col_rays
@@ -156,6 +154,7 @@ function NewShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, s
 
 	end
 
+	return result
 end
 
 function NewShotgunBase:reload_expire_t()

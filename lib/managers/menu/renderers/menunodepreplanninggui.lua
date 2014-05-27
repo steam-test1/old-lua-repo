@@ -98,7 +98,7 @@ function MenuNodePrePlanningGui:_rec_round_object(object)
 
 	end
 
-	local x, y = object:children() and object:position(), object:position()
+	local x, y = object:position()
 	object:set_position(math.round(x), math.round(y))
 end
 
@@ -181,7 +181,6 @@ function MenuNodePrePlanningGui:mouse_released(button, x, y)
 
 	end
 
-	(for control) = nil and row_item.gui_panel
 	if MenuNodePrePlanningGui.super.mouse_released(self, button, x, y) then
 		return true
 	end

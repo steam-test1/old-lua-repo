@@ -175,7 +175,6 @@ function SecurityLockGui:_set_powered(powered)
 		end
 
 	else
-		(for control) = self._gui_script.panel:children() and self._original_colors
 		local (for generator), (for state), (for control) = ipairs(self._gui_script.panel:children())
 		do
 			do break end
@@ -259,7 +258,6 @@ function SecurityLockGui:load(data)
 
 	end
 
-	(for control) = nil and self._set_done
 	if state.update_enabled then
 		self:_start(state.current_bar, state.timer, state.current_timer)
 		if not state.powered then

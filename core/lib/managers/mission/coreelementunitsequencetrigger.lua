@@ -27,6 +27,7 @@ function ElementUnitSequenceTrigger:on_script_activated()
 
 	end
 
+	self._has_active_callback = true
 end
 
 function ElementUnitSequenceTrigger:send_to_host(instigator)

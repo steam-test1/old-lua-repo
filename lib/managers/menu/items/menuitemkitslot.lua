@@ -2,9 +2,6 @@ core:import("CoreMenuItem")
 MenuItemKitSlot = MenuItemKitSlot or class(CoreMenuItem.Item)
 MenuItemKitSlot.TYPE = "kitslot"
 function MenuItemKitSlot:init(data_node, parameters)
--- fail 35
-null
-6
 	CoreMenuItem.Item.init(self, data_node, parameters)
 	self._type = MenuItemKitSlot.TYPE
 	self._options = {}

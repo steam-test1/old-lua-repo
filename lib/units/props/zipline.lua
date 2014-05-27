@@ -534,7 +534,6 @@ function ZipLine:release_bag()
 		self._bag_disabled_collisions = nil
 	end
 
-	(for control) = nil and body.set_dynamic
 	self._attached_bag:carry_data():set_zipline_unit(nil)
 	self:run_sequence("on_detached_bag", self._attached_bag)
 	self._attached_bag = nil

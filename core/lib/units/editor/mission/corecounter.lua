@@ -50,7 +50,6 @@ function CoreCounterUnitElement:update_selected()
 
 	end
 
-	(for control) = nil and alive
 	local (for generator), (for state), (for control) = pairs(self._digital_gui_units)
 	do
 		do break end
@@ -87,7 +86,6 @@ function CoreCounterUnitElement:update_unselected(t, dt, selected_unit, all_unit
 
 	end
 
-	(for control) = nil and alive
 	local (for generator), (for state), (for control) = pairs(self._digital_gui_units)
 	do
 		do break end

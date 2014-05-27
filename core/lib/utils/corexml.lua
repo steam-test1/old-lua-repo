@@ -77,6 +77,7 @@ function save_table_value_string(in_table, string, t)
 
 	end
 
+	return string
 end
 
 function parse_values_node(node)
@@ -91,6 +92,7 @@ function parse_values_node(node)
 
 	end
 
+	return t
 end
 
 function parse_value_node(node)
@@ -110,7 +112,6 @@ function parse_value_node(node)
 
 		end
 
-		(for control) = nil and table_node.parameter
 		return value_name, t
 	end
 

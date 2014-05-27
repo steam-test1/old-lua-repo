@@ -110,7 +110,6 @@ function DynamicLayer:update(t, dt)
 
 	end
 
-	(for control) = self._marker_sphere_size and alive
 	if self._selected_unit then
 		Application:draw(self._selected_unit, 0, 1, 0)
 		if self._unit_picked then

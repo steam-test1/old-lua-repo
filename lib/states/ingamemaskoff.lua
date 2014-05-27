@@ -22,7 +22,6 @@ function IngameMaskOffState:at_enter()
 
 	end
 
-	(for control) = nil and player.camera
 	if not managers.hud:exists(self._MASK_OFF_HUD) then
 		managers.hud:load_hud(self._MASK_OFF_HUD, false, false, true, {})
 	end

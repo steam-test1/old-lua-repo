@@ -500,7 +500,6 @@ function CoreEditor:_init_controller()
 
 	end
 
-	(for control) = devices and self._ctrl
 	do
 		local (for generator), (for state), (for control) = pairs(self._layer_bindings)
 		do
@@ -511,7 +510,6 @@ function CoreEditor:_init_controller()
 
 	end
 
-	(for control) = devices and ctrl_layer.connect
 	do
 		local (for generator), (for state), (for control) = pairs(self._menu_bindings)
 		do
@@ -522,7 +520,7 @@ function CoreEditor:_init_controller()
 	end
 
 	self._bindings = nil
-	self._layer_bindings = devices and nil
+	self._layer_bindings = nil
 	ctrl_layer:connect(mouse, Idstring("0"), Idstring("lmb"))
 	ctrl_layer:connect(mouse, Idstring("1"), Idstring("rmb"))
 	ctrl_layer:connect(mouse, Idstring("2"), Idstring("mmb"))
@@ -832,7 +830,7 @@ function CoreEditor:set_up_portals(mask)
 			end
 
 			local top = portal.top
-			local bottom = portals:get_portal_shapes() and portal.bottom
+			local bottom = portal.bottom
 			if top == 0 and bottom == 0 then
 				top, bottom = nil, nil
 			end
@@ -842,7 +840,6 @@ function CoreEditor:set_up_portals(mask)
 
 	end
 
-	(for control) = portals:get_portal_shapes() and {}
 	local units = World:find_units_quick("all", mask)
 	local (for generator), (for state), (for control) = ipairs(units)
 	do
@@ -881,6 +878,7 @@ function CoreEditor:go_through_all_units(mask)
 
 	end
 
+	return units
 end
 
 function CoreEditor:_project_check_unit(...)
@@ -968,7 +966,6 @@ function CoreEditor:_show_error_log()
 
 		end
 
-		(for control) = nil and errors
 		local dialog = EWS:Dialog(nil, "You got errors!", "", Vector3(400, 200, 0), Vector3(400, 400, 0), "DEFAULT_DIALOG_STYLE,RESIZE_BORDER,STAY_ON_TOP,MAXIMIZE_BOX")
 		local dialog_sizer = EWS:BoxSizer("VERTICAL")
 		dialog:set_sizer(dialog_sizer)
@@ -1043,7 +1040,6 @@ function CoreEditor:close_editing()
 
 	end
 
-	(for control) = nil and self._left_toolbar
 	self._info_frame:set_visible(true)
 	self._edit_panel:set_visible(false)
 	self._edit_panel:layout()
@@ -1146,7 +1142,6 @@ function CoreEditor:on_hide_selected()
 
 		end
 
-		(for control) = clone(self._current_layer:selected_units()) and self.set_unit_visible
 		self._current_layer:update_unit_settings()
 	end
 
@@ -1267,7 +1262,6 @@ function CoreEditor:deleted_unit(unit)
 
 	end
 
-	(for control) = nil and dialog.visible
 	if unit:unit_data().editor_groups then
 		local groups = clone(unit:unit_data().editor_groups)
 		local (for generator), (for state), (for control) = ipairs(groups)
@@ -1305,7 +1299,6 @@ function CoreEditor:spawned_unit(unit)
 
 	end
 
-	(for control) = nil and dialog.visible
 	self:on_selected_unit(unit)
 end
 
@@ -1528,7 +1521,6 @@ function CoreEditor:save_editor_settings(path, dir)
 
 	end
 
-	(for control) = nil and Global
 	table.delete(self._recent_files, self:recent_file(self._lastfile))
 	table.insert(self._recent_files, 1, {
 		path = self._lastfile,
@@ -1546,10 +1538,6 @@ function CoreEditor:save_editor_settings(path, dir)
 
 	end
 
-	(for control) = {
-		path = self._lastfile,
-		dir = self._lastdir
-	} and self._rf_menu
 	local f = SystemFS:open(managers.database:base_path() .. self._editor_settings_path .. ".xml", "w")
 	f:puts("<editor>")
 	local t = "\t"
@@ -1563,7 +1551,6 @@ function CoreEditor:save_editor_settings(path, dir)
 
 	end
 
-	(for control) = "<last_dir value=\"" and f.puts
 	f:puts("</editor>")
 	SystemFS:close(f)
 end
@@ -1641,7 +1628,6 @@ function CoreEditor:save_configuration()
 
 	end
 
-	(for control) = nil and f.puts
 	f:puts("</editor_configuration>")
 	SystemFS:close(f)
 end
@@ -1680,7 +1666,6 @@ function CoreEditor:save_edit_setting_values()
 
 	end
 
-	(for control) = nil and f.puts
 	f:puts("</edit_setting_values>")
 	SystemFS:close(f)
 end
@@ -1746,10 +1731,8 @@ function CoreEditor:select_unit_name(name)
 
 		end
 
-		(for control) = layer:unit_types() and ud.type
 	end
 
-	(for control) = name:id() and ipairs
 	return name:s() .. " type " .. ud:type():s() .. " is in no layer."
 end
 
@@ -1828,7 +1811,6 @@ function CoreEditor:reload_units(unit_names, small_compile)
 
 		end
 
-		(for control) = nil and PackageManager
 		Application:data_compile({
 			platform = string.lower(SystemInfo:platform():s()),
 			source_root = managers.database:base_path(),
@@ -1856,15 +1838,6 @@ function CoreEditor:reload_units(unit_names, small_compile)
 
 	end
 
-	(for control) = {
-		platform = string.lower(SystemInfo:platform():s()),
-		source_root = managers.database:base_path(),
-		target_db_root = Application:base_path() .. "/assets",
-		target_db_name = "all",
-		source_files = files,
-		verbose = false,
-		send_idstrings = false
-	} and managers
 	self._current_layer:recreate_units(nil, reload_data)
 end
 
@@ -2063,7 +2036,6 @@ function CoreEditor:add_notebook_pages()
 
 	end
 
-	(for control) = "Brush" and self._layers
 	local (for generator), (for state), (for control) = pairs(self._layers)
 	do
 		do break end
@@ -2166,7 +2138,6 @@ function CoreEditor:add_triggers()
 
 		end
 
-		(for control) = callback(self, self, "change_continent_by_unit") and self._ctrl
 		if self._current_layer then
 			self._current_layer:add_triggers()
 		end
@@ -2425,7 +2396,6 @@ function CoreEditor:_draw_bodies(t, dt)
 		return
 	end
 
-	(for control) = Idstring("OverlayVertexColorTextured") and alive
 	local bodies = World:find_bodies("intersect", "sphere", self:camera_position(), 2500)
 	local (for generator), (for state), (for control) = ipairs(bodies)
 	do
@@ -2510,7 +2480,6 @@ function CoreEditor:update(time, rel_time)
 
 			end
 
-			(for control) = rel_time and Application
 			self._groups:update(time, rel_time)
 			if not self._camera_controller:creating_cube_map() then
 				if self._current_layer then
@@ -2525,7 +2494,6 @@ function CoreEditor:update(time, rel_time)
 
 			end
 
-			(for control) = rel_time and layer.update_always
 			if 0 < self._autosave_time then
 				self._autosave_timer = self._autosave_timer + rel_time
 				if self._autosave_timer > self._autosave_time * 60 then
@@ -2586,7 +2554,6 @@ function CoreEditor:update(time, rel_time)
 
 		end
 
-		(for control) = camera:far_range() and marker.draw
 		self:update_ruler(time, rel_time)
 		if self._dialogs.edit_unit then
 			self._dialogs.edit_unit:update(time, rel_time)
@@ -2664,20 +2631,22 @@ function CoreEditor:current_orientation(offset_move_vec, unit)
 
 		end
 
-		do break end
-		local p = ray.position + offset_move_vec
-		local x = math.round(p.x / self:grid_size()) * self:grid_size()
-		local y = math.round(p.y / self:grid_size()) * self:grid_size()
-		current_pos = Vector3(x, y, p.z)
-		local n = ray.normal
-		Application:draw_line(current_pos, current_pos + n * 2000, 0, 0, 1)
-		if alive(unit) then
-			local u_rot = unit:rotation()
-			local z = n
-			local x = u_rot:x() - z * z:dot(u_rot:x()):normalized()
-			local y = z:cross(x)
-			local rot = Rotation(x, y, z)
-			current_rot = rot * unit:rotation():inverse()
+		if ray then
+			local p = ray.position + offset_move_vec
+			local x = math.round(p.x / self:grid_size()) * self:grid_size()
+			local y = math.round(p.y / self:grid_size()) * self:grid_size()
+			current_pos = Vector3(x, y, p.z)
+			local n = ray.normal
+			Application:draw_line(current_pos, current_pos + n * 2000, 0, 0, 1)
+			if alive(unit) then
+				local u_rot = unit:rotation()
+				local z = n
+				local x = u_rot:x() - z * z:dot(u_rot:x()):normalized()
+				local y = z:cross(x)
+				local rot = Rotation(x, y, z)
+				current_rot = rot * unit:rotation():inverse()
+			end
+
 		end
 
 	end
@@ -2712,15 +2681,16 @@ function CoreEditor:current_orientation(offset_move_vec, unit)
 
 				end
 
-				(for control) = unit:orientation_object() and o.position
 				Application:draw(unit, 1, 0, 0)
 			end
 
 		end
 
-		do break end
-		current_pos = closest_snap:position()
-		current_rot = closest_snap:rotation() * unit:rotation():inverse()
+		if closest_snap then
+			current_pos = closest_snap:position()
+			current_rot = closest_snap:rotation() * unit:rotation():inverse()
+		end
+
 	end
 
 	self._current_pos = current_pos or self._current_pos
@@ -2845,7 +2815,7 @@ function CoreEditor:unit_by_raycast(data)
 
 	end
 
-	(for control) = data.from and data.sample
+	return nil
 end
 
 function CoreEditor:_unit_raycasts(mask, ray_type, from, to)
@@ -2875,7 +2845,7 @@ function CoreEditor:select_unit_by_raycast(mask, ray_type, from, to)
 
 	end
 
-	(for control) = from and self.select_unit_ok_conditions
+	return nil
 end
 
 function CoreEditor:select_unit_ok_conditions(unit, layer)
@@ -2937,7 +2907,6 @@ function CoreEditor:click_select_unit(layer)
 
 	end
 
-	(for control) = "editor_all" and ray.unit
 	layer:set_select_unit(nil)
 end
 
@@ -3008,7 +2977,6 @@ function CoreEditor:_copy_files(src, dest, rules)
 
 	end
 
-	(for control) = SystemFS:list(src) and table
 	do
 		local (for generator), (for state), (for control) = ipairs(SystemFS:list(src, true))
 		do
@@ -3024,10 +2992,8 @@ function CoreEditor:_copy_files(src, dest, rules)
 
 		end
 
-		(for control) = SystemFS:list(src .. "/" .. sub_dir) and table
 	end
 
-	(for control) = SystemFS:list(src, true) and ipairs
 	local (for generator), (for state), (for control) = ipairs(files)
 	do
 		do break end
@@ -3097,12 +3063,6 @@ function CoreEditor:do_save(path, dir, save_continents)
 
 	end
 
-	(for control) = nil and {
-		entry = "values",
-		continent = continent,
-		single_data_block = true,
-		data = values
-	}
 	do
 		local (for generator), (for state), (for control) = pairs(self._layers)
 		do
@@ -3113,7 +3073,6 @@ function CoreEditor:do_save(path, dir, save_continents)
 
 	end
 
-	(for control) = nil and {dir = dir}
 	self._groups:save()
 	local f = self:_open_file(path)
 	f:puts(ScriptSerializer:to_generic_xml(self._world_save_table))
@@ -3165,7 +3124,6 @@ function CoreEditor:_source_files(dir)
 
 	end
 
-	(for control) = SystemFS:list(dir) and table
 	do
 		local (for generator), (for state), (for control) = ipairs(SystemFS:list(dir, true))
 		do
@@ -3178,9 +3136,9 @@ function CoreEditor:_source_files(dir)
 
 		end
 
-		(for control) = SystemFS:list(dir .. "/" .. sub_dir) and table
 	end
 
+	return files
 end
 
 function CoreEditor:add_to_world_package(params)
@@ -3240,7 +3198,6 @@ function CoreEditor:_save_packages(dir)
 
 	end
 
-	(for control) = self._world_init_package_table and SystemFS
 	do
 		local (for generator), (for state), (for control) = pairs(self._continent_init_package_table)
 		do
@@ -3251,15 +3208,11 @@ function CoreEditor:_save_packages(dir)
 
 	end
 
-	(for control) = self._world_init_package_table and SystemFS
 	local sound_package = SystemFS:open(dir .. "\\world_sounds.package", "w")
 	self:_save_package(sound_package, self._world_sound_package_table)
 end
 
 function CoreEditor:_check_package_duplicity(params)
--- fail 44
-null
-16
 	local name = params.name
 	local path = params.path
 	local category = params.category
@@ -3292,20 +3245,15 @@ null
 
 	end
 
+	return found
 end
 
 function CoreEditor:_save_package(file, package_table, streaming_options)
--- fail 78
-null
-12
 	file:puts("<package>")
 	if streaming_options then
 		do
 			local streaming_element = "\t<streaming"
 			local function fill_platform_streaming_params(platform)
--- fail 20
-null
-4
 				if streaming_options[platform] and next(streaming_options[platform]) then
 					local platform_param = " " .. platform .. "=\""
 					do
@@ -3381,7 +3329,6 @@ null
 
 	end
 
-	(for control) = file and nil
 	file:puts("</package>")
 	SystemFS:close(file)
 end
@@ -3411,7 +3358,6 @@ function CoreEditor:_save_shadow_textures(dir)
 
 	end
 
-	(for control) = inspect(files) and managers
 	gui_file:puts("</gui>")
 	SystemFS:close(gui_file)
 	print("managers.database:entry_relative_path( path )", path, managers.database:entry_relative_path(path))
@@ -3434,7 +3380,7 @@ function CoreEditor:_shadow_texture_is_used(name_id)
 
 	end
 
-	(for control) = nil and continent._unit_ids
+	return false
 end
 
 function CoreEditor:_add_files_to_package(dir)
@@ -3484,7 +3430,6 @@ function CoreEditor:_save_continent_files(dir)
 
 		end
 
-		(for control) = nil and layer_files[save_name]
 		local continent_dir = dir .. "/" .. continent .. "/"
 		self:_make_dir(continent_dir)
 		local f = self:_open_file(continent_dir .. continent .. ".continent", self._continents[continent], true)
@@ -3520,7 +3465,6 @@ function CoreEditor:_save_continents_file(dir)
 
 	end
 
-	(for control) = nil and continent.values
 	local file = self:_open_file(dir .. "\\continents.continents")
 	file:puts(ScriptSerializer:to_generic_xml(continents))
 	SystemFS:close(file)
@@ -3539,9 +3483,6 @@ function CoreEditor:_save_mission_file(dir)
 
 	end
 
-	(for control) = nil and {
-		file = name .. "/" .. name
-	}
 	local mission = self:_open_file(dir .. "\\mission.mission")
 	mission:puts(ScriptSerializer:to_generic_xml(t))
 	SystemFS:close(mission)
@@ -3574,7 +3515,6 @@ function CoreEditor:_save_cover_ai_data(dir)
 
 	end
 
-	(for control) = managers.slot:get_mask("cover") and Vector3
 	local cover_ai_data = self:_open_file(dir .. "\\cover_data.cover_data")
 	cover_ai_data:puts(ScriptSerializer:to_generic_xml(covers))
 	SystemFS:close(cover_ai_data)
@@ -3635,7 +3575,6 @@ function CoreEditor:_save_unit_stats(dir)
 
 	end
 
-	(for control) = nil and unit_stats.puts
 	unit_stats:puts("")
 	unit_stats:puts("Total," .. total.amount .. "," .. total.geometry_memory)
 	SystemFS:close(unit_stats)
@@ -3674,7 +3613,6 @@ function CoreEditor:get_unit_stats()
 
 	end
 
-	(for control) = nil and total.amount
 	return data, total
 end
 
@@ -3727,7 +3665,6 @@ function CoreEditor:model_vertices(u, prefix)
 
 	end
 
-	(for control) = u:get_objects_by_type(Idstring("model")) and string
 	return string.format("%.4f", vertices)
 end
 
@@ -3782,7 +3719,6 @@ function CoreEditor:do_load()
 
 	end
 
-	(for control) = nil and 50 / layers_amount
 	self._groups:load(self._world_holder, offset)
 	do
 		local (for generator), (for state), (for control) = pairs(self._continents)
@@ -3793,7 +3729,7 @@ function CoreEditor:do_load()
 
 	end
 
-	(for control) = offset and continent.set_need_saving
+	self:_reset_dialogs()
 	self:_recreate_dialogs()
 	do
 		local (for generator), (for state), (for control) = pairs(self._layer_replace_dialogs)
@@ -3804,6 +3740,7 @@ function CoreEditor:do_load()
 
 	end
 
+	self._loading = false
 end
 
 function CoreEditor:loading()
@@ -3830,7 +3767,7 @@ function CoreEditor:clear_all()
 
 	end
 
-	(for control) = {} and layer.clear
+	self:clear_markers()
 	self:has_editables()
 	self:_clear_values()
 	self:_recreate_dialogs()
@@ -3870,7 +3807,6 @@ function CoreEditor:load_continents(world_holder, offset)
 
 	end
 
-	(for control) = offset and self.create_continent
 	self:set_continent("world")
 end
 
@@ -3987,7 +3923,6 @@ function CoreEditor:select_units(units)
 
 	end
 
-	(for control) = nil and self.unit_in_layer
 	do
 		local (for generator), (for state), (for control) = pairs(layers)
 		do
@@ -3997,7 +3932,6 @@ function CoreEditor:select_units(units)
 
 	end
 
-	(for control) = nil and layer.set_selected_units
 	Profiler:stop(id)
 	Profiler:counter_time("select_units")
 end
@@ -4159,7 +4093,7 @@ function CoreEditor:_base_id_availible(id)
 
 	end
 
-	(for control) = nil and continent.value
+	return true
 end
 
 function CoreEditor:delete_continent(name)
@@ -4272,8 +4206,7 @@ function CoreEditor:parse_simulation_world_setting_path(path)
 
 		end
 
-		do return t end
-		(for control) = managers.database:entry_expanded_path("world_setting", path) and continent.parameter
+		return t
 	else
 		return PackageManager:editor_load_script_data(("world_setting"):id(), path:id())
 	end
@@ -4473,7 +4406,6 @@ function CoreEditorContinent:set_locked(locked)
 
 	end
 
-	(for control) = nil and unit.set_enabled
 	managers.editor:reset_dialog("select_by_name")
 end
 

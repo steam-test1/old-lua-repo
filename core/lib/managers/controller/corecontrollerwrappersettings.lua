@@ -36,81 +36,68 @@ function ControllerWrapperSettings:init(wrapper_type, node, core_setting, debug_
 
 				end
 
-			else
-				(for control) = nil and connection_node._meta
-				if element_name == "editable" then
-					local (for generator), (for state), (for control) = ipairs(setting_node)
-					do
-						do break end
-						local element_name = editable_node._meta
-						if element_name == ControllerWrapperEditable.TYPE then
-							local name = editable_node.name
-							if not name then
-								Application:error(self:get_origin(debug_path) .. " Editable input element had no name attribute.")
-							else
-								if self._editable_connection_map[name] then
-									Application:error(self:get_origin(debug_path) .. " Duplicate controller editable connection (name: \"" .. tostring(name) .. "\"). Overwriting existing one.")
-								end
-
-								self:set_editable_connection(name, ControllerWrapperEditable:new(editable_node))
-							end
-
+			elseif element_name == "editable" then
+				local (for generator), (for state), (for control) = ipairs(setting_node)
+				do
+					do break end
+					local element_name = editable_node._meta
+					if element_name == ControllerWrapperEditable.TYPE then
+						local name = editable_node.name
+						if not name then
+							Application:error(self:get_origin(debug_path) .. " Editable input element had no name attribute.")
 						else
-							Application:error(self:get_origin(debug_path) .. " Invalid element \"" .. tostring(element_name) .. "\" inside \"editable\" element.")
-						end
-
-					end
-
-				else
-					(for control) = nil and editable_node._meta
-					if element_name == "unselectable" then
-						local (for generator), (for state), (for control) = ipairs(setting_node)
-						do
-							do break end
-							local element_name = unselectable_node._meta
-							if element_name == ControllerWrapperUnselectable.TYPE then
-								local input_name = unselectable_node.name
-								if not input_name then
-									Application:error(self:get_origin(debug_path) .. " Unselectable input element had no name attribute.")
-								else
-									if self._unselectable_input_map[input_name] then
-										Application:error(self:get_origin(debug_path) .. " Duplicate controller unselectable connection (name: \"" .. tostring(input_name) .. "\"). Overwriting existing one.")
-									end
-
-									self:set_unselectable_input(input_name, ControllerWrapperUnselectable:new(unselectable_node))
-								end
-
-							else
-								Application:error(self:get_origin(debug_path) .. " Invalid element \"" .. tostring(element_name) .. "\" inside \"unselectable\" element.")
+							if self._editable_connection_map[name] then
+								Application:error(self:get_origin(debug_path) .. " Duplicate controller editable connection (name: \"" .. tostring(name) .. "\"). Overwriting existing one.")
 							end
 
+							self:set_editable_connection(name, ControllerWrapperEditable:new(editable_node))
 						end
 
 					else
-						(for control) = nil and unselectable_node._meta
-						Application:error(self:get_origin(debug_path) .. " Invalid element \"" .. tostring(name) .. "\" inside \"" .. tostring(self._wrapper_type) .. "\" element.")
+						Application:error(self:get_origin(debug_path) .. " Invalid element \"" .. tostring(element_name) .. "\" inside \"editable\" element.")
 					end
 
 				end
 
+			elseif element_name == "unselectable" then
+				local (for generator), (for state), (for control) = ipairs(setting_node)
+				do
+					do break end
+					local element_name = unselectable_node._meta
+					if element_name == ControllerWrapperUnselectable.TYPE then
+						local input_name = unselectable_node.name
+						if not input_name then
+							Application:error(self:get_origin(debug_path) .. " Unselectable input element had no name attribute.")
+						else
+							if self._unselectable_input_map[input_name] then
+								Application:error(self:get_origin(debug_path) .. " Duplicate controller unselectable connection (name: \"" .. tostring(input_name) .. "\"). Overwriting existing one.")
+							end
+
+							self:set_unselectable_input(input_name, ControllerWrapperUnselectable:new(unselectable_node))
+						end
+
+					else
+						Application:error(self:get_origin(debug_path) .. " Invalid element \"" .. tostring(element_name) .. "\" inside \"unselectable\" element.")
+					end
+
+				end
+
+			else
+				Application:error(self:get_origin(debug_path) .. " Invalid element \"" .. tostring(name) .. "\" inside \"" .. tostring(self._wrapper_type) .. "\" element.")
 			end
 
 		end
 
 	end
 
-	do break end
-	self:merge(core_setting, false)
+	if core_setting then
+		self:merge(core_setting, false)
+	end
+
 	self:validate()
 end
 
 function ControllerWrapperSettings:merge(setting, overwrite)
--- fail 6
-null
-5
--- fail 21
-null
-5
 	do
 		local (for generator), (for state), (for control) = pairs(setting:get_connection_map())
 		do
@@ -184,12 +171,6 @@ function ControllerWrapperSettings:validate()
 end
 
 function ControllerWrapperSettings:populate_data(data)
--- fail 7
-null
-6
--- fail 27
-null
-7
 	local sub_data = {}
 	local connection_list
 	do
@@ -240,7 +221,7 @@ null
 
 	end
 
-	data[self._wrapper_type] = connection.populate_data and sub_data
+	data[self._wrapper_type] = sub_data
 end
 
 function ControllerWrapperSettings:wrapper_type()
@@ -515,7 +496,6 @@ function ControllerWrapperConnection:populate_data(data)
 
 	end
 
-	(for control) = nil and delay_connection.populate_data
 	table.insert(data, sub_data)
 end
 

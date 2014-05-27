@@ -156,7 +156,7 @@ function SentryGunBrain:_choose_focus_enemy(t)
 
 	end
 
-	local focus_enemy = nil and self._AI_data.focus_enemy
+	local focus_enemy = self._AI_data.focus_enemy
 	local cam_fwd
 	if focus_enemy then
 		cam_fwd = tmp_vec1
@@ -195,7 +195,6 @@ function SentryGunBrain:_choose_focus_enemy(t)
 
 	end
 
-	(for control) = mvector3.distance(enemy_pos, my_pos) and enemy_data.death_verify_t
 	if self._AI_data.focus_enemy ~= focus_enemy then
 		if focus_enemy then
 			local attention = {
@@ -400,7 +399,6 @@ function SentryGunBrain:pre_destroy()
 
 	end
 
-	(for control) = nil and enemy_data.unit
 	self:set_active(false)
 	if Network:is_server() then
 		PlayerMovement.set_attention_settings(self, nil)

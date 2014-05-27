@@ -32,6 +32,7 @@ function FeedBackManager:get_effect_names()
 
 	end
 
+	return names
 end
 
 function FeedBackManager:create(feedback, ...)
@@ -100,12 +101,8 @@ function FeedBack:set_unit(unit, effect)
 			effect:set_unit(unit)
 		end
 
-	else
-		(for control) = nil and effect.set_unit
-		if self._feedback[effect] then
-			self._feedback[effect]:set_unit(unit)
-		end
-
+	elseif self._feedback[effect] then
+		self._feedback[effect]:set_unit(unit)
 	end
 
 end
@@ -173,7 +170,6 @@ function FeedBack:play(...)
 
 	end
 
-	(for control) = managers.feedback:get_effect_table(self._name) and self._feedback
 	for i = 1, #extra_params, 3 do
 		if extra_params[i] and extra_params[i + 1] and extra_params[i + 2] and self._feedback[extra_params[i]] and self._feedback[extra_params[i]]:is_enabled() then
 			self._feedback[extra_params[i]]:set_param(extra_params[i + 1], extra_params[i + 2])
@@ -211,7 +207,6 @@ function FeedBack:stop(effect, ...)
 		end
 
 	else
-		(for control) = ... and effect.stop
 		self._feedback[effect]:stop()
 	end
 
@@ -231,7 +226,7 @@ function FeedBack:is_playing(effect)
 
 		end
 
-		(for control) = nil and effect.is_playing
+		return false
 	else
 		return self._feedback[effect]:is_playing()
 	end
@@ -346,6 +341,7 @@ function FeedBackrumble:is_playing()
 
 	end
 
+	return rumble
 end
 
 FeedBackCameraShake = FeedBackCameraShake or class(FeedBackEffect)

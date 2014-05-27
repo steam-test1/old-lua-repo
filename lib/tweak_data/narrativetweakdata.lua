@@ -1947,9 +1947,6 @@ function NarrativeTweakData:get_jobs_index()
 end
 
 function NarrativeTweakData:get_index_from_job_id(job_id)
--- fail 5
-null
-4
 	do
 		local (for generator), (for state), (for control) = ipairs(self._jobs_index)
 		do
@@ -1962,6 +1959,7 @@ null
 
 	end
 
+	return 0
 end
 
 function NarrativeTweakData:get_job_name_from_index(index)
@@ -1982,7 +1980,6 @@ function NarrativeTweakData:test_contract_packages()
 
 	end
 
-	(for control) = nil and self.jobs
 	local (for generator), (for state), (for control) = ipairs(self.jobs)
 	do
 		do break end

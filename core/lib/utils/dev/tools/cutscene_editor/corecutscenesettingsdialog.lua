@@ -19,7 +19,6 @@ function CoreCutsceneSettingsDialog:init(parent)
 
 	end
 
-	(for control) = "" and self.__export_type_dropdown
 	self.__export_type_dropdown:set_value(self:export_type())
 	project_settings_sizer:add(EWS:StaticText(self.__window, "Export Type:"), 0, 5, "TOP,LEFT,RIGHT,EXPAND")
 	project_settings_sizer:add(self.__export_type_dropdown, 1, 5, "ALL,EXPAND")

@@ -41,23 +41,12 @@ do
 
 			end
 
-			(for control) = nil and speed * 0.03333
 		end
 
-		(for control) = nil and pairs
 	end
 
-	(for control) = nil and pairs
 end
 
-(for control) = {
-	run = {
-		fwd = 28,
-		bwd = 32,
-		l = 45,
-		r = 39
-	}
-} and pairs
 EscortPrisonerActionWalk = EscortPrisonerActionWalk or class(CopActionWalk)
 EscortPrisonerActionWalk._walk_anim_velocities = {
 	stand = {

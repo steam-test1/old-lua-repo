@@ -22,7 +22,7 @@ function SkillTreeManager:_setup(reset)
 
 		end
 
-		self._global.skills, (for control) = {}, 0 and self._create_tree_data
+		self._global.skills = {}
 		local (for generator), (for state), (for control) = pairs(tweak_data.skilltree.skills)
 		do
 			do break end
@@ -34,7 +34,7 @@ function SkillTreeManager:_setup(reset)
 
 	end
 
-	self._global, (for control) = Global.skilltree_manager, 0 and self._global
+	self._global = Global.skilltree_manager
 end
 
 function SkillTreeManager:_create_tree_data(tree_id)
@@ -64,7 +64,6 @@ function SkillTreeManager:get_skill_points(skill, index)
 
 	end
 
-	(for control) = nil and tree.skill
 	return total_points, points
 end
 
@@ -134,6 +133,7 @@ function SkillTreeManager:tier_cost(tree, tier)
 
 	end
 
+	return points
 end
 
 function SkillTreeManager:current_max_tier(tree)
@@ -149,7 +149,6 @@ function SkillTreeManager:current_max_tier(tree)
 
 	end
 
-	(for control) = nil and self.points_spent
 	return #tweak_data.skilltree.tier_unlocks
 end
 
@@ -183,7 +182,7 @@ function SkillTreeManager:skill_unlocked(tree, skill_id)
 
 		end
 
-		(for control) = nil and self.skill_unlocked
+		return false
 	end
 
 	local (for generator), (for state), (for control) = pairs(tweak_data.skilltree.trees[tree].tiers)
@@ -228,7 +227,6 @@ function SkillTreeManager:unlock(tree, skill_id)
 
 	end
 
-	(for control) = tree and managers
 	local to_unlock = managers.skilltree:next_skill_step(skill_id)
 	local skill = talent[to_unlock]
 	local total_points, points = managers.skilltree:get_skill_points(skill_id, to_unlock)
@@ -251,7 +249,6 @@ function SkillTreeManager:unlock(tree, skill_id)
 
 	end
 
-	(for control) = nil and table
 	self:_spend_points(tree, tier, total_points, points)
 	self:_aquire_skill(skill, skill_id)
 	self:_on_skill_unlocked(tree, skill_id)
@@ -302,7 +299,6 @@ function SkillTreeManager:_check_achievements()
 
 	end
 
-	(for control) = nil and self.points_spent
 	managers.achievment:award("im_a_healer_tank_damage_dealer")
 end
 
@@ -345,6 +341,7 @@ function SkillTreeManager:trees_unlocked()
 
 	end
 
+	return amount
 end
 
 function SkillTreeManager:_unlock(tree, skill_id)
@@ -424,7 +421,6 @@ function SkillTreeManager:_reset_skilltree(tree, forced_respec_multiplier)
 
 	end
 
-	(for control) = nil and self._unaquire_skill
 	self:_unaquire_skill(tree_data.skill)
 end
 
@@ -451,7 +447,6 @@ function SkillTreeManager:reset_skilltrees()
 		end
 
 	else
-		(for control) = nil and self._respec_tree_version4
 		local (for generator), (for state), (for control) = pairs(self._global.trees)
 		do
 			do break end
@@ -460,7 +455,6 @@ function SkillTreeManager:reset_skilltrees()
 
 	end
 
-	(for control) = nil and self._respec_tree_version5
 	self._global.VERSION = SkillTreeManager.VERSION
 	self._global.reset_message = true
 	self._global.times_respeced = 1
@@ -510,10 +504,8 @@ function SkillTreeManager:get_tree_progress(tree)
 
 		end
 
-		(for control) = nil and managers
 	end
 
-	(for control) = nil and ipairs
 	return progress, num_skills
 end
 
@@ -534,6 +526,7 @@ function SkillTreeManager:get_most_progressed_tree()
 
 	end
 
+	return max_tree
 end
 
 function SkillTreeManager:save(data)
@@ -562,7 +555,6 @@ function SkillTreeManager:load(data, version)
 
 		end
 
-		(for control) = nil and self._global
 		do
 			local (for generator), (for state), (for control) = pairs(state.skills)
 			do
@@ -575,7 +567,6 @@ function SkillTreeManager:load(data, version)
 
 		end
 
-		(for control) = nil and self._global
 		self:_verify_loaded_data(points_aquired_during_load)
 		self._global.VERSION = state.VERSION
 		self._global.reset_message = state.reset_message
@@ -601,7 +592,7 @@ function SkillTreeManager:_verify_loaded_data(points_aquired_during_load)
 
 	end
 
-	local unlocked = clone(self._global.trees) and self:trees_unlocked()
+	local unlocked = self:trees_unlocked()
 	while unlocked > 0 do
 		points = points + Application:digest_value(tweak_data.skilltree.unlock_tree_cost[unlocked], false)
 		unlocked = unlocked - 1
@@ -624,7 +615,6 @@ function SkillTreeManager:_verify_loaded_data(points_aquired_during_load)
 
 	end
 
-	(for control) = clone(self._global.trees) and tweak_data
 	local (for generator), (for state), (for control) = pairs(self._global.trees)
 	do
 		do break end
@@ -717,7 +707,6 @@ function SkillTreeManager:debug()
 					end
 
 				else
-					(for control) = nil and managers
 					gui:set_func(j, function()
 						return skill_id .. " " .. type .. ""
 					end

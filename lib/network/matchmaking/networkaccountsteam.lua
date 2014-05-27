@@ -70,7 +70,6 @@ function NetworkAccountSTEAM:get_win_ratio(difficulty, level)
 
 	end
 
-	(for control) = "_wins" and wins[i]
 	table.sort(ratio)
 	return ratio[#ratio / 2]
 end
@@ -199,6 +198,7 @@ function NetworkAccountSTEAM:get_global_stat(key, days)
 
 	end
 
+	return value
 end
 
 function NetworkAccountSTEAM:publish_statistics(stats, force_store)
@@ -271,7 +271,6 @@ function NetworkAccountSTEAM:publish_statistics(stats, force_store)
 
 	end
 
-	(for control) = nil and nil
 	if Application:production_build() then
 		if err then
 			Application:throw_exception("[NetworkAccountSTEAM:publish_statistics] Missing statistics, needs to be added!!")
@@ -466,13 +465,10 @@ function NetworkAccountSTEAM.output_global_stats(file)
 
 					end
 
-					(for control) = nil and out
 				end
 
-				(for control) = nil and ipairs
 			end
 
-			(for control) = nil and ipairs
 			do
 				local (for generator), (for state), (for control) = ipairs(wep_stats)
 				do
@@ -485,10 +481,8 @@ function NetworkAccountSTEAM.output_global_stats(file)
 
 				end
 
-				(for control) = nil and out
 			end
 
-			(for control) = nil and ipairs
 			table.insert(lines, out)
 		end
 

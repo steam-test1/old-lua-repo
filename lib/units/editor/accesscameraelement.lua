@@ -75,7 +75,6 @@ function AccessCameraUnitElement:_add_text_options()
 
 	end
 
-	(for control) = managers.localization:ids("strings/hud") and id_string.s
 	local (for generator), (for state), (for control) = ipairs(managers.localization:ids("strings/wip"))
 	do
 		do break end

@@ -48,7 +48,6 @@ function CoreTimerUnitElement:update_selected()
 
 	end
 
-	(for control) = nil and alive
 	local (for generator), (for state), (for control) = pairs(self._digital_gui_units)
 	do
 		do break end
@@ -85,7 +84,6 @@ function CoreTimerUnitElement:update_unselected(t, dt, selected_unit, all_units)
 
 	end
 
-	(for control) = nil and alive
 	local (for generator), (for state), (for control) = pairs(self._digital_gui_units)
 	do
 		do break end

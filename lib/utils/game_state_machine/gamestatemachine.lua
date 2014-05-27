@@ -34,12 +34,8 @@ function GameStateMachine:init()
 	Global.game_state_machine.is_boot_intro_done = true
 	self._is_boot_from_sign_out = Global.game_state_machine.is_boot_from_sign_out
 	Global.game_state_machine.is_boot_from_sign_out = false
-	if not self._is_boot_intro_done then
-		-- unhandled boolean indicator
-	else
-		local setup_boot = true
-	end
-
+	local setup_boot = self._is_boot_intro_done
+	
 	local setup_title = (setup_boot or self._is_boot_from_sign_out) and not Application:editor()
 	local states = {}
 	local empty = GameState:new("empty", self)

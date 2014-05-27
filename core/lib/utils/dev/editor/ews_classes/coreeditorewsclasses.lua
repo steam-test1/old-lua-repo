@@ -243,7 +243,6 @@ function UnitList:on_delete()
 
 	end
 
-	(for control) = self:selected_item_units() and managers
 	managers.editor:thaw_gui_lists()
 end
 
@@ -259,6 +258,7 @@ function UnitList:selected_item_units()
 
 	end
 
+	return units
 end
 
 function UnitList:column_click_list(data, event)
@@ -274,10 +274,9 @@ function UnitList:column_click_list(data, event)
 
 	end
 
-	do break end
-	state = "ascending"
-	do break end
-	if state == "ascending" then
+	if state == "random" then
+		state = "ascending"
+	elseif state == "ascending" then
 		state = "descending"
 	elseif state == "descending" then
 		state = "ascending"
@@ -348,7 +347,6 @@ function UnitList:on_select_unit_list(ignore_unit)
 
 		end
 
-		(for control) = nil and unit.name
 		if #self._unit_list_units == 0 then
 			managers.editor:output_error("Unit " .. unit_name .. " is not placed by editor.")
 		end
@@ -429,7 +427,6 @@ function UnitList:selected_unit(unit)
 
 	end
 
-	(for control) = self._list:selected_items() and self._list
 	if not alive(unit) then
 		return
 	end
@@ -484,7 +481,6 @@ function UnitList:fill_unit_list()
 
 	end
 
-	(for control) = nil and unique + 1
 	self._total_units:set_value(total.amount)
 	self._total_unique_units:set_value(unique)
 	self._total_geometry:set_value(total.geometry_memory)
@@ -705,15 +701,12 @@ function UnitTreeBrowser:_populate_tree()
 
 				end
 
-				(for control) = "EXPANDED" and category.units
 			end
 
 		end
 
-		(for control) = "EXPANDED" and layer.categories
 	end
 
-	(for control) = self._tree_data.total_units and self._tree_data
 	self._unit_tree:expand(self._root)
 end
 
@@ -728,7 +721,6 @@ function UnitTreeBrowser:sorted_map(map)
 
 	end
 
-	(for control) = nil and table
 	table.sort(sorted)
 	return sorted
 end
@@ -835,10 +827,8 @@ function GlobalSelectUnit:init(...)
 
 		end
 
-		(for control) = layer:unit_types() and table
 	end
 
-	(for control) = self and ipairs
 	table.sort(names_layers)
 	do
 		local (for generator), (for state), (for control) = ipairs(names_layers)
@@ -854,7 +844,6 @@ function GlobalSelectUnit:init(...)
 
 	end
 
-	(for control) = self and EWS
 	local layer_buttons_sizer = EWS:BoxSizer("HORIZONTAL")
 	local all_btn = EWS:Button(self._panel, "All", "", "BU_EXACTFIT,NO_BORDER")
 	layer_buttons_sizer:add(all_btn, 0, 2, "TOP,BOTTOM")
@@ -907,10 +896,8 @@ function GlobalSelectUnit:_all_unit_names()
 
 		end
 
-		(for control) = layer:get_unit_map() and unit_resource.type
 	end
 
-	(for control) = nil and pairs
 	table.sort(names)
 	return names
 end
@@ -930,11 +917,9 @@ function GlobalSelectUnit:_current_unit_names()
 
 		end
 
-		(for control) = layer:created_units() and unit.name
 	end
 
 	local names = {}
-	(for control) = nil and ipairs
 	do
 		local (for generator), (for state), (for control) = pairs(self._all_names)
 		do
@@ -948,7 +933,7 @@ function GlobalSelectUnit:_current_unit_names()
 	end
 
 	self._current = names
-	(for control) = nil and managers
+	return names
 end
 
 function GlobalSelectUnit:on_only_list_used_units(data)
@@ -996,7 +981,6 @@ function GlobalSelectUnit:update_list(current)
 		end
 
 	else
-		(for control) = nil and self._all_names
 		local (for generator), (for state), (for control) = pairs(self._all_names)
 		do
 			do break end
@@ -1013,7 +997,6 @@ function GlobalSelectUnit:update_list(current)
 
 	end
 
-	(for control) = nil and self._layer_cbs
 	self._units:thaw()
 	self._units:autosize_column(0)
 end
@@ -1034,7 +1017,6 @@ function GlobalSelectUnit:spawned_unit(unit)
 
 		end
 
-		(for control) = nil and unit.name
 		local (for generator), (for state), (for control) = pairs(self._all_names)
 		do
 			do break end
@@ -1091,7 +1073,7 @@ function GlobalSelectUnit:on_all_layers()
 
 	end
 
-	(for control) = nil or cb.set_value
+	self:update_list()
 end
 
 function GlobalSelectUnit:on_none_layers()
@@ -1104,7 +1086,7 @@ function GlobalSelectUnit:on_none_layers()
 
 	end
 
-	(for control) = nil and cb.set_value
+	self:update_list()
 end
 
 function GlobalSelectUnit:on_invert_layers()
@@ -1117,7 +1099,7 @@ function GlobalSelectUnit:on_invert_layers()
 
 	end
 
-	(for control) = nil and cb.set_value
+	self:update_list()
 end
 
 function GlobalSelectUnit:on_layer_cb(data)
@@ -1144,10 +1126,8 @@ function ReplaceUnit:init(name, types)
 
 		end
 
-		(for control) = managers.database:list_units_of_type(t) and category_map[t]
 	end
 
-	(for control) = 0 and {}
 	do
 		local (for generator), (for state), (for control) = pairs(category_map)
 		do
@@ -1168,7 +1148,6 @@ function ReplaceUnit:init(name, types)
 
 			end
 
-			(for control) = "LB_SINGLE,LB_HSCROLL,LB_NEEDED_SB,LB_SORT" and units.append
 			units_sizer:add(units, 1, 0, "EXPAND")
 			units:connect("EVT_COMMAND_LISTBOX_SELECTED", callback(self, self, "replace_unit_name"), units)
 			unit_filter:connect("EVT_COMMAND_TEXT_UPDATED", callback(self, self, "update_filter"), {
@@ -1181,7 +1160,6 @@ function ReplaceUnit:init(name, types)
 
 	end
 
-	(for control) = 0 and EWS
 	local btn_sizer = EWS:BoxSizer("HORIZONTAL")
 	local ok_btn = EWS:Button(self._panel, "OK", "_ok_dialog", "BU_EXACTFIT,NO_BORDER")
 	ok_btn:connect("EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "close_replace_unit"), {value = true})
@@ -1289,7 +1267,6 @@ function LayerReplaceUnit:_all_unit_names(layer)
 
 	end
 
-	(for control) = layer:get_unit_map() and table
 	table.sort(names)
 	return names
 end
@@ -1319,7 +1296,6 @@ function LayerReplaceUnit:_current_unit_names()
 	end
 
 	local names = {}
-	(for control) = self._layer:created_units() and unit.name
 	do
 		local (for generator), (for state), (for control) = ipairs(self._all_names)
 		do
@@ -1333,7 +1309,7 @@ function LayerReplaceUnit:_current_unit_names()
 	end
 
 	self._current = names
-	(for control) = self._layer:created_units() and managers
+	return names
 end
 
 function LayerReplaceUnit:on_only_list_used_units(data)
@@ -1356,7 +1332,6 @@ function LayerReplaceUnit:update_list(current)
 		end
 
 	else
-		(for control) = nil and string
 		local (for generator), (for state), (for control) = ipairs(self._all_names)
 		do
 			do break end
@@ -1391,7 +1366,6 @@ function LayerReplaceUnit:spawned_unit(unit)
 
 		end
 
-		(for control) = nil and unit.name
 		local (for generator), (for state), (for control) = ipairs(self._all_names)
 		do
 			do break end
@@ -1936,7 +1910,6 @@ function EditControllerBindings:add_list(list)
 
 	end
 
-	(for control) = nil and table
 	table.sort(names)
 	local (for generator), (for state), (for control) = ipairs(names)
 	do
@@ -1965,7 +1938,6 @@ function MissionGraph:init(...)
 
 	end
 
-	(for control) = managers.editor._layers.Mission:created_units() and EWS
 	do
 		local (for generator), (for state), (for control) = ipairs(managers.editor._layers.Mission:created_units())
 		do
@@ -1981,10 +1953,8 @@ function MissionGraph:init(...)
 
 		end
 
-		(for control) = managers.editor._layers.Mission:created_units() and self._nodes
 	end
 
-	(for control) = managers.editor._layers.Mission:created_units() and self._nodes
 	self._graph_view:pan_to_selected(true)
 	self._graph_view:refresh()
 	self._panel_sizer:add(self._graph_view, 1, 0, "EXPAND")
@@ -2053,7 +2023,6 @@ function UnitDuality:init(collisions, pos)
 		end
 
 	else
-		(for control) = "Collisions with both position and rotation" and complete_sizer.add
 		complete_sizer:add(EWS:StaticText(self._panel, "No collisions found. Great!", 0, ""), 0, 5, "ALIGN_CENTER_HORIZONTAL,TOP,BOTTOM")
 		y_size = y_size + 25
 	end
@@ -2068,7 +2037,6 @@ function UnitDuality:init(collisions, pos)
 		end
 
 	else
-		(for control) = "Collisions with only position" and position_sizer.add
 		position_sizer:add(EWS:StaticText(self._panel, "No collisions found. Great!", 0, ""), 0, 5, "ALIGN_CENTER_HORIZONTAL,TOP,BOTTOM")
 		y_size = y_size + 25
 	end

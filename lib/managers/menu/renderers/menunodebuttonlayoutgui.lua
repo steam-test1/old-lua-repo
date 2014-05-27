@@ -29,7 +29,6 @@ function MenuNodeButtonLayoutGui:_setup()
 
 	end
 
-	(for control) = nil and self.ws
 	self._blur = managers.menu_component._fullscreen_ws:panel():panel()
 	self._blur:bitmap({
 		texture = "guis/textures/test_blur_df",

@@ -25,7 +25,7 @@ function GameStateMachine:destroy()
 
 	end
 
-	self._states = nil and {}
+	self._states = {}
 	self._transitions = {}
 end
 
@@ -125,7 +125,7 @@ function GameStateMachine:_do_state_change()
 	end
 
 	self._queued_transitions = nil
-	self._doing_state_change = nil and false
+	self._doing_state_change = false
 end
 
 function GameStateMachine:last_queued_state_name()

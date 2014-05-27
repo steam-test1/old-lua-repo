@@ -38,7 +38,7 @@ function GamePlayCentralManager:init()
 
 	end
 
-	self._mission_disabled_units = nil and {}
+	self._mission_disabled_units = {}
 	self._heist_timer = {start_time = 0, running = false}
 	local is_ps3 = SystemInfo:platform() == Idstring("PS3")
 	local is_x360 = SystemInfo:platform() == Idstring("X360")
@@ -682,7 +682,6 @@ function GamePlayCentralManager:load(data)
 
 	end
 
-	(for control) = nil and self.mission_disable_unit
 	if state.heist_timer then
 		self._heist_timer.offset_time = state.heist_timer
 		self._heist_timer.start_time = Application:time()
@@ -698,12 +697,6 @@ function GamePlayCentralManager:debug_weapon()
 	local tweak_data = tweak_data.weapon.stats
 	gui:clear()
 	local function add_func()
--- fail 88
-null
-10
--- fail 114
-null
-15
 		if not managers.player:player_unit() or not managers.player:player_unit():alive() then
 			return ""
 		end
@@ -736,10 +729,8 @@ null
 
 			end
 
-			(for control) = nil and stats[stat_id]
 		end
 
-		(for control) = nil and pairs
 		do
 			local (for generator), (for state), (for control) = pairs(stats)
 			do
@@ -770,6 +761,7 @@ null
 
 		end
 
+		return text
 	end
 
 	gui:set_func(1, add_func)

@@ -23,7 +23,6 @@ function FeatureManager:_setup()
 
 		end
 
-		(for control) = nil and Global
 		Global.feature_manager.announcements.crimenet_welcome = 3
 		Global.feature_manager.announcements.dlc_gage_pack_jobs = 1
 		Global.feature_manager.announced = {}
@@ -50,7 +49,6 @@ function FeatureManager:load(data, version)
 
 	end
 
-	(for control) = nil and Global
 	if data.feature_manager then
 		local announcements = data.feature_manager.announcements or {}
 		local (for generator), (for state), (for control) = pairs(announcements)

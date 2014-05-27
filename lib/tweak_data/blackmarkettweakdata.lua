@@ -98,7 +98,6 @@ function BlackMarketTweakData:_init_weapon_mods(tweak_data)
 
 	end
 
-	(for control) = nil and self.weapon_mods
 	self:_add_desc_from_name_macro(self.weapon_mods)
 	if Application:production_build() and managers.lootdrop then
 		managers.lootdrop:add_qlvl_to_weapon_mods(self.weapon_mods)

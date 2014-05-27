@@ -26,7 +26,6 @@ function ElementEnableUnit:on_script_activated()
 	end
 
 	self._has_fetched_units = true
-	(for control) = inspect(self._values.unit_ids) and Global
 	self._mission_script:add_save_state_cb(self._id)
 end
 
@@ -53,7 +52,6 @@ function ElementEnableUnit:on_executed(instigator)
 
 	end
 
-	(for control) = nil and managers
 	ElementEnableUnit.super.on_executed(self, instigator)
 end
 

@@ -186,9 +186,6 @@ function TeamAIMovement:zipline_unit()
 end
 
 function TeamAIMovement:pre_destroy()
--- fail 63
-null
-3
 	if self._heat_listener_clbk then
 		managers.groupai:state():remove_listener(self._heat_listener_clbk)
 		self._heat_listener_clbk = nil

@@ -356,7 +356,6 @@ function CoreOldWorldDefinition:parse_continents(node, t)
 					end
 
 				else
-					(for control) = continent:parameter("base_id") and world.parameter
 					Application:error("Continent file " .. path .. ".continent doesnt exist.")
 				end
 
@@ -437,7 +436,7 @@ function CoreOldWorldDefinition:parse_editor_groups(node, t)
 
 				end
 
-				groups[name] = group:parameter("reference_id") and {}
+				groups[name] = {}
 				groups[name].reference = reference
 				groups[name].continent = continent
 				groups[name].units = units
@@ -449,7 +448,7 @@ function CoreOldWorldDefinition:parse_editor_groups(node, t)
 	end
 
 	t.groups = groups
-	t.group_names = nil and group_names
+	t.group_names = group_names
 end
 
 function CoreOldWorldDefinition:add_editor_group(name, reference)
@@ -689,8 +688,7 @@ function CoreOldWorldDefinition:create_units(layer, offset)
 
 	end
 
-	do break end
-	if layer == "all" and self._massunit_path then
+	if (layer == "brush" or layer == "all") and self._massunit_path then
 		self:load_massunit(self._massunit_path, offset)
 	end
 
@@ -712,8 +710,7 @@ function CoreOldWorldDefinition:create_units(layer, offset)
 
 	end
 
-	do break end
-	if layer == "all" then
+	if layer == "statics" or layer == "all" then
 		local (for generator), (for state), (for control) = ipairs(self._definitions.statics)
 		do
 			do break end
@@ -722,8 +719,7 @@ function CoreOldWorldDefinition:create_units(layer, offset)
 
 	end
 
-	do break end
-	if layer == "all" then
+	if layer == "dynamics" or layer == "all" then
 		local (for generator), (for state), (for control) = ipairs(self._definitions.dynamics)
 		do
 			do break end
@@ -732,6 +728,7 @@ function CoreOldWorldDefinition:create_units(layer, offset)
 
 	end
 
+	return return_data
 end
 
 function CoreOldWorldDefinition:create_from_level_file(params)
@@ -796,8 +793,7 @@ function CoreOldWorldDefinition:create_from_level_file(params)
 
 	end
 
-	do break end
-	if layer == "all" then
+	if layer == "statics" or layer == "all" then
 		self:create_level_units({
 			layer = "statics",
 			offset = offset,
@@ -832,6 +828,7 @@ function CoreOldWorldDefinition:create_level_units(params)
 
 	end
 
+	return t
 end
 
 function CoreOldWorldDefinition:create_portals(portals, offset)
@@ -849,7 +846,7 @@ function CoreOldWorldDefinition:create_portals(portals, offset)
 		end
 
 		local top = portal.top
-		local bottom = nil and portal.bottom
+		local bottom = portal.bottom
 		if top == 0 and bottom == 0 then
 			top, bottom = nil, nil
 		end
@@ -893,7 +890,6 @@ function CoreOldWorldDefinition:create_sounds(path)
 
 	end
 
-	(for control) = sounds.ambience_soundbank and managers
 	do
 		local (for generator), (for state), (for control) = ipairs(sounds.sound_emitters)
 		do
@@ -903,7 +899,6 @@ function CoreOldWorldDefinition:create_sounds(path)
 
 	end
 
-	(for control) = sounds.ambience_soundbank and managers
 	if sounds.sound_area_emitters then
 		local (for generator), (for state), (for control) = ipairs(sounds.sound_area_emitters)
 		do
@@ -913,7 +908,7 @@ function CoreOldWorldDefinition:create_sounds(path)
 
 	end
 
-	(for control) = sounds.ambience_soundbank and managers
+	sounds_level:destroy()
 end
 
 function CoreOldWorldDefinition:create_environment(data, offset)
@@ -944,7 +939,6 @@ function CoreOldWorldDefinition:create_environment(data, offset)
 
 	end
 
-	(for control) = (wind.speed_variation or 1) and Idstring
 	local (for generator), (for state), (for control) = ipairs(data.environment_areas)
 	do
 		do break end
@@ -977,7 +971,6 @@ function CoreOldWorldDefinition:load_massunit(path, offset)
 
 	end
 
-	(for control) = path:id() and DB
 	MassUnitManager:delete_all_units()
 	MassUnitManager:load(path:id(), offset, self._massunit_replace_names)
 end
@@ -1052,9 +1045,6 @@ function CoreOldWorldDefinition:make_unit(name, data, offset)
 end
 
 function CoreOldWorldDefinition:assign_unit_data(unit, data)
--- fail 243
-null
-7
 	local is_editor = Application:editor()
 	if not unit:unit_data() then
 		Application:error("The unit " .. unit:name() .. " (" .. unit:author() .. ") does not have the required extension unit_data (ScriptUnitData)")
@@ -1122,7 +1112,6 @@ null
 
 	end
 
-	(for control) = unit and unit.get_object
 	if data._variation and data._variation ~= "default" then
 		unit:unit_data().mesh_variation = data._variation
 		managers.sequence:run_sequence_simple2(unit:unit_data().mesh_variation, "change_state", unit)
@@ -1215,7 +1204,6 @@ function CoreOldWorldDefinition:use_me(unit, is_editor)
 
 	end
 
-	(for control) = nil and t.unit
 	if self._use_unit_callbacks[id] then
 		local (for generator), (for state), (for control) = ipairs(self._use_unit_callbacks[id])
 		do
@@ -1348,14 +1336,12 @@ function CoreWDSoundEnvironment:parse_sound_area_emitter(node)
 
 			end
 
-			(for control) = nil and parse_value_node
 			t.position = math.string_to_vector(shape:parameter("position"))
 			t.rotation = math.string_to_rotation(shape:parameter("rotation"))
 		end
 
 	end
 
-	(for control) = nil and shape.children
 	table.insert(self._sound_area_emitters, t)
 end
 
@@ -1372,7 +1358,6 @@ function CoreWDSoundEnvironment:create()
 
 	end
 
-	(for control) = self._default_ambience_soundbank and managers
 	do
 		local (for generator), (for state), (for control) = ipairs(self._sound_emitters)
 		do
@@ -1382,7 +1367,6 @@ function CoreWDSoundEnvironment:create()
 
 	end
 
-	(for control) = self._default_ambience_soundbank and managers
 	local (for generator), (for state), (for control) = ipairs(self._sound_area_emitters)
 	do
 		do break end
@@ -1453,7 +1437,6 @@ function CoreEnvironment:parse_unit_effect(node)
 
 	end
 
-	(for control) = nil and math
 	local name = node:parameter("name")
 	local t = {
 		pos = pos,
@@ -1474,7 +1457,6 @@ function CoreEnvironment:parse_environment_area(node)
 
 	end
 
-	(for control) = nil and managers
 	table.insert(self._environment_areas, t)
 end
 
@@ -1529,7 +1511,6 @@ function CoreEnvironment:create(offset)
 
 	end
 
-	(for control) = (self._wind.wind_speed_variation or 1) and Idstring
 	do
 		local (for generator), (for state), (for control) = ipairs(self._environment_areas)
 		do
@@ -1539,7 +1520,6 @@ function CoreEnvironment:create(offset)
 
 	end
 
-	(for control) = (self._wind.wind_speed_variation or 1) and managers
 	local (for generator), (for state), (for control) = ipairs(self._units_data)
 	do
 		do break end
@@ -1591,7 +1571,7 @@ function CorePortal:parse_unit_group(node)
 
 	end
 
-	self._unit_groups[name] = nil and shapes
+	self._unit_groups[name] = shapes
 end
 
 function CorePortal:create(offset)
@@ -1610,7 +1590,7 @@ function CorePortal:create(offset)
 			end
 
 			local top = portal.top
-			local bottom = nil and portal.bottom
+			local bottom = portal.bottom
 			if top == 0 and bottom == 0 then
 				top, bottom = nil, nil
 			end
@@ -1620,7 +1600,6 @@ function CorePortal:create(offset)
 
 	end
 
-	(for control) = nil and {}
 	local (for generator), (for state), (for control) = pairs(self._unit_groups)
 	do
 		do break end
@@ -1766,8 +1745,10 @@ function CoreOldWorldDefinition:make_generic_data(in_data)
 
 	end
 
-	do break end
-	data._variation = variation.value
+	if variation then
+		data._variation = variation.value
+	end
+
 	if material_variation then
 		data._material_variation = material_variation.value
 	end
@@ -1781,8 +1762,10 @@ function CoreOldWorldDefinition:make_generic_data(in_data)
 
 	end
 
-	do break end
-	data.cutscene_actor = cutscene_actor.name
+	if cutscene_actor then
+		data.cutscene_actor = cutscene_actor.name
+	end
+
 	if disable_shadows then
 		data.disable_shadows = disable_shadows.value
 	end

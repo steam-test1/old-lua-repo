@@ -42,7 +42,6 @@ function RepKey:update(d, dt)
 	end
 
 	local down = false
-	(for control) = nil and self._input
 	if anykey then
 		if self._current_time == 0 then
 			down = true

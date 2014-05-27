@@ -23,7 +23,6 @@ function ElementAIAttention:on_executed(instigator)
 		end
 
 	else
-		(for control) = nil and self._apply_attention_on_unit
 		if self._values.att_obj_u_id then
 			local unit = self:_fetch_unit_by_unit_id(self._values.att_obj_u_id)
 			if unit then
@@ -61,11 +60,9 @@ function ElementAIAttention:_select_units_from_spawners()
 
 		end
 
-		(for control) = spawn_element:units() and alive
 	end
 
 	local wanted_nr_units
-	(for control) = nil and managers
 	if 0 >= self._values.trigger_times then
 		wanted_nr_units = 1
 	else

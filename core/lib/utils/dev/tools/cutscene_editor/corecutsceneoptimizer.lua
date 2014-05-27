@@ -48,7 +48,6 @@ function CoreCutsceneOptimizer:_write_cutscene_xml(path, animation_blobs)
 
 	end
 
-	(for control) = tostring(self:frame_count()) and animation_blobs_node.make_child
 	if not table.empty(self:_all_controlled_unit_names(true)) then
 		do
 			local controlled_units_node = cutscene_node:make_child("controlled_units")
@@ -78,7 +77,6 @@ function CoreCutsceneOptimizer:_write_cutscene_xml(path, animation_blobs)
 
 	end
 
-	(for control) = self:_all_controlled_unit_names() and self._all_controlled_unit_types
 	local keys_node = cutscene_node:make_child("keys")
 	if self:_has_cameras() then
 		CoreCutsceneKey:create(CoreChangeCameraCutsceneKey.ELEMENT_NAME):_save_under(keys_node)
@@ -93,16 +91,12 @@ function CoreCutsceneOptimizer:_write_cutscene_xml(path, animation_blobs)
 
 	end
 
-	(for control) = ipairs(self:_all_controlled_unit_names()) and cutscene_key._save_under
 	self:_add_unit_visibility_keys(keys_node)
 	self:_add_discontinuity_keys(keys_node)
 	managers.database:save_node(cutscene_node, path)
 end
 
 function CoreCutsceneOptimizer:_add_unit_visibility_keys(keys_node)
--- fail 8
-null
-6
 	local unit_names = self:_all_controlled_unit_names()
 	local was_visible = {}
 	do
@@ -148,7 +142,6 @@ null
 
 	end
 
-	(for control) = nil and table
 end
 
 function CoreCutsceneOptimizer:_add_discontinuity_keys(keys_node)
@@ -202,7 +195,6 @@ function CoreCutsceneOptimizer:_create_merged_animation()
 
 	end
 
-	(for control) = self:_all_controlled_unit_names() and self._get_final_animation
 	if self:_has_cameras() then
 		unit_animation_map.camera = self:_get_joined_camera_animation()
 	end
@@ -222,6 +214,7 @@ function CoreCutsceneOptimizer:_create_merged_animation()
 
 	end
 
+	return merged_animation
 end
 
 function CoreCutsceneOptimizer:_write_animation_blobs(full_animation, part_path_pattern)
@@ -268,7 +261,6 @@ function CoreCutsceneOptimizer:_write_animation_part(path, animation, compressed
 
 	end
 
-	(for control) = nil and string
 	if #platforms_to_export == 0 then
 		platforms_to_export = table.map_keys(self.__compression_enabled)
 	end

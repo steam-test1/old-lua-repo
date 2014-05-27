@@ -80,9 +80,6 @@ function SpecialObjectiveUnitElement:post_init()
 end
 
 function SpecialObjectiveUnitElement:test_element()
--- fail 12
-null
-5
 	local SO_access_strings = managers.navigation:convert_access_filter_to_table(self._hed.SO_access)
 	local spawn_unit_name
 	do
@@ -116,8 +113,7 @@ null
 
 	end
 
-	do break end
-	spawn_unit_name = Idstring("units/payday2/characters/ene_swat_1/ene_swat_1")
+	spawn_unit_name = spawn_unit_name or Idstring("units/payday2/characters/ene_swat_1/ene_swat_1")
 	local enemy = safe_spawn_unit(spawn_unit_name, self._unit:position(), self._unit:rotation())
 	table.insert(self._enemies, enemy)
 	local t = {
@@ -150,7 +146,7 @@ function SpecialObjectiveUnitElement:stop_test_element()
 
 	end
 
-	self._enemies = nil and {}
+	self._enemies = {}
 	print("Stop test time", self._start_test_t and Application:time() - self._start_test_t or 0)
 end
 
@@ -192,7 +188,6 @@ function SpecialObjectiveUnitElement:update_selected(t, dt, selected_unit, all_u
 
 	end
 
-	(for control) = all_units and all_units[id]
 	self:_highlight_if_outside_the_nav_field(t)
 end
 
@@ -327,12 +322,6 @@ function SpecialObjectiveUnitElement:_raycast()
 end
 
 function SpecialObjectiveUnitElement:_lmb()
--- fail 14
-null
-4
--- fail 60
-null
-5
 	local id = self:_so_raycast()
 	if id then
 		if self._hed.followup_elements then
@@ -450,7 +439,6 @@ function SpecialObjectiveUnitElement:_toggle_nav_link_filter_value(params)
 
 		end
 
-		(for control) = nil and params.name
 		table.insert(self._nav_link_filter, params.name)
 	else
 		table.delete(self._nav_link_filter, params.name)
@@ -517,7 +505,6 @@ function SpecialObjectiveUnitElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = nil and EWS
 	filter_sizer:add(opt1_sizer, 1, 0, "EXPAND")
 	filter_sizer:add(opt2_sizer, 1, 0, "EXPAND")
 	filter_sizer:add(opt3_sizer, 1, 0, "EXPAND")
@@ -639,7 +626,6 @@ function SpecialObjectiveUnitElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = 1 and table
 	local so_action = CoreEws.combobox(so_action_params)
 	self._so_action_params = so_action_params
 	so_action:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {ctrlr = so_action, value = "so_action"})

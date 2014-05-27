@@ -111,7 +111,7 @@ function Setup:init_category_print()
 
 	end
 
-	(for control) = "savefile_manager" and Global
+	catprint_load()
 end
 
 function Setup:load_packages()
@@ -233,7 +233,7 @@ function Setup:_start_loading_screen()
 
 		end
 
-		local load_data = load_level_data.level_tweak_data.name_id and load_level_data.level_tweak_data.load_data
+		local load_data = load_level_data.level_tweak_data.load_data
 		Global.current_load_package = load_data and load_data.package or "packages/load_default"
 		if Global.current_load_package then
 			PackageManager:load(Global.current_load_package)

@@ -28,12 +28,6 @@ function EnemyManager:update(t, dt)
 end
 
 function EnemyManager:_update_gfx_lod()
--- fail 64
-null
-18
--- fail 211
-null
-30
 	if self._gfx_lod_data.enabled and managers.navigation:is_data_ready() then
 		local camera_rot = managers.viewport:get_current_camera_rotation()
 		if camera_rot then
@@ -226,9 +220,6 @@ function EnemyManager:_create_unit_gfx_lod_data(unit)
 end
 
 function EnemyManager:_destroy_unit_gfx_lod_data(u_key)
--- fail 30
-null
-11
 	local lod_entries = self._gfx_lod_data.entries
 	local (for generator), (for state), (for control) = ipairs(lod_entries.units)
 	do
@@ -486,8 +477,7 @@ function EnemyManager:_update_queued_tasks(t)
 
 	end
 
-	do break end
-	if not self._queued_task_executed then
+	if i_asap_task and not self._queued_task_executed then
 		self:_execute_queued_task(i_asap_task)
 	end
 
@@ -533,7 +523,6 @@ function EnemyManager:remove_delayed_clbk(id)
 
 	end
 
-	(for control) = nil and clbk_data[1]
 	debug_pause("[EnemyManager:remove_delayed_clbk] id", id, "was not scheduled!!!")
 end
 
@@ -553,9 +542,8 @@ function EnemyManager:reschedule_delayed_clbk(id, execute_t)
 
 	end
 
-	do break end
-	clbk_data[2] = execute_t
-	do
+	if clbk_data then
+		clbk_data[2] = execute_t
 		local i = #all_clbks
 		while i > 0 and execute_t < all_clbks[i][2] do
 			i = i - 1
@@ -584,7 +572,6 @@ function EnemyManager:force_delayed_clbk(id)
 
 	end
 
-	(for control) = nil and clbk_data[1]
 	debug_pause("[EnemyManager:force_delayed_clbk] id", id, "was not scheduled!!!")
 end
 
@@ -613,7 +600,6 @@ function EnemyManager:queued_tasks_by_callback()
 
 	end
 
-	(for control) = nil and task_data.clbk
 	print("congestion", congestion)
 	local (for generator), (for state), (for control) = pairs(categorised_queued_tasks)
 	do
@@ -757,9 +743,6 @@ function EnemyManager:on_criminal_unregistered(u_key)
 end
 
 function EnemyManager:_upd_corpse_disposal()
--- fail 114
-null
-17
 	local t = TimerManager:game():time()
 	local enemy_data = self._enemy_data
 	local nr_corpses = enemy_data.nr_corpses
@@ -793,7 +776,6 @@ null
 
 	end
 
-	(for control) = nil and u_data.tracker
 	if disposals_needed > #to_dispose then
 		if cam_pos then
 			local (for generator), (for state), (for control) = pairs(corpses)
@@ -813,24 +795,28 @@ null
 
 		end
 
-		do break end
-		local oldest_u_key, oldest_t
-		do
-			local (for generator), (for state), (for control) = pairs(corpses)
+		if disposals_needed > nr_found then
+			local oldest_u_key, oldest_t
 			do
-				do break end
-				if (not oldest_t or oldest_t > u_data.death_t) and not to_dispose[u_key] then
-					oldest_u_key = u_key
-					oldest_t = u_data.death_t
+				local (for generator), (for state), (for control) = pairs(corpses)
+				do
+					do break end
+					if (not oldest_t or oldest_t > u_data.death_t) and not to_dispose[u_key] then
+						oldest_u_key = u_key
+						oldest_t = u_data.death_t
+					end
+
 				end
 
 			end
 
+			if oldest_u_key then
+				to_dispose[oldest_u_key] = true
+				nr_found = nr_found + 1
+			end
+
 		end
 
-		do break end
-		to_dispose[oldest_u_key] = true
-		nr_found = nr_found + 1
 	end
 
 	do
@@ -847,7 +833,7 @@ null
 
 	end
 
-	enemy_data.nr_corpses = pairs(corpses) and nr_corpses - nr_found
+	enemy_data.nr_corpses = nr_corpses - nr_found
 	if nr_corpses > 0 then
 		local delay = enemy_data.nr_corpses > self._MAX_NR_CORPSES and 0 or self._corpse_disposal_upd_interval
 		self:queue_task("EnemyManager._upd_corpse_disposal", EnemyManager._upd_corpse_disposal, self, t + delay)
@@ -919,6 +905,7 @@ function EnemyManager:save(data)
 
 	end
 
+	data.enemy_manager = my_data
 end
 
 function EnemyManager:load(data)

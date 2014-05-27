@@ -41,7 +41,6 @@ function ElementNavObstacle:on_script_activated()
 	end
 
 	self._has_fetched_units = true
-	(for control) = self._values.obstacle_obj_name and Global
 	self._mission_script:add_save_state_cb(self._id)
 end
 
@@ -76,7 +75,6 @@ function ElementNavObstacle:on_executed(instigator)
 
 	end
 
-	(for control) = nil and alive
 	ElementNavObstacle.super.on_executed(self, instigator)
 end
 

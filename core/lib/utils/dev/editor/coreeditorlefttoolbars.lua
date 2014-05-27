@@ -92,7 +92,6 @@ function CoreEditor:on_list_units()
 
 	end
 
-	(for control) = nil and total + 1
 	self:output("", true)
 	do
 		local (for generator), (for state), (for control) = pairs(amount)
@@ -110,7 +109,6 @@ function CoreEditor:on_list_units()
 
 	end
 
-	(for control) = true and string
 	self:output("", true)
 	self:output("Total units: " .. total .. " Total Unique: " .. table.size(amount))
 end

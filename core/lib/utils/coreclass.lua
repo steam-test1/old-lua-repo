@@ -44,7 +44,7 @@ function override_class(old_class, new_class)
 
 	end
 
-	__overrides[old_class] = nil and new_class
+	__overrides[old_class] = new_class
 end
 
 function close_override()
@@ -61,9 +61,6 @@ function type_name(value)
 end
 
 function mixin(res, ...)
--- fail 11
-null
-9
 	do
 		local (for generator), (for state), (for control) = ipairs({
 			...
@@ -83,6 +80,7 @@ null
 
 	end
 
+	return res
 end
 
 function mix(...)
@@ -104,9 +102,9 @@ function mixin_add(res, ...)
 
 		end
 
-		(for control) = ... and table
 	end
 
+	return res
 end
 
 function mix_add(...)
@@ -176,7 +174,7 @@ function freeze(...)
 
 	end
 
-	(for control) = ... and is_frozen
+	return ...
 end
 
 function is_frozen(instance)
@@ -238,6 +236,7 @@ function responder_map(response_table)
 
 	end
 
+	return responder
 end
 
 GetSet = GetSet or class()

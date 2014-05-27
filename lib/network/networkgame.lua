@@ -62,7 +62,7 @@ function NetworkGame:save()
 
 	end
 
-	Global.local_member = nil and nil
+	Global.local_member = nil
 end
 
 function NetworkGame:on_server_session_created()
@@ -124,7 +124,6 @@ function NetworkGame:on_load_complete()
 
 	end
 
-	(for control) = managers.network:session():peers() and peer.id
 	if SystemInfo:platform() == Idstring("PS3") then
 		PSN:set_online_callback(callback(self, self, "ps3_disconnect"))
 	end
@@ -218,7 +217,6 @@ function NetworkGame:check_peer_preferred_character(preferred_character)
 
 	end
 
-	(for control) = nil and member.peer
 	if table.contains(free_characters, preferred_character) then
 		return preferred_character
 	end
@@ -314,7 +312,6 @@ function NetworkGame:_check_start_game_intro(skip_streamer_check)
 
 	end
 
-	(for control) = nil and member.peer
 	if not managers.network:session():chk_send_ready_to_unpause() then
 		return
 	end
@@ -341,7 +338,6 @@ function NetworkGame:on_statistics_recieved(peer_id, peer_kills, peer_specials_k
 
 	end
 
-	(for control) = peer_specials_kills and member.peer
 	print("decide the stats")
 	local total_kills = 0
 	local total_specials_kills = 0
@@ -389,7 +385,6 @@ function NetworkGame:on_statistics_recieved(peer_id, peer_kills, peer_specials_k
 
 	end
 
-	(for control) = nil and member.peer
 	group_accuracy = math.floor(group_accuracy / table.size(self._members))
 	print("result is", "total_kills", total_kills, "total_specials_kills", total_specials_kills, "total_head_shots", total_head_shots)
 	print(inspect(best_killer))
@@ -537,7 +532,6 @@ function NetworkGame:on_peer_removed(peer, peer_id, reason)
 				end
 
 			else
-				(for control) = 25 and equipment.base
 				print("Tried to remove client when neither server or client")
 				Application:stack_dump()
 			end
@@ -626,7 +620,6 @@ function NetworkGame:spawn_players(is_drop_in)
 
 		end
 
-		(for control) = nil and member.peer
 		local local_character = Global.local_member:peer()._character
 		Global.local_member:spawn_unit(id, false, local_character ~= "random" and local_character or nil)
 		do
@@ -642,7 +635,6 @@ function NetworkGame:spawn_players(is_drop_in)
 
 		end
 
-		(for control) = false and member.peer
 		managers.network:session():set_game_started(true)
 	end
 
@@ -678,6 +670,7 @@ function NetworkGame:amount_of_alive_players()
 
 	end
 
+	return i
 end
 
 function NetworkGame:member_peer(peer)
@@ -736,7 +729,6 @@ function NetworkGame:_create_spawn_point_beanbag()
 
 	end
 
-	(for control) = nil and table
 	while #spawn_point_ids > 0 do
 		local i_id = math.random(#spawn_point_ids)
 		local random_id = spawn_point_ids[i_id]

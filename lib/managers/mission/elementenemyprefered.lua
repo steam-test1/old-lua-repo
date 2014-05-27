@@ -22,7 +22,6 @@ function ElementEnemyPreferedAdd:on_script_activated()
 
 	end
 
-	(for control) = nil and self.get_mission_element
 	if self._values.spawn_groups then
 		self._group_data.spawn_groups = {}
 		local (for generator), (for state), (for control) = ipairs(self._values.spawn_groups)
@@ -87,7 +86,6 @@ function ElementEnemyPreferedRemove:on_executed(instigator)
 
 	end
 
-	(for control) = nil and self.get_mission_element
 	ElementEnemyPreferedRemove.super.on_executed(self, instigator)
 end
 

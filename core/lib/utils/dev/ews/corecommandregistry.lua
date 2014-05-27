@@ -42,7 +42,7 @@ function CoreCommandRegistry.Wrapper:init(wrapped_object, commands)
 	end
 
 	self._wrapped_object = wrapped_object
-	self._commands = nil and commands
+	self._commands = commands
 end
 
 function CoreCommandRegistry.Wrapper:wrapped_object()

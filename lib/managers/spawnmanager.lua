@@ -17,7 +17,7 @@ function SpawnManager:spawn_enemy_group_in_vis_group(event, i_vis_group)
 
 	end
 
-	spawn_request.ai = nil and event.ai
+	spawn_request.ai = event.ai
 	do
 		local (for generator), (for state), (for control) = pairs(spawn_request.groups)
 		do
@@ -35,7 +35,6 @@ function SpawnManager:spawn_enemy_group_in_vis_group(event, i_vis_group)
 
 	end
 
-	(for control) = nil and {}
 	self._spawn_requests = self._spawn_requests or {}
 	table.insert(self._spawn_requests, spawn_request)
 	return self:_spawn_units()
@@ -55,7 +54,7 @@ function SpawnManager:spawn_enemy_group(event)
 
 	end
 
-	spawn_request.ai = nil and event.ai
+	spawn_request.ai = event.ai
 	local criminals = World:find_units_quick("all", managers.slot:get_mask("players"))
 	if #criminals > 0 then
 		local hide_from_trackers = {}
@@ -68,7 +67,6 @@ function SpawnManager:spawn_enemy_group(event)
 
 		end
 
-		(for control) = managers.slot:get_mask("players") and table
 		local vis_group_pos, i_vis_group = managers.navigation:find_hide_position({trackers = hide_from_trackers})
 		if i_vis_group then
 			local (for generator), (for state), (for control) = pairs(spawn_request.groups)
@@ -86,7 +84,6 @@ function SpawnManager:spawn_enemy_group(event)
 			end
 
 		else
-			(for control) = table.insert and {}
 			print("SpawnManager:spawn_enemy_group() Could not find a hidden position. Cancelling spawn")
 			return
 		end
@@ -109,7 +106,6 @@ function SpawnManager:spawn_enemy_group(event)
 
 	end
 
-	(for control) = pairs(spawn_request.groups) and {}
 	self._spawn_requests = self._spawn_requests or {}
 	table.insert(self._spawn_requests, spawn_request)
 	return self:_spawn_units()
@@ -119,9 +115,6 @@ function SpawnManager:update(unit, t, dt)
 end
 
 function SpawnManager:_spawn_units()
--- fail 53
-null
-18
 	if self._spawn_requests then
 		local units_spawned = {}
 		local trash_requests
@@ -162,8 +155,7 @@ null
 
 				end
 
-				do break end
-				do
+				if trash_groups then
 					local (for generator), (for state), (for control) = pairs(trash_groups)
 					do
 						do break end
@@ -172,7 +164,6 @@ null
 
 				end
 
-				(for control) = nil and spawn_request.groups
 				if not next(spawn_request.groups) then
 					trash_requests = trash_requests or {}
 					trash_requests[request_id] = true
@@ -182,8 +173,7 @@ null
 
 		end
 
-		do break end
-		do
+		if trash_requests then
 			local (for generator), (for state), (for control) = pairs(trash_requests)
 			do
 				do break end
@@ -192,7 +182,6 @@ null
 
 		end
 
-		(for control) = nil and self._spawn_requests
 		if not next(self._spawn_requests) then
 			self._spawn_requests = nil
 		end

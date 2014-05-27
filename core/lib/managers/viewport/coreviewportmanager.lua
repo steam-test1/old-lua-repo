@@ -51,7 +51,6 @@ function ViewportManager:end_frame(t, dt)
 		end
 
 		self._render_settings_change_map = nil
-		(for control) = nil and RenderSettings
 		Application:apply_render_settings()
 		Application:save_render_settings()
 		if is_resolution_changed then
@@ -131,7 +130,6 @@ function ViewportManager:resolution_changed()
 
 	end
 
-	(for control) = self:viewports() and svp._resolution_changed
 	self._resolution_changed_event_handler:dispatch()
 end
 

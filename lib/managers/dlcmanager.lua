@@ -66,7 +66,6 @@ function GenericDLCManager:give_dlc_package()
 				end
 
 			else
-				(for control) = data.dlc and #loot_drop
 				print("[DLC] Allready been given dlc package", package_id)
 			end
 
@@ -77,7 +76,6 @@ function GenericDLCManager:give_dlc_package()
 			end
 
 		else
-			(for control) = data.dlc and managers
 			print("[DLC] Didn't own DLC package", package_id)
 		end
 
@@ -259,7 +257,6 @@ function PS3DLCManager:_verify_dlcs()
 
 	end
 
-	(for control) = nil and dlc_data.verified
 	local verified_dlcs = PS3:check_dlc_availability(all_dlc)
 	Global.dlc_manager.verified_dlcs = verified_dlcs
 	local (for generator), (for state), (for control) = pairs(verified_dlcs)
@@ -348,7 +345,6 @@ function PS3DLCManager:cb_NPCommerce(result, info)
 
 	end
 
-	(for control) = info and print
 	self._NPCommerce_cb_results = self._NPCommerce_cb_results or {}
 	print("self._activity", self._activity and inspect(self._activity))
 	table.insert(self._NPCommerce_cb_results, {result, info})
@@ -460,7 +456,6 @@ function X360DLCManager:_verify_dlcs()
 
 	end
 
-	(for control) = inspect(found_dlc) and print
 	do
 		local (for generator), (for state), (for control) = pairs(Global.dlc_manager.all_dlc_data)
 		do
@@ -478,7 +473,6 @@ function X360DLCManager:_verify_dlcs()
 
 	end
 
-	(for control) = inspect(found_dlc) and dlc_data.index
 	if found_dlc.has_corrupt_data then
 		print("[X360DLCManager:_verify_dlcs] Found at least one corrupt DLC.")
 		self._has_corrupt_data = true

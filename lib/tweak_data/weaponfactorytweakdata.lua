@@ -113,7 +113,6 @@ function print_parts_without_texture()
 
 	end
 
-	(for control) = nil and part.pcs
 	Application:debug("---------------------------")
 end
 
@@ -2027,7 +2026,6 @@ function WeaponFactoryTweakData:_init_content_unfinished()
 
 	end
 
-	(for control) = 20 and self.parts
 	local (for generator), (for state), (for control) = pairs(self)
 	do
 		do break end
@@ -2049,9 +2047,6 @@ function WeaponFactoryTweakData:_cleanup_unfinished_content()
 end
 
 function WeaponFactoryTweakData:_cleanup_unfinished_parts()
--- fail 5
-null
-3
 	do
 		local (for generator), (for state), (for control) = pairs(self)
 		do
@@ -2093,7 +2088,6 @@ null
 
 		end
 
-		(for control) = nil and #part_data
 	end
 
 	local (for generator), (for state), (for control) = pairs(self.parts)

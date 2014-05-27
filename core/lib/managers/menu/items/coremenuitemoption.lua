@@ -1,9 +1,6 @@
 core:module("CoreMenuItemOption")
 ItemOption = ItemOption or class()
 function ItemOption:init(data_node, parameters)
--- fail 10
-null
-6
 	local params = parameters or {}
 	if data_node then
 		local (for generator), (for state), (for control) = pairs(data_node)

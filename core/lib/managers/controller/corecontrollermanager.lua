@@ -55,11 +55,10 @@ function ControllerManager:init(path, default_settings_path)
 
 		end
 
-		(for control) = nil and self._supported_controller_type_map
 	end
 
 	self._last_version = nil
-	self._last_core_version = nil and nil
+	self._last_core_version = nil
 	self._default_settings_path = default_settings_path
 	self._controller_setup = {}
 	self._core_controller_setup = {}
@@ -99,7 +98,7 @@ function ControllerManager:update(t, dt)
 
 	end
 
-	(for control) = nil and controller_wrapper.enabled
+	self:check_connect_change()
 end
 
 function ControllerManager:paused_update(t, dt)
@@ -115,7 +114,7 @@ function ControllerManager:paused_update(t, dt)
 
 	end
 
-	(for control) = nil and controller_wrapper.enabled
+	self:check_connect_change()
 end
 
 function ControllerManager:check_connect_change()
@@ -134,7 +133,6 @@ function ControllerManager:check_connect_change()
 
 		end
 
-		(for control) = nil and controller.connected
 		if not Global.controller_manager.default_controller_connected ~= not connected then
 			self:default_controller_connect_change(connected)
 			Global.controller_manager.default_controller_connected = connected
@@ -186,7 +184,6 @@ function ControllerManager:create_controller(name, index, debug, prio)
 
 		end
 
-		(for control) = nil and self._wrapper_to_controller_list
 		controller_wrapper = CoreControllerWrapperDebug.ControllerWrapperDebug:new(wrapper_list, self, self._next_controller_wrapper_id, name, default_wrapper, CoreControllerWrapperSettings.ControllerWrapperSettings:new(CoreControllerWrapperDebug.ControllerWrapperDebug.TYPE, nil, nil, nil))
 	else
 		index = index or Global.controller_manager.default_wrapper_index or self:get_preferred_default_wrapper_index()
@@ -238,7 +235,7 @@ function ControllerManager:get_preferred_default_wrapper_index()
 
 	end
 
-	(for control) = nil and Input
+	return 1
 end
 
 function ControllerManager:get_default_wrapper_type()
@@ -248,9 +245,6 @@ function ControllerManager:get_default_wrapper_type()
 end
 
 function ControllerManager:update_controller_wrapper_mappings()
--- fail 45
-null
-16
 	local controller_count = Input:num_real_controllers()
 	local controller_type_to_old_wrapper_map = {}
 	local next_wrapper_index = 1
@@ -348,7 +342,6 @@ function ControllerManager:set_default_wrapper_index(default_wrapper_index)
 
 			end
 
-			(for control) = " to " and table
 			do
 				local (for generator), (for state), (for control) = ipairs(remove_safe_list)
 				do
@@ -358,7 +351,7 @@ function ControllerManager:set_default_wrapper_index(default_wrapper_index)
 
 			end
 
-			(for control) = " to " and func
+			self:setup_default_controller_list()
 		else
 			Application:error("Invalid default controller index.")
 		end
@@ -403,7 +396,6 @@ function ControllerManager:load_core_settings()
 
 		end
 
-		(for control) = self.CORE_CONTROLLER_SETTINGS_PATH:id() and child._meta
 		if self:verify_parsed_controller_setup_map(parsed_controller_setup_map, self.CORE_CONTROLLER_SETTINGS_PATH) then
 			self._last_core_version = tonumber(node.core_version)
 			self._core_controller_setup = parsed_controller_setup_map
@@ -453,7 +445,6 @@ function ControllerManager:load_settings(path)
 
 			end
 
-			(for control) = path:id() and child._meta
 			if self:verify_parsed_controller_setup_map(parsed_controller_setup_map, path) then
 				result = true
 				do
@@ -466,7 +457,7 @@ function ControllerManager:load_settings(path)
 				end
 
 				self._controller_setup = parsed_controller_setup_map
-				self._last_version = path and version
+				self._last_version = version
 				self._settings_path = path
 			else
 				Application:error("Ignores invalid controller setting file \"" .. tostring(path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\".")
@@ -499,7 +490,7 @@ function ControllerManager:load_settings(path)
 
 	end
 
-	(for control) = tostring(path) and self._controller_setup
+	self:rebind_connections()
 	do
 		local (for generator), (for state), (for control) = pairs(self._settings_file_changed_callback_list)
 		do
@@ -509,6 +500,7 @@ function ControllerManager:load_settings(path)
 
 	end
 
+	return result
 end
 
 function ControllerManager:save_settings(path)
@@ -530,7 +522,6 @@ function ControllerManager:save_settings(path)
 
 		end
 
-		(for control) = nil and setting.populate_data
 		file:print(ScriptSerializer:to_custom_xml(data))
 		SystemFS:close(file)
 		self._settings_path = path
@@ -604,9 +595,6 @@ function ControllerManager:create_virtual_pad()
 end
 
 function ControllerManager:verify_parsed_controller_setup_map(parsed_controller_setup_map, path)
--- fail 14
-null
-14
 	local result = true
 	local connection_map = {}
 	local last_wrapper_type
@@ -631,8 +619,7 @@ null
 
 			end
 
-			do break end
-			do
+			if last_wrapper_type then
 				local (for generator), (for state), (for control) = pairs(connection_map)
 				do
 					do break end
@@ -645,11 +632,11 @@ null
 
 			end
 
-			do break end
-			last_wrapper_type = wrapper_type
+			last_wrapper_type = last_wrapper_type or wrapper_type
 		end
 
 	end
 
+	return result
 end
 

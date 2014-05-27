@@ -30,7 +30,6 @@ function IngameArrestedState:at_enter()
 
 	end
 
-	(for control) = nil and player.camera
 	managers.statistics:downed({bleed_out = true})
 	local player = managers.player:player_unit()
 	if player then

@@ -48,7 +48,6 @@ function Manager:_parse_arguments(args)
 
 	end
 
-	(for control) = nil and arg.find
 	if self._suite then
 		self._suite:start(self._session_state, self._reporter, suite_arguments)
 	end

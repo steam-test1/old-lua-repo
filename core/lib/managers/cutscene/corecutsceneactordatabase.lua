@@ -73,14 +73,13 @@ function CoreCutsceneActorDatabaseUnitTypeInfo:_append_unit_info(unit)
 
 					end
 
-					self._extensions[extension_name] = getmetatable(extension) and methods
+					self._extensions[extension_name] = methods
 				end
 
 			end
 
 		end
 
-		(for control) = unit:extensions() and unit[extension_name]
 		freeze(self._extensions)
 	end
 

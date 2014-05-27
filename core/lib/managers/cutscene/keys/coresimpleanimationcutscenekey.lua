@@ -61,7 +61,6 @@ function CoreSimpleAnimationCutsceneKey:refresh_control_for_group(control)
 		end
 
 	else
-		(for control) = self:unit_name() and control.append
 		control:set_enabled(false)
 	end
 

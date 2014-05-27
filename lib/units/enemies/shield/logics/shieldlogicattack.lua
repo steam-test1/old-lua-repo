@@ -243,15 +243,6 @@ function ShieldLogicAttack.queue_update(data, my_data)
 end
 
 function ShieldLogicAttack._upd_enemy_detection(data)
--- fail 58
-null
-17
--- fail 117
-null
-25
--- fail 112
-null
-20
 	managers.groupai:state():on_unit_detection_updated(data.unit)
 	data.t = TimerManager:game():time()
 	local my_data = data.internal_data
@@ -278,7 +269,6 @@ null
 
 	end
 
-	(for control) = nil and enemy_data.reaction
 	do
 		local (for generator), (for state), (for control) = pairs(enemies)
 		do
@@ -290,9 +280,8 @@ null
 
 	end
 
-	do break end
-	mvector3.divide(threat_epicenter, nr_threats)
-	do
+	if threat_epicenter then
+		mvector3.divide(threat_epicenter, nr_threats)
 		local from_threat = mvector3.copy(threat_epicenter)
 		mvector3.subtract(from_threat, data.m_pos)
 		mvector3.normalize(from_threat)
@@ -413,7 +402,6 @@ null
 
 			end
 
-			(for control) = my_data.optimal_pos and mvector3
 			local optimal_pos = mvector3.copy(optimal_direction)
 			mvector3.multiply(optimal_pos, -(optimal_length + 600))
 			mvector3.add(optimal_pos, threat_epicenter)
@@ -445,12 +433,8 @@ null
 
 		end
 
-		(for control) = optimal_pos and CopLogicSniper
 		CopLogicBase._set_attention_obj(data, focus_enemy, focus_enemy_reaction)
-	end
-
-	do break end
-	do
+	else
 		local new_attention, new_prio_slot, new_reaction = CopLogicIdle._get_priority_attention(data, data.detected_attention_objects, nil)
 		local old_att_obj = data.attention_obj
 		CopLogicBase._set_attention_obj(data, new_attention, new_reaction)

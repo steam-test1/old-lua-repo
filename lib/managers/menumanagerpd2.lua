@@ -414,9 +414,6 @@ function MenuCallbackHandler:clicked_character(item)
 end
 
 function MenuCallbackHandler:equip_character(item)
--- fail 20
-null
-5
 	local character_id = item:parameter("character_id")
 	Global.blackmarket_manager.characters[character_id].equipped = true
 	managers.menu_scene:set_character(character_id)
@@ -432,6 +429,7 @@ null
 
 	end
 
+	self:_update_outfit_information()
 end
 
 function MenuCallbackHandler:can_buy_character(item)
@@ -486,9 +484,6 @@ function MenuCallbackHandler:_on_buy_armor_yes(params)
 end
 
 function MenuCallbackHandler:equip_armor(item)
--- fail 20
-null
-5
 	local armor_id = item:parameter("armor_id")
 	Global.blackmarket_manager.armors[armor_id].equipped = true
 	managers.menu_scene:set_character_armor(armor_id)
@@ -504,6 +499,7 @@ null
 
 	end
 
+	self:_update_outfit_information()
 end
 
 function MenuCallbackHandler:repair_armor(item)
@@ -665,7 +661,6 @@ function MenuMarketItemInitiator:_add_expand_weapon(item, selection_index)
 
 	end
 
-	(for control) = nil and data.autohit
 	if self:_uses_owned_stats() then
 		item:set_parameter("current", j)
 		item:set_parameter("total", i)
@@ -715,7 +710,6 @@ function MenuMarketItemInitiator:_add_expand_mask(item)
 
 	end
 
-	(for control) = nil and i + 1
 	if self:_uses_owned_stats() then
 		item:set_parameter("current", j)
 		item:set_parameter("total", i)
@@ -765,7 +759,6 @@ function MenuMarketItemInitiator:_add_expand_character(item)
 
 	end
 
-	(for control) = nil and i + 1
 	if self:_uses_owned_stats() then
 		item:set_parameter("current", j)
 		item:set_parameter("total", i)
@@ -822,7 +815,6 @@ function MenuMarketItemInitiator:_add_expand_armor(item)
 
 	end
 
-	(for control) = nil and i + 1
 	if self:_uses_owned_stats() then
 		item:set_parameter("current", j)
 		item:set_parameter("total", i)
@@ -883,7 +875,6 @@ function MenuBuyUpgradesInitiator:_add_expand_upgrade(item, weapon_id, upgrade)
 
 	end
 
-	(for control) = nil and i + 1
 	item:set_parameter("current", j)
 	item:set_parameter("total", i)
 	item:_show_items(nil)
@@ -953,9 +944,6 @@ function MenuCrimeNetInitiator:modify_node(node)
 end
 
 function MenuCrimeNetInitiator:refresh_node(node)
--- fail 151
-null
-7
 	do return node end
 	local dead_list = {}
 	do
@@ -968,7 +956,7 @@ null
 	end
 
 	local online = {}
-	local offline = node:items() and {}
+	local offline = {}
 	do
 		local (for generator), (for state), (for control) = ipairs(Steam:friends())
 		do
@@ -983,7 +971,6 @@ null
 
 	end
 
-	(for control) = Steam:friends() and math
 	node:delete_item("online")
 	if not node:item("online") then
 		local params = {
@@ -1018,7 +1005,6 @@ null
 
 	end
 
-	(for control) = node and user.id
 	node:delete_item("offline")
 	if not node:item("offline") then
 		local params = {
@@ -1053,7 +1039,6 @@ null
 
 	end
 
-	(for control) = node and user.id
 	do
 		local (for generator), (for state), (for control) = pairs(dead_list)
 		do

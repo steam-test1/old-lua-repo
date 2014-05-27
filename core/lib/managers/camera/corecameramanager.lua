@@ -29,7 +29,7 @@ function CameraBase:destroy()
 
 	end
 
-	self._nodes = nil and {}
+	self._nodes = {}
 	self._setup = nil
 end
 
@@ -69,7 +69,7 @@ function CameraManager:destroy()
 
 	end
 
-	self._layers = nil and {}
+	self._layers = {}
 end
 
 function CameraManager:create_layers(templates)
@@ -82,7 +82,7 @@ function CameraManager:create_layers(templates)
 
 	end
 
-	self._layers = nil and {}
+	self._layers = {}
 	self._name_to_layer = {}
 	self._templates = templates
 	self._interpreter = templates._interpreter_class:new()
@@ -159,9 +159,6 @@ function CameraManager:get_camera_layer(name)
 end
 
 function CameraManager:create_camera(name)
--- fail 74
-null
-20
 	local templates = self._templates
 	local camera_setups = templates._setups
 	local camera_node_setups = templates._node_setups
@@ -218,7 +215,6 @@ null
 
 			end
 
-			(for control) = nil and node_table._node_name
 			if camera_setup._default_blend then
 				camera._default_blend = camera_setup._default_blend
 			end
@@ -240,7 +236,7 @@ null
 
 	end
 
-	camera._setup = nil and camera_list[num_cameras]
+	camera._setup = camera_list[num_cameras]
 	return camera
 end
 
@@ -256,7 +252,6 @@ function CameraManager:update(time, dt)
 
 	end
 
-	(for control) = nil and mixer.update
 	if self._debug_render_enable then
 		local (for generator), (for state), (for control) = ipairs(self._layers)
 		do
@@ -326,7 +321,6 @@ function CameraTemplateManager:load_cameras()
 
 	end
 
-	(for control) = nil and xml_child_node.name
 	local (for generator), (for state), (for control) = ipairs(self._camera_managers)
 	do
 		do break end
@@ -470,6 +464,7 @@ function CameraTemplateManager:parse_camera_node(xml_node, space)
 
 		end
 
+		return strings
 	end
 
 	if xml_node:has_parameter("class") and xml_node:has_parameter("name") then

@@ -167,7 +167,6 @@ function NetworkMatchMakingSTEAM:get_friends_lobbies()
 
 			end
 
-			(for control) = nil and NetworkMatchMakingSTEAM
 			self:_call_callback("search_lobby", info)
 		end
 
@@ -186,7 +185,6 @@ function NetworkMatchMakingSTEAM:get_friends_lobbies()
 
 	end
 
-	(for control) = Steam:friends() and friend.lobby
 	if #lobbies == 0 then
 		local info = {
 			room_list = {},
@@ -297,7 +295,6 @@ function NetworkMatchMakingSTEAM:search_lobby(friends_only)
 
 			end
 
-			(for control) = nil and self
 			self:_call_callback("search_lobby", info)
 		end
 
@@ -338,7 +335,6 @@ function NetworkMatchMakingSTEAM:search_lobby(friends_only)
 
 		end
 
-		(for control) = "true" and data.value
 		self.browser:set_max_lobby_return_count(self._lobby_return_count)
 		if Global.game_settings.playing_lan then
 			self.browser:refresh_lan()

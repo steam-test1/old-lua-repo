@@ -522,7 +522,7 @@ function HUDStatsScreen:_rec_round_object(object)
 
 	end
 
-	local x, y = object:children() and object:position(), object:position()
+	local x, y = object:position()
 	object:set_position(math.round(x), math.round(y))
 end
 
@@ -837,7 +837,6 @@ function HUDStatsScreen:_create_stats_ext_inventory(ext_inventory_panel)
 
 	end
 
-	(for control) = nil and ext_inventory_panel.h
 	local title = ext_inventory_panel:text({
 		name = "title",
 		visible = true,

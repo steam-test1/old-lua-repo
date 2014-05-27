@@ -360,7 +360,6 @@ function PlayerBase:replenish()
 
 	end
 
-	(for control) = self._unit:inventory():available_selections() and alive
 	self._unit:character_damage():replenish()
 end
 
@@ -389,7 +388,7 @@ function PlayerBase:set_suspicion_multiplier(reason, multiplier)
 
 	end
 
-	self._suspicion_settings.buildup_mul = nil and buildup_mul
+	self._suspicion_settings.buildup_mul = buildup_mul
 	self._suspicion_settings.range_mul = range_mul
 end
 
@@ -407,7 +406,7 @@ function PlayerBase:set_detection_multiplier(reason, multiplier)
 
 	end
 
-	self._detection_settings.delay_mul = nil and delay_mul
+	self._detection_settings.delay_mul = delay_mul
 	self._detection_settings.range_mul = range_mul
 end
 

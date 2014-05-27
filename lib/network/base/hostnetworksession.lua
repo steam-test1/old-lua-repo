@@ -53,7 +53,6 @@ function HostNetworkSession:load_level(...)
 
 	end
 
-	(for control) = nil and peer.set_synched
 	self._local_peer:set_loaded(false)
 	self:set_state("closing")
 	self:send_to_peers("set_loading_state", true)
@@ -74,7 +73,6 @@ function HostNetworkSession:load_lobby(...)
 
 	end
 
-	(for control) = nil and peer.set_synched
 	self._local_peer:set_loaded(false)
 	self:set_state("closing")
 	self:send_to_peers("set_loading_state", true)
@@ -192,9 +190,6 @@ function HostNetworkSession:send_ok_to_load_lobby()
 end
 
 function HostNetworkSession:on_peer_save_received(event, event_data)
--- fail 98
-null
-6
 	if managers.network:stopping() then
 		return
 	end
@@ -247,7 +242,6 @@ null
 
 			end
 
-			(for control) = 1 and peer.id
 			do
 				local (for generator), (for state), (for control) = pairs(self._peers)
 				do
@@ -260,7 +254,6 @@ null
 
 			end
 
-			(for control) = 1 and peer.id
 			if self._local_peer:is_expecting_pause_confirmation(peer:id()) then
 				self._local_peer:set_expecting_drop_in_pause_confirmation(peer:id(), nil)
 				managers.network:game():on_drop_in_pause_request_received(peer:id(), peer:name(), false)
@@ -277,7 +270,6 @@ null
 
 		end
 
-		(for control) = peer:name() and self.chk_spawn_member_unit
 		managers.network:game():on_peer_sync_complete(peer, peer:id())
 	end
 
@@ -360,7 +352,6 @@ function HostNetworkSession:chk_initiate_dropin_pause(dropin_peer)
 
 	end
 
-	(for control) = dropin_peer:id() and peer.is_expecting_pause_confirmation
 	do
 		local (for generator), (for state), (for control) = pairs(self._peers)
 		do
@@ -373,7 +364,6 @@ function HostNetworkSession:chk_initiate_dropin_pause(dropin_peer)
 
 	end
 
-	(for control) = dropin_peer:id() and dropin_peer.id
 	if not self._local_peer:is_expecting_pause_confirmation(dropin_peer:id()) then
 		self._local_peer:set_expecting_drop_in_pause_confirmation(dropin_peer:id(), "paused")
 		managers.network:game():on_drop_in_pause_request_received(dropin_peer:id(), dropin_peer:name(), true)
@@ -385,9 +375,6 @@ function HostNetworkSession:chk_initiate_dropin_pause(dropin_peer)
 end
 
 function HostNetworkSession:chk_drop_in_peer(dropin_peer)
--- fail 16
-null
-5
 	if not dropin_peer:expecting_dropin() then
 		return
 	end
@@ -454,8 +441,10 @@ function HostNetworkSession:_get_free_client_id()
 
 			end
 
-			do break end
-			return i
+			if not is_dirty then
+				return i
+			end
+
 		end
 
 		i = i + 1
@@ -495,7 +484,6 @@ function HostNetworkSession:remove_peer(peer, peer_id, reason)
 
 		end
 
-		(for control) = self._dead_con_reports and other_peer.is_expecting_pause_confirmation
 		if self._local_peer:is_expecting_pause_confirmation(peer_id) then
 			self._local_peer:set_expecting_drop_in_pause_confirmation(peer_id, nil)
 			managers.network:game():on_drop_in_pause_request_received(peer_id, "", false)
@@ -512,7 +500,7 @@ function HostNetworkSession:remove_peer(peer, peer_id, reason)
 	end
 
 	local info_msg_type = "kick_peer"
-	local info_msg_id = "" and nil
+	local info_msg_id
 	if reason == "kicked" then
 		info_msg_id = 0
 	elseif reason == "auth_fail" then
@@ -534,8 +522,7 @@ function HostNetworkSession:remove_peer(peer, peer_id, reason)
 
 	end
 
-	do break end
-	if reason ~= "kicked" and reason ~= "auth_fail" then
+	if reason ~= "left" and reason ~= "kicked" and reason ~= "auth_fail" then
 		peer:send(info_msg_type, peer_id, info_msg_id)
 	end
 
@@ -624,7 +611,6 @@ function HostNetworkSession:chk_spawn_member_unit(peer, peer_id)
 
 	end
 
-	(for control) = "member:spawn_unit_called()" and other_peer.synched
 	if not self:chk_all_handshakes_complete() then
 		return
 	end
@@ -647,7 +633,6 @@ function HostNetworkSession:chk_server_joinable_state()
 
 	end
 
-	(for control) = nil and peer.force_open_lobby_state
 	if table.size(self._peers) >= 3 then
 		managers.network.matchmake:set_server_joinable(false)
 		return
@@ -728,9 +713,6 @@ function HostNetworkSession:prepare_to_close(...)
 end
 
 function HostNetworkSession:chk_peer_handshakes_complete(peer)
--- fail 9
-null
-6
 	local peer_id = peer:id()
 	local peer_handshakes = peer:handshakes()
 	do
@@ -754,12 +736,10 @@ null
 
 	end
 
+	return true
 end
 
 function HostNetworkSession:chk_all_handshakes_complete()
--- fail 11
-null
-9
 	do
 		local (for generator), (for state), (for control) = pairs(self._peers)
 		do
@@ -779,7 +759,7 @@ null
 
 	end
 
-	(for control) = nil and peer.handshakes
+	return true
 end
 
 function HostNetworkSession:set_dropin_pause_request(peer, dropin_peer_id, state)
@@ -811,7 +791,6 @@ function HostNetworkSession:chk_send_ready_to_unpause()
 
 	end
 
-	(for control) = nil and peer.loaded
 	do
 		local (for generator), (for state), (for control) = pairs(self._peers)
 		do
@@ -821,7 +800,6 @@ function HostNetworkSession:chk_send_ready_to_unpause()
 
 	end
 
-	(for control) = nil and self.set_dropin_pause_request
 	if self._local_peer:is_expecting_pause_confirmation(self._local_peer:id()) then
 		self._local_peer:set_expecting_drop_in_pause_confirmation(self._local_peer:id(), nil)
 		managers.network:game():on_drop_in_pause_request_received(self._local_peer:id(), "", false)

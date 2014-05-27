@@ -427,7 +427,6 @@ function BrushLayer:build_panel(notebook)
 
 	end
 
-	(for control) = "LB_SINGLE,LB_HSCROLL,LB_NEEDED_SB,LB_SORT" and brushes.append
 	brushes_sizer:add(brushes, 1, 0, "EXPAND")
 	self._sizer:add(brushes_sizer, 1, 0, "EXPAND")
 	self._main_sizer:add(self._sizer, 2, 2, "LEFT,RIGHT,EXPAND")
@@ -498,13 +497,11 @@ function BrushLayer:save_brushes()
 
 			end
 
-			(for control) = name and f.puts
 			f:puts("\t</brush>")
 		end
 
 	end
 
-	(for control) = ".xml" and f.puts
 	f:puts("</brushes>")
 	f:close()
 	managers.database:recompile(self._brushed_path)
@@ -527,7 +524,7 @@ function BrushLayer:load_brushes()
 
 			end
 
-			self._unit_brushes[name] = nil and unit_names
+			self._unit_brushes[name] = unit_names
 		end
 
 	end
@@ -568,7 +565,6 @@ function BrushLayer:set_unit_name(units)
 
 	end
 
-	(for control) = nil and self.get_real_name
 	local i = self._brushes_ctrlr:selected_index()
 	if i > -1 then
 		self._brushes_ctrlr:deselect_index(i)

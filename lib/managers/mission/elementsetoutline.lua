@@ -39,7 +39,6 @@ function ElementSetOutline:on_executed(instigator)
 
 	end
 
-	(for control) = nil and self.get_mission_element
 	ElementSetOutline.super.on_executed(self, instigator)
 end
 

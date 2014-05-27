@@ -171,7 +171,6 @@ function ElementCounterReset:on_executed(instigator)
 
 	end
 
-	(for control) = nil and self.get_mission_element
 	ElementCounterReset.super.on_executed(self, instigator)
 end
 
@@ -210,7 +209,6 @@ function ElementCounterOperator:on_executed(instigator)
 
 	end
 
-	(for control) = nil and self.get_mission_element
 	ElementCounterOperator.super.on_executed(self, instigator)
 end
 
@@ -298,7 +296,7 @@ function ElementCounterFilter:_all_counter_values_equal()
 
 	end
 
-	(for control) = nil and self.get_mission_element
+	return true
 end
 
 function ElementCounterFilter:_all_counters_ok()
@@ -314,7 +312,7 @@ function ElementCounterFilter:_all_counters_ok()
 
 	end
 
-	(for control) = nil and self._check_type
+	return true
 end
 
 function ElementCounterFilter:_any_counters_ok()
@@ -330,7 +328,7 @@ function ElementCounterFilter:_any_counters_ok()
 
 	end
 
-	(for control) = nil and self._check_type
+	return false
 end
 
 function ElementCounterFilter:_check_type(element)

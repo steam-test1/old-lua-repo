@@ -33,7 +33,6 @@ function EnvironmentFeeder:feed(data, nr, scene, vp)
 
 		end
 
-		(for control) = self:feeders() and feeder.feed
 		error("[EnvironmentFeeder] No suitable feeder found! Data: ", ...)
 	end
 )

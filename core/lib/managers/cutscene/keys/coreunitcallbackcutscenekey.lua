@@ -39,7 +39,6 @@ function CoreUnitCallbackCutsceneKey:load(key_node, loading_class)
 
 	end
 
-	(for control) = nil and CoreUnitCallbackCutsceneKeyParam
 	if self:is_valid_method(self:method()) then
 		self._method_params[self:method()] = params
 	end
@@ -60,6 +59,7 @@ function CoreUnitCallbackCutsceneKey:_save_under(parent_node)
 
 	end
 
+	return key_node
 end
 
 function CoreUnitCallbackCutsceneKey:play(player, undo, fast_forward)
@@ -116,7 +116,6 @@ function CoreUnitCallbackCutsceneKey:refresh_control_for_extension(control)
 		end
 
 	else
-		(for control) = self:_unit_extension_info(self:unit_name()) and control.append
 		control:set_enabled(false)
 	end
 
@@ -141,7 +140,6 @@ function CoreUnitCallbackCutsceneKey:refresh_control_for_method(control)
 		end
 
 	else
-		(for control) = table.map_keys(methods) and control.append
 		control:set_enabled(false)
 	end
 
@@ -199,11 +197,6 @@ function CoreUnitCallbackCutsceneKey:refresh_control_for_arguments(panel)
 
 				end
 
-				(for control) = function()
-					param.value_type = type_selector:get_value()
-					value_field:set_enabled(param.value_type ~= "nil")
-				end
- and type_selector.append
 				local type_and_value_sizer = EWS:BoxSizer("HORIZONTAL")
 				type_and_value_sizer:add(type_selector, 0, 5, "RIGHT,EXPAND")
 				type_and_value_sizer:add(value_field, 1, 0, "EXPAND")
@@ -215,7 +208,6 @@ function CoreUnitCallbackCutsceneKey:refresh_control_for_arguments(panel)
 
 	end
 
-	(for control) = 0 and self._param_with_name
 	panel:set_sizer(panel_sizer)
 	panel:thaw()
 end
@@ -260,7 +252,6 @@ function CoreUnitCallbackCutsceneKey:_invoke_if_exists(method_name, player)
 
 	end
 
-	(for control) = "\" does not support the call \"" and param.value
 	func(extension, table.unpack_sparse(param_values))
 end
 

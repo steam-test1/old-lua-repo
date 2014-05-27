@@ -72,6 +72,7 @@ function CrimeNetManager:_get_jobs_by_jc()
 
 	end
 
+	return t
 end
 
 function CrimeNetManager:_number_of_jobs(jcs, jobs_by_jc)
@@ -88,6 +89,7 @@ function CrimeNetManager:_number_of_jobs(jcs, jobs_by_jc)
 
 	end
 
+	return amount
 end
 
 function CrimeNetManager:_setup()
@@ -186,7 +188,6 @@ function CrimeNetManager:update(t, dt)
 
 	end
 
-	(for control) = nil and job.added
 	local max_active_jobs = math.min(self._MAX_ACTIVE_JOBS, #self._presets)
 	if self._debug_mass_spawning then
 		max_active_jobs = math.min(tweak_data.gui.crime_net.debug_options.mass_spawn_limit, #self._presets)
@@ -216,7 +217,6 @@ function CrimeNetManager:update(t, dt)
 
 	end
 
-	(for control) = nil and job.alive_time
 	managers.menu_component:update_crimenet_gui(t, dt)
 	if not self._skip_servers then
 		if self._refresh_server_t < Application:time() then
@@ -319,9 +319,6 @@ end
 
 function CrimeNetManager:_find_online_games_xbox360(friends_only)
 	local function f(info)
--- fail 19
-null
-7
 		local friends = managers.network.friends:get_friends_by_name()
 		managers.network.matchmake:search_lobby_done()
 		local room_list = info.room_list
@@ -403,7 +400,6 @@ null
 
 		end
 
-		(for control) = nil and tostring
 		local (for generator), (for state), (for control) = pairs(dead_list)
 		do
 			do break end
@@ -418,9 +414,6 @@ null
 end
 
 function CrimeNetManager:_find_online_games_ps3(friends_only)
--- fail 20
-null
-8
 	local function f(info_list)
 		managers.network.matchmake:search_lobby_done()
 		local friend_names = managers.network.friends:get_names_friends_list()
@@ -543,10 +536,8 @@ null
 
 				end
 
-				(for control) = nil and tostring
 			end
 
-			(for control) = nil and info.room_list
 			local (for generator), (for state), (for control) = pairs(dead_list)
 			do
 				do break end
@@ -556,7 +547,7 @@ null
 
 		end
 
-		(for control) = nil and self
+		done_verify_func()
 	end
 
 	managers.network.matchmake:update_session_attributes(rooms, updated_session_attributes)
@@ -578,9 +569,6 @@ end
 
 function CrimeNetManager:_find_online_games_win32(friends_only)
 	local function f(info)
--- fail 14
-null
-6
 		managers.network.matchmake:search_lobby_done()
 		local room_list = info.room_list
 		local attribute_list = info.attribute_list
@@ -628,11 +616,29 @@ null
 
 					end
 
-					do break end
-					if not self._active_server_jobs[room.room_id] then
-						if table.size(self._active_jobs) + table.size(self._active_server_jobs) < tweak_data.gui.crime_net.job_vars.total_active_jobs and table.size(self._active_server_jobs) < self._max_active_server_jobs then
-							self._active_server_jobs[room.room_id] = {added = false, alive_time = 0}
-							managers.menu_component:add_crimenet_server_job({
+					if name_id then
+						if not self._active_server_jobs[room.room_id] then
+							if table.size(self._active_jobs) + table.size(self._active_server_jobs) < tweak_data.gui.crime_net.job_vars.total_active_jobs and table.size(self._active_server_jobs) < self._max_active_server_jobs then
+								self._active_server_jobs[room.room_id] = {added = false, alive_time = 0}
+								managers.menu_component:add_crimenet_server_job({
+									room_id = room.room_id,
+									id = room.room_id,
+									level_id = level_id,
+									difficulty = difficulty,
+									difficulty_id = difficulty_id,
+									num_plrs = num_plrs,
+									host_name = host_name,
+									state_name = state_name,
+									state = state,
+									level_name = level_name,
+									job_id = job_id,
+									is_friend = is_friend,
+									kick_option = kick_option
+								})
+							end
+
+						else
+							managers.menu_component:update_crimenet_server_job({
 								room_id = room.room_id,
 								id = room.room_id,
 								level_id = level_id,
@@ -649,22 +655,6 @@ null
 							})
 						end
 
-					else
-						managers.menu_component:update_crimenet_server_job({
-							room_id = room.room_id,
-							id = room.room_id,
-							level_id = level_id,
-							difficulty = difficulty,
-							difficulty_id = difficulty_id,
-							num_plrs = num_plrs,
-							host_name = host_name,
-							state_name = state_name,
-							state = state,
-							level_name = level_name,
-							job_id = job_id,
-							is_friend = is_friend,
-							kick_option = kick_option
-						})
 					end
 
 				end
@@ -673,7 +663,6 @@ null
 
 		end
 
-		(for control) = nil and tostring
 		local (for generator), (for state), (for control) = pairs(dead_list)
 		do
 			do break end
@@ -1177,7 +1166,7 @@ function CrimeNetGui:init(ws, fullscreeen_ws, node)
 
 			end
 
-			local global_bonuses_anim = global_bonuses_panel:children() and function(panel)
+			local function global_bonuses_anim(panel)
 				local child_num = 1
 				local viewing_child = panel:children()[child_num]
 				local t = 0
@@ -1446,8 +1435,10 @@ function CrimeNetGui:init(ws, fullscreeen_ws, node)
 
 	end
 
-	do break end
-	self:_goto_map_position(start_position.x, start_position.y)
+	if start_position then
+		self:_goto_map_position(start_position.x, start_position.y)
+	end
+
 	self._special_contracts_id = {}
 	self:add_special_contracts(node:parameters().no_casino)
 	managers.features:announce_feature("crimenet_welcome")
@@ -1496,7 +1487,6 @@ function CrimeNetGui:make_color_text(text_object, color)
 
 	end
 
-	(for control) = nil and Idstring
 	if #start_ci ~= #end_ci then
 	else
 		for i = 1, #start_ci do
@@ -1631,7 +1621,6 @@ function CrimeNetGui:_create_polylines()
 
 	end
 
-	(for control) = nil and region[1]
 	if Application:production_build() and tweak_data.gui.crime_net.debug_options.regions then
 		local (for generator), (for state), (for control) = ipairs(tweak_data.gui.crime_net.locations)
 		do
@@ -1771,9 +1760,6 @@ function CrimeNetGui:add_server_job(data)
 end
 
 function CrimeNetGui:_create_job_gui(data, type, fixed_x, fixed_y, fixed_location)
--- fail 507
-null
-39
 	local level_id = data.level_id
 	local level_data = tweak_data.levels[level_id]
 	local narrative_data = data.job_id and tweak_data.narrative.jobs[data.job_id]
@@ -2512,7 +2498,6 @@ function CrimeNetGui:_anim_remove_job_gui(o, id)
 
 	end
 
-	(for control) = data.marker_panel:children() and child.set_halign
 	over(0.1, function(p)
 		inv_p = 1 - p
 		x, y = data.marker_panel:center()
@@ -2585,16 +2570,18 @@ function CrimeNetGui:update_server_job(data, i)
 
 	end
 
-	do break end
-	print("[CrimeNetGui] update_server_job", "job_index", job_index)
-	local is_server = job.server
-	local x = job.job_x
-	local y = job.job_y
-	local location = job.location
-	self:remove_job(job_index, true)
-	local gui_data = self:_create_job_gui(data, is_server and "server" or "contract", x, y, location)
-	gui_data.server = is_server
-	self._jobs[job_index] = gui_data
+	if recreate_job then
+		print("[CrimeNetGui] update_server_job", "job_index", job_index)
+		local is_server = job.server
+		local x = job.job_x
+		local y = job.job_y
+		local location = job.location
+		self:remove_job(job_index, true)
+		local gui_data = self:_create_job_gui(data, is_server and "server" or "contract", x, y, location)
+		gui_data.server = is_server
+		self._jobs[job_index] = gui_data
+	end
+
 end
 
 function CrimeNetGui:_update_job_variable(id, variable, value)
@@ -2666,7 +2653,6 @@ function CrimeNetGui:update(t, dt)
 
 	end
 
-	(for control) = nil and d[3]
 	self._rasteroverlay:set_texture_rect(0, -math.mod(Application:time() * 5, 32), 32, 640)
 	if self._released_map then
 		self._released_map.dx = math.lerp(self._released_map.dx, 0, dt * 2)
@@ -2738,10 +2724,12 @@ function CrimeNetGui:update(t, dt)
 
 		end
 
-		do break end
-		closest_dist = math.sqrt(closest_dist)
-		if closest_dist < self._tweak_data.controller.snap_distance then
-			managers.mouse_pointer:force_move_mouse_pointer(math.lerp(mouse_pos_x, closest_job_x, dt * self._tweak_data.controller.snap_speed) - mouse_pos_x, math.lerp(mouse_pos_y, closest_job_y, dt * self._tweak_data.controller.snap_speed) - mouse_pos_y)
+		if closest_job then
+			closest_dist = math.sqrt(closest_dist)
+			if closest_dist < self._tweak_data.controller.snap_distance then
+				managers.mouse_pointer:force_move_mouse_pointer(math.lerp(mouse_pos_x, closest_job_x, dt * self._tweak_data.controller.snap_speed) - mouse_pos_x, math.lerp(mouse_pos_y, closest_job_y, dt * self._tweak_data.controller.snap_speed) - mouse_pos_y)
+			end
+
 		end
 
 	end
@@ -2856,9 +2844,6 @@ function CrimeNetGui:check_job_mouse_over(x, y)
 end
 
 function CrimeNetGui:check_job_pressed(x, y)
--- fail 108
-null
-11
 	local (for generator), (for state), (for control) = pairs(self._jobs)
 	do
 		do break end
@@ -2903,6 +2888,7 @@ null
 
 			end
 
+			return true
 		end
 
 	end
@@ -3005,7 +2991,6 @@ function CrimeNetGui:mouse_released(o, button, x, y)
 
 		end
 
-		(for control) = nil and values[1]
 		dx = dx / #self._grabbed_map.dirs
 		dy = dy / #self._grabbed_map.dirs
 		self._released_map = {
@@ -3104,12 +3089,6 @@ function CrimeNetGui:_goto_map_position(x, y)
 end
 
 function CrimeNetGui:_set_zoom(zoom, x, y)
--- fail 108
-null
-16
--- fail 115
-null
-16
 	local w1, h1 = self._pan_panel:size()
 	local wx1 = (-self._fullscreen_panel:x() - self._pan_panel:x() + x) / self._pan_panel:w()
 	local wy1 = (-self._fullscreen_panel:y() - self._pan_panel:y() + y) / self._pan_panel:h()
@@ -3207,7 +3186,6 @@ null
 
 	end
 
-	(for control) = nil and job.marker_panel
 	local (for generator), (for state), (for control) = ipairs(self._region_locations)
 	do
 		do break end
@@ -3220,9 +3198,6 @@ function CrimeNetGui:update_job_gui(job, inside)
 	if job.mouse_over ~= inside then
 		job.mouse_over = inside
 		local function animate_alpha(o, objects, job, alphas, inside)
--- fail 183
-null
-32
 			local wanted_alpha = alphas[1]
 			local wanted_text_alpha = alphas[2]
 			local wanted_icon_alpha = inside and (job.kick_option == 0 and 1 or 0) or 0
@@ -3397,9 +3372,6 @@ null
 end
 
 function CrimeNetGui:mouse_moved(o, x, y)
--- fail 369
-null
-16
 	if not self._crimenet_enabled then
 		return false
 	end
@@ -3511,7 +3483,6 @@ null
 
 	end
 
-	(for control) = nil and job.marker_panel
 	do
 		local (for generator), (for state), (for control) = pairs(self._jobs)
 		do

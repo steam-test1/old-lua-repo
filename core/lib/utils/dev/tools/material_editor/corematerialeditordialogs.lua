@@ -33,7 +33,6 @@ function CoreMaterialEditorGlobalDialog:init(parent, editor)
 
 	end
 
-	(for control) = "EVT_CLOSE_WINDOW" and self._fill_tree
 	self._dialog:show_modal()
 end
 
@@ -47,7 +46,6 @@ function CoreMaterialEditorGlobalDialog:destroy(clean)
 
 	end
 
-	(for control) = nil and n._parent
 	self._editor:_save_global_to_disk()
 	self._dialog:end_modal("")
 end
@@ -65,12 +63,6 @@ function CoreMaterialEditorGlobalDialog:_on_cancel()
 end
 
 function CoreMaterialEditorGlobalDialog:_fill_tree(id, parent, node)
--- fail 8
-null
-7
--- fail 24
-null
-7
 	local text = node:name()
 	do
 		local (for generator), (for state), (for control) = pairs(node:parameters())
@@ -108,6 +100,7 @@ null
 
 	end
 
+	return new_id
 end
 
 CoreMaterialEditorStartDialog = CoreMaterialEditorStartDialog or class()

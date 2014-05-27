@@ -240,7 +240,7 @@ function FreeFlight:_setup_gui()
 
 	end
 
-	self._modifier_gui = TimerManager:main() and {}
+	self._modifier_gui = {}
 	self._modifier_vis_time = nil
 	do
 		local (for generator), (for state), (for control) = ipairs(self._modifiers)
@@ -261,7 +261,6 @@ function FreeFlight:_setup_gui()
 
 	end
 
-	(for control) = TimerManager:main() and self._panel
 	self._workspace:hide()
 end
 
@@ -303,7 +302,7 @@ function FreeFlight:disable()
 
 	end
 
-	self._state = nil and FF_OFF
+	self._state = FF_OFF
 	self._con:disable()
 	self._workspace:hide()
 	self._vp:set_active(false)
@@ -473,7 +472,6 @@ function FreeFlight:_draw_actions()
 
 	end
 
-	(for control) = nil and text.stop
 	do
 		local (for generator), (for state), (for control) = ipairs(self._actions)
 		do
@@ -483,7 +481,6 @@ function FreeFlight:_draw_actions()
 
 	end
 
-	(for control) = nil and self._action_gui
 	self._action_vis_time = TimerManager:main():time() + TEXT_ON_SCREEN_TIME
 end
 
@@ -498,7 +495,6 @@ function FreeFlight:_draw_modifiers()
 
 	end
 
-	(for control) = nil and text.stop
 	self._modifier_vis_time = TimerManager:main():time() + TEXT_ON_SCREEN_TIME
 end
 
@@ -539,7 +535,20 @@ function FreeFlight:_update_gui(t, dt)
 		self._action_vis_time = nil
 	end
 
-	(for control) = nil and text.stop
+	if self._modifier_vis_time and t > self._modifier_vis_time then
+		do
+			local (for generator), (for state), (for control) = ipairs(self._modifier_gui)
+			do
+				do break end
+				text:stop()
+				text:animate(text:script().fade_out)
+			end
+
+		end
+
+		self._modifier_vis_time = nil
+	end
+
 end
 
 function FreeFlight:_update_camera(t, dt)

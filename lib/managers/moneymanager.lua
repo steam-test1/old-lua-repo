@@ -219,7 +219,6 @@ function MoneyManager:get_money_by_job(job_id, difficulty)
 
 		end
 
-		(for control) = nil and tweak_data
 		return payout, base_payout, risk_payout
 	end
 
@@ -681,6 +680,7 @@ function MoneyManager:_get_pc_entry(entry)
 
 	end
 
+	return pc_value
 end
 
 function MoneyManager:get_buy_mask_slot_price()
@@ -804,7 +804,6 @@ function MoneyManager:get_mask_crafting_price(mask_id, global_value, blueprint, 
 
 	end
 
-	(for control) = "money_manager" and default_blueprint[id]
 	return math.round(base_value + parts_value), bonus_global_values
 end
 
@@ -821,7 +820,6 @@ function MoneyManager:get_mask_sell_value(mask_id, global_value, blueprint)
 
 	end
 
-	(for control) = nil and self.get_tweak_value
 	return math.round(sell_value * (self:get_tweak_value("money_manager", "sell_mask_multiplier") or 0) * managers.player:upgrade_value("player", "sell_cost_multiplier", 1))
 end
 
@@ -879,7 +877,6 @@ function MoneyManager:get_skillpoint_cost(tree, tier, points)
 
 	end
 
-	(for control) = "respec" and managers
 	return math.round(cost)
 end
 
@@ -905,10 +902,8 @@ function MoneyManager:get_skilltree_tree_respec_cost(tree, forced_respec_multipl
 
 		end
 
-		(for control) = nil and managers
 	end
 
-	(for control) = "base_point_cost" and ipairs
 	return math.round(value * (forced_respec_multiplier or self:get_tweak_value("money_manager", "skilltree", "respec", "respec_refund_multiplier")))
 end
 
@@ -1164,7 +1159,6 @@ function MoneyManager:_check_multipliers(amount)
 
 	end
 
-	(for control) = nil and amount * multiplier
 	return math.round(amount)
 end
 
@@ -1196,7 +1190,6 @@ function MoneyManager:actions()
 
 	end
 
-	(for control) = nil and table
 	table.sort(t)
 	return t
 end
@@ -1212,7 +1205,6 @@ function MoneyManager:multipliers()
 
 	end
 
-	(for control) = nil and table
 	table.sort(t)
 	return t
 end

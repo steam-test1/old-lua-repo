@@ -224,9 +224,6 @@ function MenuComponentManager:_axis_move(o, axis_name, axis_vector, controller)
 end
 
 function MenuComponentManager:set_active_components(components, node)
--- fail 6
-null
-6
 	local to_close = {}
 	do
 		local (for generator), (for state), (for control) = pairs(self._active_components)
@@ -250,7 +247,6 @@ null
 
 	end
 
-	(for control) = nil and self._active_components
 	do
 		local (for generator), (for state), (for control) = pairs(to_close)
 		do
@@ -260,7 +256,6 @@ null
 
 	end
 
-	(for control) = nil and self._active_components
 	if not managers.menu:is_pc_controller() then
 		self:_setup_controller_input()
 	end
@@ -296,7 +291,6 @@ function MenuComponentManager:make_color_text(text_object, color)
 
 	end
 
-	(for control) = nil and Idstring
 	if #start_ci ~= #end_ci then
 	else
 		for i = 1, #start_ci do
@@ -363,7 +357,7 @@ function MenuComponentManager:update(t, dt)
 
 		end
 
-		self._removing_textures = nil and {}
+		self._removing_textures = {}
 	end
 
 	self:_update_newsfeed_gui(t, dt)
@@ -1126,7 +1120,6 @@ function MenuComponentManager:mouse_pressed(o, button, x, y)
 
 	end
 
-	(for control) = x and data.panel
 	if self._friends_book then
 		if self._friends_book:mouse_pressed(button, x, y) then
 			return true
@@ -1565,7 +1558,6 @@ function MenuComponentManager:mouse_moved(o, x, y)
 
 	end
 
-	(for control) = wanted_pointer and data.mouse_over
 	if self._weapon_text_box and self._weapon_text_box:moved_scroll_bar(x, y) then
 		return true, wanted_pointer
 	end
@@ -2805,7 +2797,6 @@ function MenuComponentManager:create_weapon_mod_icon_list(weapon, category, fact
 		end
 
 		local mods_sorted = {}
-		(for control) = managers.blackmarket:get_weapon_blueprint(category, slot) and table
 		do
 			local (for generator), (for state), (for control) = pairs(mods_all)
 			do
@@ -2815,7 +2806,6 @@ function MenuComponentManager:create_weapon_mod_icon_list(weapon, category, fact
 
 		end
 
-		(for control) = managers.blackmarket:get_weapon_blueprint(category, slot) and table
 		table.sort(mods_sorted, function(x, y)
 			return y < x
 		end
@@ -2844,7 +2834,6 @@ function MenuComponentManager:create_weapon_mod_icon_list(weapon, category, fact
 
 			end
 
-			(for control) = managers.blackmarket:get_weapon_blueprint(category, slot) and weapon_factory_tweak_data[name_equip]
 			local texture = self:get_texture_from_mod_type(name, sub_type, gadget, silencer, is_auto)
 			if DB:has(Idstring("texture"), texture) then
 				table.insert(icon_list, {
@@ -2858,6 +2847,7 @@ function MenuComponentManager:create_weapon_mod_icon_list(weapon, category, fact
 
 	end
 
+	return icon_list
 end
 
 function MenuComponentManager:_create_newsfeed_gui()
@@ -3039,7 +3029,6 @@ function MenuComponentManager:create_debug_strings_gui()
 
 	end
 
-	(for control) = "blackmarket" and DebugStringsBoxGui
 	self._debug_strings_book:add_background()
 	self._debug_strings_book:set_layer(tweak_data.gui.DIALOG_LAYER)
 	self._debug_strings_book:set_centered()
@@ -3169,7 +3158,7 @@ function MenuComponentManager:remove_minimized(id)
 
 	end
 
-	(for control) = nil and data.id
+	self:_layout_minimized()
 end
 
 function MenuComponentManager:_request_done_callback(texture_ids)
@@ -3196,7 +3185,7 @@ function MenuComponentManager:_request_done_callback(texture_ids)
 
 	end
 
-	self._cached_textures[key] = texture_ids and count
+	self._cached_textures[key] = count
 	self._requested_textures[key] = nil
 	self._requested_index[key] = nil
 end
@@ -3324,7 +3313,6 @@ function MenuComponentManager:add_colors_to_text_object(text_object, ...)
 
 	end
 
-	(for control) = ... and Idstring
 	if #start_ci ~= #end_ci then
 	else
 		for i = 1, #start_ci do
@@ -3407,7 +3395,7 @@ function MenuComponentManager:close()
 
 	end
 
-	self._texture_cache = nil and {}
+	self._texture_cache = {}
 	do
 		local (for generator), (for state), (for control) = pairs(self._requested_textures)
 		do
@@ -3417,7 +3405,7 @@ function MenuComponentManager:close()
 
 	end
 
-	self._requested_textures = nil and {}
+	self._requested_textures = {}
 	if self._retrieved_textures then
 		local (for generator), (for state), (for control) = pairs(self._retrieved_textures)
 		do

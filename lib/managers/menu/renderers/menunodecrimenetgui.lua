@@ -49,9 +49,6 @@ function MenuNodeCrimenetFiltersGui:close(...)
 end
 
 function MenuNodeCrimenetFiltersGui:_setup_item_panel(safe_rect, res)
--- fail 45
-null
-8
 	MenuNodeCrimenetFiltersGui.super._setup_item_panel(self, safe_rect, res)
 	local max_layer = 10000
 	local min_layer = 0
@@ -71,7 +68,6 @@ null
 
 	end
 
-	(for control) = self.item_panel:children() and child.set_halign
 	do
 		local (for generator), (for state), (for control) = ipairs(self.item_panel:children())
 		do
@@ -156,7 +152,7 @@ function MenuNodeCrimenetFiltersGui:_rec_round_object(object)
 
 	end
 
-	local x, y = object:children() and object:position(), object:position()
+	local x, y = object:position()
 	object:set_position(math.round(x), math.round(y))
 end
 
@@ -384,7 +380,6 @@ function MenuNodeCrimenetCasinoGui:_setup_layout()
 
 	end
 
-	(for control) = self.item_panel:y() and item.type
 	self._betting_carddeck = {
 		none = "downcard_overkill_deck",
 		weapon_mods = "upcard_weapon",
@@ -497,7 +492,7 @@ function MenuNodeCrimenetCasinoGui:_setup_layout()
 
 	end
 
-	y = self._betting_panel:top() and content_offset + small_font_size + 10
+	y = content_offset + small_font_size + 10
 	do
 		local (for generator), (for state), (for control) = pairs(self._stats_cards)
 		do
@@ -531,10 +526,9 @@ function MenuNodeCrimenetCasinoGui:_setup_layout()
 			y = y + small_font_size
 		end
 
-		(for control) = (column.color or tweak_data.screen_colors.text) and self._stats_panel
 	end
 
-	y = self._betting_panel:top() and content_offset + small_font_size + 10
+	y = content_offset + small_font_size + 10
 	do
 		local (for generator), (for state), (for control) = pairs(self._stats_cards)
 		do
@@ -560,7 +554,7 @@ function MenuNodeCrimenetCasinoGui:_setup_layout()
 
 	end
 
-	self._infamous_values = self._betting_panel:top() and {}
+	self._infamous_values = {}
 	y = y + small_font_size
 	text_panel = self._stats_panel:panel({
 		layer = 1,
@@ -602,7 +596,6 @@ function MenuNodeCrimenetCasinoGui:_setup_layout()
 
 	end
 
-	(for control) = Color(1, 0.1, 1) and self._stats_panel
 	local stars = managers.experience:level_to_stars()
 	local item_pc = tweak_data.lootdrop.STARS[stars].pcs[1]
 	local skip_types = {cash = true, xp = true}
@@ -619,7 +612,7 @@ function MenuNodeCrimenetCasinoGui:_setup_layout()
 
 	end
 
-	self._base_chances = (column.alpha or 1) and {}
+	self._base_chances = {}
 	do
 		local (for generator), (for state), (for control) = pairs(self._stats_cards)
 		do
@@ -629,7 +622,6 @@ function MenuNodeCrimenetCasinoGui:_setup_layout()
 
 	end
 
-	(for control) = (column.alpha or 1) and self._base_chances
 	do
 		local (for generator), (for state), (for control) = pairs(droppable_items)
 		do
@@ -639,7 +631,6 @@ function MenuNodeCrimenetCasinoGui:_setup_layout()
 
 	end
 
-	(for control) = (column.alpha or 1) and self._base_chances
 	do
 		local (for generator), (for state), (for control) = pairs(self._stats_cards)
 		do
@@ -652,7 +643,7 @@ function MenuNodeCrimenetCasinoGui:_setup_layout()
 	end
 
 	local items_total = 0
-	local items_infamous = (column.alpha or 1) and 0
+	local items_infamous = 0
 	do
 		local (for generator), (for state), (for control) = pairs(droppable_items)
 		do
@@ -669,10 +660,8 @@ function MenuNodeCrimenetCasinoGui:_setup_layout()
 
 		end
 
-		(for control) = self._betting_panel:top() and item.global_value
 	end
 
-	(for control) = string.format("%.1f", self._base_chances[stat]) and #items
 	local _, infamous_base_chance, infamous_mod = managers.lootdrop:infamous_chance()
 	local infamous_chance = items_total > 0 and infamous_base_chance * (items_infamous / items_total) or 0
 	self._infamous_chance = {}
@@ -800,27 +789,24 @@ function MenuNodeCrimenetCasinoGui:set_update_values(preferred_card, secured_car
 
 			end
 
-			(for control) = managers.money:get_cost_of_casino_fee(secured_cards, increase_infamous, preferred_card) and item.set_alpha
 			nbr_types = nbr_types + ((0 < self._base_chances[card] or card == preferred_card) and 1 or 0)
 		end
 
 	end
 
-	do break end
-	do
-		local (for generator), (for state), (for control) = pairs(self._stats_cards)
+	if preferred_card == "none" then
 		do
-			do break end
-			self._stat_values[card].bets:set_text("")
-			self._stat_values[card].total:set_text(string.format("%.1f", self._base_chances[card]) .. "%")
+			local (for generator), (for state), (for control) = pairs(self._stats_cards)
+			do
+				do break end
+				self._stat_values[card].bets:set_text("")
+				self._stat_values[card].total:set_text(string.format("%.1f", self._base_chances[card]) .. "%")
+			end
+
 		end
 
-	end
-
-	(for control) = managers.experience and self._stat_values
-	self:_set_cards(0)
-	do break end
-	if nbr_types > 1 then
+		self:_set_cards(0)
+	elseif nbr_types > 1 then
 		local secured_value = 100 * secured_cards
 		local preferred_chance = tweak_data:get_value("casino", "prefer_chance") * 100 * (3 - secured_cards)
 		local preferred_left = preferred_chance / (nbr_types - 1)
@@ -858,10 +844,8 @@ function MenuNodeCrimenetCasinoGui:set_update_values(preferred_card, secured_car
 
 			end
 
-			(for control) = "%" and item.set_alpha
 		end
 
-		(for control) = self._stat_values[card].total and self._base_chances
 		self:_set_cards(secured_cards, secured_cards > 0 and self._betting_carddeck[preferred_card])
 	end
 
@@ -1093,8 +1077,7 @@ function MenuNodeCrimenetContactInfoGui:mouse_moved(o, x, y)
 
 	end
 
-	do break end
-	local is_locked = self:is_file_locked(self._files[is_inside].lock)
+	local is_locked = is_inside and self:is_file_locked(self._files[is_inside].lock)
 	return is_inside, self._file_pressed and (self._file_pressed == is_inside and "link" or "arrow") or is_inside and not is_locked and "link" or "arrow"
 end
 
@@ -1113,6 +1096,7 @@ function MenuNodeCrimenetContactInfoGui:mouse_pressed(button, x, y)
 
 	end
 
+	self._file_pressed = false
 end
 
 function MenuNodeCrimenetContactInfoGui:mouse_released(button, x, y)
@@ -1163,7 +1147,7 @@ function MenuNodeCrimenetContactInfoGui:_setup_menu()
 
 	end
 
-	(for control) = self.item_panel:children() and child.set_halign
+	self:_set_topic_position()
 	self.item_panel:set_w(safe_rect.width * (1 - self._align_line_proportions) + 4)
 	self.item_panel:set_world_position(self._panel:world_position())
 	self.item_panel:move(self.PADDING, self.PADDING)
@@ -1176,7 +1160,6 @@ function MenuNodeCrimenetContactInfoGui:_setup_menu()
 
 	end
 
-	(for control) = self.item_panel:children() and child.set_halign
 	self.item_panel:set_w(self.MENU_WIDTH)
 	self._align_data.panel:set_left(self.item_panel:left())
 	local row_x = 0
@@ -1196,7 +1179,6 @@ function MenuNodeCrimenetContactInfoGui:_setup_menu()
 
 	end
 
-	(for control) = self.item_panel:left() and alive
 	if self._back_row_item and alive(self._back_row_item.gui_text) then
 		self._back_row_item.gui_text:set_w(self.MENU_WIDTH)
 		self._back_row_item.gui_text:set_world_left(math.round(self._panel:world_left() + self.PADDING * 2))
@@ -1215,7 +1197,6 @@ function MenuNodeCrimenetContactInfoGui:_setup_menu()
 
 	end
 
-	(for control) = math.round(self._panel:world_bottom() - self.PADDING) and alive
 	local (for generator), (for state), (for control) = ipairs(self.item_panel:children())
 	do
 		do break end
@@ -1546,7 +1527,7 @@ function MenuNodeCrimenetGageAssignmentGui:set_contact_info(id, name, files, ove
 						end
 
 						local need_string = true
-						local categories = nil and {}
+						local categories = {}
 						do
 							local (for generator), (for state), (for control) = pairs(all_categories)
 							do
@@ -1559,7 +1540,6 @@ function MenuNodeCrimenetGageAssignmentGui:set_contact_info(id, name, files, ove
 
 						end
 
-						(for control) = table.delete and #weapons
 						if #categories > 0 then
 							do
 								local (for generator), (for state), (for control) = ipairs(categories)
@@ -1577,7 +1557,6 @@ function MenuNodeCrimenetGageAssignmentGui:set_contact_info(id, name, files, ove
 							need_string = false
 						end
 
-						(for control) = table.delete and text_sting
 						if need_string then
 							local families = {}
 							do
@@ -1592,7 +1571,6 @@ function MenuNodeCrimenetGageAssignmentGui:set_contact_info(id, name, files, ove
 
 							end
 
-							(for control) = all_categories[category] and #weapons
 							if #families > 0 then
 								do
 									local (for generator), (for state), (for control) = ipairs(families)
@@ -1610,7 +1588,6 @@ function MenuNodeCrimenetGageAssignmentGui:set_contact_info(id, name, files, ove
 								need_string = false
 							end
 
-							(for control) = all_categories[category] and text_sting
 							if need_string then
 								if #weapon_uses_part < 4 then
 									local (for generator), (for state), (for control) = ipairs(weapon_uses_part)
@@ -1624,7 +1601,6 @@ function MenuNodeCrimenetGageAssignmentGui:set_contact_info(id, name, files, ove
 									end
 
 								else
-									(for control) = all_categories[category] and text_sting
 									print("[MenuNodeCrimenetGageAssignmentGui]", i, inspect(all_categories), inspect(all_families))
 								end
 
@@ -1644,7 +1620,6 @@ function MenuNodeCrimenetGageAssignmentGui:set_contact_info(id, name, files, ove
 
 		end
 
-		(for control) = nil and i - 1
 		self:create_insigna(right_panel, id)
 		BoxGuiObject:new(left_panel, {
 			sides = {
@@ -1698,7 +1673,6 @@ function MenuNodeCrimenetGageAssignmentGui:set_contact_info(id, name, files, ove
 
 		end
 
-		(for control) = self.node:items() and tweak_data
 		local summary_text = self._info_panel:text({
 			name = "summary_text",
 			text = managers.localization:text("menu_gage_assignment_summary_desc"),
@@ -1917,6 +1891,7 @@ function MenuNodeCrimenetGageAssignmentGui:unretrieve_textures()
 
 	end
 
+	self._requested_textures = nil
 end
 
 function MenuNodeCrimenetGageAssignmentGui:texture_done_clbk(params, texture_ids)

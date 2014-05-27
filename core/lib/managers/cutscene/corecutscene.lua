@@ -37,27 +37,21 @@ function CoreCutscene:init(cutscene_node, cutscene_manager)
 
 				end
 
-			else
-				(for control) = cutscene_node:parameter("frames") and child_node.parameter
-				if collection_node:name() == "keys" then
-					local (for generator), (for state), (for control) = collection_node:children()
-					do
-						do break end
-						local cutscene_key = CoreCutsceneKey:create(child_node:name(), self)
-						cutscene_key:load(child_node)
-						table.insert(self._keys, freeze(cutscene_key))
-					end
-
+			elseif collection_node:name() == "keys" then
+				local (for generator), (for state), (for control) = collection_node:children()
+				do
+					do break end
+					local cutscene_key = CoreCutsceneKey:create(child_node:name(), self)
+					cutscene_key:load(child_node)
+					table.insert(self._keys, freeze(cutscene_key))
 				end
 
 			end
 
 		end
 
-		(for control) = cutscene_node:parameter("frames") and CoreCutsceneKey
 	end
 
-	(for control) = cutscene_node:parameter("frames") and collection_node.name
 	table.sort(self._camera_names)
 	table.sort(self._keys, function(a, b)
 		return a:frame() < b:frame()
@@ -115,7 +109,7 @@ function CoreCutscene:has_unit(unit_name, include_units_spawned_through_keys)
 
 	end
 
-	(for control) = nil and spawn_key.name
+	return false
 end
 
 function CoreCutscene:controlled_unit_types()
@@ -197,16 +191,12 @@ function CoreCutscene:_parse_animation_blob_list(cutscene_node)
 
 		end
 
-		(for control) = nil and animation_blob_node.name
 	end
 
-	(for control) = nil and collection_node.name
+	return nil
 end
 
 function CoreCutscene:_parse_single_animation_blob(cutscene_node)
--- fail 15
-null
-7
 	do
 		local (for generator), (for state), (for control) = cutscene_node:children()
 		do
@@ -220,7 +210,7 @@ null
 
 	end
 
-	(for control) = nil and collection_node.name
+	return nil
 end
 
 function CoreCutscene:_actor_database_info(unit_name)
@@ -250,7 +240,6 @@ function CoreCutscene:_debug_persistent_keys()
 
 	end
 
-	(for control) = nil and sequence_key.unit_name
 	do
 		local (for generator), (for state), (for control) = self:keys(CoreUnitCallbackCutsceneKey.ELEMENT_NAME)
 		do
@@ -261,5 +250,6 @@ function CoreCutscene:_debug_persistent_keys()
 
 	end
 
+	return persistent_keys
 end
 

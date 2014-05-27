@@ -46,7 +46,6 @@ function NewsReportManager:init()
 		end
 
 	else
-		(for control) = DB:load_node("xml", self.OLD_NEWS_FILE) and self._news_dates
 		CoreDebug.cat_print("spam", "[CoreNewsReportManager] Can't find: " .. news_file)
 	end
 
@@ -70,18 +69,11 @@ function NewsReportManager:replace(str)
 
 	end
 
-	(for control) = nil and type
 	str = string.gsub(str, "%$([%w_]+)", replace_str)
 	return str
 end
 
 function NewsReportManager:format_news(news, format, ...)
--- fail 8
-null
-7
--- fail 49
-null
-8
 	if format == "TEXT" then
 		local output
 		do
@@ -134,7 +126,6 @@ function NewsReportManager:write_new_date()
 
 	end
 
-	(for control) = SystemFS:open(self.OLD_NEWS_FILE .. ".xml", "w") and old_news.printf
 	old_news:write("</old_news>")
 	old_news:close()
 end
@@ -151,7 +142,6 @@ function NewsReportManager:check_min_date(min_date, date)
 
 	end
 
-	(for control) = nil and table
 	do
 		local (for generator), (for state), (for control) = string.gmatch(date, "%d+")
 		do
@@ -161,7 +151,6 @@ function NewsReportManager:check_min_date(min_date, date)
 
 	end
 
-	(for control) = nil and table
 	assert(#d0 == #d1, "Bad date format!")
 	do
 		local (for generator), (for state), (for control) = ipairs(d0)
@@ -177,7 +166,7 @@ function NewsReportManager:check_min_date(min_date, date)
 
 	end
 
-	(for control) = nil and d1[i]
+	return false
 end
 
 function NewsReportManager:check_news(category, include_old_news, format, ...)
@@ -212,10 +201,8 @@ function NewsReportManager:check_news(category, include_old_news, format, ...)
 
 		end
 
-		(for control) = nil and msg.parameter
 	end
 
-	(for control) = nil and cat.name
 	if date_updated then
 		self:write_new_date()
 	end

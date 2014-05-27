@@ -65,7 +65,7 @@ function EnemyDummyTriggerUnitElement:_correct_unit(u_name)
 
 	end
 
-	(for control) = "ai_spawn_civilian" and string
+	return false
 end
 
 function EnemyDummyTriggerUnitElement:remove_links(unit)

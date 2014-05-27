@@ -118,7 +118,7 @@ function EnvironmentLayer:load(world_holder, offset)
 
 	end
 
-	(for control) = offset and self.set_up_name_id
+	self:clear_selected_units()
 	return environment
 end
 
@@ -188,7 +188,6 @@ function EnvironmentLayer:old_load(environment)
 
 	end
 
-	(for control) = nil and self._environment_values
 	self._environments:set_value(self._environment_values.environment)
 	self._sky_rotation:set_value(self._environment_values.sky_rot)
 	if environment._wind then
@@ -219,7 +218,6 @@ function EnvironmentLayer:old_load(environment)
 
 	end
 
-	(for control) = self and self.do_spawn_unit
 	do
 		local (for generator), (for state), (for control) = ipairs(managers.environment_area:areas())
 		do
@@ -231,7 +229,6 @@ function EnvironmentLayer:old_load(environment)
 
 	end
 
-	(for control) = managers.environment_area:areas() and EnvironmentLayer
 	if environment._units then
 		local (for generator), (for state), (for control) = ipairs(environment._units)
 		do
@@ -242,7 +239,7 @@ function EnvironmentLayer:old_load(environment)
 
 	end
 
-	(for control) = managers.environment_area:areas() and self.set_up_name_id
+	self:clear_selected_units()
 	return environment
 end
 
@@ -277,7 +274,6 @@ function EnvironmentLayer:save()
 
 	end
 
-	(for control) = nil and unit.name
 	local wind = {
 		angle = self._wind_rot:yaw(),
 		angle_var = self._wind_dir_var,
@@ -398,7 +394,6 @@ function EnvironmentLayer:build_panel(notebook)
 
 	end
 
-	(for control) = "" and self._environments
 	self._environments:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "change_environment"), self._environments)
 	env_dd_sizer:add(self._environments, 2, 0, "EXPAND")
 	self._environment_sizer:add(env_dd_sizer, 0, 0, "EXPAND")
@@ -432,7 +427,6 @@ function EnvironmentLayer:build_panel(notebook)
 
 	end
 
-	(for control) = "color_nice" and self._color_gradings
 	self._color_gradings:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "change_color_grading"), self._color_gradings)
 	env_cc_sizer:add(self._color_gradings, 2, 0, "EXPAND")
 	self._environment_sizer:add(env_cc_sizer, 0, 0, "EXPAND")
@@ -450,7 +444,6 @@ function EnvironmentLayer:build_panel(notebook)
 
 	end
 
-	(for control) = managers.database:list_entries_of_type("environment") and environment.append
 	environment:set_value(managers.environment_area:game_default_environment())
 	environment:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_environment_area"), environment)
 	env_area_sizer:add(environment, 3, 0, "EXPAND")
@@ -493,7 +486,6 @@ function EnvironmentLayer:build_panel(notebook)
 
 	end
 
-	(for control) = 128 and resolution.append
 	resolution:set_value(self._environment_values.dome_occ_resolution)
 	resolution:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_dome_occ_resolution"), resolution)
 	resolution_sizer:add(resolution, 3, 0, "EXPAND")
@@ -599,7 +591,6 @@ function EnvironmentLayer:populate_unit_effects()
 
 	end
 
-	(for control) = managers.database:list_entries_of_type("effect") and string
 	self._unit_effects:set_value("none")
 	self:update_unit_settings()
 end
@@ -620,16 +611,12 @@ function EnvironmentLayer:create_cube_map(type)
 
 		end
 
-	else
-		(for control) = nil and unit.name
-		if type == "selected" and self._selected_unit:name() == Idstring(self._cubemap_unit) then
-			table.insert(cubes, {
-				position = self._selected_unit:position(),
-				name = self._selected_unit:unit_data().name_id,
-				output_name = "outputcube"
-			})
-		end
-
+	elseif type == "selected" and self._selected_unit:name() == Idstring(self._cubemap_unit) then
+		table.insert(cubes, {
+			position = self._selected_unit:position(),
+			name = self._selected_unit:unit_data().name_id,
+			output_name = "outputcube"
+		})
 	end
 
 	local params = {cubes = cubes}
@@ -681,9 +668,11 @@ function EnvironmentLayer:generate_dome_occ()
 
 	end
 
-	do break end
-	managers.editor:output_error("No dome occ unit in level!")
-	do return end
+	if not shape then
+		managers.editor:output_error("No dome occ unit in level!")
+		return
+	end
+
 	local res = self._environment_values.dome_occ_resolution or 256
 	managers.editor:init_create_dome_occlusion(shape, res)
 end
@@ -919,6 +908,7 @@ function EnvironmentLayer:wind_description(speed)
 
 	end
 
+	return description
 end
 
 function EnvironmentLayer:wind_beaufort(speed)
@@ -936,6 +926,7 @@ function EnvironmentLayer:wind_beaufort(speed)
 
 	end
 
+	return beaufort
 end
 
 function EnvironmentLayer:reset_environment_values()
@@ -980,7 +971,6 @@ function EnvironmentLayer:clear()
 
 	end
 
-	(for control) = 0 and self.kill_effect
 	EnvironmentLayer.super.clear(self)
 	self:set_environment_area_parameters()
 end

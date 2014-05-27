@@ -454,7 +454,6 @@ function PlayerMovement:set_attention_settings(setting_names)
 
 		end
 
-		(for control) = nil and tweak_data
 		if changes.removed then
 			local (for generator), (for state), (for control) = ipairs(changes.removed)
 			do
@@ -545,9 +544,6 @@ function PlayerMovement:_feed_suspicion_to_hud()
 end
 
 function PlayerMovement:_calc_suspicion_ratio_and_sync(observer_unit, status)
--- fail 11
-null
-7
 	local suspicion_sync
 	if self._suspicion and status ~= true then
 		local max_suspicion
@@ -563,12 +559,14 @@ null
 
 		end
 
-		do break end
-		self._suspicion_ratio = max_suspicion
-		suspicion_sync = math.ceil(self._suspicion_ratio * 254)
-		do break end
-		self._suspicion_ratio = false
-		suspicion_sync = false
+		if max_suspicion then
+			self._suspicion_ratio = max_suspicion
+			suspicion_sync = math.ceil(self._suspicion_ratio * 254)
+		else
+			self._suspicion_ratio = false
+			suspicion_sync = false
+		end
+
 	elseif type(status) == "boolean" then
 		self._suspicion_ratio = status
 		suspicion_sync = status and 255 or 0
@@ -701,8 +699,7 @@ function PlayerMovement:_upd_underdog_skill(t)
 
 	end
 
-	do break end
-	data.chk_t = t + (data.chk_interval_active or data.chk_interval_inactive)
+	data.chk_t = t + (activated and data.chk_interval_active or data.chk_interval_inactive)
 end
 
 function PlayerMovement:on_targetted_for_attack(state, attacker_unit)
@@ -789,7 +786,6 @@ function PlayerMovement:save(data)
 
 	end
 
-	(for control) = self._attention_handler:attention_data() and tweak_data
 	data.zip_line_unit_id = self:zipline_unit() and self:zipline_unit():editor_id()
 	data.down_time = self._unit:character_damage():down_time()
 	self._current_state:save(data.movement)

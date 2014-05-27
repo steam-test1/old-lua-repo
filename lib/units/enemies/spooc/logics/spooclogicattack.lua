@@ -308,6 +308,6 @@ function SpoocLogicAttack._is_last_standing_criminal(focus_enemy)
 
 	end
 
-	(for control) = nil and u_data.status
+	return true
 end
 

@@ -1012,12 +1012,6 @@ function AssetsTweakData:_init_debug_assets(tweak_data)
 end
 
 function AssetsTweakData:debug_assets()
--- fail 18
-null
-5
--- fail 48
-null
-6
 	local levels = {}
 	do
 		local (for generator), (for state), (for control) = ipairs(tweak_data.levels:get_level_index())
@@ -1028,7 +1022,7 @@ null
 
 	end
 
-	local f = tweak_data.levels:get_level_index() and function(id)
+	local function f(id)
 		if id == "all" then
 			local (for generator), (for state), (for control) = pairs(levels)
 			do
@@ -1037,7 +1031,6 @@ null
 			end
 
 		else
-			(for control) = nil and levels
 			levels[id] = levels[id] + 1
 		end
 
@@ -1064,7 +1057,6 @@ null
 
 		end
 
-		(for control) = tweak_data.levels:get_level_index() and f
 	end
 
 	local asset_levels = {}

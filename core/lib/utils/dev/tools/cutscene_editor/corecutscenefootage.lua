@@ -34,7 +34,7 @@ function CoreCutsceneFootage:add_clips_to_track(track, time)
 
 	end
 
-	(for control) = nil and track.add_clip
+	track:thaw()
 end
 
 function CoreCutsceneFootage:add_cameras_to_list_ctrl(list_ctrl)
@@ -51,7 +51,7 @@ function CoreCutsceneFootage:add_cameras_to_list_ctrl(list_ctrl)
 
 	end
 
-	(for control) = self:camera_names() and list_ctrl.append_item
+	list_ctrl:thaw()
 end
 
 function CoreCutsceneFootage:create_clip(start_frame, end_frame, camera)
@@ -141,7 +141,6 @@ function CoreCutsceneFootage:_camera_cut_list()
 
 			end
 
-			(for control) = nil and add_camera_cut
 			add_camera_cut(previous_key:frame(), self._cutscene:frame_count(), previous_key:camera())
 		end
 

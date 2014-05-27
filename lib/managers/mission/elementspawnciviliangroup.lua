@@ -113,8 +113,8 @@ function ElementSpawnCivilianGroup:units()
 
 		end
 
-		(for control) = nil and table
 	end
 
+	return all_units
 end
 

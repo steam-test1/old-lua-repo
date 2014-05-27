@@ -80,7 +80,6 @@ function InstigatorRuleUnitElement:_update_rules_panel(panel, panel_sizer)
 
 		end
 
-		(for control) = nil and table
 		local mission_equipment_params = {
 			name = "Mission equipment:",
 			panel = panel,

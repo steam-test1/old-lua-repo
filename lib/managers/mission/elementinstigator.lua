@@ -210,13 +210,8 @@ function ElementInstigatorOperator:on_executed(instigator)
 
 		end
 
-		(for control) = element:instigator_operation_use_all(self._values.keep_on_use) and self._check_and_execute
-	else
-		(for control) = nil and self.get_mission_element
-		if Application:editor() then
-			managers.editor:output_error("Cant use operation " .. self._values.operation .. " in element " .. self._editor_name .. ".")
-		end
-
+	elseif Application:editor() then
+		managers.editor:output_error("Cant use operation " .. self._values.operation .. " in element " .. self._editor_name .. ".")
 	end
 
 	if self._values.operation == "set" or self._values.operation == "add_first" or self._values.operation == "add_last" or self._values.operation == "clear" then

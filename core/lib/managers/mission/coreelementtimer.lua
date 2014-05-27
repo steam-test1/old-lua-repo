@@ -220,7 +220,6 @@ function ElementTimerOperator:on_executed(instigator)
 
 	end
 
-	(for control) = nil and self.get_mission_element
 	ElementTimerOperator.super.on_executed(self, instigator)
 end
 

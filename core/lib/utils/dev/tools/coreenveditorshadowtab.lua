@@ -34,9 +34,6 @@ function CoreEnvEditor:load_shadow_data(block)
 end
 
 function CoreEnvEditor:parse_shadow_data()
--- fail 19
-null
-5
 	local values = {}
 	local data = managers.viewport:get_environment_cache():environment(self._env_path):data_root().post_effect.shadow_processor.shadow_rendering.shadow_modifier
 	do

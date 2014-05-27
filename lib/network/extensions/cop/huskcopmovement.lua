@@ -11,9 +11,6 @@ function HuskCopMovement:_upd_actions(t)
 end
 
 function HuskCopMovement:action_request(action_desc)
--- fail 33
-null
-6
 	self:enable_update(false)
 	local function _chk_would_interrupt(b_part)
 		if self._active_actions[1] and self._active_actions[1]:type() == "idle" then

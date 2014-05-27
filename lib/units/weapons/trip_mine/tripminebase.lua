@@ -135,12 +135,7 @@ function TripMineBase:armed()
 end
 
 function TripMineBase:_set_armed(armed)
-	if not self._activate_timer then
-		-- unhandled boolean indicator
-	else
-	end
-
-	self._armed = true
+	self._armed = not self._activate_timer and armed
 	self._g_laser:set_visibility(self._armed)
 	self._g_laser_sensor:set_visibility(self._sensor_upgrade and not self._armed)
 	if self._use_draw_laser then
@@ -399,8 +394,10 @@ function TripMineBase:_explode(col_ray)
 
 	end
 
-	do break end
-	managers.challenges:count_up("dual_tripmine")
+	if amount >= 2 then
+		managers.challenges:count_up("dual_tripmine")
+	end
+
 	if amount >= 3 then
 		managers.challenges:count_up("tris_tripmine")
 	end

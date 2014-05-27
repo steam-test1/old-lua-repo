@@ -18,7 +18,7 @@ function SecretAssignmentManager:_setup()
 
 	end
 
-	self._chance = nil and {}
+	self._chance = {}
 	self._chance.test_interval = 60
 	self._chance.interval_timer = self._chance.test_interval
 	self._chance.chance = 5
@@ -126,9 +126,6 @@ function SecretAssignmentManager:unregister_civilian(unit)
 end
 
 function SecretAssignmentManager:unregister_unit(unit, failed)
--- fail 26
-null
-11
 	if not unit:unit_data().secret_assignment_id then
 		return
 	end
@@ -270,7 +267,6 @@ function SecretAssignmentManager:_fail_assignment(name)
 	end
 
 	self._current_assignment = nil
-	(for control) = nil and unit.interaction
 	if Network:is_server() then
 		self:secret_assignment_done(name, false)
 	else
@@ -326,6 +322,7 @@ function SecretAssignmentManager:_get_available_assignments()
 
 	end
 
+	return t
 end
 
 function SecretAssignmentManager:_check_level_filter(name)
@@ -351,7 +348,7 @@ function SecretAssignmentManager:_check_level_filter(name)
 
 		end
 
-		(for control) = nil and Global
+		return false
 	end
 
 	if level_filter.exclude then
@@ -367,7 +364,7 @@ function SecretAssignmentManager:_check_level_filter(name)
 
 		end
 
-		(for control) = nil and Global
+		return true
 	end
 
 	return true
@@ -391,7 +388,6 @@ function SecretAssignmentManager:_get_peer()
 
 	end
 
-	(for control) = managers.network:game():all_members() and member.unit
 	if #members > 0 then
 		return managers.network:session():peer(members[math.random(#members)])
 	end
@@ -466,7 +462,6 @@ function SecretAssignmentManager:assignment_names()
 
 	end
 
-	(for control) = nil and table
 	table.sort(t)
 	return t
 end

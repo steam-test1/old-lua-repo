@@ -206,7 +206,6 @@ function CoreUnitSequenceTriggerUnitElement:_remove_by_unit_id(unit_id)
 
 	end
 
-	(for control) = nil and entry.unit_id
 	do
 		local (for generator), (for state), (for control) = ipairs(remove_entries)
 		do
@@ -216,7 +215,6 @@ function CoreUnitSequenceTriggerUnitElement:_remove_by_unit_id(unit_id)
 
 	end
 
-	(for control) = nil and self.remove_entry
 	do
 		local (for generator), (for state), (for control) = ipairs(clone(self._hed.sequence_list))
 		do
@@ -229,7 +227,6 @@ function CoreUnitSequenceTriggerUnitElement:_remove_by_unit_id(unit_id)
 
 	end
 
-	(for control) = clone(self._hed.sequence_list) and data.unit_id
 	self:_remove_from_sequence_list(unit_id)
 end
 
@@ -253,7 +250,6 @@ function CoreUnitSequenceTriggerUnitElement:remove_entry(id)
 
 	end
 
-	(for control) = clone(self._hed.sequence_list) and entry.guis_id
 	do
 		local (for generator), (for state), (for control) = pairs(self._guis)
 		do
@@ -266,7 +262,7 @@ function CoreUnitSequenceTriggerUnitElement:remove_entry(id)
 
 	end
 
-	self._sequence_units[unit_id] = clone(self._hed.sequence_list) and nil
+	self._sequence_units[unit_id] = nil
 end
 
 function CoreUnitSequenceTriggerUnitElement:_remove_from_sequence_list(unit_id)

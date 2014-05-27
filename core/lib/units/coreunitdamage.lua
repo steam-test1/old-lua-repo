@@ -42,7 +42,6 @@ function CoreUnitDamage:init(unit, default_body_extension_class, body_extension_
 
 	end
 
-	(for control) = self._unit_element:get_proximity_element_map() and {}
 	do
 		local (for generator), (for state), (for control) = pairs(self._unit_element:get_trigger_name_map())
 		do
@@ -54,7 +53,6 @@ function CoreUnitDamage:init(unit, default_body_extension_class, body_extension_
 	end
 
 	self._mover_collision_ignore_duration = mover_collision_ignore_duration
-	(for control) = self._unit_element:get_trigger_name_map() and self._trigger_func_list
 	body_extension_class_map = body_extension_class_map or {}
 	default_body_extension_class = default_body_extension_class or CoreBodyDamage
 	local inflict_updator_damage_type_map = get_core_or_local("InflictUpdator").INFLICT_UPDATOR_DAMAGE_TYPE_MAP
@@ -83,7 +81,6 @@ function CoreUnitDamage:init(unit, default_body_extension_class, body_extension_
 				end
 
 			else
-				(for control) = body_ext:get_endurance_map() and inflict_updator_damage_type_map[damage_type]
 				Application:throw_exception("Unit \"" .. self._unit:name():t() .. "\" doesn't have the body \"" .. body_element._name .. "\" that was loaded into the SequenceManager.")
 			end
 
@@ -91,8 +88,10 @@ function CoreUnitDamage:init(unit, default_body_extension_class, body_extension_
 
 	end
 
-	do break end
-	self._unit:set_body_collision_callback(callback(self, self, "body_collision_callback"))
+	if not ignore_body_collisions then
+		self._unit:set_body_collision_callback(callback(self, self, "body_collision_callback"))
+	end
+
 	if self._unit:mover() and not ignore_mover_collisions then
 		self._unit:set_mover_collision_callback(callback(self, self, "mover_collision_callback"))
 	end
@@ -107,7 +106,6 @@ function CoreUnitDamage:init(unit, default_body_extension_class, body_extension_
 
 	end
 
-	(for control) = callback(self, self, "mover_collision_callback") and self.set_water_check
 	self._startup_sequence_map = self._unit_element:get_startup_sequence_map(self._unit, self)
 	if self._startup_sequence_map then
 		self._startup_sequence_callback_id = managers.sequence:add_time_callback(callback(self, self, "run_startup_sequences"))
@@ -155,10 +153,8 @@ function CoreUnitDamage:destroy()
 
 		end
 
-		(for control) = nil and managers
 	end
 
-	(for control) = nil and pairs
 	if self._water_check_map then
 		local (for generator), (for state), (for control) = pairs(self._water_check_map)
 		do
@@ -168,7 +164,6 @@ function CoreUnitDamage:destroy()
 
 	end
 
-	(for control) = pairs(self._added_inflict_updator_damage_type_map) and self.set_water_check_active
 	if self._inherit_destroy_unit_list then
 		local (for generator), (for state), (for control) = ipairs(self._inherit_destroy_unit_list)
 		do
@@ -192,7 +187,6 @@ function CoreUnitDamage:update(unit, t, dt)
 		end
 
 	else
-		(for control) = nil and self[func_name]
 		Application:error("Some scripter tried to enable the damage extension on unit \"" .. tostring(unit:name()) .. "\" or an artist have specified more than one damage-extension in the unit xml. This would have resulted in a crash, so fix it!")
 		self._unit:set_extension_update_enabled(ids_damage, false)
 	end
@@ -371,7 +365,6 @@ function CoreUnitDamage:update_proximity(unit, t, dt, data, range_data)
 
 	end
 
-	(for control) = nil and mvector3
 	if data.is_within and range_data.is_within ~= data.is_within or not data.is_within and range_data.is_within == data.is_within then
 		return #unit_list <= range_data.count
 	else
@@ -601,12 +594,6 @@ function CoreUnitDamage:water_check_exit(name, water_check, src_unit, body, norm
 end
 
 function CoreUnitDamage:save(data)
--- fail 142
-null
-16
--- fail 97
-null
-11
 	local state = {}
 	local changed = false
 	if self._runned_sequences then
@@ -620,7 +607,6 @@ null
 
 	end
 
-	(for control) = nil and table
 	if self._state then
 		local (for generator), (for state), (for control) = pairs(self._state)
 		do
@@ -632,7 +618,6 @@ null
 
 	end
 
-	(for control) = nil and deep_clone
 	if self._damage ~= 0 then
 		state.damage = self._damage
 		changed = true
@@ -652,7 +637,6 @@ null
 
 	end
 
-	(for control) = nil and self._unit_element
 	if self._proximity_count then
 		changed = true
 		state.proximity_count = self._proximity_count
@@ -692,7 +676,6 @@ null
 
 	end
 
-	(for control) = nil and state.proximity_map
 	do
 		local (for generator), (for state), (for control) = ipairs(self._unit:anim_groups())
 		do
@@ -705,7 +688,6 @@ null
 
 	end
 
-	(for control) = self._unit:anim_groups() and state.anim
 	if not self._skip_save_anim_state_machine then
 		local state_machine = self._unit:anim_state_machine()
 		if state_machine then
@@ -725,7 +707,6 @@ null
 
 	end
 
-	(for control) = state_machine:config():segments() and state_machine.segment_state
 	changed = self._unit_element:save_by_unit(self._unit, state) or changed
 	if changed then
 		data.CoreUnitDamage = state
@@ -738,12 +719,6 @@ function CoreUnitDamage:get_unit_element()
 end
 
 function CoreUnitDamage:load(data)
--- fail 127
-null
-15
--- fail 84
-null
-10
 	local state = data.CoreUnitDamage
 	if self._unit:name() == Idstring("units/payday2/vehicles/air_vehicle_blackhawk/helicopter_cops_ref") then
 		print("[CoreUnitDamage:load]", self._unit)
@@ -810,7 +785,6 @@ null
 
 			end
 
-			(for control) = nil and self._proximity_map
 			if self._proximity_enabled_count then
 				self:set_update_callback("update_proximity_list", true)
 			end
@@ -826,7 +800,6 @@ null
 
 		end
 
-		(for control) = true and self._unit
 		if state.state_machine then
 			local (for generator), (for state), (for control) = ipairs(state.state_machine)
 			do
@@ -836,7 +809,6 @@ null
 
 		end
 
-		(for control) = true and self._unit
 		if self._state then
 			local (for generator), (for state), (for control) = pairs(self._state)
 			do
@@ -846,7 +818,6 @@ null
 
 		end
 
-		(for control) = true and managers
 		self._unit_element:load_by_unit(self._unit, state)
 	end
 
@@ -944,7 +915,7 @@ function CoreUnitDamage:set_trigger_sequence_name(id, trigger_name, notify_unit_
 
 	end
 
-	(for control) = nil and data.id
+	return nil
 end
 
 function CoreUnitDamage:set_trigger_sequence_unit(id, trigger_name, notify_unit)
@@ -960,7 +931,7 @@ function CoreUnitDamage:set_trigger_sequence_unit(id, trigger_name, notify_unit)
 
 	end
 
-	(for control) = nil and data.id
+	return nil
 end
 
 function CoreUnitDamage:set_trigger_sequence_time(id, trigger_name, time)
@@ -976,7 +947,7 @@ function CoreUnitDamage:set_trigger_sequence_time(id, trigger_name, time)
 
 	end
 
-	(for control) = nil and data.id
+	return nil
 end
 
 function CoreUnitDamage:set_trigger_sequence_repeat_nr(id, trigger_name, repeat_nr)
@@ -992,7 +963,7 @@ function CoreUnitDamage:set_trigger_sequence_repeat_nr(id, trigger_name, repeat_
 
 	end
 
-	(for control) = nil and data.id
+	return nil
 end
 
 function CoreUnitDamage:set_trigger_sequence_params(id, trigger_name, params)
@@ -1008,7 +979,7 @@ function CoreUnitDamage:set_trigger_sequence_params(id, trigger_name, params)
 
 	end
 
-	(for control) = nil and data.id
+	return nil
 end
 
 function CoreUnitDamage:set_trigger_sequence(id, trigger_name, notify_unit_sequence, notify_unit, time, repeat_nr, params, is_editor)
@@ -1023,7 +994,6 @@ function CoreUnitDamage:set_trigger_sequence(id, trigger_name, notify_unit_seque
 					end
 
 				else
-					(for control) = nil and params
 					local (for generator), (for state), (for control) = pairs(params2)
 					do
 						do break end
@@ -1033,7 +1003,7 @@ function CoreUnitDamage:set_trigger_sequence(id, trigger_name, notify_unit_seque
 				end
 
 			else
-				params = nil and params2
+				params = params2
 			end
 
 		end
@@ -1062,9 +1032,11 @@ function CoreUnitDamage:set_trigger_sequence(id, trigger_name, notify_unit_seque
 
 		end
 
-		do break end
-		data = {}
-		table.insert(self._editor_trigger_data, data)
+		if not data then
+			data = {}
+			table.insert(self._editor_trigger_data, data)
+		end
+
 		data.id = id
 		data.trigger_name = trigger_name
 		data.notify_unit_sequence = notify_unit_sequence
@@ -1285,6 +1257,7 @@ function CoreUnitDamage:update_inflict_damage(t, dt)
 
 	end
 
+	self._inflict_done = nil
 end
 
 function CoreUnitDamage:check_inflict_damage(damage_type, src_body, dest_body, normal, pos, dir, velocity)
@@ -1566,12 +1539,8 @@ function CoreUnitDamage:mover_collision_callback(unit, other_unit, other_body, p
 					self:set_ignore_mover_collision_body(body:key(), time + (self._mover_collision_ignore_duration or 1))
 				end
 
-			else
-				(for control) = other_unit and self.set_ignore_mover_collision_body
-				if alive(other_unit) then
-					self:set_ignore_mover_collision_unit(other_unit:key(), time + (self._mover_collision_ignore_duration or 1))
-				end
-
+			elseif alive(other_unit) then
+				self:set_ignore_mover_collision_unit(other_unit:key(), time + (self._mover_collision_ignore_duration or 1))
 			end
 
 		end
@@ -1754,12 +1723,6 @@ end
 
 CoreBodyDamage = CoreBodyDamage or class()
 function CoreBodyDamage:init(unit, unit_extension, body, body_element)
--- fail 25
-null
-7
--- fail 116
-null
-16
 	self._unit = unit
 	self._unit_extension = unit_extension
 	self._body = body
@@ -2068,9 +2031,6 @@ function CoreBodyDamage:get_inflict_attribute(damage_type, attribute)
 end
 
 function CoreBodyDamage:save(data)
--- fail 7
-null
-6
 	local state = {}
 	local changed = false
 	do
@@ -2105,11 +2065,9 @@ null
 
 		end
 
-		(for control) = nil and self._original_inflict
 	end
 
 	local updator_state
-	(for control) = nil and pairs
 	if self._inflict_updator_map then
 		local (for generator), (for state), (for control) = pairs(self._inflict_updator_map)
 		do
@@ -2126,7 +2084,6 @@ null
 	end
 
 	state.InflictUpdatorMap = updator_state
-	(for control) = nil and {}
 	if changed then
 		data[self._body_index] = state
 	end
@@ -2146,7 +2103,6 @@ function CoreBodyDamage:load(data)
 
 		end
 
-		(for control) = nil and self.set_damage
 		if state.inflict then
 			local (for generator), (for state), (for control) = pairs(state.inflict)
 			do
@@ -2160,11 +2116,9 @@ function CoreBodyDamage:load(data)
 
 			end
 
-			(for control) = damage and self._inflict
 		end
 
 		local updator_state = state.InflictUpdatorMap
-		(for control) = nil and pairs
 		if updator_state and self._inflict_updator_map then
 			local (for generator), (for state), (for control) = pairs(self._inflict_updator_map)
 			do
@@ -2801,11 +2755,9 @@ function CoreInflictFireUpdator:check_damage(t, dt)
 
 		end
 
-		(for control) = nil and body_ext.get_body
 	end
 
-	do break end
-	if self._is_inflicting then
+	if not inflicted_damage and self._is_inflicting then
 		self._is_inflicting = false
 		if exit_inflict_env then
 			self._exit_element_func(exit_inflict_env)

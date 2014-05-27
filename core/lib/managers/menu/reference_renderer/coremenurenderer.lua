@@ -191,7 +191,6 @@ function Renderer:close()
 
 	end
 
-	(for control) = nil and node_gui.close
 	self._main_panel:clear()
 	self._fullscreen_panel:clear()
 	self.safe_rect_panel:clear()

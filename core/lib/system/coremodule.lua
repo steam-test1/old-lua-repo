@@ -24,7 +24,7 @@ function CoreModule:init()
 
 	end
 
-	self.__pristine_G.core = nil and self
+	self.__pristine_G.core = self
 	return self
 end
 
@@ -64,7 +64,6 @@ function CoreModule:from_module_import(module_name, ...)
 		end
 
 	else
-		(for control) = ... and assert
 		error("Can't import module '" .. tostring(module_name) .. "'. It is not registred (is spelling correct?)")
 	end
 
@@ -147,7 +146,6 @@ function CoreModule:_lookup(object)
 
 	end
 
-	(for control) = _G and find
 	return unpack(self.__obj2nametable[object] or {"<notfound>", "<notfound>"})
 end
 
@@ -168,9 +166,6 @@ function CoreModule:_name_to_module(module_name)
 end
 
 function CoreModule:_module_to_name(module)
--- fail 5
-null
-4
 	do
 		local (for generator), (for state), (for control) = pairs(self.__modules)
 		do

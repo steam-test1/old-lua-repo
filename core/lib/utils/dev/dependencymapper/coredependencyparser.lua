@@ -106,6 +106,7 @@ function DependencyParser:nodes(pattern)
 
 	end
 
+	return dn_list
 end
 
 function DependencyParser:complement(dn_list, pattern)
@@ -125,7 +126,6 @@ function DependencyParser:reached(start_dn_list, pattern)
 
 	end
 
-	(for control) = nil and union
 	return filter(reached_dn, pattern)
 end
 
@@ -146,6 +146,7 @@ function _set2list(set)
 
 	end
 
+	return list
 end
 
 function _list2set(list)
@@ -159,15 +160,10 @@ function _list2set(list)
 
 	end
 
+	return set
 end
 
 function union(A_list, B_list)
--- fail 6
-null
-5
--- fail 13
-null
-5
 	local set = {}
 	do
 		local (for generator), (for state), (for control) = ipairs(A_list)
@@ -205,14 +201,10 @@ function intersect(A_list, B_list)
 
 	end
 
-	(for control) = nil and b_set[dn]
 	return _set2list(c_set)
 end
 
 function set_difference(A_list, B_list)
--- fail 8
-null
-5
 	local set = _list2set(A_list)
 	do
 		local (for generator), (for state), (for control) = ipairs(B_list)
@@ -237,7 +229,6 @@ function names(A_list)
 
 	end
 
-	(for control) = nil and table
 	table.sort(names)
 	return names
 end
@@ -256,7 +247,7 @@ function filter(dn_list, pattern)
 
 	end
 
-	(for control) = nil and dn.match
+	return res_list
 end
 
 function generate_report(filepath, protected_list, dp)
@@ -310,7 +301,7 @@ function generate_report(filepath, protected_list, dp)
 
 		end
 
-		(for control) = #node_names and ws.add_row
+		collectgarbage()
 		return ws
 	end
 

@@ -143,6 +143,6 @@ function LevelSettingsLayer:clear()
 
 	end
 
-	self._settings = nil and {}
+	self._settings = {}
 end
 

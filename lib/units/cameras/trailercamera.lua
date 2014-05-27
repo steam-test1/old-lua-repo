@@ -213,8 +213,7 @@ function TrailerCamera:set_depth_mode(depth_mode)
 
 	end
 
-	do break end
-	local effect = "empty" or "default"
+	local effect = depth_mode and "empty" or "default"
 	local (for generator), (for state), (for control) = ipairs(managers.viewport:viewports())
 	do
 		do break end

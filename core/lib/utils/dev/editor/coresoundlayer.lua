@@ -30,7 +30,6 @@ function SoundLayer:load(world_holder, offset)
 
 	end
 
-	(for control) = managers.sound_environment:areas() and SoundLayer
 	do
 		local (for generator), (for state), (for control) = ipairs(managers.sound_environment:emitters())
 		do
@@ -42,7 +41,6 @@ function SoundLayer:load(world_holder, offset)
 
 	end
 
-	(for control) = managers.sound_environment:emitters() and SoundLayer
 	do
 		local (for generator), (for state), (for control) = ipairs(managers.sound_environment:area_emitters())
 		do
@@ -54,7 +52,6 @@ function SoundLayer:load(world_holder, offset)
 
 	end
 
-	(for control) = managers.sound_environment:area_emitters() and SoundLayer
 	self:set_select_unit(nil)
 end
 
@@ -116,7 +113,6 @@ function SoundLayer:save(save_params)
 
 	end
 
-	(for control) = nil and unit.name
 	local default_ambience = managers.sound_environment:default_ambience()
 	local default_occasional = managers.sound_environment:default_occasional()
 	local sound_data = {
@@ -222,7 +218,6 @@ function SoundLayer:build_panel(notebook)
 
 		end
 
-		(for control) = "" and self._emitter_paths
 		self._emitter_paths:set_value(default_emitter_path)
 	else
 		self._emitter_paths:append("- No emitter paths in project -")
@@ -245,7 +240,6 @@ function SoundLayer:build_panel(notebook)
 
 		end
 
-		(for control) = managers.sound_environment:emitter_events(default_emitter_path) and self._emitter_events
 		self._emitter_events:set_value(managers.sound_environment:emitter_events(default_emitter_path)[1])
 	else
 		self._emitter_events:append("- Talk to your sound designer -")
@@ -508,7 +502,6 @@ function SoundLayer:clear()
 
 	end
 
-	(for control) = managers.sound_environment:ambience_enabled() and unit.name
 	SoundLayer.super.clear(self)
 	self:set_sound_environment_parameters()
 end

@@ -47,7 +47,7 @@ function LootBagUnitElement:stop_test_element()
 
 	end
 
-	self._test_units = nil and {}
+	self._test_units = {}
 end
 
 function LootBagUnitElement:update_selected(time, rel_time)

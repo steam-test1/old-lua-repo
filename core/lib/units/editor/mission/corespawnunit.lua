@@ -39,7 +39,7 @@ function CoreSpawnUnitUnitElement:stop_test_element()
 
 	end
 
-	self._test_units = nil and {}
+	self._test_units = {}
 end
 
 function CoreSpawnUnitUnitElement:update_selected(time, rel_time)
@@ -92,7 +92,6 @@ function CoreSpawnUnitUnitElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = managers.editor:layers().Dynamics:get_unit_map() and table
 	local units_params = {
 		name = "Unit:",
 		panel = panel,

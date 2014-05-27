@@ -133,7 +133,6 @@ function EditUnitVariation:get_material_configs_from_meta(unit_name)
 
 	end
 
-	(for control) = unit_name:id() and child.name
 	if #groups > 0 then
 		local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type("material_config"))
 		do
@@ -151,10 +150,8 @@ function EditUnitVariation:get_material_configs_from_meta(unit_name)
 
 		end
 
-		(for control) = managers.database:list_entries_of_type("material_config") and node.has_parameter
 	end
 
-	(for control) = managers.database:list_entries_of_type("material_config") and DB
 	self._avalible_material_groups[unit_name:key()] = available_groups
 	return available_groups
 end

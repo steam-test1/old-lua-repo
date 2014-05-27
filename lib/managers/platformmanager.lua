@@ -56,7 +56,7 @@ function GenericPlatformManager:update(t, dt)
 
 		end
 
-		self._event_queue_list = nil and {}
+		self._event_queue_list = {}
 	end
 
 end

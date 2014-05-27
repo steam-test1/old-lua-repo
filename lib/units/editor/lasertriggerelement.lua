@@ -90,7 +90,6 @@ function LaserTriggerUnitElement:_draw_selected()
 
 	end
 
-	(for control) = nil and self._draw_point
 	local (for generator), (for state), (for control) = ipairs(self._hed.connections)
 	do
 		do break end
@@ -153,7 +152,7 @@ function LaserTriggerUnitElement:_get_close_point(points, pos)
 
 	end
 
-	(for control) = nil and point.pos
+	return nil, nil
 end
 
 function LaserTriggerUnitElement:_draw_point(pos, rot, r, g, b)
@@ -333,7 +332,7 @@ function LaserTriggerUnitElement:_check_remove_connection(i1, i2)
 
 	end
 
-	(for control) = clone(self._hed.connections) and connection.from
+	return false
 end
 
 function LaserTriggerUnitElement:add_triggers(vc)

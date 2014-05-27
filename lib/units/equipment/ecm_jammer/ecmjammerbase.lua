@@ -401,14 +401,16 @@ function ECMJammerBase._detect_and_give_dmg(hit_pos, device_unit, user_unit, ran
 
 			end
 
-			do break end
-			table.insert(splinters, mvector3.copy(pos))
+			if not near_splinter then
+				table.insert(splinters, mvector3.copy(pos))
+			end
+
 		end
 
 	end
 
 	local range_sq = range * range
-	local half_range_sq = Vector3(0, 0, range) and range * 0.5
+	local half_range_sq = range * 0.5
 	half_range_sq = half_range_sq * half_range_sq
 	local function _chk_apply_dmg_to_char(u_data)
 		if not u_data.char_tweak.ecm_vulnerability then
@@ -457,7 +459,6 @@ function ECMJammerBase._detect_and_give_dmg(hit_pos, device_unit, user_unit, ran
 
 	end
 
-	(for control) = managers.enemy:all_enemies() and _chk_apply_dmg_to_char
 	local (for generator), (for state), (for control) = pairs(managers.enemy:all_civilians())
 	do
 		do break end

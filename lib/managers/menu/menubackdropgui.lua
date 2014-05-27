@@ -175,7 +175,6 @@ function MenuBackdropGUI:_update_layers()
 
 	end
 
-	(for control) = "item_foreground_layer" and self._panel
 	layer:set_layer(num_layers)
 end
 

@@ -35,7 +35,6 @@ function CoreWorldCameraTriggerUnitElement:_populate_sequences()
 
 	end
 
-	(for control) = managers.worldcamera:all_world_camera_sequences() and self._sequences
 	self._sequences:set_value(self._hed.worldcamera_trigger_sequence)
 end
 
@@ -58,7 +57,6 @@ function CoreWorldCameraTriggerUnitElement:_populate_after_clip()
 
 	end
 
-	(for control) = nil and self._after_clip
 	self._after_clip:set_value(self._hed.worldcamera_trigger_after_clip)
 end
 

@@ -35,7 +35,7 @@ function CoreEffectPropertyContainer:get_property(name)
 
 	end
 
-	(for control) = nil and p.name
+	return nil
 end
 
 function CoreEffectPropertyContainer:validate_properties()
@@ -57,6 +57,7 @@ function CoreEffectPropertyContainer:validate_properties()
 
 	end
 
+	return ret
 end
 
 function CoreEffectPropertyContainer:set_description(d)
@@ -131,7 +132,6 @@ function CoreEffectPropertyContainer:fill_property_container_sheet(window, view)
 
 	end
 
-	(for control) = property_container:properties() and p._visible
 	window:set_min_size(top_sizer:get_min_size())
 	window:layout()
 	window:thaw()
@@ -251,7 +251,7 @@ function CoreEffectProperty:validate()
 
 			end
 
-			(for control) = nil and type
+			return false
 		end
 
 		if not contains(self._values, self._value) then
@@ -280,132 +280,127 @@ function CoreEffectProperty:validate()
 
 		end
 
-	else
-		(for control) = self._value and p.validate
-		if self._type == "int" then
-			if not tonumber(self._value) then
+	elseif self._type == "int" then
+		if not tonumber(self._value) then
+			ret.valid = false
+			ret.message = self._value .. " is not a valid integer"
+			return ret
+		end
+
+	elseif self._type == "vector3" then
+		if not math.string_is_good_vector(self._value) then
+			ret.valid = false
+			ret.message = self._value .. " is not a valid vector3"
+			return ret
+		end
+
+	elseif self._type == "percentage" then
+		local v = tonumber(self._value)
+		if not v or v < 0 or v > 1 then
+			ret.valid = false
+			ret.message = self._value .. " is not a valid number in [0,1]"
+			return ret
+		end
+
+	elseif self._type == "color" then
+		local c
+		if math.string_is_good_vector(self._value) then
+			c = math.string_to_vector(self._value)
+		end
+
+		if not c or 0 > c.x or c.x > 255 or 0 > c.y or 255 < c.y or 0 > c.z or 255 < c.z then
+			ret.valid = false
+			ret.message = self._value .. " is not a valid color"
+			return ret
+		end
+
+	elseif self._type == "opacity" then
+		local c = tonumber(self._value)
+		if not c or c < 0 or c > 255 then
+			ret.valid = false
+			ret.message = self._value .. " is not a valid opacity"
+			return ret
+		end
+
+	elseif self._type == "time" then
+		local t = tonumber(self._value)
+		if not t or not self._can_be_infinite and t < 0 then
+			ret.valid = false
+			ret.message = self._value .. " is not a valid time"
+			return ret
+		end
+
+	elseif self._type == "angle" then
+		local a = tonumber(self._value)
+		if not a then
+			ret.valid = false
+			ret.message = self._value .. " is not a valid angle"
+		end
+
+	elseif self._type == "float" then
+		local a = tonumber(self._value)
+		if not a then
+			ret.valid = false
+			ret.message = self._value .. " is not a valid float"
+		elseif self._min_range and self._max_range and (a < self._min_range or a > self._max_range) then
+			ret.valid = false
+			ret.message = self._value .. " is out of range (" .. self._min_range .. ", " .. self._max_range .. ")"
+		end
+
+	elseif self._type == "texture" then
+		if not DB:has("texture", self._value) then
+			ret.valid = false
+			ret.message = "texture " .. self._value .. " does not exist"
+			return ret
+		end
+
+	elseif self._type == "unit" then
+		if not DB:has("unit", self._value) then
+			ret.valid = false
+			ret.message = "unit " .. self._value .. " does not exist"
+			return ret
+		end
+
+	elseif self._type == "effect" then
+		if not DB:has("effect", self._value) or self._value == "" then
+			ret.valid = false
+			ret.message = "effect " .. self._value .. " does not exist"
+			return ret
+		end
+
+	elseif self._type == "keys" then
+		if #self._keys < self._min_keys then
+			ret.valid = false
+			ret.message = "Too few keys"
+			return ret
+		end
+
+		if #self._keys > self._max_keys then
+			ret.valid = false
+			ret.message = "Too many keys"
+			return ret
+		end
+
+		local (for generator), (for state), (for control) = ipairs(self._keys)
+		do
+			do break end
+			if not tonumber(k.t) then
 				ret.valid = false
-				ret.message = self._value .. " is not a valid integer"
+				ret.message = "time value invalid"
 				return ret
 			end
 
-		elseif self._type == "vector3" then
-			if not math.string_is_good_vector(self._value) then
-				ret.valid = false
-				ret.message = self._value .. " is not a valid vector3"
+			local temp = CoreEffectProperty:new("", self._key_type, k.v, "")
+			ret = temp:validate()
+			if not ret.valid then
+				ret.message = "Invalid key - " .. ret.message
 				return ret
-			end
-
-		elseif self._type == "percentage" then
-			local v = tonumber(self._value)
-			if not v or v < 0 or v > 1 then
-				ret.valid = false
-				ret.message = self._value .. " is not a valid number in [0,1]"
-				return ret
-			end
-
-		elseif self._type == "color" then
-			local c
-			if math.string_is_good_vector(self._value) then
-				c = math.string_to_vector(self._value)
-			end
-
-			if not c or 0 > c.x or c.x > 255 or 0 > c.y or 255 < c.y or 0 > c.z or 255 < c.z then
-				ret.valid = false
-				ret.message = self._value .. " is not a valid color"
-				return ret
-			end
-
-		elseif self._type == "opacity" then
-			local c = tonumber(self._value)
-			if not c or c < 0 or c > 255 then
-				ret.valid = false
-				ret.message = self._value .. " is not a valid opacity"
-				return ret
-			end
-
-		elseif self._type == "time" then
-			local t = tonumber(self._value)
-			if not t or not self._can_be_infinite and t < 0 then
-				ret.valid = false
-				ret.message = self._value .. " is not a valid time"
-				return ret
-			end
-
-		elseif self._type == "angle" then
-			local a = tonumber(self._value)
-			if not a then
-				ret.valid = false
-				ret.message = self._value .. " is not a valid angle"
-			end
-
-		elseif self._type == "float" then
-			local a = tonumber(self._value)
-			if not a then
-				ret.valid = false
-				ret.message = self._value .. " is not a valid float"
-			elseif self._min_range and self._max_range and (a < self._min_range or a > self._max_range) then
-				ret.valid = false
-				ret.message = self._value .. " is out of range (" .. self._min_range .. ", " .. self._max_range .. ")"
-			end
-
-		elseif self._type == "texture" then
-			if not DB:has("texture", self._value) then
-				ret.valid = false
-				ret.message = "texture " .. self._value .. " does not exist"
-				return ret
-			end
-
-		elseif self._type == "unit" then
-			if not DB:has("unit", self._value) then
-				ret.valid = false
-				ret.message = "unit " .. self._value .. " does not exist"
-				return ret
-			end
-
-		elseif self._type == "effect" then
-			if not DB:has("effect", self._value) or self._value == "" then
-				ret.valid = false
-				ret.message = "effect " .. self._value .. " does not exist"
-				return ret
-			end
-
-		elseif self._type == "keys" then
-			if #self._keys < self._min_keys then
-				ret.valid = false
-				ret.message = "Too few keys"
-				return ret
-			end
-
-			if #self._keys > self._max_keys then
-				ret.valid = false
-				ret.message = "Too many keys"
-				return ret
-			end
-
-			local (for generator), (for state), (for control) = ipairs(self._keys)
-			do
-				do break end
-				if not tonumber(k.t) then
-					ret.valid = false
-					ret.message = "time value invalid"
-					return ret
-				end
-
-				local temp = CoreEffectProperty:new("", self._key_type, k.v, "")
-				ret = temp:validate()
-				if not ret.valid then
-					ret.message = "Invalid key - " .. ret.message
-					return ret
-				end
-
 			end
 
 		end
 
 	end
 
-	(for control) = self._value and tonumber
 	if ret.valid and self._custom_validator then
 		return self._custom_validator(self)
 	end
@@ -598,7 +593,6 @@ function create_key_curve_widget(parent, view, prop)
 
 		end
 
-		(for control) = nil and listbox.append
 		vars.view:update_view(false)
 	end
 
@@ -722,7 +716,6 @@ function CoreEffectProperty:create_widget(parent, view)
 
 		end
 
-		(for control) = self._value and widget.append
 		widget:set_value(self._value)
 		widget:connect("EVT_COMMAND_TEXT_UPDATED", callback(self, self, "on_commit", {widget = widget, view = view}))
 	elseif self._type == "timeline" then
@@ -762,7 +755,6 @@ function CoreEffectProperty:create_widget(parent, view)
 
 		end
 
-		(for control) = "" and combo.append
 		local variant_panel = EWS:Panel(widget, "", "")
 		local sizer = EWS:BoxSizer("VERTICAL")
 		sizer:add(combo, 0, 0, "EXPAND")
@@ -850,7 +842,6 @@ function CoreEffectProperty:create_widget(parent, view)
 
 		end
 
-		(for control) = "" and combo.append
 		local add_button = EWS:Button(widget, "Add", "", "BU_EXACTFIT")
 		local sheet = EWS:Panel(widget, "", "")
 		local top_sizer = EWS:BoxSizer("VERTICAL")
@@ -909,7 +900,7 @@ function CoreEffectProperty:create_widget(parent, view)
 
 		end
 
-		local on_keys_commit = "" and function(widget_view)
+		local function on_keys_commit(widget_view)
 			local keys = widget_view.widget:get_keys()
 			local prop = widget_view.prop
 			prop._keys = {}
@@ -934,7 +925,6 @@ function CoreEffectProperty:create_widget(parent, view)
 
 			end
 
-			(for control) = nil and ""
 			self._looping = widget_view.widget:looping()
 			widget_view.view:update_view(false)
 		end
@@ -992,7 +982,6 @@ function CoreEffectProperty:save(node)
 		end
 
 	else
-		(for control) = self._max and node.make_child
 		if not self._silent then
 			node:set_parameter(self._name, self._value)
 		end
@@ -1038,7 +1027,6 @@ function CoreEffectProperty:load(node)
 			end
 
 		else
-			(for control) = nil and c.name
 			self._compound_container:load_properties(node)
 		end
 
@@ -1062,7 +1050,6 @@ function CoreEffectProperty:load(node)
 		end
 
 	else
-		(for control) = nil and self._list_objects
 		if not self._silent and node:has_parameter(self._name) then
 			self._value = node:parameter(self._name)
 		end
@@ -1088,7 +1075,7 @@ function CoreEffectProperty:load(node)
 
 				end
 
-				(for control) = nil and type
+				return false
 			end
 
 			if not contains(self._values, self._value) then

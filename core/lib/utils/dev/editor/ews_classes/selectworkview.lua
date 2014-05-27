@@ -79,7 +79,6 @@ function SelectWorkView:build_cbs()
 
 	end
 
-	(for control) = nil and table
 	table.sort(self._continent_names)
 	local (for generator), (for state), (for control) = ipairs(self._continent_names)
 	do
@@ -124,7 +123,7 @@ function SelectWorkView:on_all_continents()
 
 	end
 
-	(for control) = nil or cb.set_value
+	self:fill_views_list()
 end
 
 function SelectWorkView:on_none_continents()
@@ -137,7 +136,7 @@ function SelectWorkView:on_none_continents()
 
 	end
 
-	(for control) = nil and cb.set_value
+	self:fill_views_list()
 end
 
 function SelectWorkView:on_invert_continents()
@@ -150,7 +149,7 @@ function SelectWorkView:on_invert_continents()
 
 	end
 
-	(for control) = nil and cb.set_value
+	self:fill_views_list()
 end
 
 function SelectWorkView:on_delete()
@@ -246,10 +245,8 @@ function SelectWorkView:fill_views_list()
 
 		end
 
-		(for control) = nil and string
 	end
 
-	(for control) = nil and self._continents_cbs
 	self._list:thaw()
 	self._list:autosize_column(0)
 end
@@ -277,7 +274,6 @@ function SelectWorkView:recreate()
 
 	end
 
-	(for control) = nil and self._continents_sizer
 	self._info_ctrlr:change_value("")
 	self:build_cbs()
 	self:fill_views_list()

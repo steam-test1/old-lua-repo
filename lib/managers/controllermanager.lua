@@ -54,22 +54,18 @@ function ControllerManager:load_user_mod()
 
 					end
 
-				else
-					(for control) = managers.user:get_setting("controller_mod_type") and type
-					if connections[params.button] then
-						connections[params.button]:set_controller_id(params.controller_id)
-						connections[params.button]:set_input_name_list({
-							params.connection
-						})
-					end
-
+				elseif connections[params.button] then
+					connections[params.button]:set_controller_id(params.controller_id)
+					connections[params.button]:set_input_name_list({
+						params.connection
+					})
 				end
 
 			end
 
 		end
 
-		(for control) = managers.user:get_setting("controller_mod_type") and params.axis
+		self:rebind_connections()
 	end
 
 end

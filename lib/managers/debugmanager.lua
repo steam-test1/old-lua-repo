@@ -22,6 +22,7 @@ function DebugManager:set_qa_debug_enabled(username, enabled)
 
 	end
 
+	self._qa_debug_enabled = enabled
 end
 
 CoreClass.override_class(CoreDebugManager.DebugManager, DebugManager)

@@ -74,9 +74,9 @@ function CoreSpawnSystem:get_linked_unit_list()
 
 		end
 
-		(for control) = nil and table
 	end
 
+	return linked_unit_list
 end
 
 function CoreSpawnSystem:destroy()
@@ -114,7 +114,6 @@ function CoreSpawnSystem:update(unit, t, dt)
 		self._delayed_var_and_cb_init = nil
 	end
 
-	(for control) = nil and self.set_var_and_cb
 	self._unit:set_extension_update_enabled("spawn_system", false)
 	self._post_init = true
 end
@@ -153,7 +152,6 @@ function CoreSpawnSystem:find_spawn_node(xml)
 
 	end
 
-	(for control) = nil and spawn_node.name
 	Application:error("[CoreSpawnSystem] Could not find spawn node on: " .. self._unit:name())
 end
 
@@ -190,10 +188,9 @@ function CoreSpawnSystem:set_var_and_cb(new_unit, lv2)
 
 		end
 
-		(for control) = lv3:parameter("extension") and lv4.name
 	end
 
-	local (for generator), (for state), (for control) = nil and lv2:children(), lv2:children()
+	local (for generator), (for state), (for control) = lv2:children()
 	do
 		do break end
 		local lv3_name = lv3:parameter("name")
@@ -248,8 +245,7 @@ function CoreSpawnSystem:read_spawn_xml()
 
 			end
 
-			do break end
-			if lv1_name ~= "" then
+			if lv1_element_name == "socket" and lv1_name ~= "" then
 				local (for generator), (for state), (for control) = lv1:children()
 				do
 					do break end
@@ -271,10 +267,8 @@ function CoreSpawnSystem:read_spawn_xml()
 
 		end
 
-		(for control) = lv1 and lv2.name
 	end
 
-	(for control) = PackageManager:unit_data(self._unit:name():id()):model_script_data() and lv1.name
 	if not self._delayed_var_and_cb_init then
 		self._unit:set_extension_update_enabled("spawn_system", false)
 		self._post_init = true
@@ -315,7 +309,6 @@ function CoreSpawnSystem:setup_unit(lv1, lv2)
 			end
 
 		else
-			(for control) = lv1_name and lv3.name
 			self._unit:link(lv1_name, new_unit, lv2:parameter("link_object"))
 			local (for generator), (for state), (for control) = lv2:children()
 			do
@@ -333,7 +326,6 @@ function CoreSpawnSystem:setup_unit(lv1, lv2)
 		end
 
 	else
-		(for control) = new_unit and lv3.parameter
 		cat_print("spawn_system", "Spawning only! (No linking.)")
 	end
 

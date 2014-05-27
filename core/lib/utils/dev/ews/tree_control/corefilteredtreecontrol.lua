@@ -53,7 +53,7 @@ function CoreFilteredTreeControl:_node_passes_filters(node)
 
 	end
 
-	(for control) = nil and predicate
+	return true
 end
 
 function CoreFilteredTreeControl:_on_node_appended(new_node)

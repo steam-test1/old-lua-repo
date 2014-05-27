@@ -28,7 +28,6 @@ function MenuItemMultiChoice:init(data_node, parameters)
 	end
 
 	self._enabled = true
-	(for control) = parameters and c._meta
 	self:_show_options(nil)
 end
 
@@ -67,15 +66,19 @@ function MenuItemMultiChoice:_show_options(callback_handler)
 
 			end
 
-			do break end
-			table.insert(self._options, option)
+			if show then
+				table.insert(self._options, option)
+			end
+
 		end
 
 	end
 
-	do break end
-	self:set_current_index(1)
-	self:set_value(selected_value)
+	if selected_value then
+		self:set_current_index(1)
+		self:set_value(selected_value)
+	end
+
 end
 
 function MenuItemMultiChoice:add_option(option)
@@ -113,7 +116,7 @@ function MenuItemMultiChoice:set_value(value)
 
 	end
 
-	(for control) = nil and option.parameters
+	self:dirty()
 end
 
 function MenuItemMultiChoice:value()
@@ -140,6 +143,7 @@ function MenuItemMultiChoice:_highest_option_index()
 
 	end
 
+	return index
 end
 
 function MenuItemMultiChoice:_lowest_option_index()

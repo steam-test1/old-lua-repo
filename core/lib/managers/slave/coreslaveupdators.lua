@@ -64,7 +64,6 @@ function SlaveUpdator:slaveupdators_reset(rpc)
 
 	end
 
-	(for control) = nil and CoreCode
 	self._pings = table.map_copy(self._units)
 	rpc:slaveupdators_ready_to_send()
 end
@@ -82,7 +81,7 @@ function SlaveUpdator:slaveupdators_init()
 
 	end
 
-	self._units = World:find_units_quick("all") and {}
+	self._units = {}
 	self._pings = {}
 end
 

@@ -198,7 +198,6 @@ function CopActionHurt:init(action_desc, common_data)
 
 		end
 
-		(for control) = self._machine:segment_state(Idstring("base")) and table
 		local variant = sick_variants[math.random(#sick_variants)]
 		local duration = math.random(ecm_hurts_table[variant].min_duration, ecm_hurts_table[variant].max_duration)
 		do
@@ -210,7 +209,7 @@ function CopActionHurt:init(action_desc, common_data)
 
 		end
 
-		self._sick_time = table.insert and t + duration
+		self._sick_time = t + duration
 	elseif action_type == "bleedout" then
 		redir_res = self._ext_movement:play_redirect("bleedout")
 		if not redir_res then

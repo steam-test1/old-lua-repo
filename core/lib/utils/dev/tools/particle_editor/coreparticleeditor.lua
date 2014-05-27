@@ -33,7 +33,6 @@ function collect_member_names(members, member_names)
 
 	end
 
-	(for control) = nil and v
 	table.sort(member_names, function(a, b)
 		return a.ui_name < b.ui_name
 	end
@@ -144,7 +143,6 @@ function CoreParticleEditor:new_dialog()
 
 	end
 
-	(for control) = managers.database:list_entries_of_type("template_effect") and type_combo.append
 	on_select_type({combo = type_combo, desc = description_text})
 	local create_button = EWS:Button(dialog, "Create", "", "BU_EXACTFIT")
 	create_button:connect("EVT_COMMAND_BUTTON_CLICKED", on_create, dialog)
@@ -298,25 +296,31 @@ Are you sure you want to continue?]], "Are you sure you wish to continue?", "YES
 
 						end
 
-						do break end
-						cull_policy._value = "freeze"
-						should_save = true
+						if not had_screen_aligned then
+							cull_policy._value = "freeze"
+							should_save = true
+						end
+
 					end
 
 				end
 
 			end
 
-			do break end
-			Application:error("FIXME: CoreParticleEditor:on_batch_all_remove_update_render(), (using Database:save_node())")
+			if should_save then
+				Application:error("FIXME: CoreParticleEditor:on_batch_all_remove_update_render(), (using Database:save_node())")
+			end
+
 		end
 
 	end
 
-	do break end
-	cat_debug("debug", "Saved entries, saving database...")
-	do break end
-	cat_debug("debug", "Nothing modified, not saving database")
+	if any_saved then
+		cat_debug("debug", "Saved entries, saving database...")
+	else
+		cat_debug("debug", "Nothing modified, not saving database")
+	end
+
 end
 
 function CoreParticleEditor:on_batch_all_load_unload()
@@ -347,7 +351,6 @@ Are you sure you want to continue?]], "Are you sure you wish to continue?", "YES
 
 	end
 
-	(for control) = managers.database:list_entries_of_type("effect") and DB
 	cat_debug("debug", "Done!")
 end
 
@@ -596,7 +599,6 @@ function CoreParticleEditor:on_close()
 
 	end
 
-	(for control) = nil and e.close
 	managers.toolhub:close("Particle Editor")
 	if managers.editor then
 		managers.editor:set_listener_enabled(false)
@@ -642,7 +644,7 @@ function CoreParticleEditor:current_effect_index()
 
 	end
 
-	(for control) = nil and e.panel
+	return -1
 end
 
 function CoreParticleEditor:effect_for_page(page)
@@ -658,7 +660,7 @@ function CoreParticleEditor:effect_for_page(page)
 
 	end
 
-	(for control) = nil and e.panel
+	return nil
 end
 
 function CoreParticleEditor:set_page_name(page, name)

@@ -21,7 +21,6 @@ function IngameCleanState:at_enter()
 
 	end
 
-	(for control) = nil and player.camera
 	managers.hud:show(PlayerBase.PLAYER_INFO_HUD)
 	managers.hud:show(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN)
 	local player = managers.player:player_unit()

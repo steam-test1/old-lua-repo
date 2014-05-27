@@ -132,7 +132,22 @@ function OverlayEffectManager:check_pause_state(paused)
 			self._paused = nil
 		end
 
-		(for control) = nil and effect.rectangle
+	elseif paused then
+		do
+			local (for generator), (for state), (for control) = pairs(self._playing_effects)
+			do
+				do break end
+				if not effect.data.play_paused then
+					effect.rectangle:hide()
+				end
+
+			end
+
+		end
+
+		self._paused = true
+	end
+
 end
 
 function OverlayEffectManager:play_effect(data)
@@ -180,7 +195,6 @@ function OverlayEffectManager:play_effect(data)
 		end
 
 		local id = 1
-		(for control) = data.color and effect.data
 		while self._playing_effects[id] do
 			id = id + 1
 		end

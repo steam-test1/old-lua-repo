@@ -176,7 +176,6 @@ function LevelLoadingScreenGuiScript:setup(res, progress)
 
 	end
 
-	(for control) = self._tips_head_line and challenge.panel
 	self._challenges_topic:set_visible(self._challenges[1] and true or false)
 	if self._challenges[1] then
 		self._challenges_topic:set_bottom(self._challenges[1].panel:top() - 4)

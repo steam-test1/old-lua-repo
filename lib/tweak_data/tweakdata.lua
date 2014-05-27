@@ -48,12 +48,8 @@ function TweakData:digest_recursive(key, parent)
 			self:digest_recursive(index, value)
 		end
 
-	else
-		(for control) = nil and self.digest_recursive
-		if type(value) == "number" then
-			parent[key] = Application:digest_value(value, true)
-		end
-
+	elseif type(value) == "number" then
+		parent[key] = Application:digest_value(value, true)
 	end
 
 end
@@ -76,7 +72,6 @@ function TweakData:get_value(...)
 
 	end
 
-	(for control) = ... and value[v]
 	if type(value) == "string" then
 		return Application:digest_value(value, false)
 	elseif type(value) == "table" then
@@ -488,7 +483,6 @@ function TweakData:init()
 
 	end
 
-	(for control) = 255 and self.screen_colors
 	if Global.old_colors_purple then
 		self.screen_color_white = Color.purple
 		self.screen_color_red = Color.purple

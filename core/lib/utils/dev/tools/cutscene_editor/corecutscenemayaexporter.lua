@@ -202,10 +202,8 @@ function CoreCutsceneMayaExporter:_write_animation_curves(file)
 
 		end
 
-		(for control) = nil and curve_set.write
 	end
 
-	(for control) = nil and pairs
 	if self.__combined_camera_focal_length_curve then
 		self.__combined_camera_focal_length_curve:write(file)
 	end
@@ -228,7 +226,7 @@ function CoreCutsceneMayaExporter:_sample_animation_curves()
 
 	end
 
-	local cutscene_player = nil and self.__cutscene_editor._player
+	local cutscene_player = self.__cutscene_editor._player
 	local camera_object = cutscene_player:_camera_object()
 	if camera_object then
 		self:_curve_set(self:_combined_camera_node_name(), "just_an_identifier"):add_sample(self.__frame, camera_object)

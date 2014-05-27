@@ -157,7 +157,6 @@ function CoreWorldCameraManager:save(file)
 
 	end
 
-	(for control) = nil and world_camera.save_data_table
 	local camera_data = {
 		worldcameras = worldcameras,
 		sequences = self._world_camera_sequences
@@ -182,7 +181,7 @@ function CoreWorldCameraManager:load(param)
 
 		end
 
-		self._world_camera_sequences = nil and param.sequences
+		self._world_camera_sequences = param.sequences
 	end
 
 end
@@ -215,7 +214,7 @@ function CoreWorldCameraManager:_old_load(path)
 
 	end
 
-	(for control) = nil and child.name
+	return true
 end
 
 function CoreWorldCameraManager:update(t, dt)
@@ -341,7 +340,6 @@ function CoreWorldCameraManager:stop_world_camera()
 
 		end
 
-		(for control) = nil and self.remove_sequence_camera_clip_callback
 		if self._sequence_index < #self._current_sequence then
 			self._sequence_index = self._sequence_index + 1
 			self:new_play_world_camera(self._current_sequence[self._sequence_index])
@@ -445,7 +443,6 @@ function CoreWorldCameraManager:_sequence_done()
 
 	end
 
-	(for control) = nil and self.remove_sequence_done_callback
 	if self._old_game_state_name then
 		game_state_machine:change_state_by_name(self._old_game_state_name)
 		self._old_game_state_name = nil
@@ -668,13 +665,9 @@ function CoreWorldCamera:old_load(node)
 
 			end
 
-		else
-			(for control) = child:parameter("index") and value.name
-			if child:name() == "value" then
-				local name, value = parse_value_node(child)
-				self[name] = value
-			end
-
+		elseif child:name() == "value" then
+			local name, value = parse_value_node(child)
+			self[name] = value
 		end
 
 	end
@@ -923,15 +916,6 @@ function CoreWorldCamera:play_to_time(s_t)
 end
 
 function CoreWorldCamera:positions_at_time_sine(spline_t)
--- fail 98
-null
-36
--- fail 39
-null
-20
--- fail 20
-null
-12
 	local result_pos, result_look_pos
 	local positions = self._positions
 	local tar_positions = self._target_positions
@@ -1195,7 +1179,6 @@ function CoreWorldCamera:extract_segment_dis_markers(segment_table, control_poin
 
 	end
 
-	(for control) = nil and #segment_table
 	return segment_lengths, spline_length
 end
 
@@ -1235,7 +1218,6 @@ function CoreWorldCamera:extract_editor_random_access_data(segment_table, contro
 
 	end
 
-	(for control) = nil and #segment_table
 	return subsegment_positions, subsegment_lengths
 end
 
@@ -1270,7 +1252,7 @@ function CoreWorldCamera:debug_draw_editor()
 				end
 
 			else
-				local step = nil and 0.02
+				local step = 0.02
 				local previous_pos
 				for i = step, 1, step do
 					local acc = math.bezier({
@@ -1493,7 +1475,6 @@ function CoreWorldCamera:move_point(point, pos, rot)
 
 				end
 
-				(for control) = point - 1 and self._spline_metadata
 				local segment_lengths, spline_length = self:extract_segment_dis_markers(self._target_positions, self._spline_metadata.tar_ctrl_points, self._spline_metadata.nr_subseg_per_seg)
 				self._spline_metadata.tar_spline_length = spline_length
 				self._spline_metadata.tar_segment_lengths = segment_lengths
@@ -1551,7 +1532,6 @@ function CoreWorldCamera:next_key(time)
 
 	end
 
-	(for control) = nil and key.time
 	if index > #self._keys then
 		index = #self._keys
 	end
@@ -1578,6 +1558,7 @@ function CoreWorldCamera:prev_key(time, step)
 
 	end
 
+	return index
 end
 
 function CoreWorldCamera:add_key(time)
@@ -1608,7 +1589,6 @@ function CoreWorldCamera:add_key(time)
 
 	end
 
-	(for control) = self:value_at_time(time, "roll") and key.time
 	table.insert(self._keys, index, key)
 	return index, key
 end

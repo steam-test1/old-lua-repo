@@ -255,7 +255,7 @@ function CriminalsManager:is_taken(name)
 
 	end
 
-	(for control) = nil and data.name
+	return false
 end
 
 function CriminalsManager:character_name_by_peer_id(peer_id)
@@ -409,13 +409,14 @@ function CriminalsManager:get_free_character_name()
 
 			end
 
-			do break end
-			table.insert(available, data.name)
+			if not taken then
+				table.insert(available, data.name)
+			end
+
 		end
 
 	end
 
-	(for control) = nil and data.taken
 	if #available > 0 then
 		return available[math.random(#available)]
 	end
@@ -436,6 +437,7 @@ function CriminalsManager:get_num_player_criminals()
 
 	end
 
+	return num
 end
 
 function CriminalsManager:remove_character_by_unit(unit)
@@ -542,5 +544,6 @@ function CriminalsManager:nr_AI_criminals()
 
 	end
 
+	return nr_AI_criminals
 end
 

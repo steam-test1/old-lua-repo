@@ -55,7 +55,6 @@ function CoreMaterialEditorParameter:set_params(parent, editor, parameter_info, 
 
 		end
 
-		(for control) = nil and self._parameter_info
 		if not self._parent_param_node then
 			self._parent_node = nil
 		end

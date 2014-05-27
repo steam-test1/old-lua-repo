@@ -193,7 +193,7 @@ function CivilianLogicEscort._get_objective_path_data(data, my_data)
 			end
 
 			my_data.advance_path = path
-			my_data.coarse_path_index = mvector3.copy(data.m_pos) and 1
+			my_data.coarse_path_index = 1
 			local start_seg = data.unit:movement():nav_tracker():nav_segment()
 			local end_pos = mvector3.copy(path[#path])
 			local end_seg = managers.navigation:get_nav_seg_from_pos(end_pos)
@@ -253,8 +253,10 @@ function CivilianLogicEscort.too_scared_to_move(data)
 
 	end
 
-	do break end
-	do return "abandoned" end
+	if nobody_close then
+		return "abandoned"
+	end
+
 	local nobody_close = true
 	local min_dis_sq = tweak_data.character[data.unit:base()._tweak_table].escort_scared_dist
 	min_dis_sq = min_dis_sq * min_dis_sq
@@ -271,8 +273,10 @@ function CivilianLogicEscort.too_scared_to_move(data)
 
 	end
 
-	do break end
-	do return "pigs" end
+	if not nobody_close then
+		return "pigs"
+	end
+
 	return
 end
 

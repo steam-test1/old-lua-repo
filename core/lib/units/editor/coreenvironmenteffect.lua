@@ -29,7 +29,6 @@ function CoreEnvironmentEffectHubElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = managers.environment_effects:effects_names() and effects.append
 	effects:set_value(self._hed.environment_effect)
 	effects:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {
 		ctrlr = effects,

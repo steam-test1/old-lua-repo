@@ -34,7 +34,6 @@ function ElementSequenceCharacter:on_executed(instigator)
 
 	end
 
-	(for control) = nil and self.get_mission_element
 	ElementSequenceCharacter.super.on_executed(self, instigator)
 end
 

@@ -82,10 +82,6 @@ function FilterProfileUnitElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = {
-		ctrlr = money_offshore,
-		value = "money_offshore"
-	} and table
 	local achievement_params = {
 		name = "Achievement:",
 		panel = panel,

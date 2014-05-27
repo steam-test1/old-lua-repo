@@ -191,10 +191,8 @@ function CarryData:_explode()
 
 		end
 
-		(for control) = distance - range / 2 and World
 	end
 
-	(for control) = CarryData.EXPLOSION_CUSTOM_PARAMS and self._unit
 	QuickFlashGrenade:make_flash(pos, range, {
 		self._unit
 	})
@@ -234,7 +232,7 @@ function CarryData:clbk_out_of_world()
 		end
 
 		self._bodies_to_revert = nil
-		self._register_out_of_world_dynamic_clbk_id = nil and nil
+		self._register_out_of_world_dynamic_clbk_id = nil
 		return
 	elseif self._unit:position().z < PlayerMovement.OUT_OF_WORLD_Z then
 		self._bodies_to_revert = {}
@@ -602,7 +600,6 @@ function CarryData:unlink()
 		self._disabled_collisions = nil
 	end
 
-	(for control) = nil or body.set_collisions_enabled
 	if Network:is_server() then
 		managers.network:session():send_to_peers_synched("loot_link", self._unit, self._unit)
 	end
@@ -658,6 +655,19 @@ function CarryData:set_zipline_unit(zipline_unit)
 			end
 
 		end
+
+	elseif not self._zipline_unit and self._saved_attention_data then
+		do
+			local (for generator), (for state), (for control) = pairs(self._saved_attention_data)
+			do
+				do break end
+				self._unit:attention():add_attention(attention_data)
+			end
+
+		end
+
+		self._saved_attention_data = nil
+	end
 
 end
 

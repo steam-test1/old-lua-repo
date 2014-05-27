@@ -180,7 +180,6 @@ function TimerGui:setup()
 
 	end
 
-	(for control) = self._gui_script.panel:children() and self._original_colors
 	self._gui_script.panel:set_alpha(1)
 end
 
@@ -255,7 +254,7 @@ function TimerGui:set_background_icons(background_icons)
 
 	end
 
-	(for control) = background_icons_panel:children() and self._original_colors
+	background_icons_panel:clear()
 	local alpha = self._gui_script.panel:alpha()
 	self._gui_script.panel:set_alpha(1)
 	self._original_colors = self._original_colors or {}
@@ -269,7 +268,6 @@ function TimerGui:set_background_icons(background_icons)
 
 	end
 
-	(for control) = background_icons_panel:children() and background_icons_panel.bitmap
 	self._gui_script.panel:set_alpha(alpha)
 end
 
@@ -388,7 +386,6 @@ function TimerGui:_set_jammed(jammed)
 					end
 
 				else
-					(for control) = child:children() and self._original_colors
 					local color = self._original_colors[child:key()]
 					local jammed_color = theme and theme.jammed and theme.jammed[child:name()] or Color.red
 					local c = jammed_color:with_alpha(color.a)
@@ -404,7 +401,6 @@ function TimerGui:_set_jammed(jammed)
 
 		end
 
-		(for control) = self._gui_script.panel:children() and TimerGui
 		self._gui_script.working_text:set_text(managers.localization:text(self._gui_malfunction))
 		self._gui_script.time_text:set_text(managers.localization:text("prop_timer_gui_error"))
 		if self._unit:interaction() then
@@ -429,7 +425,6 @@ function TimerGui:_set_jammed(jammed)
 					end
 
 				else
-					(for control) = child:children() and grandchild.set_color
 					child:set_color(self._original_colors[child:key()])
 				end
 
@@ -437,7 +432,6 @@ function TimerGui:_set_jammed(jammed)
 
 		end
 
-		(for control) = self._gui_script.panel:children() and child.children
 		self._gui_script.working_text:set_text(managers.localization:text(self._gui_working))
 		self._gui_script.time_text:set_text(math.floor(self._time_left or self._current_timer) .. " " .. managers.localization:text("prop_timer_gui_seconds"))
 		self._gui_script.drill_screen_background:set_color(self._gui_script.drill_screen_background:color():with_alpha(1))
@@ -477,7 +471,6 @@ function TimerGui:_set_powered(powered, enable_interaction)
 					end
 
 				else
-					(for control) = child:children() and self._original_colors
 					local color = self._original_colors[child:key()]
 					local c = Color(color.a, 1, 0, 0)
 					child:set_color(c)
@@ -487,7 +480,6 @@ function TimerGui:_set_powered(powered, enable_interaction)
 
 		end
 
-		(for control) = self._gui_script.panel:children() and child.children
 		self:post_event(self._power_off_event or self._jam_event)
 		if enable_interaction and self._unit:interaction() then
 			self._powered_interaction_enabled = enable_interaction
@@ -512,7 +504,6 @@ function TimerGui:_set_powered(powered, enable_interaction)
 					end
 
 				else
-					(for control) = child:children() and grandchild.set_color
 					child:set_color(self._original_colors[child:key()])
 				end
 
@@ -520,7 +511,6 @@ function TimerGui:_set_powered(powered, enable_interaction)
 
 		end
 
-		(for control) = self._gui_script.panel:children() and child.children
 		self:post_event(self._resume_event)
 		if self._powered_interaction_enabled then
 			self._powered_interaction_enabled = nil

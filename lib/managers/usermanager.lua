@@ -194,7 +194,6 @@ function GenericUserManager:has_setting_changed(old_value, new_value)
 
 		end
 
-		(for control) = nil and self.has_setting_changed
 		do
 			local (for generator), (for state), (for control) = pairs(new_value)
 			do
@@ -207,7 +206,7 @@ function GenericUserManager:has_setting_changed(old_value, new_value)
 
 		end
 
-		(for control) = nil and self.has_setting_changed
+		return false
 	else
 		return old_value ~= new_value
 	end
@@ -377,9 +376,6 @@ function GenericUserManager:get_index()
 end
 
 function GenericUserManager:set_index(user_index)
--- fail 43
-null
-6
 	if Global.user_manager.user_index ~= user_index then
 		local old_user_index = Global.user_manager.user_index
 		cat_print("user_manager", "[UserManager] Changed user index from " .. tostring(old_user_index) .. " to " .. tostring(user_index) .. ".")

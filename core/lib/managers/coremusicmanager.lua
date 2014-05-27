@@ -30,7 +30,6 @@ function CoreMusicManager:init()
 
 	end
 
-	(for control) = Idstring("soundbanks/music") and v.path
 	table.sort(self._path_list)
 	do
 		local (for generator), (for state), (for control) = pairs(self._event_map)
@@ -42,7 +41,7 @@ function CoreMusicManager:init()
 	end
 
 	self._has_music_control = true
-	self._external_media_playing = Idstring("soundbanks/music") and false
+	self._external_media_playing = false
 end
 
 function CoreMusicManager:init_finalize()

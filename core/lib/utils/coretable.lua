@@ -2,9 +2,6 @@ core:module("CoreTable")
 core:import("CoreClass")
 core:import("CoreDebug")
 function clone(o)
--- fail 6
-null
-4
 	local res = {}
 	do
 		local (for generator), (for state), (for control) = pairs(o)
@@ -40,6 +37,7 @@ function deep_clone(o)
 
 	end
 
+	return res
 end
 
 function dpairs(vector_table)
@@ -105,6 +103,7 @@ function table.map_copy(map)
 
 	end
 
+	return copy
 end
 
 function table.list_copy(list)
@@ -118,6 +117,7 @@ function table.list_copy(list)
 
 	end
 
+	return copy
 end
 
 function table.get_vector_index(v, e)
@@ -154,6 +154,7 @@ function table.exclude(t, e)
 
 	end
 
+	return filtered
 end
 
 function table.equals(a, b, value_compare_func)
@@ -175,14 +176,10 @@ function table.equals(a, b, value_compare_func)
 
 	end
 
-	(for control) = nil and size_a + 1
 	return size_a == table.size(b)
 end
 
 function table.contains(v, e)
--- fail 5
-null
-4
 	do
 		local (for generator), (for state), (for control) = pairs(v)
 		do
@@ -195,12 +192,10 @@ null
 
 	end
 
+	return false
 end
 
 function table.index_of(v, e)
--- fail 5
-null
-4
 	do
 		local (for generator), (for state), (for control) = ipairs(v)
 		do
@@ -213,12 +208,10 @@ null
 
 	end
 
+	return -1
 end
 
 function table.get_key(map, wanted_key_value)
--- fail 5
-null
-4
 	do
 		local (for generator), (for state), (for control) = pairs(map)
 		do
@@ -231,12 +224,10 @@ null
 
 	end
 
+	return nil
 end
 
 function table.has(v, k)
--- fail 5
-null
-4
 	do
 		local (for generator), (for state), (for control) = pairs(v)
 		do
@@ -249,6 +240,7 @@ null
 
 	end
 
+	return false
 end
 
 function table.size(v)
@@ -262,6 +254,7 @@ function table.size(v)
 
 	end
 
+	return i
 end
 
 function table.empty(v)
@@ -312,7 +305,6 @@ function table.concat_map(map, concat_values, none_string, wrap, sep, last_sep)
 
 	end
 
-	(for control) = nil and func
 	return func(count, true)
 end
 
@@ -343,7 +335,6 @@ function table.sorted_copy(t, predicate)
 
 	end
 
-	(for control) = nil and table
 	table.sort(sorted_copy, predicate)
 	return sorted_copy
 end
@@ -374,6 +365,7 @@ function table.find_all_values(t, func)
 
 	end
 
+	return matches
 end
 
 function table.true_for_all(t, predicate)
@@ -389,7 +381,7 @@ function table.true_for_all(t, predicate)
 
 	end
 
-	(for control) = nil and predicate
+	return true
 end
 
 function table.collect(t, func)
@@ -403,6 +395,7 @@ function table.collect(t, func)
 
 	end
 
+	return result
 end
 
 function table.inject(t, initial, func)
@@ -416,6 +409,7 @@ function table.inject(t, initial, func)
 
 	end
 
+	return result
 end
 
 function table.insert_sorted(t, item, comparator_func)
@@ -467,7 +461,6 @@ function table.unpack_sparse(sparse_list)
 
 	end
 
-	(for control) = nil and math
 	local func = table.__unpack_sparse_implementations[count]
 	if func == nil then
 		local return_values = table.collect(table.range(1, count), function(i)
@@ -499,6 +492,7 @@ function table.map_to_list(map)
 
 	end
 
+	return list
 end
 
 function table.map_keys(map, sort_func)
@@ -512,7 +506,6 @@ function table.map_keys(map, sort_func)
 
 	end
 
-	(for control) = nil and table
 	table.sort(keys, sort_func)
 	return keys
 end
@@ -528,8 +521,10 @@ function table.map_values(map, sort_func)
 
 	end
 
-	do break end
-	table.sort(values, sort_func)
+	if sort_func ~= nil then
+		table.sort(values, sort_func)
+	end
+
 	return values
 end
 
@@ -545,6 +540,7 @@ function table.remap(map, remap_func)
 
 	end
 
+	return result
 end
 
 function table.list_add(...)
@@ -563,15 +559,12 @@ function table.list_add(...)
 
 		end
 
-		(for control) = ... and table
 	end
 
+	return result
 end
 
 function table.list_union(...)
--- fail 12
-null
-9
 	local unique = {}
 	do
 		local (for generator), (for state), (for control) = ipairs({
@@ -590,7 +583,6 @@ null
 	end
 
 	local result = {}
-	(for control) = ... and ipairs
 	do
 		local (for generator), (for state), (for control) = pairs(unique)
 		do
@@ -600,6 +592,7 @@ null
 
 	end
 
+	return result
 end
 
 function table.print_data(data, t)
@@ -621,7 +614,6 @@ function table.print_data(data, t)
 		end
 
 	else
-		(for control) = nil and type
 		CoreDebug.cat_debug("debug", CoreClass.type_name(data), tostring(data))
 	end
 
@@ -660,7 +652,6 @@ if Application:ews_enabled() then
 
 				end
 
-				(for control) = nil and assert
 				file:write(string.rep("\t", indentation - 1) .. "}")
 			elseif t == "string" or t == "number" or t == "boolean" then
 				file:write(__lua_representation(value))

@@ -78,9 +78,11 @@ function CopLogicArrest.exit(data, new_logic_name, enter_params)
 
 	end
 
-	do break end
-	data.unit:brain():set_update_enabled_state(true)
-	CopLogicBase._reset_attention(data)
+	if new_logic_name ~= "inactive" then
+		data.unit:brain():set_update_enabled_state(true)
+		CopLogicBase._reset_attention(data)
+	end
+
 	if my_data.calling_the_police then
 		local action_data = {type = "idle", body_part = 3}
 		data.unit:brain():action_request(action_data)
@@ -653,11 +655,33 @@ function CopLogicArrest._get_priority_attention(data, attention_objects, reactio
 
 	end
 
-	(for control) = nil and attention_data.unit
 	return best_target, best_target_priority_slot, best_target_reaction
 end
 
 function CopLogicArrest._process_pathing_results(data, my_data)
+	if data.pathing_results then
+		do
+			local (for generator), (for state), (for control) = pairs(data.pathing_results)
+			do
+				do break end
+				if path_id == my_data.path_search_id then
+					if path ~= "failed" then
+						my_data.advance_path = path
+					else
+						print("[CopLogicArrest._process_pathing_results] advance path failed")
+					end
+
+					my_data.processing_path = nil
+					my_data.path_search_id = nil
+				end
+
+			end
+
+		end
+
+		data.pathing_results = nil
+	end
+
 end
 
 function CopLogicArrest._cancel_advance(data, my_data)

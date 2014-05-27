@@ -298,12 +298,6 @@ function InfamyTreeGui:_setup()
 
 	end
 
-	(for control) = {
-		x = x,
-		y = y,
-		w = item_width,
-		h = item_height
-	} and tweak_data
 	local points_text = self._panel:text({
 		name = "points",
 		text = utf8.to_upper(managers.localization:text("st_menu_infamy_available_points", {
@@ -423,7 +417,7 @@ function InfamyTreeGui:_update_description(name, unlocked)
 
 		end
 
-		self._requested_textures = nil and {}
+		self._requested_textures = {}
 		self._description_panel:remove(desc_upgrade)
 	end
 
@@ -453,10 +447,8 @@ function InfamyTreeGui:_update_description(name, unlocked)
 
 				end
 
-				(for control) = nil and item.global_value
 			end
 
-			(for control) = nil and #items
 			local _, infamous_base_chance, infamous_mod = managers.lootdrop:infamous_chance()
 			local infamous_chance = items_total > 0 and infamous_base_chance * (items_infamous / items_total) or 0
 			local mult = 10
@@ -750,7 +742,6 @@ function InfamyTreeGui:mouse_moved(o, x, y)
 
 	end
 
-	(for control) = nil and item.panel
 	if managers.menu:is_pc_controller() then
 		local back_button = self._panel:child("back_button")
 		if back_button:inside(x, y) then
@@ -862,7 +853,7 @@ function InfamyTreeGui:close()
 
 	end
 
-	self._requested_textures = nil and {}
+	self._requested_textures = {}
 	do
 		local (for generator), (for state), (for control) = pairs(self._tree_items)
 		do
@@ -872,7 +863,6 @@ function InfamyTreeGui:close()
 
 	end
 
-	(for control) = nil and item.border
 	self._ws:panel():remove(self._panel)
 	self._fullscreen_ws:panel():remove(self._fullscreen_panel)
 end

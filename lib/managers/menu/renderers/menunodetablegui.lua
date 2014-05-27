@@ -78,7 +78,6 @@ function MenuNodeTableGui:_create_menu_item(row_item)
 
 		end
 
-		(for control) = self.item_panel and row_item.gui_panel
 		local x, y, w, h = row_item.gui_columns[1]:text_rect()
 		row_item.gui_panel:set_height(h)
 	elseif row_item.type == "server_column" then
@@ -119,7 +118,6 @@ function MenuNodeTableGui:_create_menu_item(row_item)
 
 		end
 
-		(for control) = row_item.gui_panel and row_item.gui_panel
 		local x, y, w, h = row_item.gui_columns[1]:text_rect()
 		row_item.gui_panel:set_height(h)
 		local level_id = row_item.item:parameters().level_id

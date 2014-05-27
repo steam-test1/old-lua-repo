@@ -54,7 +54,6 @@ function SlotManager:get_mask(...)
 
 	end
 
-	(for control) = ... and self._masks
 	if #arg_list == 0 then
 		Application:error("No parameters passed to get_mask function.")
 	end

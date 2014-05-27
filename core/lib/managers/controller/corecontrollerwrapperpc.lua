@@ -93,7 +93,6 @@ function ControllerWrapperPC:virtual_connect2(controller_id, controller, input_n
 		end
 
 	else
-		(for control) = Idstring(connection_name) and self._controller_map
 		local input_name_str = type(input_name) == "number" and tostring(input_name) or input_name
 		if self._controller_map.gamepads:has_button(Idstring(input_name_str)) or self._controller_map.gamepads:has_axis(Idstring(input_name_str)) then
 			controller = self._controller_map.gamepads

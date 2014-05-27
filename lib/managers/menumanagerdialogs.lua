@@ -716,7 +716,7 @@ function MenuManager:show_confirm_blackmarket_mask_remove(params)
 	end
 
 	dialog_data.focus_button = 2
-	local yes_button = managers.localization and {}
+	local yes_button = {}
 	yes_button.text = managers.localization:text("dialog_yes")
 	yes_button.callback_func = params.yes_func
 	local no_button = {}
@@ -750,7 +750,7 @@ function MenuManager:show_confirm_blackmarket_mask_sell(params)
 	end
 
 	dialog_data.focus_button = 2
-	local yes_button = managers.localization and {}
+	local yes_button = {}
 	yes_button.text = managers.localization:text("dialog_yes")
 	yes_button.callback_func = params.yes_func
 	local no_button = {}
@@ -883,9 +883,6 @@ function MenuManager:show_confirm_blackmarket_mod(params)
 
 		end
 
-		(for control) = {
-			mod = managers.weapon_factory:get_part_name_by_part_id(params.replaces[1])
-		} and mods
 		dialog_data.text = dialog_data.text .. "\n" .. l_local:text("dialog_blackmarket_mod_conflict", {mods = mods}) .. "\n"
 		warn_lost_mods = true
 	end

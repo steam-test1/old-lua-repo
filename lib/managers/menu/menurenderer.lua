@@ -301,7 +301,6 @@ function MenuRenderer:current_menu_text(topic_id)
 
 	end
 
-	(for control) = nil and table
 	table.insert(ids, topic_id)
 	local s = ""
 	do
@@ -314,6 +313,7 @@ function MenuRenderer:current_menu_text(topic_id)
 
 	end
 
+	return s
 end
 
 function MenuRenderer:accept_input(accept)

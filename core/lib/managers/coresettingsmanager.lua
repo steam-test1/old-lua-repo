@@ -49,7 +49,6 @@ function SettingsManager:_serialize(value, file, indentation)
 
 		end
 
-		(for control) = nil and assert
 		file:write(string.rep("\t", indentation - 1) .. "}")
 	elseif t == "string" or t == "number" or t == "boolean" then
 		file:write(self:_inspect(value), file, indentation)

@@ -59,7 +59,6 @@ function CoreAreaTriggerUnitElement:draw_links(t, dt, selected_unit, all_units)
 
 	end
 
-	(for control) = dt and all_units[id]
 	self:_check_removed_units(all_units)
 	if self._hed.use_shape_element_ids then
 		local (for generator), (for state), (for control) = ipairs(self._hed.use_shape_element_ids)
@@ -81,7 +80,6 @@ function CoreAreaTriggerUnitElement:draw_links(t, dt, selected_unit, all_units)
 
 	end
 
-	(for control) = dt and all_units[id]
 	if self._hed.rules_element_ids then
 		local (for generator), (for state), (for control) = ipairs(self._hed.rules_element_ids)
 		do
@@ -118,7 +116,6 @@ function CoreAreaTriggerUnitElement:_check_removed_units(all_units)
 
 	end
 
-	(for control) = clone(self._hed.use_shape_element_ids) and all_units[id]
 	if self._hed.rules_element_ids then
 		local (for generator), (for state), (for control) = ipairs(clone(self._hed.rules_element_ids))
 		do
@@ -615,7 +612,7 @@ function CoreAreaOperatorUnitElement:_build_panel(panel, panel_sizer)
 	end
 
 	local help = {}
-	help.text = callback(self, self, "set_element_data") and "This element can modify trigger_area element. Select areas to modify using insert and clicking on the elements."
+	help.text = "This element can modify trigger_area element. Select areas to modify using insert and clicking on the elements."
 	help.panel = panel
 	help.sizer = panel_sizer
 	self:add_help_text(help)

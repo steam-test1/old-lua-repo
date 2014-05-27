@@ -28,9 +28,6 @@ function MissionEndState:set_controller_enabled(enabled)
 end
 
 function MissionEndState:at_enter(old_state, params)
--- fail 516
-null
-19
 	managers.platform:set_presence("Mission_end")
 	managers.platform:set_rich_presence(Global.game_settings.single_player and "SPEnd" or "MPEnd")
 	managers.hud:remove_updator("point_of_no_return")
@@ -52,7 +49,6 @@ null
 
 	end
 
-	(for control) = managers.player:get_all_synced_carry() and tweak_data
 	local player = managers.player:player_unit()
 	if player then
 		player:camera():remove_sound_listener()
@@ -107,7 +103,6 @@ null
 
 	end
 
-	(for control) = managers.hud:script(PlayerBase.PLAYER_INFO_HUD).panel:children() and component.name
 	if not managers.hud._mid_text_presenting or managers.hud._mid_text_presenting.type ~= "challenge" then
 		managers.hud:script(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN).present_background:set_visible(false)
 	end
@@ -158,8 +153,7 @@ null
 
 				end
 
-				do break end
-				if jobs_pass and contract_pass and diff_pass and mask_pass and no_shots_pass then
+				if job_pass and jobs_pass and contract_pass and diff_pass and mask_pass and no_shots_pass then
 					if achievement_data.stat then
 						managers.achievment:award_progress(achievement_data.stat)
 					elseif achievement_data.award then
@@ -172,7 +166,6 @@ null
 
 		end
 
-		(for control) = Vector3(0, -50000, 0) and achievement_data.difficulty
 		local (for generator), (for state), (for control) = pairs(tweak_data.achievement.four_mask_achievements)
 		do
 			do break end
@@ -197,7 +190,6 @@ null
 
 				end
 
-				(for control) = managers.network:game():all_members() and member.peer
 				if #available_masks == 0 then
 					if achievement_data.stat then
 						managers.achievment:award_progress(achievement_data.stat)
@@ -213,7 +205,6 @@ null
 
 	end
 
-	(for control) = true and achievement_data.masks
 	self._criminals_completed = self._success and params.num_winners or 0
 	managers.statistics:stop_session({
 		success = self._success,
@@ -240,9 +231,7 @@ null
 
 					end
 
-					(for control) = ipairs(available_masks) and table
 				else
-					(for control) = managers.network:game():all_members() and pairs
 					available_jobs = deep_clone(tweak_data.achievement.job_list[achievement_data.contact])
 				end
 
@@ -268,7 +257,6 @@ null
 
 	end
 
-	(for control) = self._success and Global
 	managers.music:post_event(self._success and "resultscreen_win" or "resultscreen_lose")
 	managers.enemy:add_delayed_clbk("play_finishing_sound", callback(self, self, "play_finishing_sound", self._success), Application:time() + 2)
 	local ghost_bonus = 0

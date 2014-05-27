@@ -801,7 +801,6 @@ function FPCameraPlayerBase:anim_clbk_unspawn_handcuffs()
 
 	end
 
-	(for control) = nil and alive
 	self:set_handcuff_units(nil)
 end
 
@@ -940,6 +939,7 @@ function FPCameraPlayerBase:unspawn_melee_item()
 
 	end
 
+	self._melee_item_units = nil
 end
 
 function FPCameraPlayerBase:hide_weapon()
@@ -1002,9 +1002,11 @@ function FPCameraPlayerBase:spawn_mask()
 
 		end
 
-		do break end
-		print("FPCameraPlayerBase:spawn_mask", inspect(blueprint))
-		self._mask_unit:base():apply_blueprint(blueprint)
+		if blueprint then
+			print("FPCameraPlayerBase:spawn_mask", inspect(blueprint))
+			self._mask_unit:base():apply_blueprint(blueprint)
+		end
+
 		print(inspect(self._mask_unit:get_objects_by_type(Idstring("material"))))
 		self._mask_unit:set_timer(managers.player:player_timer())
 		self._mask_unit:set_animation_timer(managers.player:player_timer())
@@ -1020,7 +1022,6 @@ function FPCameraPlayerBase:spawn_mask()
 
 			end
 
-			(for control) = backside:get_objects_by_type(Idstring("material")) and material.set_render_template
 			backside:set_timer(managers.player:player_timer())
 			backside:set_animation_timer(managers.player:player_timer())
 			backside:anim_play(Idstring("mask_on"))
@@ -1048,7 +1049,6 @@ function FPCameraPlayerBase:unspawn_mask()
 
 		end
 
-		(for control) = self._mask_unit:children() and linked_unit.unlink
 		self._mask_unit:unlink()
 		local name = self._mask_unit:name()
 		World:delete_unit(self._mask_unit)

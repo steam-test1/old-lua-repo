@@ -117,7 +117,6 @@ function CoreEditor:on_configuration_cancel()
 
 	end
 
-	(for control) = nil and data.ctrlr
 	self._configuration:end_modal()
 end
 
@@ -144,7 +143,7 @@ function CoreEditor:on_configuration_apply()
 
 	end
 
-	(for control) = nil and data.ctrlr
+	self:save_configuration()
 	if managers.slave:connected() then
 		managers.slave:set_batch_count(self._slave_num_batches)
 	end

@@ -295,7 +295,6 @@ function MenuLobbyRenderer:get_player_slot_by_peer_id(id)
 
 	end
 
-	(for control) = nil and slot.peer_id
 	return self._player_slots[id]
 end
 
@@ -312,7 +311,7 @@ function MenuLobbyRenderer:get_player_slot_nr_by_peer_id(id)
 
 	end
 
-	(for control) = nil and slot.peer_id
+	return nil
 end
 
 function MenuLobbyRenderer:sync_chat_message(message, id)
@@ -331,7 +330,7 @@ function MenuLobbyRenderer:sync_chat_message(message, id)
 
 	end
 
-	(for control) = message and node_gui.row_item_by_name
+	return false
 end
 
 function MenuLobbyRenderer:update(t, dt)
@@ -568,7 +567,6 @@ function MenuLobbyRenderer:current_menu_text(topic_id)
 
 	end
 
-	(for control) = nil and table
 	table.insert(ids, topic_id)
 	local s = ""
 	do
@@ -581,6 +579,7 @@ function MenuLobbyRenderer:current_menu_text(topic_id)
 
 	end
 
+	return s
 end
 
 function MenuLobbyRenderer:scroll_up(...)

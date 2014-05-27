@@ -12,7 +12,6 @@ local debug_assert = function(chk, ...)
 
 		end
 
-		(for control) = ... and s
 		assert(chk, s)
 	end
 
@@ -79,7 +78,7 @@ function PrePlanningManager:_server_unreserve_mission_element(id, peer_id)
 
 		end
 
-		self._reserved_mission_elements[id] = nil and nil
+		self._reserved_mission_elements[id] = nil
 		managers.network:session():send_to_peers_loaded("preplanning_reserved", "", id, peer_id, true)
 		print("[UNRESERVED]", "type", type, "id", id, "peer_id", peer_id)
 		managers.menu_component:update_preplanning_element(type, id)
@@ -101,7 +100,7 @@ function PrePlanningManager:client_unreserve_mission_element(id)
 
 		end
 
-		self._reserved_mission_elements[id] = nil and nil
+		self._reserved_mission_elements[id] = nil
 		managers.menu_component:update_preplanning_element(type, id)
 	end
 
@@ -122,7 +121,6 @@ function PrePlanningManager:on_client_gone(peer_id)
 
 		end
 
-		(for control) = nil and reserved_mission_element.peer_id
 		do
 			local (for generator), (for state), (for control) = ipairs(owned_by_client)
 			do
@@ -139,12 +137,11 @@ function PrePlanningManager:on_client_gone(peer_id)
 
 				end
 
-				self._reserved_mission_elements[id] = nil and nil
+				self._reserved_mission_elements[id] = nil
 			end
 
 		end
 
-		(for control) = nil and unpack
 		managers.network:session():send_to_peers_loaded("preplanning_reserved", "", id, peer_id, true)
 	end
 
@@ -182,7 +179,6 @@ function PrePlanningManager:_server_reserve_mission_element(type, id, peer_id)
 
 		end
 
-		(for control) = index and self._change_disabled_type
 		managers.network:session():send_to_peers_loaded("preplanning_reserved", type, id, peer_id, false)
 		print("[RESERVED]", "type", type, "id", id, "peer_id", peer_id)
 		managers.menu_component:update_preplanning_element(type, id)
@@ -208,7 +204,7 @@ function PrePlanningManager:client_reserve_mission_element(type, id, peer_id)
 
 			end
 
-			self._reserved_mission_elements[id] = "peer_id" and nil
+			self._reserved_mission_elements[id] = nil
 		end
 
 		self._reserved_mission_elements[id] = {
@@ -225,7 +221,6 @@ function PrePlanningManager:client_reserve_mission_element(type, id, peer_id)
 
 		end
 
-		(for control) = index and self._change_disabled_type
 		managers.menu_component:update_preplanning_element(type, id)
 	end
 
@@ -250,7 +245,7 @@ function PrePlanningManager:execute_reserved_mission_elements()
 
 	end
 
-	self._reserved_mission_elements = nil and {}
+	self._reserved_mission_elements = {}
 end
 
 function PrePlanningManager:execute(type, index)
@@ -432,6 +427,7 @@ function PrePlanningManager:_get_location_groups_converter()
 
 	end
 
+	return location_groups_converter
 end
 
 function PrePlanningManager:convert_location_group_to_index(group)
@@ -466,6 +462,7 @@ function PrePlanningManager:sort_mission_elements_into_locations(mission_element
 
 	end
 
+	return locations
 end
 
 function PrePlanningManager:is_type_position_important(type)
@@ -478,9 +475,6 @@ function PrePlanningManager:get_mission_elements_by_type(type)
 end
 
 function PrePlanningManager:types_with_mission_elements(optional_category)
--- fail 6
-null
-5
 	local t = {}
 	do
 		local (for generator), (for state), (for control) = pairs(self._mission_elements_by_type)
@@ -511,7 +505,6 @@ function PrePlanningManager:categories_with_mission_elements()
 	end
 
 	local sorted_t = {}
-	(for control) = self:types_with_mission_elements() and tweak_data
 	do
 		local (for generator), (for state), (for control) = pairs(t)
 		do
@@ -521,7 +514,6 @@ function PrePlanningManager:categories_with_mission_elements()
 
 	end
 
-	(for control) = self:types_with_mission_elements() and table
 	table.sort(sorted_t)
 	return sorted_t
 end
@@ -537,7 +529,6 @@ function PrePlanningManager:types()
 
 	end
 
-	(for control) = nil and table
 	table.sort(t)
 	return t
 end

@@ -113,7 +113,6 @@ function PlayerInventory:pre_destroy(unit)
 
 		end
 
-		(for control) = self._mask_unit:children() and linked_unit.unlink
 		World:delete_unit(self._mask_unit)
 		self._mask_unit = nil
 	end
@@ -150,7 +149,7 @@ function PlayerInventory:destroy_all_items()
 	end
 
 	self._equipped_selection = nil
-	self._available_selections, (for control) = {}, nil and selection_data.unit
+	self._available_selections = {}
 	local (for generator), (for state), (for control) = pairs(names)
 	do
 		do break end
@@ -257,7 +256,6 @@ function PlayerInventory:add_unit_by_name(new_unit_name, equip, instant)
 
 	end
 
-	(for control) = nil and selection.unit
 	local new_unit = World:spawn_unit(new_unit_name, Vector3(), Rotation())
 	local setup_data = {}
 	setup_data.user_unit = self._unit
@@ -560,7 +558,6 @@ function PlayerInventory:set_mask_visibility(state)
 
 			end
 
-			(for control) = self._mask_unit:children() and linked_unit.unlink
 			self._mask_unit:unlink()
 			local name = self._mask_unit:name()
 			World:delete_unit(self._mask_unit)
@@ -642,7 +639,7 @@ function PlayerInventory:need_ammo()
 
 	end
 
-	(for control) = nil and weapon.unit
+	return false
 end
 
 function PlayerInventory:all_out_of_ammo()
@@ -658,7 +655,7 @@ function PlayerInventory:all_out_of_ammo()
 
 	end
 
-	(for control) = nil and weapon.unit
+	return true
 end
 
 function PlayerInventory:anim_clbk_equip_exit(unit)
@@ -675,7 +672,6 @@ function PlayerInventory:set_visibility_state(state)
 
 	end
 
-	(for control) = nil and sel_data.unit
 	if alive(self._shield_unit) then
 		self._shield_unit:set_visible(state)
 	end

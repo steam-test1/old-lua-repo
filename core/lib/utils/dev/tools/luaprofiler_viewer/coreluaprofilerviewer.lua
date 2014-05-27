@@ -84,7 +84,7 @@ function LuaProfilerViewer:_redraw_menu()
 		end
 
 		self._view_menu_filled = false
-		self._view_menu_connects, (for control) = {}, "EVT_COMMAND_MENU_SELECTED" and self._frame
+		self._view_menu_connects = {}
 		self._view_menu:clear()
 	end
 

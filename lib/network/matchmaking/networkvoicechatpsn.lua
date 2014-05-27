@@ -73,7 +73,6 @@ function NetworkVoiceChatPSN:num_peers()
 
 		end
 
-		(for control) = nil and v.joined
 		return x >= #l
 	end
 

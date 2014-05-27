@@ -183,7 +183,6 @@ function DOFManager:calculate_current_parameters_fade_in(t, dt, effect)
 
 	end
 
-	(for control) = nil and math
 	cur.clamp = math.lerp(init.clamp, effect.prog_data.clamp, eff_lerp)
 	effect.prog_data.dirty = true
 end
@@ -204,7 +203,7 @@ function DOFManager:calculate_current_parameters_sustain(t, dt, effect)
 
 		end
 
-		cur.clamp, (for control) = effect.prog_data.clamp, nil and tar[v]
+		cur.clamp = effect.prog_data.clamp
 		effect.prog_data.dirty = true
 	end
 
@@ -232,7 +231,6 @@ function DOFManager:calculate_current_parameters_fade_out(t, dt, effect, id)
 
 	end
 
-	(for control) = nil and math
 	cur.clamp = math.lerp(out.clamp, effect.prog_data.clamp, eff_lerp)
 	effect.prog_data.dirty = true
 end
@@ -279,7 +277,7 @@ function DOFManager:play(dof_data, amplitude_multiplier)
 	end
 
 	prog_data.target_values = target_values
-	prog_data.cur_values = nil and cur_values
+	prog_data.cur_values = cur_values
 	new_data.preset = dof_data
 	new_data.prog_data = prog_data
 	self._queued_effects[self._last_id] = new_data
@@ -303,8 +301,10 @@ function DOFManager:add_to_sorted_list(new_id, prio)
 
 	end
 
-	do break end
-	table.insert(self._sorted_effect_list, new_id)
+	if not allocated then
+		table.insert(self._sorted_effect_list, new_id)
+	end
+
 	local (for generator), (for state), (for control) = ipairs(self._sorted_effect_list)
 	do
 		do break end
@@ -314,9 +314,6 @@ function DOFManager:add_to_sorted_list(new_id, prio)
 end
 
 function DOFManager:remove_from_sorted_list(id)
--- fail 5
-null
-4
 	do
 		local (for generator), (for state), (for control) = ipairs(self._sorted_effect_list)
 		do
@@ -426,8 +423,10 @@ function DOFManager:set_effect_parameters(id, params, clamp)
 
 		end
 
-		do break end
-		self._queued_effects[id].prog_data.clamp = clamp
+		if clamp then
+			self._queued_effects[id].prog_data.clamp = clamp
+		end
+
 		self._queued_effects[id].prog_data.peak_reached = nil
 		return true
 	end

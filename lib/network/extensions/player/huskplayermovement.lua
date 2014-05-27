@@ -209,23 +209,12 @@ do
 
 			end
 
-			(for control) = nil and speed * 0.03333
 		end
 
-		(for control) = nil and pairs
 	end
 
-	(for control) = 9 and pairs
 end
 
-(for control) = {
-	run = {
-		fwd = 15,
-		bwd = 15,
-		l = 15,
-		r = 16
-	}
-} and pairs
 HuskPlayerMovement._walk_anim_lengths.stand.hos = HuskPlayerMovement._walk_anim_lengths.stand.cbt
 HuskPlayerMovement._walk_anim_lengths.crouch.hos = HuskPlayerMovement._walk_anim_lengths.crouch.cbt
 HuskPlayerMovement._matching_walk_anims = {
@@ -1076,9 +1065,6 @@ function HuskPlayerMovement:_add_sequenced_event(event_desc)
 end
 
 function HuskPlayerMovement:_upd_stance(t)
--- fail 63
-null
-8
 	if self._aim_up_expire_t and t > self._aim_up_expire_t then
 		self._aim_up_expire_t = nil
 		self:_chk_change_stance()
@@ -1108,7 +1094,6 @@ null
 				end
 
 			else
-				(for control) = nil and mlerp
 				do
 					local (for generator), (for state), (for control) = ipairs(transition.end_values)
 					do
@@ -1753,9 +1738,6 @@ function HuskPlayerMovement:_adjust_walk_anim_speed(dt, target_speed)
 end
 
 function HuskPlayerMovement:sync_shot_blank(impact)
--- fail 32
-null
-6
 	if self._state == "mask_off" or self._state == "clean" then
 		return
 	end
@@ -1818,7 +1800,7 @@ function HuskPlayerMovement:_change_stance(stance_code, delayed_shot)
 
 	end
 
-	local delay = nil and stance.blend[stance_code]
+	local delay = stance.blend[stance_code]
 	if delayed_shot then
 		delay = delay * 0.3
 	end

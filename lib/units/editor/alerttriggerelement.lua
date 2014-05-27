@@ -37,7 +37,6 @@ function AlertTriggerElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = "vo_intimidate" and EWS
 	opt_sizer:add(alert_type_sizer, 1, 0, "EXPAND")
 	local filter_preset_params = {
 		name = "Preset:",
@@ -78,7 +77,6 @@ function AlertTriggerElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = "EXPAND" and EWS
 	filter_sizer:add(opt1_sizer, 1, 0, "EXPAND")
 	filter_sizer:add(opt2_sizer, 1, 0, "EXPAND")
 	filter_sizer:add(opt3_sizer, 1, 0, "EXPAND")
@@ -112,7 +110,6 @@ function AlertTriggerElement:_set_filter_all()
 
 	end
 
-	(for control) = nil or ctrlr.set_value
 	self._hed.filter = managers.navigation:convert_access_filter_to_string(managers.navigation.ACCESS_FLAGS)
 end
 
@@ -126,7 +123,7 @@ function AlertTriggerElement:_set_filter_none()
 
 	end
 
-	self._hed.filter = nil and "0"
+	self._hed.filter = "0"
 end
 
 function AlertTriggerElement:on_filter_checkbox_changed(params)

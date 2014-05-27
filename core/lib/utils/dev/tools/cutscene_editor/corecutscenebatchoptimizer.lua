@@ -27,7 +27,6 @@ function CoreCutsceneBatchOptimizer:add_project(project_name, optimized_cutscene
 
 	end
 
-	(for control) = optimizer:problems() and cat_print
 	self.__max_queue_size = math.max(self.__max_queue_size or 0, self:queue_size())
 end
 
@@ -82,7 +81,6 @@ function CoreCutsceneBatchOptimizer:_create_optimizer_for_project(project)
 
 	end
 
-	(for control) = project and self._create_clip
 	do
 		local (for generator), (for state), (for control) = ipairs(project:cutscene_keys())
 		do
@@ -92,7 +90,6 @@ function CoreCutsceneBatchOptimizer:_create_optimizer_for_project(project)
 
 	end
 
-	(for control) = project:cutscene_keys() and optimizer.add_key
 	do
 		local (for generator), (for state), (for control) = pairs(project:animation_patches())
 		do
@@ -105,9 +102,9 @@ function CoreCutsceneBatchOptimizer:_create_optimizer_for_project(project)
 
 		end
 
-		(for control) = project:animation_patches() and optimizer.add_animation_patch
 	end
 
+	return optimizer
 end
 
 function CoreCutsceneBatchOptimizer:_create_clip(clip_descriptor)

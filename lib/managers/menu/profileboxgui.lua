@@ -190,7 +190,6 @@ function ProfileBoxGui:_add_stats(params)
 	end
 
 	local xo = 4
-	(for control) = nil and panel.h
 	local panel = self._scroll_panel:child("profile_panel"):panel({
 		name = params.name,
 		y = y,

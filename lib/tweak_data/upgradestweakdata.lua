@@ -1227,7 +1227,6 @@ function UpgradesTweakData:init()
 
 	end
 
-	(for control) = 12 and upgrade.unlock_lvl
 	self.progress = {
 		{},
 		{},
@@ -1255,7 +1254,6 @@ function UpgradesTweakData:init()
 
 	end
 
-	(for control) = {} and upgrade.tree
 	self.progress[1][49] = "mr_nice_guy"
 	self.progress[2][49] = "mr_nice_guy"
 	self.progress[3][49] = "mr_nice_guy"
@@ -1416,7 +1414,6 @@ function UpgradesTweakData:_player_definitions()
 
 	end
 
-	(for control) = nil and i - 1
 	self.definitions.extra_start_out_ammo = {
 		tree = 3,
 		step = 2,
@@ -1467,7 +1464,6 @@ function UpgradesTweakData:_player_definitions()
 
 	end
 
-	(for control) = nil and i - 1
 	self.definitions.player_add_armor_stat_skill_ammo_mul = {
 		category = "feature",
 		name_id = "menu_player_add_armor_stat_skill_ammo_mul",
@@ -3454,7 +3450,6 @@ function UpgradesTweakData:_ammo_bag_definitions()
 
 	end
 
-	(for control) = nil and i - 1
 	self.definitions.ammo_bag_quantity = {
 		category = "equipment_upgrade",
 		name_id = "menu_ammo_bag_quantity",
@@ -3514,7 +3509,6 @@ function UpgradesTweakData:_doctor_bag_definitions()
 
 	end
 
-	(for control) = nil and i - 1
 	self.definitions.doctor_bag_quantity = {
 		category = "equipment_upgrade",
 		name_id = "menu_doctor_bag_quantity",
@@ -3597,7 +3591,6 @@ function UpgradesTweakData:_cable_tie_definitions()
 
 	end
 
-	(for control) = nil and i - 1
 	self.definitions.cable_tie_quantity = {
 		category = "equipment_upgrade",
 		name_id = "menu_cable_tie_quantity",
@@ -3837,7 +3830,6 @@ function UpgradesTweakData:_c45_definitions()
 
 	end
 
-	(for control) = "units/weapons/c45/c45" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.c45.recoil_multiplier)
 		do
@@ -3869,7 +3861,6 @@ function UpgradesTweakData:_c45_definitions()
 
 	end
 
-	(for control) = "units/weapons/c45/c45" and i - 1
 	local (for generator), (for state), (for control) = ipairs(self.values.c45.damage_multiplier)
 	do
 		do break end
@@ -3946,7 +3937,6 @@ function UpgradesTweakData:_beretta92_definitions()
 
 	end
 
-	(for control) = "units/weapons/beretta92/beretta92" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.beretta92.recoil_multiplier)
 		do
@@ -3978,7 +3968,6 @@ function UpgradesTweakData:_beretta92_definitions()
 
 	end
 
-	(for control) = "units/weapons/beretta92/beretta92" and i - 1
 	local (for generator), (for state), (for control) = ipairs(self.values.beretta92.spread_multiplier)
 	do
 		do break end
@@ -4057,7 +4046,6 @@ function UpgradesTweakData:_raging_bull_definitions()
 
 	end
 
-	(for control) = "units/weapons/raging_bull/raging_bull" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.raging_bull.reload_speed_multiplier)
 		do
@@ -4089,7 +4077,6 @@ function UpgradesTweakData:_raging_bull_definitions()
 
 	end
 
-	(for control) = "units/weapons/raging_bull/raging_bull" and i - 1
 	local (for generator), (for state), (for control) = ipairs(self.values.raging_bull.damage_multiplier)
 	do
 		do break end
@@ -5657,7 +5644,6 @@ function UpgradesTweakData:_m4_definitions()
 
 	end
 
-	(for control) = "units/weapons/m4_rifle/m4_rifle" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.m4.spread_multiplier)
 		do
@@ -5689,7 +5675,6 @@ function UpgradesTweakData:_m4_definitions()
 
 	end
 
-	(for control) = "units/weapons/m4_rifle/m4_rifle" and i - 1
 	local (for generator), (for state), (for control) = ipairs(self.values.m4.damage_multiplier)
 	do
 		do break end
@@ -5768,7 +5753,6 @@ function UpgradesTweakData:_m14_definitions()
 
 	end
 
-	(for control) = "units/weapons/m14/m14" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.m14.spread_multiplier)
 		do
@@ -5800,7 +5784,6 @@ function UpgradesTweakData:_m14_definitions()
 
 	end
 
-	(for control) = "units/weapons/m14/m14" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.m14.damage_multiplier)
 		do
@@ -5832,7 +5815,6 @@ function UpgradesTweakData:_m14_definitions()
 
 	end
 
-	(for control) = "units/weapons/m14/m14" and i - 1
 	local (for generator), (for state), (for control) = ipairs(self.values.m14.recoil_multiplier)
 	do
 		do break end
@@ -5911,7 +5893,6 @@ function UpgradesTweakData:_mp5_definitions()
 
 	end
 
-	(for control) = "units/weapons/mp5/mp5" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.mp5.recoil_multiplier)
 		do
@@ -5943,7 +5924,6 @@ function UpgradesTweakData:_mp5_definitions()
 
 	end
 
-	(for control) = "units/weapons/mp5/mp5" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.mp5.reload_speed_multiplier)
 		do
@@ -5975,7 +5955,6 @@ function UpgradesTweakData:_mp5_definitions()
 
 	end
 
-	(for control) = "units/weapons/mp5/mp5" and i - 1
 	local (for generator), (for state), (for control) = ipairs(self.values.mp5.enter_steelsight_speed_multiplier)
 	do
 		do break end
@@ -6054,7 +6033,6 @@ function UpgradesTweakData:_mac11_definitions()
 
 	end
 
-	(for control) = "units/weapons/mac11/mac11" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.mac11.enter_steelsight_speed_multiplier)
 		do
@@ -6086,7 +6064,6 @@ function UpgradesTweakData:_mac11_definitions()
 
 	end
 
-	(for control) = "units/weapons/mac11/mac11" and i - 1
 	local (for generator), (for state), (for control) = ipairs(self.values.mac11.clip_ammo_increase)
 	do
 		do break end
@@ -6165,7 +6142,6 @@ function UpgradesTweakData:_remington_definitions()
 
 	end
 
-	(for control) = "units/weapons/r870_shotgun/r870_shotgun" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.r870_shotgun.recoil_multiplier)
 		do
@@ -6197,7 +6173,6 @@ function UpgradesTweakData:_remington_definitions()
 
 	end
 
-	(for control) = "units/weapons/r870_shotgun/r870_shotgun" and i - 1
 	local (for generator), (for state), (for control) = ipairs(self.values.r870_shotgun.damage_multiplier)
 	do
 		do break end
@@ -6276,7 +6251,6 @@ function UpgradesTweakData:_mossberg_definitions()
 
 	end
 
-	(for control) = "units/weapons/mossberg/mossberg" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.mossberg.reload_speed_multiplier)
 		do
@@ -6308,7 +6282,6 @@ function UpgradesTweakData:_mossberg_definitions()
 
 	end
 
-	(for control) = "units/weapons/mossberg/mossberg" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.mossberg.fire_rate_multiplier)
 		do
@@ -6340,7 +6313,6 @@ function UpgradesTweakData:_mossberg_definitions()
 
 	end
 
-	(for control) = "units/weapons/mossberg/mossberg" and i - 1
 	local (for generator), (for state), (for control) = ipairs(self.values.mossberg.recoil_multiplier)
 	do
 		do break end
@@ -6419,7 +6391,6 @@ function UpgradesTweakData:_ak47_definitions()
 
 	end
 
-	(for control) = "units/weapons/ak47/ak" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.ak47.recoil_multiplier)
 		do
@@ -6451,7 +6422,6 @@ function UpgradesTweakData:_ak47_definitions()
 
 	end
 
-	(for control) = "units/weapons/ak47/ak" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.ak47.spread_multiplier)
 		do
@@ -6483,7 +6453,6 @@ function UpgradesTweakData:_ak47_definitions()
 
 	end
 
-	(for control) = "units/weapons/ak47/ak" and i - 1
 	local (for generator), (for state), (for control) = ipairs(self.values.ak47.clip_ammo_increase)
 	do
 		do break end
@@ -6562,7 +6531,6 @@ function UpgradesTweakData:_glock_definitions()
 
 	end
 
-	(for control) = "units/weapons/glock/glock" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.glock.recoil_multiplier)
 		do
@@ -6594,7 +6562,6 @@ function UpgradesTweakData:_glock_definitions()
 
 	end
 
-	(for control) = "units/weapons/glock/glock" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.glock.clip_ammo_increase)
 		do
@@ -6626,7 +6593,6 @@ function UpgradesTweakData:_glock_definitions()
 
 	end
 
-	(for control) = "units/weapons/glock/glock" and i - 1
 	local (for generator), (for state), (for control) = ipairs(self.values.glock.reload_speed_multiplier)
 	do
 		do break end
@@ -6705,7 +6671,6 @@ function UpgradesTweakData:_m79_definitions()
 
 	end
 
-	(for control) = "units/weapons/m79/m79" and i - 1
 	do
 		local (for generator), (for state), (for control) = ipairs(self.values.m79.explosion_range_multiplier)
 		do
@@ -6737,7 +6702,6 @@ function UpgradesTweakData:_m79_definitions()
 
 	end
 
-	(for control) = "units/weapons/m79/m79" and i - 1
 	local (for generator), (for state), (for control) = ipairs(self.values.m79.clip_amount_increase)
 	do
 		do break end

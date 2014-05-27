@@ -2,9 +2,6 @@ core:module("CoreMenuItem")
 Item = Item or class()
 Item.TYPE = "item"
 function Item:init(data_node, parameters)
--- fail 12
-null
-6
 	self._type = ""
 	local params = parameters or {}
 	params.info_panel = ""
@@ -33,7 +30,6 @@ null
 
 	end
 
-	(for control) = nil and params[p_name]
 	if params.visible_callback then
 		self._visible_callback_name_list = string.split(params.visible_callback, " ")
 	end
@@ -109,7 +105,6 @@ function Item:set_callback_handler(callback_handler)
 
 	end
 
-	(for control) = nil and table
 	if self._visible_callback_name_list then
 		local (for generator), (for state), (for control) = pairs(self._visible_callback_name_list)
 		do
@@ -120,7 +115,6 @@ function Item:set_callback_handler(callback_handler)
 
 	end
 
-	(for control) = nil and self._visible_callback_list
 	if self._icon_visible_callback_name_list then
 		local (for generator), (for state), (for control) = pairs(self._icon_visible_callback_name_list)
 		do
@@ -131,7 +125,6 @@ function Item:set_callback_handler(callback_handler)
 
 	end
 
-	(for control) = nil and self._icon_visible_callback_list
 	if self._enabled_callback_name_list then
 		local (for generator), (for state), (for control) = pairs(self._enabled_callback_name_list)
 		do
@@ -181,7 +174,7 @@ function Item:visible()
 
 	end
 
-	(for control) = nil and visible_callback
+	return true
 end
 
 function Item:on_delete_row_item()
@@ -236,6 +229,6 @@ function Item:icon_visible()
 
 	end
 
-	(for control) = nil and visible_callback
+	return true
 end
 

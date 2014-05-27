@@ -169,7 +169,6 @@ function CorePostProcessor:interpolate(postfx, with, scale)
 
 	end
 
-	(for control) = nil and with._modifiers
 	do
 		local (for generator), (for state), (for control) = pairs(with._modifiers)
 		do
@@ -186,7 +185,6 @@ function CorePostProcessor:interpolate(postfx, with, scale)
 
 	end
 
-	(for control) = nil and postfx._modifiers
 	local (for generator), (for state), (for control) = pairs(self._modifiers)
 	do
 		do break end
@@ -293,7 +291,7 @@ function CorePostEffect:copy(from)
 
 	end
 
-	self._name = nil and from._name
+	self._name = from._name
 end
 
 function CorePostEffect:interpolate(postfx, with, scale)
@@ -315,7 +313,6 @@ function CorePostEffect:interpolate(postfx, with, scale)
 
 	end
 
-	(for control) = nil and with._post_processors
 	do
 		local (for generator), (for state), (for control) = pairs(with._post_processors)
 		do
@@ -334,7 +331,6 @@ function CorePostEffect:interpolate(postfx, with, scale)
 
 	end
 
-	(for control) = nil and postfx._post_processors
 	do
 		local (for generator), (for state), (for control) = pairs(self._post_processors)
 		do
@@ -344,7 +340,7 @@ function CorePostEffect:interpolate(postfx, with, scale)
 
 	end
 
-	self._name = nil and postfx._name
+	self._name = postfx._name
 end
 
 function CorePostEffect:interpolate_value(postfx, with, processor, modifier, key, scale)

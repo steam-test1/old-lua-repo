@@ -148,7 +148,6 @@ function StatisticsManager:_setup(reset)
 
 	end
 
-	(for control) = nil and self._defaults
 	self._defaults.sessions.jobs = {}
 	self._defaults.revives = {npc_count = 0, player_count = 0}
 	self._defaults.cameras = {count = 0}
@@ -222,7 +221,7 @@ function StatisticsManager:_flush_log()
 
 	end
 
-	self._data_log = nil and {}
+	self._data_log = {}
 end
 
 function StatisticsManager:update(t, dt)
@@ -252,7 +251,6 @@ function StatisticsManager:update(t, dt)
 
 				end
 
-				(for control) = managers.enemy:all_enemies() and table
 				do
 					local (for generator), (for state), (for control) = pairs(managers.groupai:state()._ai_criminals)
 					do
@@ -268,7 +266,6 @@ function StatisticsManager:update(t, dt)
 
 				end
 
-				(for control) = managers.enemy:all_enemies() and table
 				local (for generator), (for state), (for control) = pairs(managers.enemy:all_civilians())
 				do
 					do break end
@@ -283,7 +280,6 @@ function StatisticsManager:update(t, dt)
 
 			end
 
-			(for control) = managers.enemy:all_civilians() and table
 			if #self._data_log > 5000 then
 				self:_flush_log()
 			end
@@ -525,18 +521,6 @@ function StatisticsManager:_get_stat_tables()
 end
 
 function StatisticsManager:publish_to_steam(session, success)
--- fail 73
-null
-12
--- fail 343
-null
-23
--- fail 363
-null
-24
--- fail 386
-unluac.decompile.expression.FunctionCall@2647e53a
--1
 	if Application:editor() or not managers.criminals:local_character_name() then
 		return
 	end
@@ -667,7 +651,6 @@ unluac.decompile.expression.FunctionCall@2647e53a
 
 	end
 
-	(for control) = 0 and weapon_data.total
 	stats.gadget_used_ammo_bag = {
 		type = "int",
 		value = session.misc.deploy_ammo or 0
@@ -731,14 +714,16 @@ unluac.decompile.expression.FunctionCall@2647e53a
 
 	end
 
-	do break end
+	if level_id == "election_day_2" then
+		local stealth = managers.groupai and managers.groupai:state():whisper_mode()
+		print("[StatisticsManager]: Election Day 2 Voting: " .. (stealth and "Swing Vote" or "Delayed Vote"))
+		stats["stats_election_day_" .. (stealth and "s" or "n")] = {type = "int", value = 1}
+	end
+
 	managers.network.account:publish_statistics(stats)
 end
 
 function StatisticsManager:publish_skills_to_steam()
--- fail 16
-null
-6
 	if Application:editor() then
 		return
 	end
@@ -775,10 +760,8 @@ null
 
 			end
 
-			(for control) = nil and managers
 		end
 
-		(for control) = nil and ipairs
 	end
 
 	do
@@ -812,7 +795,6 @@ null
 
 	end
 
-	(for control) = nil and "skill_"
 	managers.network.account:publish_statistics(stats)
 end
 
@@ -849,7 +831,6 @@ function StatisticsManager:clear_statistics()
 
 	end
 
-	(for control) = 200 and "player_time_"
 	stats.player_level = {
 		type = "int",
 		method = "set",
@@ -907,7 +888,6 @@ function StatisticsManager:clear_statistics()
 
 	end
 
-	(for control) = "player_rank_" .. i and weapon.autohit
 	stats.gadget_used_ammo_bag = {
 		type = "int",
 		method = "set",
@@ -949,7 +929,6 @@ function StatisticsManager:clear_statistics()
 
 	end
 
-	(for control) = "player_rank_" .. i and tweak_data
 	do
 		local (for generator), (for state), (for control) = pairs(tweak_data.difficulties)
 		do
@@ -963,7 +942,6 @@ function StatisticsManager:clear_statistics()
 
 	end
 
-	(for control) = "player_rank_" .. i and "difficulty_"
 	stats.heist_success = {
 		type = "int",
 		method = "set",
@@ -989,11 +967,6 @@ function StatisticsManager:clear_statistics()
 
 	end
 
-	(for control) = {
-		type = "int",
-		method = "set",
-		value = 0
-	} and "level_"
 	local job_id = managers.job:current_job_id()
 	do
 		local (for generator), (for state), (for control) = ipairs(job_list)
@@ -1008,7 +981,6 @@ function StatisticsManager:clear_statistics()
 
 	end
 
-	(for control) = 20 and "job_"
 	stats.stats_election_day_s = {
 		type = "int",
 		method = "set",
@@ -1054,13 +1026,10 @@ function StatisticsManager:clear_skills_statistics()
 
 			end
 
-			(for control) = nil and "skill_"
 		end
 
-		(for control) = nil and ipairs
 	end
 
-	(for control) = nil and ipairs
 	do
 		local (for generator), (for state), (for control) = ipairs(skill_data)
 		do
@@ -1082,7 +1051,7 @@ function StatisticsManager:clear_skills_statistics()
 
 	end
 
-	local level_list, job_list = nil and self:_get_stat_tables(), self:_get_stat_tables()
+	local level_list, job_list = self:_get_stat_tables()
 	do
 		local (for generator), (for state), (for control) = ipairs(level_list)
 		do
@@ -1096,7 +1065,6 @@ function StatisticsManager:clear_skills_statistics()
 
 	end
 
-	(for control) = 0 and "level_"
 	do
 		local (for generator), (for state), (for control) = ipairs(job_list)
 		do
@@ -1110,7 +1078,6 @@ function StatisticsManager:clear_skills_statistics()
 
 	end
 
-	(for control) = 0 and "job_"
 	managers.network.account:publish_statistics(stats)
 end
 
@@ -1143,7 +1110,6 @@ function StatisticsManager:debug_estimate_steam_players()
 
 	end
 
-	(for control) = 40 and "player_time_"
 	Application:debug(managers.money:add_decimal_marks_to_string(tostring(num_players)) .. " players have summited statistics to Steam the last 60 days.")
 end
 
@@ -1183,7 +1149,6 @@ function StatisticsManager:debug_print_stats(global_flag, days)
 
 	end
 
-	(for control) = 80 and "player_time_"
 	table.insert(stats, {
 		name = "player_level",
 		loc = account:get_stat("player_level"),
@@ -1250,13 +1215,10 @@ function StatisticsManager:debug_print_stats(global_flag, days)
 
 			end
 
-			(for control) = nil and "skill_"
 		end
 
-		(for control) = key and ipairs
 	end
 
-	(for control) = table.insert and ipairs
 	do
 		local (for generator), (for state), (for control) = ipairs(skill_data)
 		do
@@ -1280,7 +1242,6 @@ function StatisticsManager:debug_print_stats(global_flag, days)
 
 	end
 
-	(for control) = table.insert and "skill_"
 	do
 		local (for generator), (for state), (for control) = pairs(tweak_data.weapon)
 		do
@@ -1298,7 +1259,6 @@ function StatisticsManager:debug_print_stats(global_flag, days)
 
 	end
 
-	(for control) = table.insert and weapon.autohit
 	table.insert(stats, {
 		name = "gadget_used_ammo_bag",
 		loc = account:get_stat("gadget_used_ammo_bag"),
@@ -1341,7 +1301,6 @@ function StatisticsManager:debug_print_stats(global_flag, days)
 
 	end
 
-	(for control) = account:get_global_stat("gadget_used_ecm_jammer", days) and tweak_data
 	do
 		local (for generator), (for state), (for control) = pairs(tweak_data.difficulties)
 		do
@@ -1356,7 +1315,6 @@ function StatisticsManager:debug_print_stats(global_flag, days)
 
 	end
 
-	(for control) = account:get_global_stat("gadget_used_ecm_jammer", days) and "difficulty_"
 	table.insert(stats, {
 		name = "heist_success",
 		loc = account:get_stat("heist_success"),
@@ -1382,7 +1340,6 @@ function StatisticsManager:debug_print_stats(global_flag, days)
 
 	end
 
-	(for control) = "heist_failed" and "level_"
 	do
 		local (for generator), (for state), (for control) = ipairs(job_list)
 		do
@@ -1397,7 +1354,6 @@ function StatisticsManager:debug_print_stats(global_flag, days)
 
 	end
 
-	(for control) = "heist_failed" and "job_"
 	table.insert(stats, {
 		name = "stats_election_day_s",
 		loc = account:get_stat("stats_election_day_s"),
@@ -1428,9 +1384,11 @@ function StatisticsManager:debug_print_stats(global_flag, days)
 
 	end
 
-	do break end
-	print("----------------------------------")
-	print("Average Players Per Day: " .. managers.money:add_decimal_marks_to_string(tostring(num_players)))
+	if global_flag then
+		print("----------------------------------")
+		print("Average Players Per Day: " .. managers.money:add_decimal_marks_to_string(tostring(num_players)))
+	end
+
 	print("----------------------------------")
 end
 
@@ -1452,7 +1410,6 @@ function StatisticsManager:_calculate_average()
 
 	end
 
-	(for control) = nil and math
 	self._global.average.sessions.time = self._global.average.sessions.time / t
 	do
 		local (for generator), (for state), (for control) = pairs(self._global.average.sessions.levels)
@@ -1463,7 +1420,6 @@ function StatisticsManager:_calculate_average()
 
 	end
 
-	(for control) = nil and data.time
 	do
 		local (for generator), (for state), (for control) = pairs(self._global.average.revives)
 		do
@@ -1473,7 +1429,6 @@ function StatisticsManager:_calculate_average()
 
 	end
 
-	(for control) = nil and self._global
 	self._global.average.shots_fired = deep_clone(self._global.shots_fired)
 	self._global.average.shots_fired.total = math.round(self._global.average.shots_fired.total / t)
 	self._global.average.shots_fired.hits = math.round(self._global.average.shots_fired.hits / t)
@@ -1893,7 +1848,6 @@ function StatisticsManager:print_stats()
 
 	end
 
-	(for control) = math.round(self._global.average.sessions.time) and self._time_text
 	print([[
 
 - Kills 		-]])
@@ -1906,7 +1860,6 @@ function StatisticsManager:print_stats()
 
 	end
 
-	(for control) = math.round(self._global.average.sessions.time) and print
 	print([[
 
 - Revives 		-]])
@@ -1973,10 +1926,8 @@ Size: ]] .. size .. " " .. self:_amount_format(exp, true) .. "" .. self:_amount_
 
 		end
 
-		(for control) = " " and average[size]
 	end
 
-	(for control) = nil and tweak_data
 	print([[
 
 Total:]] .. self:_amount_format(total) .. "/" .. self:_amount_format(total / t, true))
@@ -2024,7 +1975,6 @@ function StatisticsManager:_check_loaded_data()
 
 	end
 
-	(for control) = nil and self._global
 	do
 		local (for generator), (for state), (for control) = pairs(self._global.killed)
 		do
@@ -2035,7 +1985,6 @@ function StatisticsManager:_check_loaded_data()
 
 	end
 
-	(for control) = nil and data.melee
 	do
 		local (for generator), (for state), (for control) = pairs(self._defaults.sessions.levels)
 		do
@@ -2045,7 +1994,6 @@ function StatisticsManager:_check_loaded_data()
 
 	end
 
-	(for control) = nil and self._global
 	do
 		local (for generator), (for state), (for control) = pairs(self._global.sessions.levels)
 		do
@@ -2056,7 +2004,6 @@ function StatisticsManager:_check_loaded_data()
 
 	end
 
-	(for control) = nil and lvl.drop_in
 	self._global.sessions.jobs = self._global.sessions.jobs or {}
 	self._global.experience = self._global.experience or deep_clone(self._defaults.experience)
 end
@@ -2086,8 +2033,10 @@ function StatisticsManager:favourite_level()
 
 	end
 
-	do break end
-	return tweak_data.levels:get_localized_level_name_from_level_id(c_name) or managers.localization:text("debug_undecided")
+	if not c_name or not tweak_data.levels:get_localized_level_name_from_level_id(c_name) then
+	end
+
+	return (managers.localization:text("debug_undecided"))
 end
 
 function StatisticsManager:total_completed_campaigns()
@@ -2101,6 +2050,7 @@ function StatisticsManager:total_completed_campaigns()
 
 	end
 
+	return i
 end
 
 function StatisticsManager:favourite_weapon()
@@ -2119,8 +2069,10 @@ function StatisticsManager:favourite_weapon()
 
 	end
 
-	do break end
-	return managers.localization:text(tweak_data.weapon[weapon_id].name_id) or managers.localization:text("debug_undecided")
+	if not weapon_id or not managers.localization:text(tweak_data.weapon[weapon_id].name_id) then
+	end
+
+	return (managers.localization:text("debug_undecided"))
 end
 
 function StatisticsManager:total_kills()
@@ -2173,8 +2125,10 @@ function StatisticsManager:session_favourite_weapon()
 
 	end
 
-	do break end
-	return managers.localization:text(tweak_data.weapon[weapon_id].name_id) or managers.localization:text("debug_undecided")
+	if not weapon_id or not managers.localization:text(tweak_data.weapon[weapon_id].name_id) then
+	end
+
+	return (managers.localization:text("debug_undecided"))
 end
 
 function StatisticsManager:session_total_kills()
@@ -2263,7 +2217,7 @@ function StatisticsManager:load(data)
 
 		end
 
-		(for control) = nil and self._global
+		self:_check_loaded_data()
 		self:_calculate_average()
 	end
 

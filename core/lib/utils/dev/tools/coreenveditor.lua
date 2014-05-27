@@ -84,7 +84,6 @@ function CoreEnvEditor:read_templates()
 
 	end
 
-	(for control) = managers.database:list_entries_of_type("environment") and string
 	table.sort(self._template_environment_names)
 	local (for generator), (for state), (for control) = ipairs(self._template_environment_names)
 	do
@@ -114,9 +113,6 @@ function CoreEnvEditor:update_mix(env1, env2, blend)
 end
 
 function CoreEnvEditor:check_news(new_only)
--- fail 25
-null
-6
 	local news
 	if new_only then
 		news = managers.news:get_news("env_editor", self._main_frame)
@@ -146,18 +142,6 @@ null
 end
 
 function CoreEnvEditor:feed(data)
--- fail 12
-null
-9
--- fail 85
-null
-9
--- fail 112
-null
-9
--- fail 6
-null
-4
 	do
 		local (for generator), (for state), (for control) = pairs(data:data_root())
 		do
@@ -183,15 +167,12 @@ null
 
 							end
 
-							(for control) = data:data_root() and assert
 						end
 
-						(for control) = data:data_root() and pairs
 					end
 
 				end
 
-				(for control) = data:data_root() and pairs
 			elseif k == "underlay_effect" then
 				local (for generator), (for state), (for control) = pairs(v)
 				do
@@ -204,29 +185,24 @@ null
 
 				end
 
-				(for control) = data:data_root() and assert
-			else
-				(for control) = data:data_root() and pairs
-				if k == "others" then
-					local (for generator), (for state), (for control) = pairs(v)
-					do
-						do break end
-						if kpar ~= "underlay" or self._sky.params[kpar]:get_value() ~= "" then
-							v[kpar] = assert(self._sky.params[kpar]:get_value(), kpar)
-						end
-
+			elseif k == "others" then
+				local (for generator), (for state), (for control) = pairs(v)
+				do
+					do break end
+					if kpar ~= "underlay" or self._sky.params[kpar]:get_value() ~= "" then
+						v[kpar] = assert(self._sky.params[kpar]:get_value(), kpar)
 					end
 
-				elseif k == "sky_orientation" then
-					local (for generator), (for state), (for control) = pairs(v)
-					do
-						break
-					end
-
-				else
-					error("Corrupt environment!")
 				end
 
+			elseif k == "sky_orientation" then
+				local (for generator), (for state), (for control) = pairs(v)
+				do
+					break
+				end
+
+			else
+				error("Corrupt environment!")
 			end
 
 		end
@@ -542,7 +518,6 @@ function CoreEnvEditor:get_child(node, name)
 
 	end
 
-	(for control) = nil and child.name
 	Application:error("Can't find child!")
 end
 
@@ -559,7 +534,6 @@ function CoreEnvEditor:on_encode_parameters()
 
 	end
 
-	(for control) = managers.database:list_entries_of_type("environment") and self.database_load_env
 	self:database_load_env(current_env)
 end
 
@@ -628,13 +602,11 @@ function CoreEnvEditor:write_posteffect(file)
 
 						end
 
-						(for control) = modifier_name and param.get_value
 						file:print("\t\t\t\t\t</" .. modifier_name .. ">\n")
 					end
 
 				end
 
-				(for control) = e and file.print
 				file:print("\t\t\t\t</" .. e .. ">\n")
 			end
 
@@ -643,7 +615,6 @@ function CoreEnvEditor:write_posteffect(file)
 
 	end
 
-	(for control) = nil and file.print
 	file:print("\t\t</post_effect>\n")
 end
 
@@ -667,7 +638,6 @@ function CoreEnvEditor:write_shadow_params(file)
 
 	end
 
-	(for control) = nil and param
 	file:print("\t\t\t\t\t</shadow_modifier>\n")
 	file:print("\t\t\t\t</shadow_rendering>\n")
 end
@@ -695,13 +665,11 @@ function CoreEnvEditor:write_underlayeffect(file)
 
 			end
 
-			(for control) = underlay_name and param.get_value
 			file:print("\t\t\t</" .. underlay_name .. ">\n")
 		end
 
 	end
 
-	(for control) = nil and file.print
 	file:print("\t\t</underlay_effect>\n")
 end
 
@@ -723,7 +691,6 @@ function CoreEnvEditor:write_sky(file)
 
 	end
 
-	(for control) = nil and param.get_value
 	file:print("\t\t</others>\n")
 end
 
@@ -788,16 +755,13 @@ function CoreEnvEditor:database_load_posteffect(post_effect_node)
 
 				end
 
-				(for control) = nil and param.name
 			end
 
-			(for control) = nil and post_pro.modifiers
 		end
 
-		(for control) = nil and effect.name
 	end
 
-	(for control) = nil and self._posteffect
+	self:set_title()
 end
 
 function CoreEnvEditor:database_load_underlay(underlay_effect_node)
@@ -856,9 +820,7 @@ function CoreEnvEditor:database_load_underlay(underlay_effect_node)
 
 		end
 
-		(for control) = nil and param.name
 	else
-		(for control) = nil and self._underlayeffect
 		cat_print("debug", "[CoreEnvEditor] Failed to load underlay in: " .. self._env_path)
 	end
 
@@ -909,7 +871,6 @@ function CoreEnvEditor:database_load_sky(sky_node)
 		end
 
 	else
-		(for control) = nil and param.name
 		cat_print("debug", "[CoreEnvEditor] Failed to load sky in: " .. self._env_path)
 	end
 
@@ -940,7 +901,7 @@ function CoreEnvEditor:database_load_env(env_path)
 
 	end
 
-	(for control) = nil and param.name
+	self:parse_shadow_data()
 	self:set_title()
 	return env
 end
@@ -1014,7 +975,6 @@ function CoreEnvEditor:update(t, dt)
 
 	end
 
-	(for control) = nil and upd.update
 	if EWS:get_key_state("K_SHIFT") then
 		if self._update_pick_element and self._update_pick_element_type == "color" then
 			local pixel = EWS:get_screen_pixel(EWS:get_screen_mouse_pos())
@@ -1057,7 +1017,6 @@ function CoreEnvEditor:step()
 
 	end
 
-	(for control) = nil and self._sky
 	if undo._underlay and self._underlayeffect then
 		local (for generator), (for state), (for control) = pairs(undo._underlay.materials)
 		do
@@ -1070,10 +1029,8 @@ function CoreEnvEditor:step()
 
 		end
 
-		(for control) = nil and self._underlayeffect
 	end
 
-	(for control) = nil and pairs
 	if undo._posteffect and self._posteffect then
 		local (for generator), (for state), (for control) = pairs(undo._posteffect.post_processors)
 		do
@@ -1199,7 +1156,6 @@ function CoreEnvEditor:sync()
 
 	end
 
-	(for control) = nil and self._out_sky
 	if self._out_underlayeffect then
 		undo_struct._underlay = {}
 		undo_struct._underlay.materials = {}
@@ -1234,10 +1190,8 @@ function CoreEnvEditor:sync()
 
 		end
 
-		(for control) = self and self._out_underlayeffect
 	end
 
-	(for control) = nil and undo_struct._underlay
 	if self._out_posteffect then
 		undo_struct._posteffect = {}
 		undo_struct._posteffect.post_processors = {}
@@ -1285,13 +1239,10 @@ function CoreEnvEditor:sync()
 
 			end
 
-			(for control) = self and self._out_posteffect
 		end
 
-		(for control) = self and undo_struct._posteffect
 	end
 
-	(for control) = nil and undo_struct._posteffect
 	if self._value_is_changed then
 		self._max_undo_index = self._undo_index
 		self._undo_index = self._undo_index + 1

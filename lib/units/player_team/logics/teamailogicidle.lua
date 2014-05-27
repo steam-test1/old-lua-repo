@@ -539,7 +539,6 @@ function TeamAILogicIdle._find_intimidateable_civilians(criminal, use_default_sh
 
 	end
 
-	(for control) = managers.groupai:state():fleeing_civilians() and chk_vis_func
 	return best_civ, highest_wgt, intimidateable_civilians
 end
 
@@ -603,8 +602,7 @@ function TeamAILogicIdle.intimidate_civilians(data, criminal, play_sound, play_a
 
 	end
 
-	do break end
-	if primary_target then
+	if not intimidated_primary_target and primary_target then
 		primary_target:brain():on_intimidated(1, criminal)
 	end
 
@@ -781,7 +779,6 @@ function TeamAILogicIdle._check_should_relocate(data, my_data, objective)
 	end
 
 	local is_my_area_dangerous, is_follow_unit_area_dangerous
-	(for control) = nil and area.nav_segs
 	do
 		local (for generator), (for state), (for control) = ipairs(my_areas)
 		do
@@ -795,7 +792,6 @@ function TeamAILogicIdle._check_should_relocate(data, my_data, objective)
 
 	end
 
-	(for control) = area.nav_segs[follow_unit_nav_seg_id] and area.nav_segs
 	local follow_unit_areas = managers.groupai:state():get_areas_from_nav_seg_id(follow_unit_nav_seg_id)
 	do
 		local (for generator), (for state), (for control) = ipairs(follow_unit_areas)
@@ -810,8 +806,7 @@ function TeamAILogicIdle._check_should_relocate(data, my_data, objective)
 
 	end
 
-	do break end
-	if not is_follow_unit_area_dangerous then
+	if is_my_area_dangerous and not is_follow_unit_area_dangerous then
 		return true
 	end
 
@@ -936,7 +931,6 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 
 	end
 
-	(for control) = nil and attention_data.unit
 	return best_target, best_target_priority_slot, best_target_reaction
 end
 
@@ -969,6 +963,7 @@ function TeamAILogicIdle.find_sneak_char_to_mark(data)
 
 	end
 
+	return best_nmy
 end
 
 function TeamAILogicIdle.mark_sneak_char(data, criminal, to_mark, play_sound, play_action)

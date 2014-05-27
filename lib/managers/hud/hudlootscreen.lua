@@ -72,8 +72,7 @@ function HUDLootScreen:init(hud, workspace, saved_lootdrop, saved_selected, save
 
 	end
 
-	do break end
-	do
+	if saved_selected then
 		local (for generator), (for state), (for control) = pairs(saved_selected)
 		do
 			do break end
@@ -82,8 +81,7 @@ function HUDLootScreen:init(hud, workspace, saved_lootdrop, saved_selected, save
 
 	end
 
-	do break end
-	do
+	if saved_chosen then
 		local (for generator), (for state), (for control) = pairs(saved_chosen)
 		do
 			do break end
@@ -92,7 +90,7 @@ function HUDLootScreen:init(hud, workspace, saved_lootdrop, saved_selected, save
 
 	end
 
-	local local_peer_id = self:get_local_peer_id() and self:get_local_peer_id()
+	local local_peer_id = self:get_local_peer_id()
 	local panel = self._peers_panel:child("peer" .. tostring(local_peer_id))
 	local peer_info_panel = panel:child("peer_info")
 	local peer_name = peer_info_panel:child("peer_name")
@@ -688,9 +686,6 @@ function HUDLootScreen:texture_loaded_clbk(params, texture_idstring)
 end
 
 function HUDLootScreen:begin_choose_card(peer_id, card_id)
--- fail 93
-null
-23
 	print("YOU CHOOSED " .. card_id .. ", mr." .. peer_id)
 	local panel = self._peers_panel:child("peer" .. tostring(peer_id))
 	panel:stop()
@@ -905,7 +900,6 @@ function HUDLootScreen:show_item(peer_id)
 )
 		end
 
-		(for control) = panel:child("item"):children() and child.set_center
 		panel:child("item"):animate(anim_fadein)
 		local card_info_panel = panel:child("card_info")
 		local main_text = card_info_panel:child("main_text")

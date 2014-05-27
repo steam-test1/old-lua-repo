@@ -115,7 +115,6 @@ function CoreShaderLibCompiler:create_make_file()
 
 	end
 
-	(for control) = io.open(self:base_path() .. self.TEMP_PATH .. "make.xml", "w+") and file.write
 	file:write([[
 	/>
 </make>

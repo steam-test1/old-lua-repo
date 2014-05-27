@@ -59,7 +59,6 @@ function CoreCutsceneInputParam:validate_number(number, min_value, max_value, de
 
 		end
 
-		(for control) = 1 and stripped_number
 		number = tonumber(stripped_number)
 	end
 

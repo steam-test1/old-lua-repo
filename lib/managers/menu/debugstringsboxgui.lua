@@ -45,7 +45,6 @@ function DebugStringsBoxGui:_create_text_box(ws, title, text, content_data, conf
 
 	end
 
-	(for control) = nil and table
 	table.sort(sorted)
 	do
 		local (for generator), (for state), (for control) = pairs(sorted)
@@ -102,7 +101,6 @@ function DebugStringsBoxGui:_create_text_box(ws, title, text, content_data, conf
 
 	end
 
-	(for control) = nil and ids[id]
 	strings_panel:set_h(y + 14)
 	self._scroll_panel:set_h(math.max(self._scroll_panel:h(), strings_panel:h()))
 	self:_set_scroll_indicator()

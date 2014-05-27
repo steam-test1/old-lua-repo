@@ -38,7 +38,6 @@ function EnvironmentEffectsManager:effects_names()
 
 	end
 
-	(for control) = nil and effect.default
 	table.sort(t)
 	return t
 end
@@ -82,7 +81,7 @@ function EnvironmentEffectsManager:stop_all()
 
 	end
 
-	self._current_effects = nil and {}
+	self._current_effects = {}
 end
 
 function EnvironmentEffectsManager:update(t, dt)
@@ -95,7 +94,6 @@ function EnvironmentEffectsManager:update(t, dt)
 
 	end
 
-	(for control) = nil and effect.update
 	local (for generator), (for state), (for control) = pairs(self._repeat_mission_effects)
 	do
 		do break end
@@ -152,7 +150,7 @@ function EnvironmentEffectsManager:kill_all_mission_effects()
 
 	end
 
-	self._repeat_mission_effects = nil and {}
+	self._repeat_mission_effects = {}
 	do
 		local (for generator), (for state), (for control) = pairs(self._mission_effects)
 		do
@@ -165,10 +163,9 @@ function EnvironmentEffectsManager:kill_all_mission_effects()
 
 		end
 
-		(for control) = nil and World
 	end
 
-	self._mission_effects = nil and {}
+	self._mission_effects = {}
 end
 
 function EnvironmentEffectsManager:kill_mission_effect(name)
@@ -205,7 +202,7 @@ function EnvironmentEffectsManager:_kill_mission_effect(name, type)
 
 	end
 
-	self._mission_effects[name] = nil and nil
+	self._mission_effects[name] = nil
 end
 
 function EnvironmentEffectsManager:save(data)
@@ -228,9 +225,9 @@ function EnvironmentEffectsManager:save(data)
 
 		end
 
-		(for control) = nil and World
 	end
 
+	data.EnvironmentEffectsManager = state
 end
 
 function EnvironmentEffectsManager:load(data)

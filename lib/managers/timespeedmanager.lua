@@ -14,9 +14,6 @@ function TimeSpeedManager:update()
 end
 
 function TimeSpeedManager:_update_playing_effects()
--- fail 9
-null
-6
 	local slowest_speed
 	local playing_effects = self._playing_effects
 	if playing_effects then
@@ -58,8 +55,11 @@ null
 
 					end
 
-					do break end
-					slowest_speed = effect_speed or math.min(slowest_speed, effect_speed)
+					if not slowest_speed then
+					else
+						slowest_speed = effect_speed or math.min(slowest_speed, effect_speed)
+					end
+
 				end
 
 			end
@@ -67,7 +67,6 @@ null
 		end
 
 		local game_speed_rtpc_changed = false
-		(for control) = nil and effect.timer
 		if slowest_speed then
 			if slowest_speed < 0.5 then
 				if self._game_speed_rtpc ~= 0 then
@@ -127,7 +126,6 @@ function TimeSpeedManager:play_effect(id, effect_desc)
 			end
 
 		else
-			(for control) = nil and TimerManager
 			local timer = TimerManager:timer(effect_desc.affect_timer)
 			effect.affect_timers = {
 				[timer:key()] = timer
@@ -160,7 +158,6 @@ function TimeSpeedManager:play_effect(id, effect_desc)
 
 	end
 
-	(for control) = timer and self._affected_timers
 	self._playing_effects = self._playing_effects or {}
 	self._playing_effects[id] = effect
 	if effect_desc.sync and managers.network:session() and not managers.network:session():closing() then
@@ -222,7 +219,7 @@ function TimeSpeedManager:_on_effect_expired(effect_id)
 
 	end
 
-	self._playing_effects[effect_id] = nil and nil
+	self._playing_effects[effect_id] = nil
 	if not next(self._playing_effects) then
 		self._playing_effects = nil
 		self._affected_timers = nil

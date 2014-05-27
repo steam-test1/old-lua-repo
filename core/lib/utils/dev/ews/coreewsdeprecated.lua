@@ -176,7 +176,6 @@ function CoreEWS.combobox(params)
 
 	end
 
-	(for control) = "" and ctrlr.append
 	ctrlr:set_value(value)
 	ctrlr:thaw()
 	params.name_ctrlr = name_ctrlr

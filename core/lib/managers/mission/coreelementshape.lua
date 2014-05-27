@@ -51,7 +51,7 @@ function ElementShape:is_inside(pos)
 
 	end
 
-	(for control) = nil and shape.is_inside
+	return false
 end
 
 function ElementShape:on_executed(instigator)

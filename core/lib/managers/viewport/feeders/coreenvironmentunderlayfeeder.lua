@@ -38,7 +38,7 @@ function EnvironmentUnderlayFeeder:feed(nr, scene, vp, data, block, ...)
 
 		end
 
-		(for control) = Idstring(material_name) and v
+		return true
 	end
 
 	return false

@@ -38,9 +38,6 @@ function DependencyNodeBase:name()
 end
 
 function DependencyNodeBase:match(pattern)
--- fail 61
-null
-4
 	if pattern == nil then
 		return true
 	elseif type(pattern) == type(GAME) then
@@ -62,6 +59,7 @@ null
 
 		end
 
+		return false
 	else
 		error(string.format("Filter '%s' not supported", pattern))
 	end
@@ -82,7 +80,7 @@ function DependencyNodeBase:get_dependencies()
 		self._parsed = true
 	end
 
-	local dn_list = self:_parse() and {}
+	local dn_list = {}
 	do
 		local (for generator), (for state), (for control) = pairs(self._depends_on)
 		do
@@ -92,6 +90,7 @@ function DependencyNodeBase:get_dependencies()
 
 	end
 
+	return dn_list
 end
 
 function DependencyNodeBase:reached(pattern)
@@ -138,7 +137,7 @@ function DependencyNodeBase:_walkxml(xmlnode)
 
 	end
 
-	local (for generator), (for state), (for control) = deps and xmlnode:children(), xmlnode:children()
+	local (for generator), (for state), (for control) = xmlnode:children()
 	do
 		do break end
 		self:_walkxml(child)

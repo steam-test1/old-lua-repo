@@ -18,6 +18,7 @@ function PickupUnitElement.get_options()
 
 	end
 
+	return pickups
 end
 
 function PickupUnitElement:_build_panel(panel, panel_sizer)

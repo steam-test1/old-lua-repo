@@ -71,10 +71,8 @@ function AchievmentManager.unlockstate_result(error_str, table)
 
 		end
 
-		(for control) = nil and ach.id
 	end
 
-	(for control) = nil and data.index
 	managers.network.account:achievements_fetched()
 end
 
@@ -93,7 +91,6 @@ function AchievmentManager.fetch_achievments(error_str)
 
 	end
 
-	(for control) = nil and managers
 	managers.network.account:achievements_fetched()
 end
 
@@ -159,6 +156,7 @@ function AchievmentManager:total_unlocked()
 
 	end
 
+	return i
 end
 
 function AchievmentManager:award(id)

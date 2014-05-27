@@ -58,6 +58,7 @@ function CoreBaseTreeNode:append_copy_of_node(node, recurse)
 
 	end
 
+	return new_node
 end
 
 function CoreBaseTreeNode:for_each_child(func, recurse)

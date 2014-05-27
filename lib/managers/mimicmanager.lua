@@ -31,7 +31,6 @@ function MimicManager:activate_all()
 
 	end
 
-	(for control) = nil and v.mimic
 	do
 		local (for generator), (for state), (for control) = pairs(self._mimic_map.ranged)
 		do
@@ -41,7 +40,6 @@ function MimicManager:activate_all()
 
 	end
 
-	(for control) = nil and v.mimic
 	local (for generator), (for state), (for control) = pairs(self._mimic_map.attack)
 	do
 		do break end
@@ -70,9 +68,6 @@ function MimicManager:register_mission_callback(mission_condition, clbk, unit_ke
 end
 
 function MimicManager:update(t, dt)
--- fail 10
-null
-6
 	if #self._call_to_arms_list > 0 then
 		local all_called = true
 		do
@@ -101,8 +96,10 @@ null
 
 		end
 
-		do break end
-		self._call_to_arms_list = {}
+		if all_called then
+			self._call_to_arms_list = {}
+		end
+
 	end
 
 end

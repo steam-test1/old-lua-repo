@@ -182,7 +182,6 @@ function CoreEditor:build_ref_coordinate_system()
 
 	end
 
-	(for control) = self:ctrl_binding("toggle_coordinate_system") and self._ref_coordinate_system
 	self._ref_coordinate_system:set_value(self._coordinate_system)
 	self._ref_coordinate_system:set_size(Vector3(60, 0, 0))
 	self._toolbar:add_control(self._ref_coordinate_system)
@@ -220,7 +219,6 @@ function CoreEditor:build_grid_sizes(icons_path)
 
 	end
 
-	(for control) = "" and sizes.append
 	sizes:set_value(self._grid_size)
 	sizes:set_tool_tip(tip)
 	sizes:set_size(Vector3(55, 0, 0))
@@ -261,7 +259,6 @@ function CoreEditor:build_snap_rotations()
 
 	end
 
-	(for control) = "" and rotations.append
 	rotations:set_value(self._snap_rotation)
 	rotations:set_tool_tip(tip)
 	rotations:set_size(Vector3(55, 0, 0))

@@ -42,7 +42,6 @@ function MenuSetup:load_packages()
 
 	end
 
-	(for control) = nil and prefix
 	if not PackageManager:loaded("packages/game_base_streamed") then
 		PackageManager:load("packages/game_base_streamed")
 	end

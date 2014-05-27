@@ -236,23 +236,12 @@ do
 
 			end
 
-			(for control) = nil and speed * 0.03333
 		end
 
-		(for control) = nil and pairs
 	end
 
-	(for control) = 9 and pairs
 end
 
-(for control) = {
-	run = {
-		fwd = 15,
-		bwd = 15,
-		l = 15,
-		r = 16
-	}
-} and pairs
 CopActionWalk._walk_anim_lengths.stand.hos = CopActionWalk._walk_anim_lengths.stand.cbt
 CopActionWalk._walk_anim_lengths.crouch.ntl = CopActionWalk._walk_anim_lengths.crouch.cbt
 CopActionWalk._walk_anim_lengths.crouch.hos = CopActionWalk._walk_anim_lengths.crouch.cbt
@@ -417,7 +406,6 @@ function CopActionWalk:_init()
 		end
 
 		self._nav_path = nav_path
-		(for control) = nil and nav_point.x
 	else
 		if not action_desc.interrupted or not self._nav_path[1].x then
 			table.insert(self._nav_path, 1, mvec3_cpy(common_data.pos))
@@ -444,7 +432,6 @@ function CopActionWalk:_init()
 
 		end
 
-		(for control) = mvec3_cpy(common_data.pos) and nav_point.x
 		if not action_desc.host_stop_pos_ahead then
 			local ray_params = {
 				tracker_from = common_data.nav_tracker,
@@ -475,15 +462,17 @@ function CopActionWalk:_init()
 
 			end
 
-			do break end
-			local (for generator), (for state), (for control) = ipairs(new_nav_points)
-			do
-				do break end
-				t_ins(s_path, nav_point.x and mvec3_cpy(nav_point) or nav_point)
+			if new_nav_points then
+				local (for generator), (for state), (for control) = ipairs(new_nav_points)
+				do
+					do break end
+					t_ins(s_path, nav_point.x and mvec3_cpy(nav_point) or nav_point)
+				end
+
 			end
 
 		else
-			self._simplified_path, (for control) = self._nav_path, mvec3_cpy(self._ext_movement:m_host_stop_pos()) and t_ins
+			self._simplified_path = self._nav_path
 		end
 
 	else
@@ -736,7 +725,6 @@ function CopActionWalk._apply_padding_to_simplified_path(path)
 			end
 
 			index = index + 1
-			(for control) = nil and mvec3_set
 		else
 			index = index + 2
 		end
@@ -1247,9 +1235,6 @@ function CopActionWalk:type()
 end
 
 function CopActionWalk:get_husk_interrupt_desc()
--- fail 36
-null
-5
 	local old_action_desc = {
 		type = "walk",
 		body_part = 2,
@@ -1278,6 +1263,7 @@ null
 		old_action_desc.blocks = blocks
 	end
 
+	return old_action_desc
 end
 
 function CopActionWalk:expired()
@@ -1401,8 +1387,7 @@ function CopActionWalk._calculate_simplified_path(good_pos, original_path, nr_it
 
 	end
 
-	do break end
-	if #simplified_path > 2 then
+	if apply_padding and #simplified_path > 2 then
 		CopActionWalk._apply_padding_to_simplified_path(simplified_path)
 		CopActionWalk._calculate_shortened_path(simplified_path)
 	end

@@ -47,7 +47,6 @@ function ActionMessagingManager:ids()
 
 	end
 
-	(for control) = nil and table
 	table.sort(t)
 	return t
 end

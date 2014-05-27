@@ -54,7 +54,6 @@ function string.split(s, separator_pattern, keep_empty, max_splits)
 
 	end
 
-	(for control) = nil and end_index
 	local remainder = string.sub(s, final_match_end_index)
 	result[count + 1] = (keep_empty or remainder ~= "") and remainder or nil
 	return result

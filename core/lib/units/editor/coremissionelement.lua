@@ -478,7 +478,6 @@ function CoreMissionElement:save_values(file, t)
 
 	end
 
-	(for control) = "<values>" and self.save_value
 	file:puts(t .. "</values>")
 end
 
@@ -501,7 +500,6 @@ function CoreMissionElement:new_save_values()
 
 	end
 
-	(for control) = nil and self._hed
 	if self.save then
 		self:save(t)
 	end
@@ -727,7 +725,6 @@ function CoreMissionElement:_base_check_removed_units(all_units)
 
 	end
 
-	(for control) = clone(self._hed.orientation_elements) and all_units[id]
 	if self._hed.rules_elements then
 		local (for generator), (for state), (for control) = ipairs(clone(self._hed.rules_elements))
 		do
@@ -861,7 +858,7 @@ function CoreMissionElement:remove_on_execute(unit)
 
 	end
 
-	(for control) = nil and on_executed.id
+	return false
 end
 
 function CoreMissionElement:delete_unit(units)
@@ -1024,7 +1021,7 @@ function CoreMissionElement:on_execute_unit_by_id(id)
 
 	end
 
-	(for control) = nil and unit.unit_data
+	return nil
 end
 
 function CoreMissionElement:_combobox_names_names(units)
@@ -1038,6 +1035,7 @@ function CoreMissionElement:_combobox_names_names(units)
 
 	end
 
+	return names
 end
 
 function CoreMissionElement:on_timeline()

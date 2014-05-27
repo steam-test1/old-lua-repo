@@ -83,7 +83,7 @@ function ItemToggle:set_value(value)
 
 	end
 
-	(for control) = nil and option.parameters
+	self:dirty()
 end
 
 function ItemToggle:setup_gui(node, row_item)

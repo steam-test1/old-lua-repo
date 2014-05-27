@@ -26,6 +26,7 @@ function Row:_to_cells_xml()
 
 	end
 
+	return cells_xml
 end
 
 function Row:to_xml(f)

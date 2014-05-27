@@ -92,8 +92,7 @@ function ColorPickerFields:_create_panel(parent_frame, enable_alpha, enable_valu
 
 	end
 
-	do break end
-	do
+	if not enable_value then
 		local (for generator), (for state), (for control) = ipairs(self._field_groups.Value)
 		do
 			do break end
@@ -102,7 +101,6 @@ function ColorPickerFields:_create_panel(parent_frame, enable_alpha, enable_valu
 
 	end
 
-	(for control) = "HSV" and field.set_enabled
 	panel_sizer:add(notebook, 1, 3, "ALL,EXPAND")
 	self._color_well_column_panel = EWS:Panel(self._panel)
 	local color_well_column_panel_sizer = EWS:BoxSizer("VERTICAL")
@@ -180,6 +178,7 @@ function ColorPickerFields:_create_panel_with_fields(parent_frame, fields)
 
 	end
 
+	return panel
 end
 
 function ColorPickerFields:_on_field_edited(edited_field, event)
@@ -192,7 +191,6 @@ function ColorPickerFields:_on_field_edited(edited_field, event)
 
 	end
 
-	(for control) = self:_mirroring_fields(edited_field) and field.change_value
 	local edited_field_label = self:_field_label(edited_field)
 	if table.contains({
 		"Red",
@@ -258,12 +256,10 @@ function ColorPickerFields:_parse_values(field_names)
 
 	end
 
+	return values
 end
 
 function ColorPickerFields:_set_field_values_except(skipped_field_name, color)
--- fail 35
-null
-6
 	hue, saturation, value = CoreMath.rgb_to_hsv(color.red, color.green, color.blue)
 	local field_values = {
 		Red = color.red * 255,

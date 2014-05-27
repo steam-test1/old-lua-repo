@@ -32,7 +32,6 @@ function ElementOperator:on_executed(instigator)
 
 	end
 
-	(for control) = nil and self.get_mission_element
 	ElementOperator.super.on_executed(self, instigator)
 end
 

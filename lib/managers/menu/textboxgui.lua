@@ -284,7 +284,6 @@ function TextBoxGui:_create_text_box(ws, title, text, content_data, config)
 
 		end
 
-		(for control) = stats_panel:w() and Idstring
 		if #start_ci ~= #end_ci then
 		else
 			for i = 1, #start_ci do
@@ -600,7 +599,6 @@ function TextBoxGui:_setup_stats_panel(scroll_panel, stats_list, stats_text)
 
 					end
 
-					(for control) = "%" and s
 					local mods_text = panel:text({
 						text = s,
 						layer = 0,
@@ -627,7 +625,6 @@ function TextBoxGui:_setup_stats_panel(scroll_panel, stats_list, stats_text)
 
 		end
 
-		(for control) = nil and stats.type
 		local stats_text = stats_panel:text({
 			text = stats_text or "Nunc vel diam vel neque sodales gravida et ac quam. Phasellus egestas, arcu in tristique mattis, velit nisi tincidunt lorem, bibendum molestie nunc purus id turpis. Donec sagittis nibh in eros ultrices aliquam. Vestibulum ante mauris, mattis quis commodo a, dictum eget sapien. Maecenas eu diam lorem. Nunc dolor metus, varius sit amet rhoncus vel, iaculis sed massa. Morbi tempus mi quis dolor posuere eu commodo magna eleifend. Pellentesque sit amet mattis nunc. Nunc lectus quam, pretium sit amet consequat sed, vestibulum vitae lorem. Sed bibendum egestas turpis, sit amet viverra risus viverra in. Suspendisse aliquam dapibus urna, posuere fermentum tellus vulputate vitae.",
 			layer = 0,
@@ -704,7 +701,6 @@ function TextBoxGui:_setup_buttons_panel(info_area, button_list, focus_button, o
 
 			end
 
-			(for control) = info_area:w() and buttons_panel.panel
 			buttons_panel:set_h(#button_list * max_h)
 			buttons_panel:set_bottom(info_area:h() - 10)
 		end
@@ -743,7 +739,7 @@ function TextBoxGui:check_focus_button(x, y)
 
 	end
 
-	(for control) = self._text_box_buttons_panel:children() and panel.child
+	return false
 end
 
 function TextBoxGui:set_focus_button(focus_button)
@@ -988,7 +984,6 @@ function TextBoxGui:mouse_moved(x, y)
 
 	end
 
-	(for control) = self._text_box_buttons_panel:children() and panel.child
 	return false, "arrow"
 end
 

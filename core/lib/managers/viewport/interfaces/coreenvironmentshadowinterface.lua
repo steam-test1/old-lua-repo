@@ -59,7 +59,6 @@ function EnvironmentShadowInterface:_process_return(block)
 
 		end
 
-		(for control) = Vector3(block.d2 - block.o3, block.d3, 0) and error_msg
 		Application:error(error_msg)
 	end
 

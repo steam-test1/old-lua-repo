@@ -124,7 +124,7 @@ function CoreVisualFXCutsceneKey:refresh_control_for_effect(control)
 
 	end
 
-	(for control) = managers.database:list_entries_of_type("effect") and control.append
+	control:thaw()
 end
 
 function CoreVisualFXCutsceneKey:on_attribute_before_changed(attribute_name, value, previous_value)

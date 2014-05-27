@@ -107,14 +107,16 @@ function ExplosionManager:detect_and_give_dmg(params)
 
 			end
 
-			do break end
-			table.insert(splinters, mvector3.copy(pos))
+			if not near_splinter then
+				table.insert(splinters, mvector3.copy(pos))
+			end
+
 		end
 
 	end
 
 	local characters_hit = {}
-	local units_to_push = Vector3(0, 0, range) and {}
+	local units_to_push = {}
 	local hit_units = {}
 	do
 		local (for generator), (for state), (for control) = ipairs(bodies)
@@ -144,12 +146,8 @@ function ExplosionManager:detect_and_give_dmg(params)
 
 				end
 
-			else
-				(for control) = mvector3.copy(pos) and World
-				if apply_dmg or hit_body:dynamic() then
-					ray_hit = true
-				end
-
+			elseif apply_dmg or hit_body:dynamic() then
+				ray_hit = true
 			end
 
 			if ray_hit then
@@ -182,7 +180,6 @@ function ExplosionManager:detect_and_give_dmg(params)
 
 	end
 
-	(for control) = true and hit_body.unit
 	managers.explosion:units_to_push(units_to_push, hit_pos, range)
 	if owner then
 		managers.challenges:reset_counter("m79_law_simultaneous_kills")
@@ -306,7 +303,6 @@ function ExplosionManager:client_damage_and_push(position, normal, user_unit, dm
 
 	end
 
-	(for control) = range and hit_body.unit
 	self:units_to_push(units_to_push, position, range)
 end
 

@@ -102,7 +102,6 @@ function CoreCutsceneExporter:_problem_map()
 
 		end
 
-		(for control) = nil and previous_clip.end_time
 		if table.empty(problem_map) and self:contains_optimized_footage() then
 			if self:contains_unoptimized_footage() then
 				add_problem("The scene features both optimized and un-optimized clips.")
@@ -135,9 +134,9 @@ function CoreCutsceneExporter:_problem_map()
 
 		end
 
-		(for control) = clip and DB
 	end
 
+	return problem_map
 end
 
 function CoreCutsceneExporter:_has_cameras()
@@ -153,7 +152,7 @@ function CoreCutsceneExporter:_has_cameras()
 
 	end
 
-	(for control) = self:_all_controlled_unit_types(true) and string
+	return false
 end
 
 function CoreCutsceneExporter:_all_controlled_unit_types(include_cameras)
@@ -170,18 +169,19 @@ function CoreCutsceneExporter:_all_controlled_unit_types(include_cameras)
 
 		end
 
-		(for control) = clip:metadata():footage()._cutscene:controlled_unit_types() and self.__all_controlled_unit_types
 	end
 
-	do break end
-	return self.__all_controlled_unit_types or table.remap(self.__all_controlled_unit_types, function(unit_name, unit_type)
+	if not include_cameras or not self.__all_controlled_unit_types then
+	end
+
+	return (table.remap(self.__all_controlled_unit_types, function(unit_name, unit_type)
 		if not string.begins(unit_name, "camera") then
 		else
 		end
 
 		return unit_name, unit_type or nil
 	end
-)
+))
 end
 
 function CoreCutsceneExporter:_all_controlled_unit_names(include_cameras)
@@ -234,7 +234,6 @@ function CoreCutsceneExporter:_get_final_animation(unit_name)
 
 		end
 
-		(for control) = self:_process_animation("strip", final_animation, kept_bones) and AnimationManager
 		self.__final_animation_cache[unit_name] = final_animation
 	end
 
@@ -320,7 +319,6 @@ function CoreCutsceneExporter:_get_animatable_set_name_for_unit_type(unit_type)
 
 	end
 
-	(for control) = string.format("Unit \"%s\" - Model XML is invalid.", unit_type) and child.name
 	error(string.format("Unit \"%s\" - Model XML is missing animation_set name.", unit_type))
 end
 
@@ -347,7 +345,6 @@ function CoreCutsceneExporter:_join_animations(unit_name_func)
 
 					end
 
-					(for control) = unit_name and cat_print
 					cat_print("debug", "")
 					cat_print("debug", "Unit \"" .. unit_name .. "\", second set:")
 					do
@@ -359,7 +356,6 @@ function CoreCutsceneExporter:_join_animations(unit_name_func)
 
 					end
 
-					(for control) = unit_name and cat_print
 					error(string.format("Unit \"%s\" - Bones differ in footage \"%s\".", unit_name, cutscene:name()))
 				end
 
@@ -378,6 +374,7 @@ function CoreCutsceneExporter:_join_animations(unit_name_func)
 
 	end
 
+	return joined_animation
 end
 
 function CoreCutsceneExporter:_clear_cached_lists()

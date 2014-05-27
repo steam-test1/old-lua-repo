@@ -1,8 +1,5 @@
 CrimeNetContractGui = CrimeNetContractGui or class()
 function CrimeNetContractGui:init(ws, fullscreen_ws, node)
--- fail 969
-null
-57
 	self._ws = ws
 	self._fullscreen_ws = fullscreen_ws
 	self._panel = self._ws:panel():panel({layer = 51})
@@ -819,7 +816,7 @@ function CrimeNetContractGui:_rec_round_object(object)
 
 	end
 
-	local x, y = object:children() and object:position(), object:position()
+	local x, y = object:position()
 	object:set_position(math.round(x), math.round(y))
 end
 
@@ -1188,7 +1185,6 @@ function CrimeNetContractGui:set_all(t, dt)
 
 	end
 
-	(for control) = managers.experience and gui_panel.child
 	gui_panel:child("risk_text"):show()
 	gui_panel:child("payday_text"):set_text(managers.localization:to_upper_text("menu_payday", {
 		MONEY = managers.experience:cash_string(total_payout)
@@ -1226,7 +1222,6 @@ function CrimeNetContractGui:set_all(t, dt)
 
 	end
 
-	(for control) = managers.money:offshore() and Idstring
 	if #start_ci ~= #end_ci then
 	else
 		for i = 1, #start_ci do

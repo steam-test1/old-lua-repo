@@ -265,8 +265,10 @@ function DBDropdown:append_values()
 
 	end
 
-	do break end
-	self._combobox:set_value(value)
+	if value then
+		self._combobox:set_value(value)
+	end
+
 end
 
 function DBDropdown:get_value()

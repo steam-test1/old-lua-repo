@@ -226,7 +226,6 @@ function PlayerEquipment:valid_shape_placement(equipment_id, equipment_data)
 
 	end
 
-	(for control) = find_start_pos and body.unit
 	if alive(self._dummy_unit) then
 		self._dummy_unit:set_enabled(valid)
 	end

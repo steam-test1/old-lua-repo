@@ -180,6 +180,7 @@ function AmmoBagBase:_take_ammo(unit)
 
 	end
 
+	return taken
 end
 
 function AmmoBagBase:_set_empty()

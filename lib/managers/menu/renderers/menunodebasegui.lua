@@ -106,7 +106,6 @@ function MenuNodeBaseGui:create_text_button(params)
 
 	end
 
-	(for control) = button_panel:size() and alive
 	table.insert(self._text_buttons, {
 		panel = button_panel,
 		text = gui_text,
@@ -118,9 +117,6 @@ function MenuNodeBaseGui:create_text_button(params)
 end
 
 function MenuNodeBaseGui:create_gui_box(panel, params)
--- fail 19
-null
-6
 	if not alive(panel) then
 		return
 	end
@@ -187,7 +183,6 @@ function MenuNodeBaseGui:mouse_moved(o, x, y)
 
 	end
 
-	(for control) = nil and alive
 	return used, icon
 end
 
@@ -209,7 +204,7 @@ function MenuNodeBaseGui:mouse_pressed(button, x, y)
 
 	end
 
-	(for control) = nil and alive
+	return false
 end
 
 function MenuNodeBaseGui:mouse_released(button, x, y)
@@ -255,7 +250,7 @@ function MenuNodeBaseGui:unretrieve_textures()
 
 	end
 
-	self._requested_textures = nil and {}
+	self._requested_textures = {}
 end
 
 function MenuNodeBaseGui:texture_done_clbk(params, texture_ids)

@@ -89,7 +89,6 @@ function DialogManager:conversation_names()
 
 	end
 
-	(for control) = nil and table
 	table.sort(t)
 	return t
 end
@@ -188,7 +187,6 @@ function DialogManager:_load_dialog_data(name)
 
 				end
 
-				(for control) = (node.priority and tonumber(node.priority) or tweak_data.dialog.DEFAULT_PRIORITY) and line_node._meta
 				if self._dialog_list[node.id].sounds and node.sound then
 					Application:throw_exception("Error in '" .. file_name .. "' in node " .. node.id .. "! Sound can't be defined in parameters when it have sound lines!")
 					self._dialog_list[node.id].sound = nil

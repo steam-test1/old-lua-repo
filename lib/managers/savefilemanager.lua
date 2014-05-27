@@ -220,7 +220,7 @@ function SavefileManager:break_loading_sequence()
 
 	end
 
-	self._queued_tasks = nil and {}
+	self._queued_tasks = {}
 	managers.system_menu:close("savefile_try_again")
 	managers.system_menu:close("savefile_new_safefile")
 end
@@ -270,7 +270,7 @@ function SavefileManager:get_save_info_list(include_empty_slot)
 
 	end
 
-	local sort_func = nil and function(data1, data2)
+	local function sort_func(data1, data2)
 		return self:_compare_sort_list(data1.sort_list, data2.sort_list) < 0
 	end
 
@@ -284,13 +284,15 @@ function SavefileManager:get_save_info_list(include_empty_slot)
 
 	end
 
-	do break end
-	for empty_slot = 0, self.MAX_SLOT do
-		local meta_data = Global.savefile_manager.meta_data_list[empty_slot]
-		if empty_slot ~= self.SETTING_SLOT and empty_slot ~= self.PROGRESS_SLOT and empty_slot ~= self.AUTO_SAVE_SLOT and (not meta_data or not meta_data.is_synched_text) then
-			local save_info = SavefileInfo:new(empty_slot, managers.localization:text("savefile_empty"))
-			table.insert(save_info_list, 1, save_info)
-			break
+	if include_empty_slot then
+		for empty_slot = 0, self.MAX_SLOT do
+			local meta_data = Global.savefile_manager.meta_data_list[empty_slot]
+			if empty_slot ~= self.SETTING_SLOT and empty_slot ~= self.PROGRESS_SLOT and empty_slot ~= self.AUTO_SAVE_SLOT and (not meta_data or not meta_data.is_synched_text) then
+				local save_info = SavefileInfo:new(empty_slot, managers.localization:text("savefile_empty"))
+				table.insert(save_info_list, 1, save_info)
+				break
+			end
+
 		end
 
 	end
@@ -364,10 +366,12 @@ function SavefileManager:_clean_meta_data_list(is_setting_slot)
 
 		end
 
-		do break end
-		local setting_meta_data = Global.savefile_manager.meta_data_list[self.SETTING_SLOT]
-		Global.savefile_manager.meta_data_list = {}
-		Global.savefile_manager.meta_data_list[self.SETTING_SLOT] = setting_meta_data
+		if empty_list then
+			local setting_meta_data = Global.savefile_manager.meta_data_list[self.SETTING_SLOT]
+			Global.savefile_manager.meta_data_list = {}
+			Global.savefile_manager.meta_data_list[self.SETTING_SLOT] = setting_meta_data
+		end
+
 	end
 
 end
@@ -1057,7 +1061,6 @@ function SavefileManager:clbk_result_load(task_data, result_data)
 		end
 
 	else
-		(for control) = nil and print
 		Application:error("[SavefileManager:clbk_result_load] error:", result_data)
 	end
 
@@ -1100,7 +1103,6 @@ function SavefileManager:clbk_result_load_backup(task_data, result_data)
 		end
 
 	else
-		(for control) = nil and print
 		Application:error("[SavefileManager:clbk_result_load_backup] error:", result_data)
 	end
 
@@ -1140,7 +1142,6 @@ function SavefileManager:clbk_result_iterate_savegame_slots(task_data, result_da
 		end
 
 	else
-		(for control) = inspect(result_data) and print
 		Application:error("[SavefileManager:clbk_result_iterate_savegame_slots] error:", result_data)
 	end
 
@@ -1167,7 +1168,6 @@ function SavefileManager:clbk_result_save(task_data, result_data)
 		end
 
 	else
-		(for control) = nil and print
 		Application:error("[SavefileManager:clbk_result_save] error:", result_data)
 	end
 

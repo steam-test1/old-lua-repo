@@ -59,9 +59,6 @@ function LocalizationManager:text(string_id, macros)
 end
 
 function LocalizationManager:_localizer_post_process(string)
--- fail 14
-null
-6
 	local localized_string = string
 	local macros = {}
 	if type(self._macro_context) ~= "table" then
@@ -86,7 +83,6 @@ null
 
 	end
 
-	(for control) = nil and "$"
 	if self._pre_process_func then
 		self._pre_process_func(macros)
 	end

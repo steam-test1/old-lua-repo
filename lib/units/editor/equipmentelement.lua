@@ -21,7 +21,6 @@ function EquipmentUnitElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = nil and table
 	local equipment_params = {
 		name = "Equipment:",
 		panel = panel,

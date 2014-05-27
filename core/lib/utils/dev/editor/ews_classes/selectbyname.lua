@@ -35,7 +35,6 @@ function SelectByName:_on_delete()
 
 	end
 
-	(for control) = self:_selected_item_units() and managers
 	managers.editor:thaw_gui_lists()
 end
 

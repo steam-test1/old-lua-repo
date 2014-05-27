@@ -25,7 +25,6 @@ function ElementAIGraph:on_executed(instigator)
 
 	end
 
-	(for control) = nil and managers
 	ElementAIGraph.super.on_executed(self, instigator)
 end
 

@@ -130,7 +130,7 @@ function TaserLogicAttack._upd_enemy_detection(data)
 	end
 
 	local find_new_focus_enemy
-	local tasing = nil and my_data.tasing
+	local tasing = my_data.tasing
 	local tased_u_key = tasing and tasing.target_u_key
 	local tase_in_effect = tasing and tasing.target_u_data.unit:movement():tased()
 	if tase_in_effect or tasing and data.t - tasing.start_t < math.max(1, data.char_tweak.weapon.m4.aim_delay_tase[2] * 1.5) then

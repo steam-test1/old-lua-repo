@@ -57,7 +57,7 @@ do
 
 end
 
-logic_variants.shield.attack, (for control) = ShieldLogicAttack, "tank" and clone
+logic_variants.shield.attack = ShieldLogicAttack
 logic_variants.shield.intimidated = nil
 logic_variants.shield.flee = nil
 logic_variants.tank.attack = TankCopLogicAttack
@@ -393,9 +393,6 @@ function CopBrain:_add_pathing_result(search_id, path)
 end
 
 function CopBrain:cancel_all_pathing_searches()
--- fail 6
-null
-3
 	do
 		local (for generator), (for state), (for control) = pairs(self._logic_data.active_searches)
 		do
@@ -634,19 +631,19 @@ function CopBrain:on_nav_link_unregistered(element_id)
 
 			end
 
-			(for control) = nil and nav_point.x
 		end
 
-		do break end
-		local (for generator), (for state), (for control) = pairs(failed_search_ids)
-		do
-			do break end
-			self._logic_data.pathing_results[search_id] = "failed"
+		if failed_search_ids then
+			local (for generator), (for state), (for control) = pairs(failed_search_ids)
+			do
+				do break end
+				self._logic_data.pathing_results[search_id] = "failed"
+			end
+
 		end
 
 	end
 
-	(for control) = nil and self._logic_data
 	local paths = self._current_logic._get_all_paths and self._current_logic._get_all_paths(self._logic_data)
 	if not paths then
 		return
@@ -671,13 +668,14 @@ function CopBrain:on_nav_link_unregistered(element_id)
 
 			end
 
-			do break end
-			verified_paths[path_name] = path
+			if path_is_ok then
+				verified_paths[path_name] = path
+			end
+
 		end
 
 	end
 
-	(for control) = nil and true
 	self._current_logic._set_verified_paths(self._logic_data, verified_paths)
 end
 
@@ -997,7 +995,7 @@ function CopBrain:rem_all_pos_rsrv()
 
 	end
 
-	self._logic_data.pos_rsrv, (for control) = {}, nil and managers
+	self._logic_data.pos_rsrv = {}
 end
 
 function CopBrain:begin_alarm_pager(reset)

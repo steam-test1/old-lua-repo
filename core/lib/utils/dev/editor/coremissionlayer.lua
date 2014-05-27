@@ -41,7 +41,6 @@ function MissionLayer:load(world_holder, offset)
 
 	end
 
-	(for control) = offset and values.continent
 	local world_units = MissionLayer.super.load(self, world_holder, offset)
 	if world_units then
 		local (for generator), (for state), (for control) = ipairs(world_units)
@@ -53,7 +52,7 @@ function MissionLayer:load(world_holder, offset)
 
 	end
 
-	(for control) = nil and unit.mission_element
+	self:_populate_scripts_combobox()
 	self:_set_scripts_combobox(self._default_script_name)
 	self:_on_set_script()
 end
@@ -81,15 +80,6 @@ function MissionLayer:save()
 
 	end
 
-	(for control) = nil and {
-		entry = self._save_name,
-		continent = unit:unit_data().continent and unit:unit_data().continent:name(),
-		data = {
-			unit_data = CoreEditorSave.save_data_table(unit),
-			script = unit:mission_element_data().script,
-			script_data = unit:mission_element():new_save_values()
-		}
-	}
 	local (for generator), (for state), (for control) = pairs(self._scripts)
 	do
 		do break end
@@ -118,7 +108,6 @@ function MissionLayer:save_mission(params)
 	end
 
 	local scripts = {}
-	(for control) = nil and unit.mission_element_data
 	do
 		local (for generator), (for state), (for control) = pairs(script_units)
 		do
@@ -144,13 +133,14 @@ function MissionLayer:save_mission(params)
 
 				end
 
-				scripts[script].elements = nil and elements
+				scripts[script].elements = elements
 			end
 
 		end
 
 	end
 
+	return scripts
 end
 
 function MissionLayer:do_spawn_unit(name, pos, rot)
@@ -249,7 +239,6 @@ function MissionLayer:clone_edited_values(unit, source)
 
 	end
 
-	(for control) = source:mission_element_data() and CoreClass
 	unit:mission_element():clone_data(self:_units_as_pairs(self._created_units))
 end
 
@@ -266,14 +255,11 @@ function MissionLayer:hide_all()
 
 	end
 
-	(for control) = nil and unit.mission_element_data
+	self:clear_selected_units()
 	self:update_unit_settings()
 end
 
 function MissionLayer:set_enabled(enabled)
--- fail 6
-null
-4
 	self._layer_enabled = enabled
 	do
 		local (for generator), (for state), (for control) = ipairs(self._created_units)
@@ -295,6 +281,7 @@ null
 
 	end
 
+	return true
 end
 
 function MissionLayer:widget_affect_object()
@@ -322,6 +309,7 @@ function MissionLayer:_units_as_pairs(units)
 
 	end
 
+	return t
 end
 
 function MissionLayer:update(time, rel_time)
@@ -777,7 +765,7 @@ function MissionLayer:_delete_script(name)
 
 	end
 
-	self._scripts[name] = CoreTable.clone(self._created_units) and nil
+	self._scripts[name] = nil
 	self:_populate_scripts_combobox()
 	self:_set_scripts_combobox()
 	self:_on_set_script()
@@ -819,7 +807,7 @@ function MissionLayer:_rename_script(name, new_name)
 
 	end
 
-	local values = nil and self._scripts[name]
+	local values = self._scripts[name]
 	self._scripts[name] = nil
 	self._scripts[new_name] = values
 	self:_populate_scripts_combobox()
@@ -898,6 +886,7 @@ function MissionLayer:script_names()
 
 	end
 
+	return names
 end
 
 function MissionLayer:set_show_all_scripts(show_all_scripts)
@@ -944,7 +933,6 @@ function MissionLayer:clear()
 	end
 
 	self._editing_mission_element = false
-	(for control) = nil and unit.mission_element
 	MissionLayer.super.clear(self)
 	self:_reset_scripts()
 	self:update_unit_settings()

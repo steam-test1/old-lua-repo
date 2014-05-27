@@ -18,9 +18,6 @@ function MissionAssetsManager:_setup()
 end
 
 function MissionAssetsManager:_setup_mission_assets()
--- fail 293
-null
-16
 	local is_host = Network:is_server() or Global.game_settings.single_player
 	local current_stage = managers.job:current_level_id()
 	if not current_stage or not is_host then
@@ -144,8 +141,7 @@ null
 
 				end
 
-				do break end
-				local show = can_unlock or asset.visible_if_locked
+				local show = unlocked or can_unlock or asset.visible_if_locked
 				if local_only then
 					show = nil
 					unlocked = true
@@ -166,7 +162,6 @@ null
 
 	end
 
-	(for control) = nil and asset.stages
 	table.sort(self._global.assets, function(x, y)
 		if x.local_only ~= y.local_only then
 			return x.local_only
@@ -361,6 +356,7 @@ function MissionAssetsManager:get_every_asset_ids()
 
 	end
 
+	return asset_ids
 end
 
 function MissionAssetsManager:get_all_asset_ids(only_visible)
@@ -379,6 +375,7 @@ function MissionAssetsManager:get_all_asset_ids(only_visible)
 
 	end
 
+	return asset_ids
 end
 
 function MissionAssetsManager:get_default_asset_id()
@@ -533,7 +530,6 @@ function MissionAssetsManager:clear_asset_textures()
 
 	end
 
-	(for control) = nil and TextureCache
 	if self._asset_textures_in_loading then
 		local (for generator), (for state), (for control) = pairs(self._asset_textures_in_loading)
 		do
@@ -543,7 +539,7 @@ function MissionAssetsManager:clear_asset_textures()
 
 	end
 
-	self._asset_textures_in_loading = nil and {}
+	self._asset_textures_in_loading = {}
 	self._asset_textures_loaded = {}
 end
 

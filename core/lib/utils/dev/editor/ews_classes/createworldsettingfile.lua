@@ -48,7 +48,6 @@ function CreateWorldSettingFile:_add_continent_cbs(params)
 
 	end
 
-	(for control) = "Exclude continents" and EWS
 	self._panel_sizer:add(sizer, 1, 0, "EXPAND")
 end
 
@@ -63,7 +62,6 @@ function CreateWorldSettingFile:on_create()
 
 	end
 
-	(for control) = nil and cb.get_value
 	local settings = SystemFS:open(self._path, "w")
 	settings:puts(ScriptSerializer:to_generic_xml(t))
 	SystemFS:close(settings)
@@ -113,8 +111,7 @@ function CreateWorldSettingFile:_parse_file(path)
 
 		end
 
-		do return t end
-		(for control) = managers.database:entry_expanded_path("world_setting", path) and continent.parameter
+		return t
 	else
 		return self:_serialize_to_script("world_setting", path)
 	end

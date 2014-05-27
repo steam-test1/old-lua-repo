@@ -147,7 +147,7 @@ function NetworkGroupLobbyPSN:_handle_returned_players()
 
 		end
 
-		self._returned_players = nil and {}
+		self._returned_players = {}
 	end
 
 end
@@ -177,7 +177,6 @@ function NetworkGroupLobbyPSN:lobby_return_answer(answer, sender)
 		end
 
 	else
-		(for control) = tostring(answer) and v.is_server
 		self:leave_group_lobby()
 	end
 
@@ -196,7 +195,7 @@ function NetworkGroupLobbyPSN:find(playerid)
 
 	end
 
-	(for control) = nil and tostring
+	return nil, nil
 end
 
 function NetworkGroupLobbyPSN:leave_group_lobby(instant)
@@ -215,13 +214,9 @@ function NetworkGroupLobbyPSN:leave_group_lobby(instant)
 				v.rpc:psn_grp_unregister_player(managers.network.account:player_id(), true)
 			end
 
-		else
-			(for control) = nil and managers
-			if self._server_rpc then
-				self._server_rpc:psn_grp_unregister_player(managers.network.account:player_id(), false)
-				managers.network.generic:ping_remove(self._server_rpc)
-			end
-
+		elseif self._server_rpc then
+			self._server_rpc:psn_grp_unregister_player(managers.network.account:player_id(), false)
+			managers.network.generic:ping_remove(self._server_rpc)
 		end
 
 		self._time_to_leave = TimerManager:wall():time() + 2
@@ -282,7 +277,6 @@ function NetworkGroupLobbyPSN:send_group_lobby_invite(network_friend)
 
 	end
 
-	(for control) = nil and tostring
 	local friends = PSN:get_list_friends()
 	if friends then
 		local (for generator), (for state), (for control) = pairs(friends)
@@ -304,7 +298,7 @@ function NetworkGroupLobbyPSN:send_group_lobby_invite(network_friend)
 
 	end
 
-	(for control) = nil and tostring
+	return false
 end
 
 function NetworkGroupLobbyPSN:kick_player(player_id, timeout)
@@ -335,7 +329,6 @@ function NetworkGroupLobbyPSN:send_game_id(id, private, created)
 
 	end
 
-	(for control) = nil and self._call_callback
 	local (for generator), (for state), (for control) = pairs(self._players)
 	do
 		do break end
@@ -422,6 +415,7 @@ function NetworkGroupLobbyPSN:num_group_players()
 
 	end
 
+	return x
 end
 
 function NetworkGroupLobbyPSN:get_group_players()
@@ -456,6 +450,7 @@ function NetworkGroupLobbyPSN:get_members_rpcs()
 
 	end
 
+	return rpcs
 end
 
 function NetworkGroupLobbyPSN:resync_screen()
@@ -648,7 +643,6 @@ function NetworkGroupLobbyPSN:_register_player(name, pnid, group, rpc, is_server
 
 		end
 
-		(for control) = managers.network.account:player_id() and v.rpc
 		managers.network.generic:ping_watch(rpc, false, callback(self, self, "_client_timed_out"), pnid)
 	end
 
@@ -698,7 +692,6 @@ function NetworkGroupLobbyPSN:_unregister_player(pnid, is_server, rpc)
 	end
 
 	self._players = new_list
-	(for control) = nil and v.pnid
 	if MPFriendsScreen.instance then
 		MPFriendsScreen.instance:reset_list()
 	end
@@ -713,7 +706,6 @@ function NetworkGroupLobbyPSN:_unregister_player(pnid, is_server, rpc)
 
 	end
 
-	(for control) = false and v.rpc
 	self:_call_callback("player_left", {
 		player_id = pnid,
 		reason = "went home to mama"
@@ -733,7 +725,7 @@ function NetworkGroupLobbyPSN:_in_list(id)
 
 	end
 
-	(for control) = nil and tostring
+	return false
 end
 
 function NetworkGroupLobbyPSN:_server_timed_out(rpc)

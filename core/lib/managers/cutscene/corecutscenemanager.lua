@@ -125,7 +125,6 @@ function CoreCutsceneManager:_destroy_units_with_cutscene_data_extension()
 
 	end
 
-	(for control) = nil and self.unregister_unit_with_cutscene_data_extension
 	assert(self._units_with_cutscene_data_extension == nil, "Not all units with the CutsceneData extension were destroyed.")
 end
 
@@ -179,7 +178,7 @@ function CoreCutsceneManager:cutscene_actors_in_world()
 
 	end
 
-	(for control) = nil and self._cutscene_actors
+	return self._cutscene_actors
 end
 
 function CoreCutsceneManager:actor_database()
@@ -499,6 +498,7 @@ function CoreCutsceneManager:_debug_persistent_keys_per_cutscene()
 
 	end
 
+	return persistent_keys_per_cutscene
 end
 
 function CoreCutsceneManager:_debug_persistent_keys_report()
@@ -520,9 +520,9 @@ function CoreCutsceneManager:_debug_persistent_keys_report()
 
 		end
 
-		(for control) = "\n" and output_string
 	end
 
+	return output_string
 end
 
 function CoreCutsceneManager:_debug_dump_persistent_keys_report(path)

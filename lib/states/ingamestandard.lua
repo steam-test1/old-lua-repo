@@ -21,7 +21,6 @@ function IngameStandardState:at_enter()
 
 	end
 
-	(for control) = nil and player.camera
 	local player = managers.player:player_unit()
 	if player then
 		player:base():set_enabled(true)

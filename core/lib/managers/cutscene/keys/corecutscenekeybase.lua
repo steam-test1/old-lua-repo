@@ -92,7 +92,7 @@ function CoreCutsceneKeyBase:is_valid(debug_output)
 
 	end
 
-	(for control) = self:attribute_names() and self.is_valid_attribute_value
+	return true
 end
 
 function CoreCutsceneKeyBase:is_valid_attribute_value(attribute_name, value)
@@ -123,7 +123,6 @@ function CoreCutsceneKeyBase:_unit_names()
 
 	end
 
-	(for control) = nil and table
 	table.sort(unit_names)
 	return unit_names
 end
@@ -218,6 +217,7 @@ function CoreCutsceneKeyBase:_save_under(parent_node)
 
 	end
 
+	return key_node
 end
 
 function CoreCutsceneKeyBase:attribute_names(exclude_defaults, _class, _destination)
@@ -239,6 +239,7 @@ function CoreCutsceneKeyBase:attribute_names(exclude_defaults, _class, _destinat
 
 	end
 
+	return _destination
 end
 
 function CoreCutsceneKeyBase:attribute_value(attribute_name)
@@ -484,7 +485,7 @@ function CoreCutsceneKeyBase:standard_combo_box_control_refresh(attribute_name, 
 
 		end
 
-		(for control) = nil and tostring
+		control:thaw()
 	end
 
 	return refresh_func
@@ -533,7 +534,7 @@ function CoreCutsceneKeyBase:refresh_control_for_unit_name(control, selected_uni
 
 	end
 
-	(for control) = nil and self.is_valid_unit_name
+	control:thaw()
 end
 
 function CoreCutsceneKeyBase:refresh_control_for_object_name(control, unit_name, selected_object_name)
@@ -560,7 +561,7 @@ function CoreCutsceneKeyBase:refresh_control_for_object_name(control, unit_name,
 
 	end
 
-	(for control) = nil and self.is_valid_object_name
+	control:thaw()
 end
 
 function CoreCutsceneKeyBase:on_gui_representation_changed(sender, sequencer_clip)

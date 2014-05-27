@@ -343,7 +343,6 @@ function MenuSceneManager:update(t, dt)
 
 	end
 
-	(for control) = 2 and light.set_multiplier
 	if self._active_lights then
 		local (for generator), (for state), (for control) = ipairs(self._active_lights)
 		do
@@ -353,7 +352,6 @@ function MenuSceneManager:update(t, dt)
 
 	end
 
-	(for control) = 2 and light.set_multiplier
 	if alive(self._vp) then
 		self._vp:feed_params()
 	end
@@ -393,7 +391,7 @@ function MenuSceneManager:on_blackmarket_reset()
 
 	end
 
-	(for control) = nil and Global
+	self:_set_character_equipment()
 end
 
 function MenuSceneManager:_setup_bg()
@@ -416,7 +414,7 @@ function MenuSceneManager:_setup_bg()
 
 	end
 
-	(for control) = Vector3(0, 0, 0) and Global
+	self:_setup_lobby_characters()
 end
 
 function MenuSceneManager:_set_player_character_unit(unit_name)
@@ -515,7 +513,6 @@ function MenuSceneManager:_set_character_equipment()
 
 	end
 
-	(for control) = equipped_mask.blueprint and Global
 	local rank = managers.experience:current_rank()
 	if rank > 0 then
 		self:set_character_equipped_card(nil, rank - 1)
@@ -549,7 +546,7 @@ function MenuSceneManager:_setup_lobby_characters()
 
 	end
 
-	self._lobby_characters = nil and {}
+	self._lobby_characters = {}
 	self._characters_offset = Vector3(0, -200, -130)
 	self._characters_rotation = {
 		-89,
@@ -687,8 +684,7 @@ function MenuSceneManager:set_lobby_character_visible(i, visible, no_state)
 
 	end
 
-	do break end
-	do
+	if not no_state then
 		local i = 1
 		local (for generator), (for state), (for control) = ipairs(self._lobby_characters)
 		do
@@ -698,7 +694,6 @@ function MenuSceneManager:set_lobby_character_visible(i, visible, no_state)
 
 	end
 
-	(for control) = mask_unit:children() and unit.visible
 	if self._current_profile_slot == i then
 		managers.menu_component:close_lobby_profile_gui()
 		self._current_profile_slot = 0
@@ -863,7 +858,7 @@ function MenuSceneManager:_delete_character_mask(owner)
 
 		end
 
-		local name = old_mask_unit:children() and old_mask_unit:name()
+		local name = old_mask_unit:name()
 		old_mask_unit:unlink()
 		World:delete_unit(old_mask_unit)
 		managers.dyn_resource:unload(ids_unit, name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
@@ -902,7 +897,6 @@ function MenuSceneManager:_delete_character_weapon(owner, type)
 
 	end
 
-	(for control) = owner:key() and print
 	if self._card_units and self._card_units[owner:key()] and type ~= "primary" then
 		local card_unit = self._card_units[owner:key()]
 		if alive(card_unit) then
@@ -1113,7 +1107,6 @@ function MenuSceneManager:set_scene_template(template, data, custom_name)
 
 	end
 
-	(for control) = self._current_item_oobb_object:oobb() and light.multiplier
 	do
 		local (for generator), (for state), (for control) = ipairs(self._active_lights)
 		do
@@ -1124,7 +1117,7 @@ function MenuSceneManager:set_scene_template(template, data, custom_name)
 	end
 
 	self._fade_down_lights = fade_lights
-	self._active_lights, (for control) = {}, self._current_item_oobb_object:oobb() and table
+	self._active_lights = {}
 	if template_data.lights then
 		local (for generator), (for state), (for control) = ipairs(template_data.lights)
 		do
@@ -1243,7 +1236,6 @@ function MenuSceneManager:remove_item()
 
 		end
 
-		(for control) = self._item_unit:children() and managers
 		if managers.dyn_resource:has_resource(ids_unit, self._item_unit:name(), DynamicResourceManager.DYN_RESOURCES_PACKAGE) then
 			managers.dyn_resource:unload(ids_unit, self._item_unit:name(), DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
 		end
@@ -1429,7 +1421,6 @@ function MenuSceneManager:_set_weapon_upgrades(weapon_id)
 
 	end
 
-	(for control) = nil and self._item_unit
 	local weapon_upgrades = Global.blackmarket_manager.weapon_upgrades[weapon_id]
 	if not weapon_upgrades then
 		return
@@ -1658,14 +1649,16 @@ function MenuSceneManager:mouse_pressed(o, button, x, y)
 
 			end
 
-			do break end
-			if self._current_profile_slot == slot then
-				managers.menu_component:close_lobby_profile_gui()
-				self._current_profile_slot = 0
-			else
-				local pos = data.unit:get_object(Idstring("Spine")):position()
-				pos = self._workspace:world_to_screen(self._camera_object, pos)
-				self._current_profile_slot = slot
+			if slot then
+				if self._current_profile_slot == slot then
+					managers.menu_component:close_lobby_profile_gui()
+					self._current_profile_slot = 0
+				else
+					local pos = data.unit:get_object(Idstring("Spine")):position()
+					pos = self._workspace:world_to_screen(self._camera_object, pos)
+					self._current_profile_slot = slot
+				end
+
 			end
 
 		end
@@ -1767,7 +1760,7 @@ function MenuSceneManager:pre_unload()
 
 	end
 
-	self._weapon_names = nil and {}
+	self._weapon_names = {}
 	local (for generator), (for state), (for control) = pairs(self._weapon_units)
 	do
 		do break end
@@ -1793,7 +1786,6 @@ function MenuSceneManager:unload()
 
 	end
 
-	(for control) = nil and managers
 	local (for generator), (for state), (for control) = ipairs(self._weapon_names)
 	do
 		do break end

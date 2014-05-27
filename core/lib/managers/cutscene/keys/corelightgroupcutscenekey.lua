@@ -152,7 +152,7 @@ function CoreLightGroupCutsceneKey:refresh_control_for_group(control)
 
 	end
 
-	(for control) = self:_light_groups() and control.append
+	control:thaw()
 end
 
 function CoreLightGroupCutsceneKey:check_box_control(parent_frame, callback_func)

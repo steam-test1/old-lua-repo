@@ -97,7 +97,6 @@ function IngameWaitingForRespawnState:_create_spectator_data()
 
 	end
 
-	(for control) = nil and table
 	self._spectator_data = {
 		teammate_records = all_teammates,
 		teammate_list = teammate_list,
@@ -131,7 +130,6 @@ function IngameWaitingForRespawnState.request_player_spawn(peer_to_spawn)
 
 		end
 
-		(for control) = managers.groupai:state():all_player_criminals() and table
 		local spawn_at = managers.groupai:state():all_player_criminals()[possible_criminals[math.random(1, #possible_criminals)]]
 		if spawn_at then
 			local spawn_pos = spawn_at.unit:position()
@@ -388,9 +386,6 @@ function IngameWaitingForRespawnState:at_exit()
 end
 
 function IngameWaitingForRespawnState:_refresh_teammate_list()
--- fail 43
-null
-13
 	local all_teammates = self._spectator_data.teammate_records
 	local teammate_list = self._spectator_data.teammate_list
 	local lost_teammate_at_i
@@ -428,14 +423,18 @@ null
 
 			end
 
-			do break end
-			table.insert(teammate_list, u_key)
+			if add then
+				table.insert(teammate_list, u_key)
+			end
+
 		end
 
 	end
 
-	do break end
-	self._spectator_data.watch_u_key = teammate_list[math.clamp(lost_teammate_at_i, 1, #teammate_list)]
+	if lost_teammate_at_i then
+		self._spectator_data.watch_u_key = teammate_list[math.clamp(lost_teammate_at_i, 1, #teammate_list)]
+	end
+
 end
 
 function IngameWaitingForRespawnState:_get_teammate_index_by_unit_key(u_key)
@@ -532,9 +531,6 @@ function IngameWaitingForRespawnState:finish_trade()
 end
 
 function IngameWaitingForRespawnState:begin_trade()
--- fail 16
-null
-4
 	managers.hud:set_custody_can_be_trade_visible(true)
 	local crims = {}
 	do

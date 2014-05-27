@@ -10,12 +10,6 @@ function CharacterAttentionObject:setup_attention_positions(m_head_pos, m_pos)
 end
 
 function CharacterAttentionObject:chk_settings_diff(settings_set)
--- fail 9
-null
-6
--- fail 60
-null
-12
 	local attention_data = self._attention_data
 	local changes
 	if settings_set then
@@ -36,8 +30,7 @@ null
 
 	end
 
-	do break end
-	do
+	if attention_data then
 		local (for generator), (for state), (for control) = pairs(attention_data)
 		do
 			do break end
@@ -55,14 +48,17 @@ null
 
 			end
 
-			do break end
-			changes = changes or {}
-			changes.removed = changes.removed or {}
-			table.insert(changes.removed, old_id)
+			if not found then
+				changes = changes or {}
+				changes.removed = changes.removed or {}
+				table.insert(changes.removed, old_id)
+			end
+
 		end
 
 	end
 
+	return changes
 end
 
 function CharacterAttentionObject:set_settings_set(settings_set)
@@ -86,25 +82,23 @@ function CharacterAttentionObject:set_settings_set(settings_set)
 
 			end
 
-			do break end
-			local (for generator), (for state), (for control) = pairs(settings_set)
-			do
-				do break end
-				if not attention_data[id] then
-					changed = true
-			end
+			if not changed then
+				local (for generator), (for state), (for control) = pairs(settings_set)
+				do
+					do break end
+					if not attention_data[id] then
+						changed = true
+				end
 
-			else
+				else
+				end
+
 			end
 
 		end
 
-	else
-		(for control) = nil and attention_data[id]
-		if settings_set and next(settings_set) then
-			register = true
-		end
-
+	elseif settings_set and next(settings_set) then
+		register = true
 	end
 
 	if self._overrides then
@@ -123,8 +117,7 @@ function CharacterAttentionObject:set_settings_set(settings_set)
 
 			end
 
-			do break end
-			if self._override_restore then
+			if attention_data and self._override_restore then
 				do
 					local (for generator), (for state), (for control) = pairs(attention_data)
 					do
@@ -137,7 +130,6 @@ function CharacterAttentionObject:set_settings_set(settings_set)
 
 				end
 
-				(for control) = nil and settings_set[id]
 				if not next(self._override_restore) then
 					self._override_restore = nil
 				end

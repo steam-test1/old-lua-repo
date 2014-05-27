@@ -55,10 +55,9 @@ function CoreCutsceneAnimationPatchesPanel:set_patches(patches)
 
 		end
 
-		(for control) = nil and self.add_item
 	end
 
-	(for control) = nil and pairs
+	self:thaw()
 end
 
 function CoreCutsceneAnimationPatchesPanel:_sizer_with_editable_fields(parent)
@@ -81,9 +80,6 @@ function CoreCutsceneAnimationPatchesPanel:_sizer_with_editable_fields(parent)
 end
 
 function CoreCutsceneAnimationPatchesPanel:_create_unit_name_dropdown(parent)
--- fail 19
-null
-7
 	local value = self:selected_item_value("Unit Name")
 	local control = EWS:ComboBox(parent, "", "", "CB_DROPDOWN,CB_READONLY,CB_SORT")
 	control:freeze()
@@ -98,8 +94,10 @@ null
 
 	end
 
-	do break end
-	control:set_value(value)
+	if value then
+		control:set_value(value)
+	end
+
 	control:set_min_size(control:get_min_size():with_x(0))
 	control:connect("EVT_COMMAND_COMBOBOX_SELECTED", self:_make_control_edited_callback(control, "Unit Name"))
 	control:thaw()

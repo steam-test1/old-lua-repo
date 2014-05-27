@@ -84,7 +84,6 @@ do
 
 end
 
-(for control) = tweak_data.contour.character_interactable.standard_color and table
 if #ContourExt.indexed_types > 32 then
 	Application:error("[ContourExt] max # contour presets exceeded!")
 end
@@ -136,7 +135,6 @@ function ContourExt:add(type, sync, multiplier)
 
 	end
 
-	(for control) = "sync_contour_state" and setup.type
 	local setup = {
 		type = type,
 		fadeout_t = fadeout and TimerManager:game():time() + fadeout or nil,
@@ -280,7 +278,6 @@ function ContourExt:_remove(index, sync)
 
 		end
 
-		(for control) = nil and material.set_variable
 		if data.damage_bonus then
 			self._unit:character_damage():on_marked_state(false)
 		end
@@ -437,7 +434,6 @@ function ContourExt:_chk_update_state()
 
 	end
 
-	(for control) = nil and setup.fadeout_t
 	if self._update_enabled ~= needs_update then
 		self._update_enabled = needs_update
 		self._unit:set_extension_update_enabled(idstr_contour, needs_update and true or false)

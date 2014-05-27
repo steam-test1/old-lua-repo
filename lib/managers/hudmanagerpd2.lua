@@ -468,7 +468,6 @@ function HUDManager:add_teammate_panel(character_name, player_name, ai, peer_id)
 
 				end
 
-				(for control) = nil and self.add_teammate_special_equipment
 				local peer_deployable_equipment = managers.player:get_synced_deployable_equipment(peer_id)
 				if peer_deployable_equipment then
 					local icon = tweak_data.equipments[peer_deployable_equipment.deployable].icon
@@ -519,7 +518,6 @@ function HUDManager:add_teammate_panel(character_name, player_name, ai, peer_id)
 
 			end
 
-			(for control) = self and self.set_teammate_ammo_amount
 			local peer_carry_data = managers.player:get_synced_carry(peer_id)
 			if peer_carry_data then
 				self:set_teammate_carry_info(i, peer_carry_data.carry_id, managers.loot:get_real_value(peer_carry_data.carry_id, peer_carry_data.multiplier))

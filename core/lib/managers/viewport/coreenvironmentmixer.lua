@@ -81,7 +81,6 @@ function EnvironmentMixer:modifier_interface_names()
 
 	end
 
-	(for control) = nil and table
 	return unpack(t)
 end
 
@@ -190,7 +189,6 @@ function EnvironmentMixer:internal_set_visualization_mode(effect_name, vp, scene
 
 		end
 
-		(for control) = self:internal_visualization_modes() and error_msg
 		Application:error(error_msg)
 	end
 
@@ -272,7 +270,6 @@ function EnvironmentMixer:_get_handle_by_name(name)
 
 	end
 
-	(for control) = nil and handle.name
 	local (for generator), (for state), (for control) = pairs(self._part_control_handles)
 	do
 		do break end
@@ -316,6 +313,7 @@ function EnvironmentMixer:_create_handle_name_from_params(...)
 
 	end
 
+	return str
 end
 
 function EnvironmentMixer:_do_mix(block, ...)

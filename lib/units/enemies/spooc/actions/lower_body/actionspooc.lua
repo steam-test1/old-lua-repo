@@ -564,9 +564,6 @@ function ActionSpooc:type()
 end
 
 function ActionSpooc:get_husk_interrupt_desc()
--- fail 41
-null
-5
 	local old_action_desc = {
 		type = "spooc",
 		body_part = 1,
@@ -597,6 +594,7 @@ null
 		old_action_desc.blocks = blocks
 	end
 
+	return old_action_desc
 end
 
 function ActionSpooc:expired()

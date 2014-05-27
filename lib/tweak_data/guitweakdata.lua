@@ -3762,12 +3762,6 @@ function GuiTweakData:init()
 end
 
 function GuiTweakData:_create_location_bounding_boxes()
--- fail 14
-null
-13
--- fail 40
-null
-13
 	local (for generator), (for state), (for control) = ipairs(self.crime_net.locations)
 	do
 		do break end
@@ -3873,7 +3867,6 @@ function GuiTweakData:_create_location_spawning_dots()
 			end
 
 			zig = not zig
-			(for control) = nil and location_data[1]
 		end
 
 		zig = not zig
@@ -3897,7 +3890,6 @@ function GuiTweakData:_create_location_spawning_dots()
 
 	end
 
-	(for control) = not found_point and table
 	self.crime_net.locations = new_locations
 end
 
@@ -3941,7 +3933,6 @@ function GuiTweakData:serializeTable(val, name, skipnewlines, depth)
 
 		end
 
-		(for control) = nil and tmp
 		tmp = tmp .. "}" .. (depth <= 1 and ", \n" or "")
 	elseif type(val) == "number" then
 		tmp = tmp .. tostring(val)

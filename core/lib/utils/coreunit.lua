@@ -18,7 +18,6 @@ function table.get_ray_ignore_args(...)
 
 	end
 
-	(for control) = ... and CoreCode
 	return unpack(arg_list)
 end
 
@@ -39,6 +38,7 @@ function get_distance_to_body(body, pos)
 
 	end
 
+	return min_dist
 end
 
 function reload_units(unit_name)
@@ -68,6 +68,7 @@ function reload_units(unit_name)
 
 	end
 
+	return num_reloads
 end
 
 function set_unit_and_children_visible(unit, visible, filter_func)

@@ -88,7 +88,6 @@ function ListenerManager:callback_on_all_active_listeners(func)
 
 				end
 
-				(for control) = nil and func
 			end
 
 			done_set_map[set_id] = true
@@ -96,7 +95,6 @@ function ListenerManager:callback_on_all_active_listeners(func)
 
 	end
 
-	(for control) = nil and done_category_map[category_id]
 end
 
 function ListenerManager:has_stack(stack_id)
@@ -134,7 +132,7 @@ function ListenerManager:remove_stack(stack_id)
 
 		end
 
-		self._stack_activation_map[stack_id] = nil and nil
+		self._stack_activation_map[stack_id] = nil
 	else
 		Application:stack_dump_error("Stack id \"" .. tostring(stack_id) .. "\" doesn't exists.")
 	end
@@ -155,7 +153,6 @@ function ListenerManager:add_set(set_id, category_id_list)
 		end
 
 	else
-		(for control) = nil and self.add_set_category
 		Application:stack_dump_error("Unable to add an already set id \"" .. tostring(set_id) .. "\"")
 	end
 
@@ -173,7 +170,6 @@ function ListenerManager:remove_set(set_id)
 
 		end
 
-		(for control) = nil and self.remove_set_category
 		do
 			local (for generator), (for state), (for control) = pairs(self._set_activation_map[set_id])
 			do
@@ -183,7 +179,7 @@ function ListenerManager:remove_set(set_id)
 
 		end
 
-		self._set_map[set_id] = nil and nil
+		self._set_map[set_id] = nil
 		self._set_activation_map[set_id] = nil
 	else
 		Application:stack_dump_error("Unable to remove non-existing set id \"" .. tostring(set_id) .. "\"")
@@ -247,7 +243,7 @@ function ListenerManager:remove_category(category_id)
 
 		end
 
-		self._category_map[category_id] = nil and nil
+		self._category_map[category_id] = nil
 		self._active_category_map[category_id] = nil
 	else
 		Application:stack_dump_error("Unable to remove non-existing category id \"" .. tostring(category_id) .. "\"")

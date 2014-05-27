@@ -72,6 +72,7 @@ function Layer:load(world_holder, offset)
 
 	end
 
+	return world_units
 end
 
 function Layer:add_unit_to_created_units(unit)
@@ -318,7 +319,7 @@ function Layer:authorised_unit_type(unit)
 
 	end
 
-	self._confirmed_unit_types[name] = nil and false
+	self._confirmed_unit_types[name] = false
 	return false
 end
 
@@ -424,7 +425,6 @@ function Layer:build_units(params)
 
 			end
 
-			(for control) = style and units.append_item
 			units:autosize_column(0)
 			units_sizer:add(units, 1, 0, "EXPAND")
 			short_name:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "toggle_short_name"), {
@@ -443,7 +443,6 @@ function Layer:build_units(params)
 
 			end
 
-			(for control) = callback(self, self, "set_unit_name") and units.connect
 			unit_filter:connect("EVT_COMMAND_TEXT_UPDATED", callback(self, self, "update_filter"), {
 				filter = unit_filter,
 				units = units,
@@ -457,6 +456,7 @@ function Layer:build_units(params)
 
 	end
 
+	return notebook_sizer
 end
 
 function Layer:_stripped_unit_name(name)
@@ -517,7 +517,6 @@ function Layer:update_filter(data)
 
 	end
 
-	(for control) = nil and data.short_name
 	data.units:autosize_column(0)
 end
 
@@ -825,10 +824,8 @@ function Layer:prepare_replace(names, rules)
 
 		end
 
-		(for control) = World:find_units_quick("disabled", "all", slot) and unit.name
 	end
 
-	(for control) = nil and CoreEngineAccess
 	do
 		local (for generator), (for state), (for control) = ipairs(units)
 		do
@@ -838,12 +835,10 @@ function Layer:prepare_replace(names, rules)
 
 	end
 
+	return data
 end
 
 function Layer:recreate_units(name, data)
--- fail 8
-null
-7
 	local units_to_select = {}
 	local reference_unit
 	self._continent_locked_picked = true
@@ -869,7 +864,6 @@ null
 
 			end
 
-			(for control) = continent and group.add_unit
 			if params.reference_unit then
 				reference_unit = new_unit
 			elseif params.selected then
@@ -893,6 +887,7 @@ null
 
 	end
 
+	self._replacing_units = false
 end
 
 function Layer:replace_unit(name, all)
@@ -908,7 +903,6 @@ function Layer:replace_unit(name, all)
 		end
 
 	else
-		(for control) = World:find_units_quick("all", self._selected_unit:slot()) and unit.name
 		local (for generator), (for state), (for control) = ipairs(self._selected_units)
 		do
 			do break end
@@ -920,7 +914,6 @@ function Layer:replace_unit(name, all)
 
 	end
 
-	(for control) = World:find_units_quick("all", self._selected_unit:slot()) and self._selected_unit
 	table.insert(replace_units, self._selected_unit)
 	self:_replace_units(name, replace_units)
 end
@@ -952,10 +945,9 @@ function Layer:_replace_units(name, replace_units)
 
 				end
 
-				do break end
-				reference_unit = new_unit
-				do break end
-				if table.contains(selected_units, unit) then
+				if unit == reference_unit then
+					reference_unit = new_unit
+				elseif table.contains(selected_units, unit) then
 					table.insert(units_to_select, new_unit)
 				end
 
@@ -966,7 +958,6 @@ function Layer:_replace_units(name, replace_units)
 
 	end
 
-	(for control) = nil and unit.unit_data
 	self:set_select_unit(nil)
 	self._replacing_units = true
 	self:set_select_unit(reference_unit)
@@ -979,6 +970,7 @@ function Layer:_replace_units(name, replace_units)
 
 	end
 
+	self._replacing_units = false
 end
 
 function Layer:use_grab_info()
@@ -1064,7 +1056,6 @@ function Layer:select_release()
 		end
 
 		self._selecting_many_units = false
-		(for control) = nil and self.set_select_unit
 		self:check_referens_exists()
 		managers.editor:selected_units(self._selected_units)
 		self:update_unit_settings()
@@ -1116,7 +1107,6 @@ function Layer:set_selected_units(units)
 
 	end
 
-	(for control) = nil and self.set_select_unit
 	Profiler:stop(id)
 	Profiler:counter_time("call_set_select_unit")
 	managers.editor:selected_units(self._selected_units)
@@ -1137,7 +1127,6 @@ function Layer:select_group(group)
 
 	end
 
-	(for control) = group:units() and self.add_highlighted_unit
 	managers.editor:group_selected(group)
 	self:recalc_all_locals()
 	self:update_unit_settings()
@@ -1479,7 +1468,6 @@ function Layer:clone_edited_values(unit, source)
 
 	end
 
-	(for control) = nil and unit.get_object
 	unit:unit_data().mesh_variation = source:unit_data().mesh_variation
 	if unit:unit_data().mesh_variation and unit:unit_data().mesh_variation ~= "default" then
 		managers.sequence:run_sequence_simple2(unit:unit_data().mesh_variation, "change_state", unit)
@@ -1526,7 +1514,7 @@ function Layer:set_enabled(enabled)
 
 	end
 
-	(for control) = nil and self._continent_locked
+	return true
 end
 
 function Layer:hide_all()
@@ -1567,7 +1555,6 @@ function Layer:clear()
 
 	end
 
-	(for control) = nil and alive
 	self._move_widget:set_enabled(false)
 	self:set_reference_unit(nil)
 	self:clear_selected_units_table()
@@ -1684,14 +1671,10 @@ function Layer:_get_sequence_file(unit_data, sequence_files)
 
 	end
 
-	(for control) = unit_data:unit_dependencies() and self._get_sequence_file
 	table.insert(sequence_files, unit_data:sequence_manager_filename())
 end
 
 function Layer:test_spawn(type)
--- fail 16
-null
-13
 	local pos = Vector3()
 	local rot = Rotation()
 	local i = 0
@@ -1732,7 +1715,7 @@ null
 					end
 
 					max_rad = 0
-					y_pos = 0 and y_pos + c_rad
+					y_pos = y_pos + c_rad
 					pos = Vector3()
 					row_units = {}
 				end
@@ -1753,7 +1736,6 @@ null
 
 	end
 
-	(for control) = nil and print
 	print("DONE")
 end
 

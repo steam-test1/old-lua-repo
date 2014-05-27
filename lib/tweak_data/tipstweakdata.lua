@@ -79,7 +79,6 @@ function TipsTweakData:get_a_tip()
 
 	end
 
-	(for control) = nil and tip.unlock_lvl
 	return ids[math.random(#ids)]
 end
 

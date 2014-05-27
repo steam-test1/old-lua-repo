@@ -153,7 +153,6 @@ function SpawnEnemyGroupUnitElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = nil and table
 	do
 		local (for generator), (for state), (for control) = ipairs(opt)
 		do
@@ -178,7 +177,6 @@ function SpawnEnemyGroupUnitElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = nil and EWS
 	filter_sizer:add(opt1_sizer, 1, 0, "EXPAND")
 	filter_sizer:add(opt2_sizer, 1, 0, "EXPAND")
 	filter_sizer:add(opt3_sizer, 1, 0, "EXPAND")

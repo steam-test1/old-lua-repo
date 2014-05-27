@@ -42,7 +42,6 @@ function Workbook:to_xml(f)
 
 	end
 
-	(for control) = nil and f.write
 	f:write(EMPTY_WORKBOOK_XML2)
 end
 

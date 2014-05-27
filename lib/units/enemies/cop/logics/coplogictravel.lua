@@ -78,7 +78,7 @@ function CopLogicTravel.enter(data, new_logic_name, enter_params)
 			end
 
 			my_data.advance_path = path
-			my_data.coarse_path_index = mvector3.copy(data.m_pos) and 1
+			my_data.coarse_path_index = 1
 			local start_seg = data.unit:movement():nav_tracker():nav_segment()
 			local end_pos = mvector3.copy(path[#path])
 			local end_seg = managers.navigation:get_nav_seg_from_pos(end_pos)
@@ -106,7 +106,6 @@ function CopLogicTravel.enter(data, new_logic_name, enter_params)
 			end
 
 			my_data.coarse_path = path
-			(for control) = end_seg and mvector3
 			my_data.coarse_path_index = CopLogicTravel.complete_coarse_path(data, my_data, path)
 		elseif path_style == "coarse_complete" then
 			my_data.coarse_path_index = 1
@@ -672,7 +671,6 @@ function CopLogicTravel._get_pos_accross_door(guard_door, nav_seg)
 
 		end
 
-		(for control) = math.random() and math
 		managers.navigation:destroy_nav_tracker(door_tracker)
 		return best_pos
 	end
@@ -1039,9 +1037,11 @@ function CopLogicTravel.complete_coarse_path(data, my_data, coarse_path)
 
 	end
 
-	do break end
-	start_index = math.min(start_index, #coarse_path - 1)
-	do return start_index end
+	if start_index then
+		start_index = math.min(start_index, #coarse_path - 1)
+		return start_index
+	end
+
 	local to_search_segs = {current_seg_id}
 	local found_segs = {
 		[current_seg_id] = "init"
@@ -1077,7 +1077,6 @@ function CopLogicTravel.complete_coarse_path(data, my_data, coarse_path)
 
 		end
 
-		(for control) = i_nav_point + 1 and all_nav_segs[other_seg_id]
 	until #to_search_segs == 0
 	return 1
 end
@@ -1114,7 +1113,7 @@ function CopLogicTravel.chk_group_ready_to_move(data, my_data)
 
 	end
 
-	(for control) = nil and data.key
+	return true
 end
 
 function CopLogicTravel.apply_wall_offset_to_cover(data, my_data, cover, wall_fwd_offset)
@@ -1187,7 +1186,6 @@ function CopLogicTravel._find_cover(data, search_nav_seg, near_pos)
 
 		end
 
-		(for control) = nil and managers
 		cover = managers.navigation:find_cover_from_threat(search_area.nav_segs, optimal_threat_dis, near_pos, threat_pos)
 	end
 
@@ -1214,10 +1212,8 @@ function CopLogicTravel._get_allowed_travel_nav_segs(data, my_data, to_pos)
 
 		end
 
-		(for control) = nil and added_segs[nav_seg_id]
 	end
 
-	(for control) = nil and managers
 	local end_nav_seg = managers.navigation:get_nav_seg_from_pos(to_pos, true)
 	local end_area = managers.groupai:state():get_area_from_nav_seg_id(end_nav_seg)
 	do
@@ -1233,7 +1229,6 @@ function CopLogicTravel._get_allowed_travel_nav_segs(data, my_data, to_pos)
 
 	end
 
-	(for control) = managers.groupai:state():get_area_from_nav_seg_id(nav_point[1]) and added_segs[nav_seg_id]
 	local standing_nav_seg = data.unit:movement():nav_tracker():nav_segment()
 	if not added_segs[standing_nav_seg] then
 		table.insert(nav_segs, standing_nav_seg)

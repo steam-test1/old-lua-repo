@@ -100,7 +100,6 @@ function ObjectInteractionManager:_update_targeted(player_pos, player_unit)
 
 	end
 
-	(for control) = nil and alive
 	for i = 1, self._close_freq do
 		if self._close_index >= self._interactive_count then
 			self._close_index = 1
@@ -176,8 +175,7 @@ function ObjectInteractionManager:_update_targeted(player_pos, player_unit)
 
 		end
 
-		do break end
-		if self._active_object ~= active_obj then
+		if active_obj and self._active_object ~= active_obj then
 			if alive(self._active_object) then
 				self._active_object:interaction():unselect()
 			end
@@ -229,13 +227,10 @@ function ObjectInteractionManager:_raycheck_ok(obj, camera_pos)
 
 	end
 
-	(for control) = nil and object.m_position
+	return false
 end
 
 function ObjectInteractionManager:_in_close_list(obj)
--- fail 9
-null
-4
 	if #self._close_objects > 0 then
 		local (for generator), (for state), (for control) = pairs(self._close_objects)
 		do
@@ -248,5 +243,6 @@ null
 
 	end
 
+	return false
 end
 

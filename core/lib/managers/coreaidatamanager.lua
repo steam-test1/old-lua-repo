@@ -118,7 +118,6 @@ function AiDataManager:patrol_path_names()
 
 	end
 
-	(for control) = nil and table
 	table.sort(t)
 	return t
 end
@@ -151,9 +150,9 @@ function AiDataManager:save_data()
 
 		end
 
-		(for control) = nil and point.unit
 	end
 
+	return t
 end
 
 function AiDataManager:load_data(data)

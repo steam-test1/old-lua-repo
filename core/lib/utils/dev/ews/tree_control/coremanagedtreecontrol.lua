@@ -36,7 +36,6 @@ function CoreManagedTreeControl:_eat_checkbox_style(styles)
 
 	end
 
-	(for control) = nil and self.CHECKBOX_STYLE_STR
 	return ret, checkbox_style
 end
 

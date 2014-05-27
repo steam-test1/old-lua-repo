@@ -159,7 +159,7 @@ function CoreUnderlayEffect:copy(from)
 
 	end
 
-	self._name = nil and from._name
+	self._name = from._name
 end
 
 function CoreUnderlayEffect:interpolate(postfx, with, scale)
@@ -179,7 +179,6 @@ function CoreUnderlayEffect:interpolate(postfx, with, scale)
 
 	end
 
-	(for control) = nil and with._materials
 	do
 		local (for generator), (for state), (for control) = pairs(with._materials)
 		do
@@ -196,7 +195,6 @@ function CoreUnderlayEffect:interpolate(postfx, with, scale)
 
 	end
 
-	(for control) = nil and postfx._materials
 	do
 		local (for generator), (for state), (for control) = pairs(self._materials)
 		do
@@ -206,7 +204,7 @@ function CoreUnderlayEffect:interpolate(postfx, with, scale)
 
 	end
 
-	self._name = nil and postfx._name
+	self._name = postfx._name
 end
 
 function CoreUnderlayEffect:interpolate_value(postfx, with, material, key, scale)

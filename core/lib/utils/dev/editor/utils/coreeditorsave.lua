@@ -57,18 +57,6 @@ function _light_data_table(unit)
 
 	end
 
-	(for control) = nil and {
-		name = light:name():s(),
-		enabled = light:enable(),
-		far_range = light:far_range(),
-		near_range = light:near_range(),
-		color = light:color(),
-		spot_angle_start = light:spot_angle_start(),
-		spot_angle_end = light:spot_angle_end(),
-		multiplier = CoreEditorUtils.get_intensity_preset(light:multiplier()):s(),
-		falloff_exponent = light:falloff_exponent(),
-		clipping_values = light:clipping_values()
-	}
 	return #t > 0 and t or nil
 end
 
@@ -94,7 +82,6 @@ function _triggers_data_table(unit)
 
 	end
 
-	(for control) = unit:name() and table
 	return #t > 0 and t or nil
 end
 
@@ -155,12 +142,6 @@ function save_layout(params)
 
 		end
 
-		(for control) = nil and {
-			class = CoreDebug.class_name(getmetatable(dialog)),
-			position = dialog:position(),
-			size = dialog:size(),
-			visible = dialog:visible()
-		}
 		local (for generator), (for state), (for control) = pairs(params.dialogs_settings)
 		do
 			do break end
@@ -177,7 +158,6 @@ function save_layout(params)
 
 	end
 
-	(for control) = nil and params.dialogs
 	local data = {
 		is_maximized = Global.frame:is_maximized(),
 		is_iconized = Global.frame:is_iconized(),
@@ -205,7 +185,6 @@ function load_layout(params)
 
 	end
 
-	(for control) = params.file:read() and params.dialogs_settings
 	if not data.is_maximized and not data.is_iconized then
 		Global.frame:maximize(data.is_maximized)
 		Global.frame:set_size(data.size)

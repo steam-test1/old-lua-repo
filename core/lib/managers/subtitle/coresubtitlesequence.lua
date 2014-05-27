@@ -56,7 +56,6 @@ function SubtitleSequence:_load_from_xml(sequence_node)
 
 	end
 
-	(for control) = "name" and self._xml_assert
 	CoreClass.freeze(self.__subtitles)
 end
 

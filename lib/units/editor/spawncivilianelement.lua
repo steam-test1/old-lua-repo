@@ -110,7 +110,7 @@ function SpawnCivilianUnitElement:stop_test_element()
 
 	end
 
-	self._enemies = nil and {}
+	self._enemies = {}
 end
 
 function SpawnCivilianUnitElement:select_civilian_btn()
@@ -202,7 +202,6 @@ function SpawnCivilianUnitElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = 1 and table
 	local pickup_params = {
 		name = "Force Pickup:",
 		panel = panel,

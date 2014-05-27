@@ -52,6 +52,6 @@ function ElementSpawnUnit:delete_units()
 
 	end
 
-	self._units = nil and {}
+	self._units = {}
 end
 

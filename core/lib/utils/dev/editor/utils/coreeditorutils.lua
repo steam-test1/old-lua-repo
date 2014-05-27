@@ -16,9 +16,9 @@ function all_lights()
 
 		end
 
-		(for control) = unit:get_objects_by_type(Idstring("light")) and table
 	end
 
+	return lights
 end
 
 function get_editable_lights(unit)
@@ -43,9 +43,9 @@ function get_editable_lights(unit)
 
 		end
 
-		(for control) = unit:name():id() and light.has_parameter
 	end
 
+	return lights
 end
 
 function has_projection_light(unit)
@@ -69,10 +69,9 @@ function has_projection_light(unit)
 
 		end
 
-		(for control) = unit:name():id() and light.has_parameter
 	end
 
-	(for control) = unit:name():id() and child.name
+	return nil
 end
 
 function is_projection_light(unit, light)
@@ -96,10 +95,9 @@ function is_projection_light(unit, light)
 
 		end
 
-		(for control) = unit:name():id() and light_node.has_parameter
 	end
 
-	(for control) = unit:name():id() and child.name
+	return false
 end
 
 function intensity_value()
@@ -113,7 +111,6 @@ function intensity_value()
 
 	end
 
-	(for control) = LightIntensityDB:list() and table
 	table.sort(t)
 	return t
 end
@@ -166,7 +163,6 @@ function _get_sequence_file(unit_data, sequence_files)
 
 	end
 
-	(for control) = unit_data:unit_dependencies() and _get_sequence_file
 	table.insert(sequence_files, unit_data:sequence_manager_filename())
 end
 
@@ -201,10 +197,8 @@ function parse_layer_types()
 
 		end
 
-		(for control) = nil and table
 	end
 
-	(for control) = "core/settings/editor_types" and layer_types
 	if DB:has("xml", "settings/editor_types") then
 		local node = DB:load_node("xml", "settings/editor_types")
 		local (for generator), (for state), (for control) = node:children()
@@ -293,7 +287,6 @@ function dump_mesh(units, name, get_objects_string)
 
 			end
 
-			(for control) = #objs and cat_print
 			objs = u:get_objects("gfx_*")
 			cat_print("editor", "insert objs", #objs)
 			local (for generator), (for state), (for control) = ipairs(objs)
@@ -305,10 +298,8 @@ function dump_mesh(units, name, get_objects_string)
 
 		end
 
-		(for control) = #objs and cat_print
 	end
 
-	(for control) = #units and 1
 	cat_print("editor", "  Dumped " .. #objects .. " objects")
 	MeshDumper:dump_meshes(managers.database:root_path() .. name, objects, Rotation(Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3(0, -1, 0)))
 end
@@ -341,7 +332,6 @@ function dump_all(units, name, get_objects_string)
 
 				end
 
-				(for control) = managers.slot:get_mask("dump_all") and string
 				if #objs > 0 then
 					cat_print("editor", "enough lods, time to break")
 					break
@@ -368,10 +358,8 @@ function dump_all(units, name, get_objects_string)
 
 		end
 
-		(for control) = #objs and cat_print
 	end
 
-	(for control) = #units and {}
 	cat_print("editor", "  Starting dump of " .. #objects .. " objects...")
 	MeshDumper:dump_meshes(managers.database:root_path() .. name, objects, Rotation(Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3(0, -1, 0)))
 	cat_print("editor", "  .. dumping done.")

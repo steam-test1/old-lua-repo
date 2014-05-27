@@ -180,8 +180,7 @@ function MenuInput:mouse_moved(o, x, y, mouse_ws)
 
 	end
 
-	do break end
-	do
+	if select_item then
 		local selected_item = managers.menu:active_menu().logic:selected_item()
 		if not selected_item or select_item ~= selected_item:name() then
 			managers.menu:active_menu().logic:mouse_over_select_item(select_item, false)
@@ -216,7 +215,6 @@ function MenuInput:mouse_moved(o, x, y, mouse_ws)
 
 	end
 
-	(for control) = nil and clbk
 	managers.mouse_pointer:set_pointer_image("arrow")
 end
 
@@ -463,7 +461,6 @@ function MenuInput:mouse_pressed(o, button, x, y)
 
 	end
 
-	(for control) = nil and row_item.item
 	if managers.menu:active_menu().renderer:mouse_pressed(o, button, x, y) then
 		return
 	end
@@ -506,7 +503,6 @@ function MenuInput:mouse_clicked(o, button, x, y)
 
 	end
 
-	(for control) = y and clbk
 	if not managers.menu:active_menu().renderer.mouse_clicked then
 		return
 	end
@@ -525,7 +521,6 @@ function MenuInput:mouse_double_click(o, button, x, y)
 
 	end
 
-	(for control) = y and clbk
 	if not managers.menu:active_menu().renderer.mouse_double_click then
 		return
 	end
@@ -646,21 +641,17 @@ function MenuInput:update(t, dt)
 
 		end
 
-	else
-		(for control) = "menu_remove_item" and self._accept_input
-		if self._controller and managers.menu:active_menu().renderer.special_btn_pressed then
-			if self._controller:get_input_pressed("menu_toggle_voice_message") then
-				managers.menu:active_menu().renderer:special_btn_pressed(Idstring("voice_message"))
-			end
+	elseif self._controller and managers.menu:active_menu().renderer.special_btn_pressed then
+		if self._controller:get_input_pressed("menu_toggle_voice_message") then
+			managers.menu:active_menu().renderer:special_btn_pressed(Idstring("voice_message"))
+		end
 
-			if self._controller:get_input_pressed("menu_casino_bet") then
-				managers.menu:active_menu().renderer:special_btn_pressed(Idstring("start_bet"))
-			end
+		if self._controller:get_input_pressed("menu_casino_bet") then
+			managers.menu:active_menu().renderer:special_btn_pressed(Idstring("start_bet"))
+		end
 
-			if self._controller:get_input_pressed("toggle_chat") then
-				managers.menu:active_menu().renderer:special_btn_pressed(Idstring("toggle_chat"))
-			end
-
+		if self._controller:get_input_pressed("toggle_chat") then
+			managers.menu:active_menu().renderer:special_btn_pressed(Idstring("toggle_chat"))
 		end
 
 	end

@@ -101,9 +101,9 @@ function ElementSpawnEnemyGroup:units()
 
 		end
 
-		(for control) = nil and table
 	end
 
+	return all_units
 end
 
 function ElementSpawnEnemyGroup:unspawn_all_units()

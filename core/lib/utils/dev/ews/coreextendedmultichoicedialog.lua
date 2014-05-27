@@ -53,7 +53,6 @@ function CoreExtendedMultiChoiceDialog:show_modal()
 
 	end
 
-	(for control) = nil and self._left_list_box
 	return self._dialog:show_modal()
 end
 

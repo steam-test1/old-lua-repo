@@ -6,9 +6,6 @@ core:import("CoreMath")
 core:import("CoreEws")
 WireLayer = WireLayer or class(CoreLayer.Layer)
 function WireLayer:init(owner, save_name, units_vector, slot_mask)
--- fail 27
-null
-7
 	WireLayer.super.init(self, owner, save_name or "wires")
 	self._current_pos = Vector3(0, 0, 0)
 	self._current_rot = Rotation()
@@ -157,7 +154,6 @@ function WireLayer:update(t, dt)
 
 	end
 
-	(for control) = u_rot:x() - z * z:dot(u_rot:x()):normalized() and alive
 	Application:draw_sphere(self._current_pos, 10, 0, 1, 0)
 	if self._selected_unit then
 		if self._creating_wire or self._grab then

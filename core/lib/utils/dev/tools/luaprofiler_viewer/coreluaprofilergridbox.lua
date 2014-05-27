@@ -72,7 +72,6 @@ function LuaProfilerGridBox:set_profilerdata(...)
 
 	end
 
-	(for control) = "number:displayformat" and self._listctrl
 	for i = 0, self._lpd:numheaders() - 1 do
 		local name = self._lpd:headername(i)
 		self._listctrl:append_column("Diff " .. string.capitalize(name), "")
@@ -142,7 +141,6 @@ function LuaProfilerGridBox:_redraw()
 
 		end
 
-		(for control) = nil and self._listctrl
 		if self._highlightedfuncnode then
 			self:_highlight(self._highlightedfuncnode)
 		end

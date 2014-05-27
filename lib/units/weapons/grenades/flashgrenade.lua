@@ -18,7 +18,6 @@ function FlashGrenade:_detonate()
 
 	end
 
-	(for control) = 400 and {}
 	self._unit:set_slot(0)
 end
 

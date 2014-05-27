@@ -60,6 +60,7 @@ function NetworkFriendsPSN:get_friends_list()
 
 	end
 
+	return npids
 end
 
 function NetworkFriendsPSN:get_names_friends_list()
@@ -85,6 +86,7 @@ function NetworkFriendsPSN:get_names_friends_list()
 
 	end
 
+	return names
 end
 
 function NetworkFriendsPSN:get_npid_friends_list()
@@ -106,6 +108,7 @@ function NetworkFriendsPSN:get_npid_friends_list()
 
 	end
 
+	return npids
 end
 
 function NetworkFriendsPSN:get_friends()
@@ -151,7 +154,6 @@ function NetworkFriendsPSN:get_friends()
 
 		end
 
-		(for control) = nil and tostring
 		self:call_callback("get_friends_done", self._friends)
 	end
 
@@ -207,7 +209,6 @@ function NetworkFriendsPSN:psn_update_friends()
 
 		end
 
-		(for control) = nil and self._last_info
 		do
 			local (for generator), (for state), (for control) = pairs(self._last_info.friends_map)
 			do
@@ -218,7 +219,6 @@ function NetworkFriendsPSN:psn_update_friends()
 
 		end
 
-		(for control) = nil and true
 		self:_fill_li_friends_map(friends)
 		if change_of_friends then
 			self._last_info.friends = #friends
@@ -252,7 +252,7 @@ function NetworkFriendsPSN:is_friend(id)
 
 	end
 
-	(for control) = nil and data.friend
+	return false
 end
 
 function NetworkFriendsPSN:_fill_li_friends_map(friends)
@@ -298,8 +298,10 @@ function NetworkFriendsPSN:_count_online(friends)
 
 	end
 
-	do break end
-	do return false end
+	if not status_changed then
+		return false
+	end
+
 	self:_fill_li_friends_status_map(friends)
 	return true
 end

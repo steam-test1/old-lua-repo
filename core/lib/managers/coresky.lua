@@ -57,7 +57,7 @@ function CoreSky:copy(from)
 
 	end
 
-	self._name = nil and from._name
+	self._name = from._name
 end
 
 function CoreSky:interpolate(target, with, scale)
@@ -78,7 +78,7 @@ function CoreSky:interpolate(target, with, scale)
 
 	end
 
-	self._name = nil and with._name
+	self._name = with._name
 end
 
 function CoreSky:database_lookup(str)

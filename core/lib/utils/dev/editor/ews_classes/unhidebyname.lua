@@ -27,7 +27,6 @@ function UnhideByName:init(...)
 
 	end
 
-	(for control) = "" and table
 	table.sort(names_layers)
 	do
 		local (for generator), (for state), (for control) = ipairs(names_layers)
@@ -43,7 +42,6 @@ function UnhideByName:init(...)
 
 	end
 
-	(for control) = "" and EWS
 	local layer_buttons_sizer = EWS:BoxSizer("HORIZONTAL")
 	local all_btn = EWS:Button(self._panel, "All", "", "BU_EXACTFIT,NO_BORDER")
 	layer_buttons_sizer:add(all_btn, 0, 2, "TOP,BOTTOM")
@@ -111,7 +109,6 @@ function UnhideByName:build_continent_cbs()
 
 	end
 
-	(for control) = nil and table
 	table.sort(self._continent_names)
 	local (for generator), (for state), (for control) = ipairs(self._continent_names)
 	do
@@ -140,7 +137,7 @@ function UnhideByName:on_all_layers()
 
 	end
 
-	(for control) = nil or cb.set_value
+	self:fill_unit_list()
 end
 
 function UnhideByName:on_none_layers()
@@ -153,7 +150,7 @@ function UnhideByName:on_none_layers()
 
 	end
 
-	(for control) = nil and cb.set_value
+	self:fill_unit_list()
 end
 
 function UnhideByName:on_invert_layers()
@@ -166,7 +163,7 @@ function UnhideByName:on_invert_layers()
 
 	end
 
-	(for control) = nil and cb.set_value
+	self:fill_unit_list()
 end
 
 function UnhideByName:on_all_continents()
@@ -179,7 +176,7 @@ function UnhideByName:on_all_continents()
 
 	end
 
-	(for control) = nil or cb.set_value
+	self:fill_unit_list()
 end
 
 function UnhideByName:on_none_continents()
@@ -192,7 +189,7 @@ function UnhideByName:on_none_continents()
 
 	end
 
-	(for control) = nil and cb.set_value
+	self:fill_unit_list()
 end
 
 function UnhideByName:on_invert_continents()
@@ -205,7 +202,7 @@ function UnhideByName:on_invert_continents()
 
 	end
 
-	(for control) = nil and cb.set_value
+	self:fill_unit_list()
 end
 
 function UnhideByName:key_cancel(ctrlr, event)
@@ -235,7 +232,6 @@ function UnhideByName:on_unhide()
 
 	end
 
-	(for control) = self:_selected_item_units() and managers
 	managers.editor:thaw_gui_lists()
 end
 
@@ -250,7 +246,6 @@ function UnhideByName:on_delete()
 
 	end
 
-	(for control) = self:_selected_item_units() and managers
 	managers.editor:thaw_gui_lists()
 end
 
@@ -269,6 +264,7 @@ function UnhideByName:_selected_item_units()
 
 	end
 
+	return units
 end
 
 function UnhideByName:_selected_item_unit()
@@ -368,10 +364,8 @@ function UnhideByName:fill_unit_list()
 
 		end
 
-		(for control) = layer:created_units() and self._continent_ok
 	end
 
-	(for control) = nil and self._layer_cbs
 	self._list:thaw()
 	self._list:autosize_column(0)
 end
@@ -408,7 +402,7 @@ function UnhideByName:recreate()
 
 	end
 
-	(for control) = nil and self._continents_sizer
+	self:build_continent_cbs()
 	self:fill_unit_list()
 	self._panel:layout()
 end

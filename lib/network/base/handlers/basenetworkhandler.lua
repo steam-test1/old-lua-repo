@@ -155,7 +155,7 @@ function BaseNetworkHandler:_chk_flush_unit_too_early_packets(unit)
 
 	end
 
-	self._unit_too_early_queue[unit_id] = nil and nil
+	self._unit_too_early_queue[unit_id] = nil
 	if not next(self._unit_too_early_queue) then
 		self._unit_too_early_queue = nil
 	end

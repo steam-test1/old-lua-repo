@@ -77,7 +77,6 @@ function EditUnitTriggable:build_element_gui(data)
 
 	end
 
-	(for control) = "" and trigger.append
 	trigger:set_value(sequence)
 	sizer:add(trigger, 3, 0, "EXPAND")
 	local time = EWS:TextCtrl(panel, t, "", "TE_CENTRE")
@@ -121,7 +120,7 @@ function EditUnitTriggable:clear_element_gui()
 
 	end
 
-	self._element_guis = nil and {}
+	self._element_guis = {}
 end
 
 function EditUnitTriggable:add_unit_btn()
@@ -162,7 +161,6 @@ function EditUnitTriggable:update_element_gui()
 
 	end
 
-	(for control) = nil and data.trigger_name
 	if #self._element_guis == 0 then
 		local panel = self:build_element_gui({})
 		panel:set_enabled(false)

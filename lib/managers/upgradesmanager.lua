@@ -139,6 +139,7 @@ function UpgradesManager:_autochange_tree(exlude_tree)
 
 	end
 
+	return n_tree
 end
 
 function UpgradesManager:aquired(id)
@@ -394,7 +395,6 @@ function UpgradesManager:get_value(upgrade_id, ...)
 
 		end
 
-		(for control) = nil and data.upgrades
 		return is_default_weapon, weapon_level, weapon_id ~= new_weapon_id
 	elseif upgrade.category == "melee_weapon" then
 		local params = {
@@ -418,7 +418,6 @@ function UpgradesManager:get_value(upgrade_id, ...)
 
 		end
 
-		(for control) = ... and data.upgrades
 		return is_default_weapon, melee_weapon_level
 	end
 
@@ -443,9 +442,6 @@ function UpgradesManager:get_upgrade_locks(upgrade_id)
 end
 
 function UpgradesManager:is_upgrade_locked(upgrade_id)
--- fail 8
-null
-5
 	local locks = self:get_upgrade_locks(upgrade_id)
 	do
 		local (for generator), (for state), (for control) = pairs(locks)
@@ -460,6 +456,7 @@ null
 
 	end
 
+	return false
 end
 
 function UpgradesManager:is_locked(step)
@@ -476,7 +473,7 @@ function UpgradesManager:is_locked(step)
 
 	end
 
-	(for control) = nil and d.level
+	return false
 end
 
 function UpgradesManager:get_level_from_step(step)
@@ -492,7 +489,7 @@ function UpgradesManager:get_level_from_step(step)
 
 	end
 
-	(for control) = nil and d.step
+	return 0
 end
 
 function UpgradesManager:progress()
@@ -624,6 +621,7 @@ function UpgradesManager:aquired_by_category(category)
 
 	end
 
+	return t
 end
 
 function UpgradesManager:aquired_features()
@@ -681,7 +679,6 @@ function UpgradesManager:print_aquired_tree()
 
 	end
 
-	(for control) = nil and data.level
 	local (for generator), (for state), (for control) = pairs(tree)
 	do
 		do break end
@@ -691,9 +688,6 @@ function UpgradesManager:print_aquired_tree()
 end
 
 function UpgradesManager:analyze()
--- fail 47
-null
-17
 	local not_placed = {}
 	local placed = {}
 	local features = {}
@@ -711,10 +705,8 @@ null
 
 		end
 
-		(for control) = ":" and print
 	end
 
-	(for control) = nil and print
 	do
 		local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.definitions)
 		do
@@ -747,7 +739,6 @@ null
 
 			end
 
-			(for control) = ":" and ipairs
 			if not placed[name] then
 				not_placed[name] = true
 			end
@@ -756,7 +747,6 @@ null
 
 	end
 
-	(for control) = nil and amount + 1
 	do
 		local (for generator), (for state), (for control) = pairs(placed)
 		do
@@ -766,7 +756,6 @@ null
 
 	end
 
-	(for control) = nil and print
 	do
 		local (for generator), (for state), (for control) = pairs(not_placed)
 		do
@@ -776,7 +765,6 @@ null
 
 	end
 
-	(for control) = nil and print
 	print("")
 	do
 		local (for generator), (for state), (for control) = pairs(features)
@@ -791,10 +779,8 @@ null
 
 		end
 
-		(for control) = " is recieved at:" and print
 	end
 
-	(for control) = nil and print
 	print([[
 
 Total upgrades ]] .. amount .. ".")
@@ -828,7 +814,6 @@ function UpgradesManager:tree_stats()
 
 	end
 
-	(for control) = {} and d.tree
 	local (for generator), (for state), (for control) = ipairs(t)
 	do
 		do break end
@@ -856,6 +841,7 @@ function UpgradesManager:save(data)
 
 	end
 
+	data.UpgradesManager = state
 end
 
 function UpgradesManager:load(data)

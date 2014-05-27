@@ -130,15 +130,17 @@ function CopLogicIntimidated._update_enemy_detection(data, my_data)
 
 	end
 
-	do break end
-	my_data.surrender_clbk_registered = nil
-	local new_action = {
-		type = "act",
-		variant = "idle",
-		body_part = 1
-	}
-	data.unit:brain():action_request(new_action)
-	data.unit:brain():set_logic("idle")
+	if fight then
+		my_data.surrender_clbk_registered = nil
+		local new_action = {
+			type = "act",
+			variant = "idle",
+			body_part = 1
+		}
+		data.unit:brain():action_request(new_action)
+		data.unit:brain():set_logic("idle")
+	end
+
 end
 
 function CopLogicIntimidated.action_complete_clbk(data, action)

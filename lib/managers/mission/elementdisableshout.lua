@@ -31,7 +31,6 @@ function ElementDisableShout:on_executed(instigator)
 
 	end
 
-	(for control) = nil and self.get_mission_element
 	ElementDisableShout.super.on_executed(self, instigator)
 end
 

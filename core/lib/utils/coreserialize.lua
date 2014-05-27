@@ -21,9 +21,6 @@ function string_to_classtable(s)
 end
 
 function classtable_to_string(ct)
--- fail 9
-null
-4
 	local module_name = core:_module_to_name(ct.__module__)
 	do
 		local (for generator), (for state), (for control) = pairs(ct.__module__)

@@ -65,9 +65,9 @@ function ShapeManager:parse(shape)
 
 		end
 
-		(for control) = shape:parameter("rotation") and value.parameter
 	end
 
+	return t
 end
 
 local mvec1 = Vector3()
@@ -263,6 +263,7 @@ function Shape:save_level_data()
 
 	end
 
+	return t
 end
 
 function Shape:destroy()

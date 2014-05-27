@@ -3970,43 +3970,21 @@ function CharacterTweakData:_presets(tweak_data)
 
 				end
 
-				do break end
-				local (for generator), (for state), (for control) = pairs(reason_data.variations)
-				do
-					do break end
-					variation_data.chance = variation_data.chance / total_w
+				if total_w > 0 then
+					local (for generator), (for state), (for control) = pairs(reason_data.variations)
+					do
+						do break end
+						variation_data.chance = variation_data.chance / total_w
+					end
+
 				end
 
 			end
 
-			(for control) = nil and variation_data.chance
 		end
 
-		(for control) = 2 and 0
 	end
 
-	(for control) = {
-		chance = 0.9,
-		check_timeout = {0, 3},
-		variations = {
-			side_step = {
-				chance = 5,
-				timeout = {1, 2}
-			},
-			roll = {
-				chance = 3,
-				timeout = {1.2, 2}
-			},
-			wheel = {
-				chance = 3,
-				timeout = {1.2, 2}
-			},
-			dive = {
-				chance = 1,
-				timeout = {1.2, 2}
-			}
-		}
-	} and pairs
 	presets.move_speed = {
 		civ_fast = {
 			stand = {
@@ -4435,7 +4413,6 @@ function CharacterTweakData:_presets(tweak_data)
 
 			end
 
-			(for control) = 2 and hastes.run
 			poses.crouch.walk.ntl = poses.crouch.walk.hos
 			poses.crouch.run.ntl = poses.crouch.run.hos
 			poses.stand.run.ntl = poses.stand.run.hos
@@ -4444,32 +4421,7 @@ function CharacterTweakData:_presets(tweak_data)
 
 	end
 
-	presets.surrender, (for control) = {}, {
-		walk = {
-			hos = {
-				fwd = 245,
-				strafe = 210,
-				bwd = 190
-			},
-			cbt = {
-				fwd = 255,
-				strafe = 190,
-				bwd = 190
-			}
-		},
-		run = {
-			hos = {
-				fwd = 350,
-				strafe = 282,
-				bwd = 268
-			},
-			cbt = {
-				fwd = 312,
-				strafe = 282,
-				bwd = 268
-			}
-		}
-	} and pairs
+	presets.surrender = {}
 	presets.surrender.easy = {
 		base_chance = 0.75,
 		significant_chance = 0.1,
@@ -4667,7 +4619,6 @@ function CharacterTweakData:_process_weapon_usage_table(weap_usage_table)
 				end
 
 				local prev_value
-				(for control) = nil and total + value
 				local (for generator), (for state), (for control) = ipairs(modes)
 				do
 					do break end
@@ -5369,7 +5320,6 @@ function CharacterTweakData:_multiply_all_speeds(walk_mul, run_mul)
 
 	end
 
-	(for control) = "swat" and self[name]
 	self.security.SPEED_RUN = self.security.SPEED_RUN * run_mul
 	self.cop.SPEED_RUN = self.cop.SPEED_RUN * run_mul
 	self.fbi.SPEED_RUN = self.fbi.SPEED_RUN * run_mul

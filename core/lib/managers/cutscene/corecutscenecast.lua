@@ -7,9 +7,6 @@ function CoreCutsceneCast:prime(cutscene)
 end
 
 function CoreCutsceneCast:unload()
--- fail 8
-null
-3
 	do
 		local (for generator), (for state), (for control) = pairs(self._animation_blob_controllers or {})
 		do
@@ -41,7 +38,6 @@ null
 	end
 
 	self._spawned_units = nil
-	(for control) = nil and alive
 	if alive(self.__root_unit) then
 		World:delete_unit(self.__root_unit)
 	end
@@ -167,6 +163,7 @@ function CoreCutsceneCast:evaluate_cutscene_at_time(cutscene, time)
 
 	end
 
+	self._last_evaluated_cutscene = cutscene
 end
 
 function CoreCutsceneCast:evaluate_object_at_time(cutscene, unit_name, object_name, time)
@@ -336,6 +333,7 @@ function CoreCutsceneCast:_actor_units_in_cutscene(cutscene)
 
 	end
 
+	return result
 end
 
 function CoreCutsceneCast:_root_unit()

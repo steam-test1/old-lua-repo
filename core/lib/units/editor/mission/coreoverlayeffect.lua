@@ -70,7 +70,6 @@ function CoreOverlayEffectUnitElement:_build_panel(panel, panel_sizer)
 
 	end
 
-	(for control) = managers.overlay_effect:presets() and table
 	local effect_params = {
 		name = "Effect:",
 		panel = panel,

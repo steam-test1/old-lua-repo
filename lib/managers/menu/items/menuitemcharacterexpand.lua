@@ -155,6 +155,7 @@ function MenuItemCharacterExpand:get_h(row_item, node)
 
 	end
 
+	return h
 end
 
 function MenuItemCharacterExpand:reload(row_item, node)

@@ -76,7 +76,6 @@ function CopDamage:get_damage_type(damage_percent, category)
 
 	end
 
-	(for control) = nil and hurt_table.zones
 	local rand_nr = math.random()
 	local total_w = 0
 	do
@@ -96,7 +95,7 @@ function CopDamage:get_damage_type(damage_percent, category)
 
 	end
 
-	(for control) = test_zone.health_limit and zone[sev_name]
+	return "dmg_rcv"
 end
 
 function CopDamage:is_head(body)
@@ -312,16 +311,18 @@ function CopDamage:damage_bullet(attack_data)
 
 					end
 
-					do break end
-					local spooc_action = self._unit:movement()._active_actions[1]
-					if spooc_action and spooc_action:type() == "spooc" then
-						if spooc_action:is_flying_strike() then
-							if attack_weapon:base():weapon_tweak_data().category == tweak_data.achievement.in_town_you_are_law.weapon_type then
-								managers.achievment:award(tweak_data.achievement.in_town_you_are_law.award)
+					if unit_type == "spooc" then
+						local spooc_action = self._unit:movement()._active_actions[1]
+						if spooc_action and spooc_action:type() == "spooc" then
+							if spooc_action:is_flying_strike() then
+								if attack_weapon:base():weapon_tweak_data().category == tweak_data.achievement.in_town_you_are_law.weapon_type then
+									managers.achievment:award(tweak_data.achievement.in_town_you_are_law.award)
+								end
+
+							elseif not spooc_action:has_striken() and attack_weapon:base().name_id == tweak_data.achievement.dont_push_it.weapon then
+								managers.achievment:award(tweak_data.achievement.dont_push_it.award)
 							end
 
-						elseif not spooc_action:has_striken() and attack_weapon:base().name_id == tweak_data.achievement.dont_push_it.weapon then
-							managers.achievment:award(tweak_data.achievement.dont_push_it.award)
 						end
 
 					end
@@ -486,9 +487,6 @@ function CopDamage:damage_explosion(attack_data)
 end
 
 function CopDamage:damage_melee(attack_data)
--- fail 298
-null
-26
 	if self._dead or self._invulnerable then
 		return
 	end
@@ -580,8 +578,7 @@ null
 
 					end
 
-					do break end
-					if enemy_pass and diff_pass and health_pass then
+					if type_pass and enemy_pass and diff_pass and health_pass then
 						if achievement_data.stat then
 							managers.achievment:award_progress(achievement_data.stat)
 						elseif achievement_data.award then
@@ -594,8 +591,7 @@ null
 
 			end
 
-			do break end
-			if not self:_type_gangster(self._unit:base()._tweak_table) and Global.game_settings.level_id == "nightclub" and attack_data.name_id and attack_data.name_id == "fists" then
+			if not is_civlian and not self:_type_gangster(self._unit:base()._tweak_table) and Global.game_settings.level_id == "nightclub" and attack_data.name_id and attack_data.name_id == "fists" then
 				managers.achievment:award_progress(tweak_data.achievement.final_rule.stat)
 			end
 
@@ -693,12 +689,14 @@ function CopDamage:get_ranged_attack_autotarget_data(shoot_from_pos, aim_vec)
 
 		end
 
-		do break end
-		autotarget_data = {body = uncovered_body}
-		do break end
-		autotarget_data = {
-			body = self._unit:body("b_spine1")
-		}
+		if uncovered_body then
+			autotarget_data = {body = uncovered_body}
+		else
+			autotarget_data = {
+				body = self._unit:body("b_spine1")
+			}
+		end
+
 	end
 
 	return autotarget_data
@@ -1235,9 +1233,6 @@ function CopDamage:on_marked_state(state)
 end
 
 function CopDamage:_get_attack_variant_index(variant)
--- fail 5
-null
-4
 	do
 		local (for generator), (for state), (for control) = ipairs(self._ATTACK_VARIANTS)
 		do

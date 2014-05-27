@@ -52,7 +52,6 @@ function ObjectivesManager:_parse_objective(data)
 
 	end
 
-	(for control) = nil and managers
 	self._objectives[id] = {
 		text = text,
 		description = description,
@@ -119,9 +118,6 @@ function ObjectivesManager:update_objective(id, load_data)
 end
 
 function ObjectivesManager:activate_objective(id, load_data, data)
--- fail 40
-null
-7
 	if not id or not self._objectives[id] then
 		Application:stack_dump_error("Bad id to activate objective, " .. tostring(id) .. ".")
 		return
@@ -141,8 +137,7 @@ null
 
 	end
 
-	do break end
-	objective.current_amount = load_data.current_amount or data and data.amount and 0 or objective.current_amount
+	objective.current_amount = load_data and load_data.current_amount or data and data.amount and 0 or objective.current_amount
 	objective.amount = load_data and load_data.amount or data and data.amount or objective.amount
 	managers.hud:activate_objective({
 		id = id,
@@ -287,8 +282,10 @@ function ObjectivesManager:complete_sub_objective(id, sub_id, load_data)
 
 	end
 
-	do break end
-	self:complete_objective(id)
+	if completed then
+		self:complete_objective(id)
+	end
+
 end
 
 function ObjectivesManager:objective_is_active(id)
@@ -332,7 +329,6 @@ function ObjectivesManager:objectives_by_name()
 
 	end
 
-	(for control) = nil and table
 	table.sort(t)
 	return t
 end
@@ -349,7 +345,6 @@ function ObjectivesManager:sub_objectives_by_name(id)
 
 	end
 
-	(for control) = nil and table
 	table.sort(t)
 	return t
 end
@@ -389,6 +384,7 @@ function ObjectivesManager:_total_xp_weight(level_id)
 
 	end
 
+	return xp_weight
 end
 
 function ObjectivesManager:_check_xp_weight(level_id)
@@ -405,7 +401,6 @@ function ObjectivesManager:_check_xp_weight(level_id)
 
 	end
 
-	(for control) = nil and math
 	print("total", total_xp)
 end
 
@@ -424,6 +419,7 @@ function ObjectivesManager:total_objectives(level_id)
 
 	end
 
+	return i
 end
 
 function ObjectivesManager:save(data)
@@ -449,7 +445,6 @@ function ObjectivesManager:save(data)
 
 				end
 
-				(for control) = nil and save_data.sub_objective
 				if self._completed_objectives[name] then
 					save_data.complete = true
 				end
@@ -467,7 +462,7 @@ function ObjectivesManager:save(data)
 		end
 
 		state.objective_map = objective_map
-		data.ObjectivesManager = nil and state
+		data.ObjectivesManager = state
 		return true
 	else
 		return false
@@ -476,9 +471,6 @@ function ObjectivesManager:save(data)
 end
 
 function ObjectivesManager:load(data)
--- fail 27
-null
-11
 	local state = data.ObjectivesManager
 	if state then
 		self._completed_objectives_ordered = state.completed_objectives_ordered

@@ -71,9 +71,6 @@ function GroupAIStateBesiege:_queue_police_upd_task()
 end
 
 function GroupAIStateBesiege:assign_enemy_to_group_ai(unit)
--- fail 23
-null
-14
 	local u_tracker = unit:movement():nav_tracker()
 	local seg = u_tracker:nav_segment()
 	local area = self:get_area_from_nav_seg_id(seg)
@@ -97,7 +94,6 @@ null
 
 	end
 
-	(for control) = nil and ipairs
 	local group_desc = {
 		type = u_category or "custom",
 		size = 1
@@ -213,11 +209,13 @@ function GroupAIStateBesiege:_upd_SO()
 
 	end
 
-	do break end
-	local (for generator), (for state), (for control) = ipairs(trash)
-	do
-		do break end
-		self:remove_special_objective(so_id)
+	if trash then
+		local (for generator), (for state), (for control) = ipairs(trash)
+		do
+			do break end
+			self:remove_special_objective(so_id)
+		end
+
 	end
 
 end
@@ -270,7 +268,6 @@ function GroupAIStateBesiege:_begin_new_tasks()
 
 			end
 
-			(for control) = nil and sp_data.delay_t
 			if not found_areas[area_id] and area.spawn_groups then
 				local (for generator), (for state), (for control) = pairs(area.spawn_groups)
 				do
@@ -287,10 +284,8 @@ function GroupAIStateBesiege:_begin_new_tasks()
 
 		end
 
-		(for control) = nil and sp_data.delay_t
 	end
 
-	(for control) = nil and area.spawn_points
 	if #to_search_areas == 0 then
 		return
 	end
@@ -312,7 +307,7 @@ function GroupAIStateBesiege:_begin_new_tasks()
 
 	local i = 1
 	repeat
-		local area = nil and to_search_areas[i]
+		local area = to_search_areas[i]
 		local force_factor = area.factors.force
 		local demand = force_factor and force_factor.force
 		local nr_police = table.size(area.police.units)
@@ -332,8 +327,10 @@ function GroupAIStateBesiege:_begin_new_tasks()
 
 			end
 
-			do break end
-			table.insert(reenforce_candidates, area)
+			if area_free then
+				table.insert(reenforce_candidates, area)
+			end
+
 		end
 
 		if recon_candidates and (area.loot or area.hostages) then
@@ -351,18 +348,20 @@ function GroupAIStateBesiege:_begin_new_tasks()
 
 			end
 
-			do break end
-			local is_area_safe = nr_criminals == 0
-			if is_area_safe then
-				if are_recon_candidates_safe then
+			if not occupied then
+				local is_area_safe = nr_criminals == 0
+				if is_area_safe then
+					if are_recon_candidates_safe then
+						table.insert(recon_candidates, area)
+					else
+						are_recon_candidates_safe = true
+						recon_candidates = {area}
+					end
+
+				elseif not are_recon_candidates_safe then
 					table.insert(recon_candidates, area)
-				else
-					are_recon_candidates_safe = true
-					recon_candidates = {area}
 				end
 
-			elseif not are_recon_candidates_safe then
-				table.insert(recon_candidates, area)
 			end
 
 		end
@@ -380,8 +379,7 @@ function GroupAIStateBesiege:_begin_new_tasks()
 
 		end
 
-		do break end
-		do
+		if nr_criminals == 0 then
 			local (for generator), (for state), (for control) = pairs(area.neighbours)
 			do
 				do break end
@@ -395,7 +393,6 @@ function GroupAIStateBesiege:_begin_new_tasks()
 		end
 
 		i = i + 1
-		(for control) = recon_candidates and found_areas[neighbour_area_id]
 	until i > #to_search_areas
 	if assault_candidates and #assault_candidates > 0 then
 		self:_begin_assault_task(assault_candidates)
@@ -455,9 +452,6 @@ function GroupAIStateBesiege:_begin_assault_task(assault_areas)
 end
 
 function GroupAIStateBesiege:_upd_assault_task()
--- fail 112
-null
-8
 	local task_data = self._task_data.assault
 	if not task_data.active then
 		return
@@ -500,8 +494,7 @@ null
 
 					end
 
-					do break end
-					if self:_voice_delay_assault(best_group) then
+					if best_group and self:_voice_delay_assault(best_group) then
 						task_data.is_hesitating = nil
 					end
 
@@ -577,13 +570,11 @@ null
 
 			end
 
-			(for control) = math.random() and u_data.unit
 		end
 
-		(for control) = math.random() and group.objective
 	end
 
-	local primary_target_area = "end_assault" and task_data.target_areas[1]
+	local primary_target_area = task_data.target_areas[1]
 	if self:is_area_safe(primary_target_area) then
 		local target_pos = primary_target_area.pos
 		local nearest_area, nearest_dis
@@ -604,9 +595,11 @@ null
 
 		end
 
-		do break end
-		primary_target_area = nearest_area
-		task_data.target_areas[1] = nearest_area
+		if nearest_area then
+			primary_target_area = nearest_area
+			task_data.target_areas[1] = nearest_area
+		end
+
 	end
 
 	local nr_wanted = task_data.force - self:_count_police_force("assault")
@@ -683,7 +676,7 @@ function GroupAIStateBesiege:_verify_anticipation_spawn_point(sp_data)
 
 	end
 
-	(for control) = nil and c_data.status
+	return true
 end
 
 function GroupAIStateBesiege:is_smoke_grenade_active()
@@ -792,7 +785,6 @@ function GroupAIStateBesiege:_find_nearest_safe_area(start_area, start_pos)
 
 		end
 
-		(for control) = nil and found_areas[other_area]
 	until #to_search_areas == 0
 	local mvec3_dis_sq = mvector3.distance_sq
 	local all_areas = self._area_data
@@ -813,8 +805,7 @@ function GroupAIStateBesiege:_find_nearest_safe_area(start_area, start_pos)
 
 	end
 
-	do break end
-	if my_enemy_dis_sq > 9000000 then
+	if not my_enemy_pos or my_enemy_dis_sq > 9000000 then
 		return
 	end
 
@@ -850,10 +841,8 @@ function GroupAIStateBesiege:_find_nearest_safe_area(start_area, start_pos)
 
 		end
 
-		(for control) = nil and type
 	end
 
-	(for control) = mvector3.z(c_data.m_pos) - mvector3.z(start_pos) and self.get_area_from_nav_seg_id
 	return closest_area, closest_safe_nav_seg_id
 end
 
@@ -965,7 +954,6 @@ function GroupAIStateBesiege:_find_spawn_points_near_area(target_area, nr_wanted
 
 		end
 
-		(for control) = nil and sp_data.delay_t
 		if #s_points == nr_wanted then
 			break
 		end
@@ -983,7 +971,6 @@ function GroupAIStateBesiege:_find_spawn_points_near_area(target_area, nr_wanted
 
 		end
 
-		(for control) = nil and found_areas[other_area_id]
 	until #to_search_areas == 0
 	return #s_points > 0 and s_points
 end
@@ -1021,7 +1008,6 @@ function GroupAIStateBesiege:_find_spawn_group_near_area(target_area, allowed_gr
 
 		end
 
-		(for control) = nil and spawn_group.delay_t
 		do
 			local (for generator), (for state), (for control) = pairs(all_areas)
 			do
@@ -1035,7 +1021,6 @@ function GroupAIStateBesiege:_find_spawn_group_near_area(target_area, allowed_gr
 
 		end
 
-		(for control) = nil and found_areas[other_area_id]
 	until #to_search_areas == 0
 	if not next(valid_spawn_group_distances) then
 		return
@@ -1080,11 +1065,12 @@ function GroupAIStateBesiege:_find_spawn_group_near_area(target_area, allowed_gr
 
 		end
 
-		(for control) = math.min(1, my_wgt / dis_limit) and tweak_data
 	end
 
-	do break end
-	do return end
+	if total_weight == 0 then
+		return
+	end
+
 	local rand_wgt = total_weight * math.random()
 	local best_grp, best_grp_type
 	do
@@ -1102,7 +1088,6 @@ function GroupAIStateBesiege:_find_spawn_group_near_area(target_area, allowed_gr
 
 	end
 
-	(for control) = valid_spawn_groups[i] and candidate.wght
 	return best_grp, best_grp_type
 end
 
@@ -1145,7 +1130,6 @@ function GroupAIStateBesiege._extract_group_desc_structure(spawn_entry_outer, va
 
 	end
 
-	(for control) = nil and spawn_entry.unit
 	local (for generator), (for state), (for control) = pairs(spawn_entry_outer)
 	do
 		do break end
@@ -1287,7 +1271,6 @@ function GroupAIStateBesiege:_spawn_in_group(spawn_group, spawn_group_type, grp_
 
 	end
 
-	(for control) = _add_unit_type_to_spawn_task and group_desc.size
 	local group = self:_create_group(group_desc)
 	group.objective = grp_objective
 	group.objective.moving_out = true
@@ -1351,7 +1334,6 @@ function GroupAIStateBesiege:_upd_group_spawning()
 
 						end
 
-						(for control) = u_key and u_data.tactics_map
 						spawned_unit:brain():set_spawn_entry(spawn_entry, u_data.tactics_map)
 						u_data.rank = spawn_entry.rank
 						self:_add_group_member(spawn_task.group, u_key)
@@ -1384,9 +1366,11 @@ function GroupAIStateBesiege:_upd_group_spawning()
 
 		end
 
-		do break end
-		debug_pause("[GroupAIStateBesiege:_upd_group_spawning] spawn group", spawn_task.spawn_group.id, "failed to spawn unit", u_type_name)
-		return true
+		if hopeless then
+			debug_pause("[GroupAIStateBesiege:_upd_group_spawning] spawn group", spawn_task.spawn_group.id, "failed to spawn unit", u_type_name)
+			return true
+		end
+
 	end
 
 	do
@@ -1410,7 +1394,6 @@ function GroupAIStateBesiege:_upd_group_spawning()
 
 	end
 
-	(for control) = nil and group_ai_tweak.unit_categories
 	do
 		local (for generator), (for state), (for control) = pairs(spawn_task.units_remaining)
 		do
@@ -1430,7 +1413,6 @@ function GroupAIStateBesiege:_upd_group_spawning()
 	end
 
 	local complete = true
-	(for control) = nil and spawn_info.amount
 	do
 		local (for generator), (for state), (for control) = pairs(spawn_task.units_remaining)
 		do
@@ -1444,11 +1426,13 @@ function GroupAIStateBesiege:_upd_group_spawning()
 
 	end
 
-	do break end
-	spawn_task.group.has_spawned = true
-	table.remove(self._spawning_groups, 1)
-	if 0 >= spawn_task.group.size then
-		self._groups[spawn_task.group.id] = nil
+	if complete then
+		spawn_task.group.has_spawned = true
+		table.remove(self._spawning_groups, 1)
+		if 0 >= spawn_task.group.size then
+			self._groups[spawn_task.group.id] = nil
+		end
+
 	end
 
 end
@@ -1476,7 +1460,6 @@ function GroupAIStateBesiege:_upd_reenforce_tasks()
 			end
 
 			local undershot = force_required - force_occupied
-			(for control) = nil and group.objective
 			if undershot > 0 and not self._task_data.regroup.active and self._task_data.assault.phase ~= "fade" and t > self._task_data.reenforce.next_dispatch_t and self:is_area_safe(task_data.target_area) then
 				local used_event
 				if task_data.use_spawn_event then
@@ -1530,7 +1513,6 @@ function GroupAIStateBesiege:_upd_reenforce_tasks()
 				end
 
 				local overshot = force_defending - force_required
-				(for control) = t + self:_get_difficulty_dependent_value(tweak_data.group_ai.besiege.reenforce.interval) and group.objective
 				if overshot > 0 then
 					local closest_group, closest_group_size
 					do
@@ -1549,8 +1531,10 @@ function GroupAIStateBesiege:_upd_reenforce_tasks()
 
 					end
 
-					do break end
-					self:_assign_group_to_retire(closest_group)
+					if closest_group then
+						self:_assign_group_to_retire(closest_group)
+					end
+
 				end
 
 			end
@@ -1593,7 +1577,6 @@ function GroupAIStateBesiege:unregister_criminal(unit)
 
 	end
 
-	(for control) = nil and area.nav_segs
 	GroupAIStateBesiege.super.unregister_criminal(self, unit)
 end
 
@@ -1655,28 +1638,30 @@ function GroupAIStateBesiege:on_objective_complete(unit, objective)
 
 		end
 
-		do break end
-		if objective.type == "investigate_area" then
-			if objective.guard_obj then
+		if not new_objective then
+			if objective.type == "investigate_area" then
+				if objective.guard_obj then
+					new_objective = {
+						type = "guard",
+						nav_seg = seg,
+						vis_group = objective.vis_group,
+						guard_obj = objective.guard_obj,
+						interrupt_dis = 700,
+						interrupt_health = 0.75,
+						in_place = true,
+						scan = objective.scan,
+						attitude = objective.attitude
+					}
+				end
+
+			elseif objective.type == "free" then
 				new_objective = {
-					type = "guard",
-					nav_seg = seg,
-					vis_group = objective.vis_group,
-					guard_obj = objective.guard_obj,
-					interrupt_dis = 700,
-					interrupt_health = 0.75,
-					in_place = true,
-					scan = objective.scan,
+					type = "free",
+					is_default = true,
 					attitude = objective.attitude
 				}
 			end
 
-		elseif objective.type == "free" then
-			new_objective = {
-				type = "free",
-				is_default = true,
-				attitude = objective.attitude
-			}
 		end
 
 		if not area_data.is_safe then
@@ -1893,9 +1878,8 @@ function GroupAIStateBesiege:_draw_enemy_activity(t)
 
 			end
 
-			do break end
-			mvector3.divide(group_center, nr_units)
-			do
+			if nr_units > 0 then
+				mvector3.divide(group_center, nr_units)
 				local gui_text = group_id_texts[group_id]
 				local group_pos_screen = camera:world_to_screen(group_center)
 				if 0 < group_pos_screen.z then
@@ -1931,7 +1915,6 @@ function GroupAIStateBesiege:_draw_enemy_activity(t)
 
 			end
 
-			(for control) = gui_text and draw_data.pen_group
 			mvector3.set_zero(group_center)
 		end
 
@@ -1986,10 +1969,8 @@ function GroupAIStateBesiege:_draw_enemy_activity(t)
 
 		end
 
-		(for control) = pairs(group.units) and _f_draw_obj_pos
 	end
 
-	(for control) = Color(1, 0, 1, 0) and pairs
 	do
 		local (for generator), (for state), (for control) = pairs(logic_name_texts)
 		do
@@ -2008,14 +1989,15 @@ function GroupAIStateBesiege:_draw_enemy_activity(t)
 
 			end
 
-			do break end
-			panel:remove(gui_text)
-			logic_name_texts[u_key] = nil
+			if not keep then
+				panel:remove(gui_text)
+				logic_name_texts[u_key] = nil
+			end
+
 		end
 
 	end
 
-	(for control) = Color(1, 0, 1, 0) and nil
 	local (for generator), (for state), (for control) = pairs(group_id_texts)
 	do
 		do break end
@@ -2029,15 +2011,6 @@ function GroupAIStateBesiege:_draw_enemy_activity(t)
 end
 
 function GroupAIStateBesiege:find_occupation_in_area(nav_seg)
--- fail 25
-null
-10
--- fail 113
-null
-23
--- fail 133
-null
-23
 	local doors = managers.navigation:find_segment_doors(nav_seg, callback(self, self, "filter_nav_seg_unsafe"))
 	if not next(doors) then
 		return
@@ -2057,7 +2030,7 @@ null
 
 	end
 
-	local tmp_vec1 = callback(self, self, "filter_nav_seg_unsafe") and Vector3()
+	local tmp_vec1 = Vector3()
 	local tmp_vec2 = Vector3()
 	local math_max = math.max
 	local mvec3_lerp = mvector3.lerp
@@ -2090,11 +2063,9 @@ null
 
 		end
 
-		(for control) = objective.guard_obj.door.high_pos and mvec3_lerp
 	end
 
 	local best_door, best_door_weight, best_door_nav_seg
-	(for control) = callback(self, self, "filter_nav_seg_unsafe") and unit_data[u_key]
 	do
 		local (for generator), (for state), (for control) = ipairs(doors)
 		do
@@ -2114,7 +2085,6 @@ null
 
 	end
 
-	(for control) = doors[objective.from_seg] and ipairs
 	do
 		local (for generator), (for state), (for control) = ipairs(doors)
 		do
@@ -2129,15 +2099,17 @@ null
 
 	end
 
-	do break end
-	local center = mvector3.copy(best_door.low_pos)
-	mvec3_lerp(center, center, best_door.heigh_pos, 0.5)
-	best_door.center = center
-	return {
-		type = "guard",
-		door = best_door,
-		from_seg = best_door_nav_seg
-	}
+	if best_door then
+		local center = mvector3.copy(best_door.low_pos)
+		mvec3_lerp(center, center, best_door.heigh_pos, 0.5)
+		best_door.center = center
+		return {
+			type = "guard",
+			door = best_door,
+			from_seg = best_door_nav_seg
+		}
+	end
+
 end
 
 function GroupAIStateBesiege:verify_occupation_in_area(objective)
@@ -2206,7 +2178,6 @@ function GroupAIStateBesiege:flee_point(start_nav_seg)
 
 		end
 
-		(for control) = nil and found_areas[other_area]
 	until #to_search_areas == 0
 end
 
@@ -2238,7 +2209,6 @@ function GroupAIStateBesiege:safe_flee_point(start_nav_seg)
 
 		end
 
-		(for control) = nil and found_areas[other_area]
 	until #to_search_areas == 0
 end
 
@@ -2296,7 +2266,6 @@ function GroupAIStateBesiege:get_safe_enemy_loot_drop_point(start_nav_seg)
 			end
 
 		else
-			(for control) = nil and lucky_drop_point - 1
 			local (for generator), (for state), (for control) = pairs(search_area.neighbours)
 			do
 				do break end
@@ -2309,7 +2278,6 @@ function GroupAIStateBesiege:get_safe_enemy_loot_drop_point(start_nav_seg)
 
 		end
 
-		(for control) = pairs(search_area.enemy_loot_drop_points) and found_areas[other_area]
 	until #to_search_areas == 0
 end
 
@@ -2330,7 +2298,6 @@ function GroupAIStateBesiege:_draw_spawn_points()
 		end
 
 		local area_spawn_groups = area_data.spawn_groups
-		(for control) = nil and Application
 		if area_spawn_groups then
 			local (for generator), (for state), (for control) = ipairs(area_spawn_groups)
 			do
@@ -2400,7 +2367,6 @@ function GroupAIStateBesiege:remove_from_surrendered(unit)
 
 	end
 
-	(for control) = nil and entry.u_key
 	if #hos_data == 0 then
 		managers.enemy:unqueue_task(self._hostage_upd_key)
 		self._hostage_upd_key = nil
@@ -2566,11 +2532,13 @@ function GroupAIStateBesiege:_assign_enemy_groups_to_assault(phase)
 
 				end
 
-				do break end
-				group.objective.moving_out = nil
-				group.in_place_t = self._t
-				group.objective.moving_in = nil
-				self:_voice_move_complete(group)
+				if done_moving == true then
+					group.objective.moving_out = nil
+					group.in_place_t = self._t
+					group.objective.moving_in = nil
+					self:_voice_move_complete(group)
+				end
+
 			end
 
 			if not group.objective.moving_in then
@@ -2606,16 +2574,18 @@ function GroupAIStateBesiege:_assign_enemy_groups_to_recon()
 
 				end
 
-				do break end
-				if group.objective.moved_in then
-					group.visited_areas = group.visited_areas or {}
-					group.visited_areas[group.objective.area] = true
+				if done_moving == true then
+					if group.objective.moved_in then
+						group.visited_areas = group.visited_areas or {}
+						group.visited_areas[group.objective.area] = true
+					end
+
+					group.objective.moving_out = nil
+					group.in_place_t = self._t
+					group.objective.moving_in = nil
+					self:_voice_move_complete(group)
 				end
 
-				group.objective.moving_out = nil
-				group.in_place_t = self._t
-				group.objective.moving_in = nil
-				self:_voice_move_complete(group)
 			end
 
 			if not group.objective.moving_in then
@@ -2629,9 +2599,6 @@ function GroupAIStateBesiege:_assign_enemy_groups_to_recon()
 end
 
 function GroupAIStateBesiege:_set_recon_objective_to_group(group)
--- fail 49
-null
-11
 	local current_objective = group.objective
 	local target_area = current_objective.target_area or current_objective.area
 	if not target_area.loot and not target_area.hostages or not current_objective.moving_out and current_objective.moved_in and group.in_place_t and self._t - group.in_place_t > 15 then
@@ -2659,8 +2626,7 @@ null
 
 				end
 
-				do break end
-				if group.visited_areas and group.visited_areas[search_area] then
+				if not occupied and group.visited_areas and group.visited_areas[search_area] then
 					occupied = true
 				end
 
@@ -2690,7 +2656,6 @@ null
 
 			end
 
-			(for control) = pairs(self._groups) and found_areas[other_area]
 		until #to_search_areas == 0
 		if recon_area then
 			local coarse_path = {
@@ -2855,12 +2820,6 @@ function GroupAIStateBesiege:_upd_groups()
 end
 
 function GroupAIStateBesiege:_set_assault_objective_to_group(group, phase)
--- fail 29
-null
-16
--- fail 44
-null
-16
 	if not group.has_spawned then
 		return
 	end
@@ -2907,7 +2866,6 @@ null
 				end
 
 				local closest_crim_u_data, closest_crim_dis_sq
-				(for control) = nil and u_data.status
 				do
 					local (for generator), (for state), (for control) = pairs(self._char_criminals)
 					do
@@ -2925,29 +2883,31 @@ null
 
 				end
 
-				do break end
-				local search_params = {
-					from_tracker = group_leader_u_data.unit:movement():nav_tracker(),
-					to_tracker = closest_crim_u_data.tracker,
-					id = "GroupAI_deathguard",
-					access_pos = self._get_group_acces_mask(group)
-				}
-				local coarse_path = managers.navigation:search_coarse(search_params)
-				if coarse_path then
-					local grp_objective = {
-						type = "assault_area",
-						tactic = "deathguard",
-						follow_unit = closest_crim_u_data.unit,
-						distance = 800,
-						area = self:get_area_from_nav_seg_id(coarse_path[#coarse_path][1]),
-						coarse_path = coarse_path,
-						attitude = "engage",
-						moving_in = true
+				if closest_crim_u_data then
+					local search_params = {
+						from_tracker = group_leader_u_data.unit:movement():nav_tracker(),
+						to_tracker = closest_crim_u_data.tracker,
+						id = "GroupAI_deathguard",
+						access_pos = self._get_group_acces_mask(group)
 					}
-					group.is_chasing = true
-					self:_set_objective_to_enemy_group(group, grp_objective)
-					self:_voice_deathguard_start(group)
-					return
+					local coarse_path = managers.navigation:search_coarse(search_params)
+					if coarse_path then
+						local grp_objective = {
+							type = "assault_area",
+							tactic = "deathguard",
+							follow_unit = closest_crim_u_data.unit,
+							distance = 800,
+							area = self:get_area_from_nav_seg_id(coarse_path[#coarse_path][1]),
+							coarse_path = coarse_path,
+							attitude = "engage",
+							moving_in = true
+						}
+						group.is_chasing = true
+						self:_set_objective_to_enemy_group(group, grp_objective)
+						self:_voice_deathguard_start(group)
+						return
+					end
+
 				end
 
 			elseif tactic_name == "charge" and not current_objective.moving_out and group.in_place_t and (self._t - group.in_place_t > 15 or self._t - group.in_place_t > 4 and self._drama_data.amount <= tweak_data.drama.low) and next(current_objective.area.criminal.units) and group.is_chasing and not current_objective.charge then
@@ -2990,10 +2950,9 @@ null
 
 			end
 
-			do break end
-			push = true
-			do break end
-			if not has_criminals_close or not group.in_place_t then
+			if charge then
+				push = true
+			elseif not has_criminals_close or not group.in_place_t then
 				approach = true
 			elseif not phase_is_anticipation and not current_objective.open_fire then
 				open_fire = true
@@ -3072,19 +3031,21 @@ null
 
 				end
 
-				do break end
-				local search_params = {
-					from_seg = current_objective.area.pos_nav_seg,
-					to_seg = search_area.pos_nav_seg,
-					id = "GroupAI_assault",
-					access_pos = self._get_group_acces_mask(group),
-					verify_clbk = callback(self, self, "is_nav_seg_safe")
-				}
-				assault_path = managers.navigation:search_coarse(search_params)
-				if assault_path then
-					self:_merge_coarse_path_by_area(assault_path)
-					assault_area = search_area
-					break
+				if assault_from_here then
+					local search_params = {
+						from_seg = current_objective.area.pos_nav_seg,
+						to_seg = search_area.pos_nav_seg,
+						id = "GroupAI_assault",
+						access_pos = self._get_group_acces_mask(group),
+						verify_clbk = callback(self, self, "is_nav_seg_safe")
+					}
+					assault_path = managers.navigation:search_coarse(search_params)
+					if assault_path then
+						self:_merge_coarse_path_by_area(assault_path)
+						assault_area = search_area
+						break
+					end
+
 				end
 
 			else
@@ -3100,7 +3061,6 @@ null
 
 			end
 
-			(for control) = self and found_areas[other_area]
 		until #to_search_areas == 0
 		if not assault_area and alternate_assault_area then
 			assault_area = alternate_assault_area
@@ -3123,7 +3083,6 @@ null
 
 				end
 
-				(for control) = table.insert and c_data.unit
 				local first_chk = math.random() < 0.5 and self._chk_group_use_flash_grenade or self._chk_group_use_smoke_grenade
 				local second_chk = first_chk == self._chk_group_use_flash_grenade and self._chk_group_use_smoke_grenade or self._chk_group_use_flash_grenade
 				used_grenade = first_chk(self, group, self._task_data.assault, detonate_pos)
@@ -3169,8 +3128,7 @@ null
 
 		end
 
-		do break end
-		if not do_not_retreat and current_objective.coarse_path then
+		if not retreat_area and not do_not_retreat and current_objective.coarse_path then
 			local forwardmost_i_nav_point = self:_get_group_forwardmost_coarse_path_index(group)
 			if forwardmost_i_nav_point then
 				local nearest_safe_nav_seg_id = current_objective.coarse_path(forwardmost_i_nav_point)
@@ -3299,7 +3257,6 @@ function GroupAIStateBesiege:_assign_group_to_retire(group)
 
 		end
 
-		(for control) = nil and found_areas[other_area]
 	until #to_search_areas == 0
 	if not retire_area then
 		Application:error("[GroupAIStateBesiege:_assign_group_to_retire] flee point not found. from area:", inspect(group.objective.area), "group ID:", group.id)
@@ -3336,7 +3293,6 @@ function GroupAIStateBesiege._determine_group_leader(units)
 
 	end
 
-	(for control) = nil and u_data.rank
 	return highest_ranking_u_key, highest_ranking_u_data
 end
 
@@ -3357,7 +3313,6 @@ function GroupAIStateBesiege._get_closest_group_unit_to_pos(pos, units)
 
 	end
 
-	(for control) = nil and mvector3
 	return closest_u_key, closest_u_data, closest_dis_sq
 end
 
@@ -3392,8 +3347,7 @@ function GroupAIStateBesiege:_chk_group_use_smoke_grenade(group, task_data, deto
 
 				end
 
-				do break end
-				if shooter_u_data then
+				if detonate_pos and shooter_u_data then
 					self:detonate_smoke_grenade(detonate_pos, shooter_pos, duration, false)
 					task_data.use_smoke_timer = self._t + math.lerp(tweak_data.group_ai.smoke_and_flash_grenade_timeout[1], tweak_data.group_ai.smoke_and_flash_grenade_timeout[2], math.rand(0, 1) ^ 0.5)
 					task_data.use_smoke = false
@@ -3443,8 +3397,7 @@ function GroupAIStateBesiege:_chk_group_use_flash_grenade(group, task_data, deto
 
 				end
 
-				do break end
-				if shooter_u_data then
+				if detonate_pos and shooter_u_data then
 					self:detonate_smoke_grenade(detonate_pos, shooter_pos, duration, true)
 					task_data.use_smoke_timer = self._t + math.lerp(tweak_data.group_ai.smoke_and_flash_grenade_timeout[1], tweak_data.group_ai.smoke_and_flash_grenade_timeout[2], math.random() ^ 0.5)
 					task_data.use_smoke = false
@@ -3485,8 +3438,7 @@ function GroupAIStateBesiege:_assign_assault_groups_to_retire()
 
 			end
 
-			do break end
-			regroup_area = group.objective.area
+			regroup_area = regroup_area or group.objective.area
 			local grp_objective = {
 				type = "recon_area",
 				area = regroup_area,
@@ -3555,11 +3507,13 @@ function GroupAIStateBesiege:_assign_enemy_groups_to_reenforce()
 
 				end
 
-				do break end
-				group.objective.moving_out = nil
-				group.in_place_t = self._t
-				group.objective.moving_in = nil
-				self:_voice_move_complete(group)
+				if done_moving then
+					group.objective.moving_out = nil
+					group.in_place_t = self._t
+					group.objective.moving_in = nil
+					self:_voice_move_complete(group)
+				end
+
 			end
 
 			if group.objective.moving_in or locked_up_in_area and locked_up_in_area ~= group.objective.area then
@@ -3672,7 +3626,6 @@ function GroupAIStateBesiege:_get_group_forwardmost_coarse_path_index(group)
 		end
 
 		forwardmost_i_nav_point = forwardmost_i_nav_point - 1
-		(for control) = nil and area.nav_segs
 	end
 
 end
@@ -3741,7 +3694,7 @@ function GroupAIStateBesiege:_voice_delay_assault(group)
 
 	end
 
-	(for control) = nil and unit_data.unit
+	return false
 end
 
 function GroupAIStateBesiege:_chk_group_areas_tresspassed(group)
@@ -3763,10 +3716,8 @@ function GroupAIStateBesiege:_chk_group_areas_tresspassed(group)
 
 		end
 
-		(for control) = nil and area.nav_segs
 	end
 
-	(for control) = nil and u_data.tracker
 	local (for generator), (for state), (for control) = pairs(occupied_areas)
 	do
 		do break end
@@ -3840,8 +3791,8 @@ function GroupAIStateBesiege:_count_criminals_engaged_force(max_count)
 
 		end
 
-		(for control) = c_data.tracker:nav_segment() and all_enemies[e_key]
 	end
 
+	return count
 end
 

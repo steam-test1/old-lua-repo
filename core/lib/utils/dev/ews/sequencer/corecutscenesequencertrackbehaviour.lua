@@ -168,8 +168,7 @@ function ClipDragTrackBehaviour:on_mouse_motion(sender, track, event)
 
 	end
 
-	do break end
-	if self:_delegate_supports("_signal_drag") then
+	if sender == track and self:_delegate_supports("_signal_drag") then
 		self:_invoke_on_delegate("_signal_drag", self._clip, self._mode)
 	end
 
@@ -187,7 +186,7 @@ function ClipDragTrackBehaviour:on_mouse_left_up(sender, track, event)
 
 	end
 
-	(for control) = nil and clip.drag_commit
+	self:restore_default_behaviour()
 	event:skip()
 end
 
@@ -292,6 +291,7 @@ function ClipDragTrackBehaviour:_snap_to_clips(track, time_displacement)
 
 	end
 
+	return closest_snapped_displacement
 end
 
 function MovePlayheadTrackBehaviour:on_mouse_motion(sender, track, event)

@@ -60,12 +60,6 @@ function EnvironmentNetworkFeeder:send(id, block, params, peer)
 end
 
 function EnvironmentNetworkFeeder:pack_data(block, params)
--- fail 23
-null
-8
--- fail 70
-null
-8
 	assert(table.size(block) > 0 and table.size(params) > 0)
 	local str = ""
 	local bstr, pstr

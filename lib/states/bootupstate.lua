@@ -281,7 +281,7 @@ function BootupState:is_skipped()
 
 	end
 
-	(for control) = nil and controller.get_any_input_pressed
+	return false
 end
 
 function BootupState:is_playing()
@@ -407,7 +407,6 @@ function BootupState:at_exit()
 		self._controller_list = nil
 	end
 
-	(for control) = self._clbk_game_has_music_control_callback and controller.destroy
 	if self._sound_listener then
 		self._sound_listener:delete()
 		self._sound_listener = nil

@@ -19,7 +19,7 @@ function EnvironmentAreaManager:init()
 
 	end
 
-	self._environment_changed_callback = managers.viewport:viewports() and {}
+	self._environment_changed_callback = {}
 	self:set_default_transition_time(0.1)
 	self.POSITION_OFFSET = 50
 end
@@ -55,7 +55,6 @@ function EnvironmentAreaManager:set_default_environment(environment, time, vp)
 			end
 
 		else
-			(for control) = managers.viewport:viewports() and self._set_environment
 			self:_set_environment(self._default_environment, time, vp)
 		end
 
@@ -195,6 +194,7 @@ function EnvironmentAreaManager:environment_at_position(pos)
 
 	end
 
+	return environment
 end
 
 function EnvironmentAreaManager:add_block()

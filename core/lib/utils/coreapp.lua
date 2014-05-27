@@ -1,8 +1,5 @@
 core:module("CoreApp")
 function arg_supplied(key)
--- fail 7
-null
-3
 	do
 		local (for generator), (for state), (for control) = ipairs(Application:argv())
 		do
@@ -15,6 +12,7 @@ null
 
 	end
 
+	return false
 end
 
 function arg_value(key)

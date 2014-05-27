@@ -44,7 +44,6 @@ function ElementAreaTrigger:on_script_activated()
 
 	end
 
-	(for control) = nil and self.get_mission_element
 	if self._values.rules_element_ids then
 		local (for generator), (for state), (for control) = ipairs(self._values.rules_element_ids)
 		do
@@ -55,7 +54,6 @@ function ElementAreaTrigger:on_script_activated()
 
 	end
 
-	(for control) = nil and self.get_mission_element
 	self._mission_script:add_save_state_cb(self._id)
 	if self._values.enabled then
 		self:add_callback()
@@ -84,7 +82,7 @@ function ElementAreaTrigger:is_inside(pos)
 
 	end
 
-	(for control) = nil and shape.is_inside
+	return false
 end
 
 function ElementAreaTrigger:_is_inside(pos)
@@ -105,7 +103,7 @@ function ElementAreaTrigger:_is_inside(pos)
 
 	end
 
-	(for control) = nil and self._values
+	return false
 end
 
 function ElementAreaTrigger:set_enabled(enabled)
@@ -118,7 +116,6 @@ function ElementAreaTrigger:set_enabled(enabled)
 
 	end
 
-	(for control) = CoreTable.clone(self._inside) and self.sync_exit_area
 	ElementAreaTrigger.super.set_enabled(self, enabled)
 	if enabled then
 		self:add_callback()
@@ -174,9 +171,9 @@ function ElementAreaTrigger:instigators()
 
 		end
 
-		(for control) = element:units() and table
 	end
 
+	return instigators
 end
 
 function ElementAreaTrigger:project_instigators()
@@ -207,7 +204,6 @@ function ElementAreaTrigger:update_area()
 
 			end
 
-			(for control) = self:instigators() and alive
 			if #self._inside == 0 then
 				self:on_executed()
 			end
@@ -337,7 +333,7 @@ function ElementAreaTrigger:_check_instigator_rules(unit)
 
 	end
 
-	(for control) = nil and element.check_rules
+	return true
 end
 
 function ElementAreaTrigger:_clean_destroyed_units()
@@ -438,7 +434,6 @@ function ElementAreaOperator:on_executed(instigator)
 
 	end
 
-	(for control) = nil and self.get_mission_element
 	ElementAreaOperator.super.on_executed(self, instigator)
 end
 

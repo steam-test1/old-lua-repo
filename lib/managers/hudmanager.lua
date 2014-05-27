@@ -151,9 +151,6 @@ function HUDManager:set_safe_rect(rect)
 end
 
 function HUDManager:load_hud(name, visible, using_collision, using_saferect, mutex_list, bounding_box_list, using_mid_saferect, using_16_9_fullscreen)
--- fail 74
-null
-14
 	if self._component_map[name:key()] then
 		Application:error("ERROR! Component " .. tostring(name) .. " have already been loaded!")
 		return
@@ -189,16 +186,15 @@ null
 
 	end
 
-	do break end
-	if bb_list.x then
-		table.insert(bb_list, {
-			x1 = bb_list.x,
-			y1 = bb_list.y,
-			x2 = bb_list.x + bb_list.w,
-			y2 = bb_list.y + bb_list.h
-		})
-	else
-		do
+	if bb_list then
+		if bb_list.x then
+			table.insert(bb_list, {
+				x1 = bb_list.x,
+				y1 = bb_list.y,
+				x2 = bb_list.x + bb_list.w,
+				y2 = bb_list.y + bb_list.h
+			})
+		else
 			local (for generator), (for state), (for control) = pairs(bb_list)
 			do
 				do break end
@@ -212,7 +208,7 @@ null
 
 		end
 
-		(for control) = bb_list.y + bb_list.h and table
+	else
 		bounding_box = self:_create_bounding_boxes(panel)
 	end
 
@@ -402,7 +398,6 @@ function HUDManager:_source_files(dir)
 
 	end
 
-	(for control) = SystemFS:list(dir) and table
 	do
 		local (for generator), (for state), (for control) = ipairs(SystemFS:list(dir, true))
 		do
@@ -415,9 +410,9 @@ function HUDManager:_source_files(dir)
 
 		end
 
-		(for control) = SystemFS:list(dir .. "/" .. sub_dir) and table
 	end
 
+	return files
 end
 
 function HUDManager:panel(name)
@@ -448,9 +443,6 @@ function HUDManager:exists(name)
 end
 
 function HUDManager:show(name)
--- fail 55
-null
-5
 	if name == PlayerBase.PLAYER_INFO_HUD then
 		name = PlayerBase.PLAYER_INFO_HUD_PD2
 	end
@@ -495,7 +487,6 @@ null
 
 		end
 
-		(for control) = name and self._component_map
 		if self:_validate_components(name) then
 			self._component_map[name:key()].panel:show()
 		end
@@ -511,9 +502,6 @@ null
 end
 
 function HUDManager:hide(name)
--- fail 30
-null
-5
 	if name == PlayerBase.PLAYER_INFO_HUD then
 		name = PlayerBase.PLAYER_INFO_HUD_PD2
 	end
@@ -615,10 +603,9 @@ function HUDManager:_collision_rects(rect1_list, rect2_list)
 
 		end
 
-		(for control) = nil and self._collision
 	end
 
-	(for control) = nil and pairs
+	return false
 end
 
 function HUDManager:_is_mutex(component_map, name)
@@ -634,7 +621,7 @@ function HUDManager:_is_mutex(component_map, name)
 
 	end
 
-	(for control) = nil and mutex_name.key
+	return false
 end
 
 function HUDManager:_create_bounding_boxes(panel)
@@ -668,9 +655,9 @@ function HUDManager:_create_bounding_boxes(panel)
 
 		end
 
-		(for control) = object and self._inside
 	end
 
+	return bounding_box_list
 end
 
 function HUDManager:_create_overlay_list(name)
@@ -696,6 +683,7 @@ function HUDManager:_create_overlay_list(name)
 
 	end
 
+	return overlay_list
 end
 
 function HUDManager:_validate_components(name)
@@ -712,7 +700,7 @@ function HUDManager:_validate_components(name)
 
 	end
 
-	(for control) = name and self._component_map
+	return true
 end
 
 function HUDManager:resolution_changed()
@@ -732,7 +720,7 @@ function HUDManager:resolution_changed()
 
 	end
 
-	(for control) = nil and self.layout
+	self:_additional_layout()
 end
 
 function HUDManager:_additional_layout()
@@ -748,7 +736,6 @@ function HUDManager:update(t, dt)
 
 	end
 
-	(for control) = nil and cb
 	self:_update_name_labels(t, dt)
 	self:_update_waypoints(t, dt)
 	if self._chat_state and t > self._chat_state.start_fade then
@@ -1321,7 +1308,6 @@ function HUDManager:add_waypoint(id, data)
 
 	end
 
-	(for control) = 0 and data.slot
 	for i = 1, 10 do
 		if not t[i] then
 			self._hud.waypoints[id].slot = i
@@ -1495,7 +1481,6 @@ function HUDManager:clear_items()
 
 	end
 
-	(for control) = nil and hud.item_panel
 	hud.selected_item_icon:set_visible(false)
 	self._hud.items = {}
 	self:_layout_special_equipment()
@@ -1528,7 +1513,6 @@ function HUDManager:set_item_selected(id)
 
 	end
 
-	(for control) = nil and data.bitmap
 	if not self._hud.selected_item or not self._hud.items[self._hud.selected_item] then
 		return
 	end
@@ -1567,7 +1551,6 @@ function HUDManager:_layout_items()
 
 	end
 
-	(for control) = nil and hud.item_panel
 	if self._hud.selected_item then
 		self:set_item_selected(self._hud.selected_item)
 	end
@@ -1689,9 +1672,6 @@ function HUDManager:_layout_special_equipments()
 end
 
 function HUDManager:clear_special_equipments()
--- fail 12
-null
-4
 	local hud = managers.hud:script(PlayerBase.PLAYER_HUD)
 	do
 		local (for generator), (for state), (for control) = ipairs(self._hud.special_equipments)
@@ -1745,7 +1725,6 @@ function HUDManager:_layout_special_equipment()
 
 	end
 
-	(for control) = nil and data.bitmap
 	hud.special_equipment_panel:set_bottom(hud.d_pad_panel:top() - offset)
 	hud.special_equipment_panel:set_center_x(hud.d_pad_panel:center_x())
 end
@@ -1901,7 +1880,7 @@ function HUDManager:clear_weapons()
 
 	end
 
-	self._hud.weapons, (for control) = {}, nil and alive
+	self._hud.weapons = {}
 end
 
 function HUDManager:add_mugshot_by_unit(unit)
@@ -1940,7 +1919,6 @@ function HUDManager:add_mugshot_by_unit(unit)
 	end
 
 	local peer, peer_id
-	(for control) = nil and data.character_name_id
 	if is_husk_player then
 		peer = unit:network():peer()
 		peer_id = peer:id()
@@ -2124,7 +2102,6 @@ function HUDManager:add_mugshot(data)
 	end
 
 	local icon, texture_rect, armor_texture_rect, health_texture_rect, health_background, health_armor, health_health
-	(for control) = Color(0, 0, 0, 0) and tweak_data
 	icon, texture_rect = tweak_data.hud_icons:get_icon_data("mugshot_health_background")
 	health_background = panel:bitmap({
 		name = "mask",
@@ -2243,7 +2220,7 @@ function HUDManager:_remove_mugshot(id)
 
 	end
 
-	(for control) = nil and data.id
+	self:_layout_mugshots()
 end
 
 function HUDManager:remove_teammate_panel_by_name_id(name_id)
@@ -2450,7 +2427,7 @@ function HUDManager:_get_mugshot_data(id)
 
 	end
 
-	(for control) = nil and data.id
+	return nil
 end
 
 function HUDManager:set_mugshot_normal(id)
@@ -2606,7 +2583,6 @@ function HUDManager:remove_mugshot_equipment(id, equipment)
 
 			end
 
-			(for control) = nil and e_data.equipment
 			self:_layout_mugshot_equipment(data)
 			self:remove_teammate_special_equipment(managers.criminals:character_data_by_name(data.character_name_id).panel_id, equipment)
 	end
@@ -2640,7 +2616,7 @@ function HUDManager:clear_mugshots()
 
 	end
 
-	self._hud.mugshots, (for control) = {}, nil and hud.panel
+	self._hud.mugshots = {}
 end
 
 function HUDManager:_layout_mugshots()
@@ -2666,7 +2642,6 @@ function HUDManager:_layout_mugshots()
 
 		end
 
-		(for control) = mugshot.panel:children() and child.set_color
 		local _, sy = mugshot.panel:size()
 		local y = i == 1 and info_hud.health_panel:bottom() or i == 2 and self._hud.mugshots[1].panel:top() - 2 * tweak_data.scale.hud_health_multiplier or i == 3 and self._hud.mugshots[2].panel:top() - 2 * tweak_data.scale.hud_health_multiplier
 		local icon_size = 34
@@ -3829,7 +3804,6 @@ function HUDManager:activate_objective(data)
 
 	end
 
-	(for control) = h and panel.panel
 	if data.amount then
 		local amount_text = panel:text({
 			name = "amount" .. data.id,
@@ -4114,6 +4088,7 @@ function HUDManager:save(data)
 
 	end
 
+	data.HUDManager = state
 end
 
 function HUDManager:load(data)
@@ -4127,7 +4102,6 @@ function HUDManager:load(data)
 
 	end
 
-	(for control) = nil and self.add_waypoint
 	if state.in_assault then
 		self:sync_start_assault()
 	end

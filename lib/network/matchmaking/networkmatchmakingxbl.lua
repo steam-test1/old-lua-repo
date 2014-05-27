@@ -240,9 +240,6 @@ function NetworkMatchMakingXBL:search_lobby(friends_only)
 end
 
 function NetworkMatchMakingXBL:_find_server_callback(servers, mode)
--- fail 29
-null
-6
 	self._searching_lobbys = nil
 	if self._cancel_find then
 		return
@@ -739,9 +736,6 @@ function NetworkMatchMakingXBL:_test_search(settings)
 end
 
 function NetworkMatchMakingXBL:_find_test_server_callback(servers, mode)
--- fail 25
-null
-5
 	if self._cancel_find then
 		return
 	end

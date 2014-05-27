@@ -47,7 +47,6 @@ function ChallengesManager:_setup(reset)
 
 					end
 
-					(for control) = challenge.flag_id and self._reset_map
 					if challenge.session_stopped then
 						table.insert(self._session_stopped_map, name)
 					end
@@ -58,10 +57,8 @@ function ChallengesManager:_setup(reset)
 
 		end
 
-		(for control) = nil and managers
 	end
 
-	(for control) = nil and pairs
 	if not Global.challenges_manager or reset then
 		Global.challenges_manager = {}
 		Global.challenges_manager.active = {}
@@ -136,8 +133,7 @@ function ChallengesManager:check_active_challenges()
 
 	end
 
-	do break end
-	if managers.hud then
+	if not added or managers.hud then
 	end
 
 end
@@ -159,7 +155,6 @@ function ChallengesManager:_check_depends_on(name)
 
 	end
 
-	(for control) = nil and self._global
 	if self._challenges_map[name].depends_on.weapons then
 		local (for generator), (for state), (for control) = ipairs(self._challenges_map[name].depends_on.weapons)
 		do
@@ -172,7 +167,6 @@ function ChallengesManager:_check_depends_on(name)
 
 	end
 
-	(for control) = nil and managers
 	if self._challenges_map[name].depends_on.equipment then
 		local (for generator), (for state), (for control) = ipairs(self._challenges_map[name].depends_on.equipment)
 		do
@@ -185,7 +179,7 @@ function ChallengesManager:_check_depends_on(name)
 
 	end
 
-	(for control) = nil and managers
+	return true
 end
 
 function ChallengesManager:add_by_name(name)
@@ -378,7 +372,6 @@ function ChallengesManager:get_near_completion()
 		return data1.progress > data2.progress
 	end
 
-	(for control) = nil and self._challenges_map
 	table.sort(t, sort_func)
 	return t
 end
@@ -411,7 +404,6 @@ function ChallengesManager:get_completed()
 		return data1.id < data2.id
 	end
 
-	(for control) = nil and self._challenges_map
 	table.sort(t, sort_func)
 	return t
 end
@@ -499,6 +491,7 @@ function ChallengesManager:amount_of_challenges()
 
 	end
 
+	return i
 end
 
 function ChallengesManager:amount_of_completed_challenges()
@@ -515,6 +508,7 @@ function ChallengesManager:amount_of_completed_challenges()
 
 	end
 
+	return i
 end
 
 function ChallengesManager:_check_level_completed(data)
@@ -538,9 +532,6 @@ function ChallengesManager:_correct_level(level_id)
 end
 
 function ChallengesManager:_correct_difficulty(difficulty)
--- fail 13
-null
-5
 	local curr_diff = Global.game_settings.difficulty
 	if type(difficulty) == "table" then
 		do
@@ -555,6 +546,7 @@ null
 
 		end
 
+		return false
 	end
 
 	if difficulty ~= curr_diff then
@@ -591,8 +583,10 @@ function ChallengesManager:aquired_money()
 
 	end
 
-	do break end
-	do return end
+	if not ach_name then
+		return
+	end
+
 	if managers.experience:total() < self._challenges_map[ach_name].amount then
 		return
 	end
@@ -723,7 +717,6 @@ function ChallengesManager:save(data)
 
 	end
 
-	(for control) = nil and k.already_awarded
 	local state = {
 		active = active,
 		completed = self._global.completed,

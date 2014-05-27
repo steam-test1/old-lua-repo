@@ -175,7 +175,6 @@ function MissionManager:on_stage_success()
 
 	end
 
-	(for control) = nil and Global
 	Global.mission_manager.stage_job_values = {}
 end
 
@@ -336,7 +335,6 @@ function MissionScript:activate(...)
 
 	end
 
-	(for control) = Color(1, 0, 1, 0) and element.on_script_activated
 	local (for generator), (for state), (for control) = pairs(self._elements)
 	do
 		do break end

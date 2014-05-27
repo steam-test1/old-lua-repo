@@ -26,7 +26,6 @@ function EnvironmentData:load(entry_path)
 
 	end
 
-	(for control) = nil and self._metadata
 	self:_serialized_load_data(env_data.data, self._data)
 	return
 end
@@ -97,9 +96,11 @@ function EnvironmentData:_for_each(cb, data, path)
 
 		end
 
-		do break end
-		table.insert(t, k)
-		self:_for_each(cb, v, t)
+		if not the_end then
+			table.insert(t, k)
+			self:_for_each(cb, v, t)
+		end
+
 	end
 
 end
@@ -119,9 +120,6 @@ function EnvironmentData:_get(data, ...)
 end
 
 function EnvironmentData:_set(create_new, data, block, ...)
--- fail 21
-null
-9
 	local args = {
 		...
 	}

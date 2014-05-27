@@ -90,7 +90,6 @@ function CoreEditorGroups:save()
 
 			end
 
-			(for control) = group:units() and table
 			local t = {
 				entry = "editor_groups",
 				continent = group:continent() and group:continent_name(),
@@ -129,7 +128,6 @@ function CoreEditorGroups:load(world_holder, offset)
 				end
 
 				local continent
-				(for control) = nil and table
 				if data.continent then
 					continent = managers.editor:continent(data.continent)
 				end
@@ -152,7 +150,6 @@ function CoreEditorGroups:load(world_holder, offset)
 
 	end
 
-	(for control) = nil and data.units
 	local (for generator), (for state), (for control) = ipairs(group_names)
 	do
 		do break end
@@ -221,13 +218,11 @@ function CoreEditorGroups:load_group_file(path)
 
 				end
 
-				(for control) = layer and setting.name
 				table.insert(units, new_unit)
 			end
 
 		end
 
-		(for control) = nil and nil
 		self:create(name, reference, units)
 		layer:select_group(self._groups[name])
 	end
@@ -291,6 +286,7 @@ function CoreEditorGroup:init(name, reference, units)
 
 	end
 
+	self._closed = true
 end
 
 function CoreEditorGroup:closed()
@@ -398,7 +394,6 @@ function CoreEditorGroup:save_to_file()
 
 		end
 
-		(for control) = "\t\t" and self._reference
 		f:puts("</group>")
 		SystemFS:close(f)
 	end
@@ -468,7 +463,6 @@ function CoreEditorGroup:draw(t, dt)
 
 	end
 
-	(for control) = nil and Application
 	Application:draw(self._reference, 0, 1 * i, 0)
 end
 
@@ -496,7 +490,6 @@ function GroupPresetsDialog:init(files, path)
 
 	end
 
-	(for control) = 1 and self._list
 	self._list:connect("EVT_COMMAND_LISTBOX_SELECTED", callback(self, self, "select_group"), nil)
 	self._list:connect("EVT_COMMAND_LISTBOX_DOUBLECLICKED", callback(self, self, "create_group"), nil)
 	self._list:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")

@@ -132,10 +132,12 @@ function CivilianLogicIdle._upd_outline_detection(data)
 
 	end
 
-	do break end
-	CivilianLogicIdle._enable_outline(data)
-	do break end
-	CopLogicBase.queue_task(my_data, my_data.outline_detection_task_key, CivilianLogicIdle._upd_outline_detection, data, t + 0.33)
+	if seen then
+		CivilianLogicIdle._enable_outline(data)
+	else
+		CopLogicBase.queue_task(my_data, my_data.outline_detection_task_key, CivilianLogicIdle._upd_outline_detection, data, t + 0.33)
+	end
+
 end
 
 function CivilianLogicIdle._enable_outline(data)
@@ -527,7 +529,6 @@ function CivilianLogicIdle._get_priority_attention(data, attention_objects)
 
 	end
 
-	(for control) = nil and attention_data.unit
 	return best_target, best_target_reaction
 end
 

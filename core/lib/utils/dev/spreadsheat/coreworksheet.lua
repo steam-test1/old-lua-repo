@@ -29,7 +29,6 @@ function Worksheet:to_xml(f)
 
 	end
 
-	(for control) = string.format(EMPTY_WORKSHEET_XML1, self._name) and f.write
 	f:write(EMPTY_WORKSHEET_XML2)
 end
 

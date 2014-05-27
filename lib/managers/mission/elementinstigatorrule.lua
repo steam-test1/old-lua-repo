@@ -1,9 +1,6 @@
 core:import("CoreMissionScriptElement")
 ElementInstigatorRule = ElementInstigatorRule or class(CoreMissionScriptElement.MissionScriptElement)
 function ElementInstigatorRule:init(...)
--- fail 21
-null
-15
 	ElementInstigatorRule.super.init(self, ...)
 	local (for generator), (for state), (for control) = pairs(self._values.rules)
 	do
@@ -70,9 +67,6 @@ function ElementInstigatorRule:check_rules(instigator_type, instigator)
 end
 
 function ElementInstigatorRule:_check_player_rules(rules, instigator)
--- fail 5
-null
-5
 	do
 		local (for generator), (for state), (for control) = pairs(rules)
 		do
@@ -107,15 +101,12 @@ null
 
 		end
 
-		(for control) = nil and managers
 	end
 
+	return true
 end
 
 function ElementInstigatorRule:_check_enemies_rules(rules, instigator)
--- fail 5
-null
-5
 	do
 		local (for generator), (for state), (for control) = pairs(rules)
 		do
@@ -132,12 +123,10 @@ null
 
 	end
 
+	return true
 end
 
 function ElementInstigatorRule:_check_civilians_rules(rules, instigator)
--- fail 5
-null
-5
 	do
 		local (for generator), (for state), (for control) = pairs(rules)
 		do
@@ -154,12 +143,10 @@ null
 
 	end
 
+	return true
 end
 
 function ElementInstigatorRule:_check_loot_rules(rules, instigator)
--- fail 5
-null
-5
 	do
 		local (for generator), (for state), (for control) = pairs(rules)
 		do
@@ -172,6 +159,7 @@ null
 
 	end
 
+	return true
 end
 
 function ElementInstigatorRule:on_executed(instigator)

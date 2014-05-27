@@ -13,7 +13,6 @@ function LoadingGame:init()
 
 	end
 
-	(for control) = World:find_units_quick("all") and unit.set_slot
 	local session_info = self.game_state._session_manager:session():session_info()
 	local factory = self.game_state._session_manager._factory
 	local level_name = session_info:level_name()

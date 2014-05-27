@@ -49,7 +49,6 @@ function CoreWorldCameraUnitElement:_populate_worldcameras()
 
 	end
 
-	(for control) = self:_sorted_worldcameras() and self._worldcameras
 	self._worldcameras:set_value(self._hed.worldcamera)
 end
 
@@ -65,7 +64,6 @@ function CoreWorldCameraUnitElement:_populate_sequences()
 
 	end
 
-	(for control) = self:_sorted_worldcamera_sequences() and self._sequences
 	self._sequences:set_value(self._hed.worldcamera_sequence)
 end
 
@@ -80,7 +78,6 @@ function CoreWorldCameraUnitElement:_sorted_worldcameras()
 
 	end
 
-	(for control) = managers.worldcamera:all_world_cameras() and table
 	table.sort(t)
 	return t
 end
@@ -96,7 +93,6 @@ function CoreWorldCameraUnitElement:_sorted_worldcamera_sequences()
 
 	end
 
-	(for control) = managers.worldcamera:all_world_camera_sequences() and table
 	table.sort(t)
 	return t
 end

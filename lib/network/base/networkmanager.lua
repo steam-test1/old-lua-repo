@@ -310,7 +310,7 @@ function NetworkManager:stop_network(clean)
 		end
 
 		self._handlers = nil
-		self._shared_handler_data = nil and nil
+		self._shared_handler_data = nil
 		self._session:destroy()
 		self._session = nil
 		self._game = nil

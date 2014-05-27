@@ -170,7 +170,7 @@ function MissionScriptElement:_has_on_executed_alternative(alternative)
 
 	end
 
-	(for control) = nil and params.alternative
+	return false
 end
 
 function MissionScriptElement:set_enabled(enabled)
@@ -248,7 +248,6 @@ function MissionScriptElement:get_orientation_index()
 		end
 
 		local alternatives = {}
-		(for control) = nil and table
 		do
 			local (for generator), (for state), (for control) = ipairs(self._unused_orientation_indices)
 			do
@@ -263,7 +262,6 @@ function MissionScriptElement:get_orientation_index()
 
 		end
 
-		(for control) = nil and self._values
 		if #alternatives == 0 then
 			if #self._unused_orientation_indices == #self._values.orientation_elements then
 				_G.debug_pause("There where no enabled orientation elements!", self:editor_name())

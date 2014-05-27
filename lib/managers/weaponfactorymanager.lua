@@ -43,7 +43,7 @@ function WeaponFactoryManager:_read_factory_data()
 
 	end
 
-	self._parts_by_weapon = nil and {}
+	self._parts_by_weapon = {}
 	self._part_used_by_weapons = {}
 	local (for generator), (for state), (for control) = pairs(tweak_data.weapon.factory)
 	do
@@ -87,6 +87,7 @@ function WeaponFactoryManager:get_all_weapon_categories()
 
 	end
 
+	return weapon_categories
 end
 
 function WeaponFactoryManager:get_all_weapon_families()
@@ -106,6 +107,7 @@ function WeaponFactoryManager:get_all_weapon_families()
 
 	end
 
+	return weapon_families
 end
 
 function WeaponFactoryManager:get_weapons_uses_part(part_id)
@@ -243,7 +245,6 @@ function WeaponFactoryManager:_indexed_parts(factory_id)
 
 	end
 
-	(for control) = nil and print
 	print("num_variations", num_variations, "tot_parts", tot_parts)
 	return i_table
 end
@@ -290,7 +291,6 @@ function WeaponFactoryManager:_preload_parts(factory_id, factory_weapon, bluepri
 
 	end
 
-	(for control) = nil and self._preload_part
 	do
 		local (for generator), (for state), (for control) = ipairs(need_parent)
 		do
@@ -300,7 +300,6 @@ function WeaponFactoryManager:_preload_parts(factory_id, factory_weapon, bluepri
 
 	end
 
-	(for control) = nil and self._preload_part
 	done_cb(parts, blueprint)
 	return parts, blueprint
 end
@@ -327,7 +326,6 @@ function WeaponFactoryManager:get_assembled_blueprint(factory_id, blueprint)
 
 				end
 
-				(for control) = nil and table
 				if part.adds_type then
 					local (for generator), (for state), (for control) = ipairs(part.adds_type)
 					do
@@ -338,7 +336,6 @@ function WeaponFactoryManager:get_assembled_blueprint(factory_id, blueprint)
 
 				end
 
-				(for control) = ipairs(add_blueprint) and factory[factory_id]
 				if part.adds then
 					local (for generator), (for state), (for control) = ipairs(part.adds)
 					do
@@ -348,7 +345,6 @@ function WeaponFactoryManager:get_assembled_blueprint(factory_id, blueprint)
 
 				end
 
-				(for control) = ipairs(add_blueprint) and table
 				table.insert(assembled_blueprint, part_id)
 			end
 
@@ -356,6 +352,7 @@ function WeaponFactoryManager:get_assembled_blueprint(factory_id, blueprint)
 
 	end
 
+	return assembled_blueprint
 end
 
 function WeaponFactoryManager:_preload_part(factory_id, part_id, forbidden, override, parts, third_person, need_parent, only_record)
@@ -375,7 +372,6 @@ function WeaponFactoryManager:_preload_part(factory_id, part_id, forbidden, over
 
 	end
 
-	(for control) = nil and self._preload_part
 	if part.adds_type then
 		local (for generator), (for state), (for control) = ipairs(part.adds_type)
 		do
@@ -386,7 +382,6 @@ function WeaponFactoryManager:_preload_part(factory_id, part_id, forbidden, over
 
 	end
 
-	(for control) = nil and factory[factory_id]
 	if part.adds then
 		local (for generator), (for state), (for control) = ipairs(part.adds)
 		do
@@ -396,7 +391,6 @@ function WeaponFactoryManager:_preload_part(factory_id, part_id, forbidden, over
 
 	end
 
-	(for control) = nil and self._preload_part
 	if parts[part_id] then
 		return
 	end
@@ -464,12 +458,6 @@ function WeaponFactoryManager:_assemble(factory_id, p_unit, blueprint, third_per
 end
 
 function WeaponFactoryManager:_get_forbidden_parts(factory_id, blueprint)
--- fail 25
-null
-14
--- fail 39
-null
-15
 	local factory = tweak_data.weapon.factory
 	local forbidden = {}
 	local override = self:_get_override_parts(factory_id, blueprint)
@@ -501,12 +489,10 @@ null
 
 	end
 
+	return forbidden
 end
 
 function WeaponFactoryManager:_get_override_parts(factory_id, blueprint)
--- fail 20
-null
-13
 	local factory = tweak_data.weapon.factory
 	local overridden = {}
 	do
@@ -527,6 +513,7 @@ null
 
 	end
 
+	return overridden
 end
 
 function WeaponFactoryManager:_update_task(task)
@@ -582,7 +569,6 @@ function WeaponFactoryManager:_add_parts(p_unit, factory_id, factory_weapon, blu
 
 		end
 
-		(for control) = nil and self._add_part
 		do
 			local (for generator), (for state), (for control) = ipairs(need_parent)
 			do
@@ -592,7 +578,6 @@ function WeaponFactoryManager:_add_parts(p_unit, factory_id, factory_weapon, blu
 
 		end
 
-		(for control) = nil and self._add_part
 		done_cb(parts, blueprint)
 	end
 
@@ -600,9 +585,6 @@ function WeaponFactoryManager:_add_parts(p_unit, factory_id, factory_weapon, blu
 end
 
 function WeaponFactoryManager:_part_data(part_id, factory_id, override)
--- fail 23
-null
-8
 	local factory = tweak_data.weapon.factory
 	local part = deep_clone(factory.parts[part_id])
 	if factory[factory_id].override and factory[factory_id].override[part_id] then
@@ -614,8 +596,7 @@ null
 
 	end
 
-	do break end
-	if override[part_id] then
+	if override and override[part_id] then
 		local (for generator), (for state), (for control) = pairs(override[part_id])
 		do
 			do break end
@@ -624,6 +605,7 @@ null
 
 	end
 
+	return part
 end
 
 function WeaponFactoryManager:_add_part(p_unit, factory_id, part_id, forbidden, override, parts, third_person, need_parent)
@@ -642,7 +624,6 @@ function WeaponFactoryManager:_add_part(p_unit, factory_id, part_id, forbidden, 
 
 	end
 
-	(for control) = override and self._add_part
 	if part.adds_type then
 		local (for generator), (for state), (for control) = ipairs(part.adds_type)
 		do
@@ -653,7 +634,6 @@ function WeaponFactoryManager:_add_part(p_unit, factory_id, part_id, forbidden, 
 
 	end
 
-	(for control) = override and factory[factory_id]
 	if part.adds then
 		local (for generator), (for state), (for control) = ipairs(part.adds)
 		do
@@ -663,7 +643,6 @@ function WeaponFactoryManager:_add_part(p_unit, factory_id, part_id, forbidden, 
 
 	end
 
-	(for control) = override and self._add_part
 	if parts[part_id] then
 		return
 	end
@@ -763,6 +742,7 @@ function WeaponFactoryManager:get_parts_from_weapon_by_type_or_perk(type_or_perk
 
 	end
 
+	return type_parts
 end
 
 function WeaponFactoryManager:get_parts_from_weapon_by_perk(perk, parts)
@@ -781,6 +761,7 @@ function WeaponFactoryManager:get_parts_from_weapon_by_perk(perk, parts)
 
 	end
 
+	return type_parts
 end
 
 function WeaponFactoryManager:get_part_from_weapon_by_type(type, parts)
@@ -797,7 +778,7 @@ function WeaponFactoryManager:get_part_from_weapon_by_type(type, parts)
 
 	end
 
-	(for control) = nil and factory.parts
+	return false
 end
 
 function WeaponFactoryManager:get_part_data_type_from_weapon_by_type(type, data_type, parts)
@@ -814,7 +795,7 @@ function WeaponFactoryManager:get_part_data_type_from_weapon_by_type(type, data_
 
 	end
 
-	(for control) = nil and factory.parts
+	return false
 end
 
 function WeaponFactoryManager:has_weapon_more_than_default_parts(factory_id)
@@ -865,7 +846,6 @@ function WeaponFactoryManager:change_part(p_unit, factory_id, part_id, parts, bl
 
 			end
 
-			(for control) = "doesn't exist!" and factory.parts
 			table.insert(blueprint, part_id)
 			self:disassemble(parts)
 			return self:assemble_from_blueprint(factory_id, p_unit, blueprint)
@@ -915,10 +895,12 @@ function WeaponFactoryManager:change_part_blueprint_only(factory_id, part_id, bl
 
 			end
 
-			do break end
-			table.delete(blueprint, part_id)
-			do break end
-			table.insert(blueprint, part_id)
+			if remove_part then
+				table.delete(blueprint, part_id)
+			else
+				table.insert(blueprint, part_id)
+			end
+
 			local forbidden = WeaponFactoryManager:_get_forbidden_parts(factory_id, blueprint) or {}
 			do
 				local (for generator), (for state), (for control) = ipairs(blueprint)
@@ -932,7 +914,7 @@ function WeaponFactoryManager:change_part_blueprint_only(factory_id, part_id, bl
 
 			end
 
-			(for control) = nil and forbidden[rem_id]
+			return true
 		else
 			Application:error("WeaponFactoryManager:change_part Part", part_id, "not allowed for weapon", factory_id, "!")
 		end
@@ -967,7 +949,6 @@ function WeaponFactoryManager:get_replaces_parts(factory_id, part_id, blueprint,
 			end
 
 		else
-			(for control) = nil and factory.parts
 			Application:error("WeaponFactoryManager:check_replaces_part Part", part_id, "not allowed for weapon", factory_id, "!")
 		end
 
@@ -1005,12 +986,10 @@ function WeaponFactoryManager:get_removes_parts(factory_id, part_id, blueprint, 
 
 	end
 
+	return removes
 end
 
 function WeaponFactoryManager:can_add_part(factory_id, part_id, blueprint)
--- fail 9
-null
-7
 	local forbidden = self:_get_forbidden_parts(factory_id, blueprint)
 	do
 		local (for generator), (for state), (for control) = pairs(forbidden)
@@ -1024,6 +1003,7 @@ null
 
 	end
 
+	return nil
 end
 
 function WeaponFactoryManager:remove_part(p_unit, factory_id, part_id, parts, blueprint)
@@ -1054,7 +1034,6 @@ function WeaponFactoryManager:remove_part_by_type(p_unit, factory_id, type, part
 
 	end
 
-	(for control) = nil and factory.parts
 	self:disassemble(parts)
 	return self:assemble_from_blueprint(factory_id, p_unit, blueprint)
 end
@@ -1065,9 +1044,6 @@ function WeaponFactoryManager:change_blueprint(p_unit, factory_id, parts, bluepr
 end
 
 function WeaponFactoryManager:blueprint_to_string(factory_id, blueprint)
--- fail 10
-null
-7
 	local factory = tweak_data.weapon.factory
 	local index_table = {}
 	do
@@ -1089,6 +1065,7 @@ null
 
 	end
 
+	return s
 end
 
 function WeaponFactoryManager:unpack_blueprint_from_string(factory_id, blueprint_string)
@@ -1104,6 +1081,7 @@ function WeaponFactoryManager:unpack_blueprint_from_string(factory_id, blueprint
 
 	end
 
+	return blueprint
 end
 
 function WeaponFactoryManager:get_stats(factory_id, blueprint)
@@ -1128,15 +1106,12 @@ function WeaponFactoryManager:get_stats(factory_id, blueprint)
 
 		end
 
-		(for control) = nil and stats[stat_type]
 	end
 
+	return stats
 end
 
 function WeaponFactoryManager:has_perk(perk_name, factory_id, blueprint)
--- fail 26
-null
-13
 	local factory = tweak_data.weapon.factory
 	local forbidden = self:_get_forbidden_parts(factory_id, blueprint)
 	do
@@ -1159,7 +1134,7 @@ null
 
 	end
 
-	(for control) = nil and forbidden[part_id]
+	return false
 end
 
 function WeaponFactoryManager:get_perks_from_part_id(part_id)
@@ -1178,12 +1153,10 @@ function WeaponFactoryManager:get_perks_from_part_id(part_id)
 
 	end
 
+	return perks
 end
 
 function WeaponFactoryManager:get_perks(factory_id, blueprint)
--- fail 27
-null
-13
 	local factory = tweak_data.weapon.factory
 	local forbidden = self:_get_forbidden_parts(factory_id, blueprint)
 	local perks = {}
@@ -1204,6 +1177,7 @@ null
 
 	end
 
+	return perks
 end
 
 function WeaponFactoryManager:get_sound_switch(switch_group, factory_id, blueprint)
@@ -1221,7 +1195,7 @@ function WeaponFactoryManager:get_sound_switch(switch_group, factory_id, bluepri
 
 	end
 
-	(for control) = nil and forbidden[part_id]
+	return nil
 end
 
 function WeaponFactoryManager:disassemble(parts)
@@ -1244,7 +1218,7 @@ function WeaponFactoryManager:disassemble(parts)
 
 	end
 
-	parts = nil and {}
+	parts = {}
 	local (for generator), (for state), (for control) = pairs(names)
 	do
 		do break end
@@ -1277,5 +1251,6 @@ function WeaponFactoryManager:debug_get_stats(factory_id, blueprint)
 
 	end
 
+	return stats
 end
 

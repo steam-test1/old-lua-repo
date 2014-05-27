@@ -95,7 +95,6 @@ function CoreParticleEditorPanel:fill_timelines()
 
 	end
 
-	(for control) = nil and e[1]
 	self._timeline_edit:refresh()
 end
 
@@ -406,7 +405,6 @@ function CoreParticleEditorPanel:update_graph_view()
 
 					end
 
-					(for control) = self._atom:stack(stacktype):stack() and EWS
 					local (for generator), (for state), (for control) = pairs(writes)
 					do
 						do break end
@@ -417,7 +415,6 @@ function CoreParticleEditorPanel:update_graph_view()
 					end
 
 				else
-					(for control) = self._atom:stack(stacktype):stack() and EWS
 					local affector_node = EWS:Node("INVALID: " .. m:name(), affector_x, row * row_height)
 					self._graph:add_node(affector_node)
 				end
@@ -427,10 +424,8 @@ function CoreParticleEditorPanel:update_graph_view()
 
 		end
 
-		(for control) = self._atom:stack(stacktype):stack() and m._valid_properties
 	end
 
-	(for control) = nil and ipairs
 	self._graph_view:refresh()
 end
 
@@ -491,14 +486,12 @@ function CoreParticleEditorPanel:update_view(clear, undoredo)
 
 			end
 
-			(for control) = self._atom:stack(stacktype):stack() and c.append
 			self._stack_panels[stacktype]:destroy_children()
 			self._stack_panels[stacktype]:set_sizer(EWS:BoxSizer("VERTICAL"))
 		end
 
 	end
 
-	(for control) = EWS:BoxSizer("VERTICAL") and c.clear
 	do
 		local (for generator), (for state), (for control) = pairs(self._stack_panels)
 		do
@@ -508,7 +501,6 @@ function CoreParticleEditorPanel:update_view(clear, undoredo)
 
 	end
 
-	(for control) = EWS:BoxSizer("VERTICAL") and panel.fit_inside
 	local valid = self._effect:validate()
 	self._valid_effect = valid.valid
 	if not valid.valid then
@@ -624,7 +616,6 @@ function CoreParticleEditorPanel:create_stack_panel(parent, stacktype)
 
 	end
 
-	(for control) = "on_key_stack_member" and stack_member_combo.append
 	stack_member_combo:set_value(last)
 	self._stack_member_combos[stacktype] = stack_member_combo
 	local up_button = EWS:Button(panel, "Up", "", "")

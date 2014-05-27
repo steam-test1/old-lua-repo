@@ -27,6 +27,7 @@ function NetworkFriendsXBL:get_friends_list()
 
 	end
 
+	return friends
 end
 
 function NetworkFriendsXBL:get_friends_by_name()
@@ -42,6 +43,7 @@ function NetworkFriendsXBL:get_friends_by_name()
 
 	end
 
+	return friends
 end
 
 function NetworkFriendsXBL:get_friends()

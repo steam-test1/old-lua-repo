@@ -88,7 +88,6 @@ function GageAssignmentManager:activate_assignments()
 
 	end
 
-	(for control) = managers.job:current_level_id() and self._progressed_assignments
 	if self._queued_spawns then
 		do
 			local (for generator), (for state), (for control) = ipairs(self._queued_spawns)
@@ -102,7 +101,7 @@ function GageAssignmentManager:activate_assignments()
 		self._queued_spawns = nil
 	end
 
-	self._queued_spawned_units = managers.job:current_level_id() and nil
+	self._queued_spawned_units = nil
 end
 
 function GageAssignmentManager:_activate_assignments_client()
@@ -130,7 +129,7 @@ function GageAssignmentManager:deactivate_assignments()
 	end
 
 	self._spawned_units = nil
-	self._queued_spawns = nil and nil
+	self._queued_spawns = nil
 	self._queued_spawned_units = nil
 	self._active_assignments = nil
 	self._progressed_assignments = nil
@@ -174,7 +173,7 @@ function GageAssignmentManager:on_mission_completed()
 	end
 
 	self._saved_completed_assignments = completed_assignments
-	self._saved_progressed_assignments, (for control) = self._progressed_assignments, nil and tweak_data
+	self._saved_progressed_assignments = self._progressed_assignments
 	self._progressed_assignments = nil
 	if 0 < table.size(completed_assignments) then
 		self._global.dialog_params = self._global.dialog_params or {}
@@ -188,7 +187,6 @@ function GageAssignmentManager:on_mission_completed()
 
 		end
 
-		(for control) = nil and self._global
 		self._global.dialog_params.date = Application:date("%Y-%m-%d")
 		self._global.dialog_params.time = Application:date("%H:%M")
 	end
@@ -212,7 +210,6 @@ function GageAssignmentManager:debug_test_dialog_params(show_items)
 
 	end
 
-	(for control) = self._tweak_data:get_assignments() and self._global
 	self._global.dialog_params.date = Application:date("%Y-%m-%d")
 	self._global.dialog_params.time = Application:date("%H:%M")
 	self:dialog_show_completed_assignments(show_items)
@@ -234,7 +231,6 @@ function GageAssignmentManager:dialog_show_completed_assignments(show_items)
 
 	end
 
-	(for control) = nil and table
 	table.sort(assignment_list, function(x, y)
 		return self._tweak_data:get_value(x, "aquire") < self._tweak_data:get_value(y, "aquire")
 	end
@@ -286,7 +282,6 @@ function GageAssignmentManager:dialog_show_completed_assignments(show_items)
 
 			end
 
-			(for control) = {num = num, item = item} and tweak_data
 			if i < #assignment_list then
 				completed = completed .. "\n"
 			end
@@ -296,7 +291,6 @@ function GageAssignmentManager:dialog_show_completed_assignments(show_items)
 	end
 
 	local params = {}
-	(for control) = assignment_list and tostring
 	params.date = self._global.dialog_params.date
 	params.time = self._global.dialog_params.time
 	params.completed = completed
@@ -317,7 +311,6 @@ function GageAssignmentManager:is_unit_an_assignment(unit)
 
 	end
 
-	(for control) = nil and unit.key
 	if self._queued_spawned_units then
 		local (for generator), (for state), (for control) = ipairs(self._queued_spawned_units)
 		do
@@ -330,7 +323,7 @@ function GageAssignmentManager:is_unit_an_assignment(unit)
 
 	end
 
-	(for control) = nil and unit.key
+	return false
 end
 
 function GageAssignmentManager:on_simulation_ended()
@@ -402,7 +395,6 @@ function GageAssignmentManager:do_spawn(position, rotation)
 
 	end
 
-	(for control) = nil and self._tweak_data
 	local r = math.rand(total_weight)
 	local assignment
 	do
@@ -419,8 +411,7 @@ function GageAssignmentManager:do_spawn(position, rotation)
 
 	end
 
-	do break end
-	do
+	if assignment then
 		local unit_name = self._tweak_data:get_value(assignment, "unit")
 		local unit = unit_name and World:spawn_unit(unit_name, position, rotation) or nil
 		return unit
@@ -448,8 +439,10 @@ function GageAssignmentManager:on_unit_interact(unit, assignment)
 
 	end
 
-	do break end
-	do return false end
+	if not pass_spawned then
+		return false
+	end
+
 	assignment = assignment or unit:base():assignment()
 	if not self._active_assignments or not assignment then
 		return false
@@ -482,8 +475,10 @@ function GageAssignmentManager:on_unit_interact(unit, assignment)
 
 	end
 
-	do break end
-	do return false end
+	if max_units <= counted_units then
+		return false
+	end
+
 	self._progressed_assignments[assignment] = self._progressed_assignments[assignment] + 1
 end
 
@@ -539,7 +534,6 @@ function GageAssignmentManager:_give_rewards(assignment)
 	end
 
 	local award_gmod_6 = true
-	(for control) = true and managers
 	do
 		local (for generator), (for state), (for control) = pairs(self._global.completed_assignments)
 		do
@@ -553,8 +547,10 @@ function GageAssignmentManager:_give_rewards(assignment)
 
 	end
 
-	do break end
-	managers.achievment:award("gmod_6")
+	if award_gmod_6 then
+		managers.achievment:award("gmod_6")
+	end
+
 end
 
 function GageAssignmentManager:count_all_units()
@@ -580,6 +576,7 @@ function GageAssignmentManager:count_active_units()
 
 	end
 
+	return count
 end
 
 function GageAssignmentManager:get_current_experience_multiplier()
@@ -662,7 +659,6 @@ function GageAssignmentManager:load(data, version)
 
 		end
 
-		(for control) = nil and assignments_data[assignment]
 		do
 			local (for generator), (for state), (for control) = ipairs(deleted_assignments)
 			do
@@ -673,7 +669,7 @@ function GageAssignmentManager:load(data, version)
 
 		end
 
-		deleted_assignments = nil and {}
+		deleted_assignments = {}
 		do
 			local (for generator), (for state), (for control) = pairs(Global.gage_assignment.completed_assignments)
 			do
@@ -686,7 +682,6 @@ function GageAssignmentManager:load(data, version)
 
 		end
 
-		(for control) = nil and assignments_data[assignment]
 		do
 			local (for generator), (for state), (for control) = ipairs(deleted_assignments)
 			do
@@ -697,7 +692,6 @@ function GageAssignmentManager:load(data, version)
 
 		end
 
-		(for control) = nil and Application
 		local (for generator), (for state), (for control) = pairs(assignments_data)
 		do
 			do break end

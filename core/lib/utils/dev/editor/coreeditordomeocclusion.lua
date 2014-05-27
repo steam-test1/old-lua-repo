@@ -54,23 +54,17 @@ function CoreEditor:_create_dome_occlusion(params)
 
 					end
 
-				else
-					(for control) = unit:get_objects("*") and string
-					if unit:unit_data().hide_on_projection_light then
-						self:set_unit_visible(unit, false)
-						table.insert(self._saved_hidden_units, unit)
-					end
-
+				elseif unit:unit_data().hide_on_projection_light then
+					self:set_unit_visible(unit, false)
+					table.insert(self._saved_hidden_units, unit)
 				end
 
 			end
 
 		end
 
-		(for control) = layer:created_units() and unit.has_material_assigned
 	end
 
-	(for control) = Vector3(self._dome_occlusion_params.res + 4, self._dome_occlusion_params.res + 4, 0) and ipairs
 	if self._current_layer then
 		self._current_layer:update_unit_settings()
 	end
@@ -178,7 +172,6 @@ function CoreEditor:dome_occlusion_done()
 
 	end
 
-	(for control) = self._dome_occ_size or obj.set_visibility
 	do
 		local (for generator), (for state), (for control) = ipairs(self._saved_hidden_units)
 		do
@@ -188,7 +181,6 @@ function CoreEditor:dome_occlusion_done()
 
 	end
 
-	(for control) = self._dome_occ_size and self.set_unit_visible
 	if self._saved_camera then
 		self:set_camera(self._saved_camera.pos, self._saved_camera.rot)
 		self:set_camera_fov(self._saved_camera.fov)

@@ -21,7 +21,7 @@ function LootManager:_setup()
 
 	end
 
-	Global.loot_manager, (for control) = {}, nil and tweak_data
+	Global.loot_manager = {}
 	Global.loot_manager.secured = {}
 	Global.loot_manager.distribute = distribute
 	Global.loot_manager.saved_secured = saved_secured
@@ -52,9 +52,6 @@ function LootManager:add_trigger(id, type, amount, callback)
 end
 
 function LootManager:_check_triggers(type)
--- fail 19
-null
-5
 	print("LootManager:_check_triggers", type)
 	if not self._triggers[type] then
 		return
@@ -82,15 +79,11 @@ null
 
 		end
 
-	else
-		(for control) = nil and cb_data.amount
-		if type == "report_only" then
-			local (for generator), (for state), (for control) = pairs(self._triggers[type])
-			do
-				do break end
-				cb_data.callback()
-			end
-
+	elseif type == "report_only" then
+		local (for generator), (for state), (for control) = pairs(self._triggers[type])
+		do
+			do break end
+			cb_data.callback()
 		end
 
 	end
@@ -204,6 +197,7 @@ function LootManager:get_secured_mandatory_bags_amount()
 
 	end
 
+	return amount
 end
 
 function LootManager:get_secured_bonus_bags_amount()
@@ -227,6 +221,7 @@ function LootManager:get_secured_bonus_bags_amount()
 
 	end
 
+	return amount
 end
 
 function LootManager:get_secured_bonus_bags_value(level_id)
@@ -251,6 +246,7 @@ function LootManager:get_secured_bonus_bags_value(level_id)
 
 	end
 
+	return value
 end
 
 function LootManager:get_secured_mandatory_bags_value()
@@ -269,6 +265,7 @@ function LootManager:get_secured_mandatory_bags_value()
 
 	end
 
+	return value
 end
 
 function LootManager:is_bonus_bag(carry_id)
@@ -294,7 +291,7 @@ function LootManager:is_bonus_bag(carry_id)
 
 	end
 
-	(for control) = nil and tweak_data
+	return false
 end
 
 function LootManager:get_real_value(carry_id, multiplier)
@@ -315,6 +312,7 @@ function LootManager:get_real_total_value()
 
 	end
 
+	return value
 end
 
 function LootManager:get_real_total_loot_value()
@@ -339,6 +337,7 @@ function LootManager:get_real_total_loot_value()
 
 	end
 
+	return value
 end
 
 function LootManager:get_real_total_small_loot_value()
@@ -363,6 +362,7 @@ function LootManager:get_real_total_small_loot_value()
 
 	end
 
+	return value
 end
 
 function LootManager:set_postponed_small_loot()
@@ -393,6 +393,7 @@ function LootManager:get_real_total_postponed_small_loot_value()
 
 	end
 
+	return value
 end
 
 function LootManager:clear_postponed_small_loot()
@@ -413,6 +414,7 @@ function LootManager:total_value_by_carry_id(carry_id)
 
 	end
 
+	return value
 end
 
 function LootManager:total_small_loot_value()
@@ -429,6 +431,7 @@ function LootManager:total_small_loot_value()
 
 	end
 
+	return value
 end
 
 function LootManager:total_value_by_type(type)
@@ -450,6 +453,7 @@ function LootManager:total_value_by_type(type)
 
 	end
 
+	return value
 end
 
 function LootManager:_present(carry_id, multiplier)

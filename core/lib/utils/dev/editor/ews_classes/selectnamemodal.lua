@@ -96,7 +96,6 @@ function SelectNameModal:fill_asset_list()
 
 	end
 
-	(for control) = nil and string
 	self._list:thaw()
 	self._list:autosize_column(0)
 end
@@ -132,5 +131,6 @@ function SelectNameModal:_selected_item_assets()
 
 	end
 
+	return assets
 end
 

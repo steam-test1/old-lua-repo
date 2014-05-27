@@ -31,6 +31,7 @@ function ScriptGraph:selected_nodes()
 
 	end
 
+	return t
 end
 
 function ScriptGraph:last_selected_node()
@@ -86,7 +87,6 @@ function ScriptGraph:save(id_map)
 		end
 
 	else
-		(for control) = gm and Node
 		local (for generator), (for state), (for control) = self._graph_view:nodes()
 		do
 			do break end
@@ -106,7 +106,6 @@ function ScriptGraph:save(id_map)
 
 	end
 
-	(for control) = gm and Node
 	return config, new_id_map
 end
 
@@ -130,7 +129,7 @@ function ScriptGraph:load(config_root)
 	end
 
 	do
-		local (for generator), (for state), (for control) = config_root:parameter("name") and config_root:children(), config_root:children()
+		local (for generator), (for state), (for control) = config_root:children()
 		do
 			do break end
 			if node:name() == "node" then
@@ -149,7 +148,6 @@ function ScriptGraph:load(config_root)
 
 	end
 
-	(for control) = config_root:parameter("name") and node.name
 	self._graph:clear()
 	do
 		local (for generator), (for state), (for control) = pairs(self._nodes)
@@ -168,7 +166,6 @@ function ScriptGraph:load(config_root)
 
 	end
 
-	(for control) = config_root:parameter("name") and self._graph
 	do
 		local (for generator), (for state), (for control) = pairs(self._nodes)
 		do
@@ -187,7 +184,6 @@ function ScriptGraph:load(config_root)
 
 					end
 
-					(for control) = unpack(node.info.color) and self._find_node_with_id
 					if slot.col then
 						node.cnode:set_output_colour(slot_name, unpack(slot.col))
 					end
@@ -196,7 +192,6 @@ function ScriptGraph:load(config_root)
 
 			end
 
-			(for control) = unpack(node.info.color) and pairs
 			if node.info.in_slots then
 				local (for generator), (for state), (for control) = pairs(node.info.in_slots)
 				do
@@ -211,10 +206,8 @@ function ScriptGraph:load(config_root)
 
 		end
 
-		(for control) = unpack(node.info.color) and slot.col
 	end
 
-	(for control) = config_root:parameter("name") and node.info
 	self._graph_view:refresh()
 	return self._id_map
 end
@@ -247,7 +240,6 @@ function ScriptGraph:_load_node_info(node)
 
 					end
 
-					(for control) = node_info:parameter("name") and inf.name
 					table.insert(info.in_slot_names, name)
 					info.in_slots[name] = {col = color}
 				else
@@ -278,7 +270,6 @@ function ScriptGraph:_load_node_info(node)
 
 					end
 
-					(for control) = node_info:parameter("name") and inf.name
 					table.insert(info.out_slot_names, name)
 					info.out_slots[name] = {con = connection, col = color}
 				end
@@ -297,6 +288,7 @@ function ScriptGraph:_load_node_info(node)
 
 	end
 
+	return info
 end
 
 function ScriptGraph:_create_panel(parent, id, style, window_style)
@@ -312,9 +304,6 @@ function ScriptGraph:_find_node_with_id(nodes, id)
 end
 
 function ScriptGraph:_find_id_with_node(id_map, node)
--- fail 5
-null
-5
 	do
 		local (for generator), (for state), (for control) = pairs(id_map)
 		do
@@ -385,5 +374,34 @@ function ScriptGraph:_write_node_color(cfg_node, node)
 end
 
 function ScriptGraph:_write_slots(cfg_node, node, id_map)
+	if node:type() == "FlowNode" then
+		do
+			local (for generator), (for state), (for control) = ipairs(node:inputs())
+			do
+				do break end
+				local slot_node = Node("slot")
+				slot_node:set_parameter("name", slot)
+				slot_node:set_parameter("type", "in")
+				self:_write_connections(slot_node, slot, node, id_map)
+				self:_write_input_color(slot_node, slot, node)
+				cfg_node:add_child(slot_node)
+			end
+
+		end
+
+		local (for generator), (for state), (for control) = ipairs(node:outputs())
+		do
+			do break end
+			local slot_node = Node("slot")
+			slot_node:set_parameter("name", slot)
+			slot_node:set_parameter("type", "out")
+			self:_write_connections(slot_node, slot, node, id_map)
+			self:_write_output_color(slot_node, slot, node)
+			cfg_node:add_child(slot_node)
+		end
+
+	else
+	end
+
 end
 

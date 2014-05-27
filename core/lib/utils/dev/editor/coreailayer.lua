@@ -29,7 +29,6 @@ function AiLayer:load(world_holder, offset)
 
 	end
 
-	(for control) = offset and self._ai_settings
 	managers.ai_data:load_units(self._created_units)
 	self:_update_patrol_paths_list()
 	self:_update_settings()
@@ -119,10 +118,8 @@ function AiLayer:_draw(t, dt)
 
 						end
 
-						(for control) = b and to_unit.unit_data
 					end
 
-					(for control) = t and ipairs
 					local (for generator), (for state), (for control) = pairs(unit:ai_editor_data().visibilty_include_filter)
 					do
 						do break end
@@ -143,21 +140,15 @@ function AiLayer:_draw(t, dt)
 
 					end
 
-					(for control) = b and to_unit.unit_data
 				end
 
-			else
-				(for control) = t and ipairs
-				if unit:name() == self._patrol_point_unit then
-				end
-
+			elseif unit:name() == self._patrol_point_unit then
 			end
 
 		end
 
 	end
 
-	(for control) = nil and self._selected_unit
 	self:_draw_patrol_paths(t, dt)
 end
 
@@ -249,7 +240,6 @@ function AiLayer:build_panel(notebook)
 
 	end
 
-	(for control) = "LB_EXTENDED,LB_HSCROLL,LB_NEEDED_SB,LB_SORT" and graphs.append
 	graphs_sizer:add(graphs, 1, 0, "EXPAND")
 	local button_sizer1 = EWS:StaticBoxSizer(self._ews_panel, "HORIZONTAL", "Calculate")
 	local calc_btn = EWS:Button(self._ews_panel, "All", "", "BU_EXACTFIT,NO_BORDER")
@@ -311,7 +301,6 @@ function AiLayer:build_panel(notebook)
 
 	end
 
-	(for control) = self._ews_panel and visualize_sizer.add
 	self._ews_panel:connect("draw_debug", "EVT_COMMAND_RADIOBUTTON_SELECTED", callback(self, self, "_set_debug_options"), nil)
 	graphs_sizer:add(visualize_sizer, 0, 0, "EXPAND")
 	self._status_text = EWS:TextCtrl(self._ews_panel, "", 0, "TE_NOHIDESEL,TE_RICH2,TE_DONTWRAP,TE_READONLY,TE_CENTRE")
@@ -360,7 +349,6 @@ function AiLayer:_build_ai_unit_settings()
 
 	end
 
-	(for control) = managers.localization:ids("strings/atmospheric_text") and id_string.s
 	local sizer = EWS:StaticBoxSizer(self._ews_panel, "VERTICAL", "Unit settings")
 	local locations = {
 		name = "Location id:",
@@ -480,10 +468,8 @@ function AiLayer:_calc_graphs(params)
 
 					end
 
-					(for control) = layer:created_units() and unit.unit_data
 				end
 
-				(for control) = managers.editor:layers() and ipairs
 				managers.editor:output("Make graph " .. type .. "_" .. self._graphs:get_string(i))
 				managers.navigation:build_nav_segments(settings, callback(self, self, "_graphs_done", params.vis_graph))
 			end
@@ -507,8 +493,10 @@ function AiLayer:_graphs_done(vis_graph)
 
 	end
 
-	do break end
-	self:_build_visibility_graph()
+	if vis_graph then
+		self:_build_visibility_graph()
+	end
+
 end
 
 function AiLayer:_build_visibility_graph()
@@ -529,7 +517,7 @@ function AiLayer:_build_visibility_graph()
 
 	end
 
-	local ray_lenght = nil and self._ray_length_params.value
+	local ray_lenght = self._ray_length_params.value
 	managers.navigation:build_visibility_graph(callback(self, self, "_visibility_graph_done"), all_visible, exclude, include, ray_lenght)
 end
 
@@ -563,6 +551,7 @@ function AiLayer:_get_build_settings(type, build_type)
 
 	end
 
+	return settings
 end
 
 function AiLayer:_get_units(type, build_type)
@@ -580,6 +569,7 @@ function AiLayer:_get_units(type, build_type)
 
 	end
 
+	return units
 end
 
 function AiLayer:_toggle_debug_draw(debug)
@@ -607,7 +597,6 @@ function AiLayer:_set_debug_options()
 
 	end
 
-	(for control) = nil and ctrl.get_value
 	managers.navigation:set_debug_draw_state(options)
 end
 
@@ -761,6 +750,7 @@ function AiLayer:_current_patrol_units(name)
 
 	end
 
+	return t
 end
 
 function AiLayer:_delete_patrol_path()
@@ -781,7 +771,6 @@ function AiLayer:_delete_patrol_path()
 
 		end
 
-		(for control) = "YES_NO,ICON_QUESTION" and self.delete_unit
 		managers.ai_data:remove_patrol_path(name)
 		self:_update_patrol_paths_list()
 		self._current_patrol_path = nil
@@ -868,7 +857,6 @@ function AiLayer:delete_unit(unit)
 
 	end
 
-	(for control) = nil and u.name
 	if unit:name() == self._nav_surface_unit then
 		managers.navigation:delete_nav_segment(unit:unit_data().unit_id)
 		self._ai_unit_settings_guis.locations.ctrlr:set_enabled(false)

@@ -125,12 +125,6 @@ function SpecialObjectiveGroupElement:_raycast()
 end
 
 function SpecialObjectiveGroupElement:_lmb()
--- fail 14
-null
-4
--- fail 52
-null
-5
 	local id = self:_so_raycast()
 	if id then
 		if self._hed.followup_elements then

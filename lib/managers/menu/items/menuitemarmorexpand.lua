@@ -151,6 +151,7 @@ function MenuItemArmorExpand:get_h(row_item, node)
 
 	end
 
+	return h
 end
 
 function MenuItemArmorExpand:reload(row_item, node)

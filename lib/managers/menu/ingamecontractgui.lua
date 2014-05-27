@@ -1,8 +1,5 @@
 IngameContractGui = IngameContractGui or class()
 function IngameContractGui:init(ws)
--- fail 741
-null
-37
 	self._panel = ws:panel():panel({
 		w = math.round(ws:panel():w() / 2.2),
 		h = math.round(ws:panel():h() / 1.2)
@@ -472,7 +469,7 @@ function IngameContractGui:_rec_round_object(object)
 
 	end
 
-	local x, y = object:children() and object:position(), object:position()
+	local x, y = object:position()
 	object:set_position(math.round(x), math.round(y))
 end
 

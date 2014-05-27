@@ -32,7 +32,7 @@ function GroupAIStateStreet:_init_misc_data()
 		end
 
 		self._is_first_assault = true
-		self._task_data, (for control) = {}, nil and u_data.assigned_area
+		self._task_data = {}
 		self._task_data.blockade = {}
 		self._task_data.assault = {}
 		self._task_data.regroup = {}
@@ -191,7 +191,6 @@ function GroupAIStateStreet:_upd_blockade_task(t)
 	end
 
 	local failed_to_change_event
-	(for control) = nil and c_data.tracker
 	if has_irrelevant_players then
 		local event = self:_find_blockade_event(t)
 		if event then
@@ -239,57 +238,55 @@ function GroupAIStateStreet:_upd_blockade_task(t)
 
 		end
 
-		(for control) = nil and mvec3_dis
 	end
 
-	do break end
-	if t > task_data.phase_end_t then
-		managers.hud:start_assault()
-		self:_set_rescue_state(false)
-		task_data.phase = "build"
-		phase = task_data.phase
-		task_data.phase_end_t = self._t + tweak_data.group_ai.street.blockade.build_duration
-		self:set_assault_mode(true)
-		managers.trade:set_trade_countdown(false)
-	else
-		managers.hud:check_anticipation_voice(task_data.phase_end_t - t)
-		managers.hud:check_start_anticipation_music(task_data.phase_end_t - t)
-		do break end
-		if phase == "build" then
-			if t > task_data.phase_end_t or self._drama_data.zone == "high" then
-				task_data.phase = "sustain"
-				phase = task_data.phase
-				task_data.phase_end_t = t + math.lerp(self:_get_difficulty_dependent_value(tweak_data.group_ai.street.blockade.sustain_duration_min), self:_get_difficulty_dependent_value(tweak_data.group_ai.street.blockade.sustain_duration_max), math.random())
+	if phase == "anticipation" then
+		if t > task_data.phase_end_t then
+			managers.hud:start_assault()
+			self:_set_rescue_state(false)
+			task_data.phase = "build"
+			phase = task_data.phase
+			task_data.phase_end_t = self._t + tweak_data.group_ai.street.blockade.build_duration
+			self:set_assault_mode(true)
+			managers.trade:set_trade_countdown(false)
+		else
+			managers.hud:check_anticipation_voice(task_data.phase_end_t - t)
+			managers.hud:check_start_anticipation_music(task_data.phase_end_t - t)
+		end
+
+	elseif phase == "build" then
+		if t > task_data.phase_end_t or self._drama_data.zone == "high" then
+			task_data.phase = "sustain"
+			phase = task_data.phase
+			task_data.phase_end_t = t + math.lerp(self:_get_difficulty_dependent_value(tweak_data.group_ai.street.blockade.sustain_duration_min), self:_get_difficulty_dependent_value(tweak_data.group_ai.street.blockade.sustain_duration_max), math.random())
+		end
+
+	elseif phase == "sustain" then
+		if t > task_data.phase_end_t and not self._hunt_mode then
+			task_data.phase = "fade"
+			phase = task_data.phase
+			task_data.phase_end_t = nil
+			task_data.phase_end_t = t + 10
+		end
+
+	elseif phase == "fade" then
+		if t > task_data.phase_end_t - 8 and not task_data.said_retreat then
+			if self._drama_data.zone ~= "high" then
+				task_data.said_retreat = true
+				self:_police_announce_retreat()
 			end
 
-		elseif phase == "sustain" then
-			if t > task_data.phase_end_t and not self._hunt_mode then
-				task_data.phase = "fade"
-				phase = task_data.phase
-				task_data.phase_end_t = nil
-				task_data.phase_end_t = t + 10
+		elseif t > task_data.phase_end_t and self._drama_data.zone ~= "high" then
+			task_data.active = nil
+			task_data.phase = nil
+			phase = task_data.phase
+			task_data.said_retreat = nil
+			if self._draw_drama then
+				self._draw_drama.assault_hist[#self._draw_drama.assault_hist][2] = t
 			end
 
-		elseif phase == "fade" then
-			if t > task_data.phase_end_t - 8 and not task_data.said_retreat then
-				if self._drama_data.zone ~= "high" then
-					task_data.said_retreat = true
-					self:_police_announce_retreat()
-				end
-
-			elseif t > task_data.phase_end_t and self._drama_data.zone ~= "high" then
-				task_data.active = nil
-				task_data.phase = nil
-				phase = task_data.phase
-				task_data.said_retreat = nil
-				if self._draw_drama then
-					self._draw_drama.assault_hist[#self._draw_drama.assault_hist][2] = t
-				end
-
-				self:_begin_regroup_task(true)
-				return
-			end
-
+			self:_begin_regroup_task(true)
+			return
 		end
 
 	end
@@ -320,7 +317,6 @@ function GroupAIStateStreet:_upd_blockade_task(t)
 
 	end
 
-	(for control) = math.random() and u_data.assigned_area
 	local undershot = task_data.force_required.defend - #blocker_pigs
 	local spawn_threshold = math.max(0, self._police_force_max - self._police_force)
 	if undershot > 0 then
@@ -349,7 +345,6 @@ function GroupAIStateStreet:_upd_blockade_task(t)
 
 				end
 
-				(for control) = math.random(2, 3) and deep_clone
 				self:_spawn_cops_with_objectives(spawn_points, objectives, tweak_data.group_ai.street.blockade.units.defend)
 				spawn_threshold = spawn_threshold - #spawn_points
 			end
@@ -390,7 +385,6 @@ function GroupAIStateStreet:_upd_blockade_task(t)
 
 				end
 
-				(for control) = u_data.unit:brain().set_objective and target_area_neighbours[nav_seg]
 				local spawn_points = self:_find_spawn_points_behind_pos(search_start_area, target_pos, 1, -task_data.mission_fwd, relevant_areas)
 				if spawn_points then
 					local sp_data = spawn_points[1]
@@ -420,10 +414,12 @@ function GroupAIStateStreet:_upd_blockade_task(t)
 
 					end
 
-					do break end
-					my_objective.nav_seg = closest_criminal_data.tracker:nav_segment()
-					do break end
-					my_objective.nav_seg = task_data.target_area
+					if closest_criminal_data then
+						my_objective.nav_seg = closest_criminal_data.tracker:nav_segment()
+					else
+						my_objective.nav_seg = task_data.target_area
+					end
+
 					local spawned_units = {}
 					self:_spawn_cops_with_objectives(spawn_points, {my_objective}, tweak_data.group_ai.street.blockade.units.flank, spawned_units)
 					local sneak_unit = spawned_units[1]
@@ -476,16 +472,17 @@ function GroupAIStateStreet:_upd_blockade_task(t)
 
 							end
 
-							do break end
-							my_objective.nav_seg = closest_criminal_data.tracker:nav_segment()
-							do break end
-							my_objective.nav_seg = task_data.target_area
+							if closest_criminal_data then
+								my_objective.nav_seg = closest_criminal_data.tracker:nav_segment()
+							else
+								my_objective.nav_seg = task_data.target_area
+							end
+
 							table.insert(objectives, my_objective)
 						end
 
 					end
 
-					(for control) = nil and sp_data.pos
 					self:_spawn_cops_with_objectives(spawn_points, objectives, tweak_data.group_ai.street.blockade.units.frontal)
 					spawn_threshold = spawn_threshold - #spawn_points
 				end
@@ -525,8 +522,7 @@ function GroupAIStateStreet:_upd_blockade_task(t)
 
 					end
 
-					do break end
-					if closest_dis > 5000 then
+					if closest_criminal_data and closest_dis > 5000 then
 						local move_area = closest_criminal_data.tracker:nav_segment()
 						local new_objective = {
 							type = "investigate_area",
@@ -585,35 +581,41 @@ function GroupAIStateStreet:_find_blockade_event(t)
 
 				end
 
-				do break end
-				do
-					local (for generator), (for state), (for control) = ipairs(event_data.blockade_points)
+				if not invalid then
 					do
-						do break end
-						local blockade_pos = blockade_point[2]
-						local blockade_fwd = blockade_point[3]
-						local invalid
+						local (for generator), (for state), (for control) = ipairs(event_data.blockade_points)
 						do
-							local (for generator), (for state), (for control) = pairs(self._player_criminals)
+							do break end
+							local blockade_pos = blockade_point[2]
+							local blockade_fwd = blockade_point[3]
+							local invalid
 							do
-								do break end
-								if min_dis > mvec3_dis(c_record.m_pos, blockade_pos) then
-									invalid = true
+								local (for generator), (for state), (for control) = pairs(self._player_criminals)
+								do
+									do break end
+									if min_dis > mvec3_dis(c_record.m_pos, blockade_pos) then
+										invalid = true
+								end
+
+								else
+								end
+
 							end
 
-							else
-							end
-
+							if invalid then
 						end
 
-						do break end
-						break
+						else
+						end
+
+					end
+
+					if not invalid then
+						return event_data
 					end
 
 				end
 
-				do break end
-				return event_data
 			end
 
 		end
@@ -652,7 +654,6 @@ function GroupAIStateStreet:_upd_reenforce_tasks(t)
 
 		end
 
-		(for control) = nil and u_data.unit
 		local spawn_threshold = self._police_force_max - self._police_force
 		local undershot = task_data.force_required - #force_assigned
 		undershot = math.min(undershot, spawn_threshold)
@@ -695,7 +696,7 @@ function GroupAIStateStreet:_upd_reenforce_tasks(t)
 
 				end
 
-				undershot = spawn_threshold and undershot - #existing_cops
+				undershot = undershot - #existing_cops
 			end
 
 			if undershot > 0 then
@@ -736,7 +737,6 @@ function GroupAIStateStreet:_begin_assault_task(t)
 
 	end
 
-	(for control) = nil and c_data.status
 	if #available_criminals == 0 then
 		print("[GroupAIStateStreet:_begin_assault_task] Could not find any active criminal players")
 		return
@@ -864,7 +864,6 @@ function GroupAIStateStreet:_upd_assault_task(t)
 	end
 
 	local target_area = task_data.target_area
-	(for control) = math.random() and u_data.assigned_area
 	local area_data = self._area_data[target_area]
 	local area_safe = true
 	do
@@ -885,8 +884,7 @@ function GroupAIStateStreet:_upd_assault_task(t)
 
 	end
 
-	do break end
-	do
+	if area_safe then
 		local target_pos = managers.navigation._nav_segments[target_area].pos
 		local nearest_area, nearest_dis
 		do
@@ -906,9 +904,11 @@ function GroupAIStateStreet:_upd_assault_task(t)
 
 		end
 
-		do break end
-		target_area = nearest_area
-		task_data.target_area = nearest_area
+		if nearest_area then
+			target_area = nearest_area
+			task_data.target_area = nearest_area
+		end
+
 	end
 
 	local mvec3_dis = mvector3.distance
@@ -926,8 +926,7 @@ function GroupAIStateStreet:_upd_assault_task(t)
 
 	end
 
-	do break end
-	do
+	if task_phase == "anticipation" then
 		local spawn_threshold = math.max(0, self._police_force_max - self._police_force - 5)
 		if spawn_threshold > 0 then
 			local nr_wanted = math.min(spawn_threshold, task_data.force.defensive + task_data.force.aggressive - self._police_force)
@@ -954,15 +953,6 @@ function GroupAIStateStreet:_upd_assault_task(t)
 
 					end
 
-					(for control) = 10000 and {
-						type = "investigate_area",
-						nav_seg = sp_data.nav_seg,
-						attitude = "avoid",
-						stance = "hos",
-						interrupt_dis = 700,
-						interrupt_health = 0.75,
-						scan = true
-					}
 					self:_spawn_cops_with_objectives(spawn_points, objectives, tweak_data.group_ai.besiege.assault.units)
 				end
 
@@ -971,43 +961,90 @@ function GroupAIStateStreet:_upd_assault_task(t)
 		end
 
 		return
-	end
+	else
+		local spawn_threshold = task_phase == "fade" and 0 or math.max(0, self._police_force_max - self._police_force)
+		local objective_attitude = "engage"
+		local objective_interrupt_dis = 700
+		local objective_interrupt_health = 0.75
+		if task_phase == "anticipation" then
+			objective_attitude = "avoid"
+			spawn_threshold = math.max(0, spawn_threshold - 5)
+		end
 
-	do break end
-	local spawn_threshold = task_phase == "fade" and 0 or math.max(0, self._police_force_max - self._police_force)
-	local objective_attitude = "engage"
-	local objective_interrupt_dis = 700
-	local objective_interrupt_health = 0.75
-	if task_phase == "anticipation" then
-		objective_attitude = "avoid"
-		spawn_threshold = math.max(0, spawn_threshold - 5)
-	end
-
-	local wanted_nr_aggressive_cops = task_data.force.aggressive
-	local undershot_aggressive = wanted_nr_aggressive_cops - nr_agressive_cops
-	if undershot_aggressive > 0 then
-		local u_key, u_data
-		while true do
-			if undershot_aggressive > 0 and nr_defensive_cops > 0 then
+		local wanted_nr_aggressive_cops = task_data.force.aggressive
+		local undershot_aggressive = wanted_nr_aggressive_cops - nr_agressive_cops
+		if undershot_aggressive > 0 then
+			local u_key, u_data
+			while undershot_aggressive > 0 and nr_defensive_cops > 0 do
 				u_key, u_data = next(defensive_cops, u_key)
 				if not u_key then
 					break
 				end
 
-				do
-					local unit = u_data.unit
-					if not u_data.follower then
-						if u_data.unit:brain():is_available_for_assignment({
-							type = "investigate_area",
-							interrupt_dis = objective_interrupt_dis,
-							interrupt_health = objective_interrupt_health
-						}) then
+				local unit = u_data.unit
+				if not u_data.follower then
+					if u_data.unit:brain():is_available_for_assignment({
+						type = "investigate_area",
+						interrupt_dis = objective_interrupt_dis,
+						interrupt_health = objective_interrupt_health
+					}) then
+						local closest_dis, closest_criminal_data
+						do
+							local (for generator), (for state), (for control) = pairs(healthy_criminals)
+							do
+								do break end
+								local my_dis = mvec3_dis(c_data.m_pos, u_data.m_pos)
+								if not closest_dis or closest_dis > my_dis then
+									closest_dis = my_dis
+									closest_criminal_data = c_data
+								end
+
+							end
+
+						end
+
+						if closest_criminal_data then
+							local crim_area = closest_criminal_data.tracker:nav_segment()
+							local new_objective = {
+								type = "investigate_area",
+								nav_seg = crim_area,
+								attitude = objective_attitude,
+								stance = "hos",
+								interrupt_dis = objective_interrupt_dis,
+								interrupt_health = objective_interrupt_health,
+								scan = true,
+								pos = mvector3.copy(closest_criminal_data.m_pos)
+							}
+							unit:brain():set_objective(new_objective)
+							self:set_enemy_assigned(self._area_data[crim_area], unit:key())
+							defensive_cops[u_key] = nil
+							nr_defensive_cops = nr_defensive_cops - 1
+							aggressive_cops[u_key] = u_data
+							nr_agressive_cops = nr_agressive_cops + 1
+							undershot_aggressive = undershot_aggressive - 1
+						end
+
+					end
+
+				end
+
+			end
+
+			if undershot_aggressive > 0 and spawn_threshold > 0 then
+				local spawn_amount = math.min(undershot_aggressive, spawn_threshold)
+				local spawn_points = GroupAIStateBesiege._find_spawn_points_near_area(self, target_area, spawn_amount)
+				if spawn_points then
+					local objectives = {}
+					do
+						local (for generator), (for state), (for control) = ipairs(spawn_points)
+						do
+							do break end
 							local closest_dis, closest_criminal_data
 							do
 								local (for generator), (for state), (for control) = pairs(healthy_criminals)
 								do
 									do break end
-									local my_dis = mvec3_dis(c_data.m_pos, u_data.m_pos)
+									local my_dis = mvec3_dis(c_data.m_pos, sp_data.pos)
 									if not closest_dis or closest_dis > my_dis then
 										closest_dis = my_dis
 										closest_criminal_data = c_data
@@ -1017,37 +1054,63 @@ function GroupAIStateStreet:_upd_assault_task(t)
 
 							end
 
+							if closest_criminal_data then
+								local crim_area = closest_criminal_data.tracker:nav_segment()
+								local new_objective = {
+									type = "investigate_area",
+									nav_seg = crim_area,
+									attitude = objective_attitude,
+									stance = "hos",
+									interrupt_dis = objective_interrupt_dis,
+									interrupt_health = objective_interrupt_health,
+									scan = true,
+									pos = mvector3.copy(closest_criminal_data.m_pos)
+								}
+								table.insert(objectives, new_objective)
+							end
+
 						end
 
 					end
 
-					(for control) = math.random() and mvec3_dis
-					local crim_area = closest_criminal_data.tracker:nav_segment()
-					local new_objective = {
-						type = "investigate_area",
-						nav_seg = crim_area,
-						attitude = objective_attitude,
-						stance = "hos",
-						interrupt_dis = objective_interrupt_dis,
-						interrupt_health = objective_interrupt_health,
-						scan = true,
-						pos = mvector3.copy(closest_criminal_data.m_pos)
-					}
-					unit:brain():set_objective(new_objective)
-					self:set_enemy_assigned(self._area_data[crim_area], unit:key())
-					defensive_cops[u_key] = nil
-					nr_defensive_cops = nr_defensive_cops - 1
-					aggressive_cops[u_key] = u_data
-					nr_agressive_cops = nr_agressive_cops + 1
-					undershot_aggressive = undershot_aggressive - 1
+					self:_spawn_cops_with_objectives(spawn_points, objectives, tweak_data.group_ai.street.assault.units)
+					spawn_threshold = spawn_threshold - #spawn_points
+				end
+
+			end
+
+		elseif undershot_aggressive < 0 and task_phase ~= "fade" then
+			local u_key, u_data
+			while undershot_aggressive < 0 do
+				u_key, u_data = next(aggressive_cops, u_key)
+				if not u_key then
+					break
+				end
+
+				if not u_data.follower and not u_data.unit:brain()._important then
+					local unit = u_data.unit
+					local old_objective = unit:brain():objective()
+					if old_objective and u_data.unit:brain():is_available_for_assignment() then
+						local new_objective = deep_clone(old_objective)
+						new_objective.attitude = "avoid"
+						unit:brain():set_objective(new_objective)
+						aggressive_cops[u_key] = nil
+						nr_agressive_cops = nr_agressive_cops - 1
+						undershot_aggressive = undershot_aggressive + 1
+						defensive_cops[u_key] = u_data
+						nr_defensive_cops = nr_defensive_cops + 1
+					end
+
 				end
 
 			end
 
 		end
 
-		if undershot_aggressive > 0 and spawn_threshold > 0 then
-			local spawn_amount = math.min(undershot_aggressive, spawn_threshold)
+		local wanted_nr_defensive_cops = task_data.force.defensive
+		local undershot_defensive = wanted_nr_defensive_cops - nr_defensive_cops
+		if undershot_defensive > 0 and spawn_threshold > 0 then
+			local spawn_amount = math.min(undershot_defensive, spawn_threshold)
 			local spawn_points = GroupAIStateBesiege._find_spawn_points_near_area(self, target_area, spawn_amount)
 			if spawn_points then
 				local objectives = {}
@@ -1070,117 +1133,89 @@ function GroupAIStateStreet:_upd_assault_task(t)
 
 						end
 
-						do break end
-						local crim_area = closest_criminal_data.tracker:nav_segment()
-						local new_objective = {
-							type = "investigate_area",
-							nav_seg = crim_area,
-							attitude = objective_attitude,
-							stance = "hos",
-							interrupt_dis = objective_interrupt_dis,
-							interrupt_health = objective_interrupt_health,
-							scan = true,
-							pos = mvector3.copy(closest_criminal_data.m_pos)
-						}
-						table.insert(objectives, new_objective)
-					end
-
-				end
-
-				(for control) = self and nil
-				self:_spawn_cops_with_objectives(spawn_points, objectives, tweak_data.group_ai.street.assault.units)
-				spawn_threshold = spawn_threshold - #spawn_points
-			end
-
-		end
-
-	elseif undershot_aggressive < 0 and task_phase ~= "fade" then
-		local u_key, u_data
-		while undershot_aggressive < 0 do
-			u_key, u_data = next(aggressive_cops, u_key)
-			if not u_key then
-				break
-			end
-
-			if not u_data.follower and not u_data.unit:brain()._important then
-				local unit = u_data.unit
-				local old_objective = unit:brain():objective()
-				if old_objective and u_data.unit:brain():is_available_for_assignment() then
-					local new_objective = deep_clone(old_objective)
-					new_objective.attitude = "avoid"
-					unit:brain():set_objective(new_objective)
-					aggressive_cops[u_key] = nil
-					nr_agressive_cops = nr_agressive_cops - 1
-					undershot_aggressive = undershot_aggressive + 1
-					defensive_cops[u_key] = u_data
-					nr_defensive_cops = nr_defensive_cops + 1
-				end
-
-			end
-
-		end
-
-	end
-
-	local wanted_nr_defensive_cops = task_data.force.defensive
-	local undershot_defensive = wanted_nr_defensive_cops - nr_defensive_cops
-	if undershot_defensive > 0 and spawn_threshold > 0 then
-		local spawn_amount = math.min(undershot_defensive, spawn_threshold)
-		local spawn_points = GroupAIStateBesiege._find_spawn_points_near_area(self, target_area, spawn_amount)
-		if spawn_points then
-			local objectives = {}
-			do
-				local (for generator), (for state), (for control) = ipairs(spawn_points)
-				do
-					do break end
-					local closest_dis, closest_criminal_data
-					do
-						local (for generator), (for state), (for control) = pairs(healthy_criminals)
-						do
-							do break end
-							local my_dis = mvec3_dis(c_data.m_pos, sp_data.pos)
-							if not closest_dis or closest_dis > my_dis then
-								closest_dis = my_dis
-								closest_criminal_data = c_data
-							end
-
+						if closest_criminal_data then
+							local crim_area = closest_criminal_data.tracker:nav_segment()
+							local new_objective = {
+								type = "investigate_area",
+								nav_seg = crim_area,
+								attitude = "avoid",
+								stance = "hos",
+								interrupt_dis = 700,
+								interrupt_health = 0.75,
+								scan = true,
+								pos = mvector3.copy(closest_criminal_data.m_pos)
+							}
+							table.insert(objectives, new_objective)
 						end
 
 					end
 
-					do break end
-					local crim_area = closest_criminal_data.tracker:nav_segment()
-					local new_objective = {
+				end
+
+				self:_spawn_cops_with_objectives(spawn_points, objectives, tweak_data.group_ai.street.assault.units)
+				spawn_threshold = spawn_threshold - #spawn_points
+			end
+
+		elseif task_phase == "fade" then
+			local (for generator), (for state), (for control) = pairs(defensive_cops)
+			do
+				do break end
+				local unit = u_data.unit
+				if not u_data.follower then
+					if u_data.unit:brain():is_available_for_assignment({
 						type = "investigate_area",
-						nav_seg = crim_area,
-						attitude = "avoid",
-						stance = "hos",
-						interrupt_dis = 700,
-						interrupt_health = 0.75,
-						scan = true,
-						pos = mvector3.copy(closest_criminal_data.m_pos)
-					}
-					table.insert(objectives, new_objective)
+						interrupt_dis = -1,
+						interrupt_health = 1
+					}) then
+						local closest_dis, closest_criminal_data
+						do
+							local (for generator), (for state), (for control) = pairs(healthy_criminals)
+							do
+								do break end
+								local my_dis = mvec3_dis(c_data.m_pos, u_data.m_pos)
+								if not closest_dis or closest_dis > my_dis then
+									closest_dis = my_dis
+									closest_criminal_data = c_data
+								end
+
+							end
+
+						end
+
+						if closest_criminal_data then
+							local crim_area = closest_criminal_data.tracker:nav_segment()
+							local new_objective = {
+								type = "investigate_area",
+								nav_seg = crim_area,
+								attitude = "engage",
+								stance = "hos",
+								interrupt_dis = 700,
+								interrupt_health = 0.75,
+								scan = true,
+								pos = mvector3.copy(closest_criminal_data.m_pos)
+							}
+							unit:brain():set_objective(new_objective)
+							self:set_enemy_assigned(self._area_data[crim_area], unit:key())
+							defensive_cops[u_key] = nil
+							nr_defensive_cops = nr_defensive_cops - 1
+							aggressive_cops[u_key] = u_data
+							nr_agressive_cops = nr_agressive_cops + 1
+							undershot_aggressive = undershot_aggressive - 1
+						end
+
+					end
+
 				end
 
 			end
 
-			(for control) = objectives and nil
-			self:_spawn_cops_with_objectives(spawn_points, objectives, tweak_data.group_ai.street.assault.units)
-			spawn_threshold = spawn_threshold - #spawn_points
 		end
 
-	elseif task_phase == "fade" then
-		local (for generator), (for state), (for control) = pairs(defensive_cops)
 		do
-			do break end
-			local unit = u_data.unit
-			if not u_data.follower then
-				if u_data.unit:brain():is_available_for_assignment({
-					type = "investigate_area",
-					interrupt_dis = -1,
-					interrupt_health = 1
-				}) then
+			local (for generator), (for state), (for control) = pairs(defensive_cops)
+			do
+				do break end
+				if not u_data.unit:brain():objective() then
 					local closest_dis, closest_criminal_data
 					do
 						local (for generator), (for state), (for control) = pairs(healthy_criminals)
@@ -1196,106 +1231,61 @@ function GroupAIStateStreet:_upd_assault_task(t)
 
 					end
 
-					do break end
-					local crim_area = closest_criminal_data.tracker:nav_segment()
-					local new_objective = {
-						type = "investigate_area",
-						nav_seg = crim_area,
-						attitude = "engage",
-						stance = "hos",
-						interrupt_dis = 700,
-						interrupt_health = 0.75,
-						scan = true,
-						pos = mvector3.copy(closest_criminal_data.m_pos)
-					}
-					unit:brain():set_objective(new_objective)
-					self:set_enemy_assigned(self._area_data[crim_area], unit:key())
-					defensive_cops[u_key] = nil
-					nr_defensive_cops = nr_defensive_cops - 1
-					aggressive_cops[u_key] = u_data
-					nr_agressive_cops = nr_agressive_cops + 1
-					undershot_aggressive = undershot_aggressive - 1
-				end
-
-			end
-
-		end
-
-	end
-
-	(for control) = #spawn_points and u_data.unit
-	do
-		local (for generator), (for state), (for control) = pairs(defensive_cops)
-		do
-			do break end
-			if not u_data.unit:brain():objective() then
-				local closest_dis, closest_criminal_data
-				do
-					local (for generator), (for state), (for control) = pairs(healthy_criminals)
-					do
-						do break end
-						local my_dis = mvec3_dis(c_data.m_pos, u_data.m_pos)
-						if not closest_dis or closest_dis > my_dis then
-							closest_dis = my_dis
-							closest_criminal_data = c_data
-						end
-
+					if closest_criminal_data then
+						local crim_area = closest_criminal_data.tracker:nav_segment()
+						local new_objective = {
+							type = "investigate_area",
+							nav_seg = crim_area,
+							attitude = "avoid",
+							stance = "hos",
+							interrupt_dis = -1,
+							interrupt_health = 1,
+							scan = true,
+							pos = mvector3.copy(closest_criminal_data.m_pos)
+						}
 					end
 
 				end
 
-				do break end
-				local crim_area = closest_criminal_data.tracker:nav_segment()
-				local new_objective = {
-					type = "investigate_area",
-					nav_seg = crim_area,
-					attitude = "avoid",
-					stance = "hos",
-					interrupt_dis = -1,
-					interrupt_health = 1,
-					scan = true,
-					pos = mvector3.copy(closest_criminal_data.m_pos)
-				}
 			end
 
 		end
 
-	end
+		if t > task_data.use_smoke_timer then
+			task_data.use_smoke = true
+		end
 
-	(for control) = #spawn_points and u_data.unit
-	if t > task_data.use_smoke_timer then
-		task_data.use_smoke = true
-	end
-
-	if task_data.use_smoke and not self:is_smoke_grenade_active() then
-		local shoot_smoke, shooter_pos, shooter_u_data, detonate_pos
-		local duration = 0
-		if self._smoke_grenade_queued then
-			shoot_smoke = true
-			shooter_pos = self._smoke_grenade_queued[1]
-			detonate_pos = self._smoke_grenade_queued[1]
-			duration = self._smoke_grenade_queued[2]
-		else
-			local target_area = task_data.target_area
-			local shoot_from_neighbours = managers.navigation:get_nav_seg_neighbours(target_area)
-			local door_found
-			do
-				local (for generator), (for state), (for control) = pairs(self._police)
+		if task_data.use_smoke and not self:is_smoke_grenade_active() then
+			local shoot_smoke, shooter_pos, shooter_u_data, detonate_pos
+			local duration = 0
+			if self._smoke_grenade_queued then
+				shoot_smoke = true
+				shooter_pos = self._smoke_grenade_queued[1]
+				detonate_pos = self._smoke_grenade_queued[1]
+				duration = self._smoke_grenade_queued[2]
+			else
+				local target_area = task_data.target_area
+				local shoot_from_neighbours = managers.navigation:get_nav_seg_neighbours(target_area)
+				local door_found
 				do
-					do break end
-					local nav_seg = u_data.tracker:nav_segment()
-					if nav_seg == target_area then
-						task_data.use_smoke = false
-						door_found = nil
-						break
-					elseif not door_found then
-						local door_ids = shoot_from_neighbours[nav_seg]
-						if door_ids and tweak_data.character[u_data.unit:base()._tweak_table].use_smoke then
-							local random_door_id = door_ids[math.random(#door_ids)]
-							if type(random_door_id) == "number" then
-								door_found = managers.navigation._room_doors[random_door_id]
-								shooter_pos = mvector3.copy(u_data.m_pos)
-								shooter_u_data = u_data
+					local (for generator), (for state), (for control) = pairs(self._police)
+					do
+						do break end
+						local nav_seg = u_data.tracker:nav_segment()
+						if nav_seg == target_area then
+							task_data.use_smoke = false
+							door_found = nil
+							break
+						elseif not door_found then
+							local door_ids = shoot_from_neighbours[nav_seg]
+							if door_ids and tweak_data.character[u_data.unit:base()._tweak_table].use_smoke then
+								local random_door_id = door_ids[math.random(#door_ids)]
+								if type(random_door_id) == "number" then
+									door_found = managers.navigation._room_doors[random_door_id]
+									shooter_pos = mvector3.copy(u_data.m_pos)
+									shooter_u_data = u_data
+								end
+
 							end
 
 						end
@@ -1304,30 +1294,32 @@ function GroupAIStateStreet:_upd_assault_task(t)
 
 				end
 
+				if door_found then
+					detonate_pos = mvector3.copy(door_found.center)
+					shoot_smoke = true
+				end
+
 			end
 
-			do break end
-			detonate_pos = mvector3.copy(door_found.center)
-			shoot_smoke = true
-		end
+			if shoot_smoke then
+				task_data.use_smoke_timer = t + math.lerp(10, 40, math.rand(0, 1) ^ 0.5)
+				task_data.use_smoke = false
+				if Network:is_server() then
+					local ignore_ctrl
+					if self._smoke_grenade_queued and self._smoke_grenade_queued[3] then
+						ignore_ctrl = true
+					end
 
-		if shoot_smoke then
-			task_data.use_smoke_timer = t + math.lerp(10, 40, math.rand(0, 1) ^ 0.5)
-			task_data.use_smoke = false
-			if Network:is_server() then
-				local ignore_ctrl
-				if self._smoke_grenade_queued and self._smoke_grenade_queued[3] then
-					ignore_ctrl = true
-				end
+					managers.network:session():send_to_peers("sync_smoke_grenade", detonate_pos, shooter_pos, 0)
+					self:sync_smoke_grenade(detonate_pos, shooter_pos, 0)
+					if ignore_ctrl then
+						self._smoke_grenade_ignore_control = true
+					end
 
-				managers.network:session():send_to_peers("sync_smoke_grenade", detonate_pos, shooter_pos, 0)
-				self:sync_smoke_grenade(detonate_pos, shooter_pos, 0)
-				if ignore_ctrl then
-					self._smoke_grenade_ignore_control = true
-				end
+					if shooter_u_data and not shooter_u_data.unit:sound():speaking(self._t) and tweak_data.character[shooter_u_data.unit:base()._tweak_table].chatter.smoke then
+						self:chk_say_enemy_chatter(shooter_u_data.unit, shooter_u_data.m_pos, "smoke")
+					end
 
-				if shooter_u_data and not shooter_u_data.unit:sound():speaking(self._t) and tweak_data.character[shooter_u_data.unit:base()._tweak_table].chatter.smoke then
-					self:chk_say_enemy_chatter(shooter_u_data.unit, shooter_u_data.m_pos, "smoke")
 				end
 
 			end
@@ -1339,9 +1331,6 @@ function GroupAIStateStreet:_upd_assault_task(t)
 end
 
 function GroupAIStateStreet:_find_spawn_points_behind_pos(start_nav_seg, target_pos, nr_wanted, fwd, nav_segs, max_dis)
--- fail 138
-null
-24
 	local all_areas = self._area_data
 	local all_nav_segs = managers.navigation._nav_segments
 	local mvec3_dis = mvector3.distance
@@ -1366,7 +1355,6 @@ null
 	end
 
 	repeat
-		(for control) = nil and table
 		local search_seg = table.remove(to_search_segs, 1)
 		local area_data = all_areas[search_seg]
 		local spawn_points = area_data.spawn_points
@@ -1416,7 +1404,6 @@ null
 
 		end
 
-		(for control) = to_search_segs and sp_data.delay_t
 		if #s_points == nr_wanted then
 			break
 		end
@@ -1642,7 +1629,6 @@ function GroupAIStateStreet:_on_area_safety_status(seg, event)
 
 	end
 
-	(for control) = nil and unit_data[u_key]
 	if area_data.neighbours then
 		local (for generator), (for state), (for control) = pairs(area_data.neighbours)
 		do
@@ -1735,7 +1721,6 @@ function GroupAIStateStreet:remove_from_surrendered(unit)
 
 	end
 
-	(for control) = nil and entry.u_key
 	if #hos_data == 0 then
 		managers.enemy:unqueue_task(self._hostage_upd_key)
 		self._hostage_upd_key = nil
@@ -1791,7 +1776,6 @@ function GroupAIStateStreet:set_area_min_police_force(id, force, pos)
 
 		end
 
-		(for control) = nil and task_data.target_area
 		self:_begin_reenforce_task(nav_seg, force)
 	else
 		local (for generator), (for state), (for control) = pairs(self._area_data)
@@ -1824,7 +1808,6 @@ function GroupAIStateStreet:set_area_min_police_force(id, force, pos)
 
 		end
 
-		(for control) = nil and task_data.target_area
 	end
 
 end

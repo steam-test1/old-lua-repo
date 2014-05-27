@@ -264,7 +264,6 @@ function HUDMissionBriefing:init(hud, workspace)
 
 	end
 
-	(for control) = managers.localization:text("menu_risk") and tweak_data
 	pg_text:set_color(risk_color)
 	self._paygrade_panel:set_h(panel_h)
 	self._paygrade_panel:set_w(panel_w)

@@ -270,7 +270,7 @@ function CopLogicIdle._upd_scan(data, my_data)
 		my_data.scan_beanbag = beanbag
 	end
 
-	local nr_pos = return_spin and #beanbag
+	local nr_pos = #beanbag
 	local scan_pos
 	local lucky_i_pos = math.random(nr_pos)
 	scan_pos = beanbag[lucky_i_pos]
@@ -498,9 +498,8 @@ function CopLogicIdle._chk_reaction_to_attention_object(data, attention_data, st
 
 		end
 
-		do break end
-		do break end
-		if attention_data.dis < 2000 and visible then
+		if under_threat then
+		elseif attention_data.dis < 2000 and visible then
 			return math.min(attention_data.settings.reaction, AIAttentionObject.REACT_ARREST)
 		else
 			return math.min(attention_data.settings.reaction, AIAttentionObject.REACT_AIM)
@@ -620,7 +619,7 @@ function CopLogicIdle._chk_stare_into_wall_1(data)
 
 	end
 
-	local dangerous_near_areas = managers.slot:get_mask("enemies") and {}
+	local dangerous_near_areas = {}
 	do
 		local (for generator), (for state), (for control) = pairs(dangerous_far_areas)
 		do
@@ -641,7 +640,7 @@ function CopLogicIdle._chk_stare_into_wall_1(data)
 	end
 
 	local my_data = data.internal_data
-	local walk_from_pos = pairs(test_area.neighbours) and data.m_pos
+	local walk_from_pos = data.m_pos
 	local ray_from_pos = data.unit:movement():m_stand_pos()
 	local ray_to_pos = Vector3()
 	local nav_manager = managers.navigation
@@ -685,7 +684,6 @@ function CopLogicIdle._chk_stare_into_wall_1(data)
 
 	end
 
-	(for control) = managers.slot:get_mask("enemies") and area.pos_nav_seg
 	if #stare_pos > 0 then
 		my_data.stare_pos = stare_pos
 		my_data.next_scan_t = 0
@@ -717,7 +715,7 @@ function CopLogicIdle._chk_stare_into_wall_2(data)
 
 	end
 
-	local mvec3_dis = nil and mvector3.distance
+	local mvec3_dis = mvector3.distance
 	local mvec3_lerp = mvector3.lerp
 	local mvec3_cpy = mvector3.copy
 	local mvec3_set = mvector3.set
@@ -1170,7 +1168,6 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 
 	end
 
-	(for control) = nil and attention_data.unit
 	return best_target, best_target_priority_slot, best_target_reaction
 end
 
@@ -1257,9 +1254,6 @@ function CopLogicIdle._chk_objective_needs_travel(data, new_objective)
 end
 
 function CopLogicIdle._upd_stance_and_pose(data, my_data, objective)
--- fail 96
-null
-7
 	if data.unit:movement():chk_action_forbidden("walk") then
 		return
 	end
@@ -1300,23 +1294,25 @@ null
 
 	end
 
-	do break end
-	if data.is_suppressed and not data.unit:anim_data().crouch and (not data.char_tweak.allowed_poses or data.char_tweak.allowed_poses.crouch) then
-		CopLogicAttack._chk_request_action_crouch(data)
-	elseif data.char_tweak.allowed_poses and not data.char_tweak.allowed_poses[data.unit:anim_data().pose] then
-		local (for generator), (for state), (for control) = pairs(data.char_tweak.allowed_poses)
-		do
-			do break end
-			if state then
-				if pose_name == "crouch" then
-					CopLogicAttack._chk_request_action_crouch(data)
-				elseif pose_name == "stand" then
-					CopLogicAttack._chk_request_action_stand(data)
-				end
+	if not obj_has_pose then
+		if data.is_suppressed and not data.unit:anim_data().crouch and (not data.char_tweak.allowed_poses or data.char_tweak.allowed_poses.crouch) then
+			CopLogicAttack._chk_request_action_crouch(data)
+		elseif data.char_tweak.allowed_poses and not data.char_tweak.allowed_poses[data.unit:anim_data().pose] then
+			local (for generator), (for state), (for control) = pairs(data.char_tweak.allowed_poses)
+			do
+				do break end
+				if state then
+					if pose_name == "crouch" then
+						CopLogicAttack._chk_request_action_crouch(data)
+					elseif pose_name == "stand" then
+						CopLogicAttack._chk_request_action_stand(data)
+					end
 
-		end
+			end
 
-		else
+			else
+			end
+
 		end
 
 	end

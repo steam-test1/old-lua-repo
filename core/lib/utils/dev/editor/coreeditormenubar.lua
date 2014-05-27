@@ -22,7 +22,6 @@ function CoreEditor:build_menubar()
 
 	end
 
-	(for control) = "on_load_recent_file" and self._rf_menu
 	file_menu:append_menu("RECENT FILES", "Recent Files", self._rf_menu, "Recent worked on files")
 	file_menu:append_separator()
 	file_menu:append_item("EXIT", "Exit", "Exit the application")
@@ -95,7 +94,6 @@ function CoreEditor:build_menubar()
 
 	end
 
-	(for control) = "EVT_COMMAND_MENU_SELECTED" and self._coordinate_menu
 	self._coordinate_menu:set_checked(self._coordinate_system, true)
 	self._edit_menu:append_menu("COORDINATE_MENU", "Reference Coordinate System\t(" .. self:ctrl_binding("toggle_coordinate_system") .. ")", self._coordinate_menu, "Reference Coordinate System")
 	self._edit_menu:append_separator()
@@ -124,7 +122,6 @@ function CoreEditor:build_menubar()
 
 	end
 
-	(for control) = "EVT_COMMAND_MENU_SELECTED" and self._grid_sizes_menu
 	self._grid_sizes_menu:set_checked("TB_GRIDSIZE" .. self._grid_size, true)
 	self._edit_menu:append_menu("GRID_SIZES_MENU", "Grid sizes", self._grid_sizes_menu, "Grid Sizes")
 	self._snap_rotations_menu = EWS:Menu("")
@@ -137,7 +134,6 @@ function CoreEditor:build_menubar()
 
 	end
 
-	(for control) = "Grid sizes" and self._snap_rotations_menu
 	self._snap_rotations_menu:set_checked("TB_SNAPROTATION" .. self._snap_rotation, true)
 	self._edit_menu:append_menu("SNAP_ROTATION_MENU", "Snap Rotations", self._snap_rotations_menu, "Snap Rotations")
 	self._snap_rotations_axis_menu = EWS:Menu("")
@@ -194,7 +190,6 @@ function CoreEditor:build_menubar()
 
 	end
 
-	(for control) = "Run Gameplay Simulation" and difficulty_menu.append_radio_item
 	difficulty_menu:set_checked(self._mission_difficulty, true)
 	self._mission_menu:append_menu("DIFFICULTY MENU", "Difficulty", difficulty_menu, "Difficulties")
 	local players_menu = EWS:Menu("")
@@ -208,7 +203,6 @@ function CoreEditor:build_menubar()
 
 	end
 
-	(for control) = difficulty_menu and players_menu.append_radio_item
 	players_menu:set_checked(self._mission_player, true)
 	self._mission_menu:append_menu("PLAYERS MENU", "Players", players_menu, "Players")
 	local platforms_menu = EWS:Menu("")
@@ -222,7 +216,6 @@ function CoreEditor:build_menubar()
 
 	end
 
-	(for control) = players_menu and platforms_menu.append_radio_item
 	platforms_menu:set_checked(self._mission_platform, true)
 	self._mission_menu:append_menu("PLATFORMS MENU", "Platform", platforms_menu, "Platform")
 	self._mission_menu:append_separator()
@@ -271,7 +264,6 @@ function CoreEditor:build_menubar()
 
 	end
 
-	(for control) = "default" and post_processor_effects_menu.append_radio_item
 	post_processor_effects_menu:set_checked("empty", true)
 	view_menu:append_menu("POST_PROCESSOR_MENU", "Post processor effects", post_processor_effects_menu, "Post processor effects")
 	view_menu:append_separator()
@@ -511,7 +503,6 @@ function CoreEditor:create_temp_saves(type)
 	end
 
 	local d = self._editor_temp_path
-	(for control) = nil and table
 	do
 		local (for generator), (for state), (for control) = ipairs(dirs)
 		do
@@ -525,7 +516,6 @@ function CoreEditor:create_temp_saves(type)
 
 	end
 
-	(for control) = table.insert and d
 	d = d .. "\\" .. type
 	if not SystemFS:exists(d) then
 		SystemFS:make_dir(d)
@@ -806,7 +796,6 @@ function CoreEditor:on_reload_unit(quick)
 
 	end
 
-	(for control) = self._current_layer:selected_units() and alive
 	self:reload_units(names, quick)
 end
 
@@ -890,7 +879,6 @@ function CoreEditor:on_check_duality()
 
 				end
 
-				(for control) = math.floor(rot:roll()) and data.pos
 				table.insert(unit_name, {
 					unit = unit,
 					pos = pos,
@@ -911,7 +899,6 @@ function CoreEditor:on_check_duality()
 	end
 
 	local pos
-	(for control) = World:find_units_quick("all") and unit.position
 	if self._unit_duality then
 		pos = self._unit_duality:position()
 		self._unit_duality:destroy()

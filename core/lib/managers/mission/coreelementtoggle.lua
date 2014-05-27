@@ -39,7 +39,6 @@ function ElementToggle:on_executed(instigator)
 
 	end
 
-	(for control) = nil and self.get_mission_element
 	ElementToggle.super.on_executed(self, instigator)
 end
 

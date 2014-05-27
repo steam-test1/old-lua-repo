@@ -98,7 +98,6 @@ function TeamAILogicDisabled._consider_surrender(data, my_data)
 
 	end
 
-	(for control) = nil and e_data.verified
 	do
 		local (for generator), (for state), (for control) = pairs(managers.groupai:state():all_player_criminals())
 		do
@@ -119,12 +118,14 @@ function TeamAILogicDisabled._consider_surrender(data, my_data)
 
 	end
 
-	do break end
-	my_data.stay_cool = true
-	if my_data.firing then
-		data.unit:movement():set_allow_fire(false)
-		my_data.firing = nil
-		do break end
+	if total_scare > 1 then
+		my_data.stay_cool = true
+		if my_data.firing then
+			data.unit:movement():set_allow_fire(false)
+			my_data.firing = nil
+		end
+
+	else
 		my_data.stay_cool = false
 	end
 

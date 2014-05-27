@@ -616,9 +616,6 @@ function CopActionAct:expired()
 end
 
 function CopActionAct:save(save_data)
--- fail 5
-null
-4
 	do
 		local (for generator), (for state), (for control) = pairs(self._action_desc)
 		do
@@ -664,6 +661,7 @@ function CopActionAct:_create_blocks_table(block_desc)
 
 	end
 
+	self._blocks = blocks
 end
 
 function CopActionAct:_get_act_index(anim_name)
@@ -685,12 +683,11 @@ function CopActionAct:_get_act_index(anim_name)
 
 			end
 
-			cat_offset = nil and cat_offset + #category
+			cat_offset = cat_offset + #category
 		end
 
 	end
 
-	(for control) = nil and self._act_redirects
 	debug_pause("[CopActionAct:_get_act_index] animation", anim_name, "not found on look-up table.")
 	return 1
 end
@@ -710,7 +707,6 @@ function CopActionAct:_get_act_name_from_index(index)
 
 	end
 
-	(for control) = nil and self._act_redirects
 	debug_pause("[CopActionAct:_get_act_name_from_index] index", index, "is out of limits.")
 end
 

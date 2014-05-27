@@ -435,7 +435,6 @@ function HUDBlackScreen:_create_stages()
 
 	end
 
-	(for control) = 256 and managers
 	stages_panel:set_center_x(math.round(job_panel:child("portrait"):w() + (job_panel:w() - job_panel:child("portrait"):w()) / 2))
 end
 

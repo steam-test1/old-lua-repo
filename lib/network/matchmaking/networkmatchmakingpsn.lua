@@ -221,19 +221,21 @@ function NetworkMatchMakingPSN:leave_game()
 
 	end
 
-	do break end
-	if self._room_id then
-		local dialog_data = {}
-		dialog_data.title = managers.localization:text("dialog_leaving_lobby_title")
-		dialog_data.text = managers.localization:text("dialog_wait")
-		dialog_data.id = "leaving_game"
-		dialog_data.no_buttons = true
-		managers.system_menu:show(dialog_data)
+	if sent == true then
+		if self._room_id then
+			local dialog_data = {}
+			dialog_data.title = managers.localization:text("dialog_leaving_lobby_title")
+			dialog_data.text = managers.localization:text("dialog_wait")
+			dialog_data.id = "leaving_game"
+			dialog_data.no_buttons = true
+			managers.system_menu:show(dialog_data)
+		end
+
+		self._leave_time = TimerManager:wall():time() + 2
+	else
+		self._leave_time = TimerManager:wall():time() + 0
 	end
 
-	self._leave_time = TimerManager:wall():time() + 2
-	do break end
-	self._leave_time = TimerManager:wall():time() + 0
 end
 
 function NetworkMatchMakingPSN:register_callback(event, callback)
@@ -299,7 +301,7 @@ function NetworkMatchMakingPSN:get_mm_id(name)
 
 	end
 
-	(for control) = nil and v.name
+	return nil
 end
 
 function NetworkMatchMakingPSN:user_in_lobby(id)
@@ -324,7 +326,7 @@ function NetworkMatchMakingPSN:user_in_lobby(id)
 
 	end
 
-	(for control) = nil and member.user_id
+	return false
 end
 
 function NetworkMatchMakingPSN:update(time)
@@ -601,7 +603,6 @@ function NetworkMatchMakingPSN:_remove_peer_by_user_id(user_id)
 
 	end
 
-	(for control) = managers.network:session():peers() and peer.name
 	if Network:is_server() then
 		self._peer_join_request_remove[user_id] = true
 		print("queue to remove if we get a request", user_id)
@@ -811,7 +812,6 @@ function NetworkMatchMakingPSN:start_search_lobbys(friends_only)
 
 				end
 
-				(for control) = nil and room_info.attributes
 				self:_call_callback("search_lobby", self._lobbys_info_list)
 			end
 
@@ -1083,7 +1083,6 @@ function NetworkMatchMakingPSN:join_boot_invite()
 
 	end
 
-	(for control) = inspect(Global.boot_invite) and print
 	if self._room_id == message.room_id then
 		print("[NetworkMatchMakingPSN:join_boot_invite] we are already joined")
 		return
@@ -1247,7 +1246,6 @@ function NetworkMatchMakingPSN:_update_session_attributes_result(results)
 
 	end
 
-	(for control) = nil and room_info.attributes
 	if self._update_session_attributes_cb then
 		self._update_session_attributes_cb(info_list)
 	end
@@ -1426,7 +1424,7 @@ function NetworkMatchMakingPSN:_in_list(id)
 
 	end
 
-	(for control) = nil and tostring
+	return false
 end
 
 function NetworkMatchMakingPSN:_translate_settings(settings, value)

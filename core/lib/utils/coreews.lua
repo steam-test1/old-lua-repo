@@ -267,7 +267,6 @@ function combobox(params)
 
 	end
 
-	(for control) = "" and ctrlr.append
 	ctrlr:set_value(value)
 	ctrlr:thaw()
 	params.name_ctrlr = name_ctrlr
@@ -444,6 +443,7 @@ function list_selector(params)
 
 	end
 
+	return params
 end
 
 function _list_selector_add_from_list(params)
@@ -468,7 +468,6 @@ function _list_selector_add_from_list(params)
 
 	end
 
-	(for control) = dialog:_selected_item_assets() and params.left_list_box
 	_list_selector_on_left_box(params)
 end
 
@@ -494,7 +493,6 @@ function _list_selector_remove_from_list(params)
 
 	end
 
-	(for control) = dialog:_selected_item_assets() and params.right_list_box
 	_list_selector_on_right_box(params)
 end
 
@@ -511,7 +509,6 @@ function _list_selector_on_left_box(params)
 
 	end
 
-	(for control) = nil and params.left_list_box
 	do
 		local (for generator), (for state), (for control) = ipairs(selected_indices)
 		do
@@ -521,7 +518,6 @@ function _list_selector_on_left_box(params)
 
 	end
 
-	(for control) = nil and params.left_list_box
 	_list_selector_updated_callback(params)
 end
 
@@ -538,7 +534,6 @@ function _list_selector_on_right_box(params)
 
 	end
 
-	(for control) = nil and params.right_list_box
 	do
 		local (for generator), (for state), (for control) = ipairs(selected_indices)
 		do
@@ -548,7 +543,6 @@ function _list_selector_on_right_box(params)
 
 	end
 
-	(for control) = nil and params.right_list_box
 	_list_selector_updated_callback(params)
 end
 

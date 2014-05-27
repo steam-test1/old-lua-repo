@@ -62,7 +62,7 @@ function VoiceBriefingManager:_end_of_event(cookie)
 
 	end
 
-	(for control) = nil and listener.end_of_event
+	self:_clear_event()
 end
 
 function VoiceBriefingManager:_play_subtitle(string_id, cookie)

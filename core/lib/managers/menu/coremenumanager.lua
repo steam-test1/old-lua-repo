@@ -73,7 +73,6 @@ function Manager:open_menu(menu_name, position, ...)
 
 		end
 
-		(for control) = nil and open_menu.name
 		local current_open_menu = self._open_menus[#self._open_menus]
 		if self._open_menus[#self._open_menus] then
 		end
@@ -114,7 +113,6 @@ function Manager:close_menu(menu_name)
 		end
 
 	else
-		(for control) = nil and open_menu.name
 		menu = self._open_menus[#self._open_menus]
 	end
 
@@ -138,7 +136,6 @@ function Manager:_menu_closed(menu_name)
 		end
 
 	else
-		(for control) = nil and menu.name
 		table.remove(self._open_menus, #self._open_menus)
 	end
 

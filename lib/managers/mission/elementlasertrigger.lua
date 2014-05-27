@@ -54,14 +54,12 @@ function ElementLaserTrigger:init(...)
 
 			end
 
-			(for control) = Idstring("material") and m.set_variable
 			table.insert(self._dummy_units, unit)
 			point.pos = point.pos + point.rot:y() * 3
 		end
 
 	end
 
-	(for control) = Color(0.15, unpack(self.COLORS[self._values.color])) and World
 	do
 		local (for generator), (for state), (for control) = ipairs(self._values.connections)
 		do
@@ -76,7 +74,6 @@ function ElementLaserTrigger:init(...)
 
 	end
 
-	(for control) = Color(0.15, unpack(self.COLORS[self._values.color])) and table
 	if self._values.cycle_random then
 		local cycle_order = clone(self._cycle_order)
 		self._cycle_order = {}
@@ -163,7 +160,6 @@ function ElementLaserTrigger:update_laser_draw(t, dt)
 
 	end
 
-	(for control) = nil and connection.enabled
 	if self._is_cycled then
 		self._next_cycle_t = self._next_cycle_t - dt
 		if 0 >= self._next_cycle_t then
@@ -177,7 +173,7 @@ function ElementLaserTrigger:update_laser_draw(t, dt)
 
 			end
 
-			local index = nil and self._cycle_index - 1
+			local index = self._cycle_index - 1
 			for j = 1, self._values.cycle_active_amount do
 				index = index + 1
 				if index > #self._cycle_order then
@@ -261,7 +257,6 @@ function ElementLaserTrigger:_check_state(unit)
 			end
 
 		else
-			(for control) = nil and connection.enabled
 			local oobb = unit:oobb()
 			local (for generator), (for state), (for control) = ipairs(self._connections)
 			do
@@ -282,7 +277,6 @@ function ElementLaserTrigger:_check_state(unit)
 
 		end
 
-		(for control) = nil and connection.enabled
 		if table.contains(self._inside, unit) then
 			if not inside or not rule_ok then
 				self:_remove_inside(unit)
@@ -352,7 +346,7 @@ function ElementLaserTrigger:_check_instigator_rules(unit)
 
 	end
 
-	(for control) = nil and element.check_rules
+	return true
 end
 
 function ElementLaserTrigger:_clean_destroyed_units()
@@ -388,7 +382,6 @@ function ElementLaserTrigger:_client_check_state(unit)
 
 	end
 
-	(for control) = nil and connection.enabled
 	if table.contains(self._inside, unit) then
 		if not inside or not rule_ok then
 			table.delete(self._inside, unit)

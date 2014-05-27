@@ -485,7 +485,6 @@ function CivilianLogicSurrender._update_enemy_detection(data, my_data)
 
 	end
 
-	(for control) = nil and u_data.is_deployable
 	local attention = data.unit:movement():attention()
 	local attention_unit = attention and attention.unit or nil
 	if not attention_unit then

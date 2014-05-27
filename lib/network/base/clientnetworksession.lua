@@ -189,8 +189,10 @@ function ClientNetworkSession:on_host_discovered(new_host, new_host_name, level_
 
 		end
 
-		do break end
-		table.insert(self._discovered_hosts, new_host_data)
+		if not already_known then
+			table.insert(self._discovered_hosts, new_host_data)
+		end
+
 	end
 
 end

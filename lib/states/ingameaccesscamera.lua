@@ -190,7 +190,6 @@ function IngameAccessCamera:update(t, dt)
 
 	end
 
-	(for control) = 21 and World
 	managers.hud:access_camera_track_max_amount(amount)
 end
 
@@ -260,7 +259,7 @@ function IngameAccessCamera:_any_enabled_cameras()
 
 	end
 
-	(for control) = nil and data.access_camera
+	return false
 end
 
 function IngameAccessCamera:at_exit()

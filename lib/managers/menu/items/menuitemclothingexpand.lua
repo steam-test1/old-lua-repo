@@ -156,6 +156,7 @@ function MenuItemClothingExpand:get_h(row_item, node)
 
 	end
 
+	return h
 end
 
 function MenuItemClothingExpand:reload(row_item, node)

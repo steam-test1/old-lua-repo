@@ -156,6 +156,7 @@ function MenuItemMaskExpand:get_h(row_item, node)
 
 	end
 
+	return h
 end
 
 function MenuItemMaskExpand:reload(row_item, node)

@@ -66,7 +66,6 @@ function GenericDialog:mouse_moved(o, x, y)
 
 	end
 
-	(for control) = self._panel_script._text_box_buttons_panel:children() and panel.child
 	return false, "arrow"
 end
 
@@ -87,14 +86,10 @@ function GenericDialog:mouse_pressed(o, button, x, y)
 
 		end
 
-	else
-		(for control) = self._panel_script._text_box_buttons_panel:children() and panel.child
-		if button == Idstring("mouse wheel down") then
-			return self._panel_script:mouse_wheel_down(x, y)
-		elseif button == Idstring("mouse wheel up") then
-			return self._panel_script:mouse_wheel_up(x, y)
-		end
-
+	elseif button == Idstring("mouse wheel down") then
+		return self._panel_script:mouse_wheel_down(x, y)
+	elseif button == Idstring("mouse wheel up") then
+		return self._panel_script:mouse_wheel_up(x, y)
 	end
 
 end

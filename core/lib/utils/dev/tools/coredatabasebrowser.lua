@@ -251,9 +251,6 @@ function CoreDatabaseBrowser:on_check_news()
 end
 
 function CoreDatabaseBrowser:check_news(new_only)
--- fail 25
-null
-6
 	local news
 	if new_only then
 		news = managers.news:get_news("database_browser", self._main_frame)
@@ -335,7 +332,6 @@ function CoreDatabaseBrowser:append_local_changes()
 
 	end
 
-	(for control) = nil and self._local_box
 	local (for generator), (for state), (for control) = pairs(change_table)
 	do
 		do break end
@@ -357,6 +353,7 @@ function CoreDatabaseBrowser:format_comment(str)
 
 	end
 
+	return comment
 end
 
 function CoreDatabaseBrowser:is_entry_raw(entry)
@@ -380,7 +377,7 @@ function CoreDatabaseBrowser:on_commit_btn()
 		end
 
 		local new_entrys = {}
-		local i = self._local_box.list_box:selected_indices() and 1
+		local i = 1
 		do
 			local (for generator), (for state), (for control) = pairs(commit_table)
 			do
@@ -396,7 +393,6 @@ function CoreDatabaseBrowser:on_commit_btn()
 
 					end
 
-					(for control) = self._local_box.list_box:selected_indices() and cat_print
 					cat_print("debug", "############# self._local_changes #############")
 					do
 						local (for generator), (for state), (for control) = pairs(self._local_changes)
@@ -407,7 +403,6 @@ function CoreDatabaseBrowser:on_commit_btn()
 
 					end
 
-					(for control) = self._local_box.list_box:selected_indices() and cat_print
 					cat_print("debug", "############# self._local_box.list_box:selected_indices() #############")
 					do
 						local (for generator), (for state), (for control) = ipairs(self._local_box.list_box:selected_indices())
@@ -418,7 +413,6 @@ function CoreDatabaseBrowser:on_commit_btn()
 
 					end
 
-					(for control) = self._local_box.list_box:selected_indices() and cat_print
 					cat_print("debug", "############# new_entrys #############")
 					do
 						local (for generator), (for state), (for control) = ipairs(new_entrys)
@@ -429,7 +423,6 @@ function CoreDatabaseBrowser:on_commit_btn()
 
 					end
 
-					(for control) = self._local_box.list_box:selected_indices() and cat_print
 					cat_print("debug", "############# failing entry #############")
 					cat_print("debug", entry)
 					cat_print("debug", "LC_BUGFIX: ", self.LC_BUGFIX)
@@ -470,7 +463,6 @@ function CoreDatabaseBrowser:on_commit_btn()
 
 		end
 
-		(for control) = progress.update_bar and self._local_changes
 		do
 			local (for generator), (for state), (for control) = pairs(commit_table)
 			do
@@ -482,7 +474,7 @@ function CoreDatabaseBrowser:on_commit_btn()
 		end
 
 		self._dirty_flag = false
-		local commit_ret = progress.update_bar and nil
+		local commit_ret
 		while not commit_ret do
 			commit_ret = self._active_database:commit_changes("[CoreDatabaseBrowser] " .. comment, new_entrys)
 			if commit_ret == "LOCKED" then
@@ -512,9 +504,6 @@ function CoreDatabaseBrowser:on_commit_btn()
 end
 
 function CoreDatabaseBrowser:on_revert_btn()
--- fail 51
-null
-6
 	if #self._local_box.list_box:selected_indices() > 0 and self._revert_dialog:show_modal() == "ID_YES" then
 		local flag
 		local revert_table = {}
@@ -529,7 +518,6 @@ null
 
 		end
 
-		(for control) = self._local_box.list_box:selected_indices() and tostring
 		progress:update_bar(50)
 		do
 			local (for generator), (for state), (for control) = pairs(revert_table)
@@ -547,8 +535,10 @@ null
 
 		end
 
-		do break end
-		EWS:MessageDialog(self._main_frame, "Could not revert the selected entry(s)!", "Error", "OK,ICON_ERROR"):show_modal()
+		if flag then
+			EWS:MessageDialog(self._main_frame, "Could not revert the selected entry(s)!", "Error", "OK,ICON_ERROR"):show_modal()
+		end
+
 		self._active_database:load()
 		self:on_read_database()
 		progress:update_bar(100)
@@ -607,7 +597,7 @@ function CoreDatabaseBrowser:create_node(node, parent)
 
 	end
 
-	local (for generator), (for state), (for control) = parent:parameter_map() and parent:children(), parent:children()
+	local (for generator), (for state), (for control) = parent:children()
 	do
 		do break end
 		self:create_node(node:make_child(child:name()), child)
@@ -644,7 +634,7 @@ function CoreDatabaseBrowser:on_read_database()
 
 	end
 
-	(for control) = nil and self._browser_data
+	self:on_search()
 end
 
 function CoreDatabaseBrowser:create_unique_name(entry)
@@ -658,6 +648,7 @@ function CoreDatabaseBrowser:create_unique_name(entry)
 
 	end
 
+	return str
 end
 
 function CoreDatabaseBrowser:get_meta_data(selected_type, selected)
@@ -676,12 +667,6 @@ function CoreDatabaseBrowser:get_meta_data(selected_type, selected)
 end
 
 function CoreDatabaseBrowser:on_view_metadata()
--- fail 54
-null
-10
--- fail 102
-null
-11
 	local str
 	if self._main_notebook:get_current_page() == self._main_notebook:get_page(0) then
 		if 0 < #self._search_box.list_box:selected_indices() then
@@ -771,6 +756,26 @@ function CoreDatabaseBrowser:append_all_types(gui)
 	if self._browser_data and self._browser_data.type_to_pick ~= "" then
 		gui:append(self._browser_data.type_to_pick)
 		gui:set_value(self._browser_data.type_to_pick)
+	else
+		local data_table = self._active_database:all(false)
+		local name_table = {}
+		do
+			local (for generator), (for state), (for control) = ipairs(data_table)
+			do
+				do break end
+				if not name_table[entry:type()] then
+					name_table[entry:type()] = entry
+					gui:append(entry:type())
+					gui:set_value(entry:type())
+				end
+
+			end
+
+		end
+
+		name_table = nil
+	end
+
 end
 
 function CoreDatabaseBrowser:set_position(newpos)
@@ -1034,6 +1039,7 @@ function CoreDatabaseBrowser:filter_folders(ids)
 
 	end
 
+	return out_table
 end
 
 function CoreDatabaseBrowser:is_folder(folder_table, id)
@@ -1051,7 +1057,7 @@ function CoreDatabaseBrowser:is_folder(folder_table, id)
 
 	end
 
-	(for control) = nil and child.id
+	return false
 end
 
 function CoreDatabaseBrowser:build_tree(path)
@@ -1075,9 +1081,6 @@ function CoreDatabaseBrowser:build_tree(path)
 end
 
 function CoreDatabaseBrowser:get_tree_id(path, expand)
--- fail 8
-null
-6
 	local parent = self._folder_table
 	do
 		local (for generator), (for state), (for control) = string.gmatch(path, "[%w_]+")
@@ -1115,7 +1118,6 @@ function CoreDatabaseBrowser:on_search()
 
 		end
 
-		(for control) = nil and string
 		self._search_box.list_box:thaw()
 		self._search_box.list_box:refresh()
 		self._search_box.search_text_ctrl:set_focus()
@@ -1154,7 +1156,6 @@ function CoreDatabaseBrowser:on_search()
 
 		end
 
-		(for control) = nil and string
 		self._tree_box.tree_ctrl:expand(self._folder_table.id)
 		self._tree_box.tree_ctrl:thaw()
 		self._tree_box.tree_ctrl:refresh()
@@ -1184,7 +1185,7 @@ function CoreDatabaseBrowser:on_remove()
 
 				end
 
-				(for control) = nil and self._search_box
+				self:on_search()
 			end
 
 		elseif self._main_notebook:get_current_page() == self._main_notebook:get_page(1) then
@@ -1203,7 +1204,7 @@ function CoreDatabaseBrowser:on_remove()
 
 				end
 
-				(for control) = self._tree_box.tree_ctrl:selected_items() and self._tree_box
+				self:on_search()
 			end
 
 		elseif self._main_notebook:get_current_page() == self._main_notebook:get_page(2) then
@@ -1245,7 +1246,6 @@ function CoreDatabaseBrowser:_rename_and_transfer_metadata(entry, new_name)
 
 	end
 
-	(for control) = entry:properties() and self._active_database
 	local new_ref = self._active_database:rename(old_ref, old_ref:type(), new_name, old_ref:properties())
 	do
 		local (for generator), (for state), (for control) = pairs(metadatas)
@@ -1256,6 +1256,7 @@ function CoreDatabaseBrowser:_rename_and_transfer_metadata(entry, new_name)
 
 	end
 
+	return new_ref
 end
 
 function CoreDatabaseBrowser:on_rename()
@@ -1287,7 +1288,7 @@ function CoreDatabaseBrowser:on_rename()
 
 					end
 
-					(for control) = self._entrys[self._search_box.list_box:get_string(ids[1])]:name() and self._search_box
+					self:on_read_database()
 				end
 
 			end
@@ -1333,6 +1334,7 @@ function CoreDatabaseBrowser:unpack_prop(in_table, target)
 
 	end
 
+	return str
 end
 
 function CoreDatabaseBrowser:convert_to_x360(entry)

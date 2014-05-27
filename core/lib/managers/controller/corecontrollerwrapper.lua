@@ -25,7 +25,7 @@ function ControllerWrapper:init(manager, id, name, controller_map, default_contr
 
 	end
 
-	self._connection_map = tostring(self._id) and {}
+	self._connection_map = {}
 	self._trigger_map = {}
 	self._release_trigger_map = {}
 	self._current_lerp_axis_map = {}
@@ -61,7 +61,6 @@ function ControllerWrapper:destroy()
 
 	end
 
-	(for control) = nil and func
 	if alive(self._virtual_controller) then
 		Input:destroy_virtual_controller(self._virtual_controller)
 		self._virtual_controller = nil
@@ -138,6 +137,19 @@ end
 
 function ControllerWrapper:check_connect_changed_status()
 	local connected = self:connected()
+	if connected ~= self._was_connected then
+		do
+			local (for generator), (for state), (for control) = pairs(self._connect_changed_callback_list)
+			do
+				do break end
+				func(self, connected, callback_id)
+			end
+
+		end
+
+		self._was_connected = connected
+	end
+
 end
 
 function ControllerWrapper:update_multi_input()
@@ -160,13 +172,15 @@ function ControllerWrapper:update_multi_input()
 
 				end
 
-				do break end
-				self._input_bool_cache[connection_name] = bool
-				do break end
-				self._input_bool_cache[connection_name] = false
-				self._input_pressed_cache[connection_name] = false
-				self._input_float_cache[connection_name] = 0
-				self._input_axis_cache[connection_name] = Vector3()
+				if bool then
+					self._input_bool_cache[connection_name] = bool
+				else
+					self._input_bool_cache[connection_name] = false
+					self._input_pressed_cache[connection_name] = false
+					self._input_float_cache[connection_name] = 0
+					self._input_axis_cache[connection_name] = Vector3()
+				end
+
 			end
 
 		end
@@ -213,7 +227,6 @@ function ControllerWrapper:update_delay_input()
 						end
 
 					else
-						(for control) = nil and self.get_input_bool
 						local (for generator), (for state), (for control) = pairs(delay_time_map)
 						do
 							do break end
@@ -295,9 +308,6 @@ function ControllerWrapper:setup(setup)
 end
 
 function ControllerWrapper:setup_connection(connection_name, connection, controller_id, controller)
--- fail 61
-null
-24
 	if self._debug or not connection:get_debug() then
 		local input_name_list = connection:get_input_name_list()
 		do
@@ -310,7 +320,6 @@ null
 		end
 
 		local delay_data
-		(for control) = nil and self.connect
 		local delay_connection_list = connection:get_delay_connection_list()
 		do
 			local (for generator), (for state), (for control) = ipairs(delay_connection_list)
@@ -345,12 +354,13 @@ null
 
 						end
 
-						do break end
-						break
+						if can_delay then
+					end
+
+					else
 					end
 
 				else
-					(for control) = nil and ipairs
 					Application:error(self:to_string() .. " Unable to setup delay on non-existing connection \"" .. tostring(delay_connection_name) .. "\" in the \"" .. tostring(connection_name) .. "\" connection.")
 				end
 
@@ -358,7 +368,7 @@ null
 
 		end
 
-		self._delay_map[connection_name] = self.connect and delay_data
+		self._delay_map[connection_name] = delay_data
 		if connection.IS_AXIS then
 			self._current_lerp_axis_map[connection_name] = connection:get_init_lerp_axis() or self._virtual_controller and self._virtual_controller:axis(Idstring(connection_name)) or Vector3()
 		end
@@ -432,7 +442,7 @@ function ControllerWrapper:connected(controller_id)
 
 		end
 
-		(for control) = nil and controller.connected
+		return true
 	end
 
 end
@@ -674,7 +684,6 @@ function ControllerWrapper:remove_trigger(connection_name, func)
 			trigger_sub_map = nil
 		end
 
-		(for control) = self:to_string() .. " Unable to remove non-existing trigger for function \"" .. tostring(func) .. "\" on connection \"" .. tostring(connection_name) .. "\"." and self._virtual_controller
 		self._trigger_map[connection_name] = trigger_sub_map
 	else
 		Application:error(self:to_string() .. " Unable to remove trigger on non-existing connection \"" .. tostring(connection_name) .. "\".")
@@ -716,7 +725,6 @@ function ControllerWrapper:remove_release_trigger(connection_name, func)
 			trigger_sub_map = nil
 		end
 
-		(for control) = " Unable to remove non-existing release trigger for function \"" and self._virtual_controller
 		self._release_trigger_map[connection_name] = trigger_sub_map
 	else
 		Application:error(self:to_string() .. " Unable to remove release trigger on non-existing connection \"" .. tostring(connection_name) .. "\".")
@@ -725,12 +733,6 @@ function ControllerWrapper:remove_release_trigger(connection_name, func)
 end
 
 function ControllerWrapper:clear_triggers(temporary)
--- fail 19
-null
-9
--- fail 32
-null
-9
 	if self._virtual_controller then
 		self._virtual_controller:clear_triggers()
 	end
@@ -751,7 +753,6 @@ null
 
 		end
 
-		(for control) = nil and pairs
 		local (for generator), (for state), (for control) = pairs(self._release_trigger_map)
 		do
 			do break end
@@ -764,7 +765,7 @@ null
 		end
 
 	else
-		self._trigger_map, (for control) = {}, nil and pairs
+		self._trigger_map = {}
 		self._release_trigger_map = {}
 	end
 
@@ -787,10 +788,8 @@ function ControllerWrapper:restore_triggers()
 
 			end
 
-			(for control) = nil and self.get_connection_enabled
 		end
 
-		(for control) = nil and pairs
 		local (for generator), (for state), (for control) = pairs(self._release_trigger_map)
 		do
 			do break end
@@ -1006,9 +1005,6 @@ function ControllerWrapper:rescale_axis_component(connection_name, connection, c
 end
 
 function ControllerWrapper:set_connection_enabled(connection_name, enabled)
--- fail 60
-null
-7
 	local connection = self._connection_map[connection_name] and self._setup:get_connection(connection_name)
 	if connection then
 		if not connection:get_enabled() ~= not enabled then
@@ -1032,7 +1028,7 @@ null
 
 			end
 
-			trigger_sub_map = nil and self._release_trigger_map[connection_name]
+			trigger_sub_map = self._release_trigger_map[connection_name]
 			if trigger_sub_map then
 				local (for generator), (for state), (for control) = pairs(trigger_sub_map)
 				do
@@ -1051,8 +1047,10 @@ null
 
 			end
 
-			do break end
-			self._delay_trigger_queue[connection_name] = nil
+			if not enabled then
+				self._delay_trigger_queue[connection_name] = nil
+			end
+
 			local delay_data = self._delay_map[connection_name]
 			if delay_data then
 				do
@@ -1074,7 +1072,7 @@ null
 
 						end
 
-						local release_trigger_sub_map = nil and self._release_trigger_map[delay_connection_name]
+						local release_trigger_sub_map = self._release_trigger_map[delay_connection_name]
 						if release_trigger_sub_map then
 							local (for generator), (for state), (for control) = pairs(release_trigger_sub_map)
 							do
@@ -1091,10 +1089,9 @@ null
 
 					end
 
-					(for control) = nil and self.get_trigger_func
 				end
 
-				(for control) = nil and self._trigger_map
+				self:update_delay_trigger_queue()
 			end
 
 		end

@@ -201,6 +201,20 @@ end
 
 function CopLogicBase.cancel_queued_tasks(internal_data)
 	local qd_tasks = internal_data.queued_tasks
+	if qd_tasks then
+		local e_manager = managers.enemy
+		do
+			local (for generator), (for state), (for control) = pairs(qd_tasks)
+			do
+				do break end
+				e_manager:unqueue_task(id)
+			end
+
+		end
+
+		internal_data.queued_tasks = nil
+	end
+
 end
 
 function CopLogicBase.unqueue_task(internal_data, id)
@@ -260,6 +274,20 @@ end
 
 function CopLogicBase.cancel_delayed_clbks(internal_data)
 	local clbks = internal_data.delayed_clbks
+	if clbks then
+		local e_manager = managers.enemy
+		do
+			local (for generator), (for state), (for control) = pairs(clbks)
+			do
+				do break end
+				e_manager:remove_delayed_clbk(id)
+			end
+
+		end
+
+		internal_data.delayed_clbks = nil
+	end
+
 end
 
 function CopLogicBase.cancel_delayed_clbk(internal_data, id)
@@ -351,9 +379,6 @@ function CopLogicBase.anim_clbk(...)
 end
 
 function CopLogicBase._upd_attention_obj_detection(data, min_reaction, max_reaction)
--- fail 70
-null
-22
 	local t = data.t
 	local detected_obj = data.detected_attention_objects
 	local my_data = data.internal_data
@@ -635,8 +660,10 @@ null
 
 	end
 
-	do break end
-	managers.groupai:state():set_importance_weight(data.key, player_importance_wgt)
+	if player_importance_wgt then
+		managers.groupai:state():set_importance_weight(data.key, player_importance_wgt)
+	end
+
 	return delay
 end
 
@@ -728,7 +755,7 @@ function CopLogicBase._destroy_all_detected_attention_object_data(data)
 
 	end
 
-	data.detected_attention_objects = nil and {}
+	data.detected_attention_objects = {}
 end
 
 function CopLogicBase.on_detected_attention_obj_modified(data, modified_u_key)
@@ -1178,9 +1205,6 @@ function CopLogicBase._evaluate_reason_to_surrender(data, my_data, aggressor_uni
 	local hold_chance = 1
 	local surrender_chk = {}
 	function surrender_chk.health(health_surrender)
--- fail 14
-null
-6
 		local health_ratio = data.unit:character_damage():health_ratio()
 		if health_ratio < 1 then
 			local min_setting, max_setting
@@ -1209,9 +1233,6 @@ null
 	end
 
 	function surrender_chk.aggressor_dis(agg_dis_surrender)
--- fail 15
-null
-6
 		local agg_dis = mvec3_dis(data.m_pos, aggressor_unit:movement():m_pos())
 		local min_setting, max_setting
 		do
@@ -1317,7 +1338,6 @@ null
 
 	end
 
-	(for control) = nil and surrender_chk[reason]
 	if hold_chance >= 1 - (surrender_tweak.significant_chance or 0) then
 		return 1
 	end
@@ -1331,7 +1351,6 @@ null
 
 	end
 
-	(for control) = nil and surrender_chk[factor]
 	if data.surrender_window then
 		hold_chance = hold_chance * (1 - data.surrender_window.chance_mul)
 	end
@@ -1419,7 +1438,7 @@ function CopLogicBase.chk_start_action_dodge(data, reason)
 
 	end
 
-	local dodge_dir = math.random() and Vector3()
+	local dodge_dir = Vector3()
 	local face_attention
 	if data.attention_obj and data.attention_obj.reaction >= AIAttentionObject.REACT_COMBAT then
 		mvec3_set(dodge_dir, data.attention_obj.m_pos)

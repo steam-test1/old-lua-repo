@@ -47,7 +47,6 @@ function IngameFatalState:at_enter()
 
 	end
 
-	(for control) = nil and player.camera
 	managers.statistics:downed({fatal = true})
 	local player = managers.player:player_unit()
 	if player then

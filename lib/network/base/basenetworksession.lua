@@ -37,7 +37,6 @@ function BaseNetworkSession:load(data)
 
 	end
 
-	(for control) = nil and self._peers
 	if data.server_peer then
 		self._server_peer = self._peers[data.server_peer]
 	end
@@ -61,7 +60,7 @@ function BaseNetworkSession:load(data)
 
 	end
 
-	self._server_protocol = nil and data.server_protocol
+	self._server_protocol = data.server_protocol
 end
 
 function BaseNetworkSession:save(data)
@@ -82,7 +81,7 @@ function BaseNetworkSession:save(data)
 
 	end
 
-	data.local_peer = nil and {}
+	data.local_peer = {}
 	self._local_peer:save(data.local_peer)
 	data.kicked_list = self._kicked_list
 	data.connection_established_results = self._connection_established_results
@@ -101,11 +100,6 @@ function BaseNetworkSession:save(data)
 
 	end
 
-	(for control) = nil and {
-		process_t = report.process_t,
-		reporter = report.reporter:id(),
-		reported = report.reported:id()
-	}
 	if self._dropin_complete_event_manager_id then
 		EventManager:unregister_listener(self._dropin_complete_event_manager_id)
 		self._dropin_complete_event_manager_id = nil
@@ -146,7 +140,6 @@ function BaseNetworkSession:peer_by_ip(ip)
 
 	end
 
-	(for control) = nil and peer.ip
 	if self._local_peer:ip() == ip then
 		return self._local_peer
 	end
@@ -178,7 +171,6 @@ function BaseNetworkSession:peer_by_user_id(user_id)
 
 	end
 
-	(for control) = nil and peer.user_id
 	if self._local_peer:user_id() == user_id then
 		return self._local_peer
 	end
@@ -373,7 +365,7 @@ function BaseNetworkSession:update()
 
 		end
 
-		self._timeout_chk_t, (for control) = wall_time + self.TIMEOUT_CHK_INTERVAL, nil and peer.chk_timeout
+		self._timeout_chk_t = wall_time + self.TIMEOUT_CHK_INTERVAL
 	end
 
 	if self._closing and self:is_ready_to_close() then
@@ -500,9 +492,6 @@ function BaseNetworkSession:debug_list_peers()
 end
 
 function BaseNetworkSession:clbk_network_send(target_rpc, post_send)
--- fail 37
-null
-9
 	local target_ip = target_rpc:ip_at_index(0)
 	if post_send then
 		if self._soft_remove_peers and self._soft_remove_peers[target_ip] then
@@ -525,12 +514,14 @@ null
 
 			end
 
-			do break end
-			print("[BaseNetworkSession:clbk_network_send] soft-removed peer", peer_remove_info.peer:id(), target_ip)
-			peer_remove_info.peer:destroy()
-			self._soft_remove_peers[target_ip] = nil
-			if not next(self._soft_remove_peers) then
-				self._soft_remove_peers = false
+			if ok_to_delete then
+				print("[BaseNetworkSession:clbk_network_send] soft-removed peer", peer_remove_info.peer:id(), target_ip)
+				peer_remove_info.peer:destroy()
+				self._soft_remove_peers[target_ip] = nil
+				if not next(self._soft_remove_peers) then
+					self._soft_remove_peers = false
+				end
+
 			end
 
 		else
@@ -570,7 +561,7 @@ function BaseNetworkSession:is_ready_to_close()
 
 	end
 
-	(for control) = nil and peer.has_queued_rpcs
+	return true
 end
 
 function BaseNetworkSession:closing()
@@ -627,9 +618,11 @@ function BaseNetworkSession:upd_trash_connections(wall_t)
 
 					end
 
-					do break end
-					print("[BaseNetworkSession:upd_trash_connections] resetting connection:", info.rpc:ip_at_index(0))
-					Network:reset_connection(info.rpc)
+					if reset then
+						print("[BaseNetworkSession:upd_trash_connections] resetting connection:", info.rpc:ip_at_index(0))
+						Network:reset_connection(info.rpc)
+					end
+
 					self._trash_connections[ip] = nil
 				end
 
@@ -637,7 +630,6 @@ function BaseNetworkSession:upd_trash_connections(wall_t)
 
 		end
 
-		(for control) = nil and info.expire_t
 		if not next(self._trash_connections) then
 			self._trash_connections = nil
 		end
@@ -659,7 +651,6 @@ function BaseNetworkSession:upd_trash_connections(wall_t)
 
 		end
 
-		(for control) = nil and info.expire_t
 		if not next(self._soft_remove_peers) then
 			self._soft_remove_peers = nil
 		end
@@ -723,7 +714,6 @@ function BaseNetworkSession:destroy()
 
 	end
 
-	(for control) = nil and peer.end_ticket_session
 	if self._dropin_complete_event_manager_id then
 		EventManager:unregister_listener(self._dropin_complete_event_manager_id)
 		self._dropin_complete_event_manager_id = nil
@@ -742,6 +732,7 @@ function BaseNetworkSession:_flush_soft_remove_peers()
 
 	end
 
+	self._soft_remove_peers = nil
 end
 
 function BaseNetworkSession:on_load_complete()
@@ -901,7 +892,7 @@ function BaseNetworkSession:are_peers_done_streaming()
 
 	end
 
-	(for control) = nil and peer.synched
+	return true
 end
 
 function BaseNetworkSession:peer_streaming_status()
@@ -921,7 +912,6 @@ function BaseNetworkSession:peer_streaming_status()
 
 	end
 
-	(for control) = nil and peer.streaming_status
 	return peer_name, status
 end
 

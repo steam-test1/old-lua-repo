@@ -40,7 +40,6 @@ function UnitByName:init(name, unit_filter_function, ...)
 
 	end
 
-	(for control) = "key_cancel" and table
 	table.sort(names_layers)
 	do
 		local (for generator), (for state), (for control) = ipairs(names_layers)
@@ -56,7 +55,6 @@ function UnitByName:init(name, unit_filter_function, ...)
 
 	end
 
-	(for control) = "key_cancel" and EWS
 	local layer_buttons_sizer = EWS:BoxSizer("HORIZONTAL")
 	local all_btn = EWS:Button(panel, "All", "", "BU_EXACTFIT,NO_BORDER")
 	layer_buttons_sizer:add(all_btn, 0, 2, "TOP,BOTTOM")
@@ -108,7 +106,7 @@ function UnitByName:on_all_layers()
 
 	end
 
-	(for control) = nil or cb.set_value
+	self:fill_unit_list()
 end
 
 function UnitByName:on_none_layers()
@@ -121,7 +119,7 @@ function UnitByName:on_none_layers()
 
 	end
 
-	(for control) = nil and cb.set_value
+	self:fill_unit_list()
 end
 
 function UnitByName:on_invert_layers()
@@ -134,7 +132,7 @@ function UnitByName:on_invert_layers()
 
 	end
 
-	(for control) = nil and cb.set_value
+	self:fill_unit_list()
 end
 
 function UnitByName:key_delete(ctrlr, event)
@@ -185,6 +183,7 @@ function UnitByName:_selected_item_units()
 
 	end
 
+	return units
 end
 
 function UnitByName:_selected_item_unit()
@@ -223,7 +222,6 @@ function UnitByName:selected_unit(unit)
 
 	end
 
-	(for control) = self._list:selected_items() and self._list
 	for i = 0, self._list:item_count() - 1 do
 		if self._units[self._list:get_item_data(i)] == unit then
 			self._list:set_item_selected(i, true)
@@ -249,7 +247,6 @@ function UnitByName:selected_units(units)
 
 	end
 
-	(for control) = self._list:selected_items() and self._list
 	local (for generator), (for state), (for control) = ipairs(units)
 	do
 		do break end
@@ -335,10 +332,8 @@ function UnitByName:fill_unit_list()
 
 		end
 
-		(for control) = layer:created_units() and string
 	end
 
-	(for control) = nil and self._layer_cbs
 	self._list:thaw()
 	self._list:autosize_column(0)
 end

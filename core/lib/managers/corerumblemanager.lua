@@ -21,9 +21,6 @@ function RumbleManager:initialize_controller_types()
 end
 
 function RumbleManager:stop(rumble_id)
--- fail 9
-null
-4
 	if rumble_id then
 		if rumble_id == "all" then
 			local (for generator), (for state), (for control) = pairs(self._registered_controllers)
@@ -173,8 +170,7 @@ function RumbleManager:play(name, controller_wrapper, multiplier_data, custom_da
 
 		end
 
-		do return rumble_id end
-		(for control) = nil and self._last_played_ids
+		return rumble_id
 	else
 		Application:error("RumbleManager:: Effect ", name, " not found.")
 	end
@@ -217,13 +213,15 @@ function RumbleManager:mult_distance_lerp(pos_func_list, params)
 
 		end
 
-		do break end
-		local full_dis = params.full_dis or 0
-		local zero_dis = params.zero_dis or 1000 - full_dis
-		local mult = params.multiplier or 1
-		local source = params.source
-		mult = mult * (zero_dis - math.clamp(source - closest_pos:length() - full_dis, 0, zero_dis)) / zero_dis
-		return mult
+		if closest_pos then
+			local full_dis = params.full_dis or 0
+			local zero_dis = params.zero_dis or 1000 - full_dis
+			local mult = params.multiplier or 1
+			local source = params.source
+			mult = mult * (zero_dis - math.clamp(source - closest_pos:length() - full_dis, 0, zero_dis)) / zero_dis
+			return mult
+		end
+
 	end
 
 	return 0

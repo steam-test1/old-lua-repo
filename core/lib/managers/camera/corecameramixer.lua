@@ -32,7 +32,7 @@ function CameraMixer:destroy()
 
 	end
 
-	self._cameras = nil and {}
+	self._cameras = {}
 end
 
 function CameraMixer:add_camera(camera, blend_time)
@@ -54,7 +54,7 @@ function CameraMixer:stop()
 
 	end
 
-	self._cameras = nil and {}
+	self._cameras = {}
 end
 
 function CameraMixer:update(cud, cud_class, time, dt)
@@ -81,11 +81,9 @@ function CameraMixer:update(cud, cud_class, time, dt)
 			camera.cam_data = cam_data
 		end
 
-		(for control) = nil and cud_class.new
 	end
 
 	local full_blend_index = 1
-	(for control) = nil and camera.camera
 	do
 		local (for generator), (for state), (for control) = ipairs(self._cameras)
 		do
@@ -107,7 +105,6 @@ function CameraMixer:update(cud, cud_class, time, dt)
 
 	end
 
-	(for control) = nil and _camera.time
 	for i = 1, full_blend_index - 1 do
 		self._cameras[1].camera:destroy()
 		table.remove(self._cameras, 1)
@@ -163,5 +160,6 @@ function CameraMixer:cameras()
 
 	end
 
+	return cameras
 end
 

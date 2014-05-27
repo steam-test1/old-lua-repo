@@ -161,8 +161,7 @@ function CoreTableEditorPanel:_sizer_with_editable_fields(parent)
 
 	end
 
-	do break end
-	if self:selected_item() ~= nil then
+	if first_control and self:selected_item() ~= nil then
 		first_control:set_selection(-1, -1)
 		first_control:set_focus()
 	end

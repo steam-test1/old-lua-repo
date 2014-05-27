@@ -195,7 +195,6 @@ function BlackMarketGuiTabItem:init(main_panel, data, node, size_data, hide_sele
 	end
 
 	self._max_y_index = max_y_index
-	(for control) = self._tab_panel:size() and BlackMarketGuiSlotItem
 	self.my_scroll_slots_y = math.max(self.my_slots_dimensions[2], math.ceil(#self._data / self.my_slots_dimensions[1]))
 	self._my_node_data.scroll_y_index = self._my_node_data.scroll_y_index or 1
 	self:check_new_drop()
@@ -324,7 +323,6 @@ function BlackMarketGuiTabItem:check_new_drop(first_time)
 	end
 
 	local tab_text_string = self._tab_text_string
-	(for control) = nil and slot._data
 	if got_new_drop then
 		tab_text_string = tab_text_string .. "" .. managers.localization:get_default_macro("BTN_INV_NEW")
 	else
@@ -411,6 +409,7 @@ function BlackMarketGuiTabItem:inside(x, y)
 
 	end
 
+	return result
 end
 
 function BlackMarketGuiTabItem:mouse_pressed(button, x, y)
@@ -663,7 +662,6 @@ function BlackMarketGuiTabItem:select_slot(slot, instant)
 	end
 
 	local no_sound = false
-	(for control) = nil and d._data
 	if self._slots[slot] and self._slots[slot]._name == "empty" then
 		slot = self._slot_selected
 		no_sound = true
@@ -692,9 +690,6 @@ end
 
 BlackMarketGuiSlotItem = BlackMarketGuiSlotItem or class(BlackMarketGuiItem)
 function BlackMarketGuiSlotItem:init(main_panel, data, x, y, w, h)
--- fail 260
-null
-12
 	BlackMarketGuiSlotItem.super.init(self, main_panel, data, x, y, w, h)
 	self.rect_bg = self._panel:rect({
 		color = Color.black,
@@ -787,7 +782,6 @@ null
 
 	end
 
-	(for control) = custom_name_text.set_right and DB
 	local texture_loaded_clbk = callback(self, self, "texture_loaded_clbk")
 	if data.mini_icons then
 		local padding = data.mini_icons.borders and 14 or 5
@@ -1103,7 +1097,6 @@ null
 
 			end
 
-			(for control) = Color.white:with_alpha(0.6) and bitmap.set_color
 			self._bitmap:set_blend_mode("sub")
 		end
 
@@ -1226,7 +1219,6 @@ function BlackMarketGuiSlotItem:destroy()
 
 	end
 
-	(for control) = nil and icon_data.stream
 	if self._requested_texture then
 		managers.menu_component:unretrieve_texture(self._requested_texture, self._request_index)
 	end
@@ -1254,7 +1246,6 @@ function BlackMarketGuiSlotItem:texture_loaded_clbk(texture_idstring)
 		end
 
 	else
-		(for control) = "VertexColorTextured" and bitmap.set_color
 		self._bitmap = self._panel:bitmap({
 			name = "item_texture",
 			texture = texture_idstring,
@@ -1285,7 +1276,6 @@ function BlackMarketGuiSlotItem:texture_loaded_clbk(texture_idstring)
 
 	end
 
-	(for control) = self._panel and self._data
 	if self._post_load_alpha then
 		self._bitmap:set_color(Color.white:with_alpha(self._post_load_alpha))
 		self._bitmap:set_blend_mode(self._post_load_blend_mode or "normal")
@@ -1300,7 +1290,7 @@ function BlackMarketGuiSlotItem:texture_loaded_clbk(texture_idstring)
 		end
 
 		self._post_load_alpha = nil
-		self._post_load_blend_mode = Color.white:with_alpha(self._post_load_alpha) and nil
+		self._post_load_blend_mode = nil
 	end
 
 	self._loading_texture = nil
@@ -1358,7 +1348,7 @@ function BlackMarketGuiSlotItem:set_highlight(highlight, instant)
 			end
 
 		else
-			local animate_deselect = instant and function(o, panel, instant, width, height)
+			local animate_deselect = function(o, panel, instant, width, height)
 				local w = o:w()
 				local h = o:h()
 				local end_w = width * 0.65
@@ -1537,7 +1527,6 @@ function BlackMarketGuiMaskSlotItem:init(main_panel, data, x, y, w, h)
 
 		end
 
-		(for control) = Color.white:with_alpha(0.3) and bitmap.set_color
 		if self._loading_texture then
 			self._post_load_alpha = 0.3
 		end
@@ -1587,7 +1576,7 @@ function BlackMarketGuiMaskSlotItem:set_highlight(highlight, instant)
 			end
 
 		else
-			local animate_deselect = self._panel and function(o, panel, instant, width, height)
+			local animate_deselect = function(o, panel, instant, width, height)
 				local w = o:w()
 				local h = o:h()
 				local end_w = width * 0.45
@@ -1690,9 +1679,6 @@ function BlackMarketGuiButtonItem:set_text_btn_prefix(prefix)
 end
 
 function BlackMarketGuiButtonItem:set_text_params(params)
--- fail 35
-null
-7
 	local prefix = self._btn_prefix and managers.localization:get_default_macro(self._btn_prefix) or ""
 	local btn_text = prefix
 	if self._btn_text_id then
@@ -1918,7 +1904,6 @@ function BlackMarketGui:_setup(is_start_page, component_data)
 
 	end
 
-	(for control) = top_padding + 1 and data.on_create_func_name
 	if self._data.open_callback_name then
 		local clbk_func = callback(self, self, self._data.open_callback_name, self._data.open_callback_params)
 		if clbk_func then
@@ -2498,7 +2483,7 @@ function BlackMarketGui:_setup(is_start_page, component_data)
 
 		end
 
-		self._info_texts, (for control) = {}, 8 and BlackMarketGuiButtonItem
+		self._info_texts = {}
 		self._info_texts_panel = self._panel:panel({
 			x = info_box_panel:x() + 10,
 			y = info_box_panel:y() + 10,
@@ -2573,16 +2558,7 @@ function BlackMarketGui:_setup(is_start_page, component_data)
 		end
 
 		local h = real_small_font_size
-		local longest_text_w = self._info_texts_panel:text({
-			name = "info_text_5",
-			font_size = small_font_size,
-			font = small_font,
-			layer = 1,
-			color = tweak_data.screen_colors.important_1,
-			text = "",
-			wrap = true,
-			word_wrap = true
-		}) and 0
+		local longest_text_w = 0
 		if self._data.info_callback then
 			self._info_panel = self._panel:panel({
 				name = "info_panel",
@@ -2632,7 +2608,6 @@ function BlackMarketGui:_setup(is_start_page, component_data)
 
 			end
 
-			(for control) = self._btn_panel:w() and info.name
 			local (for generator), (for state), (for control) = ipairs(self._info_panel:children())
 			do
 				do break end
@@ -2648,7 +2623,6 @@ function BlackMarketGui:_setup(is_start_page, component_data)
 			end
 
 		else
-			(for control) = self._info_panel:children() and string
 			self._stats_shown = {
 				{name = "magazine", stat_name = "extra_ammo"},
 				{name = "totalammo"},
@@ -2823,17 +2797,8 @@ function BlackMarketGui:_setup(is_start_page, component_data)
 
 				end
 
-				(for control) = Color.black:with_alpha(0.3) and panel.panel
 			end
 
-			(for control) = {
-				name = "mods",
-				size = 45,
-				align = "right",
-				alpha = 0.75,
-				blend = "add",
-				color = tweak_data.screen_colors.stats_mods
-			} and "_rweapon_stats_panel"
 			self._armor_stats_shown = {
 				{name = "armor"},
 				{
@@ -2934,17 +2899,8 @@ function BlackMarketGui:_setup(is_start_page, component_data)
 
 				end
 
-				(for control) = Color.black:with_alpha(0.3) and panel.panel
 			end
 
-			(for control) = {
-				name = "skill",
-				size = 60,
-				align = "right",
-				alpha = 0.75,
-				blend = "add",
-				color = tweak_data.screen_colors.resource
-			} and "_armor_stats_panel"
 			self._mweapon_stats_shown = {
 				{name = "damage", range = true},
 				{
@@ -3043,17 +2999,8 @@ function BlackMarketGui:_setup(is_start_page, component_data)
 
 				end
 
-				(for control) = Color.black:with_alpha(0.3) and panel.panel
 			end
 
-			(for control) = {
-				name = "skill",
-				size = 60,
-				align = "right",
-				alpha = 0.75,
-				blend = "add",
-				color = tweak_data.screen_colors.resource
-			} and "_mweapon_stats_panel"
 			panel = self._stats_panel:panel({
 				name = "modslist_panel",
 				layer = 0,
@@ -3105,7 +3052,6 @@ function BlackMarketGui:_setup(is_start_page, component_data)
 
 		end
 
-		(for control) = prev_page:text_rect() and "set_tab_position"
 		if not managers.menu:is_pc_controller() and #self._tabs > 1 then
 			local next_page = self._panel:text({
 				name = "next_page",
@@ -3261,7 +3207,6 @@ function BlackMarketGui:_setup(is_start_page, component_data)
 				end
 
 			else
-				(for control) = unlocked_item[2] and "category"
 				managers.menu:show_new_item_gained(params)
 			end
 
@@ -3269,7 +3214,6 @@ function BlackMarketGui:_setup(is_start_page, component_data)
 
 	end
 
-	(for control) = 0 and "category"
 	self:set_tab_positions()
 	self:_round_everything()
 end
@@ -3400,7 +3344,6 @@ function BlackMarketGui:_get_skill_stats(name, category, slot, base_stats, mods_
 	end
 
 	local custom_data = {}
-	(for control) = nil and stat.name
 	custom_data[category] = managers.blackmarket:get_crafted_category_slot(category, slot)
 	local detection_risk = managers.blackmarket:get_suspicion_offset_from_custom_data(custom_data, tweak_data.player.SUSPICION_OFFSET_LERP or 0.75)
 	detection_risk = math.round(detection_risk * 100)
@@ -3453,6 +3396,7 @@ function BlackMarketGui:_get_skill_stats(name, category, slot, base_stats, mods_
 
 	end
 
+	return skill_stats
 end
 
 function BlackMarketGui:_get_mods_stats(name, base_stats, equipped_mods)
@@ -3469,8 +3413,7 @@ function BlackMarketGui:_get_mods_stats(name, base_stats, equipped_mods)
 
 	end
 
-	do break end
-	do
+	if equipped_mods then
 		local tweak_stats = tweak_data.weapon.stats
 		local tweak_factory = tweak_data.weapon.factory.parts
 		do
@@ -3498,11 +3441,9 @@ function BlackMarketGui:_get_mods_stats(name, base_stats, equipped_mods)
 
 			end
 
-			(for control) = nil and tweak_factory[mod]
 		end
 
 		local index
-		(for control) = mods_stats[stat.name] and tweak_factory[mod]
 		local (for generator), (for state), (for control) = pairs(self._stats_shown)
 		do
 			do break end
@@ -3562,6 +3503,7 @@ function BlackMarketGui:_get_mods_stats(name, base_stats, equipped_mods)
 
 	end
 
+	return mods_stats
 end
 
 function BlackMarketGui:_get_base_stats(name)
@@ -3633,6 +3575,7 @@ function BlackMarketGui:_get_base_stats(name)
 
 	end
 
+	return base_stats
 end
 
 function BlackMarketGui:_get_melee_weapon_stats(name)
@@ -3740,7 +3683,6 @@ function BlackMarketGui:_get_melee_weapon_stats(name)
 
 	end
 
-	(for control) = 1 and stat.num_decimals
 	do
 		local (for generator), (for state), (for control) = ipairs(multiple_of)
 		do
@@ -3754,7 +3696,6 @@ function BlackMarketGui:_get_melee_weapon_stats(name)
 
 	end
 
-	(for control) = 1 and data[1]
 	do
 		local (for generator), (for state), (for control) = ipairs(self._mweapon_stats_shown)
 		do
@@ -3775,7 +3716,6 @@ function BlackMarketGui:_get_melee_weapon_stats(name)
 
 	end
 
-	(for control) = 1 and stat.name
 	return base_stats, mods_stats, skill_stats
 end
 
@@ -3873,7 +3813,6 @@ function BlackMarketGui:_get_armor_stats(name)
 
 	end
 
-	(for control) = nil and stat.name
 	return base_stats, mods_stats, skill_stats
 end
 
@@ -3896,10 +3835,12 @@ function BlackMarketGui:_get_stats(name, category, slot)
 
 		end
 
-		do break end
-		silencer = managers.weapon_factory:has_perk("silencer", factory_id, equipped_mods)
-		single_mod = managers.weapon_factory:has_perk("fire_mode_single", factory_id, equipped_mods)
-		auto_mod = managers.weapon_factory:has_perk("fire_mode_auto", factory_id, equipped_mods)
+		if equipped_mods then
+			silencer = managers.weapon_factory:has_perk("silencer", factory_id, equipped_mods)
+			single_mod = managers.weapon_factory:has_perk("fire_mode_single", factory_id, equipped_mods)
+			auto_mod = managers.weapon_factory:has_perk("fire_mode_auto", factory_id, equipped_mods)
+		end
+
 	end
 
 	local base_stats = self:_get_base_stats(name)
@@ -3930,7 +3871,7 @@ function BlackMarketGui:_get_weapon_mod_stats(mod_name, weapon_name, base_stats,
 
 	end
 
-	mod_stats.chosen.name = nil and mod_name
+	mod_stats.chosen.name = mod_name
 	if equipped_mods then
 		local (for generator), (for state), (for control) = ipairs(equipped_mods)
 		do
@@ -3945,7 +3886,7 @@ function BlackMarketGui:_get_weapon_mod_stats(mod_name, weapon_name, base_stats,
 	end
 
 	local curr_stats = base_stats
-	local index = nil and nil
+	local index
 	do
 		local (for generator), (for state), (for control) = pairs(mod_stats)
 		do
@@ -4015,9 +3956,9 @@ function BlackMarketGui:_get_weapon_mod_stats(mod_name, weapon_name, base_stats,
 
 		end
 
-		(for control) = nil and mod.name
 	end
 
+	return mod_stats
 end
 
 function BlackMarketGui:_get_stats_for_mod(mod_name, weapon_name, category, slot)
@@ -4035,7 +3976,6 @@ function BlackMarketGui:_get_stats_for_mod(mod_name, weapon_name, category, slot
 
 	end
 
-	(for control) = nil and table
 	local base_stats = self:_get_base_stats(weapon_name)
 	local mods_stats = self:_get_mods_stats(weapon_name, base_stats, equipped_mods)
 	return self:_get_weapon_mod_stats(mod_name, weapon_name, base_stats, mods_stats, equipped_mods)
@@ -4124,9 +4064,6 @@ function BlackMarketGui:set_stats_titles(...)
 end
 
 function BlackMarketGui:show_stats()
--- fail 1564
-null
-18
 	if not self._stats_panel or not self._rweapon_stats_panel or not self._armor_stats_panel or not self._mweapon_stats_panel then
 		return
 	end
@@ -4172,12 +4109,6 @@ null
 
 			end
 
-			(for control) = {
-				name = "mod",
-				text_id = "bm_menu_stats_mod",
-				color = tweak_data.screen_colors.stats_mods,
-				x = 215
-			} and title.hide
 			self:set_stats_titles({name = "total", show = true}, {
 				name = "equip",
 				show = true,
@@ -4195,13 +4126,6 @@ null
 
 			end
 
-			(for control) = {
-				name = "equip",
-				show = true,
-				text_id = "bm_menu_equipped",
-				alpha = 0.75,
-				x = 105
-			} and title.show
 			self:set_stats_titles({name = "total", hide = true}, {
 				name = "equip",
 				text_id = "bm_menu_stats_total",
@@ -4260,426 +4184,384 @@ null
 
 		end
 
-	else
-		(for control) = {
-			name = "equip",
-			text_id = "bm_menu_stats_total",
-			alpha = 1,
-			x = 120
-		} and self._stats_texts
-		if tweak_data.blackmarket.armors[self._slot_data.name] then
-			local equipped_item = managers.blackmarket:equipped_item(category)
-			local equipped_slot = managers.blackmarket:equipped_armor_slot()
-			local equip_base_stats, equip_mods_stats, equip_skill_stats = self:_get_armor_stats(equipped_item)
-			local base_stats, mods_stats, skill_stats = self:_get_armor_stats(self._slot_data.name)
-			self._armor_stats_panel:show()
-			self:hide_weapon_stats()
-			self:hide_melee_weapon_stats()
-			self:set_stats_titles({name = "base", x = 185}, {
-				name = "mod",
-				text_id = "bm_menu_stats_skill",
-				color = tweak_data.screen_colors.resource,
-				x = 245
-			}, {name = "skill", alpha = 0})
-			if self._slot_data.name ~= equipped_slot then
-				do
-					local (for generator), (for state), (for control) = pairs(self._stats_titles)
-					do
-						do break end
-						title:hide()
-					end
-
-				end
-
-				(for control) = {
-					name = "mod",
-					text_id = "bm_menu_stats_skill",
-					color = tweak_data.screen_colors.resource,
-					x = 245
-				} and title.hide
-				self:set_stats_titles({name = "total", show = true}, {
-					name = "equip",
-					show = true,
-					text_id = "bm_menu_equipped",
-					alpha = 0.75,
-					x = 105
-				})
-			else
-				do
-					local (for generator), (for state), (for control) = pairs(self._stats_titles)
-					do
-						do break end
-						title:show()
-					end
-
-				end
-
-				(for control) = {
-					name = "equip",
-					show = true,
-					text_id = "bm_menu_equipped",
-					alpha = 0.75,
-					x = 105
-				} and title.show
-				self:set_stats_titles({name = "total", hide = true}, {
-					name = "equip",
-					text_id = "bm_menu_stats_total",
-					alpha = 1,
-					x = 120
-				})
-			end
-
-			local (for generator), (for state), (for control) = ipairs(self._armor_stats_shown)
+	elseif tweak_data.blackmarket.armors[self._slot_data.name] then
+		local equipped_item = managers.blackmarket:equipped_item(category)
+		local equipped_slot = managers.blackmarket:equipped_armor_slot()
+		local equip_base_stats, equip_mods_stats, equip_skill_stats = self:_get_armor_stats(equipped_item)
+		local base_stats, mods_stats, skill_stats = self:_get_armor_stats(self._slot_data.name)
+		self._armor_stats_panel:show()
+		self:hide_weapon_stats()
+		self:hide_melee_weapon_stats()
+		self:set_stats_titles({name = "base", x = 185}, {
+			name = "mod",
+			text_id = "bm_menu_stats_skill",
+			color = tweak_data.screen_colors.resource,
+			x = 245
+		}, {name = "skill", alpha = 0})
+		if self._slot_data.name ~= equipped_slot then
 			do
-				do break end
-				self._armor_stats_texts[stat.name].name:set_text(utf8.to_upper(managers.localization:text("bm_menu_" .. stat.name)))
-				value = math.max(base_stats[stat.name].value + mods_stats[stat.name].value + skill_stats[stat.name].value, 0)
-				if self._slot_data.name == equipped_slot then
-					local base = base_stats[stat.name].value
-					self._armor_stats_texts[stat.name].equip:set_alpha(1)
-					self._armor_stats_texts[stat.name].equip:set_text(value)
-					self._armor_stats_texts[stat.name].base:set_text(base)
-					if skill_stats[stat.name].skill_in_effect then
-					else
-					end
-
-					self._armor_stats_texts[stat.name].skill:set_text((0 < skill_stats[stat.name].value and "+" or "") .. skill_stats[stat.name].value or "")
-					self._armor_stats_texts[stat.name].total:set_text("")
-					self._armor_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.text)
-					if value ~= 0 and value > base then
-						self._armor_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.stats_positive)
-					elseif value ~= 0 and value < base then
-						self._armor_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.stats_negative)
-					else
-						self._armor_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.text)
-					end
-
-					self._armor_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.text)
-				else
-					local equip = math.max(equip_base_stats[stat.name].value + equip_mods_stats[stat.name].value + equip_skill_stats[stat.name].value, 0)
-					self._armor_stats_texts[stat.name].equip:set_alpha(0.75)
-					self._armor_stats_texts[stat.name].equip:set_text(equip)
-					self._armor_stats_texts[stat.name].base:set_text("")
-					self._armor_stats_texts[stat.name].skill:set_text("")
-					self._armor_stats_texts[stat.name].total:set_text(value)
-					if value > equip then
-						self._armor_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.stats_positive)
-					elseif value < equip then
-						self._armor_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.stats_negative)
-					else
-						self._armor_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.text)
-					end
-
-					self._armor_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.text)
+				local (for generator), (for state), (for control) = pairs(self._stats_titles)
+				do
+					do break end
+					title:hide()
 				end
 
 			end
 
+			self:set_stats_titles({name = "total", show = true}, {
+				name = "equip",
+				show = true,
+				text_id = "bm_menu_equipped",
+				alpha = 0.75,
+				x = 105
+			})
 		else
-			(for control) = {
+			do
+				local (for generator), (for state), (for control) = pairs(self._stats_titles)
+				do
+					do break end
+					title:show()
+				end
+
+			end
+
+			self:set_stats_titles({name = "total", hide = true}, {
 				name = "equip",
 				text_id = "bm_menu_stats_total",
 				alpha = 1,
 				x = 120
-			} and self._armor_stats_texts
-			if tweak_data.blackmarket.melee_weapons[self._slot_data.name] then
-				self:hide_armor_stats()
-				self:hide_weapon_stats()
-				self._mweapon_stats_panel:show()
-				self:set_stats_titles({name = "base", x = 185}, {
-					name = "mod",
-					text_id = "bm_menu_stats_skill",
-					color = tweak_data.screen_colors.resource,
-					x = 245
-				}, {name = "skill", alpha = 0})
-				local equipped_item = managers.blackmarket:equipped_item(category)
-				local equip_base_stats, equip_mods_stats, equip_skill_stats = self:_get_melee_weapon_stats(equipped_item)
-				local base_stats, mods_stats, skill_stats = self:_get_melee_weapon_stats(self._slot_data.name)
-				if self._slot_data.name ~= equipped_item then
-					do
-						local (for generator), (for state), (for control) = pairs(self._stats_titles)
-						do
-							do break end
-							title:hide()
-						end
+			})
+		end
 
-					end
-
-					(for control) = ipairs(self._armor_stats_shown) and title.hide
-					self:set_stats_titles({name = "total", show = true}, {
-						name = "equip",
-						show = true,
-						text_id = "bm_menu_equipped",
-						alpha = 0.75,
-						x = 105
-					})
+		local (for generator), (for state), (for control) = ipairs(self._armor_stats_shown)
+		do
+			do break end
+			self._armor_stats_texts[stat.name].name:set_text(utf8.to_upper(managers.localization:text("bm_menu_" .. stat.name)))
+			value = math.max(base_stats[stat.name].value + mods_stats[stat.name].value + skill_stats[stat.name].value, 0)
+			if self._slot_data.name == equipped_slot then
+				local base = base_stats[stat.name].value
+				self._armor_stats_texts[stat.name].equip:set_alpha(1)
+				self._armor_stats_texts[stat.name].equip:set_text(value)
+				self._armor_stats_texts[stat.name].base:set_text(base)
+				if skill_stats[stat.name].skill_in_effect then
 				else
-					do
-						local (for generator), (for state), (for control) = pairs(self._stats_titles)
-						do
-							do break end
-							title:show()
-						end
-
-					end
-
-					(for control) = {
-						name = "equip",
-						show = true,
-						text_id = "bm_menu_equipped",
-						alpha = 0.75,
-						x = 105
-					} and title.show
-					self:set_stats_titles({name = "total", hide = true}, {
-						name = "equip",
-						text_id = "bm_menu_stats_total",
-						alpha = 1,
-						x = 120
-					})
 				end
 
-				local value_min, value_max, skill_value_min, skill_value_max, skill_value
-				local (for generator), (for state), (for control) = ipairs(self._mweapon_stats_shown)
-				do
-					do break end
-					self._mweapon_stats_texts[stat.name].name:set_text(utf8.to_upper(managers.localization:text("bm_menu_" .. stat.name)))
-					if stat.range then
-						value_min = math.max(base_stats[stat.name].min_value + mods_stats[stat.name].min_value + skill_stats[stat.name].min_value, 0)
-						value_max = math.max(base_stats[stat.name].max_value + mods_stats[stat.name].max_value + skill_stats[stat.name].max_value, 0)
-					end
-
-					value = math.max(base_stats[stat.name].value + mods_stats[stat.name].value + skill_stats[stat.name].value, 0)
-					if self._slot_data.name == equipped_item then
-						local base, base_min, base_max, skill, skill_min, skill_max
-						if stat.range then
-							base_min = base_stats[stat.name].min_value
-							base_max = base_stats[stat.name].max_value
-							skill_min = skill_stats[stat.name].min_value
-							skill_max = skill_stats[stat.name].max_value
-						end
-
-						base = base_stats[stat.name].value
-						skill = skill_stats[stat.name].value
-						local format_string = "%0." .. tostring(stat.num_decimals or 0) .. "f"
-						local equip_text = value and string.format(format_string, value)
-						local base_text = base and string.format(format_string, base)
-						local skill_text = skill_stats[stat.name].value and string.format(format_string, skill_stats[stat.name].value)
-						local base_min_text = base_min and string.format(format_string, base_min)
-						local base_max_text = base_max and string.format(format_string, base_max)
-						local value_min_text = value_min and string.format(format_string, value_min)
-						local value_max_text = value_max and string.format(format_string, value_max)
-						local skill_min_text = skill_min and string.format(format_string, skill_min)
-						local skill_max_text = skill_max and string.format(format_string, skill_max)
-						if stat.range then
-							if base_min ~= base_max then
-								base_text = base_min_text .. "(" .. base_max_text .. ")"
-							end
-
-							if value_min ~= value_max then
-								equip_text = value_min_text .. "(" .. value_max_text .. ")"
-							end
-
-							if skill_min ~= skill_max then
-								skill_text = skill_min_text .. "(" .. skill_max_text .. ")"
-							end
-
-						end
-
-						if stat.suffix then
-							base_text = base_text .. tostring(stat.suffix)
-							equip_text = equip_text .. tostring(stat.suffix)
-							skill_text = skill_text .. tostring(stat.suffix)
-						end
-
-						if stat.prefix then
-							base_text = tostring(stat.prefix) .. base_text
-							equip_text = tostring(stat.prefix) .. equip_text
-							skill_text = tostring(stat.prefix) .. skill_text
-						end
-
-						self._mweapon_stats_texts[stat.name].equip:set_alpha(1)
-						self._mweapon_stats_texts[stat.name].equip:set_text(equip_text)
-						self._mweapon_stats_texts[stat.name].base:set_text(base_text)
-						if skill_stats[stat.name].skill_in_effect then
-						else
-						end
-
-						self._mweapon_stats_texts[stat.name].skill:set_text((0 < skill_stats[stat.name].value and "+" or "") .. skill_text or "")
-						self._mweapon_stats_texts[stat.name].total:set_text("")
-						self._mweapon_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.text)
-						local positive = value ~= 0 and value > base
-						local negative = value ~= 0 and value < base
-						if stat.inverse then
-							local temp = positive
-							positive = negative
-							negative = temp
-						end
-
-						if positive then
-							self._mweapon_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.stats_positive)
-						elseif negative then
-							self._mweapon_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.stats_negative)
-						else
-							self._mweapon_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.text)
-						end
-
-						self._mweapon_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.text)
-					else
-						local equip, equip_min, equip_max
-						if stat.range then
-							equip_min = math.max(equip_base_stats[stat.name].min_value + equip_mods_stats[stat.name].min_value + equip_skill_stats[stat.name].min_value, 0)
-							equip_max = math.max(equip_base_stats[stat.name].max_value + equip_mods_stats[stat.name].max_value + equip_skill_stats[stat.name].max_value, 0)
-							equip = (equip_min + equip_max) / 2
-						else
-							equip = math.max(equip_base_stats[stat.name].value + equip_mods_stats[stat.name].value + equip_skill_stats[stat.name].value, 0)
-						end
-
-						local format_string = "%0." .. tostring(stat.num_decimals or 0) .. "f"
-						local equip_text = equip and string.format(format_string, equip)
-						local total_text = value and string.format(format_string, value)
-						local equip_min_text = equip_min and string.format(format_string, equip_min)
-						local equip_max_text = equip_max and string.format(format_string, equip_max)
-						local total_min_text = value_min and string.format(format_string, value_min)
-						local total_max_text = value_max and string.format(format_string, value_max)
-						if stat.range then
-							if equip_min ~= equip_max then
-								equip_text = equip_min_text .. "(" .. equip_max_text .. ")"
-							end
-
-							if value_min ~= value_max then
-								total_text = total_min_text .. "(" .. total_max_text .. ")"
-							end
-
-						end
-
-						if stat.suffix then
-							equip_text = equip_text .. tostring(stat.suffix)
-							total_text = total_text .. tostring(stat.suffix)
-						end
-
-						if stat.prefix then
-							equip_text = tostring(stat.prefix) .. equip_text
-							total_text = tostring(stat.prefix) .. total_text
-						end
-
-						self._mweapon_stats_texts[stat.name].equip:set_alpha(0.75)
-						self._mweapon_stats_texts[stat.name].equip:set_text(equip_text)
-						self._mweapon_stats_texts[stat.name].base:set_text("")
-						self._mweapon_stats_texts[stat.name].skill:set_text("")
-						self._mweapon_stats_texts[stat.name].total:set_text(total_text)
-						local positive = value > equip
-						local negative = value < equip
-						if stat.inverse then
-							local temp = positive
-							positive = negative
-							negative = temp
-						end
-
-						if positive then
-							self._mweapon_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.stats_positive)
-						elseif negative then
-							self._mweapon_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.stats_negative)
-						else
-							self._mweapon_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.text)
-						end
-
-						self._mweapon_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.text)
-					end
-
+				self._armor_stats_texts[stat.name].skill:set_text((0 < skill_stats[stat.name].value and "+" or "") .. skill_stats[stat.name].value or "")
+				self._armor_stats_texts[stat.name].total:set_text("")
+				self._armor_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.text)
+				if value ~= 0 and value > base then
+					self._armor_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.stats_positive)
+				elseif value ~= 0 and value < base then
+					self._armor_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.stats_negative)
+				else
+					self._armor_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.text)
 				end
 
+				self._armor_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.text)
 			else
-				local equip, stat_changed = self._armor_stats_texts[stat.name].equip and nil, nil
-				local tweak_parts = tweak_data.weapon.factory.parts[self._slot_data.name]
-				local mod_stats = self:_get_stats_for_mod(self._slot_data.name, name, category, slot)
-				local hide_equip = mod_stats.equip.name == mod_stats.chosen.name
-				self._rweapon_stats_panel:show()
-				self:hide_armor_stats()
-				self:hide_melee_weapon_stats()
-				do
-					local (for generator), (for state), (for control) = pairs(self._stats_titles)
-					do
-						do break end
-						title:hide()
-					end
-
-				end
-
-				(for control) = slot and title.hide
-				if not mod_stats.equip.name then
-					self._stats_titles.equip:hide()
+				local equip = math.max(equip_base_stats[stat.name].value + equip_mods_stats[stat.name].value + equip_skill_stats[stat.name].value, 0)
+				self._armor_stats_texts[stat.name].equip:set_alpha(0.75)
+				self._armor_stats_texts[stat.name].equip:set_text(equip)
+				self._armor_stats_texts[stat.name].base:set_text("")
+				self._armor_stats_texts[stat.name].skill:set_text("")
+				self._armor_stats_texts[stat.name].total:set_text(value)
+				if value > equip then
+					self._armor_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.stats_positive)
+				elseif value < equip then
+					self._armor_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.stats_negative)
 				else
-					self._stats_titles.equip:show()
-					self._stats_titles.equip:set_text(utf8.to_upper(managers.localization:text("bm_menu_equipped")))
-					self._stats_titles.equip:set_alpha(0.75)
-					self._stats_titles.equip:set_x(105)
+					self._armor_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.text)
 				end
 
-				if not hide_equip then
-					self._stats_titles.total:show()
-				end
-
-				local (for generator), (for state), (for control) = ipairs(self._stats_shown)
-				do
-					do break end
-					self._stats_texts[stat.name].name:set_text(utf8.to_upper(managers.localization:text("bm_menu_" .. stat.name)))
-					value = mod_stats.chosen[stat.name]
-					equip = mod_stats.equip[stat.name]
-					if tweak_parts then
-					else
-						stat_changed = tweak_parts.stats[stat.stat_name or stat.name] and value ~= 0 and 1 or 0.5
-					end
-
-					do
-						local (for generator), (for state), (for control) = pairs(self._stats_texts[stat.name])
-						do
-							do break end
-							if stat_name ~= "name" then
-								stat_text:set_text("")
-							end
-
-						end
-
-					end
-
-					do
-						local (for generator), (for state), (for control) = pairs(self._stats_texts[stat.name])
-						do
-							do break end
-							column:set_alpha(stat_changed)
-						end
-
-					end
-
-					(for control) = utf8.to_upper(managers.localization:text("bm_menu_" .. stat.name)) and column.set_alpha
-					if not hide_equip and stat_changed == 1 then
-					else
-					end
-
-					self._stats_texts[stat.name].total:set_text((value > 0 and "+" or "") .. value or "")
-					if equip ~= 0 or not "" then
-					end
-
-					self._stats_texts[stat.name].equip:set_text((equip > 0 and "+" or "") .. equip)
-					self._stats_texts[stat.name].equip:set_alpha(0.75)
-					if value > equip then
-						self._stats_texts[stat.name].total:set_color(tweak_data.screen_colors.stats_positive)
-					elseif value < equip then
-						self._stats_texts[stat.name].total:set_color(tweak_data.screen_colors.stats_negative)
-					else
-						self._stats_texts[stat.name].total:set_color(tweak_data.screen_colors.text)
-					end
-
-					self._stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.text)
-				end
-
+				self._armor_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.text)
 			end
 
 		end
 
+	elseif tweak_data.blackmarket.melee_weapons[self._slot_data.name] then
+		self:hide_armor_stats()
+		self:hide_weapon_stats()
+		self._mweapon_stats_panel:show()
+		self:set_stats_titles({name = "base", x = 185}, {
+			name = "mod",
+			text_id = "bm_menu_stats_skill",
+			color = tweak_data.screen_colors.resource,
+			x = 245
+		}, {name = "skill", alpha = 0})
+		local equipped_item = managers.blackmarket:equipped_item(category)
+		local equip_base_stats, equip_mods_stats, equip_skill_stats = self:_get_melee_weapon_stats(equipped_item)
+		local base_stats, mods_stats, skill_stats = self:_get_melee_weapon_stats(self._slot_data.name)
+		if self._slot_data.name ~= equipped_item then
+			do
+				local (for generator), (for state), (for control) = pairs(self._stats_titles)
+				do
+					do break end
+					title:hide()
+				end
+
+			end
+
+			self:set_stats_titles({name = "total", show = true}, {
+				name = "equip",
+				show = true,
+				text_id = "bm_menu_equipped",
+				alpha = 0.75,
+				x = 105
+			})
+		else
+			do
+				local (for generator), (for state), (for control) = pairs(self._stats_titles)
+				do
+					do break end
+					title:show()
+				end
+
+			end
+
+			self:set_stats_titles({name = "total", hide = true}, {
+				name = "equip",
+				text_id = "bm_menu_stats_total",
+				alpha = 1,
+				x = 120
+			})
+		end
+
+		local value_min, value_max, skill_value_min, skill_value_max, skill_value
+		local (for generator), (for state), (for control) = ipairs(self._mweapon_stats_shown)
+		do
+			do break end
+			self._mweapon_stats_texts[stat.name].name:set_text(utf8.to_upper(managers.localization:text("bm_menu_" .. stat.name)))
+			if stat.range then
+				value_min = math.max(base_stats[stat.name].min_value + mods_stats[stat.name].min_value + skill_stats[stat.name].min_value, 0)
+				value_max = math.max(base_stats[stat.name].max_value + mods_stats[stat.name].max_value + skill_stats[stat.name].max_value, 0)
+			end
+
+			value = math.max(base_stats[stat.name].value + mods_stats[stat.name].value + skill_stats[stat.name].value, 0)
+			if self._slot_data.name == equipped_item then
+				local base, base_min, base_max, skill, skill_min, skill_max
+				if stat.range then
+					base_min = base_stats[stat.name].min_value
+					base_max = base_stats[stat.name].max_value
+					skill_min = skill_stats[stat.name].min_value
+					skill_max = skill_stats[stat.name].max_value
+				end
+
+				base = base_stats[stat.name].value
+				skill = skill_stats[stat.name].value
+				local format_string = "%0." .. tostring(stat.num_decimals or 0) .. "f"
+				local equip_text = value and string.format(format_string, value)
+				local base_text = base and string.format(format_string, base)
+				local skill_text = skill_stats[stat.name].value and string.format(format_string, skill_stats[stat.name].value)
+				local base_min_text = base_min and string.format(format_string, base_min)
+				local base_max_text = base_max and string.format(format_string, base_max)
+				local value_min_text = value_min and string.format(format_string, value_min)
+				local value_max_text = value_max and string.format(format_string, value_max)
+				local skill_min_text = skill_min and string.format(format_string, skill_min)
+				local skill_max_text = skill_max and string.format(format_string, skill_max)
+				if stat.range then
+					if base_min ~= base_max then
+						base_text = base_min_text .. "(" .. base_max_text .. ")"
+					end
+
+					if value_min ~= value_max then
+						equip_text = value_min_text .. "(" .. value_max_text .. ")"
+					end
+
+					if skill_min ~= skill_max then
+						skill_text = skill_min_text .. "(" .. skill_max_text .. ")"
+					end
+
+				end
+
+				if stat.suffix then
+					base_text = base_text .. tostring(stat.suffix)
+					equip_text = equip_text .. tostring(stat.suffix)
+					skill_text = skill_text .. tostring(stat.suffix)
+				end
+
+				if stat.prefix then
+					base_text = tostring(stat.prefix) .. base_text
+					equip_text = tostring(stat.prefix) .. equip_text
+					skill_text = tostring(stat.prefix) .. skill_text
+				end
+
+				self._mweapon_stats_texts[stat.name].equip:set_alpha(1)
+				self._mweapon_stats_texts[stat.name].equip:set_text(equip_text)
+				self._mweapon_stats_texts[stat.name].base:set_text(base_text)
+				if skill_stats[stat.name].skill_in_effect then
+				else
+				end
+
+				self._mweapon_stats_texts[stat.name].skill:set_text((0 < skill_stats[stat.name].value and "+" or "") .. skill_text or "")
+				self._mweapon_stats_texts[stat.name].total:set_text("")
+				self._mweapon_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.text)
+				local positive = value ~= 0 and value > base
+				local negative = value ~= 0 and value < base
+				if stat.inverse then
+					local temp = positive
+					positive = negative
+					negative = temp
+				end
+
+				if positive then
+					self._mweapon_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.stats_positive)
+				elseif negative then
+					self._mweapon_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.stats_negative)
+				else
+					self._mweapon_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.text)
+				end
+
+				self._mweapon_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.text)
+			else
+				local equip, equip_min, equip_max
+				if stat.range then
+					equip_min = math.max(equip_base_stats[stat.name].min_value + equip_mods_stats[stat.name].min_value + equip_skill_stats[stat.name].min_value, 0)
+					equip_max = math.max(equip_base_stats[stat.name].max_value + equip_mods_stats[stat.name].max_value + equip_skill_stats[stat.name].max_value, 0)
+					equip = (equip_min + equip_max) / 2
+				else
+					equip = math.max(equip_base_stats[stat.name].value + equip_mods_stats[stat.name].value + equip_skill_stats[stat.name].value, 0)
+				end
+
+				local format_string = "%0." .. tostring(stat.num_decimals or 0) .. "f"
+				local equip_text = equip and string.format(format_string, equip)
+				local total_text = value and string.format(format_string, value)
+				local equip_min_text = equip_min and string.format(format_string, equip_min)
+				local equip_max_text = equip_max and string.format(format_string, equip_max)
+				local total_min_text = value_min and string.format(format_string, value_min)
+				local total_max_text = value_max and string.format(format_string, value_max)
+				if stat.range then
+					if equip_min ~= equip_max then
+						equip_text = equip_min_text .. "(" .. equip_max_text .. ")"
+					end
+
+					if value_min ~= value_max then
+						total_text = total_min_text .. "(" .. total_max_text .. ")"
+					end
+
+				end
+
+				if stat.suffix then
+					equip_text = equip_text .. tostring(stat.suffix)
+					total_text = total_text .. tostring(stat.suffix)
+				end
+
+				if stat.prefix then
+					equip_text = tostring(stat.prefix) .. equip_text
+					total_text = tostring(stat.prefix) .. total_text
+				end
+
+				self._mweapon_stats_texts[stat.name].equip:set_alpha(0.75)
+				self._mweapon_stats_texts[stat.name].equip:set_text(equip_text)
+				self._mweapon_stats_texts[stat.name].base:set_text("")
+				self._mweapon_stats_texts[stat.name].skill:set_text("")
+				self._mweapon_stats_texts[stat.name].total:set_text(total_text)
+				local positive = value > equip
+				local negative = value < equip
+				if stat.inverse then
+					local temp = positive
+					positive = negative
+					negative = temp
+				end
+
+				if positive then
+					self._mweapon_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.stats_positive)
+				elseif negative then
+					self._mweapon_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.stats_negative)
+				else
+					self._mweapon_stats_texts[stat.name].total:set_color(tweak_data.screen_colors.text)
+				end
+
+				self._mweapon_stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.text)
+			end
+
+		end
+
+	else
+		local equip, stat_changed
+		local tweak_parts = tweak_data.weapon.factory.parts[self._slot_data.name]
+		local mod_stats = self:_get_stats_for_mod(self._slot_data.name, name, category, slot)
+		local hide_equip = mod_stats.equip.name == mod_stats.chosen.name
+		self._rweapon_stats_panel:show()
+		self:hide_armor_stats()
+		self:hide_melee_weapon_stats()
+		do
+			local (for generator), (for state), (for control) = pairs(self._stats_titles)
+			do
+				do break end
+				title:hide()
+			end
+
+		end
+
+		if not mod_stats.equip.name then
+			self._stats_titles.equip:hide()
+		else
+			self._stats_titles.equip:show()
+			self._stats_titles.equip:set_text(utf8.to_upper(managers.localization:text("bm_menu_equipped")))
+			self._stats_titles.equip:set_alpha(0.75)
+			self._stats_titles.equip:set_x(105)
+		end
+
+		if not hide_equip then
+			self._stats_titles.total:show()
+		end
+
+		local (for generator), (for state), (for control) = ipairs(self._stats_shown)
+		do
+			do break end
+			self._stats_texts[stat.name].name:set_text(utf8.to_upper(managers.localization:text("bm_menu_" .. stat.name)))
+			value = mod_stats.chosen[stat.name]
+			equip = mod_stats.equip[stat.name]
+			if tweak_parts then
+			else
+				stat_changed = tweak_parts.stats[stat.stat_name or stat.name] and value ~= 0 and 1 or 0.5
+			end
+
+			do
+				local (for generator), (for state), (for control) = pairs(self._stats_texts[stat.name])
+				do
+					do break end
+					if stat_name ~= "name" then
+						stat_text:set_text("")
+					end
+
+				end
+
+			end
+
+			do
+				local (for generator), (for state), (for control) = pairs(self._stats_texts[stat.name])
+				do
+					do break end
+					column:set_alpha(stat_changed)
+				end
+
+			end
+
+			if not hide_equip and stat_changed == 1 then
+			else
+			end
+
+			self._stats_texts[stat.name].total:set_text((value > 0 and "+" or "") .. value or "")
+			if equip ~= 0 or not "" then
+			end
+
+			self._stats_texts[stat.name].equip:set_text((equip > 0 and "+" or "") .. equip)
+			self._stats_texts[stat.name].equip:set_alpha(0.75)
+			if value > equip then
+				self._stats_texts[stat.name].total:set_color(tweak_data.screen_colors.stats_positive)
+			elseif value < equip then
+				self._stats_texts[stat.name].total:set_color(tweak_data.screen_colors.stats_negative)
+			else
+				self._stats_texts[stat.name].total:set_color(tweak_data.screen_colors.text)
+			end
+
+			self._stats_texts[stat.name].equip:set_color(tweak_data.screen_colors.text)
+		end
+
 	end
 
-	(for control) = utf8.to_upper(managers.localization:text("bm_menu_equipped")) and self._stats_texts
 	local modslist_panel = self._stats_panel:child("modslist_panel")
 	local y = 0
 	if self._rweapon_stats_panel:visible() then
@@ -4689,31 +4571,22 @@ null
 			y = math.max(y, child:bottom())
 		end
 
-	else
-		(for control) = self._rweapon_stats_panel:children() and math
-		if self._armor_stats_panel:visible() then
-			local (for generator), (for state), (for control) = ipairs(self._armor_stats_panel:children())
-			do
-				do break end
-				y = math.max(y, child:bottom())
-			end
+	elseif self._armor_stats_panel:visible() then
+		local (for generator), (for state), (for control) = ipairs(self._armor_stats_panel:children())
+		do
+			do break end
+			y = math.max(y, child:bottom())
+		end
 
-		else
-			(for control) = self._armor_stats_panel:children() and math
-			if self._mweapon_stats_panel:visible() then
-				local (for generator), (for state), (for control) = ipairs(self._mweapon_stats_panel:children())
-				do
-					do break end
-					y = math.max(y, child:bottom())
-				end
-
-			end
-
+	elseif self._mweapon_stats_panel:visible() then
+		local (for generator), (for state), (for control) = ipairs(self._mweapon_stats_panel:children())
+		do
+			do break end
+			y = math.max(y, child:bottom())
 		end
 
 	end
 
-	(for control) = self._mweapon_stats_panel:children() and math
 	modslist_panel:set_top(y + 10)
 	self._stats_panel:show()
 end
@@ -5326,9 +5199,6 @@ function BlackMarketGui:update_info_text()
 
 			end
 
-			(for control) = {
-				cost = (not can_afford and "##" or "") .. managers.experience:cash_string(price) .. (not can_afford and "##" or "")
-			} and data.is_good
 			if #missed_mods > 1 then
 				for i = 1, #missed_mods do
 					list_of_mods = list_of_mods .. missed_mods[i]
@@ -5375,7 +5245,7 @@ function BlackMarketGui:update_info_text()
 
 	end
 
-	self._desc_mini_icons = slot_data.name .. "_desc" and {}
+	self._desc_mini_icons = {}
 	local desc_mini_icons = self._slot_data.desc_mini_icons
 	local info_box_panel = self._panel:child("info_box_panel")
 	if desc_mini_icons and 0 < table.size(desc_mini_icons) then
@@ -5394,7 +5264,6 @@ function BlackMarketGui:update_info_text()
 
 		end
 
-		(for control) = self._panel.remove and self._panel
 		updated_texts[2].text = string.rep("     ", table.size(desc_mini_icons)) .. updated_texts[2].text
 	else
 	end
@@ -5428,7 +5297,6 @@ function BlackMarketGui:update_info_text()
 
 	end
 
-	(for control) = tweak_data.screen_colors.text and self.set_info_text
 	local _, _, _, th = self._info_texts[1]:text_rect()
 	self._info_texts[1]:set_h(th)
 	local y = self._info_texts[1]:bottom()
@@ -5482,8 +5350,7 @@ function BlackMarketGui:update_info_text()
 
 	end
 
-	do break end
-	if self._rename_info_text and self._rename_caret then
+	if is_renaming_this and self._rename_info_text and self._rename_caret then
 		local info_text = self._info_texts[self._rename_info_text]
 		local x, y, w, h = info_text:text_rect()
 		if self._renaming_item.custom_name == "" then
@@ -5553,7 +5420,6 @@ function BlackMarketGui:set_info_text(id, new_string, resource_color)
 
 		end
 
-		(for control) = utf8.len(info_text:text()) and Idstring
 		if #start_ci ~= #end_ci then
 		else
 			for i = 1, #start_ci do
@@ -5593,7 +5459,6 @@ function BlackMarketGui:_round_everything()
 
 	end
 
-	(for control) = self._panel:children() and self._rec_round_object
 	if alive(self._fullscreen_panel) then
 		local (for generator), (for state), (for control) = ipairs(self._fullscreen_panel:children())
 		do
@@ -5620,9 +5485,6 @@ function BlackMarketGui:_rec_round_object(object)
 end
 
 function BlackMarketGui:mouse_moved(o, x, y)
--- fail 75
-null
-11
 	if not self._enabled then
 		return
 	end
@@ -5715,7 +5577,6 @@ null
 
 	end
 
-	(for control) = y and btn.visible
 	if self._button_highlighted then
 		used = true
 		pointer = "link"
@@ -5957,8 +5818,7 @@ function BlackMarketGui:press_first_btn(button)
 
 		end
 
-		do break end
-		if first_btn_callback then
+		if first_btn_visible and first_btn_callback then
 			managers.menu_component:post_event("menu_enter")
 			first_btn_callback(self._slot_data, self._data.topic_params)
 			return true
@@ -6053,7 +5913,6 @@ function BlackMarketGui:set_tab_positions()
 
 	end
 
-	(for control) = nil and tab.set_tab_position
 	diff_x = self._tab_scroll_table[self._selected]:right() - self._tab_scroll_table.panel:w()
 	if diff_x > 0 then
 		local tab_x = -(diff_x - first_x)
@@ -6065,7 +5924,6 @@ function BlackMarketGui:set_tab_positions()
 
 	end
 
-	(for control) = nil and tab.set_tab_position
 	if managers.menu:is_pc_controller() then
 		if self._tab_scroll_table.left then
 			if 1 < self._selected then
@@ -6363,7 +6221,6 @@ function BlackMarketGui:show_btns(slot)
 	end
 
 	local btns = {}
-	(for control) = nil and btn.hide
 	do
 		local (for generator), (for state), (for control) = ipairs(data)
 		do
@@ -6377,7 +6234,6 @@ function BlackMarketGui:show_btns(slot)
 
 	end
 
-	(for control) = nil and self._btns
 	if not managers.menu:is_pc_controller() then
 		local back_btn = self._btns.back_btn
 		if back_btn then
@@ -6414,7 +6270,6 @@ function BlackMarketGui:show_btns(slot)
 	end
 
 	local num_btns = #btns
-	(for control) = back_btn and managers
 	local h = self._real_small_font_size or small_font_size
 	local info_box_panel = self._panel:child("info_box_panel")
 	if self._info_panel then
@@ -6472,8 +6327,7 @@ function BlackMarketGui:populate_weapon_category(category, data)
 
 		end
 
-		(for control) = nil and managers
-		last_unlocked_weapon = true or true
+		last_unlocked_weapon = category_size == 1
 	end
 
 	local hold_crafted_item = managers.blackmarket:get_hold_crafted_item()
@@ -6533,7 +6387,6 @@ function BlackMarketGui:populate_weapon_category(category, data)
 
 			end
 
-			(for control) = crafted.factory_id and tweak_data
 			if table.size(new_parts) > 0 then
 				new_data.new_drop_data = {}
 			end
@@ -6571,7 +6424,6 @@ function BlackMarketGui:populate_weapon_category(category, data)
 
 			end
 
-			(for control) = crafted.factory_id and table
 			if not new_data.unlocked then
 				new_data.last_weapon = last_weapon
 			else
@@ -6617,7 +6469,6 @@ function BlackMarketGui:populate_weapon_category(category, data)
 
 	end
 
-	(for control) = nil and "guis/"
 	for i = 1, max_items do
 		if not data[i] then
 			local can_buy_weapon = managers.blackmarket:is_weapon_slot_unlocked(category, i)
@@ -6757,7 +6608,6 @@ function BlackMarketGui:populate_melee_weapons(data)
 
 	end
 
-	(for control) = nil and table
 	table.sort(sort_data, function(x, y)
 		xd = x[2]
 		yd = y[2]
@@ -6908,7 +6758,6 @@ function BlackMarketGui:populate_melee_weapons(data)
 
 	end
 
-	(for control) = id and melee_weapon_data[1]
 	for i = 1, max_items do
 		if not data[i] then
 			new_data = {}
@@ -6937,7 +6786,6 @@ function BlackMarketGui:populate_deployables(data)
 
 	end
 
-	(for control) = nil and table
 	table.sort(sort_data, function(x, y)
 		return x[1] < y[1]
 	end
@@ -6982,7 +6830,6 @@ function BlackMarketGui:populate_deployables(data)
 
 	end
 
-	(for control) = sort_data and "guis/"
 	for i = 1, max_items do
 		if not data[i] then
 			new_data = {}
@@ -7056,10 +6903,12 @@ function BlackMarketGui:populate_masks(data)
 
 			end
 
-			do break end
-			new_data.unlocked = false
-			new_data.lock_texture = self:get_lock_icon(new_data, "guis/textures/pd2/lock_incompatible")
-			new_data.dlc_locked = tweak_data.lootdrop.global_values[new_data.global_value].unlock_id or "bm_menu_dlc_locked"
+			if is_locked then
+				new_data.unlocked = false
+				new_data.lock_texture = self:get_lock_icon(new_data, "guis/textures/pd2/lock_incompatible")
+				new_data.dlc_locked = tweak_data.lootdrop.global_values[new_data.global_value].unlock_id or "bm_menu_dlc_locked"
+			end
+
 			if currently_holding then
 				if i ~= 1 then
 					new_data.selected_text = managers.localization:to_upper_text("bm_menu_btn_swap_mask")
@@ -7233,7 +7082,6 @@ function BlackMarketGui:populate_masks(data)
 	end
 
 	local can_buy_masks = true
-	(for control) = nil and i - start_crafted_item
 	for i = 1, max_items do
 		if not data[i] then
 			index = i + start_crafted_item - 1
@@ -7351,7 +7199,6 @@ function BlackMarketGui:populate_armors(data)
 	end
 
 	local armor_level_data = {}
-	(for control) = nil and table
 	do
 		local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.level_tree)
 		do
@@ -7371,10 +7218,8 @@ function BlackMarketGui:populate_armors(data)
 
 		end
 
-		(for control) = d.name_id and tweak_data
 	end
 
-	(for control) = nil and data.upgrades
 	table.sort(sort_data, function(x, y)
 		local x_level = x[1] == "level_1" and 0 or armor_level_data[x[1]] or 100
 		local y_level = y[1] == "level_1" and 0 or armor_level_data[y[1]] or 100
@@ -7438,7 +7283,6 @@ function BlackMarketGui:populate_armors(data)
 
 	end
 
-	(for control) = ipairs(data.upgrades) and armor_data[1]
 	local max_armors = data.override_slots[1] * data.override_slots[2]
 	for i = 1, max_armors do
 		if not data[i] then
@@ -7480,7 +7324,6 @@ function BlackMarketGui:populate_mod_types(data)
 
 	end
 
-	(for control) = nil and {}
 	for i = 1, 9 do
 		if not data[i] then
 			new_data = {}
@@ -7678,7 +7521,6 @@ function BlackMarketGui:populate_mods(data)
 
 	end
 
-	(for control) = nil and mod_t[1]
 	for i = 1, math.max(math.ceil(num_steps / 3), 3) * 3 do
 		if not data[i] then
 			new_data = {}
@@ -7711,64 +7553,65 @@ function BlackMarketGui:populate_mods(data)
 
 		end
 
-		(for control) = small_font and mod.name
 	end
 
-	do break end
-	data[equipped].equipped = true
-	data[equipped].unlocked = data[equipped].unlocked or true
-	data[equipped].mid_text = nil
-	data[equipped].lock_texture = nil
-	for i = 1, #data[equipped] do
-		table.remove(data[equipped], 1)
-	end
-
-	data[equipped].price = 0
-	data[equipped].can_afford = true
-	table.insert(data[equipped], "wm_remove_buy")
-	if not data[equipped].is_internal then
-		table.insert(data[equipped], "wm_remove_preview_mod")
-		table.insert(data[equipped], "wm_remove_preview")
-	else
-		table.insert(data[equipped], "wm_preview")
-	end
-
-	local factory = tweak_data.weapon.factory.parts[data[equipped].name]
-	if data.name == "sight" and factory and factory.texture_switch then
-		table.insert(data[equipped], "wm_reticle_switch_menu")
-		local reticle_texture = managers.blackmarket:get_part_texture_switch(data[equipped].category, data[equipped].slot, data[equipped].name)
-		if reticle_texture and reticle_texture ~= "" then
-			data[equipped].mini_icons = data[equipped].mini_icons or {}
-			table.insert(data[equipped].mini_icons, {
-				texture = reticle_texture,
-				right = 1,
-				bottom = 1,
-				layer = 2,
-				w = 30,
-				h = 30,
-				stream = true,
-				blend_mode = "add"
-			})
-			table.insert(data[equipped].mini_icons, {
-				color = Color.black,
-				right = -5,
-				bottom = -5,
-				layer = 0,
-				alpha = 0.4,
-				w = 42,
-				h = 42,
-				borders = true
-			})
+	if equipped then
+		data[equipped].equipped = true
+		data[equipped].unlocked = data[equipped].unlocked or true
+		data[equipped].mid_text = nil
+		data[equipped].lock_texture = nil
+		for i = 1, #data[equipped] do
+			table.remove(data[equipped], 1)
 		end
 
-	end
-
-	if not data[equipped].conflict then
-		do break end
-		if data[equipped].default_mod then
-			data[equipped].comparision_data = managers.blackmarket:get_weapon_stats_with_mod(data[equipped].category, data[equipped].slot, data[equipped].default_mod)
+		data[equipped].price = 0
+		data[equipped].can_afford = true
+		table.insert(data[equipped], "wm_remove_buy")
+		if not data[equipped].is_internal then
+			table.insert(data[equipped], "wm_remove_preview_mod")
+			table.insert(data[equipped], "wm_remove_preview")
 		else
-			data[equipped].comparision_data = managers.blackmarket:get_weapon_stats_without_mod(data[equipped].category, data[equipped].slot, data[equipped].name)
+			table.insert(data[equipped], "wm_preview")
+		end
+
+		local factory = tweak_data.weapon.factory.parts[data[equipped].name]
+		if data.name == "sight" and factory and factory.texture_switch then
+			table.insert(data[equipped], "wm_reticle_switch_menu")
+			local reticle_texture = managers.blackmarket:get_part_texture_switch(data[equipped].category, data[equipped].slot, data[equipped].name)
+			if reticle_texture and reticle_texture ~= "" then
+				data[equipped].mini_icons = data[equipped].mini_icons or {}
+				table.insert(data[equipped].mini_icons, {
+					texture = reticle_texture,
+					right = 1,
+					bottom = 1,
+					layer = 2,
+					w = 30,
+					h = 30,
+					stream = true,
+					blend_mode = "add"
+				})
+				table.insert(data[equipped].mini_icons, {
+					color = Color.black,
+					right = -5,
+					bottom = -5,
+					layer = 0,
+					alpha = 0.4,
+					w = 42,
+					h = 42,
+					borders = true
+				})
+			end
+
+		end
+
+		if not data[equipped].conflict then
+			do break end
+			if data[equipped].default_mod then
+				data[equipped].comparision_data = managers.blackmarket:get_weapon_stats_with_mod(data[equipped].category, data[equipped].slot, data[equipped].default_mod)
+			else
+				data[equipped].comparision_data = managers.blackmarket:get_weapon_stats_without_mod(data[equipped].category, data[equipped].slot, data[equipped].name)
+			end
+
 		end
 
 	end
@@ -8019,9 +7862,6 @@ function BlackMarketGui:populate_buy_mask(data)
 end
 
 function BlackMarketGui:populate_mask_mod_types(data)
--- fail 19
-null
-8
 	local new_data = {}
 	local max_page = data.override_slots[1] * data.override_slots[2]
 	for i = 1, max_page do
@@ -8078,8 +7918,7 @@ null
 
 			end
 
-			(for control) = tostring(type) and data.name
-			new_data.stream = true or ipairs(mask_blueprint)
+			new_data.stream = type ~= "colors"
 			if not new_data.my_part_data.is_good then
 			elseif type == "colors" then
 				new_data.bitmap_texture = "guis/textures/pd2/blackmarket/icons/colors/color_bg"
@@ -8150,7 +7989,6 @@ null
 
 	end
 
-	(for control) = nil and {}
 	local name_values = {
 		materials = 1,
 		textures = 2,
@@ -8263,7 +8101,6 @@ function BlackMarketGui:populate_choose_mask_mod(data)
 
 	end
 
-	(for control) = nil and "guis/"
 	if #data == 0 then
 		new_data = {}
 		new_data.name = "bm_menu_nothing"
@@ -8322,7 +8159,6 @@ function BlackMarketGui:_cleanup_blackmarket()
 
 		end
 
-		(for control) = nil and item_data[item_id]
 	end
 
 end
@@ -8406,7 +8242,7 @@ function BlackMarketGui:choose_weapon_mods_callback(data)
 	end
 
 	local new_node_data = {}
-	local sort_mods = nil and {}
+	local sort_mods = {}
 	do
 		local (for generator), (for state), (for control) = pairs(mods)
 		do
@@ -8416,7 +8252,6 @@ function BlackMarketGui:choose_weapon_mods_callback(data)
 
 	end
 
-	(for control) = nil and table
 	table.sort(sort_mods, function(x, y)
 		return x < y
 	end
@@ -8444,7 +8279,6 @@ function BlackMarketGui:choose_weapon_mods_callback(data)
 
 				end
 
-				(for control) = nil and Idstring
 				local sort_td = tweak_data.blackmarket.weapon_mods
 				local x_td, y_td, x_pc, y_pc
 				table.sort(my_mods, function(x, y)
@@ -8483,7 +8317,6 @@ function BlackMarketGui:choose_weapon_mods_callback(data)
 	end
 
 	new_node_data.topic_id = "bm_menu_blackmarket_title"
-	(for control) = nil and deep_clone
 	new_node_data.topic_params = {
 		item = data.name_localized
 	}
@@ -8511,7 +8344,6 @@ function BlackMarketGui:choose_mod_type_callback(data)
 	end
 
 	local mod_data = {}
-	(for control) = nil and table
 	for i = 1, math.max(1, math.ceil(#mods_list / 9)) do
 		mod_data = {}
 		for id = (i - 1) * 9 + 1, math.min(i * 9, #mods_list) do
@@ -8634,9 +8466,6 @@ function BlackMarketGui:_sell_inventory_mask_callback(data)
 end
 
 function BlackMarketGui:remove_mask_callback(data)
--- fail 45
-null
-8
 	local value = managers.money:get_mask_slot_sell_value(data.slot)
 	local crafted = managers.blackmarket:get_crafted_category_slot("masks", data.slot)
 	local blueprint = crafted and crafted.blueprint or {}
@@ -8672,9 +8501,6 @@ null
 end
 
 function BlackMarketGui:sell_mask_callback(data)
--- fail 45
-null
-8
 	local value = managers.money:get_mask_slot_sell_value(data.slot)
 	local crafted = managers.blackmarket:get_crafted_category_slot("masks", data.slot)
 	local blueprint = crafted and crafted.blueprint or {}
@@ -8766,7 +8592,6 @@ function BlackMarketGui:choose_weapon_buy_callback(data)
 	end
 
 	local sorted_categories = {}
-	(for control) = nil and tweak_data
 	do
 		local (for generator), (for state), (for control) = pairs(item_categories)
 		do
@@ -8808,7 +8633,6 @@ function BlackMarketGui:choose_weapon_buy_callback(data)
 
 	end
 
-	(for control) = nil and table
 	table.sort(sorted_categories, function(x, y)
 		return #item_categories[x] > #item_categories[y]
 	end
@@ -8829,7 +8653,6 @@ function BlackMarketGui:choose_weapon_buy_callback(data)
 
 			end
 
-			(for control) = nil and table
 			local name_id = managers.localization:to_upper_text("menu_" .. category)
 			table.insert(new_node_data, {
 				name = category,
@@ -8845,7 +8668,7 @@ function BlackMarketGui:choose_weapon_buy_callback(data)
 	end
 
 	new_node_data.buying_weapon = true
-	new_node_data.topic_id = tweak_data.weapon[item.weapon_id] and "bm_menu_buy_weapon_title"
+	new_node_data.topic_id = "bm_menu_buy_weapon_title"
 	new_node_data.topic_params = {
 		weapon_category = managers.localization:text("bm_menu_" .. data.category)
 	}
@@ -8938,13 +8761,14 @@ function BlackMarketGui:choose_mask_global_value_callback(data)
 
 			end
 
-			do break end
-			table.insert(items, mask.global_value)
+			if new_global_value then
+				table.insert(items, mask.global_value)
+			end
+
 		end
 
 	end
 
-	(for control) = nil and true
 	table.sort(items, function(x, y)
 		local global_values = {
 			normal = 1,
@@ -9001,9 +8825,6 @@ function BlackMarketGui:choose_mask_slot_unlock_callback(data)
 end
 
 function BlackMarketGui:choose_mask_buy_callback(data)
--- fail 31
-null
-9
 	local masks = managers.blackmarket:get_inventory_masks() or {}
 	local new_node_data = {}
 	local items = {}
@@ -9032,7 +8853,6 @@ null
 
 	end
 
-	(for control) = nil and func_add_item
 	do
 		local (for generator), (for state), (for control) = pairs(tweak_data.blackmarket.masks)
 		do
@@ -9055,7 +8875,7 @@ null
 					end
 
 					local add_dlc = false
-					local dlc_tweak, global_value_tweak, global_value = nil and nil, nil, nil
+					local dlc_tweak, global_value_tweak, global_value
 					local (for generator), (for state), (for control) = ipairs(dlcs)
 					do
 						do break end
@@ -9073,14 +8893,10 @@ null
 					else
 					end
 
+				elseif mask.global_value then
+					table.insert(global_values, mask.global_value)
 				else
-					(for control) = dlc and mask.global_value
-					if mask.global_value then
-						table.insert(global_values, mask.global_value)
-					else
-						table.insert(global_values, mask.infamous and "infamous" or "normal")
-					end
-
+					table.insert(global_values, mask.infamous and "infamous" or "normal")
 				end
 
 				local (for generator), (for state), (for control) = ipairs(global_values)
@@ -9097,7 +8913,6 @@ null
 
 		end
 
-		(for control) = {} and func_add_item
 	end
 
 	local iso = tweak_data.gui.masks_sort_order
@@ -9143,7 +8958,6 @@ null
 
 	end
 
-	(for control) = nil and table
 	table.sort(global_value_sort, function(x, y)
 		x_td = tweak_data.lootdrop.global_value_category[x] or tweak_data.lootdrop.global_values[x]
 		y_td = tweak_data.lootdrop.global_value_category[y] or tweak_data.lootdrop.global_values[y]
@@ -9167,7 +8981,6 @@ null
 
 			end
 
-			(for control) = nil and table
 			local name_id = tweak_data.lootdrop.global_value_category[global_value] and tweak_data.lootdrop.global_value_category[global_value].name_id or tweak_data.lootdrop.global_values[global_value].name_id
 			table.insert(new_node_data, {
 				name = global_value,
@@ -9184,7 +8997,7 @@ null
 	end
 
 	new_node_data.topic_id = "bm_menu_buy_mask_title"
-	new_node_data.topic_params, (for control) = {}, mask.global_value and {}
+	new_node_data.topic_params = {}
 	new_node_data.blur_fade = self._data.blur_fade
 	managers.menu:open_node(self._inception_node_name, {new_node_data})
 end
@@ -9327,7 +9140,6 @@ function BlackMarketGui:mask_mods_callback(data)
 	end
 
 	new_node_data.topic_id = "bm_menu_customize_mask_title"
-	(for control) = nil and {}
 	new_node_data.topic_params = {
 		mask_name = data.name_localized
 	}
@@ -9362,7 +9174,7 @@ function BlackMarketGui:mask_mods_callback2(data)
 	end
 
 	local max_x = 3
-	local max_y = nil and 1
+	local max_y = 1
 	local mod_data = {}
 	for i = 1, math.max(1, math.ceil(#mods_list / (max_x * max_y))) do
 		mod_data = {}
@@ -9595,7 +9407,6 @@ function BlackMarketGui:show_available_mask_mods_callback(data)
 
 	end
 
-	(for control) = nil and managers
 	local sort_td = tweak_data.blackmarket.masks
 	local x_td, y_td, x_pc, y_pc
 	table.sort(masks, function(x, y)
@@ -9643,7 +9454,6 @@ function BlackMarketGui:show_available_mask_mods_callback(data)
 
 			end
 
-			(for control) = nil and managers
 			local sort_td = tweak_data.blackmarket[category]
 			local x_pc, y_pc
 			table.sort(mods, function(x, y)
@@ -9656,7 +9466,7 @@ function BlackMarketGui:show_available_mask_mods_callback(data)
 	end
 
 	local reload_gui = false
-	local text_block = "textures" and ""
+	local text_block = ""
 	local color_table = {}
 	local i = 1
 	do
@@ -9692,17 +9502,19 @@ function BlackMarketGui:show_available_mask_mods_callback(data)
 
 			end
 
-			do break end
-			text_block = text_block .. [[
+			if category ~= "colors" then
+				text_block = text_block .. [[
 
 
 ]]
+			end
+
 		end
 
 	end
 
 	local params = {}
-	params.color_table = "materials" and color_table
+	params.color_table = color_table
 	params.weapon_id = data.name
 	params.text_block = text_block
 	managers.menu:show_mask_mods_available(params)
@@ -9727,7 +9539,6 @@ function BlackMarketGui:show_available_mods_callback(data)
 
 	end
 
-	(for control) = nil and table
 	table.sort(sort_data, function(x, y)
 		return x < y
 	end
@@ -9760,7 +9571,7 @@ function BlackMarketGui:show_available_mods_callback(data)
 	end
 
 	local reload_gui = false
-	local i = nil and 1
+	local i = 1
 	do
 		local (for generator), (for state), (for control) = ipairs(sort_data)
 		do
@@ -9796,7 +9607,6 @@ function BlackMarketGui:show_available_mods_callback(data)
 			end
 
 			index = index - 1
-			(for control) = " ---" and part_data[1]
 			if index > 0 then
 				text_block = text_block .. [[
 
@@ -9809,7 +9619,7 @@ function BlackMarketGui:show_available_mods_callback(data)
 	end
 
 	local params = {}
-	params.color_table = table.sort and color_table
+	params.color_table = color_table
 	params.weapon_id = data.name
 	params.text_block = text_block
 	managers.menu:show_weapon_mods_available(params)

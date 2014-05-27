@@ -23,7 +23,7 @@ function CoreLuaProfiler:init()
 
 	end
 
-	core_lua_profiler_reload = callback(self, self, "sort_by_name") and true
+	core_lua_profiler_reload = true
 	self._main_frame_table._table_list_ctrl:autosize_column(0)
 	self:check_news(true)
 end
@@ -151,9 +151,6 @@ function CoreLuaProfiler:on_check_news()
 end
 
 function CoreLuaProfiler:check_news(new_only)
--- fail 25
-null
-6
 	local news
 	if new_only then
 		news = managers.news:get_news("lua_profiler", self._main_frame)
@@ -193,6 +190,7 @@ function CoreLuaProfiler:binary_to_string(str)
 
 	end
 
+	return out_str
 end
 
 function CoreLuaProfiler:dump_tree_expand(node)
@@ -229,8 +227,7 @@ function CoreLuaProfiler:on_dump_search()
 
 	end
 
-	do break end
-	do
+	if str ~= "" then
 		local (for generator), (for state), (for control) = pairs(self._dump_tree_id_table)
 		do
 			do break end
@@ -253,7 +250,6 @@ function CoreLuaProfiler:on_dump_search()
 
 	end
 
-	(for control) = "Searching..." and string
 	self._dump_frame_table._tree_ctrl:thaw()
 end
 
@@ -332,7 +328,6 @@ function CoreLuaProfiler:fill_dump_tree_ctrl(node, id)
 
 		end
 
-		(for control) = n:parameter_map() and self._dump_frame_table
 		self:fill_dump_tree_ctrl(n, new_id)
 	end
 
@@ -369,11 +364,10 @@ function CoreLuaProfiler:load_profilers()
 
 			end
 
-			(for control) = self._class_table and func_node.parameter
 		end
 
 		self._class_name = prev_class_name
-		self._class_table = file:read() and prev_class_table
+		self._class_table = prev_class_table
 	end
 
 end
@@ -407,7 +401,6 @@ function CoreLuaProfiler:save_profilers()
 
 	end
 
-	(for control) = nil and self.get_child
 	local file = SystemFS:open("/data/settings/lua_profiler.xml", "w")
 	file:write(node:to_xml())
 	file:close()
@@ -447,7 +440,6 @@ function CoreLuaProfiler:update_list()
 
 	end
 
-	(for control) = callback(self, self, "sort_by_name") and it._source
 	self._main_frame_table._function_list_ctrl:autosize_column(0)
 	self._main_frame_table._function_list_ctrl:autosize_column(1)
 end
@@ -501,7 +493,6 @@ function CoreLuaProfiler:on_select_profiler()
 
 	end
 
-	(for control) = nil and table
 	do
 		local (for generator), (for state), (for control) = ipairs(sources)
 		do
@@ -517,7 +508,7 @@ function CoreLuaProfiler:on_select_profiler()
 
 	end
 
-	(for control) = nil and self._profilers
+	self:save_profilers()
 end
 
 function CoreLuaProfiler:remove_all_profilers()
@@ -531,7 +522,7 @@ function CoreLuaProfiler:remove_all_profilers()
 
 	end
 
-	self._profilers = nil and {}
+	self._profilers = {}
 end
 
 function CoreLuaProfiler:add_profiler(name)
@@ -574,7 +565,7 @@ function CoreLuaProfiler:on_select_function()
 
 	end
 
-	(for control) = self._main_frame_table._function_list_ctrl:selected_items() and self.add_profiler
+	self:save_profilers()
 end
 
 function CoreLuaProfiler:on_select_table()
@@ -599,9 +590,6 @@ function CoreLuaProfiler:close()
 end
 
 function CoreLuaProfiler:reset_profilers()
--- fail 10
-null
-3
 	if self._frames_since_profilers_reset >= self._frames_sample_steps then
 		self._frames_since_profilers_reset = 1
 		local (for generator), (for state), (for control) = pairs(self._profilers)
@@ -743,7 +731,7 @@ function CoreLuaProfiler:on_update_resources()
 
 	end
 
-	self._unit_report = nil and {}
+	self._unit_report = {}
 	do
 		local (for generator), (for state), (for control) = pairs(mem_report)
 		do
@@ -759,7 +747,6 @@ function CoreLuaProfiler:on_update_resources()
 
 	end
 
-	(for control) = nil and table
 	table.sort(self._unit_report, self._resource_sort_func)
 	do
 		local (for generator), (for state), (for control) = ipairs(self._unit_report)
@@ -786,7 +773,6 @@ function CoreLuaProfiler:on_update_resources()
 
 			end
 
-			(for control) = true and self._resources_frame_table
 			if #v._extensions > 0 then
 				self._unit_report._extensions_id = self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Script Extensions")
 				self._resources_frame_table._tree_ctrl:set_item_bold(self._unit_report._extensions_id, true)
@@ -800,10 +786,8 @@ function CoreLuaProfiler:on_update_resources()
 
 		end
 
-		(for control) = true and self._resources_frame_table
 	end
 
-	(for control) = nil and self._unit_report
 	self._resources_frame_table._tree_ctrl:thaw()
 	self._resources_frame_table._tree_ctrl:refresh()
 end

@@ -363,9 +363,6 @@ function PlayerDamage:damage_melee(attack_data)
 end
 
 function PlayerDamage:_look_for_friendly_fire(unit)
--- fail 9
-null
-5
 	local players = managers.player:players()
 	do
 		local (for generator), (for state), (for control) = ipairs(players)

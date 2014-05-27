@@ -72,10 +72,8 @@ function SelectGroupByName:on_delete()
 
 		end
 
-		(for control) = clone(group:units()) and managers
 	end
 
-	(for control) = nil and ipairs
 	managers.editor:thaw_gui_lists()
 end
 
@@ -117,6 +115,7 @@ function SelectGroupByName:_selected_item_groups()
 
 	end
 
+	return groups
 end
 
 function SelectGroupByName:_selected_item_group()
@@ -155,7 +154,6 @@ function SelectGroupByName:group_selected(group)
 
 	end
 
-	(for control) = self._list:selected_items() and self._list
 	for i = 0, self._list:item_count() - 1 do
 		if self._groups[self._list:get_item_data(i)] == group then
 			self._list:set_item_selected(i, true)
@@ -193,7 +191,6 @@ function SelectGroupByName:fill_group_list()
 
 	end
 
-	(for control) = nil and string
 	self._list:thaw()
 	self._list:autosize_column(0)
 end

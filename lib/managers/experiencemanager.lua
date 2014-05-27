@@ -378,7 +378,6 @@ function ExperienceManager:actions()
 
 	end
 
-	(for control) = nil and table
 	table.sort(t)
 	return t
 end
@@ -541,7 +540,6 @@ function ExperienceManager:get_contract_xp_by_stars(job_id, job_stars, risk_star
 
 	end
 
-	(for control) = total_heat_risk_xp and total_xp + xp
 	return total_xp, dissected_xp
 end
 

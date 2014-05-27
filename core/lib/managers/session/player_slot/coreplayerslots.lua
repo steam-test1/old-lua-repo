@@ -30,9 +30,6 @@ function PlayerSlots:add_player_slot()
 end
 
 function PlayerSlots:_remove_player_slot(player_slot)
--- fail 5
-null
-4
 	do
 		local (for generator), (for state), (for control) = pairs(self._slots)
 		do

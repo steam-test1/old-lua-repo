@@ -242,7 +242,6 @@ function FFCEditorController:_generate_cubemap(file)
 
 	end
 
-	(for control) = nil and self._params
 	local output_path = (self._params.output_path or managers.database:root_path()) .. self._output_name .. " "
 	execute = execute .. output_path .. " "
 	os.execute(execute)

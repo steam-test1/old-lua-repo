@@ -130,6 +130,7 @@ function JobManager:get_accumulated_ghost_bonus()
 
 	end
 
+	return accumulated
 end
 
 function JobManager:get_saved_ghost_bonus()
@@ -170,12 +171,8 @@ function JobManager:is_job_stage_ghostable(job_id, stage)
 
 		end
 
-	else
-		(for control) = nil and self._is_level_ghostable
-		if self:_is_level_ghostable(tweak_data.levels[level_data.level_id]) then
-			return true
-		end
-
+	elseif self:_is_level_ghostable(tweak_data.levels[level_data.level_id]) then
+		return true
 	end
 
 	return false
@@ -206,19 +203,15 @@ function JobManager:is_job_ghostable(job_id)
 
 				end
 
-			else
-				(for control) = nil and self._is_level_ghostable
-				if self:_is_level_ghostable(tweak_data.levels[level_data.level_id]) then
-					return true
-				end
-
+			elseif self:_is_level_ghostable(tweak_data.levels[level_data.level_id]) then
+				return true
 			end
 
 		end
 
 	end
 
-	(for control) = nil and #level_data
+	return false
 end
 
 function JobManager:get_job_ghost_bonus(job_id)
@@ -277,7 +270,6 @@ function JobManager:get_job_ghost_bonus(job_id)
 
 				end
 
-				(for control) = nil and self._is_level_ghostable
 				min_ghost_bonus = math_min(min_ghost_bonus, min_bonus)
 				max_ghost_bonus = math_max(max_ghost_bonus, max_bonus)
 			else
@@ -293,7 +285,6 @@ function JobManager:get_job_ghost_bonus(job_id)
 
 	end
 
-	(for control) = nil and #level_data
 	return min_ghost_bonus, max_ghost_bonus
 end
 
@@ -354,7 +345,6 @@ function JobManager:_chk_fill_heat_containers()
 	end
 
 	local xh, yh
-	(for control) = nil and table
 	table.sort(all_jobs, function(x, y)
 		xh = x.heat
 		yh = y.heat
@@ -374,7 +364,6 @@ function JobManager:_chk_fill_heat_containers()
 
 	end
 
-	(for control) = all_jobs and container[1]
 	do
 		local (for generator), (for state), (for control) = ipairs(all_jobs)
 		do
@@ -394,14 +383,16 @@ function JobManager:_chk_fill_heat_containers()
 
 			end
 
-			do break end
-			table.insert(jobs_in_containers[#jobs_in_containers], job_data)
+			if add_last then
+				table.insert(jobs_in_containers[#jobs_in_containers], job_data)
+			end
+
 		end
 
 	end
 
 	local reached_end = false
-	local loop_breaker = all_jobs and 100
+	local loop_breaker = 100
 	while not reached_end and loop_breaker > 0 do
 		reached_end = true
 		do
@@ -442,7 +433,6 @@ function JobManager:_chk_fill_heat_containers()
 		end
 
 		loop_breaker = loop_breaker - 1
-		(for control) = false and container.max_jobs
 	end
 
 	self._global.heat_containers = {}
@@ -515,12 +505,6 @@ function JobManager:debug_get_all_heat_info()
 
 	end
 
-	(for control) = nil and {
-		job_id = job_id,
-		heat = heat,
-		xp_mul = self:heat_to_experience_multiplier(heat),
-		money_mul = self:heat_to_money_multiplier(heat)
-	}
 	Application:debug("-------------------------------------------")
 end
 
@@ -636,9 +620,6 @@ function JobManager:check_add_heat_to_jobs()
 end
 
 function JobManager:_check_add_heat_to_jobs(debug_job_id, ignore_debug_prints)
--- fail 87
-null
-13
 	if not self._global.heat then
 		self:_setup_job_heat()
 	end
@@ -718,7 +699,7 @@ null
 
 	end
 
-	(for control) = cooling and self._global
+	self:_chk_fill_heat_containers()
 	if ignore_debug_prints then
 		return
 	end
@@ -734,7 +715,6 @@ null
 
 	end
 
-	(for control) = tostring(debug_current_job_heat) and print
 	Application:debug("------------------------------------------")
 end
 
@@ -866,13 +846,6 @@ function JobManager:plot_heat_graph(remove_only)
 
 	end
 
-	(for control) = my_panel:rect({
-		color = Color.white,
-		layer = 2,
-		w = 1,
-		rotation = 360,
-		h = my_panel:h()
-	}) and self.JOB_HEAT_MAX_VALUE
 	border:grow(2, 2)
 	border:move(-1, -1)
 	local points = {}
@@ -960,7 +933,7 @@ function JobManager:load(data)
 
 		end
 
-		(for control) = tweak_data.narrative:get_jobs_index() and self._global
+		self:_chk_fill_heat_containers()
 		local invalid_jobs = {}
 		do
 			local (for generator), (for state), (for control) = pairs(self._global.heat)
@@ -976,7 +949,6 @@ function JobManager:load(data)
 
 		end
 
-		(for control) = tweak_data.narrative:get_jobs_index() and tweak_data
 		do
 			local (for generator), (for state), (for control) = ipairs(invalid_jobs)
 			do
@@ -987,7 +959,6 @@ function JobManager:load(data)
 
 		end
 
-		(for control) = tweak_data.narrative:get_jobs_index() and Application
 		self._global.saved_ghost_bonus = data.job_manager.ghost_bonus or self._global.saved_ghost_bonus
 		if type(self._global.saved_ghost_bonus) == "number" then
 			self._global.saved_ghost_bonus = Application:digest_value(self._global.saved_ghost_bonus, true)
@@ -1354,6 +1325,7 @@ function JobManager:get_min_jc_for_player()
 
 	end
 
+	return min_jc
 end
 
 function JobManager:get_max_jc_for_player()
@@ -1377,6 +1349,7 @@ function JobManager:get_max_jc_for_player()
 
 	end
 
+	return max_jc
 end
 
 function JobManager:set_stage_success(success)

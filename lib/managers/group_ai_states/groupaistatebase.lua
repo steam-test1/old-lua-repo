@@ -92,12 +92,6 @@ GroupAIStateBase.BLAME_SYNC = {
 	"default"
 }
 function GroupAIStateBase.chk_all_blame_synced()
--- fail 7
-null
-3
--- fail 30
-null
-3
 	local all_fine = true
 	do
 		local (for generator), (for state), (for control) = pairs(tweak_data.blame)
@@ -125,8 +119,10 @@ null
 
 	end
 
-	do break end
-	Application:debug("[GroupAIStateBase.chk_all_blame_synced] PASSED CHECK")
+	if all_fine then
+		Application:debug("[GroupAIStateBase.chk_all_blame_synced] PASSED CHECK")
+	end
+
 end
 
 GroupAIStateBase.EVENT_SYNC = {
@@ -184,7 +180,6 @@ function GroupAIStateBase:set_AI_enabled(state)
 
 		end
 
-		(for control) = managers.enemy:all_enemies() and u_data.unit
 		do
 			local (for generator), (for state), (for control) = pairs(self._criminals)
 			do
@@ -201,7 +196,6 @@ function GroupAIStateBase:set_AI_enabled(state)
 
 		end
 
-		(for control) = managers.enemy:all_enemies() and u_data.ai
 		local (for generator), (for state), (for control) = pairs(managers.enemy:all_civilians())
 		do
 			do break end
@@ -214,7 +208,6 @@ function GroupAIStateBase:set_AI_enabled(state)
 
 	end
 
-	(for control) = managers.enemy:all_civilians() and u_data.unit
 	managers.enemy:dispose_all_corpses()
 	if not state then
 		do
@@ -226,7 +219,6 @@ function GroupAIStateBase:set_AI_enabled(state)
 
 		end
 
-		(for control) = managers.enemy:all_civilians() and unit.base
 		do
 			local (for generator), (for state), (for control) = pairs(managers.enemy:all_enemies())
 			do
@@ -237,7 +229,6 @@ function GroupAIStateBase:set_AI_enabled(state)
 
 		end
 
-		(for control) = managers.enemy:all_enemies() and Network
 		do
 			local (for generator), (for state), (for control) = pairs(self._criminals)
 			do
@@ -253,7 +244,6 @@ function GroupAIStateBase:set_AI_enabled(state)
 
 		end
 
-		(for control) = managers.enemy:all_enemies() and u_data.ai
 		do
 			local (for generator), (for state), (for control) = pairs(managers.enemy:all_civilians())
 			do
@@ -264,7 +254,6 @@ function GroupAIStateBase:set_AI_enabled(state)
 
 		end
 
-		(for control) = managers.enemy:all_civilians() and Network
 		local (for generator), (for state), (for control) = ipairs(managers.criminals:characters())
 		do
 			do break end
@@ -277,29 +266,27 @@ function GroupAIStateBase:set_AI_enabled(state)
 
 	end
 
-	do break end
-	if Application:editor() then
-		self._editor_sim_rem_units = {}
-		do break end
-		if self._editor_sim_rem_units then
-			do
-				local (for generator), (for state), (for control) = pairs(self._editor_sim_rem_units)
-				do
-					do break end
-					if alive(unit) then
-						World:delete_unit(unit)
-					end
+	if state then
+		if Application:editor() then
+			self._editor_sim_rem_units = {}
+		end
 
+	elseif self._editor_sim_rem_units then
+		do
+			local (for generator), (for state), (for control) = pairs(self._editor_sim_rem_units)
+			do
+				do break end
+				if alive(unit) then
+					World:delete_unit(unit)
 				end
 
 			end
 
-			self._editor_sim_rem_units = nil
 		end
 
+		self._editor_sim_rem_units = nil
 	end
 
-	(for control) = managers.criminals:characters() and alive
 	if not state then
 		local all_deployed_equipment = World:find_units_quick("all", 14)
 		local (for generator), (for state), (for control) = ipairs(all_deployed_equipment)
@@ -419,9 +406,6 @@ function GroupAIStateBase:add_alert_listener(id, clbk, filter_num, types, m_pos)
 end
 
 function GroupAIStateBase:remove_alert_listener(id)
--- fail 9
-null
-9
 	local (for generator), (for state), (for control) = pairs(self._alert_listeners)
 	do
 		do break end
@@ -452,6 +436,64 @@ function GroupAIStateBase:propagate_alert(alert_data)
 	local alert_type = alert_data[1]
 	local all_listeners = self._alert_listeners
 	local listeners_by_type = all_listeners[alert_type]
+	if listeners_by_type then
+		do
+			local proximity_chk_func
+			local alert_epicenter = alert_data[2]
+			if alert_epicenter then
+				do
+					local alert_rad_sq = alert_data[3] * alert_data[3]
+					function proximity_chk_func(listener_pos)
+						return mvec3_dis_sq(alert_epicenter, listener_pos) < alert_rad_sq
+					end
+
+				end
+
+			else
+				function proximity_chk_func()
+					return true
+				end
+
+			end
+
+			local alert_filter = alert_data[4]
+			local clbks
+			do
+				local (for generator), (for state), (for control) = pairs(listeners_by_type)
+				do
+					do break end
+					local key, listener = next(listeners_by_type_and_filter, nil)
+					local filter_num = listener.filter
+					if access_func(nav_manager, filter_num, alert_filter, nil) then
+						local (for generator), (for state), (for control) = pairs(listeners_by_type_and_filter)
+						do
+							do break end
+							if proximity_chk_func(listener.m_pos) then
+								clbks = clbks or {}
+								table.insert(clbks, listener.clbk)
+							end
+
+						end
+
+					end
+
+				end
+
+			end
+
+			if clbks then
+				local (for generator), (for state), (for control) = ipairs(clbks)
+				do
+					do break end
+					clbk(alert_data)
+				end
+
+			end
+
+		end
+
+	end
+
 end
 
 function GroupAIStateBase:set_drama_decay_period(period)
@@ -528,10 +570,8 @@ function GroupAIStateBase:calm_ai()
 
 		end
 
-		(for control) = self:all_AI_criminals() and data.unit
 	end
 
-	(for control) = self:all_AI_criminals() and crim.unit
 	local (for generator), (for state), (for control) = pairs(self:all_char_criminals())
 	do
 		do break end
@@ -665,7 +705,6 @@ function GroupAIStateBase:_clbk_switch_enemies_to_not_cool()
 
 	end
 
-	(for control) = nil and unit_data.unit
 	self:propagate_alert({
 		"vo_cbt",
 		nil,
@@ -725,11 +764,12 @@ function GroupAIStateBase:_radio_chatter_clbk()
 
 			end
 
-			(for control) = nil and self._police
 		end
 
-		do break end
-		best_cop.unit:sound():play(radio_msg, nil, true)
+		if best_cop then
+			best_cop.unit:sound():play(radio_msg, nil, true)
+		end
+
 	end
 
 	self._radio_clbk = callback(self, self, "_radio_chatter_clbk")
@@ -763,7 +803,6 @@ function GroupAIStateBase:has_room_for_police_hostage()
 
 	end
 
-	(for control) = nil and u_data.unit
 	return nr_hostages_allowed > self._police_hostage_headcount + table.size(self._converted_police)
 end
 
@@ -795,9 +834,6 @@ function GroupAIStateBase:_parse_teammate_comment(data)
 end
 
 function GroupAIStateBase:teammate_comment(trigger_unit, message, pos, pos_based, radius, sync)
--- fail 9
-null
-10
 	if radius == 0 then
 		radius = nil
 	end
@@ -816,9 +852,11 @@ null
 
 	end
 
-	do break end
-	Application:error("[GroupAIStateBase:teammate_comment] " .. message .. " cannot be found")
-	do return end
+	if not message_id then
+		Application:error("[GroupAIStateBase:teammate_comment] " .. message .. " cannot be found")
+		return
+	end
+
 	local allow_first_person = self.teammate_comments[message_id].allow_first_person
 	local close_pos = pos_based and pos or managers.player:player_unit() and managers.player:player_unit():position() or Vector3()
 	local close_criminal, close_criminal_d
@@ -843,8 +881,10 @@ null
 
 	end
 
-	do break end
-	close_criminal:sound():say(message, false)
+	if close_criminal then
+		close_criminal:sound():say(message, false)
+	end
+
 	if sync then
 		if trigger_unit and alive(trigger_unit) then
 			managers.network:session():send_to_peers_synched("sync_teammate_comment_instigator", trigger_unit, message_id)
@@ -865,12 +905,6 @@ function GroupAIStateBase:sync_teammate_comment_instigator(unit, message)
 end
 
 function GroupAIStateBase:on_hostage_state(state, key, police, skip_announcement)
--- fail 13
-null
-8
--- fail 31
-null
-8
 	local d = state and 1 or -1
 	if state then
 		do
@@ -986,9 +1020,6 @@ function GroupAIStateBase:_get_difficulty_dependent_value(tweak_values)
 end
 
 function GroupAIStateBase:_get_spawn_unit_name(weights, wanted_access_type)
--- fail 72
-null
-17
 	local unit_categories = tweak_data.group_ai.unit_categories
 	local total_weight = 0
 	local candidates = {}
@@ -1031,16 +1062,20 @@ null
 
 			end
 
-			do break end
-			total_weight = total_weight + cat_weight
-			table.insert(candidates, cat_name)
-			table.insert(candidate_weights, total_weight)
+			if suitable then
+				total_weight = total_weight + cat_weight
+				table.insert(candidates, cat_name)
+				table.insert(candidate_weights, total_weight)
+			end
+
 		end
 
 	end
 
-	do break end
-	do return end
+	if total_weight == 0 then
+		return
+	end
+
 	local lucky_nr = math.random() * total_weight
 	local i_candidate = 1
 	while lucky_nr > candidate_weights[i_candidate] do
@@ -1294,7 +1329,7 @@ function GroupAIStateBase:on_simulation_ended()
 
 	end
 
-	self._criminal_AI_respawn_clbks = nil and {}
+	self._criminal_AI_respawn_clbks = {}
 	self:set_drama_draw_state(false)
 	self:_init_unit_type_filters()
 end
@@ -1337,9 +1372,6 @@ function GroupAIStateBase:criminal_hurt_drama(unit, attacker, dmg_percent)
 end
 
 function GroupAIStateBase:on_enemy_unregistered(unit)
--- fail 29
-null
-12
 	self._police_force = self._police_force - 1
 	local u_key = unit:key()
 	self:_clear_character_criminal_suspicion_data(u_key)
@@ -1368,7 +1400,6 @@ null
 
 	end
 
-	(for control) = nil and c_data.important_enemies
 	do
 		local (for generator), (for state), (for control) = pairs(self._ai_criminals)
 		do
@@ -1378,7 +1409,6 @@ null
 
 	end
 
-	(for control) = nil and record.unit
 	local unit_type = unit:base()._tweak_table
 	if self._special_unit_types[unit_type] then
 		self:unregister_special_unit(u_key, unit_type)
@@ -1415,7 +1445,9 @@ null
 
 						end
 
-						break
+						if found then
+						end
+
 					else
 						local area_spawn_points = area_data.spawn_groups
 						if area_spawn_points then
@@ -1433,7 +1465,9 @@ null
 
 							end
 
-							break
+							if found then
+							end
+
 						else
 						end
 
@@ -1552,8 +1586,7 @@ function GroupAIStateBase:unregister_criminal(unit)
 
 	end
 
-	do break end
-	if record.minions then
+	if is_server and record.minions then
 		local minions = clone(record.minions)
 		do
 			local (for generator), (for state), (for control) = pairs(minions)
@@ -1569,7 +1602,6 @@ function GroupAIStateBase:unregister_criminal(unit)
 		record.minions = nil
 	end
 
-	(for control) = nil and u_data.unit
 	if record.ai then
 		self._ai_criminals[u_key] = nil
 		if is_server then
@@ -1592,7 +1624,7 @@ function GroupAIStateBase:unregister_criminal(unit)
 
 		end
 
-		self._player_criminals[u_key] = unit and nil
+		self._player_criminals[u_key] = nil
 	end
 
 	self._char_criminals[u_key] = nil
@@ -1638,7 +1670,7 @@ function GroupAIStateBase:check_gameover_conditions()
 	end
 
 	local ai_alive = false
-	local ai_disabled = inspect(self._player_criminals) and true
+	local ai_disabled = true
 	do
 		local (for generator), (for state), (for control) = pairs(self._ai_criminals)
 		do
@@ -1654,7 +1686,6 @@ function GroupAIStateBase:check_gameover_conditions()
 	end
 
 	local gameover = false
-	(for control) = u_data.status and true
 	if not plrs_alive then
 		gameover = true
 	elseif plrs_disabled and not ai_alive then
@@ -1723,7 +1754,6 @@ function GroupAIStateBase:on_criminal_disabled(unit, custom_status)
 
 		end
 
-		(for control) = nil and data.unit
 		self:_add_drama(self._drama_data.actions.criminal_disabled)
 		self:check_gameover_conditions()
 	end
@@ -1750,7 +1780,6 @@ function GroupAIStateBase:on_criminal_neutralized(unit)
 
 		end
 
-		(for control) = nil and data.unit
 		self:_add_drama(self._drama_data.actions.criminal_dead)
 		self:check_gameover_conditions()
 	end
@@ -1891,7 +1920,7 @@ function GroupAIStateBase:_debug_draw_drama(t)
 	end
 
 	local pop_hist = draw_data.pop_hist
-	local pop_hist_size = nil and #pop_hist
+	local pop_hist_size = #pop_hist
 	local last_entry = pop_hist[pop_hist_size]
 	if t > last_entry[2] then
 		local police_force = self._police_force
@@ -1925,7 +1954,7 @@ function GroupAIStateBase:_debug_draw_drama(t)
 
 	end
 
-	local mvec3_setx = t and mvector3.set_x
+	local mvec3_setx = mvector3.set_x
 	local top_l = Vector3(0, draw_data.bg_top_l.y, 90)
 	local bottom_l = Vector3(0, draw_data.bg_bottom_l.y, 90)
 	local top_r = Vector3(0, draw_data.bg_top_l.y, 90)
@@ -2042,7 +2071,6 @@ function GroupAIStateBase:set_drama_draw_state(state)
 
 			end
 
-			(for control) = "blockade" and self._task_data
 			if self._task_data.regroup and self._task_data.regroup.active then
 				table.insert(self._draw_drama.regroup_hist, {
 					self._task_data.regroup.start_t
@@ -2191,12 +2219,6 @@ function GroupAIStateBase:add_special_objective(id, objective_data)
 end
 
 function GroupAIStateBase:_execute_so(so_data, so_rooms, so_administered)
--- fail 78
-null
-16
--- fail 136
-null
-16
 	local max_dis = so_data.search_dis_sq
 	local pos = so_data.search_pos
 	local ai_group = so_data.AI_group
@@ -2221,55 +2243,50 @@ null
 
 		end
 
-	else
-		(for control) = nil and enemy_unit_data.assigned_area
-		if ai_group == "friendlies" then
-			local (for generator), (for state), (for control) = pairs(self._ai_criminals)
-			do
-				do break end
-				if (not so_administered or not so_administered[u_key]) and (so_objective.forced or u_unit_data.unit:brain():is_available_for_assignment(so_objective)) and (not so_data.verification_clbk or so_data.verification_clbk(u_unit_data.unit)) and access_f(nav_manager, so_access, u_unit_data.so_access, 0) then
-					local dis = mvec3_dis_sq(u_unit_data.m_pos, pos)
-					if (not closest_dis or closest_dis > dis) and (not max_dis or max_dis > dis) then
-						closest_u_data = u_unit_data
-						closest_dis = dis
-					end
-
+	elseif ai_group == "friendlies" then
+		local (for generator), (for state), (for control) = pairs(self._ai_criminals)
+		do
+			do break end
+			if (not so_administered or not so_administered[u_key]) and (so_objective.forced or u_unit_data.unit:brain():is_available_for_assignment(so_objective)) and (not so_data.verification_clbk or so_data.verification_clbk(u_unit_data.unit)) and access_f(nav_manager, so_access, u_unit_data.so_access, 0) then
+				local dis = mvec3_dis_sq(u_unit_data.m_pos, pos)
+				if (not closest_dis or closest_dis > dis) and (not max_dis or max_dis > dis) then
+					closest_u_data = u_unit_data
+					closest_dis = dis
 				end
 
-			end
-
-		elseif ai_group == "civilians" then
-			local (for generator), (for state), (for control) = pairs(managers.enemy:all_civilians())
-			do
-				do break end
-				if (not so_administered or not so_administered[u_key]) and (so_objective.forced or u_unit_data.unit:brain():is_available_for_assignment(so_objective)) and (not so_data.verification_clbk or so_data.verification_clbk(u_unit_data.unit)) and access_f(nav_manager, so_access, u_unit_data.so_access, 0) then
-					local dis = mvec3_dis_sq(u_unit_data.m_pos, pos)
-					if (not closest_dis or closest_dis > dis) and (not max_dis or max_dis > dis) then
-						closest_u_data = u_unit_data
-						closest_dis = dis
-					end
-
-				end
-
-			end
-
-		else
-			local (for generator), (for state), (for control) = pairs(managers.enemy:all_civilians())
-			do
-				do break end
-				if access_f(nav_manager, so_access, civ_unit_data.so_access, 0) then
-					closest_u_data = civ_unit_data
-			end
-
-			else
 			end
 
 		end
 
+	elseif ai_group == "civilians" then
+		local (for generator), (for state), (for control) = pairs(managers.enemy:all_civilians())
+		do
+			do break end
+			if (not so_administered or not so_administered[u_key]) and (so_objective.forced or u_unit_data.unit:brain():is_available_for_assignment(so_objective)) and (not so_data.verification_clbk or so_data.verification_clbk(u_unit_data.unit)) and access_f(nav_manager, so_access, u_unit_data.so_access, 0) then
+				local dis = mvec3_dis_sq(u_unit_data.m_pos, pos)
+				if (not closest_dis or closest_dis > dis) and (not max_dis or max_dis > dis) then
+					closest_u_data = u_unit_data
+					closest_dis = dis
+				end
+
+			end
+
+		end
+
+	else
+		local (for generator), (for state), (for control) = pairs(managers.enemy:all_civilians())
+		do
+			do break end
+			if access_f(nav_manager, so_access, civ_unit_data.so_access, 0) then
+				closest_u_data = civ_unit_data
+		end
+
+		else
+		end
+
 	end
 
-	do break end
-	do
+	if closest_u_data then
 		local objective_copy = self.clone_objective(so_objective)
 		closest_u_data.unit:brain():set_objective(objective_copy)
 		if so_data.admin_clbk then
@@ -2332,7 +2349,7 @@ function GroupAIStateBase:_upd_grp_SO()
 		end
 
 		self._grp_SO = nil
-		local task_queue = nil and self._grp_SO_task_queue
+		local task_queue = self._grp_SO_task_queue
 		self._grp_SO_task_queue = nil
 		local (for generator), (for state), (for control) = ipairs(task_queue)
 		do
@@ -2347,7 +2364,6 @@ function GroupAIStateBase:_upd_grp_SO()
 
 	end
 
-	(for control) = nil and task_info[1]
 	if self._recurring_grp_SO and not next(self._spawning_groups) then
 		local (for generator), (for state), (for control) = pairs(self._recurring_grp_SO)
 		do
@@ -2417,15 +2433,17 @@ function GroupAIStateBase:_process_recurring_grp_SO(recurring_id, data)
 
 						end
 
-						do break end
-						if group.objective.fail_t then
-							if self._t - group.objective.fail_t < tweak_data.group_ai.besiege.recurring_group_SO[recurring_id].retire_delay then
+						if is_junk then
+							if group.objective.fail_t then
+								if self._t - group.objective.fail_t < tweak_data.group_ai.besiege.recurring_group_SO[recurring_id].retire_delay then
+									is_junk = nil
+								end
+
+							else
+								group.objective.fail_t = self._t
 								is_junk = nil
 							end
 
-						else
-							group.objective.fail_t = self._t
-							is_junk = nil
 						end
 
 					end
@@ -2441,28 +2459,29 @@ function GroupAIStateBase:_process_recurring_grp_SO(recurring_id, data)
 
 		end
 
-		do break end
-		do
-			local (for generator), (for state), (for control) = ipairs(junk_groups)
+		if junk_groups then
 			do
-				do break end
-				local group = data.groups[group_id]
-				if next(group.units) then
-					self:_assign_group_to_retire(group)
+				local (for generator), (for state), (for control) = ipairs(junk_groups)
+				do
+					do break end
+					local group = data.groups[group_id]
+					if next(group.units) then
+						self:_assign_group_to_retire(group)
+					end
+
+					data.groups[group_id] = nil
 				end
 
-				data.groups[group_id] = nil
 			end
 
+			if not next(data.groups) then
+				data.groups = nil
+			end
+
+			data.delay_t = math.max(data.delay_t, self._t + math.lerp(data.interval[1], data.interval[2], math.random()))
+			return
 		end
 
-		(for control) = nil and data.groups
-		if not next(data.groups) then
-			data.groups = nil
-		end
-
-		data.delay_t = math.max(data.delay_t, self._t + math.lerp(data.interval[1], data.interval[2], math.random()))
-		return
 	end
 
 	if self._t < data.delay_t then
@@ -2479,7 +2498,6 @@ function GroupAIStateBase:_process_recurring_grp_SO(recurring_id, data)
 
 	end
 
-	(for control) = math.lerp(data.interval[1], data.interval[2], math.random()) and element.value
 	local rand_w = total_w * math.random()
 	local element
 	do
@@ -2496,7 +2514,7 @@ function GroupAIStateBase:_process_recurring_grp_SO(recurring_id, data)
 
 	end
 
-	local grp_objective = element:value("base_chance") and element:get_grp_objective()
+	local grp_objective = element:get_grp_objective()
 	local spawn_group, spawn_group_type = self:_find_spawn_group_near_area(grp_objective.area, tweak_data.group_ai.besiege.cloaker.groups, element:value("position"), nil, nil)
 	if not spawn_group then
 		return
@@ -2577,9 +2595,6 @@ function GroupAIStateBase:set_is_inside_point_of_no_return(peer_id, is_inside)
 end
 
 function GroupAIStateBase:_update_point_of_no_return(t, dt)
--- fail 144
-null
-11
 	local get_mission_script_element = function(id)
 		local (for generator), (for state), (for control) = pairs(managers.mission:scripts())
 		do
@@ -2615,7 +2630,6 @@ null
 	end
 
 	local is_inside = false
-	(for control) = nil and get_mission_script_element
 	local plr_unit = managers.criminals:character_unit_by_name(managers.criminals:local_character_name())
 	if plr_unit and alive(plr_unit) then
 		local (for generator), (for state), (for control) = ipairs(self._point_of_no_return_areas)
@@ -2630,7 +2644,6 @@ null
 
 	end
 
-	(for control) = managers.criminals:local_character_name() and area._shape
 	if is_inside ~= self._is_inside_point_of_no_return then
 		self._is_inside_point_of_no_return = is_inside
 		if managers.network:session() then
@@ -2662,16 +2675,15 @@ null
 
 				end
 
-				do break end
-				do
+				if num_is_inside > 0 then
 					local num_winners = num_is_inside + self:amount_of_winning_ai_criminals()
 					managers.network:session():send_to_peers("mission_ended", true, num_winners)
 					game_state_machine:change_state_by_name("victoryscreen", {num_winners = num_winners, personal_win = is_inside})
+				else
+					managers.network:session():send_to_peers("mission_ended", false, 0)
+					game_state_machine:change_state_by_name("gameoverscreen")
 				end
 
-				do break end
-				managers.network:session():send_to_peers("mission_ended", false, 0)
-				game_state_machine:change_state_by_name("gameoverscreen")
 			end
 
 			local element = get_mission_script_element(self._point_of_no_return_id)
@@ -2687,7 +2699,6 @@ null
 
 		end
 
-		(for control) = false and get_mission_script_element
 		managers.hud:feed_point_of_no_return_timer(0, is_inside)
 	else
 		managers.hud:feed_point_of_no_return_timer(self._point_of_no_return_timer, is_inside)
@@ -2774,7 +2785,6 @@ function GroupAIStateBase:remove_one_teamAI(name_to_remove, replace_with_player)
 		end
 
 	else
-		(for control) = nil and managers
 		u_key, u_data = next(self._ai_criminals)
 	end
 
@@ -2792,7 +2802,6 @@ function GroupAIStateBase:remove_one_teamAI(name_to_remove, replace_with_player)
 		end
 
 		unit = u_data.unit
-		(for control) = uk and data.unit
 	elseif not name_to_remove then
 		local unit
 		do
@@ -2808,8 +2817,10 @@ function GroupAIStateBase:remove_one_teamAI(name_to_remove, replace_with_player)
 
 		end
 
-		do break end
-		return
+		if not unit then
+			return
+		end
+
 	else
 		name = name_to_remove
 	end
@@ -2978,7 +2989,6 @@ function GroupAIStateBase:_determine_spawn_objective_for_criminal_AI()
 
 	end
 
-	(for control) = nil and pl_record.status
 	if #valid_criminals > 0 then
 		local follow_unit = self._player_criminals[valid_criminals[math.random(#valid_criminals)]].unit
 		new_objective = {
@@ -3012,13 +3022,15 @@ function GroupAIStateBase:_determine_objective_for_criminal_AI(unit)
 
 	end
 
-	do break end
-	new_objective = {
-		type = "follow",
-		scan = true,
-		follow_unit = closest_record.unit,
-		is_default = true
-	}
+	if closest_record then
+		new_objective = {
+			type = "follow",
+			scan = true,
+			follow_unit = closest_record.unit,
+			is_default = true
+		}
+	end
+
 	return new_objective
 end
 
@@ -3293,6 +3305,7 @@ function GroupAIStateBase:amount_of_winning_ai_criminals()
 
 	end
 
+	return amount
 end
 
 function GroupAIStateBase:fleeing_civilians()
@@ -3343,7 +3356,6 @@ function GroupAIStateBase:_draw_enemy_importancies()
 
 	end
 
-	(for control) = nil and e_data.importance
 	local (for generator), (for state), (for control) = pairs(self._player_criminals)
 	do
 		do break end
@@ -3493,7 +3505,6 @@ function GroupAIStateBase:_set_rescue_state(state)
 
 	end
 
-	(for control) = nil and civ_data.unit
 	local (for generator), (for state), (for control) = pairs(self._police)
 	do
 		do break end
@@ -3517,7 +3528,6 @@ function GroupAIStateBase:chk_area_leads_to_enemy(start_nav_seg_id, test_nav_seg
 
 	end
 
-	(for control) = nil and c_data.tracker
 	local all_nav_segs = managers.navigation._nav_segments
 	local found_nav_segs = {
 		[start_nav_seg_id] = true,
@@ -3545,7 +3555,6 @@ function GroupAIStateBase:chk_area_leads_to_enemy(start_nav_seg_id, test_nav_seg
 
 		end
 
-		(for control) = nil and all_nav_segs[neighbour_seg_id]
 	until #to_search_nav_segs == 0
 end
 
@@ -3612,7 +3621,6 @@ function GroupAIStateBase:chk_say_enemy_chatter(unit, unit_pos, chatter_type)
 	end
 
 	local group_requirement = chatter_tweak.group_min
-	(for control) = nil and event_data.expire_t
 	if group_requirement and group_requirement > 1 then
 		local u_data = self._police[unit:key()]
 		local nr_in_group = 1
@@ -3718,6 +3726,7 @@ function GroupAIStateBase:_get_anticipation_duration(anticipation_duration_table
 
 	end
 
+	return anticipation_duration
 end
 
 function GroupAIStateBase:add_preferred_spawn_points(id, spawn_points)
@@ -3819,7 +3828,6 @@ function GroupAIStateBase:_map_spawn_groups_to_respective_areas(id, spawn_groups
 
 			end
 
-			(for control) = nil and spawn_pt_element.value
 			mvector3.divide(new_spawn_group_data.pos, nr_elements)
 			local area_spawn_groups = area.spawn_groups
 			if area_spawn_groups then
@@ -3908,7 +3916,7 @@ function GroupAIStateBase:remove_preferred_spawn_points(id)
 
 		end
 
-		self._spawn_points[id] = nil and nil
+		self._spawn_points[id] = nil
 	elseif self._spawn_groups[id] then
 		do
 			local (for generator), (for state), (for control) = pairs(self._area_data)
@@ -3937,7 +3945,7 @@ function GroupAIStateBase:remove_preferred_spawn_points(id)
 
 		end
 
-		self._spawn_groups[id] = nil and nil
+		self._spawn_groups[id] = nil
 	end
 
 end
@@ -3999,7 +4007,7 @@ function GroupAIStateBase:get_AI_attention_objects_by_filter(filter)
 
 		end
 
-		self._attention_objects[filter] = nil and new_attention_set
+		self._attention_objects[filter] = new_attention_set
 	end
 
 	return self._attention_objects[filter]
@@ -4081,7 +4089,6 @@ function GroupAIStateBase:add_area(area_id, nav_segs, area_pos)
 
 	end
 
-	(for control) = true and new_area.nav_segs
 	do
 		local (for generator), (for state), (for control) = ipairs(nav_segs)
 		do
@@ -4091,7 +4098,6 @@ function GroupAIStateBase:add_area(area_id, nav_segs, area_pos)
 
 	end
 
-	(for control) = true and self._nav_seg_to_area_map
 	do
 		local (for generator), (for state), (for control) = ipairs(nav_segs)
 		do
@@ -4109,10 +4115,8 @@ function GroupAIStateBase:add_area(area_id, nav_segs, area_pos)
 
 		end
 
-		(for control) = nil and neighbour_area.neighbours
 	end
 
-	(for control) = true and all_areas[seg_id]
 	local all_nav_segs = managers.navigation._nav_segments
 	do
 		local (for generator), (for state), (for control) = ipairs(nav_segs)
@@ -4142,14 +4146,13 @@ function GroupAIStateBase:add_area(area_id, nav_segs, area_pos)
 
 				end
 
-				(for control) = nil and other_area.nav_segs
 			end
 
 		end
 
-		(for control) = nil and all_nav_segs[neighbour_seg_id]
 	end
 
+	all_areas[area_id] = new_area
 end
 
 function GroupAIStateBase:_empty_area_data()
@@ -4205,15 +4208,15 @@ function GroupAIStateBase:_create_area_data()
 
 				end
 
-				(for control) = nil and other_area.nav_segs
 			end
 
 			nav_seg_to_area_map[seg_id] = new_area
-			all_areas[seg_id] = nil and new_area
+			all_areas[seg_id] = new_area
 		end
 
 	end
 
+	self._area_data = all_areas
 end
 
 function GroupAIStateBase:get_area_from_nav_seg_id(nav_seg_id)
@@ -4238,6 +4241,7 @@ function GroupAIStateBase:get_areas_from_nav_seg_id(nav_seg_id)
 
 	end
 
+	return areas
 end
 
 function GroupAIStateBase.get_nav_seg_id_from_area(area)
@@ -4253,7 +4257,6 @@ function GroupAIStateBase.get_nav_seg_id_from_area(area)
 
 	end
 
-	(for control) = nil and managers
 	debug_pause("[GroupAIStateBase:get_nav_seg_id_from_area] area\n", inspect(area))
 	return table.random_map_key(area.nav_segs)
 end
@@ -4271,7 +4274,7 @@ function GroupAIStateBase:is_area_safe(area)
 
 	end
 
-	(for control) = nil and area.nav_segs
+	return true
 end
 
 function GroupAIStateBase:is_nav_seg_safe(nav_seg)
@@ -4292,7 +4295,6 @@ function GroupAIStateBase:_on_area_safety_status(area, event)
 
 	end
 
-	(for control) = nil and unit_data[u_key]
 	local (for generator), (for state), (for control) = pairs(area.neighbours)
 	do
 		do break end
@@ -4308,9 +4310,6 @@ function GroupAIStateBase:_on_area_safety_status(area, event)
 end
 
 function GroupAIStateBase:on_nav_segment_state_change(changed_seg_id, state)
--- fail 28
-null
-19
 	local all_nav_segs = managers.navigation._nav_segments
 	local changed_seg = all_nav_segs[changed_seg_id]
 	local changed_seg_neighbours = changed_seg.neighbours
@@ -4342,7 +4341,6 @@ null
 				end
 
 			else
-				(for control) = nil and all_nav_segs[neighbour_seg_id]
 				do
 					local (for generator), (for state), (for control) = pairs(area.neighbours)
 					do
@@ -4352,7 +4350,7 @@ null
 
 				end
 
-				area.neighbours = nil and {}
+				area.neighbours = {}
 				local (for generator), (for state), (for control) = pairs(area.nav_segs)
 				do
 					do break end
@@ -4407,7 +4405,7 @@ function GroupAIStateBase:on_nav_seg_neighbour_state(start_seg_id, end_seg_id, s
 
 			end
 
-			area.neighbours = nil and {}
+			area.neighbours = {}
 			local (for generator), (for state), (for control) = pairs(area.nav_segs)
 			do
 				do break end
@@ -4632,8 +4630,10 @@ function GroupAIStateBase:remove_minion(minion_key, player_key)
 
 		end
 
-		do break end
-		debug_pause_unit(minion_unit, "[GroupAIStateBase:remove_minion] could not find minion owner", minion_unit)
+		if not player_key then
+			debug_pause_unit(minion_unit, "[GroupAIStateBase:remove_minion] could not find minion owner", minion_unit)
+		end
+
 	end
 
 	local owner_data = self._player_criminals[player_key]
@@ -4924,6 +4924,7 @@ function GroupAIStateBase:fetch_highest_giveaway(...)
 
 	end
 
+	return highest_giveaway
 end
 
 function GroupAIStateBase.analyse_giveaway(trigger_string, giveaway_unit, additional_info)
@@ -5065,8 +5066,7 @@ function GroupAIStateBase.investigate_unit(giveaway_unit, additional_info)
 
 	end
 
-	do break end
-	do
+	if investigate_data then
 		local unit_data = giveaway_unit:unit_data()
 		if unit_data and unit_data.blame_giveaway then
 			return unit_data.blame_giveaway
@@ -5090,9 +5090,6 @@ function GroupAIStateBase:get_sync_event_id(event_name)
 end
 
 function GroupAIStateBase:get_sync_blame_id(blame_name)
--- fail 5
-null
-4
 	do
 		local (for generator), (for state), (for control) = ipairs(self.BLAME_SYNC)
 		do
@@ -5120,22 +5117,19 @@ function GroupAIStateBase:_count_police_force(task_name)
 
 		end
 
-	else
-		(for control) = nil and group.objective
-		if task_name == "reenforce" then
-			local (for generator), (for state), (for control) = pairs(self._groups)
-			do
-				do break end
-				if group.objective.type == "reenforce_area" then
-					amount = amount + (group.has_spawned and group.size or group.initial_size)
-				end
-
+	elseif task_name == "reenforce" then
+		local (for generator), (for state), (for control) = pairs(self._groups)
+		do
+			do break end
+			if group.objective.type == "reenforce_area" then
+				amount = amount + (group.has_spawned and group.size or group.initial_size)
 			end
 
 		end
 
 	end
 
+	return amount
 end
 
 function GroupAIStateBase:_merge_coarse_path_by_area(coarse_path)
@@ -5154,9 +5148,6 @@ function GroupAIStateBase:_merge_coarse_path_by_area(coarse_path)
 end
 
 function GroupAIStateBase:on_nav_seg_neighbours_state(changed_seg_id, neighbours, state)
--- fail 28
-null
-20
 	local all_nav_segs = managers.navigation._nav_segments
 	local changed_seg = all_nav_segs[changed_seg_id]
 	local changed_seg_neighbours = changed_seg.neighbours
@@ -5188,7 +5179,6 @@ null
 				end
 
 			else
-				(for control) = nil and all_nav_segs[neighbour_seg_id]
 				do
 					local (for generator), (for state), (for control) = pairs(area.neighbours)
 					do
@@ -5198,7 +5188,7 @@ null
 
 				end
 
-				area.neighbours = nil and {}
+				area.neighbours = {}
 				local (for generator), (for state), (for control) = pairs(area.nav_segs)
 				do
 					do break end
@@ -5252,7 +5242,6 @@ function GroupAIStateBase:register_loot(loot_unit, pickup_area)
 
 	end
 
-	(for control) = nil and area.loot
 	if not pickup_area.loot then
 		pickup_area.loot = {}
 	end
@@ -5292,7 +5281,6 @@ function GroupAIStateBase:register_rescueable_hostage(unit, rescue_area)
 
 	end
 
-	(for control) = unit:movement():nav_tracker():nav_segment() and area.hostages
 	if not rescue_area.hostages then
 		rescue_area.hostages = {}
 	end
@@ -5619,7 +5607,6 @@ function GroupAIStateBase:_get_balancing_multiplier(balance_multipliers)
 
 	end
 
-	(for control) = self:all_player_criminals() and u_data.status
 	nr_players = math.clamp(nr_players, 1, 4)
 	return balance_multipliers[nr_players]
 end
@@ -5679,6 +5666,7 @@ function GroupAIStateBase._get_group_acces_mask(group)
 
 	end
 
+	return union_mask
 end
 
 function GroupAIStateBase:on_hostage_follow(owner, follower, state)

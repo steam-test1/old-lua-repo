@@ -28,7 +28,6 @@ function CoreCutsceneKey:types()
 
 	end
 
-	(for control) = nil and table
 	table.sort(sorted_types, function(a, b)
 		return a.NAME < b.NAME
 	end

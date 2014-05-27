@@ -299,7 +299,6 @@ function TextGui:_test2()
 
 	end
 
-	(for control) = "Stock" and self.add_text
 	local (for generator), (for state), (for control) = ipairs(texts2)
 	do
 		do break end

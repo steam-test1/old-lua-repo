@@ -82,9 +82,6 @@ function ParseAllDramas:start_parsing()
 	self._text:set_text("0/" .. tostring(#self._dramas))
 	self._parsed_sound_events = {}
 	local function update_anim(panel)
--- fail 179
-null
-14
 		local text = panel:child("text")
 		local print_text = ""
 		local dt = 0
@@ -175,7 +172,6 @@ null
 
 		end
 
-		(for control) = gen and self
 		Application:debug(" ")
 		Application:debug(" ")
 		Application:debug(" ")
@@ -195,7 +191,6 @@ null
 
 		end
 
-		(for control) = "LOCALIZED STRINGS ONLY: " .. table.size(self._localized_sound_events) and print
 		Application:debug("____________________________________________________________________________")
 		local gen = "\n" .. "LOCALIZED STRINGS GENERATED. CHECK CONSOLE"
 		text:set_text(print_text .. gen)

@@ -52,10 +52,8 @@ function PortalLayer:load(world_holder, offset)
 
 			end
 
-			(for control) = nil and self.do_spawn_unit
 		end
 
-		(for control) = offset and portal.name
 		local (for generator), (for state), (for control) = pairs(managers.portal:unit_groups())
 		do
 			do break end
@@ -69,10 +67,8 @@ function PortalLayer:load(world_holder, offset)
 
 		end
 
-		(for control) = group:shapes() and PortalLayer
 	end
 
-	(for control) = managers.portal:unit_groups() and ipairs
 	self:update_shapes_listbox(self._shapes_listbox)
 	self:select_portal()
 	self:update_groups_listbox()
@@ -111,10 +107,8 @@ function PortalLayer:_old_load(portal)
 
 		end
 
-		(for control) = nil and self.do_spawn_unit
 	end
 
-	(for control) = nil and math
 	do
 		local (for generator), (for state), (for control) = pairs(managers.portal:unit_groups())
 		do
@@ -129,10 +123,9 @@ function PortalLayer:_old_load(portal)
 
 		end
 
-		(for control) = group:shapes() and PortalLayer
 	end
 
-	(for control) = managers.portal:unit_groups() and ipairs
+	return true
 end
 
 function PortalLayer:save(save_params)
@@ -161,22 +154,13 @@ function PortalLayer:save(save_params)
 
 			end
 
-			(for control) = nil and table
 			table.insert(portals, portal_data)
 		end
 
 	end
 
-	{
-		single_data_block = true,
-		data = {portals = portals, unit_groups = unit_groups}
-	}.entry, (for control) = self._save_name, nil and {
-		name = name,
-		top = data.top,
-		draw_base = data.draw_base,
-		bottom = data.bottom
-	}
 	local t = {
+		entry = self._save_name,
 		single_data_block = true,
 		data = {portals = portals, unit_groups = unit_groups}
 	}
@@ -199,7 +183,6 @@ function PortalLayer:update(time, rel_time)
 
 		end
 
-		(for control) = managers.portal:unit_groups() and group.draw
 		if self._current_group then
 			self._current_group:draw(time, rel_time, 1, self._dont_draw_boxes)
 		end
@@ -536,7 +519,6 @@ function PortalLayer:set_select_unit(unit)
 
 	end
 
-	(for control) = nil and table
 	if alive(unit) and unit:unit_data().portal_group_shape then
 		self._current_group = managers.portal:unit_group_on_shape(unit:unit_data().portal_group_shape)
 		self:set_selection_groups_listbox(self._current_group:name())
@@ -638,7 +620,6 @@ function PortalLayer:delete_portal(portals)
 
 	end
 
-	(for control) = nil and self.delete_unit
 	if not alive(self._selected_unit) then
 		self:clear_selected_units()
 	end
@@ -772,7 +753,6 @@ function PortalLayer:delete_group()
 
 	end
 
-	(for control) = CoreTable.clone(group:shapes()) and alive
 	managers.portal:remove_unit_group(name)
 	if self._current_group and self._current_group:name() == name then
 		self._current_group = nil
@@ -857,7 +837,6 @@ function PortalLayer:delete_unit(unit)
 
 	end
 
-	(for control) = nil and table
 	if unit:name() == Idstring(self._portal_shape_unit) and unit:unit_data().portal_group_shape then
 		local group = managers.portal:unit_group_on_shape(unit:unit_data().portal_group_shape)
 		group:remove_shape(unit:unit_data().portal_group_shape)

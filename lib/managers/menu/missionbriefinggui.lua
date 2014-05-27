@@ -333,7 +333,6 @@ function DescriptionItem:init(panel, text, i, saved_descriptions)
 
 		end
 
-		(for control) = managers.job:current_level_id() and text
 		desc_text:set_text(text)
 	end
 
@@ -341,9 +340,6 @@ function DescriptionItem:init(panel, text, i, saved_descriptions)
 end
 
 function DescriptionItem:_chk_add_scrolling()
--- fail 95
-null
-12
 	local desc_text = self._scroll_panel:child("description_text")
 	local _, _, _, h = desc_text:text_rect()
 	desc_text:set_h(h)
@@ -553,9 +549,6 @@ function AssetsItem:get_asset_id(i)
 end
 
 function AssetsItem:create_assets(assets_names, max_assets)
--- fail 358
-null
-12
 	self._panel:clear()
 	self._asset_locked = {}
 	self._assets_list = {}
@@ -720,7 +713,6 @@ function AssetsItem:unlock_asset_by_id(id)
 
 	end
 
-	(for control) = nil and Idstring
 	self:select_asset(self._asset_selected, true)
 end
 
@@ -782,7 +774,6 @@ function AssetsItem:update_asset_positions()
 
 	end
 
-	(for control) = nil and math
 	self._move_left_rect:set_visible(self._my_left_i > 1)
 	self._move_right_rect:set_visible(self._my_left_i < math.ceil(#self._assets_list / 8))
 	if 1 < math.ceil(#self._assets_list / 8) then
@@ -916,11 +907,13 @@ function AssetsItem:select_asset(i, instant)
 
 	end
 
-	do break end
-	if i % 2 > 0 then
-		self._asset_text_panel:set_top(rect:bottom())
-	else
-		self._asset_text_panel:set_bottom(rect:top())
+	if rect then
+		if i % 2 > 0 then
+			self._asset_text_panel:set_top(rect:bottom())
+		else
+			self._asset_text_panel:set_bottom(rect:top())
+		end
+
 	end
 
 end
@@ -997,8 +990,10 @@ function AssetsItem:mouse_moved(x, y)
 
 	end
 
-	do break end
-	do return false, true end
+	if not update_select then
+		return false, true
+	end
+
 	return selected, highlighted
 end
 
@@ -1139,8 +1134,7 @@ function LoadoutItem:init(panel, text, i, assets_names, menu_component_data)
 
 	end
 
-	do break end
-	if self._assets_list[1] then
+	if got_primary or self._assets_list[1] then
 	end
 
 	local when_to_split = 6
@@ -1160,7 +1154,6 @@ function LoadoutItem:init(panel, text, i, assets_names, menu_component_data)
 
 		end
 
-		(for control) = managers.menu_component:create_weapon_mod_icon_list(equipped_weapon.weapon_id, "primaries", equipped_weapon.factory_id, primary_slot) and icon.equipped
 		local split = when_to_split < #icon_list
 		local (for generator), (for state), (for control) = ipairs(icon_list)
 		do
@@ -1191,7 +1184,6 @@ function LoadoutItem:init(panel, text, i, assets_names, menu_component_data)
 
 	end
 
-	(for control) = managers.menu_component:create_weapon_mod_icon_list(equipped_weapon.weapon_id, "primaries", equipped_weapon.factory_id, primary_slot) and icon.texture
 	do
 		local equipped_weapon = managers.blackmarket:equipped_secondary()
 		local primary_slot = managers.blackmarket:equipped_weapon_slot("secondaries")
@@ -1208,7 +1200,6 @@ function LoadoutItem:init(panel, text, i, assets_names, menu_component_data)
 
 		end
 
-		(for control) = managers.menu_component:create_weapon_mod_icon_list(equipped_weapon.weapon_id, "secondaries", equipped_weapon.factory_id, primary_slot) and icon.equipped
 		local split = when_to_split < #icon_list
 		local (for generator), (for state), (for control) = ipairs(icon_list)
 		do
@@ -1239,7 +1230,6 @@ function LoadoutItem:init(panel, text, i, assets_names, menu_component_data)
 
 	end
 
-	(for control) = managers.menu_component:create_weapon_mod_icon_list(equipped_weapon.weapon_id, "secondaries", equipped_weapon.factory_id, primary_slot) and icon.texture
 	self._asset_text:move(0, 25)
 	self:select_asset(self._my_menu_component_data.selected or 1, true)
 end
@@ -1392,12 +1382,11 @@ function LoadoutItem:populate_category(category, data)
 			end
 
 			data[i] = new_data
-			index = i and i
+			index = i
 		end
 
 	end
 
-	(for control) = nil and "guis/"
 	for i = 1, max_items do
 		if not data[i] then
 			new_data = {}
@@ -1466,7 +1455,6 @@ function LoadoutItem:populate_armors(data)
 
 	end
 
-	(for control) = nil and Global
 	for i = 1, 9 do
 		if not data[i] then
 			new_data = {}
@@ -1517,7 +1505,6 @@ function LoadoutItem:populate_deployables(data)
 
 	end
 
-	(for control) = nil and "guis/"
 	for i = 1, 9 do
 		if not data[i] then
 			new_data = {}
@@ -1754,7 +1741,6 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 
 	end
 
-	(for control) = primary_bitmap:texture_height() and "guis/textures/pd2/blackmarket/inv_mod_"
 	if outfit.secondary.factory_id then
 		local secondary_id = managers.weapon_factory:get_weapon_id_by_factory_id(outfit.secondary.factory_id)
 		local guis_catalog = "guis/"
@@ -1802,7 +1788,6 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 
 	end
 
-	(for control) = secondary_bitmap:texture_height() and "guis/textures/pd2/blackmarket/inv_mod_"
 	if outfit.melee_weapon then
 		local guis_catalog = "guis/"
 		local bundle_folder = tweak_data.blackmarket.melee_weapons[outfit.melee_weapon] and tweak_data.blackmarket.melee_weapons[outfit.melee_weapon].texture_bundle_folder
@@ -2025,7 +2010,6 @@ function NewLoadoutItem:init(panel, columns, rows, x, y, params)
 		self._params = params
 	end
 
-	(for control) = self._item_image2.set_center and icon.texture
 	self:deselect_item()
 end
 
@@ -2128,7 +2112,6 @@ function NewLoadoutTab:init(panel, text, i, menu_component_data)
 
 	end
 
-	(for control) = managers.menu_component:create_weapon_mod_icon_list(equipped_weapon.weapon_id, "primaries", equipped_weapon.factory_id, equipped_slot) and icon.equipped
 	if secondary then
 		local guis_catalog = "guis/"
 		local weapon_id = secondary.weapon_id
@@ -2161,7 +2144,6 @@ function NewLoadoutTab:init(panel, text, i, menu_component_data)
 
 	end
 
-	(for control) = managers.menu_component:create_weapon_mod_icon_list(equipped_weapon.weapon_id, "secondaries", equipped_weapon.factory_id, equipped_slot) and icon.equipped
 	if melee_weapon then
 		local guis_catalog = "guis/"
 		local bundle_folder = tweak_data.blackmarket.melee_weapons[melee_weapon] and tweak_data.blackmarket.melee_weapons[melee_weapon].texture_bundle_folder
@@ -2269,17 +2251,16 @@ function NewLoadoutTab:mouse_moved(x, y)
 
 	end
 
-	do break end
-	if self._item_selected ~= mouse_over then
-		self._item_selected = mouse_over
-		self._my_menu_component_data.selected = mouse_over
-		managers.menu_component:post_event("highlight")
-		do break end
-		if self._item_selected then
-			self._item_selected = false
-			self._my_menu_component_data.selected = false
+	if mouse_over then
+		if self._item_selected ~= mouse_over then
+			self._item_selected = mouse_over
+			self._my_menu_component_data.selected = mouse_over
+			managers.menu_component:post_event("highlight")
 		end
 
+	elseif self._item_selected then
+		self._item_selected = false
+		self._my_menu_component_data.selected = false
 	end
 
 	return false, mouse_over
@@ -2427,12 +2408,11 @@ function NewLoadoutTab:populate_category(category, data)
 			end
 
 			data[i] = new_data
-			index = i and i
+			index = i
 		end
 
 	end
 
-	(for control) = nil and "guis/"
 	for i = 1, max_items do
 		if not data[i] then
 			new_data = {}
@@ -2501,7 +2481,6 @@ function NewLoadoutTab:populate_armors(data)
 
 	end
 
-	(for control) = nil and Global
 	for i = 1, 9 do
 		if not data[i] then
 			new_data = {}
@@ -2552,7 +2531,6 @@ function NewLoadoutTab:populate_deployables(data)
 
 	end
 
-	(for control) = nil and "guis/"
 	for i = 1, 9 do
 		if not data[i] then
 			new_data = {}
@@ -2819,7 +2797,6 @@ function MissionBriefingGui:init(saferect_ws, fullrect_ws, node)
 	end
 
 	self._selected_item = 0
-	(for control) = next_page:text_rect() and tab.reduce_to_small_font
 	self:set_tab(self._node:parameters().menu_component_data.selected_tab, true)
 	local box_panel = self._panel:panel()
 	box_panel:set_shape(self._items[self._selected_item]:panel():shape())
@@ -2978,7 +2955,6 @@ function MissionBriefingGui:create_asset_tab()
 
 		end
 
-		(for control) = Color.black:with_alpha(0.75) and managers
 		self._assets_item:create_assets(assets_names)
 	end
 
@@ -3157,7 +3133,6 @@ function MissionBriefingGui:mouse_pressed(button, x, y)
 
 	end
 
-	(for control) = nil and tab.mouse_pressed
 	if self._ready_button:inside(x, y) or self._ready_tick_box:inside(x, y) then
 		self:on_ready_pressed()
 	end
@@ -3192,8 +3167,10 @@ function MissionBriefingGui:mouse_moved(x, y)
 
 	end
 
-	do break end
-	do return true, "link" end
+	if mouse_over_tab then
+		return true, "link"
+	end
+
 	if self._ready_button:inside(x, y) or self._ready_tick_box:inside(x, y) then
 		if not self._ready_highlighted then
 			self._ready_highlighted = true

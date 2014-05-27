@@ -145,7 +145,6 @@ do
 
 	end
 
-	(for control) = "ene_veteran_cop_1" and path_string
 	local pd2_dlc1_characters_map = {
 		"civ_male_bank_manager_2",
 		"civ_male_casual_10",
@@ -169,7 +168,6 @@ do
 
 	end
 
-	(for control) = "civ_male_paramedic_2" and path_string
 	local pd2_dlc1_characters_map = {
 		"civ_female_bank_assistant_1",
 		"civ_female_bank_assistant_2"
@@ -186,7 +184,7 @@ do
 
 end
 
-CopBase.init, (for control) = function(self, unit)
+function CopBase:init(unit)
 	UnitBase.init(self, unit, false)
 	self._char_tweak = tweak_data.character[self._tweak_table]
 	self._unit = unit
@@ -196,7 +194,7 @@ CopBase.init, (for control) = function(self, unit)
 	self._foot_obj_map.left = self._unit:get_object(Idstring("LeftToeBase"))
 	self._is_in_original_material = true
 end
-, tostring(Idstring(character_path .. "_contour"):key()) and path_string
+
 function CopBase:post_init()
 	self._ext_movement = self._unit:movement()
 	self:set_anim_lod(1)

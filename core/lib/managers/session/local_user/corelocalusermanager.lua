@@ -82,7 +82,7 @@ function Manager:is_stable_for_loading()
 
 	end
 
-	(for control) = nil and user.is_stable_for_loading
+	return true
 end
 
 function Manager:users()

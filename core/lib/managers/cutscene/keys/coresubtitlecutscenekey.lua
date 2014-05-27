@@ -73,7 +73,7 @@ function CoreSubtitleCutsceneKey:refresh_control_for_category(control)
 
 	end
 
-	(for control) = nil and control.append
+	control:thaw()
 end
 
 function CoreSubtitleCutsceneKey:refresh_control_for_string_id(control)
@@ -97,7 +97,7 @@ function CoreSubtitleCutsceneKey:refresh_control_for_string_id(control)
 
 	end
 
-	(for control) = self:category() and control.append
+	control:thaw()
 end
 
 function CoreSubtitleCutsceneKey:refresh_control_for_localized_text(control)

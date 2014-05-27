@@ -62,10 +62,8 @@ function CoreCutsceneEditorProject:save(audio_clips, film_clips, cutscene_keys, 
 
 		end
 
-		(for control) = table.contains(self.VALID_EXPORT_TYPES, settings.export_type) and is_valid
 	end
 
-	(for control) = table.contains(self.VALID_EXPORT_TYPES, settings.export_type) and pairs
 	local audio_track_node = project_node:make_child("audio_track")
 	do
 		local (for generator), (for state), (for control) = ipairs(audio_clips)
@@ -81,7 +79,6 @@ function CoreCutsceneEditorProject:save(audio_clips, film_clips, cutscene_keys, 
 
 	end
 
-	(for control) = table.contains(self.VALID_EXPORT_TYPES, settings.export_type) and is_valid
 	local key_track_node = project_node:make_child("key_track")
 	do
 		local (for generator), (for state), (for control) = ipairs(cutscene_keys)
@@ -92,7 +89,6 @@ function CoreCutsceneEditorProject:save(audio_clips, film_clips, cutscene_keys, 
 
 	end
 
-	(for control) = pairs(patches) and cutscene_key._save_under
 	local film_tracks_node = project_node:make_child("film_tracks")
 	local highest_film_track_index = table.inject(film_clips, 0, function(highest, clip)
 		return math.max(highest, clip.track_index or 0)
@@ -120,10 +116,6 @@ function CoreCutsceneEditorProject:save(audio_clips, film_clips, cutscene_keys, 
 
 		end
 
-		(for control) = table.find_all_values(film_clips, function(clip)
-			return clip.track_index == track_index
-		end
-) and is_valid
 	end
 
 	managers.database:save_node(project_node, self:path())
@@ -147,6 +139,7 @@ function CoreCutsceneEditorProject:audio_clips()
 
 	end
 
+	return clips
 end
 
 function CoreCutsceneEditorProject:film_clips()
@@ -173,7 +166,6 @@ function CoreCutsceneEditorProject:film_clips()
 		end
 
 		index = index + 1
-		(for control) = nil and table
 	end
 
 	return clips
@@ -195,6 +187,7 @@ function CoreCutsceneEditorProject:cutscene_keys(key_collection)
 
 	end
 
+	return cutscene_keys
 end
 
 function CoreCutsceneEditorProject:animation_patches()
@@ -221,9 +214,9 @@ function CoreCutsceneEditorProject:animation_patches()
 
 		end
 
-		(for control) = nil and override_node.parameter
 	end
 
+	return patches
 end
 
 function CoreCutsceneEditorProject:root_node()

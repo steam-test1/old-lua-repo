@@ -15,7 +15,7 @@ function CoreSmartNode:init(node)
 
 		end
 
-		local (for generator), (for state), (for control) = node:parameters() and node:children(), node:children()
+		local (for generator), (for state), (for control) = node:children()
 		do
 			do break end
 			table.insert(self._children, CoreSmartNode:new(child))
@@ -75,9 +75,6 @@ function CoreSmartNode:add_child(n)
 end
 
 function CoreSmartNode:index_of_child(c)
--- fail 5
-null
-5
 	local i = 0
 	do
 		local (for generator), (for state), (for control) = self:children()
@@ -92,6 +89,7 @@ null
 
 	end
 
+	return -1
 end
 
 function CoreSmartNode:remove_child_at(index)
@@ -112,7 +110,7 @@ function CoreSmartNode:to_real_node()
 	end
 
 	do
-		local (for generator), (for state), (for control) = self:parameters() and self:children(), self:children()
+		local (for generator), (for state), (for control) = self:children()
 		do
 			do break end
 			node:add_child(child:to_real_node())
@@ -120,6 +118,7 @@ function CoreSmartNode:to_real_node()
 
 	end
 
+	return node
 end
 
 function CoreSmartNode:to_xml()

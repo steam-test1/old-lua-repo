@@ -27,7 +27,6 @@ function ElementCharacterOutline:on_executed(instigator)
 
 	end
 
-	(for control) = nil and u_data.unit
 	ElementCharacterOutline.super.on_executed(self, instigator)
 end
 

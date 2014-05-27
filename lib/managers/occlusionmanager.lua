@@ -23,7 +23,6 @@ function _OcclusionManager:remove_occlusion(unit)
 
 	end
 
-	(for control) = nil or obj.set_skip_occlusion
 	self._skip_occlusion[unit:key()] = true
 end
 
@@ -38,7 +37,6 @@ function _OcclusionManager:add_occlusion(unit)
 
 	end
 
-	(for control) = nil and obj.set_skip_occlusion
 	self._skip_occlusion[unit:key()] = nil
 end
 

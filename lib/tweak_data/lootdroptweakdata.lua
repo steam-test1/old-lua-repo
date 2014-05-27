@@ -119,7 +119,6 @@ function LootDropTweakData:init(tweak_data)
 
 		end
 
-		(for control) = nil and table
 		do
 			local (for generator), (for state), (for control) = pairs(secondaries)
 			do
@@ -129,7 +128,6 @@ function LootDropTweakData:init(tweak_data)
 
 		end
 
-		(for control) = nil and table
 		table.list_union(crafted_weapons)
 		do
 			local (for generator), (for state), (for control) = pairs(weapons)
@@ -143,7 +141,7 @@ function LootDropTweakData:init(tweak_data)
 
 		end
 
-		(for control) = nil and table
+		return 1
 	end
 
 	self.global_value_category = {}

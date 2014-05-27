@@ -468,7 +468,6 @@ function Drill:set_skill_upgrades(upgrades)
 
 	end
 
-	(for control) = drill_speed_multiplier[1] and self._skill_upgrades
 	timer_gui_ext:set_background_icons(background_icons)
 	timer_gui_ext:update_sound_event()
 end
