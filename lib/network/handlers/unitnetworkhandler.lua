@@ -713,11 +713,7 @@ function UnitNetworkHandler:long_dis_interaction(target_unit, amount, aggressor_
 	end
 
 	local target_is_criminal = target_unit:in_slot(managers.slot:get_mask("criminals")) or target_unit:in_slot(managers.slot:get_mask("harmless_criminals"))
-	if not target_is_criminal then
-		-- unhandled boolean indicator
-	else
-		local target_is_civilian = true
-	end
+	local target_is_civilian = not target_is_criminal
 
 	local aggressor_is_criminal = aggressor_unit:in_slot(managers.slot:get_mask("criminals")) or aggressor_unit:in_slot(managers.slot:get_mask("harmless_criminals"))
 	if target_is_criminal then

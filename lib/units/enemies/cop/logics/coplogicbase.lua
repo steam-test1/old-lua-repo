@@ -774,11 +774,7 @@ function CopLogicBase.on_detected_attention_obj_modified(data, modified_u_key)
 		return
 	end
 
-	if not attention_info.identified then
-		-- unhandled boolean indicator
-	else
-		local old_notice_clbk = true
-	end
+	local old_notice_clbk = attention_info.identified
 
 	if new_settings then
 		local switch_from_suspicious = new_settings.reaction >= AIAttentionObject.REACT_SCARED and attention_info.reaction <= AIAttentionObject.REACT_SUSPICIOUS

@@ -561,7 +561,9 @@ function NewRaycastWeaponBase:can_toggle_firemode()
 end
 
 function NewRaycastWeaponBase:toggle_firemode()
-	if self._locked_fire_mode then
+	local can_toggle = self._locked_fire_mode
+	
+	if can_toggle then
 		if self._fire_mode == ids_single then
 			self._fire_mode = ids_auto
 			self._sound_fire:post_event("wp_auto_switch_on")

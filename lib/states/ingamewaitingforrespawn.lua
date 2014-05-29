@@ -160,11 +160,7 @@ function IngameWaitingForRespawnState:update(t, dt)
 		managers.player:set_player_state("standard")
 	end
 
-	if not self._stats_screen then
-		-- unhandled boolean indicator
-	else
-		local btn_stats_screen_press = true
-	end
+	local btn_stats_screen_press = self._stats_screen
 
 	local btn_stats_screen_release = self._stats_screen and self._controller:get_input_released("stats_screen")
 	if btn_stats_screen_press then

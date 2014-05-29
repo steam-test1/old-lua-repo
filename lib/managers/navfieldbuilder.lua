@@ -2650,11 +2650,7 @@ function NavFieldBuilder:_expansion_check_obstacles(dir_str, dir_vec, exp_space,
 			local front_air_pos = air_pos + dir_vec * grid_size * 2 - step_vec * 1.5
 			local front_ray = self:_bundle_ray(air_pos, front_air_pos, air_ray_rad)
 			local front_gnd_pos = math.step(front_air_pos, air_pos, void_ray_rad + 1)
-			if not front_ray then
-				-- unhandled boolean indicator
-			else
-				local front_ground_ray = true
-			end
+			local front_ground_ray = front_ray
 
 			if front_ray or front_ground_ray and math.abs(front_ground_ray.position.z + ray_rad_dif - back_ground_ray.position.z) < 40 then
 				front_air_pos = air_pos + dir_vec * grid_size * 2

@@ -135,7 +135,12 @@ function TripMineBase:armed()
 end
 
 function TripMineBase:_set_armed(armed)
-	self._armed = not self._activate_timer and armed
+	if not self._activate_timer then
+		-- unhandled boolean indicator
+	else
+	end
+
+	self._armed = true
 	self._g_laser:set_visibility(self._armed)
 	self._g_laser_sensor:set_visibility(self._sensor_upgrade and not self._armed)
 	if self._use_draw_laser then
