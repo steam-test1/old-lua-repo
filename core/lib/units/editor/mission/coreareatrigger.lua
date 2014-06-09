@@ -230,7 +230,6 @@ function CoreAreaTriggerUnitElement:_set_shape_type()
 	local is_box = self._hed.shape_type == "box"
 	local is_cylinder = self._hed.shape_type == "cylinder"
 	local uses_external = self._hed.use_shape_element_ids
-	
 	if not uses_external then
 		-- unhandled boolean indicator
 	else

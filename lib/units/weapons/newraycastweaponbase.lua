@@ -561,8 +561,12 @@ function NewRaycastWeaponBase:can_toggle_firemode()
 end
 
 function NewRaycastWeaponBase:toggle_firemode()
-	local can_toggle = self._locked_fire_mode
-	
+	if not self._locked_fire_mode then
+		-- unhandled boolean indicator
+	else
+		local can_toggle = true
+	end
+
 	if can_toggle then
 		if self._fire_mode == ids_single then
 			self._fire_mode = ids_auto

@@ -1732,7 +1732,11 @@ function BlackMarketGui:init(ws, fullscreen_ws, node)
 	self._init_layer = self._ws:panel():layer()
 	self._node = node
 	local component_data = self._node:parameters().menu_component_data
-	local do_animation = component_data ~= nil
+	if not component_data then
+		-- unhandled boolean indicator
+	else
+		local do_animation = true
+	end
 
 	local is_start_page = not component_data and true or false
 	managers.menu_component:close_contract_gui()

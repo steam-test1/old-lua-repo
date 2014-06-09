@@ -546,7 +546,11 @@ function CopLogicAttack._update_cover(data)
 	local satisfied = true
 	local my_pos = data.m_pos
 	if data.attention_obj and data.attention_obj.nav_tracker and data.attention_obj.reaction >= AIAttentionObject.REACT_COMBAT then
-		local find_new = my_data.moving_to_cover and my_data.walking_to_cover_shoot_pos
+		if not my_data.moving_to_cover and not my_data.walking_to_cover_shoot_pos then
+			-- unhandled boolean indicator
+		else
+			local find_new = true
+		end
 
 		if find_new then
 			local enemy_tracker = data.attention_obj.nav_tracker

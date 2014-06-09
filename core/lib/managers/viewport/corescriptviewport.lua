@@ -94,7 +94,11 @@ end
 
 function _ScriptViewport:destroy()
 	self:set_active(false)
-	local vp = self._replaced_vp
+	if not self._replaced_vp then
+		-- unhandled boolean indicator
+	else
+		local vp = true
+	end
 
 	if CoreCode.alive(vp) then
 		Application:destroy_viewport(vp)
