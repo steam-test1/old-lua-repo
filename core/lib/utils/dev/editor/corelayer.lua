@@ -1642,36 +1642,10 @@ function Layer:save()
 				})
 			end
 
-			local sequence_files = {}
-			self:_get_sequence_file(PackageManager:unit_data(unit:name()), sequence_files)
-			local (for generator), (for state), (for control) = ipairs(sequence_files)
-			do
-				do break end
-				managers.editor:add_to_world_package({
-					category = "script_data",
-					name = file:s() .. ".sequence_manager",
-					continent = unit:unit_data().continent,
-					init = true
-				})
-			end
-
 		end
 
 	end
 
-end
-
-function Layer:_get_sequence_file(unit_data, sequence_files)
-	do
-		local (for generator), (for state), (for control) = ipairs(unit_data:unit_dependencies())
-		do
-			do break end
-			self:_get_sequence_file(PackageManager:unit_data(unit_name), sequence_files)
-		end
-
-	end
-
-	table.insert(sequence_files, unit_data:sequence_manager_filename())
 end
 
 function Layer:test_spawn(type)

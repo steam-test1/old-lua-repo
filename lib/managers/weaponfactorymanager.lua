@@ -4,6 +4,7 @@ function WeaponFactoryManager:init()
 	self:_setup()
 	self._tasks = {}
 	self._uses_tasks = true
+	self._uses_streaming = false
 end
 
 function WeaponFactoryManager:_setup()
@@ -414,7 +415,7 @@ function WeaponFactoryManager:_preload_part(factory_id, part_id, forbidden, over
 			end
 
 		else
-			Application:error("Expected weapon part packages for", part_id)
+			print("[WeaponFactoryManager] Expected weapon part packages for", part_id)
 			package = nil
 		end
 
@@ -560,11 +561,23 @@ function WeaponFactoryManager:_add_parts(p_unit, factory_id, factory_weapon, blu
 			override = override
 		})
 	else
+		local async_task_data
+		if self._uses_streaming then
+			async_task_data = {
+				third_person = third_person,
+				parts = parts,
+				done_cb = done_cb,
+				blueprint = blueprint
+			}
+			self._async_load_tasks = self._async_load_tasks or {}
+			self._async_load_tasks[async_task_data] = true
+		end
+
 		do
 			local (for generator), (for state), (for control) = ipairs(blueprint)
 			do
 				do break end
-				self:_add_part(p_unit, factory_id, part_id, forbidden, override, parts, third_person, need_parent)
+				self:_add_part(p_unit, factory_id, part_id, forbidden, override, parts, third_person, need_parent, async_task_data)
 			end
 
 		end
@@ -573,12 +586,18 @@ function WeaponFactoryManager:_add_parts(p_unit, factory_id, factory_weapon, blu
 			local (for generator), (for state), (for control) = ipairs(need_parent)
 			do
 				do break end
-				self:_add_part(p_unit, factory_id, part_id, forbidden, override, parts, third_person, need_parent)
+				self:_add_part(p_unit, factory_id, part_id, forbidden, override, parts, third_person, need_parent, async_task_data)
 			end
 
 		end
 
-		done_cb(parts, blueprint)
+		if async_task_data then
+			async_task_data.all_requests_sent = true
+			self:clbk_part_unit_loaded(async_task_data, false, Idstring(), Idstring())
+		else
+			done_cb(parts, blueprint)
+		end
+
 	end
 
 	return parts, blueprint
@@ -608,7 +627,7 @@ function WeaponFactoryManager:_part_data(part_id, factory_id, override)
 	return part
 end
 
-function WeaponFactoryManager:_add_part(p_unit, factory_id, part_id, forbidden, override, parts, third_person, need_parent)
+function WeaponFactoryManager:_add_part(p_unit, factory_id, part_id, forbidden, override, parts, third_person, need_parent, async_task_data)
 	if forbidden[part_id] then
 		return
 	end
@@ -619,7 +638,7 @@ function WeaponFactoryManager:_add_part(p_unit, factory_id, part_id, forbidden, 
 		local (for generator), (for state), (for control) = ipairs(factory[factory_id].adds[part_id])
 		do
 			do break end
-			self:_add_part(p_unit, factory_id, add_id, forbidden, override, parts, third_person, need_parent)
+			self:_add_part(p_unit, factory_id, add_id, forbidden, override, parts, third_person, need_parent, async_task_data)
 		end
 
 	end
@@ -629,7 +648,7 @@ function WeaponFactoryManager:_add_part(p_unit, factory_id, part_id, forbidden, 
 		do
 			do break end
 			local add_id = factory[factory_id][add_type]
-			self:_add_part(p_unit, factory_id, add_id, forbidden, override, parts, third_person, need_parent)
+			self:_add_part(p_unit, factory_id, add_id, forbidden, override, parts, third_person, need_parent, async_task_data)
 		end
 
 	end
@@ -638,7 +657,7 @@ function WeaponFactoryManager:_add_part(p_unit, factory_id, part_id, forbidden, 
 		local (for generator), (for state), (for control) = ipairs(part.adds)
 		do
 			do break end
-			self:_add_part(p_unit, factory_id, add_id, forbidden, override, parts, third_person, need_parent)
+			self:_add_part(p_unit, factory_id, add_id, forbidden, override, parts, third_person, need_parent, async_task_data)
 		end
 
 	end
@@ -652,7 +671,7 @@ function WeaponFactoryManager:_add_part(p_unit, factory_id, part_id, forbidden, 
 		local parent_part = self:get_part_from_weapon_by_type(part.parent, parts)
 		if parent_part then
 			link_to_unit = parent_part.unit
-		else
+		elseif not async_task_data then
 			table.insert(need_parent, part_id)
 			return
 		end
@@ -662,7 +681,7 @@ function WeaponFactoryManager:_add_part(p_unit, factory_id, part_id, forbidden, 
 	local unit_name = third_person and part.third_unit or part.unit
 	local ids_unit_name = Idstring(unit_name)
 	local package
-	if not third_person then
+	if not third_person and not async_task_data then
 		local tweak_unit_name = tweak_data:get_raw_value("weapon", "factory", "parts", part_id, "unit")
 		local ids_tweak_unit_name = tweak_unit_name and Idstring(tweak_unit_name)
 		if ids_tweak_unit_name and ids_tweak_unit_name == ids_unit_name then
@@ -671,7 +690,7 @@ function WeaponFactoryManager:_add_part(p_unit, factory_id, part_id, forbidden, 
 				print("HAS PART AS PACKAGE")
 				self:load_package(package)
 			else
-				Application:error("Expected weapon part packages for", part_id)
+				print("[WeaponFactoryManager] Expected weapon part packages for", part_id)
 				package = nil
 			end
 
@@ -679,23 +698,129 @@ function WeaponFactoryManager:_add_part(p_unit, factory_id, part_id, forbidden, 
 
 	end
 
-	if not package then
-		managers.dyn_resource:load(ids_unit, ids_unit_name, "packages/dyn_resources", false)
+	if async_task_data then
+		parts[part_id] = {
+			animations = part.animations,
+			name = ids_unit_name,
+			is_streaming = true,
+			link_to_unit = link_to_unit,
+			a_obj = Idstring(part.a_obj),
+			parent = part.parent
+		}
+		managers.dyn_resource:load(ids_unit, ids_unit_name, "packages/dyn_resources", callback(self, self, "clbk_part_unit_loaded", async_task_data))
+	else
+		if not package then
+			managers.dyn_resource:load(ids_unit, ids_unit_name, "packages/dyn_resources", false)
+		end
+
+		local unit = self:_spawn_and_link_unit(ids_unit_name, Idstring(part.a_obj), third_person, link_to_unit)
+		parts[part_id] = {
+			unit = unit,
+			animations = part.animations,
+			name = ids_unit_name,
+			package = package
+		}
 	end
 
-	local u_name = Idstring(unit_name)
+end
+
+function WeaponFactoryManager:clbk_part_unit_loaded(task_data, status, u_type, u_name)
+	if not self._async_load_tasks[task_data] then
+		return
+	end
+
+	local function _spawn(part)
+		local unit = self:_spawn_and_link_unit(part.name, part.a_obj, task_data.third_person, part.link_to_unit)
+		unit:set_enabled(false)
+		part.unit = unit
+		part.a_obj = nil
+		part.link_to_unit = nil
+	end
+
+	do
+		local (for generator), (for state), (for control) = pairs(task_data.parts)
+		do
+			do break end
+			if part.name == u_name and part.is_streaming then
+				part.is_streaming = nil
+				if part.link_to_unit then
+					_spawn(part)
+				else
+					local parent_part = self:get_part_from_weapon_by_type(part.parent, task_data.parts)
+					if parent_part and not parent_part.is_streaming then
+						part.link_to_unit = parent_part.unit
+						_spawn(part)
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+
+	do
+		local (for generator), (for state), (for control) = pairs(task_data.parts)
+		do
+			do break end
+			if not part.unit and not part.is_streaming then
+				local parent_part = self:get_part_from_weapon_by_type(part.parent, task_data.parts)
+				if parent_part and not parent_part.is_streaming then
+					part.link_to_unit = parent_part.unit
+					_spawn(part)
+				end
+
+			end
+
+		end
+
+	end
+
+	if not task_data.all_requests_sent then
+		return
+	end
+
+	do
+		local (for generator), (for state), (for control) = pairs(task_data.parts)
+		do
+			do break end
+			if part.is_streaming or not part.unit then
+				return
+			end
+
+		end
+
+	end
+
+	do
+		local (for generator), (for state), (for control) = pairs(task_data.parts)
+		do
+			do break end
+			if alive(part.unit) then
+				part.unit:set_enabled(true)
+			end
+
+		end
+
+	end
+
+	self._async_load_tasks[task_data] = nil
+	if not task_data.done_cb then
+		return
+	end
+
+	task_data.done_cb(task_data.parts, task_data.blueprint)
+end
+
+function WeaponFactoryManager:_spawn_and_link_unit(u_name, a_obj, third_person, link_to_unit)
 	local unit = World:spawn_unit(u_name, Vector3(), Rotation())
-	local res = link_to_unit:link(Idstring(part.a_obj), unit, unit:orientation_object():name())
+	local res = link_to_unit:link(a_obj, unit, unit:orientation_object():name())
 	if managers.occlusion and not third_person then
 		managers.occlusion:remove_occlusion(unit)
 	end
 
-	parts[part_id] = {
-		unit = unit,
-		animations = part.animations,
-		name = u_name,
-		package = package
-	}
+	return unit
 end
 
 function WeaponFactoryManager:load_package(package)
@@ -1222,7 +1347,7 @@ function WeaponFactoryManager:disassemble(parts)
 	local (for generator), (for state), (for control) = pairs(names)
 	do
 		do break end
-		managers.dyn_resource:unload(Idstring("unit"), name, "packages/dyn_resources", false)
+		managers.dyn_resource:unload(ids_unit, name, "packages/dyn_resources", false)
 	end
 
 end

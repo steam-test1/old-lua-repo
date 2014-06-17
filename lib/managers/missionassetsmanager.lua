@@ -552,14 +552,18 @@ function MissionAssetsManager:create_asset_textures()
 	local all_visible_assets = self:get_all_asset_ids(true)
 	local texture_loaded_clbk = callback(self, self, "texture_loaded_clbk")
 	local texture
-	local (for generator), (for state), (for control) = ipairs(all_visible_assets)
 	do
-		do break end
-		texture = self._tweak_data[asset_id].texture
-		self._asset_textures_in_loading[Idstring(texture):key()] = {asset_id, texture}
-		TextureCache:request(texture, "NORMAL", texture_loaded_clbk, 100)
+		local (for generator), (for state), (for control) = ipairs(all_visible_assets)
+		do
+			do break end
+			texture = self._tweak_data[asset_id].texture
+			self._asset_textures_in_loading[Idstring(texture):key()] = {asset_id, texture}
+			TextureCache:request(texture, "NORMAL", texture_loaded_clbk, 100)
+		end
+
 	end
 
+	self:check_all_textures_loaded()
 end
 
 function MissionAssetsManager:get_asset_texture(asset_id)
@@ -573,7 +577,6 @@ end
 
 function MissionAssetsManager:texture_loaded_clbk(texture_idstring)
 	if not self._asset_textures_in_loading[texture_idstring:key()] then
-		TextureCache:unretrieve(texture_idstring)
 		return
 	end
 

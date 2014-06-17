@@ -58,7 +58,7 @@ function NewRaycastWeaponBase:assemble_from_blueprint(factory_id, blueprint)
 end
 
 function NewRaycastWeaponBase:_assemble_completed(parts, blueprint)
-	print("NewRaycastWeaponBase:_assemble_completed", parts, blueprint)
+	self._assembly_complete = true
 	self._parts = parts
 	self._blueprint = blueprint
 	self:_update_fire_object()
@@ -156,6 +156,10 @@ function NewRaycastWeaponBase:has_range_distance_scope()
 		return false
 	end
 
+	if not self._assembly_complete then
+		return false
+	end
+
 	local part
 	do
 		local (for generator), (for state), (for control) = ipairs(self._scopes)
@@ -174,6 +178,10 @@ function NewRaycastWeaponBase:has_range_distance_scope()
 end
 
 function NewRaycastWeaponBase:set_scope_range_distance(distance)
+	if not self._assembly_complete then
+		return
+	end
+
 	if self._scopes and self._parts then
 		local part
 		local (for generator), (for state), (for control) = ipairs(self._scopes)
@@ -633,6 +641,10 @@ end
 
 function NewRaycastWeaponBase:set_gadget_on(gadget_on, ignore_enable, gadgets)
 	if not ignore_enable and not self._enabled then
+		return
+	end
+
+	if not self._assembly_complete then
 		return
 	end
 

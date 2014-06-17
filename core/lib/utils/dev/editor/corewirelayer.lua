@@ -6,13 +6,6 @@ core:import("CoreMath")
 core:import("CoreEws")
 WireLayer = WireLayer or class(CoreLayer.Layer)
 function WireLayer:init(owner, save_name, units_vector, slot_mask)
--- fail 27
--- BE-3: NEWTABLE
--- BE-2: LOADK
--- BE-1: SETLIST
--- null
--- 7
-
 	WireLayer.super.init(self, owner, save_name or "wires")
 	self._current_pos = Vector3(0, 0, 0)
 	self._current_rot = Rotation()

@@ -71,6 +71,20 @@ function MenuKitRenderer:_set_player_slot(nr, params)
 	MenuKitRenderer.super._set_player_slot(self, nr, params)
 end
 
+function MenuKitRenderer:highlight_item(item, ...)
+	MenuKitRenderer.super.highlight_item(self, item, ...)
+	self:post_event("highlight")
+end
+
+function MenuKitRenderer:trigger_item(item)
+	MenuKitRenderer.super.trigger_item(self, item)
+	local node_gui = self:active_node_gui()
+	if node_gui and node_gui.trigger_item then
+		node_gui:trigger_item(item)
+	end
+
+end
+
 function MenuKitRenderer:sync_chat_message(message, id)
 	do
 		local (for generator), (for state), (for control) = ipairs(self._node_gui_stack)
@@ -151,6 +165,17 @@ function MenuKitRenderer:set_bg_area(area)
 
 	end
 
+end
+
+function MenuKitRenderer:set_slot_joining(peer, peer_id)
+	MenuKitRenderer.super.set_slot_joining(self, peer, peer_id)
+	managers.preplanning:on_peer_added(peer_id)
+end
+
+function MenuKitRenderer:remove_player_slot_by_peer_id(peer, reason)
+	MenuKitRenderer.super.remove_player_slot_by_peer_id(self, peer, reason)
+	local peer_id = peer:id()
+	managers.preplanning:on_peer_removed(peer_id)
 end
 
 function MenuKitRenderer:close(...)

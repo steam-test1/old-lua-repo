@@ -8,6 +8,7 @@ function NodeGui:init(node, layer, parameters)
 	self.font_size = 28
 	self.topic_font_size = 48
 	self.spacing = 0
+	self.height_padding = 0
 	local safe_rect_pixels = managers.viewport:get_safe_rect_pixels()
 	self.ws = managers.gui_data:create_saferect_workspace()
 	self._item_panel_parent = self.ws:panel():panel({
@@ -73,7 +74,7 @@ function NodeGui:_setup_item_rows(node)
 				local help_text
 				local params = item:parameters()
 				if params.text_id then
-					if self.localize_strings and params.localize ~= "false" then
+					if self.localize_strings and params.localize ~= false and params.localize ~= "false" then
 						item_text = managers.localization:text(params.text_id)
 					else
 						item_text = params.text_id
@@ -130,7 +131,7 @@ function NodeGui:_insert_row_item(item, node, i)
 		local help_text
 		local params = item:parameters()
 		if params.text_id then
-			if self.localize_strings and params.localize ~= "false" then
+			if self.localize_strings and params.localize ~= false and params.localize ~= "false" then
 				item_text = managers.localization:text(params.text_id)
 			else
 				item_text = params.text_id
@@ -256,7 +257,7 @@ function NodeGui:_reload_item(item)
 	local row_item = self:row_item(item)
 	local params = item:parameters()
 	if params.text_id then
-		if self.localize_strings and params.localize ~= "false" then
+		if self.localize_strings and params.localize ~= false and params.localize ~= "false" then
 			item_text = managers.localization:text(params.text_id)
 		else
 			item_text = params.text_id
@@ -286,11 +287,35 @@ function NodeGui:_reposition_items(highlighted_row_item)
 			return
 		end
 
-		local first = self.row_items[1].gui_panel == highlighted_row_item.gui_panel
-		local last = (self.row_items[#self.row_items].item:parameters().back or self.row_items[#self.row_items].item:parameters().pd2_corner) and self.row_items[#self.row_items - 1] or self.row_items[#self.row_items]
-		last = last.gui_panel == highlighted_row_item.gui_panel
+		local first_item
+		local num_dividers_top = 0
+		for i = 1, #self.row_items do
+			first_item = self.row_items[i]
+			if first_item.type ~= "divider" and not first_item.item:parameters().back and not first_item.item:parameters().pd2_corner then
+				break
+			elseif first_item.type == "divider" then
+				num_dividers_top = num_dividers_top + 1
+			end
+
+		end
+
+		local first = first_item.gui_panel == highlighted_row_item.gui_panel
+		local last_item
+		local num_dividers_bottom = 0
+		for i = #self.row_items, 1, -1 do
+			last_item = self.row_items[i]
+			if last_item.type ~= "divider" and not last_item.item:parameters().back and not last_item.item:parameters().pd2_corner then
+				break
+			elseif first_item.type == "divider" then
+				num_dividers_bottom = num_dividers_bottom + 1
+			end
+
+		end
+
+		local last = last_item.gui_panel == highlighted_row_item.gui_panel
 		local h = highlighted_row_item.item:get_h(highlighted_row_item, self) or highlighted_row_item.gui_panel:h()
-		local offset = (first or last) and 0 or h
+		local offset = first and h * num_dividers_top or last and h * num_dividers_bottom or h
+		offset = offset + self.height_padding
 		if self._item_panel_parent:world_y() > highlighted_row_item.gui_panel:world_y() - offset then
 			dy = -(highlighted_row_item.gui_panel:world_y() - self._item_panel_parent:world_y() - offset)
 		elseif self._item_panel_parent:world_y() + self._item_panel_parent:h() < highlighted_row_item.gui_panel:world_y() + highlighted_row_item.gui_panel:h() + offset then
@@ -361,20 +386,21 @@ function NodeGui:wheel_scroll_start(dy)
 	if dy > 0 then
 		local dist = self.item_panel:world_y() - self._item_panel_parent:world_y()
 		if not (0 > math.round(self.item_panel:world_y()) - self._item_panel_parent:world_y()) then
-			return
+			return self.item_panel:h() > self._item_panel_parent:h()
 		end
 
 		speed = math.min(speed, math.abs(dist))
 	else
 		local dist = self.item_panel:world_bottom() - self._item_panel_parent:world_bottom()
 		if math.round(self.item_panel:world_bottom()) - self._item_panel_parent:world_bottom() < 4 then
-			return
+			return self.item_panel:h() > self._item_panel_parent:h()
 		end
 
 		speed = math.min(speed, math.abs(dist))
 	end
 
 	self:scroll_start(speed * dy)
+	return true
 end
 
 function NodeGui:highlight_item(item, mouse_over)
@@ -455,8 +481,8 @@ function NodeGui:update(t, dt)
 			self:_set_topic_position()
 		end
 
-	elseif scrolled and self._item_panel_y then
-		if self._item_panel_y.target and self.item_panel:center_y() ~= self._item_panel_y.target then
+	elseif scrolled then
+		if self._item_panel_y and self._item_panel_y.target and self.item_panel:center_y() ~= self._item_panel_y.target then
 			self._item_panel_y.current = math.lerp(self.item_panel:center_y(), self._item_panel_y.target, dt * 10)
 		end
 
@@ -465,8 +491,11 @@ function NodeGui:update(t, dt)
 
 end
 
+function NodeGui:_set_topic_position()
+end
+
 function NodeGui:_item_panel_height()
-	local height = 0
+	local height = self.height_padding * 2
 	do
 		local (for generator), (for state), (for control) = pairs(self.row_items)
 		do
@@ -485,7 +514,7 @@ end
 
 function NodeGui:_set_item_positions()
 	local total_height = self:_item_panel_height()
-	local current_y = 0
+	local current_y = self.height_padding
 	local current_item_height = 0
 	local scaled_size = managers.gui_data:scaled_size()
 	do
@@ -606,11 +635,9 @@ end
 function NodeGui:mouse_pressed(button, x, y)
 	if self.item_panel:inside(x, y) and self._item_panel_parent:inside(x, y) and x > self:_mid_align() then
 		if button == Idstring("mouse wheel down") then
-			self:wheel_scroll_start(-1)
-			return true
+			return self:wheel_scroll_start(-1)
 		elseif button == Idstring("mouse wheel up") then
-			self:wheel_scroll_start(1)
-			return true
+			return self:wheel_scroll_start(1)
 		end
 
 	end

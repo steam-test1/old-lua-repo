@@ -94,6 +94,10 @@ function NewNPCRaycastWeaponBase:skip_queue()
 end
 
 function NewNPCRaycastWeaponBase:check_npc()
+	if not self._assembly_complete then
+		return
+	end
+
 	local gadget = managers.weapon_factory:get_part_from_weapon_by_type("gadget", self._parts)
 	if gadget then
 		gadget.unit:base():set_npc()
@@ -307,6 +311,10 @@ function NewNPCRaycastWeaponBase:set_flashlight_enabled(enabled)
 		return
 	end
 
+	if not self._assembly_complete then
+		return
+	end
+
 	self._flashlight_data.enabled = enabled
 	if managers.game_play_central:flashlights_on() and enabled then
 		self._flashlight_data.light:set_enable(self._flashlight_light_lod_enabled)
@@ -322,6 +330,10 @@ end
 
 function NewNPCRaycastWeaponBase:set_flashlight_light_lod_enabled(enabled)
 	if not self._flashlight_data then
+		return
+	end
+
+	if not self._assembly_complete then
 		return
 	end
 

@@ -960,7 +960,12 @@ end
 
 function CopMovement:synch_attention(attention)
 	if self._attention and self._attention.destroy_listener_key then
-		self._attention.unit:base():remove_destroy_listener(self._attention.destroy_listener_key)
+		if alive(self._attention.unit) and self._attention.unit:base() then
+			self._attention.unit:base():remove_destroy_listener(self._attention.destroy_listener_key)
+		else
+			debug_pause_unit(self._unit, "[CopMovement:synch_attention] destroyed unit", self._attention.debug_unit_name)
+		end
+
 		self._attention.destroy_listener_key = nil
 	end
 

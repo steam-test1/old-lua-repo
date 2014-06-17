@@ -34,6 +34,8 @@ function WaypointUnitElement:init(unit)
 		"wp_saw",
 		"wp_bag",
 		"wp_exit",
+		"pd2_ladder",
+		"pd2_fix",
 		"wp_can",
 		"wp_target",
 		"wp_key",
