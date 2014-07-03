@@ -625,6 +625,24 @@ function InfamyTreeGui:_texture_done_clbk(params, texture_ids)
 		})
 	end
 
+	repeat
+		local found
+		do
+			local (for generator), (for state), (for control) = pairs(self._requested_textures)
+			do
+				do break end
+				if Idstring(data.texture) == texture_ids then
+					managers.menu_component:unretrieve_texture(data.texture, data.texture_count)
+					table.remove(self._requested_textures, i)
+					found = true
+			end
+
+			else
+			end
+
+		end
+
+	until not found
 end
 
 function InfamyTreeGui:_unlock_item(index)

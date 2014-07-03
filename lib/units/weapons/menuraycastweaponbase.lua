@@ -21,7 +21,9 @@ end
 
 function NewRaycastWeaponBase:assemble(factory_id, skip_queue)
 	local third_person = self:is_npc()
-	self._parts, self._blueprint = managers.weapon_factory:assemble_default(factory_id, self._unit, third_person, callback(self, self, "_assemble_completed"), skip_queue)
+	self._parts, self._blueprint = managers.weapon_factory:assemble_default(factory_id, self._unit, third_person, callback(self, self, "_assemble_completed", function()
+	end
+), skip_queue)
 	self:_update_stats_values()
 	do return end
 	local third_person = self:is_npc()
@@ -30,9 +32,11 @@ function NewRaycastWeaponBase:assemble(factory_id, skip_queue)
 	self:_update_stats_values()
 end
 
-function NewRaycastWeaponBase:assemble_from_blueprint(factory_id, blueprint, skip_queue)
+function NewRaycastWeaponBase:assemble_from_blueprint(factory_id, blueprint, skip_queue, clbk)
 	local third_person = self:is_npc()
-	self._parts, self._blueprint = managers.weapon_factory:assemble_from_blueprint(factory_id, self._unit, blueprint, third_person, callback(self, self, "_assemble_completed"), skip_queue)
+	self._parts, self._blueprint = managers.weapon_factory:assemble_from_blueprint(factory_id, self._unit, blueprint, third_person, callback(self, self, "_assemble_completed", clbk or function()
+	end
+), skip_queue)
 	self:_update_stats_values()
 	do return end
 	local third_person = self:is_npc()
@@ -41,13 +45,16 @@ function NewRaycastWeaponBase:assemble_from_blueprint(factory_id, blueprint, ski
 	self:_update_stats_values()
 end
 
-function NewRaycastWeaponBase:_assemble_completed(parts, blueprint)
-	print("NewRaycastWeaponBase:_assemble_completed", parts, blueprint)
+function NewRaycastWeaponBase:_assemble_completed(clbk, parts, blueprint)
 	self._parts = parts
 	self._blueprint = blueprint
 	self:apply_texture_switches()
 	self:_update_fire_object()
 	self:_update_stats_values()
+	if clbk then
+		clbk()
+	end
+
 end
 
 function NewRaycastWeaponBase:apply_texture_switches()

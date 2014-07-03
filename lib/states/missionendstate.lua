@@ -130,15 +130,86 @@ function MissionEndState:at_enter(old_state, params)
 	self._sound_listener:activate(true)
 	if self._success then
 		if not managers.statistics:is_dropin() then
-			local mask_pass, diff_pass, no_shots_pass, contract_pass, job_pass, jobs_pass
+			local ach_data = tweak_data.achievement.close_and_personal
+			local total_killed = managers.statistics:session_total_killed()
+			local session_killed = managers.statistics:session_killed()
+			if ach_data.kill_type then
+				-- unhandled boolean indicator
+			else
+				local has_type_stats = true
+			end
+
+			if has_type_stats then
+				local total_kill_count = total_killed.count
+				local total_kill_type_count = total_killed[ach_data.kill_type]
+				if total_kill_count == total_kill_type_count then
+					local civilians = {
+						"civilian",
+						"civilian_female",
+						"bank_manager"
+					}
+					local count
+					do
+						local (for generator), (for state), (for control) = ipairs(civilians)
+						do
+							do break end
+							count = session_killed[name]
+							if count then
+								total_kill_count = total_kill_count - count.count
+								total_kill_type_count = total_kill_type_count - (count[ach_data.kill_type] or 0)
+							end
+
+						end
+
+					end
+
+					if total_kill_count == total_kill_type_count then
+						local count_pass = not ach_data.count or total_kill_count >= ach_data.count
+						if count_pass then
+							managers.achievment:award(ach_data.award)
+						end
+
+					end
+
+				end
+
+			end
+
+			local shotgun_one_o_one = tweak_data.achievement.shotgun_one_o_one
+			if total_killed.count >= shotgun_one_o_one.count then
+				local session_used_weapons = managers.statistics:session_used_weapons()
+				local passed = true
+				do
+					local (for generator), (for state), (for control) = ipairs(session_used_weapons)
+					do
+						do break end
+						if not tweak_data.weapon[weapon_id] or tweak_data.weapon[weapon_id].category ~= "shotgun" then
+							passed = false
+					end
+
+					else
+					end
+
+				end
+
+				if passed and managers.statistics:session_hit_accuracy() >= shotgun_one_o_one.accuracy then
+					managers.achievment:award(shotgun_one_o_one.award)
+				end
+
+			end
+
+			local mask_pass, diff_pass, no_shots_pass, contract_pass, job_pass, jobs_pass, full_job_pass, full_jobs_pass, stealth_pass, equipped_pass, all_pass, weapon_data, memory, level_id, stage
 			local (for generator), (for state), (for control) = pairs(tweak_data.achievement.complete_heist_achievements)
 			do
 				do break end
 				diff_pass = not achievement_data.difficulty or table.contains(achievement_data.difficulty, Global.game_settings.difficulty)
 				mask_pass = not achievement_data.mask or managers.blackmarket:equipped_mask().mask_id == achievement_data.mask
 				job_pass = not achievement_data.job or managers.job:on_last_stage() and managers.job:current_job_id() == achievement_data.job
+				full_job_pass = not achievement_data.full_job_id or managers.job:has_active_job()
+				full_jobs_pass = not achievement_data.full_jobs_id or managers.job:has_active_job()
 				contract_pass = not achievement_data.contract or managers.job:current_contact_id() == achievement_data.contract
 				no_shots_pass = not achievement_data.no_shots or managers.statistics:session_total_shots(achievement_data.no_shots) == 0
+				stealth_pass = not achievement_data.stealth or managers.groupai and managers.groupai:state():whisper_mode()
 				jobs_pass = not achievement_data.jobs or false
 				if achievement_data.jobs and managers.job:on_last_stage() then
 					local (for generator), (for state), (for control) = ipairs(achievement_data.jobs)
@@ -153,7 +224,86 @@ function MissionEndState:at_enter(old_state, params)
 
 				end
 
-				if job_pass and jobs_pass and contract_pass and diff_pass and mask_pass and no_shots_pass then
+				equipped_pass = not achievement_data.equipped or false
+				if achievement_data.equipped then
+					local (for generator), (for state), (for control) = pairs(achievement_data.equipped)
+					do
+						do break end
+						weapon_data = managers.blackmarket:equipped_item(category)
+						if data.weapon_id and weapon_data and weapon_data.weapon_id and data.weapon_id == weapon_data.weapon_id then
+							equipped_pass = true
+							if data.blueprint and weapon_data.blueprint then
+								local (for generator), (for state), (for control) = ipairs(data.blueprint)
+								do
+									do break end
+									if type(part_or_parts) == "string" then
+										if not table.contains(weapon_data.blueprint, part_or_parts) then
+											equipped_pass = false
+										else
+											else
+												local (for generator), (for state), (for control) = ipairs(part_or_parts)
+												do
+													do break end
+													if not table.contains(weapon_data.blueprint, part_id) then
+														equipped_pass = false
+												end
+
+												else
+												end
+
+											end
+
+										end
+
+								end
+
+							end
+
+						end
+
+					end
+
+				end
+
+				all_pass = full_job_pass and full_jobs_pass and job_pass and jobs_pass and contract_pass and diff_pass and mask_pass and no_shots_pass and stealth_pass and equipped_pass
+				full_job_pass = managers.job:has_active_job() and achievement_data.full_job_id and achievement_data.full_job_id == managers.job:current_job_id()
+				full_jobs_pass = managers.job:has_active_job() and achievement_data.full_jobs_id and table.contains(achievement_data.full_jobs_id, managers.job:current_job_id())
+				if all_pass and (full_job_pass or full_jobs_pass) then
+					if not managers.job:interupt_stage() then
+						memory = managers.job:get_memory(achievement)
+						if not memory then
+							memory = {}
+							for i = 1, #managers.job:current_job_chain_data() do
+								memory[i] = false
+							end
+
+						end
+
+						stage = managers.job:current_stage()
+						memory[stage] = not not all_pass
+						managers.job:set_memory(achievement, memory)
+						if managers.job:on_last_stage() then
+							local (for generator), (for state), (for control) = pairs(memory)
+							do
+								do break end
+								if not passed then
+									all_pass = false
+							end
+
+							else
+							end
+
+						else
+							all_pass = false
+						end
+
+					else
+						all_pass = false
+					end
+
+				end
+
+				if all_pass then
 					if achievement_data.stat then
 						managers.achievment:award_progress(achievement_data.stat)
 					elseif achievement_data.award then
@@ -166,10 +316,19 @@ function MissionEndState:at_enter(old_state, params)
 
 		end
 
+		local masks_pass, level_pass, job_pass, jobs_pass, difficulty_pass, difficulties_pass, all_pass, memory, level_id, stage
 		local (for generator), (for state), (for control) = pairs(tweak_data.achievement.four_mask_achievements)
 		do
 			do break end
-			if achievement_data.masks then
+			level_id = managers.job:has_active_job() and managers.job:current_level_id() or ""
+			masks_pass = not not achievement_data.masks
+			level_pass = not achievement_data.level_id or achievement_data.level_id == level_id
+			job_pass = not achievement_data.job or not managers.statistics:is_dropin() and managers.job:on_last_stage() and managers.job:current_job_id() == achievement_data.job
+			jobs_pass = not achievement_data.jobs or not managers.statistics:is_dropin() and managers.job:on_last_stage() and table.contains(achievement_data.jobs, managers.job:current_job_id())
+			difficulty_pass = not achievement_data.difficulty or Global.game_settings.difficulty == achievement_data.difficulty
+			difficulties_pass = not achievement_data.difficulties or table.contains(achievement_data.difficulties, Global.game_settings.difficulty)
+			all_pass = masks_pass and level_pass and job_pass and jobs_pass and difficulty_pass and difficulties_pass
+			if all_pass then
 				local available_masks = deep_clone(achievement_data.masks)
 				do
 					local (for generator), (for state), (for control) = pairs(managers.network:game():all_members())

@@ -117,6 +117,7 @@ end
 function Setup:load_packages()
 	if not Application:editor() then
 		TextureCache:set_streaming_enabled(true)
+		PackageManager:set_streaming_enabled(true)
 	end
 
 	if not PackageManager:loaded("packages/base") then
@@ -530,6 +531,8 @@ function Setup:load_start_menu()
 end
 
 function Setup:exec(context)
+	managers.music:stop()
+	SoundDevice:stop()
 	if not managers.system_menu:is_active() then
 		self:set_main_thread_loading_screen_visible(true)
 	end
@@ -569,6 +572,7 @@ function Setup:block_exec()
 
 	if not managers.dyn_resource:is_ready_to_close() then
 		print("BLOCKED BY DYNAMIC RESOURCE MANAGER")
+		managers.dyn_resource:set_file_streaming_settings(managers.dyn_resource:max_streaming_chunk(), 0)
 		return true
 	end
 
