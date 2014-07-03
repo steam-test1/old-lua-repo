@@ -210,39 +210,83 @@ function WorldDefinition:parse_continents(node, t)
 
 	self._continents = self:_serialize_to_script("continents", path)
 	self._continents._meta = nil
-	local (for generator), (for state), (for control) = pairs(self._continents)
 	do
-		do break end
-		if not self:_continent_editor_only(data) then
-			if not self._excluded_continents[name] then
-				local init_path = self:world_dir() .. name .. "/" .. name .. "_init"
-				self:_load_continent_init_package(init_path)
-				local path = self:world_dir() .. name .. "/" .. name
-				self:_load_continent_package(path)
-				if DB:has("continent", path) then
-					self._continent_definitions[name] = self:_serialize_to_script("continent", path)
-					if Application:editor() then
-						local path = self:world_dir() .. name .. "/mission"
-						if DB:has("continent", path) then
-							local mission_data = self:_serialize_to_script("continent", path)
-							local (for generator), (for state), (for control) = pairs(mission_data)
-							do
-								do break end
-								self._continent_definitions[name][mission_data_name] = mission_data_block
+		local (for generator), (for state), (for control) = pairs(self._continents)
+		do
+			do break end
+			if not self:_continent_editor_only(data) then
+				if not self._excluded_continents[name] then
+					local init_path = self:world_dir() .. name .. "/" .. name .. "_init"
+					self:_load_continent_init_package(init_path)
+					local path = self:world_dir() .. name .. "/" .. name
+					self:_load_continent_package(path)
+					if DB:has("continent", path) then
+						self._continent_definitions[name] = self:_serialize_to_script("continent", path)
+						if Application:editor() then
+							local path = self:world_dir() .. name .. "/mission"
+							if DB:has("continent", path) then
+								local mission_data = self:_serialize_to_script("continent", path)
+								local (for generator), (for state), (for control) = pairs(mission_data)
+								do
+									do break end
+									self._continent_definitions[name][mission_data_name] = mission_data_block
+								end
+
 							end
 
 						end
 
+					else
+						Application:error("Continent file " .. path .. ".continent doesnt exist.")
 					end
 
-				else
-					Application:error("Continent file " .. path .. ".continent doesnt exist.")
+				end
+
+			else
+				self._excluded_continents[name] = true
+			end
+
+		end
+
+	end
+
+	self:_insert_instances()
+end
+
+function WorldDefinition:_insert_instances()
+	local (for generator), (for state), (for control) = pairs(self._continent_definitions)
+	do
+		do break end
+		if data.instances then
+			local (for generator), (for state), (for control) = ipairs(data.instances)
+			do
+				do break end
+				local package_data = managers.world_instance:packages_by_instance(instance)
+				self:_load_continent_init_package(package_data.init_package)
+				self:_load_continent_package(package_data.package)
+				local prepared_unit_data = managers.world_instance:prepare_unit_data(instance, self._continents[instance.continent])
+				if prepared_unit_data.statics then
+					local (for generator), (for state), (for control) = ipairs(prepared_unit_data.statics)
+					do
+						do break end
+						data.statics = data.statics or {}
+						table.insert(data.statics, static)
+					end
+
+				end
+
+				if prepared_unit_data.dynamics then
+					local (for generator), (for state), (for control) = ipairs(prepared_unit_data.dynamics)
+					do
+						do break end
+						data.dynamics = data.dynamics or {}
+						table.insert(data.dynamics, dynamic)
+					end
+
 				end
 
 			end
 
-		else
-			self._excluded_continents[name] = true
 		end
 
 	end
@@ -306,6 +350,24 @@ function WorldDefinition:create(layer, offset)
 
 	if layer == "continents" then
 		return_data = self._continents
+	end
+
+	if layer == "instances" or layer == "all" then
+		local (for generator), (for state), (for control) = pairs(self._continent_definitions)
+		do
+			do break end
+			if continent.instances then
+				local (for generator), (for state), (for control) = ipairs(continent.instances)
+				do
+					do break end
+					managers.world_instance:add_instance_data(data)
+					table.insert(return_data, data)
+				end
+
+			end
+
+		end
+
 	end
 
 	if layer == "ai" and self._definition.ai then
@@ -928,6 +990,7 @@ function WorldDefinition:assign_unit_data(unit, data)
 		return
 	end
 
+	unit:unit_data().instance = data.instance
 	self:_setup_unit_id(unit, data)
 	self:_setup_editor_unit_data(unit, data)
 	if unit:unit_data().helper_type and unit:unit_data().helper_type ~= "none" then

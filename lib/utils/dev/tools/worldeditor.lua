@@ -187,7 +187,13 @@ function WorldEditor:project_clear_units()
 	local (for generator), (for state), (for control) = ipairs(units)
 	do
 		do break end
-		World:delete_unit(unit)
+		local layer = self:unit_in_layer(unit)
+		if layer then
+			layer:delete_unit(unit)
+		else
+			World:delete_unit(unit)
+		end
+
 	end
 
 end

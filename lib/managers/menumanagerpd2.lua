@@ -69,7 +69,7 @@ function MenuManager:setup_local_lobby_character()
 
 	local_peer:set_outfit_string(managers.blackmarket:outfit_string())
 	managers.network:session():send_to_peers_loaded("sync_profile", level, rank)
-	managers.network:session():send_to_peers_loaded("sync_outfit", managers.blackmarket:outfit_string())
+	managers.network:session():send_to_peers_loaded("sync_outfit", managers.blackmarket:outfit_string(), managers.network:session():local_peer():outfit_version())
 end
 
 function MenuManager:http_test()
@@ -106,6 +106,7 @@ function MenuCallbackHandler:start_job(job_data)
 
 	Global.game_settings.level_id = managers.job:current_level_id()
 	Global.game_settings.mission = managers.job:current_mission()
+	Global.game_settings.world_setting = managers.job:current_world_setting()
 	Global.game_settings.difficulty = job_data.difficulty
 	local matchmake_attributes = self:get_matchmake_attributes()
 	if Network:is_server() then
@@ -146,6 +147,7 @@ function MenuCallbackHandler:start_single_player_job(job_data)
 	Global.game_settings.level_id = managers.job:current_level_id()
 	Global.game_settings.mission = managers.job:current_mission()
 	Global.game_settings.difficulty = job_data.difficulty
+	Global.game_settings.world_setting = managers.job:current_world_setting()
 	self:lobby_start_the_game()
 end
 
@@ -386,7 +388,7 @@ function MenuCallbackHandler:_update_outfit_information()
 		end
 
 		local_peer:set_outfit_string(outfit_string)
-		managers.network:session():send_to_peers_loaded("sync_outfit", outfit_string)
+		managers.network:session():send_to_peers_loaded("sync_outfit", outfit_string, local_peer:outfit_version())
 	end
 
 end
