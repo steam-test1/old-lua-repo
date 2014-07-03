@@ -7,7 +7,7 @@ function CoreEditor:create_projection_light(type)
 		local (for generator), (for state), (for control) = ipairs(s_units)
 		do
 			do break end
-			local light_name = CoreEditorUtils.has_projection_light(unit, "shadow_projection")
+			local light_name = CoreEditorUtils.has_projection_light(unit)
 			if light_name then
 				table.insert(units, {unit = unit, light_name = light_name})
 			end
@@ -19,7 +19,7 @@ function CoreEditor:create_projection_light(type)
 		local (for generator), (for state), (for control) = ipairs(s_units)
 		do
 			do break end
-			local light_name = CoreEditorUtils.has_projection_light(unit, "shadow_projection")
+			local light_name = CoreEditorUtils.has_projection_light(unit)
 			if light_name then
 				table.insert(units, {unit = unit, light_name = light_name})
 			end

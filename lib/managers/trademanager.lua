@@ -21,10 +21,7 @@ function TradeManager:save(save_data)
 	do
 		do break end
 		if crim.peer_id then
-			my_save_data.outfits[crim.peer_id] = {
-				outfit = managers.network:session():peer(crim.peer_id):profile("outfit_string"),
-				version = managers.network:session():peer(crim.peer_id):outfit_version()
-			}
+			my_save_data.outfits[crim.peer_id] = managers.network:session():peer(crim.peer_id):profile("outfit_string")
 		end
 
 	end
@@ -54,7 +51,7 @@ function TradeManager:load(load_data)
 			if crim.peer_id then
 				local peer = managers.network:session():peer(crim.peer_id)
 				local outfit = my_load_data.outfits[crim.peer_id]
-				peer:set_outfit_string(outfit.outfit, outfit.version)
+				peer:set_outfit_string(outfit)
 			end
 
 			managers.criminals:add_character(crim.id, nil, crim.peer_id, crim.ai)

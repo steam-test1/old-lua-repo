@@ -9,7 +9,6 @@ core:import("CoreDynamicsLayer")
 core:import("CoreMissionLayer")
 core:import("CoreAiLayer")
 core:import("CoreLevelSettingsLayer")
-core:import("CoreInstancesLayer")
 core:import("CoreEngineAccess")
 core:import("CoreInput")
 core:import("CoreEditorUtils")
@@ -61,7 +60,6 @@ require("core/lib/units/editor/mission/CoreTimer")
 require("core/lib/units/editor/mission/CoreLogicLink")
 require("core/lib/units/editor/mission/CoreShape")
 require("core/lib/units/editor/mission/CorePointOrientation")
-require("core/lib/units/editor/mission/CoreInstance")
 require("core/lib/units/editor/CoreDebug")
 CoreEditor = CoreEditor or class()
 require("core/lib/utils/dev/editor/CoreEditorMenubar")
@@ -209,7 +207,6 @@ function CoreEditor:_init_layer_classes()
 	self:add_layer("Statics", CoreStaticsLayer.StaticsLayer)
 	self:add_layer("Dynamics", CoreDynamicsLayer.DynamicsLayer)
 	self:add_layer("Level Settings", CoreLevelSettingsLayer.LevelSettingsLayer)
-	self:add_layer("Instances", CoreInstancesLayer.InstancesLayer)
 	self:_project_init_layer_classes()
 end
 
@@ -906,7 +903,6 @@ function CoreEditor:stop_simulation()
 	managers.worldcamera:stop_simulation()
 	managers.environment_effects:kill_all_mission_effects()
 	managers.music:stop()
-	managers.world_instance:on_simulation_ended()
 	if self._session_state then
 		self._session_state:quit_session()
 	end
@@ -1741,12 +1737,6 @@ function CoreEditor:select_unit_name(name)
 end
 
 function CoreEditor:select_unit(unit)
-	if unit:unit_data().instance then
-		self:change_layer_notebook("Instances")
-		self._current_layer:set_select_unit(unit)
-		return
-	end
-
 	local ud = CoreEngineAccess._editor_unit_data(unit:name():id())
 	local (for generator), (for state), (for control) = pairs(self._layers)
 	do
@@ -2817,7 +2807,7 @@ function CoreEditor:unit_by_raycast(data)
 					return ray
 				end
 
-			elseif self:select_unit_ok_conditions(ray.unit, nil, data.skip_instance_check) then
+			elseif self:select_unit_ok_conditions(ray.unit) then
 				return ray
 			end
 
@@ -2858,11 +2848,7 @@ function CoreEditor:select_unit_by_raycast(mask, ray_type, from, to)
 	return nil
 end
 
-function CoreEditor:select_unit_ok_conditions(unit, layer, skip_instance_check)
-	if not skip_instance_check and unit:unit_data().instance then
-		return false
-	end
-
+function CoreEditor:select_unit_ok_conditions(unit, layer)
 	if unit:visible() then
 		if self:current_continent() then
 			if unit:unit_data().continent then
@@ -2897,19 +2883,17 @@ function CoreEditor:click_select_unit(layer)
 		return
 	end
 
-	local is_instance_layer = layer == self._layers.Instances
 	local rays = self:_unit_raycasts(managers.slot:get_mask("editor_all"), "body editor")
 	do
 		local (for generator), (for state), (for control) = ipairs(rays)
 		do
 			do break end
 			local unit = ray.unit
-			local is_instance_unit = unit:unit_data().instance
-			if self:select_unit_ok_conditions(unit, nil, true) then
+			if self:select_unit_ok_conditions(unit) then
 				if self:_global_select() then
 					self:select_unit(unit)
 					return
-				elseif is_instance_layer or layer == self:unit_in_layer(unit) and not is_instance_unit then
+				elseif layer == self:unit_in_layer(unit) then
 					layer:set_select_unit(unit)
 					return
 				elseif self._special_units[unit:key()] == self:layer_name(layer) then
@@ -4154,7 +4138,6 @@ function CoreEditor:set_continent(name)
 			layer:clear_selected_units()
 		end
 
-		layer:on_continent_changed()
 	end
 
 end

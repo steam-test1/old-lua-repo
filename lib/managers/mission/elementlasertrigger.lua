@@ -43,7 +43,7 @@ function ElementLaserTrigger:init(...)
 		local (for generator), (for state), (for control) = pairs(self._values.points)
 		do
 			do break end
-			local unit = safe_spawn_unit(Idstring("units/payday2/props/gen_prop_lazer_blaster_dome/gen_prop_lazer_blaster_dome"), point.pos, point.rot)
+			local unit = World:spawn_unit(Idstring("units/payday2/props/gen_prop_lazer_blaster_dome/gen_prop_lazer_blaster_dome"), point.pos, point.rot)
 			local materials = unit:get_objects_by_type(Idstring("material"))
 			do
 				local (for generator), (for state), (for control) = ipairs(materials)

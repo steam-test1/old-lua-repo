@@ -521,154 +521,7 @@ function StatisticsManager:_get_stat_tables()
 		"kosugi",
 		"big"
 	}
-	local mask_list = {
-		"character_locked",
-		"alienware",
-		"babyrhino",
-		"biglips",
-		"brainiack",
-		"buha",
-		"bullet",
-		"clown_56",
-		"clowncry",
-		"dawn_of_the_dead",
-		"day_of_the_dead",
-		"demon",
-		"demonictender",
-		"dripper",
-		"gagball",
-		"greek_tragedy",
-		"hockey",
-		"hog",
-		"jaw",
-		"monkeybiss",
-		"mr_sinister",
-		"mummy",
-		"oni",
-		"outlandish_a",
-		"outlandish_b",
-		"outlandish_c",
-		"scarecrow",
-		"shogun",
-		"shrunken",
-		"skull",
-		"stonekisses",
-		"tounge",
-		"troll",
-		"vampire",
-		"zipper",
-		"zombie",
-		"dallas",
-		"wolf",
-		"chains",
-		"hoxton",
-		"dallas_clean",
-		"wolf_clean",
-		"chains_clean",
-		"hoxton_clean",
-		"anonymous",
-		"cthulhu",
-		"dillinger_death_mask",
-		"grin",
-		"kawaii",
-		"irondoom",
-		"rubber_male",
-		"rubber_female",
-		"pumpkin_king",
-		"witch",
-		"venomorph",
-		"frank",
-		"baby_happy",
-		"baby_angry",
-		"baby_cry",
-		"brazil_baby",
-		"heat",
-		"bear",
-		"clinton",
-		"bush",
-		"obama",
-		"nixon",
-		"goat",
-		"panda",
-		"pitbull",
-		"eagle",
-		"santa_happy",
-		"santa_mad",
-		"santa_drunk",
-		"santa_surprise",
-		"aviator",
-		"ghost",
-		"welder",
-		"plague",
-		"smoker",
-		"cloth_commander",
-		"gage_blade",
-		"gage_rambo",
-		"gage_deltaforce",
-		"robberfly",
-		"spider",
-		"mantis",
-		"wasp",
-		"skullhard",
-		"skullveryhard",
-		"skulloverkill",
-		"skulloverkillplus",
-		"samurai",
-		"twitch_orc",
-		"ancient",
-		"franklin",
-		"lincoln",
-		"grant",
-		"washington",
-		"metalhead",
-		"tcn",
-		"surprise",
-		"optimist_prime"
-	}
-	local weapon_list = {
-		"ak5",
-		"ak74",
-		"akm",
-		"akmsu",
-		"amcar",
-		"aug",
-		"b92fs",
-		"colt_1911",
-		"deagle",
-		"g22c",
-		"g36",
-		"glock_17",
-		"glock_18c",
-		"huntsman",
-		"m16",
-		"mac10",
-		"mp9",
-		"new_m14",
-		"new_m4",
-		"new_mp5",
-		"new_raging_bull",
-		"olympic",
-		"p90",
-		"r870",
-		"saiga",
-		"saw",
-		"serbu",
-		"usp",
-		"m45",
-		"s552",
-		"ppk",
-		"mp7",
-		"scar",
-		"p226",
-		"hk21",
-		"m249",
-		"rpk",
-		"m95",
-		"msr",
-		"r93",
-		"fal"
-	}
-	return level_list, job_list, mask_list, weapon_list
+	return level_list, job_list
 end
 
 function StatisticsManager:publish_to_steam(session, success)
@@ -683,7 +536,10 @@ function StatisticsManager:publish_to_steam(session, success)
 		return
 	end
 
-	local level_list, job_list, mask_list, weapon_list = self:_get_stat_tables()
+	if managers.network.account:get_stat("payday2") ~= 0 then
+		self:clear_statistics()
+	end
+
 	local stats = {}
 	self._global.play_time.minutes = math.ceil(self._global.play_time.minutes + session_time_minutes)
 	local current_time = math.floor(self._global.play_time.minutes / 60)
@@ -791,17 +647,8 @@ function StatisticsManager:publish_to_steam(session, success)
 		local (for generator), (for state), (for control) = pairs(session.shots_by_weapon)
 		do
 			do break end
-			if 0 < weapon_data.total then
-				local (for generator), (for state), (for control) = ipairs(weapon_list)
-				do
-					do break end
-					if weapon_name == weapon then
-						stats["weapon_used_" .. weapon_name] = {type = "int", value = 1}
-				end
-
-				else
-				end
-
+			if 0 < weapon_data.total and tweak_data.weapon[weapon_name].statistics then
+				stats["weapon_used_" .. weapon_name] = {type = "int", value = 1}
 			end
 
 		end
@@ -829,17 +676,8 @@ function StatisticsManager:publish_to_steam(session, success)
 		value = session.misc.deploy_jammer or 0
 	}
 	local mask_id = managers.blackmarket:equipped_mask().mask_id
-	do
-		local (for generator), (for state), (for control) = ipairs(mask_list)
-		do
-			do break end
-			if mask_id == mask then
-				stats["mask_used_" .. mask_id] = {type = "int", value = 1}
-		end
-
-		else
-		end
-
+	if tweak_data.blackmarket.masks[mask_id].statistics then
+		stats["mask_used_" .. mask_id] = {type = "int", value = 1}
 	end
 
 	stats["difficulty_" .. Global.game_settings.difficulty] = {type = "int", value = 1}
@@ -851,6 +689,7 @@ function StatisticsManager:publish_to_steam(session, success)
 		type = "int",
 		value = success and 0 or 1
 	}
+	local level_list, job_list = self:_get_stat_tables()
 	local level_id = managers.job:current_level_id()
 	do
 		local (for generator), (for state), (for control) = ipairs(level_list)
@@ -964,16 +803,293 @@ function StatisticsManager:publish_skills_to_steam()
 end
 
 function StatisticsManager:clear_statistics()
+	local stats = {}
+	stats.player_time = {
+		type = "int",
+		method = "set",
+		value = 0
+	}
+	local play_times = {
+		1000,
+		500,
+		250,
+		200,
+		150,
+		100,
+		80,
+		40,
+		20,
+		10,
+		0
+	}
+	do
+		local (for generator), (for state), (for control) = ipairs(play_times)
+		do
+			do break end
+			stats["player_time_" .. play_time .. "h"] = {
+				type = "int",
+				method = "set",
+				value = 0
+			}
+		end
+
+	end
+
+	stats.player_level = {
+		type = "int",
+		method = "set",
+		value = 0
+	}
+	for i = 0, 100, 10 do
+		stats["player_level_" .. i] = {
+			type = "int",
+			method = "set",
+			value = 0
+		}
+	end
+
+	for i = 0, 5 do
+		stats["player_rank_" .. i] = {
+			type = "int",
+			method = "set",
+			value = 0
+		}
+	end
+
+	stats.player_cash = {
+		type = "int",
+		method = "set",
+		value = 0
+	}
+	local cash_amount = 1000000000
+	for i = 0, 9 do
+		stats["player_cash_" .. cash_amount .. "k"] = {
+			type = "int",
+			method = "set",
+			value = 0
+		}
+		cash_amount = cash_amount / 10
+	end
+
+	stats.player_cash_0k = {
+		type = "int",
+		method = "set",
+		value = 0
+	}
+	do
+		local (for generator), (for state), (for control) = pairs(tweak_data.weapon)
+		do
+			do break end
+			if weapon.autohit and weapon.statistics then
+				stats["weapon_used_" .. weapon_name] = {
+					type = "int",
+					method = "set",
+					value = 0
+				}
+			end
+
+		end
+
+	end
+
+	stats.gadget_used_ammo_bag = {
+		type = "int",
+		method = "set",
+		value = 0
+	}
+	stats.gadget_used_doctor_bag = {
+		type = "int",
+		method = "set",
+		value = 0
+	}
+	stats.gadget_used_trip_mine = {
+		type = "int",
+		method = "set",
+		value = 0
+	}
+	stats.gadget_used_sentry_gun = {
+		type = "int",
+		method = "set",
+		value = 0
+	}
+	stats.gadget_used_ecm_jammer = {
+		type = "int",
+		method = "set",
+		value = 0
+	}
+	do
+		local (for generator), (for state), (for control) = pairs(tweak_data.blackmarket.masks)
+		do
+			do break end
+			if tweak_data.blackmarket.masks[mask_name].statistics then
+				stats["mask_used_" .. mask_name] = {
+					type = "int",
+					method = "set",
+					value = 0
+				}
+			end
+
+		end
+
+	end
+
+	do
+		local (for generator), (for state), (for control) = pairs(tweak_data.difficulties)
+		do
+			do break end
+			stats["difficulty_" .. difficulty] = {
+				type = "int",
+				method = "set",
+				value = 0
+			}
+		end
+
+	end
+
+	stats.heist_success = {
+		type = "int",
+		method = "set",
+		value = 0
+	}
+	stats.heist_failed = {
+		type = "int",
+		method = "set",
+		value = 0
+	}
+	local level_list, job_list = self:_get_stat_tables()
+	local level_id = managers.job:current_level_id()
+	do
+		local (for generator), (for state), (for control) = ipairs(level_list)
+		do
+			do break end
+			stats["level_" .. level] = {
+				type = "int",
+				method = "set",
+				value = 0
+			}
+		end
+
+	end
+
+	local job_id = managers.job:current_job_id()
+	do
+		local (for generator), (for state), (for control) = ipairs(job_list)
+		do
+			do break end
+			stats["job_" .. job] = {
+				type = "int",
+				method = "set",
+				value = 0
+			}
+		end
+
+	end
+
+	stats.stats_election_day_s = {
+		type = "int",
+		method = "set",
+		value = 0
+	}
+	stats.stats_election_day_n = {
+		type = "int",
+		method = "set",
+		value = 0
+	}
+	stats.payday2 = {
+		type = "int",
+		method = "set",
+		value = 0
+	}
+	managers.network.account:publish_statistics(stats)
 end
 
 function StatisticsManager:clear_skills_statistics()
+	local stats = {}
+	local skill_data = tweak_data.skilltree.trees
+	do
+		local (for generator), (for state), (for control) = ipairs(skill_data)
+		do
+			do break end
+			local (for generator), (for state), (for control) = ipairs(tree.tiers)
+			do
+				do break end
+				local (for generator), (for state), (for control) = ipairs(tier)
+				do
+					do break end
+					stats["skill_" .. tree.skill .. "_" .. skill] = {
+						type = "int",
+						method = "set",
+						value = 0
+					}
+					stats["skill_" .. tree.skill .. "_" .. skill .. "_ace"] = {
+						type = "int",
+						method = "set",
+						value = 0
+					}
+				end
+
+			end
+
+		end
+
+	end
+
+	do
+		local (for generator), (for state), (for control) = ipairs(skill_data)
+		do
+			do break end
+			stats["skill_" .. tree.skill] = {
+				type = "int",
+				method = "set",
+				value = 0
+			}
+			for i = 0, 35, 5 do
+				stats["skill_" .. tree.skill .. "_" .. i] = {
+					type = "int",
+					method = "set",
+					value = 0
+				}
+			end
+
+		end
+
+	end
+
+	local level_list, job_list = self:_get_stat_tables()
+	do
+		local (for generator), (for state), (for control) = ipairs(level_list)
+		do
+			do break end
+			stats["level_" .. level_id] = {
+				type = "int",
+				method = "set",
+				value = 0
+			}
+		end
+
+	end
+
+	do
+		local (for generator), (for state), (for control) = ipairs(job_list)
+		do
+			do break end
+			stats["job_" .. job_id] = {
+				type = "int",
+				method = "set",
+				value = 0
+			}
+		end
+
+	end
+
+	managers.network.account:publish_statistics(stats)
 end
 
 function StatisticsManager:debug_estimate_steam_players()
 	local key
 	local stats = {}
 	local account = managers.network.account
-	local days = 60
+	local days = 10000
 	local num_players = 0
 	local play_times = {
 		0,
@@ -993,7 +1109,7 @@ function StatisticsManager:debug_estimate_steam_players()
 		do
 			do break end
 			key = "player_time_" .. play_time .. "h"
-			num_players = num_players + account:get_global_stat(key, days)
+			num_players = num_players + account:get_global_stat(key)
 		end
 
 	end
@@ -1006,7 +1122,6 @@ function StatisticsManager:debug_print_stats(global_flag, days)
 	local stats = {}
 	local account = managers.network.account
 	days = days or nil
-	local level_list, job_list, mask_list, weapon_list = self:_get_stat_tables()
 	local num_players = 0
 	local play_times = {
 		0,
@@ -1132,15 +1247,18 @@ function StatisticsManager:debug_print_stats(global_flag, days)
 	end
 
 	do
-		local (for generator), (for state), (for control) = ipairs(weapon_list)
+		local (for generator), (for state), (for control) = pairs(tweak_data.weapon)
 		do
 			do break end
-			key = "weapon_used_" .. weapon_name
-			table.insert(stats, {
-				name = key,
-				loc = account:get_stat(key),
-				glo = account:get_global_stat(key, days)
-			})
+			if weapon.autohit and weapon.statistics then
+				key = "weapon_used_" .. weapon_name
+				table.insert(stats, {
+					name = key,
+					loc = account:get_stat(key),
+					glo = account:get_global_stat(key, days)
+				})
+			end
+
 		end
 
 	end
@@ -1171,15 +1289,18 @@ function StatisticsManager:debug_print_stats(global_flag, days)
 		glo = account:get_global_stat("gadget_used_ecm_jammer", days)
 	})
 	do
-		local (for generator), (for state), (for control) = ipairs(mask_list)
+		local (for generator), (for state), (for control) = pairs(tweak_data.blackmarket.masks)
 		do
 			do break end
-			key = "mask_used_" .. mask_name
-			table.insert(stats, {
-				name = key,
-				loc = account:get_stat(key),
-				glo = account:get_global_stat(key, days)
-			})
+			if tweak_data.blackmarket.masks[mask_name].statistics then
+				key = "mask_used_" .. mask_name
+				table.insert(stats, {
+					name = key,
+					loc = account:get_stat(key),
+					glo = account:get_global_stat(key, days)
+				})
+			end
+
 		end
 
 	end
@@ -1208,6 +1329,7 @@ function StatisticsManager:debug_print_stats(global_flag, days)
 		loc = account:get_stat("heist_failed"),
 		glo = account:get_global_stat("heist_failed", days)
 	})
+	local level_list, job_list = self:_get_stat_tables()
 	do
 		local (for generator), (for state), (for control) = ipairs(level_list)
 		do
@@ -1251,24 +1373,6 @@ function StatisticsManager:debug_print_stats(global_flag, days)
 		loc = account:get_stat("payday2"),
 		glo = account:get_global_stat("payday2", days)
 	})
-	local err = false
-	do
-		local (for generator), (for state), (for control) = pairs(stats)
-		do
-			do break end
-			if not Steam:sa_handler():set_stat(data.name, data.loc) then
-				Application:error("[StatisticsManager:debug_print_stats] WARNING - Stat is missing on Steam: '" .. data.name .. "'")
-				err = true
-			end
-
-		end
-
-	end
-
-	if err then
-		Application:throw_exception("[StatisticsManager:debug_print_stats] Missing statistics, needs to be added!!")
-	end
-
 	print("----------------------------------")
 	if (days ~= 1 or not "TODAY") and (days ~= -1 or not "YESTERDAY") and (days or not "ALLTIME") then
 	end
@@ -1460,17 +1564,7 @@ function StatisticsManager:killed(data)
 		managers.challenges:reset_counter("sentry_gun_law_row_kills")
 	elseif by_explosion then
 		local name_id = data.weapon_unit and data.weapon_unit:base():get_name_id()
-		local boom_guns = {
-			"m79",
-			"huntsman",
-			"r870",
-			"saiga",
-			"ksg",
-			"striker",
-			"serbu",
-			"benelli"
-		}
-		if table.contains(boom_guns, name_id) then
+		if name_id == "m79" then
 			self._global.session.killed_by_weapon[name_id] = self._global.session.killed_by_weapon[name_id] or {count = 0, headshots = 0}
 			self._global.session.killed_by_weapon[name_id].count = self._global.session.killed_by_weapon[name_id].count + 1
 			self._global.session.killed_by_weapon[name_id].headshots = self._global.session.killed_by_weapon[name_id].headshots + (data.head_shot and 1 or 0)
@@ -2041,30 +2135,8 @@ function StatisticsManager:session_favourite_weapon()
 	return (managers.localization:text("debug_undecided"))
 end
 
-function StatisticsManager:session_used_weapons()
-	local weapons_used = {}
-	if self._global.session.shots_by_weapon then
-		local (for generator), (for state), (for control) = pairs(self._global.session.shots_by_weapon)
-		do
-			do break end
-			table.insert(weapons_used, weapon)
-		end
-
-	end
-
-	return weapons_used
-end
-
-function StatisticsManager:session_killed()
-	return self._global.session.killed
-end
-
 function StatisticsManager:session_total_kills()
 	return self._global.session.killed.total.count
-end
-
-function StatisticsManager:session_total_killed()
-	return self._global.session.killed.total
 end
 
 function StatisticsManager:session_total_shots(weapon_type)

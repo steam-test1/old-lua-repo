@@ -356,7 +356,7 @@ function UnitByName:_unit_condition(unit)
 		return self._unit_filter_function(unit)
 	end
 
-	return not unit:unit_data().instance
+	return true
 end
 
 function UnitByName:reset()

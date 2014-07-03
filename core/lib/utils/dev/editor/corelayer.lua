@@ -1333,7 +1333,6 @@ function Layer:create_unit(name, pos, rot)
 	unit:unit_data().unit_id = self._owner:get_unit_id(unit)
 	unit:unit_data().name_id = self:get_name_id(unit)
 	managers.editor:spawned_unit(unit)
-	self:_on_unit_created(unit)
 	return unit
 end
 
@@ -1378,9 +1377,6 @@ function Layer:delete_unit(unit)
 	self:update_unit_settings()
 end
 
-function Layer:_on_unit_created(unit)
-end
-
 function Layer:show_replace_units()
 	if self:ctrl() or self:shift() or self:alt() then
 		return
@@ -1390,28 +1386,6 @@ function Layer:show_replace_units()
 		managers.editor:show_layer_replace_dialog(self)
 	end
 
-end
-
-function Layer:get_created_unit_by_pattern(patterns)
-	local units = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(patterns)
-			do
-				do break end
-				if string.find(unit:name():s(), pattern, 1, true) then
-					table.insert(units, unit)
-				end
-
-			end
-
-		end
-
-	end
-
-	return units
 end
 
 function Layer:add_triggers()
@@ -1632,9 +1606,6 @@ function Layer:create_marker()
 end
 
 function Layer:use_marker()
-end
-
-function Layer:on_continent_changed()
 end
 
 function Layer:set_unit_rotations()

@@ -34,7 +34,6 @@ function ElementAreaTrigger:init(...)
 end
 
 function ElementAreaTrigger:on_script_activated()
-	self._on_script_activated_done = true
 	if self._values.use_shape_element_ids then
 		local (for generator), (for state), (for control) = ipairs(self._values.use_shape_element_ids)
 		do
@@ -183,29 +182,6 @@ end
 
 function ElementAreaTrigger:project_amount_all()
 	return nil
-end
-
-function ElementAreaTrigger:debug_draw()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._shapes)
-		do
-			do break end
-			shape:draw(0, 0, self._values.enabled and 0 or 1, self._values.enabled and 1 or 0, 0, 0.2)
-		end
-
-	end
-
-	local (for generator), (for state), (for control) = ipairs(self._shape_elements)
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(shape_element:get_shapes())
-		do
-			do break end
-			shape:draw(0, 0, self._values.enabled and 0 or 1, self._values.enabled and 1 or 0, 0, 0.2)
-		end
-
-	end
-
 end
 
 function ElementAreaTrigger:update_area()
@@ -415,10 +391,6 @@ function ElementAreaTrigger:save(data)
 end
 
 function ElementAreaTrigger:load(data)
-	if not self._on_script_activated_done then
-		self:on_script_activated()
-	end
-
 	self:set_enabled(data.enabled)
 	self:operation_set_interval(data.interval)
 	self._values.use_disabled_shapes = data.use_disabled_shapes

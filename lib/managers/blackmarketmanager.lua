@@ -442,7 +442,7 @@ end
 
 function BlackMarketManager:equipped_primary()
 	if not Global.blackmarket_manager.crafted_items.primaries then
-		self:aquire_default_weapons()
+		return nil
 	end
 
 	do
@@ -949,20 +949,22 @@ end
 
 function BlackMarketManager:preload_weapon_blueprint(category, factory_id, blueprint)
 	Application:debug("[BlackMarketManager] preload_weapon_blueprint():", "category", category, "factory_id", factory_id, "blueprint", inspect(blueprint))
-	local parts = managers.weapon_factory:preload_blueprint(factory_id, blueprint, false, function()
-	end
-, true)
+	managers.weapon_factory:preload_blueprint(factory_id, blueprint, false, callback(self, self, "preload_done_callback", category), true)
+end
+
+function BlackMarketManager:preload_done_callback(category, preload_table, parts)
+	print("preload_done_callback", category, inspect(preload_table), inspect(parts))
+	local new_loading
 	do
-		local (for generator), (for state), (for control) = pairs(parts)
+		local (for generator), (for state), (for control) = pairs(preload_table)
 		do
 			do break end
-			local new_loading = {}
-			if part.package then
+			if _preload.package then
 				new_loading = {
-					package = part.package
+					package = _preload.package
 				}
 			else
-				new_loading = {load_me = part}
+				new_loading = {load_me = _preload}
 			end
 
 			if Application:production_build() then
@@ -974,19 +976,25 @@ function BlackMarketManager:preload_weapon_blueprint(category, factory_id, bluep
 
 	end
 
-	table.insert(self._preloading_list, {category, parts})
+	table.insert(self._preloading_list, {
+		category,
+		preload_table,
+		parts
+	})
 end
 
 function BlackMarketManager:resource_loaded_callback(category, loaded_table, parts)
+	print("resource_loaded_callback", category, inspect(loaded_table), inspect(parts))
 	local loaded_category = self._category_resource_loaded[category]
 	if loaded_category then
+		Application:debug("[BlackMarketManager] resource_loaded_callback(): Unloading old blueprint", inspect(loaded_category))
 		local (for generator), (for state), (for control) = pairs(loaded_category)
 		do
 			do break end
 			if unload.package then
 				managers.weapon_factory:unload_package(unload.package)
 			else
-				managers.dyn_resource:unload(Idstring("unit"), unload.name, managers.dyn_resource.DYN_RESOURCES_PACKAGE, false)
+				managers.dyn_resource:unload(unpack(unload))
 			end
 
 		end
@@ -997,6 +1005,7 @@ function BlackMarketManager:resource_loaded_callback(category, loaded_table, par
 end
 
 function BlackMarketManager:release_preloaded_blueprints()
+	Application:debug("[BlackMarketManager] release_preloaded_blueprints(): Unloading all blueprints", inspect(self._category_resource_loaded))
 	do
 		local (for generator), (for state), (for control) = pairs(self._category_resource_loaded)
 		do
@@ -1007,7 +1016,7 @@ function BlackMarketManager:release_preloaded_blueprints()
 				if unload.package then
 					managers.weapon_factory:unload_package(unload.package)
 				else
-					managers.dyn_resource:unload(Idstring("unit"), unload.name, managers.dyn_resource.DYN_RESOURCES_PACKAGE, false)
+					managers.dyn_resource:unload(unpack(unload))
 				end
 
 			end
@@ -1261,7 +1270,7 @@ function BlackMarketManager:update(t, dt)
 
 						managers.weapon_factory:load_package(next_in_line.package)
 					else
-						managers.dyn_resource:load(Idstring("unit"), next_in_line.load_me.name, managers.dyn_resource.DYN_RESOURCES_PACKAGE, false)
+						managers.dyn_resource:load(unpack(next_in_line.load_me))
 					end
 
 				elseif is_done_cb then
@@ -2546,6 +2555,7 @@ function BlackMarketManager:on_aquired_melee_weapon(upgrade, id, loading)
 	self._global.melee_weapons[id].unlocked = true
 	self._global.melee_weapons[id].owned = true
 	if not loading then
+		print("on_aquired_melee_weapon", inspect(upgrade), id, loading)
 		self._global.new_drops.normal = self._global.new_drops.normal or {}
 		self._global.new_drops.normal.melee_weapons = self._global.new_drops.normal.melee_weapons or {}
 		self._global.new_drops.normal.melee_weapons[id] = true
@@ -2565,6 +2575,7 @@ function BlackMarketManager:on_unaquired_melee_weapon(upgrade, id)
 end
 
 function BlackMarketManager:aquire_default_weapons(only_enable)
+	print("BlackMarketManager:aquire_default_weapons()")
 	local glock_17 = self._global and self._global.weapons and self._global.weapons.glock_17
 	if glock_17 and (not self._global.crafted_items.secondaries or not glock_17.unlocked) and not managers.upgrades:aquired("glock_17") then
 		if only_enable then
@@ -2634,49 +2645,6 @@ function BlackMarketManager:on_buy_weapon_platform(category, weapon_id, slot, fr
 
 		if amount >= tweak_data.achievement.arms_dealer then
 			managers.achievment:award("gage_8")
-		end
-
-		local weapons_owned = {}
-		do
-			local (for generator), (for state), (for control) = pairs(self._global.crafted_items.primaries)
-			do
-				do break end
-				weapons_owned[crafted.weapon_id] = true
-			end
-
-		end
-
-		do
-			local (for generator), (for state), (for control) = pairs(self._global.crafted_items.secondaries)
-			do
-				do break end
-				weapons_owned[crafted.weapon_id] = true
-			end
-
-		end
-
-		local award_achievement
-		local (for generator), (for state), (for control) = pairs(tweak_data.achievement.weapons_owned)
-		do
-			do break end
-			award_achievement = true
-			do
-				local (for generator), (for state), (for control) = ipairs(data)
-				do
-					do break end
-					if not weapons_owned[weapon_id] then
-						award_achievement = false
-				end
-
-				else
-				end
-
-			end
-
-			if award_achievement then
-				managers.achievment:award(award)
-			end
-
 		end
 
 	end
@@ -4484,7 +4452,7 @@ function BlackMarketManager:_cleanup_blackmarket()
 					self:on_buy_mask(self._defaults.mask, "normal", 1)
 				else
 					Application:error("BlackMarketManager:_cleanup_blackmarket() Mask or component of mask invalid, Selling the mask!", "mask_id", mask.mask_id, "global_value", mask.global_value, "blueprint", inspect(blueprint))
-					self:on_sell_mask(i, true)
+					self:on_sell_mask(i)
 				end
 
 			end
@@ -4917,25 +4885,22 @@ function BlackMarketManager:_verify_dlc_items()
 					end
 
 					local mask = managers.blackmarket:equipped_mask()
-					if mask then
-						local is_locked = mask.global_value == package_id
-						if not is_locked then
-							local (for generator), (for state), (for control) = pairs(mask.blueprint)
-							do
-								do break end
-								is_locked = part.global_value == package_id
-								if is_locked then
-							end
-
-							else
-							end
-
+					local is_locked = mask.global_value == package_id
+					if not is_locked then
+						local (for generator), (for state), (for control) = pairs(mask.blueprint)
+						do
+							do break end
+							is_locked = part.global_value == package_id
+							if is_locked then
 						end
 
-						if is_locked then
-							self:equip_mask(1)
+						else
 						end
 
+					end
+
+					if is_locked then
+						self:equip_mask(1)
 					end
 
 				end

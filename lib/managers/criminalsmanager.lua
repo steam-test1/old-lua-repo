@@ -365,18 +365,6 @@ function CriminalsManager:character_unit_by_name(name)
 
 end
 
-function CriminalsManager:character_unit_by_peer_id(peer_id)
-	local (for generator), (for state), (for control) = pairs(self._characters)
-	do
-		do break end
-		if data.taken and peer_id == data.peer_id then
-			return data.unit
-		end
-
-	end
-
-end
-
 function CriminalsManager:character_taken_by_name(name)
 	local (for generator), (for state), (for control) = pairs(self._characters)
 	do

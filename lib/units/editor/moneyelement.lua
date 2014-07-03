@@ -13,7 +13,7 @@ function MoneyUnitElement:_build_panel(panel, panel_sizer)
 		name = "Action:",
 		panel = panel,
 		sizer = panel_sizer,
-		options = {},
+		options = managers.experience:actions(),
 		value = self._hed.action,
 		default = "none",
 		tooltip = "Select an action from the combobox",

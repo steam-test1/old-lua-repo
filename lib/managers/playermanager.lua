@@ -1530,64 +1530,45 @@ function PlayerManager:set_synced_equipment_possession(peer_id, equipment, amoun
 
 end
 
-function PlayerManager:transfer_special_equipment(peer_id, include_custody)
-	if self._global.synced_equipment_possession[peer_id] then
-		local peers = {
-			managers.network:session():local_peer()
-		}
-		do
-			local (for generator), (for state), (for control) = pairs(managers.network:session():peers())
+function PlayerManager:peer_dropped_out(peer)
+	local peer_id = peer:id()
+	if Network:is_server() then
+		if self._global.synced_equipment_possession[peer_id] then
+			local peers = {
+				managers.network:session():local_peer()
+			}
 			do
-				do break end
-				if managers.trade:is_peer_in_custody(p:id()) then
-					if include_custody then
-						table.insert(peers, p)
-					end
-
-				else
-					table.insert(peers, 0, p)
+				local (for generator), (for state), (for control) = pairs(managers.network:session():peers())
+				do
+					do break end
+					table.insert(peers, p)
 				end
 
 			end
 
-		end
-
-		local (for generator), (for state), (for control) = pairs(self._global.synced_equipment_possession[peer_id])
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(peers)
+			local (for generator), (for state), (for control) = pairs(self._global.synced_equipment_possession[peer_id])
 			do
 				do break end
-				local id = p:id()
-				if not self._global.synced_equipment_possession[id] or not self._global.synced_equipment_possession[id][name] then
-					if Network:is_server() then
+				local (for generator), (for state), (for control) = pairs(peers)
+				do
+					do break end
+					local id = p:id()
+					if not self._global.synced_equipment_possession[id] or not self._global.synced_equipment_possession[id][name] then
 						if p == managers.network:session():local_peer() then
 							managers.player:add_special({name = name, amount = amount})
 						else
 							p:send("give_equipment", name, amount)
 						end
 
-					end
+				end
 
-					if peer_id == managers.network:session():local_peer():id() then
-						self:remove_special(name)
-					end
+				else
+				end
 
-			end
-
-			else
 			end
 
 		end
 
-	end
-
-end
-
-function PlayerManager:peer_dropped_out(peer)
-	local peer_id = peer:id()
-	if Network:is_server() then
-		self:transfer_special_equipment(peer_id, true)
 		if self._global.synced_carry[peer_id] and self._global.synced_carry[peer_id].approved then
 			local carry_id = self._global.synced_carry[peer_id].carry_id
 			local carry_multiplier = self._global.synced_carry[peer_id].multiplier

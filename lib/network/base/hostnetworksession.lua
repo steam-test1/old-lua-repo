@@ -18,14 +18,9 @@ function HostNetworkSession:init()
 	self._state_data = {
 		session = self,
 		peers = self._peers,
-		kicked_list = self._kicked_list
+		kicked_list = self._kicked_list,
+		local_peer = self._local_peer
 	}
-	self._peer_outfit_loaded_status_request_id = math.random(1, 100)
-end
-
-function HostNetworkSession:create_local_peer()
-	HostNetworkSession.super.create_local_peer(self)
-	self._state_data.local_peer = self._local_peer
 	self:set_state("in_lobby")
 end
 
@@ -135,10 +130,6 @@ function HostNetworkSession:on_peer_connection_established(sender_peer, introduc
 
 	if self._state.on_handshake_confirmation then
 		self._state:on_handshake_confirmation(self._state_data, sender_peer, introduced_peer_id)
-	end
-
-	if sender_peer:loaded() then
-		sender_peer:send("set_member_ready", introduced_peer_id, self._peers[introduced_peer_id]:waiting_for_player_ready() and 1 or 0, 1, "")
 	end
 
 	self:chk_initiate_dropin_pause(sender_peer)
@@ -296,34 +287,17 @@ function HostNetworkSession:set_peer_loading_state(peer, state)
 		return
 	end
 
-	if not state then
-		do
-			local (for generator), (for state), (for control) = pairs(self._peers)
-			do
-				do break end
-				if other_peer ~= peer and peer:handshakes()[other_peer_id] == true then
-					peer:send_after_load("set_member_ready", other_peer_id, other_peer:waiting_for_player_ready() and 1 or 0, 1, "")
-				end
-
-			end
-
+	if not state and self._local_peer:loaded() and NetworkManager.DROPIN_ENABLED then
+		if self._state.on_peer_finished_loading then
+			self._state:on_peer_finished_loading(self._state_data, peer)
 		end
 
-		peer:send_after_load("set_member_ready", self._local_peer:id(), self._local_peer:waiting_for_player_ready() and 1 or 0, 1, "")
-		self:chk_request_peer_outfit_load_status()
-		if self._local_peer:loaded() and NetworkManager.DROPIN_ENABLED then
-			if self._state.on_peer_finished_loading then
-				self._state:on_peer_finished_loading(self._state_data, peer)
-			end
-
-			peer:set_expecting_pause_sequence(true)
-			local dropin_pause_ok = self:chk_initiate_dropin_pause(peer)
-			if dropin_pause_ok then
-				self:chk_drop_in_peer(peer)
-			else
-				print(" setting set_expecting_pause_sequence", peer:id())
-			end
-
+		peer:set_expecting_pause_sequence(true)
+		local dropin_pause_ok = self:chk_initiate_dropin_pause(peer)
+		if dropin_pause_ok then
+			self:chk_drop_in_peer(peer)
+		else
+			print(" setting set_expecting_pause_sequence", peer:id())
 		end
 
 	end
@@ -364,11 +338,6 @@ function HostNetworkSession:chk_initiate_dropin_pause(dropin_peer)
 		return
 	end
 
-	if not self:all_peers_done_loading_outfits() then
-		print("peers still streaming outfits")
-		return
-	end
-
 	do
 		local (for generator), (for state), (for control) = pairs(self._peers)
 		do
@@ -406,12 +375,11 @@ function HostNetworkSession:chk_initiate_dropin_pause(dropin_peer)
 end
 
 function HostNetworkSession:chk_drop_in_peer(dropin_peer)
-	local dropin_peer_id = dropin_peer:id()
 	if not dropin_peer:expecting_dropin() then
-		print("[HostNetworkSession:chk_drop_in_peer] not expecting drop-in", dropin_peer_id)
 		return
 	end
 
+	local dropin_peer_id = dropin_peer:id()
 	print("[HostNetworkSession:chk_drop_in_peer]", dropin_peer_id)
 	do
 		local (for generator), (for state), (for control) = pairs(self._peers)
@@ -626,7 +594,7 @@ function HostNetworkSession:chk_spawn_member_unit(peer, peer_id)
 	end
 
 	if not member or member:spawn_unit_called() or not peer:waiting_for_player_ready() or not peer:is_streaming_complete() then
-		print("not ready to spawn unit: member", member, "member:spawn_unit_called()", member:spawn_unit_called(), "peer:waiting_for_player_ready()", peer:waiting_for_player_ready(), "peer:is_streaming_complete()", peer:is_streaming_complete())
+		print("not ready to spawn unit: member", member, "member:spawn_unit_called()", member:spawn_unit_called(), "peer:waiting_for_player_ready()", peer:waiting_for_player_ready())
 		return
 	end
 
@@ -644,10 +612,6 @@ function HostNetworkSession:chk_spawn_member_unit(peer, peer_id)
 	end
 
 	if not self:chk_all_handshakes_complete() then
-		return
-	end
-
-	if not self:all_peers_done_loading_outfits() then
 		return
 	end
 
@@ -741,7 +705,6 @@ function HostNetworkSession:on_load_complete()
 
 	end
 
-	self:_reset_outfit_loading_status_request()
 end
 
 function HostNetworkSession:prepare_to_close(...)
@@ -866,87 +829,5 @@ function HostNetworkSession:on_re_open_lobby_request(peer, state)
 
 	peer:set_force_open_lobby_state(state)
 	self:chk_server_joinable_state()
-end
-
-function HostNetworkSession:all_peers_done_loading_outfits()
-	if not self:are_all_peer_assets_loaded() then
-		return false
-	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._peers)
-		do
-			do break end
-			if peer:waiting_for_player_ready() and not peer:other_peer_outfit_loaded_status() then
-				print("[HostNetworkSession:all_peers_done_loading_outfits] waiting for", peer_id, "to load outfits.")
-				return false
-			end
-
-		end
-
-	end
-
-	return true
-end
-
-function HostNetworkSession:chk_request_peer_outfit_load_status()
-	print("[HostNetworkSession:chk_request_peer_outfit_load_status]")
-	local outfit_versions_str = self:_get_peer_outfit_versions_str()
-	local req_id = self:_increment_outfit_loading_status_request_id()
-	local (for generator), (for state), (for control) = pairs(self._peers)
-	do
-		do break end
-		if peer:waiting_for_player_ready() then
-			peer:set_other_peer_outfit_loaded_status(false)
-			print("[HostNetworkSession:request_peer_outfit_load_status] peer_id", peer_id, "req_id", req_id)
-			peer:send("set_member_ready", self._local_peer:id(), req_id, 4, outfit_versions_str)
-		end
-
-	end
-
-end
-
-function HostNetworkSession:on_peer_finished_loading_outfit(peer, request_id, outfit_versions_str_in)
-	print("[HostNetworkSession:on_peer_finished_loading_outfit] peer:id()", peer:id(), "request_id", request_id, "self._peer_outfit_loaded_status_request_id", self._peer_outfit_loaded_status_request_id, "outfit_versions_str_in", outfit_versions_str_in, "self:_get_peer_outfit_versions_str()", self:_get_peer_outfit_versions_str())
-	if request_id ~= self._peer_outfit_loaded_status_request_id then
-		return
-	end
-
-	if outfit_versions_str_in ~= self:_get_peer_outfit_versions_str() then
-		return
-	end
-
-	peer:set_other_peer_outfit_loaded_status(true)
-	local (for generator), (for state), (for control) = pairs(self._peers)
-	do
-		do break end
-		self:chk_initiate_dropin_pause(_peer)
-		self:chk_spawn_member_unit(_peer, _peer_id)
-	end
-
-end
-
-function HostNetworkSession:on_set_member_ready(peer_id, ready, state_changed)
-	self:chk_request_peer_outfit_load_status()
-end
-
-function HostNetworkSession:_increment_outfit_loading_status_request_id()
-	if self._peer_outfit_loaded_status_request_id == 100 then
-		self._peer_outfit_loaded_status_request_id = 0
-	else
-		self._peer_outfit_loaded_status_request_id = self._peer_outfit_loaded_status_request_id + 1
-	end
-
-	return self._peer_outfit_loaded_status_request_id
-end
-
-function HostNetworkSession:_reset_outfit_loading_status_request()
-	self:_increment_outfit_loading_status_request_id()
-	local (for generator), (for state), (for control) = pairs(self._peers)
-	do
-		do break end
-		peer:set_other_peer_outfit_loaded_status(false)
-	end
-
 end
 
