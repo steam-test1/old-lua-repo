@@ -33,8 +33,8 @@ function MenuSetup:load_packages()
 		do
 			do break end
 			package = prefix .. tostring(dlc_package) .. sufix
-			Application:debug("DLC PACKAGE LOCATION: " .. package, "IS PACKAGE OK TO LOAD?: " .. tostring(bundled))
-			if bundled and PackageManager:package_exists(package) and not PackageManager:loaded(package) then
+			Application:debug("[MenuSetup:load_packages] DLC package: " .. package, "Is package OK to load?: " .. tostring(bundled))
+			if bundled and (bundled == true or bundled == 1) and PackageManager:package_exists(package) and not PackageManager:loaded(package) then
 				PackageManager:load(package)
 			end
 
@@ -64,7 +64,7 @@ function MenuSetup:unload_packages()
 		do
 			do break end
 			package = prefix .. tostring(dlc_package) .. sufix
-			if bundled and PackageManager:package_exists(package) and PackageManager:loaded(package) then
+			if bundled and (bundled == true or bundled == 1) and PackageManager:package_exists(package) and PackageManager:loaded(package) then
 				PackageManager:unload(package)
 			end
 
