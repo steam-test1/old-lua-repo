@@ -197,6 +197,13 @@ function CoreCutscene:_parse_animation_blob_list(cutscene_node)
 end
 
 function CoreCutscene:_parse_single_animation_blob(cutscene_node)
+-- fail 15
+-- BE-3: NEWTABLE
+-- BE-2: MOVE
+-- BE-1: SETLIST
+-- null
+-- 7
+
 	do
 		local (for generator), (for state), (for control) = cutscene_node:children()
 		do

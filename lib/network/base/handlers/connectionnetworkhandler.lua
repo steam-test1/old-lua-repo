@@ -536,13 +536,6 @@ function ConnectionNetworkHandler:set_member_ready(peer_id, ready, mode, outfit_
 	elseif mode == 3 then
 		if Network:is_server() then
 			managers.network:session():on_peer_finished_loading_outfit(peer, ready, outfit_versions_str)
-			local (for generator), (for state), (for control) = pairs(managers.network:session():peers())
-			do
-				do break end
-				managers.network:session():chk_initiate_dropin_pause(_peer)
-				managers.network:session():chk_spawn_member_unit(_peer, _peer_id)
-			end
-
 		end
 
 	elseif mode == 4 and Network:is_client() and peer == managers.network:session():server_peer() then
