@@ -6993,11 +6993,27 @@ function WeaponFactoryTweakData:_init_serbu()
 	}
 	self.wpn_fps_shot_serbu.stock_adapter = "wpn_fps_shot_r870_s_m4"
 	self.wpn_fps_shot_serbu.override = {
-		custom_stats = {
-			rays = 1,
-			damage_far_mul = 2.5,
-			bullet_class = "InstantExplosiveBulletBase",
-			ammo_pickup_mul = 5
+		wpn_fps_upg_a_slug = {
+			desc_id = "bm_wp_upg_a_slug2_desc",
+			custom_stats = {
+				damage_near_mul = 2,
+				damage_far_mul = 1.15,
+				rays = 1,
+				armor_piercing_add = 1,
+				can_shoot_through_enemy = true,
+				can_shoot_through_shield = true,
+				can_shoot_through_wall = true,
+				ammo_pickup_min_mul = 0.5,
+				ammo_pickup_max_mul = 0.5
+			}
+		},
+		wpn_fps_upg_a_custom = {
+			desc_id = "bm_wp_upg_a_custom2_desc",
+			custom_stats = {ammo_pickup_min_mul = 0.7, ammo_pickup_max_mul = 0.7}
+		},
+		wpn_fps_upg_a_custom_free = {
+			desc_id = "bm_wp_upg_a_custom2_desc",
+			custom_stats = {ammo_pickup_min_mul = 0.7, ammo_pickup_max_mul = 0.7}
 		}
 	}
 	self.wpn_fps_shot_serbu.adds = {
@@ -7477,12 +7493,16 @@ function WeaponFactoryTweakData:_init_huntsman()
 	self.wpn_fps_shot_huntsman.unit = "units/payday2/weapons/wpn_fps_shot_huntsman/wpn_fps_shot_huntsman"
 	self.wpn_fps_shot_huntsman.optional_types = {"barrel_ext", "gadget"}
 	self.wpn_fps_shot_huntsman.override = {
-		custom_stats = {
-			rays = 1,
-			damage_far_mul = 2.5,
-			bullet_class = "InstantExplosiveBulletBase",
-			ammo_pickup_min_mul = 0.5,
-			ammo_pickup_max_mul = 0.7
+		wpn_fps_upg_a_explosive = {
+			custom_stats = {
+				ignore_statistic = true,
+				rays = 1,
+				damage_near_mul = 2,
+				damage_far_mul = 2.5,
+				bullet_class = "InstantExplosiveBulletBase",
+				ammo_pickup_min_mul = 0.5,
+				ammo_pickup_max_mul = 0.7
+			}
 		}
 	}
 	self.wpn_fps_shot_huntsman.default_blueprint = {
@@ -11093,7 +11113,29 @@ function WeaponFactoryTweakData:_init_striker()
 	}
 	self.wpn_fps_sho_striker.override = {
 		wpn_upg_o_marksmansight_rear_vanilla = {a_obj = "a_o_r"},
-		wpn_upg_o_marksmansight_front = {a_obj = "a_o_f"}
+		wpn_upg_o_marksmansight_front = {a_obj = "a_o_f"},
+		wpn_fps_upg_a_slug = {
+			desc_id = "bm_wp_upg_a_slug2_desc",
+			custom_stats = {
+				damage_near_mul = 2,
+				damage_far_mul = 1.15,
+				rays = 1,
+				armor_piercing_add = 1,
+				can_shoot_through_enemy = true,
+				can_shoot_through_shield = true,
+				can_shoot_through_wall = true,
+				ammo_pickup_min_mul = 0.5,
+				ammo_pickup_max_mul = 0.5
+			}
+		},
+		wpn_fps_upg_a_custom = {
+			desc_id = "bm_wp_upg_a_custom2_desc",
+			custom_stats = {ammo_pickup_min_mul = 0.7, ammo_pickup_max_mul = 0.7}
+		},
+		wpn_fps_upg_a_custom_free = {
+			desc_id = "bm_wp_upg_a_custom2_desc",
+			custom_stats = {ammo_pickup_min_mul = 0.7, ammo_pickup_max_mul = 0.7}
+		}
 	}
 	self.wpn_fps_sho_striker.default_blueprint = {
 		"wpn_fps_sho_striker_b_standard",
@@ -11212,7 +11254,7 @@ function WeaponFactoryTweakData:_init_ksg()
 	}
 	self.parts.wpn_fps_sho_ksg_fg_standard = {
 		type = "foregrip",
-		name_id = "bm_wp_ksg_fg_standard",
+		name_id = "bm_wp_standard_issue",
 		a_obj = "a_fg",
 		unit = "units/pd2_dlc_gage_shot/weapons/wpn_fps_sho_ksg_pts/wpn_fps_sho_ksg_fg_standard",
 		stats = {value = 1},
@@ -11418,7 +11460,6 @@ function WeaponFactoryTweakData:_init_ksg()
 	self.wpn_fps_sho_ksg.default_blueprint = {
 		"wpn_fps_sho_ksg_b_standard",
 		"wpn_fps_sho_ksg_body_standard",
-		"wpn_fps_sho_ksg_fg_standard",
 		"wpn_fps_sho_ksg_s_collapsable",
 		"wpn_fps_upg_o_dd_rear"
 	}
@@ -11481,13 +11522,15 @@ function WeaponFactoryTweakData:create_ammunition()
 			moving_spread = 2
 		},
 		custom_stats = {
+			damage_near_mul = 2,
+			damage_far_mul = 1.15,
 			rays = 1,
 			armor_piercing_add = 1,
 			can_shoot_through_enemy = true,
 			can_shoot_through_shield = true,
 			can_shoot_through_wall = true,
-			ammo_pickup_min_mul = 0.5,
-			ammo_pickup_max_mul = 0.5
+			ammo_pickup_min_mul = 1,
+			ammo_pickup_max_mul = 1
 		},
 		internal_part = true,
 		sub_type = "ammo_slug"
@@ -11507,7 +11550,7 @@ function WeaponFactoryTweakData:create_ammunition()
 			total_ammo_mod = -6,
 			damage = 3
 		},
-		custom_stats = {ammo_pickup_min_mul = 0.7, ammo_pickup_max_mul = 0.7},
+		custom_stats = {ammo_pickup_min_mul = 1, ammo_pickup_max_mul = 1},
 		internal_part = true,
 		sub_type = "ammo_custom"
 	}
@@ -11526,7 +11569,7 @@ function WeaponFactoryTweakData:create_ammunition()
 		is_a_unlockable = true,
 		stats = {
 			value = 5,
-			total_ammo_mod = -13,
+			total_ammo_mod = -10,
 			damage = 3,
 			spread = -3,
 			moving_spread = 3
@@ -11534,6 +11577,7 @@ function WeaponFactoryTweakData:create_ammunition()
 		custom_stats = {
 			ignore_statistic = true,
 			rays = 1,
+			damage_near_mul = 2,
 			damage_far_mul = 2.5,
 			bullet_class = "InstantExplosiveBulletBase",
 			ammo_pickup_min_mul = 0.3,
@@ -11558,10 +11602,11 @@ function WeaponFactoryTweakData:create_ammunition()
 			spread = 2
 		},
 		custom_stats = {
-			damage_far_mul = 1.35,
+			damage_near_mul = 2,
+			damage_far_mul = 1.7,
 			armor_piercing_add = 1,
-			ammo_pickup_min_mul = 0.7,
-			ammo_pickup_max_mul = 0.7
+			ammo_pickup_min_mul = 1,
+			ammo_pickup_max_mul = 1
 		},
 		internal_part = true,
 		sub_type = "ammo_piercing"
