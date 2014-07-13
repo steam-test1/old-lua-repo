@@ -15,11 +15,8 @@ function ImageBoxGui:_create_image_box(image_config)
 	image_config = image_config or {}
 	local image_shapes = image_config.shapes or {}
 	local image_texture = image_config.texture or nil
-	local image_video = image_config.video or nil
-	local video_loop = image_config.video_loop or false
 	local keep_texure_ratio = image_config.keep_ratio or false
 	local image_render_template = image_config.render_template
-	local image_blend_mode = image_config.blend_mode
 	local image_width = image_config.w or image_config.width or 0
 	local image_height = image_config.h or image_config.height or 0
 	local image_padding = image_config.padding or 0
@@ -49,7 +46,7 @@ function ImageBoxGui:_create_image_box(image_config)
 		move_x = grow_w
 	end
 
-	if image_valign ~= Idstring("bottom") then
+	if image_valign ~= Idstring("top") then
 		move_y = grow_h
 	end
 
@@ -58,18 +55,6 @@ function ImageBoxGui:_create_image_box(image_config)
 	scroll_panel:move(move_x, move_y)
 	self._panel_w = main:w()
 	self._panel_h = main:h()
-	local top_line = self._panel:child("top_line")
-	local bottom_line = self._panel:child("bottom_line")
-	local scroll_up_indicator_shade = self._panel:child("scroll_up_indicator_shade")
-	local scroll_down_indicator_shade = self._panel:child("scroll_down_indicator_shade")
-	local scroll_up_indicator_arrow = self._panel:child("scroll_up_indicator_arrow")
-	local scroll_down_indicator_arrow = self._panel:child("scroll_down_indicator_arrow")
-	top_line:set_world_bottom(scroll_panel:world_top())
-	bottom_line:set_world_top(scroll_panel:world_bottom())
-	scroll_up_indicator_shade:set_top(top_line:bottom())
-	scroll_down_indicator_shade:set_bottom(bottom_line:top())
-	scroll_up_indicator_arrow:set_lefttop(scroll_panel:right() + 2, scroll_up_indicator_shade:top() + 8)
-	scroll_down_indicator_arrow:set_leftbottom(scroll_panel:right() + 2, scroll_down_indicator_shade:bottom() - 8)
 	local image_panel = main:panel({
 		name = "image_panel",
 		w = image_width,
@@ -96,8 +81,7 @@ function ImageBoxGui:_create_image_box(image_config)
 		local image = image_panel:bitmap({
 			texture = image_texture,
 			w = image_width,
-			h = image_height,
-			blend_mode = image_blend_mode
+			h = image_height
 		})
 		if image_render_template then
 			image:set_render_template(image_render_template)
@@ -105,31 +89,6 @@ function ImageBoxGui:_create_image_box(image_config)
 
 		if keep_texure_ratio then
 			local texture_width, texture_height = image:texture_width(), image:texture_height()
-			local image_aspect = math.max(image_width, 1) / math.max(image_height, 1)
-			local texture_aspect = math.max(texture_width, 1) / math.max(texture_height, 1)
-			local aspect = texture_aspect / image_aspect
-			local sw = math.min(image_width, image_width * aspect)
-			local sh = math.min(image_height, image_height / aspect)
-			image:set_size(sw, sh)
-			image:set_center(image_panel:w() / 2, image_panel:h() / 2)
-		end
-
-	end
-
-	if image_video then
-		local image = image_panel:video({
-			video = image_video,
-			w = image_width,
-			h = image_height,
-			loop = video_loop,
-			blend_mode = image_blend_mode
-		})
-		if image_render_template then
-			image:set_render_template(image_render_template)
-		end
-
-		if keep_texure_ratio then
-			local texture_width, texture_height = image:video_width(), image:video_height()
 			local image_aspect = math.max(image_width, 1) / math.max(image_height, 1)
 			local texture_aspect = math.max(texture_width, 1) / math.max(texture_height, 1)
 			local aspect = texture_aspect / image_aspect
@@ -152,8 +111,7 @@ function ImageBoxGui:_create_image_box(image_config)
 					color = shape.color or Color.white,
 					w = shape.width or shape.w or 0,
 					h = shape.height or shape.h or 0,
-					layer = shape.layer or 0,
-					blend_mode = image_blend_mode
+					layer = shape.layer or 0
 				})
 			elseif type == "bitmap" then
 				new_shape = image_panel:bitmap({
@@ -161,8 +119,7 @@ function ImageBoxGui:_create_image_box(image_config)
 					color = shape.color or Color.white,
 					w = shape.width or shape.w or 0,
 					h = shape.height or shape.h or 0,
-					layer = shape.layer or 0,
-					blend_mode = image_blend_mode
+					layer = shape.layer or 0
 				})
 			end
 

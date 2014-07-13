@@ -623,11 +623,7 @@ function StatisticsManager:_get_stat_tables()
 		"metalhead",
 		"tcn",
 		"surprise",
-		"optimist_prime",
-		"silverback",
-		"mandril",
-		"skullmonkey",
-		"orangutang"
+		"optimist_prime"
 	}
 	local weapon_list = {
 		"ak5",
@@ -664,32 +660,15 @@ function StatisticsManager:_get_stat_tables()
 		"mp7",
 		"scar",
 		"p226",
-		"akm_gold",
 		"hk21",
 		"m249",
 		"rpk",
 		"m95",
 		"msr",
 		"r93",
-		"fal",
-		"benelli",
-		"striker",
-		"ksg"
+		"fal"
 	}
-	local melee_list = {
-		"weapon",
-		"fists",
-		"kabar",
-		"rambo",
-		"gerber",
-		"kampfmesser",
-		"brass_knuckles",
-		"tomahawk",
-		"baton",
-		"shovel",
-		"becker"
-	}
-	return level_list, job_list, mask_list, weapon_list, melee_list
+	return level_list, job_list, mask_list, weapon_list
 end
 
 function StatisticsManager:publish_to_steam(session, success)
@@ -704,7 +683,7 @@ function StatisticsManager:publish_to_steam(session, success)
 		return
 	end
 
-	local level_list, job_list, mask_list, weapon_list, melee_list = self:_get_stat_tables()
+	local level_list, job_list, mask_list, weapon_list = self:_get_stat_tables()
 	local stats = {}
 	self._global.play_time.minutes = math.ceil(self._global.play_time.minutes + session_time_minutes)
 	local current_time = math.floor(self._global.play_time.minutes / 60)
@@ -825,20 +804,6 @@ function StatisticsManager:publish_to_steam(session, success)
 
 			end
 
-		end
-
-	end
-
-	local melee_name = managers.blackmarket:equipped_melee_weapon()
-	do
-		local (for generator), (for state), (for control) = ipairs(melee_list)
-		do
-			do break end
-			if melee == melee_name then
-				stats["melee_used_" .. melee_name] = {type = "int", value = 1}
-		end
-
-		else
 		end
 
 	end
@@ -998,6 +963,12 @@ function StatisticsManager:publish_skills_to_steam()
 	managers.network.account:publish_statistics(stats)
 end
 
+function StatisticsManager:clear_statistics()
+end
+
+function StatisticsManager:clear_skills_statistics()
+end
+
 function StatisticsManager:debug_estimate_steam_players()
 	local key
 	local stats = {}
@@ -1028,6 +999,297 @@ function StatisticsManager:debug_estimate_steam_players()
 	end
 
 	Application:debug(managers.money:add_decimal_marks_to_string(tostring(num_players)) .. " players have summited statistics to Steam the last 60 days.")
+end
+
+function StatisticsManager:debug_print_stats(global_flag, days)
+	local key
+	local stats = {}
+	local account = managers.network.account
+	days = days or nil
+	local level_list, job_list, mask_list, weapon_list = self:_get_stat_tables()
+	local num_players = 0
+	local play_times = {
+		0,
+		10,
+		20,
+		40,
+		80,
+		100,
+		150,
+		200,
+		250,
+		500,
+		1000
+	}
+	local play_stat
+	do
+		local (for generator), (for state), (for control) = ipairs(play_times)
+		do
+			do break end
+			key = "player_time_" .. play_time .. "h"
+			play_stat = account:get_global_stat(key, days)
+			num_players = num_players + (play_stat >= 0 and play_stat or 0)
+			table.insert(stats, {
+				name = key,
+				loc = account:get_stat(key),
+				glo = play_stat
+			})
+		end
+
+	end
+
+	table.insert(stats, {
+		name = "player_level",
+		loc = account:get_stat("player_level"),
+		glo = account:get_global_stat("player_level", days)
+	})
+	for i = 0, 100, 10 do
+		key = "player_level_" .. i
+		table.insert(stats, {
+			name = key,
+			loc = account:get_stat(key),
+			glo = account:get_global_stat(key, days)
+		})
+	end
+
+	for i = 0, 5 do
+		key = "player_rank_" .. i
+		table.insert(stats, {
+			name = key,
+			loc = account:get_stat(key),
+			glo = account:get_global_stat(key, days)
+		})
+	end
+
+	table.insert(stats, {
+		name = "player_cash_0k",
+		loc = account:get_stat("player_cash_0k"),
+		glo = account:get_global_stat("player_cash_0k", days)
+	})
+	local cash_amount = 1
+	for i = 0, 9 do
+		key = "player_cash_" .. cash_amount .. "k"
+		table.insert(stats, {
+			name = key,
+			loc = account:get_stat(key),
+			glo = account:get_global_stat(key, days)
+		})
+		cash_amount = cash_amount * 10
+	end
+
+	local skill_data = tweak_data.skilltree.trees
+	do
+		local (for generator), (for state), (for control) = ipairs(skill_data)
+		do
+			do break end
+			local (for generator), (for state), (for control) = ipairs(tree.tiers)
+			do
+				do break end
+				local (for generator), (for state), (for control) = ipairs(tier)
+				do
+					do break end
+					key = "skill_" .. tree.skill .. "_" .. skill
+					table.insert(stats, {
+						name = key,
+						loc = account:get_stat(key),
+						glo = account:get_global_stat(key, days)
+					})
+					key = "skill_" .. tree.skill .. "_" .. skill .. "_ace"
+					table.insert(stats, {
+						name = key,
+						loc = account:get_stat(key),
+						glo = account:get_global_stat(key, days)
+					})
+				end
+
+			end
+
+		end
+
+	end
+
+	do
+		local (for generator), (for state), (for control) = ipairs(skill_data)
+		do
+			do break end
+			key = "skill_" .. tree.skill
+			table.insert(stats, {
+				name = key,
+				loc = account:get_stat(key),
+				glo = account:get_global_stat(key, days)
+			})
+			for i = 0, 35, 5 do
+				key = "skill_" .. tree.skill .. "_" .. i
+				table.insert(stats, {
+					name = key,
+					loc = account:get_stat(key),
+					glo = account:get_global_stat(key, days)
+				})
+			end
+
+		end
+
+	end
+
+	do
+		local (for generator), (for state), (for control) = ipairs(weapon_list)
+		do
+			do break end
+			key = "weapon_used_" .. weapon_name
+			table.insert(stats, {
+				name = key,
+				loc = account:get_stat(key),
+				glo = account:get_global_stat(key, days)
+			})
+		end
+
+	end
+
+	table.insert(stats, {
+		name = "gadget_used_ammo_bag",
+		loc = account:get_stat("gadget_used_ammo_bag"),
+		glo = account:get_global_stat("gadget_used_ammo_bag", days)
+	})
+	table.insert(stats, {
+		name = "gadget_used_doctor_bag",
+		loc = account:get_stat("gadget_used_doctor_bag"),
+		glo = account:get_global_stat("gadget_used_doctor_bag", days)
+	})
+	table.insert(stats, {
+		name = "gadget_used_trip_mine",
+		loc = account:get_stat("gadget_used_trip_mine"),
+		glo = account:get_global_stat("gadget_used_trip_mine", days)
+	})
+	table.insert(stats, {
+		name = "gadget_used_sentry_gun",
+		loc = account:get_stat("gadget_used_sentry_gun"),
+		glo = account:get_global_stat("gadget_used_sentry_gun", days)
+	})
+	table.insert(stats, {
+		name = "gadget_used_ecm_jammer",
+		loc = account:get_stat("gadget_used_ecm_jammer"),
+		glo = account:get_global_stat("gadget_used_ecm_jammer", days)
+	})
+	do
+		local (for generator), (for state), (for control) = ipairs(mask_list)
+		do
+			do break end
+			key = "mask_used_" .. mask_name
+			table.insert(stats, {
+				name = key,
+				loc = account:get_stat(key),
+				glo = account:get_global_stat(key, days)
+			})
+		end
+
+	end
+
+	do
+		local (for generator), (for state), (for control) = pairs(tweak_data.difficulties)
+		do
+			do break end
+			key = "difficulty_" .. difficulty
+			table.insert(stats, {
+				name = key,
+				loc = account:get_stat(key),
+				glo = account:get_global_stat(key, days)
+			})
+		end
+
+	end
+
+	table.insert(stats, {
+		name = "heist_success",
+		loc = account:get_stat("heist_success"),
+		glo = account:get_global_stat("heist_success", days)
+	})
+	table.insert(stats, {
+		name = "heist_failed",
+		loc = account:get_stat("heist_failed"),
+		glo = account:get_global_stat("heist_failed", days)
+	})
+	do
+		local (for generator), (for state), (for control) = ipairs(level_list)
+		do
+			do break end
+			key = "level_" .. level_id
+			table.insert(stats, {
+				name = key,
+				loc = account:get_stat(key),
+				glo = account:get_global_stat(key, days)
+			})
+		end
+
+	end
+
+	do
+		local (for generator), (for state), (for control) = ipairs(job_list)
+		do
+			do break end
+			key = "job_" .. job_id
+			table.insert(stats, {
+				name = key,
+				loc = account:get_stat(key),
+				glo = account:get_global_stat(key, days)
+			})
+		end
+
+	end
+
+	table.insert(stats, {
+		name = "stats_election_day_s",
+		loc = account:get_stat("stats_election_day_s"),
+		glo = account:get_global_stat("stats_election_day_s", days)
+	})
+	table.insert(stats, {
+		name = "stats_election_day_n",
+		loc = account:get_stat("stats_election_day_n"),
+		glo = account:get_global_stat("stats_election_day_n", days)
+	})
+	table.insert(stats, {
+		name = "payday2",
+		loc = account:get_stat("payday2"),
+		glo = account:get_global_stat("payday2", days)
+	})
+	local err = false
+	do
+		local (for generator), (for state), (for control) = pairs(stats)
+		do
+			do break end
+			if not Steam:sa_handler():set_stat(data.name, data.loc) then
+				Application:error("[StatisticsManager:debug_print_stats] WARNING - Stat is missing on Steam: '" .. data.name .. "'")
+				err = true
+			end
+
+		end
+
+	end
+
+	if err then
+		Application:throw_exception("[StatisticsManager:debug_print_stats] Missing statistics, needs to be added!!")
+	end
+
+	print("----------------------------------")
+	if (days ~= 1 or not "TODAY") and (days ~= -1 or not "YESTERDAY") and (days or not "ALLTIME") then
+	end
+
+	print((global_flag and "GLOBAL" or "LOCAL") .. " STEAM STATISTICS FOR " .. "LAST " .. days .. " DAYS")
+	print("----------------------------------")
+	do
+		local (for generator), (for state), (for control) = pairs(stats)
+		do
+			do break end
+			print(data.name, global_flag and data.glo or data.loc)
+		end
+
+	end
+
+	if global_flag then
+		print("----------------------------------")
+		print("Average Players Per Day: " .. managers.money:add_decimal_marks_to_string(tostring(num_players)))
+	end
+
+	print("----------------------------------")
 end
 
 function StatisticsManager:_calculate_average()

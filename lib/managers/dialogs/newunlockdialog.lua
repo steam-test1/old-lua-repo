@@ -39,12 +39,9 @@ function NewUnlockDialog:init(manager, data, is_title_outside)
 		render_template = data.render_template,
 		shapes = data.shapes,
 		halign = data.image_halign,
-		valign = data.image_valign,
-		video = data.video,
-		blend_mode = data.image_blend_mode,
-		video_loop = data.video_loop
+		valign = data.image_valign
 	}
-	if not data.texture and not data.video and not data.shapes then
+	if not data.texture and not data.shapes then
 		image_config.w = 0
 		image_config.h = 0
 	end

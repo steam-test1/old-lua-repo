@@ -1738,13 +1738,6 @@ function HuskPlayerMovement:_adjust_walk_anim_speed(dt, target_speed)
 end
 
 function HuskPlayerMovement:sync_shot_blank(impact)
--- fail 32
--- BE-3: JMP
--- BE-2: NEWTABLE
--- BE-1: SETTABLE
--- null
--- 6
-
 	if self._state == "mask_off" or self._state == "clean" then
 		return
 	end

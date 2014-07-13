@@ -493,20 +493,6 @@ end
 
 StageEndScreenGui = StageEndScreenGui or class()
 function StageEndScreenGui:init(saferect_ws, fullrect_ws, statistics_data)
--- fail 206
--- BE-3: SELF
--- BE-2: LOADK
--- BE-1: CALL
--- unluac.decompile.expression.FunctionCall@6c5a9e
--- -1
-
--- fail 401
--- BE-3: SELF
--- BE-2: LOADK
--- BE-1: CALL
--- unluac.decompile.expression.FunctionCall@1bba400
--- -1
-
 	self._safe_workspace = saferect_ws
 	self._full_workspace = fullrect_ws
 	self._fullscreen_panel = self._full_workspace:panel():panel({layer = 1})
