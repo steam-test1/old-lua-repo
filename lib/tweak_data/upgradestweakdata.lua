@@ -889,7 +889,8 @@ function UpgradesTweakData:init()
 	self.level_tree[7] = {
 		name_id = "body_armor",
 		upgrades = {
-			"body_armor1"
+			"body_armor1",
+			"moneybundle"
 		}
 	}
 	self.level_tree[8] = {
@@ -971,7 +972,7 @@ function UpgradesTweakData:init()
 	}
 	self.level_tree[35] = {
 		name_id = "weapons",
-		upgrades = {"r93"}
+		upgrades = {"r93", "judge"}
 	}
 	self.level_tree[36] = {
 		name_id = "weapons",
@@ -1196,6 +1197,7 @@ function UpgradesTweakData:init()
 	self:_saw_definitions()
 	self:_usp_definitions()
 	self:_g22c_definitions()
+	self:_judge_definitions()
 	self:_m45_definitions()
 	self:_s552_definitions()
 	self:_ppk_definitions()
@@ -4534,6 +4536,15 @@ function UpgradesTweakData:_g22c_definitions()
 	}
 end
 
+function UpgradesTweakData:_judge_definitions()
+	self.definitions.judge = {
+		category = "weapon",
+		weapon_id = "judge",
+		factory_id = "wpn_fps_pis_judge",
+		dlc = "pd2_clan"
+	}
+end
+
 function UpgradesTweakData:_m45_definitions()
 	self.definitions.m45 = {
 		category = "weapon",
@@ -4726,6 +4737,10 @@ function UpgradesTweakData:_melee_weapon_definitions()
 	self.definitions.becker = {
 		category = "melee_weapon",
 		dlc = "gage_pack_shotgun"
+	}
+	self.definitions.moneybundle = {
+		category = "melee_weapon",
+		dlc = "pd2_clan"
 	}
 end
 
