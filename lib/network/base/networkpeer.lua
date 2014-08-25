@@ -14,15 +14,14 @@ function NetworkPeer:init(name, rpc, id, loading, synced, in_lobby, character, u
 	if self._rpc then
 		Network:set_connection_persistent(rpc, true)
 		self._ip = self._rpc:ip_at_index(0)
-		Network:set_throttling_disabled(self._rpc, true)
 	end
 
 	if user_id and SystemInfo:platform() == Idstring("WIN32") then
 		self._steam_rpc = Network:handshake(user_id, nil, "STEAM")
 		Network:set_connection_persistent(self._steam_rpc, true)
-		Network:set_throttling_disabled(self._steam_rpc, true)
 	end
 
+	self:set_throttling_enabled(managers.user:get_setting("net_packet_throttling"))
 	self._level = nil
 	self._rank = 0
 	self._in_lobby = in_lobby
@@ -68,7 +67,7 @@ function NetworkPeer:set_rpc(rpc)
 	if self._rpc then
 		Network:set_connection_persistent(rpc, true)
 		self._ip = self._rpc:ip_at_index(0)
-		Network:set_throttling_disabled(self._rpc, true)
+		Network:set_throttling_disabled(self._rpc, not managers.user:get_setting("net_packet_throttling"))
 		self:_chk_flush_msg_queues()
 		if managers.network.voice_chat.on_member_added then
 			managers.network.voice_chat:on_member_added(self)
@@ -110,7 +109,7 @@ function NetworkPeer:set_steam_rpc(rpc)
 	self._steam_rpc = rpc
 	if self._steam_rpc then
 		Network:set_connection_persistent(self._steam_rpc, true)
-		Network:set_throttling_disabled(self._steam_rpc, true)
+		Network:set_throttling_disabled(self._steam_rpc, not managers.user:get_setting("net_packet_throttling"))
 	end
 
 end
@@ -132,6 +131,10 @@ end
 function NetworkPeer:load(data)
 	print("[NetworkPeer:load] data:", inspect(data))
 	self._name = data.name
+	if SystemInfo:platform() == Idstring("WIN32") then
+		self._name = managers.network.account:username_by_id(data.user_id)
+	end
+
 	self._rpc = data.rpc
 	self._steam_rpc = data.steam_rpc
 	self._id = data.id
@@ -430,6 +433,23 @@ function NetworkPeer:send(func_name, ...)
 
 	local rpc = self._rpc
 	rpc[func_name](rpc, ...)
+	local send_resume = Network:get_connection_send_status(rpc)
+	if send_resume then
+		local nr_queued_packets = 0
+		local (for generator), (for state), (for control) = pairs(send_resume)
+		do
+			do break end
+			nr_queued_packets = nr_queued_packets + amount
+			if nr_queued_packets > 100 and send_resume.unreliable then
+				print("[NetworkPeer:send] dropping unreliable packets", send_resume.unreliable)
+				Network:drop_unreliable_packets_for_connection(rpc)
+		end
+
+		else
+		end
+
+	end
+
 end
 
 function NetworkPeer:_send_queued(queue_name, func_name, ...)
@@ -963,6 +983,7 @@ function NetworkPeer:_reload_outfit()
 		texture = {}
 	}
 	local old_outfit_assets = self._outfit_assets
+	print("[NetworkPeer:_reload_outfit]", is_local_peer and "local_peer" or self._id, self._profile.outfit_string)
 	local asset_load_result_clbk = callback(self, self, "clbk_outfit_asset_loaded", new_outfit_assets)
 	local texture_load_result_clbk = callback(self, self, "clbk_outfit_texture_loaded", new_outfit_assets)
 	local complete_outfit = self:blackmarket_outfit()
@@ -1122,6 +1143,7 @@ function NetworkPeer:_chk_outfit_loading_complete()
 
 	self._all_outfit_load_requests_sent = nil
 	self._loading_outfit_assets = nil
+	print("[NetworkPeer:_chk_outfit_loading_complete] Complete!", self == managers.network:session():local_peer() and "local_peer" or self._id, "\n", inspect(self._outfit_assets.unit), inspect(self._outfit_assets.texture))
 	managers.network:session():on_peer_outfit_loaded(self)
 end
 
@@ -1145,5 +1167,16 @@ end
 
 function NetworkPeer:outfit_version()
 	return self._outfit_version
+end
+
+function NetworkPeer:set_throttling_enabled(state)
+	if self._rpc then
+		Network:set_throttling_disabled(self._rpc, not state)
+	end
+
+	if self._steam_rpc then
+		Network:set_throttling_disabled(self._steam_rpc, not state)
+	end
+
 end
 

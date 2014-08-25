@@ -14,7 +14,6 @@ function ElementExecuteInOtherMission:get_mission_element(id)
 	do
 		do break end
 		if script:element(id) then
-			print("found in", name, id)
 			return script:element(id)
 		end
 

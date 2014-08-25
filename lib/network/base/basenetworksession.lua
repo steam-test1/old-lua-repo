@@ -2,11 +2,18 @@ BaseNetworkSession = BaseNetworkSession or class()
 BaseNetworkSession.TIMEOUT_CHK_INTERVAL = 5
 if SystemInfo:platform() == Idstring("X360") then
 	BaseNetworkSession.CONNECTION_TIMEOUT = 15
+elseif SystemInfo:platform() == Idstring("WIN32") then
+	BaseNetworkSession.CONNECTION_TIMEOUT = 15
 else
 	BaseNetworkSession.CONNECTION_TIMEOUT = 10
 end
 
-BaseNetworkSession.LOADING_CONNECTION_TIMEOUT = 20
+if SystemInfo:platform() == Idstring("WIN32") then
+	BaseNetworkSession.LOADING_CONNECTION_TIMEOUT = 25
+else
+	BaseNetworkSession.LOADING_CONNECTION_TIMEOUT = 20
+end
+
 BaseNetworkSession._LOAD_WAIT_TIME = 3
 BaseNetworkSession._STEAM_P2P_SEND_INTERVAL = 1
 function BaseNetworkSession:init()
@@ -969,5 +976,14 @@ end
 
 function BaseNetworkSession:on_peer_outfit_loaded(peer)
 	print("[BaseNetworkSession:on_peer_outfit_loaded]", inspect(peer))
+end
+
+function BaseNetworkSession:set_packet_throttling_enabled(state)
+	local (for generator), (for state), (for control) = pairs(self._peers)
+	do
+		do break end
+		peer:set_throttling_enabled(state)
+	end
+
 end
 

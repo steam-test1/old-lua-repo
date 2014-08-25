@@ -7,13 +7,6 @@ end
 function StatisticsManager:_setup(reset)
 	self._defaults = {}
 	self._defaults.killed = {
-		other = {
-			count = 0,
-			head_shots = 0,
-			melee = 0,
-			explosion = 0,
-			tied = 0
-		},
 		civilian = {
 			count = 0,
 			head_shots = 0,
@@ -28,14 +21,28 @@ function StatisticsManager:_setup(reset)
 			explosion = 0,
 			tied = 0
 		},
-		security = {
+		cop = {
 			count = 0,
 			head_shots = 0,
 			melee = 0,
 			explosion = 0,
 			tied = 0
 		},
-		cop = {
+		fbi = {
+			count = 0,
+			head_shots = 0,
+			melee = 0,
+			explosion = 0,
+			tied = 0
+		},
+		fbi_swat = {
+			count = 0,
+			head_shots = 0,
+			melee = 0,
+			explosion = 0,
+			tied = 0
+		},
+		fbi_heavy_swat = {
 			count = 0,
 			head_shots = 0,
 			melee = 0,
@@ -56,7 +63,42 @@ function StatisticsManager:_setup(reset)
 			explosion = 0,
 			tied = 0
 		},
-		total = {
+		city_swat = {
+			count = 0,
+			head_shots = 0,
+			melee = 0,
+			explosion = 0,
+			tied = 0
+		},
+		security = {
+			count = 0,
+			head_shots = 0,
+			melee = 0,
+			explosion = 0,
+			tied = 0
+		},
+		gensec = {
+			count = 0,
+			head_shots = 0,
+			melee = 0,
+			explosion = 0,
+			tied = 0
+		},
+		gangster = {
+			count = 0,
+			head_shots = 0,
+			melee = 0,
+			explosion = 0,
+			tied = 0
+		},
+		biker_escape = {
+			count = 0,
+			head_shots = 0,
+			melee = 0,
+			explosion = 0,
+			tied = 0
+		},
+		sniper = {
 			count = 0,
 			head_shots = 0,
 			melee = 0,
@@ -91,35 +133,14 @@ function StatisticsManager:_setup(reset)
 			explosion = 0,
 			tied = 0
 		},
-		gangster = {
+		other = {
 			count = 0,
 			head_shots = 0,
 			melee = 0,
 			explosion = 0,
 			tied = 0
 		},
-		fbi = {
-			count = 0,
-			head_shots = 0,
-			melee = 0,
-			explosion = 0,
-			tied = 0
-		},
-		sniper = {
-			count = 0,
-			head_shots = 0,
-			melee = 0,
-			explosion = 0,
-			tied = 0
-		},
-		murky = {
-			count = 0,
-			head_shots = 0,
-			melee = 0,
-			explosion = 0,
-			tied = 0
-		},
-		patrol = {
+		total = {
 			count = 0,
 			head_shots = 0,
 			melee = 0,
@@ -295,8 +316,8 @@ function StatisticsManager:start_session(data)
 		return
 	end
 
-	if not self._playing then
-		self._playing = data.from_beginning and "beginning" or "dropin"
+	if not self._global.playing or managers.job:on_first_stage() then
+		self._global.playing = data.from_beginning and "beginning" or "dropin"
 	end
 
 	if Global.level_data.level_id then
@@ -306,7 +327,7 @@ function StatisticsManager:start_session(data)
 	end
 
 	local job_id = managers.job:current_job_id()
-	if job_id and managers.job:current_stage() == 1 then
+	if managers.job:on_first_stage() then
 		local job_stat = tostring(job_id) .. "_" .. tostring(Global.game_settings.difficulty)
 		if data.from_beginning then
 			self._global.sessions.jobs[job_stat .. "_started"] = (self._global.sessions.jobs[job_stat .. "_started"] or 0) + 1
@@ -346,26 +367,30 @@ function StatisticsManager:stop_session(data)
 
 	end
 
+	local completion
 	local job_id = managers.job:current_job_id()
 	if job_id and data then
 		local job_stat = tostring(job_id) .. "_" .. tostring(Global.game_settings.difficulty)
 		if data.type == "victory" then
 			if managers.job:on_last_stage() then
-				if self._playing == "beginning" then
+				if self._global.playing == "beginning" then
 					self._global.sessions.jobs[job_stat .. "_completed"] = (self._global.sessions.jobs[job_stat .. "_completed"] or 0) + 1
+					completion = "win_begin"
 				else
 					self._global.sessions.jobs[job_stat .. "_completed_dropin"] = (self._global.sessions.jobs[job_stat .. "_completed_dropin"] or 0) + 1
+					completion = "win_dropin"
 				end
 
 			end
 
 		elseif data.type == "gameover" then
-			if self._playing == "beginning" then
+			if self._global.playing == "beginning" then
 				self._global.sessions.jobs[job_stat .. "_failed"] = (self._global.sessions.jobs[job_stat .. "_failed"] or 0) + 1
 			else
 				self._global.sessions.jobs[job_stat .. "_failed_dropin"] = (self._global.sessions.jobs[job_stat .. "_failed_dropin"] or 0) + 1
 			end
 
+			completion = "fail"
 		end
 
 	end
@@ -382,11 +407,11 @@ function StatisticsManager:stop_session(data)
 	})
 	managers.challenges:reset("session")
 	if managers.job:on_last_stage() then
-		self._playing = nil
+		self._global.playing = nil
 	end
 
 	if SystemInfo:platform() == Idstring("WIN32") then
-		self:publish_to_steam(self._global.session, success)
+		self:publish_to_steam(self._global.session, success, completion)
 	end
 
 end
@@ -674,7 +699,8 @@ function StatisticsManager:_get_stat_tables()
 		"fal",
 		"benelli",
 		"striker",
-		"ksg"
+		"ksg",
+		"judge"
 	}
 	local melee_list = {
 		"weapon",
@@ -687,16 +713,46 @@ function StatisticsManager:_get_stat_tables()
 		"tomahawk",
 		"baton",
 		"shovel",
-		"becker"
+		"becker",
+		"moneybundle",
+		"barbedwire"
 	}
-	return level_list, job_list, mask_list, weapon_list, melee_list
+	local enemy_list = {
+		"cop",
+		"fbi",
+		"fbi_swat",
+		"fbi_heavy_swat",
+		"swat",
+		"heavy_swat",
+		"city_swat",
+		"security",
+		"gensec",
+		"gangster",
+		"biker_escape",
+		"sniper",
+		"shield",
+		"spooc",
+		"tank",
+		"taser"
+	}
+	local armor_list = {
+		"level_1",
+		"level_2",
+		"level_3",
+		"level_4",
+		"level_5",
+		"level_6",
+		"level_7"
+	}
+	return level_list, job_list, mask_list, weapon_list, melee_list, enemy_list, armor_list
 end
 
-function StatisticsManager:publish_to_steam(session, success)
+function StatisticsManager:publish_to_steam(session, success, completion)
 	if Application:editor() or not managers.criminals:local_character_name() then
 		return
 	end
 
+	self:check_version()
 	local session_time_seconds = Application:time() - self._start_session_time
 	local session_time_minutes = session_time_seconds / 60
 	local session_time = session_time_minutes / 60
@@ -704,7 +760,7 @@ function StatisticsManager:publish_to_steam(session, success)
 		return
 	end
 
-	local level_list, job_list, mask_list, weapon_list, melee_list = self:_get_stat_tables()
+	local level_list, job_list, mask_list, weapon_list, melee_list, enemy_list, armor_list = self:_get_stat_tables()
 	local stats = {}
 	self._global.play_time.minutes = math.ceil(self._global.play_time.minutes + session_time_minutes)
 	local current_time = math.floor(self._global.play_time.minutes / 60)
@@ -812,17 +868,8 @@ function StatisticsManager:publish_to_steam(session, success)
 		local (for generator), (for state), (for control) = pairs(session.shots_by_weapon)
 		do
 			do break end
-			if 0 < weapon_data.total then
-				local (for generator), (for state), (for control) = ipairs(weapon_list)
-				do
-					do break end
-					if weapon_name == weapon then
-						stats["weapon_used_" .. weapon_name] = {type = "int", value = 1}
-				end
-
-				else
-				end
-
+			if 0 < weapon_data.total and table.contains(weapon_list, weapon_name) then
+				stats["weapon_used_" .. weapon_name] = {type = "int", value = 1}
 			end
 
 		end
@@ -830,17 +877,8 @@ function StatisticsManager:publish_to_steam(session, success)
 	end
 
 	local melee_name = managers.blackmarket:equipped_melee_weapon()
-	do
-		local (for generator), (for state), (for control) = ipairs(melee_list)
-		do
-			do break end
-			if melee == melee_name then
-				stats["melee_used_" .. melee_name] = {type = "int", value = 1}
-		end
-
-		else
-		end
-
+	if table.contains(melee_list, melee_name) then
+		stats["melee_used_" .. melee_name] = {type = "int", value = 1}
 	end
 
 	stats.gadget_used_ammo_bag = {
@@ -864,20 +902,58 @@ function StatisticsManager:publish_to_steam(session, success)
 		value = session.misc.deploy_jammer or 0
 	}
 	local mask_id = managers.blackmarket:equipped_mask().mask_id
+	if table.contains(mask_list, mask_id) then
+		stats["mask_used_" .. mask_id] = {type = "int", value = 1}
+	end
+
+	local armor_id = managers.blackmarket:equipped_armor()
+	if table.contains(armor_list, armor_id) then
+		stats["armor_used_" .. armor_id] = {type = "int", value = 1}
+	end
+
+	stats["difficulty_" .. Global.game_settings.difficulty] = {type = "int", value = 1}
 	do
-		local (for generator), (for state), (for control) = ipairs(mask_list)
+		local (for generator), (for state), (for control) = pairs(session.killed_by_weapon)
 		do
 			do break end
-			if mask_id == mask then
-				stats["mask_used_" .. mask_id] = {type = "int", value = 1}
-		end
+			if 0 < weapon_data.count and table.contains(weapon_list, weapon_name) then
+				stats["weapon_kills_" .. weapon_name] = {
+					type = "int",
+					value = weapon_data.count
+				}
+			end
 
-		else
 		end
 
 	end
 
-	stats["difficulty_" .. Global.game_settings.difficulty] = {type = "int", value = 1}
+	do
+		local (for generator), (for state), (for control) = pairs(session.killed_by_melee)
+		do
+			do break end
+			if melee_kill > 0 and table.contains(melee_list, melee_name) then
+				stats["melee_kills_" .. melee_name] = {type = "int", value = melee_kill}
+			end
+
+		end
+
+	end
+
+	do
+		local (for generator), (for state), (for control) = pairs(session.killed)
+		do
+			do break end
+			if 0 < enemy_data.count and table.contains(enemy_list, enemy_name) then
+				stats["enemy_kills_" .. enemy_name] = {
+					type = "int",
+					value = enemy_data.count
+				}
+			end
+
+		end
+
+	end
+
 	stats.heist_success = {
 		type = "int",
 		value = success and 1 or 0
@@ -887,29 +963,19 @@ function StatisticsManager:publish_to_steam(session, success)
 		value = success and 0 or 1
 	}
 	local level_id = managers.job:current_level_id()
-	do
-		local (for generator), (for state), (for control) = ipairs(level_list)
-		do
-			do break end
-			if level_id == level then
-				stats["level_" .. level_id] = {type = "int", value = 1}
-		end
-
-		else
-		end
-
+	if table.contains(level_list, level_id) then
+		stats["level_" .. level_id] = {type = "int", value = 1}
 	end
 
 	local job_id = managers.job:current_job_id()
-	do
-		local (for generator), (for state), (for control) = ipairs(job_list)
-		do
-			do break end
-			if job_id == job then
-				stats["job_" .. job_id] = {type = "int", value = 1}
-		end
-
-		else
+	if table.contains(job_list, job_id) then
+		stats["job_" .. job_id] = {type = "int", value = 1}
+		if completion == "win_begin" then
+			stats["contract_" .. job_id .. "_win"] = {type = "int", value = 1}
+		elseif completion == "win_dropin" then
+			stats["contract_" .. job_id .. "_win_dropin"] = {type = "int", value = 1}
+		elseif completion == "fail" then
+			stats["contract_" .. job_id .. "_fail"] = {type = "int", value = 1}
 		end
 
 	end
@@ -928,6 +994,7 @@ function StatisticsManager:publish_skills_to_steam()
 		return
 	end
 
+	self:check_version()
 	local stats = {}
 	local skill_amount = {}
 	local skill_data = tweak_data.skilltree.trees
@@ -936,6 +1003,11 @@ function StatisticsManager:publish_skills_to_steam()
 		do
 			do break end
 			skill_amount[tree_index] = 0
+			stats["skill_" .. tree.skill .. "_unlocked"] = {
+				type = "int",
+				method = "set",
+				value = managers.skilltree:tree_unlocked(tree_index) and 1 or 0
+			}
 			local (for generator), (for state), (for control) = ipairs(tree.tiers)
 			do
 				do break end
@@ -996,6 +1068,33 @@ function StatisticsManager:publish_skills_to_steam()
 	end
 
 	managers.network.account:publish_statistics(stats)
+end
+
+function StatisticsManager:check_version()
+	local CURRENT_VERSION = 1
+	if CURRENT_VERSION > managers.network.account:get_stat("stat_version") then
+		local stats = {}
+		do
+			local (for generator), (for state), (for control) = ipairs(tweak_data.skilltree.trees)
+			do
+				do break end
+				stats["skill_" .. tree.skill .. "_unlocked"] = {
+					type = "int",
+					method = "set",
+					value = managers.skilltree:tree_unlocked(tree_index) and 1 or 0
+				}
+			end
+
+		end
+
+		stats.stat_version = {
+			type = "int",
+			method = "set",
+			value = CURRENT_VERSION
+		}
+		managers.network.account:publish_statistics(stats)
+	end
+
 end
 
 function StatisticsManager:debug_estimate_steam_players()
@@ -1316,7 +1415,7 @@ end
 
 function StatisticsManager:tied(data)
 	data.type = tweak_data.character[data.name] and tweak_data.character[data.name].challenges.type
-	if not self._global.killed[data.name] then
+	if not self._global.killed[data.name] or not self._global.session.killed[data.name] then
 		Application:error("Bad name id applied to tied, " .. tostring(data.name) .. ". Defaulting to 'other'")
 		data.name = "other"
 	end
@@ -1870,7 +1969,8 @@ function StatisticsManager:save(data)
 		shots_by_weapon = self._global.shots_by_weapon,
 		health = self._global.health,
 		misc = self._global.misc,
-		play_time = self._global.play_time
+		play_time = self._global.play_time,
+		playing = self._global.playing
 	}
 	data.StatisticsManager = state
 end

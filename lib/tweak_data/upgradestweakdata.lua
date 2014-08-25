@@ -998,7 +998,7 @@ function UpgradesTweakData:init()
 	}
 	self.level_tree[45] = {
 		name_id = "weapons",
-		upgrades = {"m249"}
+		upgrades = {"m249", "barbedwire"}
 	}
 	self.level_tree[50] = {
 		name_id = "lvl_50",
@@ -1159,6 +1159,8 @@ function UpgradesTweakData:init()
 		23,
 		33
 	}
+	self.values.striker = {}
+	self.values.striker.reload_speed_multiplier = {1.15}
 	self.definitions = {}
 	self:_player_definitions()
 	self:_trip_mine_definitions()
@@ -4684,6 +4686,15 @@ function UpgradesTweakData:_striker_definitions()
 		factory_id = "wpn_fps_sho_striker",
 		dlc = "gage_pack_shotgun"
 	}
+	self.definitions.striker_reload_speed_default = {
+		category = "feature",
+		name_id = "menu_reload_speed_multiplierr",
+		upgrade = {
+			category = "striker",
+			upgrade = "reload_speed_multiplier",
+			value = 1
+		}
+	}
 end
 
 function UpgradesTweakData:_ksg_definitions()
@@ -4739,6 +4750,10 @@ function UpgradesTweakData:_melee_weapon_definitions()
 		dlc = "gage_pack_shotgun"
 	}
 	self.definitions.moneybundle = {
+		category = "melee_weapon",
+		dlc = "pd2_clan"
+	}
+	self.definitions.barbedwire = {
 		category = "melee_weapon",
 		dlc = "pd2_clan"
 	}

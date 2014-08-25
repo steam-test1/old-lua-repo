@@ -656,6 +656,44 @@ function CopMovement:get_action(body_part)
 end
 
 function CopMovement:set_attention(attention)
+	if not attention and not self._attention then
+		return
+	end
+
+	if attention and self._attention then
+		local different
+		do
+			local (for generator), (for state), (for control) = pairs(self._attention)
+			do
+				do break end
+				if attention[i] ~= k then
+					different = true
+			end
+
+			else
+			end
+
+		end
+
+		if not different then
+			local (for generator), (for state), (for control) = pairs(attention)
+			do
+				do break end
+				if self._attention[i] ~= k then
+					different = true
+			end
+
+			else
+			end
+
+		end
+
+		if not different then
+			return
+		end
+
+	end
+
 	if self._attention and self._attention.destroy_listener_key then
 		if alive(self._attention.unit) and self._attention.unit:base() then
 			self._attention.unit:base():remove_destroy_listener(self._attention.destroy_listener_key)
@@ -668,6 +706,7 @@ function CopMovement:set_attention(attention)
 
 	if attention then
 		if attention.unit then
+			local attention_unit
 			if attention.handler then
 				local attention_unit = attention.handler:unit()
 				if attention_unit:id() ~= -1 then
@@ -678,8 +717,8 @@ function CopMovement:set_attention(attention)
 
 			else
 				local attention_unit = attention.unit
-				if self._ext_network and attention_unit:id() ~= -1 then
-					self._ext_network:send("cop_set_attention_unit", attention_unit)
+				if attention_unit:id() ~= -1 then
+					self._ext_network:send("set_attention", attention_unit, AIAttentionObject.REACT_IDLE)
 				end
 
 			end
@@ -691,12 +730,12 @@ function CopMovement:set_attention(attention)
 				attention_unit:base():add_destroy_listener(listener_key, callback(self, self, "attention_unit_destroy_clbk"))
 			end
 
-		elseif self._ext_network then
+		else
 			self._ext_network:send("cop_set_attention_pos", attention.pos)
 		end
 
-	elseif self._attention and Network:is_server() and self._unit:id() ~= -1 then
-		self._ext_network:send("cop_reset_attention")
+	elseif self._attention and self._unit:id() ~= -1 then
+		self._ext_network:send("set_attention", nil, AIAttentionObject.REACT_IDLE)
 	end
 
 	local old_attention = self._attention
@@ -1005,8 +1044,9 @@ end
 function CopMovement:set_allow_fire_on_client(state, unit)
 	if Network:is_server() then
 		unit:network():send_to_unit({
-			state and "cop_allow_fire" or "cop_forbid_fire",
-			self._unit
+			"set_allow_fire",
+			self._unit,
+			state
 		})
 	end
 
@@ -1019,7 +1059,7 @@ function CopMovement:set_allow_fire(state)
 
 	self:synch_allow_fire(state)
 	if Network:is_server() then
-		self._ext_network:send(state and "cop_allow_fire" or "cop_forbid_fire")
+		self._ext_network:send("set_allow_fire", state)
 	end
 
 	self:enable_update()
@@ -1947,13 +1987,13 @@ function CopMovement:sync_action_walk_nav_link(pos, rot, anim_index, from_idle)
 
 end
 
-function CopMovement:sync_action_walk_stop(pos)
+function CopMovement:sync_action_walk_stop()
 	local walk_action, is_queued = self:_get_latest_walk_action()
 	if is_queued then
-		table.insert(walk_action.nav_path, pos)
+		table.insert(walk_action.nav_path, CopActionWalk._nav_point_pos(walk_action.nav_path[#walk_action.nav_path]))
 		walk_action.persistent = nil
 	elseif walk_action then
-		walk_action:stop(pos)
+		walk_action:stop()
 	else
 		debug_pause("[CopMovement:sync_action_walk_stop] no walk action!!!", self._unit, pos)
 	end
@@ -2282,7 +2322,7 @@ function CopMovement:clbk_sync_attention(attention)
 		end
 
 	elseif self._attention.unit and attention.unit:id() ~= -1 then
-		self._ext_network:send("cop_set_attention_unit", self._attention.unit)
+		self._ext_network:send("set_attention", self._attention.unit, AIAttentionObject.REACT_IDLE)
 	end
 
 end

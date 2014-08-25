@@ -540,7 +540,7 @@ function MenuNodePrePlanningGui:mouse_pressed(button, x, y)
 		local (for generator), (for state), (for control) = pairs(self.row_items)
 		do
 			do break end
-			if row_item.gui_panel and row_item.gui_panel:inside(x, y) and row_item.type ~= "divider" then
+			if row_item.gui_panel and row_item.gui_panel:inside(x, y) and self._item_panel_parent:inside(x, y) and row_item.type ~= "divider" then
 				managers.menu_component:set_preplanning_map_position_to_item(row_item.item)
 		end
 

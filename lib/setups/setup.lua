@@ -572,7 +572,7 @@ function Setup:block_exec()
 
 	if not managers.dyn_resource:is_ready_to_close() then
 		print("BLOCKED BY DYNAMIC RESOURCE MANAGER")
-		managers.dyn_resource:set_file_streaming_settings(managers.dyn_resource:max_streaming_chunk(), 0)
+		managers.dyn_resource:set_file_streaming_settings(managers.dyn_resource:max_streaming_chunk(), 1)
 		return true
 	end
 

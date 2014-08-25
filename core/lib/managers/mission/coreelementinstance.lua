@@ -23,7 +23,6 @@ function ElementInstanceOutput:init(...)
 end
 
 function ElementInstanceOutput:on_created()
-	print("ElementInstanceOutput:on_created()")
 	self._output_elements = managers.world_instance:get_registered_output_event_elements(self._values.instance_name, self._values.event)
 end
 
@@ -35,7 +34,6 @@ function ElementInstanceOutput:on_executed(instigator)
 		return
 	end
 
-	print("ElementInstanceOutput:on_executed", instigator)
 	if self._output_elements then
 		local (for generator), (for state), (for control) = ipairs(self._output_elements)
 		do
@@ -55,7 +53,6 @@ end
 
 function ElementInstanceInputEvent:on_created()
 	print("ElementInstanceInputEvent:on_created()")
-	self._input_elements = managers.world_instance:get_registered_input_elements(self._values.instance, self._values.event)
 end
 
 function ElementInstanceInputEvent:client_on_executed(...)
@@ -66,8 +63,9 @@ function ElementInstanceInputEvent:on_executed(instigator)
 		return
 	end
 
-	if self._input_elements then
-		local (for generator), (for state), (for control) = ipairs(self._input_elements)
+	local input_elements = managers.world_instance:get_registered_input_elements(self._values.instance, self._values.event)
+	if input_elements then
+		local (for generator), (for state), (for control) = ipairs(input_elements)
 		do
 			do break end
 			element:on_executed(instigator)
@@ -93,5 +91,50 @@ function ElementInstanceOutputEvent:on_executed(instigator)
 	end
 
 	ElementInstanceOutputEvent.super.on_executed(self, instigator)
+end
+
+ElementInstancePoint = ElementInstancePoint or class(CoreMissionScriptElement.MissionScriptElement)
+function ElementInstancePoint:client_on_executed(...)
+end
+
+function ElementInstancePoint:on_executed(instigator)
+	if not self._values.enabled then
+		return
+	end
+
+	self:_create()
+	ElementInstancePoint.super.on_executed(self, instigator)
+end
+
+function ElementInstancePoint:_create()
+	if self._has_created then
+		return
+	end
+
+	self._has_created = true
+	if Network:is_server() then
+		self._mission_script:add_save_state_cb(self._id)
+	end
+
+	if self._values.instance then
+		managers.world_instance:custom_create_instance(self._values.instance, {
+			position = self._values.position,
+			rotation = self._values.rotation
+		})
+	elseif Application:editor() then
+		managers.editor:output_error("[ElementInstancePoint:_create()] No instance defined in [" .. self._editor_name .. "]")
+	end
+
+end
+
+function ElementInstancePoint:save(data)
+	data.has_created = self._has_created
+end
+
+function ElementInstancePoint:load(data)
+	if data.has_created then
+		self:_create()
+	end
+
 end
 

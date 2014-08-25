@@ -77,7 +77,7 @@ function CopActionShoot:init(action_desc, common_data)
 
 	CopActionAct._create_blocks_table(self, action_desc.blocks)
 	if Network:is_server() then
-		common_data.ext_network:send("action_aim_start")
+		common_data.ext_network:send("action_aim_state", true)
 	end
 
 	self._skipped_frames = 1
@@ -229,7 +229,7 @@ function CopActionShoot:on_exit()
 	end
 
 	if Network:is_server() then
-		self._common_data.unit:network():send("action_aim_end")
+		self._common_data.unit:network():send("action_aim_state", false)
 	end
 
 	if self._shooting_player and alive(self._attention.unit) then

@@ -632,6 +632,38 @@ function UpgradesManager:aquired_weapons()
 	return self:aquired_by_category("weapon")
 end
 
+function UpgradesManager:list_level_rewards(dlcs)
+	local t = {}
+	local tree_data = tweak_data.upgrades.level_tree
+	local def
+	do
+		local (for generator), (for state), (for control) = pairs(tree_data)
+		do
+			do break end
+			if data.upgrades then
+				local (for generator), (for state), (for control) = ipairs(data.upgrades)
+				do
+					do break end
+					def = tweak_data.upgrades.definitions[upgrade]
+					if def and (not dlcs or def.dlc) and (not dlcs or dlcs == true and def.dlc or dlcs[def.dlc] or table.contains(dlcs, def.dlc)) then
+						table.insert(t, {
+							upgrade,
+							level,
+							def.dlc
+						})
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+
+	return t
+end
+
 function UpgradesManager:all_weapon_upgrades()
 	local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.definitions)
 	do

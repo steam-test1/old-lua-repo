@@ -387,6 +387,10 @@ function SkillTreeManager:on_respec_tree(tree, forced_respec_multiplier)
 		self:_respec_tree_version5(tree, forced_respec_multiplier)
 	end
 
+	if SystemInfo:platform() == Idstring("WIN32") then
+		managers.statistics:publish_skills_to_steam()
+	end
+
 end
 
 function SkillTreeManager:_respec_tree_version5(tree, forced_respec_multiplier)
@@ -458,6 +462,10 @@ function SkillTreeManager:reset_skilltrees()
 	self._global.VERSION = SkillTreeManager.VERSION
 	self._global.reset_message = true
 	self._global.times_respeced = 1
+	if SystemInfo:platform() == Idstring("WIN32") then
+		managers.statistics:publish_skills_to_steam()
+	end
+
 end
 
 function SkillTreeManager:check_reset_message()
@@ -746,5 +754,9 @@ end
 function SkillTreeManager:reset()
 	Global.skilltree_manager = nil
 	self:_setup()
+	if SystemInfo:platform() == Idstring("WIN32") then
+		managers.statistics:publish_skills_to_steam()
+	end
+
 end
 
