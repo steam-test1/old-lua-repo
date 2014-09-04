@@ -708,6 +708,11 @@ function CoreUnitDamage:save(data)
 	end
 
 	changed = self._unit_element:save_by_unit(self._unit, state) or changed
+	if self._queued_sequences then
+		changed = true
+		state.queued_sequences = self._queued_sequences
+	end
+
 	if changed then
 		data.CoreUnitDamage = state
 	end
@@ -720,10 +725,6 @@ end
 
 function CoreUnitDamage:load(data)
 	local state = data.CoreUnitDamage
-	if self._unit:name() == Idstring("units/payday2/vehicles/air_vehicle_blackhawk/helicopter_cops_ref") then
-		print("[CoreUnitDamage:load]", self._unit)
-	end
-
 	if self._startup_sequence_callback_id then
 		managers.sequence:remove_time_callback(self._startup_sequence_callback_id)
 		self:run_startup_sequences()
@@ -748,6 +749,7 @@ function CoreUnitDamage:load(data)
 			self._variables = table.map_copy(state.variables)
 		end
 
+		self._queued_sequences = state.queued_sequences
 		if state.proximity_map then
 			self._proximity_count = state.proximity_count
 			self._proximity_enabled_count = state.proximity_enabled_count
@@ -823,6 +825,7 @@ function CoreUnitDamage:load(data)
 
 	managers.worlddefinition:use_me(self._unit)
 	managers.worlddefinition:external_set_only_visible_in_editor(self._unit)
+	self:_process_sequence_queue()
 end
 
 function CoreUnitDamage:run_startup_sequences()
@@ -1719,6 +1722,46 @@ end
 function CoreUnitDamage:set_variable(key, val)
 	self._variables = self._variables or {}
 	self._variables[key] = val
+end
+
+function CoreUnitDamage:anim_clbk_set_sequence_block_state(unit, state)
+	state = state == "true" and true or false
+	self:set_sequence_block_state(state)
+end
+
+function CoreUnitDamage:set_sequence_block_state(state)
+	self._sequence_block_state = state
+	if not state then
+		self:_process_sequence_queue()
+	end
+
+end
+
+function CoreUnitDamage:_process_sequence_queue()
+	if self._sequence_block_state or not self._queued_sequences then
+		return
+	end
+
+	while not self._sequence_block_state and self._queued_sequences and next(self._queued_sequences) do
+		local front_seq = table.remove(self._queued_sequences, 1)
+		self:run_sequence_simple(front_seq.name, front_seq.params)
+	end
+
+	if not next(self._queued_sequences) then
+		self._queued_sequences = nil
+	end
+
+end
+
+function CoreUnitDamage:add_queued_sequence(name, params)
+	if not self._sequence_block_state then
+		self:run_sequence_simple(name, params)
+		return
+	end
+
+	self._queued_sequences = self._queued_sequences or {}
+	local new_entry = {name = name, params = params}
+	table.insert(self._queued_sequences, new_entry)
 end
 
 CoreBodyDamage = CoreBodyDamage or class()

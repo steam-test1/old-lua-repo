@@ -90,34 +90,13 @@ end
 
 function NetworkAccountPSN:achievements_fetched()
 	self._achievements_fetched = true
-	self:_check_for_unawarded_achievements()
 end
 
 function NetworkAccountPSN:challenges_loaded()
 	self._challenges_loaded = true
-	self:_check_for_unawarded_achievements()
 end
 
 function NetworkAccountPSN:experience_loaded()
 	self._experience_loaded = true
-	self:_check_for_unawarded_achievements()
-end
-
-function NetworkAccountPSN:_check_for_unawarded_achievements()
-	if not self._achievements_fetched or not self._challenges_loaded or not self._experience_loaded then
-		return
-	end
-
-	print("[NetworkAccountPSN:_check_for_unawarded_achievements]")
-	local (for generator), (for state), (for control) = ipairs(managers.challenges:get_completed())
-	do
-		do break end
-		local achievement = managers.challenges:get_awarded_achievment(challenge.id)
-		if achievement and not managers.achievment:get_info(achievement).awarded then
-			managers.challenges:add_already_awarded_challenge(challenge.id)
-		end
-
-	end
-
 end
 

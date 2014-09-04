@@ -167,17 +167,14 @@ function TradeManager:update(t, dt)
 			if mugshot_data and not mugshot_data.state_name ~= "mugshot_in_custody" then
 				managers.hud:set_mugshot_custody(mugshot_id)
 				if 0 < crim.respawn_penalty then
-					managers.hud:show_mugshot_timer(mugshot_id)
 				end
 
 			end
 
 			if 0 < crim.respawn_penalty then
 				crim.respawn_penalty = self._trade_countdown and crim.respawn_penalty - 1 or crim.respawn_penalty
-				managers.hud:set_mugshot_timer(mugshot_id, crim.respawn_penalty)
 				if 0 >= crim.respawn_penalty then
 					crim.respawn_penalty = 0
-					managers.hud:hide_mugshot_timer(mugshot_id)
 				end
 
 			end
@@ -265,7 +262,6 @@ function TradeManager:sync_set_trade_spawn(criminal_name)
 	self:_announce_spawn(criminal_name)
 	self._num_trades = self._num_trades + 1
 	if crim_data then
-		managers.hud:hide_mugshot_timer(crim_data.mugshot_id)
 		managers.hud:set_mugshot_normal(crim_data.mugshot_id)
 	end
 
@@ -338,8 +334,6 @@ function TradeManager:on_AI_criminal_death(criminal_name, respawn_penalty, hosta
 	local crim_data = managers.criminals:character_data_by_name(criminal_name)
 	if crim_data then
 		managers.hud:set_mugshot_custody(crim_data.mugshot_id)
-		managers.hud:set_mugshot_timer(crim_data.mugshot_id, respawn_penalty)
-		managers.hud:show_mugshot_timer(crim_data.mugshot_id)
 	end
 
 	local crim = {
@@ -379,8 +373,6 @@ function TradeManager:on_player_criminal_death(criminal_name, respawn_penalty, h
 	if crim_data then
 		if managers.hud then
 			managers.hud:set_mugshot_custody(crim_data.mugshot_id)
-			managers.hud:set_mugshot_timer(crim_data.mugshot_id, respawn_penalty)
-			managers.hud:show_mugshot_timer(crim_data.mugshot_id)
 		else
 			debug_pause("[TradeManager:on_player_criminal_death] no hud manager! criminal_name:", criminal_name)
 		end

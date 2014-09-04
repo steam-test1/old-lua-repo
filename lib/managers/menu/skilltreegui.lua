@@ -902,9 +902,14 @@ function SkillTreeGui:_setup()
 	local tree_tab_h = math.round(self._panel:h() / 14)
 	local tree_tabs_panel = self._panel:panel({
 		name = "tree_tabs_panel",
+		w = self._panel:w() * WIDTH_MULTIPLIER,
 		h = tree_tab_h,
 		y = 71
 	})
+	local controller_page_tab_panel = self._panel:panel({
+		name = "controller_page_tab_panel"
+	})
+	controller_page_tab_panel:set_shape(tree_tabs_panel:shape())
 	local skill_title_panel = self._panel:panel({
 		name = "skill_title_panel",
 		w = math.round(self._panel:w() * 0.4 - 54),
@@ -967,9 +972,13 @@ function SkillTreeGui:_setup()
 	self._tab_items = {}
 	self._pages_order = {}
 	self._pages = {}
+	self._tree_tabs_scroll_panel = tree_tabs_panel:panel({
+		name = "tree_tabs_scroll_panel",
+		w = tree_tabs_panel:w() * WIDTH_MULTIPLIER
+	})
 	local tab_x = 0
 	if not managers.menu:is_pc_controller() then
-		local prev_page = tree_tabs_panel:text({
+		local prev_page = controller_page_tab_panel:text({
 			name = "prev_page",
 			y = 0,
 			w = 0,
@@ -983,8 +992,11 @@ function SkillTreeGui:_setup()
 		prev_page:set_w(w)
 		prev_page:set_left(tab_x)
 		tab_x = math.round(tab_x + w + 15)
+		tree_tabs_panel:grow(-tab_x, 0)
+		tree_tabs_panel:move(tab_x, 0)
 	end
 
+	tab_x = 0
 	local skill_prerequisites = {}
 	do
 		local (for generator), (for state), (for control) = pairs(tweak_data.skilltree.skills)
@@ -1005,11 +1017,11 @@ function SkillTreeGui:_setup()
 	end
 
 	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.skilltree.trees)
+		local (for generator), (for state), (for control) = ipairs(tweak_data.skilltree.trees)
 		do
 			do break end
-			local w = math.round(tree_tabs_panel:w() / #tweak_data.skilltree.trees * WIDTH_MULTIPLIER)
-			local tab_item = SkillTreeTabItem:new(tree_tabs_panel, tree, data, w, tab_x)
+			local w = math.round(self._tree_tabs_scroll_panel:w() / #tweak_data.skilltree.trees * WIDTH_MULTIPLIER)
+			local tab_item = SkillTreeTabItem:new(self._tree_tabs_scroll_panel, tree, data, w, tab_x)
 			table.insert(self._tab_items, tab_item)
 			local page = SkillTreePage:new(tree, data, self._panel, self._fullscreen_panel, tab_item._tree_tab:h(), skill_prerequisites)
 			table.insert(self._pages_order, tree)
@@ -1020,6 +1032,7 @@ function SkillTreeGui:_setup()
 
 	end
 
+	self._tree_tabs_scroll_panel:set_w(tab_x)
 	local top_tier_panel = self._panel:child("1"):child("tier_panels"):child("tier_panel" .. tostring(#tweak_data.skilltree.trees[1].tiers))
 	local bottom_tier_panel = self._panel:child("1"):child("tier_panels"):child("tier_panel1")
 	skill_description_panel:set_right(self._panel:w())
@@ -1066,7 +1079,7 @@ function SkillTreeGui:_setup()
 		}
 	})
 	if not managers.menu:is_pc_controller() then
-		local next_page = tree_tabs_panel:text({
+		local next_page = controller_page_tab_panel:text({
 			name = "next_page",
 			y = 0,
 			w = 0,
@@ -1078,7 +1091,9 @@ function SkillTreeGui:_setup()
 		})
 		local _, _, w = next_page:text_rect()
 		next_page:set_w(w)
-		next_page:set_right(tree_tabs_panel:w() * WIDTH_MULTIPLIER)
+		next_page:set_right(controller_page_tab_panel:w())
+		tab_x = math.round(w + 15)
+		tree_tabs_panel:grow(-tab_x, 0)
 	end
 
 	self:set_active_page(managers.skilltree:get_most_progressed_tree())
@@ -1158,8 +1173,8 @@ function SkillTreeGui:set_active_page(tree_panel_name, play_sound)
 
 	self._active_page = self._pages[tree_panel_name]
 	self._active_tree = tree_panel_name
-	local prev_page_button = self._panel:child("tree_tabs_panel"):child("prev_page")
-	local next_page_button = self._panel:child("tree_tabs_panel"):child("next_page")
+	local prev_page_button = self._panel:child("controller_page_tab_panel"):child("prev_page")
+	local next_page_button = self._panel:child("controller_page_tab_panel"):child("next_page")
 	if prev_page_button then
 		prev_page_button:set_visible(self._active_tree > 1)
 	end
@@ -1186,6 +1201,21 @@ function SkillTreeGui:set_active_page(tree_panel_name, play_sound)
 	do
 		do break end
 		tab_item:set_active(tree_panel_name == tab_item:tree())
+		if tree_panel_name == tab_item:tree() then
+			local tree_tabs_panel = self._panel:child("tree_tabs_panel")
+			local tree_tab = tab_item._tree_tab
+			local tab_wl = tree_tab:world_left()
+			local tab_wr = tree_tab:world_right()
+			local panel_wl = tree_tabs_panel:world_left()
+			local panel_wr = tree_tabs_panel:world_right()
+			if tab_wl < panel_wl then
+				self._tree_tabs_scroll_panel:move(panel_wl - tab_wl, 0)
+			elseif tab_wr > panel_wr then
+				self._tree_tabs_scroll_panel:move(panel_wr - tab_wr, 0)
+			end
+
+		end
+
 	end
 
 end
@@ -1293,12 +1323,15 @@ function SkillTreeGui:set_selected_item(item, no_sound)
 				}) .. "\n"
 			end
 
-			local skilltree = tweak_data.skilltree.trees[self._active_tree] and tweak_data.skilltree.trees[self._active_tree].skill or "NIL"
-			local tier_descs = tweak_data.upgrades.skill_descs[tostring(skilltree) .. "_tier" .. tostring(self._selected_item._tier)]
-			tier_bonus_text = [[
+			if not tweak_data.skilltree.SKIP_TIER_BONUS then
+				local skilltree = tweak_data.skilltree.trees[self._active_tree] and tweak_data.skilltree.trees[self._active_tree].skill or "NIL"
+				local tier_descs = tweak_data.upgrades.skill_descs[tostring(skilltree) .. "_tier" .. tostring(self._selected_item._tier)]
+				tier_bonus_text = [[
 
 
 ]] .. utf8.to_upper(managers.localization:text(unlocked and "st_menu_tier_unlocked" or "st_menu_tier_locked")) .. "\n" .. managers.localization:text(tweak_data.skilltree.skills[tweak_data.skilltree.trees[self._selected_item._tree].skill][self._selected_item._tier].desc_id, tier_descs)
+			end
+
 		end
 
 		text = text .. tier_bonus_text

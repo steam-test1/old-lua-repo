@@ -1345,7 +1345,7 @@ function PrePlanningManager:sync_load(data)
 			do
 				do break end
 				local type, index = unpack(element_data.pack)
-				local mission_element = self._mission_elements_by_type[type][index]
+				local mission_element = self._mission_elements_by_type[type] and self._mission_elements_by_type[type][index]
 				if mission_element then
 					local disables_types = mission_element:value("disables_types") or {}
 					local (for generator), (for state), (for control) = ipairs(disables_types)

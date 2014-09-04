@@ -84,6 +84,7 @@ function SentryGunDamage:die()
 		self._unit:damage():run_sequence_simple("broken")
 	end
 
+	self._unit:interaction():set_tweak_data("sentry_gun_revive")
 end
 
 function SentryGunDamage:save(save_data)

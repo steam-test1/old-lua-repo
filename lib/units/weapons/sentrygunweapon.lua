@@ -46,11 +46,11 @@ function SentryGunWeapon:init(unit)
 		position = Vector3(),
 		normal = Vector3()
 	}
-	self._ammo_sync_resolution = 0.2
+	self._ammo_sync_resolution = 0.0625
 	if Network:is_server() then
 		self._ammo_total = 1
 		self._ammo_max = self._ammo_total
-		self._ammo_sync = 1
+		self._ammo_sync = 16
 	else
 		self._ammo_ratio = 1
 	end
@@ -70,8 +70,23 @@ function SentryGunWeapon:set_ammo(amount)
 	self._ammo_max = math.max(self._ammo_max, amount)
 end
 
+function SentryGunWeapon:change_ammo(amount)
+	self._ammo_total = math.min(math.ceil(self._ammo_total + amount), self._ammo_max)
+	local ammo_percent = self._ammo_total / self._ammo_max
+	local resolution_step = math.ceil(ammo_percent / self._ammo_sync_resolution)
+	print("change_ammo", self._ammo_total, self._ammo_max, ammo_percent, self._ammo_sync, resolution_step)
+	if ammo_percent == 0 or resolution_step ~= self._ammo_sync then
+		self._ammo_sync = resolution_step
+		self._unit:network():send("sentrygun_ammo", self._ammo_sync)
+		self._unit:interaction():set_dirty(true)
+	end
+
+end
+
 function SentryGunWeapon:sync_ammo(ammo_ratio)
-	self._ammo_ratio = ammo_ratio * self._ammo_sync_resolution * 100
+	print("sync_ammo", self._ammo_ratio, ammo_ratio, ammo_ratio * self._ammo_sync_resolution)
+	self._ammo_ratio = ammo_ratio * self._ammo_sync_resolution
+	self._unit:interaction():set_dirty(true)
 end
 
 function SentryGunWeapon:set_spread_mul(spread_mul)
@@ -125,13 +140,7 @@ function SentryGunWeapon:fire(blanks, expend_ammo)
 			return
 		end
 
-		self._ammo_total = self._ammo_total - 1
-		local ammo_percent = self._ammo_total / self._ammo_max
-		if ammo_percent == 0 or math.abs(ammo_percent - self._ammo_sync) >= self._ammo_sync_resolution then
-			self._ammo_sync = ammo_percent
-			self._unit:network():send("sentrygun_ammo", math.ceil(ammo_percent / self._ammo_sync_resolution))
-		end
-
+		self:change_ammo(-1)
 	end
 
 	local fire_obj = self._effect_align[self._interleaving_fire]
@@ -161,12 +170,7 @@ function SentryGunWeapon:_fire_raycast(from_pos, direction, shoot_player)
 	mvector3.add(mvec_to, from_pos)
 	local col_ray = World:raycast("ray", from_pos, mvec_to, "slot_mask", self._bullet_slotmask)
 	if col_ray then
-		if col_ray.unit:in_slot(self._character_slotmask) then
-			hit_unit = InstantBulletBase:on_collision(col_ray, self._unit, self._unit, self._damage)
-		else
-			hit_unit = InstantBulletBase:on_collision(col_ray, self._unit, self._unit, self._damage)
-		end
-
+		hit_unit = InstantBulletBase:on_collision(col_ray, self._unit, self._unit, self._damage)
 	end
 
 	if not col_ray or col_ray.distance > 600 then
@@ -255,6 +259,7 @@ function SentryGunWeapon:save(save_data)
 		my_save_data.spread_mul = self._spread_mul
 	end
 
+	my_save_data.ammo_ratio = self:ammo_ratio()
 	my_save_data.setup = {}
 	my_save_data.setup.alert_filter = self._setup.alert_filter
 	if next(my_save_data) then
@@ -269,6 +274,7 @@ function SentryGunWeapon:load(save_data)
 		return
 	end
 
+	self._ammo_ratio = save_data.weapon.ammo_ratio or self._ammo_ratio
 	self._spread_mul = save_data.weapon.spread_mul or 1
 	self._setup = self._setup or {}
 	local (for generator), (for state), (for control) = pairs(save_data.weapon.setup)

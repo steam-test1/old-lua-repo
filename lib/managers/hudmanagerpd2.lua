@@ -21,8 +21,6 @@ require("lib/managers/hud/HUDHitDirection")
 require("lib/managers/hud/HUDPlayerDowned")
 require("lib/managers/hud/HUDPlayerCustody")
 HUDManager.disabled = {}
-HUDManager.disabled[Idstring("guis/player_info_hud"):key()] = true
-HUDManager.disabled[Idstring("guis/player_info_hud_fullscreen"):key()] = true
 HUDManager.disabled[Idstring("guis/player_hud"):key()] = true
 HUDManager.disabled[Idstring("guis/experience_hud"):key()] = true
 HUDManager.PLAYER_PANEL = 4
@@ -71,33 +69,13 @@ function HUDManager:text_clone(text)
 end
 
 function HUDManager:set_player_location(location_id)
-	if location_id then
-		local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_PD2)
-		hud.location_text:set_text(utf8.to_upper(managers.localization:text(location_id)))
-	end
-
 end
 
 function HUDManager:add_weapon(data)
 	self:_set_weapon(data)
 	print("add_weapon", inspect(data))
 	local teammate_panel = self._teammate_panels[HUDManager.PLAYER_PANEL]:panel()
-	local mask = teammate_panel:child("mask")
-	local pad = 4
-	local icon, texture_rect = tweak_data.hud_icons:get_icon_data(data.unit:base():weapon_tweak_data().hud_icon)
-	local weapon = teammate_panel:bitmap({
-		name = "weapon" .. data.inventory_index,
-		visible = data.is_equip,
-		texture = icon,
-		color = Color(1, 0.8, 0.8, 0.8),
-		layer = 2,
-		texture_rect = texture_rect,
-		x = mask:right() + pad
-	})
-	weapon:set_bottom(mask:bottom())
 	self._hud.weapons[data.inventory_index] = {
-		texture_rect = texture_rect,
-		bitmap = weapon,
 		inventory_index = data.inventory_index,
 		unit = data.unit
 	}
@@ -130,19 +108,6 @@ end
 
 function HUDManager:_set_teammate_weapon_selected(i, id, icon)
 	self._teammate_panels[i]:set_weapon_selected(id, icon)
-	local (for generator), (for state), (for control) = pairs(self._hud.weapons)
-	do
-		do break end
-		if alive(data.bitmap) then
-			do break end
-			data.bitmap:set_visible(id == i)
-		end
-
-		if id == i then
-		end
-
-	end
-
 end
 
 function HUDManager:recreate_weapon_firemode(i)
@@ -263,14 +228,6 @@ function HUDManager:set_teammate_special_equipment_amount(i, equipment_id, amoun
 	self._teammate_panels[i]:set_special_equipment_amount(equipment_id, amount)
 end
 
-function HUDManager:_layout_special_equipments(i)
-	if not i then
-		return
-	end
-
-	self._teammate_panels[i]:layout_special_equipments()
-end
-
 function HUDManager:clear_player_special_equipments()
 	self._teammate_panels[HUDManager.PLAYER_PANEL]:clear_special_equipment()
 end
@@ -352,9 +309,6 @@ function HUDManager:_setup_player_info_hud_pd2()
 	end
 
 	local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_PD2)
-	hud.location_text:set_font_size(tweak_data.hud.location_font_size)
-	hud.location_text:set_top(0)
-	hud.location_text:set_center_x(hud.location_text:parent():w() / 2)
 	self:_create_teammates_panel(hud)
 	self:_create_present_panel(hud)
 	self:_create_interaction(hud)
@@ -406,6 +360,7 @@ function HUDManager:_create_hud_chat()
 
 	self._hud_chat_ingame = HUDChat:new(self._saferect, hud)
 	self._hud_chat = self._hud_chat_ingame
+	self:_create_hud_chat_access()
 end
 
 function HUDManager:_create_hud_chat_access()
@@ -1261,7 +1216,6 @@ function HUDManager:setup_access_camera_hud()
 	local hud = managers.hud:script(IngameAccessCamera.GUI_SAFERECT)
 	local full_hud = managers.hud:script(IngameAccessCamera.GUI_FULLSCREEN)
 	self._hud_access_camera = HUDAccessCamera:new(hud, full_hud)
-	self:_create_hud_chat_access()
 end
 
 function HUDManager:set_access_camera_name(name)

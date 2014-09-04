@@ -1,6 +1,6 @@
 NetworkMatchMakingSTEAM = NetworkMatchMakingSTEAM or class()
 NetworkMatchMakingSTEAM.OPEN_SLOTS = 4
-NetworkMatchMakingSTEAM._BUILD_SEARCH_INTEREST_KEY = "payday2_v1.12.8"
+NetworkMatchMakingSTEAM._BUILD_SEARCH_INTEREST_KEY = "payday2_v1.13.0"
 function NetworkMatchMakingSTEAM:init()
 	cat_print("lobby", "matchmake = NetworkMatchMakingSTEAM")
 	self._callback_map = {}
@@ -323,6 +323,13 @@ function NetworkMatchMakingSTEAM:search_lobby(friends_only)
 		self.browser:set_distance_filter(self._distance_filter)
 		self.browser:set_lobby_filter("min_level", managers.experience:current_level(), "equalto_less_than")
 		self.browser:set_lobby_filter(self._BUILD_SEARCH_INTEREST_KEY, "true", "equal")
+		if Global.game_settings.search_appropriate_jobs then
+			local min_ply_jc = managers.job:get_min_jc_for_player()
+			local max_ply_jc = managers.job:get_max_jc_for_player()
+			self.browser:set_lobby_filter("job_class_min", min_ply_jc, "equalto_or_greater_than")
+			self.browser:set_lobby_filter("job_class_max", max_ply_jc, "equalto_less_than")
+		end
+
 		do
 			local (for generator), (for state), (for control) = pairs(self._lobby_filters)
 			do

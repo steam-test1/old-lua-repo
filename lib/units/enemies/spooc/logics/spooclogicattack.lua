@@ -159,6 +159,10 @@ function SpoocLogicAttack.action_complete_clbk(data, action)
 		end
 
 		CopLogicAttack._cancel_cover_pathing(data, my_data)
+		if action:expired() then
+			SpoocLogicAttack._upd_aim(data, my_data)
+		end
+
 	end
 
 end

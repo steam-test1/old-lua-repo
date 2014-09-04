@@ -52,16 +52,16 @@ function CoreMusicManager:init_finalize()
 		self:set_volume(Global.music_manager.volume)
 	end
 
-	self:_check_music_switch()
+	self:check_music_switch()
 	managers.savefile:add_load_sequence_done_callback_handler(callback(self, self, "on_load_complete"))
 end
 
-function CoreMusicManager:_check_music_switch()
+function CoreMusicManager:check_music_switch()
 	local switches = tweak_data.levels:get_music_switches()
-	if switches then
-		local switch = switches[math.random(#switches)]
-		print("CoreMusicManager:_check_music_switch()", switch)
-		Global.music_manager.source:set_switch("music_randomizer", switch)
+	if switches and #switches > 0 then
+		local track = switches[math.random(#switches)]
+		print("CoreMusicManager:check_music_switch()", track)
+		Global.music_manager.source:set_switch("music_randomizer", track)
 	else
 	end
 
@@ -75,6 +75,15 @@ function CoreMusicManager:post_event(name)
 	if Global.music_manager.current_event ~= name then
 		Global.music_manager.source:post_event(name)
 		Global.music_manager.current_event = name
+	end
+
+end
+
+function CoreMusicManager:track_stop()
+	if self._previous_track then
+		Global.music_manager.source:post_event(self._previous_track)
+		self._previous_track = nil
+		self._current_event = nil
 	end
 
 end
@@ -136,6 +145,18 @@ function CoreMusicManager:load(data)
 	local state = data.CoreMusicManager
 	if state.event then
 		self:post_event(state.event)
+	end
+
+end
+
+function CoreMusicManager:save_savedata(data)
+	local state = {}
+	data.MusicManager = state
+end
+
+function CoreMusicManager:load_savedata(data)
+	local state = data.MusicManager
+	if state then
 	end
 
 end

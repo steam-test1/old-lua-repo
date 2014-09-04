@@ -193,11 +193,6 @@ function StatisticsManager:_setup(reset)
 	end
 
 	self._global = self._global or Global.statistics_manager
-	self._m14_shots = 0
-	self._m14_kills = 0
-	self._last_kill = nil
-	self._fbi_kills = 0
-	self._patrol_bombed = 0
 end
 
 function StatisticsManager:reset()
@@ -399,13 +394,6 @@ function StatisticsManager:stop_session(data)
 	self._global.session.sessions.time = session_time
 	self._global.last_session = deep_clone(self._global.session)
 	self:_calculate_average()
-	managers.challenges:session_stopped({
-		success = success,
-		from_beginning = self._start_session_from_beginning,
-		drop_in = self._start_session_drop_in,
-		last_session = self._global.last_session
-	})
-	managers.challenges:reset("session")
 	if managers.job:on_last_stage() then
 		self._global.playing = nil
 	end
@@ -652,7 +640,8 @@ function StatisticsManager:_get_stat_tables()
 		"silverback",
 		"mandril",
 		"skullmonkey",
-		"orangutang"
+		"orangutang",
+		"unicorn"
 	}
 	local weapon_list = {
 		"ak5",
@@ -997,37 +986,44 @@ function StatisticsManager:publish_skills_to_steam()
 	self:check_version()
 	local stats = {}
 	local skill_amount = {}
-	local skill_data = tweak_data.skilltree.trees
+	local skill_data = tweak_data.skilltree.skills
+	local tree_data = tweak_data.skilltree.trees
 	do
-		local (for generator), (for state), (for control) = ipairs(skill_data)
+		local (for generator), (for state), (for control) = ipairs(tree_data)
 		do
 			do break end
-			skill_amount[tree_index] = 0
-			stats["skill_" .. tree.skill .. "_unlocked"] = {
-				type = "int",
-				method = "set",
-				value = managers.skilltree:tree_unlocked(tree_index) and 1 or 0
-			}
-			local (for generator), (for state), (for control) = ipairs(tree.tiers)
-			do
-				do break end
-				local (for generator), (for state), (for control) = ipairs(tier)
+			if tree.statistics ~= false then
+				skill_amount[tree_index] = 0
+				stats["skill_" .. tree.skill .. "_unlocked"] = {
+					type = "int",
+					method = "set",
+					value = managers.skilltree:tree_unlocked(tree_index) and 1 or 0
+				}
+				local (for generator), (for state), (for control) = ipairs(tree.tiers)
 				do
 					do break end
-					local skill_points = managers.skilltree:next_skill_step(skill)
-					local skill_bought = skill_points > 1 and 1 or 0
-					local skill_aced = skill_points > 2 and 1 or 0
-					stats["skill_" .. tree.skill .. "_" .. skill] = {
-						type = "int",
-						method = "set",
-						value = skill_bought
-					}
-					stats["skill_" .. tree.skill .. "_" .. skill .. "_ace"] = {
-						type = "int",
-						method = "set",
-						value = skill_aced
-					}
-					skill_amount[tree_index] = skill_amount[tree_index] + skill_bought + skill_aced
+					local (for generator), (for state), (for control) = ipairs(tier)
+					do
+						do break end
+						if skill_data[skill].statistics ~= false then
+							local skill_points = managers.skilltree:next_skill_step(skill)
+							local skill_bought = skill_points > 1 and 1 or 0
+							local skill_aced = skill_points > 2 and 1 or 0
+							stats["skill_" .. tree.skill .. "_" .. skill] = {
+								type = "int",
+								method = "set",
+								value = skill_bought
+							}
+							stats["skill_" .. tree.skill .. "_" .. skill .. "_ace"] = {
+								type = "int",
+								method = "set",
+								value = skill_aced
+							}
+							skill_amount[tree_index] = skill_amount[tree_index] + skill_bought + skill_aced
+						end
+
+					end
+
 				end
 
 			end
@@ -1037,32 +1033,35 @@ function StatisticsManager:publish_skills_to_steam()
 	end
 
 	do
-		local (for generator), (for state), (for control) = ipairs(skill_data)
+		local (for generator), (for state), (for control) = ipairs(tree_data)
 		do
 			do break end
-			stats["skill_" .. tree.skill] = {
-				type = "int",
-				method = "set",
-				value = skill_amount[tree_index]
-			}
-			for i = 0, 35, 5 do
-				stats["skill_" .. tree.skill .. "_" .. i] = {
+			if tree.statistics ~= false then
+				stats["skill_" .. tree.skill] = {
 					type = "int",
 					method = "set",
-					value = 0
+					value = skill_amount[tree_index]
+				}
+				for i = 0, 35, 5 do
+					stats["skill_" .. tree.skill .. "_" .. i] = {
+						type = "int",
+						method = "set",
+						value = 0
+					}
+				end
+
+				local skill_count = math.ceil(skill_amount[tree_index] / 5) * 5
+				if skill_count > 35 then
+					skill_count = 35
+				end
+
+				stats["skill_" .. tree.skill .. "_" .. skill_count] = {
+					type = "int",
+					method = "set",
+					value = 1
 				}
 			end
 
-			local skill_count = math.ceil(skill_amount[tree_index] / 5) * 5
-			if skill_count > 35 then
-				skill_count = 35
-			end
-
-			stats["skill_" .. tree.skill .. "_" .. skill_count] = {
-				type = "int",
-				method = "set",
-				value = 1
-			}
 		end
 
 	end
@@ -1078,11 +1077,14 @@ function StatisticsManager:check_version()
 			local (for generator), (for state), (for control) = ipairs(tweak_data.skilltree.trees)
 			do
 				do break end
-				stats["skill_" .. tree.skill .. "_unlocked"] = {
-					type = "int",
-					method = "set",
-					value = managers.skilltree:tree_unlocked(tree_index) and 1 or 0
-				}
+				if tree.statistics ~= false then
+					stats["skill_" .. tree.skill .. "_unlocked"] = {
+						type = "int",
+						method = "set",
+						value = managers.skilltree:tree_unlocked(tree_index) and 1 or 0
+					}
+				end
+
 			end
 
 		end
@@ -1202,14 +1204,6 @@ function StatisticsManager:killed_by_anyone(data)
 		managers.achievment:set_script_data("blow_out_fail", true)
 	end
 
-	if by_explosion and data.name == "patrol" and name_id ~= "m79" then
-		self._patrol_bombed = self._patrol_bombed + 1
-		if self._patrol_bombed >= 12 and Global.level_data.level_id == "diamond_heist" then
-			managers.challenges:set_flag("bomb_man")
-		end
-
-	end
-
 end
 
 function StatisticsManager:killed(data)
@@ -1248,7 +1242,6 @@ function StatisticsManager:killed(data)
 		self._global.killed_by_weapon[name_id] = self._global.killed_by_weapon[name_id] or {count = 0, headshots = 0}
 		self._global.killed_by_weapon[name_id].count = self._global.killed_by_weapon[name_id].count + 1
 		self._global.killed_by_weapon[name_id].headshots = (self._global.killed_by_weapon[name_id].headshots or 0) + (data.head_shot and 1 or 0)
-		self:_bullet_challenges(data)
 		if self._global.session.killed_by_weapon[name_id].count == tweak_data.achievement.first_blood.count then
 			local category = data.weapon_unit:base():weapon_tweak_data().category
 			if category == tweak_data.achievement.first_blood.weapon_type then
@@ -1257,160 +1250,80 @@ function StatisticsManager:killed(data)
 
 		end
 
-		if name_id == "sentry_gun" then
-			managers.challenges:count_up("sentry_gun_law_row_kills")
-			if game_state_machine:last_queued_state_name() == "ingame_waiting_for_respawn" then
-				managers.challenges:count_up("grim_reaper")
-			end
-
-		else
-			managers.challenges:reset_counter("sentry_gun_law_row_kills")
-		end
-
 		if data.name == "tank" then
 			managers.achievment:set_script_data("dodge_this_active", true)
-			if name_id == "r870_shotgun" or name_id == "mossberg" then
-				managers.challenges:set_flag("cheney")
-			end
-
-		end
-
-		if name_id == "m14" then
-			if self._m14_kills == self._m14_shots then
-				if self._m14_kills == 29 then
-					managers.challenges:set_flag("one_shot_one_kill")
-				end
-
-			else
-				self._m14_kills = 0
-				self._m14_shots = 0
-			end
-
-			self._m14_kills = self._m14_kills + 1
 		end
 
 	elseif by_melee then
 		local name_id = data.name_id
 		self._global.session.killed_by_melee[name_id] = (self._global.session.killed_by_melee[name_id] or 0) + 1
 		self._global.killed_by_melee[name_id] = (self._global.killed_by_melee[name_id] or 0) + 1
-		self:_melee_challenges(data)
-		managers.challenges:reset_counter("sentry_gun_law_row_kills")
 	elseif by_explosion then
-		local name_id = data.weapon_unit and data.weapon_unit:base():get_name_id()
+		local name_id
+		if data.weapon_unit then
+			if data.weapon_unit:base().grenade_entry then
+				name_id = tweak_data.blackmarket.grenades[data.weapon_unit:base():grenade_entry()].weapon_id
+			else
+				name_id = data.weapon_unit:base().get_name_id and data.weapon_unit and data.weapon_unit:base():get_name_id()
+			end
+
+		end
+
 		local boom_guns = {
-			"m79",
+			"gre_m79",
 			"huntsman",
 			"r870",
 			"saiga",
 			"ksg",
 			"striker",
 			"serbu",
-			"benelli"
+			"benelli",
+			"judge"
 		}
-		if table.contains(boom_guns, name_id) then
+		if name_id and table.contains(boom_guns, name_id) then
 			self._global.session.killed_by_weapon[name_id] = self._global.session.killed_by_weapon[name_id] or {count = 0, headshots = 0}
 			self._global.session.killed_by_weapon[name_id].count = self._global.session.killed_by_weapon[name_id].count + 1
 			self._global.session.killed_by_weapon[name_id].headshots = self._global.session.killed_by_weapon[name_id].headshots + (data.head_shot and 1 or 0)
 			self._global.killed_by_weapon[name_id] = self._global.killed_by_weapon[name_id] or {count = 0, headshots = 0}
 			self._global.killed_by_weapon[name_id].count = self._global.killed_by_weapon[name_id].count + 1
 			self._global.killed_by_weapon[name_id].headshots = (self._global.killed_by_weapon[name_id].headshots or 0) + (data.head_shot and 1 or 0)
-			self:_bullet_challenges(data)
 		end
 
-		self:_explosion_challenges(data)
-		managers.challenges:reset_counter("sentry_gun_law_row_kills")
-	end
-
-	self._last_kill = data.name
-	if self:session_total_law_enforcer_kills() >= 100 then
-		managers.challenges:set_flag("civil_disobedience")
-	end
-
-	if data.name == "fbi" then
-		self._fbi_kills = self._fbi_kills + 1
-		if self._fbi_kills >= 25 then
-			managers.challenges:set_flag("federal_crime")
-		end
-
-	else
-		self._fbi_kills = 0
 	end
 
 end
 
 function StatisticsManager:completed_job(job_id, difficulty)
-	return self._global.sessions.jobs[tostring(job_id) .. "_" .. tostring(difficulty) .. "_completed"] or 0
-end
-
-function StatisticsManager:_bullet_challenges(data)
-	managers.challenges:count_up(data.type .. "_kill")
-	managers.challenges:count_up(data.name .. "_kill")
-	if data.head_shot then
-		managers.challenges:count_up(data.type .. "_head_shot")
-	else
-		managers.challenges:count_up(data.type .. "_body_shot")
-	end
-
-	if data.attacker_state and data.attacker_state == "bleed_out" then
-		local weapon_name_id = data.weapon_unit:base():get_name_id()
-		if weapon_name_id ~= "sentry_gun" then
-			managers.challenges:count_up("bleed_out_kill")
-			managers.challenges:count_up("bleed_out_multikill")
-		end
-
-	end
-
-	local weapon_tweak_data = data.weapon_unit:base():weapon_tweak_data()
-	if weapon_tweak_data.challenges then
-		if weapon_tweak_data.challenges.weapon then
-			managers.challenges:count_up(weapon_tweak_data.challenges.weapon .. "_" .. data.type .. "_kill")
-			managers.challenges:count_up(weapon_tweak_data.challenges.weapon .. "_" .. data.name .. "_kill")
-		else
-			managers.challenges:count_up((weapon_tweak_data.challenges.group or weapon_tweak_data.challenges.prefix) .. "_kill")
-		end
-
-		if data.head_shot then
-			if weapon_tweak_data.challenges.weapon then
-				managers.challenges:count_up(weapon_tweak_data.challenges.weapon .. "_" .. data.type .. "_head_shot")
-				managers.challenges:count_up(weapon_tweak_data.challenges.weapon .. "_" .. data.name .. "_head_shot")
-			else
-				managers.challenges:count_up((weapon_tweak_data.challenges.group or weapon_tweak_data.challenges.prefix) .. "_head_shot")
+	if tweak_data.narrative:has_job_wrapper(job_id) then
+		local count = 0
+		local job_wrapper = tweak_data.narrative.jobs[job_id].job_wrapper
+		do
+			local (for generator), (for state), (for control) = ipairs(job_wrapper)
+			do
+				do break end
+				count = count + (self._global.sessions.jobs[tostring(wrapped_job) .. "_" .. tostring(difficulty) .. "_completed"] or 0)
 			end
 
-		elseif weapon_tweak_data.challenges.weapon then
-			managers.challenges:count_up(weapon_tweak_data.challenges.weapon .. "_" .. data.type .. "_body_shot")
-			managers.challenges:count_up(weapon_tweak_data.challenges.weapon .. "_" .. data.name .. "_body_shot")
-		else
-			managers.challenges:count_up((weapon_tweak_data.challenges.group or weapon_tweak_data.challenges.prefix) .. "_body_shot")
 		end
 
-	end
+		return count
+	elseif tweak_data.narrative:is_wrapped_to_job(job_id) then
+		local count = 0
+		local tweak_jobs = tweak_data.narrative.jobs
+		local job_wrapper = tweak_jobs[tweak_jobs[job_id].wrapped_to_job].job_wrapper
+		do
+			local (for generator), (for state), (for control) = ipairs(job_wrapper)
+			do
+				do break end
+				count = count + (self._global.sessions.jobs[tostring(wrapped_job) .. "_" .. tostring(difficulty) .. "_completed"] or 0)
+			end
 
-end
-
-function StatisticsManager:_melee_challenges(data)
-	if data.type == "law" then
-		managers.challenges:count_up("melee_law_kill")
-	end
-
-end
-
-function StatisticsManager:_explosion_challenges(data)
-	if game_state_machine:last_queued_state_name() == "ingame_waiting_for_respawn" then
-		managers.challenges:count_up("grim_reaper")
-	end
-
-	local weapon_id = data.weapon_unit and data.weapon_unit:base():get_name_id()
-	if weapon_id == "m79" then
-		managers.challenges:count_up("m79_law_simultaneous_kills")
-		if data.name == "shield" or data.name == "spooc" or data.name == "tank" or data.name == "taser" then
-			managers.challenges:count_up("m79_simultaneous_specials")
 		end
 
-	elseif weapon_id == "trip_mine" and data.type == "law" then
-		managers.challenges:count_up("trip_mine_law_kill")
+		return count
 	end
 
+	return self._global.sessions.jobs[tostring(job_id) .. "_" .. tostring(difficulty) .. "_completed"] or 0
 end
 
 function StatisticsManager:tied(data)
@@ -1420,18 +1333,8 @@ function StatisticsManager:tied(data)
 		data.name = "other"
 	end
 
-	if data.name == "heavy_swat" then
-		managers.challenges:set_flag("intimidating")
-	end
-
 	self._global.killed[data.name].tied = (self._global.killed[data.name].tied or 0) + 1
 	self._global.session.killed[data.name].tied = self._global.session.killed[data.name].tied + 1
-	local type = tweak_data.character[data.name] and tweak_data.character[data.name].challenges.type
-	if type then
-		managers.challenges:count_up("tiedown_" .. type)
-	end
-
-	managers.challenges:count_up("tiedown_" .. data.name)
 	if self._data_log and alive(managers.player:player_unit()) then
 		table.insert(self._data_log, {
 			3,
@@ -1452,7 +1355,6 @@ function StatisticsManager:revived(data)
 	local counter = data.npc and "npc_count" or "player_count"
 	self._global.revives[counter] = self._global.revives[counter] + 1
 	self._global.session.revives[counter] = self._global.session.revives[counter] + 1
-	managers.challenges:count_up("revive")
 	if self._data_log and alive(managers.player:player_unit()) then
 		table.insert(self._data_log, {
 			3,
@@ -1485,7 +1387,7 @@ function StatisticsManager:health_subtracted(amount)
 end
 
 function StatisticsManager:shot_fired(data)
-	local name_id = data.weapon_unit:base():get_name_id()
+	local name_id = data.name_id or data.weapon_unit:base():get_name_id()
 	if not data.skip_bullet_count then
 		self._global.shots_fired.total = self._global.shots_fired.total + 1
 		self._global.session.shots_fired.total = self._global.session.shots_fired.total + 1
@@ -1493,10 +1395,6 @@ function StatisticsManager:shot_fired(data)
 		self._global.session.shots_by_weapon[name_id].total = self._global.session.shots_by_weapon[name_id].total + 1
 		self._global.shots_by_weapon[name_id] = self._global.shots_by_weapon[name_id] or {hits = 0, total = 0}
 		self._global.shots_by_weapon[name_id].total = self._global.shots_by_weapon[name_id].total + 1
-		if name_id == "m14" then
-			self._m14_shots = self._m14_shots + 1
-		end
-
 	end
 
 	if data.hit then
@@ -1513,10 +1411,6 @@ function StatisticsManager:downed(data)
 	local counter = data.bleed_out and "bleed_out" or data.fatal and "fatal" or data.incapacitated and "incapacitated" or "death"
 	self._global.downed[counter] = self._global.downed[counter] + 1
 	self._global.session.downed[counter] = self._global.session.downed[counter] + 1
-	if data.bleed_out then
-		managers.challenges:reset("bleed_out")
-	end
-
 	if self._data_log and alive(managers.player:player_unit()) then
 		table.insert(self._data_log, {
 			3,
@@ -1928,10 +1822,6 @@ end
 
 function StatisticsManager:session_total_civilian_kills()
 	return self._global.session.killed.civilian.count + self._global.session.killed.civilian_female.count
-end
-
-function StatisticsManager:session_total_law_enforcer_kills()
-	return self._global.session.killed.total.count - self._global.session.killed.civilian.count - self._global.session.killed.civilian_female.count - self._global.session.killed.gangster.count - self._global.session.killed.other.count
 end
 
 function StatisticsManager:send_statistics()

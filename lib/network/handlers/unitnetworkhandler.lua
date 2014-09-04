@@ -76,7 +76,7 @@ function UnitNetworkHandler:set_look_dir(unit, yaw_in, pitch_in, sender)
 	unit:movement():sync_look_dir(dir)
 end
 
-function UnitNetworkHandler:action_walk_start(unit, first_nav_point, nav_link_yaw, nav_link_act_index, from_idle, haste_code, end_yaw, no_walk, no_strafe)
+function UnitNetworkHandler:action_walk_start(unit, first_nav_point, nav_link_yaw, nav_link_act_index, from_idle, haste_code, end_yaw, no_walk, no_strafe, end_pose_code)
 	if not self._verify_character(unit) or not self._verify_gamestate(self._gamestate_filter.any_ingame) then
 		return
 	end
@@ -103,6 +103,13 @@ function UnitNetworkHandler:action_walk_start(unit, first_nav_point, nav_link_ya
 		table.insert(nav_path, first_nav_point)
 	end
 
+	local end_pose
+	if end_pose_code == 1 then
+		end_pose = "stand"
+	elseif end_pose_code == 2 then
+		end_pose = "crouch"
+	end
+
 	local action_desc = {
 		type = "walk",
 		variant = haste_code == 1 and "walk" or "run",
@@ -113,6 +120,7 @@ function UnitNetworkHandler:action_walk_start(unit, first_nav_point, nav_link_ya
 		persistent = true,
 		no_walk = no_walk,
 		no_strafe = no_strafe,
+		end_pose = end_pose,
 		blocks = {
 			walk = -1,
 			turn = -1,
@@ -715,8 +723,11 @@ function UnitNetworkHandler:long_dis_interaction(target_unit, amount, aggressor_
 	if target_is_criminal then
 		if aggressor_is_criminal then
 			if target_unit:brain() then
-				target_unit:movement():set_cool(false)
-				target_unit:brain():on_long_dis_interacted(amount, aggressor_unit)
+				if target_unit:brain().on_long_dis_interacted then
+					target_unit:movement():set_cool(false)
+					target_unit:brain():on_long_dis_interacted(amount, aggressor_unit)
+				end
+
 			elseif amount == 1 then
 				target_unit:movement():on_morale_boost(aggressor_unit)
 			end
@@ -1203,14 +1214,11 @@ function UnitNetworkHandler:place_sentry_gun(pos, rot, ammo_multiplier, armor_mu
 		unit:base():set_server_information(peer:id())
 	end
 
-	if alive(user_unit) and user_unit:id() ~= -1 then
-		managers.network:session():send_to_peers_synched("from_server_sentry_gun_place_result", peer:id(), unit and equipment_selection_index or 0, unit or user_unit, unit and unit:movement()._rot_speed_mul, unit and unit:weapon()._setup.spread_mul, unit and unit:base():has_shield() and true or false)
-	end
-
+	managers.network:session():send_to_peers_synched("from_server_sentry_gun_place_result", peer:id(), unit and equipment_selection_index or 0, unit, unit and unit:movement()._rot_speed_mul, unit and unit:weapon()._setup.spread_mul, unit and unit:base():has_shield() and true or false)
 end
 
 function UnitNetworkHandler:from_server_sentry_gun_place_result(owner_peer_id, equipment_selection_index, sentry_gun_unit, rot_speed_mul, spread_mul, shield, rpc)
-	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not self._verify_sender(rpc) or not alive(sentry_gun_unit) or not managers.network:session():peer(owner_peer_id) or alive(Global.local_member:unit()) and Global.local_member:unit():key() == sentry_gun_unit:key() then
+	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not self._verify_sender(rpc) or not alive(sentry_gun_unit) or not managers.network:session():peer(owner_peer_id) then
 		if alive(Global.local_member:unit()) then
 			Global.local_member:unit():equipment():from_server_sentry_gun_place_result()
 		end
@@ -1288,7 +1296,7 @@ function UnitNetworkHandler:place_deployable_bag(class_name, pos, rot, upgrade_l
 		return
 	end
 
-	if not managers.player:verify_equipment(peer:id(), class_name == "AmmoBagBase" and "ammo_bag" or "doctor_bag") then
+	if not managers.player:verify_equipment(peer:id(), class_name == "AmmoBagBase" and "ammo_bag" or class_name == "DoctorBagBase" and "doctor_bag") then
 		return
 	end
 
@@ -1526,12 +1534,12 @@ function UnitNetworkHandler:sync_show_action_message(unit, id, sender)
 	managers.action_messaging:sync_show_message(id, unit)
 end
 
-function UnitNetworkHandler:sync_waiting_for_player_start(variant)
+function UnitNetworkHandler:sync_waiting_for_player_start(variant, soundtrack)
 	if not self._verify_gamestate(self._gamestate_filter.waiting_for_players) then
 		return
 	end
 
-	game_state_machine:current_state():sync_start(variant)
+	game_state_machine:current_state():sync_start(variant, soundtrack)
 end
 
 function UnitNetworkHandler:sync_waiting_for_player_skip()
@@ -1553,38 +1561,6 @@ function UnitNetworkHandler:criminal_hurt(criminal_unit, attacker_unit, damage_r
 
 	managers.hud:set_mugshot_damage_taken(criminal_unit:unit_data().mugshot_id)
 	managers.groupai:state():criminal_hurt_drama(criminal_unit, attacker_unit, damage_ratio * 0.01)
-end
-
-function UnitNetworkHandler:assign_secret_assignment(assignment)
-	if not self._verify_gamestate(self._gamestate_filter.any_ingame) then
-		return
-	end
-
-	managers.secret_assignment:assign(assignment)
-end
-
-function UnitNetworkHandler:complete_secret_assignment(assignment, sender)
-	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not self._verify_sender(sender) then
-		return
-	end
-
-	managers.secret_assignment:complete_secret_assignment(assignment)
-end
-
-function UnitNetworkHandler:failed_secret_assignment(assignment)
-	if not self._verify_gamestate(self._gamestate_filter.any_ingame) then
-		return
-	end
-
-	managers.secret_assignment:failed_secret_assignment(assignment)
-end
-
-function UnitNetworkHandler:secret_assignment_done(assignment, success)
-	if not self._verify_gamestate(self._gamestate_filter.any_ingame) then
-		return
-	end
-
-	managers.secret_assignment:secret_assignment_done(assignment, success)
 end
 
 function UnitNetworkHandler:arrested(unit)
@@ -1702,7 +1678,9 @@ function UnitNetworkHandler:server_throw_grenade(grenade_type, position, dir, se
 	end
 
 	local peer_id = peer:id()
-	if not managers.player:verify_grenade(peer_id) then
+	local grenade_entry = GrenadeBase.types[grenade_type]
+	local no_cheat_count = tweak_data.blackmarket.grenades[grenade_entry].no_cheat_count
+	if not no_cheat_count and not managers.player:verify_grenade(peer_id) then
 		return
 	end
 
@@ -1714,7 +1692,15 @@ function UnitNetworkHandler:sync_throw_grenade(unit, dir, grenade_type, peer_id,
 		return
 	end
 
-	managers.player:verify_grenade(peer_id)
+	local grenade_entry = GrenadeBase.types[grenade_type]
+	local no_cheat_count = tweak_data.blackmarket.grenades[grenade_entry].no_cheat_count
+	if not no_cheat_count then
+		managers.player:verify_grenade(peer_id)
+	end
+
+	local member = managers.network:game():member(peer_id)
+	local thrower_unit = member and member:unit()
+	unit:base():set_thrower_unit(thrower_unit)
 	unit:base():sync_throw_grenade(dir, grenade_type)
 end
 
@@ -2002,17 +1988,6 @@ function UnitNetworkHandler:set_interaction_voice(unit, voice, sender)
 	end
 
 	unit:brain():set_interaction_voice(voice ~= "" and voice or nil)
-end
-
-function UnitNetworkHandler:award_achievment(achievment, sender)
-	if not self._verify_sender(sender) then
-		return
-	end
-
-	if not managers.statistics:is_dropin() then
-		managers.challenges:set_flag(achievment)
-	end
-
 end
 
 function UnitNetworkHandler:sync_teammate_comment(message, pos, pos_based, radius, sender)

@@ -50,6 +50,13 @@ function CopLogicAttack.enter(data, new_logic_name, enter_params)
 		return
 	end
 
+	if data.objective and (data.objective.action_duration or data.objective.action_timeout_t and data.objective.action_timeout_t > data.t) then
+		my_data.action_timeout_clbk_id = "CopLogicIdle_action_timeout" .. tostring(data.key)
+		local action_timeout_t = data.objective.action_timeout_t or data.t + data.objective.action_duration
+		data.objective.action_timeout_t = action_timeout_t
+		CopLogicBase.add_delayed_clbk(my_data, my_data.action_timeout_clbk_id, callback(CopLogicIdle, CopLogicIdle, "clbk_action_timeout", data), action_timeout_t)
+	end
+
 	data.unit:brain():set_attention_settings({cbt = true})
 end
 
@@ -239,7 +246,7 @@ function CopLogicAttack._upd_combat_movement(data)
 		my_data.flank_cover = nil
 	end
 
-	if not my_data.turning and not data.unit:movement():chk_action_forbidden("walk") and CopLogicAttack._can_move(data) and data.attention_obj.verified and (not in_cover or not in_cover[4]) then
+	if data.important and not my_data.turning and not data.unit:movement():chk_action_forbidden("walk") and CopLogicAttack._can_move(data) and data.attention_obj.verified and (not in_cover or not in_cover[4]) then
 		if data.is_suppressed and data.t - data.unit:character_damage():last_suppression_t() < 0.7 then
 			action_taken = CopLogicBase.chk_start_action_dodge(data, "scared")
 		end
@@ -472,11 +479,17 @@ function CopLogicAttack._chk_request_action_walk_to_cover(data, my_data)
 		haste = "walk"
 	end
 
+	local end_pose
+	if my_data.moving_to_cover and (not data.char_tweak.allowed_poses or data.char_tweak.allowed_poses.crouch) then
+		end_pose = "crouch"
+	end
+
 	local new_action_data = {
 		type = "walk",
 		nav_path = my_data.cover_path,
 		variant = haste,
-		body_part = 2
+		body_part = 2,
+		end_pose = end_pose
 	}
 	my_data.cover_path = nil
 	my_data.advancing = data.unit:brain():action_request(new_action_data)
@@ -899,7 +912,7 @@ function CopLogicAttack.action_complete_clbk(data, action)
 		my_data.turning = nil
 	elseif action_type == "hurt" then
 		CopLogicAttack._cancel_cover_pathing(data, my_data)
-		if action:expired() and not CopLogicBase.chk_start_action_dodge(data, "hit") then
+		if data.important and action:expired() and not CopLogicBase.chk_start_action_dodge(data, "hit") then
 			data.logic._upd_aim(data, my_data)
 		end
 
@@ -910,6 +923,10 @@ function CopLogicAttack.action_complete_clbk(data, action)
 		end
 
 		CopLogicAttack._cancel_cover_pathing(data, my_data)
+		if action:expired() then
+			CopLogicAttack._upd_aim(data, my_data)
+		end
+
 	end
 
 end

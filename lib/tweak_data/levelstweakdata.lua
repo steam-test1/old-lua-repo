@@ -15,7 +15,7 @@ function LevelsTweakData:init()
 		"packages/narr_framing_1"
 	}
 	self.framing_frame_1.cube = "cube_apply_heist_bank"
-	self.framing_frame_1.ghost_bonus = 0.15
+	self.framing_frame_1.ghost_bonus = 0.075
 	self.framing_frame_1.max_bags = 13
 	self.framing_frame_2 = {}
 	self.framing_frame_2.name_id = "heist_framing_frame_2_hl"
@@ -32,7 +32,7 @@ function LevelsTweakData:init()
 		"packages/narr_framing_2"
 	}
 	self.framing_frame_2.cube = "cube_apply_heist_bank"
-	self.framing_frame_2.ghost_bonus = 0.05
+	self.framing_frame_2.ghost_bonus = 0.025
 	self.framing_frame_2.max_bags = 13
 	self.framing_frame_3 = {}
 	self.framing_frame_3.name_id = "heist_framing_frame_3_hl"
@@ -48,7 +48,7 @@ function LevelsTweakData:init()
 	self.framing_frame_3.music = "heist"
 	self.framing_frame_3.package = "packages/narr_framing_3"
 	self.framing_frame_3.cube = "cube_apply_heist_bank"
-	self.framing_frame_3.ghost_bonus = 0.3
+	self.framing_frame_3.ghost_bonus = 0.15
 	self.framing_frame_3.max_bags = 21
 	self.election_day_1 = {}
 	self.election_day_1.name_id = "heist_election_day_1_hl"
@@ -66,7 +66,7 @@ function LevelsTweakData:init()
 		"packages/narr_election1"
 	}
 	self.election_day_1.cube = "cube_apply_heist_bank"
-	self.election_day_1.ghost_bonus = 0.1
+	self.election_day_1.ghost_bonus = 0.05
 	self.election_day_1.max_bags = 0
 	self.election_day_2 = {}
 	self.election_day_2.name_id = "heist_election_day_2_hl"
@@ -83,7 +83,7 @@ function LevelsTweakData:init()
 		"packages/narr_election2"
 	}
 	self.election_day_2.cube = "cube_apply_heist_bank"
-	self.election_day_2.ghost_bonus = 0.3
+	self.election_day_2.ghost_bonus = 0.15
 	self.election_day_2.max_bags = 21
 	self.election_day_3 = {}
 	self.election_day_3.name_id = "heist_election_day_3_hl"
@@ -213,7 +213,7 @@ function LevelsTweakData:init()
 	self.firestarter_2.music = "heist"
 	self.firestarter_2.package = "packages/narr_firestarter2"
 	self.firestarter_2.cube = "cube_apply_heist_bank"
-	self.firestarter_2.ghost_bonus = 0.3
+	self.firestarter_2.ghost_bonus = 0.15
 	self.firestarter_2.max_bags = 34
 	self.firestarter_3 = {}
 	self.firestarter_3.name_id = "heist_firestarter_3_hl"
@@ -231,7 +231,7 @@ function LevelsTweakData:init()
 	self.firestarter_3.mission_data = {
 		{mission = "default"}
 	}
-	self.firestarter_3.ghost_bonus = 0.1
+	self.firestarter_3.ghost_bonus = 0.05
 	self.firestarter_3.max_bags = 54
 	self.welcome_to_the_jungle_1 = {}
 	self.welcome_to_the_jungle_1.name_id = "heist_welcome_to_the_jungle_1_hl"
@@ -249,7 +249,7 @@ function LevelsTweakData:init()
 		"packages/narr_jungle1"
 	}
 	self.welcome_to_the_jungle_1.cube = "cube_apply_heist_bank"
-	self.welcome_to_the_jungle_1.ghost_bonus = 0.3
+	self.welcome_to_the_jungle_1.ghost_bonus = 0.15
 	self.welcome_to_the_jungle_1.max_bags = 14
 	self.welcome_to_the_jungle_2 = {}
 	self.welcome_to_the_jungle_2.name_id = "heist_welcome_to_the_jungle_2_hl"
@@ -286,7 +286,7 @@ function LevelsTweakData:init()
 	}
 	self.ukrainian_job.cube = "cube_apply_heist_bank"
 	self.ukrainian_job.group_ai_preset = "small_urban"
-	self.ukrainian_job.ghost_bonus = 0.1
+	self.ukrainian_job.ghost_bonus = 0.05
 	self.ukrainian_job.max_bags = 16
 	self.four_stores = {}
 	self.four_stores.name_id = "heist_four_stores_hl"
@@ -301,7 +301,7 @@ function LevelsTweakData:init()
 	self.four_stores.music = "heist"
 	self.four_stores.package = "packages/vlad_four_stores"
 	self.four_stores.cube = "cube_apply_heist_bank"
-	self.four_stores.ghost_bonus = 0.1
+	self.four_stores.ghost_bonus = 0.05
 	self.four_stores.max_bags = 5
 	self.jewelry_store = {}
 	self.jewelry_store.name_id = "heist_jewelry_store_hl"
@@ -320,7 +320,7 @@ function LevelsTweakData:init()
 	self.jewelry_store.music = "heist"
 	self.jewelry_store.package = "packages/ukrainian_job"
 	self.jewelry_store.cube = "cube_apply_heist_bank"
-	self.jewelry_store.ghost_bonus = 0.1
+	self.jewelry_store.ghost_bonus = 0.05
 	self.jewelry_store.max_bags = 16
 	self.mallcrasher = {}
 	self.mallcrasher.name_id = "heist_mallcrasher_hl"
@@ -349,7 +349,7 @@ function LevelsTweakData:init()
 	self.nightclub.music = "heist"
 	self.nightclub.package = "packages/vlad_nightclub"
 	self.nightclub.cube = "cube_apply_heist_bank"
-	self.nightclub.ghost_bonus = 0.2
+	self.nightclub.ghost_bonus = 0.1
 	self.nightclub.max_bags = 28
 	self.branchbank = {}
 	self.branchbank.name_id = "heist_branchbank_hl"
@@ -363,7 +363,7 @@ function LevelsTweakData:init()
 		"Play_pln_branchbank_cash_stage1_intro_a"
 	}
 	self.branchbank.outro_event = "Play_pln_branchbank_stage1_end"
-	self.branchbank.ghost_bonus = 0.2
+	self.branchbank.ghost_bonus = 0.1
 	self.branchbank.max_bags = 24
 	self.branchbank_cloaker = {}
 	self.branchbank_cloaker.name_id = "heist_cloak_hl"
@@ -571,11 +571,11 @@ function LevelsTweakData:init()
 	self.arm_for.cube = "cube_apply_heist_bank"
 	self.arm_for.bonus_escape = true
 	self.arm_for.static_experience = {
-		4000,
-		4000,
-		4000,
-		4000,
-		4000
+		40000,
+		40000,
+		40000,
+		40000,
+		40000
 	}
 	self.arm_for.max_bags = 47
 	self.family = {}
@@ -591,7 +591,7 @@ function LevelsTweakData:init()
 	self.family.music = "heist"
 	self.family.package = "packages/narr_family"
 	self.family.cube = "cube_apply_heist_bank"
-	self.family.ghost_bonus = 0.3
+	self.family.ghost_bonus = 0.5
 	self.family.max_bags = 24
 	self.big = {}
 	self.big.name_id = "heist_big_hl"
@@ -608,7 +608,7 @@ function LevelsTweakData:init()
 	self.big.music = "big_bank"
 	self.big.package = "packages/narr_big"
 	self.big.cube = "cube_apply_heist_bank"
-	self.big.ghost_bonus = 0.3
+	self.big.ghost_bonus = 0.15
 	self.big.max_bags = 28
 	self.roberts = {}
 	self.roberts.name_id = "heist_roberts_hl"
@@ -624,7 +624,7 @@ function LevelsTweakData:init()
 	self.roberts.music = "heist"
 	self.roberts.package = "packages/narr_roberts"
 	self.roberts.cube = "cube_apply_heist_bank"
-	self.roberts.ghost_bonus = 0.2
+	self.roberts.ghost_bonus = 0.1
 	self.roberts.max_bags = 14
 	self.kosugi = {}
 	self.kosugi.name_id = "heist_kosugi_hl"
@@ -640,7 +640,7 @@ function LevelsTweakData:init()
 	self.kosugi.music_ext_start = "suspense_1"
 	self.kosugi.package = "packages/kosugi"
 	self.kosugi.cube = "cube_apply_heist_bank"
-	self.kosugi.ghost_bonus = 0.1
+	self.kosugi.ghost_bonus = 0.05
 	self.kosugi.max_bags = 25
 	self._level_index = {
 		"welcome_to_the_jungle_1",
@@ -785,6 +785,21 @@ function LevelsTweakData:get_localized_level_name_from_level_id(level_id)
 
 end
 
+function LevelsTweakData:_random_all(music_id, infamous)
+	local switches = deep_clone(tweak_data.music[music_id].switches)
+	local switches_infamy = tweak_data.music[music_id].switches_infamous
+	if infamous and switches_infamy then
+		local (for generator), (for state), (for control) = pairs(switches_infamy)
+		do
+			do break end
+			table.insert(switches, data)
+		end
+
+	end
+
+	return switches
+end
+
 function LevelsTweakData:get_music_switches()
 	if not Global.level_data then
 		return nil
@@ -812,14 +827,10 @@ function LevelsTweakData:get_music_switches()
 		return nil
 	end
 
-	local switches = deep_clone(tweak_data.music[music_id].switches)
-	if infamous and tweak_data.music[music_id].switches_infamous then
-		local (for generator), (for state), (for control) = pairs(tweak_data.music[music_id].switches_infamous)
-		do
-			do break end
-			table.insert(switches, data)
-		end
-
+	local switches = {}
+	switches = self:_random_all(music_id, infamous)
+	if #switches == 0 then
+		Application:error("[LevelsTweakData:get_music_switches] Failed to find a track. JOB_ID = " .. (Global.job_manager.current_job and Global.job_manager.current_job.job_id or "[Missing]") .. ", SELECTION = " .. Global.music_manager.loadout_selection)
 	end
 
 	return switches

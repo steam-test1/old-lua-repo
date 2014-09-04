@@ -515,7 +515,6 @@ function ObjectivesManager:reset()
 	self._read_objectives = {}
 	self._remind_objectives = {}
 	self:_parse_objectives()
-	managers.hud:clear_objectives()
 end
 
 function ObjectivesManager:set_read(id, is_read)

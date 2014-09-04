@@ -4,3 +4,4 @@ function NewShotgunBase:init(...)
 end
 
 SaigaShotgun = SaigaShotgun or class(NewShotgunBase)
+GrenadeLauncherBase = GrenadeLauncherBase or class(NewRaycastWeaponBase)

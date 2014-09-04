@@ -196,14 +196,18 @@ function PlayerManager:_internal_load()
 			do break end
 			local ok_name = self._global.equipment[name] and name or self._global.default_kit.equipment_slots[i]
 			if ok_name then
-				local upgrade = tweak_data.upgrades.definitions[ok_name]
-				if upgrade then
-					if upgrade.slot and upgrade.slot < 2 or not upgrade.slot then
-						self:add_equipment({
-							equipment = upgrade.equipment_id,
-							silent = true
-						})
-					elseif not upgrade.slot or upgrade.slot == 2 then
+				do
+					local upgrade = tweak_data.upgrades.definitions[ok_name]
+					if upgrade then
+						if upgrade.slot and upgrade.slot < 2 or not upgrade.slot then
+							self:add_equipment({
+								equipment = upgrade.equipment_id,
+								silent = true
+							})
+						elseif not upgrade.slot or upgrade.slot == 2 then
+							break
+						end
+
 					end
 
 				end
@@ -779,6 +783,11 @@ function PlayerManager:get_hostage_bonus_multiplier(category)
 	local minions = self:num_local_minions() or 0
 	local multiplier = 0
 	hostages = hostages + minions
+	local hostage_max_num = tweak_data:get_raw_value("upgrades", "hostage_max_num", category)
+	if hostage_max_num then
+		hostages = math.min(hostages, hostage_max_num)
+	end
+
 	multiplier = multiplier + self:team_upgrade_value(category, "hostage_multiplier", 1) - 1
 	multiplier = multiplier + self:team_upgrade_value(category, "passive_hostage_multiplier", 1) - 1
 	multiplier = multiplier + self:upgrade_value("player", "hostage_" .. category .. "_multiplier", 1) - 1
@@ -796,6 +805,11 @@ function PlayerManager:get_hostage_bonus_addend(category)
 	local minions = self:num_local_minions() or 0
 	local addend = 0
 	hostages = hostages + minions
+	local hostage_max_num = tweak_data:get_raw_value("upgrades", "hostage_max_num", category)
+	if hostage_max_num then
+		hostages = math.min(hostages, hostage_max_num)
+	end
+
 	addend = addend + self:team_upgrade_value(category, "hostage_addend", 0)
 	addend = addend + self:team_upgrade_value(category, "passive_hostage_addend", 0)
 	addend = addend + self:upgrade_value("player", "hostage_" .. category .. "_addend", 0)
@@ -808,24 +822,10 @@ function PlayerManager:get_hostage_bonus_addend(category)
 	return addend * hostages
 end
 
-function PlayerManager:movement_speed_multiplier(speed_state, bonus_multiplier)
+function PlayerManager:movement_speed_multiplier(speed_state, bonus_multiplier, upgrade_level)
 	local multiplier = 1
-	local armor_penalty = self:mod_movement_penalty(self:body_armor_value("movement", nil, 1))
+	local armor_penalty = self:mod_movement_penalty(self:body_armor_value("movement", upgrade_level, 1))
 	multiplier = multiplier + armor_penalty - 1
-	local primary_weapon = managers.blackmarket:equipped_primary()
-	local primary_tweak = primary_weapon and tweak_data.weapon[primary_weapon.weapon_id]
-	local primary_category = primary_tweak and primary_tweak.category
-	local primary_penalty = primary_category and tweak_data.upgrades.weapon_movement_penalty[primary_category]
-	local secondary_weapon = managers.blackmarket:equipped_secondary()
-	local secondary_tweak = secondary_weapon and tweak_data.weapon[secondary_weapon.weapon_id]
-	local secondary_category = secondary_tweak and secondary_tweak.category
-	local secondary_penalty = secondary_category and tweak_data.upgrades.weapon_movement_penalty[secondary_category]
-	if primary_penalty then
-	end
-
-	if secondary_penalty then
-	end
-
 	if bonus_multiplier then
 		multiplier = multiplier + bonus_multiplier - 1
 	end
@@ -835,6 +835,7 @@ function PlayerManager:movement_speed_multiplier(speed_state, bonus_multiplier)
 	end
 
 	multiplier = multiplier + self:get_hostage_bonus_multiplier("speed") - 1
+	multiplier = multiplier + self:upgrade_value("player", "movement_speed_multiplier", 1) - 1
 	if self:num_local_minions() > 0 then
 		multiplier = multiplier + self:upgrade_value("player", "minion_master_speed_multiplier", 1) - 1
 	end
@@ -844,6 +845,10 @@ function PlayerManager:movement_speed_multiplier(speed_state, bonus_multiplier)
 		bags = bags + (managers.loot:get_secured_mandatory_bags_amount() or 0)
 		bags = bags + (managers.loot:get_secured_bonus_bags_amount() or 0)
 		multiplier = multiplier + bags * (self:upgrade_value("player", "secured_bags_speed_multiplier", 1) - 1)
+	end
+
+	if managers.player:has_activate_temporary_upgrade("temporary", "berserker_damage_multiplier") then
+		multiplier = multiplier * (tweak_data.upgrades.berserker_movement_speed_multiplier or 1)
 	end
 
 	return multiplier
@@ -869,7 +874,13 @@ function PlayerManager:body_armor_skill_multiplier()
 	return multiplier
 end
 
-function PlayerManager:skill_dodge_chance(running, crouching, detection_risk)
+function PlayerManager:body_armor_skill_addend(override_armor)
+	local addend = 0
+	addend = addend + self:upgrade_value("player", tostring(override_armor or managers.blackmarket:equipped_armor()) .. "_armor_addend", 0)
+	return addend
+end
+
+function PlayerManager:skill_dodge_chance(running, crouching, on_zipline, override_armor, detection_risk)
 	local chance = self:upgrade_value("player", "passive_dodge_chance", 0)
 	if running then
 		chance = chance + self:upgrade_value("player", "run_dodge_chance", 0)
@@ -879,8 +890,13 @@ function PlayerManager:skill_dodge_chance(running, crouching, detection_risk)
 		chance = chance + self:upgrade_value("player", "crouch_dodge_chance", 0)
 	end
 
+	if on_zipline then
+		chance = chance + self:upgrade_value("player", "on_zipline_dodge_chance", 0)
+	end
+
 	local detection_risk_add_dodge_chance = managers.player:upgrade_value("player", "detection_risk_add_dodge_chance")
 	chance = chance + self:get_value_from_risk_upgrade(detection_risk_add_dodge_chance, detection_risk)
+	chance = chance + self:upgrade_value("player", tostring(override_armor or managers.blackmarket:equipped_armor()) .. "_dodge_addend", 0)
 	return chance
 end
 
@@ -916,6 +932,7 @@ function PlayerManager:get_value_from_risk_upgrade(risk_upgrade, detection_risk)
 		local step = risk_upgrade[2]
 		local operator = risk_upgrade[3]
 		local threshold = risk_upgrade[4]
+		local cap = risk_upgrade[5]
 		local num_steps = 0
 		if operator == "above" then
 			num_steps = math.max(math.floor((detection_risk - threshold) / step), 0)
@@ -924,6 +941,7 @@ function PlayerManager:get_value_from_risk_upgrade(risk_upgrade, detection_risk)
 		end
 
 		risk_value = num_steps * value
+		risk_value = cap and math.min(cap, risk_value) or risk_value
 	end
 
 	return risk_value
@@ -1747,7 +1765,6 @@ function PlayerManager:select_next_item()
 	end
 
 	self._equipment.selected_index = self._equipment.selected_index + 1 <= #self._equipment.selections and self._equipment.selected_index + 1 or 1
-	managers.hud:set_next_item_selected()
 end
 
 function PlayerManager:select_previous_item()
@@ -1756,7 +1773,6 @@ function PlayerManager:select_previous_item()
 	end
 
 	self._equipment.selected_index = 1 <= self._equipment.selected_index - 1 and self._equipment.selected_index - 1 or #self._equipment.selections
-	managers.hud:set_previous_item_selected()
 end
 
 function PlayerManager:clear_equipment()
@@ -2088,16 +2104,38 @@ function PlayerManager:has_special_equipment(name)
 	return self._equipment.specials[name]
 end
 
+function PlayerManager:_can_pickup_special_equipment(special_equipment, name)
+	if special_equipment.amount then
+		local equipment = tweak_data.equipments.specials[name]
+		local extra = self:_equipped_upgrade_value(equipment)
+		return Application:digest_value(special_equipment.amount, false) < equipment.quantity + extra
+	end
+
+	return false
+end
+
 function PlayerManager:can_pickup_equipment(name)
 	local special_equipment = self._equipment.specials[name]
 	if special_equipment then
-		if special_equipment.amount then
-			local equipment = tweak_data.equipments.specials[name]
-			local extra = self:_equipped_upgrade_value(equipment)
-			return Application:digest_value(special_equipment.amount, false) < equipment.quantity + extra
+		return self:_can_pickup_special_equipment(special_equipment, name)
+	else
+		local equipment = tweak_data.equipments.specials[name]
+		if equipment and equipment.shares_pickup_with then
+			local (for generator), (for state), (for control) = ipairs(equipment.shares_pickup_with)
+			do
+				do break end
+				if special_equipment_name ~= name then
+					special_equipment = self._equipment.specials[special_equipment_name]
+					if special_equipment and not self:_can_pickup_special_equipment(special_equipment, name) then
+						return false
+					end
+
+				end
+
+			end
+
 		end
 
-		return false
 	end
 
 	return true
@@ -2552,8 +2590,6 @@ end
 
 function PlayerManager:reset()
 	if managers.hud then
-		managers.hud:clear_items()
-		managers.hud:clear_special_equipments()
 		managers.hud:clear_player_special_equipments()
 	end
 

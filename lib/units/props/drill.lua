@@ -200,6 +200,7 @@ end
 
 function Drill:load(data)
 	local state = data.Drill
+	self:set_skill_upgrades(state.skill_upgrades)
 end
 
 function Drill:set_powered(powered)

@@ -581,3 +581,15 @@ function _list_selector_updated_callback(params)
 
 end
 
+function get_notebook_current_page_index(notebook)
+	local page = notebook:get_current_page()
+	for i = 0, notebook:get_page_count() - 1 do
+		if page == notebook:get_page(i) then
+			return i
+		end
+
+	end
+
+	return nil
+end
+

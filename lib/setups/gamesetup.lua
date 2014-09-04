@@ -19,11 +19,9 @@ require("lib/managers/ObjectivesManager")
 require("lib/managers/GamePlayCentralManager")
 require("lib/managers/HintManager")
 require("lib/managers/MoneyManager")
-require("lib/managers/ChallengesManager")
 require("lib/managers/KillzoneManager")
 require("lib/managers/ActionMessagingManager")
 require("lib/managers/GroupAIManager")
-require("lib/managers/SecretAssignmentManager")
 require("lib/managers/StatisticsManager")
 require("lib/managers/OcclusionManager")
 require("lib/managers/TradeManager")
@@ -56,10 +54,10 @@ require("lib/units/beings/player/PlayerInventory")
 require("lib/units/beings/player/PlayerEquipment")
 require("lib/units/beings/player/PlayerMovement")
 require("lib/network/base/extensions/NetworkBaseExtension")
-require("lib/network/extensions/player/HuskPlayerMovement")
-require("lib/network/extensions/player/HuskPlayerInventory")
-require("lib/network/extensions/player/HuskPlayerBase")
-require("lib/network/extensions/player/HuskPlayerDamage")
+require("lib/units/beings/player/HuskPlayerMovement")
+require("lib/units/beings/player/HuskPlayerInventory")
+require("lib/units/beings/player/HuskPlayerBase")
+require("lib/units/beings/player/HuskPlayerDamage")
 require("lib/units/cameras/AnimatedCamera")
 require("lib/units/cameras/FPCameraPlayerBase")
 require("lib/units/cameras/PrevisCamera")
@@ -73,29 +71,29 @@ require("lib/units/enemies/cop/CopSound")
 require("lib/units/enemies/cop/CopInventory")
 require("lib/units/enemies/cop/CopMovement")
 require("lib/units/enemies/tank/TankCopDamage")
-require("lib/network/extensions/cop/HuskCopBase")
-require("lib/network/extensions/cop/HuskCopInventory")
-require("lib/network/extensions/cop/HuskCopDamage")
-require("lib/network/extensions/cop/HuskCopBrain")
-require("lib/network/extensions/cop/HuskCopMovement")
-require("lib/network/extensions/cop/HuskTankCopDamage")
+require("lib/units/enemies/cop/HuskCopBase")
+require("lib/units/enemies/cop/HuskCopInventory")
+require("lib/units/enemies/cop/HuskCopDamage")
+require("lib/units/enemies/cop/HuskCopBrain")
+require("lib/units/enemies/cop/HuskCopMovement")
+require("lib/units/enemies/tank/HuskTankCopDamage")
 require("lib/units/characters/DummyCorpseBase")
 require("lib/units/civilians/DummyCivilianBase")
 require("lib/units/civilians/CivilianBase")
 require("lib/units/civilians/CivilianBrain")
 require("lib/units/civilians/CivilianDamage")
-require("lib/network/extensions/civilian/HuskCivilianBase")
-require("lib/network/extensions/civilian/HuskCivilianDamage")
+require("lib/units/civilians/HuskCivilianBase")
+require("lib/units/civilians/HuskCivilianDamage")
 require("lib/units/player_team/TeamAIBase")
 require("lib/units/player_team/TeamAIBrain")
 require("lib/units/player_team/TeamAIDamage")
-require("lib/network/extensions/player_team/HuskTeamAIDamage")
+require("lib/units/player_team/HuskTeamAIDamage")
 require("lib/units/player_team/TeamAIInventory")
-require("lib/network/extensions/player_team/HuskTeamAIInventory")
+require("lib/units/player_team/HuskTeamAIInventory")
 require("lib/units/player_team/TeamAIMovement")
-require("lib/network/extensions/player_team/HuskTeamAIMovement")
+require("lib/units/player_team/HuskTeamAIMovement")
 require("lib/units/player_team/TeamAISound")
-require("lib/network/extensions/player_team/HuskTeamAIBase")
+require("lib/units/player_team/HuskTeamAIBase")
 require("lib/units/vehicles/AnimatedVehicleBase")
 require("lib/units/interactions/InteractionExt")
 require("lib/units/DramaExt")
@@ -139,6 +137,7 @@ require("lib/units/weapons/WeaponGadgetBase")
 require("lib/units/weapons/WeaponFlashLight")
 require("lib/units/weapons/WeaponLaser")
 require("lib/units/weapons/WeaponSecondSight")
+require("lib/units/weapons/WeaponSimpleAnim")
 require("lib/network/NetworkSpawnPointExt")
 require("lib/units/props/MissionDoor")
 require("lib/units/props/SecurityCamera")
@@ -210,7 +209,12 @@ function GameSetup:load_packages()
 
 	end
 
-	local job_tweak_data = Global.job_manager and Global.job_manager.current_job and Global.job_manager.current_job.job_id and tweak_data.narrative.jobs[Global.job_manager.current_job.job_id]
+	local job_tweak_contact_data, job_tweak_package_data
+	if Global.job_manager and Global.job_manager.current_job and Global.job_manager.current_job.job_id then
+		job_tweak_contact_data = tweak_data.narrative:job_data(Global.job_manager.current_job.job_id)
+		job_tweak_package_data = tweak_data.narrative:job_data(Global.job_manager.current_job.job_id, true)
+	end
+
 	local contact
 	if Global.job_manager and Global.job_manager.interupt_stage then
 		contact = "interupt"
@@ -219,7 +223,7 @@ function GameSetup:load_packages()
 		end
 
 	else
-		contact = job_tweak_data and job_tweak_data.contact
+		contact = job_tweak_contact_data and job_tweak_contact_data.contact
 	end
 
 	local contact_tweak_data = tweak_data.narrative.contacts[contact]
@@ -229,7 +233,7 @@ function GameSetup:load_packages()
 		PackageManager:load(contact_package)
 	end
 
-	local contract_package = job_tweak_data and job_tweak_data.package
+	local contract_package = job_tweak_package_data and job_tweak_package_data.package
 	if contract_package and not PackageManager:loaded(contract_package) then
 		self._loaded_contract_package = contract_package
 		PackageManager:load(contract_package)
@@ -297,13 +301,11 @@ function GameSetup:init_managers(managers)
 	managers.game_play_central = GamePlayCentralManager:new()
 	managers.hint = HintManager:new()
 	managers.money = MoneyManager:new()
-	managers.challenges = ChallengesManager:new()
 	managers.killzone = KillzoneManager:new()
 	managers.action_messaging = ActionMessagingManager:new()
 	managers.groupai = GroupAIManager:new()
 	managers.statistics = StatisticsManager:new()
 	managers.ai_data = CoreAiDataManager.AiDataManager:new()
-	managers.secret_assignment = SecretAssignmentManager:new()
 	managers.occlusion = _OcclusionManager:new()
 	managers.criminals = CriminalsManager:new()
 	managers.trade = TradeManager:new()
@@ -386,6 +388,7 @@ function GameSetup:init_finalize()
 		managers.music:init_finalize()
 	end
 
+	managers.dyn_resource:post_init()
 	tweak_data.gui.crime_net.locations = {}
 	self._keyboard = Input:keyboard()
 end
@@ -399,7 +402,6 @@ function GameSetup:update(t, dt)
 	managers.navigation:update(t, dt)
 	managers.hud:update(t, dt)
 	managers.killzone:update(t, dt)
-	managers.secret_assignment:update(t, dt)
 	managers.game_play_central:update(t, dt)
 	managers.trade:update(t, dt)
 	managers.statistics:update(t, dt)
