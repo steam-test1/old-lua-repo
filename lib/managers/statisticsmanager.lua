@@ -641,7 +641,11 @@ function StatisticsManager:_get_stat_tables()
 		"mandril",
 		"skullmonkey",
 		"orangutang",
-		"unicorn"
+		"unicorn",
+		"galax",
+		"crowgoblin",
+		"evil",
+		"volt"
 	}
 	local weapon_list = {
 		"ak5",
@@ -689,7 +693,11 @@ function StatisticsManager:_get_stat_tables()
 		"benelli",
 		"striker",
 		"ksg",
-		"judge"
+		"judge",
+		"gre_m79",
+		"g3",
+		"galil",
+		"famas"
 	}
 	local melee_list = {
 		"weapon",
@@ -704,7 +712,11 @@ function StatisticsManager:_get_stat_tables()
 		"shovel",
 		"becker",
 		"moneybundle",
-		"barbedwire"
+		"barbedwire",
+		"x46",
+		"dingdong",
+		"bayonet",
+		"bullseye"
 	}
 	local enemy_list = {
 		"cop",

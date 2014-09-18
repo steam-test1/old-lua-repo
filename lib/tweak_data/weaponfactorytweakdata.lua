@@ -11884,6 +11884,10 @@ function WeaponFactoryTweakData:_init_g3()
 		is_a_unlockable = true,
 		forbids = {
 			"wpn_fps_ammo_type"
+		},
+		override = {
+			wpn_fps_upg_ass_ns_jprifles = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ass_ns_surefire = {a_obj = "a_ns_s"}
 		}
 	}
 	self.parts.wpn_fps_ass_g3_b_long = {
@@ -11895,6 +11899,10 @@ function WeaponFactoryTweakData:_init_g3()
 		stats = {value = 2},
 		forbids = {
 			"wpn_fps_ammo_type"
+		},
+		override = {
+			wpn_fps_upg_ass_ns_jprifles = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ass_ns_surefire = {a_obj = "a_ns_s"}
 		}
 	}
 	self.parts.wpn_fps_ass_g3_body_rail = {
@@ -12204,25 +12212,113 @@ function WeaponFactoryTweakData:_init_galil()
 		forbids = {
 			"wpn_fps_shot_r870_ris_special"
 		},
-		stance_mod = {
-			wpn_fps_ass_galil = {
-				translation = Vector3(0, 0, -0.2)
-			}
-		},
 		override = {
-			wpn_fps_upg_o_specter = {a_obj = "a_os_fab"},
-			wpn_fps_upg_o_aimpoint = {a_obj = "a_os_fab"},
-			wpn_fps_upg_o_aimpoint_2 = {a_obj = "a_os_fab"},
-			wpn_fps_upg_o_docter = {a_obj = "a_os_fab"},
-			wpn_fps_upg_o_eotech = {a_obj = "a_os_fab"},
-			wpn_fps_upg_o_t1micro = {a_obj = "a_os_fab"},
-			wpn_fps_upg_o_cmore = {a_obj = "a_os_fab"},
-			wpn_fps_upg_o_acog = {a_obj = "a_os_fab"},
-			wpn_fps_upg_o_cs = {a_obj = "a_os_fab"},
-			wpn_fps_upg_o_eotech_xps = {a_obj = "a_os_fab"},
-			wpn_fps_upg_o_reflex = {a_obj = "a_os_fab"},
-			wpn_fps_upg_o_rx01 = {a_obj = "a_os_fab"},
-			wpn_fps_upg_o_rx30 = {a_obj = "a_os_fab"}
+			wpn_fps_upg_o_specter = {
+				{a_obj = "a_os_fab"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, 0, -0.2)
+					}
+				}
+			},
+			wpn_fps_upg_o_aimpoint = {
+				{a_obj = "a_os_fab"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, 0, -0.2)
+					}
+				}
+			},
+			wpn_fps_upg_o_aimpoint_2 = {
+				{a_obj = "a_os_fab"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, 0, -0.2)
+					}
+				}
+			},
+			wpn_fps_upg_o_docter = {
+				{a_obj = "a_os_fab"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, 0, -0.2)
+					}
+				}
+			},
+			wpn_fps_upg_o_eotech = {
+				{a_obj = "a_os_fab"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, 0, -0.2)
+					}
+				}
+			},
+			wpn_fps_upg_o_t1micro = {
+				{a_obj = "a_os_fab"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, 0, -0.2)
+					}
+				}
+			},
+			wpn_fps_upg_o_cmore = {
+				{a_obj = "a_os_fab"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, 0, -0.2)
+					}
+				}
+			},
+			wpn_fps_upg_o_acog = {
+				{a_obj = "a_os_fab"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, 0, -0.2)
+					}
+				}
+			},
+			wpn_fps_upg_o_cs = {
+				{a_obj = "a_os_fab"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, 0, -0.2)
+					}
+				}
+			},
+			wpn_fps_upg_o_eotech_xps = {
+				{a_obj = "a_os_fab"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, 0, -0.2)
+					}
+				}
+			},
+			wpn_fps_upg_o_reflex = {
+				{a_obj = "a_os_fab"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, 0, -0.2)
+					}
+				}
+			},
+			wpn_fps_upg_o_rx01 = {
+				{a_obj = "a_os_fab"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, 0, -0.2)
+					}
+				}
+			},
+			wpn_fps_upg_o_rx30 = {
+				{a_obj = "a_os_fab"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, 0, -0.2)
+					}
+				}
+			},
+			wpn_fps_upg_ass_ns_jprifles = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ass_ns_surefire = {a_obj = "a_ns_s"}
 		},
 		forbids = {
 			"wpn_fps_addon_ris",
@@ -12248,25 +12344,113 @@ function WeaponFactoryTweakData:_init_galil()
 		forbids = {
 			"wpn_fps_shot_r870_ris_special"
 		},
-		stance_mod = {
-			wpn_fps_ass_galil = {
-				translation = Vector3(0, -8, 1)
-			}
-		},
 		override = {
-			wpn_fps_upg_o_specter = {a_obj = "a_os_mar"},
-			wpn_fps_upg_o_aimpoint = {a_obj = "a_os_mar"},
-			wpn_fps_upg_o_aimpoint_2 = {a_obj = "a_os_mar"},
-			wpn_fps_upg_o_docter = {a_obj = "a_os_mar"},
-			wpn_fps_upg_o_eotech = {a_obj = "a_os_mar"},
-			wpn_fps_upg_o_t1micro = {a_obj = "a_os_mar"},
-			wpn_fps_upg_o_cmore = {a_obj = "a_os_mar"},
-			wpn_fps_upg_o_acog = {a_obj = "a_os_mar"},
-			wpn_fps_upg_o_cs = {a_obj = "a_os_mar"},
-			wpn_fps_upg_o_eotech_xps = {a_obj = "a_os_mar"},
-			wpn_fps_upg_o_reflex = {a_obj = "a_os_mar"},
-			wpn_fps_upg_o_rx01 = {a_obj = "a_os_mar"},
-			wpn_fps_upg_o_rx30 = {a_obj = "a_os_mar"}
+			wpn_fps_upg_o_specter = {
+				{a_obj = "a_os_mar"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, -8, 1)
+					}
+				}
+			},
+			wpn_fps_upg_o_aimpoint = {
+				{a_obj = "a_os_mar"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, -8, 1)
+					}
+				}
+			},
+			wpn_fps_upg_o_aimpoint_2 = {
+				{a_obj = "a_os_mar"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, -8, 1)
+					}
+				}
+			},
+			wpn_fps_upg_o_docter = {
+				{a_obj = "a_os_mar"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, -8, 1)
+					}
+				}
+			},
+			wpn_fps_upg_o_eotech = {
+				{a_obj = "a_os_mar"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, -8, 1)
+					}
+				}
+			},
+			wpn_fps_upg_o_t1micro = {
+				{a_obj = "a_os_mar"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, -8, 1)
+					}
+				}
+			},
+			wpn_fps_upg_o_cmore = {
+				{a_obj = "a_os_mar"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, -8, 1)
+					}
+				}
+			},
+			wpn_fps_upg_o_acog = {
+				{a_obj = "a_os_mar"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, -8, 1)
+					}
+				}
+			},
+			wpn_fps_upg_o_cs = {
+				{a_obj = "a_os_mar"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, -8, 1)
+					}
+				}
+			},
+			wpn_fps_upg_o_eotech_xps = {
+				{a_obj = "a_os_mar"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, -8, 1)
+					}
+				}
+			},
+			wpn_fps_upg_o_reflex = {
+				{a_obj = "a_os_mar"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, -8, 1)
+					}
+				}
+			},
+			wpn_fps_upg_o_rx01 = {
+				{a_obj = "a_os_mar"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, -8, 1)
+					}
+				}
+			},
+			wpn_fps_upg_o_rx30 = {
+				{a_obj = "a_os_mar"},
+				stance_mod = {
+					wpn_fps_ass_galil = {
+						translation = Vector3(0, -8, 1)
+					}
+				}
+			},
+			wpn_fps_upg_ass_ns_jprifles = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ass_ns_surefire = {a_obj = "a_ns_s"}
 		},
 		forbids = {
 			"wpn_fps_shot_r870_ris_special"
@@ -12290,7 +12474,11 @@ function WeaponFactoryTweakData:_init_galil()
 		},
 		texture_bundle_folder = "gage_pack_assault",
 		dlc = "gage_pack_assault",
-		is_a_unlockable = true
+		is_a_unlockable = true,
+		override = {
+			wpn_fps_upg_ass_ns_jprifles = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ass_ns_surefire = {a_obj = "a_ns_s"}
+		}
 	}
 	self.parts.wpn_fps_ass_galil_fg_sniper = {
 		pcs = {},
@@ -12306,14 +12494,26 @@ function WeaponFactoryTweakData:_init_galil()
 		},
 		texture_bundle_folder = "gage_pack_assault",
 		dlc = "gage_pack_assault",
-		is_a_unlockable = true
+		is_a_unlockable = true,
+		override = {
+			wpn_fps_upg_ass_ns_jprifles = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ass_ns_surefire = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ass_ns_linear = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ns_ass_smg_firepig = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ns_ass_smg_stubby = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ns_ass_smg_tank = {a_obj = "a_ns_s"}
+		}
 	}
 	self.parts.wpn_fps_ass_galil_fg_standard = {
 		type = "barrel",
 		name_id = "bm_wp_galil_fg_standard",
 		a_obj = "a_fg",
 		unit = "units/pd2_dlc_gage_assault/weapons/wpn_fps_ass_galil_pts/wpn_fps_ass_galil_fg_standard",
-		stats = {value = 2}
+		stats = {value = 2},
+		override = {
+			wpn_fps_upg_ass_ns_jprifles = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ass_ns_surefire = {a_obj = "a_ns_s"}
+		}
 	}
 	self.parts.wpn_fps_ass_galil_g_standard = {
 		type = "grip",
@@ -12598,6 +12798,12 @@ function WeaponFactoryTweakData:_init_famas()
 			concealment = -1,
 			damage = 1
 		},
+		override = {
+			wpn_fps_upg_ns_ass_smg_large = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ns_ass_smg_medium = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ns_ass_smg_small = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ass_ns_jprifles = {a_obj = "a_ns_n"}
+		},
 		texture_bundle_folder = "gage_pack_assault",
 		dlc = "gage_pack_assault",
 		is_a_unlockable = true
@@ -12615,6 +12821,12 @@ function WeaponFactoryTweakData:_init_famas()
 			concealment = 2,
 			damage = 3
 		},
+		override = {
+			wpn_fps_upg_ns_ass_smg_large = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ns_ass_smg_medium = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ns_ass_smg_small = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ass_ns_jprifles = {a_obj = "a_ns_n"}
+		},
 		texture_bundle_folder = "gage_pack_assault",
 		dlc = "gage_pack_assault",
 		is_a_unlockable = true
@@ -12631,6 +12843,12 @@ function WeaponFactoryTweakData:_init_famas()
 			spread = 1,
 			concealment = -2,
 			damage = 1
+		},
+		override = {
+			wpn_fps_upg_ns_ass_smg_large = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ns_ass_smg_medium = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ns_ass_smg_small = {a_obj = "a_ns_s"},
+			wpn_fps_upg_ass_ns_jprifles = {a_obj = "a_ns_n"}
 		},
 		texture_bundle_folder = "gage_pack_assault",
 		dlc = "gage_pack_assault",

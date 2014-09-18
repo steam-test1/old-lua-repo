@@ -4,6 +4,7 @@ function CoreMusicManager:init()
 		Global.music_manager = {}
 		Global.music_manager.source = SoundDevice:create_source("music")
 		Global.music_manager.volume = 0
+		self:init_globals()
 	end
 
 	self._path_list = {}
@@ -52,16 +53,18 @@ function CoreMusicManager:init_finalize()
 		self:set_volume(Global.music_manager.volume)
 	end
 
-	self:check_music_switch()
 	managers.savefile:add_load_sequence_done_callback_handler(callback(self, self, "on_load_complete"))
+end
+
+function CoreMusicManager:init_globals()
 end
 
 function CoreMusicManager:check_music_switch()
 	local switches = tweak_data.levels:get_music_switches()
 	if switches and #switches > 0 then
-		local track = switches[math.random(#switches)]
-		print("CoreMusicManager:check_music_switch()", track)
-		Global.music_manager.source:set_switch("music_randomizer", track)
+		Global.music_manager.current_track = switches[math.random(#switches)]
+		print("CoreMusicManager:check_music_switch()", Global.music_manager.current_track)
+		Global.music_manager.source:set_switch("music_randomizer", Global.music_manager.current_track)
 	else
 	end
 
@@ -73,17 +76,11 @@ function CoreMusicManager:post_event(name)
 	end
 
 	if Global.music_manager.current_event ~= name then
-		Global.music_manager.source:post_event(name)
+		if not self._skip_play then
+			Global.music_manager.source:post_event(name)
+		end
+
 		Global.music_manager.current_event = name
-	end
-
-end
-
-function CoreMusicManager:track_stop()
-	if self._previous_track then
-		Global.music_manager.source:post_event(self._previous_track)
-		self._previous_track = nil
-		self._current_event = nil
 	end
 
 end
@@ -135,9 +132,12 @@ function CoreMusicManager:has_music_control()
 end
 
 function CoreMusicManager:save(data)
-	local state = {
-		event = Global.music_manager.current_event
-	}
+	local state = {}
+	if game_state_machine:current_state_name() ~= "ingame_waiting_for_players" then
+		state.event = Global.music_manager.current_event
+	end
+
+	state.track = Global.music_manager.current_track
 	data.CoreMusicManager = state
 end
 
@@ -147,17 +147,6 @@ function CoreMusicManager:load(data)
 		self:post_event(state.event)
 	end
 
-end
-
-function CoreMusicManager:save_savedata(data)
-	local state = {}
-	data.MusicManager = state
-end
-
-function CoreMusicManager:load_savedata(data)
-	local state = data.MusicManager
-	if state then
-	end
-
+	Global.music_manager.synced_track = state.track
 end
 

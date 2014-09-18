@@ -85,7 +85,7 @@ function MenuTitlescreenState:at_enter()
 		Application:stack_dump_error("Shouldn't enter title more than once. Except when toggling freeflight.")
 	end
 
-	managers.music:post_event("menu_music")
+	managers.music:post_event(managers.music:jukebox_menu_track("mainmenu"))
 	managers.menu:input_enabled(false)
 	do
 		local (for generator), (for state), (for control) = ipairs(self._controller_list)
