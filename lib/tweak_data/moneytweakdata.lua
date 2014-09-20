@@ -18,10 +18,8 @@ function MoneyTweakData._create_value_table(min, max, table_size, round, curve)
 		else
 			v = round and math.ceil(v) or v
 		end
-
 		table.insert(t, v)
 	end
-
 	return t
 end
 
@@ -32,7 +30,6 @@ function MoneyTweakData._test_curves(pay, bags, alive_players, diff, days)
 	if diff > 0 then
 		diff_multiplier = tweak_data:get_value("money_manager", "difficulty_multiplier", diff + 1)
 	end
-
 	v = tweak_data:get_value("money_manager", "stage_completion", pay) + tweak_data:get_value("money_manager", "job_completion", pay) + loot_bags * bags + tweak_data:get_value("money_manager", "flat_stage_completion") + tweak_data:get_value("money_manager", "flat_job_completion")
 	v = v * days
 	v = v + v * diff_multiplier
@@ -350,7 +347,6 @@ function MoneyTweakData:init(tweak_data)
 		self.small_loot.vault_loot_jewels = 7500
 		self.small_loot.vault_loot_macka = 1
 	end
-
 	self.max_small_loot_value = 2800000
 	self.skilltree = {}
 	self.skilltree.respec = {}

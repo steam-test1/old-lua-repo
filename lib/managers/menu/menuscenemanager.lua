@@ -254,7 +254,6 @@ function MenuSceneManager:update(t, dt)
 		self:_one_frame_delayed_clbk()
 		self._one_frame_delayed_clbk = nil
 	end
-
 	if self._delayed_callbacks then
 		local callbacks = self._delayed_callbacks
 		if callbacks[1] and t > callbacks[1][1] then
@@ -262,12 +261,9 @@ function MenuSceneManager:update(t, dt)
 			if #callbacks == 0 then
 				self._delayed_callbacks = nil
 			end
-
 			clbk()
 		end
-
 	end
-
 	if self._camera_values and self._transition_time then
 		self._transition_time = math.min(self._transition_time + dt, 1)
 		local bezier_value = math.bezier(self._transition_bezier, self._transition_time)
@@ -277,7 +273,6 @@ function MenuSceneManager:update(t, dt)
 			managers.skilltree:check_reset_message()
 			managers.infamy:check_reset_message()
 		end
-
 		local camera_pos = math.lerp(self._camera_values.camera_pos_current, self._camera_values.camera_pos_target, bezier_value)
 		local target_pos = math.lerp(self._camera_values.target_pos_current, self._camera_values.target_pos_target, bezier_value)
 		local fov = math.lerp(self._camera_values.fov_current, self._camera_values.fov_target, bezier_value)
@@ -289,32 +284,25 @@ function MenuSceneManager:update(t, dt)
 			local character_pos = math.lerp(self._character_values.pos_current, self._character_values.pos_target, bezier_value)
 			self._character_unit:set_position(character_pos)
 		end
-
 	end
-
 	if self._camera_object then
 		if self._new_fov ~= self._current_fov + (self._fov_mod or 0) then
 			self._new_fov = self._current_fov + (self._fov_mod or 0)
 			self._camera_object:set_fov(self._new_fov)
 		end
-
 	end
-
 	if self._weapon_transition_time then
 		self._weapon_transition_time = math.min(self._weapon_transition_time + dt, 1)
 		local bezier_value = math.bezier(self._transition_bezier, self._weapon_transition_time)
 		if self._item_offset_target then
 			self._item_offset = math.lerp(self._item_offset_current, self._item_offset_target, bezier_value)
 		end
-
 	end
-
 	if self._item_unit and self._item_unit.unit then
 		if not self._item_grabbed then
 			if not managers.blackmarket:currently_customizing_mask() and not self._disable_rotate then
 				self._item_yaw = (self._item_yaw + 5 * dt) % 360
 			end
-
 			self._item_pitch = math.lerp(self._item_pitch, 0, 10 * dt)
 			self._item_roll = math.lerp(self._item_roll, 0, 10 * dt)
 			mrotation.set_yaw_pitch_roll(self._item_rot_temp, self._item_yaw, self._item_pitch, self._item_roll)
@@ -327,44 +315,30 @@ function MenuSceneManager:update(t, dt)
 			self._item_unit.unit:set_position(new_pos)
 			self._item_unit.unit:set_moving(2)
 		end
-
 		if alive(self._temp_upgrade_object) then
 		end
-
 	end
-
 	if not self._character_grabbed then
 	end
-
 	if self._fade_down_lights then
-		local (for generator), (for state), (for control) = ipairs(self._fade_down_lights)
-		do
-			do break end
+		for _, light in ipairs(self._fade_down_lights) do
 			light:set_multiplier(0)
 		end
-
 	end
-
 	if self._active_lights then
-		local (for generator), (for state), (for control) = ipairs(self._active_lights)
-		do
-			do break end
+		for _, light in ipairs(self._active_lights) do
 			light:set_multiplier(0.8)
 		end
-
 	end
-
 	if alive(self._vp) then
 		self._vp:feed_params()
 	end
-
 end
 
 function MenuSceneManager:add_callback(clbk, delay)
 	if not clbk then
 		debug_pause("[MenuSceneManager:add_callback] Empty callback object!")
 	end
-
 	local clbk_data = {
 		Application:time() + delay,
 		clbk
@@ -375,24 +349,16 @@ function MenuSceneManager:add_callback(clbk, delay)
 	while i > 0 and delay < callbacks[i][1] do
 		i = i - 1
 	end
-
 	table.insert(callbacks, i + 1, clbk_data)
 end
 
 function MenuSceneManager:on_blackmarket_reset()
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.blackmarket.characters)
-		do
-			do break end
-			if Global.blackmarket_manager.characters[character_id].equipped then
-				self:set_character(character_id)
-		end
-
+	for character_id, data in pairs(tweak_data.blackmarket.characters) do
+		if Global.blackmarket_manager.characters[character_id].equipped then
+			self:set_character(character_id)
 		else
 		end
-
 	end
-
 	self:_set_character_equipment()
 end
 
@@ -404,18 +370,11 @@ function MenuSceneManager:_setup_bg()
 	World:spawn_unit(Idstring("units/menu/menu_scene/menu_smokecylinder2"), Vector3(0, 0, 0), Rotation(yaw, 0, 0))
 	World:spawn_unit(Idstring("units/menu/menu_scene/menu_smokecylinder3"), Vector3(0, 0, 0), Rotation(yaw, 0, 0))
 	World:spawn_unit(Idstring("units/menu/menu_scene/menu_logo"), Vector3(0, 0, 0), Rotation(yaw, 0, 0))
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.blackmarket.characters)
-		do
-			do break end
-			if Global.blackmarket_manager.characters[character_id].equipped then
-				self:set_character(character_id)
-			end
-
+	for character_id, data in pairs(tweak_data.blackmarket.characters) do
+		if Global.blackmarket_manager.characters[character_id].equipped then
+			self:set_character(character_id)
 		end
-
 	end
-
 	self:_setup_lobby_characters()
 end
 
@@ -434,7 +393,6 @@ function MenuSceneManager:_set_character_unit(unit_name, unit)
 		self:_delete_character_weapon(unit, "all")
 		World:delete_unit(unit)
 	end
-
 	local a = self._bg_unit:get_object(Idstring("a_reference"))
 	unit = World:spawn_unit(Idstring(unit_name), pos or a:position(), rot or a:rotation())
 	self._character_yaw = a:rotation():yaw()
@@ -454,14 +412,12 @@ function MenuSceneManager:_select_character_pose()
 		self:_set_character_unit_pose(pose, self._character_unit)
 		return
 	end
-
 	local pose
 	if math.rand(1) < 0.25 then
 		pose = self._global_poses.generic[math.random(#self._global_poses.generic)]
 		self:_set_character_unit_pose(pose, self._character_unit)
 		return
 	end
-
 	if math.rand(1) < 0.12 then
 		local secondary = managers.blackmarket:equipped_secondary()
 		if secondary then
@@ -469,16 +425,12 @@ function MenuSceneManager:_select_character_pose()
 			if category == "pistol" then
 				pose = self._global_poses.pistol[math.random(#self._global_poses.pistol)]
 			end
-
 			if pose then
 				self:_set_character_unit_pose(pose, self._character_unit)
 				return
 			end
-
 		end
-
 	end
-
 	local primary = managers.blackmarket:equipped_primary()
 	if primary then
 		local category = tweak_data.weapon[primary.weapon_id].category
@@ -489,14 +441,11 @@ function MenuSceneManager:_select_character_pose()
 		elseif category == "saw" then
 			pose = self._global_poses.saw[math.random(#self._global_poses.saw)]
 		end
-
 		if pose then
 			self:_set_character_unit_pose(pose, self._character_unit)
 			return
 		end
-
 	end
-
 	pose = self._global_poses.generic[math.random(#self._global_poses.generic)]
 	self:_set_character_unit_pose(pose, self._character_unit)
 end
@@ -506,20 +455,12 @@ function MenuSceneManager:_set_character_equipment()
 	if equipped_mask.mask_id then
 		self:set_character_mask_by_id(equipped_mask.mask_id, equipped_mask.blueprint)
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.blackmarket.armors)
-		do
-			do break end
-			if Global.blackmarket_manager.armors[armor_id].equipped then
-				self:set_character_armor(armor_id)
-		end
-
+	for armor_id, data in pairs(tweak_data.blackmarket.armors) do
+		if Global.blackmarket_manager.armors[armor_id].equipped then
+			self:set_character_armor(armor_id)
 		else
 		end
-
 	end
-
 	local rank = managers.experience:current_rank()
 	if rank > 0 then
 		self:set_character_equipped_card(nil, rank - 1)
@@ -530,29 +471,22 @@ function MenuSceneManager:_set_character_equipment()
 		else
 			self:_delete_character_weapon(self._character_unit, "secondary")
 		end
-
 	end
-
 	local primary = managers.blackmarket:equipped_primary()
 	if primary then
 		self:set_character_equipped_weapon(nil, primary.factory_id, primary.blueprint, "primary")
 	else
 		self:_delete_character_weapon(self._character_unit, "primary")
 	end
-
 end
 
 function MenuSceneManager:_setup_lobby_characters()
 	if self._lobby_characters then
-		local (for generator), (for state), (for control) = ipairs(self._lobby_characters)
-		do
-			do break end
+		for _, unit in ipairs(self._lobby_characters) do
 			self:_delete_character_mask(unit)
 			World:delete_unit(unit)
 		end
-
 	end
-
 	self._lobby_characters = {}
 	self._characters_offset = Vector3(0, -200, -130)
 	self._characters_rotation = {
@@ -590,7 +524,6 @@ function MenuSceneManager:_setup_lobby_characters()
 		table.insert(self._lobby_characters, unit)
 		self:set_lobby_character_visible(i, false, true)
 	end
-
 end
 
 function MenuSceneManager:_init_character(unit, peer_id)
@@ -608,12 +541,10 @@ function MenuSceneManager:change_lobby_character(i, character_id)
 			self:_delete_character_mask(unit)
 			World:delete_unit(unit)
 		end
-
 		unit = World:spawn_unit(Idstring(unit_name), pos, rot)
 		self:_init_character(unit, i)
 		self._lobby_characters[i] = unit
 	end
-
 	local sequence = managers.blackmarket:character_sequence_by_character_id(character_id, i)
 	unit:damage():run_sequence_simple(sequence)
 end
@@ -635,13 +566,11 @@ function MenuSceneManager:test_show_all_lobby_characters(enable_card)
 				local state = unit:play_redirect(Idstring("idle_menu"))
 				unit:anim_state_machine():set_parameter(state, "husk" .. i, 1)
 			end
-
 			mrotation.set_yaw_pitch_roll(rot, self._characters_rotation[(is_me and 4 or 0) + i], 0, 0)
 			mvector3.set(pos, self._characters_offset)
 			if is_me then
 				mvector3.set_y(pos, mvector3.y(pos) + 100)
 			end
-
 			mvector3.rotate_with(pos, rot)
 			mvector3.set(mvec, pos)
 			mvector3.negate(mvec)
@@ -651,16 +580,13 @@ function MenuSceneManager:test_show_all_lobby_characters(enable_card)
 			unit:set_rotation(rot)
 			self:set_lobby_character_visible(i, true)
 		end
-
 	end
-
 end
 
 function MenuSceneManager:hide_all_lobby_characters()
 	for i = 1, 4 do
 		self:set_lobby_character_visible(i, false, true)
 	end
-
 end
 
 function MenuSceneManager:set_lobby_character_visible(i, visible, no_state)
@@ -671,21 +597,18 @@ function MenuSceneManager:set_lobby_character_visible(i, visible, no_state)
 		managers.menu_component:close_lobby_profile_gui()
 		self._current_profile_slot = 0
 	end
-
 end
 
 function MenuSceneManager:update_menu_character_text(i)
 	if managers.menu_component then
 		managers.menu_component:update_contract_character(i)
 	end
-
 end
 
 function MenuSceneManager:set_lobby_character_menu_state(i, state)
 	if managers.menu_component then
 		managers.menu_component:update_contract_character_menu_state(i, state)
 	end
-
 end
 
 function MenuSceneManager:set_lobby_character_out_fit(i, outfit_string, rank)
@@ -706,7 +629,6 @@ function MenuSceneManager:set_lobby_character_out_fit(i, outfit_string, rank)
 	if is_me then
 		mvector3.set_y(pos, mvector3.y(pos) + 100)
 	end
-
 	mvector3.rotate_with(pos, rot)
 	mvector3.set(mvec, pos)
 	mvector3.negate(mvec)
@@ -738,10 +660,8 @@ function MenuSceneManager:set_character_mask(mask_name_str, unit, peer_id, mask_
 		else
 			old_mask_data.ready_clbk = ready_clbk
 		end
-
 		return
 	end
-
 	self:_delete_character_mask(unit)
 	local mask_name_key = mask_name:key()
 	local mask_data = {
@@ -762,16 +682,13 @@ function MenuSceneManager:clbk_mask_unit_loaded(mask_data_param, status, asset_t
 	if not alive(mask_data_param.unit) then
 		return
 	end
-
 	local mask_data = self._mask_units[mask_data_param.unit:key()]
 	if mask_data ~= mask_data_param then
 		return
 	end
-
 	if mask_data.ready or asset_name ~= mask_data.mask_name then
 		return
 	end
-
 	local mask_align = mask_data.unit:get_object(Idstring("Head"))
 	local mask_unit = self:_spawn_mask(mask_data.mask_name, false, mask_align:position(), mask_align:rotation(), mask_data.mask_id)
 	mask_data.mask_unit = mask_unit
@@ -781,22 +698,18 @@ function MenuSceneManager:clbk_mask_unit_loaded(mask_data_param, status, asset_t
 		if mask_off_sequence and mask_data.unit:damage():has_sequence(mask_off_sequence) then
 			mask_data.unit:damage():run_sequence_simple(mask_off_sequence)
 		end
-
 	else
 		local mask_on_sequence = managers.blackmarket:character_mask_on_sequence_by_character_id(managers.blackmarket:equipped_character(), mask_data.peer_id)
 		if mask_on_sequence and mask_data.unit:damage():has_sequence(mask_on_sequence) then
 			mask_data.unit:damage():run_sequence_simple(mask_on_sequence)
 		end
-
 	end
-
 	mask_data.unit:link(mask_align:name(), mask_unit, mask_unit:orientation_object():name())
 	self:_chk_character_visibility(mask_data.unit)
 	if mask_data.ready_clbk then
 		mask_data.ready_clbk(mask_unit)
 		mask_data.ready_clbk = nil
 	end
-
 end
 
 function MenuSceneManager:set_character_armor(armor_id, unit)
@@ -819,7 +732,6 @@ function MenuSceneManager:set_character_card(peer_id, rank, unit)
 	else
 		unit:anim_state_machine():set_parameter(state, "husk" .. peer_id, 1)
 	end
-
 end
 
 function MenuSceneManager:set_character_equipped_weapon(unit, factory_id, blueprint, type)
@@ -842,7 +754,6 @@ function MenuSceneManager:set_character_equipped_weapon(unit, factory_id, bluepr
 		})
 		managers.dyn_resource:load(ids_unit, ids_unit_name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, clbk)
 	end
-
 	self:_chk_character_visibility(unit)
 end
 
@@ -852,27 +763,20 @@ function MenuSceneManager:_chk_character_visibility(char_unit)
 		self:_set_character_and_outfit_visibility(char_unit, false)
 		return
 	end
-
 	local char_weapons = self._weapon_units[char_key]
 	if char_weapons then
-		local (for generator), (for state), (for control) = pairs(char_weapons)
-		do
-			do break end
+		for w_type, w_data in pairs(char_weapons) do
 			if not w_data.assembly_complete then
 				self:_set_character_and_outfit_visibility(char_unit, false)
 				return
 			end
-
 		end
-
 	end
-
 	local char_mask = self._mask_units[char_key]
 	if char_mask and not char_mask.mask_unit then
 		self:_set_character_and_outfit_visibility(char_unit, false)
 		return
 	end
-
 	self:_set_character_and_outfit_visibility(char_unit, true)
 end
 
@@ -885,13 +789,9 @@ function MenuSceneManager:_set_unit_enabled_tree(unit, state)
 	if state then
 		unit:set_moving()
 	end
-
-	local (for generator), (for state), (for control) = ipairs(unit:children())
-	do
-		do break end
+	for _, child_unit in ipairs(unit:children()) do
 		self:_set_unit_enabled_tree(child_unit, state)
 	end
-
 end
 
 function MenuSceneManager:clbk_weapon_base_unit_loaded(params, status, asset_type, asset_name)
@@ -899,12 +799,10 @@ function MenuSceneManager:clbk_weapon_base_unit_loaded(params, status, asset_typ
 	if not alive(owner) then
 		return
 	end
-
 	local owner_weapon_data = self._weapon_units[owner:key()]
 	if not owner_weapon_data or not owner_weapon_data[params.type] or owner_weapon_data[params.type].unit or owner_weapon_data[params.type].name ~= asset_name then
 		return
 	end
-
 	owner_weapon_data = owner_weapon_data[params.type]
 	self._item_pos = Vector3(0, 0, 0)
 	mrotation.set_zero(self._item_rot_mod)
@@ -921,7 +819,6 @@ function MenuSceneManager:clbk_weapon_base_unit_loaded(params, status, asset_typ
 	else
 		weapon_unit:base():assemble(params.factory_id)
 	end
-
 	local align_name = params.type == "primary" and Idstring("a_weapon_right_front") or Idstring("a_weapon_left_front")
 	owner:link(align_name, weapon_unit, weapon_unit:orientation_object():name())
 	self:_select_character_pose()
@@ -933,12 +830,10 @@ function MenuSceneManager:clbk_weapon_assembly_complete(params)
 	if not alive(owner) then
 		return
 	end
-
 	local owner_weapon_data = self._weapon_units[owner:key()]
 	if not owner_weapon_data or not owner_weapon_data[params.type] or owner_weapon_data[params.type].assembly_complete then
 		return
 	end
-
 	owner_weapon_data[params.type].assembly_complete = true
 	self:_chk_character_visibility(owner)
 end
@@ -962,10 +857,8 @@ function MenuSceneManager:_spawn_mask(mask_unit_name, as_item, pos, rot, mask_id
 		if as_item then
 			backside:anim_set_time(Idstring("mask_on"), backside:anim_length(Idstring("mask_on")))
 		end
-
 		mask_unit:link(mask_unit:orientation_object():name(), backside, backside:orientation_object():name())
 	end
-
 	return mask_unit
 end
 
@@ -975,41 +868,25 @@ function MenuSceneManager:_delete_character_mask(owner)
 	if not old_mask then
 		return
 	end
-
 	if alive(old_mask.mask_unit) then
-		do
-			local (for generator), (for state), (for control) = ipairs(old_mask.mask_unit:children())
-			do
-				do break end
-				linked_unit:unlink()
-				World:delete_unit(linked_unit)
-			end
-
+		for _, linked_unit in ipairs(old_mask.mask_unit:children()) do
+			linked_unit:unlink()
+			World:delete_unit(linked_unit)
 		end
-
 		old_mask.mask_unit:unlink()
 		World:delete_unit(old_mask.mask_unit)
 	end
-
 	self._mask_units[owner_key] = nil
 	local unload = true
-	do
-		local (for generator), (for state), (for control) = pairs(self._mask_units)
-		do
-			do break end
-			if mask_data.mask_name == old_mask.mask_name then
-				unload = false
-		end
-
+	for u_key, mask_data in pairs(self._mask_units) do
+		if mask_data.mask_name == old_mask.mask_name then
+			unload = false
 		else
 		end
-
 	end
-
 	if unload then
 		managers.dyn_resource:unload(ids_unit, old_mask.mask_name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
 	end
-
 end
 
 function MenuSceneManager:_delete_character_weapon(owner, type)
@@ -1023,23 +900,15 @@ function MenuSceneManager:_delete_character_weapon(owner, type)
 		table.insert(weapons, self._weapon_units[owner:key()][type])
 		self._weapon_units[owner:key()][type] = nil
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(weapons)
-		do
-			do break end
-			local name = old_weapon_data.name
-			if alive(old_weapon_data.unit) then
-				old_weapon_data.unit:unlink()
-				old_weapon_data.unit:set_slot(0)
-				World:delete_unit(old_weapon_data.unit)
-			end
-
-			managers.dyn_resource:unload(ids_unit, name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
+	for _, old_weapon_data in ipairs(weapons) do
+		local name = old_weapon_data.name
+		if alive(old_weapon_data.unit) then
+			old_weapon_data.unit:unlink()
+			old_weapon_data.unit:set_slot(0)
+			World:delete_unit(old_weapon_data.unit)
 		end
-
+		managers.dyn_resource:unload(ids_unit, name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
 	end
-
 	if self._card_units and self._card_units[owner:key()] and type ~= "primary" then
 		local card_unit = self._card_units[owner:key()]
 		if alive(card_unit) then
@@ -1047,10 +916,8 @@ function MenuSceneManager:_delete_character_weapon(owner, type)
 			card_unit:set_slot(0)
 			World:delete_unit(card_unit)
 		end
-
 		self._card_units[owner:key()] = nil
 	end
-
 end
 
 function MenuSceneManager:set_main_character_outfit(outfit_string)
@@ -1066,7 +933,6 @@ function MenuSceneManager:on_set_preferred_character()
 	if equipped_mask.mask_id then
 		self:set_character_mask_by_id(equipped_mask.mask_id, equipped_mask.blueprint)
 	end
-
 end
 
 function MenuSceneManager:set_character(character_id)
@@ -1074,7 +940,6 @@ function MenuSceneManager:set_character(character_id)
 	if not alive(self._character_unit) or Idstring(unit_name) ~= self._character_unit:name() then
 		self:_set_player_character_unit(unit_name, self._character_unit)
 	end
-
 	local sequence = managers.blackmarket:character_sequence_by_character_id(character_id)
 	self._character_unit:damage():run_sequence_simple(sequence)
 end
@@ -1094,7 +959,6 @@ function MenuSceneManager:setup_camera()
 	if self._camera_values then
 		return
 	end
-
 	local ref = self._bg_unit:get_object(Idstring("a_camera_reference"))
 	local target_pos = Vector3(0, 0, ref:position().z)
 	self._camera_values = {}
@@ -1150,7 +1014,6 @@ function MenuSceneManager:_real_aspect_ratio()
 		local screen_pixel_aspect = screen_res.x / screen_res.y
 		return screen_pixel_aspect
 	end
-
 end
 
 function MenuSceneManager:_set_dimensions()
@@ -1164,19 +1027,16 @@ function MenuSceneManager:_set_dimensions()
 			local screen_res = Application:screen_resolution()
 			aspect_ratio = screen_res.x / screen_res.y
 		end
-
 		if screen_aspect < aspect_ratio then
 			width_mul = aspect_ratio
 		elseif screen_aspect > aspect_ratio then
 			y = (1 - aspect_ratio / width_mul) / 2
 			h = aspect_ratio / width_mul
 		end
-
 	else
 		y = (1 - aspect_ratio / width_mul) / 2
 		h = aspect_ratio / width_mul
 	end
-
 	self._vp._vp:set_dimensions(x, y, w, h)
 	self._vp:camera():set_width_multiplier(CoreMath.width_mul(width_mul))
 end
@@ -1205,7 +1065,6 @@ function MenuSceneManager:set_scene_template(template, data, custom_name, skip_t
 	if not skip_transition and (self._current_scene_template == template or self._current_scene_template == custom_name) then
 		return
 	end
-
 	local template_data
 	if not skip_transition then
 		managers.menu_component:play_transition()
@@ -1222,7 +1081,6 @@ function MenuSceneManager:set_scene_template(template, data, custom_name, skip_t
 		if self._transition_time then
 			self:dispatch_transition_done()
 		end
-
 		self._transition_time = 1
 		self._camera_values.camera_pos_target = template_data.camera_pos or self._camera_values.camera_pos_current
 		self._camera_values.target_pos_target = template_data.target_pos or self._camera_values.target_pos_current
@@ -1232,7 +1090,6 @@ function MenuSceneManager:set_scene_template(template, data, custom_name, skip_t
 		self._use_item_grab = template_data.use_item_grab
 		self._use_character_grab = template_data.use_character_grab
 	end
-
 	if template_data and template_data.upgrade_object then
 		self._temp_upgrade_object = template_data.upgrade_object
 		self:_set_item_offset(template_data.upgrade_object:oobb())
@@ -1247,46 +1104,26 @@ function MenuSceneManager:set_scene_template(template, data, custom_name, skip_t
 				custom_name = custom_name
 			}
 		end
-
 	end
-
 	if not skip_transition then
 		local fade_lights = {}
-		do
-			local (for generator), (for state), (for control) = ipairs(self._fade_down_lights)
-			do
-				do break end
-				if light:multiplier() ~= 0 and template_data.lights and not table.contains(template_data.lights, light) then
-					table.insert(fade_lights, light)
-				end
-
-			end
-
-		end
-
-		do
-			local (for generator), (for state), (for control) = ipairs(self._active_lights)
-			do
-				do break end
+		for _, light in ipairs(self._fade_down_lights) do
+			if light:multiplier() ~= 0 and template_data.lights and not table.contains(template_data.lights, light) then
 				table.insert(fade_lights, light)
 			end
-
 		end
-
+		for _, light in ipairs(self._active_lights) do
+			table.insert(fade_lights, light)
+		end
 		self._fade_down_lights = fade_lights
 		self._active_lights = {}
 		if template_data.lights then
-			local (for generator), (for state), (for control) = ipairs(template_data.lights)
-			do
-				do break end
+			for _, light in ipairs(template_data.lights) do
 				light:set_enable(true)
 				table.insert(self._active_lights, light)
 			end
-
 		end
-
 	end
-
 end
 
 function MenuSceneManager:dispatch_transition_done()
@@ -1376,37 +1213,28 @@ function MenuSceneManager:clicked_weapon_upgrade_type(type)
 			lights = self._scene_templates.blackmarket.lights
 		}, type)
 	end
-
 end
 
 function MenuSceneManager:remove_item()
 	if self._item_unit then
 		if self._item_unit.unit then
 			if self._item_unit.backstrap_unit_name then
-				local (for generator), (for state), (for control) = ipairs(self._item_unit.unit:children())
-				do
-					do break end
+				for _, linked_unit in ipairs(self._item_unit.unit:children()) do
 					local linked_unit_name = linked_unit:name()
 					linked_unit:unlink()
 					World:delete_unit(linked_unit)
 					if managers.dyn_resource:has_resource(ids_unit, linked_unit_name, DynamicResourceManager.DYN_RESOURCES_PACKAGE) then
 						managers.dyn_resource:unload(ids_unit, linked_unit_name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
 					end
-
 				end
-
 			end
-
 			World:delete_unit(self._item_unit.unit)
 		end
-
 		if managers.dyn_resource:has_resource(ids_unit, self._item_unit.name, DynamicResourceManager.DYN_RESOURCES_PACKAGE) then
 			managers.dyn_resource:unload(ids_unit, self._item_unit.name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
 		end
-
 		self._item_unit = nil
 	end
-
 end
 
 function MenuSceneManager:spawn_infamy_card(rank)
@@ -1452,7 +1280,6 @@ function MenuSceneManager:spawn_melee_weapon(melee_weapon_id)
 	if not melee_weapon.unit then
 		return
 	end
-
 	self._one_frame_delayed_clbk = callback(self, self, "spawn_melee_weapon_clbk", melee_weapon.unit)
 	return
 end
@@ -1493,7 +1320,6 @@ function MenuSceneManager:spawn_item_weapon(factory_id, blueprint, texture_switc
 	else
 		new_unit:base():assemble(factory_id, true)
 	end
-
 	self:_set_item_unit(new_unit)
 	mrotation.set_yaw_pitch_roll(self._item_rot_mod, -90, 0, 0)
 	return new_unit
@@ -1543,7 +1369,6 @@ function MenuSceneManager:_spawn_item(unit_name, oobb_object, max_mod, type, mas
 	else
 		unit = World:spawn_unit(Idstring(unit_name), self._item_pos, self._item_rot)
 	end
-
 	self:_set_item_unit(unit, oobb_object, max_mod, type)
 end
 
@@ -1551,45 +1376,28 @@ function MenuSceneManager:_set_weapon_upgrades(weapon_id)
 	if not weapon_id or not tweak_data.upgrades.visual.upgrade[weapon_id] then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.visual.upgrade[weapon_id].objs)
-		do
-			do break end
-			local object = self._item_unit.unit:get_object(Idstring(obj))
-			if object then
-				object:set_visibility(visible)
-			end
-
+	for obj, visible in pairs(tweak_data.upgrades.visual.upgrade[weapon_id].objs) do
+		local object = self._item_unit.unit:get_object(Idstring(obj))
+		if object then
+			object:set_visibility(visible)
 		end
-
 	end
-
 	local weapon_upgrades = Global.blackmarket_manager.weapon_upgrades[weapon_id]
 	if not weapon_upgrades then
 		return
 	end
-
-	local (for generator), (for state), (for control) = pairs(weapon_upgrades)
-	do
-		do break end
+	for name, upgrade_data in pairs(weapon_upgrades) do
 		if upgrade_data.attached then
 			local visual_upgrade = tweak_data.weapon_upgrades.upgrades[name].visual_upgrade
 			local vis_upgrade = tweak_data.upgrades.visual.upgrade[visual_upgrade]
 			local objs = vis_upgrade and vis_upgrade.objs
 			if objs then
-				local (for generator), (for state), (for control) = pairs(objs)
-				do
-					do break end
+				for obj, visible in pairs(objs) do
 					self._item_unit.unit:get_object(Idstring(obj)):set_visibility(visible)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function MenuSceneManager:_set_item_offset(oobb, instant)
@@ -1599,7 +1407,6 @@ function MenuSceneManager:_set_item_offset(oobb, instant)
 	if instant then
 		self._weapon_transition_time = 1
 	end
-
 	self._item_offset_current = self._item_offset_target or offset
 	self._item_offset_target = offset
 	self._item_offset = self._item_offset or offset
@@ -1609,14 +1416,10 @@ function MenuSceneManager:view_weapon_upgrade(weapon_id, visual_upgrade)
 	local vis_upgrade = tweak_data.upgrades.visual.upgrade[visual_upgrade]
 	local objs = vis_upgrade and vis_upgrade.objs
 	if objs then
-		local (for generator), (for state), (for control) = pairs(objs)
-		do
-			do break end
+		for obj, visible in pairs(objs) do
 			self._item_unit.unit:get_object(Idstring(obj)):set_visibility(visible)
 		end
-
 	end
-
 end
 
 function MenuSceneManager:spawn_mask(mask_id, blueprint)
@@ -1641,24 +1444,20 @@ function MenuSceneManager:clbk_mask_item_unit_loaded(status, asset_type, asset_n
 	if not self._item_unit then
 		return
 	end
-
 	local is_the_mask = asset_name == self._item_unit.name
 	if is_the_mask then
 		if self._item_unit.mask_loaded then
 			return
 		end
-
 		self._item_unit.mask_loaded = true
 	elseif self._item_unit.backstrap_loaded or asset_name ~= self._item_unit.backstrap_unit_name then
 		return
 	else
 		self._item_unit.backstrap_loaded = true
 	end
-
 	if not self._item_unit.mask_loaded or not self._item_unit.backstrap_loaded then
 		return
 	end
-
 	local item = self._item_unit
 	self._item_unit = nil
 	self:_spawn_item(item.name, nil, nil, "mask", item.mask_id)
@@ -1674,14 +1473,12 @@ function MenuSceneManager:clbk_mask_item_unit_loaded(status, asset_type, asset_n
 		self._item_unit.scene_template = nil
 		self:set_scene_template(scene_template.template, scene_template.data, scene_template.custom_name, true)
 	end
-
 end
 
 function MenuSceneManager:clbk_mask_item_unit_assembled()
 	if not self._item_unit or not alive(self._item_unit.unit) then
 		return
 	end
-
 	self._item_unit.unit:set_enabled(true)
 	self._item_unit.unit:set_moving()
 end
@@ -1692,7 +1489,6 @@ function MenuSceneManager:spawn_or_update_mask(mask_id, blueprint)
 	else
 		self:spawn_mask(mask_id, blueprint)
 	end
-
 end
 
 function MenuSceneManager:update_mask(blueprint)
@@ -1704,9 +1500,7 @@ function MenuSceneManager:update_mask(blueprint)
 		else
 			self._item_unit.blueprint = blueprint
 		end
-
 	end
-
 end
 
 function MenuSceneManager:spawn_armor(armor_id)
@@ -1714,7 +1508,6 @@ function MenuSceneManager:spawn_armor(armor_id)
 	if not armor_id then
 		return
 	end
-
 	self:_spawn_item("units/menu/menu_character/menu_character_test", nil)
 end
 
@@ -1726,11 +1519,9 @@ function MenuSceneManager:character_screen_position(peer_id)
 		if peer_id == 3 then
 			peer_3_x_offset = is_me and -20 or -40
 		end
-
 		local spine_pos = unit:get_object(Idstring("Spine")):position() + Vector3(peer_3_x_offset, 0, 5 * (peer_id % 4))
 		return self._workspace:world_to_screen(self._camera_object, spine_pos)
 	end
-
 end
 
 function MenuSceneManager:_release_item_grab()
@@ -1752,12 +1543,10 @@ function MenuSceneManager:controller_move(x, y)
 		else
 			self._item_pitch = math.clamp(self._item_pitch + diff * yaw_cos, -30, 30)
 		end
-
 		if yaw_sin > -treshhold and yaw_sin < treshhold then
 		else
 			self._item_roll = math.clamp(self._item_roll - diff * yaw_sin, -30, 30)
 		end
-
 		mrotation.set_yaw_pitch_roll(self._item_rot_temp, self._item_yaw, self._item_pitch, self._item_roll)
 		mrotation.set_zero(self._item_rot)
 		mrotation.multiply(self._item_rot, self._camera_object:rotation())
@@ -1768,7 +1557,6 @@ function MenuSceneManager:controller_move(x, y)
 		self._item_unit.unit:set_position(new_pos)
 		self._item_unit.unit:set_moving(2)
 	end
-
 	self._item_grabbed = true
 end
 
@@ -1783,7 +1571,6 @@ function MenuSceneManager:controller_zoom(x, y)
 		self._character_unit:set_rotation(Rotation(self._character_yaw, self._character_pitch))
 		self._character_grabbed = true
 	end
-
 end
 
 function MenuSceneManager:stop_controller_zoom()
@@ -1797,40 +1584,29 @@ function MenuSceneManager:change_fov(zoom, amount)
 		elseif zoom == "out" then
 			self._fov_mod = math.clamp((self._fov_mod or 0) - (amount or 0.45), tweak_data.gui.mod_preview_min_fov, tweak_data.gui.mod_preview_max_fov)
 		end
-
 	end
-
 end
 
 function MenuSceneManager:mouse_pressed(o, button, x, y)
 	if managers.menu_component:input_focus() then
 		return
 	end
-
 	if button == Idstring("mouse wheel down") then
 		self:change_fov("in")
 	elseif button == Idstring("mouse wheel up") then
 		self:change_fov("out")
 	end
-
 	if button == Idstring("0") then
 		local pos = self._workspace:screen_to_world(self._camera_object, Vector3(x, y, 0))
 		local to = self._workspace:screen_to_world(self._camera_object, Vector3(x, y, 1000))
 		local data = World:raycast("ray", pos, to, "slot_mask", 16)
 		if data and data.unit then
 			local slot
-			do
-				local (for generator), (for state), (for control) = ipairs(self._lobby_characters)
-				do
-					do break end
-					if unit == data.unit and unit:visible() then
-						slot = i
-					end
-
+			for i, unit in ipairs(self._lobby_characters) do
+				if unit == data.unit and unit:visible() then
+					slot = i
 				end
-
 			end
-
 			if slot then
 				if self._current_profile_slot == slot then
 					managers.menu_component:close_lobby_profile_gui()
@@ -1840,31 +1616,24 @@ function MenuSceneManager:mouse_pressed(o, button, x, y)
 					pos = self._workspace:world_to_screen(self._camera_object, pos)
 					self._current_profile_slot = slot
 				end
-
 			end
-
 		end
-
 		if self._use_character_grab and self._character_grab:inside(x, y) then
 			self._character_grabbed = true
 			self._character_grabbed_current_x = x
 			self._character_grabbed_current_y = y
 			return true
 		end
-
 	end
-
 	if not self._use_item_grab or self._disable_dragging then
 		return
 	end
-
 	if button == Idstring("0") and self._item_grab:inside(x, y) then
 		self._item_grabbed = true
 		self._item_grabbed_current_x = x
 		self._item_grabbed_current_y = y
 		return false
 	end
-
 end
 
 function MenuSceneManager:mouse_released(o, button, x, y)
@@ -1872,14 +1641,12 @@ function MenuSceneManager:mouse_released(o, button, x, y)
 		self:_release_item_grab()
 		self:_release_character_grab()
 	end
-
 end
 
 function MenuSceneManager:mouse_moved(o, x, y)
 	if managers.menu_component:input_focus() then
 		return false, "arrow"
 	end
-
 	if self._character_grabbed then
 		self._character_yaw = self._character_yaw + (x - self._character_grabbed_current_x) / 4
 		self._character_unit:set_rotation(Rotation(self._character_yaw, self._character_pitch))
@@ -1887,7 +1654,6 @@ function MenuSceneManager:mouse_moved(o, x, y)
 		self._character_grabbed_current_y = y
 		return true, "grab"
 	end
-
 	if self._item_grabbed then
 		if self._item_unit and alive(self._item_unit.unit) then
 			local diff = (y - self._item_grabbed_current_y) / 4
@@ -1899,12 +1665,10 @@ function MenuSceneManager:mouse_moved(o, x, y)
 			else
 				self._item_pitch = math.clamp(self._item_pitch + diff * yaw_cos, -30, 30)
 			end
-
 			if yaw_sin > -treshhold and yaw_sin < treshhold then
 			else
 				self._item_roll = math.clamp(self._item_roll - diff * yaw_sin, -30, 30)
 			end
-
 			mrotation.set_yaw_pitch_roll(self._item_rot_temp, self._item_yaw, self._item_pitch, self._item_roll)
 			mrotation.set_zero(self._item_rot)
 			mrotation.multiply(self._item_rot, self._camera_object:rotation())
@@ -1915,77 +1679,49 @@ function MenuSceneManager:mouse_moved(o, x, y)
 			self._item_unit.unit:set_position(new_pos)
 			self._item_unit.unit:set_moving(2)
 		end
-
 		self._item_grabbed_current_x = x
 		self._item_grabbed_current_y = y
 		return true, "grab"
 	end
-
 	if self._use_item_grab and self._item_grab:inside(x, y) then
 		return true, "hand"
 	end
-
 	if self._use_character_grab and self._character_grab:inside(x, y) then
 		return true, "hand"
 	end
-
 end
 
 function MenuSceneManager:pre_unload()
 	self._weapon_names = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._weapon_units)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(weapon_units)
-			do
-				do break end
-				table.insert(self._weapon_names, weapon_data.name)
-				if weapon_data.unit then
-					World:delete_unit(weapon_data.unit)
-				end
-
+	for _, weapon_units in pairs(self._weapon_units) do
+		for _, weapon_data in pairs(weapon_units) do
+			table.insert(self._weapon_names, weapon_data.name)
+			if weapon_data.unit then
+				World:delete_unit(weapon_data.unit)
 			end
-
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._mask_units)
-	do
-		do break end
+	for owner_key, mask_data in pairs(self._mask_units) do
 		if mask_data.mask_unit then
 			World:delete_unit(mask_data.mask_unit)
 			mask_data.mask_unit = nil
 			mask_data.ready = nil
 		end
-
 	end
-
 end
 
 function MenuSceneManager:unload()
 	local unloaded_masks = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._mask_units)
-		do
-			do break end
-			if not unloaded_masks[asset_data.mask_name:key()] then
-				unloaded_masks[asset_data.mask_name:key()] = true
-				managers.dyn_resource:unload(ids_unit, asset_data.mask_name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
-			end
-
+	for asset_name_key, asset_data in pairs(self._mask_units) do
+		if not unloaded_masks[asset_data.mask_name:key()] then
+			unloaded_masks[asset_data.mask_name:key()] = true
+			managers.dyn_resource:unload(ids_unit, asset_data.mask_name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
 		end
-
 	end
-
 	self._mask_units = {}
-	local (for generator), (for state), (for control) = ipairs(self._weapon_names)
-	do
-		do break end
+	for _, weapon_name in ipairs(self._weapon_names) do
 		managers.dyn_resource:unload(ids_unit, weapon_name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
 	end
-
 end
 
 function MenuSceneManager:set_server_loading()

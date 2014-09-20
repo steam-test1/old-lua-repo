@@ -11,7 +11,6 @@ function ElementSpawnDeployable:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	if self._values.deployable_id ~= "none" then
 		if self._values.deployable_id == "doctor_bag" then
 			DoctorBagBase.spawn(self._values.position, self._values.rotation, 0)
@@ -22,9 +21,7 @@ function ElementSpawnDeployable:on_executed(instigator)
 		elseif self._values.deployable_id == "bodybags_bag" then
 			BodyBagsBagBase.spawn(self._values.position, self._values.rotation, 0)
 		end
-
 	end
-
 	ElementSpawnDeployable.super.on_executed(self, instigator)
 end
 

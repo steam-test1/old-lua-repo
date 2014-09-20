@@ -103,7 +103,6 @@ function SpawnEnemyUnitElement:test_element()
 		unit:movement():action_request(action_desc)
 		unit:movement():set_position(unit:position())
 	end
-
 end
 
 function SpawnEnemyUnitElement:get_spawn_anim()
@@ -111,15 +110,9 @@ function SpawnEnemyUnitElement:get_spawn_anim()
 end
 
 function SpawnEnemyUnitElement:stop_test_element()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._enemies)
-		do
-			do break end
-			enemy:set_slot(0)
-		end
-
+	for _, enemy in ipairs(self._enemies) do
+		enemy:set_slot(0)
 	end
-
 	self._enemies = {}
 end
 
@@ -128,14 +121,10 @@ function SpawnEnemyUnitElement:add_unit_list_btn()
 	if dialog:cancelled() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-	do
-		do break end
+	for _, unit in ipairs(dialog:_selected_item_assets()) do
 		self._hed.enemy = unit
 		CoreEws.change_combobox_value(self._enemies_params, self._hed.enemy)
 	end
-
 end
 
 function SpawnEnemyUnitElement:select_spawn_action_btn()
@@ -143,14 +132,10 @@ function SpawnEnemyUnitElement:select_spawn_action_btn()
 	if dialog:cancelled() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-	do
-		do break end
+	for _, action in ipairs(dialog:_selected_item_assets()) do
 		self._hed.spawn_action = action
 		CoreEws.change_combobox_value(self._spawn_action_params, self._hed.spawn_action)
 	end
-
 end
 
 function SpawnEnemyUnitElement:_build_panel(panel, panel_sizer)
@@ -272,15 +257,9 @@ function SpawnEnemyUnitElement:_build_panel(panel, panel_sizer)
 		value = "accessibility"
 	})
 	local pickups = {}
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.pickups)
-		do
-			do break end
-			table.insert(pickups, name)
-		end
-
+	for name, _ in pairs(tweak_data.pickups) do
+		table.insert(pickups, name)
 	end
-
 	local pickup_params = {
 		name = "Force Pickup:",
 		panel = panel,
@@ -306,7 +285,6 @@ function SpawnEnemyUnitElement:_load_pickup()
 		local unit_name = tweak_data.pickups[self._hed.force_pickup].unit
 		CoreUnit.editor_load_unit(unit_name)
 	end
-
 end
 
 function SpawnEnemyUnitElement:add_to_mission_package()
@@ -319,9 +297,7 @@ function SpawnEnemyUnitElement:add_to_mission_package()
 		})
 		local sequence_files = {}
 		CoreEditorUtils.get_sequence_files_by_unit_name(unit_name, sequence_files)
-		local (for generator), (for state), (for control) = ipairs(sequence_files)
-		do
-			do break end
+		for _, file in ipairs(sequence_files) do
 			managers.editor:add_to_world_package({
 				category = "script_data",
 				name = file:s() .. ".sequence_manager",
@@ -329,9 +305,7 @@ function SpawnEnemyUnitElement:add_to_mission_package()
 				init = true
 			})
 		end
-
 	end
-
 end
 
 function SpawnEnemyUnitElement:destroy(...)

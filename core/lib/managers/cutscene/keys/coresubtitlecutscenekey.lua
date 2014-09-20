@@ -30,7 +30,6 @@ function CoreSubtitleCutsceneKey:play(player, undo, fast_forward)
 	elseif not fast_forward then
 		managers.subtitle:show_subtitle(self:string_id(), self:duration())
 	end
-
 end
 
 function CoreSubtitleCutsceneKey:is_valid_category(value)
@@ -61,18 +60,13 @@ function CoreSubtitleCutsceneKey:refresh_control_for_category(control)
 	else
 		control:set_enabled(true)
 		local value = self:category()
-		local (for generator), (for state), (for control) = ipairs(categories)
-		do
-			do break end
+		for _, category in ipairs(categories) do
 			control:append(category)
 			if category == value then
 				control:set_value(value)
 			end
-
 		end
-
 	end
-
 	control:thaw()
 end
 
@@ -85,18 +79,13 @@ function CoreSubtitleCutsceneKey:refresh_control_for_string_id(control)
 	else
 		control:set_enabled(true)
 		local value = self:string_id()
-		local (for generator), (for state), (for control) = ipairs(string_ids)
-		do
-			do break end
+		for _, string_id in ipairs(string_ids) do
 			control:append(string_id)
 			if string_id == value then
 				control:set_value(value)
 			end
-
 		end
-
 	end
-
 	control:thaw()
 end
 
@@ -106,14 +95,12 @@ function CoreSubtitleCutsceneKey:refresh_control_for_localized_text(control)
 	else
 		control:set_value("<No String Id>")
 	end
-
 end
 
 function CoreSubtitleCutsceneKey:validate_control_for_attribute(attribute_name)
 	if attribute_name ~= "localized_text" then
 		return self.super.validate_control_for_attribute(self, attribute_name)
 	end
-
 	return true
 end
 

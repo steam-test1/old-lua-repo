@@ -25,29 +25,19 @@ function DebugManager:init()
 	self._system_list.mem = MemoryDebug:new()
 	self._system_list.console = ConsoleDebug:new()
 	self._system_list.menu = MenuDebug:new()
-	do
-		local (for generator), (for state), (for control) = pairs(self._system_list)
-		do
-			do break end
-			self[name] = system
-		end
-
+	for name, system in pairs(self._system_list) do
+		self[name] = system
 	end
-
 	self.pos:set_max_count("ray", 10)
 	self.pos:set_skip_lines("ray", true)
 end
 
 function DebugManager:destroy()
-	local (for generator), (for state), (for control) = pairs(self._system_list)
-	do
-		do break end
+	for _, system in pairs(self._system_list) do
 		if system.destroy then
 			system:destroy()
 		end
-
 	end
-
 end
 
 function DebugManager:update(t, dt)
@@ -55,15 +45,10 @@ function DebugManager:update(t, dt)
 		if DebugManager.reload then
 			self:reloaded()
 		end
-
-		local (for generator), (for state), (for control) = pairs(self._system_list)
-		do
-			do break end
+		for _, system in pairs(self._system_list) do
 			system:update(t, dt)
 		end
-
 	end
-
 end
 
 function DebugManager:paused_update(t, dt)
@@ -71,34 +56,23 @@ function DebugManager:paused_update(t, dt)
 		if DebugManager.reload then
 			self:reloaded()
 		end
-
-		local (for generator), (for state), (for control) = pairs(self._system_list)
-		do
-			do break end
+		for _, system in pairs(self._system_list) do
 			system:paused_update(t, dt)
 		end
-
 	end
-
 end
 
 function DebugManager:reloaded()
 	DebugManager.reload = false
-	local (for generator), (for state), (for control) = pairs(self._system_list)
-	do
-		do break end
+	for _, system in pairs(self._system_list) do
 		system:reloaded()
 	end
-
 end
 
 function DebugManager:clear(...)
-	local (for generator), (for state), (for control) = pairs(self._system_list)
-	do
-		do break end
+	for _, system in pairs(self._system_list) do
 		system:clear(...)
 	end
-
 end
 
 function DebugManager:toggle_enabled()
@@ -112,12 +86,9 @@ end
 function DebugManager:toggle_enabled_all()
 	self:set_enabled(not self._enabled)
 	self:set_enabled_paused(not self._enabled_paused)
-	local (for generator), (for state), (for control) = pairs(self._system_list)
-	do
-		do break end
+	for _, system in pairs(self._system_list) do
 		system:toggle_enabled()
 	end
-
 end
 
 function DebugManager:enabled()
@@ -133,10 +104,8 @@ function DebugManager:set_enabled(enabled)
 		if enabled then
 			Global.render_debug.draw_enabled = true
 		end
-
 		self._enabled = enabled
 	end
-
 end
 
 function DebugManager:set_enabled_paused(enabled)
@@ -144,22 +113,16 @@ function DebugManager:set_enabled_paused(enabled)
 		if enabled then
 			Global.render_debug.draw_enabled = true
 		end
-
 		self._enabled_paused = enabled
 	end
-
 end
 
 function DebugManager:set_systems_enabled(enabled, include_non_preferred)
-	local (for generator), (for state), (for control) = pairs(self._system_list)
-	do
-		do break end
+	for system_name, system in pairs(self._system_list) do
 		if include_non_preferred or not system.IS_PREFERRED_DISABLED then
 			system:set_enabled(enabled)
 		end
-
 	end
-
 end
 
 function DebugManager:set_enabled_all(enabled, include_non_preferred)
@@ -173,20 +136,15 @@ function DebugManager.trim_list(list, max_count)
 		while max_count < #list do
 			table.remove(list, 1)
 		end
-
 	end
-
 end
 
 function DebugManager.draw_pos_list(list, skip_lines)
 	local old_point
-	local (for generator), (for state), (for control) = ipairs(list)
-	do
-		do break end
+	for index, point in ipairs(list) do
 		DebugManager.draw_point(index, #list, old_point, point, skip_lines)
 		old_point = point
 	end
-
 end
 
 function DebugManager.draw_point(index, count, old_point, point, skip_lines)
@@ -196,7 +154,6 @@ function DebugManager.draw_point(index, count, old_point, point, skip_lines)
 	else
 		color = DebugManager.get_color_by_index(index, count)
 	end
-
 	if not skip_lines and old_point then
 		local dir = point._pos - old_point._pos:normalized()
 		Application:draw_line_unpaused(old_point._pos, point._pos, unpack(color))
@@ -204,26 +161,21 @@ function DebugManager.draw_point(index, count, old_point, point, skip_lines)
 	else
 		Application:draw_sphere_unpaused(point._pos, point._radius, unpack(color))
 	end
-
 end
 
 function DebugManager.draw_rot_list(list)
-	local (for generator), (for state), (for control) = ipairs(list)
-	do
-		do break end
+	for index, point in ipairs(list) do
 		local color
 		if point._color then
 			color = point._color
 		else
 			color = DebugManager.get_color_by_index(index, #list)
 		end
-
 		Application:draw_sphere_unpaused(point._pos, point._radius, unpack(color))
 		Application:draw_line_unpaused(point._pos, point._pos + point._rot:x() * DebugManager.ROT_LINE_LENGTH, 1, 0, 0)
 		Application:draw_line_unpaused(point._pos, point._pos + point._rot:y() * DebugManager.ROT_LINE_LENGTH, 0, 1, 0)
 		Application:draw_line_unpaused(point._pos, point._pos + point._rot:z() * DebugManager.ROT_LINE_LENGTH, 0, 0, 1)
 	end
-
 end
 
 function DebugManager.get_color_by_index(index, count)
@@ -233,7 +185,6 @@ function DebugManager.get_color_by_index(index, count)
 	else
 		scale = 0
 	end
-
 	return DebugManager.get_color(scale)
 end
 
@@ -267,7 +218,6 @@ function DebugManager.get_color(scale)
 			1
 		}
 	end
-
 end
 
 function DebugManager.get_interval_brightness(scale, min, max)
@@ -276,22 +226,15 @@ end
 
 function DebugManager.args_to_string(...)
 	local s = ""
-	do
-		local (for generator), (for state), (for control) = pairs({
-			...
-		})
-		do
-			do break end
-			if i > 1 then
-				s = s .. "    " .. tostring(arg)
-			else
-				s = tostring(arg)
-			end
-
+	for i, arg in pairs({
+		...
+	}) do
+		if i > 1 then
+			s = s .. "    " .. tostring(arg)
+		else
+			s = tostring(arg)
 		end
-
 	end
-
 	return s
 end
 
@@ -309,7 +252,6 @@ function DebugPoint:init(pos, rot, red, green, blue, radius)
 			blue or 1
 		}
 	end
-
 	self._radius = radius or 5
 end
 
@@ -335,12 +277,10 @@ function DebugFunction:update(t, dt)
 			self._call_count = self._call_count - 1
 			remove = remove or self._call_count <= 0
 		end
-
 		return remove
 	else
 		return false
 	end
-
 end
 
 DebugRaycast = DebugRaycast or class()
@@ -352,7 +292,6 @@ function DebugRaycast:init(copy_ray_wrapper)
 	self._bundle = copy_ray_wrapper and copy_ray_wrapper:bundle()
 	if not copy_ray_wrapper or not copy_ray_wrapper:color() then
 	end
-
 	self._color = {
 		1,
 		1,
@@ -361,7 +300,6 @@ function DebugRaycast:init(copy_ray_wrapper)
 	self._normal = copy_ray_wrapper and copy_ray_wrapper:normal() or nil
 	if not copy_ray_wrapper or not copy_ray_wrapper:normal_color() then
 	end
-
 	self._normal_color = {
 		0,
 		0,
@@ -381,7 +319,6 @@ function DebugRaycast:set_from(from)
 	if self._to then
 		self._dir = self._to - self._from:normalized()
 	end
-
 end
 
 function DebugRaycast:to()
@@ -402,9 +339,7 @@ function DebugRaycast:update_from_to_vars()
 		else
 			self._arrow_size = self.MAX_ARROW_SIZE
 		end
-
 	end
-
 end
 
 function DebugRaycast:radius()
@@ -466,25 +401,20 @@ function DebugRaycast:update(t, dt)
 					local offset = orthogonal_func(ratio) * self._radius
 					Application:draw_line_unpaused(self._from + offset, self._to + offset, unpack(self._color))
 				end
-
 			else
 				Application:draw_cylinder(self._from, self._to, self._radius, unpack(self._color))
 				Application:draw_sphere_unpaused(self._from, self._radius, unpack(self._color))
 				Application:draw_sphere_unpaused(self._to, self._radius, unpack(self._color))
 			end
-
 		else
 			Application:draw_line_unpaused(self._from, self._to, unpack(self._color))
 		end
-
 		Application:draw_sphere_unpaused(self._from, self._arrow_size / 2, unpack(self._color))
 		Application:draw_cone(self._to, self._to - self._dir * self._arrow_size, self._arrow_size / 2, unpack(self._color))
 		if self._normal then
 			Application:draw_line_unpaused(self._to, self._to + self._normal * 100, unpack(self._normal_color))
 		end
-
 	end
-
 end
 
 DebugProfilerCounter = DebugProfilerCounter or class()
@@ -508,7 +438,6 @@ function DebugProfilerCounter:init(name, index, obj, func_name, color, min, max,
 	if self._graph_enabled then
 		self:update_graph()
 	end
-
 	self:update_gui()
 end
 
@@ -518,7 +447,6 @@ function DebugProfilerCounter:reload()
 		self:set_enabled(false)
 		self:set_enabled(true)
 	end
-
 end
 
 function DebugProfilerCounter:name()
@@ -533,7 +461,6 @@ function DebugProfilerCounter:set_index(index)
 	if self._index and self._gui_enabled then
 		managers.debug.gui:set(self._index, nil)
 	end
-
 	self._index = tonumber(index)
 	self:update_gui()
 end
@@ -552,7 +479,6 @@ function DebugProfilerCounter:set_enabled(enabled)
 					self._instance_override = true
 					obj_class = self._obj
 				end
-
 				local meta_func = obj_class[self._func_name]
 				local instance_func = self._obj[self._func_name]
 				local name = self._name
@@ -566,7 +492,6 @@ function DebugProfilerCounter:set_enabled(enabled)
 					self._instance_override = false
 					obj = obj_class
 				end
-
 				self._old_func = self._old_func or old_func
 				function self._new_func(...)
 					local id = Profiler:start(name)
@@ -580,7 +505,6 @@ function DebugProfilerCounter:set_enabled(enabled)
 				rawset(obj, self._func_name, self._new_func)
 				Application:console_command("profiler add " .. self._name)
 			end
-
 		else
 			Application:console_command("profiler remove " .. self._name)
 			if self._old_func then
@@ -590,17 +514,13 @@ function DebugProfilerCounter:set_enabled(enabled)
 				else
 					obj = getmetatable(self._obj)
 				end
-
 				rawset(obj, self._func_name, self._old_func)
 			end
-
 		end
-
 		self._enabled = enabled
 		self:update_graph()
 		self:update_gui()
 	end
-
 end
 
 function DebugProfilerCounter:graph_enabled()
@@ -614,7 +534,6 @@ function DebugProfilerCounter:set_graph_enabled(enabled)
 		self:update_graph()
 		self:update_gui()
 	end
-
 end
 
 function DebugProfilerCounter:gui_enabled()
@@ -627,11 +546,9 @@ function DebugProfilerCounter:set_gui_enabled(enabled)
 		if self._index and self._gui_enabled then
 			managers.debug.gui:set(self._index, nil)
 		end
-
 		self._gui_enabled = enabled
 		self:update_gui()
 	end
-
 end
 
 function DebugProfilerCounter:range()
@@ -652,7 +569,6 @@ function DebugProfilerCounter:set_color(color)
 	if color and color.type_name ~= "Color" then
 		color = nil
 	end
-
 	self._color = color or Color(1, 1, 1, 1)
 	self._color = Color(self._color.a, math.round(math.clamp(self._color.r, 0, 1) * 15) / 15, math.round(math.clamp(self._color.g, 0, 1) * 15) / 15, math.round(math.clamp(self._color.b, 0, 1) * 15) / 15)
 	self:update_graph()
@@ -666,9 +582,7 @@ function DebugProfilerCounter:update_graph()
 		else
 			Application:console_command("graph hide " .. self._name)
 		end
-
 	end
-
 end
 
 function DebugProfilerCounter:update_gui()
@@ -678,9 +592,7 @@ function DebugProfilerCounter:update_gui()
 			managers.debug.gui:set(self._index, self._name)
 			managers.debug.gui:set_color(self._index, self._color.r, self._color.g, self._color.b, self._color.a)
 		end
-
 	end
-
 end
 
 BaseDebug = BaseDebug or class()
@@ -720,15 +632,11 @@ function FuncDebug:init()
 end
 
 function FuncDebug:update(t, dt)
-	local (for generator), (for state), (for control) = pairs(self._func_list)
-	do
-		do break end
+	for index, wrapped_func in pairs(self._func_list) do
 		if wrapped_func:update(t, dt) then
 			self:remove(index)
 		end
-
 	end
-
 end
 
 function FuncDebug:clear()
@@ -747,32 +655,22 @@ function FuncDebug:set(index, func, start_delay, interval, call_count)
 		else
 			cat_error("debug", "Tried to set invalid function \"" .. tostring(func) .. "\" to index \"" .. tostring(index) .. "\".")
 		end
-
 	else
 		self:remove(index)
 	end
-
 end
 
 function FuncDebug:delete(func, all)
 	local count = 0
-	do
-		local (for generator), (for state), (for control) = ipairs(self._func_list)
-		do
-			do break end
-			if wrapped_func:get_func() == func then
-				self:remove(index)
-				count = count + 1
-				if not all then
-				end
-
-		end
-
+	for index, wrapped_func in ipairs(self._func_list) do
+		if wrapped_func:get_func() == func then
+			self:remove(index)
+			count = count + 1
+			if not all then
+			end
 		else
 		end
-
 	end
-
 	return count
 end
 
@@ -790,12 +688,9 @@ function PosDebug:init()
 end
 
 function PosDebug:update(t, dt)
-	local (for generator), (for state), (for control) = pairs(self._pos_list)
-	do
-		do break end
+	for list_index, list in pairs(self._pos_list) do
 		DebugManager.draw_pos_list(list, self._skip_lines_map[list_index])
 	end
-
 end
 
 function PosDebug:clear(list_index)
@@ -804,7 +699,6 @@ function PosDebug:clear(list_index)
 	else
 		self._pos_list[list_index] = nil
 	end
-
 end
 
 function PosDebug:get_skip_lines(list_index)
@@ -821,12 +715,9 @@ function PosDebug:add(pos, list_index, red, green, blue, radius)
 end
 
 function PosDebug:add_list(list, list_index, red, green, blue, radius)
-	local (for generator), (for state), (for control) = ipairs(list)
-	do
-		do break end
+	for index, point in ipairs(list) do
 		self:set(index, point, list_index, red, green, blue, radius)
 	end
-
 end
 
 function PosDebug:set(index, pos, list_index, red, green, blue, radius)
@@ -835,7 +726,6 @@ function PosDebug:set(index, pos, list_index, red, green, blue, radius)
 		if pos then
 			point = DebugPoint:new(pos, nil, red, green, blue, radius)
 		end
-
 		list_index = list_index or 1
 		self._pos_list[list_index] = self._pos_list[list_index] or {}
 		self._pos_list[list_index][index] = point
@@ -843,7 +733,6 @@ function PosDebug:set(index, pos, list_index, red, green, blue, radius)
 	else
 		cat_error("debug", "Tried to set invalid position \"" .. tostring(pos) .. "\" to index \"" .. tostring(index) .. "\".")
 	end
-
 end
 
 function PosDebug:remove(index, list_index)
@@ -853,9 +742,7 @@ function PosDebug:remove(index, list_index)
 		if #self._pos_list[list_index] == 0 then
 			self._pos_list[list_index] = nil
 		end
-
 	end
-
 end
 
 function PosDebug:get(index, list_index)
@@ -863,10 +750,8 @@ function PosDebug:get(index, list_index)
 	if self._pos_list[list_index] and #self._pos_list[list_index] > 0 then
 		if not index or not self._pos_list[list_index][index] then
 		end
-
 		return self._pos_list[list_index][#self._pos_list[list_index]]
 	end
-
 	return nil
 end
 
@@ -877,11 +762,9 @@ function PosDebug:get_count(list_index)
 		else
 			return 0
 		end
-
 	else
 		return #self._pos_list
 	end
-
 end
 
 function PosDebug:get_max_count(list_index)
@@ -894,13 +777,9 @@ function PosDebug:set_max_count(list_index, max_count)
 	else
 		self._max_pos_count = tonumber(max_count) or self._max_pos_count
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._pos_list)
-	do
-		do break end
+	for list_index, list in pairs(self._pos_list) do
 		DebugManager.trim_list(list, self:get_max_count(list_index))
 	end
-
 end
 
 RotDebug = RotDebug or class(BaseDebug)
@@ -912,12 +791,9 @@ function RotDebug:init()
 end
 
 function RotDebug:update(t, dt)
-	local (for generator), (for state), (for control) = pairs(self._rot_list)
-	do
-		do break end
+	for _, list in pairs(self._rot_list) do
 		DebugManager.draw_rot_list(list)
 	end
-
 end
 
 function RotDebug:clear(list_index)
@@ -926,7 +802,6 @@ function RotDebug:clear(list_index)
 	else
 		self._rot_list[list_index] = nil
 	end
-
 end
 
 function RotDebug:add(pos, list_index, rot, red, green, blue, radius)
@@ -944,13 +819,11 @@ function RotDebug:set(index, pos, list_index, rot, red, green, blue, radius)
 		if pos and rot then
 			point = DebugPoint:new(pos, rot, red, green, blue, radius)
 		end
-
 		list_index = list_index or 1
 		self._rot_list[list_index] = self._rot_list[list_index] or {}
 		self._rot_list[list_index][index] = point
 		DebugManager.trim_list(self._rot_list[list_index], self._max_rot_count)
 	end
-
 end
 
 function RotDebug:remove(index, list_index)
@@ -960,9 +833,7 @@ function RotDebug:remove(index, list_index)
 		if #self._rot_list[list_index] == 0 then
 			self._rot_list[list_index] = nil
 		end
-
 	end
-
 end
 
 function RotDebug:get_count(list_index)
@@ -972,11 +843,9 @@ function RotDebug:get_count(list_index)
 		else
 			return 0
 		end
-
 	else
 		return #self._rot_list
 	end
-
 end
 
 function RotDebug:get_max_count(list_index)
@@ -989,13 +858,9 @@ function RotDebug:set_max_count(list_index, max_count)
 	else
 		self._max_rot_count = tonumber(max_count) or self._max_rot_count
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._rot_list)
-	do
-		do break end
+	for list_index, list in pairs(self._rot_list) do
 		DebugManager.trim_list(list, self:get_max_count(list_index))
 	end
-
 end
 
 GUIDebug = GUIDebug or class(BaseDebug)
@@ -1010,31 +875,21 @@ function GUIDebug:destroy()
 		Overlay:gui():destroy_workspace(self._workspace)
 		self._workspace = nil
 	end
-
 end
 
 function GUIDebug:update(t, dt)
-	local (for generator), (for state), (for control) = pairs(self._text_func)
-	do
-		do break end
+	for index, func in pairs(self._text_func) do
 		local s = DebugManager.args_to_string(func(t, dt))
 		self._text[index]:set_text(s)
 	end
-
 end
 
 function GUIDebug:clear()
 	if self._workspace ~= nil then
-		do
-			local (for generator), (for state), (for control) = ipairs(self._text)
-			do
-				do break end
-				text:set_text("")
-				text:set_color(Color(1, 0, 0))
-			end
-
+		for _, text in ipairs(self._text) do
+			text:set_text("")
+			text:set_color(Color(1, 0, 0))
 		end
-
 		self._workspace:panel():clear()
 		Overlay:gui():destroy_workspace(self._workspace)
 		self._workspace = nil
@@ -1042,7 +897,6 @@ function GUIDebug:clear()
 		self._text = nil
 		self._text_func = {}
 	end
-
 end
 
 function GUIDebug:set_enabled(enabled)
@@ -1052,9 +906,7 @@ function GUIDebug:set_enabled(enabled)
 		else
 			self._workspace:hide()
 		end
-
 	end
-
 	BaseDebug.set_enabled(self, enabled)
 end
 
@@ -1075,13 +927,11 @@ function GUIDebug:setup()
 		self._text[i] = self._panel:text(config)
 		config.y = config.y + self._text[i]:line_height()
 	end
-
 	if self._enabled then
 		self._workspace:show()
 	else
 		self._workspace:hide()
 	end
-
 end
 
 function GUIDebug:set_func(index, func)
@@ -1089,10 +939,8 @@ function GUIDebug:set_func(index, func)
 		if self._workspace == nil then
 			self:setup()
 		end
-
 		self._text_func[index] = func
 	end
-
 end
 
 function GUIDebug:get(index)
@@ -1100,7 +948,6 @@ function GUIDebug:get(index)
 		if self._workspace == nil then
 			self:setup()
 		end
-
 		if self._text_func[index] then
 			return self._text_func[index](TimerManager:wall():time(), TimerManager:wall():delta_time())
 		elseif self._text[index] then
@@ -1108,9 +955,7 @@ function GUIDebug:get(index)
 		else
 			return nil
 		end
-
 	end
-
 end
 
 function GUIDebug:set(index, ...)
@@ -1118,12 +963,10 @@ function GUIDebug:set(index, ...)
 		if self._workspace == nil then
 			self:setup()
 		end
-
 		local s = DebugManager.args_to_string(...)
 		self._text[index]:set_text(s)
 		self._text_func[index] = nil
 	end
-
 end
 
 function GUIDebug:get(index)
@@ -1131,10 +974,8 @@ function GUIDebug:get(index)
 		if self._workspace == nil then
 			self:setup()
 		end
-
 		return self._text[index]:text()
 	end
-
 end
 
 function GUIDebug:set_color(index, red, green, blue, alpha)
@@ -1142,10 +983,8 @@ function GUIDebug:set_color(index, red, green, blue, alpha)
 		if self._workspace == nil then
 			self:setup()
 		end
-
 		self._text[index]:set_color(Color(math.min(alpha or 1, 1), red or 1, green or 1, blue or 1))
 	end
-
 end
 
 GraphDebug = GraphDebug or class(PosDebug)
@@ -1182,7 +1021,6 @@ function GraphDebug:set_fixed_range(fixed_range)
 	if fixed_range then
 		self:set_range(Vector3(self._min_x or 0, self._min_y or 0, self._min_z or 0), Vector3(self._max_x or 0, self._max_y or 0, self._max_z or 0))
 	end
-
 end
 
 function GraphDebug:set_range(min, max)
@@ -1200,38 +1038,28 @@ function GraphDebug:set_range(min, max)
 	else
 		self._scale_x = 0
 	end
-
 	if self._span_y > 0 then
 		self._scale_y = self._size / self._span_y
 	else
 		self._scale_y = 0
 	end
-
 	if self._span_z > 0 then
 		self._scale_z = self._size / self._span_z
 	else
 		self._scale_z = 0
 	end
-
 end
 
 function GraphDebug:update(t, dt)
 	local contains_values
-	do
-		local (for generator), (for state), (for control) = pairs(self._pos_list)
-		do
-			do break end
-			contains_values = true
-			break
-		end
-
+	for _ in pairs(self._pos_list) do
+		contains_values = true
+		break
 	end
-
 	if contains_values then
 		if not self._workspace_map then
 			self:setup()
 		end
-
 		local camera = not self._camera and managers.viewport and managers.viewport:get_current_camera()
 		local rotation, origo
 		if camera then
@@ -1242,7 +1070,6 @@ function GraphDebug:update(t, dt)
 			origo = Vector3()
 			rotation = self._fixed_rot or Rotation()
 		end
-
 		if self._invalidated then
 			if not self._fixed_range then
 				local min_x = 0
@@ -1251,49 +1078,32 @@ function GraphDebug:update(t, dt)
 				local max_y = 0
 				local min_z = 0
 				local max_z = 0
-				do
-					local (for generator), (for state), (for control) = pairs(self._pos_list)
-					do
-						do break end
-						local (for generator), (for state), (for control) = ipairs(list)
-						do
-							do break end
-							if min_x > point._pos.x then
-								min_x = point._pos.x
-							end
-
-							if max_x < point._pos.x then
-								max_x = point._pos.x
-							end
-
-							if min_y > point._pos.y then
-								min_y = point._pos.y
-							end
-
-							if max_y < point._pos.y then
-								max_y = point._pos.y
-							end
-
-							if min_z > point._pos.z then
-								min_z = point._pos.z
-							end
-
-							if max_z < point._pos.z then
-								max_z = point._pos.z
-							end
-
+				for list_index, list in pairs(self._pos_list) do
+					for index, point in ipairs(list) do
+						if min_x > point._pos.x then
+							min_x = point._pos.x
 						end
-
+						if max_x < point._pos.x then
+							max_x = point._pos.x
+						end
+						if min_y > point._pos.y then
+							min_y = point._pos.y
+						end
+						if max_y < point._pos.y then
+							max_y = point._pos.y
+						end
+						if min_z > point._pos.z then
+							min_z = point._pos.z
+						end
+						if max_z < point._pos.z then
+							max_z = point._pos.z
+						end
 					end
-
 				end
-
 				self:set_range(Vector3(min_x, min_y, min_z), Vector3(max_x, max_y, max_z))
 			end
-
 			self._invalidated = false
 		end
-
 		local offset = Vector3(self._min_x + self._span_x / 2, self._min_y + self._span_y / 2, self._min_z + self._span_z / 2)
 		local offset_origo = origo - self:get_scaled_pos(offset):rotate_with(rotation)
 		local offset_max_x = offset_origo + Vector3(self._max_x * self._scale_x, 0, 0):rotate_with(rotation)
@@ -1309,24 +1119,15 @@ function GraphDebug:update(t, dt)
 		Application:draw_cone(offset_max_y + Vector3(0, GraphDebug.AXIS_ARROW_SIZE, 0):rotate_with(rotation), offset_max_y, GraphDebug.AXIS_ARROW_SIZE / 4, 0, 1, 0)
 		Application:draw_cone(offset_max_z + Vector3(0, 0, GraphDebug.AXIS_ARROW_SIZE):rotate_with(rotation), offset_max_z, GraphDebug.AXIS_ARROW_SIZE / 4, 0, 0, 1)
 		local old_point
-		do
-			local (for generator), (for state), (for control) = pairs(self._pos_list)
-			do
-				do break end
-				old_point = nil
-				local (for generator), (for state), (for control) = ipairs(list)
-				do
-					do break end
-					local graph_point = clone(point)
-					graph_point._pos = offset_origo + self:get_scaled_pos(point._pos):rotate_with(rotation)
-					DebugManager.draw_point(index, #list, old_point, graph_point, self._skip_lines_map[list_index])
-					old_point = graph_point
-				end
-
+		for list_index, list in pairs(self._pos_list) do
+			old_point = nil
+			for index, point in ipairs(list) do
+				local graph_point = clone(point)
+				graph_point._pos = offset_origo + self:get_scaled_pos(point._pos):rotate_with(rotation)
+				DebugManager.draw_point(index, #list, old_point, graph_point, self._skip_lines_map[list_index])
+				old_point = graph_point
 			end
-
 		end
-
 		self:set_gui_text("max_x", offset_max_x, rotation, "", self._max_x)
 		self:set_gui_text("max_y", offset_max_y, Rotation(-rotation:x(), rotation:z()), "", self._max_y)
 		self:set_gui_text("max_z", offset_max_z, rotation, "", self._max_z)
@@ -1337,7 +1138,6 @@ function GraphDebug:update(t, dt)
 	elseif self._workspace_map then
 		self:set_visible(false)
 	end
-
 end
 
 function GraphDebug:set_gui_text(id, position, rotation, label, value)
@@ -1357,7 +1157,6 @@ function GraphDebug:get_text_size(gui_text)
 		w = w + char_w
 		h = math.max(h, char_h)
 	end
-
 	return w, h
 end
 
@@ -1450,10 +1249,8 @@ function GraphDebug:set(index, pos, list_index, red, green, blue, radius)
 			self:scroll_number_list(list_index, count - max_count + 1)
 			x = x - 1
 		end
-
 		pos = Vector3(x, 0, pos)
 	end
-
 	GraphDebug.super.set(self, index, pos, list_index, red, green, blue, radius or 0)
 	self._invalidated = true
 end
@@ -1465,30 +1262,21 @@ function GraphDebug:set_max_count(list_index, max_count)
 			self:scroll_number_list(list_index, #list - max_count - 1)
 			self._invalidated = true
 		end
-
 	else
-		local (for generator), (for state), (for control) = pairs(self._pos_list)
-		do
-			do break end
+		for list_index, list in pairs(self._pos_list) do
 			if max_count < #list then
 				self:scroll_number_list(list_index, #list - max_count - 1)
 				self._invalidated = true
 			end
-
 		end
-
 	end
-
 	GraphDebug.super.set_max_count(self, list_index, max_count)
 end
 
 function GraphDebug:scroll_number_list(list_index, scroll)
-	local (for generator), (for state), (for control) = ipairs(self._pos_list[list_index])
-	do
-		do break end
+	for _, point in ipairs(self._pos_list[list_index]) do
 		point._pos = Vector3(point._pos.x - scroll, point._pos.y, point._pos.z)
 	end
-
 end
 
 function GraphDebug:remove(list_index, ...)
@@ -1502,33 +1290,25 @@ function GraphDebug:set_enabled(enabled)
 			if not self._workspace_map then
 				self:setup()
 			end
-
 			self:set_visible(true)
 		elseif self._workspace_map then
 			self:set_visible(false)
 		end
-
 	end
-
 	GraphDebug.super.set_enabled(self, enabled)
 end
 
 function GraphDebug:set_visible(visible)
 	if not self._visible ~= not visible then
 		self._visible = visible
-		local (for generator), (for state), (for control) = pairs(self._workspace_map)
-		do
-			do break end
+		for _, workspace in pairs(self._workspace_map) do
 			if visible then
 				workspace:show()
 			else
 				workspace:hide()
 			end
-
 		end
-
 	end
-
 end
 
 HijackDebug = HijackDebug or class(BaseDebug)
@@ -1544,12 +1324,9 @@ function HijackDebug:init()
 end
 
 function HijackDebug:update(t, dt)
-	local (for generator), (for state), (for control) = pairs(self._ray_list)
-	do
-		do break end
+	for _, ray in pairs(self._ray_list) do
 		ray:update(t, dt)
 	end
-
 end
 
 function HijackDebug:clear()
@@ -1562,9 +1339,7 @@ function HijackDebug:add_ray_obj(obj)
 		if self._hijack_ray_enabled then
 			self:set_hijack_ray_obj(obj, true)
 		end
-
 	end
-
 end
 
 function HijackDebug:delete_ray_obj(obj)
@@ -1573,9 +1348,7 @@ function HijackDebug:delete_ray_obj(obj)
 		if self._hijack_ray_enabled then
 			self:set_hijack_ray_obj(obj, false)
 		end
-
 	end
-
 end
 
 function HijackDebug:reset_ray_obj_list()
@@ -1584,12 +1357,9 @@ function HijackDebug:reset_ray_obj_list()
 end
 
 function HijackDebug:clear_ray_obj_list()
-	local (for generator), (for state), (for control) = pairs(self._ray_obj_list)
-	do
-		do break end
+	for _, obj in pairs(self._ray_obj_list) do
 		self:delete_ray_obj(obj)
 	end
-
 end
 
 function HijackDebug:ray_enabled()
@@ -1599,14 +1369,10 @@ end
 function HijackDebug:set_ray_enabled(enabled)
 	if self._hijack_ray_enabled ~= enabled then
 		self._hijack_ray_enabled = enabled
-		local (for generator), (for state), (for control) = pairs(self._ray_obj_list)
-		do
-			do break end
+		for _, obj in pairs(self._ray_obj_list) do
 			self:set_hijack_ray_obj(obj, enabled)
 		end
-
 	end
-
 end
 
 function HijackDebug:set_hijack_ray_obj(obj, enabled)
@@ -1617,16 +1383,13 @@ function HijackDebug:set_hijack_ray_obj(obj, enabled)
 				self._old_func_list[obj:key()] = meta_table.raycast
 				meta_table.raycast = callback(self, self, "hijacked_ray")
 			end
-
 		elseif self._old_func_list[obj:key()] then
 			meta_table.raycast = self._old_func_list[obj:key()]
 			self._old_func_list[obj:key()] = nil
 		end
-
 	elseif obj:key() then
 		self._old_func_list[obj:key()] = nil
 	end
-
 end
 
 function HijackDebug:is_hijack_ray_obj(obj)
@@ -1639,7 +1402,6 @@ function HijackDebug:set_hijack_ray_func(func)
 	else
 		self._hijack_ray_func = callback(self, self, "default_hijacked_ray_func")
 	end
-
 end
 
 function HijackDebug:hijacked_ray(obj, ...)
@@ -1648,7 +1410,6 @@ function HijackDebug:hijacked_ray(obj, ...)
 	else
 		return nil
 	end
-
 end
 
 function HijackDebug:default_hijacked_ray_func(obj, old_func, ...)
@@ -1667,7 +1428,6 @@ function HijackDebug:default_hijacked_ray_func(obj, old_func, ...)
 	else
 		ray_wrapper:set_color(0, 1, 0)
 	end
-
 	if type(param_list[1]) == "string" then
 		local trajectory_dir, trajectory_len, trajectory_gravity, trajectory_wind, trajectory_drag
 		local i = 1
@@ -1685,7 +1445,6 @@ function HijackDebug:default_hijacked_ray_func(obj, old_func, ...)
 				while i < #param_list and type(param_list[i + 1]) ~= "string" do
 					i = i + 1
 				end
-
 			elseif param == "bundle" then
 				ray_wrapper:set_bundle(param_list[i + 1])
 				i = i + 1
@@ -1698,7 +1457,6 @@ function HijackDebug:default_hijacked_ray_func(obj, old_func, ...)
 					trajectory_dir = param_list[i + 2]:normalized()
 					trajectory_len = param_list[i + 3]
 				end
-
 				i = i + 3
 			elseif param == "gravity" then
 				trajectory_gravity = param_list[i + 1]
@@ -1716,12 +1474,9 @@ function HijackDebug:default_hijacked_ray_func(obj, old_func, ...)
 				while i < #param_list and type(param_list[i + 1]) ~= "string" do
 					i = i + 1
 				end
-
 			end
-
 			i = i + 1
 		end
-
 		if point_list then
 			local to_index
 			if ray and ray.hit_segment then
@@ -1729,7 +1484,6 @@ function HijackDebug:default_hijacked_ray_func(obj, old_func, ...)
 			else
 				to_index = #point_list
 			end
-
 			for i = 2, to_index do
 				ray_wrapper = DebugRaycast:new(ray_wrapper)
 				ray_wrapper:set_from(point_list[i - 1])
@@ -1737,24 +1491,19 @@ function HijackDebug:default_hijacked_ray_func(obj, old_func, ...)
 				if i < to_index then
 					table.insert(self._ray_list, ray_wrapper)
 				end
-
 			end
-
 		elseif trajectory_dir then
 			trajectory_gravity = trajectory_gravity or Vector3(0, 0, -982)
 			local to = ray_wrapper:from() + trajectory_dir * trajectory_len + trajectory_gravity * trajectory_len
 			if trajectory_wind then
 				to = to + trajectory_wind * (trajectory_drag or 1) * trajectory_len
 			end
-
 			ray_wrapper:set_to(to)
 		end
-
 	else
 		ray_wrapper:set_from(ray_wrapper:from() or param_list[1])
 		ray_wrapper:set_to(ray_wrapper:to() or param_list[2])
 	end
-
 	table.insert(self._ray_list, ray_wrapper)
 	return ray
 end
@@ -1783,11 +1532,9 @@ function HijackDebug:hijack_statemachine(unit, unit_state_func, machine_state_fu
 			self._hijacked_statemachine_map[unit_key] = nil
 			cat_print("debug", "Unhijacked play and play_redirect.")
 		end
-
 	else
 		cat_error("debug", "No state machine on unit \"" .. unit:name() .. "\".")
 	end
-
 end
 
 function HijackDebug:hijack_func(obj, func_name, func, is_metatable)
@@ -1797,7 +1544,6 @@ function HijackDebug:hijack_func(obj, func_name, func, is_metatable)
 	else
 		meta = getmetatable(obj) or obj
 	end
-
 	rawset(meta, "hijacked_" .. func_name, rawget(meta, func_name))
 	rawset(meta, func_name, func)
 end
@@ -1809,7 +1555,6 @@ function HijackDebug:unhijack_func(obj, func_name, is_metatable)
 	else
 		meta = getmetatable(obj) or obj
 	end
-
 	rawset(meta, func_name, rawget(meta, "hijacked_" .. func_name))
 	rawset(meta, "hijacked_" .. func_name, nil)
 end
@@ -1819,7 +1564,6 @@ function HijackDebug:play_unit_state(unit, state)
 	if #result > 0 then
 		cat_debug("debug", "STATE \"" .. tostring(state) .. "\" --> \"" .. tostring(result) .. "\".")
 	end
-
 	return result
 end
 
@@ -1828,7 +1572,6 @@ function HijackDebug:play_machine_state(machine, state)
 	if #result > 0 then
 		cat_debug("debug", "STATE \"" .. tostring(state) .. "\" --> \"" .. tostring(result) .. "\".")
 	end
-
 	return result
 end
 
@@ -1837,7 +1580,6 @@ function HijackDebug:play_redirect(machine_or_unit, redirect)
 	if #result > 0 then
 		cat_debug("debug", "REDIRECT \"" .. tostring(redirect) .. "\" --> \"" .. tostring(result) .. "\".")
 	end
-
 	return result
 end
 
@@ -1864,7 +1606,6 @@ function SimpleDebug:draw_depricate(dep, red, green, blue)
 	elseif dep.type == "sphere" then
 		Application:draw_sphere(dep.arg[1], dep.arg[2], red, green, blue)
 	end
-
 end
 
 function SimpleDebug:draw_line(start_pos, end_pos, depricate_time)
@@ -1877,29 +1618,19 @@ end
 
 function SimpleDebug:update(time, rel_time)
 	local remove_list = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._depricate_list)
-		do
-			do break end
-			local elapsed_time = time - dep.time
-			if elapsed_time > dep.duration then
-				table.insert(remove_list, index)
-			else
-				local green = (dep.duration - elapsed_time) / dep.duration
-				local red = 1 - green
-				self:draw_depricate(dep, red, green, 0)
-			end
-
+	for index, dep in ipairs(self._depricate_list) do
+		local elapsed_time = time - dep.time
+		if elapsed_time > dep.duration then
+			table.insert(remove_list, index)
+		else
+			local green = (dep.duration - elapsed_time) / dep.duration
+			local red = 1 - green
+			self:draw_depricate(dep, red, green, 0)
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = ipairs(remove_list)
-	do
-		do break end
+	for i, index in ipairs(remove_list) do
 		table.remove(self._depricate_list, index)
 	end
-
 end
 
 function SimpleDebug:clear()
@@ -1917,38 +1648,24 @@ function PrintDebug:xml_file(file, indent, indent_string)
 		local root = DB:load_node(ext, name)
 		self:node(root, indent, indent_string)
 	end
-
 end
 
 function PrintDebug:node(node, indent, indent_string)
 	indent = indent or 0
 	indent_string = indent_string or "\t"
 	local str = string.rep(tostring(indent_string), indent) .. "<" .. tostring(node:name())
-	do
-		local (for generator), (for state), (for control) = pairs(node:parameter_map())
-		do
-			do break end
-			str = str .. " " .. tostring(k) .. "=\"" .. tostring(v) .. "\""
-		end
-
+	for k, v in pairs(node:parameter_map()) do
+		str = str .. " " .. tostring(k) .. "=\"" .. tostring(v) .. "\""
 	end
-
 	if 0 < node:num_children() then
 		cat_print("debug", str .. ">")
-		do
-			local (for generator), (for state), (for control) = node:children()
-			do
-				do break end
-				self:node(child_node, indent + 1, indent_string)
-			end
-
+		for child_node in node:children() do
+			self:node(child_node, indent + 1, indent_string)
 		end
-
 		cat_print("debug", string.rep(tostring(indent_string), indent) .. "</" .. tostring(node:name()) .. ">")
 	else
 		cat_print("debug", str .. "/>")
 	end
-
 end
 
 ProfilerDebug = ProfilerDebug or class(BaseDebug)
@@ -1959,15 +1676,9 @@ function ProfilerDebug:init()
 end
 
 function ProfilerDebug:clear()
-	do
-		local (for generator), (for state), (for control) = pairs(self._counter_map)
-		do
-			do break end
-			counter:set_enabled(false)
-		end
-
+	for _, counter in pairs(self._counter_map) do
+		counter:set_enabled(false)
 	end
-
 	self._counter_list = {}
 	self._counter_map = {}
 end
@@ -1977,7 +1688,6 @@ function ProfilerDebug:add_counter(counter_name, obj, func_name, color, min_rang
 	if counter then
 		self:remove_counter(counter, print_counter, false)
 	end
-
 	local index = #self._counter_list + 1
 	counter = DebugProfilerCounter:new(counter_name, index, obj, func_name, color, min_range, max_range, not disabled, not graph_disabled, not gui_disabled, override_class)
 	self._counter_map[counter_name] = counter
@@ -1985,7 +1695,6 @@ function ProfilerDebug:add_counter(counter_name, obj, func_name, color, min_rang
 	if print_counter then
 		cat_debug("Add " .. index .. ": " .. tostring(counter_name))
 	end
-
 end
 
 function ProfilerDebug:remove_index(index, print_counter, skip_color_update)
@@ -1993,7 +1702,6 @@ function ProfilerDebug:remove_index(index, print_counter, skip_color_update)
 	if counter then
 		self:remove_counter(counter, print_counter, skip_color_update)
 	end
-
 end
 
 function ProfilerDebug:remove_name(counter_name, print_counter, skip_color_update)
@@ -2001,7 +1709,6 @@ function ProfilerDebug:remove_name(counter_name, print_counter, skip_color_updat
 	if counter then
 		self:remove_counter(counter, print_counter, skip_color_update)
 	end
-
 end
 
 function ProfilerDebug:remove_counter(counter, print_counter, skip_color_update)
@@ -2013,86 +1720,57 @@ function ProfilerDebug:remove_counter(counter, print_counter, skip_color_update)
 		for i = index, #self._counter_list do
 			self._counter_list[i]:set_index(i)
 		end
-
 		if not skip_color_update then
 			self:update_colors()
 		end
-
 		if print_counter then
 			cat_debug("Remove " .. index .. ": " .. tostring(counter:name()))
 		end
-
 	end
-
 end
 
 function ProfilerDebug:update_colors()
-	local (for generator), (for state), (for control) = ipairs(self._counter_list)
-	do
-		do break end
+	for index, counter in ipairs(self._counter_list) do
 		local color_list = DebugManager.get_color_by_index(index, #self._counter_list)
 		local color = Color(1, color_list[1], color_list[2], color_list[3])
 		counter:set_color(color)
 	end
-
 end
 
 function ProfilerDebug:set_unit_enabled(unit, enabled, function_name_list, ignore_map, include_only_map, min_range, max_range, disabled, graph_disabled, gui_disabled, print_counters, class_override)
 	if alive(unit) and unit.type_name == "Unit" then
 		function_name_list = function_name_list or {"update"}
-		do
-			local (for generator), (for state), (for control) = ipairs(unit:extensions())
-			do
-				do break end
-				local (for generator), (for state), (for control) = ipairs(function_name_list)
-				do
-					do break end
-					local counter_name = unit:name() .. ":" .. extension_name .. ":" .. tostring(function_name) .. "()"
-					self:remove_name(counter_name, print_counters, true)
-					if enabled then
-						local extension = unit[extension_name](unit)
-						if extension.update and (not ignore_map or not ignore_map[extension_name]) and (not include_only_map or include_only_map[extension_name]) then
-							self:add_counter(counter_name, extension, function_name, nil, min_range, max_range, disabled, graph_disabled, gui_disabled, print_counters, not class_override)
-						end
-
+		for _, extension_name in ipairs(unit:extensions()) do
+			for _, function_name in ipairs(function_name_list) do
+				local counter_name = unit:name() .. ":" .. extension_name .. ":" .. tostring(function_name) .. "()"
+				self:remove_name(counter_name, print_counters, true)
+				if enabled then
+					local extension = unit[extension_name](unit)
+					if extension.update and (not ignore_map or not ignore_map[extension_name]) and (not include_only_map or include_only_map[extension_name]) then
+						self:add_counter(counter_name, extension, function_name, nil, min_range, max_range, disabled, graph_disabled, gui_disabled, print_counters, not class_override)
 					end
-
 				end
-
 			end
-
 		end
-
 		self:update_colors()
 	end
-
 end
 
 function ProfilerDebug:set_managers_enabled(enabled, ignore_map, include_only_map, min_range, max_range, disabled, graph_disabled, gui_disabled, print_counters)
-	do
-		local (for generator), (for state), (for control) = pairs(managers)
-		do
-			do break end
-			local counter_name = "managers." .. manager_name .. ":update()"
-			self:remove_name(counter_name, print_counters, true)
-			if enabled and type(manager) == "table" and manager.update and (not ignore_map or not ignore_map[manager_name]) and (not include_only_map or include_only_map[manager_name]) then
-				self:add_counter(counter_name, manager, "update", nil, min_range, max_range, disabled, graph_disabled, gui_disabled, print_counters, nil)
-			end
-
+	for manager_name, manager in pairs(managers) do
+		local counter_name = "managers." .. manager_name .. ":update()"
+		self:remove_name(counter_name, print_counters, true)
+		if enabled and type(manager) == "table" and manager.update and (not ignore_map or not ignore_map[manager_name]) and (not include_only_map or include_only_map[manager_name]) then
+			self:add_counter(counter_name, manager, "update", nil, min_range, max_range, disabled, graph_disabled, gui_disabled, print_counters, nil)
 		end
-
 	end
-
 	self:update_colors()
 end
 
 function ProfilerDebug:reloaded()
-	local (for generator), (for state), (for control) = ipairs(self._counter_list)
-	do
-		do break end
+	for _, counter in ipairs(self._counter_list) do
 		counter:reload()
 	end
-
 end
 
 function ProfilerDebug:toggle_compare_find(slotmask, find_type, radius, length, count, bundle_count, func_name)
@@ -2103,27 +1781,22 @@ function ProfilerDebug:toggle_compare_find(slotmask, find_type, radius, length, 
 		cat_error("debug", "Invalid function: " .. tostring(func_name))
 		return
 	end
-
 	if not tonumber(radius) then
 		cat_error("debug", "Invalid radius: " .. tostring(radius))
 		return
 	end
-
 	if not tonumber(length) then
 		cat_error("debug", "Invalid length: " .. tostring(length))
 		return
 	end
-
 	if not tonumber(count) then
 		cat_error("debug", "Invalid count: " .. tostring(count))
 		return
 	end
-
 	if not tonumber(bundle_count) then
 		cat_error("debug", "Invalid bundle count: " .. tostring(bundle_count))
 		return
 	end
-
 	local can_intersect = func_name ~= "find_units_quick"
 	if find_type == "cone" or find_type == "cylinder" or find_type == "capsule" then
 		function f(from, to)
@@ -2160,7 +1833,6 @@ function ProfilerDebug:toggle_compare_find(slotmask, find_type, radius, length, 
 				counter = "find_" .. find_type .. "_intersect_physics"
 			})
 		end
-
 	elseif find_type == "sphere" then
 		function f(from, to)
 			result = World[func_name](World, "force_slot", find_type, from, radius, slotmask)
@@ -2196,30 +1868,21 @@ function ProfilerDebug:toggle_compare_find(slotmask, find_type, radius, length, 
 				counter = "find_" .. find_type .. "_intersect_physics"
 			})
 		end
-
 	else
 		cat_error("debug", "Invalid type: " .. find_type)
 		return
 	end
-
 	Application:console_command("stats counters")
 	if Global.spherecast_cost_counter_list then
-		do
-			local (for generator), (for state), (for control) = ipairs(Global.spherecast_cost_counter_list)
-			do
-				do break end
-				Application:console_command("profiler remove " .. counter)
-				Application:console_command("graph hide " .. counter)
-				managers.debug.gui:set(index, nil)
-			end
-
+		for index, counter in ipairs(Global.spherecast_cost_counter_list) do
+			Application:console_command("profiler remove " .. counter)
+			Application:console_command("graph hide " .. counter)
+			managers.debug.gui:set(index, nil)
 		end
-
 		managers.debug.func:set(1, nil)
 		Global.spherecast_cost_counter_list = nil
 		return
 	end
-
 	function f(from, to)
 		result = World:raycast("ray", from, to, "sphere_cast_radius", radius, "bundle", bundle_count, "slot_mask", slotmask)
 	end
@@ -2231,20 +1894,14 @@ function ProfilerDebug:toggle_compare_find(slotmask, find_type, radius, length, 
 
 	table.insert(list, {func = f, counter = "spherecast"})
 	Global.spherecast_cost_counter_list = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(list)
-		do
-			do break end
-			table.insert(Global.spherecast_cost_counter_list, data.counter)
-			Application:console_command("profiler add " .. data.counter)
-			local r, g, b = unpack(DebugManager.get_color_by_index(index, #list))
-			Application:console_command(string.format("graph counter %s color %X%X%X range 0 20", data.counter, r * 15, g * 15, b * 15))
-			managers.debug.gui:set(index, data.counter)
-			managers.debug.gui:set_color(index, r, g, b)
-		end
-
+	for index, data in ipairs(list) do
+		table.insert(Global.spherecast_cost_counter_list, data.counter)
+		Application:console_command("profiler add " .. data.counter)
+		local r, g, b = unpack(DebugManager.get_color_by_index(index, #list))
+		Application:console_command(string.format("graph counter %s color %X%X%X range 0 20", data.counter, r * 15, g * 15, b * 15))
+		managers.debug.gui:set(index, data.counter)
+		managers.debug.gui:set_color(index, r, g, b)
 	end
-
 	managers.debug:set_enabled(true)
 	managers.debug:set_enabled_paused(true)
 	managers.debug.func:set_enabled(true)
@@ -2256,7 +1913,6 @@ function ProfilerDebug:toggle_compare_find(slotmask, find_type, radius, length, 
 			table.insert(rand_list, list[rand_index])
 			table.remove(list, rand_index)
 		end
-
 		list = rand_list
 		local camera = managers.viewport and managers.viewport:get_current_camera()
 		if not camera then
@@ -2264,7 +1920,6 @@ function ProfilerDebug:toggle_compare_find(slotmask, find_type, radius, length, 
 			managers.debug.func:set(1, nil)
 			return
 		end
-
 		local rot = camera:rotation()
 		local dir = rot:y()
 		local from = camera:position() + dir * 1000
@@ -2276,19 +1931,14 @@ function ProfilerDebug:toggle_compare_find(slotmask, find_type, radius, length, 
 		else
 			Application:draw_cylinder(from, to, radius, 1, 1, 1)
 		end
-
 		local id
-		local (for generator), (for state), (for control) = ipairs(rand_list)
-		do
-			do break end
+		for _, data in ipairs(rand_list) do
 			id = Profiler:start(data.counter)
 			for i = 1, count do
 				data.func(from, to)
 			end
-
 			Profiler:stop(id)
 		end
-
 	end
 )
 	cat_debug("debug", "Unit count: " .. #World:find_units_quick("all", slotmask))
@@ -2313,7 +1963,6 @@ function MacroDebug:get_ray(skip_last_unit_assign)
 	local from = cam and cam:position() or Vector3()
 	if not cam or not cam:rotation():y() then
 	end
-
 	local to = from + Vector3(0, 1, 0) * 100000
 	local ray = World:raycast("ray", from, to, "ray_type", "body editor phantom bullet")
 	if ray then
@@ -2321,13 +1970,11 @@ function MacroDebug:get_ray(skip_last_unit_assign)
 		if not skip_last_unit_assign then
 			self:set_last_unit(ray.unit)
 		end
-
 		managers.debug.pos:add(ray.position, "ray", nil, nil, nil, 10)
 		managers.debug:set_enabled(true)
 		managers.debug:set_enabled_paused(true)
 		managers.debug.pos:set_enabled(true)
 	end
-
 	return ray
 end
 
@@ -2358,7 +2005,6 @@ function MacroDebug:ray()
 	else
 		cat_error("debug", "No unit found.")
 	end
-
 end
 
 function MacroDebug:print_unit_info(unit)
@@ -2368,20 +2014,17 @@ function MacroDebug:print_unit_info(unit)
 		if #anim_machine > 0 then
 			unit_string = unit_string .. ", Anim: " .. tostring(anim_machine)
 		end
-
 		cat_print("debug", unit_string)
 		cat_print("debug", "Unit:     " .. tostring(unit_file))
 		cat_print("debug", "Object:   " .. tostring(object_file))
 		if sequence_file then
 			cat_print("debug", "Sequence: " .. sequence_file)
 		end
-
 	elseif unit then
 		cat_error("debug", "Unit is dead.")
 	else
 		cat_error("debug", "Unit is nil.")
 	end
-
 end
 
 function MacroDebug:get_unit_files(unit)
@@ -2407,7 +2050,6 @@ function MacroDebug:get_cleaned_path(path)
 	else
 		return nil
 	end
-
 end
 
 function MacroDebug:ray_push(velocity_dir, velocity_length, mass)
@@ -2418,7 +2060,6 @@ function MacroDebug:ray_push(velocity_dir, velocity_length, mass)
 	else
 		cat_error("debug", "No unit found.")
 	end
-
 end
 
 function MacroDebug:push(unit, velocity_dir, velocity_length, mass)
@@ -2435,7 +2076,6 @@ function MacroDebug:ray_gravitate(multiplier)
 	else
 		cat_error("debug", "No unit found.")
 	end
-
 end
 
 function MacroDebug:gravitate(unit, multiplier)
@@ -2454,7 +2094,6 @@ function MacroDebug:ray_hover(multiplier)
 	else
 		cat_error("debug", "No unit found.")
 	end
-
 end
 
 function MacroDebug:hover(unit, multiplier)
@@ -2471,7 +2110,6 @@ function MacroDebug:effect(effect)
 	if Application:production_build() then
 		CoreEngineAccess._editor_load(Idstring("effect"), effect:id())
 	end
-
 	effect_manager:spawn({
 		effect = effect:id(),
 		position = cam:position() + cam:rotation():y() * 200,
@@ -2490,15 +2128,12 @@ function MacroDebug:ray_run_sequence(sequence, damage_type, source_unit, dest_bo
 			else
 				cat_error("debug", "Damage extension lacks run_sequence-function.")
 			end
-
 		else
 			cat_error("debug", "No damage extension.")
 		end
-
 	else
 		cat_error("debug", "No unit found.")
 	end
-
 end
 
 function MacroDebug:ray_select_unit()
@@ -2509,7 +2144,6 @@ function MacroDebug:ray_select_unit()
 	else
 		cat_error("debug", "No unit found.")
 	end
-
 end
 
 function MacroDebug:select_unit(unit)
@@ -2520,7 +2154,6 @@ function MacroDebug:select_unit(unit)
 	else
 		World:select_unit(self._last_unit)
 	end
-
 end
 
 function MacroDebug:anim_verbose(unit)
@@ -2537,9 +2170,7 @@ function MacroDebug:anim_verbose(unit)
 			Application:console_command("animation playing")
 			Application:console_command("animation verbose")
 		end
-
 	end
-
 end
 
 function MacroDebug:spawn(unit_name, pos, rot)
@@ -2552,16 +2183,13 @@ function MacroDebug:spawn(unit_name, pos, rot)
 		if not managers.sequence:has(unit_name) then
 			managers.sequence:_add_sequences_from_unit_data(CoreEngineAccess._editor_unit_data(unit_name:id()))
 		end
-
 		local unit = World:spawn_unit(unit_name:id(), pos, rot)
 		if alive(unit) then
 			self:set_last_unit(unit)
 		end
-
 	else
 		cat_print("debug", "Tried to spawn non-existing unit \"" .. tostring(unit_name) .. "\".")
 	end
-
 end
 
 function MacroDebug:multi_spawn(unit_name, unit_offset, count_x, count_y, count_z, pos, rot)
@@ -2580,11 +2208,8 @@ function MacroDebug:multi_spawn(unit_name, unit_offset, count_x, count_y, count_
 				local offset = yz_offset + cam_rot:x() * (count_x / 2 - x) * unit_offset
 				self:spawn(unit_name, pos + offset, rot)
 			end
-
 		end
-
 	end
-
 end
 
 function MacroDebug:ray_profile_unit(function_name_list, ignore_map, include_only_map, min_range, max_range, disabled, graph_disabled, gui_disabled, print_counters, instance_override)
@@ -2595,20 +2220,17 @@ function MacroDebug:ray_profile_unit(function_name_list, ignore_map, include_onl
 	else
 		cat_error("debug", "No unit found.")
 	end
-
 end
 
 function MacroDebug:profile_unit(unit, function_name_list, ignore_map, include_only_map, min_range, max_range, disabled, graph_disabled, gui_disabled, print_counters, instance_override)
 	if alive(unit) then
 		self:set_last_unit(unit)
 	end
-
 	if alive(self._last_unit) then
 		local enabled = not self._profile_unit_map[self._last_unit:key()]
 		managers.debug.profiler:set_unit_enabled(self._last_unit, enabled, function_name_list, ignore_map, include_only_map, min_range, max_range, disabled, graph_disabled, gui_disabled, print_counters, instance_override)
 		self._profile_unit_map[self._last_unit:key()] = enabled
 	end
-
 end
 
 function MacroDebug:unit_goto(add_to_path, unit, pos)
@@ -2621,17 +2243,13 @@ function MacroDebug:unit_goto(add_to_path, unit, pos)
 			else
 				cat_error("debug", "No position available to do a goto-action with.")
 			end
-
 		end
-
 		if pos then
 			unit:base():debug_goto(add_to_path, pos)
 		end
-
 	else
 		cat_error("debug", "Goto-action not available on unit \"" .. tostring(unit) .. "\".")
 	end
-
 end
 
 function MacroDebug:fps(graph)
@@ -2658,7 +2276,6 @@ function MacroDebug:fps(graph)
 			managers.debug.graph:set_max_count(3, 50)
 			managers.debug.graph:set_max_count(4, 50)
 		end
-
 	else
 		if self._check_fps_graph then
 			managers.debug.graph:clear(1)
@@ -2670,7 +2287,6 @@ function MacroDebug:fps(graph)
 			managers.debug.graph:set_max_count(3, managers.debug.pos:get_max_count(nil))
 			managers.debug.graph:set_max_count(4, managers.debug.pos:get_max_count(nil))
 		end
-
 		self._check_fps_pause_time = nil
 		self._check_fps = nil
 		self._check_fps_graph = nil
@@ -2688,7 +2304,6 @@ function MacroDebug:fps(graph)
 		managers.debug.gui:set(4, nil)
 		managers.debug.gui:set_color(4, 1, 0, 0)
 	end
-
 end
 
 function MacroDebug:is_fps_enabled()
@@ -2699,7 +2314,6 @@ function MacroDebug:set_fps_paused(paused)
 	if not paused ~= not self._check_fps_pause_time then
 		self:toggle_fps_paused()
 	end
-
 end
 
 function MacroDebug:toggle_fps_paused()
@@ -2708,14 +2322,12 @@ function MacroDebug:toggle_fps_paused()
 		if self._check_fps_time then
 			self._check_fps_time = self._check_fps_time + (wall_time - self._check_fps_pause_time)
 		end
-
 		self._check_fps = true
 		self._check_fps_pause_time = nil
 	elseif self._check_fps then
 		self._check_fps = nil
 		self._check_fps_pause_time = wall_time
 	end
-
 end
 
 function MacroDebug:update(t, dt)
@@ -2731,62 +2343,50 @@ function MacroDebug:update(t, dt)
 			if duration > 0 then
 				avg_fps = self._check_fps_count / duration
 			end
-
 			if dt > 0 then
 				fps = 1 / dt
 				if (not self._check_fps_min or fps < self._check_fps_min) and self._check_fps_old and self._check_fps_old - fps < 5 then
 					self._check_fps_min = fps
 				end
-
 				if (not self._check_fps_max or fps > self._check_fps_max) and self._check_fps_old and fps - self._check_fps_old < 5 then
 					self._check_fps_max = fps
 				end
-
 				self._check_fps_old = fps
 			end
-
 			if fps then
 				managers.debug.gui:set(1, "FPS: " .. string.format("%.1f", fps))
 			else
 				managers.debug.gui:set(1, "FPS: " .. tostring(fps))
 			end
-
 			if avg_fps then
 				managers.debug.gui:set(2, "AVG: " .. string.format("%.1f", avg_fps))
 			else
 				managers.debug.gui:set(2, "AVG: " .. tostring(avg_fps))
 			end
-
 			if self._check_fps_max then
 				managers.debug.gui:set(3, "MAX: " .. string.format("%.1f", self._check_fps_max))
 			else
 				managers.debug.gui:set(3, "MAX: " .. tostring(self._check_fps_max))
 			end
-
 			if self._check_fps_min then
 				managers.debug.gui:set(4, "MIN: " .. string.format("%.1f", self._check_fps_min))
 			else
 				managers.debug.gui:set(4, "MIN: " .. tostring(self._check_fps_min))
 			end
-
 			if self._check_fps_graph and fps and avg_fps and self._check_fps_max and self._check_fps_min then
 				managers.debug.graph:add(fps or 0, 1, 1, 1, 1)
 				managers.debug.graph:add(avg_fps or 0, 2, 0, 0, 1)
 				managers.debug.graph:add(self._check_fps_max or 0, 3, 0, 1, 0)
 				managers.debug.graph:add(self._check_fps_min or 0, 4, 1, 0, 0)
 			end
-
 		end
-
 	end
-
 end
 
 function MacroDebug:clear()
 	if self._check_fps then
 		self:fps()
 	end
-
 end
 
 function MacroDebug:toggle_endurance_damage_hook(skip_print, line_duration)
@@ -2802,18 +2402,15 @@ function MacroDebug:toggle_endurance_damage_hook(skip_print, line_duration)
 	else
 		cat_debug("debug", "Ignored endurance damage hook. Output: " .. tostring(not skip_print) .. ", Line duration: " .. tostring(line_duration))
 	end
-
 end
 
 function MacroDebug:_hijacked_endurance_activate(option_map, endurance, env)
 	if not option_map.skip_print then
 		cat_print("debug", string.format("Damage: %d, Type: %s, Unit: %s, Body: %s", env.damage, env.damage_type, env.dest_unit:name(), env.dest_body:name()))
 	end
-
 	if option_map.line_duration > 0 then
 		managers.debug.simple:draw_line(env.pos, env.pos - env.dir * 200, option_map.line_duration)
 	end
-
 	endurance:hijacked_activate(env)
 end
 
@@ -2835,34 +2432,25 @@ function MemoryDebug:extensions()
 	local unit_list = World:find_units_quick("all")
 	local extension_class_map = {}
 	local extension_data_list = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(unit_list)
-		do
-			do break end
-			local extension_list = unit:extensions()
-			local (for generator), (for state), (for control) = ipairs(extension_list)
-			do
-				do break end
-				local extension_instance = unit[extension_name](unit)
-				local extension_class = getmetatable(extension_instance)
-				local class_name_string = CoreDebug.class_name(extension_class, _M)
-				local data = extension_class_map[class_name_string]
-				data = data or {
-					count = 0,
-					unit_count = {},
-					unit_list = {}
-				}
-				data.count = data.count + 1
-				table.insert(data.unit_list, unit)
-				local unit_name = unit:name()
-				data.unit_count[unit_name] = (data.unit_count[unit_name] or 0) + 1
-				extension_class_map[class_name_string] = data
-			end
-
+	for _, unit in ipairs(unit_list) do
+		local extension_list = unit:extensions()
+		for _, extension_name in ipairs(extension_list) do
+			local extension_instance = unit[extension_name](unit)
+			local extension_class = getmetatable(extension_instance)
+			local class_name_string = CoreDebug.class_name(extension_class, _M)
+			local data = extension_class_map[class_name_string]
+			data = data or {
+				count = 0,
+				unit_count = {},
+				unit_list = {}
+			}
+			data.count = data.count + 1
+			table.insert(data.unit_list, unit)
+			local unit_name = unit:name()
+			data.unit_count[unit_name] = (data.unit_count[unit_name] or 0) + 1
+			extension_class_map[class_name_string] = data
 		end
-
 	end
-
 	return extension_class_map
 end
 
@@ -2876,7 +2464,6 @@ function MemoryDebug:find_instance(find_value, is_meta_data, print_path, find_al
 	else
 		return nil, nil
 	end
-
 end
 
 function MemoryDebug:find_instance_callback(print_path, path, key, value, populate_map, info_map, seen_map, find_value, is_meta_data, find_all)
@@ -2885,11 +2472,9 @@ function MemoryDebug:find_instance_callback(print_path, path, key, value, popula
 		if getmetatable(value) == find_value or getmetatable(key) == find_value then
 			found = true
 		end
-
 	elseif value == find_value or key == find_value then
 		found = true
 	end
-
 	if found then
 		populate_map[key] = value
 		if print_path then
@@ -2898,12 +2483,9 @@ function MemoryDebug:find_instance_callback(print_path, path, key, value, popula
 			else
 				path = ""
 			end
-
 			cat_print("debug", path .. tostring(key))
 		end
-
 	end
-
 	return found, find_all
 end
 
@@ -2923,53 +2505,35 @@ function MemoryDebug:traverse_instances(func, seen_map, map)
 		if next(global_map) ~= nil then
 			populate_map._G = global_map
 		end
-
 		local unit_list = World:unit_manager():get_units()
 		local unit_map = {}
 		local next_unit_map = {}
 		local next_extension_map = {}
 		local unit_name, path
-		do
-			local (for generator), (for state), (for control) = ipairs(unit_list)
-			do
-				do break end
-				unit_name = unit:name()
-				path = "Units." .. unit_name
-				do
-					local (for generator), (for state), (for control) = ipairs(unit:extensions())
-					do
-						do break end
-						self:traverse_instances_recursively(path, extension_name, unit[extension_name](unit), func, next_extension_map, info_map, seen_map)
-						if next(next_extension_map) ~= nil then
-							next_unit_map[extension_name] = next_extension_map
-							next_extension_map = {}
-						end
-
-					end
-
+		for _, unit in ipairs(unit_list) do
+			unit_name = unit:name()
+			path = "Units." .. unit_name
+			for index, extension_name in ipairs(unit:extensions()) do
+				self:traverse_instances_recursively(path, extension_name, unit[extension_name](unit), func, next_extension_map, info_map, seen_map)
+				if next(next_extension_map) ~= nil then
+					next_unit_map[extension_name] = next_extension_map
+					next_extension_map = {}
 				end
-
-				if next(next_unit_map) ~= nil then
-					unit_map[unit:name()] = next_unit_map
-					next_unit_map = {}
-				end
-
 			end
-
+			if next(next_unit_map) ~= nil then
+				unit_map[unit:name()] = next_unit_map
+				next_unit_map = {}
+			end
 		end
-
 		if next(unit_map) ~= nil then
 			populate_map.Units = unit_map
 		end
-
 	end
-
 	if next(populate_map) ~= nil then
 		return populate_map, info_map
 	else
 		return nil, info_map
 	end
-
 end
 
 function MemoryDebug:traverse_instances_recursively(path, key, value, func, populate_map, info_map, seen_map)
@@ -2980,11 +2544,9 @@ function MemoryDebug:traverse_instances_recursively(path, key, value, func, popu
 		if found then
 			info_map.found_count = info_map.found_count + 1
 		end
-
 		if not find_again then
 			seen_map[value] = true
 		end
-
 		if type(value) == "table" then
 			local next_populate_map = {}
 			if path then
@@ -2993,26 +2555,18 @@ function MemoryDebug:traverse_instances_recursively(path, key, value, func, popu
 				else
 					path = path .. "." .. tostring(key)
 				end
-
 			else
 				path = key
 			end
-
-			local (for generator), (for state), (for control) = pairs(value)
-			do
-				do break end
+			for next_key, next_value in pairs(value) do
 				self:traverse_instances_recursively(path, next_key, next_value, func, next_populate_map, info_map, seen_map)
 				if next(next_populate_map) ~= nil then
 					populate_map[next_key] = next_populate_map
 					next_populate_map = {}
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function MemoryDebug:calc(map, seen_map)
@@ -3024,7 +2578,6 @@ function MemoryDebug:calc(map, seen_map)
 				self:add_calc(key, value, false, global_populate_map)
 				self:add_calc(key, value, true, global_populate_map)
 			end
-
 			return true, false
 		end
 
@@ -3032,7 +2585,6 @@ function MemoryDebug:calc(map, seen_map)
 	else
 		return nil, nil
 	end
-
 end
 
 function MemoryDebug:add_calc(key, value, is_key, populate_map)
@@ -3044,7 +2596,6 @@ function MemoryDebug:add_calc(key, value, is_key, populate_map)
 		populate_map.key_count = (populate_map.key_count or 0) + 1
 		populate_map.total_bits = (populate_map.total_bits or 0) + bits
 	end
-
 	local is_same_primitive_key = is_key and not self.PRIMITIVE_VALUE_TYPE_MAP[check_value_type] and key == value
 	if not is_same_primitive_key then
 		if check_value_type then
@@ -3059,13 +2610,10 @@ function MemoryDebug:add_calc(key, value, is_key, populate_map)
 			else
 				Application:error("Unsupported value type \"" .. tostring(check_value_type) .. "\" (is key: " .. tostring(is_key) .. ").")
 			end
-
 		else
 			Application:error("Nil type for value \"" .. tostring(check_value) .. "\" (is key: " .. tostring(is_key) .. ").")
 		end
-
 	end
-
 end
 
 function MemoryDebug:add_calc_string(value, populate_map)
@@ -3104,7 +2652,6 @@ function ConsoleDebug:destroy()
 		Overlay:gui():destroy_workspace(self._workspace)
 		self._workspace = nil
 	end
-
 end
 
 function ConsoleDebug:set_enabled(enabled)
@@ -3124,9 +2671,7 @@ function ConsoleDebug:set_enabled(enabled)
 			managers.debug.hijack:unhijack_func(Application, "error")
 			managers.debug.hijack:unhijack_func(Application, "stack_dump")
 		end
-
 	end
-
 end
 
 function ConsoleDebug:hijacked_print(...)
@@ -3162,18 +2707,14 @@ function ConsoleDebug:get_stack_dump_text(skip_level)
 			else
 				text = ""
 			end
-
 			if info.what == "C" then
 				text = text .. string.format("%s:%d (C++ method)", info.source, info.currentline)
 			else
 				text = text .. string.format("%s:%d", info.source, info.currentline)
 			end
-
 		end
-
 		level = level + 1
 	end
-
 	return text or ""
 end
 
@@ -3188,7 +2729,6 @@ function ConsoleDebug:clear()
 		self._scroll = nil
 		self:destroy_controller()
 	end
-
 end
 
 function ConsoleDebug:toggle_visible()
@@ -3204,11 +2744,8 @@ function ConsoleDebug:set_visible(visible)
 			else
 				self._workspace:hide()
 			end
-
 		end
-
 	end
-
 end
 
 function ConsoleDebug:get_visible()
@@ -3229,21 +2766,14 @@ end
 
 function ConsoleDebug:get_arg_text(...)
 	local text = ""
-	do
-		local (for generator), (for state), (for control) = ipairs({
-			...
-		})
-		do
-			do break end
-			if i > 1 then
-				text = text .. "\t"
-			end
-
-			text = text .. tostring(arg)
+	for i, arg in ipairs({
+		...
+	}) do
+		if i > 1 then
+			text = text .. "\t"
 		end
-
+		text = text .. tostring(arg)
 	end
-
 	return text
 end
 
@@ -3251,7 +2781,6 @@ function ConsoleDebug:add_text(text, color)
 	if not self._workspace then
 		self:setup()
 	end
-
 	local formatted_text = string.gsub(tostring(text), "\t", "    ")
 	local text_data = {
 		time = TimerManager:wall():time(),
@@ -3262,7 +2791,6 @@ function ConsoleDebug:add_text(text, color)
 	if self._scroll > 0 then
 		self._scroll = self._scroll + 1
 	end
-
 	self:invalidate()
 end
 
@@ -3290,15 +2818,12 @@ function ConsoleDebug:invalidate()
 				y = y + remainder_scroll * height
 				scroll_first = false
 			end
-
 			y = y - height
 			text_gui:set_height(height)
 			text_gui:set_y(y)
 			index = index - 1
 		end
-
 	end
-
 end
 
 function ConsoleDebug:setup()
@@ -3319,7 +2844,6 @@ function ConsoleDebug:setup()
 	else
 		self._workspace:hide()
 	end
-
 	self._text_list = {}
 	self._scroll = 0
 	self:setup_controller()
@@ -3333,7 +2857,6 @@ function ConsoleDebug:setup_controller()
 		self._controller:add_trigger("console_scroll_page_down", callback(self, self, "scroll_page_down"))
 		self._controller:enable()
 	end
-
 end
 
 function ConsoleDebug:destroy_controller()
@@ -3341,7 +2864,6 @@ function ConsoleDebug:destroy_controller()
 		self._controller:destroy()
 		self._controller = nil
 	end
-
 end
 
 function ConsoleDebug:update(t, dt)
@@ -3352,23 +2874,19 @@ function ConsoleDebug:update(t, dt)
 		if y ~= 0 then
 			self:set_scroll(self._scroll + y * dt * 10)
 		end
-
 	end
-
 end
 
 function ConsoleDebug:scroll_page_up()
 	if self._scroll and self._visible then
 		self:add_scroll(10)
 	end
-
 end
 
 function ConsoleDebug:scroll_page_down()
 	if self._scroll and self._visible then
 		self:add_scroll(-10)
 	end
-
 end
 
 function ConsoleDebug:add_scroll(scroll)
@@ -3381,7 +2899,6 @@ function ConsoleDebug:set_scroll(scroll)
 	if old_scroll ~= self._scroll then
 		self:invalidate()
 	end
-
 end
 
 MenuDebug = MenuDebug or class(BaseDebug)
@@ -3399,12 +2916,10 @@ function MenuDebug:destroy()
 		self._option_panel = nil
 		self._background_rect = nil
 	end
-
 	if self._resolution_changed_callback_id then
 		managers.viewport:remove_resolution_changed_func(self._resolution_changed_callback_id)
 		self._resolution_changed_callback_id = nil
 	end
-
 end
 
 function MenuDebug:destroy_controller()
@@ -3413,7 +2928,6 @@ function MenuDebug:destroy_controller()
 		self._controller:destroy()
 		self._controller = nil
 	end
-
 end
 
 function MenuDebug:set_enabled(enabled)
@@ -3424,19 +2938,15 @@ function MenuDebug:set_enabled(enabled)
 		if data_controller then
 			self:set_controller_triggers_enabled(data_controller, enabled)
 		end
-
 		if enabled then
 			if not data_controller then
 				self:setup_controller()
 			end
-
 			self:setup_menu()
 		else
 			self:destroy()
 		end
-
 	end
-
 end
 
 function MenuDebug:toggle_visible()
@@ -3459,13 +2969,9 @@ function MenuDebug:set_visible(visible)
 					self._current_menu_index = nil
 					self:setup_menu()
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function MenuDebug:get_visible()
@@ -3483,7 +2989,6 @@ function MenuDebug:setup_controller()
 		self:set_controller_triggers_enabled(self._controller, true)
 		self._controller:set_enabled(true)
 	end
-
 end
 
 function MenuDebug:set_controller_triggers_enabled(controller, enabled)
@@ -3497,7 +3002,6 @@ function MenuDebug:set_controller_triggers_enabled(controller, enabled)
 			self._left_func = callback(self, self, "left_button_pressed")
 			self._right_func = callback(self, self, "right_button_pressed")
 		end
-
 		controller:add_trigger("toggle_menu", self._toggle_visible_func)
 		controller:add_trigger("menu_up", self._change_selection_down_func)
 		controller:add_trigger("menu_down", self._change_selection_up_func)
@@ -3521,7 +3025,6 @@ function MenuDebug:set_controller_triggers_enabled(controller, enabled)
 		self._left_func = nil
 		self._right_func = nil
 	end
-
 end
 
 function MenuDebug:change_selection(change)
@@ -3543,15 +3046,11 @@ function MenuDebug:confirm_button_pressed()
 				self._current_menu_index = nil
 				self:setup_menu()
 			end
-
 			if next_menu_data.callback_func then
 				next_menu_data.callback_func(next_menu_data)
 			end
-
 		end
-
 	end
-
 end
 
 function MenuDebug:cancel_button_pressed()
@@ -3564,14 +3063,12 @@ function MenuDebug:cancel_button_pressed()
 			self._prev_menu_data_list = nil
 			self._prev_menu_index_list = nil
 		end
-
 		self._current_menu_data = prev_menu_data
 		self._current_menu_index = prev_menu_index
 		self:setup_menu()
 	else
 		self:set_visible(false)
 	end
-
 end
 
 function MenuDebug:left_button_pressed()
@@ -3582,11 +3079,8 @@ function MenuDebug:left_button_pressed()
 			if callback_func then
 				callback_func(self._current_menu_data)
 			end
-
 		end
-
 	end
-
 end
 
 function MenuDebug:right_button_pressed()
@@ -3597,31 +3091,25 @@ function MenuDebug:right_button_pressed()
 			if callback_func then
 				callback_func(self._current_menu_data)
 			end
-
 		end
-
 	end
-
 end
 
 function MenuDebug:setup_menu()
 	if not self._resolution_changed_callback_id then
 		self._resolution_changed_callback_id = managers.viewport:add_resolution_changed_func(callback(self, self, "setup_menu"))
 	end
-
 	if not alive(self._workspace) then
 		self._workspace = Overlay:gui():create_screen_workspace()
 		self._panel = self._workspace:panel()
 	else
 		self._panel:clear()
 	end
-
 	if self._visible then
 		self._workspace:show()
 	else
 		self._workspace:hide()
 	end
-
 	self._option_panel = self._panel:panel()
 	self._current_menu_data = self._current_menu_data or self._menu_data
 	self._background_rect = nil
@@ -3630,36 +3118,26 @@ function MenuDebug:setup_menu()
 		if bg_color then
 			self._background_rect = self._panel:rect({color = bg_color})
 		end
-
 		local option_config = {}
 		option_config.layer = 1
 		local t, dt = TimerManager:main():time(), TimerManager:main():delta_time()
-		do
-			local (for generator), (for state), (for control) = ipairs(self._current_menu_data)
-			do
-				do break end
-				option_config.font = option_data.font or self._menu_data.font or "core/fonts/diesel"
-				option_config.text = option_data.text_func and option_data.text_func(t, dt, option_data) or option_data.text or tostring(index)
-				if index == (self._current_menu_index or 1) then
-					option_config.color = option_data.select_color or self._menu_data.select_color or Color.green
-				else
-					option_config.color = option_data.color or self._menu_data.color or Color.red
-				end
-
-				if not self._preloaded_font_list or not self._preloaded_font_list[option_config.font] then
-					Overlay:gui():preload_font(option_config.font)
-					self._preloaded_font_list = self._preloaded_font_list or {}
-					self._preloaded_font_list[option_config.font] = true
-				end
-
-				self._option_panel:text(option_config)
+		for index, option_data in ipairs(self._current_menu_data) do
+			option_config.font = option_data.font or self._menu_data.font or "core/fonts/diesel"
+			option_config.text = option_data.text_func and option_data.text_func(t, dt, option_data) or option_data.text or tostring(index)
+			if index == (self._current_menu_index or 1) then
+				option_config.color = option_data.select_color or self._menu_data.select_color or Color.green
+			else
+				option_config.color = option_data.color or self._menu_data.color or Color.red
 			end
-
+			if not self._preloaded_font_list or not self._preloaded_font_list[option_config.font] then
+				Overlay:gui():preload_font(option_config.font)
+				self._preloaded_font_list = self._preloaded_font_list or {}
+				self._preloaded_font_list[option_config.font] = true
+			end
+			self._option_panel:text(option_config)
 		end
-
 		self:setup_menu_shape()
 	end
-
 end
 
 function MenuDebug:setup_menu_shape()
@@ -3671,40 +3149,28 @@ function MenuDebug:setup_menu_shape()
 	if self._background_rect then
 		self._background_rect:set_shape(0, 0, res.x, res.y)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._option_panel:children())
-		do
-			do break end
-			local option_data = self._current_menu_data[index]
-			option:set_font_size(option_data.font_size or self._menu_data.font_size or 20)
-			local x, y, w, h = option:text_rect()
-			if option_w < w then
-				option_w = w
-			end
-
-			if index == (self._current_menu_index or 0) then
-				select_y = option_h + h / 2
-			end
-
-			option:set_shape(0, option_h, w, h)
-			option_h = option_h + h + option_spacing
+	for index, option in ipairs(self._option_panel:children()) do
+		local option_data = self._current_menu_data[index]
+		option:set_font_size(option_data.font_size or self._menu_data.font_size or 20)
+		local x, y, w, h = option:text_rect()
+		if option_w < w then
+			option_w = w
 		end
-
+		if index == (self._current_menu_index or 0) then
+			select_y = option_h + h / 2
+		end
+		option:set_shape(0, option_h, w, h)
+		option_h = option_h + h + option_spacing
 	end
-
 	if option_h > 0 then
 		option_h = option_h - option_spacing
 	end
-
 	local panel_y = (res.y - option_h) / 2
 	local safe_rect = managers.viewport:get_safe_rect_pixels()
 	local fade_dist = 200
 	if option_h > safe_rect.height then
 		panel_y = panel_y - select_y + option_h / 2
-		local (for generator), (for state), (for control) = ipairs(self._option_panel:children())
-		do
-			do break end
+		for _, option in ipairs(self._option_panel:children()) do
 			local center_dist = math.abs(panel_y + option:y() - safe_rect.y - safe_rect.height / 2)
 			local edge_dist = safe_rect.height / 2 - center_dist
 			local fade
@@ -3715,23 +3181,14 @@ function MenuDebug:setup_menu_shape()
 			else
 				fade = 0
 			end
-
 			local color = option:color()
 			option:set_color(color:with_alpha(color.alpha * fade))
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._option_panel:children())
-		do
-			do break end
-			local x, y, w, h = option:text_rect()
-			option:set_x((option_w - w) / 2)
-		end
-
+	for _, option in ipairs(self._option_panel:children()) do
+		local x, y, w, h = option:text_rect()
+		option:set_x((option_w - w) / 2)
 	end
-
 	self._option_panel:set_shape((res.x - option_w) / 2, panel_y, option_w, option_h)
 end
 
@@ -3740,7 +3197,6 @@ function MenuDebug:set(menu_data)
 	if old_data_controller then
 		self:set_controller_triggers_enabled(old_data_controller, false)
 	end
-
 	self._menu_data = menu_data
 	self._current_menu_data = nil
 	self._prev_menu_data_list = nil
@@ -3752,7 +3208,6 @@ function MenuDebug:set(menu_data)
 		self:destroy_controller()
 		self:set_controller_triggers_enabled(data_controller, self._enabled)
 	end
-
 end
 
 function MenuDebug:get_level()
@@ -3763,28 +3218,19 @@ function MenuDebug:update(t, dt)
 	t, dt = TimerManager:main():time(), TimerManager:main():delta_time()
 	if self._current_menu_data then
 		local shape_changed
-		do
-			local (for generator), (for state), (for control) = ipairs(self._current_menu_data)
-			do
-				do break end
-				local func = option_data.text_func
-				if func then
-					local option = self._option_panel:child(index - 1)
-					local old_text = option:text()
-					local new_text = func(t, dt, option_data)
-					shape_changed = shape_changed or old_text ~= new_text
-					option:set_text(new_text)
-				end
-
+		for index, option_data in ipairs(self._current_menu_data) do
+			local func = option_data.text_func
+			if func then
+				local option = self._option_panel:child(index - 1)
+				local old_text = option:text()
+				local new_text = func(t, dt, option_data)
+				shape_changed = shape_changed or old_text ~= new_text
+				option:set_text(new_text)
 			end
-
 		end
-
 		if shape_changed then
 			self:setup_menu_shape()
 		end
-
 	end
-
 end
 

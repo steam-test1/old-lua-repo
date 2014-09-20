@@ -22,7 +22,6 @@ function PlayerArrested:enter(state_data, enter_data)
 		self._unit:base():set_slot(self._unit, 4)
 		PlayerBleedOut._register_revive_SO(self._revive_SO_data, "untie")
 	end
-
 	managers.groupai:state():on_criminal_neutralized(self._unit)
 	managers.groupai:state():report_criminal_downed(self._unit)
 	managers.hud:pd_hide_text()
@@ -44,7 +43,6 @@ function PlayerArrested:_enter(enter_data)
 	if Network:is_server() and self._ext_movement:nav_tracker() then
 		managers.groupai:state():on_player_weapons_hot()
 	end
-
 end
 
 function PlayerArrested:exit(state_data, new_state_name)
@@ -61,7 +59,6 @@ function PlayerArrested:exit(state_data, new_state_name)
 		managers.enemy:remove_delayed_clbk(self._entry_speech_clbk)
 		self._entry_speech_clbk = nil
 	end
-
 	managers.network:session():send_to_peers_synched("sync_contour_state", self._unit, -1, table.index_of(ContourExt.indexed_types, "teammate_cuffed"), false, 1)
 	if not self._unequip_weapon_expire_t and not self._timer_finished then
 		local exit_data = {
@@ -69,7 +66,6 @@ function PlayerArrested:exit(state_data, new_state_name)
 		}
 		return exit_data
 	end
-
 end
 
 function PlayerArrested:interaction_blocked()
@@ -87,7 +83,6 @@ function PlayerArrested:_update_check_actions(t, dt)
 	elseif input.btn_stats_screen_release then
 		self._unit:base():set_stats_screen_visible(false)
 	end
-
 	self:_update_foley(t, input)
 	if self._unit:character_damage()._arrested_timer <= 0 and not self._timer_finished then
 		self._timer_finished = true
@@ -96,16 +91,13 @@ function PlayerArrested:_update_check_actions(t, dt)
 		self._unit:camera():play_redirect(self._ids_escape)
 		PlayerStandard.say_line(self, "s21x_sin")
 	end
-
 	if self._equip_weapon_expire_t and t >= self._equip_weapon_expire_t then
 		self._equip_weapon_expire_t = nil
 	end
-
 	if self._unequip_weapon_expire_t and t >= self._unequip_weapon_expire_t + 0.5 then
 		self._unequip_weapon_expire_t = nil
 		self._unit:camera():play_redirect(self._ids_cuffed)
 	end
-
 	self:_update_foley(t, input)
 	local new_action = self:_check_action_interact(t, input)
 end
@@ -122,11 +114,8 @@ function PlayerArrested:_check_action_interact(t, input)
 			else
 				new_action = self:_start_action_distance_interact(t)
 			end
-
 		end
-
 	end
-
 	return new_action
 end
 
@@ -135,7 +124,6 @@ function PlayerArrested:_start_action_distance_interact(t)
 		self._intimidate_t = t
 		self:call_teammate("f13", t, true, true)
 	end
-
 end
 
 function PlayerArrested:call_teammate(line, t, no_gesture, skip_alert, skip_mark_cop)
@@ -154,20 +142,15 @@ function PlayerArrested:call_teammate(line, t, no_gesture, skip_alert, skip_mark
 			if managers.player:has_category_upgrade("player", "special_enemy_highlight") then
 				prime_target.unit:contour():add(managers.player:has_category_upgrade("player", "marked_enemy_extra_damage") and "mark_enemy_damage_bonus" or "mark_enemy", true, managers.player:upgrade_value("player", "mark_enemy_time_multiplier", 1))
 			end
-
 		end
-
 	end
-
 	if interact_type then
 		if not no_gesture then
 		else
 		end
-
 		self:_do_action_intimidate(t, interact_type or nil, queue_name, skip_alert)
 		return true
 	end
-
 end
 
 function PlayerArrested:_update_movement(t, dt)
@@ -187,7 +170,6 @@ function PlayerArrested:_end_action_handcuffed(t)
 	if not self:_can_stand() then
 		return
 	end
-
 	self._state_data.ducking = false
 	self:_stance_entered()
 	self:_update_crosshair_offset()
@@ -207,7 +189,6 @@ function PlayerArrested:pre_destroy(unit)
 		managers.enemy:remove_delayed_clbk(self._entry_speech_clbk)
 		self._entry_speech_clbk = nil
 	end
-
 end
 
 function PlayerArrested:destroy()

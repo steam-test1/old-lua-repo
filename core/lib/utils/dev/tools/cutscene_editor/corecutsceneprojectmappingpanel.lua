@@ -22,7 +22,6 @@ function CoreCutsceneProjectMappingPanel:mappings()
 		local output = list_ctrl:get_item(row, 1)
 		mappings[project] = output
 	end
-
 	return mappings
 end
 
@@ -30,15 +29,11 @@ function CoreCutsceneProjectMappingPanel:set_mappings(mappings, project_sort_fun
 	self:freeze()
 	self:clear()
 	if mappings then
-		local (for generator), (for state), (for control) = ipairs(table.map_keys(mappings, project_sort_func))
-		do
-			do break end
+		for _, project in ipairs(table.map_keys(mappings, project_sort_func)) do
 			local output = mappings[project]
 			self:add_item(project, output)
 		end
-
 	end
-
 	self.__list_ctrl:autosize_column(0)
 	self.__list_ctrl:autosize_column(1)
 	self:thaw()
@@ -57,7 +52,6 @@ function CoreCutsceneProjectMappingPanel:_sizer_with_editable_fields(parent)
 	if project_enabled then
 		project_dropdown:set_focus()
 	end
-
 	return sizer
 end
 
@@ -66,20 +60,13 @@ function CoreCutsceneProjectMappingPanel:_create_project_dropdown(parent)
 	local control = EWS:ComboBox(parent, "", "", "CB_DROPDOWN,CB_READONLY,CB_SORT")
 	control:freeze()
 	local first_value
-	do
-		local (for generator), (for state), (for control) = pairs(self:projects())
-		do
-			do break end
-			first_value = first_value or project
-			control:append(project)
-		end
-
+	for _, project in pairs(self:projects()) do
+		first_value = first_value or project
+		control:append(project)
 	end
-
 	if value then
 		control:set_value(value)
 	end
-
 	control:set_min_size(control:get_min_size():with_x(0))
 	control:connect("EVT_COMMAND_COMBOBOX_SELECTED", self:_make_control_edited_callback(control, "Project"))
 	control:thaw()

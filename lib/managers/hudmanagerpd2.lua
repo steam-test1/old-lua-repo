@@ -30,19 +30,15 @@ function HUDManager:controller_mod_changed()
 			BTN_USE_ITEM = managers.localization:btn_macro("use_item")
 		})))
 	end
-
 	if self._hud_temp then
 		self._hud_temp:set_throw_bag_text()
 	end
-
 	if self._hud_player_downed then
 		self._hud_player_downed:set_arrest_finished_text()
 	end
-
 	if alive(managers.interaction:active_object()) then
 		managers.interaction:active_object():interaction():selected()
 	end
-
 end
 
 function HUDManager:make_fine_text(text)
@@ -82,18 +78,15 @@ function HUDManager:add_weapon(data)
 	if data.is_equip then
 		self:set_weapon_selected_by_inventory_index(data.inventory_index)
 	end
-
 	if not data.is_equip and (data.inventory_index == 1 or data.inventory_index == 2) then
 		self:_update_second_weapon_ammo_info(HUDManager.PLAYER_PANEL, data.unit)
 	end
-
 end
 
 function HUDManager:_set_weapon(data)
 	if data.inventory_index > 2 then
 		return
 	end
-
 end
 
 function HUDManager:set_weapon_selected_by_inventory_index(inventory_index)
@@ -114,7 +107,6 @@ function HUDManager:recreate_weapon_firemode(i)
 	if self._teammate_panels[i] then
 		self._teammate_panels[i]:recreate_weapon_firemode()
 	end
-
 end
 
 function HUDManager:set_teammate_weapon_firemode(i, id, firemode)
@@ -127,7 +119,6 @@ function HUDManager:set_ammo_amount(selection_index, max_clip, current_clip, cur
 		Application:stack_dump()
 		debug_pause("WRONG SELECTION INDEX!")
 	end
-
 	managers.player:update_synced_ammo_info_to_peers(selection_index, max_clip, current_clip, current_left, max)
 	self:set_teammate_ammo_amount(HUDManager.PLAYER_PANEL, selection_index, max_clip, current_clip, current_left, max)
 	local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_PD2)
@@ -139,7 +130,6 @@ function HUDManager:set_ammo_amount(selection_index, max_clip, current_clip, cur
 		panel:stop()
 		panel:animate(callback(self, self, "_animate_ammo_test"))
 	end
-
 end
 
 function HUDManager:set_teammate_ammo_amount(id, selection_index, max_clip, current_clip, current_left, max)
@@ -152,7 +142,6 @@ function HUDManager:set_weapon_ammo_by_unit(unit)
 	if second_weapon_index == unit:base():weapon_tweak_data().use_data.selection_index then
 		self:_update_second_weapon_ammo_info(HUDManager.PLAYER_PANEL, unit)
 	end
-
 end
 
 function HUDManager:_update_second_weapon_ammo_info(i, unit)
@@ -170,7 +159,6 @@ function HUDManager:set_player_armor(data)
 	if data.current == 0 and not data.no_hint then
 		managers.hint:show_hint("damage_pad")
 	end
-
 	self:set_teammate_armor(HUDManager.PLAYER_PANEL, data)
 end
 
@@ -208,7 +196,6 @@ function HUDManager:add_teammate_special_equipment(i, data)
 		Application:stack_dump()
 		return
 	end
-
 	self._teammate_panels[i]:add_special_equipment(data)
 end
 
@@ -266,7 +253,6 @@ function HUDManager:set_teammate_condition(i, icon_data, text)
 		Application:stack_dump()
 		return
 	end
-
 	self._teammate_panels[i]:set_condition(icon_data, text)
 end
 
@@ -274,7 +260,6 @@ function HUDManager:set_teammate_carry_info(i, carry_id, value)
 	if i == HUDManager.PLAYER_PANEL then
 		return
 	end
-
 	self._teammate_panels[i]:set_carry_info(carry_id, value)
 end
 
@@ -282,7 +267,6 @@ function HUDManager:remove_teammate_carry_info(i)
 	if i == HUDManager.PLAYER_PANEL then
 		return
 	end
-
 	self._teammate_panels[i]:remove_carry_info()
 end
 
@@ -307,7 +291,6 @@ function HUDManager:_setup_player_info_hud_pd2()
 	if not self:alive(PlayerBase.PLAYER_INFO_HUD_PD2) then
 		return
 	end
-
 	local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_PD2)
 	self:_create_teammates_panel(hud)
 	self:_create_present_panel(hud)
@@ -331,7 +314,6 @@ function HUDManager:_create_ammo_test()
 	if hud.panel:child("ammo_test") then
 		hud.panel:remove(hud.panel:child("ammo_test"))
 	end
-
 	local panel = hud.panel:panel({
 		name = "ammo_test",
 		w = 100,
@@ -357,7 +339,6 @@ function HUDManager:_create_hud_chat()
 	if self._hud_chat_ingame then
 		self._hud_chat_ingame:remove()
 	end
-
 	self._hud_chat_ingame = HUDChat:new(self._saferect, hud)
 	self._hud_chat = self._hud_chat_ingame
 	self:_create_hud_chat_access()
@@ -368,7 +349,6 @@ function HUDManager:_create_hud_chat_access()
 	if self._hud_chat_access then
 		self._hud_chat_access:remove()
 	end
-
 	self._hud_chat_access = HUDChat:new(self._saferect, hud)
 end
 
@@ -384,23 +364,16 @@ function HUDManager:mark_cheater(peer_id)
 	if name_label then
 		name_label.panel:child("cheater"):set_visible(true)
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._hud.teammate_panels_data)
-	do
-		do break end
+	for i, data in ipairs(self._hud.teammate_panels_data) do
 		if self._teammate_panels[i]:peer_id() == peer_id then
 			self._teammate_panels[i]:set_cheater(true)
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function HUDManager:add_teammate_panel(character_name, player_name, ai, peer_id)
-	local (for generator), (for state), (for control) = ipairs(self._hud.teammate_panels_data)
-	do
-		do break end
+	for i, data in ipairs(self._hud.teammate_panels_data) do
 		if not data.taken then
 			self._teammate_panels[i]:add_panel()
 			self._teammate_panels[i]:set_peer_id(peer_id)
@@ -410,19 +383,13 @@ function HUDManager:add_teammate_panel(character_name, player_name, ai, peer_id)
 			self:set_teammate_state(i, ai and "ai" or "player")
 			if peer_id then
 				local peer_equipment = managers.player:get_synced_equipment_possession(peer_id) or {}
-				do
-					local (for generator), (for state), (for control) = pairs(peer_equipment)
-					do
-						do break end
-						self:add_teammate_special_equipment(i, {
-							id = equipment,
-							icon = tweak_data.equipments.specials[equipment].icon,
-							amount = amount
-						})
-					end
-
+				for equipment, amount in pairs(peer_equipment) do
+					self:add_teammate_special_equipment(i, {
+						id = equipment,
+						icon = tweak_data.equipments.specials[equipment].icon,
+						amount = amount
+					})
 				end
-
 				local peer_deployable_equipment = managers.player:get_synced_deployable_equipment(peer_id)
 				if peer_deployable_equipment then
 					local icon = tweak_data.equipments[peer_deployable_equipment.deployable].icon
@@ -431,7 +398,6 @@ function HUDManager:add_teammate_panel(character_name, player_name, ai, peer_id)
 						amount = peer_deployable_equipment.amount
 					})
 				end
-
 				local peer_cable_ties = managers.player:get_synced_cable_ties(peer_id)
 				if peer_cable_ties then
 					local icon = tweak_data.equipments.specials.cable_tie.icon
@@ -440,7 +406,6 @@ function HUDManager:add_teammate_panel(character_name, player_name, ai, peer_id)
 						amount = peer_cable_ties.amount
 					})
 				end
-
 				local peer_grenades = managers.player:get_synced_grenades(peer_id)
 				if peer_grenades then
 					local icon = tweak_data.blackmarket.grenades[peer_grenades.grenade].icon
@@ -449,9 +414,7 @@ function HUDManager:add_teammate_panel(character_name, player_name, ai, peer_id)
 						amount = Application:digest_value(peer_grenades.amount, false)
 					})
 				end
-
 			end
-
 			local unit = managers.criminals:character_unit_by_name(character_name)
 			if alive(unit) then
 				local weapon = unit:inventory():equipped_unit()
@@ -460,30 +423,21 @@ function HUDManager:add_teammate_panel(character_name, player_name, ai, peer_id)
 					local equipped_selection = unit:inventory():equipped_selection()
 					self:_set_teammate_weapon_selected(i, equipped_selection, icon)
 				end
-
 			end
-
 			local peer_ammo_info = managers.player:get_synced_ammo_info(peer_id)
 			if peer_ammo_info then
-				local (for generator), (for state), (for control) = pairs(peer_ammo_info)
-				do
-					do break end
+				for selection_index, ammo_info in pairs(peer_ammo_info) do
 					self:set_teammate_ammo_amount(i, selection_index, unpack(ammo_info))
 				end
-
 			end
-
 			local peer_carry_data = managers.player:get_synced_carry(peer_id)
 			if peer_carry_data then
 				self:set_teammate_carry_info(i, peer_carry_data.carry_id, managers.loot:get_real_value(peer_carry_data.carry_id, peer_carry_data.multiplier))
 			end
-
 			data.taken = true
 			return i
 		end
-
 	end
-
 end
 
 function HUDManager:remove_teammate_panel(id)
@@ -504,9 +458,7 @@ function HUDManager:remove_teammate_panel(id)
 			local panel_id = self:add_teammate_panel(character_name, managers.network:session():peer(peer_id):name(), false, peer_id)
 			managers.criminals:character_data_by_name(character_name).panel_id = panel_id
 		end
-
 	end
-
 	managers.hud._teammate_panels[HUDManager.PLAYER_PANEL]:add_panel()
 	managers.hud._teammate_panels[HUDManager.PLAYER_PANEL]:set_state("player")
 end
@@ -522,7 +474,6 @@ function HUDManager:_create_teammates_panel(hud)
 	if hud.panel:child("teammates_panel") then
 		hud.panel:remove(hud.panel:child("teammates_panel"))
 	end
-
 	local h = self:teampanels_height()
 	local teammates_panel = hud.panel:panel({
 		name = "teammates_panel",
@@ -550,9 +501,7 @@ function HUDManager:_create_teammates_panel(hud)
 		if is_player then
 			teammate:add_panel()
 		end
-
 	end
-
 end
 
 function HUDManager:_create_present_panel(hud)
@@ -564,7 +513,6 @@ function HUDManager:present(params)
 	if self._hud_presenter then
 		self._hud_presenter:present(params)
 	end
-
 end
 
 function HUDManager:present_done()
@@ -583,7 +531,6 @@ function HUDManager:remove_interact()
 	if not self._hud_interaction then
 		return
 	end
-
 	self._hud_interaction:remove_interact()
 end
 
@@ -637,7 +584,6 @@ function HUDManager:sync_start_assault(data)
 	if not managers.groupai:state():get_hunt_mode() then
 		managers.dialog:queue_dialog("gen_ban_b02c", {})
 	end
-
 	self._hud_assault_corner:sync_start_assault(data)
 end
 
@@ -651,7 +597,6 @@ function HUDManager:sync_end_assault(result)
 	if result then
 		managers.dialog:queue_dialog(result_diag[result + 1], {})
 	end
-
 	self._hud_assault_corner:sync_end_assault(result)
 end
 
@@ -672,7 +617,6 @@ function HUDManager:_setup_stats_screen()
 	if not self:alive(self.STATS_SCREEN_FULLSCREEN) then
 		return
 	end
-
 	self._hud_statsscreen = HUDStatsScreen:new()
 end
 
@@ -683,7 +627,6 @@ function HUDManager:show_stats_screen()
 		self:load_hud(full, false, true, false, {})
 		self:load_hud(safe, false, true, true, {})
 	end
-
 	self._hud_statsscreen:show()
 	self._showing_stats_screen = true
 end
@@ -693,7 +636,6 @@ function HUDManager:hide_stats_screen()
 	if self._hud_statsscreen then
 		self._hud_statsscreen:hide()
 	end
-
 end
 
 function HUDManager:showing_stats_screen()
@@ -704,14 +646,12 @@ function HUDManager:loot_value_updated()
 	if self._hud_statsscreen then
 		self._hud_statsscreen:loot_value_updated()
 	end
-
 end
 
 function HUDManager:on_ext_inventory_changed()
 	if self._hud_statsscreen then
 		self._hud_statsscreen:on_ext_inventory_changed()
 	end
-
 end
 
 function HUDManager:feed_point_of_no_return_timer(time, is_inside)
@@ -730,7 +670,6 @@ function HUDManager:flash_point_of_no_return_timer(beep)
 	if beep then
 		self._sound_source:post_event("last_10_seconds_beep")
 	end
-
 	self._hud_assault_corner:flash_point_of_no_return_timer(beep)
 end
 
@@ -769,7 +708,6 @@ function HUDManager:show_hint(params)
 	if params.event then
 		self._sound_source:post_event(params.event)
 	end
-
 end
 
 function HUDManager:stop_hint()
@@ -819,11 +757,9 @@ function HUDManager:set_suspicion(status)
 		else
 			self._hud_suspicion:back_to_stealth()
 		end
-
 	else
 		self._hud_suspicion:feed_value(status)
 	end
-
 end
 
 function HUDManager:_create_hit_confirm(hud)
@@ -835,7 +771,6 @@ function HUDManager:on_hit_confirmed()
 	if not managers.user:get_setting("hit_indicator") then
 		return
 	end
-
 	self._hud_hit_confirm:on_hit_confirmed()
 end
 
@@ -843,7 +778,6 @@ function HUDManager:on_headshot_confirmed()
 	if not managers.user:get_setting("hit_indicator") then
 		return
 	end
-
 	self._hud_hit_confirm:on_headshot_confirmed()
 end
 
@@ -851,7 +785,6 @@ function HUDManager:on_crit_confirmed()
 	if not managers.user:get_setting("hit_indicator") then
 		return
 	end
-
 	self._hud_hit_confirm:on_crit_confirmed()
 end
 
@@ -938,7 +871,6 @@ function HUDManager:align_teammate_name_label(panel, interact)
 		infamy:set_top(text:top())
 		text:set_x(double_radius + 4 + infamy:w())
 	end
-
 	panel:set_w(panel:w() + bag:w() + 4)
 	bag:set_right(panel:w())
 end
@@ -959,9 +891,7 @@ function HUDManager:_add_name_label(data)
 			local experience = (rank > 0 and managers.experience:rank_string(rank) .. "-" or "") .. level
 			data.name = data.name .. " (" .. experience .. ")"
 		end
-
 	end
-
 	local panel = hud.panel:panel({
 		name = "name_label" .. id
 	})
@@ -1042,7 +972,6 @@ function HUDManager:_add_name_label(data)
 			color = crim_color
 		})
 	end
-
 	self:align_teammate_name_label(panel, interact)
 	table.insert(self._hud.name_labels, {
 		movement = data.unit:movement(),
@@ -1062,18 +991,13 @@ function HUDManager:_remove_name_label(id)
 	if not hud then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._hud.name_labels)
-	do
-		do break end
+	for i, data in ipairs(self._hud.name_labels) do
 		if data.id == id then
 			hud.panel:remove(data.panel)
 			table.remove(self._hud.name_labels, i)
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function HUDManager:_name_label_by_peer_id(peer_id)
@@ -1081,16 +1005,11 @@ function HUDManager:_name_label_by_peer_id(peer_id)
 	if not hud then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._hud.name_labels)
-	do
-		do break end
+	for i, data in ipairs(self._hud.name_labels) do
 		if data.peer_id == peer_id then
 			return data
 		end
-
 	end
-
 end
 
 function HUDManager:set_name_label_carry_info(peer_id, carry_id, value)
@@ -1098,7 +1017,6 @@ function HUDManager:set_name_label_carry_info(peer_id, carry_id, value)
 	if name_label then
 		name_label.panel:child("bag"):set_visible(true)
 	end
-
 end
 
 function HUDManager:remove_name_label_carry_info(peer_id)
@@ -1106,7 +1024,6 @@ function HUDManager:remove_name_label_carry_info(peer_id)
 	if name_label then
 		name_label.panel:child("bag"):set_visible(false)
 	end
-
 end
 
 function HUDManager:teammate_progress(peer_id, type_index, enabled, tweak_data_id, timer, success)
@@ -1122,11 +1039,9 @@ function HUDManager:teammate_progress(peer_id, type_index, enabled, tweak_data_i
 				local equipment_name = managers.localization:text(tweak_data.equipments[tweak_data_id].text_id)
 				action_text = managers.localization:text("hud_deploying_equipment", {EQUIPMENT = equipment_name})
 			end
-
 		elseif type_index == 3 then
 			action_text = managers.localization:text("hud_starting_heist")
 		end
-
 		name_label.panel:child("action"):set_text(utf8.to_upper(action_text))
 		name_label.panel:stop()
 		if enabled then
@@ -1154,14 +1069,11 @@ function HUDManager:teammate_progress(peer_id, type_index, enabled, tweak_data_i
 			circle:set_position(name_label.interact:position())
 			bitmap:animate(callback(HUDInteraction, HUDInteraction, "_animate_interaction_complete"), circle)
 		end
-
 	end
-
 	local character_data = managers.criminals:character_data_by_peer_id(peer_id)
 	if character_data then
 		self._teammate_panels[character_data.panel_id]:teammate_progress(enabled, tweak_data_id, timer, success)
 	end
-
 end
 
 function HUDManager:_animate_label_interact(panel, interact, timer)
@@ -1171,7 +1083,6 @@ function HUDManager:_animate_label_interact(panel, interact, timer)
 		t = t + dt
 		interact:set_current(t / timer)
 	end
-
 	interact:set_current(1)
 end
 
@@ -1187,18 +1098,15 @@ function HUDManager:set_chat_skip_first(skip_first)
 	if self._hud_chat then
 		self._hud_chat:set_skip_first(skip_first)
 	end
-
 end
 
 function HUDManager:set_chat_focus(focus)
 	if not self:alive(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN_PD2) then
 		return
 	end
-
 	if self._chat_focus == focus then
 		return
 	end
-
 	setup:add_end_frame_callback(function()
 		self._chat_focus = focus
 	end
@@ -1209,7 +1117,6 @@ function HUDManager:set_chat_focus(focus)
 	else
 		self._hud_chat:_loose_focus()
 	end
-
 end
 
 function HUDManager:setup_access_camera_hud()
@@ -1280,14 +1187,12 @@ function HUDManager:hide_mission_briefing_hud()
 	if self._hud_mission_briefing then
 		self._hud_mission_briefing:hide()
 	end
-
 end
 
 function HUDManager:layout_mission_briefing_hud()
 	if self._hud_mission_briefing then
 		self._hud_mission_briefing:update_layout()
 	end
-
 end
 
 function HUDManager:get_mission_briefing_hud()
@@ -1343,70 +1248,60 @@ function HUDManager:hide_endscreen_hud()
 	if self._hud_stage_endscreen then
 		self._hud_stage_endscreen:hide()
 	end
-
 end
 
 function HUDManager:show_endscreen_hud()
 	if self._hud_stage_endscreen then
 		self._hud_stage_endscreen:show()
 	end
-
 end
 
 function HUDManager:layout_endscreen_hud()
 	if self._hud_stage_endscreen then
 		self._hud_stage_endscreen:update_layout()
 	end
-
 end
 
 function HUDManager:set_continue_button_text_endscreen_hud(text)
 	if self._hud_stage_endscreen then
 		self._hud_stage_endscreen:set_continue_button_text(text)
 	end
-
 end
 
 function HUDManager:set_success_endscreen_hud(success, server_left)
 	if self._hud_stage_endscreen then
 		self._hud_stage_endscreen:set_success(success, server_left)
 	end
-
 end
 
 function HUDManager:set_statistics_endscreen_hud(criminals_completed, success)
 	if self._hud_stage_endscreen then
 		self._hud_stage_endscreen:set_statistics(criminals_completed, success)
 	end
-
 end
 
 function HUDManager:set_special_packages_endscreen_hud(params)
 	if self._hud_stage_endscreen then
 		self._hud_stage_endscreen:set_special_packages(params)
 	end
-
 end
 
 function HUDManager:set_group_statistics_endscreen_hud(best_kills, best_kills_score, best_special_kills, best_special_kills_score, best_accuracy, best_accuracy_score, most_downs, most_downs_score, total_kills, total_specials_kills, total_head_shots, group_accuracy, group_downs)
 	if self._hud_stage_endscreen then
 		self._hud_stage_endscreen:set_group_statistics(best_kills, best_kills_score, best_special_kills, best_special_kills_score, best_accuracy, best_accuracy_score, most_downs, most_downs_score, total_kills, total_specials_kills, total_head_shots, group_accuracy, group_downs)
 	end
-
 end
 
 function HUDManager:send_xp_data_endscreen_hud(data, done_clbk)
 	if self._hud_stage_endscreen then
 		self._hud_stage_endscreen:send_xp_data(data, done_clbk)
 	end
-
 end
 
 function HUDManager:update_endscreen_hud(t, dt)
 	if self._hud_stage_endscreen then
 		self._hud_stage_endscreen:update(t, dt)
 	end
-
 end
 
 function HUDManager:setup_lootscreen_hud()
@@ -1421,14 +1316,12 @@ function HUDManager:hide_lootscreen_hud()
 	if self._hud_lootscreen then
 		self._hud_lootscreen:hide()
 	end
-
 end
 
 function HUDManager:show_lootscreen_hud()
 	if self._hud_lootscreen then
 		self._hud_lootscreen:show()
 	end
-
 end
 
 function HUDManager:feed_lootdrop_hud(lootdrop_data)
@@ -1438,7 +1331,6 @@ function HUDManager:feed_lootdrop_hud(lootdrop_data)
 		self._saved_lootdrop = self._saved_lootdrop or {}
 		table.insert(self._saved_lootdrop, lootdrop_data)
 	end
-
 end
 
 function HUDManager:set_selected_lootcard(peer_id, selected)
@@ -1448,7 +1340,6 @@ function HUDManager:set_selected_lootcard(peer_id, selected)
 		self._saved_selected = self._saved_selected or {}
 		self._saved_selected[peer_id] = selected
 	end
-
 end
 
 function HUDManager:confirm_choose_lootcard(peer_id, card_id)
@@ -1458,7 +1349,6 @@ function HUDManager:confirm_choose_lootcard(peer_id, card_id)
 		self._saved_card_chosen = self._saved_card_chosen or {}
 		self._saved_card_chosen[peer_id] = card_id
 	end
-
 end
 
 function HUDManager:get_lootscreen_hud()
@@ -1469,7 +1359,6 @@ function HUDManager:layout_lootscreen_hud()
 	if self._hud_lootscreen then
 		self._hud_lootscreen:update_layout()
 	end
-
 end
 
 function HUDManager:_create_test_circle()
@@ -1477,7 +1366,6 @@ function HUDManager:_create_test_circle()
 		self._test_circle:remove()
 		self._test_circle = nil
 	end
-
 	self._test_circle = CircleGuiObject:new(managers.hud:script(PlayerBase.PLAYER_INFO_HUD_PD2).panel, {
 		radius = 10,
 		sides = 64,

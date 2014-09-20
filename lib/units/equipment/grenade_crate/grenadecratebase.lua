@@ -39,9 +39,7 @@ function GrenadeCrateBase:setup()
 			self._attached_data.max_index = 3
 			self._unit:set_extension_update_enabled(Idstring("base"), true)
 		end
-
 	end
-
 end
 
 function GrenadeCrateBase:update(unit, t, dt)
@@ -52,26 +50,21 @@ function GrenadeCrateBase:_check_body()
 	if self._is_dynamic then
 		return
 	end
-
 	if not alive(self._attached_data.body) then
 		self:server_set_dynamic()
 		return
 	end
-
 	if self._attached_data.index == 1 then
 		if not self._attached_data.body:enabled() then
 			self:server_set_dynamic()
 		end
-
 	elseif self._attached_data.index == 2 then
 		if not mrotation.equal(self._attached_data.rotation, self._attached_data.body:rotation()) then
 			self:server_set_dynamic()
 		end
-
 	elseif self._attached_data.index == 3 and mvector3.not_equal(self._attached_data.position, self._attached_data.body:position()) then
 		self:server_set_dynamic()
 	end
-
 	self._attached_data.index = (self._attached_data.index < self._attached_data.max_index and self._attached_data.index or 0) + 1
 end
 
@@ -80,7 +73,6 @@ function GrenadeCrateBase:server_set_dynamic()
 	if managers.network:session() then
 		managers.network:session():send_to_peers_synched("sync_unit_event_id_16", self._unit, "base", 2)
 	end
-
 end
 
 function GrenadeCrateBase:sync_net_event(event_id, peer)
@@ -88,12 +80,10 @@ function GrenadeCrateBase:sync_net_event(event_id, peer)
 		if peer then
 			managers.player:register_grenade(peer:id())
 		end
-
 		self:sync_grenade_taken(1)
 	elseif event_id == 2 then
 		self:_set_dynamic()
 	end
-
 end
 
 function GrenadeCrateBase:_set_dynamic()
@@ -105,7 +95,6 @@ function GrenadeCrateBase:take_grenade(unit)
 	if self._empty then
 		return
 	end
-
 	local can_take_grenade = self:_can_take_grenade() and 1 or 0
 	if can_take_grenade == 1 then
 		unit:sound():play("pickup_ammo")
@@ -115,11 +104,9 @@ function GrenadeCrateBase:take_grenade(unit)
 		self._grenade_amount = self._grenade_amount - 1
 		print("Took " .. 1 .. " grenades, " .. self._grenade_amount .. " left")
 	end
-
 	if 0 >= self._grenade_amount then
 		self:_set_empty()
 	end
-
 	self:_set_visual_stage()
 	return can_take_grenade
 end
@@ -130,9 +117,7 @@ function GrenadeCrateBase:_set_visual_stage()
 		if self._unit:damage():has_sequence(state) then
 			self._unit:damage():run_sequence_simple(state)
 		end
-
 	end
-
 end
 
 function GrenadeCrateBase:sync_grenade_taken(amount)
@@ -140,7 +125,6 @@ function GrenadeCrateBase:sync_grenade_taken(amount)
 	if self._grenade_amount <= 0 then
 		self:_set_empty()
 	end
-
 	self:_set_visual_stage()
 end
 
@@ -148,7 +132,6 @@ function GrenadeCrateBase:_can_take_grenade(unit)
 	if self._empty or self._grenade_amount < 1 or managers.player:got_max_grenades() then
 		return false
 	end
-
 	return true
 end
 
@@ -157,7 +140,6 @@ function GrenadeCrateBase:_set_empty()
 	if alive(self._unit) then
 		self._unit:interaction():set_active(false)
 	end
-
 end
 
 function GrenadeCrateBase:save(data)
@@ -173,11 +155,9 @@ function GrenadeCrateBase:load(data)
 	if state.is_dynamic then
 		self:_set_dynamic()
 	end
-
 	if self._grenade_amount <= 0 then
 		self:_set_empty()
 	end
-
 	self:_set_visual_stage()
 end
 
@@ -190,7 +170,6 @@ function GrenadeCrateSync:init(unit)
 		self._validate_clbk_id = "grenade_crate_validate" .. tostring(unit:key())
 		managers.enemy:add_delayed_clbk(self._validate_clbk_id, callback(self, self, "_clbk_validate"), Application:time() + 60)
 	end
-
 end
 
 function GrenadeCrateSync:sync_net_event(event_id)
@@ -198,7 +177,6 @@ function GrenadeCrateSync:sync_net_event(event_id)
 		managers.enemy:remove_delayed_clbk(self._validate_clbk_id)
 		self._validate_clbk_id = nil
 	end
-
 	managers.player:verify_equipment(0, "grenade_crate")
 end
 
@@ -211,7 +189,6 @@ function GrenadeCrateSync:destroy()
 		managers.enemy:remove_delayed_clbk(self._validate_clbk_id)
 		self._validate_clbk_id = nil
 	end
-
 end
 
 function GrenadeCrateSync:_clbk_validate()
@@ -223,6 +200,5 @@ function GrenadeCrateSync:_clbk_validate()
 		}))
 		peer:mark_cheater()
 	end
-
 end
 

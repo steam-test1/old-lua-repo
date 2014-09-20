@@ -12,7 +12,6 @@ function FreeFlightModifier:step_up()
 	if self._callback then
 		self._callback(self:value())
 	end
-
 end
 
 function FreeFlightModifier:step_down()
@@ -20,7 +19,6 @@ function FreeFlightModifier:step_down()
 	if self._callback then
 		self._callback(self:value())
 	end
-
 end
 
 function FreeFlightModifier:name_value()

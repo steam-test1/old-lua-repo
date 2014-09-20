@@ -7,7 +7,6 @@ function ElementFeedback:init(...)
 	if Application:editor() and self._values.above_camera_effect ~= "none" then
 		CoreEngineAccess._editor_load(self.IDS_EFFECT, self._values.above_camera_effect:id())
 	end
-
 end
 
 function ElementFeedback:client_on_executed(...)
@@ -18,7 +17,6 @@ function ElementFeedback:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	local player = managers.player:player_unit()
 	if player then
 		self._feedback:set_unit(player)
@@ -44,7 +42,6 @@ function ElementFeedback:on_executed(instigator)
 		table.insert(params, self._values.above_camera_effect)
 		self._feedback:play(unpack(params))
 	end
-
 	ElementFeedback.super.on_executed(self, instigator)
 end
 
@@ -52,20 +49,17 @@ function ElementFeedback:_check_value(params, cat, setting, value)
 	if not value then
 		return
 	end
-
 	if type_name(value) == "string" or value >= 0 then
 		table.insert(params, cat)
 		table.insert(params, setting)
 		table.insert(params, value)
 	end
-
 end
 
 function ElementFeedback:_calc_multiplier(player)
 	if self._values.range == 0 then
 		return 1
 	end
-
 	local pos, _ = self:get_orientation(true)
 	local distance = pos - player:position():length()
 	local mul = math.clamp(1 - distance / self._values.range, 0, 1)

@@ -13,9 +13,7 @@ function ElementSpawnUnit:client_on_executed(...)
 		if network_sync ~= "none" and network_sync ~= "client" then
 			return
 		end
-
 	end
-
 	self:on_executed(...)
 end
 
@@ -23,18 +21,15 @@ function ElementSpawnUnit:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	if self._values.unit_name ~= "none" then
 		local unit = CoreUnit.safe_spawn_unit(self._values.unit_name, self._values.position, self._values.rotation)
 		if self._values.unit_spawn_mass then
 			unit:push(self._values.unit_spawn_mass, self._values.unit_spawn_dir * self._values.unit_spawn_velocity)
 		end
-
 		table.insert(self._units, unit)
 	elseif Application:editor() then
 		managers.editor:output_error("Cant spawn unit \"none\" [" .. self._editor_name .. "]")
 	end
-
 	ElementSpawnUnit.super.on_executed(self, instigator)
 end
 
@@ -43,15 +38,9 @@ function ElementSpawnUnit:units()
 end
 
 function ElementSpawnUnit:delete_units()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._units)
-		do
-			do break end
-			unit:set_slot(0)
-		end
-
+	for _, unit in ipairs(self._units) do
+		unit:set_slot(0)
 	end
-
 	self._units = {}
 end
 

@@ -51,10 +51,8 @@ function WorldCameraLayer:set_gui_visible(visible, external_forced)
 		else
 			self._workspace:hide()
 		end
-
 		self._gui_visible = visible
 	end
-
 end
 
 function WorldCameraLayer:update(t, dt)
@@ -63,9 +61,7 @@ function WorldCameraLayer:update(t, dt)
 		if self._current_point then
 			Application:draw_sphere(self._current_point.pos, 40, 0, 1, 0)
 		end
-
 	end
-
 	if self._current_world_camera then
 		local fov = self._current_world_camera:value_at_time(self._current_time, "fov")
 		local roll = self._current_world_camera:value_at_time(self._current_time, "roll")
@@ -80,17 +76,14 @@ function WorldCameraLayer:update(t, dt)
 				local rot = Rotation:look_at(pos, t_pos, rot1:z())
 				managers.editor:set_camera(pos, rot)
 			end
-
 			managers.editor:set_camera_fov(fov)
 			managers.worldcamera:update_dof_values(near_dof, far_dof, dof_padding, dof_clamp)
 		end
-
 		self._current_fov_text:set_value(string.format("%.0f", fov))
 		self._current_roll_text:set_value(string.format("%.0f", roll))
 		self._current_near_dof_text:set_value(string.format("%.0f", near_dof))
 		self._current_far_dof_text:set_value(string.format("%.0f", far_dof))
 	end
-
 end
 
 function WorldCameraLayer:build_panel(notebook)
@@ -124,38 +117,26 @@ function WorldCameraLayer:build_panel(notebook)
 	local in_out_sizer = EWS:BoxSizer("HORIZONTAL")
 	local in_sizer = EWS:StaticBoxSizer(self._ews_panel, "VERTICAL", "In")
 	self._in_acc = EWS:ComboBox(self._ews_panel, "", "", "CB_DROPDOWN,CB_READONLY")
-	do
-		local (for generator), (for state), (for control) = ipairs({
-			"ease",
-			"linear",
-			"fast"
-		})
-		do
-			do break end
-			self._in_acc:append(name)
-		end
-
+	for _, name in ipairs({
+		"ease",
+		"linear",
+		"fast"
+	}) do
+		self._in_acc:append(name)
 	end
-
 	self._in_acc:set_value("linear")
 	self._in_acc:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "change_acc"), "in")
 	in_sizer:add(self._in_acc, 1, 0, "EXPAND")
 	in_out_sizer:add(in_sizer, 1, 0, "EXPAND")
 	local out_sizer = EWS:StaticBoxSizer(self._ews_panel, "VERTICAL", "Out")
 	self._out_acc = EWS:ComboBox(self._ews_panel, "", "", "CB_DROPDOWN,CB_READONLY")
-	do
-		local (for generator), (for state), (for control) = ipairs({
-			"ease",
-			"linear",
-			"fast"
-		})
-		do
-			do break end
-			self._out_acc:append(name)
-		end
-
+	for _, name in ipairs({
+		"ease",
+		"linear",
+		"fast"
+	}) do
+		self._out_acc:append(name)
 	end
-
 	self._out_acc:set_value("linear")
 	self._out_acc:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "change_acc"), "out")
 	out_sizer:add(self._out_acc, 1, 0, "EXPAND")
@@ -449,15 +430,9 @@ function WorldCameraLayer:select_camera()
 		CoreEws.change_entered_number(self._dof_paddding_params, self._current_world_camera:dof_padding())
 		CoreEws.change_entered_number(self._dof_clamp_params, self._current_world_camera:dof_clamp())
 		self._point_list:clear()
-		do
-			local (for generator), (for state), (for control) = ipairs(self._current_world_camera:get_points())
-			do
-				do break end
-				self._point_list:append(i)
-			end
-
+		for i, pos in ipairs(self._current_world_camera:get_points()) do
+			self._point_list:append(i)
 		end
-
 		self._in_acc:set_value(self._current_world_camera:in_acc_string())
 		self._out_acc:set_value(self._current_world_camera:out_acc_string())
 		self._keys_toolbar:set_enabled(true)
@@ -465,7 +440,6 @@ function WorldCameraLayer:select_camera()
 		self:key_types_set_enabled(true)
 		self:populate_keys()
 	end
-
 end
 
 function WorldCameraLayer:create_new()
@@ -480,14 +454,10 @@ function WorldCameraLayer:create_new()
 				if self._camera_list:get_string(i) == name then
 					self._camera_list:select_index(i)
 				end
-
 			end
-
 			self:select_camera()
 		end
-
 	end
-
 end
 
 function WorldCameraLayer:delete_camera()
@@ -497,7 +467,6 @@ function WorldCameraLayer:delete_camera()
 		if confirm == "NO" then
 			return
 		end
-
 		managers.worldcamera:remove_world_camera(name)
 		self:update_camera_list()
 		self._current_world_camera = nil
@@ -511,7 +480,6 @@ function WorldCameraLayer:delete_camera()
 		managers.editor:set_camera_fov(managers.editor:default_camera_fov())
 		managers.editor:set_camera_roll(0)
 	end
-
 end
 
 function WorldCameraLayer:test_camera()
@@ -521,7 +489,6 @@ function WorldCameraLayer:test_camera()
 		self._test_done_callback = managers.worldcamera:add_world_camera_done_callback(name, callback(self, self, "test_done"))
 		managers.worldcamera:play_world_camera(name)
 	end
-
 end
 
 function WorldCameraLayer:test_done()
@@ -529,7 +496,6 @@ function WorldCameraLayer:test_done()
 	managers.editor:sound_check_object_active(true)
 	if self._look_through_camera then
 	end
-
 end
 
 function WorldCameraLayer:stop_camera()
@@ -543,7 +509,6 @@ function WorldCameraLayer:select_point()
 	if point and name then
 		self._current_point = managers.worldcamera:world_camera(name):get_point(point)
 	end
-
 end
 
 function WorldCameraLayer:add_point()
@@ -552,14 +517,10 @@ function WorldCameraLayer:add_point()
 		local cam = managers.editor._vp:camera()
 		managers.worldcamera:world_camera(name):add_point(cam:position(), cam:rotation())
 		self._point_list:clear()
-		local (for generator), (for state), (for control) = ipairs(managers.worldcamera:world_camera(name):get_points())
-		do
-			do break end
+		for i, point in ipairs(managers.worldcamera:world_camera(name):get_points()) do
 			self._point_list:append(i)
 		end
-
 	end
-
 end
 
 function WorldCameraLayer:move_point()
@@ -569,7 +530,6 @@ function WorldCameraLayer:move_point()
 		local cam = managers.editor._vp:camera()
 		managers.worldcamera:world_camera(name):move_point(point, cam:position(), cam:rotation())
 	end
-
 	self:select_point()
 end
 
@@ -580,14 +540,10 @@ function WorldCameraLayer:delete_point()
 		managers.worldcamera:world_camera(name):delete_point(point)
 		self._current_point = nil
 		self._point_list:clear()
-		local (for generator), (for state), (for control) = ipairs(managers.worldcamera:world_camera(name):get_points())
-		do
-			do break end
+		for i, point in ipairs(managers.worldcamera:world_camera(name):get_points()) do
 			self._point_list:append(i)
 		end
-
 	end
-
 end
 
 function WorldCameraLayer:goto_point()
@@ -598,7 +554,6 @@ function WorldCameraLayer:goto_point()
 		local rot = Rotation(p.t_pos - p.pos, Vector3(0, 0, 1))
 		managers.editor:set_camera(p.pos, rot)
 	end
-
 end
 
 function WorldCameraLayer:change_acc(type)
@@ -609,9 +564,7 @@ function WorldCameraLayer:change_acc(type)
 		elseif type == "out" then
 			managers.worldcamera:world_camera(name):set_out_acc(self._out_acc:get_value())
 		end
-
 	end
-
 end
 
 function WorldCameraLayer:set_duration(params)
@@ -619,7 +572,6 @@ function WorldCameraLayer:set_duration(params)
 	if name then
 		managers.worldcamera:world_camera(name):set_duration(params.value)
 	end
-
 end
 
 function WorldCameraLayer:set_delay(params)
@@ -627,7 +579,6 @@ function WorldCameraLayer:set_delay(params)
 	if name then
 		managers.worldcamera:world_camera(name):set_delay(params.value)
 	end
-
 end
 
 function WorldCameraLayer:set_dof_padding(params)
@@ -635,7 +586,6 @@ function WorldCameraLayer:set_dof_padding(params)
 	if name then
 		managers.worldcamera:world_camera(name):set_dof_padding(params.value)
 	end
-
 end
 
 function WorldCameraLayer:set_dof_clamp(params)
@@ -643,19 +593,15 @@ function WorldCameraLayer:set_dof_clamp(params)
 	if name then
 		managers.worldcamera:world_camera(name):set_dof_clamp(params.value)
 	end
-
 end
 
 function WorldCameraLayer:update_camera_list()
 	self._camera_list:clear()
 	self._availible_sequence_camera_list:clear()
-	local (for generator), (for state), (for control) = pairs(managers.worldcamera:all_world_cameras())
-	do
-		do break end
+	for name, _ in pairs(managers.worldcamera:all_world_cameras()) do
 		self._camera_list:append(name)
 		self._availible_sequence_camera_list:append(name)
 	end
-
 end
 
 function WorldCameraLayer:selected_camera()
@@ -663,7 +609,6 @@ function WorldCameraLayer:selected_camera()
 	if index ~= -1 then
 		return self._camera_list:get_string(index)
 	end
-
 	return nil
 end
 
@@ -672,7 +617,6 @@ function WorldCameraLayer:selected_world_camera()
 	if index ~= -1 then
 		return managers.worldcamera:world_camera(self._camera_list:get_string(index))
 	end
-
 	return nil
 end
 
@@ -681,7 +625,6 @@ function WorldCameraLayer:selected_point()
 	if index ~= -1 then
 		return tonumber(self._point_list:get_string(index))
 	end
-
 	return nil
 end
 
@@ -693,7 +636,6 @@ function WorldCameraLayer:look_through_camera(data, event)
 		managers.worldcamera:stop_dof()
 	elseif self._current_world_camera then
 	end
-
 end
 
 function WorldCameraLayer:set_time(data)
@@ -708,7 +650,6 @@ function WorldCameraLayer:add_key()
 		local index = camera:add_key(self._current_time)
 		self:populate_keys(index)
 	end
-
 end
 
 function WorldCameraLayer:delete_key()
@@ -719,10 +660,8 @@ function WorldCameraLayer:delete_key()
 			managers.editor:output_info("Won't delete key 1")
 			return
 		end
-
 		camera:delete_key(tonumber(self._keys:get_value()))
 	end
-
 	self:populate_keys()
 end
 
@@ -737,7 +676,6 @@ function WorldCameraLayer:on_key_time()
 		local new_index = camera:move_key(old_index, tonumber(self._key_types.time:get_value()))
 		self:populate_keys(new_index)
 	end
-
 end
 
 function WorldCameraLayer:on_key_fov()
@@ -747,7 +685,6 @@ function WorldCameraLayer:on_key_fov()
 		key.fov = self._key_types.fov:get_value()
 		self._key_types.fov_text:set_value(self._key_types.fov:get_value())
 	end
-
 end
 
 function WorldCameraLayer:on_key_near_dof()
@@ -758,10 +695,8 @@ function WorldCameraLayer:on_key_near_dof()
 		if near_dof == "" then
 			near_dof = 0
 		end
-
 		key.near_dof = near_dof
 	end
-
 end
 
 function WorldCameraLayer:on_key_far_dof()
@@ -772,10 +707,8 @@ function WorldCameraLayer:on_key_far_dof()
 		if far_dof == "" then
 			far_dof = 0
 		end
-
 		key.far_dof = far_dof
 	end
-
 end
 
 function WorldCameraLayer:on_set_roll()
@@ -785,7 +718,6 @@ function WorldCameraLayer:on_set_roll()
 		local roll = self._key_types.roll.value
 		key.roll = roll
 	end
-
 end
 
 function WorldCameraLayer:set_near_dof()
@@ -796,9 +728,7 @@ function WorldCameraLayer:set_near_dof()
 			local dist = ray.position - managers.editor:camera():position():length()
 			self._key_types.near_dof:set_value(math.round(dist))
 		end
-
 	end
-
 end
 
 function WorldCameraLayer:set_far_dof()
@@ -809,23 +739,17 @@ function WorldCameraLayer:set_far_dof()
 			local dist = ray.position - managers.editor:camera():position():length()
 			self._key_types.far_dof:set_value(math.round(dist))
 		end
-
 	end
-
 end
 
 function WorldCameraLayer:populate_keys(index)
 	self._keys:clear()
 	local camera = self:selected_world_camera()
 	if camera then
-		local (for generator), (for state), (for control) = ipairs(camera:keys())
-		do
-			do break end
+		for i, key in ipairs(camera:keys()) do
 			self._keys:append(i)
 		end
-
 	end
-
 	index = index or 1
 	local key = camera:key(index)
 	local time = key.time
@@ -854,47 +778,35 @@ function WorldCameraLayer:set_key(index)
 		})
 		self:set_key_values(time, fov, near_dof, far_dof, roll)
 	end
-
 end
 
 function WorldCameraLayer:set_key_values(time, fov, near_dof, far_dof, roll)
-	do
-		local (for generator), (for state), (for control) = pairs(self._key_types)
-		do
-			do break end
-			ctrl.number_ctrlr or ctrl:set_enabled(false)
-		end
-
+	for _, ctrl in pairs(self._key_types) do
+		ctrl.number_ctrlr or ctrl:set_enabled(false)
 	end
-
 	if fov then
 		self._key_types.fov:set_enabled(true)
 		self._key_types.fov:set_value(fov)
 		self._key_types.fov_text:set_enabled(true)
 		self._key_types.fov_text:set_value(fov)
 	end
-
 	if near_dof then
 		self._key_types.near_dof:set_enabled(true)
 		self._key_types.near_dof:change_value(near_dof)
 	end
-
 	if far_dof then
 		self._key_types.far_dof:set_enabled(true)
 		self._key_types.far_dof:change_value(far_dof)
 	end
-
 	if roll then
 		self._key_types.roll.number_ctrlr:set_enabled(true)
 		CoreEws.change_entered_number(self._key_types.roll, roll)
 	end
-
 	if time then
 		self._key_types.time:set_enabled(true)
 		local floats = math.log10(self._time_precision)
 		self._key_types.time:change_value(string.format("%." .. floats .. "f", time))
 	end
-
 end
 
 function WorldCameraLayer:next_key()
@@ -903,7 +815,6 @@ function WorldCameraLayer:next_key()
 		local index = camera:next_key(self._current_time)
 		self:set_key(index)
 	end
-
 end
 
 function WorldCameraLayer:prev_key()
@@ -912,17 +823,13 @@ function WorldCameraLayer:prev_key()
 		local index = camera:prev_key(self._current_time, true)
 		self:set_key(index)
 	end
-
 end
 
 function WorldCameraLayer:key_types_set_enabled(enabled)
-	local (for generator), (for state), (for control) = pairs(self._key_types)
-	do
-		do break end
+	for _, ctrl in pairs(self._key_types) do
 		local c = ctrl.number_ctrlr or ctrl
 		c:set_enabled(enabled)
 	end
-
 end
 
 function WorldCameraLayer:on_select_sequence()
@@ -941,14 +848,10 @@ function WorldCameraLayer:on_create_new_sequence()
 				if self._sequence_list:get_string(i) == name then
 					self._sequence_list:select_index(i)
 				end
-
 			end
-
 			self:select_sequence()
 		end
-
 	end
-
 end
 
 function WorldCameraLayer:on_delete_sequence()
@@ -958,7 +861,6 @@ function WorldCameraLayer:on_delete_sequence()
 		self:update_sequence_list()
 		self._sequence_camera_list:clear()
 	end
-
 end
 
 function WorldCameraLayer:on_test_sequence()
@@ -968,7 +870,6 @@ function WorldCameraLayer:on_test_sequence()
 		managers.editor:sound_check_object_active(false)
 		self._sequence_test_done_callback = managers.worldcamera:add_sequence_done_callback(name, callback(self, self, "sequence_test_done"))
 	end
-
 end
 
 function WorldCameraLayer:sequence_test_done()
@@ -985,14 +886,12 @@ function WorldCameraLayer:on_add_camera_to_sequence()
 	if not name then
 		return
 	end
-
 	local index = self._availible_sequence_camera_list:selected_index()
 	if index ~= -1 then
 		local i = managers.worldcamera:add_camera_to_sequence(name, self._availible_sequence_camera_list:get_string(index))
 		self:update_sequence_camera_list(i - 1)
 		self:on_select_sequence_camera()
 	end
-
 end
 
 function WorldCameraLayer:on_remove_camera_from_sequence()
@@ -1000,14 +899,12 @@ function WorldCameraLayer:on_remove_camera_from_sequence()
 	if not name then
 		return
 	end
-
 	local index = self._sequence_camera_list:selected_index()
 	if index ~= -1 then
 		index = index + 1
 		managers.worldcamera:remove_camera_from_sequence(name, index)
 		self:update_sequence_camera_list()
 	end
-
 end
 
 function WorldCameraLayer:on_move_camera_in_sequence(dir)
@@ -1015,7 +912,6 @@ function WorldCameraLayer:on_move_camera_in_sequence(dir)
 	if not name then
 		return
 	end
-
 	local index = self._sequence_camera_list:selected_index()
 	if index ~= -1 then
 		index = index + 1
@@ -1025,7 +921,6 @@ function WorldCameraLayer:on_move_camera_in_sequence(dir)
 		self:update_sequence_camera_list()
 		self._sequence_camera_list:select_index(new_index - 1)
 	end
-
 end
 
 function WorldCameraLayer:on_select_sequence_camera()
@@ -1034,7 +929,6 @@ function WorldCameraLayer:on_select_sequence_camera()
 		self._camera_sequence_settings.start:change_value(string.format("%.4f", sequence_camera.start))
 		self._camera_sequence_settings.stop:change_value(string.format("%.4f", sequence_camera.stop))
 	end
-
 end
 
 function WorldCameraLayer:on_sequence_camera_start()
@@ -1045,7 +939,6 @@ function WorldCameraLayer:on_sequence_camera_start()
 	if sequence_camera then
 		sequence_camera.start = value
 	end
-
 end
 
 function WorldCameraLayer:on_sequence_camera_stop()
@@ -1056,17 +949,13 @@ function WorldCameraLayer:on_sequence_camera_stop()
 	if sequence_camera then
 		sequence_camera.stop = value
 	end
-
 end
 
 function WorldCameraLayer:update_sequence_list()
 	self._sequence_list:clear()
-	local (for generator), (for state), (for control) = pairs(managers.worldcamera:all_world_camera_sequences())
-	do
-		do break end
+	for name, _ in pairs(managers.worldcamera:all_world_camera_sequences()) do
 		self._sequence_list:append(name)
 	end
-
 end
 
 function WorldCameraLayer:select_sequence()
@@ -1074,7 +963,6 @@ function WorldCameraLayer:select_sequence()
 	if name then
 		self:update_sequence_camera_list()
 	end
-
 end
 
 function WorldCameraLayer:selected_sequence_name()
@@ -1082,7 +970,6 @@ function WorldCameraLayer:selected_sequence_name()
 	if index ~= -1 then
 		return self._sequence_list:get_string(index)
 	end
-
 	return nil
 end
 
@@ -1091,7 +978,6 @@ function WorldCameraLayer:selected_sequence()
 	if index ~= -1 then
 		return managers.worldcamera:world_camera_sequence(self._sequence_list:get_string(index))
 	end
-
 	return nil
 end
 
@@ -1100,7 +986,6 @@ function WorldCameraLayer:selected_sequence_camera_name()
 	if index ~= -1 then
 		return self._sequence_camera_list:get_string(index)
 	end
-
 	return nil
 end
 
@@ -1112,9 +997,7 @@ function WorldCameraLayer:selected_sequence_camera()
 		if sequence then
 			return sequence[index]
 		end
-
 	end
-
 	return nil
 end
 
@@ -1124,20 +1007,12 @@ function WorldCameraLayer:update_sequence_camera_list(index)
 	if not sequence then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(sequence)
-		do
-			do break end
-			self._sequence_camera_list:append(camera.name)
-		end
-
+	for _, camera in ipairs(sequence) do
+		self._sequence_camera_list:append(camera.name)
 	end
-
 	if index then
 		self._sequence_camera_list:select_index(index)
 	end
-
 end
 
 function WorldCameraLayer:deselect()

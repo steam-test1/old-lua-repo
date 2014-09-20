@@ -11,7 +11,6 @@ function CoreEffectPropertyContainer:ui_name()
 	else
 		return self:name()
 	end
-
 end
 
 function CoreEffectPropertyContainer:properties()
@@ -23,18 +22,11 @@ function CoreEffectPropertyContainer:add_property(p)
 end
 
 function CoreEffectPropertyContainer:get_property(name)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._properties)
-		do
-			do break end
-			if p:name() == name then
-				return p
-			end
-
+	for _, p in ipairs(self._properties) do
+		if p:name() == name then
+			return p
 		end
-
 	end
-
 	return nil
 end
 
@@ -44,19 +36,12 @@ function CoreEffectPropertyContainer:validate_properties()
 		message = "",
 		node = nil
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._properties)
-		do
-			do break end
-			ret = p:validate()
-			if not ret.valid then
-				return ret
-			end
-
+	for _, p in ipairs(self._properties) do
+		ret = p:validate()
+		if not ret.valid then
+			return ret
 		end
-
 	end
-
 	return ret
 end
 
@@ -77,21 +62,15 @@ function CoreEffectPropertyContainer:set_name(n)
 end
 
 function CoreEffectPropertyContainer:save_properties(node)
-	local (for generator), (for state), (for control) = ipairs(self._properties)
-	do
-		do break end
+	for _, p in ipairs(self._properties) do
 		p:save(node)
 	end
-
 end
 
 function CoreEffectPropertyContainer:load_properties(node)
-	local (for generator), (for state), (for control) = ipairs(self._properties)
-	do
-		do break end
+	for _, p in ipairs(self._properties) do
 		p:load(node)
 	end
-
 end
 
 function CoreEffectPropertyContainer:fill_property_container_sheet(window, view)
@@ -106,32 +85,23 @@ function CoreEffectPropertyContainer:fill_property_container_sheet(window, view)
 	if property_container:description() ~= "" then
 		set_widget_box_help(window, property_container:name(), property_container:description(), view)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(property_container:properties())
-		do
-			do break end
-			if p._visible then
-				local name_text = EWS:StaticText(window, p:name(), "", "")
-				set_widget_box_help(name_text, property_container:name() .. " / " .. p:name(), p:help(), view)
-				grid_sizer:add(name_text, 0, 2, "LEFT,RIGHT,ALIGN_CENTER_VERTICAL")
-				local w = p:create_widget(window, view)
-				grid_sizer:add(w, 1, 0, "EXPAND")
-				if i ~= #property_container:properties() then
-					local la = EWS:StaticLine(window, "", "LI_HORIZONTAL")
-					la:set_min_size(Vector3(10, 2, 0))
-					grid_sizer:add(la, 0, 0, "EXPAND")
-					local lb = EWS:StaticLine(window, "", "LI_HORIZONTAL")
-					lb:set_min_size(Vector3(10, 2, 0))
-					grid_sizer:add(lb, 1, 0, "EXPAND")
-				end
-
+	for i, p in ipairs(property_container:properties()) do
+		if p._visible then
+			local name_text = EWS:StaticText(window, p:name(), "", "")
+			set_widget_box_help(name_text, property_container:name() .. " / " .. p:name(), p:help(), view)
+			grid_sizer:add(name_text, 0, 2, "LEFT,RIGHT,ALIGN_CENTER_VERTICAL")
+			local w = p:create_widget(window, view)
+			grid_sizer:add(w, 1, 0, "EXPAND")
+			if i ~= #property_container:properties() then
+				local la = EWS:StaticLine(window, "", "LI_HORIZONTAL")
+				la:set_min_size(Vector3(10, 2, 0))
+				grid_sizer:add(la, 0, 0, "EXPAND")
+				local lb = EWS:StaticLine(window, "", "LI_HORIZONTAL")
+				lb:set_min_size(Vector3(10, 2, 0))
+				grid_sizer:add(lb, 1, 0, "EXPAND")
 			end
-
 		end
-
 	end
-
 	window:set_min_size(top_sizer:get_min_size())
 	window:layout()
 	window:thaw()
@@ -157,7 +127,6 @@ function CoreEffectProperty:init(name, ptype, value, help)
 	if self._type == "keys" then
 		self._looping = false
 	end
-
 end
 
 function CoreEffectProperty:set_custom_validator(f)
@@ -186,7 +155,6 @@ function CoreEffectProperty:set_key_type(t)
 	elseif t == "opacity" then
 		t = "float"
 	end
-
 	self._key_type = t
 	self._keys = {}
 	self._silent = true
@@ -234,23 +202,15 @@ function CoreEffectProperty:validate()
 	}
 	if self._type == "value_list" then
 		local contains = function(l, v)
-			do
-				local (for generator), (for state), (for control) = ipairs(l)
-				do
-					do break end
-					if type(value) == "userdata" and type(v) == "string" or type(value) == "string" and type(v) == "userdata" then
-						if value:s() == v:s() then
-							return true
-						end
-
-					elseif value == v then
+			for _, value in ipairs(l) do
+				if type(value) == "userdata" and type(v) == "string" or type(value) == "string" and type(v) == "userdata" then
+					if value:s() == v:s() then
 						return true
 					end
-
+				elseif value == v then
+					return true
 				end
-
 			end
-
 			return false
 		end
 
@@ -259,7 +219,6 @@ function CoreEffectProperty:validate()
 			ret.message = self._name .. " has a value which is not in the list"
 			return ret
 		end
-
 	elseif self._type == "variant" then
 		return self._variants[self._value]:validate()
 	elseif self._type == "compound" then
@@ -267,33 +226,26 @@ function CoreEffectProperty:validate()
 		if not ret.valid then
 			return ret
 		end
-
 	elseif self._type == "list_objects" then
-		local (for generator), (for state), (for control) = ipairs(self._list_members)
-		do
-			do break end
+		for _, p in ipairs(self._list_members) do
 			ret = p:validate()
 			if not ret.valid then
 				ret.message = self._name .. " - " .. ret.message
 				return ret
 			end
-
 		end
-
 	elseif self._type == "int" then
 		if not tonumber(self._value) then
 			ret.valid = false
 			ret.message = self._value .. " is not a valid integer"
 			return ret
 		end
-
 	elseif self._type == "vector3" then
 		if not math.string_is_good_vector(self._value) then
 			ret.valid = false
 			ret.message = self._value .. " is not a valid vector3"
 			return ret
 		end
-
 	elseif self._type == "percentage" then
 		local v = tonumber(self._value)
 		if not v or v < 0 or v > 1 then
@@ -301,19 +253,16 @@ function CoreEffectProperty:validate()
 			ret.message = self._value .. " is not a valid number in [0,1]"
 			return ret
 		end
-
 	elseif self._type == "color" then
 		local c
 		if math.string_is_good_vector(self._value) then
 			c = math.string_to_vector(self._value)
 		end
-
 		if not c or 0 > c.x or c.x > 255 or 0 > c.y or 255 < c.y or 0 > c.z or 255 < c.z then
 			ret.valid = false
 			ret.message = self._value .. " is not a valid color"
 			return ret
 		end
-
 	elseif self._type == "opacity" then
 		local c = tonumber(self._value)
 		if not c or c < 0 or c > 255 then
@@ -321,7 +270,6 @@ function CoreEffectProperty:validate()
 			ret.message = self._value .. " is not a valid opacity"
 			return ret
 		end
-
 	elseif self._type == "time" then
 		local t = tonumber(self._value)
 		if not t or not self._can_be_infinite and t < 0 then
@@ -329,14 +277,12 @@ function CoreEffectProperty:validate()
 			ret.message = self._value .. " is not a valid time"
 			return ret
 		end
-
 	elseif self._type == "angle" then
 		local a = tonumber(self._value)
 		if not a then
 			ret.valid = false
 			ret.message = self._value .. " is not a valid angle"
 		end
-
 	elseif self._type == "float" then
 		local a = tonumber(self._value)
 		if not a then
@@ -346,65 +292,52 @@ function CoreEffectProperty:validate()
 			ret.valid = false
 			ret.message = self._value .. " is out of range (" .. self._min_range .. ", " .. self._max_range .. ")"
 		end
-
 	elseif self._type == "texture" then
 		if not DB:has("texture", self._value) then
 			ret.valid = false
 			ret.message = "texture " .. self._value .. " does not exist"
 			return ret
 		end
-
 	elseif self._type == "unit" then
 		if not DB:has("unit", self._value) then
 			ret.valid = false
 			ret.message = "unit " .. self._value .. " does not exist"
 			return ret
 		end
-
 	elseif self._type == "effect" then
 		if not DB:has("effect", self._value) or self._value == "" then
 			ret.valid = false
 			ret.message = "effect " .. self._value .. " does not exist"
 			return ret
 		end
-
 	elseif self._type == "keys" then
 		if #self._keys < self._min_keys then
 			ret.valid = false
 			ret.message = "Too few keys"
 			return ret
 		end
-
 		if #self._keys > self._max_keys then
 			ret.valid = false
 			ret.message = "Too many keys"
 			return ret
 		end
-
-		local (for generator), (for state), (for control) = ipairs(self._keys)
-		do
-			do break end
+		for _, k in ipairs(self._keys) do
 			if not tonumber(k.t) then
 				ret.valid = false
 				ret.message = "time value invalid"
 				return ret
 			end
-
 			local temp = CoreEffectProperty:new("", self._key_type, k.v, "")
 			ret = temp:validate()
 			if not ret.valid then
 				ret.message = "Invalid key - " .. ret.message
 				return ret
 			end
-
 		end
-
 	end
-
 	if ret.valid and self._custom_validator then
 		return self._custom_validator(self)
 	end
-
 	return ret
 end
 
@@ -427,12 +360,10 @@ function CoreEffectProperty:on_commit(widget_view)
 	if self._type == "null" then
 		return
 	end
-
 	if self._value ~= widget_view.widget:get_value() then
 		self._value = widget_view.widget:get_value()
 		widget_view.view:update_view(false)
 	end
-
 end
 
 function CoreEffectProperty:on_set_variant(widget_view_variant)
@@ -454,7 +385,6 @@ function CoreEffectProperty:on_set_variant(widget_view_variant)
 	if widget_view_variant.update then
 		view:update_view(false)
 	end
-
 end
 
 function CoreEffectProperty:set_timeline_init_callback_name(c)
@@ -479,7 +409,6 @@ function create_color_selector(parent, view, prop)
 			vars.update_colour(vars)
 			vars.view:update_view(false)
 		end
-
 	end
 
 	local update_colour = function(vars)
@@ -514,7 +443,6 @@ function create_texture_selector(parent, view, prop)
 			field:change_value(prop._value)
 			view:update_view(false)
 		end
-
 	end
 
 	browse_button:connect("EVT_COMMAND_BUTTON_CLICKED", on_browse_button_click, nil)
@@ -537,7 +465,6 @@ function create_effect_selector(parent, view, prop)
 			field:change_value(prop._value)
 			view:update_view(false)
 		end
-
 	end
 
 	browse_button:connect("EVT_COMMAND_BUTTON_CLICKED", on_browse_button_click, nil)
@@ -566,7 +493,6 @@ function create_check(parent, view, prop)
 		if vars.check:get_value() then
 			vars.prop._value = "true"
 		end
-
 		vars.view:update_view(false)
 	end
 
@@ -584,15 +510,9 @@ function create_key_curve_widget(parent, view, prop)
 		local listbox = vars.listbox
 		local prop = vars.prop
 		listbox:clear()
-		do
-			local (for generator), (for state), (for control) = ipairs(prop._keys)
-			do
-				do break end
-				listbox:append("t = " .. k.t .. ", v = " .. k.v)
-			end
-
+		for _, k in ipairs(prop._keys) do
+			listbox:append("t = " .. k.t .. ", v = " .. k.v)
 		end
-
 		vars.view:update_view(false)
 	end
 
@@ -608,7 +528,6 @@ function create_key_curve_widget(parent, view, prop)
 			})
 			vars.refresh_list(vars)
 		end
-
 	end
 
 	local on_remove = function(vars)
@@ -619,12 +538,10 @@ function create_key_curve_widget(parent, view, prop)
 		if listbox:selected_index() < 0 then
 			return
 		end
-
 		if #prop._keys > prop._min_keys then
 			table.remove(prop._keys, listbox:selected_index() + 1)
 			vars.refresh_list(vars)
 		end
-
 	end
 
 	local on_select = function(vars)
@@ -635,7 +552,6 @@ function create_key_curve_widget(parent, view, prop)
 		if listbox:selected_index() < 0 then
 			return
 		end
-
 		t:set_value(prop._keys[listbox:selected_index() + 1].t)
 		v:set_value(prop._keys[listbox:selected_index() + 1].v)
 	end
@@ -648,7 +564,6 @@ function create_key_curve_widget(parent, view, prop)
 		if listbox:selected_index() < 0 then
 			return
 		end
-
 		prop._keys[listbox:selected_index() + 1].t = t:get_value()
 		prop._keys[listbox:selected_index() + 1].v = v:get_value()
 		vars.refresh_list(vars)
@@ -700,22 +615,15 @@ function topdown_layout(w)
 		q:refresh()
 		q = q:parent()
 	end
-
 end
 
 function CoreEffectProperty:create_widget(parent, view)
 	local widget
 	if self._type == "value_list" then
 		widget = EWS:ComboBox(parent, self._value, "", "CB_DROPDOWN,CB_READONLY")
-		do
-			local (for generator), (for state), (for control) = ipairs(self._values)
-			do
-				do break end
-				widget:append(v)
-			end
-
+		for _, v in ipairs(self._values) do
+			widget:append(v)
 		end
-
 		widget:set_value(self._value)
 		widget:connect("EVT_COMMAND_TEXT_UPDATED", callback(self, self, "on_commit", {widget = widget, view = view}))
 	elseif self._type == "timeline" then
@@ -727,7 +635,6 @@ function CoreEffectProperty:create_widget(parent, view)
 		if self._type == "vector2" then
 			widget:set_vector2(true)
 		end
-
 	elseif self._type == "box" then
 		widget = EWS:AABBSelector(parent, "", math.string_to_vector(self._min), math.string_to_vector(self._max))
 		local function on_box_commit(widget_view)
@@ -738,7 +645,6 @@ function CoreEffectProperty:create_widget(parent, view)
 				self._max = maxv.x .. " " .. maxv.y .. " " .. maxv.z
 				widget_view.view:update_view(false)
 			end
-
 		end
 
 		widget:connect("EVT_SELECTOR_UPDATED", on_box_commit, {widget = widget, view = view})
@@ -746,15 +652,9 @@ function CoreEffectProperty:create_widget(parent, view)
 		widget = EWS:Panel(parent, "", "")
 		local combo = EWS:ComboBox(widget, "", "", "CB_DROPDOWN,CB_READONLY")
 		set_widget_help(combo, self._help)
-		do
-			local (for generator), (for state), (for control) = pairs(self._variants)
-			do
-				do break end
-				combo:append(vn)
-			end
-
+		for vn, p in pairs(self._variants) do
+			combo:append(vn)
 		end
-
 		local variant_panel = EWS:Panel(widget, "", "")
 		local sizer = EWS:BoxSizer("VERTICAL")
 		sizer:add(combo, 0, 0, "EXPAND")
@@ -792,7 +692,6 @@ function CoreEffectProperty:create_widget(parent, view)
 			if vars.list_box:selected_index() < 0 then
 				return
 			end
-
 			table.remove(vars.property._list_members, vars.list_box:selected_index() + 1)
 			vars.fill_list(vars)
 			vars.on_select_object(vars)
@@ -807,7 +706,6 @@ function CoreEffectProperty:create_widget(parent, view)
 				vars.sheet:set_min_size(top_sizer:get_min_size())
 				return
 			end
-
 			local w = vars.property._list_members[vars.list_box:selected_index() + 1]:create_widget(vars.sheet, vars.view)
 			top_sizer:add(w, 1, 0, "EXPAND")
 			vars.sheet:layout()
@@ -820,28 +718,19 @@ function CoreEffectProperty:create_widget(parent, view)
 
 		local fill_list = function(vars)
 			vars.list_box:clear()
-			local (for generator), (for state), (for control) = ipairs(vars.property._list_members)
-			do
-				do break end
+			for _, p in ipairs(vars.property._list_members) do
 				vars.list_box:append(p:name())
 			end
-
 		end
 
 		widget = EWS:Panel(parent, "", "")
 		local list_box = EWS:ListBox(widget, "", "LB_SINGLE,LB_HSCROLL")
 		local remove_button = EWS:Button(widget, "Remove", "", "BU_EXACTFIT")
 		local combo = EWS:ComboBox(widget, "", "", "CB_DROPDOWN,CB_READONLY")
-		do
-			local (for generator), (for state), (for control) = pairs(self._list_objects)
-			do
-				do break end
-				combo:append(n)
-				combo:set_value(n)
-			end
-
+		for n, p in pairs(self._list_objects) do
+			combo:append(n)
+			combo:set_value(n)
 		end
-
 		local add_button = EWS:Button(widget, "Add", "", "BU_EXACTFIT")
 		local sheet = EWS:Panel(widget, "", "")
 		local top_sizer = EWS:BoxSizer("VERTICAL")
@@ -882,49 +771,35 @@ function CoreEffectProperty:create_widget(parent, view)
 		widget = create_percentage_slider(parent, view, self)
 	elseif self._type == "keys" then
 		widget = EWS:CurveSelector(parent, "", self._key_type:upper())
-		do
-			local (for generator), (for state), (for control) = ipairs(self._keys)
-			do
-				do break end
-				local v = Vector3(0, 0, 0)
-				local vs = k.v
-				if self._key_type == "vector2" then
-					vs = vs .. " 0"
-				elseif self._key_type == "float" then
-					vs = vs .. " 0 0"
-				end
-
-				v = math.string_to_vector(vs)
-				widget:add_key(tonumber(k.t), v)
+		for _, k in ipairs(self._keys) do
+			local v = Vector3(0, 0, 0)
+			local vs = k.v
+			if self._key_type == "vector2" then
+				vs = vs .. " 0"
+			elseif self._key_type == "float" then
+				vs = vs .. " 0 0"
 			end
-
+			v = math.string_to_vector(vs)
+			widget:add_key(tonumber(k.t), v)
 		end
-
 		local function on_keys_commit(widget_view)
 			local keys = widget_view.widget:get_keys()
 			local prop = widget_view.prop
 			prop._keys = {}
-			do
-				local (for generator), (for state), (for control) = ipairs(keys)
-				do
-					do break end
-					local s = ""
-					if prop._key_type == "vector2" then
-						s = k.v.x .. " " .. k.v.y
-					elseif prop._key_type == "float" then
-						s = k.v.x .. ""
-					else
-						s = k.v.x .. " " .. k.v.y .. " " .. k.v.z
-					end
-
-					table.insert(prop._keys, {
-						t = k.t,
-						v = s
-					})
+			for _, k in ipairs(keys) do
+				local s = ""
+				if prop._key_type == "vector2" then
+					s = k.v.x .. " " .. k.v.y
+				elseif prop._key_type == "float" then
+					s = k.v.x .. ""
+				else
+					s = k.v.x .. " " .. k.v.y .. " " .. k.v.z
 				end
-
+				table.insert(prop._keys, {
+					t = k.t,
+					v = s
+				})
 			end
-
 			self._looping = widget_view.widget:looping()
 			widget_view.view:update_view(false)
 		end
@@ -939,13 +814,11 @@ function CoreEffectProperty:create_widget(parent, view)
 		if self._presets then
 			widget:set_presets(self._presets)
 		end
-
 	elseif self._type == "boolean" then
 		widget = create_check(parent, view, self)
 	else
 		widget = create_text_field(parent, view, self)
 	end
-
 	return widget
 end
 
@@ -957,7 +830,6 @@ function CoreEffectProperty:save(node)
 	if self._type == "null" then
 		return
 	end
-
 	if self._type == "compound" then
 		local n
 		if self._save_to_child then
@@ -965,27 +837,21 @@ function CoreEffectProperty:save(node)
 		else
 			n = node
 		end
-
 		self._compound_container:save_properties(n)
 	elseif self._type == "box" then
 		if not self._silent then
 			node:set_parameter(self._min_name, self._min)
 			node:set_parameter(self._max_name, self._max)
 		end
-
 	elseif self._type == "list_objects" then
-		local (for generator), (for state), (for control) = ipairs(self._list_members)
-		do
-			do break end
+		for _, p in ipairs(self._list_members) do
 			local n = node:make_child(p:name())
 			p:save(n)
 		end
-
 	else
 		if not self._silent then
 			node:set_parameter(self._name, self._value)
 		end
-
 		if self._type == "variant" then
 			self._variants[self._value]:save(node)
 		elseif self._type == "keys" then
@@ -994,122 +860,85 @@ function CoreEffectProperty:save(node)
 			if self._looping then
 				ls = "true"
 			end
-
 			n:set_parameter("loop", ls)
-			local (for generator), (for state), (for control) = ipairs(self._keys)
-			do
-				do break end
+			for _, k in ipairs(self._keys) do
 				local kn = n:make_child("key")
 				kn:set_parameter("t", k.t)
 				kn:set_parameter("v", k.v)
 			end
-
 		end
-
 	end
-
 end
 
 function CoreEffectProperty:load(node)
 	if self._type == "null" then
 		return
 	end
-
 	if self._type == "compound" then
 		if self._save_to_child then
-			local (for generator), (for state), (for control) = node:children()
-			do
-				do break end
+			for c in node:children() do
 				if c:name() == self._compound_container:name() then
 					self._compound_container:load_properties(c)
 				end
-
 			end
-
 		else
 			self._compound_container:load_properties(node)
 		end
-
 	elseif self._type == "box" then
 		if not self._silent and node:has_parameter(self._min_name) then
 			self._min = node:parameter(self._min_name)
 			self._max = node:parameter(self._max_name)
 		end
-
 	elseif self._type == "list_objects" then
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
+		for c in node:children() do
 			local m = self._list_objects[c:name()]
 			if m then
 				m = deep_clone(m)
 				m:load(c)
 				table.insert(self._list_members, m)
 			end
-
 		end
-
 	else
 		if not self._silent and node:has_parameter(self._name) then
 			self._value = node:parameter(self._name)
 		end
-
 		if self._type == "variant" then
 			self._variants[self._value]:load(node)
 		elseif self._type == "value_list" then
 			local contains = function(l, v)
-				do
-					local (for generator), (for state), (for control) = ipairs(l)
-					do
-						do break end
-						if type(value) == "userdata" and type(v) == "string" or type(value) == "string" and type(v) == "userdata" then
-							if value:s() == v:s() then
-								return true
-							end
-
-						elseif value == v then
+				for _, value in ipairs(l) do
+					if type(value) == "userdata" and type(v) == "string" or type(value) == "string" and type(v) == "userdata" then
+						if value:s() == v:s() then
 							return true
 						end
-
+					elseif value == v then
+						return true
 					end
-
 				end
-
 				return false
 			end
 
 			if not contains(self._values, self._value) then
 				table.insert(self._values, self._value)
 			end
-
 		elseif self._type == "keys" then
 			self._keys = {}
-			local (for generator), (for state), (for control) = node:children()
-			do
-				do break end
+			for c in node:children() do
 				if c:name() == self._name then
 					if c:has_parameter("loop") then
 						self._looping = c:parameter("loop") == "true"
 					else
 						self._looping = false
 					end
-
-					local (for generator), (for state), (for control) = c:children()
-					do
-						do break end
+					for kn in c:children() do
 						local t = kn:parameter("t")
 						local v = kn:parameter("v")
 						self:add_key({t = t, v = v})
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function CoreEffectProperty:value()

@@ -16,13 +16,11 @@ function MusicManager:track_listen_start(event, track)
 	if self._current_track == track and self._current_event == event then
 		return
 	end
-
 	self._skip_play = true
 	Global.music_manager.source:stop()
 	if track then
 		Global.music_manager.source:set_switch("music_randomizer", track)
 	end
-
 	Global.music_manager.source:post_event(event)
 	self._current_track = track
 	self._current_event = event
@@ -34,13 +32,10 @@ function MusicManager:track_listen_stop()
 		if Global.music_manager.current_event then
 			Global.music_manager.source:post_event(Global.music_manager.current_event)
 		end
-
 	end
-
 	if self._current_track and Global.music_manager.current_track then
 		Global.music_manager.source:set_switch("music_randomizer", Global.music_manager.current_track)
 	end
-
 	self._current_event = nil
 	self._current_track = nil
 	self._skip_play = nil
@@ -55,16 +50,12 @@ function MusicManager:playlist_add(track)
 end
 
 function MusicManager:playlist_remove(track)
-	local (for generator), (for state), (for control) = pairs(Global.music_manager.custom_playlist)
-	do
-		do break end
+	for index, track_name in pairs(Global.music_manager.custom_playlist) do
 		if track == track_name then
 			table.remove(Global.music_manager.custom_playlist, index)
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function MusicManager:playlist_clear()
@@ -84,16 +75,12 @@ function MusicManager:playlist_menu_add(track)
 end
 
 function MusicManager:playlist_menu_remove(track)
-	local (for generator), (for state), (for control) = pairs(Global.music_manager.custom_menu_playlist)
-	do
-		do break end
+	for index, track_name in pairs(Global.music_manager.custom_menu_playlist) do
 		if track == track_name then
 			table.remove(Global.music_manager.custom_menu_playlist, index)
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function MusicManager:playlist_menu_clear()
@@ -143,7 +130,6 @@ function MusicManager:load_settings(data)
 		Global.music_manager.unlocked_tracks = state.unlocked_tracks or {}
 		self:_set_default_values()
 	end
-
 end
 
 function MusicManager:save_profile(data)
@@ -158,89 +144,56 @@ function MusicManager:load_profile(data)
 	if state then
 		Global.music_manager.loadout_selection = state.loadout_selection
 	end
-
 end
 
 function MusicManager:jukebox_random_all()
 	local switches = {}
 	local track_list, track_locked = self:jukebox_music_tracks()
-	do
-		local (for generator), (for state), (for control) = ipairs(track_list)
-		do
-			do break end
-			if not track_locked[track_name] then
-				table.insert(switches, track_name)
-			end
-
+	for _, track_name in ipairs(track_list) do
+		if not track_locked[track_name] then
+			table.insert(switches, track_name)
 		end
-
 	end
-
 	return switches
 end
 
 function MusicManager:jukebox_random_all_menu()
 	local switches = {}
 	local track_list, track_locked = self:jukebox_menu_tracks()
-	do
-		local (for generator), (for state), (for control) = ipairs(track_list)
-		do
-			do break end
-			if not track_locked[track_name] then
-				table.insert(switches, track_name)
-			end
-
+	for _, track_name in ipairs(track_list) do
+		if not track_locked[track_name] then
+			table.insert(switches, track_name)
 		end
-
 	end
-
 	return switches
 end
 
 function MusicManager:jukebox_set_defaults()
 	self:playlist_clear()
 	local tracks_list, tracks_locked = self:jukebox_music_tracks()
-	do
-		local (for generator), (for state), (for control) = pairs(tracks_list)
-		do
-			do break end
-			if not tracks_locked[track_name] then
-				self:playlist_add(track_name)
-			end
-
+	for _, track_name in pairs(tracks_list) do
+		if not tracks_locked[track_name] then
+			self:playlist_add(track_name)
 		end
-
 	end
-
 	self:playlist_menu_clear()
 	local tracks_list, tracks_locked = self:jukebox_menu_tracks()
-	do
-		local (for generator), (for state), (for control) = pairs(tracks_list)
-		do
-			do break end
-			if not tracks_locked[track_name] then
-				self:playlist_menu_add(track_name)
-			end
-
+	for _, track_name in pairs(tracks_list) do
+		if not tracks_locked[track_name] then
+			self:playlist_menu_add(track_name)
 		end
-
 	end
-
 	self:track_attachment_clear()
 	local defaults = self:jukebox_default_tracks()
-	local (for generator), (for state), (for control) = pairs(defaults)
-	do
-		do break end
+	for name, track in pairs(defaults) do
 		self:track_attachment_add(name, track)
 	end
-
 end
 
 function MusicManager:jukebox_heist_specific()
 	if managers.job:interupt_stage() then
 		return self:track_attachment("escape") or "all"
 	end
-
 	local job_data = Global.job_manager.current_job
 	if job_data then
 		local job_tweak = tweak_data.narrative:job_data(job_data.job_id)
@@ -248,49 +201,33 @@ function MusicManager:jukebox_heist_specific()
 			local track_data = job_tweak.name_id .. (job_data.stages > 1 and job_data.current_stage or "")
 			return self:track_attachment(track_data) or "all"
 		end
-
 	end
-
 	return "all"
 end
 
 function MusicManager:_set_default_values()
 	if #Global.music_manager.custom_playlist == 0 then
 		local tracks_list, tracks_locked = self:jukebox_music_tracks()
-		local (for generator), (for state), (for control) = pairs(tracks_list)
-		do
-			do break end
+		for _, track_name in pairs(tracks_list) do
 			if not tracks_locked[track_name] then
 				table.insert(Global.music_manager.custom_playlist, track_name)
 			end
-
 		end
-
 	end
-
 	if #Global.music_manager.custom_menu_playlist == 0 then
 		local tracks_list, tracks_locked = self:jukebox_menu_tracks()
-		local (for generator), (for state), (for control) = pairs(tracks_list)
-		do
-			do break end
+		for _, track_name in pairs(tracks_list) do
 			if not tracks_locked[track_name] then
 				table.insert(Global.music_manager.custom_menu_playlist, track_name)
 			end
-
 		end
-
 	end
-
 	local default_tracks = self:jukebox_default_tracks()
-	local (for generator), (for state), (for control) = pairs(default_tracks)
-	do
-		do break end
+	for name, track in pairs(default_tracks) do
 		if not Global.music_manager.track_attachment[name] then
 			Global.music_manager.track_attachment[name] = track
 		end
-
 	end
-
 end
 
 function MusicManager:_jukebox_unlock_armored(tracks_locked)
@@ -298,17 +235,14 @@ function MusicManager:_jukebox_unlock_armored(tracks_locked)
 		tracks_locked.track_09 = "armored"
 		return
 	end
-
 	if self:track_unlocked("track_09") then
 		return
 	end
-
 	if managers.dlc:has_armored_transport() or managers.dlc:has_soundtrack_or_cce() then
 		self:unlock_track("track_09")
 		self:playlist_add("track_09")
 		return
 	end
-
 	tracks_locked.track_09 = "armored"
 end
 
@@ -317,17 +251,14 @@ function MusicManager:_jukebox_unlock_infamy(tracks_locked)
 		tracks_locked.track_11 = "infamy"
 		return
 	end
-
 	if self:track_unlocked("track_11") then
 		return
 	end
-
 	if managers.experience:current_rank() > 0 then
 		self:unlock_track("track_11")
 		self:playlist_add("track_11")
 		return
 	end
-
 	tracks_locked.track_11 = "infamy"
 end
 
@@ -336,17 +267,14 @@ function MusicManager:_jukebox_unlock_deathwish(tracks_locked)
 		tracks_locked.track_12 = "deathwish"
 		return
 	end
-
 	if self:track_unlocked("track_12") then
 		return
 	end
-
 	if managers.experience:current_rank() > 0 or managers.experience:current_level() >= tweak_data.difficulty_level_locks[tweak_data:difficulty_to_index("overkill_290")] then
 		self:unlock_track("track_12")
 		self:playlist_add("track_12")
 		return
 	end
-
 	tracks_locked.track_12 = "deathwish"
 end
 
@@ -355,17 +283,14 @@ function MusicManager:_jukebox_unlock_bigbank(tracks_locked)
 		tracks_locked.track_14 = "bigbank"
 		return
 	end
-
 	if self:track_unlocked("track_14") then
 		return
 	end
-
 	if managers.dlc:has_big_bank() or managers.dlc:has_soundtrack_or_cce() then
 		self:unlock_track("track_14")
 		self:playlist_add("track_14")
 		return
 	end
-
 	tracks_locked.track_14 = "bigbank"
 end
 
@@ -374,17 +299,14 @@ function MusicManager:_jukebox_unlock_assault(tracks_locked)
 		tracks_locked.track_17 = "assault"
 		return
 	end
-
 	if self:track_unlocked("track_17") then
 		return
 	end
-
 	if managers.dlc:has_gage_pack_assault() or managers.dlc:has_soundtrack_or_cce() then
 		self:unlock_track("track_17")
 		self:playlist_add("track_17")
 		return
 	end
-
 	tracks_locked.track_17 = "assault"
 end
 
@@ -399,7 +321,6 @@ function MusicManager:jukebox_menu_track(name)
 	else
 		return track
 	end
-
 end
 
 function MusicManager:jukebox_default_tracks()
@@ -447,7 +368,6 @@ function MusicManager:jukebox_default_tracks()
 	if managers.dlc:has_armored_transport() or managers.dlc:has_soundtrack_or_cce() then
 		default_options.heist_big = "track_14"
 	end
-
 	if managers.dlc:has_big_bank() or managers.dlc:has_soundtrack_or_cce() then
 		default_options.heist_arm_cro = "track_09"
 		default_options.heist_arm_hcm = "track_09"
@@ -455,7 +375,6 @@ function MusicManager:jukebox_default_tracks()
 		default_options.heist_arm_par = "track_09"
 		default_options.heist_arm_und = "track_09"
 	end
-
 	return default_options
 end
 
@@ -495,18 +414,11 @@ function MusicManager:jukebox_music_tracks()
 	self:_jukebox_unlock_bigbank(tracks_locked)
 	self:_jukebox_unlock_assault(tracks_locked)
 	if managers.dlc then
-		if not managers.dlc:has_pdth_soundtrack() then
-			-- unhandled boolean indicator
-		else
-			local pdth_soundtrack = true
-		end
-
+		local pdth_soundtrack = not managers.dlc:has_pdth_soundtrack() and "payday"
 		for i = 1, 9 do
 			tracks_locked["track_pth_0" .. i] = pdth_soundtrack
 		end
-
 	end
-
 	return tracks, tracks_locked
 end
 
@@ -560,32 +472,20 @@ function MusicManager:jukebox_menu_tracks()
 	tracks = table.list_add(tracks, xmas_tracks)
 	local tracks_locked = {}
 	if not managers.dlc:has_soundtrack_or_cce() then
-		local (for generator), (for state), (for control) = ipairs(pd2_tracks)
-		do
-			do break end
+		for _, sound in ipairs(pd2_tracks) do
 			tracks_locked[sound] = "soundtrack"
 		end
-
 	end
-
 	if not managers.dlc:has_pdth_soundtrack() then
-		local (for generator), (for state), (for control) = ipairs(pdth_tracks)
-		do
-			do break end
+		for _, sound in ipairs(pdth_tracks) do
 			tracks_locked[sound] = "payday"
 		end
-
 	end
-
 	if not managers.dlc:has_xmas_soundtrack() then
-		local (for generator), (for state), (for control) = ipairs(xmas_tracks)
-		do
-			do break end
+		for _, sound in ipairs(xmas_tracks) do
 			tracks_locked[sound] = "xmas"
 		end
-
 	end
-
 	return tracks, tracks_locked
 end
 

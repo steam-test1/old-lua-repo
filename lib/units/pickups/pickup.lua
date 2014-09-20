@@ -17,7 +17,6 @@ function Pickup:pickup(unit)
 	if not self._active then
 		return
 	end
-
 	return self:_pickup(unit)
 end
 
@@ -44,7 +43,6 @@ function Pickup:load(data)
 	if state then
 		self:set_active(state.active)
 	end
-
 end
 
 function Pickup:destroy(unit)

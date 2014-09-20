@@ -19,13 +19,11 @@ function SetupSlaveSetup:init_game()
 		port = string.lower(port)
 		port = port ~= "default" and tonumber(port) or CoreSlaveUpdators.DEFAULT_NETWORK_PORT
 	end
-
 	local lsport = CoreApp.arg_value(self.SLAVE_LSP_ARG_NAME)
 	if lsport then
 		lsport = string.lower(lsport)
 		lsport = lsport ~= "default" and tonumber(lsport) or CoreSlaveUpdators.DEFAULT_NETWORK_LSPORT
 	end
-
 	assert(managers.slave:start(self._viewport, port, lsport))
 	slave_state_machine = CoreGameStateMachine.GameStateMachine:new(CoreInternalGameState.GameState:new("empty"))
 	return slave_state_machine

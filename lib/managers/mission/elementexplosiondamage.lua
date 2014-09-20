@@ -12,7 +12,6 @@ function ElementExplosionDamage:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	local player = managers.player:player_unit()
 	if player then
 		player:character_damage():damage_explosion({
@@ -21,7 +20,6 @@ function ElementExplosionDamage:on_executed(instigator)
 			damage = self._values.damage
 		})
 	end
-
 	ElementExplosionDamage.super.on_executed(self, instigator)
 end
 

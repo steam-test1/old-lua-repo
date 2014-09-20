@@ -25,7 +25,6 @@ function ElementSpawnCivilian:produce()
 	if not managers.groupai:state():is_AI_enabled() then
 		return
 	end
-
 	local unit = safe_spawn_unit(self._enemy_name, self:get_orientation())
 	unit:unit_data().mission_element = self
 	table.insert(self._units, unit)
@@ -51,27 +50,20 @@ function ElementSpawnCivilian:produce()
 		else
 			unit:base():play_state(state)
 		end
-
 	end
-
 	if self._values.force_pickup then
 		unit:character_damage():set_pickup(self._values.force_pickup)
 	end
-
 	self:event("spawn", unit)
 	return unit
 end
 
 function ElementSpawnCivilian:event(name, unit)
 	if self._events and self._events[name] then
-		local (for generator), (for state), (for control) = ipairs(self._events[name])
-		do
-			do break end
+		for _, callback in ipairs(self._events[name]) do
 			callback(unit)
 		end
-
 	end
-
 end
 
 function ElementSpawnCivilian:add_event_callback(name, callback)
@@ -84,11 +76,9 @@ function ElementSpawnCivilian:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	if not managers.groupai:state():is_AI_enabled() and not Application:editor() then
 		return
 	end
-
 	local unit = self:produce()
 	ElementSpawnCivilian.super.on_executed(self, unit)
 end

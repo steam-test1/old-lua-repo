@@ -15,11 +15,8 @@ function VideoManager:remove_video(video)
 end
 
 function VideoManager:volume_changed(volume)
-	local (for generator), (for state), (for control) = ipairs(self._videos)
-	do
-		do break end
+	for _, video in ipairs(self._videos) do
 		video:set_volume_gain(volume)
 	end
-
 end
 

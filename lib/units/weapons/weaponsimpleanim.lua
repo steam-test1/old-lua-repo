@@ -8,7 +8,6 @@ function WeaponSimpleAnim:init(unit)
 	if self.anim then
 		self._anim = Idstring(self.anim)
 	end
-
 end
 
 function WeaponSimpleAnim:_check_state(...)
@@ -17,14 +16,12 @@ function WeaponSimpleAnim:_check_state(...)
 		self._anim_state = self._on
 		self:play_anim()
 	end
-
 end
 
 function WeaponSimpleAnim:play_anim()
 	if not self._anim then
 		return
 	end
-
 	local length = self._unit:anim_length(self._anim)
 	local speed = self._anim_state and 1 or -1
 	self._unit:anim_play_to(self._anim, self._anim_state and length or 0, speed)

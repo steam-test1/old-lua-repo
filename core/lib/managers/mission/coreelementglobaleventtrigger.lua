@@ -16,14 +16,12 @@ function ElementGlobalEventTrigger:send_to_host(instigator)
 	if instigator then
 		managers.network:session():send_to_host("to_server_mission_element_trigger", self._id, instigator)
 	end
-
 end
 
 function ElementGlobalEventTrigger:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	ElementGlobalEventTrigger.super.on_executed(self, instigator)
 end
 

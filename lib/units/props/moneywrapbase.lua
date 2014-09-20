@@ -16,7 +16,6 @@ function MoneyWrapBase:take_money(unit)
 	if self._empty then
 		return
 	end
-
 	if self.give_exp then
 		unit:sound():play("money_grab")
 		managers.network:session():send_to_peers_synched("sync_money_wrap_money_taken", self._unit)
@@ -28,14 +27,11 @@ function MoneyWrapBase:take_money(unit)
 			unit:sound():play("money_grab")
 			managers.network:session():send_to_peers_synched("sync_money_wrap_money_taken", self._unit)
 		end
-
 		managers.money:perform_action_money_wrap(taken)
 	end
-
 	if self._money_amount <= 0 then
 		self:_set_empty()
 	end
-
 	self:_update_sequences()
 end
 
@@ -47,11 +43,9 @@ function MoneyWrapBase:sync_money_taken()
 		managers.money:perform_action_money_wrap(amount)
 		self._money_amount = math.max(self._money_amount - amount, 0)
 	end
-
 	if self._money_amount <= 0 then
 		self:_set_empty()
 	end
-
 	self:_update_sequences()
 end
 
@@ -61,7 +55,6 @@ function MoneyWrapBase:_take_money(unit)
 	if self._money_amount <= 0 then
 		self:_set_empty()
 	end
-
 	return took
 end
 
@@ -71,7 +64,6 @@ function MoneyWrapBase:_update_sequences()
 		self._sequence_stage = stage
 		self._unit:damage():run_sequence_simple("money_wrap_" .. self._sequence_stage)
 	end
-
 end
 
 function MoneyWrapBase:_set_empty()
@@ -79,7 +71,6 @@ function MoneyWrapBase:_set_empty()
 	if not self.skip_remove_unit then
 		self._unit:set_slot(0)
 	end
-
 end
 
 function MoneyWrapBase:update(unit, t, dt)

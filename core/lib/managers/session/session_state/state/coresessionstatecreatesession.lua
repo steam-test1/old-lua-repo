@@ -8,12 +8,9 @@ function CreateSession:init()
 	self._session._session_handler = self.session_state._factory:create_session_handler()
 	self._session._session_handler._core_session_control = self.session_state
 	local local_users = self.session_state._local_user_manager:users()
-	local (for generator), (for state), (for control) = pairs(local_users)
-	do
-		do break end
+	for _, local_user in pairs(local_users) do
 		self._session:join_local_user(local_user)
 	end
-
 end
 
 function CreateSession:transition()

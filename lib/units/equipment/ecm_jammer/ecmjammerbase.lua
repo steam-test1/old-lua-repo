@@ -41,7 +41,6 @@ function ECMJammerBase:init(unit)
 		self._validate_clbk_id = "ecm_jammer_validate" .. tostring(unit:key())
 		managers.enemy:add_delayed_clbk(self._validate_clbk_id, callback(self, self, "_clbk_validate"), Application:time() + 60)
 	end
-
 end
 
 function ECMJammerBase:_clbk_validate()
@@ -53,7 +52,6 @@ function ECMJammerBase:_clbk_validate()
 		}))
 		peer:mark_cheater()
 	end
-
 end
 
 function ECMJammerBase:sync_setup(upgrade_lvl, peer_id)
@@ -61,7 +59,6 @@ function ECMJammerBase:sync_setup(upgrade_lvl, peer_id)
 		managers.enemy:remove_delayed_clbk(self._validate_clbk_id)
 		self._validate_clbk_id = nil
 	end
-
 	managers.player:verify_equipment(peer_id, "ecm_jammer")
 end
 
@@ -94,7 +91,6 @@ function ECMJammerBase:sync_net_event(event_id)
 	elseif event_id == net_events.jammer_active then
 		self:set_active(true)
 	end
-
 end
 
 function ECMJammerBase:_send_net_event(event_id)
@@ -117,7 +113,6 @@ function ECMJammerBase:set_active(active)
 	if self._jammer_active == active then
 		return
 	end
-
 	if Network:is_server() then
 		if active then
 			self._owner_peer_id = managers.network:session():local_peer():id()
@@ -132,7 +127,6 @@ function ECMJammerBase:set_active(active)
 				self._attached_data.index = 1
 				self._attached_data.max_index = 3
 			end
-
 			self._alert_filter = self._owner:movement():SO_access()
 			local jam_cameras, jam_pagers
 			if managers.network:game():member_from_unit(self._owner):peer():id() == 1 then
@@ -142,7 +136,6 @@ function ECMJammerBase:set_active(active)
 				jam_cameras = self._owner:base():upgrade_value("ecm_jammer", "affects_cameras")
 				jam_pagers = self._owner:base():upgrade_value("ecm_jammer", "affects_pagers")
 			end
-
 			managers.groupai:state():register_ecm_jammer(self._unit, {
 				call = true,
 				camera = jam_cameras,
@@ -152,20 +145,16 @@ function ECMJammerBase:set_active(active)
 		else
 			managers.groupai:state():register_ecm_jammer(self._unit, false)
 		end
-
 	end
-
 	if active then
 		if not self._jam_sound_event then
 			self._jam_sound_event = self._unit:sound_source():post_event("ecm_jammer_jam_signal")
 		end
-
 	elseif self._jam_sound_event then
 		self._jam_sound_event:stop()
 		self._jam_sound_event = nil
 		self._unit:sound_source():post_event("ecm_jammer_jam_signal_stop")
 	end
-
 	self._jammer_active = active
 end
 
@@ -178,7 +167,6 @@ function ECMJammerBase:update(unit, t, dt)
 		self._battery_life = self._battery_life - dt
 		self:check_battery()
 	end
-
 	self:_check_body()
 end
 
@@ -188,14 +176,12 @@ function ECMJammerBase:check_battery()
 	elseif self._battery_life <= self._low_battery_life then
 		self:set_battery_low()
 	end
-
 end
 
 function ECMJammerBase:set_battery_empty()
 	if self._battery_empty then
 		return
 	end
-
 	self._battery_life = 0
 	self:_set_battery_empty()
 end
@@ -208,14 +194,12 @@ function ECMJammerBase:_set_battery_empty()
 	if Network:is_server() then
 		self:_send_net_event(self._NET_EVENTS.battery_empty)
 	end
-
 end
 
 function ECMJammerBase:set_battery_low()
 	if self._battery_low then
 		return
 	end
-
 	self._battery_life = self._low_battery_life
 	self:_set_battery_low()
 end
@@ -226,7 +210,6 @@ function ECMJammerBase:_set_battery_low()
 	if Network:is_server() then
 		self:_send_net_event(self._NET_EVENTS.battery_low)
 	end
-
 end
 
 function ECMJammerBase:sync_set_battery_life(battery_life)
@@ -238,21 +221,17 @@ function ECMJammerBase:_check_body()
 	if not self._attached_data then
 		return
 	end
-
 	if self._attached_data.index == 1 then
 		if not alive(self._attached_data.body) or not self._attached_data.body:enabled() then
 			self:_force_remove()
 		end
-
 	elseif self._attached_data.index == 2 then
 		if not alive(self._attached_data.body) or not mrotation.equal(self._attached_data.rotation, self._attached_data.body:rotation()) then
 			self:_force_remove()
 		end
-
 	elseif self._attached_data.index == 3 and (not alive(self._attached_data.body) or mvector3.not_equal(self._attached_data.position, self._attached_data.body:position())) then
 		self:_force_remove()
 	end
-
 	self._attached_data.index = (self._attached_data.index < self._attached_data.max_index and self._attached_data.index or 0) + 1
 end
 
@@ -264,13 +243,11 @@ function ECMJammerBase:set_feedback_active()
 	if not managers.network:session() then
 		return
 	end
-
 	if Network:is_client() then
 		self:_send_net_event_to_host(self._NET_EVENTS.feedback_start)
 	else
 		self:_set_feedback_active(true)
 	end
-
 end
 
 function ECMJammerBase:_set_feedback_active(state)
@@ -278,7 +255,6 @@ function ECMJammerBase:_set_feedback_active(state)
 	if state == self._feedback_active then
 		return
 	end
-
 	if Network:is_server() then
 		if state then
 			self._unit:interaction():set_active(false, true)
@@ -294,7 +270,6 @@ function ECMJammerBase:_set_feedback_active(state)
 				duration_mul = duration_mul * (self._owner:base():upgrade_value("ecm_jammer", "feedback_duration_boost") or 1)
 				duration_mul = duration_mul * (self._owner:base():upgrade_value("ecm_jammer", "feedback_duration_boost_2") or 1)
 			end
-
 			self._feedback_duration = math.lerp(tweak_data.upgrades.ecm_feedback_min_duration or 15, tweak_data.upgrades.ecm_feedback_max_duration or 20, math.random()) * duration_mul
 			self._feedback_expire_t = t + self._feedback_duration
 			local first_impact_t = t + math.lerp(0.1, 1, math.random())
@@ -305,19 +280,15 @@ function ECMJammerBase:_set_feedback_active(state)
 				managers.enemy:remove_delayed_clbk(self._feedback_clbk_id)
 				self._feedback_clbk_id = nil
 			end
-
 			self:_send_net_event(self._NET_EVENTS.feedback_stop)
 		end
-
 	end
-
 	if state then
 		self._g_glow_feedback_green:set_visibility(true)
 		self._g_glow_feedback_red:set_visibility(false)
 		if not self._puke_sound_event then
 			self._puke_sound_event = self._unit:sound_source():post_event("ecm_jammer_puke_signal")
 		end
-
 	else
 		self._g_glow_feedback_green:set_visibility(false)
 		self._g_glow_feedback_red:set_visibility(false)
@@ -326,9 +297,7 @@ function ECMJammerBase:_set_feedback_active(state)
 			self._puke_sound_event = nil
 			self._unit:sound_source():post_event("ecm_jammer_puke_stop")
 		end
-
 	end
-
 	self._feedback_active = state
 end
 
@@ -348,7 +317,6 @@ function ECMJammerBase:clbk_feedback()
 			self._unit
 		})
 	end
-
 	self._detect_and_give_dmg(self._position + self._unit:rotation():y() * 15, self._unit, self._owner, self._feedback_range)
 	if t > self._feedback_expire_t then
 		self._feedback_clbk_id = nil
@@ -358,10 +326,8 @@ function ECMJammerBase:clbk_feedback()
 			self._g_glow_feedback_red:set_visibility(true)
 			self._g_glow_feedback_green:set_visibility(false)
 		end
-
 		managers.enemy:add_delayed_clbk(self._feedback_clbk_id, callback(self, self, "clbk_feedback"), t + self._feedback_interval + math.random() * 0.3)
 	end
-
 end
 
 function ECMJammerBase._detect_and_give_dmg(hit_pos, device_unit, user_unit, range)
@@ -379,36 +345,22 @@ function ECMJammerBase._detect_and_give_dmg(hit_pos, device_unit, user_unit, ran
 		Vector3(0, 0, -range)
 	}
 	local pos = tmp_vec1
-	do
-		local (for generator), (for state), (for control) = ipairs(dirs)
-		do
-			do break end
-			mvector3.set(pos, dir)
-			mvector3.add(pos, hit_pos)
-			local splinter_ray = World:raycast("ray", hit_pos, pos, "slot_mask", slotmask)
-			pos = (splinter_ray and splinter_ray.position or pos) - dir:normalized() * math.min(splinter_ray and splinter_ray.distance or 0, 10)
-			local near_splinter = false
-			do
-				local (for generator), (for state), (for control) = ipairs(splinters)
-				do
-					do break end
-					if mvector3.distance_sq(pos, s_pos) < 300 then
-						near_splinter = true
-				end
-
-				else
-				end
-
+	for _, dir in ipairs(dirs) do
+		mvector3.set(pos, dir)
+		mvector3.add(pos, hit_pos)
+		local splinter_ray = World:raycast("ray", hit_pos, pos, "slot_mask", slotmask)
+		pos = (splinter_ray and splinter_ray.position or pos) - dir:normalized() * math.min(splinter_ray and splinter_ray.distance or 0, 10)
+		local near_splinter = false
+		for _, s_pos in ipairs(splinters) do
+			if mvector3.distance_sq(pos, s_pos) < 300 then
+				near_splinter = true
+			else
 			end
-
-			if not near_splinter then
-				table.insert(splinters, mvector3.copy(pos))
-			end
-
 		end
-
+		if not near_splinter then
+			table.insert(splinters, mvector3.copy(pos))
+		end
 	end
-
 	local range_sq = range * range
 	local half_range_sq = range * 0.5
 	half_range_sq = half_range_sq * half_range_sq
@@ -416,20 +368,15 @@ function ECMJammerBase._detect_and_give_dmg(hit_pos, device_unit, user_unit, ran
 		if not u_data.char_tweak.ecm_vulnerability then
 			return
 		end
-
 		if math.random() >= u_data.char_tweak.ecm_vulnerability then
 			return
 		end
-
 		local head_pos = u_data.unit:movement():m_head_pos()
 		local dis_sq = mvec3_dis_sq(head_pos, hit_pos)
 		if dis_sq > range_sq then
 			return
 		end
-
-		local (for generator), (for state), (for control) = ipairs(splinters)
-		do
-			do break end
+		for i_splinter, s_pos in ipairs(splinters) do
 			local ray_hit = World:raycast("ray", s_pos, head_pos, "slot_mask", slotmask, "ignore_unit", u_data.unit, "report")
 			if not ray_hit and (i_splinter == 1 or dis_sq < half_range_sq) then
 				local attack_data = {
@@ -443,28 +390,17 @@ function ECMJammerBase._detect_and_give_dmg(hit_pos, device_unit, user_unit, ran
 					}
 				}
 				u_data.unit:character_damage():damage_explosion(attack_data)
+			else
+			end
 		end
-
-		else
-		end
-
 	end
 
-	do
-		local (for generator), (for state), (for control) = pairs(managers.enemy:all_enemies())
-		do
-			do break end
-			_chk_apply_dmg_to_char(u_data)
-		end
-
-	end
-
-	local (for generator), (for state), (for control) = pairs(managers.enemy:all_civilians())
-	do
-		do break end
+	for u_key, u_data in pairs(managers.enemy:all_enemies()) do
 		_chk_apply_dmg_to_char(u_data)
 	end
-
+	for u_key, u_data in pairs(managers.enemy:all_civilians()) do
+		_chk_apply_dmg_to_char(u_data)
+	end
 end
 
 function ECMJammerBase:_force_remove()
@@ -487,15 +423,12 @@ function ECMJammerBase:load(data)
 		if state.low_battery then
 			self:_set_battery_low()
 		end
-
 	else
 		self:_set_battery_empty()
 	end
-
 	if state.feedback_active then
 		self:_set_feedback_active(true)
 	end
-
 	self._was_dropin = true
 end
 
@@ -504,7 +437,6 @@ function ECMJammerBase:destroy()
 		managers.enemy:remove_delayed_clbk(self._validate_clbk_id)
 		self._validate_clbk_id = nil
 	end
-
 	self:set_active(false)
 	self:_set_feedback_active(false)
 end

@@ -36,12 +36,9 @@ end
 
 function CoreAreaUnitElement:populate_shapes_list()
 	self._shapes_list:clear()
-	local (for generator), (for state), (for control) = pairs(self._hed.shapes)
-	do
-		do break end
+	for name, shape in pairs(self._hed.shapes) do
 		self._shapes_list:append(name)
 	end
-
 end
 
 function CoreAreaUnitElement:set_shape_type(types)
@@ -54,14 +51,12 @@ function CoreAreaUnitElement:selected_shape(shapes)
 		self._current_shape = shapes:get_string(i)
 		self:set_shape_values()
 	end
-
 end
 
 function CoreAreaUnitElement:set_start_altitude()
 	if self._current_shape then
 		self._hed.shapes[self._current_shape].position = self._hed.shapes[self._current_shape].position:with_z(self._start_altitude:get_value())
 	end
-
 	self:set_shape_values()
 end
 
@@ -69,14 +64,12 @@ function CoreAreaUnitElement:set_altitude_text(data)
 	if not self._current_shape then
 		return
 	end
-
 	local value = tonumber(data.ctrl:get_value())
 	if data.type == "start" then
 		self._hed.shapes[self._current_shape].position = self._hed.shapes[self._current_shape].position:with_z(value)
 	elseif data.type == "height" then
 		self._hed.shapes[self._current_shape].height = value
 	end
-
 	self:set_shape_values()
 end
 
@@ -84,14 +77,12 @@ function CoreAreaUnitElement:set_altitude_spin(data)
 	if not self._current_shape then
 		return
 	end
-
 	if data.type == "start" then
 		local z = self._hed.shapes[self._current_shape].position.z + data.step
 		self._hed.shapes[self._current_shape].position = self._hed.shapes[self._current_shape].position:with_z(z)
 	elseif data.type == "height" then
 		self._hed.shapes[self._current_shape].height = self._hed.shapes[self._current_shape].height + data.step
 	end
-
 	self:set_shape_values()
 end
 
@@ -99,7 +90,6 @@ function CoreAreaUnitElement:set_height()
 	if self._current_shape then
 		self._hed.shapes[self._current_shape].height = self._height:get_value()
 	end
-
 	self:set_shape_values()
 end
 
@@ -108,7 +98,6 @@ function CoreAreaUnitElement:set_2d()
 		self._hed.shapes[self._current_shape].position = self._hed.shapes[self._current_shape].position:with_z(0)
 		self._hed.shapes[self._current_shape].height = 0
 	end
-
 	self:set_shape_values()
 end
 
@@ -116,7 +105,6 @@ function CoreAreaUnitElement:set_size()
 	if self._current_shape then
 		self._hed.shapes[self._current_shape].size_mul = math.pow(self._size:get_value() / 10, 2)
 	end
-
 end
 
 function CoreAreaUnitElement:size_release()
@@ -130,11 +118,9 @@ function CoreAreaUnitElement:size_release()
 		elseif current_shape.type == "plane" then
 			current_shape.width = current_shape.width * current_shape.size_mul
 		end
-
 		current_shape.size_mul = 1
 		self._size:set_value(10)
 	end
-
 end
 
 function CoreAreaUnitElement:set_shape_values()
@@ -166,23 +152,15 @@ function CoreAreaUnitElement:set_shape_values()
 		self._size:set_value(0)
 		self._size:set_enabled(false)
 	end
-
 end
 
 function CoreAreaUnitElement:update_selected(time)
-	do
-		local (for generator), (for state), (for control) = pairs(self._hed.shapes)
-		do
-			do break end
-			self:draw(shape, 0, 0.5 + (1 + math.sin(time * 100)) * 0.5 * 0.5, 0)
-		end
-
+	for _, shape in pairs(self._hed.shapes) do
+		self:draw(shape, 0, 0.5 + (1 + math.sin(time * 100)) * 0.5 * 0.5, 0)
 	end
-
 	if self._current_shape then
 		self:draw(self._hed.shapes[self._current_shape], 0, 1, 1)
 	end
-
 end
 
 function CoreAreaUnitElement:draw(shape, r, g, b)
@@ -194,7 +172,6 @@ function CoreAreaUnitElement:draw(shape, r, g, b)
 		height = shape.height
 		start_z = 0
 	end
-
 	self._brush:set_color(Color(0.75, r, g, b))
 	if shape.type == "sphere" then
 		self._brush:cylinder(position + Vector3(0, 0, start_z), position + Vector3(0, 0, height + start_z), shape.radious * shape.size_mul)
@@ -227,9 +204,7 @@ function CoreAreaUnitElement:draw(shape, r, g, b)
 			Application:draw_line(pos + shape.rotation:x() * width, pos + shape.rotation:x() * width + shape.rotation:y() * -500, 1, 0, 0)
 			Application:draw_line(pos + shape.rotation:x() * width / 2, pos + shape.rotation:x() * width / 2 + shape.rotation:y() * -500, 1, 0, 0)
 		end
-
 	end
-
 end
 
 function CoreAreaUnitElement:update_editing(t, dt)
@@ -241,25 +216,18 @@ function CoreAreaUnitElement:update_editing(t, dt)
 	if 0 < self._grid_size then
 		self._current_pos = self:round_position(self._current_pos)
 	end
-
 	if self._creating and self._current_shape then
 		self._hed.shapes[self._current_shape] = self:set_shape_properties(self._shape_type, self._start_pos, self._current_pos)
 	end
-
 	if self._grab_shape then
 		if self._move_all_shapes then
-			local (for generator), (for state), (for control) = pairs(self._hed.shapes)
-			do
-				do break end
+			for name, shape in pairs(self._hed.shapes) do
 				shape.position = self._current_pos + shape.move_offset
 			end
-
 		elseif current_shape then
 			current_shape.position = self._current_pos + current_shape.move_offset
 		end
-
 	end
-
 	local kb = Input:keyboard()
 	local mov_vec
 	if self._move_shape_rep:update(t, dt) then
@@ -272,23 +240,16 @@ function CoreAreaUnitElement:update_editing(t, dt)
 		elseif kb:down("left") then
 			mov_vec = Vector3(1, 0, 0) * -1
 		end
-
 		if mov_vec then
 			if shift() then
-				local (for generator), (for state), (for control) = pairs(self._hed.shapes)
-				do
-					do break end
+				for name, shape in pairs(self._hed.shapes) do
 					shape.position = shape.position + mov_vec * self._kb_move_grid_size
 				end
-
 			elseif current_shape then
 				current_shape.position = current_shape.position + mov_vec * self._kb_move_grid_size
 			end
-
 		end
-
 	end
-
 	if current_shape then
 		local rot_axis
 		if kb:down("num 4") then
@@ -296,13 +257,10 @@ function CoreAreaUnitElement:update_editing(t, dt)
 		elseif kb:down("num 6") then
 			rot_axis = Vector3(0, 0, -1)
 		end
-
 		if rot_axis then
 			current_shape.rotation = Rotation(rot_axis, 100 * dt) * current_shape.rotation
 		end
-
 	end
-
 	Application:draw_rotation(self._current_pos, self._unit:rotation())
 end
 
@@ -310,11 +268,8 @@ function CoreAreaUnitElement:load_data(data)
 	if not data then
 		return
 	end
-
 	self._hed.area_type = data._area_type or self._hed.area_type
-	local (for generator), (for state), (for control) = ipairs(data._shapes)
-	do
-		do break end
+	for _, shape in ipairs(data._shapes) do
 		self._current_shape = self:new_shape_name()
 		local properties
 		local s_pos = shape._generic._position
@@ -329,10 +284,8 @@ function CoreAreaUnitElement:load_data(data)
 			properties = self:set_shape_properties(shape._type, s_pos, e_pos)
 			properties.height = shape._height
 		end
-
 		self._hed.shapes[self._current_shape] = properties
 	end
-
 end
 
 function CoreAreaUnitElement:round_position(p)
@@ -347,7 +300,6 @@ function CoreAreaUnitElement:create_shape()
 	if 0 < self._grid_size then
 		self._start_pos = self:round_position(self._start_pos)
 	end
-
 	self._current_shape = self:new_shape_name()
 	local properties = self:set_shape_properties(self._shape_type, self._start_pos, self._start_pos)
 	self._hed.shapes[self._current_shape] = properties
@@ -362,9 +314,7 @@ function CoreAreaUnitElement:new_shape_name()
 		if not self._hed.shapes[name] then
 			return name
 		end
-
 	end
-
 end
 
 function CoreAreaUnitElement:set_shape_properties(type, pos, end_pos)
@@ -385,7 +335,6 @@ function CoreAreaUnitElement:set_shape_properties(type, pos, end_pos)
 		t.rotation = Rotation(x, y, z)
 		t.width = end_pos - t.position:length()
 	end
-
 	return t
 end
 
@@ -394,7 +343,6 @@ function CoreAreaUnitElement:delete()
 		self._hed.shapes[self._current_shape] = nil
 		self._current_shape = nil
 	end
-
 	self:populate_shapes_list()
 	self:set_shape_values()
 end
@@ -405,27 +353,18 @@ end
 
 function CoreAreaUnitElement:move_shape()
 	self._grab_shape = true
-	do
-		local (for generator), (for state), (for control) = pairs(self._hed.shapes)
-		do
-			do break end
-			shape.move_offset = shape.position - self._current_pos
-		end
-
+	for name, shape in pairs(self._hed.shapes) do
+		shape.move_offset = shape.position - self._current_pos
 	end
-
 	self._move_all_shapes = shift()
 end
 
 function CoreAreaUnitElement:release_shape()
 	self._grab_shape = false
 	self._move_all_shapes = false
-	local (for generator), (for state), (for control) = pairs(self._hed.shapes)
-	do
-		do break end
+	for name, shape in pairs(self._hed.shapes) do
 		shape.move_offset = nil
 	end
-
 end
 
 function CoreAreaUnitElement:add_triggers(vc)
@@ -463,19 +402,13 @@ function CoreAreaUnitElement:_build_panel(panel, panel_sizer)
 	local types_sizer = EWS:BoxSizer("HORIZONTAL")
 	types_sizer:add(EWS:StaticText(panel, "Types:", 0, ""), 2, 0, "ALIGN_CENTER_VERTICAL")
 	local area_type = EWS:ComboBox(panel, "", "", "CB_DROPDOWN,CB_READONLY")
-	do
-		local (for generator), (for state), (for control) = ipairs({
-			"on_enter",
-			"on_exit",
-			"toggle"
-		})
-		do
-			do break end
-			area_type:append(type)
-		end
-
+	for _, type in ipairs({
+		"on_enter",
+		"on_exit",
+		"toggle"
+	}) do
+		area_type:append(type)
 	end
-
 	area_type:set_value(self._hed.area_type)
 	types_sizer:add(area_type, 3, 0, "EXPAND")
 	area_type:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {ctrlr = area_type, value = "area_type"})
@@ -483,15 +416,9 @@ function CoreAreaUnitElement:_build_panel(panel, panel_sizer)
 	local shape_names_sizer = EWS:BoxSizer("HORIZONTAL")
 	shape_names_sizer:add(EWS:StaticText(panel, "Shape Types:", 0, ""), 2, 0, "ALIGN_CENTER_VERTICAL")
 	local shape_names = EWS:ComboBox(panel, "", "", "CB_DROPDOWN,CB_READONLY")
-	do
-		local (for generator), (for state), (for control) = ipairs(self._shapes_types)
-		do
-			do break end
-			shape_names:append(type)
-		end
-
+	for _, type in ipairs(self._shapes_types) do
+		shape_names:append(type)
 	end
-
 	shape_names:set_value(self._shape_type)
 	shape_names_sizer:add(shape_names, 3, 0, "EXPAND")
 	shape_names:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_shape_type"), shape_names)

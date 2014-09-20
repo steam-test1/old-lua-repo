@@ -29,7 +29,6 @@ function CoreCutsceneClipMetadata:camera_icon_image()
 	if self:footage() and self:camera() then
 		icon_index = self:footage():camera_icon_index(self:camera())
 	end
-
 	return CoreEWS.image_path(string.format("sequencer\\clip_icon_camera_%02i.bmp", icon_index))
 end
 
@@ -39,10 +38,8 @@ function CoreCutsceneClipMetadata:camera_watermark()
 		local as_number = tonumber(name_without_prefix)
 		if not as_number or not tostring(as_number) then
 		end
-
 		return string.upper(name_without_prefix or "camera"), 12, "ALIGN_CENTER_HORIZONTAL,ALIGN_CENTER_VERTICAL", Vector3(0, -2)
 	end
-
 	return nil
 end
 

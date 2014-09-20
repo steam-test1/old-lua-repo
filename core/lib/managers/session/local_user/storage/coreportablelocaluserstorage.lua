@@ -7,4 +7,3 @@ elseif SystemInfo:platform() == Idstring("WIN32") then
 elseif SystemInfo:platform() == Idstring("PS3") then
 	Storage = CoreFakeLocalUserStorage.Storage
 end
-

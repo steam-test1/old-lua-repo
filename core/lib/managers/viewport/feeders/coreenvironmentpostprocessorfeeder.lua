@@ -16,7 +16,6 @@ function EnvironmentPostProcessorFeeder:processor(scene, vp, processor_name, eff
 		proc = vp:get_post_processor_effect(scene, Idstring(processor_name), Idstring(effect_name))
 		self._cached_processor[name] = vp:get_post_processor_effect(scene, Idstring(processor_name), Idstring(effect_name))
 	end
-
 	return proc
 end
 
@@ -34,9 +33,7 @@ function EnvironmentPostProcessorFeeder:feed(nr, scene, vp, data, block, ...)
 			if modifier then
 				local material = modifier:material()
 				if material then
-					local (for generator), (for state), (for control) = pairs(block)
-					do
-						do break end
+					for k, v in pairs(block) do
 						local value = v
 						if k == "luminance_clamp" or k == "start_color" or k == "color0" or k == "color1" or k == "color2" or k == "environment_map_intensity" or k == "environment_map_intensity_shadow" or k == "ambient_color" or k == "sky_top_color" or k == "sky_bottom_color" or k == "sky_reflection_bottom_color" or k == "sky_reflection_top_color" or k == "sun_specular_color" or k == "fog_start_color" then
 							value = v * LightIntensityDB:platform_intensity_scale()
@@ -52,11 +49,8 @@ function EnvironmentPostProcessorFeeder:feed(nr, scene, vp, data, block, ...)
 										else
 											material:set_variable(Idstring(k), value)
 										end
-
 									end
-
 								end
-
 							else
 								local scalar = block[k .. "_scale"]
 								if scalar then
@@ -64,9 +58,7 @@ function EnvironmentPostProcessorFeeder:feed(nr, scene, vp, data, block, ...)
 								else
 									material:set_variable(Idstring(k), value)
 								end
-
 							end
-
 						else
 							local scalar = block[k .. "_scale"]
 							if scalar then
@@ -74,20 +66,13 @@ function EnvironmentPostProcessorFeeder:feed(nr, scene, vp, data, block, ...)
 							else
 								material:set_variable(Idstring(k), value)
 							end
-
 						end
-
 					end
-
 				end
-
 			end
-
 		end
-
 		return true
 	end
-
 	return false
 end
 

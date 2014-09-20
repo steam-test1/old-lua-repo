@@ -28,37 +28,23 @@ function CoreUnitCallbackCutsceneKey:load(key_node, loading_class)
 	self.super.load(self, key_node, loading_class)
 	self._method_params = {}
 	local params = {}
-	do
-		local (for generator), (for state), (for control) = key_node:children()
-		do
-			do break end
-			local param = CoreUnitCallbackCutsceneKeyParam:new()
-			param:load(param_node)
-			table.insert(params, param)
-		end
-
+	for param_node in key_node:children() do
+		local param = CoreUnitCallbackCutsceneKeyParam:new()
+		param:load(param_node)
+		table.insert(params, param)
 	end
-
 	if self:is_valid_method(self:method()) then
 		self._method_params[self:method()] = params
 	end
-
 end
 
 function CoreUnitCallbackCutsceneKey:_save_under(parent_node)
 	local key_node = self.super._save_under(self, parent_node)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._method_params and self._method_params[self:method()] or {})
-		do
-			do break end
-			if not param:is_nil() then
-				param:_save_under(key_node)
-			end
-
+	for _, param in ipairs(self._method_params and self._method_params[self:method()] or {}) do
+		if not param:is_nil() then
+			param:_save_under(key_node)
 		end
-
 	end
-
 	return key_node
 end
 
@@ -67,14 +53,12 @@ function CoreUnitCallbackCutsceneKey:play(player, undo, fast_forward)
 		local method_name = undo and "undo_" .. self:method() or self:method()
 		self:_invoke_if_exists(method_name, player)
 	end
-
 end
 
 function CoreUnitCallbackCutsceneKey:skip(player)
 	if self:enabled() then
 		self:_invoke_if_exists("skip_" .. self:method(), player)
 	end
-
 end
 
 function CoreUnitCallbackCutsceneKey:is_valid_unit_name(unit_name)
@@ -87,12 +71,7 @@ function CoreUnitCallbackCutsceneKey:is_valid_extension(extension)
 end
 
 function CoreUnitCallbackCutsceneKey:is_valid_method(method)
-	if method ~= nil and not string.begins(method, "undo_") then
-		-- unhandled boolean indicator
-	else
-	end
-
-	return true
+	return method ~= nil and not string.begins(method, "undo_") and not string.begins(method, "skip_")
 end
 
 function CoreUnitCallbackCutsceneKey:refresh_control_for_extension(control)
@@ -105,20 +84,15 @@ function CoreUnitCallbackCutsceneKey:refresh_control_for_extension(control)
 	if not table.empty(unit_extensions) then
 		control:set_enabled(true)
 		local value = self:extension()
-		local (for generator), (for state), (for control) = ipairs(unit_extensions)
-		do
-			do break end
+		for _, extension in ipairs(unit_extensions) do
 			control:append(extension)
 			if extension == value then
 				control:set_value(value)
 			end
-
 		end
-
 	else
 		control:set_enabled(false)
 	end
-
 	control:thaw()
 end
 
@@ -129,20 +103,15 @@ function CoreUnitCallbackCutsceneKey:refresh_control_for_method(control)
 	if methods then
 		control:set_enabled(true)
 		local value = self:method()
-		local (for generator), (for state), (for control) = ipairs(table.map_keys(methods))
-		do
-			do break end
+		for _, method in ipairs(table.map_keys(methods)) do
 			control:append(method)
 			if method == value then
 				control:set_value(value)
 			end
-
 		end
-
 	else
 		control:set_enabled(false)
 	end
-
 	control:thaw()
 end
 
@@ -158,9 +127,7 @@ function CoreUnitCallbackCutsceneKey:refresh_control_for_arguments(panel)
 		panel_sizer:add(EWS:StaticLine(panel), 0, 10, "TOP,EXPAND")
 		panel_sizer:add(headline, 0, 5, "ALL,EXPAND")
 		panel_sizer:add(EWS:StaticLine(panel), 0, 0, "EXPAND")
-		local (for generator), (for state), (for control) = ipairs(method_arguments)
-		do
-			do break end
+		for _, argument_name in ipairs(method_arguments) do
 			do
 				local param = self:_param_with_name(argument_name)
 				local value_field = EWS:TextCtrl(panel, "")
@@ -184,30 +151,20 @@ function CoreUnitCallbackCutsceneKey:refresh_control_for_arguments(panel)
 					value_field:set_enabled(param.value_type ~= "nil")
 				end
 )
-				do
-					local (for generator), (for state), (for control) = ipairs(type_options)
-					do
-						do break end
-						type_selector:append(option)
-						if param.value_type == option then
-							type_selector:set_value(option)
-						end
-
+				for _, option in ipairs(type_options) do
+					type_selector:append(option)
+					if param.value_type == option then
+						type_selector:set_value(option)
 					end
-
 				end
-
 				local type_and_value_sizer = EWS:BoxSizer("HORIZONTAL")
 				type_and_value_sizer:add(type_selector, 0, 5, "RIGHT,EXPAND")
 				type_and_value_sizer:add(value_field, 1, 0, "EXPAND")
 				panel_sizer:add(EWS:StaticText(panel, string.pretty(param.name, true) .. ":"), 0, 5, "TOP,LEFT,RIGHT")
 				panel_sizer:add(type_and_value_sizer, 0, 5, "ALL,EXPAND")
 			end
-
 		end
-
 	end
-
 	panel:set_sizer(panel_sizer)
 	panel:thaw()
 end
@@ -223,35 +180,26 @@ function CoreUnitCallbackCutsceneKey:_invoke_if_exists(method_name, player)
 		Application:error("Unit \"" .. self:unit_name() .. "\" does not have the extension \"" .. self:extension() .. "\".")
 		return
 	end
-
 	local func = extension[method_name]
 	if not func then
 		Application:error(string.pretty(self:extension(), true) .. " extension on unit \"" .. self:unit_name() .. "\" does not support the call \"" .. method_name .. "\".")
 		return
 	end
-
 	local params = self._method_params and self._method_params[self:method()] or {}
 	local param_values = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(params)
-		do
-			do break end
-			local value = param:value(self, player)
-			if value == nil and not param:is_nil() then
-				local parameter_names = string.join(", ", table.collect(params, function(p)
-					return p.name
-				end
-))
-				Application:error(string.format("Bad argument %s in call to %s:%s():%s(%s)", param:__tostring(), self:unit_name(), self:extension(), method_name, parameter_names))
-				return
-			else
-				param_values[index] = value
+	for index, param in ipairs(params) do
+		local value = param:value(self, player)
+		if value == nil and not param:is_nil() then
+			local parameter_names = string.join(", ", table.collect(params, function(p)
+				return p.name
 			end
-
+))
+			Application:error(string.format("Bad argument %s in call to %s:%s():%s(%s)", param:__tostring(), self:unit_name(), self:extension(), method_name, parameter_names))
+			return
+		else
+			param_values[index] = value
 		end
-
 	end
-
 	func(extension, table.unpack_sparse(param_values))
 end
 
@@ -263,7 +211,6 @@ function CoreUnitCallbackCutsceneKey:_param_with_name(param_name)
 		self._method_params = self._method_params or {}
 		self._method_params[self:method()] = params
 	end
-
 	local param = table.find_value(params, function(p)
 		return p.name == param_name
 	end
@@ -273,7 +220,6 @@ function CoreUnitCallbackCutsceneKey:_param_with_name(param_name)
 		param.name = param_name
 		table.insert(params, param)
 	end
-
 	return param
 end
 
@@ -305,9 +251,7 @@ function CoreUnitCallbackCutsceneKeyParam:value(cutscene_key)
 		elseif self.value_type == "unit" then
 			return cutscene_key and cutscene_key:_unit(self.string_value, true)
 		end
-
 	end
-
 	return nil
 end
 

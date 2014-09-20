@@ -15,9 +15,7 @@ function CopActionTurn:init(action_desc, common_data)
 			debug_pause("[CopActionTurn:init] idle redirect failed in", self._machine:segment_state(Idstring("base")))
 			return false
 		end
-
 	end
-
 	self.update = self._upd_wait_full_blend
 	self._ext_movement:enable_update()
 	CopActionAct._create_blocks_table(self, action_desc.blocks)
@@ -37,7 +35,6 @@ function CopActionTurn:update(t)
 	if not self._ext_anim.turn and self._ext_anim.idle_full_blend then
 		self._expired = true
 	end
-
 	self._ext_movement:set_m_rot(self._common_data.unit:rotation())
 end
 
@@ -62,12 +59,10 @@ function CopActionTurn:_upd_wait_full_blend(t)
 			else
 				self._machine:set_parameter(redir_res, "angle45", 1)
 			end
-
 			local vis_state = self._ext_base:lod_stage() or 4
 			if vis_state > 1 then
 				self._machine:set_speed(redir_res, vis_state)
 			end
-
 			self._common_data.unit:set_driving("animation")
 			self._ext_movement:set_root_blend(false)
 			self._ext_base:chk_freeze_anims()
@@ -77,9 +72,7 @@ function CopActionTurn:_upd_wait_full_blend(t)
 			cat_print("george", "[CopActionTurn:update] ", redir_name, " redirect failed in", self._machine:segment_state(Idstring("base")))
 			self._expired = true
 		end
-
 	end
-
 end
 
 function CopActionTurn:type()

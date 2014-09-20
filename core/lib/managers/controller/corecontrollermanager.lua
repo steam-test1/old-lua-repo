@@ -15,13 +15,11 @@ function ControllerManager:init(path, default_settings_path)
 	if not Global.controller_manager then
 		Global.controller_manager = {default_controller_connected = nil}
 	end
-
 	self._skip_controller_map = {}
 	if SystemInfo:platform() ~= Idstring("WIN32") then
 		self._skip_controller_map.win32_keyboard = true
 		self._skip_controller_map.win32_mouse = true
 	end
-
 	self._controller_to_wrapper_list = {}
 	self._wrapper_to_controller_list = {}
 	self._wrapper_class_map = {}
@@ -41,22 +39,12 @@ function ControllerManager:init(path, default_settings_path)
 	elseif SystemInfo:platform() == Idstring("X360") then
 		self._supported_wrapper_types[CoreControllerWrapperXbox360.ControllerWrapperXbox360.TYPE] = CoreControllerWrapperXbox360.ControllerWrapperXbox360
 	end
-
 	self._supported_controller_type_map = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._supported_wrapper_types)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(wrapper.CONTROLLER_TYPE_LIST)
-			do
-				do break end
-				self._supported_controller_type_map[controller_type] = wrapper_type
-			end
-
+	for wrapper_type, wrapper in pairs(self._supported_wrapper_types) do
+		for _, controller_type in ipairs(wrapper.CONTROLLER_TYPE_LIST) do
+			self._supported_controller_type_map[controller_type] = wrapper_type
 		end
-
 	end
-
 	self._last_version = nil
 	self._last_core_version = nil
 	self._default_settings_path = default_settings_path
@@ -75,71 +63,44 @@ function ControllerManager:setup_default_controller_list()
 	if Global.controller_manager.default_wrapper_index then
 		local controller_index_list = self._wrapper_to_controller_list[Global.controller_manager.default_wrapper_index]
 		self._default_controller_list = {}
-		local (for generator), (for state), (for control) = ipairs(controller_index_list)
-		do
-			do break end
+		for _, controller_index in ipairs(controller_index_list) do
 			table.insert(self._default_controller_list, Input:controller(controller_index))
 		end
-
 	end
-
 end
 
 function ControllerManager:update(t, dt)
-	do
-		local (for generator), (for state), (for control) = pairs(self._controller_wrapper_list)
-		do
-			do break end
-			if controller_wrapper:enabled() then
-				controller_wrapper:update(t, dt)
-			end
-
+	for id, controller_wrapper in pairs(self._controller_wrapper_list) do
+		if controller_wrapper:enabled() then
+			controller_wrapper:update(t, dt)
 		end
-
 	end
-
 	self:check_connect_change()
 end
 
 function ControllerManager:paused_update(t, dt)
-	do
-		local (for generator), (for state), (for control) = pairs(self._controller_wrapper_list)
-		do
-			do break end
-			if controller_wrapper:enabled() then
-				controller_wrapper:paused_update(t, dt)
-			end
-
+	for id, controller_wrapper in pairs(self._controller_wrapper_list) do
+		if controller_wrapper:enabled() then
+			controller_wrapper:paused_update(t, dt)
 		end
-
 	end
-
 	self:check_connect_change()
 end
 
 function ControllerManager:check_connect_change()
 	if self._default_controller_list then
 		local connected
-		do
-			local (for generator), (for state), (for control) = ipairs(self._default_controller_list)
-			do
-				do break end
-				connected = controller:connected()
-				if not connected then
-			end
-
+		for _, controller in ipairs(self._default_controller_list) do
+			connected = controller:connected()
+			if not connected then
 			else
 			end
-
 		end
-
 		if not Global.controller_manager.default_controller_connected ~= not connected then
 			self:default_controller_connect_change(connected)
 			Global.controller_manager.default_controller_connected = connected
 		end
-
 	end
-
 end
 
 function ControllerManager:default_controller_connect_change(connected)
@@ -170,20 +131,14 @@ function ControllerManager:create_controller(name, index, debug, prio)
 	if debug then
 		local wrapper_list = {}
 		local default_wrapper
-		do
-			local (for generator), (for state), (for control) = pairs(self._wrapper_class_map)
-			do
-				do break end
-				local controller_index = self._wrapper_to_controller_list[wrapper_index][1]
-				local controller = Input:controller(controller_index)
-				local wrapper = wrapper_class:new(self, self._next_controller_wrapper_id, name, controller, self._controller_setup[wrapper_class.TYPE], debug, false, self._virtual_game_pad)
-				self:_add_accessobj(wrapper, prio or CoreManagerBase.PRIO_DEFAULT)
-				default_wrapper = default_wrapper or wrapper
-				table.insert(wrapper_list, wrapper)
-			end
-
+		for wrapper_index, wrapper_class in pairs(self._wrapper_class_map) do
+			local controller_index = self._wrapper_to_controller_list[wrapper_index][1]
+			local controller = Input:controller(controller_index)
+			local wrapper = wrapper_class:new(self, self._next_controller_wrapper_id, name, controller, self._controller_setup[wrapper_class.TYPE], debug, false, self._virtual_game_pad)
+			self:_add_accessobj(wrapper, prio or CoreManagerBase.PRIO_DEFAULT)
+			default_wrapper = default_wrapper or wrapper
+			table.insert(wrapper_list, wrapper)
 		end
-
 		controller_wrapper = CoreControllerWrapperDebug.ControllerWrapperDebug:new(wrapper_list, self, self._next_controller_wrapper_id, name, default_wrapper, CoreControllerWrapperSettings.ControllerWrapperSettings:new(CoreControllerWrapperDebug.ControllerWrapperDebug.TYPE, nil, nil, nil))
 	else
 		index = index or Global.controller_manager.default_wrapper_index or self:get_preferred_default_wrapper_index()
@@ -191,21 +146,17 @@ function ControllerManager:create_controller(name, index, debug, prio)
 		if not wrapper_class then
 			error("Tried to create a controller with non-existing index \"" .. tostring(index) .. "\" (default index: " .. tostring(Global.controller_manager.default_wrapper_index) .. ", name: \"" .. tostring(name) .. "\").")
 		end
-
 		local controller_index = self._wrapper_to_controller_list[index][1]
 		local controller = Input:controller(controller_index)
 		controller_wrapper = wrapper_class:new(self, self._next_controller_wrapper_id, name, controller, self._controller_setup[wrapper_class.TYPE], debug, false, self._virtual_game_pad)
 	end
-
 	if name then
 		if self._controller_wrapper_map[name] then
 			controller_wrapper:destroy()
 			error("Tried to create a controller with a name \"" .. tostring(name) .. "\" that already exists.")
 		end
-
 		self._controller_wrapper_map[name] = controller_wrapper
 	end
-
 	cat_print("controller_manager", "[ControllerManager] Created new controller. Name: " .. tostring(name) .. ", Index: " .. tostring(index) .. ", Debug: " .. tostring(debug) .. ", Id: " .. tostring(self._next_controller_wrapper_id))
 	controller_wrapper:add_destroy_callback(callback(self, self, "controller_wrapper_destroy_callback"))
 	self._controller_wrapper_list[self._next_controller_wrapper_id] = controller_wrapper
@@ -218,23 +169,15 @@ function ControllerManager:get_controller_by_name(name)
 	if name and self._controller_wrapper_map[name] then
 		return self._controller_wrapper_map[name]
 	end
-
 end
 
 function ControllerManager:get_preferred_default_wrapper_index()
 	self:update_controller_wrapper_mappings()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._wrapper_class_map)
-		do
-			do break end
-			if Input:controller(wrapper_index):connected() and wrapper_class.TYPE ~= "pc" then
-				return wrapper_index
-			end
-
+	for wrapper_index, wrapper_class in ipairs(self._wrapper_class_map) do
+		if Input:controller(wrapper_index):connected() and wrapper_class.TYPE ~= "pc" then
+			return wrapper_index
 		end
-
 	end
-
 	return 1
 end
 
@@ -264,21 +207,13 @@ function ControllerManager:update_controller_wrapper_mappings()
 					wrapper_index = next_wrapper_index
 					self._wrapper_count = next_wrapper_index
 					self._wrapper_class_map[wrapper_index] = wrapper_class
-					do
-						local (for generator), (for state), (for control) = ipairs(wrapper_class.CONTROLLER_TYPE_LIST)
-						do
-							do break end
-							if controller_type ~= next_controller_type then
-								controller_type_to_old_wrapper_map[next_controller_type] = wrapper_index
-							end
-
+					for _, next_controller_type in ipairs(wrapper_class.CONTROLLER_TYPE_LIST) do
+						if controller_type ~= next_controller_type then
+							controller_type_to_old_wrapper_map[next_controller_type] = wrapper_index
 						end
-
 					end
-
 					next_wrapper_index = next_wrapper_index + 1
 				end
-
 				self._controller_to_wrapper_list[controller_index] = wrapper_index
 				self._wrapper_to_controller_list[wrapper_index] = self._wrapper_to_controller_list[wrapper_index] or {}
 				if controller_type == wrapper_class.CONTROLLER_TYPE_LIST[1] then
@@ -286,13 +221,9 @@ function ControllerManager:update_controller_wrapper_mappings()
 				else
 					table.insert(self._wrapper_to_controller_list[wrapper_index], controller_index)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function ControllerManager:get_controller_index_list(wrapper_index)
@@ -331,33 +262,18 @@ function ControllerManager:set_default_wrapper_index(default_wrapper_index)
 			if not Global.controller_manager.default_wrapper_index then
 				self:_close_controller_changed_dialog()
 			end
-
 			local remove_safe_list = {}
-			do
-				local (for generator), (for state), (for control) = pairs(self._default_wrapper_index_change_callback_map)
-				do
-					do break end
-					table.insert(remove_safe_list, func)
-				end
-
+			for _, func in pairs(self._default_wrapper_index_change_callback_map) do
+				table.insert(remove_safe_list, func)
 			end
-
-			do
-				local (for generator), (for state), (for control) = ipairs(remove_safe_list)
-				do
-					do break end
-					func(default_wrapper_index)
-				end
-
+			for _, func in ipairs(remove_safe_list) do
+				func(default_wrapper_index)
 			end
-
 			self:setup_default_controller_list()
 		else
 			Application:error("Invalid default controller index.")
 		end
-
 	end
-
 end
 
 function ControllerManager:get_default_wrapper_index()
@@ -373,7 +289,6 @@ function ControllerManager:controller_wrapper_destroy_callback(controller_wrappe
 	if name then
 		self._controller_wrapper_map[name] = nil
 	end
-
 end
 
 function ControllerManager:load_core_settings()
@@ -381,34 +296,24 @@ function ControllerManager:load_core_settings()
 	if PackageManager:has(self.CONTROLLER_SETTINGS_TYPE:id(), self.CORE_CONTROLLER_SETTINGS_PATH:id()) then
 		local node = PackageManager:script_data(self.CONTROLLER_SETTINGS_TYPE:id(), self.CORE_CONTROLLER_SETTINGS_PATH:id())
 		local parsed_controller_setup_map = {}
-		do
-			local (for generator), (for state), (for control) = ipairs(node)
-			do
-				do break end
-				local wrapper_type = child._meta
-				if self._core_controller_setup[wrapper_type] then
-					Application:error("Duplicate core controller settings for \"" .. tostring(wrapper_type) .. "\" found in \"" .. tostring(self.CORE_CONTROLLER_SETTINGS_PATH) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\". Overwrites existing one.")
-				end
-
-				local setup = CoreControllerWrapperSettings.ControllerWrapperSettings:new(wrapper_type, child, nil, self.CORE_CONTROLLER_SETTINGS_PATH .. "." .. self.CONTROLLER_SETTINGS_TYPE)
-				parsed_controller_setup_map[wrapper_type] = setup
+		for _, child in ipairs(node) do
+			local wrapper_type = child._meta
+			if self._core_controller_setup[wrapper_type] then
+				Application:error("Duplicate core controller settings for \"" .. tostring(wrapper_type) .. "\" found in \"" .. tostring(self.CORE_CONTROLLER_SETTINGS_PATH) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\". Overwrites existing one.")
 			end
-
+			local setup = CoreControllerWrapperSettings.ControllerWrapperSettings:new(wrapper_type, child, nil, self.CORE_CONTROLLER_SETTINGS_PATH .. "." .. self.CONTROLLER_SETTINGS_TYPE)
+			parsed_controller_setup_map[wrapper_type] = setup
 		end
-
 		if self:verify_parsed_controller_setup_map(parsed_controller_setup_map, self.CORE_CONTROLLER_SETTINGS_PATH) then
 			self._last_core_version = tonumber(node.core_version)
 			self._core_controller_setup = parsed_controller_setup_map
 			self._controller_setup = parsed_controller_setup_map
 		end
-
 		result = true
 	end
-
 	if self._settings_path then
 		self:load_settings(self._settings_path)
 	end
-
 	return result
 end
 
@@ -418,10 +323,8 @@ function ControllerManager:load_settings(path)
 		if path then
 			Application:error("Invalid path \"" .. tostring(path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\", defaults to \"" .. tostring(self._default_settings_path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\".")
 		end
-
 		path = self._default_settings_path
 	end
-
 	if path and PackageManager:has(self.CONTROLLER_SETTINGS_TYPE:id(), path:id()) then
 		local node = PackageManager:script_data(self.CONTROLLER_SETTINGS_TYPE:id(), path:id())
 		local version = tonumber(node.version)
@@ -430,76 +333,46 @@ function ControllerManager:load_settings(path)
 		local valid_core_version = path == self._default_settings_path or not self._last_core_version or not core_version or core_version >= self._last_core_version
 		if valid_version and valid_core_version then
 			local parsed_controller_setup_map = {}
-			do
-				local (for generator), (for state), (for control) = ipairs(node)
-				do
-					do break end
-					local wrapper_type = child._meta
-					if parsed_controller_setup_map[wrapper_type] then
-						Application:error("Duplicate controller settings for \"" .. tostring(wrapper_type) .. "\" found in \"" .. tostring(path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\". Overwrites existing one.")
-					end
-
-					local setup = CoreControllerWrapperSettings.ControllerWrapperSettings:new(wrapper_type, child, self._core_controller_setup[wrapper_type], tostring(path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE))
-					parsed_controller_setup_map[wrapper_type] = setup
+			for _, child in ipairs(node) do
+				local wrapper_type = child._meta
+				if parsed_controller_setup_map[wrapper_type] then
+					Application:error("Duplicate controller settings for \"" .. tostring(wrapper_type) .. "\" found in \"" .. tostring(path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\". Overwrites existing one.")
 				end
-
+				local setup = CoreControllerWrapperSettings.ControllerWrapperSettings:new(wrapper_type, child, self._core_controller_setup[wrapper_type], tostring(path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE))
+				parsed_controller_setup_map[wrapper_type] = setup
 			end
-
 			if self:verify_parsed_controller_setup_map(parsed_controller_setup_map, path) then
 				result = true
-				do
-					local (for generator), (for state), (for control) = pairs(self._controller_wrapper_list)
-					do
-						do break end
-						controller_wrapper:clear_connections(false)
-					end
-
+				for _, controller_wrapper in pairs(self._controller_wrapper_list) do
+					controller_wrapper:clear_connections(false)
 				end
-
 				self._controller_setup = parsed_controller_setup_map
 				self._last_version = version
 				self._settings_path = path
 			else
 				Application:error("Ignores invalid controller setting file \"" .. tostring(path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\".")
 			end
-
 		else
 			local error_msg = "Old controller settings file \"" .. tostring(path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\" detected (version: \"" .. tostring(version) .. "\", core version: \"" .. tostring(core_version) .. "\", latest version: \"" .. tostring(self._last_version) .. "\", latest core version: \"" .. tostring(self._last_core_version) .. "\"."
 			local load_default
 			if path ~= self._default_settings_path then
 				error_msg = error_msg .. " Loads the default path \"" .. tostring(self._default_settings_path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\" instead."
 			end
-
 			Application:error(error_msg)
 			if path ~= self._default_settings_path then
 				self:load_settings(self._default_settings_path)
 			end
-
 		end
-
 	else
 		Application:error("No controller settings file were found at path \"" .. tostring(path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\".")
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._supported_wrapper_types)
-		do
-			do break end
-			self._controller_setup[wrapper_type] = self._controller_setup[wrapper_type] or CoreControllerWrapperSettings.ControllerWrapperSettings:new(wrapper_type, nil, self._core_controller_setup[wrapper_type], nil)
-		end
-
+	for wrapper_type, _ in pairs(self._supported_wrapper_types) do
+		self._controller_setup[wrapper_type] = self._controller_setup[wrapper_type] or CoreControllerWrapperSettings.ControllerWrapperSettings:new(wrapper_type, nil, self._core_controller_setup[wrapper_type], nil)
 	end
-
 	self:rebind_connections()
-	do
-		local (for generator), (for state), (for control) = pairs(self._settings_file_changed_callback_list)
-		do
-			do break end
-			func(id)
-		end
-
+	for id, func in pairs(self._settings_file_changed_callback_list) do
+		func(id)
 	end
-
 	return result
 end
 
@@ -513,31 +386,21 @@ function ControllerManager:save_settings(path)
 			core_version = self._last_core_version,
 			version = self._last_version
 		}
-		do
-			local (for generator), (for state), (for control) = pairs(self._controller_setup)
-			do
-				do break end
-				setting:populate_data(data)
-			end
-
+		for wrapper_type, setting in pairs(self._controller_setup) do
+			setting:populate_data(data)
 		end
-
 		file:print(ScriptSerializer:to_custom_xml(data))
 		SystemFS:close(file)
 		self._settings_path = path
 	else
 		Application:error("Unable to save controller settings. No settings to save.")
 	end
-
 end
 
 function ControllerManager:rebind_connections()
-	local (for generator), (for state), (for control) = pairs(self._controller_wrapper_list)
-	do
-		do break end
+	for _, controller_wrapper in pairs(self._controller_wrapper_list) do
 		controller_wrapper:rebind_connections(self._controller_setup[controller_wrapper:get_type()], self._controller_setup)
 	end
-
 end
 
 function ControllerManager:get_settings_map()
@@ -577,66 +440,43 @@ function ControllerManager:create_virtual_pad()
 			for i = 0, controller:num_buttons() - 1 do
 				self._virtual_game_pad:connect(controller, controller:button_name(i), Idstring("gamepad" .. tostring(game_pad_num) .. "_B" .. tostring(i)))
 			end
-
 			for i = 0, controller:num_axes() - 1 do
 				self._virtual_game_pad:connect(controller, controller:axis_name(i), Idstring("gamepad" .. tostring(game_pad_num) .. "_A" .. tostring(i)))
 			end
-
 		end
-
 		step = step + 1
 	end
-
 	local controller = Input:mouse()
 	for i = 0, controller:num_buttons() - 1 do
 		self._virtual_game_pad:connect(controller, controller:button_name(i), Idstring("mouse " .. tostring(i)))
 	end
-
 end
 
 function ControllerManager:verify_parsed_controller_setup_map(parsed_controller_setup_map, path)
 	local result = true
 	local connection_map = {}
 	local last_wrapper_type
-	do
-		local (for generator), (for state), (for control) = pairs(parsed_controller_setup_map)
-		do
-			do break end
-			local current_connection_map = setup:get_connection_map()
-			do
-				local (for generator), (for state), (for control) = pairs(current_connection_map)
-				do
-					do break end
-					if not last_wrapper_type then
-						connection_map[connection_name] = wrapper_type
-					elseif not connection_map[connection_name] then
-						Application:error("Controller settings for \"" .. tostring(last_wrapper_type) .. "\" doesn't have a connection called \"" .. tostring(connection_name) .. "\" in \"" .. tostring(path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\". It was last specified in \"" .. tostring(wrapper_type) .. "\".")
-						connection_map[connection_name] = wrapper_type
-						result = false
-					end
-
-				end
-
+	for wrapper_type, setup in pairs(parsed_controller_setup_map) do
+		local current_connection_map = setup:get_connection_map()
+		for connection_name in pairs(current_connection_map) do
+			if not last_wrapper_type then
+				connection_map[connection_name] = wrapper_type
+			elseif not connection_map[connection_name] then
+				Application:error("Controller settings for \"" .. tostring(last_wrapper_type) .. "\" doesn't have a connection called \"" .. tostring(connection_name) .. "\" in \"" .. tostring(path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\". It was last specified in \"" .. tostring(wrapper_type) .. "\".")
+				connection_map[connection_name] = wrapper_type
+				result = false
 			end
-
-			if last_wrapper_type then
-				local (for generator), (for state), (for control) = pairs(connection_map)
-				do
-					do break end
-					if not current_connection_map[connection_name] then
-						Application:error("Controller settings for \"" .. tostring(wrapper_type) .. "\" doesn't have a connection called \"" .. tostring(connection_name) .. "\" in \"" .. tostring(path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\". It was last specified in \"" .. tostring(found_wrapper_type) .. "\".")
-						result = false
-					end
-
-				end
-
-			end
-
-			last_wrapper_type = last_wrapper_type or wrapper_type
 		end
-
+		if last_wrapper_type then
+			for connection_name, found_wrapper_type in pairs(connection_map) do
+				if not current_connection_map[connection_name] then
+					Application:error("Controller settings for \"" .. tostring(wrapper_type) .. "\" doesn't have a connection called \"" .. tostring(connection_name) .. "\" in \"" .. tostring(path) .. "." .. tostring(self.CONTROLLER_SETTINGS_TYPE) .. "\". It was last specified in \"" .. tostring(found_wrapper_type) .. "\".")
+					result = false
+				end
+			end
+		end
+		last_wrapper_type = last_wrapper_type or wrapper_type
 	end
-
 	return result
 end
 

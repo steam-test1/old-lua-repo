@@ -7,7 +7,6 @@ function SubtitleSequence:init(sequence_node)
 	if sequence_node then
 		self:_load_from_xml(sequence_node)
 	end
-
 end
 
 function SubtitleSequence:name()
@@ -40,22 +39,15 @@ function SubtitleSequence:_load_from_xml(sequence_node)
 	assert(sequence_node:parameter("name"), "Sequence must have a name.")
 	self.__parameters = sequence_node:parameter_map()
 	self.__subtitles = {}
-	do
-		local (for generator), (for state), (for control) = sequence_node:children()
-		do
-			do break end
-			local string_id = self:_xml_assert(node:parameter("text_id"), node, string.format("Sequence \"%s\" has entries without text_ids.", self:name()))
-			if not managers.localization:exists(string_id) then
-				self:_report_bad_string_id(string_id)
-			end
-
-			local start_time = self:_xml_assert(tonumber(node:parameter("time")), node, string.format("Sequence \"%s\" has entries without valid times.", self:name()))
-			local subtitle = StringIDSubtitle:new(string_id, start_time, tonumber(node:parameter("duration") or 2))
-			self:add_subtitle(CoreClass.freeze(subtitle))
+	for node in sequence_node:children() do
+		local string_id = self:_xml_assert(node:parameter("text_id"), node, string.format("Sequence \"%s\" has entries without text_ids.", self:name()))
+		if not managers.localization:exists(string_id) then
+			self:_report_bad_string_id(string_id)
 		end
-
+		local start_time = self:_xml_assert(tonumber(node:parameter("time")), node, string.format("Sequence \"%s\" has entries without valid times.", self:name()))
+		local subtitle = StringIDSubtitle:new(string_id, start_time, tonumber(node:parameter("duration") or 2))
+		self:add_subtitle(CoreClass.freeze(subtitle))
 	end
-
 	CoreClass.freeze(self.__subtitles)
 end
 

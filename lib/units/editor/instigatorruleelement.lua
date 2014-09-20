@@ -71,15 +71,9 @@ function InstigatorRuleUnitElement:_update_rules_panel(panel, panel_sizer)
 		}
 		local states = CoreEws.list_selector(carry_ids_params)
 		local options = {}
-		do
-			local (for generator), (for state), (for control) = pairs(tweak_data.equipments.specials)
-			do
-				do break end
-				table.insert(options, name)
-			end
-
+		for name, _ in pairs(tweak_data.equipments.specials) do
+			table.insert(options, name)
 		end
-
 		local mission_equipment_params = {
 			name = "Mission equipment:",
 			panel = panel,
@@ -144,7 +138,6 @@ function InstigatorRuleUnitElement:_update_rules_panel(panel, panel_sizer)
 		}
 		local list = CoreEws.list_selector(params)
 	end
-
 	self._rules_panel:layout()
 	self._panel:layout()
 	managers.editor:layer("Mission"):do_layout()

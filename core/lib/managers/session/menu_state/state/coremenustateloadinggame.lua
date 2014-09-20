@@ -17,6 +17,5 @@ function LoadingGame:transition()
 	if game_state:is_in_game() then
 		return CoreMenuStateStopLoadingGame.StopLoadingGame
 	end
-
 end
 

@@ -9,16 +9,13 @@ function ElementSecurityCamera:on_executed(instigator)
 	if not self._values.enabled or Network:is_client() then
 		return
 	end
-
 	if not self._values.camera_u_id then
 		return
 	end
-
 	local camera_unit = self:_fetch_unit_by_unit_id(self._values.camera_u_id)
 	if not camera_unit then
 		return
 	end
-
 	local ai_state = self._values.ai_enabled and true or false
 	local settings
 	if ai_state or self._values.apply_settings then
@@ -34,7 +31,6 @@ function ElementSecurityCamera:on_executed(instigator)
 			}
 		}
 	end
-
 	camera_unit:base():set_detection_enabled(ai_state, settings, self)
 	ElementSpecialObjective.super.on_executed(self, instigator)
 end
@@ -49,7 +45,6 @@ function ElementSecurityCamera:_fetch_unit_by_unit_id(unit_id)
 	else
 		unit = managers.worlddefinition:get_unit_on_load(tonumber(unit_id), callback(self, self, "_load_unit"))
 	end
-
 	return unit
 end
 
@@ -64,7 +59,6 @@ function ElementSecurityCamera:on_destroyed()
 	if not self._values.enabled then
 		return
 	end
-
 	self._values.destroyed = true
 	self:check_triggers("destroyed")
 end
@@ -73,7 +67,6 @@ function ElementSecurityCamera:on_alarm()
 	if not self._values.enabled then
 		return
 	end
-
 	self._values.alarm = true
 	self:check_triggers("alarm")
 end
@@ -87,20 +80,15 @@ function ElementSecurityCamera:remove_trigger(id, type)
 	if self._triggers[type] then
 		self._triggers[type][id] = nil
 	end
-
 end
 
 function ElementSecurityCamera:check_triggers(type, instigator)
 	if not self._triggers[type] then
 		return
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._triggers[type])
-	do
-		do break end
+	for id, cb_data in pairs(self._triggers[type]) do
 		cb_data.callback(instigator)
 	end
-
 end
 
 function ElementSecurityCamera:save(data)

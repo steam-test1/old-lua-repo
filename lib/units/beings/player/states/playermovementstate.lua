@@ -18,9 +18,7 @@ function PlayerMovementState:chk_action_forbidden(action_type)
 		if unblock_data and (unblock_data == -1 or unblock_data > managers.player:player_timer():time()) then
 			return true
 		end
-
 	end
-
 end
 
 function PlayerMovementState:_reset_delay_action()
@@ -31,7 +29,6 @@ function PlayerMovementState:_set_delay_action(action_data)
 	if self._delay_action then
 		self:_reset_delay_action()
 	end
-
 	self._delay_action = action_data
 end
 
@@ -42,9 +39,7 @@ function PlayerMovementState:_reset_current_action()
 		if previous_action.root_blending_disabled then
 			self._machine:set_root_blending(true)
 		end
-
 	end
-
 	self._current_action = nil
 end
 
@@ -52,7 +47,6 @@ function PlayerMovementState:_set_current_action(action_data)
 	if self._current_action then
 		self:_reset_current_action()
 	end
-
 	self._current_action = action_data
 end
 

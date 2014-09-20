@@ -107,46 +107,31 @@ function CoreEditor:on_configuration_ok()
 end
 
 function CoreEditor:on_configuration_cancel()
-	do
-		local (for generator), (for state), (for control) = pairs(self._config)
-		do
-			do break end
-			local ctrlr = data.ctrlr or data
-			ctrlr:set_value(self[value])
-		end
-
+	for value, data in pairs(self._config) do
+		local ctrlr = data.ctrlr or data
+		ctrlr:set_value(self[value])
 	end
-
 	self._configuration:end_modal()
 end
 
 function CoreEditor:on_configuration_apply()
-	do
-		local (for generator), (for state), (for control) = pairs(self._config)
-		do
-			do break end
-			local ctrlr = not data.ctrlr and data
-			local changed = false
-			if type(self[value]) == "number" then
-				changed = self[value] ~= tonumber(ctrlr:get_value())
-				self[value] = tonumber(ctrlr:get_value())
-			else
-				changed = self[value] ~= ctrlr:get_value()
-				self[value] = ctrlr:get_value()
-			end
-
-			if data.callback then
-				data.callback(changed, self[value])
-			end
-
+	for value, data in pairs(self._config) do
+		local ctrlr = not data.ctrlr and data
+		local changed = false
+		if type(self[value]) == "number" then
+			changed = self[value] ~= tonumber(ctrlr:get_value())
+			self[value] = tonumber(ctrlr:get_value())
+		else
+			changed = self[value] ~= ctrlr:get_value()
+			self[value] = ctrlr:get_value()
 		end
-
+		if data.callback then
+			data.callback(changed, self[value])
+		end
 	end
-
 	self:save_configuration()
 	if managers.slave:connected() then
 		managers.slave:set_batch_count(self._slave_num_batches)
 	end
-
 end
 

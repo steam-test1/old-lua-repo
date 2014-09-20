@@ -46,7 +46,6 @@ function SelectGroupByName:key_delete(ctrlr, event)
 	if EWS:name_to_key_code("K_DELETE") == event:key_code() then
 		self:on_delete()
 	end
-
 end
 
 function SelectGroupByName:key_cancel(ctrlr, event)
@@ -54,26 +53,16 @@ function SelectGroupByName:key_cancel(ctrlr, event)
 	if EWS:name_to_key_code("K_ESCAPE") == event:key_code() then
 		self:on_cancel()
 	end
-
 end
 
 function SelectGroupByName:on_delete()
 	managers.editor:freeze_gui_lists()
 	local groups = self:_selected_item_groups()
-	do
-		local (for generator), (for state), (for control) = ipairs(groups)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(clone(group:units()))
-			do
-				do break end
-				managers.editor:delete_unit(unit)
-			end
-
+	for _, group in ipairs(groups) do
+		for _, unit in ipairs(clone(group:units())) do
+			managers.editor:delete_unit(unit)
 		end
-
 	end
-
 	managers.editor:thaw_gui_lists()
 end
 
@@ -82,12 +71,9 @@ end
 
 function SelectGroupByName:on_ungroup()
 	local groups = self:_selected_item_groups()
-	local (for generator), (for state), (for control) = ipairs(groups)
-	do
-		do break end
+	for _, group in ipairs(groups) do
 		managers.editor:remove_group(group:name())
 	end
-
 end
 
 function SelectGroupByName:on_select_group()
@@ -95,7 +81,6 @@ function SelectGroupByName:on_select_group()
 	if not group then
 		return
 	end
-
 	local ref = group:reference()
 	managers.editor:change_layer_based_on_unit(ref)
 	managers.editor:freeze_gui_lists()
@@ -105,16 +90,10 @@ end
 
 function SelectGroupByName:_selected_item_groups()
 	local groups = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._list:selected_items())
-		do
-			do break end
-			local group = self._groups[self._list:get_item_data(i)]
-			table.insert(groups, group)
-		end
-
+	for _, i in ipairs(self._list:selected_items()) do
+		local group = self._groups[self._list:get_item_data(i)]
+		table.insert(groups, group)
 	end
-
 	return groups
 end
 
@@ -123,7 +102,6 @@ function SelectGroupByName:_selected_item_group()
 	if index ~= -1 then
 		return self._groups[self._list:get_item_data(index)]
 	end
-
 end
 
 function SelectGroupByName:group_removed(group)
@@ -132,9 +110,7 @@ function SelectGroupByName:group_removed(group)
 			self._list:delete_item(i)
 			return
 		end
-
 	end
-
 end
 
 function SelectGroupByName:group_created(group)
@@ -145,24 +121,16 @@ function SelectGroupByName:group_created(group)
 end
 
 function SelectGroupByName:group_selected(group)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._list:selected_items())
-		do
-			do break end
-			self._list:set_item_selected(i, false)
-		end
-
+	for _, i in ipairs(self._list:selected_items()) do
+		self._list:set_item_selected(i, false)
 	end
-
 	for i = 0, self._list:item_count() - 1 do
 		if self._groups[self._list:get_item_data(i)] == group then
 			self._list:set_item_selected(i, true)
 			self._list:ensure_visible(i)
 			return
 		end
-
 	end
-
 end
 
 function SelectGroupByName:update_filter()
@@ -176,21 +144,14 @@ function SelectGroupByName:fill_group_list()
 	local filter = self._filter:get_value()
 	self._groups = {}
 	self._list:freeze()
-	do
-		local (for generator), (for state), (for control) = pairs(groups)
-		do
-			do break end
-			if string.find(name, filter, 1, true) then
-				local i = self._list:append_item(name)
-				self._groups[j] = group
-				self._list:set_item_data(i, j)
-				j = j + 1
-			end
-
+	for name, group in pairs(groups) do
+		if string.find(name, filter, 1, true) then
+			local i = self._list:append_item(name)
+			self._groups[j] = group
+			self._list:set_item_data(i, j)
+			j = j + 1
 		end
-
 	end
-
 	self._list:thaw()
 	self._list:autosize_column(0)
 end

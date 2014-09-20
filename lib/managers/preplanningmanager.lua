@@ -1,20 +1,13 @@
 local debug_assert = function(chk, ...)
 	if not chk then
 		local s = ""
-		do
-			local (for generator), (for state), (for control) = ipairs({
-				...
-			})
-			do
-				do break end
-				s = s .. "  " .. text
-			end
-
+		for i, text in ipairs({
+			...
+		}) do
+			s = s .. "  " .. text
 		end
-
 		assert(chk, s)
 	end
-
 end
 
 local default_category = "default"
@@ -33,13 +26,10 @@ function PrePlanningManager:post_init()
 end
 
 function PrePlanningManager:register_element(element)
-	local (for generator), (for state), (for control) = ipairs(element:value("allowed_types"))
-	do
-		do break end
+	for _, type in ipairs(element:value("allowed_types")) do
 		self._mission_elements_by_type[type] = self._mission_elements_by_type[type] or {}
 		table.insert(self._mission_elements_by_type[type], element)
 	end
-
 end
 
 function PrePlanningManager:is_type_disabled(type)
@@ -52,7 +42,6 @@ function PrePlanningManager:_change_disabled_type(type, change)
 	if self._disabled_types[type] <= 0 then
 		self._disabled_types[type] = nil
 	end
-
 end
 
 function PrePlanningManager:can_vote_on_plan(type, peer_id)
@@ -64,17 +53,13 @@ function PrePlanningManager:can_vote_on_plan(type, peer_id)
 		if current_majority_votes and current_majority_votes[current_plan] then
 			cost_mod = -self:get_type_budget_cost(current_majority_votes[current_plan][1])
 		end
-
 	end
-
 	if total_budget < current_budget + self:get_type_budget_cost(type, 0) + cost_mod then
 		return false
 	end
-
 	if self:is_type_disabled(type) then
 		return
 	end
-
 	return true
 end
 
@@ -86,7 +71,6 @@ function PrePlanningManager:vote_on_plan(type, id)
 		print("[SEND] vote_on_plan", type, id)
 		managers.network:session():send_to_host("reserve_preplanning", type, id, 2)
 	end
-
 end
 
 function PrePlanningManager:client_vote_on_plan(type, id, peer_id)
@@ -100,7 +84,6 @@ function PrePlanningManager:client_vote_on_plan(type, id, peer_id)
 		self._saved_vote_council = nil
 		managers.menu_component:update_preplanning_element(nil, nil)
 	end
-
 end
 
 function PrePlanningManager:server_vote_on_plan(type, id, peer_id)
@@ -119,7 +102,6 @@ function PrePlanningManager:_server_vote_on_plan(type, id, peer_id)
 		self._saved_vote_council = nil
 		managers.menu_component:update_preplanning_element(nil, nil)
 	end
-
 end
 
 function PrePlanningManager:get_player_votes(peer_id)
@@ -138,20 +120,13 @@ function PrePlanningManager:get_votes_on_element(plan, type, index)
 			false
 		}
 	}
-	do
-		local (for generator), (for state), (for control) = pairs(vote_council)
-		do
-			do break end
-			_plan = data[plan]
-			if _plan and _plan[1] == type and _plan[2] == index then
-				t.votes = t.votes + 1
-				t.players[peer_id] = true
-			end
-
+	for peer_id, data in pairs(vote_council) do
+		_plan = data[plan]
+		if _plan and _plan[1] == type and _plan[2] == index then
+			t.votes = t.votes + 1
+			t.players[peer_id] = true
 		end
-
 	end
-
 	return t
 end
 
@@ -159,14 +134,12 @@ function PrePlanningManager:unreserve_mission_element(id)
 	if not managers.network:session() then
 		return
 	end
-
 	local peer_id = managers.network:session():local_peer():id()
 	if Network:is_server() then
 		self:_server_unreserve_mission_element(id, peer_id)
 	elseif self._reserved_mission_elements[id] and self._reserved_mission_elements[id].peer_id == peer_id then
 		managers.network:session():send_to_host("reserve_preplanning", "", id, 1)
 	end
-
 end
 
 function PrePlanningManager:server_unreserve_mission_element(id, peer_id)
@@ -181,14 +154,10 @@ function PrePlanningManager:_server_unreserve_mission_element(id, peer_id)
 		local mission_element = self._mission_elements_by_type[type][index]
 		if mission_element then
 			local disables_types = mission_element:value("disables_types") or {}
-			local (for generator), (for state), (for control) = ipairs(disables_types)
-			do
-				do break end
+			for _, type in ipairs(disables_types) do
 				self:_change_disabled_type(type, -1)
 			end
-
 		end
-
 		self._reserved_mission_elements[id] = nil
 		local peer = managers.network:session() and managers.network:session():peer(peer_id)
 		if peer then
@@ -197,12 +166,10 @@ function PrePlanningManager:_server_unreserve_mission_element(id, peer_id)
 				type = self:get_type_name(type)
 			}))
 		end
-
 		managers.network:session():send_to_peers_loaded("preplanning_reserved", "", id, peer_id, 1)
 		print("[UNRESERVED]", "type", type, "id", id, "peer_id", peer_id)
 		managers.menu_component:update_preplanning_element(type, id)
 	end
-
 end
 
 function PrePlanningManager:client_unreserve_mission_element(id)
@@ -211,14 +178,10 @@ function PrePlanningManager:client_unreserve_mission_element(id)
 		local mission_element = self._mission_elements_by_type[type][index]
 		if mission_element then
 			local disables_types = mission_element:value("disables_types") or {}
-			local (for generator), (for state), (for control) = ipairs(disables_types)
-			do
-				do break end
+			for _, type in ipairs(disables_types) do
 				self:_change_disabled_type(type, -1)
 			end
-
 		end
-
 		local peer = managers.network:session() and managers.network:session():peer(self._reserved_mission_elements[id].peer_id or 1)
 		if peer then
 			managers.chat:feed_system_message(ChatManager.GAME, managers.localization:text("menu_chat_preplanning_unreserved", {
@@ -226,11 +189,9 @@ function PrePlanningManager:client_unreserve_mission_element(id)
 				type = self:get_type_name(type)
 			}))
 		end
-
 		self._reserved_mission_elements[id] = nil
 		managers.menu_component:update_preplanning_element(type, id)
 	end
-
 end
 
 function PrePlanningManager:on_peer_added(peer_id)
@@ -241,39 +202,22 @@ end
 
 function PrePlanningManager:on_peer_removed(peer_id)
 	local owned_by_peer = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._reserved_mission_elements)
-		do
-			do break end
-			if reserved_mission_element.peer_id == peer_id then
-				table.insert(owned_by_peer, id)
-			end
-
+	for id, reserved_mission_element in pairs(self._reserved_mission_elements) do
+		if reserved_mission_element.peer_id == peer_id then
+			table.insert(owned_by_peer, id)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(owned_by_peer)
-		do
-			do break end
-			local type, index = unpack(self._reserved_mission_elements[id].pack)
-			local mission_element = self._mission_elements_by_type[type][index]
-			if mission_element then
-				local disables_types = mission_element:value("disables_types") or {}
-				local (for generator), (for state), (for control) = ipairs(disables_types)
-				do
-					do break end
-					self:_change_disabled_type(type, -1)
-				end
-
+	for i, id in ipairs(owned_by_peer) do
+		local type, index = unpack(self._reserved_mission_elements[id].pack)
+		local mission_element = self._mission_elements_by_type[type][index]
+		if mission_element then
+			local disables_types = mission_element:value("disables_types") or {}
+			for _, type in ipairs(disables_types) do
+				self:_change_disabled_type(type, -1)
 			end
-
-			self._reserved_mission_elements[id] = nil
 		end
-
+		self._reserved_mission_elements[id] = nil
 	end
-
 	self._players_votes[peer_id] = nil
 	self._saved_majority_votes = nil
 	self._saved_vote_council = nil
@@ -287,33 +231,23 @@ function PrePlanningManager:count_reserved_for_type(type, category, peer_id)
 	local category_player_count = 0
 	local category_total_count = 0
 	local _type, _index, _category, _peer_id, type_data, category_data
-	do
-		local (for generator), (for state), (for control) = pairs(self._reserved_mission_elements)
-		do
-			do break end
-			_type, _index = unpack(data.pack)
-			_peer_id = data.peer_id
-			_category = tweak_data:get_raw_value("preplanning", "types", _type, "category") or default_category
-			if _type == type then
-				type_total_count = type_total_count + 1
-				if _peer_id == peer_id then
-					type_player_count = type_player_count + 1
-				end
-
+	for id, data in pairs(self._reserved_mission_elements) do
+		_type, _index = unpack(data.pack)
+		_peer_id = data.peer_id
+		_category = tweak_data:get_raw_value("preplanning", "types", _type, "category") or default_category
+		if _type == type then
+			type_total_count = type_total_count + 1
+			if _peer_id == peer_id then
+				type_player_count = type_player_count + 1
 			end
-
-			if _category == category then
-				category_total_count = category_total_count + 1
-				if _peer_id == peer_id then
-					category_player_count = category_player_count + 1
-				end
-
-			end
-
 		end
-
+		if _category == category then
+			category_total_count = category_total_count + 1
+			if _peer_id == peer_id then
+				category_player_count = category_player_count + 1
+			end
+		end
 	end
-
 	return type_player_count, type_total_count, category_player_count, category_total_count
 end
 
@@ -322,15 +256,12 @@ function PrePlanningManager:can_reserve_mission_element(type, peer_id)
 	if total_budget < current_budget + self:get_type_budget_cost(type) then
 		return false, 2
 	end
-
 	if peer_id == managers.network:session():local_peer():id() and not managers.money:can_afford_preplanning_type(type) then
 		return false, 1
 	end
-
 	if self:is_type_disabled(type) then
 		return false, 3
 	end
-
 	local type_data = tweak_data:get_raw_value("preplanning", "types", type)
 	local category = type_data and type_data.category or default_category
 	local category_data = tweak_data:get_raw_value("preplanning", "categories", category)
@@ -354,7 +285,6 @@ function PrePlanningManager:reserve_mission_element(type, id)
 		print("[SEND] reserve_mission_element", type, id)
 		managers.network:session():send_to_host("reserve_preplanning", type, id, 0)
 	end
-
 end
 
 function PrePlanningManager:server_reserve_mission_element(type, id, peer_id)
@@ -369,15 +299,9 @@ function PrePlanningManager:_server_reserve_mission_element(type, id, peer_id)
 			peer_id = peer_id
 		}
 		local disables_types = self._mission_elements_by_type[type][index]:value("disables_types") or {}
-		do
-			local (for generator), (for state), (for control) = ipairs(disables_types)
-			do
-				do break end
-				self:_change_disabled_type(type, 1)
-			end
-
+		for _, type in ipairs(disables_types) do
+			self:_change_disabled_type(type, 1)
 		end
-
 		local peer = managers.network:session() and managers.network:session():peer(peer_id)
 		if peer then
 			managers.chat:feed_system_message(ChatManager.GAME, managers.localization:text("menu_chat_preplanning_reserved", {
@@ -385,12 +309,10 @@ function PrePlanningManager:_server_reserve_mission_element(type, id, peer_id)
 				type = self:get_type_name(type)
 			}))
 		end
-
 		managers.network:session():send_to_peers_loaded("preplanning_reserved", type, id, peer_id, 0)
 		print("[RESERVED]", "type", type, "id", id, "peer_id", peer_id)
 		managers.menu_component:update_preplanning_element(type, id)
 	end
-
 end
 
 function PrePlanningManager:client_reserve_mission_element(type, id, peer_id)
@@ -403,17 +325,12 @@ function PrePlanningManager:client_reserve_mission_element(type, id, peer_id)
 			local mission_element = self._mission_elements_by_type[old_type][old_index]
 			if mission_element then
 				local disables_types = mission_element:value("disables_types") or {}
-				local (for generator), (for state), (for control) = ipairs(disables_types)
-				do
-					do break end
+				for _, type in ipairs(disables_types) do
 					self:_change_disabled_type(type, -1)
 				end
-
 			end
-
 			self._reserved_mission_elements[id] = nil
 		end
-
 		local peer = managers.network:session() and managers.network:session():peer(peer_id)
 		if peer then
 			managers.chat:feed_system_message(ChatManager.GAME, managers.localization:text("menu_chat_preplanning_reserved", {
@@ -421,24 +338,16 @@ function PrePlanningManager:client_reserve_mission_element(type, id, peer_id)
 				type = self:get_type_name(type)
 			}))
 		end
-
 		self._reserved_mission_elements[id] = {
 			pack = {type, index},
 			peer_id = peer_id
 		}
 		local disables_types = self._mission_elements_by_type[type][index]:value("disables_types") or {}
-		do
-			local (for generator), (for state), (for control) = ipairs(disables_types)
-			do
-				do break end
-				self:_change_disabled_type(type, 1)
-			end
-
+		for _, type in ipairs(disables_types) do
+			self:_change_disabled_type(type, 1)
 		end
-
 		managers.menu_component:update_preplanning_element(type, id)
 	end
-
 end
 
 function PrePlanningManager:get_reserved_mission_element(id)
@@ -456,18 +365,11 @@ end
 function PrePlanningManager:get_reserved_local_cost()
 	local total_cost = 0
 	local peer_id = managers.network:session():local_peer():id()
-	do
-		local (for generator), (for state), (for control) = pairs(self._reserved_mission_elements)
-		do
-			do break end
-			if data.peer_id == peer_id then
-				total_cost = total_cost + self:_get_type_cost(data.pack[1])
-			end
-
+	for id, data in pairs(self._reserved_mission_elements) do
+		if data.peer_id == peer_id then
+			total_cost = total_cost + self:_get_type_cost(data.pack[1])
 		end
-
 	end
-
 	return total_cost
 end
 
@@ -480,25 +382,15 @@ function PrePlanningManager:get_current_budget()
 	debug_assert(location_data, "[PrePlanningManager:get_current_budget] Missing location data for level", "level_id", managers.job:current_level_id())
 	local total_cost = 0
 	local peer_id = managers.network:session():local_peer():id()
-	do
-		local (for generator), (for state), (for control) = pairs(self._reserved_mission_elements)
-		do
-			do break end
-			total_cost = total_cost + self:get_type_budget_cost(data.pack[1])
-		end
-
+	for id, data in pairs(self._reserved_mission_elements) do
+		total_cost = total_cost + self:get_type_budget_cost(data.pack[1])
 	end
-
 	local current_majority_votes = self:get_current_majority_votes()
 	if current_majority_votes then
-		local (for generator), (for state), (for control) = pairs(current_majority_votes)
-		do
-			do break end
+		for plan, data in pairs(current_majority_votes) do
 			total_cost = total_cost + self:get_type_budget_cost(data[1])
 		end
-
 	end
-
 	return total_cost, location_data.total_budget or 1
 end
 
@@ -507,19 +399,15 @@ function PrePlanningManager:on_execute_preplanning()
 		if Network:is_server() then
 			self:_execute_reserved_mission_elements()
 		end
-
 		managers.money:on_buy_preplanning_types()
 		managers.money:on_buy_preplanning_votes()
 		local current_budget, total_budget = self:get_current_budget()
 		if current_budget == total_budget and managers.job:current_level_id() == "big" then
 			managers.achievment:award("bigbank_8")
 		end
-
 		local local_peer_id = managers.network:session():local_peer():id()
 		local award_achievement, progress_stat, type_data
-		local (for generator), (for state), (for control) = pairs(self._reserved_mission_elements)
-		do
-			do break end
+		for id, data in pairs(self._reserved_mission_elements) do
 			if data.peer_id == local_peer_id then
 				type_data = tweak_data.preplanning.types[data.pack[1]]
 				if type_data then
@@ -527,20 +415,14 @@ function PrePlanningManager:on_execute_preplanning()
 					if award_achievement then
 						managers.achievment:award(award_achievement)
 					end
-
 					progress_stat = type_data.progress_stat
 					if progress_stat then
 						managers.achievment:award_progress(progress_stat)
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 	self._reserved_mission_elements = {}
 	self._players_votes = {}
 end
@@ -565,51 +447,33 @@ function PrePlanningManager:_execute_reserved_mission_elements()
 								finished_table[location_index] = finished_table[location_index] or {}
 								finished_table[location_index][element:id()] = type
 							end
-
 						end
-
 					else
 						Application:error("[PrePlanningManager:on_execute_preplanning] out of budget!", "type", type, "current_budget", current_budget, "total_budget", total_budget)
 					end
-
 				else
 					Application:error("[PrePlanningManager:on_execute_preplanning] type is disabled", type)
 				end
-
 			end
 
 			local finished_votes = {
 				name_id = "menu_pp_sub_voting"
 			}
 			local winners = self:get_current_majority_votes()
-			do
-				local (for generator), (for state), (for control) = pairs(winners)
-				do
-					do break end
-					type, index = unpack(data)
-					execute_func(type, index, finished_votes)
-				end
-
+			for plan, data in pairs(winners) do
+				type, index = unpack(data)
+				execute_func(type, index, finished_votes)
 			end
-
 			local finished_types = {
 				name_id = "menu_pp_sub_place"
 			}
-			do
-				local (for generator), (for state), (for control) = pairs(self._reserved_mission_elements)
-				do
-					do break end
-					type, index = unpack(data.pack)
-					execute_func(type, index, finished_types)
-				end
-
+			for id, data in pairs(self._reserved_mission_elements) do
+				type, index = unpack(data.pack)
+				execute_func(type, index, finished_types)
 			end
-
 			self._finished_preplan = {finished_votes, finished_types}
 		end
-
 	end
-
 end
 
 function PrePlanningManager:get_current_preplan()
@@ -631,40 +495,25 @@ function PrePlanningManager:get_current_preplan()
 						peer_id = peer_id
 					})
 				end
-
 			end
-
 		end
-
 	end
 
 	local current_votes = {
 		name_id = "menu_pp_sub_voting"
 	}
 	local leaders = self:get_current_majority_votes()
-	do
-		local (for generator), (for state), (for control) = pairs(leaders)
-		do
-			do break end
-			type, index = unpack(data)
-			set_func(type, index, nil, current_votes)
-		end
-
+	for plan, data in pairs(leaders) do
+		type, index = unpack(data)
+		set_func(type, index, nil, current_votes)
 	end
-
 	local current_types = {
 		name_id = "menu_pp_sub_place"
 	}
-	do
-		local (for generator), (for state), (for control) = pairs(self._reserved_mission_elements)
-		do
-			do break end
-			type, index = unpack(data.pack)
-			set_func(type, index, data.peer_id, current_types)
-		end
-
+	for id, data in pairs(self._reserved_mission_elements) do
+		type, index = unpack(data.pack)
+		set_func(type, index, data.peer_id, current_types)
 	end
-
 	return current_votes, current_types
 end
 
@@ -673,56 +522,32 @@ function PrePlanningManager:_update_majority_votes()
 	local vote_council = self:get_vote_council()
 	local entry
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(vote_council)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(plan_data)
-			do
-				do break end
-				entry = tostring(data[1]) .. " " .. tostring(data[2])
-				t[plan] = t[plan] or {}
-				t[plan][entry] = (t[plan][entry] or 0) + (peer_id == 1 and 1.5 or 1)
-			end
-
+	for peer_id, plan_data in pairs(vote_council) do
+		for plan, data in pairs(plan_data) do
+			entry = tostring(data[1]) .. " " .. tostring(data[2])
+			t[plan] = t[plan] or {}
+			t[plan][entry] = (t[plan][entry] or 0) + (peer_id == 1 and 1.5 or 1)
 		end
-
 	end
-
 	local winners = {}
-	do
-		local (for generator), (for state), (for control) = pairs(t)
-		do
-			do break end
-			local max_votes, winner
-			do
-				local (for generator), (for state), (for control) = pairs(vote_data)
-				do
-					do break end
-					if not max_votes or votes > max_votes then
-						max_votes = votes
-						winner = entry
-					end
-
-				end
-
+	for plan, vote_data in pairs(t) do
+		local max_votes, winner
+		for entry, votes in pairs(vote_data) do
+			if not max_votes or votes > max_votes then
+				max_votes = votes
+				winner = entry
 			end
-
-			if winner then
-				local type, index = unpack(string.split(winner, " "))
-				if type and index then
-					winners[plan] = {
-						type,
-						tonumber(index)
-					}
-				end
-
-			end
-
 		end
-
+		if winner then
+			local type, index = unpack(string.split(winner, " "))
+			if type and index then
+				winners[plan] = {
+					type,
+					tonumber(index)
+				}
+			end
+		end
 	end
-
 	self._saved_majority_votes = winners
 	return self._saved_majority_votes
 end
@@ -737,54 +562,28 @@ function PrePlanningManager:_update_vote_council()
 	if not managers.network:session() then
 		return
 	end
-
 	local local_peer_id = managers.network:session():local_peer():id()
 	local peers = {local_peer_id}
-	do
-		local (for generator), (for state), (for control) = pairs(managers.network:session():peers())
-		do
-			do break end
-			table.insert(peers, peer_id)
-		end
-
+	for peer_id, _ in pairs(managers.network:session():peers()) do
+		table.insert(peers, peer_id)
 	end
-
 	local vote_council = {}
 	local mission_element
-	do
-		local (for generator), (for state), (for control) = ipairs(peers)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(location_data.default_plans)
-			do
-				do break end
-				mission_element = self:get_default_plan_mission_element(type)
-				if mission_element then
-					vote_council[peer_id] = vote_council[peer_id] or {}
-					vote_council[peer_id][plan] = {type, 1}
-				end
-
-			end
-
-		end
-
-	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._players_votes)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(self._players_votes[peer_id])
-			do
-				do break end
+	for i, peer_id in ipairs(peers) do
+		for plan, type in pairs(location_data.default_plans) do
+			mission_element = self:get_default_plan_mission_element(type)
+			if mission_element then
 				vote_council[peer_id] = vote_council[peer_id] or {}
-				vote_council[peer_id][plan] = data
+				vote_council[peer_id][plan] = {type, 1}
 			end
-
 		end
-
 	end
-
+	for peer_id, data in pairs(self._players_votes) do
+		for plan, data in pairs(self._players_votes[peer_id]) do
+			vote_council[peer_id] = vote_council[peer_id] or {}
+			vote_council[peer_id][plan] = data
+		end
+	end
 	self._saved_vote_council = vote_council
 	return self._saved_vote_council
 end
@@ -804,7 +603,6 @@ function PrePlanningManager:execute(type, index)
 	else
 		Application:error("[PrePlanningManager:execute] Mission element not found!", "type", type, "index", index)
 	end
-
 end
 
 function PrePlanningManager:_check_spawn_deployable(type, element)
@@ -813,7 +611,6 @@ function PrePlanningManager:_check_spawn_deployable(type, element)
 	if not deployable_id then
 		return
 	end
-
 	local pos, rot = element:get_orientation()
 	if deployable_id == "doctor_bag" then
 		DoctorBagBase.spawn(pos, rot, 0)
@@ -824,7 +621,6 @@ function PrePlanningManager:_check_spawn_deployable(type, element)
 	elseif deployable_id == "bodybags_bag" then
 		BodyBagsBagBase.spawn(pos, rot, 0)
 	end
-
 end
 
 local mvec = Vector3()
@@ -835,7 +631,6 @@ function PrePlanningManager:_check_spawn_unit(type, element)
 	if not unit_name then
 		return
 	end
-
 	local params = type_data.spawn_unit_params
 	local pos, rot = element:get_orientation()
 	mvector3.set(mvec, pos)
@@ -845,13 +640,10 @@ function PrePlanningManager:_check_spawn_unit(type, element)
 		if params.position then
 			mvector3.add(mvec, params.position)
 		end
-
 		if params.rotation then
 			mrotation.multiply(mrot, params.rotation)
 		end
-
 	end
-
 	local unit = World:spawn_unit(Idstring(unit_name), mvec, mrot)
 end
 
@@ -885,16 +677,11 @@ function PrePlanningManager:get_mission_element_index(id, type)
 		Application:error("[PrePlanningManager:get_mission_element_index] Mission element type do not exist", "type", type, inspect(self._mission_elements_by_type))
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._mission_elements_by_type[type])
-	do
-		do break end
+	for index, element in ipairs(self._mission_elements_by_type[type]) do
 		if element:id() == id then
 			return index
 		end
-
 	end
-
 end
 
 function PrePlanningManager:get_mission_element_id(type, index)
@@ -906,7 +693,6 @@ function PrePlanningManager:get_default_plan_mission_element(type)
 		Application:error("[PrePlanningManager:get_default_plan_mission_element] Mission element type do not exist", "type", type, inspect(self._mission_elements_by_type))
 		return
 	end
-
 	return self._mission_elements_by_type[type][1]
 end
 
@@ -920,7 +706,6 @@ function PrePlanningManager:get_type_name(type)
 	local name_id = type_data.name_id
 	if not name_id or not managers.localization:text(name_id) then
 	end
-
 	return "MISSING NAME_ID: " .. type
 end
 
@@ -940,7 +725,6 @@ function PrePlanningManager:get_type_desc(type)
 			budget = cost_budget
 		})
 	end
-
 	return text_string
 end
 
@@ -958,7 +742,6 @@ function PrePlanningManager:get_category_name(category)
 	local name_id = category_data.name_id
 	if not name_id or not managers.localization:text(name_id) then
 	end
-
 	return "MISSING NAME_ID: " .. category
 end
 
@@ -968,7 +751,6 @@ function PrePlanningManager:get_category_desc(category)
 	local desc_id = category_data.desc_id
 	if not desc_id or not managers.localization:text(desc_id) then
 	end
-
 	return "MISSING NAME_ID: " .. tostring(category)
 end
 
@@ -992,15 +774,11 @@ function PrePlanningManager:get_location_shape_by_index(index)
 end
 
 function PrePlanningManager:get_location_shape_by_group(group)
-	local (for generator), (for state), (for control) = ipairs(tweak_data.preplanning.location_groups)
-	do
-		do break end
+	for index, location_group in ipairs(tweak_data.preplanning.location_groups) do
 		if location_group == group then
 			return self:get_location_shape_by_index(index)
 		end
-
 	end
-
 end
 
 function PrePlanningManager:num_active_locations()
@@ -1062,18 +840,11 @@ function PrePlanningManager:has_current_custom_points()
 	local current_data = self:_current_location_data()
 	debug_assert(current_data, "[PrePlanningManager:get_current_custom_points] No tweak_data for level!", "level_id", managers.job:current_level_id())
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(current_data)
-		do
-			do break end
-			if location.custom_points and table.size(location.custom_points) > 0 then
-				return true
-			end
-
+	for i, location in ipairs(current_data) do
+		if location.custom_points and table.size(location.custom_points) > 0 then
+			return true
 		end
-
 	end
-
 	return false
 end
 
@@ -1081,18 +852,11 @@ function PrePlanningManager:get_current_custom_points()
 	local current_data = self:_current_location_data()
 	debug_assert(current_data, "[PrePlanningManager:get_current_custom_points] No tweak_data for level!", "level_id", managers.job:current_level_id())
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(current_data)
-		do
-			do break end
-			if location.custom_points then
-				t[i] = location.custom_points
-			end
-
+	for i, location in ipairs(current_data) do
+		if location.custom_points then
+			t[i] = location.custom_points
 		end
-
 	end
-
 	return t
 end
 
@@ -1101,34 +865,23 @@ function PrePlanningManager:_create_empty_locations_table()
 	for i = 1, #tweak_data.preplanning.location_groups do
 		table.insert(locations, {})
 	end
-
 	return locations
 end
 
 function PrePlanningManager:_get_location_groups_converter()
 	local location_groups_converter = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(tweak_data.preplanning.location_groups)
-		do
-			do break end
-			location_groups_converter[group] = location
-		end
-
+	for location, group in ipairs(tweak_data.preplanning.location_groups) do
+		location_groups_converter[group] = location
 	end
-
 	return location_groups_converter
 end
 
 function PrePlanningManager:convert_location_group_to_index(group)
-	local (for generator), (for state), (for control) = ipairs(tweak_data.preplanning.location_groups)
-	do
-		do break end
+	for index, location_group in ipairs(tweak_data.preplanning.location_groups) do
 		if location_group == group then
 			return index
 		end
-
 	end
-
 end
 
 function PrePlanningManager:convert_location_index_to_group(index)
@@ -1139,18 +892,12 @@ function PrePlanningManager:sort_mission_elements_into_locations(mission_element
 	local location_groups_converter = self:_get_location_groups_converter()
 	local locations = {}
 	local group, index
-	do
-		local (for generator), (for state), (for control) = ipairs(mission_elements)
-		do
-			do break end
-			group = element:value("location_group")
-			index = location_groups_converter[group]
-			locations[index] = locations[index] or {}
-			table.insert(locations[index], {index = element_index, element = element})
-		end
-
+	for element_index, element in ipairs(mission_elements) do
+		group = element:value("location_group")
+		index = location_groups_converter[group]
+		locations[index] = locations[index] or {}
+		table.insert(locations[index], {index = element_index, element = element})
 	end
-
 	return locations
 end
 
@@ -1165,41 +912,26 @@ end
 
 function PrePlanningManager:get_first_type_in_category(category)
 	local first_type, first_prio
-	do
-		local (for generator), (for state), (for control) = pairs(self._mission_elements_by_type)
-		do
-			do break end
-			if tweak_data.preplanning.types[type] and tweak_data.preplanning.types[type].category == category then
-				if first_type then
-				elseif first_prio < (tweak_data.preplanning.types[type].prio or 0) or first_type < type then
-					first_type = type
-					first_prio = tweak_data.preplanning.types[type].prio or 0
-				end
-
+	for type, _ in pairs(self._mission_elements_by_type) do
+		if tweak_data.preplanning.types[type] and tweak_data.preplanning.types[type].category == category then
+			if first_type then
+			elseif first_prio < (tweak_data.preplanning.types[type].prio or 0) or first_type < type then
+				first_type = type
+				first_prio = tweak_data.preplanning.types[type].prio or 0
 			end
-
 		end
-
 	end
-
 	return first_type
 end
 
 function PrePlanningManager:types_with_mission_elements(optional_category, no_sort)
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._mission_elements_by_type)
-		do
-			do break end
-			if optional_category then
-			elseif (tweak_data.preplanning.types[type].category or default_category) == optional_category then
-				table.insert(t, type)
-			end
-
+	for type, _ in pairs(self._mission_elements_by_type) do
+		if optional_category then
+		elseif (tweak_data.preplanning.types[type].category or default_category) == optional_category then
+			table.insert(t, type)
 		end
-
 	end
-
 	if not no_sort then
 		do
 			local location_data = self:_current_location_data()
@@ -1213,20 +945,16 @@ function PrePlanningManager:types_with_mission_elements(optional_category, no_so
 					x_prio = default_plan == x and 100
 					y_prio = default_plan == y and 100
 				end
-
 				x_prio = x_prio or td[x] and td[x].prio or 0
 				y_prio = y_prio or td[y] and td[y].prio or 0
 				if x_prio ~= y_prio then
 					return x_prio > y_prio
 				end
-
 				return y < x
 			end
 )
 		end
-
 	end
-
 	return t
 end
 
@@ -1236,31 +964,18 @@ function PrePlanningManager:get_mission_element_subgroups()
 	local other = {}
 	local category
 	local td = tweak_data.preplanning.categories
-	do
-		local (for generator), (for state), (for control) = ipairs(self:types_with_mission_elements(nil, true))
-		do
-			do break end
-			category = tweak_data.preplanning.types[type].category or default_category
-			if td[category] and td[category].plan then
-				plans[category] = true
-			else
-				other[category] = true
-			end
-
+	for _, type in ipairs(self:types_with_mission_elements(nil, true)) do
+		category = tweak_data.preplanning.types[type].category or default_category
+		if td[category] and td[category].plan then
+			plans[category] = true
+		else
+			other[category] = true
 		end
-
 	end
-
 	local sorted_plans = {}
-	do
-		local (for generator), (for state), (for control) = pairs(plans)
-		do
-			do break end
-			table.insert(sorted_plans, value)
-		end
-
+	for value, _ in pairs(plans) do
+		table.insert(sorted_plans, value)
 	end
-
 	local x_prio, y_prio
 	table.sort(sorted_plans, function(x, y)
 		x_prio = td[x] and td[x].prio or 0
@@ -1268,27 +983,19 @@ function PrePlanningManager:get_mission_element_subgroups()
 		if x_prio ~= y_prio then
 			return x_prio > y_prio
 		end
-
 		return y < x
 	end
 )
 	local sorted_other = {}
-	do
-		local (for generator), (for state), (for control) = pairs(other)
-		do
-			do break end
-			table.insert(sorted_other, value)
-		end
-
+	for value, _ in pairs(other) do
+		table.insert(sorted_other, value)
 	end
-
 	table.sort(sorted_other, function(x, y)
 		x_prio = td[x] and td[x].prio or 0
 		y_prio = td[y] and td[y].prio or 0
 		if x_prio ~= y_prio then
 			return x_prio > y_prio
 		end
-
 		return y < x
 	end
 )
@@ -1308,15 +1015,9 @@ end
 
 function PrePlanningManager:types()
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.preplanning.types)
-		do
-			do break end
-			table.insert(t, type)
-		end
-
+	for type, _ in pairs(tweak_data.preplanning.types) do
+		table.insert(t, type)
 	end
-
 	table.sort(t)
 	return t
 end
@@ -1329,7 +1030,6 @@ function PrePlanningManager:sync_save(data)
 		save_data.reserved_mission_elements = self._reserved_mission_elements
 		save_data.players_votes = self._players_votes
 	end
-
 	managers.menu_component:preplanning_sync_save(save_data)
 	data.PrePlanningManager = save_data
 end
@@ -1341,28 +1041,19 @@ function PrePlanningManager:sync_load(data)
 		else
 			self._reserved_mission_elements = data.PrePlanningManager.reserved_mission_elements or {}
 			self._players_votes = data.PrePlanningManager.players_votes or {}
-			local (for generator), (for state), (for control) = pairs(self._reserved_mission_elements)
-			do
-				do break end
+			for id, element_data in pairs(self._reserved_mission_elements) do
 				local type, index = unpack(element_data.pack)
 				local mission_element = self._mission_elements_by_type[type] and self._mission_elements_by_type[type][index]
 				if mission_element then
 					local disables_types = mission_element:value("disables_types") or {}
-					local (for generator), (for state), (for control) = ipairs(disables_types)
-					do
-						do break end
+					for _, type in ipairs(disables_types) do
 						self:_change_disabled_type(type, 1)
 					end
-
 				end
-
 			end
-
 		end
-
 		managers.menu_component:preplanning_sync_load(data.PrePlanningManager)
 		managers.menu_component:update_preplanning_element(nil, nil)
 	end
-
 end
 

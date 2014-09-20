@@ -32,16 +32,12 @@ function EditUnitDialog:add_page(data)
 end
 
 function EditUnitDialog:set_enabled(unit, units)
-	local (for generator), (for state), (for control) = ipairs(self._pages)
-	do
-		do break end
+	for _, page in ipairs(self._pages) do
 		if page.class then
 			page.panel:set_enabled(page.class:is_editable(unit, units))
 			self._notebook:set_page_text(page.nr, page.panel:enabled() and page.name .. "*" or page.name)
 		end
-
 	end
-
 end
 
 function EditUnitDialog:update(t, dt)
@@ -49,38 +45,25 @@ function EditUnitDialog:update(t, dt)
 	if current_page then
 		current_page.class:update(t, dt)
 	end
-
 end
 
 function EditUnitDialog:_current_page()
 	if not self._dialog:visible() then
 		return nil
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._pages)
-	do
-		do break end
+	for i, page in ipairs(self._pages) do
 		if self._notebook:get_current_page() == self._notebook:get_page(page.nr) then
 			return page
 		end
-
 	end
-
 end
 
 function EditUnitDialog:dialog_closed(data, event)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._pages)
-		do
-			do break end
-			if page.class then
-				page.class:dialog_closed()
-			end
-
+	for _, page in ipairs(self._pages) do
+		if page.class then
+			page.class:dialog_closed()
 		end
-
 	end
-
 	event:skip()
 end
 

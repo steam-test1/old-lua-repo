@@ -12,12 +12,10 @@ function ElementMoney:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	if self._values.action ~= "none" then
 	elseif Application:editor() then
 		managers.editor:output_error("Cant perform money action " .. self._values.action .. " in element " .. self._editor_name .. ".")
 	end
-
 	ElementMoney.super.on_executed(self, instigator)
 end
 

@@ -15,7 +15,6 @@ function SentryGunDamage:init(unit)
 	else
 		self._health_ratio = 1
 	end
-
 end
 
 function SentryGunDamage:set_health(amount)
@@ -28,7 +27,6 @@ function SentryGunDamage:sync_health(health_ratio)
 	if health_ratio == 0 then
 		self:die()
 	end
-
 end
 
 function SentryGunDamage:shoot_pos_mid(m_pos)
@@ -39,7 +37,6 @@ function SentryGunDamage:damage_bullet(attack_data)
 	if self._dead or self._invulnerable or PlayerDamage:_look_for_friendly_fire(attack_data.attacker_unit) then
 		return
 	end
-
 	local hit_shield = attack_data.col_ray.body and attack_data.col_ray.body:name() == self._shield_body_name
 	local hit_bag = attack_data.col_ray.body and attack_data.col_ray.body:name() == self._bag_body_name
 	local dmg_adjusted = attack_data.damage * (hit_shield and tweak_data.weapon.sentry_gun.SHIELD_DMG_MUL or 1) * (hit_bag and tweak_data.weapon.sentry_gun.BAG_DMG_MUL or 1)
@@ -48,13 +45,11 @@ function SentryGunDamage:damage_bullet(attack_data)
 	else
 		self._health = self._health - dmg_adjusted
 	end
-
 	local health_percent = self._health / self._health_max
 	if health_percent == 0 or math.abs(health_percent - self._health_sync) >= self._health_sync_resolution then
 		self._health_sync = health_percent
 		self._unit:network():send("sentrygun_health", math.ceil(health_percent / self._health_sync_resolution))
 	end
-
 end
 
 function SentryGunDamage:dead()
@@ -83,7 +78,6 @@ function SentryGunDamage:die()
 	else
 		self._unit:damage():run_sequence_simple("broken")
 	end
-
 	self._unit:interaction():set_tweak_data("sentry_gun_revive")
 end
 
@@ -92,22 +86,18 @@ function SentryGunDamage:save(save_data)
 	if self._health_sync then
 		my_save_data.health = math.ceil(self._health_sync / self._health_sync_resolution)
 	end
-
 	if next(my_save_data) then
 		save_data.char_damage = my_save_data
 	end
-
 end
 
 function SentryGunDamage:load(save_data)
 	if not save_data or not save_data.char_damage then
 		return
 	end
-
 	if save_data.char_damage.health then
 		self:sync_health(save_data.char_damage.health)
 	end
-
 end
 
 function SentryGunDamage:destroy(unit)

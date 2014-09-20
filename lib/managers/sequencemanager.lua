@@ -22,7 +22,6 @@ function InteractionElement:activate_callback(env)
 	else
 		Application:error("Unit " .. tostring(env.dest_unit:name()) .. " doesn't have the interaction extension.")
 	end
-
 end
 
 CoreClass.override_class(CoreSequenceManager.SequenceManager, SequenceManager)

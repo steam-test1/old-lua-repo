@@ -13,14 +13,12 @@ function CoreObjectVisibleCutsceneKey:unload(player)
 	if player and self._cast then
 		self:play(player, true)
 	end
-
 end
 
 function CoreObjectVisibleCutsceneKey:skip(player)
 	if self._cast then
 		self:play(player)
 	end
-
 end
 
 function CoreObjectVisibleCutsceneKey:play(player, undo, fast_forward)
@@ -34,11 +32,9 @@ function CoreObjectVisibleCutsceneKey:play(player, undo, fast_forward)
 		else
 			self:evaluate(player, false, self:_unit_initial_object_visibility(self:unit_name(), self:object_name()))
 		end
-
 	else
 		self:evaluate(player, fast_forward)
 	end
-
 end
 
 function CoreObjectVisibleCutsceneKey:evaluate(player, fast_forward, visible)
@@ -54,6 +50,5 @@ function CoreObjectVisibleCutsceneKey:is_valid_object_name(object_name)
 		local object = self:_unit_object(self:unit_name(), object_name, true)
 		return object and object.set_visibility ~= nil
 	end
-
 end
 

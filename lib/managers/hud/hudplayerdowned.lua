@@ -5,7 +5,6 @@ function HUDPlayerDowned:init(hud)
 	if self._hud_panel:child("downed_panel") then
 		self._hud_panel:remove(self._hud_panel:child("downed_panel"))
 	end
-
 	local downed_panel = self._hud_panel:panel({
 		name = "downed_panel"
 	})

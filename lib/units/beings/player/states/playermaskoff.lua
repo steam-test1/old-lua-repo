@@ -16,11 +16,9 @@ function PlayerMaskOff:_enter(enter_data)
 		self._ext_inventory:equip_selection(1, false)
 		managers.upgrades:setup_current_weapon()
 	end
-
 	if self._unit:camera():anim_data().equipped then
 		self._unit:camera():play_redirect(self._ids_unequip)
 	end
-
 	self._unit:base():set_slot(self._unit, 4)
 	self._ext_movement:set_attention_settings({
 		"pl_law_susp_peaceful",
@@ -34,7 +32,6 @@ function PlayerMaskOff:_enter(enter_data)
 			"enemy_weapons_hot"
 		}, callback(self, self, "clbk_enemy_weapons_hot"))
 	end
-
 	self._ext_network:send("set_stance", 1, false, false)
 	self._show_casing_t = Application:time() + 4
 end
@@ -46,13 +43,11 @@ function PlayerMaskOff:exit(state_data, new_state_name)
 		self._unit:inventory():equip_selection(self._previous_equipped_selection, false)
 		self._previous_equipped_selection = nil
 	end
-
 	self._unit:base():set_slot(self._unit, 2)
 	self._ext_movement:chk_play_mask_on_slow_mo(state_data)
 	if self._enemy_weapons_hot_listen_id then
 		managers.groupai:state():remove_listener(self._enemy_weapons_hot_listen_id)
 	end
-
 	self:_interupt_action_start_standard()
 end
 
@@ -66,7 +61,6 @@ function PlayerMaskOff:update(t, dt)
 		self._show_casing_t = nil
 		managers.hud:show_casing()
 	end
-
 end
 
 function PlayerMaskOff:_update_check_actions(t, dt)
@@ -79,20 +73,17 @@ function PlayerMaskOff:_update_check_actions(t, dt)
 		local cam_flat_rot = Rotation(self._cam_fwd_flat, math.UP)
 		mvector3.rotate_with(self._move_dir, cam_flat_rot)
 	end
-
 	self:_update_start_standard_timers(t)
 	if input.btn_stats_screen_press then
 		self._unit:base():set_stats_screen_visible(true)
 	elseif input.btn_stats_screen_release then
 		self._unit:base():set_stats_screen_visible(false)
 	end
-
 	self:_update_foley(t, input)
 	local new_action
 	if not new_action and self._state_data.ducking then
 		self:_end_action_ducking(t)
 	end
-
 	new_action = new_action or self:_check_use_item(t, input)
 	new_action = new_action or self:_check_action_interact(t, input)
 	self:_check_action_jump(t, input)
@@ -109,9 +100,7 @@ function PlayerMaskOff:_check_action_interact(t, input)
 		if not self:mark_units("f11", t, true) then
 			managers.hint:show_hint("mask_off_block_interact")
 		end
-
 	end
-
 end
 
 function PlayerMaskOff:mark_units(line, t, no_gesture, skip_alert)
@@ -126,26 +115,21 @@ function PlayerMaskOff:mark_units(line, t, no_gesture, skip_alert)
 		else
 			sound_name = tweak_data.character[prime_target.unit:base()._tweak_table].priority_shout .. "x_any"
 		end
-
 		if managers.player:has_category_upgrade("player", "special_enemy_highlight") then
 			prime_target.unit:contour():add(managers.player:has_category_upgrade("player", "marked_enemy_extra_damage") and "mark_enemy_damage_bonus" or "mark_enemy", true, managers.player:upgrade_value("player", "mark_enemy_time_multiplier", 1))
 		end
-
 	elseif voice_type == "mark_camera" and mark_sec_camera then
 		sound_name = "f39_any"
 		interact_type = "cmd_point"
 		prime_target.unit:contour():add("mark_unit", true)
 	end
-
 	if interact_type then
 		if not no_gesture then
 		else
 		end
-
 		self:_do_action_intimidate(t, interact_type or nil, sound_name, skip_alert)
 		return true
 	end
-
 	return mark_sec_camera or mark_special_enemies
 end
 
@@ -153,14 +137,12 @@ function PlayerMaskOff:_check_action_jump(t, input)
 	if input.btn_duck_press then
 		managers.hint:show_hint("mask_off_block_interact")
 	end
-
 end
 
 function PlayerMaskOff:_check_action_duck(t, input)
 	if input.btn_jump_press then
 		managers.hint:show_hint("mask_off_block_interact")
 	end
-
 end
 
 function PlayerMaskOff:_check_use_item(t, input)
@@ -171,13 +153,10 @@ function PlayerMaskOff:_check_use_item(t, input)
 		if not action_forbidden then
 			self:_start_action_state_standard(t)
 		end
-
 	end
-
 	if input.btn_use_item_release then
 		self:_interupt_action_start_standard()
 	end
-
 end
 
 function PlayerMaskOff:_start_action_state_standard(t)
@@ -197,7 +176,6 @@ function PlayerMaskOff:_interupt_action_start_standard(t, input, complete)
 		managers.hud:remove_progress_timer()
 		managers.network:session():send_to_peers_loaded("sync_teammate_progress", 3, false, "mask_on_action", 0, complete and true or false)
 	end
-
 end
 
 function PlayerMaskOff:_end_action_start_standard()
@@ -214,8 +192,6 @@ function PlayerMaskOff:_update_start_standard_timers(t)
 			self:_end_action_start_standard(t)
 			self._start_standard_expire_t = nil
 		end
-
 	end
-
 end
 

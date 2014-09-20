@@ -22,12 +22,8 @@ function BlackMarketTweakData:print_missing_strings(skip_print_id)
 			"cash",
 			"weapon_mods"
 		}
-		local (for generator), (for state), (for control) = pairs(self)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(data)
-			do
-				do break end
+		for id, data in pairs(self) do
+			for i, d in pairs(data) do
 				if id ~= "weapon_mods" or tweak_data.weapon.factory.parts[i].pc or tweak_data.weapon.factory.parts[i].pcs then
 					local name_id = d.name_id
 					if not table.contains(ignore_name, id) and name_id and not managers.localization:exists(name_id) then
@@ -36,9 +32,7 @@ function BlackMarketTweakData:print_missing_strings(skip_print_id)
 						else
 							Application:debug(name_id, "", "", id)
 						end
-
 					end
-
 					local desc_id = d.desc_id
 					if not table.contains(ignore_desc, id) and desc_id and not managers.localization:exists(desc_id) then
 						if skip_print_id then
@@ -46,63 +40,45 @@ function BlackMarketTweakData:print_missing_strings(skip_print_id)
 						else
 							Application:debug(desc_id, "", "", id)
 						end
-
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function BlackMarketTweakData:_add_desc_from_name_macro(tweak_data)
-	local (for generator), (for state), (for control) = pairs(tweak_data)
-	do
-		do break end
+	for id, data in pairs(tweak_data) do
 		if data.name_id and not data.desc_id then
 			data.desc_id = tostring(data.name_id) .. "_desc"
 		end
-
 		if not data.name_id then
 		end
-
 	end
-
 end
 
 function BlackMarketTweakData:_init_weapon_mods(tweak_data)
 	self.weapon_mods = {}
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.weapon.factory.parts)
-		do
-			do break end
-			self.weapon_mods[id] = {
-				max_in_inventory = 2,
-				pc = data.pc,
-				pcs = data.pcs,
-				dlc = data.dlc,
-				dlcs = data.dlcs,
-				name_id = data.name_id,
-				desc_id = data.desc_id,
-				infamous = data.infamous,
-				value = data.stats and data.stats.value or 1,
-				weight = data.weight,
-				texture_bundle_folder = data.texture_bundle_folder,
-				is_a_unlockable = data.is_a_unlockable
-			}
-		end
-
+	for id, data in pairs(tweak_data.weapon.factory.parts) do
+		self.weapon_mods[id] = {
+			max_in_inventory = 2,
+			pc = data.pc,
+			pcs = data.pcs,
+			dlc = data.dlc,
+			dlcs = data.dlcs,
+			name_id = data.name_id,
+			desc_id = data.desc_id,
+			infamous = data.infamous,
+			value = data.stats and data.stats.value or 1,
+			weight = data.weight,
+			texture_bundle_folder = data.texture_bundle_folder,
+			is_a_unlockable = data.is_a_unlockable
+		}
 	end
-
 	self:_add_desc_from_name_macro(self.weapon_mods)
 	if Application:production_build() and managers.lootdrop then
 		managers.lootdrop:add_qlvl_to_weapon_mods(self.weapon_mods)
 	end
-
 end
 
 function BlackMarketTweakData:_init_masks()
@@ -1193,7 +1169,6 @@ function BlackMarketTweakData:_init_masks()
 		self.masks.sweettooth.dlc = "sweettooth"
 		self.masks.sweettooth.value = 1
 	end
-
 	self:_add_desc_from_name_macro(self.masks)
 end
 

@@ -29,18 +29,12 @@ end
 
 function CoreCommandRegistry.Wrapper:init(wrapped_object, commands)
 	assert(type(commands) == "table", "Table argument with keyword arguments expected.")
-	do
-		local (for generator), (for state), (for control) = pairs(commands)
-		do
-			do break end
-			assert(type(command_id) == "string", "Command id must be a string.")
-			assert(type(command_table.id) == "string", "Command table must contain string member \"id\".")
-			assert(command_id == command_table.id, "Command id does not match command table member \"id\".")
-			assert(type(command_table.label) == "string", "Command table must contain string member \"label\".")
-		end
-
+	for command_id, command_table in pairs(commands) do
+		assert(type(command_id) == "string", "Command id must be a string.")
+		assert(type(command_table.id) == "string", "Command table must contain string member \"id\".")
+		assert(command_id == command_table.id, "Command id does not match command table member \"id\".")
+		assert(type(command_table.label) == "string", "Command table must contain string member \"label\".")
 	end
-
 	self._wrapped_object = wrapped_object
 	self._commands = commands
 end
@@ -56,10 +50,8 @@ function CoreCommandRegistry.Wrapper:__index(key)
 		if member ~= nil then
 			return member
 		end
-
 		metatable = getmetatable(metatable)
 	end
-
 	return function(wrapper, ...)
 		local instance = wrapper:wrapped_object()
 		return instance[key](instance, ...)
@@ -97,7 +89,6 @@ function CoreCommandRegistry.ToolBarWrapper:make_args(command_id)
 	if command.key then
 		label = label .. " (" .. command.key .. ")"
 	end
-
 	return command.id, label, CoreEWS.image_path(command.image), command.help or label
 end
 

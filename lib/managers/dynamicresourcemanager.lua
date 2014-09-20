@@ -12,7 +12,6 @@ function DynamicResourceManager:init()
 			dyn_resources = {}
 		}
 	end
-
 	self._dyn_resources = Global.dyn_resource_manager_data.dyn_resources
 	self._streaming_settings = Global.dyn_resource_manager_data.streaming_settings
 	self._to_unload = nil
@@ -24,28 +23,19 @@ function DynamicResourceManager:post_init()
 	if self._streaming_settings.chunk_size_kb ~= chunk_size_kb then
 		self:_set_file_streamer_settings(chunk_size_kb, self._streaming_settings.sleep_time)
 	end
-
 	managers.user:add_setting_changed_callback("max_streaming_chunk", callback(self, self, "clbk_streaming_chunk_size_changed"), true)
 end
 
 function DynamicResourceManager:update()
 	if self._to_unload then
-		do
-			local (for generator), (for state), (for control) = pairs(self._to_unload)
-			do
-				do break end
-				PackageManager:package(unload_params.package_name):unload_resource(unload_params.resource_type, unload_params.resource_name, unload_params.keep_using)
-			end
-
+		for key, unload_params in pairs(self._to_unload) do
+			PackageManager:package(unload_params.package_name):unload_resource(unload_params.resource_type, unload_params.resource_name, unload_params.keep_using)
 		end
-
 		self._to_unload = nil
 	end
-
 	if self._listener_holder:has_listeners_for_event(self.listener_events.file_streamer_workload) then
 		self:_check_file_streamer_status()
 	end
-
 end
 
 function DynamicResourceManager:is_ready_to_close()
@@ -54,36 +44,24 @@ function DynamicResourceManager:is_ready_to_close()
 			print("[DynamicResourceManager:is_ready_to_close] still unloading")
 			self._still_unloading_msg = true
 		end
-
 		return false
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._dyn_resources)
-		do
-			do break end
-			if not entry.ready then
-				if not self._loadign_temp_msg then
-					self._loadign_temp_msg = true
-					print("[DynamicResourceManager:is_ready_to_close] loading temp")
-				end
-
-				return false
+	for key, entry in pairs(self._dyn_resources) do
+		if not entry.ready then
+			if not self._loadign_temp_msg then
+				self._loadign_temp_msg = true
+				print("[DynamicResourceManager:is_ready_to_close] loading temp")
 			end
-
+			return false
 		end
-
 	end
-
 	if not PackageManager:all_packages_loaded() then
 		if not self._still_streaming_msg then
 			print("[DynamicResourceManager:is_ready_to_close] waiting for packages to load.")
 			self._still_streaming_msg = true
 		end
-
 		return false
 	end
-
 	return true
 end
 
@@ -102,9 +80,7 @@ function DynamicResourceManager:load(resource_type, resource_name, package_name,
 		if not next(self._to_unload) then
 			self._to_unload = nil
 		end
-
 	end
-
 	entry = entry or self._dyn_resources[key]
 	if entry then
 		entry.ref_c = entry.ref_c + 1
@@ -112,7 +88,6 @@ function DynamicResourceManager:load(resource_type, resource_name, package_name,
 			if complete_clbk then
 				complete_clbk(true, resource_type, resource_name)
 			end
-
 			return
 		elseif complete_clbk then
 			table.insert(entry.callbacks, complete_clbk)
@@ -120,7 +95,6 @@ function DynamicResourceManager:load(resource_type, resource_name, package_name,
 		else
 			entry.ready = true
 		end
-
 	else
 		entry = {
 			resource_type = resource_type,
@@ -134,10 +108,8 @@ function DynamicResourceManager:load(resource_type, resource_name, package_name,
 		else
 			entry.ready = true
 		end
-
 		self._dyn_resources[key] = entry
 	end
-
 	if complete_clbk and Application:editor() then
 		PackageManager:package(package_name):load_temp_resource(resource_type, resource_name, nil)
 		self:clbk_resource_loaded(true, resource_type, resource_name, package_name)
@@ -146,24 +118,20 @@ function DynamicResourceManager:load(resource_type, resource_name, package_name,
 			Application:error("[DynamicResourceManager:load]", resource_type, resource_name, package_name, complete_clbk)
 			Application:stack_dump("error")
 		end
-
 		PackageManager:package(package_name):load_temp_resource(resource_type, resource_name, complete_clbk and callback(self, DynamicResourceManager, "clbk_resource_loaded") or nil, true)
 	end
-
 end
 
 function DynamicResourceManager:unload(resource_type, resource_name, package_name, keep_using)
 	if keep_using then
 		debug_pause("[DynamicResourceManager:unload] keep_using should be false!", resource_type, resource_name, package_name, keep_using)
 	end
-
 	local key = self._get_resource_key(resource_type, resource_name, package_name)
 	local entry = self._dyn_resources[key]
 	entry.ref_c = entry.ref_c - 1
 	if entry.ref_c ~= 0 then
 		return
 	end
-
 	self._to_unload = self._to_unload or {}
 	self._to_unload[key] = entry
 	entry.keep_using = keep_using
@@ -188,20 +156,15 @@ function DynamicResourceManager:clbk_resource_loaded(status, resource_type, reso
 	if not entry then
 		return
 	end
-
 	entry.ready = true
 	if not entry.callbacks then
 		return
 	end
-
 	local callbacks = entry.callbacks
 	entry.callbacks = nil
-	local (for generator), (for state), (for control) = ipairs(callbacks)
-	do
-		do break end
+	for _, clbk in ipairs(callbacks) do
 		clbk(status, resource_type, resource_name)
 	end
-
 end
 
 function DynamicResourceManager:change_material_config(name, unit)
@@ -213,13 +176,10 @@ function DynamicResourceManager:on_material_applied(unit)
 		if unit:interaction() then
 			unit:interaction():refresh_material()
 		end
-
 		if unit:contour() then
 			unit:contour():update_materials()
 		end
-
 	end
-
 end
 
 function DynamicResourceManager:_check_file_streamer_status()
@@ -238,7 +198,6 @@ function DynamicResourceManager:set_file_streaming_chunk_size_mul(mul, sleep_tim
 	if mul == self._streaming_settings.chunk_size_mul and sleep_time == self._streaming_settings.sleep_time then
 		return
 	end
-
 	print("[DynamicResourceManager:set_file_streaming_chunk_size_mul]", mul, "sleep_time", sleep_time)
 	self._streaming_settings.chunk_size_mul = mul
 	self:_set_file_streamer_settings(self._streaming_settings.chunk_size_kb, sleep_time)

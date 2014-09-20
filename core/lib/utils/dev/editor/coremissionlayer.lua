@@ -12,7 +12,6 @@ function MissionLayer:init(owner)
 			"mission_element"
 		}
 	end
-
 	MissionLayer.super.init(self, owner, "mission", types, "mission_elements")
 	self._default_script_name = "default"
 	self._editing_mission_element = false
@@ -32,57 +31,39 @@ end
 function MissionLayer:load(world_holder, offset)
 	local data = world_holder:create_world("world", "mission_scripts", offset)
 	self._scripts = data.scripts or self._scripts
-	do
-		local (for generator), (for state), (for control) = pairs(self._scripts)
-		do
-			do break end
-			values.continent = values.continent or managers.editor:current_continent():name()
-		end
-
+	for name, values in pairs(self._scripts) do
+		values.continent = values.continent or managers.editor:current_continent():name()
 	end
-
 	local world_units = MissionLayer.super.load(self, world_holder, offset)
 	if world_units then
-		local (for generator), (for state), (for control) = ipairs(world_units)
-		do
-			do break end
+		for _, unit in ipairs(world_units) do
 			unit:mission_element():layer_finished()
 			unit:mission_element_data().script = unit:mission_element_data().script or self._default_script_name
 		end
-
 	end
-
 	self:_populate_scripts_combobox()
 	self:_set_scripts_combobox(self._default_script_name)
 	self:_on_set_script()
 end
 
 function MissionLayer:save()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			local t = {
-				entry = self._save_name,
-				continent = unit:unit_data().continent and unit:unit_data().continent:name(),
-				data = {
-					unit_data = CoreEditorSave.save_data_table(unit),
-					script = unit:mission_element_data().script,
-					script_data = unit:mission_element():new_save_values()
-				}
+	for _, unit in ipairs(self._created_units) do
+		local t = {
+			entry = self._save_name,
+			continent = unit:unit_data().continent and unit:unit_data().continent:name(),
+			data = {
+				unit_data = CoreEditorSave.save_data_table(unit),
+				script = unit:mission_element_data().script,
+				script_data = unit:mission_element():new_save_values()
 			}
-			t.data.script_data.position = nil
-			t.data.script_data.rotation = nil
-			self:_add_project_unit_save_data(unit, t.data)
-			unit:mission_element():add_to_mission_package()
-			managers.editor:add_save_data(t)
-		end
-
+		}
+		t.data.script_data.position = nil
+		t.data.script_data.rotation = nil
+		self:_add_project_unit_save_data(unit, t.data)
+		unit:mission_element():add_to_mission_package()
+		managers.editor:add_save_data(t)
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for name, data in pairs(self._scripts) do
 		local t = {
 			entry = "mission_scripts",
 			continent = data.continent,
@@ -92,65 +73,41 @@ function MissionLayer:save()
 		}
 		managers.editor:add_save_data(t)
 	end
-
 end
 
 function MissionLayer:save_mission(params)
 	local all_script_units = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			all_script_units[unit:mission_element_data().script] = all_script_units[unit:mission_element_data().script] or {}
-			table.insert(all_script_units[unit:mission_element_data().script], unit)
-		end
-
+	for _, unit in ipairs(self._created_units) do
+		all_script_units[unit:mission_element_data().script] = all_script_units[unit:mission_element_data().script] or {}
+		table.insert(all_script_units[unit:mission_element_data().script], unit)
 	end
-
 	local scripts = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._scripts)
-		do
-			do break end
-			local script_units = all_script_units[script] or {}
-			if not params.name or params.name and self._scripts[script].continent == params.name then
-				scripts[script] = {
-					activate_on_parsed = self._scripts[script].activate_on_parsed
+	for script, _ in pairs(self._scripts) do
+		local script_units = all_script_units[script] or {}
+		if not params.name or params.name and self._scripts[script].continent == params.name then
+			scripts[script] = {
+				activate_on_parsed = self._scripts[script].activate_on_parsed
+			}
+			local elements = {}
+			for _, unit in ipairs(script_units) do
+				local t = {
+					class = unit:mission_element_data().element_class,
+					module = unit:mission_element_data().element_module,
+					id = unit:unit_data().unit_id,
+					editor_name = unit:unit_data().name_id,
+					values = unit:mission_element():new_save_values()
 				}
-				local elements = {}
-				do
-					local (for generator), (for state), (for control) = ipairs(script_units)
-					do
-						do break end
-						local t = {
-							class = unit:mission_element_data().element_class,
-							module = unit:mission_element_data().element_module,
-							id = unit:unit_data().unit_id,
-							editor_name = unit:unit_data().name_id,
-							values = unit:mission_element():new_save_values()
-						}
-						table.insert(elements, t)
-					end
-
-				end
-
-				scripts[script].elements = elements
-				scripts[script].instances = {}
-				local (for generator), (for state), (for control) = ipairs(managers.world_instance:instance_data())
-				do
-					do break end
-					if instance.script == script then
-						table.insert(scripts[script].instances, instance.name)
-					end
-
-				end
-
+				table.insert(elements, t)
 			end
-
+			scripts[script].elements = elements
+			scripts[script].instances = {}
+			for _, instance in ipairs(managers.world_instance:instance_data()) do
+				if instance.script == script then
+					table.insert(scripts[script].instances, instance.name)
+				end
+			end
 		end
-
 	end
-
 	return scripts
 end
 
@@ -159,12 +116,10 @@ function MissionLayer:do_spawn_unit(name, pos, rot)
 		managers.editor:output_warning("You need to create a mission script first.")
 		return
 	end
-
 	if self._scripts[self:current_script()].continent ~= managers.editor:current_continent():name() then
 		managers.editor:output_warning("Can't create mission element because the current script doesn't belong to current continent.")
 		return
 	end
-
 	return MissionLayer.super.do_spawn_unit(self, name, pos, rot)
 end
 
@@ -194,11 +149,9 @@ function MissionLayer:set_select_unit(unit, ...)
 	if alive(unit) and unit:mission_element_data().script and unit:mission_element_data().script ~= self:current_script() then
 		return
 	end
-
 	if not self:_add_on_executed(unit) then
 		MissionLayer.super.set_select_unit(self, unit, ...)
 	end
-
 end
 
 function MissionLayer:_add_on_executed(unit)
@@ -206,19 +159,15 @@ function MissionLayer:_add_on_executed(unit)
 		if self:adding_to_mission() then
 			return true
 		end
-
 		return false
 	end
-
 	if self._selected_unit and self:adding_to_mission() and unit ~= self._selected_unit then
 		local vc = self._editor_data.virtual_controller
 		if vc:down(Idstring("add_on_executed")) then
 			self._selected_unit:mission_element():add_on_executed(unit)
 			return true
 		end
-
 	end
-
 	return false
 end
 
@@ -228,7 +177,6 @@ function MissionLayer:delete_unit(del_unit)
 		del_unit:mission_element():clear()
 		MissionLayer.super.delete_unit(self, del_unit)
 	end
-
 end
 
 function MissionLayer:clone_edited_values(unit, source)
@@ -236,62 +184,39 @@ function MissionLayer:clone_edited_values(unit, source)
 	if unit:name():s() ~= source:name():s() then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(source:mission_element_data())
-		do
-			do break end
-			if CoreClass.type_name(value) == "table" then
-				value = CoreTable.deep_clone(value)
-			end
-
-			unit:mission_element_data()[name] = value
+	for name, value in pairs(source:mission_element_data()) do
+		if CoreClass.type_name(value) == "table" then
+			value = CoreTable.deep_clone(value)
 		end
-
+		unit:mission_element_data()[name] = value
 	end
-
 	unit:mission_element():clone_data(self:_units_as_pairs(self._created_units))
 end
 
 function MissionLayer:hide_all()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			if unit:mission_element_data().script == self:current_script() then
-				managers.editor:set_unit_visible(unit, false)
-			end
-
+	for _, unit in ipairs(self._created_units) do
+		if unit:mission_element_data().script == self:current_script() then
+			managers.editor:set_unit_visible(unit, false)
 		end
-
 	end
-
 	self:clear_selected_units()
 	self:update_unit_settings()
 end
 
 function MissionLayer:set_enabled(enabled)
 	self._layer_enabled = enabled
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			if enabled then
-				if unit:mission_element_data().script == self:current_script() then
-					unit:mission_element():set_enabled()
-					unit:set_enabled(true)
-					unit:anim_play()
-				end
-
-			else
-				unit:mission_element():set_disabled()
-				unit:set_enabled(false)
+	for _, unit in ipairs(self._created_units) do
+		if enabled then
+			if unit:mission_element_data().script == self:current_script() then
+				unit:mission_element():set_enabled()
+				unit:set_enabled(true)
+				unit:anim_play()
 			end
-
+		else
+			unit:mission_element():set_disabled()
+			unit:set_enabled(false)
 		end
-
 	end
-
 	return true
 end
 
@@ -305,21 +230,14 @@ function MissionLayer:use_widget_position(pos)
 	if self._editing_mission_element and alive(self._selected_unit) and self._selected_unit:mission_element():use_widget_position(pos) then
 		return
 	end
-
 	MissionLayer.super.use_widget_position(self, pos)
 end
 
 function MissionLayer:_units_as_pairs(units)
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(units)
-		do
-			do break end
-			t[unit:unit_data().unit_id] = unit
-		end
-
+	for _, unit in ipairs(units) do
+		t[unit:unit_data().unit_id] = unit
 	end
-
 	return t
 end
 
@@ -337,9 +255,7 @@ function MissionLayer:update(time, rel_time)
 	local cam_right = managers.editor:camera_rotation():x()
 	local lod_draw_distance = math.max(4000, 100000 - #self._created_units * 140)
 	lod_draw_distance = lod_draw_distance * lod_draw_distance
-	local (for generator), (for state), (for control) = ipairs(self._created_units)
-	do
-		do break end
+	for _, unit in ipairs(self._created_units) do
 		if unit:mission_element_data().script == current_script and not current_continent_locked or self._show_all_scripts then
 			local distance = mvector3.distance_sq(unit:position(), cam_pos)
 			unit:mission_element()._distance_to_camera = distance
@@ -347,7 +263,6 @@ function MissionLayer:update(time, rel_time)
 			if update_selected_on then
 				update_selected_on_brush:unit(unit)
 			end
-
 			local update_selected = self._update_all or update_selected_on
 			local selected_unit = unit == self._selected_unit
 			if update_selected or selected_unit then
@@ -357,32 +272,24 @@ function MissionLayer:update(time, rel_time)
 				if not self._only_draw_selected_connections or not self._selected_unit then
 					unit:mission_element():draw_links_unselected(time, rel_time, self._only_draw_selected_connections and self._selected_unit, all_units)
 				end
-
 			end
-
 			if self._override_lod_draw or self._only_draw_selected_connections and alive(self._selected_unit) or lod_draw_distance > distance then
 				unit:mission_element():draw_links(time, rel_time, self._only_draw_selected_connections and self._selected_unit, all_units)
 			end
-
 			if selected_unit then
 				unit:mission_element():draw_links_selected(time, rel_time, self._only_draw_selected_connections and self._selected_unit)
 				if self._editing_mission_element then
 					if unit:mission_element().base_update_editing then
 						unit:mission_element():base_update_editing(time, rel_time, self._current_pos)
 					end
-
 					if unit:mission_element().update_editing then
 						unit:mission_element():update_editing(time, rel_time, self._current_pos)
 					end
-
 				end
-
 			end
-
 			if not unit:mission_element_data().enabled then
 				unit_disabled:unit(unit)
 			end
-
 			if distance < 2250000 then
 				local a = distance < 1000000 and 1 or (2250000 - distance) / 250000 / 5
 				local color = selected_unit and Color(a, 0, 1, 0) or Color(a, 1, 1, 1)
@@ -393,14 +300,10 @@ function MissionLayer:update(time, rel_time)
 				else
 					offset = Vector3(0, 0, unit:bounding_sphere_radius())
 				end
-
 				self._name_brush:center_text(unit:position() + offset, unit:unit_data().name_id, cam_right, -cam_up)
 			end
-
 		end
-
 	end
-
 end
 
 function MissionLayer:_cloning_done()
@@ -408,7 +311,6 @@ function MissionLayer:_cloning_done()
 		self._selected_unit:mission_element():destroy_panel()
 		self:update_unit_settings()
 	end
-
 end
 
 function MissionLayer:update_unit_settings()
@@ -428,17 +330,13 @@ function MissionLayer:update_unit_settings()
 		if self._selected_unit:mission_element().test_element then
 			self._element_toolbar:set_tool_enabled("TEST_ELEMENT", true)
 		end
-
 		if self._selected_unit:mission_element().stop_test_element then
 			self._element_toolbar:set_tool_enabled("STOP_ELEMENT", true)
 		end
-
 		if self._selected_unit:mission_element():can_edit() then
 			self._element_toolbar:set_tool_enabled("EDIT_ELEMENT", true)
 		end
-
 	end
-
 	self:do_layout()
 end
 
@@ -446,18 +344,15 @@ function MissionLayer:set_current_panel_visible(visible)
 	if self._current_panel and (not self._current_panel:extension() or self._current_panel:extension() and self._current_panel:extension().alive) then
 		self._current_panel:set_visible(visible)
 	end
-
 end
 
 function MissionLayer:show_timeline()
 	if self:ctrl() then
 		return
 	end
-
 	if self._selected_unit then
 		self._selected_unit:mission_element():on_timeline()
 	end
-
 end
 
 function MissionLayer:test_element()
@@ -480,16 +375,13 @@ function MissionLayer:toolbar_toggle(data, event)
 		else
 			self._selected_unit:mission_element():end_editing()
 		end
-
 	end
-
 end
 
 function MissionLayer:toolbar_toggle_trg(data)
 	if data.value == "_editing_mission_element" and (not alive(self._selected_unit) or not self._selected_unit:mission_element():can_edit()) then
 		return
 	end
-
 	CoreEditorUtils.toolbar_toggle_trg(data)
 	if data.value == "_editing_mission_element" then
 		if self[data.value] then
@@ -497,11 +389,9 @@ function MissionLayer:toolbar_toggle_trg(data)
 		else
 			self._selected_unit:mission_element():end_editing()
 		end
-
 		self:clear_triggers()
 		self:add_triggers()
 	end
-
 end
 
 function MissionLayer:missionelement_panel()
@@ -650,20 +540,16 @@ function MissionLayer:_on_create_script()
 		else
 			self:_create_script(name)
 		end
-
 	end
-
 end
 
 function MissionLayer:_on_set_script()
 	if not self:current_script() then
 		return
 	end
-
 	if managers.editor:continent(self._scripts[self:current_script()].continent):value("locked") then
 		return
 	end
-
 	self:clear_selected_units()
 	self:set_show_all_scripts(self._show_all_scripts)
 	self:_set_toolbar_settings()
@@ -671,12 +557,9 @@ end
 
 function MissionLayer:_populate_scripts_combobox()
 	self._scripts_combobox:clear()
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for name, _ in pairs(self._scripts) do
 		self._scripts_combobox:append(name)
 	end
-
 end
 
 function MissionLayer:_clear_scripts_combobox()
@@ -695,15 +578,11 @@ function MissionLayer:_set_scripts_combobox(name)
 end
 
 function MissionLayer:_get_script_combobox_name(continent)
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for name, script in pairs(self._scripts) do
 		if not continent or script.continent == managers.editor:current_continent():name() then
 			return name
 		end
-
 	end
-
 end
 
 function MissionLayer:_set_toolbar_settings()
@@ -717,23 +596,15 @@ function MissionLayer:current_script()
 	else
 		return nil
 	end
-
 end
 
 function MissionLayer:scripts_by_continent(continent)
 	local scripts = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._scripts)
-		do
-			do break end
-			if script.continent == continent then
-				table.insert(scripts, name)
-			end
-
+	for name, script in pairs(self._scripts) do
+		if script.continent == continent then
+			table.insert(scripts, name)
 		end
-
 	end
-
 	return scripts
 end
 
@@ -747,7 +618,6 @@ function MissionLayer:_create_script(name, values)
 	if not name then
 		return
 	end
-
 	values = values or {}
 	values.activate_on_parsed = values.activate_on_parsed or values.activate_on_parsed == nil and false
 	values.continent = managers.editor:current_continent():name()
@@ -766,12 +636,10 @@ function MissionLayer:_on_delete_script()
 	if not self:current_script() then
 		return
 	end
-
 	local confirm = EWS:message_box(Global.frame_panel, "Delete script " .. self:current_script() .. "? All units(elements) in the script will be deleted.", "Mission", "YES_NO,ICON_QUESTION", Vector3(-1, -1, 0))
 	if confirm == "NO" then
 		return
 	end
-
 	self:_delete_script(self:current_script())
 end
 
@@ -780,19 +648,11 @@ function MissionLayer:_delete_script(name)
 		EWS:message_box(Global.frame_panel, "Can't delete script " .. name .. ", it does not belong to current continent.", "Mission", "CANCEL,ICON_ERROR", Vector3(-1, -1, 0))
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(CoreTable.clone(self._created_units))
-		do
-			do break end
-			if unit:mission_element_data().script == name then
-				self:delete_unit(unit)
-			end
-
+	for _, unit in ipairs(CoreTable.clone(self._created_units)) do
+		if unit:mission_element_data().script == name then
+			self:delete_unit(unit)
 		end
-
 	end
-
 	self._scripts[name] = nil
 	self:_populate_scripts_combobox()
 	self:_set_scripts_combobox()
@@ -803,13 +663,11 @@ function MissionLayer:_on_rename_script()
 	if not self:current_script() then
 		return
 	end
-
 	local name = self:current_script()
 	if self._scripts[name].continent ~= managers.editor:current_continent():name() then
 		EWS:message_box(Global.frame_panel, "Can't rename script " .. name .. ", it does not belong to current continent.", "Mission", "CANCEL,ICON_ERROR", Vector3(-1, -1, 0))
 		return
 	end
-
 	local new_name = EWS:get_text_from_user(Global.frame_panel, "Enter new name for script " .. name .. ":", "Rename script", "", Vector3(-1, -1, 0), true)
 	if new_name and new_name ~= "" then
 		if self._scripts[new_name] then
@@ -817,24 +675,15 @@ function MissionLayer:_on_rename_script()
 		else
 			self:_rename_script(name, new_name)
 		end
-
 	end
-
 end
 
 function MissionLayer:_rename_script(name, new_name)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			if unit:mission_element_data().script == name then
-				unit:mission_element_data().script = new_name
-			end
-
+	for _, unit in ipairs(self._created_units) do
+		if unit:mission_element_data().script == name then
+			unit:mission_element_data().script = new_name
 		end
-
 	end
-
 	local values = self._scripts[name]
 	self._scripts[name] = nil
 	self._scripts[new_name] = values
@@ -847,73 +696,50 @@ function MissionLayer:_set_script(name)
 	if not self._scripts[name] then
 		return
 	end
-
 end
 
 function MissionLayer:_hide_all_scripts()
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for name, _ in pairs(self._scripts) do
 		self:_hide_script(name)
 	end
-
 end
 
 function MissionLayer:_show_all_mission_scripts()
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for name, _ in pairs(self._scripts) do
 		self:_show_script(name)
 	end
-
 end
 
 function MissionLayer:_hide_script(name)
 	if not self._scripts[name] then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._created_units)
-	do
-		do break end
+	for _, unit in ipairs(self._created_units) do
 		if unit:mission_element_data().script == name then
 			unit:set_enabled(false)
 			unit:mission_element():set_disabled()
 		end
-
 	end
-
 end
 
 function MissionLayer:_show_script(name)
 	if not self._scripts[name] then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._created_units)
-	do
-		do break end
+	for _, unit in ipairs(self._created_units) do
 		if unit:mission_element_data().script == name then
 			unit:mission_element():set_enabled()
 			unit:set_enabled(true)
 			unit:anim_play()
 		end
-
 	end
-
 end
 
 function MissionLayer:script_names()
 	local names = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._scripts)
-		do
-			do break end
-			table.insert(names, name)
-		end
-
+	for name, _ in pairs(self._scripts) do
+		table.insert(names, name)
 	end
-
 	return names
 end
 
@@ -925,7 +751,6 @@ function MissionLayer:set_show_all_scripts(show_all_scripts)
 		self:_hide_all_scripts()
 		self:_show_script(self:current_script())
 	end
-
 end
 
 function MissionLayer:show_all_scripts(show_all_scripts)
@@ -934,12 +759,9 @@ end
 
 function MissionLayer:set_iconsize(size)
 	Global.iconsize = size
-	local (for generator), (for state), (for control) = ipairs(self._created_units)
-	do
-		do break end
+	for _, unit in ipairs(self._created_units) do
 		unit:mission_element():set_iconsize(size)
 	end
-
 end
 
 function MissionLayer:visualize_flow()
@@ -951,15 +773,9 @@ function MissionLayer:use_colored_links()
 end
 
 function MissionLayer:clear()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			unit:mission_element():clear()
-		end
-
+	for _, unit in ipairs(self._created_units) do
+		unit:mission_element():clear()
 	end
-
 	self._editing_mission_element = false
 	MissionLayer.super.clear(self)
 	self:_reset_scripts()
@@ -980,6 +796,5 @@ function MissionLayer:add_triggers()
 		self._selected_unit:mission_element():add_triggers(vc)
 		return
 	end
-
 end
 

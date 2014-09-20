@@ -45,49 +45,34 @@ function EditUnitEditableGui:show_color_dialog()
 	local colordlg = EWS:ColourDialog(Global.frame, true, self._ctrls.color_button:background_colour() / 255)
 	if colordlg:show_modal() then
 		self._ctrls.color_button:set_background_colour(colordlg:get_colour().x * 255, colordlg:get_colour().y * 255, colordlg:get_colour().z * 255)
-		local (for generator), (for state), (for control) = ipairs(self._ctrls.units)
-		do
-			do break end
+		for _, unit in ipairs(self._ctrls.units) do
 			if alive(unit) and unit:editable_gui() then
 				unit:editable_gui():set_font_color(Vector3(colordlg:get_colour().x, colordlg:get_colour().y, colordlg:get_colour().z))
 			end
-
 		end
-
 	end
-
 end
 
 function EditUnitEditableGui:update_gui_text(gui_text)
 	if self._no_event then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._ctrls.units)
-	do
-		do break end
+	for _, unit in ipairs(self._ctrls.units) do
 		if alive(unit) and unit:editable_gui() then
 			unit:editable_gui():set_text(gui_text:get_value())
 		end
-
 	end
-
 end
 
 function EditUnitEditableGui:update_font_size(font_size)
 	if self._no_event then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._ctrls.units)
-	do
-		do break end
+	for _, unit in ipairs(self._ctrls.units) do
 		if alive(unit) and unit:editable_gui() then
 			unit:editable_gui():set_font_size(self._font_size_params.value)
 		end
-
 	end
-
 end
 
 function EditUnitEditableGui:is_editable(unit, units)
@@ -102,7 +87,6 @@ function EditUnitEditableGui:is_editable(unit, units)
 		self._no_event = false
 		return true
 	end
-
 	return false
 end
 

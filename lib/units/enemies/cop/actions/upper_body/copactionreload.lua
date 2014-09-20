@@ -7,19 +7,12 @@ function CopActionReload:init(action_desc, common_data)
 	self._common_data = common_data
 	self._machine = common_data.machine
 	local reload_t
-	do
-		local (for generator), (for state), (for control) = ipairs(common_data.active_actions)
-		do
-			do break end
-			if other_action and other_action.reload_t then
-				reload_t = other_action.reload_t
-		end
-
+	for _, other_action in ipairs(common_data.active_actions) do
+		if other_action and other_action.reload_t then
+			reload_t = other_action.reload_t
 		else
 		end
-
 	end
-
 	if reload_t or self:_play_reload() then
 		local action_data = {}
 		if reload_t then
@@ -28,7 +21,6 @@ function CopActionReload:init(action_desc, common_data)
 			local reload_delay = 3
 			self._reload_t = TimerManager:game():time() + reload_delay
 		end
-
 		local weapon_unit = self._ext_inventory:equipped_unit()
 		self._weapon_unit = weapon_unit
 		self._body_part = action_desc.body_part
@@ -45,7 +37,6 @@ function CopActionReload:init(action_desc, common_data)
 			else
 				target_pos = self._attention.pos
 			end
-
 			local shoot_from_pos = common_data.pos + math.UP * 160
 			local target_vec = target_pos - shoot_from_pos
 			self._machine:force_modifier(self._modifier_name)
@@ -53,13 +44,11 @@ function CopActionReload:init(action_desc, common_data)
 		else
 			self._modifier_on = nil
 		end
-
 		CopActionAct._create_blocks_table(self, action_desc.blocks)
 		return true
 	else
 		cat_print("george", "[CopActionReload:init] failed in", self._machine:segment_state(Idstring("base")))
 	end
-
 end
 
 function CopActionReload:type()
@@ -76,22 +65,18 @@ function CopActionReload:update(t)
 		else
 			target_pos = self._attention.pos
 		end
-
 		local shoot_from_pos = math.UP * 130
 		mvector3.add(shoot_from_pos, self._common_data.pos)
 		local target_vec = target_pos - shoot_from_pos
 		self._modifier:set_target_y(target_vec)
 	end
-
 	if t > self._reload_t then
 		self._weapon_unit:base():on_reload()
 		self._expired = true
 	end
-
 	if self._ext_anim.base_need_upd then
 		self._ext_movement:upd_m_head_pos()
 	end
-
 end
 
 function CopActionReload:_play_reload()
@@ -100,7 +85,6 @@ function CopActionReload:_play_reload()
 		cat_print("george", "[CopActionReload:_play_reload] redirect failed in", self._machine:segment_state(Idstring("base")))
 		return
 	end
-
 	return redir_res
 end
 
@@ -116,7 +100,6 @@ function CopActionReload:on_attention(attention)
 		self._modifier_on = nil
 		self._machine:allow_modifier(self._modifier_name)
 	end
-
 	self._attention = attention
 end
 
@@ -125,7 +108,6 @@ function CopActionReload:on_exit()
 		self._modifier_on = nil
 		self._machine:allow_modifier(self._modifier_name)
 	end
-
 end
 
 function CopActionReload:chk_block(action_type, t)

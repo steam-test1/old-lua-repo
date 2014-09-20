@@ -12,21 +12,16 @@ function ElementUnitSequenceTrigger:init(...)
 			}
 		}
 	end
-
 end
 
 function ElementUnitSequenceTrigger:on_script_activated()
 	if Network:is_client() then
 	else
 		self._mission_script:add_save_state_cb(self._id)
-		local (for generator), (for state), (for control) = pairs(self._values.sequence_list)
-		do
-			do break end
+		for _, data in pairs(self._values.sequence_list) do
 			managers.mission:add_runned_unit_sequence_trigger(data.unit_id, data.sequence, callback(self, self, "on_executed"))
 		end
-
 	end
-
 	self._has_active_callback = true
 end
 
@@ -34,14 +29,12 @@ function ElementUnitSequenceTrigger:send_to_host(instigator)
 	if alive(instigator) then
 		managers.network:session():send_to_host("to_server_mission_element_trigger", self._id, instigator)
 	end
-
 end
 
 function ElementUnitSequenceTrigger:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	ElementUnitSequenceTrigger.super.on_executed(self, instigator)
 end
 
@@ -53,6 +46,5 @@ function ElementUnitSequenceTrigger:load(data)
 	if not self._has_active_callback then
 		self:on_script_activated()
 	end
-
 end
 

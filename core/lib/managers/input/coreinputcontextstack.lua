@@ -19,7 +19,6 @@ function Stack:active_context()
 	if self._active_input_context:is_empty() then
 		return
 	end
-
 	return self._active_input_context:top()
 end
 

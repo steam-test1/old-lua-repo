@@ -14,7 +14,6 @@ function HuskCivilianDamage:damage_explosion(attack_data)
 	if attack_data.variant == "explosion" then
 		attack_data.damage = 10
 	end
-
 	return CopDamage.damage_explosion(self, attack_data)
 end
 

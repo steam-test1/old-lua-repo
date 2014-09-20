@@ -17,6 +17,5 @@ function LoadingFrontEnd:transition()
 	if game_state:is_in_front_end() or game_state:is_in_pre_front_end() then
 		return CoreMenuStateStopLoadingFrontEnd.StopLoadingFrontEnd
 	end
-
 end
 

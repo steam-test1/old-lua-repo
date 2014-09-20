@@ -8,11 +8,9 @@ function HUDInteraction:init(hud, child_name)
 	if self._hud_panel:child(self._child_name_text) then
 		self._hud_panel:remove(self._hud_panel:child(self._child_name_text))
 	end
-
 	if self._hud_panel:child(self._child_ivalid_name_text) then
 		self._hud_panel:remove(self._hud_panel:child(self._child_ivalid_name_text))
 	end
-
 	local interact_text = self._hud_panel:text({
 		name = self._child_name_text,
 		visible = false,
@@ -53,7 +51,6 @@ function HUDInteraction:remove_interact()
 	if not alive(self._hud_panel) then
 		return
 	end
-
 	self._hud_panel:child(self._child_name_text):set_visible(false)
 	self._hud_panel:child(self._child_ivalid_name_text):set_visible(false)
 end
@@ -63,7 +60,6 @@ function HUDInteraction:show_interaction_bar(current, total)
 		self._interact_circle:remove()
 		self._interact_circle = nil
 	end
-
 	self._interact_circle = CircleBitmapGuiObject:new(self._hud_panel, {
 		use_bg = true,
 		radius = self._circle_radius,
@@ -81,7 +77,6 @@ function HUDInteraction:set_interaction_bar_width(current, total)
 	if not self._interact_circle then
 		return
 	end
-
 	self._interact_circle:set_current(current / total)
 end
 
@@ -108,12 +103,10 @@ function HUDInteraction:hide_interaction_bar(complete)
 		circle:set_position(self._hud_panel:w() / 2 - radius, self._hud_panel:h() / 2 - radius)
 		bitmap:animate(callback(self, self, "_animate_interaction_complete"), circle)
 	end
-
 	if self._interact_circle then
 		self._interact_circle:remove()
 		self._interact_circle = nil
 	end
-
 end
 
 function HUDInteraction:set_bar_valid(valid, text_id)
@@ -124,7 +117,6 @@ function HUDInteraction:set_bar_valid(valid, text_id)
 	if text_id then
 		invalid_text:set_text(managers.localization:to_upper_text(text_id))
 	end
-
 	invalid_text:set_visible(not valid)
 end
 
@@ -135,7 +127,6 @@ function HUDInteraction:destroy()
 		self._interact_circle:remove()
 		self._interact_circle = nil
 	end
-
 end
 
 function HUDInteraction:_animate_interaction_complete(bitmap, circle)
@@ -156,7 +147,6 @@ function HUDInteraction:_animate_interaction_complete(bitmap, circle)
 		circle:set_current(1 - t / TOTAL_T)
 		circle:set_alpha(math.max(t / TOTAL_T, 0))
 	end
-
 	bitmap:parent():remove(bitmap)
 	circle:remove()
 end

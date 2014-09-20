@@ -21,7 +21,6 @@ function MenuItemUpgrade:setup_gui(node, row_item)
 		row_item.topic_text:set_font_size(tweak_data.menu.upgrades_font_size)
 		row_item.topic_text:set_text(self:parameters().topic_text)
 	end
-
 	if self:name() == "upgrade_lock" then
 		row_item.not_aquired = true
 		row_item.locked = true
@@ -29,17 +28,14 @@ function MenuItemUpgrade:setup_gui(node, row_item)
 		row_item.not_aquired = managers.upgrades:progress_by_tree(self:parameters().tree) < self:parameters().step
 		row_item.locked = managers.upgrades:is_locked(self:parameters().step)
 	end
-
 	local upg_color = row_item.locked and tweak_data.menu.upgrade_locked_color or row_item.not_aquired and tweak_data.menu.upgrade_not_aquired_color or row_item.color
 	if managers.upgrades:aquired(upgrade_id) then
 		upg_color = row_item.color
 	end
-
 	row_item.upgrade_name:set_color(upg_color)
 	if row_item.topic_text then
 		row_item.topic_text:set_color(upg_color)
 	end
-
 	if self:name() ~= "upgrade_lock" then
 		row_item.gui_info_panel = node.safe_rect_panel:panel({
 			visible = false,
@@ -117,11 +113,8 @@ function MenuItemUpgrade:setup_gui(node, row_item)
 				})
 				self:reload(row_item, node)
 			end
-
 		end
-
 	end
-
 	self:_layout(node, row_item)
 	return true
 end
@@ -139,10 +132,8 @@ function MenuItemUpgrade:reload(row_item, node)
 				UPGRADE = managers.localization:text("menu_" .. upgrade_id .. "_info")
 			})
 		end
-
 		row_item.toggle_text:set_text(string.upper(text))
 	end
-
 	return true
 end
 
@@ -150,18 +141,15 @@ function MenuItemUpgrade:highlight_row_item(node, row_item, mouse_over)
 	if row_item.gui_info_panel then
 		row_item.gui_info_panel:set_visible(true)
 	end
-
 	row_item.upgrade_name:set_color(row_item.color)
 	row_item.upgrade_name:set_font(tweak_data.menu.default_font_no_outline_id)
 	if row_item.topic_text then
 		row_item.topic_text:set_color(row_item.color)
 		row_item.topic_text:set_font(tweak_data.menu.default_font_no_outline_id)
 	end
-
 	if row_item.upgrade_icon then
 		row_item.upgrade_icon:set_image("guis/textures/icon_star", 32, 0, 32, 32)
 	end
-
 	return true
 end
 
@@ -169,23 +157,19 @@ function MenuItemUpgrade:fade_row_item(node, row_item)
 	if row_item.gui_info_panel then
 		row_item.gui_info_panel:set_visible(false)
 	end
-
 	local upg_color = row_item.locked and tweak_data.menu.upgrade_locked_color or row_item.not_aquired and tweak_data.menu.upgrade_not_aquired_color or row_item.color
 	if managers.upgrades:aquired(self:parameters().upgrade_id) then
 		upg_color = row_item.color
 	end
-
 	row_item.upgrade_name:set_color(upg_color)
 	row_item.upgrade_name:set_font(tweak_data.menu.default_font_id)
 	if row_item.topic_text then
 		row_item.topic_text:set_color(upg_color)
 		row_item.topic_text:set_font(tweak_data.menu.default_font_id)
 	end
-
 	if row_item.upgrade_icon then
 		row_item.upgrade_icon:set_image("guis/textures/icon_star", 0, 0, 32, 32)
 	end
-
 	return true
 end
 
@@ -202,14 +186,12 @@ function MenuItemUpgrade:_layout(node, row_item)
 		row_item.topic_text:set_height(h)
 		row_item.topic_text:set_right(row_item.gui_panel:w())
 	end
-
 	if row_item.upgrade_icon then
 		local s = math.min(32, h * 1.75)
 		row_item.upgrade_icon:set_size(s, s)
 		row_item.upgrade_icon:set_left(node._right_align(node) - row_item.gui_panel:x() + w + node._align_line_padding)
 		row_item.upgrade_icon:set_center_y(h / 2)
 	end
-
 	if row_item.gui_info_panel then
 		node._align_item_gui_info_panel(node, row_item.gui_info_panel)
 		local w = row_item.gui_info_panel:w()
@@ -232,8 +214,6 @@ function MenuItemUpgrade:_layout(node, row_item)
 			row_item.toggle_text:set_bottom(row_item.gui_info_panel:height())
 			row_item.toggle_text:set_left(0)
 		end
-
 	end
-
 end
 

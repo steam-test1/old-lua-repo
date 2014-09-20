@@ -8,7 +8,6 @@ function PlayerEquipment:on_deploy_interupted()
 		World:delete_unit(self._dummy_unit)
 		self._dummy_unit = nil
 	end
-
 end
 
 function PlayerEquipment:valid_look_at_placement(equipment_data)
@@ -22,15 +21,12 @@ function PlayerEquipment:valid_look_at_placement(equipment_data)
 			self._dummy_unit = World:spawn_unit(Idstring(equipment_data.dummy_unit), pos, rot)
 			self:_disable_contour(self._dummy_unit)
 		end
-
 		self._dummy_unit:set_position(pos)
 		self._dummy_unit:set_rotation(rot)
 	end
-
 	if alive(self._dummy_unit) then
 		self._dummy_unit:set_enabled(ray and true or false)
 	end
-
 	return ray
 end
 
@@ -46,10 +42,8 @@ function PlayerEquipment:use_trip_mine()
 			local unit = TripMineBase.spawn(ray.position, rot, sensor_upgrade, managers.network:session():local_peer():id())
 			unit:base():set_active(true, self._unit)
 		end
-
 		return true
 	end
-
 	return false
 end
 
@@ -63,15 +57,12 @@ function PlayerEquipment:valid_placement(equipment_data)
 			self._dummy_unit = World:spawn_unit(Idstring(equipment_data.dummy_unit), pos, rot)
 			self:_disable_contour(self._dummy_unit)
 		end
-
 		self._dummy_unit:set_position(pos)
 		self._dummy_unit:set_rotation(rot)
 		if alive(self._dummy_unit) then
 			self._dummy_unit:set_enabled(valid)
 		end
-
 	end
-
 	return valid
 end
 
@@ -80,12 +71,9 @@ local ids_contour_opacity = Idstring("contour_opacity")
 local ids_material = Idstring("material")
 function PlayerEquipment:_disable_contour(unit)
 	local materials = unit:get_objects_by_type(ids_material)
-	local (for generator), (for state), (for control) = ipairs(materials)
-	do
-		do break end
+	for _, m in ipairs(materials) do
 		m:set_variable(ids_contour_opacity, 0)
 	end
-
 end
 
 function PlayerEquipment:use_ammo_bag()
@@ -102,14 +90,11 @@ function PlayerEquipment:use_ammo_bag()
 		else
 			local unit = AmmoBagBase.spawn(pos, rot, ammo_upgrade_lvl, managers.network:session():local_peer():id())
 		end
-
 		if managers.player:has_category_upgrade("temporary", "no_ammo_cost") then
 			managers.player:activate_temporary_upgrade("temporary", "no_ammo_cost")
 		end
-
 		return true
 	end
-
 	return false
 end
 
@@ -123,7 +108,6 @@ function PlayerEquipment:use_doctor_bag()
 		if managers.blackmarket:equipped_mask().mask_id == tweak_data.achievement.no_we_cant.mask then
 			managers.achievment:award_progress(tweak_data.achievement.no_we_cant.stat)
 		end
-
 		managers.statistics:use_doctor_bag()
 		local amount_upgrade_lvl = managers.player:upgrade_level("doctor_bag", "amount_increase")
 		if Network:is_client() then
@@ -131,10 +115,8 @@ function PlayerEquipment:use_doctor_bag()
 		else
 			local unit = DoctorBagBase.spawn(pos, rot, amount_upgrade_lvl, managers.network:session():local_peer():id())
 		end
-
 		return true
 	end
-
 	return false
 end
 
@@ -142,7 +124,6 @@ function PlayerEquipment:use_ecm_jammer()
 	if self._ecm_jammer_placement_requested then
 		return
 	end
-
 	local ray = self:valid_look_at_placement()
 	if ray then
 		managers.statistics:use_ecm_jammer()
@@ -155,10 +136,8 @@ function PlayerEquipment:use_ecm_jammer()
 			local unit = ECMJammerBase.spawn(ray.position, rot, duration_multiplier, self._unit, managers.network:session():local_peer():id())
 			unit:base():set_active(true)
 		end
-
 		return true
 	end
-
 	return false
 end
 
@@ -170,12 +149,10 @@ function PlayerEquipment:_spawn_dummy(dummy_name, pos, rot)
 	if alive(self._dummy_unit) then
 		return self._dummy_unit
 	end
-
 	self._dummy_unit = World:spawn_unit(Idstring(dummy_name), pos, rot)
 	for i = 0, self._dummy_unit:num_bodies() - 1 do
 		self._dummy_unit:body(i):set_enabled(false)
 	end
-
 	return self._dummy_unit
 end
 
@@ -192,7 +169,6 @@ function PlayerEquipment:valid_shape_placement(equipment_id, equipment_data)
 			self._dummy_unit = World:spawn_unit(Idstring(equipment_data.dummy_unit), pos, rot)
 			self:_disable_contour(self._dummy_unit)
 		end
-
 		self._dummy_unit:set_position(pos)
 		self._dummy_unit:set_rotation(rot)
 		valid = valid and math.dot(ray.normal, math.UP) > 0.25
@@ -210,24 +186,17 @@ function PlayerEquipment:valid_shape_placement(equipment_id, equipment_data)
 			find_end_pos = pos + math.UP * 40
 			find_radius = 17
 		end
-
 		local bodies = self._dummy_unit:find_bodies("intersect", "capsule", find_start_pos, find_end_pos, find_radius, managers.slot:get_mask("trip_mine_placeables") + 14 + 25)
-		local (for generator), (for state), (for control) = ipairs(bodies)
-		do
-			do break end
+		for _, body in ipairs(bodies) do
 			if body:unit() ~= self._dummy_unit and body:has_ray_type(Idstring("body")) then
 				valid = false
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 	if alive(self._dummy_unit) then
 		self._dummy_unit:set_enabled(valid)
 	end
-
 	return valid and ray
 end
 
@@ -235,7 +204,6 @@ function PlayerEquipment:use_sentry_gun(selected_index)
 	if self._sentrygun_placement_requested then
 		return
 	end
-
 	local ray = self:valid_shape_placement()
 	if ray then
 		local pos = ray.position
@@ -257,12 +225,9 @@ function PlayerEquipment:use_sentry_gun(selected_index)
 			else
 				return false
 			end
-
 		end
-
 		return true
 	end
-
 	return false
 end
 
@@ -285,7 +250,6 @@ function PlayerEquipment:throw_flash_grenade()
 	if not self._grenade_name then
 		Application:error("Tried to throw a grenade with no name")
 	end
-
 	local from = self._unit:movement():m_head_pos()
 	local to = from + self._unit:movement():m_head_rot():y() * 35 + Vector3(0, 0, 0)
 	local unit = GrenadeBase.spawn(self._grenade_name, to, Rotation())
@@ -307,7 +271,6 @@ function PlayerEquipment:throw_grenade()
 		GrenadeBase.server_throw_grenade(1, pos, dir, managers.network:session():local_peer():id())
 		managers.player:verify_grenade(managers.network:session():local_peer():id())
 	end
-
 	managers.player:on_throw_grenade()
 end
 
@@ -326,6 +289,5 @@ function PlayerEquipment:destroy()
 		World:delete_unit(self._dummy_unit)
 		self._dummy_unit = nil
 	end
-
 end
 

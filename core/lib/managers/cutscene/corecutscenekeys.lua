@@ -13,21 +13,14 @@ function CoreCutsceneKey:register_class(path)
 	if Application:ews_enabled() then
 		class.COLOUR = class.COLOUR or self:next_available_colour()
 	end
-
 	CoreCutsceneKey._classes[element_name] = class
 end
 
 function CoreCutsceneKey:types()
 	local sorted_types = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._classes)
-		do
-			do break end
-			table.insert(sorted_types, class)
-		end
-
+	for _, class in pairs(self._classes) do
+		table.insert(sorted_types, class)
 	end
-
 	table.sort(sorted_types, function(a, b)
 		return a.NAME < b.NAME
 	end
@@ -40,7 +33,6 @@ function CoreCutsceneKey:next_available_colour()
 	if self._colour_index > #self:colour_palette() then
 		self._colour_index = 1
 	end
-
 	return self:colour_palette()[self._colour_index]
 end
 
@@ -89,7 +81,6 @@ function CoreCutsceneKey:colour_palette()
 		end
 )
 	end
-
 	return self._colour_palette
 end
 

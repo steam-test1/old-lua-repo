@@ -21,7 +21,6 @@ function CircleGuiObject:_create_triangles(config)
 		table.insert(triangles, mid + Vector3(math.sin(i) * self._radius, -math.cos(i) * self._radius, 0))
 		table.insert(triangles, mid + Vector3(math.sin(i - step) * self._radius, -math.cos(i - step) * self._radius, 0))
 	end
-
 	return triangles
 end
 
@@ -72,7 +71,6 @@ function CircleBitmapGuiObject:init(panel, config)
 		bg_config.blend_mode = "normal"
 		self._bg_circle = self._panel:bitmap(bg_config)
 	end
-
 end
 
 function CircleBitmapGuiObject:radius()
@@ -94,7 +92,6 @@ function CircleBitmapGuiObject:set_position(x, y)
 	if self._bg_circle then
 		self._bg_circle:set_position(x, y)
 	end
-
 end
 
 function CircleBitmapGuiObject:set_visible(visible)
@@ -102,7 +99,6 @@ function CircleBitmapGuiObject:set_visible(visible)
 	if self._bg_circle then
 		self._bg_circle:set_visible(visible)
 	end
-
 end
 
 function CircleBitmapGuiObject:visible()
@@ -138,7 +134,6 @@ function CircleBitmapGuiObject:set_layer(layer)
 	if self._bg_circle then
 		self._bg_circle:set_layer(layer - 1)
 	end
-
 end
 
 function CircleBitmapGuiObject:layer()
@@ -150,7 +145,6 @@ function CircleBitmapGuiObject:remove()
 	if self._bg_circle then
 		self._panel:remove(self._bg_circle)
 	end
-
 	self._panel = nil
 end
 

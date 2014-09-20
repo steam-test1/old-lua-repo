@@ -6,35 +6,26 @@ DatabaseManager = DatabaseManager or class()
 function DatabaseManager:list_unit_types()
 	if self.__unit_types == nil then
 		self.__unit_types = {}
-		local (for generator), (for state), (for control) = ipairs(self:list_entries_of_type("unit"))
-		do
-			do break end
+		for _, unit in ipairs(self:list_entries_of_type("unit")) do
 			local unit_data = CoreEngineAccess._editor_unit_data(unit:id())
 			table.insert(self.__unit_types, unit_data and unit_data:type() or nil)
 		end
-
 	end
-
 	return self.__unit_types
 end
 
 function DatabaseManager:list_units_of_type(type)
 	if self.__units_by_type == nil then
 		self.__units_by_type = {}
-		local (for generator), (for state), (for control) = ipairs(self:list_entries_of_type("unit"))
-		do
-			do break end
+		for _, unit in ipairs(self:list_entries_of_type("unit")) do
 			local unit_data = CoreEngineAccess._editor_unit_data(unit:id())
 			local key = unit_data and unit_data:type() and unit_data:type():key()
 			if key then
 				self.__units_by_type[key] = self.__units_by_type[key] or {}
 				table.insert(self.__units_by_type[key], unit)
 			end
-
 		end
-
 	end
-
 	return self.__units_by_type[type:key()] or {}
 end
 
@@ -47,7 +38,6 @@ function DatabaseManager:list_entries_in_index(index, pattern)
 	if pattern then
 	else
 	end
-
 	return table.find_all_values(entries, function(e)
 		return string.find(e, pattern:s()) ~= nil
 	end
@@ -56,17 +46,11 @@ end
 
 function DatabaseManager:recompile(...)
 	local files = {}
-	do
-		local (for generator), (for state), (for control) = pairs({
-			...
-		})
-		do
-			do break end
-			table.insert(files, self:entry_relative_path(v))
-		end
-
+	for _, v in pairs({
+		...
+	}) do
+		table.insert(files, self:entry_relative_path(v))
 	end
-
 	Application:data_compile({
 		platform = string.lower(SystemInfo:platform():s()),
 		source_root = self:base_path(),
@@ -83,12 +67,10 @@ function DatabaseManager:clear_cached_index(index)
 	if self.__entries then
 		self.__entries[index] = nil
 	end
-
 	if index == self:_type_index("unit") then
 		self.__unit_types = nil
 		self.__units_by_type = nil
 	end
-
 end
 
 function DatabaseManager:clear_all_cached_indices()
@@ -125,7 +107,6 @@ function DatabaseManager:entry_type(path)
 	if not string.find(path, "%.") then
 		return nil
 	end
-
 	return string.match(path, "([^.]*)$")
 end
 
@@ -172,7 +153,6 @@ function DatabaseManager:open_file_dialog(parent, file_pattern, start_path)
 	if file_dialog:show_modal() then
 		return file_dialog:get_path(), file_dialog:get_directory()
 	end
-
 end
 
 function DatabaseManager:save_file_dialog(parent, new, file_pattern, start_path, save_outside_project)
@@ -182,11 +162,9 @@ function DatabaseManager:save_file_dialog(parent, new, file_pattern, start_path,
 	if start_path then
 		name = self:entry_name(start_path)
 	end
-
 	if new then
 		new_file = "new file "
 	end
-
 	local save_dialog = EWS:FileDialog(parent, "Save " .. new_file .. "as..", path, name, file_pattern, "SAVE")
 	if save_dialog:show_modal() then
 		local new_path = save_dialog:get_path()
@@ -195,9 +173,7 @@ function DatabaseManager:save_file_dialog(parent, new, file_pattern, start_path,
 		else
 			EWS:MessageDialog(parent, "Invalid path. Cannot save outside of the project.", "Error", "OK,ICON_ERROR"):show_modal()
 		end
-
 	end
-
 	return nil, nil
 end
 
@@ -208,7 +184,6 @@ function DatabaseManager:load_node(path)
 		file:close()
 		return Node.from_xml(content)
 	end
-
 	return nil
 end
 
@@ -233,7 +208,6 @@ function DatabaseManager:_entries_in_index(index)
 		self.__entries = self.__entries or {}
 		self.__entries[index] = result
 	end
-
 	return result
 end
 
@@ -250,6 +224,5 @@ function DatabaseManager:_parse_entries_in_index(index)
 		file:close()
 		return string.split(contents, "[\r\n]")
 	end
-
 end
 

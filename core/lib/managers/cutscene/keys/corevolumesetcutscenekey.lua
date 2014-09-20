@@ -20,7 +20,6 @@ function CoreVolumeSetCutsceneKey:play(player, undo, fast_forward)
 	if managers.volume == nil then
 		return
 	end
-
 	if undo then
 		local preceeding_key = self:preceeding_key({
 			name = self:name()
@@ -28,11 +27,9 @@ function CoreVolumeSetCutsceneKey:play(player, undo, fast_forward)
 		if preceeding_key == nil or preceeding_key:action() == self:inverse_action() then
 			self:_perform_action(self:inverse_action())
 		end
-
 	else
 		self:_perform_action(self:action())
 	end
-
 end
 
 function CoreVolumeSetCutsceneKey:inverse_action()
@@ -45,7 +42,6 @@ function CoreVolumeSetCutsceneKey:_perform_action(action)
 	elseif action == "activate" and not managers.volume:is_active(self:name()) then
 		managers.volume:activate_set(self:name())
 	end
-
 end
 
 function CoreVolumeSetCutsceneKey:is_valid_action(action)
@@ -61,18 +57,13 @@ function CoreVolumeSetCutsceneKey:refresh_control_for_name(control)
 	control:clear()
 	if managers.volume then
 		local value = self:name()
-		local (for generator), (for state), (for control) = ipairs(managers.volume:volume_set_names())
-		do
-			do break end
+		for _, entry in ipairs(managers.volume:volume_set_names()) do
 			control:append(entry)
 			if entry == value then
 				control:set_value(value)
 			end
-
 		end
-
 	end
-
 	control:thaw()
 end
 

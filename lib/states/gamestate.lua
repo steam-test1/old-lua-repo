@@ -4,7 +4,6 @@ function GameState:freeflight_drop_player(pos, rot)
 	if managers.player then
 		managers.player:warp_to(pos, rot)
 	end
-
 end
 
 function GameState:set_controller_enabled(enabled)
@@ -16,7 +15,6 @@ function GameState:default_transition(next_state, params)
 	if self:gsm():is_controller_enabled() then
 		next_state:set_controller_enabled(true)
 	end
-
 	next_state:at_enter(self, params)
 end
 

@@ -16,8 +16,6 @@ function EffectDependencyNode:_walkxml2dependencies(xmlnode, deps)
 		if dn == nil then
 			Application:error("When parsing effect: " .. self._name .. ", can not locate texture: " .. texture_name)
 		end
-
 	end
-
 end
 

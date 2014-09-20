@@ -14,7 +14,6 @@ function LootBagUnitElement:save(list)
 		list.spawn_dir = self._hed.spawn_dir
 		list.push_multiplier = self._hed.push_multiplier
 	end
-
 	list.carry_id = self._hed.carry_id
 	list.from_respawn = self._hed.from_respawn
 end
@@ -27,7 +26,6 @@ function LootBagUnitElement:test_element()
 		local carry_type = tweak_data.carry[self._hed.carry_id].type
 		throw_distance_multiplier = tweak_data.carry.types[carry_type].throw_distance_multiplier or throw_distance_multiplier
 	end
-
 	local unit = safe_spawn_unit(unit_name, self._unit:position(), self._unit:rotation())
 	table.insert(self._test_units, unit)
 	local push_value = self._hed.push_multiplier and self._hed.spawn_dir * self._hed.push_multiplier or 0
@@ -35,18 +33,11 @@ function LootBagUnitElement:test_element()
 end
 
 function LootBagUnitElement:stop_test_element()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._test_units)
-		do
-			do break end
-			if alive(unit) then
-				World:delete_unit(unit)
-			end
-
+	for _, unit in ipairs(self._test_units) do
+		if alive(unit) then
+			World:delete_unit(unit)
 		end
-
 	end
-
 	self._test_units = {}
 end
 
@@ -60,19 +51,15 @@ function LootBagUnitElement:update_editing(time, rel_time)
 	if kb:down(Idstring("left")) then
 		self._hed.spawn_dir = self._hed.spawn_dir:rotate_with(Rotation(speed, 0, 0))
 	end
-
 	if kb:down(Idstring("right")) then
 		self._hed.spawn_dir = self._hed.spawn_dir:rotate_with(Rotation(-speed, 0, 0))
 	end
-
 	if kb:down(Idstring("up")) then
 		self._hed.spawn_dir = self._hed.spawn_dir:rotate_with(Rotation(0, 0, speed))
 	end
-
 	if kb:down(Idstring("down")) then
 		self._hed.spawn_dir = self._hed.spawn_dir:rotate_with(Rotation(0, 0, -speed))
 	end
-
 	local from = self._unit:position()
 	local to = from + self._hed.spawn_dir * 100000
 	local ray = managers.editor:unit_by_raycast({
@@ -83,7 +70,6 @@ function LootBagUnitElement:update_editing(time, rel_time)
 	if ray and ray.unit then
 		Application:draw_sphere(ray.position, 25, 1, 0, 0)
 	end
-
 end
 
 function LootBagUnitElement:_build_panel(panel, panel_sizer)
@@ -147,9 +133,7 @@ end
 
 function LootBagTriggerUnitElement:draw_links(t, dt, selected_unit, all_units)
 	LootBagTriggerUnitElement.super.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -161,9 +145,7 @@ function LootBagTriggerUnitElement:draw_links(t, dt, selected_unit, all_units)
 				b = 0.25
 			})
 		end
-
 	end
-
 end
 
 function LootBagTriggerUnitElement:update_editing()
@@ -178,21 +160,15 @@ function LootBagTriggerUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function LootBagTriggerUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function LootBagTriggerUnitElement:add_triggers(vc)

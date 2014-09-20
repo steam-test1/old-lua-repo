@@ -34,11 +34,9 @@ function CinematicStateCamera:play_redirect(redirect_name, speed, offset_time)
 	if result == self.IDS_NOSTRING then
 		return false
 	end
-
 	if speed then
 		self._unit:anim_state_machine():set_speed(result, speed)
 	end
-
 	self._current_redirect_name = redirect_name
 	self._current_state_name = result
 	return result
@@ -47,15 +45,9 @@ end
 function CinematicStateCamera:_get_state_length(state_name)
 	local animation_set = AnimationManager:animation_set(Idstring("anims/units/cinematic/cinematic"))
 	local len = 0
-	do
-		local (for generator), (for state), (for control) = ipairs(self._unit:anim_state_machine():config():state(state_name):animations())
-		do
-			do break end
-			len = math.max(len, animation_set:animation_total_duration(animation))
-		end
-
+	for _, animation in ipairs(self._unit:anim_state_machine():config():state(state_name):animations()) do
+		len = math.max(len, animation_set:animation_total_duration(animation))
 	end
-
 	return len
 end
 
@@ -67,7 +59,6 @@ function CinematicStateCamera:set_current_state_name(state_name)
 		CoreEws.change_slider_and_number_controller_range(self._time_slider, 0, self._length)
 		CoreEws.update_slider_and_number_controller_value(self._time_slider, 0)
 	end
-
 end
 
 function CinematicStateCamera:play_state(state_name, speed, offset_time)
@@ -75,7 +66,6 @@ function CinematicStateCamera:play_state(state_name, speed, offset_time)
 	if speed then
 		self:set_speed(speed)
 	end
-
 end
 
 function CinematicStateCamera:set_mission_element(mission_element)
@@ -87,7 +77,6 @@ function CinematicStateCamera:anim_clbk_done()
 	if entered_empty and self._mission_element then
 		self._mission_element:anim_clbk_done()
 	end
-
 end
 
 function CinematicStateCamera:anim_clbk_set_fov(unit, fov, transition_t)
@@ -100,7 +89,6 @@ function CinematicStateCamera:set_fov(fov, transition_t)
 		self._camera:set_fov(fov)
 		return
 	end
-
 	self._fov_transition_data = {}
 	self._fov_transition_data.start_fov = self._camera:fov()
 	self._fov_transition_data.target_fov = fov
@@ -112,12 +100,10 @@ function CinematicStateCamera:start()
 	if game_state_machine:current_state_name() ~= "editor" then
 		self._old_game_state_name = game_state_machine:current_state_name()
 	end
-
 	self._unit:set_visible(false)
 	if Application:editor() then
 		managers.editor:layer("WorldCamera"):set_gui_visible(true, true)
 	end
-
 	self._viewport:set_environment(managers.environment_area:default_environment())
 	game_state_machine:change_state_by_name("world_camera")
 	managers.enemy:set_gfx_lod_enabled(false)
@@ -133,16 +119,13 @@ function CinematicStateCamera:start()
 		if speed then
 			self._timer:set_multiplier(speed)
 		end
-
 	end
-
 end
 
 function CinematicStateCamera:pause()
 	if self._current_state_name then
 		self:set_speed(0)
 	end
-
 end
 
 function CinematicStateCamera:set_speed(speed)
@@ -150,18 +133,15 @@ function CinematicStateCamera:set_speed(speed)
 	if self._current_state_name then
 		self._unit:anim_state_machine():set_speed(self._current_state_name, speed)
 	end
-
 end
 
 function CinematicStateCamera:goto(time)
 	if self._current_redirect_name then
 		self:play_redirect(self._current_redirect_name, 0, time)
 	end
-
 	if self._current_state_name then
 		self:play_state(self._current_state_name, 0, time)
 	end
-
 end
 
 function CinematicStateCamera:stop()
@@ -173,12 +153,10 @@ function CinematicStateCamera:stop()
 		game_state_machine:change_state_by_name(self._old_game_state_name)
 		self._old_game_state_name = nil
 	end
-
 	if Application:editor() then
 		self._unit:set_visible(true)
 		managers.editor:layer("WorldCamera"):set_gui_visible(false, true)
 	end
-
 	self._playing = false
 end
 
@@ -257,7 +235,6 @@ function CinematicStateCamera:close_ews()
 		self._main_frame:destroy()
 		self._main_frame = nil
 	end
-
 end
 
 function CinematicStateCamera:update(unit, t, dt)
@@ -267,9 +244,7 @@ function CinematicStateCamera:update(unit, t, dt)
 		if self._time_slider then
 			CoreEws.change_slider_and_number_value(self._time_slider, math.min(current_time, self._length))
 		end
-
 	end
-
 	if self._fov_transition_data then
 		local lerp_value = math.bezier({
 			0,
@@ -283,50 +258,35 @@ function CinematicStateCamera:update(unit, t, dt)
 		if 1 <= self._fov_transition_data.current_t then
 			self._fov_transition_data = nil
 		end
-
 	end
-
 	if not self._playing then
 	end
-
 	if not self._main_frame or self._current_state_name then
 	end
-
 end
 
 function CinematicStateCamera:set_depth_mode(depth_mode)
 	self._locked_far_range = depth_mode and 5000 or nil
 	local viz = depth_mode and "depth_visualization" or "deferred_lighting"
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.viewport:viewports())
-		do
-			do break end
-			vp:set_visualization_mode(viz)
-		end
-
+	for _, vp in ipairs(managers.viewport:viewports()) do
+		vp:set_visualization_mode(viz)
 	end
-
 	local effect = depth_mode and "empty" or "default"
-	local (for generator), (for state), (for control) = ipairs(managers.viewport:viewports())
-	do
-		do break end
+	for _, vp in ipairs(managers.viewport:viewports()) do
 		vp:vp():set_post_processor_effect("World", Idstring("hdr_post_processor"), Idstring(effect))
 		local bloom_combine_effect = Idstring(effect) == Idstring("empty") and Idstring("bloom_combine_empty") or Idstring("bloom_combine")
 		vp:vp():set_post_processor_effect("World", Idstring("bloom_combine_post_processor"), bloom_combine_effect)
 	end
-
 end
 
 function CinematicStateCamera:destroy()
 	if self._playing then
 		self:stop()
 	end
-
 	if self._viewport then
 		self._viewport:destroy()
 		self._viewport = nil
 	end
-
 	self:close_ews()
 end
 

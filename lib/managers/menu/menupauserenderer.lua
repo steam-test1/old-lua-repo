@@ -12,11 +12,9 @@ function MenuPauseRenderer:show_node(node)
 	if node:parameters().gui_class then
 		gui_class = CoreSerialize.string_to_classtable(node:parameters().gui_class)
 	end
-
 	if not managers.menu:active_menu() then
 		Application:error("now everything is broken")
 	end
-
 	local parameters = {
 		font = tweak_data.menu.pd2_medium_font,
 		row_item_color = tweak_data.screen_colors.button_stage_3,
@@ -121,13 +119,10 @@ function MenuPauseRenderer:set_bg_area(area)
 			self._menu_bg:set_size(self._menu_bg:parent():size())
 			self._menu_bg:set_position(0, 0)
 		end
-
 		if self._blur_bg then
 			self._blur_bg:set_shape(self._menu_bg:shape())
 		end
-
 	end
-
 end
 
 function MenuPauseRenderer:close(...)

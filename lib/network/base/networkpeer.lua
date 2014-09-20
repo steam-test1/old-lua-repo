@@ -14,35 +14,28 @@ function NetworkPeer:init(name, rpc, id, loading, synced, in_lobby, character, u
 		if self._rpc:ip_at_index(0) == Network:self("TCP_IP"):ip_at_index(0) then
 			is_local_peer = true
 		end
-
 	elseif self._steam_rpc and self._steam_rpc:ip_at_index(0) == Network:self("STEAM"):ip_at_index(0) then
 		is_local_peer = true
 	end
-
 	if is_local_peer and (id ~= 1 or managers.network:session():is_host()) then
 		print("[NetworkPeer:init] settng own id", self._id, self._name)
 		Network:set_connection_id(nil, self._id)
 	end
-
 	print("[NetworkPeer:init] rpc", rpc, "id", id)
 	if self._rpc then
 		Network:set_connection_persistent(self._rpc, true)
 		if not is_local_peer then
 			Network:set_connection_id(self._rpc, self._id)
 		end
-
 		self._ip = self._rpc:ip_at_index(0)
 	end
-
 	if user_id and SystemInfo:platform() == Idstring("WIN32") then
 		self._steam_rpc = Network:handshake(user_id, nil, "STEAM")
 		Network:set_connection_persistent(self._steam_rpc, true)
 		if not is_local_peer then
 			Network:set_connection_id(self._steam_rpc, self._id)
 		end
-
 	end
-
 	self:set_throttling_enabled(managers.user:get_setting("net_packet_throttling"))
 	self._level = nil
 	self._rank = 0
@@ -64,12 +57,10 @@ function NetworkPeer:init(name, rpc, id, loading, synced, in_lobby, character, u
 	self:_chk_flush_msg_queues()
 	if in_lobby then
 	end
-
 	self._creation_t = TimerManager:wall_running():time()
 	if self._rpc and not self._loading and managers.network.voice_chat.on_member_added and self._rpc:ip_at_index(0) ~= Network:self("TCP_IP"):ip_at_index(0) then
 		managers.network.voice_chat:on_member_added(self)
 	end
-
 	self._profile = {
 		level = nil,
 		rank = nil,
@@ -95,9 +86,7 @@ function NetworkPeer:set_rpc(rpc)
 		if managers.network.voice_chat.on_member_added then
 			managers.network.voice_chat:on_member_added(self)
 		end
-
 	end
-
 end
 
 function NetworkPeer:create_ticket()
@@ -124,7 +113,6 @@ function NetworkPeer:mark_cheater()
 		managers.hud:mark_cheater(self._id)
 		return true
 	end
-
 	return false
 end
 
@@ -135,17 +123,13 @@ function NetworkPeer:set_steam_rpc(rpc)
 		Network:set_throttling_disabled(self._steam_rpc, not managers.user:get_setting("net_packet_throttling"))
 		Network:set_connection_id(self._steam_rpc, self._id)
 	end
-
 end
 
 function NetworkPeer:set_dlcs(dlcs)
 	local i_dlcs = string.split(dlcs, " ")
-	local (for generator), (for state), (for control) = ipairs(i_dlcs)
-	do
-		do break end
+	for _, dlc in ipairs(i_dlcs) do
 		self._dlcs[dlc] = true
 	end
-
 end
 
 function NetworkPeer:has_dlc(dlc)
@@ -158,14 +142,12 @@ function NetworkPeer:load(data)
 	if SystemInfo:platform() == Idstring("WIN32") then
 		self._name = managers.network.account:username_by_id(data.user_id)
 	end
-
 	self._rpc = data.rpc
 	self._steam_rpc = data.steam_rpc
 	self._id = data.id
 	if self._rpc then
 		self._ip = self._rpc:ip_at_index(0)
 	end
-
 	print("LOAD IP", self._ip, "self._rpc ip", self._rpc and self._rpc:ip_at_index(0))
 	self._synced = data.synced
 	self._character = data.character
@@ -193,22 +175,18 @@ function NetworkPeer:load(data)
 		if not next(Global.peer_loading_outfit_assets) then
 			Global.peer_loading_outfit_assets = nil
 		end
-
 		self:_chk_outfit_loading_complete()
 	end
-
 	self._other_peer_outfits_loaded = data.other_peer_outfits_loaded
 	self._outfit_version = data.outfit_version
 	if self._ticket_wait_response then
 		self:change_ticket_callback()
 	end
-
 	self:chk_enable_queue()
 	self:_chk_flush_msg_queues()
 	if self._rpc and not self._loading and managers.network.voice_chat.on_member_added then
 		managers.network.voice_chat:on_member_added(self)
 	end
-
 	self._expected_dropin_pause_confirmations = data.expected_dropin_pause_confirmations
 end
 
@@ -249,7 +227,6 @@ function NetworkPeer:save(data)
 		data.loading_outfit_assets = self._loading_outfit_assets
 		data.outfit_assets = self._outfit_assets
 	end
-
 	print("[NetworkPeer:save]", inspect(data))
 end
 
@@ -309,7 +286,6 @@ function NetworkPeer:qos()
 	if not self._rpc then
 		return
 	end
-
 	return Network:qos(self._rpc)
 end
 
@@ -356,28 +332,23 @@ function NetworkPeer:set_loading(state)
 	if self._loading and not state then
 		self._loaded = true
 	end
-
 	self._loading = state
 	if state then
 		self:chk_enable_queue()
 	end
-
 	self:_chk_flush_msg_queues()
 	if self == managers.network:session():local_peer() then
 		return
 	end
-
 	managers.network:game():on_peer_loading(self, state)
 	if state then
 		self._default_timeout_check_reset = nil
 		if managers.network.voice_chat.on_member_removed then
 			managers.network.voice_chat:on_member_removed(self)
 		end
-
 	elseif self._rpc and managers.network.voice_chat.on_member_added then
 		managers.network.voice_chat:on_member_added(self)
 	end
-
 end
 
 function NetworkPeer:set_loaded(state)
@@ -388,12 +359,10 @@ function NetworkPeer:set_synched(state)
 	if state and self.chk_timeout == self.pre_handshake_chk_timeout then
 		self._default_timeout_check_reset = TimerManager:wall():time() + NetworkPeer.PRE_HANDSHAKE_CHK_TIME
 	end
-
 	self._synced = state
 	if state then
 		self._syncing = false
 	end
-
 	self:_chk_flush_msg_queues()
 end
 
@@ -416,7 +385,6 @@ function NetworkPeer:set_in_lobby(state)
 		self._entering_lobby = false
 		self._default_timeout_check_reset = TimerManager:wall():time() + NetworkPeer.PRE_HANDSHAKE_CHK_TIME
 	end
-
 	self:_chk_flush_msg_queues()
 end
 
@@ -462,26 +430,20 @@ function NetworkPeer:send(func_name, ...)
 		debug_pause("[NetworkPeer:send] ip unverified:", func_name, ...)
 		return
 	end
-
 	local rpc = self._rpc
 	rpc[func_name](rpc, ...)
 	local send_resume = Network:get_connection_send_status(rpc)
 	if send_resume then
 		local nr_queued_packets = 0
-		local (for generator), (for state), (for control) = pairs(send_resume)
-		do
-			do break end
+		for delivery_type, amount in pairs(send_resume) do
 			nr_queued_packets = nr_queued_packets + amount
 			if nr_queued_packets > 100 and send_resume.unreliable then
 				print("[NetworkPeer:send] dropping unreliable packets", send_resume.unreliable)
 				Network:drop_unreliable_packets_for_connection(rpc)
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 end
 
 function NetworkPeer:_send_queued(queue_name, func_name, ...)
@@ -493,10 +455,8 @@ function NetworkPeer:_send_queued(queue_name, func_name, ...)
 			overwrite_data.clbk(overwrite_data, self._overwriteable_queue, func_name, ...)
 			return
 		end
-
 		self:send(func_name, ...)
 	end
-
 end
 
 function NetworkPeer:send_after_load(...)
@@ -504,7 +464,6 @@ function NetworkPeer:send_after_load(...)
 		print("[NetworkPeer:send_after_load] ip unverified:", ...)
 		return
 	end
-
 	self:_send_queued("load", ...)
 end
 
@@ -513,30 +472,24 @@ function NetworkPeer:send_queued_sync(...)
 		Application:error("[NetworkPeer:send_queued_sync] ip unverified:", ...)
 		return
 	end
-
 	if self._synced or self._syncing then
 		self:_send_queued("sync", ...)
 	end
-
 end
 
 function NetworkPeer:_chk_flush_msg_queues()
 	if not self._msg_queues or not self._ip_verified then
 		return
 	end
-
 	if not self._loading then
 		self:_flush_queue("load")
 	end
-
 	if self._synced then
 		self:_flush_queue("sync")
 	end
-
 	if not next(self._msg_queues) then
 		self._msg_queues = nil
 	end
-
 end
 
 function NetworkPeer:chk_enable_queue()
@@ -544,12 +497,10 @@ function NetworkPeer:chk_enable_queue()
 		self._msg_queues = self._msg_queues or {}
 		self._msg_queues.load = self._msg_queues.load or {}
 	end
-
 	if not self._synched then
 		self._msg_queues = self._msg_queues or {}
 		self._msg_queues.sync = self._msg_queues.sync or {}
 	end
-
 end
 
 function NetworkPeer:_push_to_queue(queue_name, ...)
@@ -563,67 +514,48 @@ function NetworkPeer:_flush_queue(queue_name)
 	if not msg_queue then
 		return
 	end
-
 	self._msg_queues[queue_name] = nil
 	local ok
-	local (for generator), (for state), (for control) = ipairs(msg_queue)
-	do
-		do break end
+	for i, msg in ipairs(msg_queue) do
 		ok = true
-		do
-			local (for generator), (for state), (for control) = ipairs(msg)
-			do
-				do break end
-				local param_type = type_name(param)
-				if param_type == "Unit" then
-					if not alive(param) or param:id() == -1 then
-						ok = nil
+		for _, param in ipairs(msg) do
+			local param_type = type_name(param)
+			if param_type == "Unit" then
+				if not alive(param) or param:id() == -1 then
+					ok = nil
+				else
 					else
-						else
-							if param_type == "Body" and not alive(param) then
-								ok = nil
-						end
-
-						else
-						end
-
+						if param_type == "Body" and not alive(param) then
+							ok = nil
 					end
-
-			end
-
+					else
+					end
+				end
 		end
-
 		if ok then
 			self:send(unpack(msg))
 		end
-
 	end
-
 end
 
 function NetworkPeer:chk_timeout(timeout)
 	if not self._ip_verified then
 		return
 	end
-
 	if self._rpc then
 		local silent_time = Network:receive_silent_time(self._rpc)
 		if timeout < silent_time then
 			if self._steam_rpc then
 				silent_time = math.min(silent_time, Network:receive_silent_time(self._steam_rpc))
 			end
-
 			if timeout < silent_time then
 				print("PINGED OUT", self._ip, silent_time, timeout)
 				self:_ping_timedout()
 			end
-
 		end
-
 	else
 		self:_ping_timedout()
 	end
-
 end
 
 function NetworkPeer:pre_handshake_chk_timeout()
@@ -632,7 +564,6 @@ function NetworkPeer:pre_handshake_chk_timeout()
 		self._default_timeout_check_reset = nil
 		self.chk_timeout = nil
 	end
-
 end
 
 function NetworkPeer:on_lost()
@@ -659,13 +590,10 @@ function NetworkPeer:set_id(my_id)
 		if self._rpc then
 			Network:set_connection_id(self._rpc, self._id)
 		end
-
 		if self._steam_rpc then
 			Network:set_connection_id(self._steam_rpc, self._id)
 		end
-
 	end
-
 end
 
 function NetworkPeer:set_name(name)
@@ -679,13 +607,10 @@ function NetworkPeer:destroy()
 		if managers.network.voice_chat.on_member_removed then
 			managers.network.voice_chat:on_member_removed(self)
 		end
-
 	end
-
 	if self._steam_rpc then
 		Network:reset_connection(self._steam_rpc)
 	end
-
 	self:_unload_outfit()
 end
 
@@ -698,55 +623,32 @@ function NetworkPeer:flush_overwriteable_msgs()
 	if self._loading or not next(overwriteable_queue) then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._overwriteable_msgs)
-		do
-			do break end
-			data.clbk(data)
-		end
-
+	for msg_name, data in pairs(self._overwriteable_msgs) do
+		data.clbk(data)
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(overwriteable_queue)
-		do
-			do break end
-			local ok = true
-			do
-				local (for generator), (for state), (for control) = ipairs(rpc_params)
-				do
-					do break end
-					local param_type = type_name(param)
-					if param_type == "Unit" then
-						if not alive(param) or param:id() == -1 then
+	for msg_name, rpc_params in pairs(overwriteable_queue) do
+		local ok = true
+		for _, param in ipairs(rpc_params) do
+			local param_type = type_name(param)
+			if param_type == "Unit" then
+				if not alive(param) or param:id() == -1 then
+					ok = nil
+				else
+					else
+						if param_type == "Body" and not alive(param) then
 							ok = nil
-						else
-							else
-								if param_type == "Body" and not alive(param) then
-									ok = nil
-							end
-
-							else
-							end
-
-						end
-
+					end
+					else
+					end
 				end
-
-			end
-
-			if ok then
-				self:send(unpack(rpc_params))
-			else
-				Application:error("[NetworkPeer:flush_overwriteable_msgs] msg with dead params peer_id:", self._id, "msg", msg_name, "params", unpack(rpc_params))
-				Application:stack_dump("error")
-			end
-
 		end
-
+		if ok then
+			self:send(unpack(rpc_params))
+		else
+			Application:error("[NetworkPeer:flush_overwriteable_msgs] msg with dead params peer_id:", self._id, "msg", msg_name, "params", unpack(rpc_params))
+			Application:stack_dump("error")
+		end
 	end
-
 	self._overwriteable_queue = {}
 end
 
@@ -760,9 +662,7 @@ function NetworkPeer:set_expecting_drop_in_pause_confirmation(dropin_peer_id, st
 		if not next(self._expected_dropin_pause_confirmations) then
 			self._expected_dropin_pause_confirmations = nil
 		end
-
 	end
-
 end
 
 function NetworkPeer:is_expecting_pause_confirmation(dropin_peer_id)
@@ -798,7 +698,6 @@ function NetworkPeer:set_level(level)
 	if managers.hud then
 		managers.hud:update_name_label_by_peer(self)
 	end
-
 end
 
 function NetworkPeer:level()
@@ -810,7 +709,6 @@ function NetworkPeer:set_rank(rank)
 	if managers.hud then
 		managers.hud:update_name_label_by_peer(self)
 	end
-
 end
 
 function NetworkPeer:rank()
@@ -830,20 +728,17 @@ function NetworkPeer:set_outfit_string(outfit_string, outfit_version)
 	if old_outfit_string ~= outfit_string then
 		self:_reload_outfit()
 	end
-
 	if self == managers.network:session():local_peer() then
 		self:_increment_outfit_version()
 	else
 		self._outfit_version = outfit_version or 0
 	end
-
 end
 
 function NetworkPeer:profile(data)
 	if data then
 		return self._profile[data]
 	end
-
 	return self._profile
 end
 
@@ -895,32 +790,18 @@ function NetworkPeer:has_queued_rpcs()
 	if not self._msg_queues then
 		return
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._msg_queues)
-	do
-		do break end
+	for queue_name, queue in pairs(self._msg_queues) do
 		if next(queue) then
 			print("queued msgs in", queue_name)
-			do
-				local (for generator), (for state), (for control) = ipairs(queue)
-				do
-					do break end
-					print(i)
-					local (for generator), (for state), (for control) = ipairs(rpc_info)
-					do
-						do break end
-						print(blah)
-					end
-
+			for i, rpc_info in ipairs(queue) do
+				print(i)
+				for _, blah in ipairs(rpc_info) do
+					print(blah)
 				end
-
 			end
-
 			return queue_name
 		end
-
 	end
-
 end
 
 function NetworkPeer:set_xuid(xuid)
@@ -992,24 +873,12 @@ function NetworkPeer:is_outfit_loaded()
 end
 
 function NetworkPeer:_unload_outfit()
-	do
-		local (for generator), (for state), (for control) = pairs(self._outfit_assets.unit)
-		do
-			do break end
-			managers.dyn_resource:unload(ids_unit, asset_data.name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
-		end
-
+	for asset_id, asset_data in pairs(self._outfit_assets.unit) do
+		managers.dyn_resource:unload(ids_unit, asset_data.name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._outfit_assets.texture)
-		do
-			do break end
-			TextureCache:unretrieve(asset_data.name)
-		end
-
+	for asset_id, asset_data in pairs(self._outfit_assets.texture) do
+		TextureCache:unretrieve(asset_data.name)
 	end
-
 	self._outfit_assets = {
 		unit = {},
 		texture = {}
@@ -1020,7 +889,6 @@ function NetworkPeer:_reload_outfit()
 	if self._profile.outfit_string == "" then
 		return
 	end
-
 	self._loading_outfit_assets = true
 	local is_local_peer = self == managers.network:session():local_peer()
 	local new_outfit_assets = {
@@ -1057,60 +925,35 @@ function NetworkPeer:_reload_outfit()
 		}
 		new_outfit_assets.unit.mask_backstraps = mask_backstraps_asset_data
 	end
-
 	local ids_primary_u_name = Idstring(tweak_data.weapon.factory[complete_outfit.primary.factory_id .. (is_local_peer and "" or "_npc")].unit)
 	new_outfit_assets.unit.primary_w = {name = ids_primary_u_name}
 	local primary_w_parts = managers.weapon_factory:preload_blueprint(complete_outfit.primary.factory_id, complete_outfit.primary.blueprint, not is_local_peer, function()
 	end
 , true)
-	do
-		local (for generator), (for state), (for control) = pairs(primary_w_parts)
-		do
-			do break end
-			new_outfit_assets.unit["prim_w_part_" .. tostring(part_id)] = {
-				name = part.name
-			}
-		end
-
+	for part_id, part in pairs(primary_w_parts) do
+		new_outfit_assets.unit["prim_w_part_" .. tostring(part_id)] = {
+			name = part.name
+		}
 	end
-
 	local ids_secondary_u_name = Idstring(tweak_data.weapon.factory[complete_outfit.secondary.factory_id .. (is_local_peer and "" or "_npc")].unit)
 	new_outfit_assets.unit.secondary_w = {name = ids_secondary_u_name}
 	local secondary_w_parts = managers.weapon_factory:preload_blueprint(complete_outfit.secondary.factory_id, complete_outfit.secondary.blueprint, not is_local_peer, function()
 	end
 , true)
-	do
-		local (for generator), (for state), (for control) = pairs(secondary_w_parts)
-		do
-			do break end
-			new_outfit_assets.unit["sec_w_part_" .. tostring(part_id)] = {
-				name = part.name
-			}
-		end
-
+	for part_id, part in pairs(secondary_w_parts) do
+		new_outfit_assets.unit["sec_w_part_" .. tostring(part_id)] = {
+			name = part.name
+		}
 	end
-
 	self._outfit_assets = new_outfit_assets
-	do
-		local (for generator), (for state), (for control) = pairs(new_outfit_assets.unit)
-		do
-			do break end
-			asset_data.is_streaming = true
-			managers.dyn_resource:load(ids_unit, asset_data.name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, asset_load_result_clbk)
-		end
-
+	for asset_id, asset_data in pairs(new_outfit_assets.unit) do
+		asset_data.is_streaming = true
+		managers.dyn_resource:load(ids_unit, asset_data.name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, asset_load_result_clbk)
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(new_outfit_assets.texture)
-		do
-			do break end
-			asset_data.is_streaming = true
-			TextureCache:request(asset_data.name, ids_NORMAL, texture_load_result_clbk, 90)
-		end
-
+	for asset_id, asset_data in pairs(new_outfit_assets.texture) do
+		asset_data.is_streaming = true
+		TextureCache:request(asset_data.name, ids_NORMAL, texture_load_result_clbk, 90)
 	end
-
 	self._all_outfit_load_requests_sent = true
 	self._outfit_assets = old_outfit_assets
 	self:_unload_outfit()
@@ -1122,70 +965,41 @@ function NetworkPeer:clbk_outfit_asset_loaded(outfit_assets, status, asset_type,
 	if not self._loading_outfit_assets or self._outfit_assets ~= outfit_assets then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(outfit_assets.unit)
-		do
-			do break end
-			if asset_data.name == asset_name then
-				asset_data.is_streaming = nil
-			end
-
+	for asset_id, asset_data in pairs(outfit_assets.unit) do
+		if asset_data.name == asset_name then
+			asset_data.is_streaming = nil
 		end
-
 	end
-
 	if not Global.peer_loading_outfit_assets or not Global.peer_loading_outfit_assets[self._id] then
 		self:_chk_outfit_loading_complete()
 	end
-
 end
 
 function NetworkPeer:clbk_outfit_texture_loaded(outfit_assets, tex_name)
 	if not self._loading_outfit_assets or self._outfit_assets ~= outfit_assets then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(outfit_assets.texture)
-		do
-			do break end
-			if asset_data.name == tex_name then
-				asset_data.is_streaming = nil
-			end
-
+	for asset_id, asset_data in pairs(outfit_assets.texture) do
+		if asset_data.name == tex_name then
+			asset_data.is_streaming = nil
 		end
-
 	end
-
 	if not Global.peer_loading_outfit_assets or not Global.peer_loading_outfit_assets[self._id] then
 		self:_chk_outfit_loading_complete()
 	end
-
 end
 
 function NetworkPeer:_chk_outfit_loading_complete()
 	if not self._loading_outfit_assets or not self._all_outfit_load_requests_sent then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._outfit_assets)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(asset_list)
-			do
-				do break end
-				if asset_data.is_streaming then
-					return
-				end
-
+	for asset_type, asset_list in pairs(self._outfit_assets) do
+		for asset_id, asset_data in pairs(asset_list) do
+			if asset_data.is_streaming then
+				return
 			end
-
 		end
-
 	end
-
 	self._all_outfit_load_requests_sent = nil
 	self._loading_outfit_assets = nil
 	print("[NetworkPeer:_chk_outfit_loading_complete] Complete!", self == managers.network:session():local_peer() and "local_peer" or self._id, "\n", inspect(self._outfit_assets.unit), inspect(self._outfit_assets.texture))
@@ -1206,7 +1020,6 @@ function NetworkPeer:_increment_outfit_version()
 	else
 		self._outfit_version = self._outfit_version + 1
 	end
-
 	return self._outfit_version
 end
 
@@ -1218,10 +1031,8 @@ function NetworkPeer:set_throttling_enabled(state)
 	if self._rpc then
 		Network:set_throttling_disabled(self._rpc, not state)
 	end
-
 	if self._steam_rpc then
 		Network:set_throttling_disabled(self._steam_rpc, not state)
 	end
-
 end
 

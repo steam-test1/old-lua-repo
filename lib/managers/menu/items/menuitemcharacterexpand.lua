@@ -36,7 +36,6 @@ end
 function MenuItemCharacterExpand:toggle(...)
 	if not self:parameter("unlocked") then
 	end
-
 	MenuItemCharacterExpand.super.toggle(self, ...)
 end
 
@@ -77,7 +76,6 @@ function MenuItemCharacterExpand:setup_gui(node, row_item)
 	if row_item.align == "right" then
 		row_item.character_name:set_right(row_item.locked_icon:left() - 10)
 	end
-
 	row_item.expanded_indicator = row_item.gui_panel:parent():bitmap({
 		visible = false,
 		texture = "guis/textures/menu_selected",
@@ -112,9 +110,7 @@ function MenuItemCharacterExpand:on_item_positions_done(row_item, node)
 			row_item.bottom_line:set_lefttop(row_child.gui_panel:leftbottom())
 			row_item.bottom_line:set_top(row_item.bottom_line:top() - 1)
 		end
-
 	end
-
 end
 
 function MenuItemCharacterExpand:on_buy(node)
@@ -122,13 +118,10 @@ function MenuItemCharacterExpand:on_buy(node)
 end
 
 function MenuItemCharacterExpand:on_equip(node)
-	local (for generator), (for state), (for control) = ipairs(self:parameters().parent_item:items())
-	do
-		do break end
+	for _, item in ipairs(self:parameters().parent_item:items()) do
 		local row_item = node:row_item(item)
 		item:reload(row_item, node)
 	end
-
 end
 
 function MenuItemCharacterExpand:on_repair(node, condition)
@@ -143,18 +136,13 @@ end
 function MenuItemCharacterExpand:get_h(row_item, node)
 	local h = row_item.gui_panel:h()
 	if self:expanded() then
-		local (for generator), (for state), (for control) = ipairs(self:items())
-		do
-			do break end
+		for _, item in ipairs(self:items()) do
 			local child_row_item = node:row_item(item)
 			if child_row_item then
 				h = h + child_row_item.gui_panel:h()
 			end
-
 		end
-
 	end
-
 	return h
 end
 
@@ -173,7 +161,6 @@ function MenuItemCharacterExpand:reload(row_item, node)
 	else
 		row_item.menu_unselected:set_color(node.row_item_color)
 	end
-
 	self:_set_row_item_state(node, row_item)
 end
 
@@ -195,7 +182,6 @@ function MenuItemCharacterExpand:_set_row_item_state(node, row_item)
 		row_item.character_name:set_color(self:parameter("owned") and self:parameter("unlocked") and row_item.color or node.row_item_color)
 		row_item.character_name:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.default_font_id)
 	end
-
 end
 
 function MenuItemCharacterExpand:on_delete_row_item(row_item, ...)

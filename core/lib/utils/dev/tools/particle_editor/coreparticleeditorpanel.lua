@@ -56,7 +56,6 @@ function CoreParticleEditorPanel:create_panel(parent)
 	else
 		self._atom = nil
 	end
-
 	self._stack_notebook:connect("EVT_COMMAND_NOTEBOOK_PAGE_CHANGED", callback(self, self, "clear_box_help"), "")
 	self:update_view(true)
 	self._panel:set_visible(true)
@@ -76,7 +75,6 @@ function CoreParticleEditorPanel:on_timeline_modify(arg, event)
 	else
 		self._atom:extend_timeline(event:istart(), event:iend(), event:tstart(), event:tend())
 	end
-
 	self:update_view(false)
 end
 
@@ -84,17 +82,11 @@ function CoreParticleEditorPanel:fill_timelines()
 	self._timeline_edit:clear_timelines()
 	self._timeline_edit:add_timeline("atom")
 	local events = self._atom:collect_time_events()
-	do
-		local (for generator), (for state), (for control) = ipairs(events)
-		do
-			do break end
-			local name = e[1]
-			local t = tonumber(e[2][e[3]])
-			self._timeline_edit:add_event("atom", t, name)
-		end
-
+	for _, e in ipairs(events) do
+		local name = e[1]
+		local t = tonumber(e[2][e[3]])
+		self._timeline_edit:add_event("atom", t, name)
 	end
-
 	self._timeline_edit:refresh()
 end
 
@@ -108,7 +100,6 @@ function CoreParticleEditorPanel:on_rename_atom()
 	if self._effect:find_atom(self._atom_textctrl:get_value()) or #self._effect._atoms == 0 then
 		return
 	end
-
 	self._atom:set_name(self._atom_textctrl:get_value())
 	self:update_atom_combo()
 	self._atom_combo:set_value(self._atom_textctrl:get_value())
@@ -119,7 +110,6 @@ function CoreParticleEditorPanel:on_add_atom()
 	if self._effect:find_atom(self._atom_textctrl:get_value()) then
 		return
 	end
-
 	self._effect:add_atom(CoreEffectAtom:new(self._atom_textctrl:get_value()))
 	self:update_atom_combo()
 	self._atom_combo:set_value(self._atom_textctrl:get_value())
@@ -130,14 +120,12 @@ function CoreParticleEditorPanel:on_remove_atom()
 	if not self._atom then
 		return
 	end
-
 	self._effect:remove_atom(self._atom)
 	self:update_atom_combo()
 	if #self._effect._atoms > 0 then
 		self._atom_combo:set_value(self._effect._atoms[1]:name())
 		self:on_select_atom()
 	end
-
 end
 
 function CoreParticleEditorPanel:on_copy_atom()
@@ -146,7 +134,6 @@ function CoreParticleEditorPanel:on_copy_atom()
 		self._editor._clipboard_type = "atom"
 		self._editor._clipboard_object = deep_clone(atom)
 	end
-
 end
 
 function CoreParticleEditorPanel:on_paste_atom()
@@ -159,20 +146,17 @@ function CoreParticleEditorPanel:on_paste_atom()
 			i = i + 1
 			e = self._effect:find_atom(self._editor._clipboard_object:name())
 		end
-
 		self._effect:add_atom(deep_clone(self._editor._clipboard_object))
 		self:update_atom_combo()
 		self._atom_combo:set_value(self._editor._clipboard_object:name())
 		self:on_select_atom()
 	end
-
 end
 
 function CoreParticleEditorPanel:on_set_selected_only()
 	if self._valid_effect then
 		self:update_effect_instance()
 	end
-
 end
 
 function CoreParticleEditorPanel:create_effect_panel(parent)
@@ -219,7 +203,6 @@ function CoreParticleEditorPanel:show_stack_overview(b)
 	if b then
 		self:update_graph_view()
 	end
-
 end
 
 function CoreParticleEditorPanel:create_graph_view(parent)
@@ -235,7 +218,6 @@ function CoreParticleEditorPanel:create_graph_view(parent)
 	if self._editor._view_menu:is_checked("SHOW_STACK_OVERVIEW") then
 		self:show_stack_overview(true)
 	end
-
 end
 
 function CoreParticleEditorPanel:create_status_box(parent)
@@ -248,7 +230,6 @@ function CoreParticleEditorPanel:on_stack_up(stacktype)
 	if selected < 0 then
 		return
 	end
-
 	self._atom:stack(stacktype):move_up(selected + 1)
 	self:update_view(true)
 end
@@ -259,7 +240,6 @@ function CoreParticleEditorPanel:on_stack_down(stacktype)
 	if selected < 0 then
 		return
 	end
-
 	self._atom:stack(stacktype):move_down(selected + 1)
 	self:update_view(true)
 end
@@ -270,7 +250,6 @@ function CoreParticleEditorPanel:on_stack_remove(stacktype)
 	if selected < 0 then
 		return
 	end
-
 	self._atom:stack(stacktype):remove(selected + 1)
 	self:update_view(true)
 end
@@ -279,14 +258,12 @@ function CoreParticleEditorPanel:on_stack_add(stacktype)
 	if not self._atom then
 		return
 	end
-
 	local members = stack_members[stacktype]
 	local member_names = stack_member_names[stacktype]
 	local to_add_idx = self._stack_member_combos[stacktype]:get_selection()
 	if to_add_idx < 0 then
 		return
 	end
-
 	self._atom:stack(stacktype):add_member(members[member_names[to_add_idx + 1].key]())
 	self:update_view(true)
 	self._stacklist_boxes[stacktype]:select_index(self._stacklist_boxes[stacktype]:nr_items() - 1)
@@ -301,7 +278,6 @@ function CoreParticleEditorPanel:on_select_stack_member(stacktype)
 		self._atom:stack(stacktype):stack()[selected + 1]:fill_property_container_sheet(self._stack_panels[stacktype], self)
 		self._stack_panels[stacktype]:fit_inside()
 	end
-
 end
 
 function CoreParticleEditorPanel:update_effect_instance(quality)
@@ -316,7 +292,6 @@ function CoreParticleEditorPanel:reload_effect_definition()
 	else
 		self._effect:save(n)
 	end
-
 	CoreEngineAccess._editor_reload_node(n, Idstring("effect"), Idstring("unique_test_effect_name"))
 	self._effect_id = nil
 end
@@ -327,7 +302,6 @@ function CoreParticleEditorPanel:update(t, dt)
 			self:reload_effect_definition()
 			self._dirty_effect = false
 		end
-
 		if (not self._effect_id or not World:effect_manager():alive(self._effect_id)) and self._frames_since_spawn > 1 then
 			local quality = self._quality
 			quality = quality or 0.5
@@ -342,16 +316,13 @@ function CoreParticleEditorPanel:update(t, dt)
 		else
 			self._frames_since_spawn = self._frames_since_spawn + 1
 		end
-
 	elseif self._effect_id then
 		World:effect_manager():kill(self._effect_id)
 		self._effect_id = nil
 	end
-
 	if self._editor._view_menu:is_checked("SHOW_STACK_OVERVIEW") then
 		self._graph_view:update_graph(dt)
 	end
-
 end
 
 function CoreParticleEditorPanel:update_graph_view()
@@ -359,7 +330,6 @@ function CoreParticleEditorPanel:update_graph_view()
 	if not self._atom then
 		return
 	end
-
 	local stacks = {
 		"initializer",
 		"simulator",
@@ -376,56 +346,36 @@ function CoreParticleEditorPanel:update_graph_view()
 			channels[channel] = channel_x_count
 			channel_x_count = channel_x_count + 80
 		end
-
 		return channels[channel]
 	end
 
-	do
-		local (for generator), (for state), (for control) = ipairs(stacks)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(self._atom:stack(stacktype):stack())
-			do
-				do break end
-				if m._valid_properties then
-					local affector_node = EWS:Node(m:name(), affector_x, row * row_height)
-					self._graph:add_node(affector_node)
-					local reads = {}
-					local writes = {}
-					reads, writes = m:reads_writes()
-					do
-						local (for generator), (for state), (for control) = pairs(reads)
-						do
-							do break end
-							local read_node = EWS:Node(channel, channel_x(channel), row * row_height - channel_height)
-							self._graph:add_node(read_node)
-							local slot = read_node:free_slot()
-							read_node:set_target(slot, affector_node, "read " .. channel)
-						end
-
-					end
-
-					local (for generator), (for state), (for control) = pairs(writes)
-					do
-						do break end
-						local write_node = EWS:Node(channel, channel_x(channel), row * row_height + channel_height)
-						self._graph:add_node(write_node)
-						local slot = affector_node:free_slot()
-						affector_node:set_target(slot, write_node, "write " .. channel .. " " .. read_type)
-					end
-
-				else
-					local affector_node = EWS:Node("INVALID: " .. m:name(), affector_x, row * row_height)
-					self._graph:add_node(affector_node)
+	for _, stacktype in ipairs(stacks) do
+		for _, m in ipairs(self._atom:stack(stacktype):stack()) do
+			if m._valid_properties then
+				local affector_node = EWS:Node(m:name(), affector_x, row * row_height)
+				self._graph:add_node(affector_node)
+				local reads = {}
+				local writes = {}
+				reads, writes = m:reads_writes()
+				for channel, read_type in pairs(reads) do
+					local read_node = EWS:Node(channel, channel_x(channel), row * row_height - channel_height)
+					self._graph:add_node(read_node)
+					local slot = read_node:free_slot()
+					read_node:set_target(slot, affector_node, "read " .. channel)
 				end
-
-				row = row + 1
+				for channel, read_type in pairs(writes) do
+					local write_node = EWS:Node(channel, channel_x(channel), row * row_height + channel_height)
+					self._graph:add_node(write_node)
+					local slot = affector_node:free_slot()
+					affector_node:set_target(slot, write_node, "write " .. channel .. " " .. read_type)
+				end
+			else
+				local affector_node = EWS:Node("INVALID: " .. m:name(), affector_x, row * row_height)
+				self._graph:add_node(affector_node)
 			end
-
+			row = row + 1
 		end
-
 	end
-
 	self._graph_view:refresh()
 end
 
@@ -439,16 +389,13 @@ function CoreParticleEditorPanel:update_view(clear, undoredo)
 			xml = new_xml
 		})
 	end
-
 	local name = self._effect:name()
 	if name == "" then
 		name = "New Effect"
 	end
-
 	if new_xml ~= self._last_saved_xml then
 		name = name .. "*"
 	end
-
 	self._editor:set_page_name(self, base_path(name))
 	if clear then
 		self._atom_panel:destroy_children()
@@ -457,11 +404,9 @@ function CoreParticleEditorPanel:update_view(clear, undoredo)
 		else
 			self._atom_panel:set_sizer(EWS:BoxSizer("VERTICAL"))
 		end
-
 	elseif self._atom then
 		self:fill_timelines()
 	end
-
 	if clear then
 		self._effect_properties_panel:destroy_children()
 		if self._effect then
@@ -469,38 +414,22 @@ function CoreParticleEditorPanel:update_view(clear, undoredo)
 		else
 			self._effect_properties_panel:set_sizer(EWS:BoxSizer("VERTICAL"))
 		end
-
 	end
-
 	if clear then
-		local (for generator), (for state), (for control) = pairs(self._stacklist_boxes)
-		do
-			do break end
+		for stacktype, c in pairs(self._stacklist_boxes) do
 			c:clear()
 			if self._atom then
-				local (for generator), (for state), (for control) = ipairs(self._atom:stack(stacktype):stack())
-				do
-					do break end
+				for _, m in ipairs(self._atom:stack(stacktype):stack()) do
 					c:append(m:ui_name())
 				end
-
 			end
-
 			self._stack_panels[stacktype]:destroy_children()
 			self._stack_panels[stacktype]:set_sizer(EWS:BoxSizer("VERTICAL"))
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._stack_panels)
-		do
-			do break end
-			panel:fit_inside()
-		end
-
+	for stacktype, panel in pairs(self._stack_panels) do
+		panel:fit_inside()
 	end
-
 	local valid = self._effect:validate()
 	self._valid_effect = valid.valid
 	if not valid.valid then
@@ -508,17 +437,14 @@ function CoreParticleEditorPanel:update_view(clear, undoredo)
 	else
 		self._box_status = "Effect is valid"
 	end
-
 	self:update_status_box()
 	if self._editor._view_menu:is_checked("SHOW_STACK_OVERVIEW") then
 		self:update_graph_view()
 	end
-
 	self:safety_backup()
 	if valid.valid then
 		self:update_effect_instance()
 	end
-
 end
 
 function CoreParticleEditorPanel:update_status_box()
@@ -528,7 +454,6 @@ function CoreParticleEditorPanel:update_status_box()
 	else
 		self._status_box:set_default_style_colour(Vector3(0, 190, 0))
 	end
-
 	self._status_box:append(self._box_status .. "\n")
 	self._status_box:append("\n")
 	self._status_box:set_default_style_colour(Vector3(0, 0, 0))
@@ -549,7 +474,6 @@ function CoreParticleEditorPanel:on_stack_copy(stacktype)
 	if selected < 0 then
 		return
 	end
-
 	self._editor._clipboard_type = stacktype
 	self._editor._clipboard_object = deep_clone(self._atom:stack(stacktype):member(selected + 1))
 end
@@ -558,7 +482,6 @@ function CoreParticleEditorPanel:on_stack_paste(stacktype)
 	if self._editor._clipboard_type ~= stacktype or not self._editor._clipboard_object then
 		return
 	end
-
 	local box = self._stacklist_boxes[stacktype]
 	local selected = box:selected_index()
 	if selected < 0 then
@@ -566,13 +489,11 @@ function CoreParticleEditorPanel:on_stack_paste(stacktype)
 	else
 		selected = selected + 1
 	end
-
 	if not selected then
 		self._atom:stack(stacktype):add_member(deep_clone(self._editor._clipboard_object))
 	else
 		self._atom:stack(stacktype):insert_member(deep_clone(self._editor._clipboard_object), selected)
 	end
-
 	self:update_view(true)
 end
 
@@ -580,7 +501,6 @@ function CoreParticleEditorPanel:on_lose_focus()
 	if self._effect_id and self._effect_id > 0 then
 		World:effect_manager():kill(self._effect_id)
 	end
-
 	self:show_stack_overview(false)
 end
 
@@ -591,9 +511,7 @@ function CoreParticleEditorPanel:on_key_stack_member(stacktype, event)
 		elseif event:key_code() == 86 then
 			self:on_stack_paste(stacktype)
 		end
-
 	end
-
 end
 
 function CoreParticleEditorPanel:create_stack_panel(parent, stacktype)
@@ -606,16 +524,10 @@ function CoreParticleEditorPanel:create_stack_panel(parent, stacktype)
 	local stack_member_combo = EWS:ComboBox(panel, "", "", "CB_DROPDOWN,CB_READONLY")
 	local member_names = stack_member_names[stacktype]
 	local last
-	do
-		local (for generator), (for state), (for control) = ipairs(member_names)
-		do
-			do break end
-			stack_member_combo:append(mn.ui_name)
-			last = mn.ui_name
-		end
-
+	for _, mn in ipairs(member_names) do
+		stack_member_combo:append(mn.ui_name)
+		last = mn.ui_name
 	end
-
 	stack_member_combo:set_value(last)
 	self._stack_member_combos[stacktype] = stack_member_combo
 	local up_button = EWS:Button(panel, "Up", "", "")
@@ -702,10 +614,8 @@ function CoreParticleEditorPanel:undoredo(f)
 			self._atom_combo:set_value(aname)
 			self:on_select_atom()
 		end
-
 		self:update_view(true, true)
 	end
-
 end
 
 function CoreParticleEditorPanel:clear()
@@ -715,12 +625,9 @@ end
 
 function CoreParticleEditorPanel:update_atom_combo()
 	self._atom_combo:clear()
-	local (for generator), (for state), (for control) = ipairs(self._effect._atoms)
-	do
-		do break end
+	for _, atom in ipairs(self._effect._atoms) do
 		self._atom_combo:append(atom._name)
 	end
-
 end
 
 function CoreParticleEditorPanel:on_select_atom()
@@ -729,7 +636,6 @@ function CoreParticleEditorPanel:on_select_atom()
 	if atom then
 		self._atom_textctrl:set_value(atom:name())
 	end
-
 	self:update_view(true, true)
 end
 
@@ -739,7 +645,6 @@ function CoreParticleEditorPanel:on_save()
 	else
 		return self:do_save(false)
 	end
-
 end
 
 function CoreParticleEditorPanel:on_save_as()
@@ -747,7 +652,6 @@ function CoreParticleEditorPanel:on_save_as()
 	if not f then
 		return false
 	end
-
 	self._effect:set_name(f)
 	self._editor._last_used_dir = dir_name(f)
 	local node = Node("effect")
@@ -766,9 +670,7 @@ function CoreParticleEditorPanel:do_save(warn_on_overwrite)
 		if ret ~= "YES" then
 			return false
 		end
-
 	end
-
 	local n = Node("effect")
 	self._effect:save(n)
 	managers.database:save_node(n, self._effect:name())
@@ -777,7 +679,6 @@ function CoreParticleEditorPanel:do_save(warn_on_overwrite)
 		managers.database:recompile(self._effect:name())
 		PackageManager:reload(Idstring("effect"), managers.database:entry_path(self._effect:name()):id())
 	end
-
 	self._editor:set_page_name(self, base_path(self._effect:name()))
 	return true
 end
@@ -793,23 +694,18 @@ function CoreParticleEditorPanel:close()
 			if n == "" then
 				n = "New Effect"
 			end
-
 			local ret = EWS:message_box(self._panel, "Effect " .. n .. " was modified since last saved, save before exiting?", "Save?", "YES,NO,CANCEL", Vector3(-1, -1, 0))
 			if ret == "YES" then
 				if self:on_save() then
 					continue_asking = false
 				end
-
 			elseif ret == "NO" then
 				continue_asking = false
 			elseif ret == "CANCEL" then
 				return false
 			end
-
 		end
-
 	end
-
 	self._graph_view_dialog:destroy()
 	return true
 end
@@ -825,16 +721,13 @@ function CoreUndoStack:push(state)
 	if self._stack[self._ptr] == state then
 		return
 	end
-
 	while self._ptr < #self._stack do
 		table.remove(self._stack, self._ptr)
 	end
-
 	table.insert(self._stack, state)
 	if #self._stack > self._stacksize then
 		table.remove(self._stack, 1)
 	end
-
 	self._ptr = #self._stack
 end
 
@@ -842,7 +735,6 @@ function CoreUndoStack:undo()
 	if self._ptr == 1 then
 		return nil
 	end
-
 	self._ptr = self._ptr - 1
 	return self._stack[self._ptr]
 end
@@ -851,7 +743,6 @@ function CoreUndoStack:redo()
 	if self._ptr == #self._stack then
 		return nil
 	end
-
 	self._ptr = self._ptr + 1
 	return self._stack[self._ptr]
 end

@@ -31,14 +31,12 @@ if SystemInfo:platform() == Idstring("X360") then
 else
 	NetworkManager.DEFAULT_PORT = 9899
 end
-
 NetworkManager.DROPIN_ENABLED = true
 if SystemInfo:platform() == Idstring("X360") or SystemInfo:platform() == Idstring("PS3") then
 	NetworkManager.PROTOCOL_TYPE = "TCP_IP"
 else
 	NetworkManager.PROTOCOL_TYPE = "STEAM"
 end
-
 function NetworkManager:init(game_class)
 	self.OVERWRITEABLE_MSGS = {
 		set_look_dir = {
@@ -60,14 +58,12 @@ function NetworkManager:init(game_class)
 	else
 		self._is_win32 = true
 	end
-
 	self._spawn_points = {}
 	if self._is_ps3 then
 		Network:set_use_psn_network(true)
 		if #PSN:get_world_list() == 0 then
 			PSN:init_matchmaking()
 		end
-
 		self:_register_PSN_matchmaking_callbacks()
 	elseif self._is_win32 then
 		self.account = NetworkAccountSTEAM:new()
@@ -76,7 +72,6 @@ function NetworkManager:init(game_class)
 		self.account = NetworkAccountXBL:new()
 		self.voice_chat = NetworkVoiceChatXBL:new()
 	end
-
 	self._started = false
 	self._game_class = game_class
 	managers.network = self
@@ -90,7 +85,6 @@ function NetworkManager:init_finalize()
 		self._session:on_load_complete()
 		self._game:on_load_complete()
 	end
-
 end
 
 function NetworkManager:_create_lobby()
@@ -116,7 +110,6 @@ function NetworkManager:_create_lobby()
 		Application:error("NetworkManager:create_lobby failed to get a valid lobby for online play.")
 		return
 	end
-
 end
 
 function NetworkManager:ps3_determine_voice(lan)
@@ -129,18 +122,14 @@ function NetworkManager:ps3_determine_voice(lan)
 		else
 			voice = "voice_disabled"
 		end
-
 	end
-
 	if self.voice_chat and self.voice_chat:voice_type() == voice then
 		return
 	end
-
 	if self.voice_chat and self.voice_chat:voice_type() ~= voice then
 		self.voice_chat:close_all(true)
 		self.voice_chat = nil
 	end
-
 	if voice == "voice_psn" then
 		self.voice_chat = NetworkVoiceChatPSN:new()
 	elseif voice == "voice_disabled" then
@@ -148,7 +137,6 @@ function NetworkManager:ps3_determine_voice(lan)
 	else
 		self.voice_chat = NetworkVoiceChatDisabled:new(true)
 	end
-
 end
 
 function NetworkManager:session()
@@ -176,9 +164,7 @@ function NetworkManager:load()
 				self._session = ClientNetworkSession:new()
 				self._session:create_local_peer()
 			end
-
 		end
-
 		self._session:load(Global.network.session)
 		self._game:load(Global.network_game)
 		managers.network.matchmake:_load_globals()
@@ -187,15 +173,12 @@ function NetworkManager:load()
 		else
 			managers.network.voice_chat:_load_globals()
 		end
-
 		Global.network_game = nil
 		Global.network = nil
 		if self._is_win32 then
 			managers.network.voice_chat:open()
 		end
-
 	end
-
 end
 
 function NetworkManager:save()
@@ -207,16 +190,13 @@ function NetworkManager:save()
 			Global.network.session = {}
 			self._session:save(Global.network.session)
 		end
-
 		managers.network.matchmake:_save_globals()
 		managers.network.voice_chat:_save_globals(true)
 		self._game:save()
 		if self._is_win32 then
 			managers.network.voice_chat:destroy_voice()
 		end
-
 	end
-
 end
 
 function NetworkManager:update(t, dt)
@@ -225,19 +205,15 @@ function NetworkManager:update(t, dt)
 		self._stop_next_frame = nil
 		return
 	end
-
 	if self._session then
 		self._session:update()
 	end
-
 	if self.matchmake then
 		self.matchmake:update()
 	end
-
 	if self.voice_chat then
 		self.voice_chat:update(t)
 	end
-
 end
 
 function NetworkManager:end_update()
@@ -245,11 +221,9 @@ function NetworkManager:end_update()
 		self._stop_next_frame = true
 		self._stop_network = nil
 	end
-
 	if self._session then
 		self._session:end_update()
 	end
-
 end
 
 function NetworkManager:start_network()
@@ -258,7 +232,6 @@ function NetworkManager:start_network()
 		if self._game_class then
 			self._game = _G[self._game_class]:new()
 		end
-
 		self:register_handler("connection", ConnectionNetworkHandler)
 		self:register_handler("packet", PacketNetworkHandler)
 		self._game:on_network_started()
@@ -267,7 +240,6 @@ function NetworkManager:start_network()
 		self._started = true
 		cat_print("multiplayer_base", "[NetworkManager:start_network]")
 	end
-
 end
 
 function NetworkManager:register_handler(name, handler_class)
@@ -275,7 +247,6 @@ function NetworkManager:register_handler(name, handler_class)
 		self._handlers = {}
 		self._shared_handler_data = {}
 	end
-
 	local new_handler = handler_class:new()
 	self._handlers[name] = new_handler
 	Network:set_receiver(Idstring(name), new_handler)
@@ -287,9 +258,7 @@ function NetworkManager:prepare_stop_network(...)
 		if self.voice_chat and self._is_win32 then
 			self.voice_chat:destroy_voice()
 		end
-
 	end
-
 end
 
 function NetworkManager:stop_network(clean)
@@ -298,19 +267,14 @@ function NetworkManager:stop_network(clean)
 		self._started = false
 		if clean and self._session then
 			local peers = self._session:peers()
-			local (for generator), (for state), (for control) = pairs(peers)
-			do
-				do break end
+			for k, peer in pairs(peers) do
 				local rpc = peer:rpc()
 				if rpc then
 					Network:reset_connection(rpc)
 					Network:remove_client(rpc)
 				end
-
 			end
-
 		end
-
 		self._handlers = nil
 		self._shared_handler_data = nil
 		self._session:destroy()
@@ -324,11 +288,9 @@ function NetworkManager:stop_network(clean)
 		if not Application:editor() then
 			Network:set_multiplayer(false)
 		end
-
 		cat_print("multiplayer_base", "[NetworkManager:stop_network]")
 		print("---------------------------------------------------------")
 	end
-
 end
 
 function NetworkManager:queue_stop_network()
@@ -339,7 +301,6 @@ function NetworkManager:is_ready_to_load()
 	if self._stop_next_frame or self._stop_network then
 		return false
 	end
-
 	return not self._session or self._session:is_ready_to_close()
 end
 
@@ -347,11 +308,9 @@ function NetworkManager:stopping()
 	if not self._started then
 		return true
 	end
-
 	if self._stop_next_frame or self._stop_network then
 		return true
 	end
-
 	return false
 end
 
@@ -361,7 +320,6 @@ function NetworkManager:start_client()
 	if self._is_win32 then
 		self.voice_chat:open()
 	end
-
 	self._session = ClientNetworkSession:new()
 	self._session:create_local_peer()
 end
@@ -379,7 +337,6 @@ function NetworkManager:on_discover_host_received(sender)
 	if Global.game_settings.single_player then
 		return
 	end
-
 	local level_name = Global.level_data.level
 	local level_id = tweak_data.levels:get_index_from_world_name(level_name)
 	if level_id then
@@ -387,7 +344,6 @@ function NetworkManager:on_discover_host_received(sender)
 	else
 		level_id = 1
 	end
-
 	local peer = managers.network:session():local_peer()
 	local state = peer:in_lobby() and 1 or 2
 	local difficulty = Global.game_settings.difficulty
@@ -399,7 +355,6 @@ function NetworkManager:on_discover_host_received(sender)
 	else
 		my_name = Network:hostname()
 	end
-
 	sender:discover_host_reply(my_name, level_id, level_name, sender:ip_at_index(0), state, difficulty)
 end
 
@@ -410,7 +365,6 @@ function NetworkManager:on_discover_host_reply(host, host_name, level_name, my_i
 		self._session:on_host_discovered(host, host_name, level_name, my_ip, state, difficulty)
 		cb(host, host_name, level_name, my_ip, state, difficulty)
 	end
-
 end
 
 function NetworkManager:host_game()
@@ -419,14 +373,12 @@ function NetworkManager:host_game()
 	if self._is_win32 then
 		self.voice_chat:open()
 	end
-
 	self._session = HostNetworkSession:new()
 	self._session:create_local_peer()
 	self._game:on_server_session_created()
 	if self.is_ps3 then
 		self._session:broadcast_server_up()
 	end
-
 end
 
 function NetworkManager:join_game_at_host_rpc(host_rpc, result_cb)
@@ -436,7 +388,6 @@ function NetworkManager:join_game_at_host_rpc(host_rpc, result_cb)
 	else
 		print("[NetworkManager:join_game_at_host_rpc] no session!!!")
 	end
-
 end
 
 function NetworkManager:register_spawn_point(id, data)
@@ -506,12 +457,9 @@ end
 
 function NetworkManager:clbk_search_session(search_results)
 	print("[NetworkManager:clbk_search_session]", search_results)
-	local (for generator), (for state), (for control) = pairs(search_results)
-	do
-		do break end
+	for i, k in pairs(search_results) do
 		print(i, k and inspect(k))
 	end
-
 end
 
 function NetworkManager.clbk_msg_overwrite(overwrite_data, msg_queue, ...)
@@ -526,11 +474,9 @@ function NetworkManager.clbk_msg_overwrite(overwrite_data, msg_queue, ...)
 			})
 			overwrite_data.index = #msg_queue
 		end
-
 	else
 		overwrite_data.index = nil
 	end
-
 end
 
 function NetworkManager:protocol_type()
@@ -541,6 +487,5 @@ function NetworkManager:set_packet_throttling_enabled(state)
 	if self._session then
 		self._session:set_packet_throttling_enabled(state)
 	end
-
 end
 

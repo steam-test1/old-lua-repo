@@ -15,20 +15,15 @@ end
 
 function CoreCounterResetUnitElement:layer_finished(...)
 	MissionElement.layer_finished(self, ...)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = managers.worlddefinition:get_mission_element_unit(id)
 		table.insert(self._elements_units, unit)
 	end
-
 end
 
 function CoreCounterResetUnitElement:draw_links(t, dt, selected_unit)
 	MissionElement.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._elements_units)
-	do
-		do break end
+	for _, unit in ipairs(self._elements_units) do
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
 			self:_draw_link({
@@ -39,9 +34,7 @@ function CoreCounterResetUnitElement:draw_links(t, dt, selected_unit)
 				b = 0
 			})
 		end
-
 	end
-
 end
 
 function CoreCounterResetUnitElement:update_editing()
@@ -58,23 +51,17 @@ function CoreCounterResetUnitElement:add_element()
 			table.insert(self._hed.elements, id)
 			table.insert(self._elements_units, ray.unit)
 		end
-
 	end
-
 end
 
 function CoreCounterResetUnitElement:remove_links(unit)
 	MissionElement.remove_links(self, unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 			table.delete(self._elements_units, unit)
 		end
-
 	end
-
 end
 
 function CoreCounterResetUnitElement:add_triggers(vc)

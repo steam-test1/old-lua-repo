@@ -16,7 +16,6 @@ function CoreChangeEnvCutsceneKey:unload(player)
 	if self.__previous_environment_name then
 		managers.viewport:first_active_viewport():set_environment(self.__previous_environment_name)
 	end
-
 end
 
 function CoreChangeEnvCutsceneKey:evaluate(player, fast_forward)
@@ -27,7 +26,6 @@ function CoreChangeEnvCutsceneKey:evaluate(player, fast_forward)
 	else
 		managers.viewport:first_active_viewport():set_environment(self:name())
 	end
-
 end
 
 function CoreChangeEnvCutsceneKey:can_evaluate_with_player(player)
@@ -47,19 +45,12 @@ function CoreChangeEnvCutsceneKey:refresh_control_for_name(control)
 	control:freeze()
 	control:clear()
 	local value = self:name()
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type("environment"))
-		do
-			do break end
-			control:append(name)
-			if name == value then
-				control:set_value(value)
-			end
-
+	for _, name in ipairs(managers.database:list_entries_of_type("environment")) do
+		control:append(name)
+		if name == value then
+			control:set_value(value)
 		end
-
 	end
-
 	control:thaw()
 end
 

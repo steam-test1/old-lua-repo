@@ -18,12 +18,9 @@ function CoreExecuteInOtherMissionUnitElement:add_unit_list_btn()
 	end
 
 	local dialog = SelectUnitByNameModal:new("Add other mission unit", f)
-	local (for generator), (for state), (for control) = ipairs(dialog:selected_units())
-	do
-		do break end
+	for _, unit in ipairs(dialog:selected_units()) do
 		self:add_on_executed(unit)
 	end
-
 end
 
 function CoreExecuteInOtherMissionUnitElement:_build_panel(panel, panel_sizer)

@@ -13,7 +13,6 @@ function FindSession:_sessions_found(sessions)
 	if not sessions then
 		self._session_to_join = false
 	end
-
 	self._session_id_to_join = sessions[1].info
 end
 
@@ -23,6 +22,5 @@ function FindSession:transition()
 	elseif self._session_id_to_join ~= nil then
 		return CoreSessionStateJoinSession.JoinSession, self._session_id_to_join
 	end
-
 end
 

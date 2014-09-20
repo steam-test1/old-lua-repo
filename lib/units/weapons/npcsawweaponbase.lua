@@ -24,7 +24,6 @@ function NPCSawWeaponBase:update(unit, t, dt)
 		SawWeaponBase._stop_sawing_effect(self)
 		self:play_tweak_data_sound("stop_fire")
 	end
-
 end
 
 function NPCSawWeaponBase:change_fire_object(new_obj)
@@ -38,7 +37,6 @@ function NPCSawWeaponBase:fire_blank(direction, impact)
 	if not self._check_shooting_expired then
 		self:play_tweak_data_sound("fire")
 	end
-
 	self._check_shooting_expired = {
 		check_t = Application:time() + 0.5
 	}
@@ -55,7 +53,6 @@ function NPCSawWeaponBase:fire_blank(direction, impact)
 	else
 		SawWeaponBase._stop_sawing_effect(self)
 	end
-
 end
 
 function NPCSawWeaponBase:destroy(...)

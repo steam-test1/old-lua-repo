@@ -2,7 +2,6 @@ if core then
 	core:module("CoreMath")
 	core:import("CoreClass")
 end
-
 nice = math.nice
 function rgb_to_hsv(r, g, b)
 	local max = math.max(r, g, b)
@@ -19,7 +18,6 @@ function rgb_to_hsv(r, g, b)
 	elseif max == b then
 		hue = 60 * (r - g) / (max - min) + 240
 	end
-
 	hue = math.fmod(hue, 360)
 	local saturation = max == 0 and 0 or 1 - min / max
 	local value = max
@@ -81,7 +79,6 @@ function string_to_value(type, value)
 	elseif type == "nil" then
 		return nil
 	end
-
 	return value
 end
 
@@ -92,7 +89,6 @@ function vector_to_string(v, f)
 		local z = string.format(f, v.z)
 		return x .. " " .. y .. " " .. z
 	end
-
 	return v.x .. " " .. v.y .. " " .. v.z
 end
 
@@ -103,7 +99,6 @@ function rotation_to_string(r, f)
 		local z = string.format(f, r:roll())
 		return x .. " " .. y .. " " .. z
 	end
-
 	return r:yaw() .. " " .. r:pitch() .. " " .. r:roll()
 end
 
@@ -122,31 +117,22 @@ function wire_set_midpoint(unit, source, target, middle)
 	if co then
 		co:set_rotation(Rotation:look_at(e_pos - s_pos:normalized(), math.UP))
 	end
-
 end
 
 function probability(chance_table, result_table)
 	local random = math.random(100)
 	local total_chance = 0
 	local choice = #chance_table
-	do
-		local (for generator), (for state), (for control) = ipairs(chance_table)
-		do
-			do break end
-			total_chance = total_chance + chance
-			if random <= total_chance then
-				choice = id
-		end
-
+	for id, chance in ipairs(chance_table) do
+		total_chance = total_chance + chance
+		if random <= total_chance then
+			choice = id
 		else
 		end
-
 	end
-
 	if result_table then
 		return result_table[choice]
 	end
-
 	return choice
 end
 
@@ -158,7 +144,6 @@ function get_fit_size(width, height, bounding_width, bounding_height)
 	else
 		return bounding_width, bounding_height * bounding_aspect / aspect
 	end
-
 end
 
 function os.get_oldest_date(date1, date2)
@@ -185,7 +170,6 @@ function os.get_oldest_date(date1, date2)
 	else
 		return nil
 	end
-
 end
 
 math.UP = Vector3(0, 0, 1)
@@ -199,7 +183,6 @@ function math.rand(a, b)
 	else
 		return math.random() * a
 	end
-
 end
 
 function math.round(n, precision)
@@ -213,7 +196,6 @@ function math.min_max(a, b)
 	else
 		return b, a
 	end
-
 end
 
 function math.vector_min_max(a, b)
@@ -229,11 +211,9 @@ function math.vector_clamp(vector, min, max)
 	if CoreClass.type_name(min) ~= "Vector3" then
 		min = Vector3(min, min, min)
 	end
-
 	if CoreClass.type_name(max) ~= "Vector3" then
 		max = Vector3(max, max, max)
 	end
-
 	return Vector3(math.clamp(vector.x, min.x, max.x), math.clamp(vector.y, min.y, max.y), math.clamp(vector.z, min.z, max.z))
 end
 
@@ -267,7 +247,6 @@ function math.spline_len(points, n)
 		len = len + p - old_p:length()
 		old_p = p
 	end
-
 	return len
 end
 
@@ -306,7 +285,6 @@ function math.bezier_len(points, n)
 		len = len + p - old_p:length()
 		old_p = p
 	end
-
 	return len
 end
 
@@ -329,7 +307,6 @@ function math.limitangle(angle)
 	if newangle < 0 then
 		newangle = newangle + 360
 	end
-
 	return newangle
 end
 
@@ -337,7 +314,6 @@ function math.world_to_obj(obj, point)
 	if obj == nil then
 		return point
 	end
-
 	local vec = point - obj:position()
 	return vec:rotate_with(obj:rotation():inverse())
 end
@@ -346,7 +322,6 @@ function math.obj_to_world(obj, point)
 	if obj == nil then
 		return point
 	end
-
 	local vec = point:rotate_with(obj:rotation())
 	return vec + obj:position()
 end

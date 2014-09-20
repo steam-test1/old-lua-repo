@@ -67,18 +67,11 @@ end
 function TipsTweakData:get_a_tip()
 	local lvl = managers.experience:current_level()
 	local ids = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self)
-		do
-			do break end
-			if not tip.unlock_lvl or lvl > tip.unlock_lvl then
-				table.insert(ids, tip.string_id)
-			end
-
+	for _, tip in ipairs(self) do
+		if not tip.unlock_lvl or lvl > tip.unlock_lvl then
+			table.insert(ids, tip.string_id)
 		end
-
 	end
-
 	return ids[math.random(#ids)]
 end
 

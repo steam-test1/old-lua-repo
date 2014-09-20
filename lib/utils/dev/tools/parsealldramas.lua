@@ -7,50 +7,35 @@ function ParseAllDramas:init()
 end
 
 function ParseAllDramas:load_all_soundbanks()
-	local (for generator), (for state), (for control) = pairs(SoundDevice:sound_banks())
-	do
-		do break end
+	for i, soundbank in pairs(SoundDevice:sound_banks()) do
 		CoreEngineAccess._editor_load(("bnk"):id(), Idstring(soundbank))
 	end
-
 end
 
 function ParseAllDramas:parse_all_dramas()
 	self._dramas = {}
 	local file_name = "gamedata/dramas/index"
 	local data = PackageManager:script_data(Idstring("drama_index"), file_name:id())
-	local (for generator), (for state), (for control) = ipairs(data)
-	do
-		do break end
+	for _, c in ipairs(data) do
 		if c.name then
 			self:_load_drama(c.name)
 		end
-
 	end
-
 end
 
 function ParseAllDramas:_load_drama(name)
 	local file_name = "gamedata/dramas/" .. name
 	local data = PackageManager:script_data(Idstring("drama"), file_name:id())
 	local id
-	local (for generator), (for state), (for control) = ipairs(data)
-	do
-		do break end
+	for _, c in ipairs(data) do
 		if c.id then
-			local (for generator), (for state), (for control) = ipairs(c)
-			do
-				do break end
+			for _, node in ipairs(c) do
 				if node._meta == "sound" then
 					table.insert(self._dramas, node.name)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function ParseAllDramas:create_sound_devices()
@@ -63,7 +48,6 @@ function ParseAllDramas:start_parsing()
 	if self._ws then
 		Overlay:gui():destroy_workspace(self._ws)
 	end
-
 	self._ws = Overlay:gui():create_screen_workspace()
 	self._panel = self._ws:panel():panel()
 	self._panel:set_size(self._ws:panel():w() / 2, self._ws:panel():h() / 2)
@@ -104,7 +88,6 @@ function ParseAllDramas:start_parsing()
 					sound_events[current_source_index]:stop()
 					sound_events[current_source_index] = nil
 				end
-
 				if drama then
 					self._non_string_events[drama] = true
 					sound_events[current_source_index] = self._sound_source:post_event(drama, callback(self, self, "marker_callback"), drama, "marker")
@@ -114,27 +97,21 @@ function ParseAllDramas:start_parsing()
 						self._non_string_events[drama] = nil
 						table.insert(self._failed_events, drama)
 					end
-
 				else
 					current_source_index = math.min(current_source_index + 1, max_sound_events)
 					if sound_events[current_source_index] then
 						sound_events[current_source_index]:stop()
 						sound_events[current_source_index] = nil
 					end
-
 				end
-
 				if not drama and current_source_index == max_sound_events then
 					done = true
 				end
-
 				print_text = tostring(math.min(current_drama_index, #self._dramas)) .. "/" .. tostring(#self._dramas)
 				text:set_text(print_text)
 				t = TIME_PER_SOURCE
 			end
-
 		end
-
 		print_text = print_text .. "\n" .. "Drama sounds failed to play: " .. tostring(table.size(self._failed_events))
 		print_text = print_text .. "\n" .. "Drama sounds without string_id: " .. tostring(table.size(self._non_string_events))
 		print_text = print_text .. "\n" .. "Drama sounds with string_id: " .. tostring(table.size(self._parsed_sound_events))
@@ -144,34 +121,21 @@ function ParseAllDramas:start_parsing()
 		Application:debug(" ")
 		Application:debug("  [ParseAllDramas] PRINTING ERROR STRINGS", "TOTAL STRING_IDS, INCLUDING LOCALIZED: " .. table.size(self._parsed_sound_events))
 		Application:debug("____________________________________________________________________________")
-		do
-			local (for generator), (for state), (for control) = pairs(self._parsed_sound_events)
-			do
-				do break end
-				local localization_exists = string_id and managers.localization:exists(string_id)
-				if not localization_exists then
-					print(string_id or "")
-				else
-					self._string_id_sound_events[sound_event] = string_id
-				end
-
+		for sound_event, string_id in pairs(self._parsed_sound_events) do
+			local localization_exists = string_id and managers.localization:exists(string_id)
+			if not localization_exists then
+				print(string_id or "")
+			else
+				self._string_id_sound_events[sound_event] = string_id
 			end
-
 		end
-
 		local gen = "\n" .. "GENERATING LOCALIZED STRINGS..."
 		text:set_text(print_text .. gen)
 		self._localized_sound_events = {}
-		do
-			local (for generator), (for state), (for control) = pairs(self._string_id_sound_events)
-			do
-				do break end
-				self._localized_sound_events[sound_event or "_"] = managers.localization:text(string_id or "_")
-				coroutine.yield()
-			end
-
+		for sound_event, string_id in pairs(self._string_id_sound_events) do
+			self._localized_sound_events[sound_event or "_"] = managers.localization:text(string_id or "_")
+			coroutine.yield()
 		end
-
 		Application:debug(" ")
 		Application:debug(" ")
 		Application:debug(" ")
@@ -182,15 +146,9 @@ function ParseAllDramas:start_parsing()
 		Application:debug(" ")
 		Application:debug("  [ParseAllDramas] PRINTING FOUND STRINGS", "LOCALIZED STRINGS ONLY: " .. table.size(self._localized_sound_events))
 		Application:debug("____________________________________________________________________________")
-		do
-			local (for generator), (for state), (for control) = pairs(self._localized_sound_events)
-			do
-				do break end
-				print("Sound Event: " .. sound_event .. " | " .. string_id)
-			end
-
+		for sound_event, string_id in pairs(self._localized_sound_events) do
+			print("Sound Event: " .. sound_event .. " | " .. string_id)
 		end
-
 		Application:debug("____________________________________________________________________________")
 		local gen = "\n" .. "LOCALIZED STRINGS GENERATED. CHECK CONSOLE"
 		text:set_text(print_text .. gen)

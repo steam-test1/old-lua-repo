@@ -709,7 +709,6 @@ function LevelsTweakData:get_world_name_from_index(index)
 	if not self._level_index[index] then
 		return
 	end
-
 	return self[self._level_index[index]].world_name
 end
 
@@ -718,27 +717,19 @@ function LevelsTweakData:get_level_name_from_index(index)
 end
 
 function LevelsTweakData:get_index_from_world_name(world_name)
-	local (for generator), (for state), (for control) = ipairs(self._level_index)
-	do
-		do break end
+	for index, entry_name in ipairs(self._level_index) do
 		if world_name == self[entry_name].world_name then
 			return index
 		end
-
 	end
-
 end
 
 function LevelsTweakData:get_index_from_level_id(level_id)
-	local (for generator), (for state), (for control) = ipairs(self._level_index)
-	do
-		do break end
+	for index, entry_name in ipairs(self._level_index) do
 		if entry_name == level_id then
 			return index
 		end
-
 	end
-
 end
 
 function LevelsTweakData:requires_dlc(level_id)
@@ -750,52 +741,38 @@ function LevelsTweakData:requires_dlc_by_index(index)
 end
 
 function LevelsTweakData:get_level_name_from_world_name(world_name)
-	local (for generator), (for state), (for control) = ipairs(self._level_index)
-	do
-		do break end
+	for _, entry_name in ipairs(self._level_index) do
 		if world_name == self[entry_name].world_name then
 			return entry_name
 		end
-
 	end
-
 end
 
 function LevelsTweakData:get_localized_level_name_from_world_name(world_name)
-	local (for generator), (for state), (for control) = ipairs(self._level_index)
-	do
-		do break end
+	for _, entry_name in ipairs(self._level_index) do
 		if world_name == self[entry_name].world_name then
 			return managers.localization:text(self[entry_name].name_id)
 		end
-
 	end
-
 end
 
 function LevelsTweakData:get_localized_level_name_from_level_id(level_id)
-	local (for generator), (for state), (for control) = ipairs(self._level_index)
-	do
-		do break end
+	for _, entry_name in ipairs(self._level_index) do
 		if level_id == entry_name then
 			return managers.localization:text(self[entry_name].name_id)
 		end
-
 	end
-
 end
 
 function LevelsTweakData:get_music_switches()
 	if not Global.level_data then
 		return nil
 	end
-
 	local level_data = Global.level_data.level_id and tweak_data.levels[Global.level_data.level_id]
 	local music_id = level_data and level_data.music or "default"
 	if music_id == "no_music" then
 		return nil
 	end
-
 	local switches = {}
 	if not Global.music_manager.loadout_selection then
 		switches = managers.music:jukebox_random_all()
@@ -810,22 +787,18 @@ function LevelsTweakData:get_music_switches()
 		else
 			table.insert(switches, track)
 		end
-
 	elseif Global.music_manager.loadout_selection == "server" then
 		if Network:is_server() then
 			switches = managers.music:jukebox_random_all()
 		else
 			table.insert(switches, Global.music_manager.synced_track)
 		end
-
 	else
 		table.insert(switches, Global.music_manager.loadout_selection)
 	end
-
 	if #switches == 0 then
 		Application:error("[LevelsTweakData:get_music_switches] Failed to find a track. JOB_ID = " .. (Global.job_manager.current_job and Global.job_manager.current_job.job_id or "[Missing]") .. ", SELECTION = " .. Global.music_manager.loadout_selection)
 	end
-
 	return switches
 end
 
@@ -835,7 +808,6 @@ function LevelsTweakData:get_music_event(stage)
 	if music_id == "no_music" then
 		return nil
 	end
-
 	return tweak_data.music[music_id][stage]
 end
 

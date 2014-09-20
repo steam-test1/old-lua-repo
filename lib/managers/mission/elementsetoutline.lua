@@ -14,31 +14,22 @@ function ElementSetOutline.sync_function(unit, state)
 		else
 			unit:contour():remove("highlight")
 		end
-
 	end
-
 end
 
 function ElementSetOutline:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	local function f(unit)
 		ElementSetOutline.sync_function(unit, self._values.set_outline)
 		managers.network:session():send_to_peers_synched("sync_set_outline", unit, self._values.set_outline)
 	end
 
-	do
-		local (for generator), (for state), (for control) = ipairs(self._values.elements)
-		do
-			do break end
-			local element = self:get_mission_element(id)
-			element:execute_on_all_units(f)
-		end
-
+	for _, id in ipairs(self._values.elements) do
+		local element = self:get_mission_element(id)
+		element:execute_on_all_units(f)
 	end
-
 	ElementSetOutline.super.on_executed(self, instigator)
 end
 

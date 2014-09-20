@@ -13,7 +13,6 @@ function PS3KeyboardInputDialog:show()
 	if success then
 		self._manager:event_dialog_shown(self)
 	end
-
 	return success
 end
 

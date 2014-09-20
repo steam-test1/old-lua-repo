@@ -37,13 +37,10 @@ function AIAttentionElement:layer_finished()
 		if self._parent_unit then
 			self._parent_obj = self._parent_unit:get_object(Idstring(self._hed.parent_obj_name))
 		end
-
 	end
-
 	if self._hed.att_obj_u_id then
 		self._att_obj_unit = managers.worlddefinition:get_unit_on_load(self._hed.att_obj_u_id, callback(self, self, "load_att_obj_unit"))
 	end
-
 end
 
 function AIAttentionElement:load_parent_unit(unit)
@@ -51,7 +48,6 @@ function AIAttentionElement:load_parent_unit(unit)
 	if self._parent_unit then
 		self._parent_obj = self._parent_unit:get_object(Idstring(self._hed.parent_obj_name))
 	end
-
 end
 
 function AIAttentionElement:load_att_obj_unit(unit)
@@ -63,7 +59,6 @@ function AIAttentionElement:draw_links(t, dt, selected_unit, all_units)
 	if selected_unit and self._parent_unit ~= selected_unit and self._parent_unit ~= selected_unit and self._unit ~= selected_unit then
 		return
 	end
-
 	if self._parent_unit then
 		self:_draw_link({
 			from_unit = self._unit,
@@ -73,7 +68,6 @@ function AIAttentionElement:draw_links(t, dt, selected_unit, all_units)
 			b = 0
 		})
 	end
-
 	if self._att_obj_unit then
 		self:_draw_link({
 			from_unit = self._unit,
@@ -83,11 +77,8 @@ function AIAttentionElement:draw_links(t, dt, selected_unit, all_units)
 			b = 0.75
 		})
 	end
-
 	if self._hed.instigator_ids then
-		local (for generator), (for state), (for control) = ipairs(self._hed.instigator_ids)
-		do
-			do break end
+		for _, id in ipairs(self._hed.instigator_ids) do
 			local unit = all_units[id]
 			self:_draw_link({
 				from_unit = unit,
@@ -97,9 +88,7 @@ function AIAttentionElement:draw_links(t, dt, selected_unit, all_units)
 				b = 0.75
 			})
 		end
-
 	end
-
 end
 
 function AIAttentionElement:update_selected(t, dt, selected_unit, all_units)
@@ -107,7 +96,6 @@ function AIAttentionElement:update_selected(t, dt, selected_unit, all_units)
 	if selected_unit and self._parent_unit ~= selected_unit and self._att_obj_unit ~= selected_unit and self._unit ~= selected_unit then
 		return
 	end
-
 	if self._parent_unit then
 		self:_draw_link({
 			from_unit = self._unit,
@@ -117,7 +105,6 @@ function AIAttentionElement:update_selected(t, dt, selected_unit, all_units)
 			b = 0
 		})
 	end
-
 	if self._att_obj_unit then
 		self:_draw_link({
 			from_unit = self._unit,
@@ -127,11 +114,8 @@ function AIAttentionElement:update_selected(t, dt, selected_unit, all_units)
 			b = 0
 		})
 	end
-
 	if self._hed.instigator_ids then
-		local (for generator), (for state), (for control) = ipairs(self._hed.instigator_ids)
-		do
-			do break end
+		for _, id in ipairs(self._hed.instigator_ids) do
 			local unit = all_units[id]
 			self:_draw_link({
 				from_unit = unit,
@@ -141,9 +125,7 @@ function AIAttentionElement:update_selected(t, dt, selected_unit, all_units)
 				b = 0.75
 			})
 		end
-
 	end
-
 end
 
 function AIAttentionElement:update_unselected(t, dt, selected_unit, all_units)
@@ -158,13 +140,11 @@ function AIAttentionElement:_chk_units_alive()
 		self._hed.parent_u_id = nil
 		self:_chk_set_link_values()
 	end
-
 	if self._att_obj_unit and not alive(self._att_obj_unit) then
 		self._att_obj_unit = nil
 		self._hed.att_obj_u_id = nil
 		self:_chk_set_link_values()
 	end
-
 end
 
 function AIAttentionElement:update_editing()
@@ -181,11 +161,9 @@ function AIAttentionElement:_find_parent_raycast()
 	if not ray then
 		return
 	end
-
 	if ray.unit:id() == -1 then
 		return
 	end
-
 	Application:draw(ray.unit, 0, 1, 0)
 	return ray
 end
@@ -195,7 +173,6 @@ function AIAttentionElement:_find_att_obj_raycast()
 	if not ray or not ray.unit then
 		return
 	end
-
 	Application:draw(ray.unit, 0, 0, 1)
 	return ray.unit
 end
@@ -205,13 +182,11 @@ function AIAttentionElement:_find_instigator_raycast()
 	if not ray or not ray.unit then
 		return
 	end
-
 	local id
 	if string.find(ray.unit:name():s(), "ai_enemy_group", 1, true) or string.find(ray.unit:name():s(), "ai_spawn_enemy", 1, true) or string.find(ray.unit:name():s(), "ai_civilian_group", 1, true) or string.find(ray.unit:name():s(), "ai_spawn_civilian", 1, true) then
 		id = ray.unit:unit_data().unit_id
 		Application:draw(ray.unit, 0, 0, 1)
 	end
-
 	return id
 end
 
@@ -223,7 +198,6 @@ function AIAttentionElement:_raycast()
 		Application:draw_sphere(ray.position, 10, 1, 1, 1)
 		return ray.position
 	end
-
 	return nil
 end
 
@@ -237,35 +211,26 @@ function AIAttentionElement:_lmb()
 			self._att_obj_unit = unit
 			self._hed.att_obj_u_id = unit:unit_data().unit_id
 		end
-
 		self:_chk_set_link_values()
 		return
 	end
-
 	local id = SpecialObjectiveUnitElement._spawn_raycast(self)
 	if id then
 		if self._hed.instigator_ids then
-			local (for generator), (for state), (for control) = ipairs(self._hed.instigator_ids)
-			do
-				do break end
+			for i, si_id in ipairs(self._hed.instigator_ids) do
 				if si_id == id then
 					table.remove(self._hed.instigator_ids, i)
 					if not next(self._hed.instigator_ids) then
 						self._hed.instigator_ids = nil
 					end
-
 					return
 				end
-
 			end
-
 		end
-
 		self._hed.instigator_ids = self._hed.instigator_ids or {}
 		table.insert(self._hed.instigator_ids, id)
 		return
 	end
-
 	local ray = self:_find_parent_raycast()
 	if ray then
 		if self._parent_unit == ray.unit then
@@ -279,11 +244,9 @@ function AIAttentionElement:_lmb()
 			self._hed.parent_obj_name = self._parent_obj:name():s()
 			self._hed.parent_u_id = ray.unit:unit_data().unit_id
 		end
-
 		self:_chk_set_link_values()
 		return
 	end
-
 end
 
 function AIAttentionElement:add_triggers(vc)
@@ -380,6 +343,5 @@ function AIAttentionElement:_chk_set_link_values()
 		self._hed.local_pos = nil
 		self._hed.local_rot = nil
 	end
-
 end
 

@@ -17,15 +17,9 @@ end
 
 function Row:_to_cells_xml()
 	local cells_xml = ""
-	do
-		local (for generator), (for state), (for control) = ipairs(self._vals)
-		do
-			do break end
-			cells_xml = cells_xml .. "\n" .. string.format(CELL_XML, v)
-		end
-
+	for _, v in ipairs(self._vals) do
+		cells_xml = cells_xml .. "\n" .. string.format(CELL_XML, v)
 	end
-
 	return cells_xml
 end
 

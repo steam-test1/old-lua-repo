@@ -59,7 +59,6 @@ function CoreCutsceneFrameExporterDialog:_destroy_window()
 	if alive(self.__window) then
 		self.__window:destroy()
 	end
-
 	self.__window = nil
 end
 
@@ -67,7 +66,6 @@ function CoreCutsceneFrameExporterDialog:update(time, delta_time)
 	if not alive(self.__window) then
 		return true
 	end
-
 end
 
 function CoreCutsceneFrameExporterDialog:_on_exit()
@@ -82,12 +80,10 @@ function CoreCutsceneFrameExporterDialog:_on_ok_clicked()
 	else
 		start_frame, end_frame = self.__start_frame, self.__end_frame
 	end
-
 	if folder_name and start_frame and end_frame then
 		self:_destroy_window()
 		self.__editor_callback(self.__editor_self, start_frame, end_frame, folder_name)
 	end
-
 end
 
 function CoreCutsceneFrameExporterDialog:_on_range_ctrl_update()
@@ -106,9 +102,7 @@ function CoreCutsceneFrameExporterDialog:_folder_name_input()
 		elseif SystemFS:exists("/frames/" .. folder_name) and EWS:MessageDialog(self.__window, "A folder with that name already exists. Do you want to replace it?", "Replace Existing?", "YES_NO,NO_DEFAULT,ICON_EXCLAMATION"):show_modal() == "ID_NO" then
 			return nil
 		end
-
 	end
-
 	return folder_name
 end
 
@@ -128,7 +122,6 @@ function CoreCutsceneFrameExporterDialog:_start_end_frame_input()
 		EWS:MessageDialog(self.__window, "The ending frame number does not exist in the active film track.", "Invalid Range", "OK,ICON_EXCLAMATION"):show_modal()
 		return nil
 	end
-
 	end_frame = end_frame + 1
 	return start_frame, end_frame
 end

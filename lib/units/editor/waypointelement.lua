@@ -56,16 +56,12 @@ end
 
 function WaypointUnitElement:_add_wp_options()
 	self._text_options = {"debug_none"}
-	local (for generator), (for state), (for control) = ipairs(managers.localization:ids("strings/system_text"))
-	do
-		do break end
+	for _, id_string in ipairs(managers.localization:ids("strings/system_text")) do
 		local s = id_string:s()
 		if string.find(s, "wp_") then
 			table.insert(self._text_options, s)
 		end
-
 	end
-
 end
 
 function WaypointUnitElement:set_text()

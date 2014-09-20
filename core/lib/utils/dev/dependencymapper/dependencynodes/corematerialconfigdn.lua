@@ -24,10 +24,7 @@ function Material_configDependencyNode:_walkxml2dependencies(xmlnode, deps)
 			if dn == nil then
 				Application:error("When parsing material: " .. self._name .. ", can not locate texture: " .. texture_name)
 			end
-
 		end
-
 	end
-
 end
 

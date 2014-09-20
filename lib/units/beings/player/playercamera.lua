@@ -23,7 +23,6 @@ function PlayerCamera:setup_viewport(data)
 	if self._vp then
 		self._vp:destroy()
 	end
-
 	local dimensions = data.dimensions
 	local name = "player" .. tostring(self._id)
 	local vp = managers.viewport:new_vp(dimensions.x, dimensions.y, dimensions.w, dimensions.h, name)
@@ -94,7 +93,6 @@ function PlayerCamera:destroy()
 	if alive(self._camera_object) then
 		World:delete_camera(self._camera_object)
 	end
-
 	self._camera_object = nil
 	self:remove_sound_listener()
 end
@@ -103,7 +101,6 @@ function PlayerCamera:remove_sound_listener()
 	if not self._listener_id then
 		return
 	end
-
 	managers.sound_environment:remove_check_object(self._sound_check_object)
 	managers.listener:remove_listener(self._listener_id)
 	managers.listener:remove_set("player_camera")
@@ -114,7 +111,6 @@ function PlayerCamera:clbk_fp_enter(aim_dir)
 	if self._camera_manager_mode ~= "first_person" then
 		self._camera_manager_mode = "first_person"
 	end
-
 end
 
 function PlayerCamera:_setup_sound_listener()
@@ -164,7 +160,6 @@ function PlayerCamera:set_rotation(rot)
 	if sync_yaw < 0 then
 		sync_yaw = 360 - sync_yaw
 	end
-
 	sync_yaw = math.floor(255 * sync_yaw / 360)
 	local sync_pitch = math.clamp(rot:pitch(), -85, 85) + 85
 	sync_pitch = math.floor(127 * sync_pitch / 170)
@@ -175,7 +170,6 @@ function PlayerCamera:set_rotation(rot)
 		self._sync_dir.pitch = sync_pitch
 		self._last_sync_t = t
 	end
-
 end
 
 function PlayerCamera:set_FOV(fov_value)
@@ -190,11 +184,9 @@ function PlayerCamera:set_shaker_parameter(effect, parameter, value)
 	if not self._shakers then
 		return
 	end
-
 	if self._shakers[effect] then
 		self._shaker:set_parameter(self._shakers[effect], parameter, value)
 	end
-
 end
 
 function PlayerCamera:play_shaker(effect, amplitude, frequency, offset)

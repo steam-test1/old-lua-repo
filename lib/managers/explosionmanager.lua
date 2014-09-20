@@ -8,16 +8,12 @@ function ExplosionManager:init()
 end
 
 function ExplosionManager:update(t, dt)
-	local (for generator), (for state), (for control) = ipairs(self._sustain_effects)
-	do
-		do break end
+	for i, effect in ipairs(self._sustain_effects) do
 		if t > effect.expire_t then
 			World:effect_manager():fade_kill(effect.id)
 			table.remove(self._sustain_effects, i)
 		end
-
 	end
-
 end
 
 function ExplosionManager:add_sustain_effect(effect_id, sustain_time)
@@ -36,7 +32,6 @@ function ExplosionManager:give_local_player_dmg(pos, range, damage)
 			damage = damage
 		})
 	end
-
 end
 
 function ExplosionManager:detect_and_give_dmg(params)
@@ -59,13 +54,11 @@ function ExplosionManager:detect_and_give_dmg(params)
 			damage = player_dmg
 		})
 	end
-
 	local bodies = World:find_bodies("intersect", "sphere", hit_pos, range, slotmask)
 	local alert_unit = user_unit
 	if alert_unit and alert_unit:base() and alert_unit:base().thrower_unit then
 		alert_unit = alert_unit:base():thrower_unit()
 	end
-
 	managers.groupai:state():propagate_alert({
 		"explosion",
 		hit_pos,
@@ -85,42 +78,27 @@ function ExplosionManager:detect_and_give_dmg(params)
 		Vector3(0, 0, -range)
 	}
 	local pos = Vector3()
-	do
-		local (for generator), (for state), (for control) = ipairs(dirs)
-		do
-			do break end
-			mvector3.set(pos, dir)
-			mvector3.add(pos, hit_pos)
-			local splinter_ray
-			if ignore_unit then
-				splinter_ray = World:raycast("ray", hit_pos, pos, "ignore_unit", ignore_unit, "slot_mask", slotmask)
-			else
-				splinter_ray = World:raycast("ray", hit_pos, pos, "slot_mask", slotmask)
-			end
-
-			pos = (splinter_ray and splinter_ray.position or pos) - dir:normalized() * math.min(splinter_ray and splinter_ray.distance or 0, 10)
-			local near_splinter = false
-			do
-				local (for generator), (for state), (for control) = ipairs(splinters)
-				do
-					do break end
-					if mvector3.distance_sq(pos, s_pos) < 900 then
-						near_splinter = true
-				end
-
-				else
-				end
-
-			end
-
-			if not near_splinter then
-				table.insert(splinters, mvector3.copy(pos))
-			end
-
+	for _, dir in ipairs(dirs) do
+		mvector3.set(pos, dir)
+		mvector3.add(pos, hit_pos)
+		local splinter_ray
+		if ignore_unit then
+			splinter_ray = World:raycast("ray", hit_pos, pos, "ignore_unit", ignore_unit, "slot_mask", slotmask)
+		else
+			splinter_ray = World:raycast("ray", hit_pos, pos, "slot_mask", slotmask)
 		end
-
+		pos = (splinter_ray and splinter_ray.position or pos) - dir:normalized() * math.min(splinter_ray and splinter_ray.distance or 0, 10)
+		local near_splinter = false
+		for _, s_pos in ipairs(splinters) do
+			if mvector3.distance_sq(pos, s_pos) < 900 then
+				near_splinter = true
+			else
+			end
+		end
+		if not near_splinter then
+			table.insert(splinters, mvector3.copy(pos))
+		end
 	end
-
 	local count_cops = 0
 	local count_gangsters = 0
 	local count_civilians = 0
@@ -131,99 +109,79 @@ function ExplosionManager:detect_and_give_dmg(params)
 	local units_to_push = {}
 	local hit_units = {}
 	local type
-	do
-		local (for generator), (for state), (for control) = ipairs(bodies)
-		do
-			do break end
-			local character = hit_body:unit():character_damage() and hit_body:unit():character_damage().damage_explosion
-			local apply_dmg = hit_body:extension() and hit_body:extension().damage
-			units_to_push[hit_body:unit():key()] = hit_body:unit()
-			local dir, len, damage, ray_hit
-			if character and not characters_hit[hit_body:unit():key()] then
-				if params.no_raycast_check_characters then
-					ray_hit = true
-					characters_hit[hit_body:unit():key()] = true
-				else
-					local (for generator), (for state), (for control) = ipairs(splinters)
-					do
-						do break end
-						ray_hit = not World:raycast("ray", s_pos, hit_body:center_of_mass(), "slot_mask", slotmask, "ignore_unit", {
-							hit_body:unit()
-						}, "report")
-						if ray_hit then
-							characters_hit[hit_body:unit():key()] = true
-					end
-
+	for _, hit_body in ipairs(bodies) do
+		local character = hit_body:unit():character_damage() and hit_body:unit():character_damage().damage_explosion
+		local apply_dmg = hit_body:extension() and hit_body:extension().damage
+		units_to_push[hit_body:unit():key()] = hit_body:unit()
+		local dir, len, damage, ray_hit
+		if character and not characters_hit[hit_body:unit():key()] then
+			if params.no_raycast_check_characters then
+				ray_hit = true
+				characters_hit[hit_body:unit():key()] = true
+			else
+				for i_splinter, s_pos in ipairs(splinters) do
+					ray_hit = not World:raycast("ray", s_pos, hit_body:center_of_mass(), "slot_mask", slotmask, "ignore_unit", {
+						hit_body:unit()
+					}, "report")
+					if ray_hit then
+						characters_hit[hit_body:unit():key()] = true
 					else
 					end
-
 				end
-
-				if ray_hit then
-					local hit_unit = hit_body:unit()
-					if hit_unit:base() and hit_unit:base()._tweak_table and not hit_unit:character_damage():dead() then
-						type = hit_unit:base()._tweak_table
-						if type == "civilian" or type == "civilian_female" or type == "bank_manager" then
-							count_civilians = count_civilians + 1
-						elseif type == "gangster" then
-							count_gangsters = count_gangsters + 1
-						elseif type == "russian" or type == "german" or type == "spanish" or type == "american" then
-						else
-							count_cops = count_cops + 1
-						end
-
-					end
-
-				end
-
-			elseif apply_dmg or hit_body:dynamic() then
-				ray_hit = true
 			end
-
 			if ray_hit then
-				dir = hit_body:center_of_mass()
-				len = mvector3.direction(dir, hit_pos, dir)
-				damage = dmg * math.pow(math.clamp(1 - len / range, 0, 1), curve_pow)
-				if apply_dmg then
-					self:_apply_body_damage(true, hit_body, user_unit, dir, damage)
-				end
-
-				damage = math.max(damage, 1)
 				local hit_unit = hit_body:unit()
-				hit_units[hit_unit:key()] = hit_unit
-				if character then
-					local dead_before = hit_unit:character_damage():dead()
-					local action_data = {}
-					action_data.variant = "explosion"
-					action_data.damage = damage
-					action_data.attacker_unit = user_unit
-					action_data.weapon_unit = owner
-					action_data.col_ray = self._col_ray or {
-						position = hit_body:position(),
-						ray = dir
-					}
-					hit_unit:character_damage():damage_explosion(action_data)
-					if not dead_before and hit_unit:base() and hit_unit:base()._tweak_table and hit_unit:character_damage():dead() then
-						type = hit_unit:base()._tweak_table
-						if type == "civilian" or type == "civilian_female" or type == "bank_manager" then
-							count_civilian_kills = count_civilian_kills + 1
-						elseif type == "gangster" then
-							count_gangster_kills = count_gangster_kills + 1
-						elseif type == "russian" or type == "german" or type == "spanish" or type == "american" then
-						else
-							count_cop_kills = count_cop_kills + 1
-						end
-
+				if hit_unit:base() and hit_unit:base()._tweak_table and not hit_unit:character_damage():dead() then
+					type = hit_unit:base()._tweak_table
+					if type == "civilian" or type == "civilian_female" or type == "bank_manager" then
+						count_civilians = count_civilians + 1
+					elseif type == "gangster" then
+						count_gangsters = count_gangsters + 1
+					elseif type == "russian" or type == "german" or type == "spanish" or type == "american" then
+					else
+						count_cops = count_cops + 1
 					end
-
 				end
-
 			end
-
+		elseif apply_dmg or hit_body:dynamic() then
+			ray_hit = true
 		end
-
+		if ray_hit then
+			dir = hit_body:center_of_mass()
+			len = mvector3.direction(dir, hit_pos, dir)
+			damage = dmg * math.pow(math.clamp(1 - len / range, 0, 1), curve_pow)
+			if apply_dmg then
+				self:_apply_body_damage(true, hit_body, user_unit, dir, damage)
+			end
+			damage = math.max(damage, 1)
+			local hit_unit = hit_body:unit()
+			hit_units[hit_unit:key()] = hit_unit
+			if character then
+				local dead_before = hit_unit:character_damage():dead()
+				local action_data = {}
+				action_data.variant = "explosion"
+				action_data.damage = damage
+				action_data.attacker_unit = user_unit
+				action_data.weapon_unit = owner
+				action_data.col_ray = self._col_ray or {
+					position = hit_body:position(),
+					ray = dir
+				}
+				hit_unit:character_damage():damage_explosion(action_data)
+				if not dead_before and hit_unit:base() and hit_unit:base()._tweak_table and hit_unit:character_damage():dead() then
+					type = hit_unit:base()._tweak_table
+					if type == "civilian" or type == "civilian_female" or type == "bank_manager" then
+						count_civilian_kills = count_civilian_kills + 1
+					elseif type == "gangster" then
+						count_gangster_kills = count_gangster_kills + 1
+					elseif type == "russian" or type == "german" or type == "spanish" or type == "american" then
+					else
+						count_cop_kills = count_cop_kills + 1
+					end
+				end
+			end
+		end
 	end
-
 	managers.explosion:units_to_push(units_to_push, hit_pos, range)
 	if owner then
 		managers.statistics:shot_fired({hit = false, weapon_unit = owner})
@@ -234,40 +192,30 @@ function ExplosionManager:detect_and_give_dmg(params)
 				skip_bullet_count = true
 			})
 		end
-
 		local weapon_pass, weapon_type_pass, count_pass, all_pass
-		local (for generator), (for state), (for control) = pairs(tweak_data.achievement.explosion_achievements)
-		do
-			do break end
+		for achievement, achievement_data in pairs(tweak_data.achievement.explosion_achievements) do
 			weapon_pass = not achievement_data.weapon or true
 			weapon_type_pass = not achievement_data.weapon_type or owner:base() and owner:base().weapon_tweak_data and owner:base():weapon_tweak_data().category == achievement_data.weapon_type
 			if achievement_data.count then
 				count_pass = (achievement_data.kill and count_cop_kills + count_gangster_kills or count_cops + count_gangsters) >= achievement_data.count
 			end
-
 			all_pass = weapon_pass and weapon_type_pass and count_pass
 			if all_pass and achievement_data.award then
 				managers.achievment:award(achievement_data.award)
 			end
-
 		end
-
 	end
-
 	return hit_units, splinters
 end
 
 function ExplosionManager:units_to_push(units_to_push, hit_pos, range)
-	local (for generator), (for state), (for control) = pairs(units_to_push)
-	do
-		do break end
+	for u_key, unit in pairs(units_to_push) do
 		if alive(unit) then
 			local is_character = unit:character_damage() and unit:character_damage().damage_explosion
 			if not is_character or unit:character_damage():dead() then
 				if is_character and unit:movement()._active_actions[1] and unit:movement()._active_actions[1]:type() == "hurt" then
 					unit:movement()._active_actions[1]:force_ragdoll()
 				end
-
 				local nr_u_bodies = unit:num_bodies()
 				local rot_acc = Vector3(1 - math.rand(2), 1 - math.rand(2), 1 - math.rand(2)) * 10
 				local i_u_body = 0
@@ -285,18 +233,12 @@ function ExplosionManager:units_to_push(units_to_push, hit_pos, range)
 							mvector3.multiply(tmp_vec3, push_vel)
 							World:play_physic_effect(Idstring("physic_effects/body_explosion"), u_body, tmp_vec3, body_mass / math.random(2), u_body:position(), rot_acc, 1)
 						end
-
 					end
-
 					i_u_body = i_u_body + 1
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function ExplosionManager:_apply_body_damage(is_server, hit_body, user_unit, dir, damage)
@@ -307,16 +249,13 @@ function ExplosionManager:_apply_body_damage(is_server, hit_body, user_unit, dir
 		print("_apply_body_damage skipped")
 		return
 	end
-
 	local normal = dir
 	local prop_damage = math.min(damage, 200)
 	if prop_damage < 0.25 then
 		prop_damage = math.round(prop_damage, 0.25)
 	end
-
 	if prop_damage == 0 then
 	end
-
 	if prop_damage > 0 then
 		local local_damage = is_server or hit_unit:id() == -1
 		local sync_damage = is_server and hit_unit:id() ~= -1
@@ -326,18 +265,14 @@ function ExplosionManager:_apply_body_damage(is_server, hit_body, user_unit, dir
 			hit_body:extension().damage:damage_explosion(user_unit, normal, hit_body:position(), dir, prop_damage)
 			hit_body:extension().damage:damage_damage(user_unit, normal, hit_body:position(), dir, prop_damage)
 		end
-
 		if sync_damage and managers.network:session() then
 			if alive(user_unit) then
 				managers.network:session():send_to_peers_synched("sync_body_damage_explosion", hit_body, user_unit, normal, hit_body:position(), dir, math.min(32768, network_damage))
 			else
 				managers.network:session():send_to_peers_synched("sync_body_damage_explosion_no_attacker", hit_body, normal, hit_body:position(), dir, math.min(32768, network_damage))
 			end
-
 		end
-
 	end
-
 end
 
 function ExplosionManager:explode_on_client(position, normal, user_unit, dmg, range, curve_pow, custom_params)
@@ -348,25 +283,18 @@ end
 function ExplosionManager:client_damage_and_push(position, normal, user_unit, dmg, range, curve_pow)
 	local bodies = World:find_bodies("intersect", "sphere", position, range, managers.slot:get_mask("bullet_impact_targets"))
 	local units_to_push = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(bodies)
-		do
-			do break end
-			local hit_unit = hit_body:unit()
-			units_to_push[hit_body:unit():key()] = hit_unit
-			local apply_dmg = hit_body:extension() and hit_body:extension().damage and hit_unit:id() == -1
-			local dir, len, damage
-			if apply_dmg then
-				dir = hit_body:center_of_mass()
-				len = mvector3.direction(dir, position, dir)
-				damage = dmg * math.pow(math.clamp(1 - len / range, 0, 1), curve_pow)
-				self:_apply_body_damage(false, hit_body, user_unit, dir, damage)
-			end
-
+	for _, hit_body in ipairs(bodies) do
+		local hit_unit = hit_body:unit()
+		units_to_push[hit_body:unit():key()] = hit_unit
+		local apply_dmg = hit_body:extension() and hit_body:extension().damage and hit_unit:id() == -1
+		local dir, len, damage
+		if apply_dmg then
+			dir = hit_body:center_of_mass()
+			len = mvector3.direction(dir, position, dir)
+			damage = dmg * math.pow(math.clamp(1 - len / range, 0, 1), curve_pow)
+			self:_apply_body_damage(false, hit_body, user_unit, dir, damage)
 		end
-
 	end
-
 	self:units_to_push(units_to_push, position, range)
 end
 
@@ -426,11 +354,8 @@ function ExplosionManager:player_feedback(position, normal, range, custom_params
 			if sound_eff_mul >= 0.3 then
 				player:character_damage():on_flashbanged(sound_eff_mul)
 			end
-
 		end
-
 	end
-
 end
 
 local decal_ray_from = Vector3()
@@ -444,7 +369,6 @@ function ExplosionManager:spawn_sound_and_effects(position, normal, range, effec
 			normal = normal
 		})
 	end
-
 	local slotmask_world_geometry = managers.slot:get_mask("world_geometry")
 	if on_unit then
 		mvector3.set(decal_ray_from, position)
@@ -459,20 +383,17 @@ function ExplosionManager:spawn_sound_and_effects(position, normal, range, effec
 		mvector3.multiply(decal_ray_to, -100)
 		mvector3.add(decal_ray_to, decal_ray_from)
 	end
-
 	local ray = World:raycast("ray", decal_ray_from, decal_ray_to, "slot_mask", slotmask_world_geometry)
 	local sound_switch_name
 	if ray then
 		local material_name, _, _ = World:pick_decal_material(ray.unit, decal_ray_from, decal_ray_to, slotmask_world_geometry)
 		sound_switch_name = material_name ~= empty_idstr and material_name
 	end
-
 	local sound_source = SoundDevice:create_source("ExplosionManager")
 	sound_source:set_position(position)
 	if sound_switch_name then
 		sound_source:set_switch("materials", managers.game_play_central:material_name(sound_switch_name))
 	end
-
 	sound_source:post_event(sound_event or "trip_mine_explode")
 	managers.enemy:add_delayed_clbk("ExplosionManager", callback(GrenadeBase, GrenadeBase, "_dispose_of_sound", {sound_source = sound_source}), TimerManager:game():time() + 4)
 	self:project_decal(ray, decal_ray_from, decal_ray_to, on_unit and ray and ray.unit, idstr_decal, idstr_effect)
@@ -490,7 +411,6 @@ function ExplosionManager:project_decal(ray, from, to, on_unit, idstr_decal, ids
 				normal = ray.normal
 			})
 		end
-
 		if not idstr_effect or idstr_effect ~= empty_idstr then
 			local id = World:effect_manager():spawn({
 				effect = idstr_effect or idstr_small_light_fire,
@@ -499,8 +419,6 @@ function ExplosionManager:project_decal(ray, from, to, on_unit, idstr_decal, ids
 			})
 			self:add_sustain_effect(id, 2 + math.rand(3))
 		end
-
 	end
-
 end
 

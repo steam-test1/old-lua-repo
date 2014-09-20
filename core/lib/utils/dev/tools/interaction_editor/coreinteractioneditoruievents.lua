@@ -49,7 +49,6 @@ function InteractionEditorUIEvents:on_open()
 	if path and managers.database:has(path) then
 		self:open_system(path)
 	end
-
 end
 
 function InteractionEditorUIEvents:on_undo()

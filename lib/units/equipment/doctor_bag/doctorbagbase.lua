@@ -25,7 +25,6 @@ function DoctorBagBase:init(unit)
 		self._validate_clbk_id = "doctor_bag_validate" .. tostring(unit:key())
 		managers.enemy:add_delayed_clbk(self._validate_clbk_id, callback(self, self, "_clbk_validate"), Application:time() + 60)
 	end
-
 end
 
 function DoctorBagBase:_clbk_validate()
@@ -37,7 +36,6 @@ function DoctorBagBase:_clbk_validate()
 		}))
 		peer:mark_cheater()
 	end
-
 end
 
 function DoctorBagBase:sync_setup(amount_upgrade_lvl, peer_id)
@@ -45,7 +43,6 @@ function DoctorBagBase:sync_setup(amount_upgrade_lvl, peer_id)
 		managers.enemy:remove_delayed_clbk(self._validate_clbk_id)
 		self._validate_clbk_id = nil
 	end
-
 	managers.player:verify_equipment(peer_id, "doctor_bag")
 	self:setup(amount_upgrade_lvl)
 end
@@ -66,9 +63,7 @@ function DoctorBagBase:setup(amount_upgrade_lvl)
 			self._attached_data.max_index = 3
 			self._unit:set_extension_update_enabled(Idstring("base"), true)
 		end
-
 	end
-
 end
 
 function DoctorBagBase:update(unit, t, dt)
@@ -79,26 +74,21 @@ function DoctorBagBase:_check_body()
 	if self._is_dynamic then
 		return
 	end
-
 	if not alive(self._attached_data.body) then
 		self:server_set_dynamic()
 		return
 	end
-
 	if self._attached_data.index == 1 then
 		if not self._attached_data.body:enabled() then
 			self:server_set_dynamic()
 		end
-
 	elseif self._attached_data.index == 2 then
 		if not mrotation.equal(self._attached_data.rotation, self._attached_data.body:rotation()) then
 			self:server_set_dynamic()
 		end
-
 	elseif self._attached_data.index == 3 and mvector3.not_equal(self._attached_data.position, self._attached_data.body:position()) then
 		self:server_set_dynamic()
 	end
-
 	self._attached_data.index = (self._attached_data.index < self._attached_data.max_index and self._attached_data.index or 0) + 1
 end
 
@@ -107,7 +97,6 @@ function DoctorBagBase:server_set_dynamic()
 	if managers.network:session() then
 		managers.network:session():send_to_peers_synched("sync_unit_event_id_16", self._unit, "base", 1)
 	end
-
 end
 
 function DoctorBagBase:sync_net_event(event_id)
@@ -123,19 +112,16 @@ function DoctorBagBase:take(unit)
 	if self._empty then
 		return
 	end
-
 	local taken = self:_take(unit)
 	if taken > 0 then
 		unit:sound():play("pickup_ammo")
 		managers.network:session():send_to_peers_synched("sync_doctor_bag_taken", self._unit, taken)
 	end
-
 	if 0 >= self._amount then
 		self:_set_empty()
 	else
 		self:_set_visual_stage()
 	end
-
 	return taken > 0
 end
 
@@ -146,9 +132,7 @@ function DoctorBagBase:_set_visual_stage()
 		if self._unit:damage():has_sequence(state) then
 			self._unit:damage():run_sequence_simple(state)
 		end
-
 	end
-
 end
 
 function DoctorBagBase:sync_taken(amount)
@@ -158,7 +142,6 @@ function DoctorBagBase:sync_taken(amount)
 	else
 		self:_set_visual_stage()
 	end
-
 end
 
 function DoctorBagBase:_take(unit)
@@ -169,7 +152,6 @@ function DoctorBagBase:_take(unit)
 	if rally_skill_data then
 		rally_skill_data.morale_boost_delay_t = (managers.player:has_category_upgrade("player", "morale_boost") or managers.player:has_category_upgrade("player", "long_dis_revive")) and 0 or nil
 	end
-
 	return taken
 end
 
@@ -191,7 +173,6 @@ function DoctorBagBase:load(data)
 	if state.is_dynamic then
 		self:_set_dynamic()
 	end
-
 	self:_set_visual_stage()
 	self._was_dropin = true
 end
@@ -201,6 +182,5 @@ function DoctorBagBase:destroy()
 		managers.enemy:remove_delayed_clbk(self._validate_clbk_id)
 		self._validate_clbk_id = nil
 	end
-
 end
 

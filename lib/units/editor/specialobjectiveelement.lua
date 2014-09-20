@@ -76,43 +76,35 @@ function SpecialObjectiveUnitElement:post_init()
 	if type_name(self._hed.SO_access) == "number" then
 		self._hed.SO_access = tostring(self._hed.SO_access)
 	end
-
 end
 
 function SpecialObjectiveUnitElement:test_element()
 	local SO_access_strings = managers.navigation:convert_access_filter_to_table(self._hed.SO_access)
 	local spawn_unit_name
-	do
-		local (for generator), (for state), (for control) = ipairs(SO_access_strings)
-		do
-			do break end
-			if access_category == "civ_male" then
-				spawn_unit_name = Idstring("units/payday2/characters/civ_male_casual_1/civ_male_casual_1")
-				break
-			elseif access_category == "civ_female" then
-				spawn_unit_name = Idstring("units/payday2/characters/civ_female_casual_1/civ_female_casual_1")
-				break
-			elseif access_category == "spooc" then
-				spawn_unit_name = Idstring("units/payday2/characters/ene_spook_1/ene_spook_1")
-				break
-			elseif access_category == "shield" then
-				spawn_unit_name = Idstring("units/payday2/characters/ene_shield_2/ene_shield_2")
-				break
-			elseif access_category == "tank" then
-				spawn_unit_name = Idstring("units/payday2/characters/ene_bulldozer_1/ene_bulldozer_1")
-				break
-			elseif access_category == "taser" then
-				spawn_unit_name = Idstring("units/payday2/characters/ene_tazer_1/ene_tazer_1")
-				break
-			else
-				spawn_unit_name = Idstring("units/payday2/characters/ene_swat_1/ene_swat_1")
-				break
-			end
-
+	for _, access_category in ipairs(SO_access_strings) do
+		if access_category == "civ_male" then
+			spawn_unit_name = Idstring("units/payday2/characters/civ_male_casual_1/civ_male_casual_1")
+			break
+		elseif access_category == "civ_female" then
+			spawn_unit_name = Idstring("units/payday2/characters/civ_female_casual_1/civ_female_casual_1")
+			break
+		elseif access_category == "spooc" then
+			spawn_unit_name = Idstring("units/payday2/characters/ene_spook_1/ene_spook_1")
+			break
+		elseif access_category == "shield" then
+			spawn_unit_name = Idstring("units/payday2/characters/ene_shield_2/ene_shield_2")
+			break
+		elseif access_category == "tank" then
+			spawn_unit_name = Idstring("units/payday2/characters/ene_bulldozer_1/ene_bulldozer_1")
+			break
+		elseif access_category == "taser" then
+			spawn_unit_name = Idstring("units/payday2/characters/ene_tazer_1/ene_tazer_1")
+			break
+		else
+			spawn_unit_name = Idstring("units/payday2/characters/ene_swat_1/ene_swat_1")
+			break
 		end
-
 	end
-
 	spawn_unit_name = spawn_unit_name or Idstring("units/payday2/characters/ene_swat_1/ene_swat_1")
 	local enemy = safe_spawn_unit(spawn_unit_name, self._unit:position(), self._unit:rotation())
 	table.insert(self._enemies, enemy)
@@ -137,15 +129,9 @@ function SpecialObjectiveUnitElement:test_element()
 end
 
 function SpecialObjectiveUnitElement:stop_test_element()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._enemies)
-		do
-			do break end
-			enemy:set_slot(0)
-		end
-
+	for _, enemy in ipairs(self._enemies) do
+		enemy:set_slot(0)
 	end
-
 	self._enemies = {}
 	print("Stop test time", self._start_test_t and Application:time() - self._start_test_t or 0)
 end
@@ -159,7 +145,6 @@ function SpecialObjectiveUnitElement:update_selected(t, dt, selected_unit, all_u
 	if self._hed.patrol_path ~= "none" then
 		managers.editor:layer("Ai"):draw_patrol_path_externaly(self._hed.patrol_path)
 	end
-
 	local brush = Draw:brush()
 	brush:set_color(Color(0.15, 1, 1, 1))
 	local pen = Draw:pen(Color(0.15, 0.5, 0.5, 0.5))
@@ -169,9 +154,7 @@ function SpecialObjectiveUnitElement:update_selected(t, dt, selected_unit, all_u
 	Application:draw_line(self._hed.search_position, self._unit:position(), 0, 1, 0)
 	self:_draw_follow_up(selected_unit, all_units)
 	if self._hed.spawn_instigator_ids then
-		local (for generator), (for state), (for control) = ipairs(self._hed.spawn_instigator_ids)
-		do
-			do break end
+		for _, id in ipairs(self._hed.spawn_instigator_ids) do
 			local unit = all_units[id]
 			local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 			if draw then
@@ -183,11 +166,8 @@ function SpecialObjectiveUnitElement:update_selected(t, dt, selected_unit, all_u
 					b = 0.75
 				})
 			end
-
 		end
-
 	end
-
 	self:_highlight_if_outside_the_nav_field(t)
 end
 
@@ -204,15 +184,12 @@ function SpecialObjectiveUnitElement:_highlight_if_outside_the_nav_field(t)
 			else
 				alpha = 0.5 - t1
 			end
-
 			alpha = math.lerp(0.1, 0.5, alpha)
 			local nav_color = Color(alpha, 1, 0, 0)
 			Draw:brush(nav_color):cylinder(my_pos, my_pos + math.UP * 80, 20, 4)
 		end
-
 		managers.navigation:destroy_nav_tracker(nav_tracker)
 	end
-
 end
 
 function SpecialObjectiveUnitElement:update_unselected(t, dt, selected_unit, all_units)
@@ -224,16 +201,12 @@ function SpecialObjectiveUnitElement:update_unselected(t, dt, selected_unit, all
 			if not alive(all_units[element_id]) then
 				table.remove(followup_elements, i)
 			end
-
 			i = i - 1
 		end
-
 		if not next(followup_elements) then
 			self._hed.followup_elements = nil
 		end
-
 	end
-
 	if self._hed.spawn_instigator_ids then
 		local spawn_instigator_ids = self._hed.spawn_instigator_ids
 		local i = #spawn_instigator_ids
@@ -242,23 +215,17 @@ function SpecialObjectiveUnitElement:update_unselected(t, dt, selected_unit, all
 			if not alive(all_units[id]) then
 				table.remove(self._hed.spawn_instigator_ids, i)
 			end
-
 			i = i - 1
 		end
-
 		if not next(spawn_instigator_ids) then
 			self._hed.spawn_instigator_ids = nil
 		end
-
 	end
-
 end
 
 function SpecialObjectiveUnitElement:_draw_follow_up(selected_unit, all_units)
 	if self._hed.followup_elements then
-		local (for generator), (for state), (for control) = ipairs(self._hed.followup_elements)
-		do
-			do break end
+		for _, element_id in ipairs(self._hed.followup_elements) do
 			local unit = all_units[element_id]
 			local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 			if draw then
@@ -270,11 +237,8 @@ function SpecialObjectiveUnitElement:_draw_follow_up(selected_unit, all_units)
 					b = 0
 				})
 			end
-
 		end
-
 	end
-
 end
 
 function SpecialObjectiveUnitElement:update_editing()
@@ -290,7 +254,6 @@ function SpecialObjectiveUnitElement:_so_raycast()
 		Application:draw(ray.unit, 0, 1, 0)
 		return id
 	end
-
 	return nil
 end
 
@@ -299,13 +262,11 @@ function SpecialObjectiveUnitElement:_spawn_raycast()
 	if not ray or not ray.unit then
 		return
 	end
-
 	local id
 	if string.find(ray.unit:name():s(), "ai_enemy_group", 1, true) or string.find(ray.unit:name():s(), "ai_spawn_enemy", 1, true) or string.find(ray.unit:name():s(), "ai_civilian_group", 1, true) or string.find(ray.unit:name():s(), "ai_spawn_civilian", 1, true) then
 		id = ray.unit:unit_data().unit_id
 		Application:draw(ray.unit, 0, 0, 1)
 	end
-
 	return id
 end
 
@@ -317,7 +278,6 @@ function SpecialObjectiveUnitElement:_raycast()
 		Application:draw_sphere(ray.position, 10, 1, 1, 1)
 		return ray.position
 	end
-
 	return nil
 end
 
@@ -325,51 +285,37 @@ function SpecialObjectiveUnitElement:_lmb()
 	local id = self:_so_raycast()
 	if id then
 		if self._hed.followup_elements then
-			local (for generator), (for state), (for control) = ipairs(self._hed.followup_elements)
-			do
-				do break end
+			for i, element_id in ipairs(self._hed.followup_elements) do
 				if element_id == id then
 					table.remove(self._hed.followup_elements, i)
 					if not next(self._hed.followup_elements) then
 						self._hed.followup_elements = nil
 					end
-
 					return
 				end
-
 			end
-
 		end
-
 		self._hed.followup_elements = self._hed.followup_elements or {}
 		table.insert(self._hed.followup_elements, id)
 		return
 	end
-
 	local id = self:_spawn_raycast()
 	if id then
 		if self._hed.spawn_instigator_ids then
-			local (for generator), (for state), (for control) = ipairs(self._hed.spawn_instigator_ids)
-			do
-				do break end
+			for i, si_id in ipairs(self._hed.spawn_instigator_ids) do
 				if si_id == id then
 					table.remove(self._hed.spawn_instigator_ids, i)
 					if not next(self._hed.spawn_instigator_ids) then
 						self._hed.spawn_instigator_ids = nil
 					end
-
 					return
 				end
-
 			end
-
 		end
-
 		self._hed.spawn_instigator_ids = self._hed.spawn_instigator_ids or {}
 		table.insert(self._hed.spawn_instigator_ids, id)
 		return
 	end
-
 	self._hed.search_position = self:_raycast() or self._hed.search_position
 end
 
@@ -382,7 +328,6 @@ function SpecialObjectiveUnitElement:selected()
 	if not managers.ai_data:patrol_path(self._hed.patrol_path) then
 		self._hed.patrol_path = "none"
 	end
-
 	CoreEws.update_combobox_options(self._patrol_path_params, managers.ai_data:patrol_path_names())
 	CoreEws.change_combobox_value(self._patrol_path_params, self._hed.patrol_path)
 end
@@ -393,7 +338,6 @@ function SpecialObjectiveUnitElement:_apply_preset(params)
 	if confirm == "NO" then
 		return
 	end
-
 	if value == "clear" then
 		self:_clear_all_nav_link_filters()
 	elseif value == "all" then
@@ -401,49 +345,34 @@ function SpecialObjectiveUnitElement:_apply_preset(params)
 	else
 		print("Didn't have preset", value, "yet.")
 	end
-
 end
 
 function SpecialObjectiveUnitElement:_enable_all_nav_link_filters()
-	local (for generator), (for state), (for control) = pairs(self._nav_link_filter_check_boxes)
-	do
-		do break end
+	for name, ctrlr in pairs(self._nav_link_filter_check_boxes) do
 		ctrlr:set_value(true)
 		self:_toggle_nav_link_filter_value({ctrlr = ctrlr, name = name})
 	end
-
 end
 
 function SpecialObjectiveUnitElement:_clear_all_nav_link_filters()
-	local (for generator), (for state), (for control) = pairs(self._nav_link_filter_check_boxes)
-	do
-		do break end
+	for name, ctrlr in pairs(self._nav_link_filter_check_boxes) do
 		ctrlr:set_value(false)
 		self:_toggle_nav_link_filter_value({ctrlr = ctrlr, name = name})
 	end
-
 end
 
 function SpecialObjectiveUnitElement:_toggle_nav_link_filter_value(params)
 	local value = params.ctrlr:get_value()
 	if value then
-		do
-			local (for generator), (for state), (for control) = ipairs(self._nav_link_filter)
-			do
-				do break end
-				if k == params.name then
-					return
-				end
-
+		for i, k in ipairs(self._nav_link_filter) do
+			if k == params.name then
+				return
 			end
-
 		end
-
 		table.insert(self._nav_link_filter, params.name)
 	else
 		table.delete(self._nav_link_filter, params.name)
 	end
-
 	self._hed.SO_access = managers.navigation:convert_access_filter_to_string(self._nav_link_filter)
 end
 
@@ -452,14 +381,10 @@ function SpecialObjectiveUnitElement:select_action_btn()
 	if dialog:cancelled() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-	do
-		do break end
+	for _, action in ipairs(dialog:_selected_item_assets()) do
 		self._hed.so_action = action
 		CoreEws.change_combobox_value(self._so_action_params, self._hed.so_action)
 	end
-
 end
 
 function SpecialObjectiveUnitElement:_build_panel(panel, panel_sizer)
@@ -485,26 +410,19 @@ function SpecialObjectiveUnitElement:_build_panel(panel, panel_sizer)
 	local opt2_sizer = EWS:BoxSizer("VERTICAL")
 	local opt3_sizer = EWS:BoxSizer("VERTICAL")
 	local opt = NavigationManager.ACCESS_FLAGS
-	do
-		local (for generator), (for state), (for control) = ipairs(opt)
-		do
-			do break end
-			local check = EWS:CheckBox(panel, o, "")
-			check:set_value(table.contains(self._nav_link_filter, o))
-			check:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "_toggle_nav_link_filter_value"), {ctrlr = check, name = o})
-			self._nav_link_filter_check_boxes[o] = check
-			if i <= math.round(#opt / 3) then
-				opt1_sizer:add(check, 0, 0, "EXPAND")
-			elseif i <= math.round(#opt / 3) * 2 then
-				opt2_sizer:add(check, 0, 0, "EXPAND")
-			else
-				opt3_sizer:add(check, 0, 0, "EXPAND")
-			end
-
+	for i, o in ipairs(opt) do
+		local check = EWS:CheckBox(panel, o, "")
+		check:set_value(table.contains(self._nav_link_filter, o))
+		check:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "_toggle_nav_link_filter_value"), {ctrlr = check, name = o})
+		self._nav_link_filter_check_boxes[o] = check
+		if i <= math.round(#opt / 3) then
+			opt1_sizer:add(check, 0, 0, "EXPAND")
+		elseif i <= math.round(#opt / 3) * 2 then
+			opt2_sizer:add(check, 0, 0, "EXPAND")
+		else
+			opt3_sizer:add(check, 0, 0, "EXPAND")
 		end
-
 	end
-
 	filter_sizer:add(opt1_sizer, 1, 0, "EXPAND")
 	filter_sizer:add(opt2_sizer, 1, 0, "EXPAND")
 	filter_sizer:add(opt3_sizer, 1, 0, "EXPAND")
@@ -617,15 +535,9 @@ function SpecialObjectiveUnitElement:_build_panel(panel, panel_sizer)
 		sizer_proportions = 1,
 		sorted = true
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._AI_SO_types)
-		do
-			do break end
-			table.insert(so_action_params.options, val)
-		end
-
+	for _, val in ipairs(self._AI_SO_types) do
+		table.insert(so_action_params.options, val)
 	end
-
 	local so_action = CoreEws.combobox(so_action_params)
 	self._so_action_params = so_action_params
 	so_action:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {ctrlr = so_action, value = "so_action"})

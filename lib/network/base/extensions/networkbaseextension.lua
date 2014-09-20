@@ -7,14 +7,12 @@ function NetworkBaseExtension:send(func, ...)
 	if managers.network:session() then
 		managers.network:session():send_to_peers_synched(func, self._unit, ...)
 	end
-
 end
 
 function NetworkBaseExtension:send_to_host(func, ...)
 	if managers.network:session() then
 		managers.network:session():send_to_host(func, self._unit, ...)
 	end
-
 end
 
 function NetworkBaseExtension:send_to_unit(params)
@@ -23,10 +21,8 @@ function NetworkBaseExtension:send_to_unit(params)
 		if not member then
 			return
 		end
-
 		managers.network:session():send_to_peer(member:peer(), unpack(params))
 	end
-
 end
 
 function NetworkBaseExtension:member()
@@ -38,6 +34,5 @@ function NetworkBaseExtension:peer()
 		local member = managers.network:game():member_from_unit(self._unit)
 		return member and member:peer()
 	end
-
 end
 

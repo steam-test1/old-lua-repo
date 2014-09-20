@@ -50,7 +50,6 @@ function CoreEnvEditor:init(env_file_name)
 		self:build_tab("Skydome")
 		self:build_tab("Flare")
 	end
-
 	self._skies_to_remove = {}
 	self._posteffects_to_remove = {}
 	self._underlays_to_remove = {}
@@ -72,27 +71,17 @@ function CoreEnvEditor:read_mode()
 end
 
 function CoreEnvEditor:read_templates()
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type("environment"))
-		do
-			do break end
-			if string.find(name, self.TEMPLATE_IDENTIFIER) then
-				table.insert(self._template_environment_names, name)
-			end
-
+	for _, name in ipairs(managers.database:list_entries_of_type("environment")) do
+		if string.find(name, self.TEMPLATE_IDENTIFIER) then
+			table.insert(self._template_environment_names, name)
 		end
-
 	end
-
 	table.sort(self._template_environment_names)
-	local (for generator), (for state), (for control) = ipairs(self._template_environment_names)
-	do
-		do break end
+	for _, env_name in ipairs(self._template_environment_names) do
 		self._template_effects[env_name] = DB:load_node("environment_effect", env_name)
 		self._template_underlays[env_name] = DB:load_node("environment_underlay", env_name)
 		self._template_skies[env_name] = DB:load_node("environment_sky", env_name)
 	end
-
 end
 
 function CoreEnvEditor:on_check_news()
@@ -104,12 +93,9 @@ function CoreEnvEditor:reg_mixer(widget)
 end
 
 function CoreEnvEditor:update_mix(env1, env2, blend)
-	local (for generator), (for state), (for control) = ipairs(self._mixer_widgets)
-	do
-		do break end
+	for _, widget in ipairs(self._mixer_widgets) do
 		widget:update_mix(env1, env2, blend)
 	end
-
 end
 
 function CoreEnvEditor:check_news(new_only)
@@ -119,96 +105,54 @@ function CoreEnvEditor:check_news(new_only)
 	else
 		news = managers.news:get_old_news("env_editor", self._main_frame)
 	end
-
 	if news then
 		local str
-		do
-			local (for generator), (for state), (for control) = ipairs(news)
-			do
-				do break end
-				if not str then
-					str = n
-				else
-					str = str .. "\n" .. n
-				end
-
+		for _, n in ipairs(news) do
+			if not str then
+				str = n
+			else
+				str = str .. "\n" .. n
 			end
-
 		end
-
 		EWS:MessageDialog(self._main_frame, str, "New Features!", "OK,ICON_INFORMATION"):show_modal()
 	end
-
 end
 
 function CoreEnvEditor:feed(data)
-	do
-		local (for generator), (for state), (for control) = pairs(data:data_root())
-		do
-			do break end
-			if k == "post_effect" then
-				local (for generator), (for state), (for control) = pairs(v)
-				do
-					do break end
-					if kpro == "shadow_processor" then
-						self:shadow_feed_params(vpro.shadow_rendering.shadow_modifier)
-					else
-						local (for generator), (for state), (for control) = pairs(vpro)
-						do
-							do break end
-							local (for generator), (for state), (for control) = pairs(veffect)
-							do
-								do break end
-								local (for generator), (for state), (for control) = pairs(vmod)
-								do
-									do break end
-									vmod[kpar] = assert(self._posteffect.post_processors[kpro].modifiers[kmod].params[kpar]:get_value(), kpar)
-								end
-
+	for k, v in pairs(data:data_root()) do
+		if k == "post_effect" then
+			for kpro, vpro in pairs(v) do
+				if kpro == "shadow_processor" then
+					self:shadow_feed_params(vpro.shadow_rendering.shadow_modifier)
+				else
+					for keffect, veffect in pairs(vpro) do
+						for kmod, vmod in pairs(veffect) do
+							for kpar, vpar in pairs(vmod) do
+								vmod[kpar] = assert(self._posteffect.post_processors[kpro].modifiers[kmod].params[kpar]:get_value(), kpar)
 							end
-
 						end
-
 					end
-
 				end
-
-			elseif k == "underlay_effect" then
-				local (for generator), (for state), (for control) = pairs(v)
-				do
-					do break end
-					local (for generator), (for state), (for control) = pairs(vmat)
-					do
-						do break end
-						vmat[kpar] = assert(self._underlayeffect.materials[kmat].params[kpar]:get_value(), kpar)
-					end
-
-				end
-
-			elseif k == "others" then
-				local (for generator), (for state), (for control) = pairs(v)
-				do
-					do break end
-					if kpar ~= "underlay" or self._sky.params[kpar]:get_value() ~= "" then
-						v[kpar] = assert(self._sky.params[kpar]:get_value(), kpar)
-					end
-
-				end
-
-			elseif k == "sky_orientation" then
-				local (for generator), (for state), (for control) = pairs(v)
-				do
-					break
-				end
-
-			else
-				error("Corrupt environment!")
 			end
-
+		elseif k == "underlay_effect" then
+			for kmat, vmat in pairs(v) do
+				for kpar, vpar in pairs(vmat) do
+					vmat[kpar] = assert(self._underlayeffect.materials[kmat].params[kpar]:get_value(), kpar)
+				end
+			end
+		elseif k == "others" then
+			for kpar, vpar in pairs(v) do
+				if kpar ~= "underlay" or self._sky.params[kpar]:get_value() ~= "" then
+					v[kpar] = assert(self._sky.params[kpar]:get_value(), kpar)
+				end
+			end
+		elseif k == "sky_orientation" then
+			for kpar, vpar in pairs(v) do
+			end
+		else
+			error("Corrupt environment!")
 		end
-
 	end
-
 	managers.viewport:first_active_viewport():feed_params()
 	return data
 end
@@ -255,23 +199,18 @@ function CoreEnvEditor:add_post_processors_param(pro, mod, param, gui)
 	if not self._posteffect.post_processors then
 		self._posteffect.post_processors = {}
 	end
-
 	if not self._posteffect.post_processors[pro] then
 		self._posteffect.post_processors[pro] = {}
 	end
-
 	if not self._posteffect.post_processors[pro].modifiers then
 		self._posteffect.post_processors[pro].modifiers = {}
 	end
-
 	if not self._posteffect.post_processors[pro].modifiers[mod] then
 		self._posteffect.post_processors[pro].modifiers[mod] = {}
 	end
-
 	if not self._posteffect.post_processors[pro].modifiers[mod].params then
 		self._posteffect.post_processors[pro].modifiers[mod].params = {}
 	end
-
 	self._posteffect.post_processors[pro].modifiers[mod].params[param] = gui
 	local e = "default"
 	if pro == "fog_processor" then
@@ -279,7 +218,6 @@ function CoreEnvEditor:add_post_processors_param(pro, mod, param, gui)
 	elseif pro == "deferred" then
 		e = "deferred_lighting"
 	end
-
 	local processor = managers.viewport:first_active_viewport():vp():get_post_processor_effect("World", Idstring(pro))
 	if processor then
 		local modifier = processor:modifier(Idstring(mod))
@@ -288,11 +226,8 @@ function CoreEnvEditor:add_post_processors_param(pro, mod, param, gui)
 			if value then
 				gui:set_value(value)
 			end
-
 		end
-
 	end
-
 	return gui
 end
 
@@ -300,15 +235,12 @@ function CoreEnvEditor:add_underlay_param(mat, param, gui)
 	if not self._underlayeffect.materials then
 		self._underlayeffect.materials = {}
 	end
-
 	if not self._underlayeffect.materials[mat] then
 		self._underlayeffect.materials[mat] = {}
 	end
-
 	if not self._underlayeffect.materials[mat].params then
 		self._underlayeffect.materials[mat].params = {}
 	end
-
 	self._underlayeffect.materials[mat].params[param] = gui
 	local material = Underlay:material(Idstring(mat))
 	if material and material:variable_exists(Idstring(param)) then
@@ -316,9 +248,7 @@ function CoreEnvEditor:add_underlay_param(mat, param, gui)
 		if value then
 			gui:set_value(value)
 		end
-
 	end
-
 	return gui
 end
 
@@ -326,23 +256,16 @@ function CoreEnvEditor:add_sky_param(param, gui)
 	if not self._sky.params then
 		self._sky.params = {}
 	end
-
 	self._sky.params[param] = gui
 	return gui
 end
 
 function CoreEnvEditor:retrive_posteffect_param(node, pro, mod, param)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for post_processor in node:children() do
 		if post_processor:parameter("name") == pro then
-			local (for generator), (for state), (for control) = post_processor:children()
-			do
-				do break end
+			for modifier in post_processor:children() do
 				if modifier:parameter("name") == mod then
-					local (for generator), (for state), (for control) = modifier:children()
-					do
-						do break end
+					for parameter in modifier:children() do
 						if parameter:parameter("key") == param then
 							local p = parameter:parameter("value")
 							if math.string_is_good_vector(p) then
@@ -352,29 +275,18 @@ function CoreEnvEditor:retrive_posteffect_param(node, pro, mod, param)
 							else
 								return p
 							end
-
 						end
-
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function CoreEnvEditor:retrive_underlay_param(node, mat, param)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for material in node:children() do
 		if material:parameter("name") == mat then
-			local (for generator), (for state), (for control) = material:children()
-			do
-				do break end
+			for parameter in material:children() do
 				if parameter:parameter("key") == param then
 					local p = parameter:parameter("value")
 					if math.string_is_good_vector(p) then
@@ -384,21 +296,14 @@ function CoreEnvEditor:retrive_underlay_param(node, mat, param)
 					else
 						return p
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function CoreEnvEditor:retrive_sky_param(node, param)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for parameter in node:children() do
 		if parameter:parameter("key") == param then
 			local p = parameter:parameter("value")
 			if math.string_is_good_vector(p) then
@@ -408,11 +313,8 @@ function CoreEnvEditor:retrive_sky_param(node, param)
 			else
 				return p
 			end
-
 		end
-
 	end
-
 end
 
 function CoreEnvEditor:flipp(...)
@@ -427,7 +329,6 @@ function CoreEnvEditor:flipp(...)
 	else
 		return ...
 	end
-
 end
 
 function CoreEnvEditor:add_gui_element(gui, tab, ...)
@@ -450,7 +351,6 @@ function CoreEnvEditor:create_tab(tab)
 		self._tabs[tab].scrolled_window:set_virtual_size(Vector3(200, 2000, 0))
 		self._tabs[tab].box = EWS:BoxSizer("VERTICAL")
 	end
-
 end
 
 function CoreEnvEditor:build_tab(tab)
@@ -462,14 +362,12 @@ function CoreEnvEditor:build_tab(tab)
 		self._tabs[tab].panel:thaw()
 		self._tabs[tab].panel:refresh()
 	end
-
 end
 
 function CoreEnvEditor:get_tab(tab)
 	if self._tabs[tab] then
 		return self._tabs[tab].scrolled_window
 	end
-
 end
 
 function CoreEnvEditor:add_box(gui, parent, list, index)
@@ -482,14 +380,12 @@ function CoreEnvEditor:add_box(gui, parent, list, index)
 		parent.box:add(this.box, 0, 2, "ALL,EXPAND")
 		parent.child[list[index]] = this
 	end
-
 	index = index + 1
 	if list[index] then
 		self:add_box(gui, this, list, index)
 	else
 		this.box:add(gui._box, 0, 2, "ALL,EXPAND")
 	end
-
 end
 
 function CoreEnvEditor:set_title()
@@ -506,34 +402,23 @@ function CoreEnvEditor:add_updator(upd)
 end
 
 function CoreEnvEditor:get_child(node, name)
-	do
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
-			if child:name() == name then
-				return child
-			end
-
+	for child in node:children() do
+		if child:name() == name then
+			return child
 		end
-
 	end
-
 	Application:error("Can't find child!")
 end
 
 function CoreEnvEditor:on_encode_parameters()
 	local current_env = self._env_path
 	if self._encode_parameters_dialog:show_modal() == "ID_YES" and managers and managers.environment then
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type("environment"))
-		do
-			do break end
+		for _, env in ipairs(managers.database:list_entries_of_type("environment")) do
 			self:database_load_env(env)
 			self:write_to_disk(managers.database:entry_expanded_path("environment", self._env_path))
 			self:set_title()
 		end
-
 	end
-
 	self:database_load_env(current_env)
 end
 
@@ -552,7 +437,6 @@ function CoreEnvEditor:write_to_disk(path, new_name)
 		file:print("</environment>\n")
 		file:close()
 	end
-
 end
 
 function CoreEnvEditor:write_sky_orientation(file)
@@ -563,58 +447,37 @@ end
 
 function CoreEnvEditor:write_posteffect(file)
 	file:print("\t\t<post_effect>\n")
-	do
-		local (for generator), (for state), (for control) = pairs(self._posteffect.post_processors)
-		do
-			do break end
-			file:print("\t\t\t<" .. post_processor_name .. ">\n")
-			if post_processor_name == "shadow_processor" then
-				self:write_shadow_params(file)
-			else
-				local e = "default"
-				if post_processor_name == "fog_processor" then
-					e = "fog"
-				elseif post_processor_name == "deferred" then
-					e = "deferred_lighting"
-				elseif post_processor_name == "shadow_processor" then
-					e = "shadow_rendering"
-				end
-
-				file:print("\t\t\t\t<" .. e .. ">\n")
-				do
-					local (for generator), (for state), (for control) = pairs(post_processor.modifiers)
-					do
-						do break end
-						file:print("\t\t\t\t\t<" .. modifier_name .. ">\n")
-						do
-							local (for generator), (for state), (for control) = pairs(mod.params)
-							do
-								do break end
-								local v = param:get_value()
-								if getmetatable(v) == _G.Vector3 then
-									v = "" .. param:get_value().x .. " " .. param:get_value().y .. " " .. param:get_value().z
-								else
-									v = tostring(param:get_value())
-								end
-
-								file:print("\t\t\t\t\t\t<param key=\"" .. param_name .. "\" value=\"" .. v .. "\"/>\n")
-							end
-
-						end
-
-						file:print("\t\t\t\t\t</" .. modifier_name .. ">\n")
-					end
-
-				end
-
-				file:print("\t\t\t\t</" .. e .. ">\n")
+	for post_processor_name, post_processor in pairs(self._posteffect.post_processors) do
+		file:print("\t\t\t<" .. post_processor_name .. ">\n")
+		if post_processor_name == "shadow_processor" then
+			self:write_shadow_params(file)
+		else
+			local e = "default"
+			if post_processor_name == "fog_processor" then
+				e = "fog"
+			elseif post_processor_name == "deferred" then
+				e = "deferred_lighting"
+			elseif post_processor_name == "shadow_processor" then
+				e = "shadow_rendering"
 			end
-
-			file:print("\t\t\t</" .. post_processor_name .. ">\n")
+			file:print("\t\t\t\t<" .. e .. ">\n")
+			for modifier_name, mod in pairs(post_processor.modifiers) do
+				file:print("\t\t\t\t\t<" .. modifier_name .. ">\n")
+				for param_name, param in pairs(mod.params) do
+					local v = param:get_value()
+					if getmetatable(v) == _G.Vector3 then
+						v = "" .. param:get_value().x .. " " .. param:get_value().y .. " " .. param:get_value().z
+					else
+						v = tostring(param:get_value())
+					end
+					file:print("\t\t\t\t\t\t<param key=\"" .. param_name .. "\" value=\"" .. v .. "\"/>\n")
+				end
+				file:print("\t\t\t\t\t</" .. modifier_name .. ">\n")
+			end
+			file:print("\t\t\t\t</" .. e .. ">\n")
 		end
-
+		file:print("\t\t\t</" .. post_processor_name .. ">\n")
 	end
-
 	file:print("\t\t</post_effect>\n")
 end
 
@@ -622,75 +485,48 @@ function CoreEnvEditor:write_shadow_params(file)
 	local params = self:shadow_feed_params({})
 	file:print("\t\t\t\t<shadow_rendering>\n")
 	file:print("\t\t\t\t\t<shadow_modifier>\n")
-	do
-		local (for generator), (for state), (for control) = pairs(params)
-		do
-			do break end
-			local v = param
-			if getmetatable(v) == _G.Vector3 then
-				v = "" .. param.x .. " " .. param.y .. " " .. param.z
-			else
-				v = tostring(param)
-			end
-
-			file:print("\t\t\t\t\t\t<param key=\"" .. param_name .. "\" value=\"" .. v .. "\"/>\n")
+	for param_name, param in pairs(params) do
+		local v = param
+		if getmetatable(v) == _G.Vector3 then
+			v = "" .. param.x .. " " .. param.y .. " " .. param.z
+		else
+			v = tostring(param)
 		end
-
+		file:print("\t\t\t\t\t\t<param key=\"" .. param_name .. "\" value=\"" .. v .. "\"/>\n")
 	end
-
 	file:print("\t\t\t\t\t</shadow_modifier>\n")
 	file:print("\t\t\t\t</shadow_rendering>\n")
 end
 
 function CoreEnvEditor:write_underlayeffect(file)
 	file:print("\t\t<underlay_effect>\n")
-	do
-		local (for generator), (for state), (for control) = pairs(self._underlayeffect.materials)
-		do
-			do break end
-			file:print("\t\t\t<" .. underlay_name .. ">\n")
-			do
-				local (for generator), (for state), (for control) = pairs(material.params)
-				do
-					do break end
-					local v = param:get_value()
-					if getmetatable(v) == _G.Vector3 then
-						v = "" .. param:get_value().x .. " " .. param:get_value().y .. " " .. param:get_value().z
-					else
-						v = tostring(param:get_value())
-					end
-
-					file:print("\t\t\t\t<param key=\"" .. param_name .. "\" value=\"" .. v .. "\"/>\n")
-				end
-
-			end
-
-			file:print("\t\t\t</" .. underlay_name .. ">\n")
-		end
-
-	end
-
-	file:print("\t\t</underlay_effect>\n")
-end
-
-function CoreEnvEditor:write_sky(file)
-	file:print("\t\t<others>\n")
-	do
-		local (for generator), (for state), (for control) = pairs(self._sky.params)
-		do
-			do break end
+	for underlay_name, material in pairs(self._underlayeffect.materials) do
+		file:print("\t\t\t<" .. underlay_name .. ">\n")
+		for param_name, param in pairs(material.params) do
 			local v = param:get_value()
 			if getmetatable(v) == _G.Vector3 then
 				v = "" .. param:get_value().x .. " " .. param:get_value().y .. " " .. param:get_value().z
 			else
 				v = tostring(param:get_value())
 			end
-
-			file:print("\t\t\t<param key=\"" .. param_name .. "\" value=\"" .. v .. "\"/>\n")
+			file:print("\t\t\t\t<param key=\"" .. param_name .. "\" value=\"" .. v .. "\"/>\n")
 		end
-
+		file:print("\t\t\t</" .. underlay_name .. ">\n")
 	end
+	file:print("\t\t</underlay_effect>\n")
+end
 
+function CoreEnvEditor:write_sky(file)
+	file:print("\t\t<others>\n")
+	for param_name, param in pairs(self._sky.params) do
+		local v = param:get_value()
+		if getmetatable(v) == _G.Vector3 then
+			v = "" .. param:get_value().x .. " " .. param:get_value().y .. " " .. param:get_value().z
+		else
+			v = tostring(param:get_value())
+		end
+		file:print("\t\t\t<param key=\"" .. param_name .. "\" value=\"" .. v .. "\"/>\n")
+	end
 	file:print("\t\t</others>\n")
 end
 
@@ -699,86 +535,60 @@ function CoreEnvEditor:on_close()
 end
 
 function CoreEnvEditor:database_load_posteffect(post_effect_node)
-	do
-		local (for generator), (for state), (for control) = post_effect_node:children()
-		do
-			do break end
-			local post_pro = self._posteffect.post_processors[post_processor:name()]
-			if not post_pro then
-				self._posteffect.post_processors[post_processor:name()] = {}
-				post_pro = self._posteffect.post_processors[post_processor:name()]
-				post_pro.modifiers = {}
-			end
-
-			local (for generator), (for state), (for control) = post_processor:children()
-			do
-				do break end
-				post_pro._effect = effect:name()
-				local (for generator), (for state), (for control) = effect:children()
-				do
-					do break end
-					local mod = post_pro.modifiers[modifier:name()]
-					if not mod then
-						post_pro.modifiers[modifier:name()] = {}
-						mod = post_pro.modifiers[modifier:name()]
-						mod.params = {}
-					end
-
-					local (for generator), (for state), (for control) = modifier:children()
-					do
-						do break end
-						if param:name() == "param" and param:parameter("key") and param:parameter("key") ~= "" and param:parameter("value") and param:parameter("value") ~= "" then
-							local k = param:parameter("key")
-							local l = string.len(k)
-							local parameter = mod.params[k]
-							local remove_param = false
-							if not parameter and not remove_param then
-								mod.params[k] = DummyWidget:new()
-								parameter = mod.params[k]
-							end
-
-							if not remove_param then
-								local value = param:parameter("value")
-								if math.string_is_good_vector(value) then
-									parameter:set_value(math.string_to_vector(value))
-								elseif tonumber(value) then
-									parameter:set_value(tonumber(value))
-								else
-									parameter:set_value(tostring(value))
-								end
-
-							end
-
-						end
-
-					end
-
-				end
-
-			end
-
+	for post_processor in post_effect_node:children() do
+		local post_pro = self._posteffect.post_processors[post_processor:name()]
+		if not post_pro then
+			self._posteffect.post_processors[post_processor:name()] = {}
+			post_pro = self._posteffect.post_processors[post_processor:name()]
+			post_pro.modifiers = {}
 		end
-
+		for effect in post_processor:children() do
+			post_pro._effect = effect:name()
+			for modifier in effect:children() do
+				local mod = post_pro.modifiers[modifier:name()]
+				if not mod then
+					post_pro.modifiers[modifier:name()] = {}
+					mod = post_pro.modifiers[modifier:name()]
+					mod.params = {}
+				end
+				for param in modifier:children() do
+					if param:name() == "param" and param:parameter("key") and param:parameter("key") ~= "" and param:parameter("value") and param:parameter("value") ~= "" then
+						local k = param:parameter("key")
+						local l = string.len(k)
+						local parameter = mod.params[k]
+						local remove_param = false
+						if not parameter and not remove_param then
+							mod.params[k] = DummyWidget:new()
+							parameter = mod.params[k]
+						end
+						if not remove_param then
+							local value = param:parameter("value")
+							if math.string_is_good_vector(value) then
+								parameter:set_value(math.string_to_vector(value))
+							elseif tonumber(value) then
+								parameter:set_value(tonumber(value))
+							else
+								parameter:set_value(tostring(value))
+							end
+						end
+					end
+				end
+			end
+		end
 	end
-
 	self:set_title()
 end
 
 function CoreEnvEditor:database_load_underlay(underlay_effect_node)
 	if underlay_effect_node:name() == "underlay_effect" then
-		local (for generator), (for state), (for control) = underlay_effect_node:children()
-		do
-			do break end
+		for material in underlay_effect_node:children() do
 			local mat = self._underlayeffect.materials[material:name()]
 			if not mat then
 				self._underlayeffect.materials[material:name()] = {}
 				mat = self._underlayeffect.materials[material:name()]
 				mat.params = {}
 			end
-
-			local (for generator), (for state), (for control) = material:children()
-			do
-				do break end
+			for param in material:children() do
 				if param:name() == "param" and param:parameter("key") and param:parameter("key") ~= "" and param:parameter("value") and param:parameter("value") ~= "" then
 					local k = param:parameter("key")
 					local l = string.len(k)
@@ -792,16 +602,12 @@ function CoreEnvEditor:database_load_underlay(underlay_effect_node)
 								mat.params[k] = nil
 								remove_param = true
 							end
-
 						end
-
 						if not remove_param then
 							mat.params[k] = DummyWidget:new()
 							parameter = mat.params[k]
 						end
-
 					end
-
 					if not remove_param then
 						local value = param:parameter("value")
 						if math.string_is_good_vector(value) then
@@ -811,27 +617,19 @@ function CoreEnvEditor:database_load_underlay(underlay_effect_node)
 						else
 							parameter:set_value(tostring(value))
 						end
-
 					end
-
 				end
-
 			end
-
 		end
-
 	else
 		cat_print("debug", "[CoreEnvEditor] Failed to load underlay in: " .. self._env_path)
 	end
-
 	self:set_title()
 end
 
 function CoreEnvEditor:database_load_sky(sky_node)
 	if sky_node:name() == "others" then
-		local (for generator), (for state), (for control) = sky_node:children()
-		do
-			do break end
+		for param in sky_node:children() do
 			if param:name() == "param" and param:parameter("key") and param:parameter("key") ~= "" and param:parameter("value") and param:parameter("value") ~= "" then
 				local k = param:parameter("key")
 				local l = string.len(k)
@@ -845,15 +643,11 @@ function CoreEnvEditor:database_load_sky(sky_node)
 							self._sky.params[k] = nil
 							remove_param = true
 						end
-
 					end
-
 					if not remove_param then
 						self._sky.params[k] = DummyWidget:new()
 					end
-
 				end
-
 				if not remove_param then
 					local value = param:parameter("value")
 					if math.string_is_good_vector(value) then
@@ -863,17 +657,12 @@ function CoreEnvEditor:database_load_sky(sky_node)
 					else
 						self._sky.params[param:parameter("key")]:set_value(value)
 					end
-
 				end
-
 			end
-
 		end
-
 	else
 		cat_print("debug", "[CoreEnvEditor] Failed to load sky in: " .. self._env_path)
 	end
-
 	self:set_title()
 end
 
@@ -884,9 +673,7 @@ function CoreEnvEditor:database_load_env(env_path)
 		self._env_path = env_path
 		self._env_name = managers.database:entry_name(env_path)
 		if env:name() == "environment" then
-			local (for generator), (for state), (for control) = env:child(1):children()
-			do
-				do break end
+			for param in env:child(1):children() do
 				if param:name() == "others" then
 					self:database_load_sky(param)
 				elseif param:name() == "post_effect" then
@@ -894,13 +681,9 @@ function CoreEnvEditor:database_load_env(env_path)
 				elseif param:name() == "underlay_effect" then
 					self:database_load_underlay(param)
 				end
-
 			end
-
 		end
-
 	end
-
 	self:parse_shadow_data()
 	self:set_title()
 	return env
@@ -911,7 +694,6 @@ function CoreEnvEditor:on_open_file()
 	if path then
 		self:database_load_env(managers.database:entry_path(path))
 	end
-
 end
 
 function CoreEnvEditor:on_save_file()
@@ -924,14 +706,12 @@ function CoreEnvEditor:on_save_file_as()
 		self:write_to_disk(path, managers.database:entry_name(path))
 		self:database_load_env(managers.database:entry_name(path))
 	end
-
 end
 
 function CoreEnvEditor:on_manager_flush()
 	if managers and managers.environment then
 		managers.environment:flush()
 	end
-
 end
 
 function CoreEnvEditor:destroy()
@@ -939,7 +719,6 @@ function CoreEnvEditor:destroy()
 		self._main_frame:destroy()
 		self._main_frame = nil
 	end
-
 end
 
 function CoreEnvEditor:close()
@@ -949,12 +728,10 @@ function CoreEnvEditor:close()
 		self._database_frame:destroy()
 		self._database_frame = nil
 	end
-
 	if self._environment_frame then
 		self._environment_frame:destroy()
 		self._environment_frame = nil
 	end
-
 	managers.viewport:first_active_viewport():editor_callback(nil)
 	managers.viewport:first_active_viewport():environment_mixer():set_environment(self._prev_environment)
 	managers.viewport:first_active_viewport():reset_network_cache()
@@ -966,15 +743,9 @@ end
 
 function CoreEnvEditor:update(t, dt)
 	self:sync()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._updators)
-		do
-			do break end
-			upd:update(t, dt)
-		end
-
+	for _, upd in ipairs(self._updators) do
+		upd:update(t, dt)
 	end
-
 	if EWS:get_key_state("K_SHIFT") then
 		if self._update_pick_element and self._update_pick_element_type == "color" then
 			local pixel = EWS:get_screen_pixel(EWS:get_screen_mouse_pos())
@@ -997,59 +768,35 @@ function CoreEnvEditor:update(t, dt)
 			local old_val = self._update_pick_element:get_value()
 			self._update_pick_element:set_value(Vector3(old_val.x, self:pick_height(), old_val.z))
 		end
-
 	end
-
 	if self._update_pick_element and self._update_pick_element_type ~= "color" then
 		self:draw_cursor()
 	end
-
 end
 
 function CoreEnvEditor:step()
 	local undo = self._undo[self._undo_index]
 	if undo._sky and self._sky then
-		local (for generator), (for state), (for control) = pairs(undo._sky.params)
-		do
-			do break end
+		for key, value in pairs(undo._sky.params) do
 			self._sky.params[key]:set_value(value)
 		end
-
 	end
-
 	if undo._underlay and self._underlayeffect then
-		local (for generator), (for state), (for control) = pairs(undo._underlay.materials)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(material_value.params)
-			do
-				do break end
+		for material, material_value in pairs(undo._underlay.materials) do
+			for key, value in pairs(material_value.params) do
 				self._underlayeffect.materials[material].params[key]:set_value(value)
 			end
-
 		end
-
 	end
-
 	if undo._posteffect and self._posteffect then
-		local (for generator), (for state), (for control) = pairs(undo._posteffect.post_processors)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(post_processor_value.modifiers)
-			do
-				do break end
-				local (for generator), (for state), (for control) = pairs(modifier_value.params)
-				do
-					do break end
+		for post_processor, post_processor_value in pairs(undo._posteffect.post_processors) do
+			for modifier, modifier_value in pairs(post_processor_value.modifiers) do
+				for key, value in pairs(modifier_value.params) do
 					self._posteffect.post_processors[post_processor].modifiers[modifier].params[key]:set_value(value)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function CoreEnvEditor:on_undo()
@@ -1058,7 +805,6 @@ function CoreEnvEditor:on_undo()
 		self:step()
 		self._value_is_changed = false
 	end
-
 end
 
 function CoreEnvEditor:on_redo()
@@ -1067,7 +813,6 @@ function CoreEnvEditor:on_redo()
 		self:step()
 		self._value_is_changed = false
 	end
-
 end
 
 function CoreEnvEditor:get_cursor_look_point(camera, dist)
@@ -1083,9 +828,7 @@ function CoreEnvEditor:draw_cursor()
 			local pos = self:get_cursor_look_point(camera, 100)
 			Application:draw_sphere(pos, 1, 1, 0, 0)
 		end
-
 	end
-
 end
 
 function CoreEnvEditor:pick_depth()
@@ -1099,11 +842,8 @@ function CoreEnvEditor:pick_depth()
 				local pos = ray.position
 				return math.clamp(camera:world_to_screen(pos).z, 0, camera:far_range())
 			end
-
 		end
-
 	end
-
 	return 0
 end
 
@@ -1117,11 +857,8 @@ function CoreEnvEditor:pick_height()
 			if ray then
 				return ray.position.z
 			end
-
 		end
-
 	end
-
 	return 0
 end
 
@@ -1130,9 +867,7 @@ function CoreEnvEditor:sync()
 	if self._out_sky then
 		undo_struct._sky = {}
 		undo_struct._sky.params = {}
-		local (for generator), (for state), (for control) = pairs(self._sky.params)
-		do
-			do break end
+		for key, value in pairs(self._sky.params) do
 			self._out_sky:set_value(key, value:get_value())
 			local v = value:get_value()
 			if not v then
@@ -1148,25 +883,17 @@ function CoreEnvEditor:sync()
 				else
 					out = v
 				end
-
 				undo_struct._sky.params[key] = out
 			end
-
 		end
-
 	end
-
 	if self._out_underlayeffect then
 		undo_struct._underlay = {}
 		undo_struct._underlay.materials = {}
-		local (for generator), (for state), (for control) = pairs(self._underlayeffect.materials)
-		do
-			do break end
+		for material, material_value in pairs(self._underlayeffect.materials) do
 			undo_struct._underlay.materials[material] = {}
 			undo_struct._underlay.materials[material].params = {}
-			local (for generator), (for state), (for control) = pairs(material_value.params)
-			do
-				do break end
+			for key, value in pairs(material_value.params) do
 				self._out_underlayeffect:set_value(material, key, value:get_value())
 				local v = value:get_value()
 				if not v then
@@ -1182,32 +909,21 @@ function CoreEnvEditor:sync()
 					else
 						out = v
 					end
-
 					undo_struct._underlay.materials[material].params[key] = out
 				end
-
 			end
-
 		end
-
 	end
-
 	if self._out_posteffect then
 		undo_struct._posteffect = {}
 		undo_struct._posteffect.post_processors = {}
-		local (for generator), (for state), (for control) = pairs(self._posteffect.post_processors)
-		do
-			do break end
+		for post_processor, post_processor_value in pairs(self._posteffect.post_processors) do
 			undo_struct._posteffect.post_processors[post_processor] = {}
 			undo_struct._posteffect.post_processors[post_processor].modifiers = {}
-			local (for generator), (for state), (for control) = pairs(post_processor_value.modifiers)
-			do
-				do break end
+			for modifier, modifier_value in pairs(post_processor_value.modifiers) do
 				undo_struct._posteffect.post_processors[post_processor].modifiers[modifier] = {}
 				undo_struct._posteffect.post_processors[post_processor].modifiers[modifier].params = {}
-				local (for generator), (for state), (for control) = pairs(modifier_value.params)
-				do
-					do break end
+				for key, value in pairs(modifier_value.params) do
 					self._out_posteffect:set_value(post_processor, modifier, key, value:get_value())
 					local v = value:get_value()
 					if not v then
@@ -1223,33 +939,25 @@ function CoreEnvEditor:sync()
 						else
 							out = v
 						end
-
 						undo_struct._posteffect.post_processors[post_processor].modifiers[modifier].params[key] = out
 					end
-
 					local e = "default"
 					if post_processor == "fog_processor" then
 						e = "fog"
 					elseif post_processor == "deferred" then
 						e = "deferred_lighting"
 					end
-
 					self._out_posteffect._post_processors[post_processor]._effect = e
 				end
-
 			end
-
 		end
-
 	end
-
 	if self._value_is_changed then
 		self._max_undo_index = self._undo_index
 		self._undo_index = self._undo_index + 1
 		self._undo[self._undo_index] = undo_struct
 		self._value_is_changed = false
 	end
-
 end
 
 function CoreEnvEditor:value_database_lookup(str)

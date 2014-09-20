@@ -13,15 +13,9 @@ function PortalManager:init()
 end
 
 function PortalManager:clear()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._portal_shapes)
-		do
-			do break end
-			portal:show_all()
-		end
-
+	for _, portal in ipairs(self._portal_shapes) do
+		portal:show_all()
 	end
-
 	self._portal_shapes = {}
 	self._all_units = {}
 	self._unit_groups = {}
@@ -29,34 +23,20 @@ function PortalManager:clear()
 end
 
 function PortalManager:pseudo_reset()
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.editor:layer("Statics"):created_units())
-		do
-			do break end
-			if alive(unit) then
-				unit:unit_data()._visibility_counter = 0
-			end
-
+	for _, unit in ipairs(managers.editor:layer("Statics"):created_units()) do
+		if alive(unit) then
+			unit:unit_data()._visibility_counter = 0
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._unit_groups)
-	do
-		do break end
+	for _, group in pairs(self._unit_groups) do
 		group._is_inside = false
-		local (for generator), (for state), (for control) = ipairs(managers.editor:layer("Statics"):created_units())
-		do
-			do break end
+		for _, unit in ipairs(managers.editor:layer("Statics"):created_units()) do
 			if group._ids[unit:unit_data().unit_id] and alive(unit) then
 				unit:set_visible(true)
 				unit:unit_data()._visibility_counter = 0
 			end
-
 		end
-
 	end
-
 end
 
 function PortalManager:add_portal(polygon_tbl, min, max)
@@ -64,31 +44,20 @@ function PortalManager:add_portal(polygon_tbl, min, max)
 	if #polygon_tbl > 0 then
 		table.insert(self._portal_shapes, PortalShape:new(polygon_tbl, min, max))
 	end
-
 end
 
 function PortalManager:add_unit(unit)
 	if unit:unit_data().ignore_portal then
 		return
 	end
-
 	local added
-	do
-		local (for generator), (for state), (for control) = pairs(self._unit_groups)
-		do
-			do break end
-			added = group:add_unit(unit) or added
-		end
-
+	for _, group in pairs(self._unit_groups) do
+		added = group:add_unit(unit) or added
 	end
-
 	if added then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._portal_shapes)
-	do
-		do break end
+	for _, portal in ipairs(self._portal_shapes) do
 		local added, amount = portal:add_unit(unit)
 		if added then
 			self._all_units[unit:key()] = (self._all_units[unit:key()] or 0) + amount
@@ -97,9 +66,7 @@ function PortalManager:add_unit(unit)
 			i = portal:is_inside() or inverse and 1 or -1
 			self:change_visibility(unit, i, inverse)
 		end
-
 	end
-
 end
 
 function PortalManager:remove_dynamic_unit(unit)
@@ -109,7 +76,6 @@ function PortalManager:remove_dynamic_unit(unit)
 		check_body:set_activate_tag("dynamic_portal")
 		check_body:set_deactivate_tag("dynamic_portal")
 	end
-
 	unit:add_body_activation_callback(self._deactivate_funtion)
 end
 
@@ -119,31 +85,21 @@ function PortalManager:unit_deactivated(tag, unit, body, activated)
 		self:add_unit(unit)
 		unit:remove_body_activation_callback(self._deactivate_funtion)
 	end
-
 end
 
 function PortalManager:remove_unit(unit)
 	cat_print("portal", "remove_unit", unit, unit:visible())
 	self._all_units[unit:key()] = nil
-	do
-		local (for generator), (for state), (for control) = ipairs(self._portal_shapes)
-		do
-			do break end
-			portal:remove_unit(unit)
-		end
-
+	for _, portal in ipairs(self._portal_shapes) do
+		portal:remove_unit(unit)
 	end
-
 	unit:set_visible(true)
 end
 
 function PortalManager:delete_unit(unit)
-	local (for generator), (for state), (for control) = pairs(self._unit_groups)
-	do
-		do break end
+	for name, group in pairs(self._unit_groups) do
 		group:remove_unit_id(unit)
 	end
-
 end
 
 function PortalManager:change_visibility(unit, i, inverse)
@@ -153,22 +109,17 @@ function PortalManager:change_visibility(unit, i, inverse)
 	elseif not unit:visible() ~= inverse then
 		unit:set_visible(true ~= inverse)
 	end
-
 end
 
 function PortalManager:add_effect(effect)
 	effect.id = self.EFFECT_MANAGER:spawn(effect)
 	self._all_effects[effect] = 0
-	local (for generator), (for state), (for control) = ipairs(self._portal_shapes)
-	do
-		do break end
+	for _, portal in ipairs(self._portal_shapes) do
 		local added, amount = portal:add_effect(effect)
 		if added then
 			self._all_effects[effect] = self._all_effects[effect] + amount
 		end
-
 	end
-
 end
 
 function PortalManager:change_effect_visibility(effect, i)
@@ -182,77 +133,42 @@ function PortalManager:change_effect_visibility(effect, i)
 		self.EFFECT_MANAGER:set_frozen(effect.id, false)
 		self.EFFECT_MANAGER:set_hidden(effect.id, false)
 	end
-
 end
 
 function PortalManager:restart_effects()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._portal_shapes)
-		do
-			do break end
-			portal:clear_effects()
-		end
-
+	for _, portal in ipairs(self._portal_shapes) do
+		portal:clear_effects()
 	end
-
 	local restart = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._all_effects)
-		do
-			do break end
-			restart[e] = n
-		end
-
+	for e, n in pairs(self._all_effects) do
+		restart[e] = n
 	end
-
 	self._all_effects = {}
-	do
-		local (for generator), (for state), (for control) = pairs(restart)
-		do
-			do break end
-			if effect.id then
-				self.EFFECT_MANAGER:kill(effect.id)
-			end
-
-			self:add_effect(effect)
+	for effect, _ in pairs(restart) do
+		if effect.id then
+			self.EFFECT_MANAGER:kill(effect.id)
 		end
-
+		self:add_effect(effect)
 	end
-
 	restart = nil
 end
 
 function PortalManager:render()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._portal_shapes)
-		do
-			do break end
-			portal:update(TimerManager:wall():time(), TimerManager:wall():delta_time())
-		end
-
+	for _, portal in ipairs(self._portal_shapes) do
+		portal:update(TimerManager:wall():time(), TimerManager:wall():delta_time())
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._unit_groups)
-		do
-			do break end
-			group:update(TimerManager:wall():time(), TimerManager:wall():delta_time())
-		end
-
+	for _, group in pairs(self._unit_groups) do
+		group:update(TimerManager:wall():time(), TimerManager:wall():delta_time())
 	end
-
 	local unit_id, unit = next(self._hide_list)
 	if alive(unit) then
 		unit:set_visible(false)
 		self._hide_list[unit_id] = nil
 	end
-
 	while true do
 		if table.remove(self._check_positions) then
 		end
-
 	end
-
 end
 
 function PortalManager:add_to_hide_list(unit)
@@ -283,12 +199,9 @@ function PortalManager:debug_draw_border(polygon, min, max)
 				Application:draw_line(start, stop, 1, 0, 0)
 				Application:draw_line(start, stop_vertical, 0, 1, 0)
 			end
-
 			length = length + 1
 		end
-
 	end
-
 end
 
 function PortalManager:unit_groups()
@@ -296,27 +209,19 @@ function PortalManager:unit_groups()
 end
 
 function PortalManager:unit_group_on_shape(in_shape)
-	local (for generator), (for state), (for control) = pairs(self._unit_groups)
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(group:shapes())
-		do
-			do break end
+	for _, group in pairs(self._unit_groups) do
+		for _, shape in ipairs(group:shapes()) do
 			if shape == in_shape then
 				return group
 			end
-
 		end
-
 	end
-
 end
 
 function PortalManager:rename_unit_group(name, new_name)
 	if self._unit_groups[new_name] then
 		return false
 	end
-
 	local group = self._unit_groups[name]
 	self._unit_groups[name] = nil
 	self._unit_groups[new_name] = group
@@ -348,7 +253,6 @@ function PortalManager:group_name()
 	while self._unit_groups[name .. i] do
 		i = i + 1
 	end
-
 	return name .. i
 end
 
@@ -356,87 +260,48 @@ function PortalManager:check_positions()
 	if #self._check_positions > 0 then
 		return self._check_positions
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.viewport:all_really_active_viewports())
-		do
-			do break end
-			local camera = vp:camera()
-			if alive(camera) and vp:is_rendering_scene("World") then
-				table.insert(self._check_positions, camera:position())
-			end
-
+	for _, vp in ipairs(managers.viewport:all_really_active_viewports()) do
+		local camera = vp:camera()
+		if alive(camera) and vp:is_rendering_scene("World") then
+			table.insert(self._check_positions, camera:position())
 		end
-
 	end
-
 	return self._check_positions
 end
 
 function PortalManager:unit_in_any_unit_group(unit)
-	do
-		local (for generator), (for state), (for control) = pairs(self._unit_groups)
-		do
-			do break end
-			if group:unit_in_group(unit) then
-				return true
-			end
-
+	for name, group in pairs(self._unit_groups) do
+		if group:unit_in_group(unit) then
+			return true
 		end
-
 	end
-
 	return false
 end
 
 function PortalManager:save(t)
 	local t = t or ""
 	local s = ""
-	do
-		local (for generator), (for state), (for control) = pairs(self._unit_groups)
-		do
-			do break end
-			s = s .. t .. "\t<unit_group name=\"" .. name .. "\">\n"
-			do
-				local (for generator), (for state), (for control) = ipairs(group:shapes())
-				do
-					do break end
-					s = s .. shape:save(t .. "\t\t") .. "\n"
-				end
-
-			end
-
-			s = s .. t .. "\t</unit_group>\n"
+	for name, group in pairs(self._unit_groups) do
+		s = s .. t .. "\t<unit_group name=\"" .. name .. "\">\n"
+		for _, shape in ipairs(group:shapes()) do
+			s = s .. shape:save(t .. "\t\t") .. "\n"
 		end
-
+		s = s .. t .. "\t</unit_group>\n"
 	end
-
 	return s
 end
 
 function PortalManager:save_level_data()
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._unit_groups)
-		do
-			do break end
-			local shapes = {}
-			do
-				local (for generator), (for state), (for control) = ipairs(group:shapes())
-				do
-					do break end
-					table.insert(shapes, shape:save_level_data())
-				end
-
-			end
-
-			t[name] = {}
-			t[name].shapes = shapes
-			t[name].ids = group:ids()
+	for name, group in pairs(self._unit_groups) do
+		local shapes = {}
+		for _, shape in ipairs(group:shapes()) do
+			table.insert(shapes, shape:save_level_data())
 		end
-
+		t[name] = {}
+		t[name].shapes = shapes
+		t[name].ids = group:ids()
 	end
-
 	return t
 end
 
@@ -458,10 +323,8 @@ function PortalShape:add_unit(unit)
 		if inverse then
 			unit:set_visible(false)
 		end
-
 		return true, inverse and -1 or 1, self
 	end
-
 end
 
 function PortalShape:remove_unit(unit)
@@ -473,7 +336,6 @@ function PortalShape:add_effect(effect)
 		table.insert(self._effects, effect)
 		return true, 1
 	end
-
 end
 
 function PortalShape:clear_effects()
@@ -481,15 +343,11 @@ function PortalShape:clear_effects()
 end
 
 function PortalShape:show_all()
-	local (for generator), (for state), (for control) = pairs(self._units)
-	do
-		do break end
+	for _, unit in pairs(self._units) do
 		if alive(unit) then
 			unit:set_visible(true)
 		end
-
 	end
-
 end
 
 function PortalShape:inside(pos)
@@ -501,9 +359,7 @@ function PortalShape:inside(pos)
 		else
 			return false
 		end
-
 	end
-
 	return is_inside
 end
 
@@ -513,39 +369,22 @@ end
 
 function PortalShape:update(time, rel_time)
 	local is_inside = false
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.portal:check_positions())
-		do
-			do break end
-			is_inside = self:inside(pos)
-			if is_inside then
-		end
-
+	for _, pos in ipairs(managers.portal:check_positions()) do
+		is_inside = self:inside(pos)
+		if is_inside then
 		else
 		end
-
 	end
-
 	if self._is_inside ~= is_inside then
 		self._is_inside = is_inside
-		do
-			local (for generator), (for state), (for control) = pairs(self._units)
-			do
-				do break end
-				self:_change_visibility(unit)
-			end
-
+		for _, unit in pairs(self._units) do
+			self:_change_visibility(unit)
 		end
-
-		local (for generator), (for state), (for control) = ipairs(self._effects)
-		do
-			do break end
+		for _, effect in ipairs(self._effects) do
 			local i = self._is_inside and 1 or -1
 			managers.portal:change_effect_visibility(effect, i)
 		end
-
 	end
-
 end
 
 function PortalShape:_change_visibility(unit)
@@ -554,7 +393,6 @@ function PortalShape:_change_visibility(unit)
 		local i = self._is_inside ~= inverse and 1 or -1
 		managers.portal:change_visibility(unit, i, inverse)
 	end
-
 end
 
 PortalUnitGroup = PortalUnitGroup or class()
@@ -606,7 +444,6 @@ function PortalUnitGroup:add_unit(unit)
 		table.insert(self._units, unit)
 		return true
 	end
-
 	return false
 end
 
@@ -615,7 +452,6 @@ function PortalUnitGroup:add_unit_id(unit)
 		self:remove_unit_id(unit)
 		return
 	end
-
 	self._ids[unit:unit_data().unit_id] = true
 end
 
@@ -624,71 +460,46 @@ function PortalUnitGroup:remove_unit_id(unit)
 end
 
 function PortalUnitGroup:lock_units()
-	local (for generator), (for state), (for control) = ipairs(self._units)
-	do
-		break
+	for _, unit in ipairs(self._units) do
 	end
-
 end
 
 function PortalUnitGroup:inside(pos)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._shapes)
-		do
-			do break end
-			if shape:is_inside(pos) then
-				return true
-			end
-
+	for _, shape in ipairs(self._shapes) do
+		if shape:is_inside(pos) then
+			return true
 		end
-
 	end
-
 	return false
 end
 
 function PortalUnitGroup:update(t, dt)
 	local is_inside = false
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.portal:check_positions())
-		do
-			do break end
-			is_inside = self:inside(pos)
-			if is_inside then
-		end
-
+	for _, pos in ipairs(managers.portal:check_positions()) do
+		is_inside = self:inside(pos)
+		if is_inside then
 		else
 		end
-
 	end
-
 	if self._is_inside ~= is_inside then
 		self._is_inside = is_inside
 		local diff = self._is_inside and 1 or -1
 		self:_change_units_visibility(diff)
 	end
-
 end
 
 function PortalUnitGroup:_change_units_visibility(diff)
-	local (for generator), (for state), (for control) = pairs(self._units)
-	do
-		do break end
+	for _, unit in pairs(self._units) do
 		self:_change_visibility(unit, diff)
 	end
-
 end
 
 function PortalUnitGroup:_change_units_visibility_in_editor(diff)
-	local (for generator), (for state), (for control) = ipairs(managers.editor:layer("Statics"):created_units())
-	do
-		do break end
+	for _, unit in ipairs(managers.editor:layer("Statics"):created_units()) do
 		if self._ids[unit:unit_data().unit_id] then
 			self:_change_visibility(unit, diff)
 		end
-
 	end
-
 end
 
 function PortalUnitGroup:_change_visibility(unit, diff)
@@ -700,9 +511,7 @@ function PortalUnitGroup:_change_visibility(unit, diff)
 		else
 			managers.portal:add_to_hide_list(unit)
 		end
-
 	end
-
 end
 
 function PortalUnitGroup:unit_in_group(unit)
@@ -715,28 +524,17 @@ function PortalUnitGroup:draw(t, dt, mul, skip_shapes)
 	local b = self._b * mul
 	local brush = Draw:brush()
 	brush:set_color(Color(0.25, r, g, b))
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.editor:layer("Statics"):created_units())
-		do
-			do break end
-			if self._ids[unit:unit_data().unit_id] then
-				brush:unit(unit)
-				Application:draw(unit, r, g, b)
-			end
-
+	for _, unit in ipairs(managers.editor:layer("Statics"):created_units()) do
+		if self._ids[unit:unit_data().unit_id] then
+			brush:unit(unit)
+			Application:draw(unit, r, g, b)
 		end
-
 	end
-
 	if not skip_shapes then
-		local (for generator), (for state), (for control) = ipairs(self._shapes)
-		do
-			do break end
+		for _, shape in ipairs(self._shapes) do
 			shape:draw(t, dt, r, g, b)
 		end
-
 	end
-
 end
 
 PortalUnitGroupShape = PortalUnitGroupShape or class(CoreShapeManager.ShapeBox)
@@ -750,6 +548,5 @@ function PortalUnitGroupShape:draw(t, dt, r, g, b)
 	if alive(self._unit) then
 		Application:draw(self._unit, r, g, b)
 	end
-
 end
 

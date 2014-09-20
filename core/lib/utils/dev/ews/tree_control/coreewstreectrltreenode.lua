@@ -14,34 +14,25 @@ end
 function CoreEWSTreeCtrlTreeNode:expand(recurse)
 	self._tree_ctrl:expand(self._item_id)
 	if recurse then
-		local (for generator), (for state), (for control) = ipairs(self:children())
-		do
-			do break end
+		for _, child in ipairs(self:children()) do
 			child:expand(true)
 		end
-
 	end
-
 end
 
 function CoreEWSTreeCtrlTreeNode:collapse(recurse)
 	self._tree_ctrl:collapse(self._item_id)
 	if recurse then
-		local (for generator), (for state), (for control) = ipairs(self:children())
-		do
-			do break end
+		for _, child in ipairs(self:children()) do
 			child:collapse(true)
 		end
-
 	end
-
 end
 
 function CoreEWSTreeCtrlTreeNode:set_selected(state)
 	if state == nil then
 		state = true
 	end
-
 	self._tree_ctrl:select_item(self._item_id, state)
 end
 
@@ -51,14 +42,12 @@ function CoreEWSTreeCtrlTreeNode:state(state)
 	else
 		return 0
 	end
-
 end
 
 function CoreEWSTreeCtrlTreeNode:set_state(state)
 	if self._checkbox_style then
 		self:_change_state(state)
 	end
-
 end
 
 function CoreEWSTreeCtrlTreeNode:checkbox_style()
@@ -90,7 +79,6 @@ function CoreEWSTreeCtrlTreeNode:parent()
 	if parent_id ~= -1 and self._tree_ctrl:get_parent(parent_id) ~= -1 then
 		return CoreEWSTreeCtrlTreeNode:new(self._tree_ctrl, parent_id, self._checkbox_style)
 	end
-
 end
 
 function CoreEWSTreeCtrlTreeNode:children()

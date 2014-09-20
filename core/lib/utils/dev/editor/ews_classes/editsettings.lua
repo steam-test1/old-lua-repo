@@ -50,9 +50,7 @@ function EditUnitSettings:add_cutscene_actor()
 			self._ctrls.unit:unit_data().cutscene_actor = nil
 			self:add_cutscene_actor()
 		end
-
 	end
-
 end
 
 function EditUnitSettings:remove_cutscene_actor()
@@ -62,40 +60,28 @@ function EditUnitSettings:remove_cutscene_actor()
 end
 
 function EditUnitSettings:set_disable_shadows()
-	local (for generator), (for state), (for control) = ipairs(self._ctrls.units)
-	do
-		do break end
+	for _, unit in ipairs(self._ctrls.units) do
 		if alive(unit) then
 			unit:unit_data().disable_shadows = self._ctrls.disable_shadows:get_value()
 			unit:set_shadows_disabled(unit:unit_data().disable_shadows)
 		end
-
 	end
-
 end
 
 function EditUnitSettings:set_hide_on_projection_light()
-	local (for generator), (for state), (for control) = ipairs(self._ctrls.units)
-	do
-		do break end
+	for _, unit in ipairs(self._ctrls.units) do
 		if alive(unit) then
 			unit:unit_data().hide_on_projection_light = self._ctrls.hide_on_projection_light:get_value() or nil
 		end
-
 	end
-
 end
 
 function EditUnitSettings:set_disable_on_ai_graph()
-	local (for generator), (for state), (for control) = ipairs(self._ctrls.units)
-	do
-		do break end
+	for _, unit in ipairs(self._ctrls.units) do
 		if alive(unit) then
 			unit:unit_data().disable_on_ai_graph = self._ctrls.disable_on_ai_graph:get_value() or nil
 		end
-
 	end
-
 end
 
 function EditUnitSettings:is_editable(unit, units)
@@ -109,7 +95,6 @@ function EditUnitSettings:is_editable(unit, units)
 		self._ctrls.disable_on_ai_graph:set_value(self._ctrls.unit:unit_data().disable_on_ai_graph)
 		return true
 	end
-
 	return false
 end
 

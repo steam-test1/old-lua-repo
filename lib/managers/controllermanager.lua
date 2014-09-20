@@ -13,7 +13,6 @@ function ControllerManager:controller_mod_changed()
 		Global.controller_manager.user_mod = managers.user:get_setting("controller_mod")
 		self:load_user_mod()
 	end
-
 end
 
 function ControllerManager:set_user_mod(connection_name, params)
@@ -26,7 +25,6 @@ function ControllerManager:set_user_mod(connection_name, params)
 	else
 		Global.controller_manager.user_mod[connection_name] = params
 	end
-
 	managers.user:set_setting("controller_mod_type", managers.controller:get_default_wrapper_type())
 	managers.user:set_setting("controller_mod", Global.controller_manager.user_mod, true)
 end
@@ -40,34 +38,22 @@ end
 function ControllerManager:load_user_mod()
 	if Global.controller_manager.user_mod then
 		local connections = managers.controller:get_settings(managers.user:get_setting("controller_mod_type")):get_connection_map()
-		do
-			local (for generator), (for state), (for control) = pairs(Global.controller_manager.user_mod)
-			do
-				do break end
-				if params.axis then
-					local (for generator), (for state), (for control) = pairs(params)
-					do
-						do break end
-						if type(button_params) == "table" then
-							connections[params.axis]._btn_connections[button_params.button].name = button_params.connection
-						end
-
+		for connection_name, params in pairs(Global.controller_manager.user_mod) do
+			if params.axis then
+				for button, button_params in pairs(params) do
+					if type(button_params) == "table" then
+						connections[params.axis]._btn_connections[button_params.button].name = button_params.connection
 					end
-
-				elseif connections[params.button] then
-					connections[params.button]:set_controller_id(params.controller_id)
-					connections[params.button]:set_input_name_list({
-						params.connection
-					})
 				end
-
+			elseif connections[params.button] then
+				connections[params.button]:set_controller_id(params.controller_id)
+				connections[params.button]:set_input_name_list({
+					params.connection
+				})
 			end
-
 		end
-
 		self:rebind_connections()
 	end
-
 end
 
 function ControllerManager:init_finalize()
@@ -75,7 +61,6 @@ function ControllerManager:init_finalize()
 	if Global.controller_manager.user_mod then
 		self:load_user_mod()
 	end
-
 	self:_check_dialog()
 end
 
@@ -84,14 +69,12 @@ function ControllerManager:default_controller_connect_change(connected)
 	if Global.controller_manager.default_wrapper_index and not connected and not self:_controller_changed_dialog_active() then
 		self:_show_controller_changed_dialog()
 	end
-
 end
 
 function ControllerManager:_check_dialog()
 	if Global.controller_manager.connect_controller_dialog_visible and not self:_controller_changed_dialog_active() then
 		self:_show_controller_changed_dialog()
 	end
-
 end
 
 function ControllerManager:_controller_changed_dialog_active()
@@ -102,7 +85,6 @@ function ControllerManager:_show_controller_changed_dialog()
 	if self:_controller_changed_dialog_active() then
 		return
 	end
-
 	Global.controller_manager.connect_controller_dialog_visible = true
 	local data = {}
 	data.callback_func = callback(self, self, "connect_controller_dialog_callback")
@@ -125,7 +107,6 @@ function ControllerManager:_close_controller_changed_dialog()
 		managers.system_menu:close("connect_controller_dialog")
 		self:connect_controller_dialog_callback()
 	end
-
 end
 
 function ControllerManager:connect_controller_dialog_callback()

@@ -12,7 +12,6 @@ function CoreChangeCameraCutsceneKey:load(key_node, loading_class)
 	if self.__camera == nil then
 		self.__camera = key_node:parameter("ref_obj_name") or "camera"
 	end
-
 end
 
 function CoreChangeCameraCutsceneKey:evaluate(player, fast_forward)

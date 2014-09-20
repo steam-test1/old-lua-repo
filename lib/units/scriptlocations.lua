@@ -8,7 +8,6 @@ function ScriptLocations:setup(callback)
 	else
 		self._unit:set_extension_update_enabled("roaming_data", false)
 	end
-
 	self._updator = callback
 end
 

@@ -4,7 +4,6 @@ function HUDHitDirection:init(hud)
 	if self._hud_panel:child("hit_direction_panel") then
 		self._hud_panel:remove(self._hud_panel:child("hit_direction_panel"))
 	end
-
 	self._hit_direction_panel = self._hud_panel:panel({
 		visible = true,
 		name = "hit_direction_panel",
@@ -83,7 +82,6 @@ function HUDHitDirection:_animate_hit_direction(direction)
 		direction:set_color(Color(1, red_t / st_red_t, red_t / st_red_t))
 		direction:set_alpha(t / st)
 	end
-
 	direction:set_alpha(0)
 end
 

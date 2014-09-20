@@ -74,20 +74,13 @@ function LuaProfilerViewer:_redraw_menu()
 		self._frame:disconnect("SECONDS", "EVT_COMMAND_MENU_SELECTED", self._on_seconds_cb)
 		self._frame:disconnect("ACC", "EVT_COMMAND_MENU_SELECTED", self._on_acc_calls_cb)
 		self._frame:disconnect("NO_ACC", "EVT_COMMAND_MENU_SELECTED", self._on_no_acc_calls_cb)
-		do
-			local (for generator), (for state), (for control) = ipairs(self._view_menu_connects)
-			do
-				do break end
-				self._frame:disconnect(diffpeak, "EVT_COMMAND_MENU_SELECTED", self._on_custom_cb)
-			end
-
+		for _, diffpeak in ipairs(self._view_menu_connects) do
+			self._frame:disconnect(diffpeak, "EVT_COMMAND_MENU_SELECTED", self._on_custom_cb)
 		end
-
 		self._view_menu_filled = false
 		self._view_menu_connects = {}
 		self._view_menu:clear()
 	end
-
 	self._view_menu:append_separator()
 	self._view_menu:append_radio_item("PERCENT", "Time in %\tCtrl+P", "")
 	self._frame:connect("PERCENT", "EVT_COMMAND_MENU_SELECTED", self._on_percent_cb, "")
@@ -104,7 +97,6 @@ function LuaProfilerViewer:_redraw_menu()
 		self._frame:connect(diffpeak, "EVT_COMMAND_MENU_SELECTED", self._on_custom_cb, diffpeak)
 		table.insert(self._view_menu_connects, diffpeak)
 	end
-
 	self._view_menu:append_separator()
 	self._view_menu:append_radio_item("ACC", "Acc. and sort Calls", "")
 	self._frame:connect("ACC", "EVT_COMMAND_MENU_SELECTED", self._on_acc_calls_cb, "")
@@ -117,7 +109,6 @@ function LuaProfilerViewer:close()
 	if self._frame then
 		self._frame:destroy()
 	end
-
 	self._treeview:destroy()
 	self._gridview:destroy()
 	self._treeview = nil
@@ -129,22 +120,18 @@ function LuaProfilerViewer:set_position(newpos)
 	if self._frame then
 		self._frame:set_position(newpos)
 	end
-
 end
 
 function LuaProfilerViewer:update(t, dt)
 	if self._capturecounter == 4 then
 		Application:console_command("luaprofiler dump")
 	end
-
 	if self._capturecounter == 1 then
 		self:_on_open()
 	end
-
 	if self._capturecounter > 0 then
 		self._capturecounter = self._capturecounter - 1
 	end
-
 end
 
 function LuaProfilerViewer:_on_close()
@@ -175,9 +162,7 @@ function LuaProfilerViewer:_on_open()
 		else
 			EWS:MessageDialog(self._frame, cause, "Loading Error", ""):show_modal()
 		end
-
 	end
-
 end
 
 function LuaProfilerViewer:_on_percent()
@@ -200,9 +185,7 @@ function LuaProfilerViewer:_on_percent()
 				displayformat = self._displayformat
 			})
 		end
-
 	end
-
 end
 
 function LuaProfilerViewer:_on_seconds()
@@ -225,9 +208,7 @@ function LuaProfilerViewer:_on_seconds()
 				displayformat = self._displayformat
 			})
 		end
-
 	end
-
 end
 
 function LuaProfilerViewer:_on_custom(diffpeak)
@@ -246,9 +227,7 @@ function LuaProfilerViewer:_on_custom(diffpeak)
 				displayformat = self._displayformat
 			})
 		end
-
 	end
-
 end
 
 function LuaProfilerViewer:_on_acc_calls()
@@ -263,7 +242,6 @@ function LuaProfilerViewer:_on_acc_calls()
 			displayformat = self._displayformat
 		})
 	end
-
 end
 
 function LuaProfilerViewer:_on_no_acc_calls()
@@ -278,7 +256,6 @@ function LuaProfilerViewer:_on_no_acc_calls()
 			displayformat = self._displayformat
 		})
 	end
-
 end
 
 function LuaProfilerViewer:_on_capture()

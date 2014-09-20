@@ -7,32 +7,22 @@ require("core/lib/utils/dev/tools/particle_editor/CoreParticleEditorSimulators")
 require("core/lib/utils/dev/tools/particle_editor/CoreParticleEditorVisualizers")
 require("core/lib/utils/dev/tools/particle_editor/CoreParticleEditorPanel")
 function collect_members(cls, m)
-	local (for generator), (for state), (for control) = pairs(cls)
-	do
-		do break end
+	for funcname, funcobj in pairs(cls) do
 		if funcname:find("create_") then
 			local fn = funcname:gsub("create_", "")
 			m[fn] = funcobj
 		end
-
 	end
-
 end
 
 function collect_member_names(members, member_names)
-	do
-		local (for generator), (for state), (for control) = pairs(members)
-		do
-			do break end
-			local vi = v()
-			table.insert(member_names, {
-				ui_name = vi:ui_name(),
-				key = k
-			})
-		end
-
+	for k, v in pairs(members) do
+		local vi = v()
+		table.insert(member_names, {
+			ui_name = vi:ui_name(),
+			key = k
+		})
 	end
-
 	table.sort(member_names, function(a, b)
 		return a.ui_name < b.ui_name
 	end
@@ -60,7 +50,6 @@ function CoreParticleEditor:init()
 	if managers.editor then
 		managers.editor:set_listener_enabled(true)
 	end
-
 	self._gizmo_movement = "NO_MOVE"
 	self._gizmo_accum = 0
 	self._gizmo_anchor = Vector3(0, 300, 100)
@@ -110,7 +99,6 @@ function CoreParticleEditor:start_dialog()
 	else
 		managers.toolhub:close("Particle Editor")
 	end
-
 end
 
 function CoreParticleEditor:new_dialog()
@@ -133,16 +121,10 @@ function CoreParticleEditor:new_dialog()
 	local type_combo = EWS:ComboBox(dialog, "", "", "CB_DROPDOWN,CB_READONLY")
 	local description_text = EWS:StaticText(dialog, "", "", "ST_NO_AUTORESIZE")
 	type_combo:connect("EVT_COMMAND_TEXT_UPDATED", on_select_type, {combo = type_combo, desc = description_text})
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type("template_effect"))
-		do
-			do break end
-			type_combo:append(name)
-			type_combo:set_value(name)
-		end
-
+	for _, name in ipairs(managers.database:list_entries_of_type("template_effect")) do
+		type_combo:append(name)
+		type_combo:set_value(name)
 	end
-
 	on_select_type({combo = type_combo, desc = description_text})
 	local create_button = EWS:Button(dialog, "Create", "", "BU_EXACTFIT")
 	create_button:connect("EVT_COMMAND_BUTTON_CLICKED", on_create, dialog)
@@ -159,7 +141,6 @@ function CoreParticleEditor:new_dialog()
 		effect:load(DB:load_node("template_effect", t))
 		self:add_effect(effect)
 	end
-
 end
 
 function CoreParticleEditor:create_main_frame()
@@ -256,7 +237,6 @@ function CoreParticleEditor:on_undo()
 	if cur_effect then
 		cur_effect:undo()
 	end
-
 end
 
 function CoreParticleEditor:on_batch_all_remove_update_render()
@@ -267,60 +247,36 @@ Are you sure you want to continue?]], "Are you sure you wish to continue?", "YES
 	if ret ~= "YES" then
 		return false
 	end
-
 	local any_saved = false
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type("effect"))
-		do
-			do break end
-			local n = DB:load_node("effect", name)
-			local effect = CoreEffectDefinition:new()
-			effect:load(n)
-			local should_save = false
-			do
-				local (for generator), (for state), (for control) = ipairs(effect._atoms)
-				do
-					do break end
-					local cull_policy = atom:get_property("cull_policy")
-					if cull_policy._value == "update_render" then
-						local had_screen_aligned = false
-						do
-							local (for generator), (for state), (for control) = ipairs(atom._stacks.visualizer._stack)
-							do
-								do break end
-								if visualizer:name() == "billboard" and visualizer:get_property("billboard_type")._value == "screen_aligned" then
-									had_screen_aligned = true
-								end
-
-							end
-
-						end
-
-						if not had_screen_aligned then
-							cull_policy._value = "freeze"
-							should_save = true
-						end
-
+	for _, name in ipairs(managers.database:list_entries_of_type("effect")) do
+		local n = DB:load_node("effect", name)
+		local effect = CoreEffectDefinition:new()
+		effect:load(n)
+		local should_save = false
+		for _, atom in ipairs(effect._atoms) do
+			local cull_policy = atom:get_property("cull_policy")
+			if cull_policy._value == "update_render" then
+				local had_screen_aligned = false
+				for _, visualizer in ipairs(atom._stacks.visualizer._stack) do
+					if visualizer:name() == "billboard" and visualizer:get_property("billboard_type")._value == "screen_aligned" then
+						had_screen_aligned = true
 					end
-
 				end
-
+				if not had_screen_aligned then
+					cull_policy._value = "freeze"
+					should_save = true
+				end
 			end
-
-			if should_save then
-				Application:error("FIXME: CoreParticleEditor:on_batch_all_remove_update_render(), (using Database:save_node())")
-			end
-
 		end
-
+		if should_save then
+			Application:error("FIXME: CoreParticleEditor:on_batch_all_remove_update_render(), (using Database:save_node())")
+		end
 	end
-
 	if any_saved then
 		cat_debug("debug", "Saved entries, saving database...")
 	else
 		cat_debug("debug", "Nothing modified, not saving database")
 	end
-
 end
 
 function CoreParticleEditor:on_batch_all_load_unload()
@@ -330,27 +286,19 @@ Are you sure you want to continue?]], "Are you sure you wish to continue?", "YES
 	if ret ~= "YES" then
 		return false
 	end
-
 	cat_debug("debug", "Loading all effects once...")
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type("effect"))
-		do
-			do break end
-			local n = DB:load_node("effect", name)
-			local effect = CoreEffectDefinition:new()
-			effect:load(n)
-			local valid = effect:validate()
-			if not valid.valid then
-				cat_debug("debug", "Skipping engine load of", name, " since validation failed:", valid.message)
-			else
-				cat_debug("debug", "Loading", name)
-				CoreEngineAccess._editor_reload_node(n, Idstring("effect"), Idstring("unique_test_effect_name"))
-			end
-
+	for _, name in ipairs(managers.database:list_entries_of_type("effect")) do
+		local n = DB:load_node("effect", name)
+		local effect = CoreEffectDefinition:new()
+		effect:load(n)
+		local valid = effect:validate()
+		if not valid.valid then
+			cat_debug("debug", "Skipping engine load of", name, " since validation failed:", valid.message)
+		else
+			cat_debug("debug", "Loading", name)
+			CoreEngineAccess._editor_reload_node(n, Idstring("effect"), Idstring("unique_test_effect_name"))
 		end
-
 	end
-
 	cat_debug("debug", "Done!")
 end
 
@@ -359,30 +307,25 @@ function CoreParticleEditor:on_redo()
 	if cur_effect then
 		cur_effect:redo()
 	end
-
 end
 
 function CoreParticleEditor:on_effect_changed(arg, event)
 	if event:get_id() ~= "EFFECTS_NOTEBOOK" then
 		return
 	end
-
 	local old_page = event:get_old_selection()
 	local new_page = event:get_selection()
 	if old_page >= 0 and old_page < #self._effects then
 		local old_effect = self._effects[old_page + 1]
 		old_effect:on_lose_focus()
 	end
-
 	if new_page >= 0 and new_page < #self._effects then
 		local new_effect = self._effects[new_page + 1]
 		new_effect:update_view(false)
 		if self._view_menu:is_checked("SHOW_STACK_OVERVIEW") then
 			new_effect:show_stack_overview(true)
 		end
-
 	end
-
 	event:skip()
 end
 
@@ -391,7 +334,6 @@ function CoreParticleEditor:on_play()
 	if cur_effect then
 		cur_effect:update_effect_instance()
 	end
-
 end
 
 function CoreParticleEditor:on_play_lowest()
@@ -399,7 +341,6 @@ function CoreParticleEditor:on_play_lowest()
 	if cur_effect then
 		cur_effect:update_effect_instance(0)
 	end
-
 end
 
 function CoreParticleEditor:on_play_highest()
@@ -407,7 +348,6 @@ function CoreParticleEditor:on_play_highest()
 	if cur_effect then
 		cur_effect:update_effect_instance(1)
 	end
-
 end
 
 function CoreParticleEditor:on_debug_draw()
@@ -415,7 +355,6 @@ function CoreParticleEditor:on_debug_draw()
 	if not self._view_menu:is_checked("DEBUG_DRAWING") then
 		b = "false"
 	end
-
 	Application:console_command("set show_tngeffects " .. b)
 end
 
@@ -428,7 +367,6 @@ function CoreParticleEditor:on_show_stack_overview()
 	if cur_effect then
 		cur_effect:show_stack_overview(self._view_menu:is_checked("SHOW_STACK_OVERVIEW"))
 	end
-
 end
 
 function CoreParticleEditor:on_automove_gizmo_no_move()
@@ -522,9 +460,7 @@ function CoreParticleEditor:effect_gizmo()
 		if managers.editor then
 			managers.editor:add_special_unit(self._effect_gizmo, "Statics")
 		end
-
 	end
-
 	return self._effect_gizmo
 end
 
@@ -533,7 +469,6 @@ function CoreParticleEditor:update(t, dt)
 	if cur_effect then
 		cur_effect:update(t, dt)
 	end
-
 	if self._gizmo_movement == "SMOOTH" then
 		local gizmo = self:effect_gizmo()
 		self._gizmo_accum = self._gizmo_accum + dt * 360 / 4
@@ -555,7 +490,6 @@ function CoreParticleEditor:update(t, dt)
 		gizmo:set_position(self._gizmo_anchor + Vector3(r, 0, 0) * math.cos(a) + Vector3(0, r, 0) * math.sin(a))
 		gizmo:set_rotation(Rotation(Vector3(0, 0, 1), a) * Rotation(Vector3(1, 0, 0), -90))
 	end
-
 end
 
 function CoreParticleEditor:set_position(pos)
@@ -566,7 +500,6 @@ function CoreParticleEditor:destroy()
 		self._main_frame:destroy()
 		self._main_frame = nil
 	end
-
 end
 
 function CoreParticleEditor:close()
@@ -579,31 +512,21 @@ function CoreParticleEditor:on_close_effect()
 		if not self:current_effect():close() then
 			return
 		end
-
 		self._effects_notebook:delete_page(curi - 1)
 		table.remove(self._effects, curi)
 	end
-
 end
 
 function CoreParticleEditor:on_close()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._effects)
-		do
-			do break end
-			if not e:close() then
-				return
-			end
-
+	for _, e in ipairs(self._effects) do
+		if not e:close() then
+			return
 		end
-
 	end
-
 	managers.toolhub:close("Particle Editor")
 	if managers.editor then
 		managers.editor:set_listener_enabled(false)
 	end
-
 end
 
 function CoreParticleEditor:add_effect(effect)
@@ -614,7 +537,6 @@ function CoreParticleEditor:add_effect(effect)
 	if n == "" then
 		n = "New Effect"
 	end
-
 	n = base_path(n)
 	self._effects_notebook:add_page(effect_panel:panel(), n, true)
 	effect_panel:set_init_positions()
@@ -626,40 +548,25 @@ function CoreParticleEditor:current_effect()
 	if i < 0 then
 		return nil
 	end
-
 	return self._effects[i]
 end
 
 function CoreParticleEditor:current_effect_index()
 	local page = self._effects_notebook:get_current_page()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._effects)
-		do
-			do break end
-			if e:panel() == page then
-				return i
-			end
-
+	for i, e in ipairs(self._effects) do
+		if e:panel() == page then
+			return i
 		end
-
 	end
-
 	return -1
 end
 
 function CoreParticleEditor:effect_for_page(page)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._effects)
-		do
-			do break end
-			if e:panel() == page then
-				return e
-			end
-
+	for _, e in ipairs(self._effects) do
+		if e:panel() == page then
+			return e
 		end
-
 	end
-
 	return nil
 end
 
@@ -669,10 +576,8 @@ function CoreParticleEditor:set_page_name(page, name)
 		if self._effects_notebook:get_page(i) == page:panel() and self._effects_notebook:get_page_text(i) ~= name then
 			self._effects_notebook:set_page_text(i, name)
 		end
-
 		i = i + 1
 	end
-
 end
 
 function CoreParticleEditor:on_new()
@@ -684,7 +589,6 @@ function CoreParticleEditor:on_open()
 	if not f then
 		return
 	end
-
 	self._last_used_dir = dir_name(f)
 	local n = managers.database:load_node(f)
 	local effect = CoreEffectDefinition:new()
@@ -698,7 +602,6 @@ function CoreParticleEditor:on_save()
 	if cur then
 		cur:on_save()
 	end
-
 end
 
 function CoreParticleEditor:on_save_as()
@@ -706,6 +609,5 @@ function CoreParticleEditor:on_save_as()
 	if cur then
 		cur:on_save_as()
 	end
-
 end
 

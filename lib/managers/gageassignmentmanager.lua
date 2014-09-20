@@ -15,7 +15,6 @@ function GageAssignmentManager:_setup()
 		Global.gage_assignment.visited_gage_crimenet = false
 		self:_setup_assignments()
 	end
-
 	self._global = Global.gage_assignment
 end
 
@@ -24,13 +23,10 @@ function GageAssignmentManager:_setup_assignments()
 	assignments.active_assignments = {}
 	assignments.completed_assignments = {}
 	Global.gage_assignment = assignments
-	local (for generator), (for state), (for control) = pairs(self._tweak_data:get_assignments())
-	do
-		do break end
+	for assignment, data in pairs(self._tweak_data:get_assignments()) do
 		assignments.active_assignments[assignment] = Application:digest_value(0, true)
 		assignments.completed_assignments[assignment] = Application:digest_value(0, true)
 	end
-
 end
 
 function GageAssignmentManager:reset()
@@ -66,7 +62,6 @@ function GageAssignmentManager:get_assignment_data(assignment)
 	if not active_value or not completed_value or not to_aquire then
 		return
 	end
-
 	return Application:digest_value(active_value, false), to_aquire, Application:digest_value(completed_value, false)
 end
 
@@ -75,32 +70,18 @@ function GageAssignmentManager:activate_assignments()
 	if not is_host then
 		return self:_activate_assignments_client()
 	end
-
 	self._active_assignments = self._tweak_data:fetch_new_assignments(managers.job:current_level_id())
 	self._spawned_units = self._queued_spawned_units or {}
 	self._progressed_assignments = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._active_assignments)
-		do
-			do break end
-			self._progressed_assignments[assignment] = 0
-		end
-
+	for _, assignment in pairs(self._active_assignments) do
+		self._progressed_assignments[assignment] = 0
 	end
-
 	if self._queued_spawns then
-		do
-			local (for generator), (for state), (for control) = ipairs(self._queued_spawns)
-			do
-				do break end
-				self:do_spawn(unpack(data))
-			end
-
+		for i, data in ipairs(self._queued_spawns) do
+			self:do_spawn(unpack(data))
 		end
-
 		self._queued_spawns = nil
 	end
-
 	self._queued_spawned_units = nil
 end
 
@@ -115,19 +96,11 @@ function GageAssignmentManager:deactivate_assignments()
 	if not is_host then
 		return self:_deactivate_assignments_client()
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._spawned_units or {})
-		do
-			do break end
-			if alive(unit) then
-				unit:set_slot(0)
-			end
-
+	for i, unit in ipairs(self._spawned_units or {}) do
+		if alive(unit) then
+			unit:set_slot(0)
 		end
-
 	end
-
 	self._spawned_units = nil
 	self._queued_spawns = nil
 	self._queued_spawned_units = nil
@@ -147,9 +120,7 @@ function GageAssignmentManager:on_mission_completed()
 	local total_pickup = 0
 	local completed_assignments = {}
 	if self._progressed_assignments then
-		local (for generator), (for state), (for control) = pairs(self._progressed_assignments)
-		do
-			do break end
+		for assignment, value in pairs(self._progressed_assignments) do
 			local dlc = tweak_data.gage_assignment:get_value(assignment, "dlc")
 			if value > 0 and (not dlc or managers.dlc:is_dlc_unlocked(dlc)) then
 				local collected = Application:digest_value(self._global.active_assignments[assignment], false) + value
@@ -157,59 +128,40 @@ function GageAssignmentManager:on_mission_completed()
 				if tweak_data.achievement.gage_assignments and tweak_data.achievement.gage_assignments[assignment] then
 					managers.achievment:award_progress(tweak_data.achievement.gage_assignments[assignment], value)
 				end
-
 				while collected >= to_aquire do
 					collected = collected - to_aquire
 					self:_give_rewards(assignment)
 					completed_assignments[assignment] = (completed_assignments[assignment] or 0) + 1
 				end
-
 				self._global.active_assignments[assignment] = Application:digest_value(collected, true)
 			end
-
 			total_pickup = total_pickup + value
 		end
-
 	end
-
 	self._saved_completed_assignments = completed_assignments
 	self._saved_progressed_assignments = self._progressed_assignments
 	self._progressed_assignments = nil
 	if 0 < table.size(completed_assignments) then
 		self._global.dialog_params = self._global.dialog_params or {}
 		self._global.dialog_params.assignments = self._global.dialog_params.assignments or {}
-		do
-			local (for generator), (for state), (for control) = pairs(completed_assignments)
-			do
-				do break end
-				self._global.dialog_params.assignments[assignemnt] = (self._global.dialog_params.assignments[assignemnt] or 0) + value
-			end
-
+		for assignemnt, value in pairs(completed_assignments) do
+			self._global.dialog_params.assignments[assignemnt] = (self._global.dialog_params.assignments[assignemnt] or 0) + value
 		end
-
 		self._global.dialog_params.date = Application:date("%Y-%m-%d")
 		self._global.dialog_params.time = Application:date("%H:%M")
 	end
-
 	return total_pickup > 0
 end
 
 function GageAssignmentManager:debug_test_dialog_params(show_items)
 	self._global.dialog_params = {}
 	self._global.dialog_params.assignments = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._tweak_data:get_assignments())
-		do
-			do break end
-			self._global.dialog_params.assignments[assignemnt] = math.random(10) - 5
-			if self._global.dialog_params.assignments[assignemnt] <= 0 then
-				self._global.dialog_params.assignments[assignemnt] = nil
-			end
-
+	for assignemnt, data in pairs(self._tweak_data:get_assignments()) do
+		self._global.dialog_params.assignments[assignemnt] = math.random(10) - 5
+		if self._global.dialog_params.assignments[assignemnt] <= 0 then
+			self._global.dialog_params.assignments[assignemnt] = nil
 		end
-
 	end
-
 	self._global.dialog_params.date = Application:date("%Y-%m-%d")
 	self._global.dialog_params.time = Application:date("%H:%M")
 	self:dialog_show_completed_assignments(show_items)
@@ -219,77 +171,54 @@ function GageAssignmentManager:dialog_show_completed_assignments(show_items)
 	if not self._global.dialog_params then
 		return
 	end
-
 	local completed_assignment = self._global.dialog_params.assignments or {}
 	local assignment_list = {}
-	do
-		local (for generator), (for state), (for control) = pairs(completed_assignment)
-		do
-			do break end
-			table.insert(assignment_list, assignment)
-		end
-
+	for assignment, _ in pairs(completed_assignment) do
+		table.insert(assignment_list, assignment)
 	end
-
 	table.sort(assignment_list, function(x, y)
 		return self._tweak_data:get_value(x, "aquire") < self._tweak_data:get_value(y, "aquire")
 	end
 )
 	local num, item
 	local completed = ""
-	do
-		local (for generator), (for state), (for control) = ipairs(assignment_list)
-		do
-			do break end
-			num = tostring(completed_assignment[assignment])
-			if not show_items then
-				item = managers.localization:text(self._tweak_data:get_value(assignment, "name_id"))
-				completed = completed .. managers.localization:text("dialog_item_list_macro", {num = num, item = item})
-			else
-				local rewards = self._tweak_data:get_value(assignment, "rewards")
-				if rewards then
-					completed = completed .. "\n"
-					local (for generator), (for state), (for control) = ipairs(rewards)
-					do
-						do break end
-						item = tweak_data:get_raw_value("blackmarket", reward[2], reward[3], "name_id")
-						if item then
-							local fits = ""
-							if reward[2] == "weapon_mods" then
-								fits = " ("
-								local weapon_uses_part = managers.weapon_factory:get_weapons_uses_part(reward[3]) or {}
-								if managers.localization:exists(item .. "_fits") then
-									fits = fits .. managers.localization:text(item .. "_fits")
-								elseif #weapon_uses_part == 1 then
-									local weapon_id = managers.weapon_factory:get_weapon_id_by_factory_id(weapon_uses_part[1])
-									fits = fits .. managers.weapon_factory:get_weapon_name_by_weapon_id(weapon_id)
-								end
-
-								fits = fits .. ")"
-							end
-
-							item = managers.localization:text(item) .. fits
-							completed = completed .. managers.localization:text("dialog_item_list_macro", {num = num, item = item})
-							if index < #rewards then
-								completed = completed .. "\n"
-							end
-
-						end
-
-					end
-
-				end
-
-			end
-
-			if i < #assignment_list then
+	for i, assignment in ipairs(assignment_list) do
+		num = tostring(completed_assignment[assignment])
+		if not show_items then
+			item = managers.localization:text(self._tweak_data:get_value(assignment, "name_id"))
+			completed = completed .. managers.localization:text("dialog_item_list_macro", {num = num, item = item})
+		else
+			local rewards = self._tweak_data:get_value(assignment, "rewards")
+			if rewards then
 				completed = completed .. "\n"
+				for index, reward in ipairs(rewards) do
+					item = tweak_data:get_raw_value("blackmarket", reward[2], reward[3], "name_id")
+					if item then
+						local fits = ""
+						if reward[2] == "weapon_mods" then
+							fits = " ("
+							local weapon_uses_part = managers.weapon_factory:get_weapons_uses_part(reward[3]) or {}
+							if managers.localization:exists(item .. "_fits") then
+								fits = fits .. managers.localization:text(item .. "_fits")
+							elseif #weapon_uses_part == 1 then
+								local weapon_id = managers.weapon_factory:get_weapon_id_by_factory_id(weapon_uses_part[1])
+								fits = fits .. managers.weapon_factory:get_weapon_name_by_weapon_id(weapon_id)
+							end
+							fits = fits .. ")"
+						end
+						item = managers.localization:text(item) .. fits
+						completed = completed .. managers.localization:text("dialog_item_list_macro", {num = num, item = item})
+						if index < #rewards then
+							completed = completed .. "\n"
+						end
+					end
+				end
 			end
-
 		end
-
+		if i < #assignment_list then
+			completed = completed .. "\n"
+		end
 	end
-
 	local params = {}
 	params.date = self._global.dialog_params.date
 	params.time = self._global.dialog_params.time
@@ -300,29 +229,19 @@ end
 
 function GageAssignmentManager:is_unit_an_assignment(unit)
 	if self._spawned_units then
-		local (for generator), (for state), (for control) = ipairs(self._spawned_units)
-		do
-			do break end
+		for i, spawned_unit in ipairs(self._spawned_units) do
 			if unit:key() == spawned_unit:key() then
 				return true
 			end
-
 		end
-
 	end
-
 	if self._queued_spawned_units then
-		local (for generator), (for state), (for control) = ipairs(self._queued_spawned_units)
-		do
-			do break end
+		for i, spawned_unit in ipairs(self._queued_spawned_units) do
 			if unit:key() == spawned_unit:key() then
 				return true
 			end
-
 		end
-
 	end
-
 	return false
 end
 
@@ -342,14 +261,12 @@ function GageAssignmentManager:queue_spawn(position, rotation)
 		self._queued_spawns = self._queued_spawns or {}
 		table.insert(self._queued_spawns, {position, rotation})
 	end
-
 end
 
 function GageAssignmentManager:on_unit_spawned(unit)
 	if not alive(unit) then
 		return
 	end
-
 	local is_host = Network:is_server() or Global.game_settings.single_player
 	if is_host then
 		local max_units = self._tweak_data:get_num_assignment_units()
@@ -360,16 +277,13 @@ function GageAssignmentManager:on_unit_spawned(unit)
 			unit:set_slot(0)
 			return false
 		end
-
 	end
-
 	if self._spawned_units then
 		table.insert(self._spawned_units, unit)
 	else
 		self._queued_spawned_units = self._queued_spawned_units or {}
 		table.insert(self._queued_spawned_units, unit)
 	end
-
 end
 
 function GageAssignmentManager:do_spawn(position, rotation)
@@ -377,46 +291,30 @@ function GageAssignmentManager:do_spawn(position, rotation)
 	if not is_host then
 		return nil
 	end
-
 	if not self._active_assignments then
 		return nil
 	end
-
 	local weighted_assignments = {}
 	local weight, total_weight = 0, 0
-	do
-		local (for generator), (for state), (for control) = ipairs(self._active_assignments)
-		do
-			do break end
-			weight = self._tweak_data:get_value(assignment, "weight") or 1
-			total_weight = total_weight + weight
-			table.insert(weighted_assignments, weight)
-		end
-
+	for i, assignment in ipairs(self._active_assignments) do
+		weight = self._tweak_data:get_value(assignment, "weight") or 1
+		total_weight = total_weight + weight
+		table.insert(weighted_assignments, weight)
 	end
-
 	local r = math.rand(total_weight)
 	local assignment
-	do
-		local (for generator), (for state), (for control) = ipairs(weighted_assignments)
-		do
-			do break end
-			r = r - weight
-			if r <= 0 then
-				assignment = self._active_assignments[i]
-		end
-
+	for i, weight in ipairs(weighted_assignments) do
+		r = r - weight
+		if r <= 0 then
+			assignment = self._active_assignments[i]
 		else
 		end
-
 	end
-
 	if assignment then
 		local unit_name = self._tweak_data:get_value(assignment, "unit")
 		local unit = unit_name and World:spawn_unit(unit_name, position, rotation) or nil
 		return unit
 	end
-
 	return nil
 end
 
@@ -424,61 +322,40 @@ function GageAssignmentManager:on_unit_interact(unit, assignment)
 	if not alive(unit) then
 		return false
 	end
-
 	local pass_spawned = false
-	do
-		local (for generator), (for state), (for control) = ipairs(self._spawned_units)
-		do
-			do break end
-			if spawned_unit:key() == unit:key() then
-				pass_spawned = true
-		end
-
+	for i, spawned_unit in ipairs(self._spawned_units) do
+		if spawned_unit:key() == unit:key() then
+			pass_spawned = true
 		else
 		end
-
 	end
-
 	if not pass_spawned then
 		return false
 	end
-
 	assignment = assignment or unit:base():assignment()
 	if not self._active_assignments or not assignment then
 		return false
 	end
-
 	if not self._progressed_assignments or not self._progressed_assignments[assignment] then
 		return false
 	end
-
 	if not table.contains(self._active_assignments, assignment) then
 		return false
 	end
-
 	if not self._global.active_assignments[assignment] then
 		return false
 	end
-
 	if not managers.hud or not managers.hint then
 		return false
 	end
-
 	local max_units = self._tweak_data:get_num_assignment_units()
 	local counted_units = 0
-	do
-		local (for generator), (for state), (for control) = pairs(self._progressed_assignments)
-		do
-			do break end
-			counted_units = counted_units + count
-		end
-
+	for assignment, count in pairs(self._progressed_assignments) do
+		counted_units = counted_units + count
 	end
-
 	if max_units <= counted_units then
 		return false
 	end
-
 	self._progressed_assignments[assignment] = self._progressed_assignments[assignment] + 1
 end
 
@@ -525,32 +402,20 @@ function GageAssignmentManager:_give_rewards(assignment)
 	self._global.completed_assignments[assignment] = Application:digest_value(completed, true)
 	local rewards = self._tweak_data:get_value(assignment, "rewards")
 	if rewards then
-		local (for generator), (for state), (for control) = ipairs(rewards)
-		do
-			do break end
+		for i, reward in ipairs(rewards) do
 			managers.blackmarket:add_to_inventory(unpack(reward))
 		end
-
 	end
-
 	local award_gmod_6 = true
-	do
-		local (for generator), (for state), (for control) = pairs(self._global.completed_assignments)
-		do
-			do break end
-			if Application:digest_value(dvalue, false) < tweak_data.achievement.gonna_find_them_all then
-				award_gmod_6 = false
-		end
-
+	for i, dvalue in pairs(self._global.completed_assignments) do
+		if Application:digest_value(dvalue, false) < tweak_data.achievement.gonna_find_them_all then
+			award_gmod_6 = false
 		else
 		end
-
 	end
-
 	if award_gmod_6 then
 		managers.achievment:award("gmod_6")
 	end
-
 end
 
 function GageAssignmentManager:count_all_units()
@@ -562,20 +427,12 @@ function GageAssignmentManager:count_active_units()
 	if not self._spawned_units then
 		return 0
 	end
-
 	local count = 0
-	do
-		local (for generator), (for state), (for control) = ipairs(self._spawned_units)
-		do
-			do break end
-			if alive(unit) then
-				count = count + 1
-			end
-
+	for i, unit in ipairs(self._spawned_units) do
+		if alive(unit) then
+			count = count + 1
 		end
-
 	end
-
 	return count
 end
 
@@ -585,7 +442,6 @@ function GageAssignmentManager:get_current_experience_multiplier()
 	if max_units == 0 or not self._active_assignments then
 		return 1
 	end
-
 	local ratio = 1 - active_units / max_units
 	return self._tweak_data:get_experience_multiplier(ratio)
 end
@@ -612,22 +468,16 @@ function GageAssignmentManager:sync_load(data)
 		if self._progressed_assignments then
 			local max_units = self._tweak_data:get_num_assignment_units()
 			local counted_units = 0
-			local (for generator), (for state), (for control) = pairs(self._progressed_assignments)
-			do
-				do break end
+			for assignment, count in pairs(self._progressed_assignments) do
 				counted_units = counted_units + count
 				if max_units < counted_units then
 					local diff = counted_units - max_units
 					self._progressed_assignments[assignment] = math.max(self._progressed_assignments[assignment] - diff, 0)
 					Application:error("[GageAssignmentManager:sync_load] Max num units reached, capping pickup.", assignment)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function GageAssignmentManager:save(data)
@@ -647,60 +497,30 @@ function GageAssignmentManager:load(data, version)
 		Global.gage_assignment.completed_assignments = Global.gage_assignment.completed_assignments or {}
 		local assignments_data = self._tweak_data:get_assignments()
 		local deleted_assignments = {}
-		do
-			local (for generator), (for state), (for control) = pairs(Global.gage_assignment.active_assignments)
-			do
-				do break end
-				if not assignments_data[assignment] then
-					table.insert(deleted_assignments, assignment)
-				end
-
+		for assignment, num in pairs(Global.gage_assignment.active_assignments) do
+			if not assignments_data[assignment] then
+				table.insert(deleted_assignments, assignment)
 			end
-
 		end
-
-		do
-			local (for generator), (for state), (for control) = ipairs(deleted_assignments)
-			do
-				do break end
-				Application:error("[GageAssignmentManager:load] Removing non-existing assignment (active): " .. tostring(assignment))
-				Global.gage_assignment.active_assignments[assignment] = nil
-			end
-
+		for _, assignment in ipairs(deleted_assignments) do
+			Application:error("[GageAssignmentManager:load] Removing non-existing assignment (active): " .. tostring(assignment))
+			Global.gage_assignment.active_assignments[assignment] = nil
 		end
-
 		deleted_assignments = {}
-		do
-			local (for generator), (for state), (for control) = pairs(Global.gage_assignment.completed_assignments)
-			do
-				do break end
-				if not assignments_data[assignment] then
-					table.insert(deleted_assignments, assignment)
-				end
-
+		for assignment, num in pairs(Global.gage_assignment.completed_assignments) do
+			if not assignments_data[assignment] then
+				table.insert(deleted_assignments, assignment)
 			end
-
 		end
-
-		do
-			local (for generator), (for state), (for control) = ipairs(deleted_assignments)
-			do
-				do break end
-				Application:error("[GageAssignmentManager:load] Removing non-existing assignment (completed): " .. tostring(assignment))
-				Global.gage_assignment.completed_assignments[assignment] = nil
-			end
-
+		for _, assignment in ipairs(deleted_assignments) do
+			Application:error("[GageAssignmentManager:load] Removing non-existing assignment (completed): " .. tostring(assignment))
+			Global.gage_assignment.completed_assignments[assignment] = nil
 		end
-
-		local (for generator), (for state), (for control) = pairs(assignments_data)
-		do
-			do break end
+		for assignment, data in pairs(assignments_data) do
 			Global.gage_assignment.active_assignments[assignment] = Global.gage_assignment.active_assignments[assignment] or Application:digest_value(0, true)
 			Global.gage_assignment.completed_assignments[assignment] = Global.gage_assignment.completed_assignments[assignment] or Application:digest_value(0, true)
 		end
-
 	end
-
 end
 
 function GageAssignmentManager:debug_show_units(persistance)
@@ -708,16 +528,11 @@ function GageAssignmentManager:debug_show_units(persistance)
 		local brush = Draw:brush(Color.red:with_alpha(0.5))
 		brush:set_persistance(persistance or 10)
 		brush:set_render_template(Idstring("generic:DEPTH_SCALING:DIFFUSE_TEXTURE:NORMALMAP:VERTEX_COLOR"))
-		local (for generator), (for state), (for control) = ipairs(self._spawned_units)
-		do
-			do break end
+		for i, unit in ipairs(self._spawned_units) do
 			if alive(unit) then
 				brush:sphere(unit:position(), 50)
 			end
-
 		end
-
 	end
-
 end
 

@@ -9,7 +9,6 @@ function ElementAreaMinPoliceForce:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	self:operation_add()
 	ElementAreaMinPoliceForce.super.on_executed(self, instigator)
 end

@@ -13,7 +13,6 @@ function CopActionIdle:init(action_desc, common_data)
 	if action_desc.non_persistent then
 		return
 	end
-
 	self._common_data = common_data
 	self._unit = common_data.unit
 	self._ext_movement = common_data.ext_movement
@@ -24,35 +23,29 @@ function CopActionIdle:init(action_desc, common_data)
 		self._turn_allowed = true
 		self._start_fwd = common_data.rot:y()
 	end
-
 	local res
 	if self._body_part == 3 then
 		if self._ext_anim.upper_body_active and not self._ext_anim.upper_body_empty then
 			res = self._ext_movement:play_redirect("up_idle")
 		end
-
 	elseif action_desc.anim then
 		local state_name = self._machine:index_to_state_name(action_desc.anim)
 		local redir_res = self._ext_movement:play_state_idstr(state_name)
 		if not redir_res then
 			print("[CopActionIdle:init] state", state_name, "failed in", self._machine:segment_state(Idstring("base")), common_data.unit)
 		end
-
 	elseif not self._ext_anim.idle then
 		if self._common_data.stance.code == 1 then
 			res = self._ext_movement:play_redirect("exit")
 		else
 			res = self._ext_movement:play_redirect("idle")
 		end
-
 		self._ext_movement:enable_update()
 	end
-
 	if res == false then
 		debug_pause_unit(self._unit, "[CopActionIdle:init] idle failed in", self._machine:segment_state(Idstring("base")), self._machine:segment_state(Idstring("upper_body")), self._unit)
 		return
 	end
-
 	self._modifier_name = self._unit:anim_data().ik_type == "head" and idstr_look_head or idstr_look_upper_body
 	self._modifier = self._machine:get_modifier(self._modifier_name)
 	self:on_attention(common_data.attention)
@@ -64,13 +57,10 @@ function CopActionIdle:init(action_desc, common_data)
 				radius = 30
 			})
 		end
-
 	end
-
 	if action_desc.sync then
 		self._common_data.ext_network:send("action_idle_start", self._body_part)
 	end
-
 	CopActionAct._create_blocks_table(self, action_desc.blocks)
 	return true
 end
@@ -80,11 +70,9 @@ function CopActionIdle:on_exit()
 		self._modifier_on = nil
 		self._machine:forbid_modifier(self._modifier_name)
 	end
-
 	if self._modifier:blend() > 0 and self._look_vec then
 		mvector3.set(self._common_data.look_vec, self._look_vec)
 	end
-
 end
 
 function CopActionIdle:update(t)
@@ -99,7 +87,6 @@ function CopActionIdle:update(t)
 		else
 			mvec3_dir(target_vec, look_from_pos, self._attention.pos)
 		end
-
 		if self._look_trans then
 			local look_trans = self._look_trans
 			local prog = (t - look_trans.start_t) / look_trans.duration
@@ -118,19 +105,15 @@ function CopActionIdle:update(t)
 				if mvec3_dot(target_vec, self._common_data.fwd) < 0.2 then
 					ik_enable = false
 				end
-
 			end
-
 		elseif mvec3_dot(target_vec, self._common_data.fwd) < 0.2 then
 			ik_enable = false
 		end
-
 		if ik_enable then
 			if not self._modifier_on then
 				self._modifier_on = true
 				self._machine:force_modifier(self._modifier_name)
 			end
-
 			if self._turn_allowed then
 				local active_actions = self._common_data.active_actions
 				local queued_actions = self._common_data.queued_actions
@@ -145,16 +128,12 @@ function CopActionIdle:update(t)
 						}
 						self._ext_movement:action_request(new_action_data)
 					end
-
 				end
-
 			end
-
 		elseif self._modifier_on then
 			self._modifier_on = false
 			self._machine:forbid_modifier(self._modifier_name)
 		end
-
 		self._modifier:set_target_z(target_vec)
 	elseif self._rot_offset then
 		local new_action_data = {
@@ -165,11 +144,9 @@ function CopActionIdle:update(t)
 		self._ext_movement:action_request(new_action_data)
 		self._rot_offset = nil
 	end
-
 	if self._ext_anim.base_need_upd then
 		self._ext_movement:upd_m_head_pos()
 	end
-
 end
 
 function CopActionIdle:type()
@@ -180,7 +157,6 @@ function CopActionIdle:on_attention(attention)
 	if self._body_part ~= 1 and self._body_part ~= 3 then
 		return
 	end
-
 	if attention then
 		local shoot_from_pos = self._ext_movement:m_head_pos()
 		local target_vec = Vector3()
@@ -192,16 +168,13 @@ function CopActionIdle:on_attention(attention)
 			else
 				mvec3_dir(target_vec, shoot_from_pos, attention.pos)
 			end
-
 		end
-
 		local start_vec
 		if self._modifier:blend() > 0 then
 			start_vec = self._look_vec or self._common_data.look_vec
 		else
 			start_vec = self._unit:get_object(idstr_head):rotation():z()
 		end
-
 		local duration = math.lerp(0.35, 1, target_vec:angle(start_vec) / 180)
 		local start_rot = Rotation()
 		mrot_set_lookat(start_rot, start_vec, math.UP)
@@ -218,9 +191,7 @@ function CopActionIdle:on_attention(attention)
 		if self._modifier:blend() > 0 and self._look_vec then
 			mvector3.set(self._common_data.look_vec, self._look_vec)
 		end
-
 	end
-
 	self._attention = attention
 	self._ext_movement:enable_update()
 end
@@ -238,6 +209,5 @@ function CopActionIdle:save(save_data)
 		local state_index = self._machine:state_name_to_index(state_name)
 		save_data.anim = state_index
 	end
-
 end
 

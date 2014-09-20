@@ -76,7 +76,6 @@ function StatsTabItem:select()
 		self._tab_text:set_blend_mode("normal")
 		self._select_rect:show()
 	end
-
 	self._selected = true
 end
 
@@ -87,7 +86,6 @@ function StatsTabItem:deselect()
 		self._tab_text:set_blend_mode("add")
 		self._select_rect:hide()
 	end
-
 	self._selected = false
 end
 
@@ -107,15 +105,9 @@ function StatsTabItem:set_stats(stats_data)
 		do
 			local assignment_list = {}
 			local gage_tweak_data = tweak_data.gage_assignment
-			do
-				local (for generator), (for state), (for control) = pairs(gage_tweak_data:get_assignments())
-				do
-					do break end
-					table.insert(assignment_list, assignment)
-				end
-
+			for assignment, _ in pairs(gage_tweak_data:get_assignments()) do
+				table.insert(assignment_list, assignment)
 			end
-
 			table.sort(assignment_list, function(x, y)
 				return gage_tweak_data:get_value(x, "aquire") < gage_tweak_data:get_value(y, "aquire")
 			end
@@ -150,14 +142,11 @@ function StatsTabItem:set_stats(stats_data)
 			if prev_stat_panel then
 				new_stat_panel:set_top(prev_stat_panel:bottom())
 			end
-
 			prev_stat_panel = new_stat_panel
 			local title_desc = desc_text
 			local title_stat = stat_text
 			local num_string, desc_string, stat_string, reward_string, found, progress, completed, to_aquire, dlc, has_dlc, last_dlc
-			local (for generator), (for state), (for control) = ipairs(assignment_list)
-			do
-				do break end
+			for i, assignment in ipairs(assignment_list) do
 				to_aquire = gage_tweak_data:get_value(assignment, "aquire")
 				completed = managers.gage_assignment:get_latest_completed(assignment) or 0
 				found = managers.gage_assignment:get_latest_progress(assignment) or 0
@@ -169,7 +158,6 @@ function StatsTabItem:set_stats(stats_data)
 				stat_string = string.format("%0.2d", progress) .. " / " .. string.format("%0.2d", to_aquire)
 				if not (completed < 2) or not managers.localization:to_upper_text("menu_es_gage_assignment_reward") then
 				end
-
 				reward_string = " - " .. managers.localization:to_upper_text("menu_es_gage_assignment_reward_plural", {completed = completed})
 				if not has_dlc then
 					stat_string = ""
@@ -178,9 +166,7 @@ function StatsTabItem:set_stats(stats_data)
 					else
 						reward_string = ""
 					end
-
 				end
-
 				new_stat_panel = self._panel:panel({
 					name = assignment,
 					h = tweak_data.menu.pd2_medium_font_size,
@@ -236,23 +222,16 @@ function StatsTabItem:set_stats(stats_data)
 					else
 						reward_text:set_alpha(0)
 					end
-
 					last_dlc = dlc
 				end
-
 				if prev_stat_panel then
 					new_stat_panel:set_top(prev_stat_panel:bottom())
 				end
-
 				prev_stat_panel = new_stat_panel
 			end
-
 		end
-
 	else
-		local (for generator), (for state), (for control) = ipairs(self._stats)
-		do
-			do break end
+		for i, stat in ipairs(self._stats) do
 			local new_stat_panel = self._panel:panel({
 				name = tostring(stat),
 				h = tweak_data.menu.pd2_medium_font_size,
@@ -295,7 +274,6 @@ function StatsTabItem:set_stats(stats_data)
 				stat_text:set_h(new_stat_panel:h())
 				stat_text:set_x(10)
 			end
-
 			local _, _, _, dh = desc_text:text_rect()
 			local _, _, _, sh = stat_text:text_rect()
 			local max_h = math.max(dh, sh)
@@ -305,34 +283,22 @@ function StatsTabItem:set_stats(stats_data)
 			if prev_stat_panel then
 				new_stat_panel:set_top(prev_stat_panel:bottom())
 			end
-
 			prev_stat_panel = new_stat_panel
 		end
-
 	end
-
 end
 
 function StatsTabItem:feed_statistics(stats_data)
 	local text, stat_text
-	do
-		local (for generator), (for state), (for control) = ipairs(self._stats)
-		do
-			do break end
-			if stats_data[stat] then
-				stat_text = self._panel:child(tostring(stat)):child("stat")
-				text = stats_data[stat]
-				stat_text:set_text(text)
-			end
-
+	for i, stat in ipairs(self._stats) do
+		if stats_data[stat] then
+			stat_text = self._panel:child(tostring(stat)):child("stat")
+			text = stats_data[stat]
+			stat_text:set_text(text)
 		end
-
 	end
-
 	local desc, stat, prev_stat_panel
-	local (for generator), (for state), (for control) = ipairs(self._panel:children())
-	do
-		do break end
+	for i, child in ipairs(self._panel:children()) do
 		desc = child:child("desc")
 		stat = child:child("stat")
 		local _, _, _, dh = desc:text_rect()
@@ -356,40 +322,28 @@ function StatsTabItem:feed_statistics(stats_data)
 				start_ci = {}
 				end_ci = {}
 				first_ci = true
-				do
-					local (for generator), (for state), (for control) = ipairs(text_dissected)
-					do
-						do break end
-						if Idstring(c) == idsp then
-							local next_c = text_dissected[i + 1]
-							if next_c and Idstring(next_c) == idsp then
-								if first_ci then
-									table.insert(start_ci, i)
-								else
-									table.insert(end_ci, i)
-								end
-
-								first_ci = not first_ci
+				for i, c in ipairs(text_dissected) do
+					if Idstring(c) == idsp then
+						local next_c = text_dissected[i + 1]
+						if next_c and Idstring(next_c) == idsp then
+							if first_ci then
+								table.insert(start_ci, i)
+							else
+								table.insert(end_ci, i)
 							end
-
+							first_ci = not first_ci
 						end
-
 					end
-
 				end
-
 				if #start_ci ~= #end_ci then
 				else
 					for i = 1, #start_ci do
 						start_ci[i] = start_ci[i] - ((i - 1) * 4 + 1)
 						end_ci[i] = end_ci[i] - (i * 4 - 1)
 					end
-
 				end
-
 				text = string.gsub(text, "##", "")
 			end
-
 			stat:set_text(text)
 			if resource_color then
 				stat:clear_range_color(1, utf8.len(text))
@@ -399,27 +353,20 @@ function StatsTabItem:feed_statistics(stats_data)
 					for i = 1, #start_ci do
 						stat:set_range_color(start_ci[i], end_ci[i], resource_color)
 					end
-
 				end
-
 			end
-
 			local _, _, _, h = stat:text_rect()
 			if h > stat:h() then
 				stat:set_font(tweak_data.menu.pd2_small_font_id)
 				stat:set_font_size(tweak_data.menu.pd2_small_font_size)
 			end
-
 		elseif child:name() == "gage_assignment_summary" then
 		end
-
 		if prev_stat_panel then
 			child:set_top(prev_stat_panel:bottom())
 		end
-
 		prev_stat_panel = child
 	end
-
 end
 
 function StatsTabItem:mouse_moved(x, y, mouse_over_scroll)
@@ -431,12 +378,10 @@ function StatsTabItem:mouse_moved(x, y, mouse_over_scroll)
 			managers.menu_component:post_event("highlight")
 			self._tab_text:set_color(tweak_data.screen_colors.button_stage_2)
 		end
-
 	elseif self._highlighted then
 		self._highlighted = false
 		self._tab_text:set_color(tweak_data.screen_colors.button_stage_3)
 	end
-
 	return self._selected, self._highlighted
 end
 
@@ -444,11 +389,9 @@ function StatsTabItem:mouse_pressed(button, x, y)
 	if button ~= Idstring("0") then
 		return false
 	end
-
 	if not self._selected and self._tab_text:inside(x, y) then
 		return true
 	end
-
 	return self._selected
 end
 
@@ -467,7 +410,6 @@ function StatsTabItem.animate_select(o)
 	if size == 100 then
 		return
 	end
-
 	over(math.abs(100 - size) / 100, function(p)
 		local s = math.lerp(size, 100, p)
 		o:set_size(s, s)
@@ -482,7 +424,6 @@ function StatsTabItem.animate_deselect(o)
 	if size == 65 then
 		return
 	end
-
 	over(math.abs(65 - size) / 100, function(p)
 		local s = math.lerp(size, 65, p)
 		o:set_size(s, s)
@@ -543,7 +484,6 @@ function StageEndScreenGui:init(saferect_ws, fullrect_ws, statistics_data)
 	if MenuBackdropGUI then
 		MenuBackdropGUI.animate_bg_text(self, big_text)
 	end
-
 	self._items = {}
 	local item
 	local tab_height = 0
@@ -590,7 +530,6 @@ function StageEndScreenGui:init(saferect_ws, fullrect_ws, statistics_data)
 	if self._console_subtitle_string_id then
 		self:console_subtitle_callback(self._console_subtitle_string_id)
 	end
-
 	self:select_tab(1, true)
 	self._items[self._selected_item]:select()
 	local box_panel = self._panel:panel()
@@ -606,12 +545,10 @@ function StageEndScreenGui:init(saferect_ws, fullrect_ws, statistics_data)
 	if statistics_data then
 		self:feed_statistics(statistics_data)
 	end
-
 	self._enabled = true
 	if managers.job:stage_success() then
 		self._bain_debrief_t = TimerManager:main():time() + 2.5
 	end
-
 end
 
 function StageEndScreenGui:hide()
@@ -645,11 +582,9 @@ function StageEndScreenGui:play_bain_debrief()
 				clbk = callback(self, self, "console_subtitle_callback")
 			})
 		end
-
 	else
 		self:bain_debrief_end_callback()
 	end
-
 end
 
 function StageEndScreenGui:console_subtitle_callback(event, string_id, duration, cookie)
@@ -668,14 +603,12 @@ function StageEndScreenGui:console_subtitle_callback(event, string_id, duration,
 			word_wrap = true
 		})
 	end
-
 	if duration then
 		local text = self._console_subtitle_panel:child("subtitle_text")
 		text:set_text(managers.localization:text(string_id))
 		self._console_subtitle_string_id = string_id
 		self._console_subtitle_duration = TimerManager:main():time() + duration
 	end
-
 end
 
 function StageEndScreenGui:bain_debrief_end_callback()
@@ -687,7 +620,6 @@ function StageEndScreenGui:update(t, dt)
 		self._bain_debrief_t = nil
 		self:play_bain_debrief()
 	end
-
 	if self._contact_debrief_t and t > self._contact_debrief_t then
 		self._contact_debrief_t = nil
 		if managers.job:on_last_stage() then
@@ -700,20 +632,15 @@ function StageEndScreenGui:update(t, dt)
 						clbk = callback(self, self, "console_subtitle_callback")
 					})
 				end
-
 			end
-
 		end
-
 	end
-
 	if self._console_subtitle_duration and t > self._console_subtitle_duration then
 		local text = self._console_subtitle_panel:child("subtitle_text")
 		text:set_text("")
 		self._console_subtitle_string_id = nil
 		self._console_subtitle_duration = nil
 	end
-
 end
 
 function StageEndScreenGui:feed_statistics(data)
@@ -734,12 +661,9 @@ function StageEndScreenGui:feed_statistics(data)
 	data.total_head_shots = managers.statistics:session_total_head_shots()
 	data.civilians_killed_penalty = managers.statistics:session_total_civilian_kills()
 	self._data = data or {}
-	local (for generator), (for state), (for control) = ipairs(self._items)
-	do
-		do break end
+	for i, item in ipairs(self._items) do
 		item:feed_statistics(data)
 	end
-
 end
 
 function StageEndScreenGui:show_cash_summary()
@@ -769,11 +693,9 @@ function StageEndScreenGui:select_tab(selected_item, no_sound)
 	if self._selected_item == selected_item then
 		return
 	end
-
 	if self._selected_item then
 		self._items[self._selected_item]:deselect()
 	end
-
 	self._selected_item = selected_item
 	self._items[self._selected_item]:select()
 	local ix, iy, iw, ih = self._items[self._selected_item]:tab_text_shape()
@@ -784,19 +706,15 @@ function StageEndScreenGui:select_tab(selected_item, no_sound)
 	elseif right > self._scroll_panel:w() then
 		self._tab_panel:move(-(right - self._scroll_panel:w()), 0)
 	end
-
 	if not no_sound then
 		managers.menu_component:post_event("menu_enter")
 	end
-
 	if self._prev_page then
 		self._prev_page:set_visible(self._selected_item > 1)
 	end
-
 	if self._next_page then
 		self._next_page:set_visible(self._selected_item < #self._items)
 	end
-
 	return self._selected_item
 end
 
@@ -804,7 +722,6 @@ function StageEndScreenGui:mouse_pressed(button, x, y)
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if button == Idstring("mouse wheel down") then
 		self:next_page(true)
 		return
@@ -812,37 +729,27 @@ function StageEndScreenGui:mouse_pressed(button, x, y)
 		self:previous_page(true)
 		return
 	end
-
 	if button ~= Idstring("0") then
 		return
 	end
-
 	if self._scroll_panel:inside(x, y) then
-		local (for generator), (for state), (for control) = ipairs(self._items)
-		do
-			do break end
+		for index, tab in ipairs(self._items) do
 			local pressed = tab:mouse_pressed(button, x, y)
 			if pressed == true then
 				self:select_tab(index, false)
 			end
-
 		end
-
 	end
-
 	if not self._button_not_clickable and self._continue_button:inside(x, y) and game_state_machine:current_state()._continue_cb then
 		managers.menu_component:post_event("menu_enter")
 		game_state_machine:current_state()._continue_cb()
 	end
-
 	if alive(self._prev_page) and self._prev_page:visible() and self._prev_page:inside(x, y) then
 		self:previous_page(false)
 	end
-
 	if alive(self._next_page) and self._next_page:visible() and self._next_page:inside(x, y) then
 		self:next_page(false)
 	end
-
 	return self._selected_item
 end
 
@@ -850,26 +757,17 @@ function StageEndScreenGui:mouse_moved(x, y)
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return false
 	end
-
 	local mouse_over_tab = false
 	local mouse_over_scroll = self._scroll_panel:inside(x, y)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._items)
-		do
-			do break end
-			local selected, highlighted = tab:mouse_moved(x, y, mouse_over_scroll)
-			if highlighted and not selected then
-				mouse_over_tab = true
-			end
-
+	for _, tab in ipairs(self._items) do
+		local selected, highlighted = tab:mouse_moved(x, y, mouse_over_scroll)
+		if highlighted and not selected then
+			mouse_over_tab = true
 		end
-
 	end
-
 	if mouse_over_tab then
 		return true, "link"
 	end
-
 	if alive(self._prev_page) then
 		if self._prev_page:visible() and self._prev_page:inside(x, y) then
 			if not self._prev_page_highlighted then
@@ -877,15 +775,12 @@ function StageEndScreenGui:mouse_moved(x, y)
 				self._prev_page:set_color(tweak_data.screen_colors.button_stage_2)
 				managers.menu_component:post_event("highlight")
 			end
-
 			return true, "link"
 		elseif self._prev_page_highlighted then
 			self._prev_page_highlighted = false
 			self._prev_page:set_color(tweak_data.screen_colors.button_stage_3)
 		end
-
 	end
-
 	if alive(self._next_page) then
 		if self._next_page:visible() and self._next_page:inside(x, y) then
 			if not self._next_page_highlighted then
@@ -893,15 +788,12 @@ function StageEndScreenGui:mouse_moved(x, y)
 				self._next_page:set_color(tweak_data.screen_colors.button_stage_2)
 				managers.menu_component:post_event("highlight")
 			end
-
 			return true, "link"
 		elseif self._next_page_highlighted then
 			self._next_page_highlighted = false
 			self._next_page:set_color(tweak_data.screen_colors.button_stage_3)
 		end
-
 	end
-
 	if self._button_not_clickable then
 		self._continue_button:set_color(tweak_data.screen_colors.item_stage_1)
 	elseif self._continue_button:inside(x, y) then
@@ -910,18 +802,15 @@ function StageEndScreenGui:mouse_moved(x, y)
 			self._continue_button:set_color(tweak_data.screen_colors.button_stage_2)
 			managers.menu_component:post_event("highlight")
 		end
-
 		return true, "link"
 	elseif self._continue_button_highlighted then
 		self._continue_button_highlighted = false
 		self._continue_button:set_color(tweak_data.screen_colors.button_stage_3)
 		managers.menu_component:post_event("highlight")
 	end
-
 	if managers.hud._hud_stage_endscreen and managers.hud._hud_stage_endscreen._backdrop then
 		managers.hud._hud_stage_endscreen._backdrop:mouse_moved(x, y)
 	end
-
 	return false, "arrow"
 end
 
@@ -933,22 +822,18 @@ function StageEndScreenGui:scroll_up()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if self._items[self._selected_item] then
 		self._items[self._selected_item]:move_right()
 	end
-
 end
 
 function StageEndScreenGui:scroll_down()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if self._items[self._selected_item] then
 		self._items[self._selected_item]:move_left()
 	end
-
 end
 
 function StageEndScreenGui:move_up()
@@ -961,41 +846,34 @@ function StageEndScreenGui:move_left()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if self._items[self._selected_item] then
 		self._items[self._selected_item]:move_left()
 	end
-
 end
 
 function StageEndScreenGui:move_right()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if self._items[self._selected_item] then
 		self._items[self._selected_item]:move_right()
 	end
-
 end
 
 function StageEndScreenGui:confirm_pressed()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if game_state_machine:current_state()._continue_cb() then
 		game_state_machine:current_state()._continue_cb()
 		return true
 	end
-
 end
 
 function StageEndScreenGui:back_pressed()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return false
 	end
-
 end
 
 function StageEndScreenGui:accept_input(accept)
@@ -1006,7 +884,6 @@ function StageEndScreenGui:next_page(no_sound)
 	if not self._enabled then
 		return
 	end
-
 	self:next_tab(no_sound)
 end
 
@@ -1014,7 +891,6 @@ function StageEndScreenGui:previous_page(no_sound)
 	if not self._enabled then
 		return
 	end
-
 	self:prev_tab(no_sound)
 end
 
@@ -1022,15 +898,12 @@ function StageEndScreenGui:close()
 	if self._panel and alive(self._panel) then
 		self._panel:parent():remove(self._panel)
 	end
-
 	if self._fullscreen_panel and alive(self._fullscreen_panel) then
 		self._fullscreen_panel:parent():remove(self._fullscreen_panel)
 	end
-
 	if alive(self._console_subtitle_panel) then
 		self._console_subtitle_panel:parent():remove(self._console_subtitle_panel)
 	end
-
 end
 
 function StageEndScreenGui:reload()

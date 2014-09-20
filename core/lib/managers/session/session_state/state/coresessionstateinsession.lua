@@ -17,11 +17,9 @@ function InSession:transition()
 	if self._start_session then
 		return CoreSessionStateInSessionStart, self._session
 	end
-
 	if self.session_state._quit_session_requester:is_requested() then
 		return CoreSessionStateQuitSession.QuitSession, self._session
 	end
-
 end
 
 function InSession:start_session()

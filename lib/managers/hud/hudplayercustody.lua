@@ -5,7 +5,6 @@ function HUDPlayerCustody:init(hud)
 	if self._hud_panel:child("custody_panel") then
 		self._hud_panel:remove(self._hud_panel:child("custody_panel"))
 	end
-
 	local custody_panel = self._hud_panel:panel({
 		name = "custody_panel",
 		halign = "grow",
@@ -138,7 +137,6 @@ function HUDPlayerCustody:_next_player_text()
 	if not managers.menu:is_pc_controller() then
 		return nil, nil
 	end
-
 	local type = managers.controller:get_default_wrapper_type()
 	local primary_attack = "[" .. managers.controller:get_settings(type):get_connection("primary_attack"):get_input_name_list()[1] .. "]"
 	local secondary_attack = "[" .. managers.controller:get_settings(type):get_connection("secondary_attack"):get_input_name_list()[1] .. "]"
@@ -154,7 +152,6 @@ function HUDPlayerCustody:set_respawn_time(time)
 	if math.floor(time) == math.floor(self._last_time) then
 		return
 	end
-
 	self._last_time = time
 	local time_text = self:_get_time_text(time)
 	self._timer:set_text(utf8.to_upper(tostring(time_text)))
@@ -172,7 +169,6 @@ function HUDPlayerCustody:set_trade_delay(time)
 	if math.floor(time) == math.floor(self._last_trade_delay_time) then
 		return
 	end
-
 	self._last_trade_delay_time = time
 	local time_text = self:_get_time_text(time)
 	local trade_delay = self._hud_panel:child("custody_panel"):child("trade_delay")
@@ -192,7 +188,6 @@ function HUDPlayerCustody:set_negotiating_visible(visible)
 	if visible then
 		self._hud.trade_text2:animate(callback(self, self, "_animate_text_pulse"))
 	end
-
 end
 
 function HUDPlayerCustody:set_can_be_trade_visible(visible)
@@ -201,7 +196,6 @@ function HUDPlayerCustody:set_can_be_trade_visible(visible)
 	if visible then
 		self._hud.trade_text1:animate(callback(self, self, "_animate_text_pulse"))
 	end
-
 end
 
 function HUDPlayerCustody:_get_time_text(time)
@@ -221,6 +215,5 @@ function HUDPlayerCustody:_animate_text_pulse(text)
 		local alpha = 0.5 + math.abs((math.sin(t * 360 * 0.5))) / 2
 		text:set_alpha(alpha)
 	end
-
 end
 

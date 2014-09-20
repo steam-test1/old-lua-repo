@@ -17,14 +17,12 @@ function SimpleVehicle:update(unit, t, dt)
 		self._current_time_speed = math.step(self._current_time_speed, self._target_time_speed, 0.001 * dt)
 		self:_set_anim_time(self._unit:anim_time(self.ANIM_GROUP) + self._current_time_speed)
 	end
-
 	self:_check_reached_target_anim_time()
 end
 
 function SimpleVehicle:_check_reached_target_anim_time()
 	if self._unit:anim_time(self.ANIM_GROUP) >= self._target_anim_time then
 	end
-
 end
 
 function SimpleVehicle:stop()

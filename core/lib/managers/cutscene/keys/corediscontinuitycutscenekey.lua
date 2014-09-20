@@ -29,7 +29,6 @@ function CoreDiscontinuityCutsceneKey:validate_control_for_attribute(attribute_n
 	if attribute_name ~= "description" then
 		return self.super.validate_control_for_attribute(self, attribute_name)
 	end
-
 	return true
 end
 

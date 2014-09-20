@@ -11,7 +11,6 @@ function CoreEWS.image_path(file_name)
 	if file_name ~= "" and EWS and not EWS:system_file_exists(path .. file_name) then
 		path = base_path .. "core\\lib\\utils\\dev\\ews\\images\\"
 	end
-
 	return path .. file_name
 end
 
@@ -32,9 +31,7 @@ function CoreEWS.check_news(parent, category, new_only, style)
 		else
 			EWS:MessageDialog(parent, news, "New Features!", "OK,ICON_INFORMATION"):show_modal()
 		end
-
 	end
-
 	return news
 end
 
@@ -52,7 +49,6 @@ function CoreEWS.topdown_layout(w)
 		q:refresh()
 		q = q:parent()
 	end
-
 end
 
 function CoreEWS.show_log(parent, text, caption)
@@ -75,9 +71,7 @@ function CoreEWS.show_log_file(parent, file, caption)
 		if str ~= "" then
 			CoreEWS.show_log(parent, str, caption or file)
 		end
-
 	end
-
 end
 
 function CoreEWS.number_controller(params)
@@ -100,11 +94,9 @@ function CoreEWS.verify_entered_number(params)
 	if params.min and value < params.min then
 		value = params.min or value
 	end
-
 	if params.max and value > params.max then
 		value = params.max or value
 	end
-
 	params.value = value
 	local floats = params.floats or 0
 	params.number_ctrlr:change_value(string.format("%." .. floats .. "f", value))
@@ -127,13 +119,9 @@ function CoreEWS._connect_events(params)
 	if not params.events then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(params.events)
-	do
-		do break end
+	for _, data in ipairs(params.events) do
 		params.number_ctrlr:connect(data.event, data.callback, params)
 	end
-
 end
 
 function CoreEWS.combobox(params)
@@ -155,27 +143,18 @@ function CoreEWS.combobox(params)
 		name_ctrlr = EWS:StaticText(panel, name, 0, "")
 		ctrl_sizer:add(name_ctrlr, name_proportions, 0, "ALIGN_CENTER_VERTICAL")
 	end
-
 	if sorted then
 		table.sort(options)
 	end
-
 	local ctrlr = EWS:ComboBox(panel, "", "", styles)
 	ctrlr:set_tool_tip(tooltip)
 	ctrlr:freeze()
 	if default then
 		ctrlr:append(default)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(options)
-		do
-			do break end
-			ctrlr:append(option)
-		end
-
+	for _, option in ipairs(options) do
+		ctrlr:append(option)
 	end
-
 	ctrlr:set_value(value)
 	ctrlr:thaw()
 	params.name_ctrlr = name_ctrlr
@@ -196,17 +175,12 @@ function CoreEWS.update_combobox_options(params, options)
 	if params.sorted then
 		table.sort(options)
 	end
-
 	if params.default then
 		params.ctrlr:append(params.default)
 	end
-
-	local (for generator), (for state), (for control) = ipairs(options)
-	do
-		do break end
+	for _, option in ipairs(options) do
 		params.ctrlr:append(option)
 	end
-
 end
 
 function CoreEWS.change_combobox_value(params, value)
@@ -251,7 +225,6 @@ function CoreEWS._ctrlr_tooltip(params)
 	elseif max then
 		params.tooltip = (params.tooltip or "") .. " (Below " .. string.format("%." .. params.floats .. "f", max) .. ")"
 	end
-
 end
 
 function CoreEWS._slider_ctrlr(params)
@@ -272,7 +245,6 @@ function CoreEWS._name_ctrlr(params)
 		params.name_ctrlr = EWS:StaticText(params.panel, params.name, 0, "")
 		params.ctrl_sizer:add(params.name_ctrlr, params.name_proportions, 0, "ALIGN_CENTER_VERTICAL")
 	end
-
 end
 
 function CoreEWS.verify_entered_number(params)
@@ -281,11 +253,9 @@ function CoreEWS.verify_entered_number(params)
 	if params.min and value < params.min then
 		value = params.min or value
 	end
-
 	if params.max and value > params.max then
 		value = params.max or value
 	end
-
 	params.value = value
 	local floats = params.floats or 0
 	ctrlr:change_value(string.format("%." .. floats .. "f", value))
@@ -318,7 +288,6 @@ function CoreEWS:_remove_self(...)
 			select(2, ...)
 		}
 	end
-
 	return unpack(params)
 end
 

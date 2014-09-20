@@ -5,11 +5,9 @@ if Application == nil then
 	end
 
 end
-
 if Global == nil then
 	Global = setmetatable({}, {})
 end
-
 Global.category_print = Global.category_print or {}
 Global.category_print_initialized = Global.category_print_initialized or {}
 require("core/lib/system/CorePatchLua")

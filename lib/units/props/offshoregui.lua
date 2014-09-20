@@ -19,7 +19,6 @@ function OffshoreGui:setup()
 	if self._back_drop_gui then
 		self._back_drop_gui:destroy()
 	end
-
 	self._ws:panel():clear()
 	self._ws:panel():set_alpha(0.8)
 	self._ws:panel():rect({
@@ -83,6 +82,5 @@ function OffshoreGui:destroy()
 		self._ws = nil
 		self._new_gui = nil
 	end
-
 end
 

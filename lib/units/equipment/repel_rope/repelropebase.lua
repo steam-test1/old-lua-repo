@@ -19,13 +19,11 @@ function RepelRopeBase:update(unit, t, dt)
 			mvector3.lerp(new_pos, self._retract_pos, new_pos, prog)
 			self._end_object:set_position(new_pos)
 		end
-
 	else
 		local new_pos = self._tmp_vec3
 		self._attach_obj:m_position(new_pos)
 		self._end_object:set_position(new_pos)
 	end
-
 end
 
 function RepelRopeBase:setup(attach_object)
@@ -41,6 +39,5 @@ function RepelRopeBase:retract()
 		self._unit:m_position(self._tmp_vec3)
 		self._retract_duration = math.max(1, mvector3.distance(self._retract_pos, self._tmp_vec3)) / 600
 	end
-
 end
 

@@ -25,7 +25,6 @@ function CoreChangeShadowCutsceneKey:evaluate(player, fast_forward)
 	if preceeding_key then
 		preceeding_key:revert()
 	end
-
 	self._shadow_interface_id = self._mixer:create_modifier(true, "shared_shadow", self._modify_func)
 end
 
@@ -50,19 +49,12 @@ function CoreChangeShadowCutsceneKey:refresh_control_for_name(control)
 	control:freeze()
 	control:clear()
 	local value = self:name()
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type("environment"))
-		do
-			do break end
-			control:append(setting_name)
-			if setting_name == value then
-				control:set_value(setting_name)
-			end
-
+	for _, setting_name in ipairs(managers.database:list_entries_of_type("environment")) do
+		control:append(setting_name)
+		if setting_name == value then
+			control:set_value(setting_name)
 		end
-
 	end
-
 	control:thaw()
 end
 
@@ -71,6 +63,5 @@ function CoreChangeShadowCutsceneKey:_reset_interface()
 		self._mixer:destroy_modifier(self._shadow_interface_id)
 		self._shadow_interface_id = nil
 	end
-
 end
 

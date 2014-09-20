@@ -59,7 +59,6 @@ function SequenceManager:init(area_damage_mask, target_world_mask, beings_mask)
 	else
 		self:register_event_element_class(SoundElement)
 	end
-
 	self:register_event_element_class(SpawnUnitElement)
 	self:register_event_element_class(StopPhysicEffectElement)
 	self:register_event_element_class(TriggerElement)
@@ -80,16 +79,10 @@ function SequenceManager:init(area_damage_mask, target_world_mask, beings_mask)
 	self._inflict_updator_damage_type_map = {fire = true}
 	self._inflict_updator_body_map = {}
 	self._inflict_updator_body_count = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._inflict_updator_damage_type_map)
-		do
-			do break end
-			self._inflict_updator_body_map[damage_type] = {}
-			self._inflict_updator_body_count[damage_type] = {}
-		end
-
+	for damage_type in pairs(self._inflict_updator_damage_type_map) do
+		self._inflict_updator_body_map[damage_type] = {}
+		self._inflict_updator_body_count[damage_type] = {}
 	end
-
 	self._proximity_masks = {}
 	self._collisions_enabled = true
 	self._proximity_enabled = true
@@ -105,7 +98,6 @@ function SequenceManager:register_event_element_class(element_class)
 	else
 		Application:error("Unable to register event element class \"" .. tostring(class_name(element_class)) .. "\" since there already exists an element with the same name \"" .. tostring(element_class.NAME) .. "\" in class \"" .. tostring(class_name(self._event_element_class_map[element_class.NAME])) .. "\".")
 	end
-
 end
 
 function SequenceManager:get_event_element_class_map()
@@ -118,7 +110,6 @@ function SequenceManager:register_filter_element_class(element_class)
 	else
 		Application:error("Unable to register filter element class \"" .. tostring(class_name(element_class)) .. "\" since there already exists an element with the same name \"" .. tostring(element_class.NAME) .. "\" in class \"" .. tostring(class_name(self._filter_element_class_map[element_class.NAME])) .. "\".")
 	end
-
 end
 
 function SequenceManager:get_filter_element_class_map()
@@ -131,7 +122,6 @@ function SequenceManager:register_inflict_element_class(element_class)
 	else
 		Application:error("Unable to register inflict element class \"" .. tostring(class_name(element_class)) .. "\" since there already exists an element with the same name \"" .. tostring(element_class.NAME) .. "\" in class \"" .. tostring(class_name(self._inflict_element_class_map[element_class.NAME])) .. "\".")
 	end
-
 end
 
 function SequenceManager:get_inflict_element_class_map()
@@ -149,7 +139,6 @@ function SequenceManager:get_inflict_updator_body_map(damage_type, unit_key)
 	else
 		Application:stack_dump_error("Invalid inflict updator damage type \"" .. tostring(damage_type) .. "\". Valid values: " .. SequenceManager:get_keys_as_string(self._inflict_updator_body_map, "", true, false))
 	end
-
 end
 
 function SequenceManager:add_inflict_updator_body(damage_type, unit_key, body_key, body_ext)
@@ -161,12 +150,10 @@ function SequenceManager:add_inflict_updator_body(damage_type, unit_key, body_ke
 			local count_map = self._inflict_updator_body_count[damage_type]
 			count_map[body_key] = (count_map[body_key] or 0) + 1
 		end
-
 		body_map[body_key] = body_ext
 	else
 		Application:stack_dump_error("Invalid inflict updator damage type \"" .. tostring(damage_type) .. "\". Valid values: " .. SequenceManager:get_keys_as_string(self._inflict_updator_body_map, "", true, false))
 	end
-
 end
 
 function SequenceManager:remove_inflict_updator_body(damage_type, unit_key, body_key)
@@ -182,13 +169,10 @@ function SequenceManager:remove_inflict_updator_body(damage_type, unit_key, body
 				unit_map[unit_key] = nil
 				count_map[body_key] = nil
 			end
-
 		end
-
 	else
 		Application:stack_dump_error("Invalid inflict updator damage type \"" .. tostring(damage_type) .. "\". Valid values: " .. SequenceManager:get_keys_as_string(self._inflict_updator_body_map, "", true, false))
 	end
-
 end
 
 function SequenceManager:remove_inflict_updator_body_map(damage_type, unit_key)
@@ -198,7 +182,6 @@ function SequenceManager:remove_inflict_updator_body_map(damage_type, unit_key)
 	else
 		Application:stack_dump_error("Invalid inflict updator damage type \"" .. tostring(damage_type) .. "\". Valid values: " .. SequenceManager:get_keys_as_string(self._inflict_updator_body_map, "", true, false))
 	end
-
 end
 
 function SequenceManager:get_global_core_unit_element()
@@ -242,20 +225,13 @@ function SequenceManager:editor_info(unit_name)
 	local endurance_type_list = {}
 	if unit_element then
 		local body_element_list = unit_element:get_body_element_list()
-		local (for generator), (for state), (for control) = pairs(body_element_list)
-		do
-			do break end
+		for _, body_element in pairs(body_element_list) do
 			local endurance_list = body_element:get_first_endurance_element_list()
-			local (for generator), (for state), (for control) = pairs(endurance_list)
-			do
-				do break end
+			for endurance_type, _ in pairs(endurance_list) do
 				endurance_type_list[endurance_type] = (endurance_type_list[endurance_type] or 0) + 1
 			end
-
 		end
-
 	end
-
 	return self:get_keys_as_string(endurance_type_list, "[None]", true, false)
 end
 
@@ -273,42 +249,32 @@ function SequenceManager:get_keys_as_string(key_value_list, none_string, dot_at_
 		return none_string
 	end
 
-	do
-		local (for generator), (for state), (for control) = pairs(key_value_list)
+	for key, value in pairs(key_value_list) do
 		do
-			do break end
-			do
-				local last_func = func
-				local append_string
-				if only_values then
-					append_string = value
-				else
-					append_string = key
-				end
-
-				function func(count, first)
-					if count == 1 then
-						if first then
-							return append_string .. (dot_at_end and "." or "")
-						else
-							return append_string
-						end
-
-					elseif first then
-						return last_func(count - 1, false) .. " and " .. append_string .. (dot_at_end and "." or "")
+			local last_func = func
+			local append_string
+			if only_values then
+				append_string = value
+			else
+				append_string = key
+			end
+			function func(count, first)
+				if count == 1 then
+					if first then
+						return append_string .. (dot_at_end and "." or "")
 					else
-						return last_func(count - 1, false) .. ", " .. append_string
+						return append_string
 					end
-
+				elseif first then
+					return last_func(count - 1, false) .. " and " .. append_string .. (dot_at_end and "." or "")
+				else
+					return last_func(count - 1, false) .. ", " .. append_string
 				end
-
-				count = count + 1
 			end
 
+			count = count + 1
 		end
-
 	end
-
 	return func(count, true)
 end
 
@@ -325,9 +291,7 @@ function SequenceManager:get(unit_name, ignore_error, create_empty)
 		elseif not ignore_error then
 			Application:throw_exception("The unit \"" .. unit_name:t() .. "\" does not have a \"sequence_manager\" tag within its object xml file.")
 		end
-
 	end
-
 	return unit_element
 end
 
@@ -344,7 +308,6 @@ function SequenceManager:parse_event(node, unit_element)
 	else
 		Application:throw_exception("Unit \"" .. tostring(unit_element._name) .. "\" has an invalid element \"" .. tostring(node._meta) .. "\".")
 	end
-
 end
 
 function SequenceManager:run_sequence_simple(name, dest_unit, params)
@@ -359,7 +322,6 @@ function SequenceManager:run_sequence_simple3(name, endurance_type, source_unit,
 	if alive(dest_unit) then
 		self:run_sequence(name, endurance_type, source_unit, dest_unit, nil, math.UP, dest_unit:position(), math.DOWN, 0, Vector3(), params)
 	end
-
 end
 
 function SequenceManager:run_sequence(name, endurance_type, source_unit, dest_unit, dest_body, dest_normal, position, direction, damage, velocity, params)
@@ -368,9 +330,7 @@ function SequenceManager:run_sequence(name, endurance_type, source_unit, dest_un
 		if unit_element then
 			unit_element:run_sequence(name, endurance_type, source_unit, dest_unit, dest_body, dest_normal, position, direction, damage, velocity, params)
 		end
-
 	end
-
 end
 
 function SequenceManager:get_body_param(unit_name, body_name, param_name)
@@ -381,7 +341,6 @@ function SequenceManager:get_body_param(unit_name, body_name, param_name)
 	else
 		return nil
 	end
-
 end
 
 function SequenceManager:add_time_callback(func, delay, repeat_nr, ...)
@@ -406,16 +365,13 @@ function SequenceManager:add_retry_callback(callback_type, func, try_immediately
 			self._retry_callback_list[callback_type] = {}
 			self._retry_callback_indices[callback_type] = 0
 		end
-
 		local index = self._retry_callback_indices[callback_type] - 1
 		if index < 1 then
 			index = 1
 			self._retry_callback_indices[callback_type] = 1
 		end
-
 		table.insert(self._retry_callback_list[callback_type], index, func)
 	end
-
 end
 
 function SequenceManager:add_callback(func)
@@ -430,65 +386,41 @@ end
 
 function SequenceManager:update(time, delta_time)
 	local remove_time_callback_list
-	do
-		local (for generator), (for state), (for control) = self._time_callback_map:bottom_top_iterator()
-		do
-			do break end
-			if time >= time_callback.time then
-				time_callback.func(time_callback.params and unpack(time_callback.params))
-				if time_callback.repeat_nr > 1 then
-					time_callback.time = time + time_callback.delay + (time - time_callback.time)
-					time_callback.repeat_nr = time_callback.repeat_nr - 1
-				else
-					remove_time_callback_list = remove_time_callback_list or {}
-					table.insert(remove_time_callback_list, id)
-				end
-
+	for id, time_callback in self._time_callback_map:bottom_top_iterator() do
+		if time >= time_callback.time then
+			time_callback.func(time_callback.params and unpack(time_callback.params))
+			if time_callback.repeat_nr > 1 then
+				time_callback.time = time + time_callback.delay + (time - time_callback.time)
+				time_callback.repeat_nr = time_callback.repeat_nr - 1
+			else
+				remove_time_callback_list = remove_time_callback_list or {}
+				table.insert(remove_time_callback_list, id)
 			end
-
 		end
-
 	end
-
 	if remove_time_callback_list then
-		local (for generator), (for state), (for control) = ipairs(remove_time_callback_list)
-		do
-			do break end
+		for _, id in ipairs(remove_time_callback_list) do
 			self._time_callback_map:remove(id)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._retry_callback_list)
-		do
-			do break end
-			if #self._retry_callback_list[callback_type] > 0 then
-				local retry_func = self._retry_callback_list[callback_type][self._retry_callback_indices[callback_type]]
-				if retry_func() then
-					table.remove(self._retry_callback_list[callback_type], self._retry_callback_indices[callback_type])
-					self._retry_callback_indices[callback_type] = self._retry_callback_indices[callback_type] - 1
-				end
-
-				self._retry_callback_indices[callback_type] = self._retry_callback_indices[callback_type] + 1
-				if self._retry_callback_indices[callback_type] > #self._retry_callback_list[callback_type] then
-					self._retry_callback_indices[callback_type] = 1
-				end
-
-			else
-				self._retry_callback_list[callback_type] = nil
+	for callback_type, list in pairs(self._retry_callback_list) do
+		if #self._retry_callback_list[callback_type] > 0 then
+			local retry_func = self._retry_callback_list[callback_type][self._retry_callback_indices[callback_type]]
+			if retry_func() then
+				table.remove(self._retry_callback_list[callback_type], self._retry_callback_indices[callback_type])
+				self._retry_callback_indices[callback_type] = self._retry_callback_indices[callback_type] - 1
 			end
-
+			self._retry_callback_indices[callback_type] = self._retry_callback_indices[callback_type] + 1
+			if self._retry_callback_indices[callback_type] > #self._retry_callback_list[callback_type] then
+				self._retry_callback_indices[callback_type] = 1
+			end
+		else
+			self._retry_callback_list[callback_type] = nil
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._callback_map)
-	do
-		do break end
+	for _, func in pairs(self._callback_map) do
 		func(time, delta_time)
 	end
-
 end
 
 function SequenceManager:_serialize_to_script(type, name)
@@ -497,7 +429,6 @@ function SequenceManager:_serialize_to_script(type, name)
 	else
 		return PackageManager:script_data(type:id(), name)
 	end
-
 end
 
 function SequenceManager:_add_sequences_from_unit_data(unit_data)
@@ -505,53 +436,35 @@ function SequenceManager:_add_sequences_from_unit_data(unit_data)
 	if self._sequence_file_map[unit_name:key()] then
 		return
 	end
-
 	local seq_manager_filename = unit_data:sequence_manager_filename()
 	if seq_manager_filename then
-		do
-			local (for generator), (for state), (for control) = pairs(self._sequence_file_map)
-			do
-				do break end
-				if file == seq_manager_filename then
-					self._sequence_file_map[unit_name:key()] = seq_manager_filename
-					self._unit_elements[unit_name:key()] = self._unit_elements[key]
-					return
-				end
-
+		for key, file in pairs(self._sequence_file_map) do
+			if file == seq_manager_filename then
+				self._sequence_file_map[unit_name:key()] = seq_manager_filename
+				self._unit_elements[unit_name:key()] = self._unit_elements[key]
+				return
 			end
-
 		end
-
 		if DB:has(self.SEQUENCE_FILE_EXTENSION, seq_manager_filename) then
 			self._sequence_file_map[unit_name:key()] = seq_manager_filename
 			manager_node = self:_serialize_to_script(self.SEQUENCE_FILE_EXTENSION:id(), seq_manager_filename)
 		else
 			Application:error("Unit \"" .. unit_name:t() .. "\" refers to the external sequence manager file \"" .. seq_manager_filename:t() .. "." .. self.SEQUENCE_FILE_EXTENSION .. "\", but it doesn't exist.")
 		end
-
 		if manager_node then
-			local (for generator), (for state), (for control) = ipairs(manager_node)
-			do
-				do break end
+			for _, data in ipairs(manager_node) do
 				if data._meta == "unit" then
 					self._unit_elements[unit_name:key()] = UnitElement:new(data, unit_name)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function SequenceManager:preload()
-	local (for generator), (for state), (for control) = pairs(PackageManager:all_loaded_unit_data())
-	do
-		do break end
+	for _, unit_data in pairs(PackageManager:all_loaded_unit_data()) do
 		self:_add_sequences_from_unit_data(unit_data)
 	end
-
 end
 
 function SequenceManager:reload(unit_name, sequences_only)
@@ -560,27 +473,19 @@ function SequenceManager:reload(unit_name, sequences_only)
 			CoreEngineAccess._editor_reload(self.IDS_UNIT, unit_name:id())
 			Application:reload_material_config(PackageManager:unit_data(unit_name:id()):material_config():id())
 		end
-
 		local unit_data = PackageManager:unit_data(unit_name)
 		local sequence_file = unit_data:sequence_manager_filename()
 		PackageManager:reload(self.SEQUENCE_FILE_EXTENSION:id(), sequence_file)
 		self:_add_sequences_from_unit_data(unit_data)
 	end
-
 end
 
 function SequenceManager:reload_all()
 	local old_unit_element_map = self._unit_elements
 	self:clear()
-	do
-		local (for generator), (for state), (for control) = pairs(old_unit_element_map)
-		do
-			do break end
-			CoreEngineAccess._editor_reload(self.IDS_UNIT, unit_element:get_name():id())
-		end
-
+	for _, unit_element in pairs(old_unit_element_map) do
+		CoreEngineAccess._editor_reload(self.IDS_UNIT, unit_element:get_name():id())
 	end
-
 	self:preload()
 end
 
@@ -606,13 +511,11 @@ function SequenceManager:test_unit_by_name(unit_name, pos, rot)
 	if alive(unit) then
 		unit:set_slot(0)
 	end
-
 	unit = CoreUnit.safe_spawn_unit(unit_name, pos, rot)
 	self:test_unit_damage(unit)
 	if alive(unit) then
 		unit:set_slot(0)
 	end
-
 end
 
 function SequenceManager:test_unit_variations(unit)
@@ -626,7 +529,6 @@ function SequenceManager:test_unit_variations(unit)
 			elseif #reset_variation_list > 1 then
 				Application:error("Too many sequences with the attribute \"reset_editable_state\". Found " .. #reset_variation_list .. ", should only be 1.")
 			end
-
 			local param_list = {
 				"change_state",
 				unit,
@@ -639,62 +541,42 @@ function SequenceManager:test_unit_variations(unit)
 				Vector3(),
 				nil
 			}
-			local (for generator), (for state), (for control) = ipairs(variation_list)
-			do
-				do break end
+			for _, name in ipairs(variation_list) do
 				unit_element:run_sequence(name, unpack(param_list))
 				if #reset_variation_list > 0 then
 					unit_element:run_sequence(reset_variation_list[1], unpack(param_list))
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function SequenceManager:test_unit_damage(unit)
 	if alive(unit) and unit:damage() then
 		local unit_element = self._unit_elements[unit:name():key()]
-		local (for generator), (for state), (for control) = pairs(unit_element._bodies)
-		do
-			do break end
+		for body_name, body_element in pairs(unit_element._bodies) do
 			if alive(unit) then
-				do
-					local (for generator), (for state), (for control) = pairs(body_element._first_endurance)
-					do
-						do break end
-						local body = unit:body(body_name)
-						if alive(body) then
-							cat_debug("debug", "-Damaging endurance_type: " .. endurance_type .. ", on body:" .. body_name)
-							local func = body:extension().damage["damage_" .. endurance_type]
-							if func then
-								local damage = 0.5
-								for i = 1, 10 do
-									func(body:extension().damage, unit, Vector3(0, 0, 1), body:position(), Vector3(0, 0, -1), damage, Vector3(0, 0, 10000))
-									damage = damage * 2
-								end
-
-							else
-								Application:error("Invalid endurance_type \"" .. endurance_type .. "\"!")
+				for endurance_type, endurance in pairs(body_element._first_endurance) do
+					local body = unit:body(body_name)
+					if alive(body) then
+						cat_debug("debug", "-Damaging endurance_type: " .. endurance_type .. ", on body:" .. body_name)
+						local func = body:extension().damage["damage_" .. endurance_type]
+						if func then
+							local damage = 0.5
+							for i = 1, 10 do
+								func(body:extension().damage, unit, Vector3(0, 0, 1), body:position(), Vector3(0, 0, -1), damage, Vector3(0, 0, 10000))
+								damage = damage * 2
 							end
-
+						else
+							Application:error("Invalid endurance_type \"" .. endurance_type .. "\"!")
 						end
-
 					end
-
 				end
-
-				do break end
+			else
 				break
 			end
-
 		end
-
 	end
-
 end
 
 function SequenceManager:load_element_data(unit, element_name, data)
@@ -705,41 +587,28 @@ function SequenceManager:save(data)
 	local state = {}
 	local changed = self:save_global_save_data(state)
 	local unit_element_map = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._unit_elements)
-		do
-			do break end
-			changed = unit_element:save(unit_element_map) or changed
-		end
-
+	for _, unit_element in pairs(self._unit_elements) do
+		changed = unit_element:save(unit_element_map) or changed
 	end
-
 	if changed then
 		state.unit_element_map = unit_element_map
 		data.CoreSequenceManager = state
 	end
-
 end
 
 function SequenceManager:load(data)
 	local state = data.CoreSequenceManager
 	if state then
 		if state.unit_element_map then
-			local (for generator), (for state), (for control) = pairs(state.unit_element_map)
-			do
-				do break end
+			for unit_name, _ in pairs(state.unit_element_map) do
 				local unit_element = self:get(unit_name, true)
 				if unit_element then
 					unit_element:load(state)
 				end
-
 			end
-
 		end
-
 		self:load_global_save_data(state)
 	end
-
 end
 
 function SequenceManager:save_global_save_data(data)
@@ -751,7 +620,6 @@ function SequenceManager:save_global_save_data(data)
 	else
 		return false
 	end
-
 end
 
 function SequenceManager:load_global_save_data(data)
@@ -762,7 +630,6 @@ function SequenceManager:load_global_save_data(data)
 	else
 		return false
 	end
-
 end
 
 function SequenceManager:internal_load()
@@ -773,18 +640,14 @@ function SequenceManager:internal_load()
 			self._global_core_unit_element = UnitElement:new(core_data, "[Global core sequence]", true)
 			self._global_core_unit_element.get_sequence_element = managers.sequence.get_global_sequence
 		end
-
 	end
-
 	if DB:has(self.SEQUENCE_FILE_EXTENSION, self.GLOBAL_SEQUENCE_PATH) then
 		local data = PackageManager:script_data(self.SEQUENCE_FILE_EXTENSION:id(), self.GLOBAL_SEQUENCE_PATH:id())
 		if data and data._meta == "sequence_manager" then
 			SequenceEnvironment:init_static_env()
 			self._global_unit_element = UnitElement:new(data, "[Global sequence]", true)
 		end
-
 	end
-
 	SequenceEnvironment:init_static_env()
 end
 
@@ -814,83 +677,29 @@ function SequenceManager:do_area_damage(damage_type, attack_unit, pos, range, co
 		ignore_unit = attack_unit
 		ray_caller = World
 	end
-
 	local body_sphere = attack_unit:find_bodies("intersect", "sphere", pos, range, self._area_damage_mask - ignore_mask)
-	do
-		local (for generator), (for state), (for control) = ipairs(body_sphere)
-		do
-			do break end
-			local unit = alive(body) and body:unit()
-			local unit_key = unit and unit:key()
-			if unit and unit_key ~= ignore_unit_key then
-				local body_extension = body:extension()
-				body_extension = body_extension and body_extension.damage
-				if body_extension then
-					local hit_pos = body:center_of_mass()
-					local dir = hit_pos - pos:normalized()
-					local unit_extension = unit:damage()
-					local body_damage
-					if get_damage_func then
-						body_damage = get_damage_func(unit, body, dir, hit_pos, damage_type, attack_unit, pos, range, constant_damage, damage, velocity, ignore_unit, direct_attack_unit, ignore_mask)
-					elseif constant_damage then
-						body_damage = damage
-					else
-						body_damage = damage * (1 - math.clamp(get_distance_to_body(body, pos) / range, 0, 1))
-					end
-
-					self:do_area_damage_on_body(unit, body, body_extension, damage_type, attack_unit, -dir, pos, dir, body_damage, velocity, ignore_unit, direct_attack_unit)
-					if not checked_unit_map[unit_key] then
-						local dead, damage = self:do_area_damage_on_unit(unit, body, unit_extension, damage_type, attack_unit, -dir, pos, dir, body_damage, velocity, velocity, ignore_unit, direct_attack_unit)
-						hit_prop_map[unit_key] = unit
-						if damage then
-							if type(damage) ~= "number" then
-								Application:error("Unit \"" .. tostring(unit:name()) .. "\" has an invalid damage extension \"" .. tostring(class_name(getmetatable(unit_extension))) .. "\", its \"damage_" .. tostring(damage_type) .. "\"-function returned the invalid values \"" .. tostring(dead) .. ", " .. tostring(damage) .. [[
-". Should be "dead, damage".
-THIS WILL CRASH SOON, SO FIX IT!
-]])
-							elseif damage > 0 then
-								damaged_prop_map[unit_key] = unit
-								if dead then
-									killed_prop_map[unit_key] = unit
-								end
-
-							end
-
-						end
-
-						checked_unit_map[unit_key] = true
-					end
-
+	for _, body in ipairs(body_sphere) do
+		local unit = alive(body) and body:unit()
+		local unit_key = unit and unit:key()
+		if unit and unit_key ~= ignore_unit_key then
+			local body_extension = body:extension()
+			body_extension = body_extension and body_extension.damage
+			if body_extension then
+				local hit_pos = body:center_of_mass()
+				local dir = hit_pos - pos:normalized()
+				local unit_extension = unit:damage()
+				local body_damage
+				if get_damage_func then
+					body_damage = get_damage_func(unit, body, dir, hit_pos, damage_type, attack_unit, pos, range, constant_damage, damage, velocity, ignore_unit, direct_attack_unit, ignore_mask)
+				elseif constant_damage then
+					body_damage = damage
+				else
+					body_damage = damage * (1 - math.clamp(get_distance_to_body(body, pos) / range, 0, 1))
 				end
-
-			end
-
-		end
-
-	end
-
-	local unit_sphere = attack_unit:find_units("sphere", pos, range, self._beings_mask - ignore_mask)
-	do
-		local (for generator), (for state), (for control) = ipairs(unit_sphere)
-		do
-			do break end
-			local unit_key = alive(unit) and unit:key()
-			local unit_extension = unit_key and unit:damage()
-			if unit_key and unit_key ~= ignore_unit_key and not checked_unit_map[unit_key] and unit_extension then
-				local hit, hit_pos = self:is_hit_by_area_damage(unit, pos, ray_caller, ignore_unit)
-				if hit then
-					local dir = unit:position() - pos:normalized()
-					local unit_damage
-					if get_damage_func then
-						unit_damage = get_damage_func(unit, nil, dir, hit_pos, damage_type, attack_unit, pos, range, constant_damage, damage, velocity, ignore_unit, direct_attack_unit, ignore_mask)
-					elseif constant_damage then
-						unit_damage = damage
-					else
-						unit_damage = damage * (1 - math.clamp(hit_pos - pos:length() / range, 0, 1))
-					end
-
-					local dead, damage = self:do_area_damage_on_unit(unit, nil, unit_extension, damage_type, attack_unit, -dir, pos, dir, unit_damage, velocity, ignore_unit, direct_attack_unit)
-					hit_being_map[unit_key] = unit
+				self:do_area_damage_on_body(unit, body, body_extension, damage_type, attack_unit, -dir, pos, dir, body_damage, velocity, ignore_unit, direct_attack_unit)
+				if not checked_unit_map[unit_key] then
+					local dead, damage = self:do_area_damage_on_unit(unit, body, unit_extension, damage_type, attack_unit, -dir, pos, dir, body_damage, velocity, velocity, ignore_unit, direct_attack_unit)
+					hit_prop_map[unit_key] = unit
 					if damage then
 						if type(damage) ~= "number" then
 							Application:error("Unit \"" .. tostring(unit:name()) .. "\" has an invalid damage extension \"" .. tostring(class_name(getmetatable(unit_extension))) .. "\", its \"damage_" .. tostring(damage_type) .. "\"-function returned the invalid values \"" .. tostring(dead) .. ", " .. tostring(damage) .. [[
@@ -898,41 +707,61 @@ THIS WILL CRASH SOON, SO FIX IT!
 THIS WILL CRASH SOON, SO FIX IT!
 ]])
 						elseif damage > 0 then
-							damaged_being_map[unit_key] = unit
+							damaged_prop_map[unit_key] = unit
 							if dead then
-								killed_being_map[unit_key] = unit
+								killed_prop_map[unit_key] = unit
 							end
-
 						end
-
 					end
-
+					checked_unit_map[unit_key] = true
 				end
-
 			end
-
 		end
-
 	end
-
+	local unit_sphere = attack_unit:find_units("sphere", pos, range, self._beings_mask - ignore_mask)
+	for _, unit in ipairs(unit_sphere) do
+		local unit_key = alive(unit) and unit:key()
+		local unit_extension = unit_key and unit:damage()
+		if unit_key and unit_key ~= ignore_unit_key and not checked_unit_map[unit_key] and unit_extension then
+			local hit, hit_pos = self:is_hit_by_area_damage(unit, pos, ray_caller, ignore_unit)
+			if hit then
+				local dir = unit:position() - pos:normalized()
+				local unit_damage
+				if get_damage_func then
+					unit_damage = get_damage_func(unit, nil, dir, hit_pos, damage_type, attack_unit, pos, range, constant_damage, damage, velocity, ignore_unit, direct_attack_unit, ignore_mask)
+				elseif constant_damage then
+					unit_damage = damage
+				else
+					unit_damage = damage * (1 - math.clamp(hit_pos - pos:length() / range, 0, 1))
+				end
+				local dead, damage = self:do_area_damage_on_unit(unit, nil, unit_extension, damage_type, attack_unit, -dir, pos, dir, unit_damage, velocity, ignore_unit, direct_attack_unit)
+				hit_being_map[unit_key] = unit
+				if damage then
+					if type(damage) ~= "number" then
+						Application:error("Unit \"" .. tostring(unit:name()) .. "\" has an invalid damage extension \"" .. tostring(class_name(getmetatable(unit_extension))) .. "\", its \"damage_" .. tostring(damage_type) .. "\"-function returned the invalid values \"" .. tostring(dead) .. ", " .. tostring(damage) .. [[
+". Should be "dead, damage".
+THIS WILL CRASH SOON, SO FIX IT!
+]])
+					elseif damage > 0 then
+						damaged_being_map[unit_key] = unit
+						if dead then
+							killed_being_map[unit_key] = unit
+						end
+					end
+				end
+			end
+		end
+	end
 	if physic_effect then
 		if mass then
 			World:play_physic_effect(physic_effect, pos, range, mass)
 		else
 			World:play_physic_effect(physic_effect, pos, range)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._area_damage_callback_map)
-		do
-			do break end
-			func(id, killed_being_map, damaged_being_map, killed_prop_map, damaged_prop_map, hit_being_map, hit_prop_map)
-		end
-
+	for id, func in pairs(self._area_damage_callback_map) do
+		func(id, killed_being_map, damaged_being_map, killed_prop_map, damaged_prop_map, hit_being_map, hit_prop_map)
 	end
-
 	return killed_being_map, damaged_being_map, killed_prop_map, damaged_prop_map, hit_being_map, hit_prop_map
 end
 
@@ -953,27 +782,20 @@ function SequenceManager:is_hit_by_area_damage(dest_unit, position, ray_caller, 
 	local ray
 	local had_target_object = false
 	if dest_unit:unit_data() and dest_unit:unit_data().target_objects then
-		local (for generator), (for state), (for control) = pairs(dest_unit:unit_data().target_objects)
-		do
-			do break end
+		for _, obj in pairs(dest_unit:unit_data().target_objects) do
 			had_target_object = true
 			ray = ray_caller:raycast("ray", obj:position(), position, "slot_mask", self._target_world_mask, "ignore_unit", {dest_unit, ignore_unit})
 			if not ray then
 				return true, obj:position()
 			end
-
 		end
-
 	end
-
 	if not had_target_object then
 		ray = ray_caller:raycast("ray", dest_unit:position(), position, "slot_mask", self._target_world_mask, "ignore_unit", {dest_unit, ignore_unit})
 		if not ray then
 			return true, dest_unit:position()
 		end
-
 	end
-
 	return false
 end
 
@@ -996,7 +818,6 @@ function SequenceManager:get_trigger_list(unit_name)
 	else
 		return {}
 	end
-
 end
 
 function SequenceManager:get_trigger_map(unit_name)
@@ -1006,7 +827,6 @@ function SequenceManager:get_trigger_map(unit_name)
 	else
 		return {}
 	end
-
 end
 
 function SequenceManager:get_sequence_list(unit_name, property_name, property_value)
@@ -1018,9 +838,7 @@ function SequenceManager:get_sequence_list(unit_name, property_name, property_va
 		else
 			sequence_list = unit_element:get_sequence_name_list()
 		end
-
 	end
-
 	return sequence_list
 end
 
@@ -1029,21 +847,14 @@ function SequenceManager:has_sequence_name(unit_name, sequence_name, ignore_erro
 	if unit_element then
 		return unit_element:has_sequence_name(sequence_name)
 	end
-
 	return false
 end
 
 function SequenceManager:get_unit_count()
 	local count = 0
-	do
-		local (for generator), (for state), (for control) = pairs(self._unit_elements)
-		do
-			do break end
-			count = count + 1
-		end
-
+	for _ in pairs(self._unit_elements) do
+		count = count + 1
 	end
-
 	return count
 end
 
@@ -1057,9 +868,7 @@ function SequenceManager.set_effect_spawner_enabled(effect_spawner, enabled)
 		else
 			return false
 		end
-
 	end
-
 	return true
 end
 
@@ -1100,7 +909,6 @@ function SequenceEnvironment:init(endurance_type, source_unit, dest_unit, dest_b
 		self:print_vars()
 		Application:error("Unit doesn't have a damage extension.")
 	end
-
 end
 
 function SequenceEnvironment:init_static_env()
@@ -1117,13 +925,11 @@ function SequenceEnvironment:init_static_env()
 		self.g_vars = table.map_copy(global_core_unit_element:get_global_set_var_map() or {})
 		self.vars = table.map_copy(global_core_unit_element:get_set_var_map() or {})
 	end
-
 	local global_unit_element = managers.sequence:get_global_unit_element()
 	if global_unit_element then
 		self.g_vars = table.map_copy(global_unit_element:get_global_set_var_map() or {})
 		self.vars = table.map_copy(global_unit_element:get_set_var_map() or {})
 	end
-
 	self.params = {}
 	self.__run_params = CoreTable.clone(self.params)
 	self.dest_unit = nil
@@ -1169,7 +975,6 @@ function SequenceEnvironment.object_pos(object_name)
 		SequenceEnvironment.element:print_error("Invalid object name \"" .. tostring(object_name) .. "\" in domain function \"object_pos\".", true, SequenceEnvironment.self)
 		return Vector3()
 	end
-
 end
 
 function SequenceEnvironment.object_rot(object_name)
@@ -1180,7 +985,6 @@ function SequenceEnvironment.object_rot(object_name)
 		SequenceEnvironment.element:print_error("Invalid object name \"" .. tostring(object_name) .. "\" in domain function \"object_rot\".", true, SequenceEnvironment.self)
 		return Rotation()
 	end
-
 end
 
 function SequenceEnvironment.object_rot_x(object_name)
@@ -1191,7 +995,6 @@ function SequenceEnvironment.object_rot_x(object_name)
 		SequenceEnvironment.element:print_error("Invalid object name \"" .. tostring(object_name) .. "\" in domain function \"object_rot_x\".", true, SequenceEnvironment.self)
 		return Vector3()
 	end
-
 end
 
 function SequenceEnvironment.object_rot_y(object_name)
@@ -1202,7 +1005,6 @@ function SequenceEnvironment.object_rot_y(object_name)
 		SequenceEnvironment.element:print_error("Invalid object name \"" .. tostring(object_name) .. "\" in domain function \"object_rot_y\".", true, SequenceEnvironment.self)
 		return Vector3()
 	end
-
 end
 
 function SequenceEnvironment.object_rot_z(object_name)
@@ -1213,7 +1015,6 @@ function SequenceEnvironment.object_rot_z(object_name)
 		SequenceEnvironment.element:print_error("Invalid object name \"" .. tostring(object_name) .. "\" in domain function \"object_rot_z\".", true, SequenceEnvironment.self)
 		return Vector3()
 	end
-
 end
 
 function SequenceEnvironment.object_local_pos(object_name)
@@ -1224,7 +1025,6 @@ function SequenceEnvironment.object_local_pos(object_name)
 		SequenceEnvironment.element:print_error("Invalid object name \"" .. tostring(object_name) .. "\" in domain function \"object_local_pos\".", true, SequenceEnvironment.self)
 		return Vector3()
 	end
-
 end
 
 function SequenceEnvironment.object_local_rot(object_name)
@@ -1235,7 +1035,6 @@ function SequenceEnvironment.object_local_rot(object_name)
 		SequenceEnvironment.element:print_error("Invalid object name \"" .. tostring(object_name) .. "\" in domain function \"object_local_rot\".", true, SequenceEnvironment.self)
 		return Rotation()
 	end
-
 end
 
 function SequenceEnvironment.object_local_rot_x(object_name)
@@ -1246,7 +1045,6 @@ function SequenceEnvironment.object_local_rot_x(object_name)
 		SequenceEnvironment.element:print_error("Invalid object name \"" .. tostring(object_name) .. "\" in domain function \"object_local_rot_x\".", true, SequenceEnvironment.self)
 		return Vector3()
 	end
-
 end
 
 function SequenceEnvironment.object_local_rot_y(object_name)
@@ -1257,7 +1055,6 @@ function SequenceEnvironment.object_local_rot_y(object_name)
 		SequenceEnvironment.element:print_error("Invalid object name \"" .. tostring(object_name) .. "\" in domain function \"object_local_rot_y\".", true, SequenceEnvironment.self)
 		return Vector3()
 	end
-
 end
 
 function SequenceEnvironment.object_local_rot_z(object_name)
@@ -1268,7 +1065,6 @@ function SequenceEnvironment.object_local_rot_z(object_name)
 		SequenceEnvironment.element:print_error("Invalid object name \"" .. tostring(object_name) .. "\" in domain function \"object_local_rot_z\".", true, SequenceEnvironment.self)
 		return Vector3()
 	end
-
 end
 
 function SequenceEnvironment.object_rot_y_flat(object_name)
@@ -1281,7 +1077,6 @@ function SequenceEnvironment.object_rot_y_flat(object_name)
 		SequenceEnvironment.element:print_error("Invalid object name \"" .. tostring(object_name) .. "\" in domain function \"object_rot_y\".", true, SequenceEnvironment.self)
 		return Rotation()
 	end
-
 end
 
 function SequenceEnvironment.Z()
@@ -1300,15 +1095,9 @@ function SequenceEnvironment.rot_sum(...)
 		...
 	}
 	local rot_sum = Rotation()
-	do
-		local (for generator), (for state), (for control) = ipairs(rot_list)
-		do
-			do break end
-			rot_sum = Rotation(rot_sum:yaw() + rot:yaw(), rot_sum:pitch() + rot:pitch(), rot_sum:roll() + rot:roll())
-		end
-
+	for _, rot in ipairs(rot_list) do
+		rot_sum = Rotation(rot_sum:yaw() + rot:yaw(), rot_sum:pitch() + rot:pitch(), rot_sum:roll() + rot:roll())
 	end
-
 	return rot_sum
 end
 
@@ -1323,7 +1112,6 @@ function SequenceEnvironment.rot_div(rot, float)
 		SequenceEnvironment.element:print_error("The rotation \"" .. tostring(object_name) .. "\" was divided by zero in domain function \"rot_div\".", true, SequenceEnvironment.self)
 		return Rotation()
 	end
-
 end
 
 function SequenceEnvironment.t()
@@ -1339,72 +1127,43 @@ function SequenceEnvironment.print_vars()
 	else
 		cat_print("debug", "dest_body: " .. tostring(SequenceEnvironment.self.dest_body))
 	end
-
 	cat_print("debug", "dest_normal: " .. tostring(SequenceEnvironment.self.dest_normal))
 	cat_print("debug", "pos: " .. tostring(SequenceEnvironment.self.pos))
 	cat_print("debug", "dir: " .. tostring(SequenceEnvironment.self.dir))
 	cat_print("debug", "damage: " .. tostring(SequenceEnvironment.self.damage))
 	cat_print("debug", "velocity: " .. tostring(SequenceEnvironment.self.velocity))
 	local first = true
-	do
-		local (for generator), (for state), (for control) = pairs(SequenceEnvironment.self.params)
-		do
-			do break end
-			if first then
-				cat_print("debug", "Parameters:")
-				first = false
-			end
-
-			cat_print("debug", "  params." .. tostring(k) .. "=" .. tostring(v))
+	for k, v in pairs(SequenceEnvironment.self.params) do
+		if first then
+			cat_print("debug", "Parameters:")
+			first = false
 		end
-
+		cat_print("debug", "  params." .. tostring(k) .. "=" .. tostring(v))
 	end
-
 	first = true
-	do
-		local (for generator), (for state), (for control) = pairs(SequenceEnvironment.self.__run_params)
-		do
-			do break end
-			if first then
-				cat_print("debug", "Original parameters:")
-				first = false
-			end
-
-			cat_print("debug", "  params." .. tostring(k) .. "=" .. tostring(v))
+	for k, v in pairs(SequenceEnvironment.self.__run_params) do
+		if first then
+			cat_print("debug", "Original parameters:")
+			first = false
 		end
-
+		cat_print("debug", "  params." .. tostring(k) .. "=" .. tostring(v))
 	end
-
 	first = true
-	do
-		local (for generator), (for state), (for control) = pairs(SequenceEnvironment.self.vars)
-		do
-			do break end
-			if first then
-				cat_print("debug", "Local variables:")
-				first = false
-			end
-
-			cat_print("debug", "  vars." .. tostring(k) .. "=" .. tostring(v))
+	for k, v in pairs(SequenceEnvironment.self.vars) do
+		if first then
+			cat_print("debug", "Local variables:")
+			first = false
 		end
-
+		cat_print("debug", "  vars." .. tostring(k) .. "=" .. tostring(v))
 	end
-
 	first = true
-	do
-		local (for generator), (for state), (for control) = pairs(SequenceEnvironment.self.g_vars)
-		do
-			do break end
-			if first then
-				cat_print("debug", "Global variables:")
-				first = false
-			end
-
-			cat_print("debug", "  g_vars." .. tostring(k) .. "=" .. tostring(v))
+	for k, v in pairs(SequenceEnvironment.self.g_vars) do
+		if first then
+			cat_print("debug", "Global variables:")
+			first = false
 		end
-
+		cat_print("debug", "  g_vars." .. tostring(k) .. "=" .. tostring(v))
 	end
-
 	cat_print("debug", SequenceEnvironment.element:get_xml_origin())
 end
 
@@ -1416,11 +1175,9 @@ function SequenceEnvironment.angle(v1, v2, up)
 		else
 			return v1:angle(v2) + 180
 		end
-
 	else
 		return v1:angle(v2)
 	end
-
 end
 
 function SequenceEnvironment.pos_side(obj, pos)
@@ -1439,20 +1196,17 @@ function SequenceEnvironment.dir_side(obj, dir)
 		else
 			return "left"
 		end
-
 	elseif abs_y >= abs_z then
 		if world_dir.y > 0 then
 			return "front"
 		else
 			return "back"
 		end
-
 	elseif world_dir.z > 0 then
 		return "up"
 	else
 		return "down"
 	end
-
 end
 
 function SequenceEnvironment.within_box(pos, box_pos1, box_pos2)
@@ -1467,7 +1221,6 @@ function SequenceEnvironment.light_mul(light_name)
 		SequenceEnvironment.element:print_error("Invalid light object name \"" .. tostring(light_name) .. "\" in domain function \"light_mul\".", true, SequenceEnvironment.self)
 		return 0
 	end
-
 end
 
 function SequenceEnvironment.light_color(light_name)
@@ -1478,7 +1231,6 @@ function SequenceEnvironment.light_color(light_name)
 		SequenceEnvironment.element:print_error("Invalid light object name \"" .. tostring(light_name) .. "\" in domain function \"light_color\".", true, SequenceEnvironment.self)
 		return Vector3()
 	end
-
 end
 
 function SequenceEnvironment.light_far_range(light_name)
@@ -1489,7 +1241,6 @@ function SequenceEnvironment.light_far_range(light_name)
 		SequenceEnvironment.element:print_error("Invalid light object name \"" .. tostring(light_name) .. "\" in domain function \"light_far_range\".", true, SequenceEnvironment.self)
 		return 0
 	end
-
 end
 
 function SequenceEnvironment.light_spot_angle_start(light_name)
@@ -1500,7 +1251,6 @@ function SequenceEnvironment.light_spot_angle_start(light_name)
 		SequenceEnvironment.element:print_error("Invalid light object name \"" .. tostring(light_name) .. "\" in domain function \"light_spot_angle_start\".", true, SequenceEnvironment.self)
 		return 0
 	end
-
 end
 
 function SequenceEnvironment.light_spot_angle_end(light_name)
@@ -1511,7 +1261,6 @@ function SequenceEnvironment.light_spot_angle_end(light_name)
 		SequenceEnvironment.element:print_error("Invalid light object name \"" .. tostring(light_name) .. "\" in domain function \"light_spot_angle_start\".", true, SequenceEnvironment.self)
 		return 0
 	end
-
 end
 
 function SequenceEnvironment.get_unique_save_data(id)
@@ -1535,7 +1284,6 @@ function SequenceEnvironment.get_camera_pos(index)
 	else
 		return Vector3()
 	end
-
 end
 
 function SequenceEnvironment.get_camera_rot(index)
@@ -1545,7 +1293,6 @@ function SequenceEnvironment.get_camera_rot(index)
 	else
 		return Rotation()
 	end
-
 end
 
 BaseElement = BaseElement or class()
@@ -1563,18 +1310,11 @@ function BaseElement:init(node, unit_element)
 		self._node_file = self:retrieve_node_file(node)
 		self._node_line = self:retrieve_node_line(node)
 		self._parameters = {}
-		do
-			local (for generator), (for state), (for control) = pairs(node)
-			do
-				do break end
-				if n ~= "_meta" and CoreClass.type_name(data) ~= "table" then
-					self._parameters[n] = data
-				end
-
+		for n, data in pairs(node) do
+			if n ~= "_meta" and CoreClass.type_name(data) ~= "table" then
+				self._parameters[n] = data
 			end
-
 		end
-
 		self._start_time = self:get("start_time")
 		self._start_time_var = self:get("start_time_id_var")
 		self._repeat_nr = self:get("repeat_nr")
@@ -1583,7 +1323,6 @@ function BaseElement:init(node, unit_element)
 	else
 		self._parameters = {}
 	end
-
 	if __filter_name ~= nil and unit_element then
 		function self:_is_allowed_func(env)
 			local filter_name = self:run_parsed_func(env, __filter_name)
@@ -1593,11 +1332,9 @@ function BaseElement:init(node, unit_element)
 			else
 				return filter_name
 			end
-
 		end
 
 	end
-
 	if __delayed_filter_name ~= nil and unit_element then
 		function self:_delayed_is_allowed_func(env)
 			local filter_name = self:run_parsed_func(env, __delayed_filter_name)
@@ -1607,11 +1344,9 @@ function BaseElement:init(node, unit_element)
 			else
 				return filter_name
 			end
-
 		end
 
 	end
-
 end
 
 function BaseElement:retrieve_node_file(node)
@@ -1625,7 +1360,6 @@ function BaseElement:retrieve_node_line(node)
 	else
 		return line
 	end
-
 end
 
 function BaseElement:get(name, set_function)
@@ -1651,13 +1385,10 @@ function BaseElement:get_static(name, value, set_function, node)
 				end
 
 			end
-
 		else
 			self:print_error("Unable to parse " .. tostring(name) .. "=\"" .. tostring(value) .. "\".\n" .. tostring(error_msg), true, nil, node)
 		end
-
 	end
-
 	return nil
 end
 
@@ -1667,34 +1398,21 @@ function BaseElement:run_parsed_func(env, func)
 	else
 		return nil
 	end
-
 end
 
 function BaseElement:run_parsed_func_list(env, list)
 	local parsed_list = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(list)
-		do
-			do break end
-			table.insert(parsed_list, self:run_parsed_func(env, func))
-		end
-
+	for _, func in ipairs(list) do
+		table.insert(parsed_list, self:run_parsed_func(env, func))
 	end
-
 	return parsed_list
 end
 
 function BaseElement:run_parsed_func_map(env, map)
 	local parsed_map = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(map)
-		do
-			do break end
-			parsed_map[key] = self:run_parsed_func(env, func)
-		end
-
+	for key, func in ipairs(map) do
+		parsed_map[key] = self:run_parsed_func(env, func)
 	end
-
 	return parsed_map
 end
 
@@ -1715,16 +1433,13 @@ function BaseElement:activate(env)
 						SequenceEnvironment.element = self
 						self:activate_callback(env)
 					end
-
 				end
 
 				local id = managers.sequence:add_time_callback(func, start_time, repeat_nr)
 				if start_time_id_var then
 					env.vars[start_time_id_var] = id
 				end
-
 			end
-
 		else
 			for i = 1, repeat_nr do
 				if alive(env.dest_unit) then
@@ -1734,13 +1449,9 @@ function BaseElement:activate(env)
 				else
 					break
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function BaseElement:filter_callback(env)
@@ -1760,7 +1471,6 @@ function BaseElement:set_state(unit, data)
 		extension._state = extension._state or {}
 		extension._state[self.NAME] = data
 	end
-
 end
 
 function BaseElement:set_cat_state(unit, category, cat_data)
@@ -1771,7 +1481,6 @@ function BaseElement:set_cat_state(unit, category, cat_data)
 		data[category] = cat_data
 		extension._state[self.NAME] = data
 	end
-
 end
 
 function BaseElement:set_cat_state2(unit, category1, category2, cat_data)
@@ -1784,7 +1493,6 @@ function BaseElement:set_cat_state2(unit, category1, category2, cat_data)
 		data[key][category2] = cat_data
 		extension._state[self.NAME] = data
 	end
-
 end
 
 function BaseElement:check_invalid_node(node, valid_node_list)
@@ -1792,7 +1500,6 @@ function BaseElement:check_invalid_node(node, valid_node_list)
 		local unit_name = self._unit_element and self._unit_element._name or self._name or "[None]"
 		Application:error("\"" .. tostring(node:name()) .. "\" elements for unit \"" .. tostring(unit_name) .. "\" are not supported in the \"" .. tostring(self._element_name or "<nil>") .. "\" elements, only the following are allowed: " .. SequenceManager:get_keys_as_string(valid_node_list, "[None]", true, #valid_node_list > 0) .. " " .. self:get_xml_origin())
 	end
-
 end
 
 function BaseElement:is_valid_xml_node(node)
@@ -1804,7 +1511,6 @@ function BaseElement:print_attribute_error(attribute_name, attribute_value, vali
 	if valid_values then
 		msg = msg .. " Valid values: " .. valid_values
 	end
-
 	self:print_error(msg, recoverable, env_to_print, node)
 end
 
@@ -1815,7 +1521,6 @@ function BaseElement:print_error(msg, recoverable, env_to_print, node)
 		else
 			cat_print("debug", self:get_xml_origin(node))
 		end
-
 		local error_msg = "Error: " .. msg .. "\n"
 		recoverable = false
 		if recoverable then
@@ -1823,9 +1528,7 @@ function BaseElement:print_error(msg, recoverable, env_to_print, node)
 		else
 			Application:throw_exception(error_msg)
 		end
-
 	end
-
 end
 
 function BaseElement:get_xml_origin(node)
@@ -1847,7 +1550,6 @@ function BaseElement:get_model_xml_file()
 		local model_name = CoreEngineAccess._editor_unit_data(self._unit_element:get_name():id()):model()
 		return is_win32 and model_name:s() or model_name
 	end
-
 	return nil
 end
 
@@ -1855,15 +1557,9 @@ function BaseElement:get_xml_element_string(node)
 	local name = node and node:name() or self._element_name
 	local str = "<" .. tostring(name)
 	local paramaters = node and (node.parameter_map and node:parameter_map() or node:parameters()) or self._parameters
-	do
-		local (for generator), (for state), (for control) = pairs(paramaters)
-		do
-			do break end
-			str = str .. " " .. k .. "=\"" .. tostring(v) .. "\""
-		end
-
+	for k, v in pairs(paramaters) do
+		str = str .. " " .. k .. "=\"" .. tostring(v) .. "\""
 	end
-
 	return str .. "/>"
 end
 
@@ -1878,238 +1574,162 @@ function UnitElement:init(node, name, is_global)
 			if global_vars then
 				self._set_global_vars = table.map_copy(global_vars)
 			end
-
 			local vars = global_core_unit_element:get_set_var_map()
 			if vars then
 				self._set_variables = table.map_copy(vars)
 			end
-
 		end
-
 		local global_unit_element = managers.sequence:get_global_unit_element()
 		if global_unit_element then
 			local global_vars = global_unit_element:get_global_set_var_map()
 			if global_vars then
 				self._set_global_vars = table.map_copy(global_vars)
 			end
-
 			local vars = global_unit_element:get_set_var_map()
 			if vars then
 				self._set_variables = table.map_copy(vars)
 			end
-
 		end
-
 	end
-
 	local endurance = self:get("endurance")
 	if endurance then
 		endurance = endurance(SequenceEnvironment) or 0
 	else
 		endurance = 0
 	end
-
 	if endurance ~= 0 then
 		self._global_vars = self._global_vars or {}
 		self._global_vars.endurance = endurance
 	end
-
 	self._sequence_elements = {}
 	self._bodies = {}
 	self._proximity_element = nil
 	if node then
-		do
-			local (for generator), (for state), (for control) = ipairs(node)
-			do
-				do break end
-				local element_name = data._meta
-				if element_name == "variables" then
-					local (for generator), (for state), (for control) = ipairs(data)
-					do
-						do break end
-						local name = v_data._meta
-						self._set_variables = self._set_variables or {}
-						self._set_variables[name] = self:get_static("value", v_data.value, nil, data)
-						if self._set_variables[name] then
-							self._set_variables[name] = self._set_variables[name](SequenceEnvironment)
-						end
-
+		for _, data in ipairs(node) do
+			local element_name = data._meta
+			if element_name == "variables" then
+				for _, v_data in ipairs(data) do
+					local name = v_data._meta
+					self._set_variables = self._set_variables or {}
+					self._set_variables[name] = self:get_static("value", v_data.value, nil, data)
+					if self._set_variables[name] then
+						self._set_variables[name] = self._set_variables[name](SequenceEnvironment)
 					end
-
-				elseif element_name == "global_variables" then
-					local (for generator), (for state), (for control) = ipairs(data)
-					do
-						do break end
-						local name = v_data._meta
-						self._global_vars = self._global_vars or {}
-						self._global_vars[name] = self:get_static("value", v_data.value, nil, data)
-						if self._global_vars[name] then
-							self._global_vars[name] = self._global_vars[name](SequenceEnvironment)
-						end
-
-					end
-
 				end
-
+			elseif element_name == "global_variables" then
+				for _, v_data in ipairs(data) do
+					local name = v_data._meta
+					self._global_vars = self._global_vars or {}
+					self._global_vars[name] = self:get_static("value", v_data.value, nil, data)
+					if self._global_vars[name] then
+						self._global_vars[name] = self._global_vars[name](SequenceEnvironment)
+					end
+				end
 			end
-
 		end
-
 		local sequence_nodes = {}
 		local water_node_list = {}
 		local body_nodes = {}
-		do
-			local (for generator), (for state), (for control) = ipairs(node)
-			do
-				do break end
-				local element_name = data._meta
-				if element_name == "trigger" then
-					local trigger = TriggerDeclarationElement:new(data, self)
-					self._triggers = self._triggers or {}
-					self._triggers[trigger._name] = trigger
-				elseif element_name == "filter" then
-					local filter = FilterElement:new(data, self)
-					self._filters = self._filters or {}
-					self._filters[filter._name] = filter
-				elseif element_name == "sequence" then
-					local name = self:get_static("name", data.name, nil, data)
-					name = name and name(SequenceEnvironment)
-					if not name then
-						self:print_attribute_error("name", name, nil, false, nil, data)
-					else
-						sequence_nodes[name] = data
-					end
-
-				elseif element_name == "body" then
-					table.insert(body_nodes, data)
-				elseif element_name == "water" then
-					table.insert(water_node_list, child_node)
-				elseif element_name == "proximities" then
-					if not self._proximity_element then
-						self._proximity_element = ProximityElement:new(data, self)
-					else
-						Application:throw_exception("\"" .. tostring(node:name()) .. "\" element for unit \"" .. tostring(unit_element._name) .. "\" has more than one \"proximity\" element.")
-					end
-
-				elseif element_name ~= "variables" and element_name ~= "global_variables" then
-					self:check_invalid_node(data, {
-						"trigger",
-						"filter",
-						"sequence",
-						"body",
-						"proximities"
-					})
-				end
-
-			end
-
-		end
-
-		do
-			local (for generator), (for state), (for control) = pairs(sequence_nodes)
-			do
-				do break end
-				self._sequence_elements[name] = SequenceElement:new(sequence_node, self, nil, nil)
-			end
-
-		end
-
-		do
-			local (for generator), (for state), (for control) = ipairs(water_node_list)
-			do
-				do break end
-				local water_element = WaterElement:new(water_node, self)
-				if self._water_element_map and self._water_element_map[water_element._name] then
-					error("Duplicate " .. water_element._element_name .. " element \"" .. tostring(water_element._name) .. "\" in unit \"" .. self._name:t() .. "\".")
-				elseif not water_element:is_empty() and water_element._name then
-					self._water_element_map = self._water_element_map or {}
-					self._water_element_map[water_element._name] = water_element
-				end
-
-			end
-
-		end
-
-		do
-			local (for generator), (for state), (for control) = ipairs(body_nodes)
-			do
-				do break end
-				local body_element = RootBodyElement:new(body_node, self)
-				if self._bodies[body_element._name] then
-					error("Duplicate " .. body_element._element_name .. " element \"" .. tostring(body_element._name) .. "\" in unit \"" .. self._name:t() .. "\".")
+		for _, data in ipairs(node) do
+			local element_name = data._meta
+			if element_name == "trigger" then
+				local trigger = TriggerDeclarationElement:new(data, self)
+				self._triggers = self._triggers or {}
+				self._triggers[trigger._name] = trigger
+			elseif element_name == "filter" then
+				local filter = FilterElement:new(data, self)
+				self._filters = self._filters or {}
+				self._filters[filter._name] = filter
+			elseif element_name == "sequence" then
+				local name = self:get_static("name", data.name, nil, data)
+				name = name and name(SequenceEnvironment)
+				if not name then
+					self:print_attribute_error("name", name, nil, false, nil, data)
 				else
-					self._bodies[body_element._name] = body_element
+					sequence_nodes[name] = data
 				end
-
+			elseif element_name == "body" then
+				table.insert(body_nodes, data)
+			elseif element_name == "water" then
+				table.insert(water_node_list, child_node)
+			elseif element_name == "proximities" then
+				if not self._proximity_element then
+					self._proximity_element = ProximityElement:new(data, self)
+				else
+					Application:throw_exception("\"" .. tostring(node:name()) .. "\" element for unit \"" .. tostring(unit_element._name) .. "\" has more than one \"proximity\" element.")
+				end
+			elseif element_name ~= "variables" and element_name ~= "global_variables" then
+				self:check_invalid_node(data, {
+					"trigger",
+					"filter",
+					"sequence",
+					"body",
+					"proximities"
+				})
 			end
-
 		end
-
+		for name, sequence_node in pairs(sequence_nodes) do
+			self._sequence_elements[name] = SequenceElement:new(sequence_node, self, nil, nil)
+		end
+		for _, water_node in ipairs(water_node_list) do
+			local water_element = WaterElement:new(water_node, self)
+			if self._water_element_map and self._water_element_map[water_element._name] then
+				error("Duplicate " .. water_element._element_name .. " element \"" .. tostring(water_element._name) .. "\" in unit \"" .. self._name:t() .. "\".")
+			elseif not water_element:is_empty() and water_element._name then
+				self._water_element_map = self._water_element_map or {}
+				self._water_element_map[water_element._name] = water_element
+			end
+		end
+		for _, body_node in ipairs(body_nodes) do
+			local body_element = RootBodyElement:new(body_node, self)
+			if self._bodies[body_element._name] then
+				error("Duplicate " .. body_element._element_name .. " element \"" .. tostring(body_element._name) .. "\" in unit \"" .. self._name:t() .. "\".")
+			else
+				self._bodies[body_element._name] = body_element
+			end
+		end
 		if self._global_vars then
-			local (for generator), (for state), (for control) = pairs(self._global_vars)
-			do
-				do break end
+			for k, v in pairs(self._global_vars) do
 				_set_global_vars = _set_global_vars or {}
 				self._set_global_vars[k] = v
 			end
-
 		end
-
 	end
-
 end
 
 function UnitElement:get_startup_sequence_map(unit, damage_ext)
 	local env, map
-	do
-		local (for generator), (for state), (for control) = pairs(self._sequence_elements)
-		do
-			do break end
-			local startup = sequence._startup
-			if startup then
-				if not env then
-					env = SequenceEnvironment:new("startup", unit, unit, nil, math.UP, Vector3(), math.DOWN, 0, Vector3(), nil, self, damage_ext)
-					SequenceEnvironment.self = env
-				end
-
-				if sequence:run_parsed_func(env, startup) then
-					map = map or {}
-					map[name] = true
-				end
-
+	for name, sequence in pairs(self._sequence_elements) do
+		local startup = sequence._startup
+		if startup then
+			if not env then
+				env = SequenceEnvironment:new("startup", unit, unit, nil, math.UP, Vector3(), math.DOWN, 0, Vector3(), nil, self, damage_ext)
+				SequenceEnvironment.self = env
 			end
-
+			if sequence:run_parsed_func(env, startup) then
+				map = map or {}
+				map[name] = true
+			end
 		end
-
 	end
-
 	return map
 end
 
 function UnitElement:get_editor_startup_sequence_map(unit, damage_ext)
 	local env, map
-	do
-		local (for generator), (for state), (for control) = pairs(self._sequence_elements)
-		do
-			do break end
-			local editor_startup = sequence._editor_startup
-			if editor_startup then
-				if not env then
-					env = SequenceEnvironment:new("editor_startup", unit, unit, nil, math.UP, Vector3(), math.DOWN, 0, Vector3(), nil, self, damage_ext)
-					SequenceEnvironment.self = env
-				end
-
-				if sequence:run_parsed_func(env, editor_startup) then
-					map = map or {}
-					map[name] = true
-				end
-
+	for name, sequence in pairs(self._sequence_elements) do
+		local editor_startup = sequence._editor_startup
+		if editor_startup then
+			if not env then
+				env = SequenceEnvironment:new("editor_startup", unit, unit, nil, math.UP, Vector3(), math.DOWN, 0, Vector3(), nil, self, damage_ext)
+				SequenceEnvironment.self = env
 			end
-
+			if sequence:run_parsed_func(env, editor_startup) then
+				map = map or {}
+				map[name] = true
+			end
 		end
-
 	end
-
 	return map
 end
 
@@ -2132,14 +1752,10 @@ end
 function UnitElement:get_trigger_name_list()
 	local trigger_name_list = {}
 	if self._triggers then
-		local (for generator), (for state), (for control) = pairs(self._triggers)
-		do
-			do break end
+		for name, _ in pairs(self._triggers) do
 			table.insert(trigger_name_list, name)
 		end
-
 	end
-
 	return trigger_name_list
 end
 
@@ -2153,42 +1769,23 @@ end
 
 function UnitElement:get_sequence_name_list()
 	local sequence_name_list = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._sequence_elements)
-		do
-			do break end
-			table.insert(sequence_name_list, name)
-		end
-
+	for name, _ in pairs(self._sequence_elements) do
+		table.insert(sequence_name_list, name)
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(managers.sequence:get_global_sequence_map())
-		do
-			do break end
-			table.insert(sequence_name_list, name)
-		end
-
+	for name, _ in pairs(managers.sequence:get_global_sequence_map()) do
+		table.insert(sequence_name_list, name)
 	end
-
 	return sequence_name_list
 end
 
 function UnitElement:get_parameter_sequence_name_list(parameter_name, parameter_value)
 	local sequence_name_list = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._sequence_elements)
-		do
-			do break end
-			local value = sequence_element:get(parameter_name)
-			if value and value(SequenceEnvironment) == parameter_value then
-				table.insert(sequence_name_list, name)
-			end
-
+	for name, sequence_element in pairs(self._sequence_elements) do
+		local value = sequence_element:get(parameter_name)
+		if value and value(SequenceEnvironment) == parameter_value then
+			table.insert(sequence_name_list, name)
 		end
-
 	end
-
 	return sequence_name_list
 end
 
@@ -2214,22 +1811,13 @@ function UnitElement:set_endurance(endurance)
 end
 
 function UnitElement:reset_damage(unit)
-	do
-		local (for generator), (for state), (for control) = pairs(self._bodies)
-		do
-			do break end
-			local extension = unit:body(root_body._name):extension().damage
-			local (for generator), (for state), (for control) = pairs(root_body._first_endurance)
-			do
-				do break end
-				extension._endurance[damage_type] = endurance_element
-				extension._damage[damage_type] = 0
-			end
-
+	for _, root_body in pairs(self._bodies) do
+		local extension = unit:body(root_body._name):extension().damage
+		for damage_type, endurance_element in pairs(root_body._first_endurance) do
+			extension._endurance[damage_type] = endurance_element
+			extension._damage[damage_type] = 0
 		end
-
 	end
-
 	unit:damage()._damage = 0
 end
 
@@ -2245,9 +1833,7 @@ function UnitElement:run_sequence(name, endurance_type, source_unit, dest_unit, 
 			local supported_values = SequenceManager:get_keys_as_string(self:get_sequence_name_list(), "", true, true)
 			self:print_error("Unable to run non-existing sequence \"" .. tostring(name) .. "\" on unit \"" .. self._name:t() .. "\". Available sequences: " .. tostring(supported_values), true, env)
 		end
-
 	end
-
 end
 
 function UnitElement:has_sequence(sequence_name)
@@ -2264,39 +1850,27 @@ function UnitElement:get_proximity_element_map()
 	else
 		return {}
 	end
-
 end
 
 function UnitElement:save_by_unit(unit, data)
 	local state = {}
 	local changed = false
-	do
-		local (for generator), (for state), (for control) = pairs(self._bodies)
-		do
-			do break end
-			changed = unit:body(name):extension().damage:save(state) or changed
-		end
-
+	for name, _ in pairs(self._bodies) do
+		changed = unit:body(name):extension().damage:save(state) or changed
 	end
-
 	if changed then
 		data.UnitElement = state
 	end
-
 	return changed
 end
 
 function UnitElement:load_by_unit(unit, data)
 	local state = data.UnitElement
 	if state then
-		local (for generator), (for state), (for control) = pairs(self._bodies)
-		do
-			do break end
+		for name, _ in pairs(self._bodies) do
 			unit:body(name):extension().damage:load(state)
 		end
-
 	end
-
 end
 
 function UnitElement:get_filter(filter_name)
@@ -2311,23 +1885,17 @@ function UnitElement:save(data)
 	local state = {}
 	local changed = false
 	if self._global_vars then
-		local (for generator), (for state), (for control) = pairs(self._global_vars)
-		do
-			do break end
+		for k, v in pairs(self._global_vars) do
 			if not self._set_global_vars or self._set_global_vars[k] ~= v then
 				state.global_vars = table.map_copy(self._global_vars)
 				changed = true
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 	if changed then
 		data[self._name] = state
 	end
-
 end
 
 function UnitElement:load(data)
@@ -2335,7 +1903,6 @@ function UnitElement:load(data)
 	if state and state.global_vars then
 		self._global_vars = table.map_copy(state.global_vars)
 	end
-
 end
 
 TriggerDeclarationElement = TriggerDeclarationElement or class(BaseElement)
@@ -2345,11 +1912,9 @@ function TriggerDeclarationElement:init(node, unit_element)
 	if self._name then
 		self._name = self._name(SequenceEnvironment)
 	end
-
 	if self._name == nil then
 		Application:throw_exception("Unit \"" .. tostring(unit_element._name) .. "\" has an invalid trigger element name \"" .. tostring(self._parameters.name) .. "\".")
 	end
-
 end
 
 FilterElement = FilterElement or class(BaseElement)
@@ -2359,18 +1924,14 @@ function FilterElement:init(node, unit_element)
 	if self._name then
 		self._name = self._name(SequenceEnvironment)
 	end
-
 	if self._name == nil then
 		Application:throw_exception("Unit \"" .. tostring(unit_element._name) .. "\" has an invalid filter element name \"" .. tostring(self._parameters.name) .. "\".")
 	end
-
 	self._allow = self:get("allow")
 	self._check_all = self:get("check_all")
 	self._elements = {}
 	local filter_element_class_map = managers.sequence:get_filter_element_class_map()
-	local (for generator), (for state), (for control) = ipairs(node)
-	do
-		do break end
+	for _, data in ipairs(node) do
 		local element_class = filter_element_class_map[data._meta]
 		if element_class then
 			local element = element_class:new(data, unit_element)
@@ -2378,33 +1939,23 @@ function FilterElement:init(node, unit_element)
 		else
 			self:check_invalid_node(data, filter_element_class_map)
 		end
-
 	end
-
 end
 
 function FilterElement:is_allowed(env)
 	local allow = self:run_parsed_func(env, self._allow) or true
 	local check_all = self:run_parsed_func(env, self._check_all) or true
 	local allowed = true
-	do
-		local (for generator), (for state), (for control) = ipairs(self._elements)
-		do
-			do break end
-			allowed = element:is_allowed(env) == allow
-			if check_all and not allowed then
-				break
-			else
-				if not check_all and allowed then
-			end
-
+	for _, element in ipairs(self._elements) do
+		allowed = element:is_allowed(env) == allow
+		if check_all and not allowed then
+			break
+		else
+			if not check_all and allowed then
 		end
-
 		else
 		end
-
 	end
-
 	return allowed
 end
 
@@ -2416,7 +1967,6 @@ function CheckFilterElement:init(node, unit_element)
 	if self._value == nil then
 		Application:throw_exception("\"" .. tostring(node:name()) .. "\" element for unit \"" .. tostring(unit_element._name) .. "\" defined an invalid value \"" .. tostring(self._value) .. "\".")
 	end
-
 end
 
 function CheckFilterElement:is_allowed(env)
@@ -2431,7 +1981,6 @@ function SideFilterElement:init(node, unit_element)
 	if self._axis then
 		self._axis = self._axis(SequenceEnvironment)
 	end
-
 	if self._axis == nil then
 		self._axis = "y"
 	else
@@ -2441,13 +1990,10 @@ function SideFilterElement:init(node, unit_element)
 		else
 			self._multiplier = 1
 		end
-
 		if self._axis ~= "x" and self._axis ~= "y" and self._axis ~= "z" then
 			Application:throw_exception("\"" .. tostring(node:name()) .. "\" element for unit \"" .. tostring(unit_element._name) .. "\" defined an invalid axis \"" .. tostring(self._axis) .. "\".")
 		end
-
 	end
-
 end
 
 function SideFilterElement:is_allowed(env)
@@ -2459,7 +2005,6 @@ function SideFilterElement:is_allowed(env)
 		self:print_error("Unable to use filter on destroyed dest_body. This is probably because a scripter didn't specify a body when a sequence was executed or if it was executed from a sequence that had \"startup\" attribute set to true or if the sequence was triggered from a water element.", true, env)
 		return false
 	end
-
 end
 
 ZoneFilterElement = ZoneFilterElement or class(BaseElement)
@@ -2472,7 +2017,6 @@ function ZoneFilterElement:init(node, unit_element)
 	if self._ref_object == nil then
 		Application:throw_exception("\"" .. tostring(node:name()) .. "\" element for unit \"" .. tostring(unit_element._name) .. "\" defined an invalid \"ref_object\" in zone \"" .. tostring(name) .. "\".")
 	end
-
 	self._func_list = {}
 	local negative = false
 	for i = 1, #name do
@@ -2493,19 +2037,14 @@ function ZoneFilterElement:init(node, unit_element)
 					end
 
 				end
-
 				table.insert(self._func_list, func)
 				negative = false
 			end
-
 		end
-
 	end
-
 	if #self._func_list == 0 then
 		Application:throw_exception("\"" .. tostring(node:name()) .. "\" element for unit \"" .. tostring(unit_element._name) .. "\" defined an invalid name \"" .. tostring(name) .. "\".")
 	end
-
 end
 
 function ZoneFilterElement:is_allowed(env)
@@ -2514,25 +2053,17 @@ function ZoneFilterElement:is_allowed(env)
 	if obj then
 		local zone_vector = env.pos - obj:position():rotate_with(obj:rotation():inverse())
 		local allowed = true
-		do
-			local (for generator), (for state), (for control) = ipairs(self._func_list)
-			do
-				do break end
-				allowed = func(zone_vector)
-				if not allowed then
-			end
-
+		for _, func in ipairs(self._func_list) do
+			allowed = func(zone_vector)
+			if not allowed then
 			else
 			end
-
 		end
-
 		return allowed
 	else
 		self:print_attribute_error("ref_object", obj, nil, true, env, nil)
 		return false
 	end
-
 end
 
 SequenceElement = SequenceElement or class(BaseElement)
@@ -2544,14 +2075,11 @@ function SequenceElement:init(node, unit_element)
 	else
 		Application:throw_exception("\"" .. tostring(node:name()) .. "\" element for unit \"" .. tostring(unit_element._name) .. "\" doesn't have a name.")
 	end
-
 	self._activate_once = self:get("once")
 	self._startup = self:get("startup")
 	self._editor_startup = self:get("editor_startup")
 	self._elements = {}
-	local (for generator), (for state), (for control) = ipairs(node)
-	do
-		do break end
+	for _, data in ipairs(node) do
 		local name = data._meta
 		local element = managers.sequence:parse_event(data, unit_element)
 		if element then
@@ -2559,9 +2087,7 @@ function SequenceElement:init(node, unit_element)
 		else
 			self:check_invalid_node(data, managers.sequence:get_event_element_class_map())
 		end
-
 	end
-
 end
 
 function SequenceElement:activate_callback(env)
@@ -2571,29 +2097,21 @@ function SequenceElement:activate_callback(env)
 			damage_ext._runned_sequences = damage_ext._runned_sequences or {}
 			damage_ext._runned_sequences[self._name] = true
 		end
-
 		if Global.category_print.sequence then
 			cat_print("sequence", string.format("[SequenceManager] Run sequence: %s, Unit: %s, Id: %s, Key: %s", tostring(self._name), tostring(env.dest_unit:name()), tostring(env.dest_unit:editor_id()), tostring(env.dest_unit:key())))
 		end
-
 		managers.mission:runned_unit_sequence(env.dest_unit, self._name, env.params)
-		local (for generator), (for state), (for control) = ipairs(self._elements)
-		do
-			do break end
+		for _, element in ipairs(self._elements) do
 			element:activate(env)
 		end
-
 	end
-
 end
 
 ProximityElement = ProximityElement or class(BaseElement)
 function ProximityElement:init(node, unit_element)
 	BaseElement.init(self, node, unit_element)
 	self._element_map = {}
-	local (for generator), (for state), (for control) = ipairs(node)
-	do
-		do break end
+	for _, child_node in ipairs(node) do
 		local element = ProximityTypeElement:new(child_node, unit_element)
 		local proximity_name = element:get_name()
 		if not self._element_map[proximity_name] then
@@ -2601,9 +2119,7 @@ function ProximityElement:init(node, unit_element)
 		else
 			element:print_error("Proximity with name \"" .. proximity_name:t() .. "\" has already been defined.", false, nil)
 		end
-
 	end
-
 end
 
 function ProximityElement:get_proximity_element_map()
@@ -2619,7 +2135,6 @@ function ProximityTypeElement:init(node, unit_element)
 	if not self._name then
 		self:print_attribute_error("name", self._name, nil, false, nil)
 	end
-
 	local proximity_type = self:get("type")
 	proximity_type = proximity_type and proximity_type(SequenceEnvironment)
 	self._slotmask = proximity_type and managers.sequence:get_proximity_mask(proximity_type)
@@ -2628,7 +2143,6 @@ function ProximityTypeElement:init(node, unit_element)
 		self:print_attribute_error("type", proximity_type, supported_values, false, nil)
 		return
 	end
-
 	self._ref_object = self:get("ref_object")
 	self._ref_object = self._ref_object and self._ref_object(SequenceEnvironment)
 	self._enabled = self:get("enabled")
@@ -2637,7 +2151,6 @@ function ProximityTypeElement:init(node, unit_element)
 	else
 		self._enabled = true
 	end
-
 	self._interval = self:get("interval")
 	self._interval = self._interval and tonumber(self._interval(SequenceEnvironment))
 	self._interval = math.max(tonumber(self._interval) or 0, self.MIN_INTERVAL)
@@ -2648,42 +2161,30 @@ function ProximityTypeElement:init(node, unit_element)
 	if self._start_within == nil then
 		self._start_within = false
 	end
-
 	self._within_element = nil
 	self._outside_element = nil
-	do
-		local (for generator), (for state), (for control) = ipairs(node)
-		do
-			do break end
-			local name = child_node._meta
-			if name == "within" then
-				if not self._within_element then
-					self._within_element = ProximityRangeElement:new(child_node, unit_element, true)
-				else
-					Application:throw_exception("Unit \"" .. tostring(unit_element._name) .. "\" have defined more than one \"within\" element.")
-				end
-
+	for _, child_node in ipairs(node) do
+		local name = child_node._meta
+		if name == "within" then
+			if not self._within_element then
+				self._within_element = ProximityRangeElement:new(child_node, unit_element, true)
 			else
-				if name == "outside" then
-					if not self._outside_element then
-						self._outside_element = ProximityRangeElement:new(child_node, unit_element, false)
-					else
-						Application:throw_exception("Unit \"" .. tostring(unit_element._name) .. "\" have defined more than one \"outside\" element.")
-					end
-
-				else
-				end
-
+				Application:throw_exception("Unit \"" .. tostring(unit_element._name) .. "\" have defined more than one \"within\" element.")
 			end
-
+		else
+			if name == "outside" then
+				if not self._outside_element then
+					self._outside_element = ProximityRangeElement:new(child_node, unit_element, false)
+				else
+					Application:throw_exception("Unit \"" .. tostring(unit_element._name) .. "\" have defined more than one \"outside\" element.")
+				end
+			else
+			end
 		end
-
 	end
-
 	if (not self._within_element or #self._within_element._elements == 0) and (not self._outside_element or #self._outside_element._elements == 0) then
 		Application:throw_exception("\"" .. tostring(node:name()) .. "\" element on unit \"" .. tostring(unit_element._name) .. "\" doesn't have a \"within\" nor a \"outside\" element or they doesn't contain any \"run_sequence\" elements.")
 	end
-
 end
 
 function ProximityTypeElement:get_name()
@@ -2738,23 +2239,17 @@ function ProximityRangeElement:init(node, unit_element, within)
 	if not self._range or 0 >= self._range then
 		Application:throw_exception("\"" .. tostring(name) .. "\" element on unit \"" .. tostring(unit_element._name) .. "\" doesn't have a range specified or it is not more than zero (specified range: " .. tostring(self._range) .. ").")
 	end
-
-	local (for generator), (for state), (for control) = ipairs(node)
-	do
-		do break end
+	for _, child_node in ipairs(node) do
 		local name = child_node._meta
 		if name == "run_sequence" then
 			local element = managers.sequence:parse_event(child_node, unit_element)
 			if element then
 				table.insert(self._elements, element)
 			end
-
 		elseif #name ~= 0 and name ~= "xdefine" then
 			Application:throw_exception("\"" .. tostring(name) .. "\" elements for unit \"" .. tostring(unit_element._name) .. "\" are not supported in the \"" .. tostring(node:name()) .. "\" elements, only \"run_sequence\" elements are supported.")
 		end
-
 	end
-
 end
 
 function ProximityRangeElement:get_max_activation_count()
@@ -2774,12 +2269,9 @@ function ProximityRangeElement:get_count()
 end
 
 function ProximityRangeElement:activate_elements(env)
-	local (for generator), (for state), (for control) = ipairs(self._elements)
-	do
-		do break end
+	for _, element in ipairs(self._elements) do
 		element:activate(env)
 	end
-
 end
 
 WaterElement = WaterElement or class(BaseElement)
@@ -2790,7 +2282,6 @@ function WaterElement:init(node, unit_element)
 	if not self._name then
 		self:print_error("\"" .. tostring(node:name()) .. "\" element for unit \"" .. tostring(unit_element._name) .. "\" doesn't have a name.", true, nil)
 	end
-
 	self._enabled = self:get("enabled")
 	self._enabled = self._enabled == nil or self._enabled(SequenceEnvironment)
 	self._interval = self:get("interval")
@@ -2805,39 +2296,29 @@ function WaterElement:init(node, unit_element)
 	self._physic_effect = self._physic_effect and self._physic_effect(SequenceEnvironment)
 	self._enter_element = nil
 	self._exit_element = nil
-	do
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
-			local name = child_node:name()
-			if name == "enter" then
-				local element = EnterWaterElement:new(child_node, unit_element)
-				if not self._enter_element then
-					self._enter_element = element
-				else
-					element:print_error("Duplicate enter element found in water element \"" .. tostring(self._name) .. "\".", false, nil)
-				end
-
-			elseif name == "exit" then
-				local element = ExitWaterElement:new(child_node, unit_element)
-				if not self._exit_element then
-					self._exit_element = element
-				else
-					element:print_error("Duplicate exit element found in water element \"" .. tostring(self._name) .. "\".", false, nil)
-				end
-
+	for child_node in node:children() do
+		local name = child_node:name()
+		if name == "enter" then
+			local element = EnterWaterElement:new(child_node, unit_element)
+			if not self._enter_element then
+				self._enter_element = element
 			else
-				self:check_invalid_node(child_node, {"enter", "exit"})
+				element:print_error("Duplicate enter element found in water element \"" .. tostring(self._name) .. "\".", false, nil)
 			end
-
+		elseif name == "exit" then
+			local element = ExitWaterElement:new(child_node, unit_element)
+			if not self._exit_element then
+				self._exit_element = element
+			else
+				element:print_error("Duplicate exit element found in water element \"" .. tostring(self._name) .. "\".", false, nil)
+			end
+		else
+			self:check_invalid_node(child_node, {"enter", "exit"})
 		end
-
 	end
-
 	if self:is_empty() then
 		self:print_error("Water element \"" .. tostring(self._name) .. "\" is empty.", false, nil)
 	end
-
 end
 
 function WaterElement:is_empty()
@@ -2876,38 +2357,31 @@ function WaterElement:activate_enter(env)
 	if self._enter_element then
 		self._enter_element:activate(env)
 	end
-
 end
 
 function WaterElement:activate_exit(env)
 	if self._exit_element then
 		self._exit_element:activate(env)
 	end
-
 end
 
 SequenceContainerElement = SequenceContainerElement or class(BaseElement)
 function SequenceContainerElement:init(node, unit_element)
 	BaseElement.init(self, node, unit_element)
 	self._sequence_list = {}
-	local (for generator), (for state), (for control) = ipairs(node)
-	do
-		do break end
+	for _, child_node in ipairs(node) do
 		local name = child_node._meta
 		if name == "run_sequence" then
 			local element = managers.sequence:parse_event(child_node, unit_element)
 			if element then
 				table.insert(self._sequence_list, element)
 			end
-
 		else
 			self:check_invalid_node(child_node, {
 				"run_sequence"
 			})
 		end
-
 	end
-
 end
 
 function SequenceContainerElement:sequence_count()
@@ -2915,12 +2389,9 @@ function SequenceContainerElement:sequence_count()
 end
 
 function SequenceContainerElement:activate_callback(env)
-	local (for generator), (for state), (for control) = ipairs(self._sequence_list)
-	do
-		do break end
+	for _, element in ipairs(self._sequence_list) do
 		element:activate(env)
 	end
-
 end
 
 EnterWaterElement = EnterWaterElement or class(SequenceContainerElement)
@@ -2934,73 +2405,53 @@ function RootBodyElement:init(node, unit_element)
 	else
 		error("\"" .. tostring(node:name()) .. "\" element for unit \"" .. tostring(unit_element._name) .. "\" doesn't have a name.")
 	end
-
 	self._damage_multiplier = self:get("damage_multiplier")
 	if self._damage_multiplier then
 		self._damage_multiplier = self._damage_multiplier(SequenceEnvironment) or 1
 	else
 		self._damage_multiplier = 1
 	end
-
 	self._inflict_element = nil
 	self._first_endurance = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(node)
-		do
-			do break end
-			local name = data._meta
-			local element
-			if name == "inflict" then
-				if self._inflict_element then
-					Application:throw_exception("\"" .. self._name .. "\" element for unit \"" .. tostring(unit_element._name) .. "\" have a duplicate \"inflict\" element.")
-				else
-					self._inflict_element = RootInflictElement:new(data, unit_element)
-				end
-
-			elseif name == "endurance" then
-				element = EnduranceElement:new(data, unit_element)
-				local (for generator), (for state), (for control) = pairs(element._endurance)
-				do
-					do break end
-					if self._first_endurance[k] == nil then
-						self._first_endurance[k] = element
-					elseif v < self._first_endurance[k]._endurance[k] then
-						element._next[k] = self._first_endurance[k]
-						self._first_endurance[k] = element
-					else
-						local next_element = self._first_endurance[k]
-						while next_element._next[k] and v >= next_element._next[k]._endurance[k] do
-							next_element = next_element._next[k]
-						end
-
-						element._next[k] = next_element._next[k]
-						next_element._next[k] = element
-					end
-
-				end
-
+	for _, data in ipairs(node) do
+		local name = data._meta
+		local element
+		if name == "inflict" then
+			if self._inflict_element then
+				Application:throw_exception("\"" .. self._name .. "\" element for unit \"" .. tostring(unit_element._name) .. "\" have a duplicate \"inflict\" element.")
 			else
-				self:check_invalid_node(data, {"inflict", "endurance"})
+				self._inflict_element = RootInflictElement:new(data, unit_element)
 			end
-
+		elseif name == "endurance" then
+			element = EnduranceElement:new(data, unit_element)
+			for k, v in pairs(element._endurance) do
+				if self._first_endurance[k] == nil then
+					self._first_endurance[k] = element
+				elseif v < self._first_endurance[k]._endurance[k] then
+					element._next[k] = self._first_endurance[k]
+					self._first_endurance[k] = element
+				else
+					local next_element = self._first_endurance[k]
+					while next_element._next[k] and v >= next_element._next[k]._endurance[k] do
+						next_element = next_element._next[k]
+					end
+					element._next[k] = next_element._next[k]
+					next_element._next[k] = element
+				end
+			end
+		else
+			self:check_invalid_node(data, {"inflict", "endurance"})
 		end
-
 	end
-
 	self._body_params = {}
-	local (for generator), (for state), (for control) = pairs(self._parameters)
-	do
-		do break end
+	for param_name, _ in pairs(self._parameters) do
 		if param_name ~= "name" and param_name ~= "damage_multiplier" then
 			self._body_params[param_name] = self:get(param_name)
 			if self._body_params[param_name] then
 				self._body_params[param_name] = self._body_params[param_name](SequenceEnvironment)
 			end
-
 		end
-
 	end
-
 end
 
 function RootBodyElement:get_body_param(param_name)
@@ -3035,7 +2486,6 @@ function RootBodyElement:get_inflict_element_list()
 	if self._inflict_element then
 		return self._inflict_element:get_element_list()
 	end
-
 end
 
 RootInflictElement = RootInflictElement or class(BaseElement)
@@ -3043,9 +2493,7 @@ function RootInflictElement:init(node, unit_element)
 	BaseElement.init(self, node, unit_element)
 	self._element_list = {}
 	local inflict_element_class_map = managers.sequence:get_inflict_element_class_map()
-	local (for generator), (for state), (for control) = ipairs(node)
-	do
-		do break end
+	for _, child_node in ipairs(node) do
 		local element_class = inflict_element_class_map[child_node._meta]
 		if element_class then
 			local element = element_class:new(child_node, unit_element)
@@ -3053,9 +2501,7 @@ function RootInflictElement:init(node, unit_element)
 		else
 			self:check_invalid_node(child_node, inflict_element_class_map)
 		end
-
 	end
-
 end
 
 function RootInflictElement:activate_enter(env)
@@ -3087,22 +2533,18 @@ function InflictElement:init(node, unit_element)
 	if self._instant == nil then
 		self._instant = false
 	end
-
 	self._enabled = self:get("enabled")
 	self._enabled = self._enabled and self._enabled(SequenceEnvironment)
 	if self._enabled == nil then
 		self._enabled = true
 	end
-
 	self._enter_element = nil
 	self._damage_element = nil
 	self._exit_element = nil
 	self._enter_sequence_list = {}
 	self._sequence_list = {}
 	self._exit_sequence_list = {}
-	local (for generator), (for state), (for control) = ipairs(node)
-	do
-		do break end
+	for _, child_node in ipairs(node) do
 		local child_name = child_node._meta
 		if child_name == "enter" then
 			self._enter_element = EnterInflictElement:new(child_node, unit_element)
@@ -3117,9 +2559,7 @@ function InflictElement:init(node, unit_element)
 				"exit"
 			})
 		end
-
 	end
-
 end
 
 function InflictElement:get_damage()
@@ -3154,21 +2594,18 @@ function InflictElement:activate_enter(env)
 	if self._enter_element then
 		self._enter_element:activate(env)
 	end
-
 end
 
 function InflictElement:activate_damage(env)
 	if self._damage_element then
 		self._damage_element:activate(env)
 	end
-
 end
 
 function InflictElement:activate_exit(env)
 	if self._exit_element then
 		self._exit_element:activate(env)
 	end
-
 end
 
 function InflictElement:enter_sequence_count()
@@ -3177,7 +2614,6 @@ function InflictElement:enter_sequence_count()
 	else
 		return 0
 	end
-
 end
 
 function InflictElement:damage_sequence_count()
@@ -3186,7 +2622,6 @@ function InflictElement:damage_sequence_count()
 	else
 		return 0
 	end
-
 end
 
 function InflictElement:exit_sequence_count()
@@ -3195,7 +2630,6 @@ function InflictElement:exit_sequence_count()
 	else
 		return 0
 	end
-
 end
 
 InflictElectricityElement = InflictElectricityElement or class(InflictElement)
@@ -3241,52 +2675,37 @@ function EnduranceElement:init(node, unit_element)
 	self._next = {}
 	self._endurance = {}
 	self._abs = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._parameters)
-		do
-			do break end
-			if k ~= "can_skip" and string.sub(k, -4) ~= "_abs" then
-				self._endurance[k] = self:get(k)
-				if self._endurance[k] then
-					self._endurance[k] = self._endurance[k](SequenceEnvironment)
-				end
-
-				if self._endurance[k] then
-					self._abs[k] = self:get(k .. "_abs")
-					if self._abs[k] then
-						self._abs[k] = self._abs[k](SequenceEnvironment) or 0
-					else
-						self._abs[k] = 0
-					end
-
-				else
-					Application:throw_exception("\"" .. tostring(node._meta) .. "\" element for unit \"" .. tostring(unit_element._name) .. "\" had a endurance \"" .. k .. "\" with the invalid value of \"" .. v .. "\".")
-				end
-
+	for k, v in pairs(self._parameters) do
+		if k ~= "can_skip" and string.sub(k, -4) ~= "_abs" then
+			self._endurance[k] = self:get(k)
+			if self._endurance[k] then
+				self._endurance[k] = self._endurance[k](SequenceEnvironment)
 			end
-
+			if self._endurance[k] then
+				self._abs[k] = self:get(k .. "_abs")
+				if self._abs[k] then
+					self._abs[k] = self._abs[k](SequenceEnvironment) or 0
+				else
+					self._abs[k] = 0
+				end
+			else
+				Application:throw_exception("\"" .. tostring(node._meta) .. "\" element for unit \"" .. tostring(unit_element._name) .. "\" had a endurance \"" .. k .. "\" with the invalid value of \"" .. v .. "\".")
+			end
 		end
-
 	end
-
 	self._elements = {}
-	local (for generator), (for state), (for control) = ipairs(node)
-	do
-		do break end
+	for _, data in ipairs(node) do
 		if data._meta == "run_sequence" then
 			local element = managers.sequence:parse_event(data, unit_element)
 			if element then
 				table.insert(self._elements, element)
 			end
-
 		else
 			self:check_invalid_node(data, {
 				"run_sequence"
 			})
 		end
-
 	end
-
 end
 
 function EnduranceElement:can_skip()
@@ -3302,9 +2721,7 @@ function EnduranceElement:damage(env)
 			local old_damage = extension._damage[env.damage_type]
 			self:activate(env)
 		end
-
 	end
-
 end
 
 function EnduranceElement:activate(env)
@@ -3316,25 +2733,19 @@ function EnduranceElement:activate(env)
 		self:activate_elements(env)
 		next_endurance_element = self._next[env.damage_type]
 	end
-
 	if next_endurance_element and extension._damage[env.damage_type] >= next_endurance_element._endurance[env.damage_type] then
 		next_endurance_element:activate(env)
 		local unit_map = managers.sequence:get_inflict_updator_unit_map(env.damage_type)
 		if unit_map and not extension._damage[env.damage_type] and alive(env.dest_body) then
 			managers.sequence:remove_inflict_updator_body(env.damage_type, env.dest_unit:key(), env.dest_body:key())
 		end
-
 	end
-
 end
 
 function EnduranceElement:activate_elements(env)
-	local (for generator), (for state), (for control) = ipairs(self._elements)
-	do
-		do break end
+	for _, element in ipairs(self._elements) do
 		element:activate(env)
 	end
-
 end
 
 AnimationGroupElement = AnimationGroupElement or class(BaseElement)
@@ -3357,7 +2768,6 @@ function AnimationGroupElement:activate_callback(env)
 	if self._time then
 		self:set_time(env, name)
 	end
-
 	if self._enabled then
 		local enabled = self:run_parsed_func(env, self._enabled)
 		if enabled then
@@ -3365,9 +2775,7 @@ function AnimationGroupElement:activate_callback(env)
 		else
 			self:stop(env, name)
 		end
-
 	end
-
 end
 
 function AnimationGroupElement:play(env, name)
@@ -3381,7 +2789,6 @@ function AnimationGroupElement:play(env, name)
 		if duration and speed < 0 then
 			duration = -duration
 		end
-
 		if loop then
 			local start_loop_time = self:run_parsed_func(env, self._start_loop_time) or env.dest_unit:anim_time(ids_name)
 			if duration then
@@ -3389,7 +2796,6 @@ function AnimationGroupElement:play(env, name)
 			else
 				end_time = self:run_parsed_func(env, self._end_time)
 			end
-
 			end_time = end_time or env.dest_unit:anim_length(ids_name)
 			env.dest_unit:anim_play_loop(ids_name, start_loop_time, end_time, speed)
 			if self.SAVE_STATE then
@@ -3400,14 +2806,12 @@ function AnimationGroupElement:play(env, name)
 					speed
 				})
 			end
-
 		else
 			if duration then
 				end_time = env.dest_unit:anim_time(name) + duration
 			else
 				end_time = self:run_parsed_func(env, self._end_time)
 			end
-
 			if end_time then
 				env.dest_unit:anim_play_to(ids_name, end_time, speed)
 				if self.SAVE_STATE then
@@ -3417,19 +2821,14 @@ function AnimationGroupElement:play(env, name)
 						speed
 					})
 				end
-
 			else
 				env.dest_unit:anim_play(ids_name, speed)
 				if self.SAVE_STATE then
 					self:set_cat_state(env.dest_unit, name, {"anim_play", speed})
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function AnimationGroupElement:stop(env, name)
@@ -3437,7 +2836,6 @@ function AnimationGroupElement:stop(env, name)
 	if self.SAVE_STATE then
 		self:set_cat_state(env.dest_unit, name, {"anim_stop"})
 	end
-
 end
 
 function AnimationGroupElement:set_time(env, name)
@@ -3445,16 +2843,12 @@ function AnimationGroupElement:set_time(env, name)
 	if time then
 		env.dest_unit:anim_set_time(Idstring(name), time)
 	end
-
 end
 
 function AnimationGroupElement.load(unit, data)
-	local (for generator), (for state), (for control) = pairs(data)
-	do
-		do break end
+	for name, cat_data in pairs(data) do
 		unit[cat_data[1]](unit, Idstring(name), cat_data[2], cat_data[3], cat_data[4])
 	end
-
 end
 
 AnimationRedirectElement = AnimationRedirectElement or class(BaseElement)
@@ -3487,9 +2881,7 @@ function AreaDamageElement:init(node, unit_element)
 	self._falloff_func_map.keys = "get_falloff_key_damage"
 	self._falloff_func_map.preset1 = "get_falloff_preset1_damage"
 	self._key_list = {}
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for child_node in node:children() do
 		local element_name = child_node:name()
 		if element_name == "key" then
 			local key = AreaDamageKeyElement:new(child_node, unit_element)
@@ -3497,9 +2889,7 @@ function AreaDamageElement:init(node, unit_element)
 		else
 			self:check_invalid_node(child_node, {"key"})
 		end
-
 	end
-
 end
 
 function AreaDamageElement:activate_callback(env)
@@ -3525,53 +2915,34 @@ function AreaDamageElement:activate_callback(env)
 					if falloff == "keys" then
 						falloff, damage_callback_func_name = nil, nil
 					end
-
 				else
 					damage_callback_func_name = damage_callback_func_name or self._falloff_func_map.keys
 				end
-
 				if damage_callback_func_name then
 					local params = self:get_params(env)
 					damage_callback_func = callback(self, self, damage_callback_func_name, params)
 				end
-
 				self:do_area_damage(env, damage_type, env.dest_unit, position, range, not falloff, damage, physic_effect, mass, nil, env.src_unit, ignore_mask, damage_callback_func, env.velocity)
 			end
-
 		end
-
 	end
-
 end
 
 function AreaDamageElement:get_params(env)
 	local params = {}
 	params.env = env
 	params.parsed_key_list = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._key_list)
-		do
-			do break end
-			local parsed_key = key:get_parsed_key(env)
-			local index
-			do
-				local (for generator), (for state), (for control) = ipairs(params.parsed_key_list)
-				do
-					do break end
-					if parsed_key:get_variable("range") > current_parsed_key:get_variable("range") then
-						index = current_index
-				end
-
-				else
-				end
-
+	for _, key in ipairs(self._key_list) do
+		local parsed_key = key:get_parsed_key(env)
+		local index
+		for current_index, current_parsed_key in ipairs(params.parsed_key_list) do
+			if parsed_key:get_variable("range") > current_parsed_key:get_variable("range") then
+				index = current_index
+			else
 			end
-
-			table.insert(params.parsed_key_list, index or #params.parsed_key_list + 1, parsed_key)
 		end
-
+		table.insert(params.parsed_key_list, index or #params.parsed_key_list + 1, parsed_key)
 	end
-
 	return params
 end
 
@@ -3582,26 +2953,18 @@ end
 function AreaDamageElement:get_falloff_key_damage(params, unit, body, dir, hit_pos, damage_type, attack_unit, pos, range, constant_damage, damage, velocity, ignore_unit, direct_attack_unit, ignore_mask)
 	local distance = self:get_distance(body, hit_pos, pos)
 	local key, index
-	do
-		local (for generator), (for state), (for control) = ipairs(params.parsed_key_list)
-		do
-			do break end
-			if distance > current_key:get_variable("range") then
-				if not key then
-					key = current_key
-					index = current_index
-					do break end
-					else
-						key = current_key
-						index = current_index
-					end
-
-				end
-
+	for current_index, current_key in ipairs(params.parsed_key_list) do
+		if distance > current_key:get_variable("range") then
+			if not key then
+				key = current_key
+				index = current_index
+			end
+			break
+		else
+			key = current_key
+			index = current_index
 		end
-
 	end
-
 	if key then
 		local prev_key = params.parsed_key_list[index + 1]
 		local prev_key_damage, prev_key_range
@@ -3616,12 +2979,10 @@ function AreaDamageElement:get_falloff_key_damage(params, unit, body, dir, hit_p
 			prev_key_damage = damage
 			prev_key_range = 0
 		end
-
 		return key:get_key_element():get_distance_damage(key, distance, prev_key_range, prev_key_damage)
 	else
 		return damage
 	end
-
 end
 
 function AreaDamageElement:get_falloff_preset1_damage(params, unit, body, dir, hit_pos, damage_type, attack_unit, pos, range, constant_damage, damage, velocity, ignore_unit, direct_attack_unit, ignore_mask)
@@ -3632,7 +2993,6 @@ end
 function AreaDamageElement:get_distance(body, hit_pos, pos)
 	if not body or not get_distance_to_body(body, pos) then
 	end
-
 	return (hit_pos - pos:length())
 end
 
@@ -3668,7 +3028,6 @@ function AreaDamageKeyElement:get_distance_damage(parsed_key, distance, prev_key
 	else
 		return prev_key_damage
 	end
-
 end
 
 function AreaDamageKeyElement:activate(env, unit, body, pos, distance, total_range)
@@ -3681,9 +3040,7 @@ function AreaDamageKeyElement:activate(env, unit, body, pos, distance, total_ran
 		else
 			World:play_physic_effect(physic_effect, body or unit, total_range, distance, self._range)
 		end
-
 	end
-
 end
 
 function AreaDamageKeyElement:get_linear_damage(distance, range, damage, prev_key_range, prev_key_damage)
@@ -3694,7 +3051,6 @@ function AreaDamageKeyElement:get_linear_damage(distance, range, damage, prev_ke
 	else
 		offset = 0
 	end
-
 	return math.lerp(prev_key_damage, damage, offset)
 end
 
@@ -3739,12 +3095,9 @@ function BodyElement:init(node, unit_element)
 	BaseElement.init(self, node, unit_element)
 	self._name = self:get("name")
 	self._set_function_map = {}
-	local (for generator), (for state), (for control) = pairs(self.FUNC_MAP)
-	do
-		do break end
+	for attribute, func_name in pairs(self.FUNC_MAP) do
 		self._set_function_map[attribute] = self:get(attribute, self[func_name])
 	end
-
 end
 
 function BodyElement:activate_callback(env)
@@ -3752,29 +3105,19 @@ function BodyElement:activate_callback(env)
 	if name ~= nil then
 		local body = env.dest_unit:body(name)
 		if alive(body) then
-			do
-				local (for generator), (for state), (for control) = pairs(self._set_function_map)
-				do
-					do break end
-					func(env, body)
-				end
-
+			for _, func in pairs(self._set_function_map) do
+				func(env, body)
 			end
-
 			return
 		end
-
 	end
-
 	local body_name_list = {}
 	for i = 1, env.dest_unit:num_bodies() do
 		local body = env.dest_unit:body(i - 1)
 		if alive(body) then
 			table.insert(body_name_list, body:name())
 		end
-
 	end
-
 	local supported_values = SequenceManager:get_keys_as_string(body_name_list, "", true, false)
 	self:print_attribute_error("name", name, supported_values, true, env, nil)
 end
@@ -3786,12 +3129,10 @@ function BodyElement:set_motion(env, motion, body)
 		if self.SAVE_STATE then
 			self:set_cat_state2(body:unit(), body:unit():get_body_index(body:name()), "motion", {func_name})
 		end
-
 	else
 		local supported_values = SequenceManager:get_keys_as_string(self.VALID_MOTION_MAP, "", true, true)
 		self:print_attribute_error("motion", motion, supported_values, true, env, nil)
 	end
-
 end
 
 function BodyElement:set_enabled(env, enabled, body)
@@ -3802,7 +3143,6 @@ function BodyElement:set_enabled(env, enabled, body)
 			enabled
 		})
 	end
-
 end
 
 function BodyElement:add_ray_type(env, ray_type, body)
@@ -3814,7 +3154,6 @@ function BodyElement:add_ray_type(env, ray_type, body)
 			ray_type
 		})
 	end
-
 end
 
 function BodyElement:remove_ray_type(env, ray_type, body)
@@ -3826,7 +3165,6 @@ function BodyElement:remove_ray_type(env, ray_type, body)
 			ray_type
 		})
 	end
-
 end
 
 function BodyElement:set_body_collision(env, enabled, body)
@@ -3837,7 +3175,6 @@ function BodyElement:set_body_collision(env, enabled, body)
 			enabled
 		})
 	end
-
 end
 
 function BodyElement:set_mover_collision(env, enabled, body)
@@ -3848,7 +3185,6 @@ function BodyElement:set_mover_collision(env, enabled, body)
 			enabled
 		})
 	end
-
 end
 
 function BodyElement:set_pushed_by_mover(env, enabled, body)
@@ -3859,7 +3195,6 @@ function BodyElement:set_pushed_by_mover(env, enabled, body)
 			enabled
 		})
 	end
-
 end
 
 function BodyElement:set_mover(env, mover, body)
@@ -3869,12 +3204,10 @@ function BodyElement:set_mover(env, mover, body)
 		if self.SAVE_STATE then
 			self:set_cat_state2(body:unit(), body:unit():get_body_index(body:name()), "mover", {"set_mover", value})
 		end
-
 	else
 		local supported_values = SequenceManager:get_keys_as_string(self.VALID_MOVER_MAP, "", true, true)
 		self:print_attribute_error("mover", mover, supported_values, true, env, nil)
 	end
-
 end
 
 function BodyElement:interpolate(env, value, body)
@@ -3887,31 +3220,22 @@ function BodyElement:interpolate(env, value, body)
 				value
 			})
 		end
-
 	else
 		self:print_attribute_error("interpolate", value, nil, true, env, nil)
 	end
-
 end
 
 function BodyElement.load(unit, data)
-	local (for generator), (for state), (for control) = pairs(data)
-	do
-		do break end
-		local (for generator), (for state), (for control) = pairs(cat_data)
-		do
-			do break end
+	for body_id, cat_data in pairs(data) do
+		for _, sub_data in pairs(cat_data) do
 			local body = unit:body(body_id)
 			local param = sub_data[2]
 			if type(param) == "string" then
 				param = Idstring(param)
 			end
-
 			body[sub_data[1]](body, param)
 		end
-
 	end
-
 end
 
 ConstraintElement = ConstraintElement or class(BaseElement)
@@ -3933,34 +3257,25 @@ function ConstraintElement:activate_callback(env)
 			if self.SAVE_STATE then
 				self:set_cat_state(unit, name, "enable_constraint")
 			end
-
 		else
 			unit:disable_constraint(Idstring(name))
 			if self.SAVE_STATE then
 				self:set_cat_state(unit, name, "disable_constraint")
 			end
-
 		end
-
 	end
-
 	if self._remove and self:run_parsed_func(env, self._remove) then
 		unit:remove_constraint(name)
 		if self.SAVE_STATE then
 			self:set_cat_state(unit, name, "remove_constraint")
 		end
-
 	end
-
 end
 
 function ConstraintElement.load(unit, data)
-	local (for generator), (for state), (for control) = pairs(data)
-	do
-		do break end
+	for constraint_name, func_name in pairs(data) do
 		unit[func_name](unit, constraint_name)
 	end
-
 end
 
 DebugElement = DebugElement or class(BaseElement)
@@ -4016,13 +3331,11 @@ function AttentionElement:activate_callback(env)
 		if obj_name then
 			env.dest_unit:attention():set_detection_object_name(obj_name)
 		end
-
 	elseif operation == "remove" then
 		env.dest_unit:attention():remove_attention(preset_name)
 	else
 		_G.debug_pause_unit(env.dest_unit, "AttentionElement:activate_callback: operation not 'add' nor 'remove'", operation, env.dest_unit)
 	end
-
 end
 
 DecalMeshElement = DecalMeshElement or class(BaseElement)
@@ -4049,9 +3362,7 @@ function DecalMeshElement:activate_callback(env)
 				if self.SAVE_STATE then
 					self:set_cat_state2(env.dest_unit, name, "set_mesh_enabled", enabled)
 				end
-
 			end
-
 			if self._material then
 				local material = self:run_parsed_func(env, self._material)
 				if material then
@@ -4059,32 +3370,21 @@ function DecalMeshElement:activate_callback(env)
 					if self.SAVE_STATE then
 						self:set_cat_state2(env.dest_unit, name, "set_mesh_material", material)
 					end
-
 				else
 					self:print_attribute_error("material", material, nil, true, env)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function DecalMeshElement.load(unit, data)
 	local decal_surface = unit:decal_surface()
-	local (for generator), (for state), (for control) = pairs(data)
-	do
-		do break end
-		local (for generator), (for state), (for control) = pairs(cat_data)
-		do
-			do break end
+	for name, cat_data in pairs(data) do
+		for func_name, value in pairs(cat_data) do
 			decal_surface[func_name](decal_surface, Idstring(name), value)
 		end
-
 	end
-
 end
 
 EffectElement = EffectElement or class(BaseElement)
@@ -4104,9 +3404,7 @@ function EffectElement:init(node, unit_element)
 		else
 			break
 		end
-
 	end
-
 end
 
 function EffectElement:activate_callback(env)
@@ -4124,13 +3422,10 @@ function EffectElement:activate_callback(env)
 			elseif parent.type_name ~= "Object3D" then
 				parent = nil
 			end
-
 			if not parent then
 				self:print_attribute_error("parent", parent, nil, true, env)
 			end
-
 		end
-
 		local param_map = {}
 		param_map.effect = name:id()
 		param_map.parent = parent
@@ -4146,15 +3441,12 @@ function EffectElement:activate_callback(env)
 				self:print_attribute_error("align", align, nil, true, env)
 				return
 			end
-
 		elseif not parent then
 			param_map.normal = math.UP
 		end
-
 		if Application:editor() then
 			CoreEngineAccess._editor_load(Idstring("effect"), param_map.effect)
 		end
-
 		World:effect_manager():spawn(param_map)
 	elseif not position then
 		self:print_attribute_error("position", position, nil, true, env)
@@ -4162,7 +3454,6 @@ function EffectElement:activate_callback(env)
 		self:print_attribute_error("name", name, nil, true, env)
 		Application:error("THIS WILL CRASH SOON, SO FIX IT!\n")
 	end
-
 end
 
 EffectSpawnerElement = EffectSpawnerElement or class(BaseElement)
@@ -4175,7 +3466,6 @@ function EffectSpawnerElement:init(node, unit_element)
 	if enabled then
 		table.insert(self._set_function_list, enabled)
 	end
-
 end
 
 function EffectSpawnerElement:activate_callback(env)
@@ -4183,20 +3473,15 @@ function EffectSpawnerElement:activate_callback(env)
 	if name then
 		local effect_spawner = env.dest_unit:effect_spawner(name:id())
 		if effect_spawner then
-			local (for generator), (for state), (for control) = ipairs(self._set_function_list)
-			do
-				do break end
+			for _, func in ipairs(self._set_function_list) do
 				func(env, effect_spawner, name)
 			end
-
 		else
 			self:print_error("Effect spawner \"" .. tostring(name) .. "\" not found.", true, env)
 		end
-
 	else
 		self:print_attribute_error("name", name, nil, true, env)
 	end
-
 end
 
 function EffectSpawnerElement:set_enabled(env, enabled, effect_spawner, name)
@@ -4204,28 +3489,19 @@ function EffectSpawnerElement:set_enabled(env, enabled, effect_spawner, name)
 	if self.SAVE_STATE then
 		self:set_cat_state2(env.dest_unit, name, "set_enabled", enabled)
 	end
-
 end
 
 function EffectSpawnerElement.load(unit, data)
-	local (for generator), (for state), (for control) = pairs(data)
-	do
-		do break end
+	for effect_surface_name, cat_data in pairs(data) do
 		local effect_spawner = unit:effect_spawner(Idstring(effect_surface_name))
 		if effect_spawner then
-			local (for generator), (for state), (for control) = pairs(cat_data)
-			do
-				do break end
+			for func_name, value in pairs(cat_data) do
 				if func_name == "set_enabled" then
 					SequenceManager.set_effect_spawner_enabled(effect_spawner, value)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 EnemyKilledElement = EnemyKilledElement or class(BaseElement)
@@ -4239,9 +3515,7 @@ function EnemyKilledElement:activate_callback(env)
 		if group then
 			group:unit_killed()
 		end
-
 	end
-
 end
 
 FunctionElement = FunctionElement or class(BaseElement)
@@ -4273,15 +3547,10 @@ function FunctionElement:init(node, unit_element)
 					else
 						self._function = self.function5
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function FunctionElement:activate_callback(env)
@@ -4293,9 +3562,7 @@ function FunctionElement:activate_callback(env)
 		if not alive(target) then
 			return
 		end
-
 	end
-
 	if extension and target[extension] then
 		target = target[extension](target)
 		SequenceEnvironment.self = env
@@ -4304,16 +3571,13 @@ function FunctionElement:activate_callback(env)
 			self:print_attribute_error("extension", extension, nil, true, env, nil)
 			return
 		end
-
 	end
-
 	local func = function_name and target[function_name]
 	if func then
 		self._function(self, env, target, func)
 	else
 		self:print_attribute_error("function", function_name, nil, true, env, nil)
 	end
-
 end
 
 function FunctionElement:function0(env, target, func)
@@ -4375,9 +3639,7 @@ function GraphicGroupElement:activate_callback(env)
 				"activate_graphic_group"
 			})
 		end
-
 	end
-
 	if visibility ~= nil then
 		env.dest_unit:set_visibility(Idstring(name), visibility)
 		if self.SAVE_STATE then
@@ -4386,18 +3648,13 @@ function GraphicGroupElement:activate_callback(env)
 				visibility
 			})
 		end
-
 	end
-
 end
 
 function GraphicGroupElement.load(unit, data)
-	local (for generator), (for state), (for control) = pairs(data)
-	do
-		do break end
+	for name, sub_data in pairs(data) do
 		unit[sub_data[1]](unit, Idstring(name), sub_data[2])
 	end
-
 end
 
 LightElement = LightElement or class(BaseElement)
@@ -4410,48 +3667,38 @@ function LightElement:init(node, unit_element)
 	if enabled then
 		table.insert(self._set_functions, enabled)
 	end
-
 	local multiplier = self:get("multiplier", self.set_multiplier)
 	if multiplier then
 		table.insert(self._set_functions, multiplier)
 	end
-
 	local color = self:get("color", self.set_color)
 	if color then
 		table.insert(self._set_functions, color)
 	end
-
 	local far_range = self:get("far_range", self.set_far_range)
 	if far_range then
 		table.insert(self._set_functions, far_range)
 	end
-
 	local spot_angle_end = self:get("spot_angle_end", self.set_spot_angle_end)
 	if spot_angle_end then
 		table.insert(self._set_functions, spot_angle_end)
 	end
-
 	local spot_angle_start = self:get("spot_angle_start", self.set_spot_angle_start)
 	if spot_angle_start then
 		table.insert(self._set_functions, spot_angle_start)
 	end
-
 end
 
 function LightElement:activate_callback(env)
 	local name = self:run_parsed_func(env, self._name)
 	local light_obj = name and env.dest_unit:get_object(name:id())
 	if light_obj and light_obj.set_multiplier then
-		local (for generator), (for state), (for control) = ipairs(self._set_functions)
-		do
-			do break end
+		for _, func in ipairs(self._set_functions) do
 			func(env, light_obj, name)
 		end
-
 	else
 		self:print_attribute_error("name", name, nil, true, env, nil)
 	end
-
 end
 
 function LightElement:set_enabled(env, enabled, light_obj, name)
@@ -4459,10 +3706,7 @@ function LightElement:set_enabled(env, enabled, light_obj, name)
 	if self.SAVE_STATE then
 		self:set_cat_state(env.dest_unit, name, {"set_enable", enabled})
 	end
-
-	local (for generator), (for state), (for control) = ipairs(light_obj:children())
-	do
-		do break end
+	for _, child in ipairs(light_obj:children()) do
 		child:set_visibility(enabled)
 		if self.SAVE_STATE then
 			self:set_cat_state(env.dest_unit, child:name(), {
@@ -4470,9 +3714,7 @@ function LightElement:set_enabled(env, enabled, light_obj, name)
 				enabled
 			})
 		end
-
 	end
-
 end
 
 function LightElement:set_multiplier(env, multiplier, light_obj, name)
@@ -4483,7 +3725,6 @@ function LightElement:set_multiplier(env, multiplier, light_obj, name)
 			multiplier
 		})
 	end
-
 end
 
 function LightElement:set_color(env, color, light_obj, name)
@@ -4491,7 +3732,6 @@ function LightElement:set_color(env, color, light_obj, name)
 	if self.SAVE_STATE then
 		self:set_cat_state(env.dest_unit, name, {"set_color", color})
 	end
-
 end
 
 function LightElement:set_far_range(env, far_range, light_obj, name)
@@ -4502,7 +3742,6 @@ function LightElement:set_far_range(env, far_range, light_obj, name)
 			far_range
 		})
 	end
-
 end
 
 function LightElement:set_spot_angle_start(env, spot_angle_start, light_obj, name)
@@ -4513,7 +3752,6 @@ function LightElement:set_spot_angle_start(env, spot_angle_start, light_obj, nam
 			spot_angle_start
 		})
 	end
-
 end
 
 function LightElement:set_spot_angle_end(env, spot_angle_end, light_obj, name)
@@ -4524,17 +3762,13 @@ function LightElement:set_spot_angle_end(env, spot_angle_end, light_obj, name)
 			spot_angle_end
 		})
 	end
-
 end
 
 function LightElement.load(unit, data)
-	local (for generator), (for state), (for control) = pairs(data)
-	do
-		do break end
+	for obj_name, sub_data in pairs(data) do
 		local obj = unit:get_object(obj_name:id())
 		obj[sub_data[1]](obj, sub_data[2])
 	end
-
 end
 
 MaterialConfigElement = MaterialConfigElement or class(BaseElement)
@@ -4553,9 +3787,7 @@ function MaterialConfigElement:activate_callback(env)
 		if self.SAVE_STATE then
 			self:set_cat_state(env.dest_unit, "material", Idstring(name))
 		end
-
 	end
-
 end
 
 function MaterialConfigElement.load(unit, data)
@@ -4586,9 +3818,7 @@ function MaterialElement:init(node, unit_element)
 	self._diffuse_color = self:get("diffuse_color")
 	self._diffuse_color_alpha = self:get("diffuse_color_alpha")
 	self._set_func_list = {}
-	local (for generator), (for state), (for control) = pairs(self._parameters)
-	do
-		do break end
+	for key, value in pairs(self._parameters) do
 		local func_name = self.FUNC_MAP[key]
 		local func
 		if func_name then
@@ -4596,13 +3826,10 @@ function MaterialElement:init(node, unit_element)
 		elseif not self.BASE_ATTRIBUTE_MAP[key] and not self.MATERIAL_ATTRIBUTE_MAP[key] then
 			func = self:get(key, self.set_variable)
 		end
-
 		if func then
 			self._set_func_list[key] = func
 		end
-
 	end
-
 end
 
 function MaterialElement:activate_callback(env)
@@ -4612,27 +3839,18 @@ function MaterialElement:activate_callback(env)
 	else
 		local material = env.dest_unit:material(name:id())
 		if material then
-			do
-				local (for generator), (for state), (for control) = pairs(self._set_func_list)
-				do
-					do break end
-					func(env, material, key)
-				end
-
+			for key, func in pairs(self._set_func_list) do
+				func(env, material, key)
 			end
-
 			local color = self:run_parsed_func(env, self._diffuse_color)
 			local alpha = self:run_parsed_func(env, self._diffuse_color_alpha)
 			if color or alpha then
 				material:set_diffuse_color(color or material:diffuse_color(), alpha or material:diffuse_color_alpha())
 			end
-
 		else
 			self:print_error("Invalid material name \"" .. tostring(name) .. "\".", true, env)
 		end
-
 	end
-
 end
 
 function MaterialElement:set_glossiness(env, glossiness, material)
@@ -4658,7 +3876,6 @@ function MaterialElement:set_material_state(env, state, material)
 		local supported_values = SequenceManager:get_keys_as_string(self.TIMER_STATE_MAP, "", true)
 		self:print_attribute_error("state", state, supported_values, true, env, nil)
 	end
-
 end
 
 MorphExpressionElement = MorphExpressionElement or class(BaseElement)
@@ -4674,13 +3891,10 @@ function MorphExpressionElement:init(node, unit_element)
 			table.insert(self._parameters, expression)
 			table.insert(self._parameters, weight)
 		end
-
 	end
-
 	if #self._parameters == 0 then
 		self:print_error("No expressions or weights defined.", false, nil)
 	end
-
 end
 
 function MorphExpressionElement:activate_callback(env)
@@ -4691,7 +3905,6 @@ function MorphExpressionElement:activate_callback(env)
 	else
 		self:print_attribute_error("model", model, nil, true, env)
 	end
-
 end
 
 MorphExpressionMovieElement = MorphExpressionMovieElement or class(BaseElement)
@@ -4714,7 +3927,6 @@ function MorphExpressionMovieElement:activate_callback(env)
 		local loop = self:run_parsed_func(env, self._loop)
 		managers.expression:play(env.dest_unit, model, movie, loop)
 	end
-
 end
 
 ObjectElement = ObjectElement or class(BaseElement)
@@ -4727,17 +3939,14 @@ function ObjectElement:init(node, unit_element)
 	if visible then
 		table.insert(self._set_function_list, visible)
 	end
-
 	local rotation = self:get("rotation", self.set_rotation)
 	if rotation then
 		table.insert(self._set_function_list, rotation)
 	end
-
 	local position = self:get("position", self.set_position)
 	if position then
 		table.insert(self._set_function_list, position)
 	end
-
 	self._local_scope = self:get("local_scope")
 end
 
@@ -4748,16 +3957,12 @@ function ObjectElement:activate_callback(env)
 			env.dest_unit:get_object(Idstring(name))
 		}
 		local local_scope = self:run_parsed_func(env, self._local_scope)
-		local (for generator), (for state), (for control) = ipairs(self._set_function_list)
-		do
-			do break end
+		for _, func in ipairs(self._set_function_list) do
 			func(env, object_list, local_scope)
 		end
-
 	else
 		self:print_attribute_error("name", name, nil, true, env)
 	end
-
 end
 
 function ObjectElement:set_visibility(env, visible, object_list, local_scope)
@@ -4771,7 +3976,6 @@ function ObjectElement:set_position(env, position, object_list, local_scope)
 	else
 		func_name = "set_position"
 	end
-
 	self:set_object(env.dest_unit, object_list, func_name, position)
 end
 
@@ -4782,14 +3986,11 @@ function ObjectElement:set_rotation(env, rotation, object_list, local_scope)
 	else
 		func_name = "set_rotation"
 	end
-
 	self:set_object(env.dest_unit, object_list, func_name, rotation)
 end
 
 function ObjectElement:set_object(dest_unit, object_list, func_name, value)
-	local (for generator), (for state), (for control) = ipairs(object_list)
-	do
-		do break end
+	for _, obj in ipairs(object_list) do
 		obj[func_name](obj, value)
 		if self.SAVE_STATE then
 			self:set_cat_state2(dest_unit, obj:name(), func_name, {
@@ -4797,24 +3998,16 @@ function ObjectElement:set_object(dest_unit, object_list, func_name, value)
 				value
 			})
 		end
-
 	end
-
 end
 
 function ObjectElement.load(unit, data)
-	local (for generator), (for state), (for control) = pairs(data)
-	do
-		do break end
-		local (for generator), (for state), (for control) = pairs(sub_data)
-		do
-			do break end
+	for name, sub_data in pairs(data) do
+		for func_name, values in pairs(sub_data) do
 			local obj = unit:get_object(values[1])
 			obj[func_name](obj, values[2])
 		end
-
 	end
-
 end
 
 PhantomElement = PhantomElement or class(BaseElement)
@@ -4834,21 +4027,16 @@ function PhantomElement:activate_callback(env)
 		if self.SAVE_STATE then
 			self:set_cat_state(env.dest_unit, name, enabled)
 		end
-
 	else
 		self:print_attribute_error("name", name, nil, true, env, nil)
 	end
-
 end
 
 function PhantomElement.load(unit, data)
-	local (for generator), (for state), (for control) = pairs(data)
-	do
-		do break end
+	for name, enabled in pairs(data) do
 		local phantom = unit:phantom(name)
 		phantom:set_enabled(enabled)
 	end
-
 end
 
 PhysicEffectElement = PhysicEffectElement or class(BaseElement)
@@ -4864,9 +4052,7 @@ function PhysicEffectElement:init(node, unit_element)
 		if not self._param_list[i] then
 			break
 		end
-
 	end
-
 end
 
 function PhysicEffectElement:activate_callback(env)
@@ -4914,7 +4100,6 @@ function ProjectDecalElement:activate_callback(env)
 		if not alive(ignore_unit) then
 			ignore_unit = nil
 		end
-
 		if ray_distance then
 			local ray = ignore_unit or World:raycast("ray", position, position + direction * ray_distance, "slot_mask", slotmask)
 			if ray then
@@ -4923,9 +4108,7 @@ function ProjectDecalElement:activate_callback(env)
 			else
 				return
 			end
-
 		end
-
 		local arg_list = {}
 		table.insert(arg_list, self:run_parsed_func(env, self._decal_x))
 		table.insert(arg_list, normal)
@@ -4939,9 +4122,7 @@ function ProjectDecalElement:activate_callback(env)
 				normal = normal or math.UP
 			})
 		end
-
 	end
-
 end
 
 RemoveStartTimeElement = RemoveStartTimeElement or class(BaseElement)
@@ -4956,7 +4137,6 @@ function RemoveStartTimeElement:activate_callback(env)
 	if id then
 		managers.sequence:remove_time_callback(id)
 	end
-
 end
 
 RunSequenceElement = RunSequenceElement or class(BaseElement)
@@ -4966,15 +4146,11 @@ function RunSequenceElement:init(node, unit_element)
 	BaseElement.init(self, node, unit_element)
 	self._name = self:get("name")
 	self._params = {}
-	local (for generator), (for state), (for control) = pairs(self._parameters)
-	do
-		do break end
+	for k, v in pairs(self._parameters) do
 		if not self.BASE_ATTRIBUTE_MAP[k] and not self.RUN_SEQUENCE_ATTRIBUTE_MAP[k] then
 			self._params[k] = self:get(k)
 		end
-
 	end
-
 end
 
 function RunSequenceElement:activate_callback(env)
@@ -4984,27 +4160,18 @@ function RunSequenceElement:activate_callback(env)
 		if sequence then
 			local old_params = env.params
 			env.params = CoreTable.clone(env.params)
-			do
-				local (for generator), (for state), (for control) = pairs(self._params)
-				do
-					do break end
-					if not env.__run_params[k] then
-						env.params[k] = self:run_parsed_func(env, v)
-					end
-
+			for k, v in pairs(self._params) do
+				if not env.__run_params[k] then
+					env.params[k] = self:run_parsed_func(env, v)
 				end
-
 			end
-
 			sequence:activate(env)
 			env.params = old_params
 		else
 			local supported_values = SequenceManager:get_keys_as_string(self._unit_element:get_sequence_name_list(), "", true, true)
 			self:print_attribute_error("name", sequence_name, supported_values, true, env, nil)
 		end
-
 	end
-
 end
 
 RunSpawnSystemSequenceElement = RunSpawnSystemSequenceElement or class(BaseElement)
@@ -5037,15 +4204,11 @@ function RunSpawnSystemSequenceElement:activate_callback(env)
 				else
 					self:print_error("No damage extension found on unit \"" .. tostring(unit) .. "\".", true, env)
 				end
-
 			end
-
 		else
 			self:print_error("No spawn_system extension found on unit \"" .. tostring(env.dest_unit) .. "\".", true, env)
 		end
-
 	end
-
 end
 
 SetDamageElement = SetDamageElement or class(BaseElement)
@@ -5054,31 +4217,23 @@ function SetDamageElement:init(node, unit_element)
 	BaseElement.init(self, node, unit_element)
 	self._damage = {}
 	self._set_functions = {}
-	local (for generator), (for state), (for control) = pairs(self._parameters)
-	do
-		do break end
+	for k, v in pairs(self._parameters) do
 		self._damage[k] = self:get(k, self.set_damage)
 	end
-
 end
 
 function SetDamageElement:activate_callback(env)
 	if alive(env.dest_body) then
 		if env.dest_body:extension() and env.dest_body:extension().damage then
-			local (for generator), (for state), (for control) = pairs(self._damage)
-			do
-				do break end
+			for k, func in pairs(self._damage) do
 				func(env, k)
 			end
-
 		else
 			self:print_error("Unable to set body damage on unit \"" .. tostring(env.dest_unit) .. "\" with body \"" .. env.dest_body:name() .. "\" since it didn't have a damage extension on the body.", true, env)
 		end
-
 	else
 		self:print_error("Unable to set body damage on destroyed body. This is probably because a scripter didn't specify a body when a sequence was executed or if it was executed from a sequence that had \"startup\" attribute set to true or if the sequence was triggered from a water element.", true, env)
 	end
-
 end
 
 function SetDamageElement:set_damage(env, damage, damage_type)
@@ -5109,9 +4264,7 @@ function SetExtensionVarElement:activate_callback(env)
 			local value = self:run_parsed_func(env, self._value)
 			extension[variable] = value
 		end
-
 	end
-
 end
 
 SetGlobalVariableElement = SetGlobalVariableElement or class(BaseElement)
@@ -5130,7 +4283,6 @@ function SetGlobalVariableElement:activate_callback(env)
 	else
 		self:print_attribute_error("name", name, nil, true, env)
 	end
-
 end
 
 function SetGlobalVariableElement:set_variable(env, name, value)
@@ -5143,24 +4295,17 @@ SetGlobalVariablesElement.NAME = "set_global_variables"
 function SetGlobalVariablesElement:init(node, unit_element)
 	BaseElement.init(self, node, unit_element)
 	self._variables = {}
-	local (for generator), (for state), (for control) = pairs(self._parameters)
-	do
-		do break end
+	for name, value in pairs(self._parameters) do
 		if not self.BASE_ATTRIBUTE_MAP[name] then
 			self._variables[name] = self:get(name)
 		end
-
 	end
-
 end
 
 function SetGlobalVariablesElement:activate_callback(env)
-	local (for generator), (for state), (for control) = pairs(self._variables)
-	do
-		do break end
+	for name, value in pairs(self._variables) do
 		self:set_variable(env, name, self:run_parsed_func(env, value))
 	end
-
 end
 
 function SetGlobalVariablesElement:set_variable(env, name, value)
@@ -5192,9 +4337,7 @@ function SetInflictElement:activate_callback(env)
 	local damage_ext = body_ext and body_ext.damage
 	if damage_ext then
 		local damage_type = self:run_parsed_func(env, self._damage_type)
-		local (for generator), (for state), (for control) = pairs(self._set_func_list)
-		do
-			do break end
+		for name, value in pairs(self._set_func_list) do
 			local parsed_value = self:run_parsed_func(env, value)
 			local valid_value, valid_damage_type = damage_ext:set_inflict_attribute(damage_type, name, parsed_value)
 			if not valid_damage_type then
@@ -5203,13 +4346,10 @@ function SetInflictElement:activate_callback(env)
 			elseif not valid_value then
 				self:print_attribute_error(name, parsed_value, nil, true, env)
 			end
-
 		end
-
 	else
 		self:print_attribute_error("body", body_name, nil, true, env)
 	end
-
 end
 
 SetPhysicEffectElement = SetPhysicEffectElement or class(BaseElement)
@@ -5221,7 +4361,6 @@ function SetPhysicEffectElement:init(node, unit_element)
 	for i = 1, 5 do
 		self._param_list[i] = self:get("param" .. i)
 	end
-
 	self._body_list = {}
 	self._center_of_mass = {}
 	self._offset_list = {}
@@ -5231,9 +4370,7 @@ function SetPhysicEffectElement:init(node, unit_element)
 			self._center_of_mass_list[i] = self:get("center" .. i)
 			self._offset_list[i] = self:get("offset" .. i)
 		end
-
 	end
-
 end
 
 function SetPhysicEffectElement:activate_callback(env)
@@ -5241,27 +4378,17 @@ function SetPhysicEffectElement:activate_callback(env)
 	if not id then
 		self:print_attribute_error("id", id, nil, true, env)
 	else
-		do
-			local (for generator), (for state), (for control) = pairs(self._param_list)
-			do
-				do break end
-				local parsed_param = self:run_parsed_func(env, param)
-				World:set_physic_effect_parameter(id, i, parsed_param)
-			end
-
+		for i, param in pairs(self._param_list) do
+			local parsed_param = self:run_parsed_func(env, param)
+			World:set_physic_effect_parameter(id, i, parsed_param)
 		end
-
-		local (for generator), (for state), (for control) = pairs(self._body_list)
-		do
-			do break end
+		for i, body in pairs(self._body_list) do
 			local parsed_body = self:run_parsed_func(env, body)
 			local center_of_mass = self:run_parsed_func(env, self._center_of_mass[i])
 			local offset = self:run_parsed_func(env, self._offset_list[i])
 			World:set_physic_effect_parameter(id, i, parsed_body, center_of_mass, offset)
 		end
-
 	end
-
 end
 
 SetProximityElement = SetProximityElement or class(BaseElement)
@@ -5274,99 +4401,79 @@ function SetProximityElement:init(node, unit_element)
 	if enabled then
 		table.insert(self._set_func_list, enabled)
 	end
-
 	local proximity_type = self:get("type", self.set_type)
 	if proximity_type then
 		table.insert(self._set_func_list, proximity_type)
 	end
-
 	local ref_object = self:get("ref_object", self.set_ref_object)
 	if ref_object then
 		table.insert(self._set_func_list, ref_object)
 	end
-
 	local interval = self:get("interval", self.set_interval)
 	if interval then
 		table.insert(self._set_func_list, interval)
 	end
-
 	local quick = self:get("quick", self.set_quick)
 	if quick then
 		table.insert(self._set_func_list, quick)
 	end
-
 	local is_within = self:get("is_within", self.set_is_within)
 	if is_within then
 		table.insert(self._set_func_list, is_within)
 	end
-
 	local within_activations = self:get("within_activations", self.set_within_activations)
 	if within_activations then
 		table.insert(self._set_func_list, within_activations)
 	end
-
 	local within_max_activations = self:get("within_max_activations", self.set_within_max_activations)
 	if within_max_activations then
 		table.insert(self._set_func_list, within_max_activations)
 	end
-
 	local within_delay = self:get("within_delay", self.set_within_delay)
 	if within_delay then
 		table.insert(self._set_func_list, within_delay)
 	end
-
 	local within_range = self:get("within_range", self.set_within_range)
 	if within_range then
 		table.insert(self._set_func_list, within_range)
 	end
-
 	local within_count = self:get("within_count", self.set_within_count)
 	if within_count then
 		table.insert(self._set_func_list, within_count)
 	end
-
 	local outside_activations = self:get("outside_activations", self.set_outside_activations)
 	if outside_activations then
 		table.insert(self._set_func_list, outside_activations)
 	end
-
 	local outside_max_activations = self:get("outside_max_activations", self.set_outside_max_activations)
 	if outside_max_activations then
 		table.insert(self._set_func_list, outside_max_activations)
 	end
-
 	local outside_delay = self:get("outside_delay", self.set_outside_delay)
 	if outside_delay then
 		table.insert(self._set_func_list, outside_delay)
 	end
-
 	local outside_range = self:get("outside_range", self.set_outside_range)
 	if outside_range then
 		table.insert(self._set_func_list, outside_range)
 	end
-
 	local outside_count = self:get("outside_count", self.set_outside_count)
 	if outside_count then
 		table.insert(self._set_func_list, outside_count)
 	end
-
 end
 
 function SetProximityElement:activate_callback(env)
 	local name = self:run_parsed_func(env, self._name)
 	local proximity_map = env.dest_unit:damage():get_proximity_map()
 	if name and proximity_map[name] then
-		local (for generator), (for state), (for control) = ipairs(self._set_func_list)
-		do
-			do break end
+		for _, func in ipairs(self._set_func_list) do
 			func(env, name)
 		end
-
 	else
 		local supported_values = SequenceManager:get_keys_as_string(proximity_map, "", true, true)
 		self:print_attribute_error("name", name, supported_values, true, env)
 	end
-
 end
 
 function SetProximityElement:set_enabled(env, enabled, name)
@@ -5381,7 +4488,6 @@ function SetProximityElement:set_type(env, proximity_type, name)
 		local supported_values = SequenceManager:get_keys_as_string(managers.sequence:get_proximity_mask_map(), "", true, false)
 		self:print_attribute_error("type", proximity_type, supported_values, true, env)
 	end
-
 end
 
 function SetProximityElement:set_ref_obj_name(env, ref_obj_name, name)
@@ -5447,31 +4553,23 @@ function SetSaveDataElement:init(node, unit_element)
 	BaseElement.init(self, node, unit_element)
 	self._unique = self:get("unique")
 	self._variables = {}
-	local (for generator), (for state), (for control) = pairs(self._parameters)
-	do
-		do break end
+	for name, value in pairs(self._parameters) do
 		if not self.BASE_ATTRIBUTE_MAP[name] and not self.SET_SAVE_DATA_ATTRIBUTE_MAP[name] then
 			self._variables[name] = self:get(name)
 		end
-
 	end
-
 end
 
 function SetSaveDataElement:activate_callback(env)
 	local unique = self:run_parsed_func(env, self._unique)
-	local (for generator), (for state), (for control) = pairs(self._variables)
-	do
-		do break end
+	for name, value in pairs(self._variables) do
 		value = self:run_parsed_func(env, value)
 		if unique then
 			env.set_unique_save_data(name, value)
 		else
 			env.g_save_data[name] = value
 		end
-
 	end
-
 end
 
 SpawnSystemUnitEnabledElement = SpawnSystemUnitEnabledElement or class(BaseElement)
@@ -5498,9 +4596,7 @@ function SpawnSystemUnitEnabledElement:activate_callback(env)
 		else
 			self:print_error("No spawn_system extension found on unit \"" .. tostring(env.dest_unit) .. "\".", true, env)
 		end
-
 	end
-
 end
 
 SetVariableElement = SetVariableElement or class(SetGlobalVariableElement)
@@ -5545,13 +4641,11 @@ function SetWaterElement:activate_callback(env)
 		else
 			enabled = damage_ext:is_water_check_active(name) or not damage_ext:exists_water_check(name)
 		end
-
 		damage_ext:set_water_check(name, enabled, interval, ref_object_name, ref_body_name, body_depth, physic_effect)
 	else
 		local supported_values = SequenceManager:get_keys_as_string(env.dest_unit:damage():get_water_check_map(), "", true, false)
 		self:print_attribute_error("name", name, supported_values, true, env)
 	end
-
 end
 
 ShakeCameraElement = ShakeCameraElement or class(BaseElement)
@@ -5573,7 +4667,6 @@ function ShakeCameraElement:activate_callback(env)
 	if shaker then
 		managers.viewport:get_current_shaker():play(shaker_name, amplitude, frequency, offset)
 	end
-
 end
 
 SlotElement = SlotElement or class(BaseElement)
@@ -5605,22 +4698,17 @@ function SlotElement:activate_callback(env)
 			for i = 0, body_count - 1 do
 				table.insert(data._bodies, env.dest_unit:body(i))
 			end
-
 			if #data._bodies == 0 then
 				self:activate_element(env)
 			end
-
 			managers.sequence:add_retry_callback("culling", func, true)
 			if self.SAVE_STATE then
 				self:set_state(env.dest_unit, tonumber(self:run_parsed_func(env, self._slot)))
 			end
-
 		end
-
 	else
 		self:activate_element(env)
 	end
-
 end
 
 function SlotElement:activate_element(env)
@@ -5630,11 +4718,9 @@ function SlotElement:activate_element(env)
 		if self.SAVE_STATE then
 			self:set_state(env.dest_unit, slot)
 		end
-
 	else
 		self:print_attribute_error("slot", slot, nil, true, env, nil)
 	end
-
 end
 
 function SlotElement.load(unit, data)
@@ -5645,7 +4731,6 @@ function SlotElement:check_frustum_delay(frustum_close_radius, frustum_extension
 	if not alive(env.dest_unit) then
 		return true
 	end
-
 	local body = data._bodies[data._body_index]
 	local pos = body:position()
 	if World:in_view_with_options(pos, frustum_close_radius or 0, frustum_extension or 350, frustum_far_clip or 150000) == visible then
@@ -5655,26 +4740,20 @@ function SlotElement:check_frustum_delay(frustum_close_radius, frustum_extension
 			self:activate_element(env)
 			return true
 		end
-
 	else
 		data._body_index = data._body_index + 1
 	end
-
 	if data._body_index > #data._bodies then
 		data._body_index = 1
 	end
-
 	return false
 end
 
 function SlotElement:hide_objects(obj)
 	obj:set_visibility(false)
-	local (for generator), (for state), (for control) = ipairs(obj:children())
-	do
-		do break end
+	for _, child_obj in ipairs(obj:children()) do
 		self:hide_objects(child_obj)
 	end
-
 end
 
 WwiseElement = WwiseElement or class(BaseElement)
@@ -5695,7 +4774,6 @@ function WwiseElement:activate_callback(env)
 	if func then
 		func(self, env)
 	end
-
 end
 
 function WwiseElement:play(env)
@@ -5711,24 +4789,19 @@ function WwiseElement:play(env)
 		else
 			sound_source = env.dest_unit:sound_source(Idstring(source))
 		end
-
 		if not sound_source then
 			self:print_attribute_error("source", source, nil, true, env, nil)
 		end
-
 	elseif object then
 		sound_source = env.dest_unit:damage():get_sound_source(object)
 		if not sound_source then
 			self:print_attribute_error("object", object, nil, true, env, nil)
 		end
-
 	end
-
 	if not event then
 		self:print_attribute_error("event", event, nil, true, env, nil)
 		return
 	end
-
 	if switch then
 		local switches = string.split(switch, " ")
 		local i = 1
@@ -5738,14 +4811,11 @@ function WwiseElement:play(env)
 			sound_source:set_switch(switch_name, value)
 			i = i + 2
 		end
-
 	end
-
 	sound_source:post_event(event)
 	if self.SAVE_STATE and not skip_save and source then
 		self:set_cat_state(env.dest_unit, source, {"post_event", event})
 	end
-
 end
 
 function WwiseElement:stop(env)
@@ -5754,28 +4824,22 @@ function WwiseElement:stop(env)
 	if not source then
 		self:print_attribute_error("source", source, nil, true, env, nil)
 	end
-
 	if not event then
 		self:print_attribute_error("event", event, nil, true, env, nil)
 		return
 	end
-
 	local sound_source = env.dest_unit:sound_source(source and Idstring(source))
 	sound_source:stop()
 	if self.SAVE_STATE then
 		self:set_cat_state(env.dest_unit, source, {"stop", event})
 	end
-
 end
 
 function WwiseElement.load(unit, data)
-	local (for generator), (for state), (for control) = pairs(data)
-	do
-		do break end
+	for source, sub_data in pairs(data) do
 		local sound_source = unit:sound_source(source and Idstring(source))
 		sound_source[sub_data[1]](sound_source, sub_data[2])
 	end
-
 end
 
 SoundElement = SoundElement or class(BaseElement)
@@ -5797,7 +4861,6 @@ function SoundElement:activate_callback(env)
 	if func then
 		func(self, env)
 	end
-
 end
 
 function SoundElement:play(env)
@@ -5815,15 +4878,12 @@ function SoundElement:play(env)
 			else
 				self:print_attribute_error("target", obj_name, nil, true, env, nil)
 			end
-
 		else
 			env.dest_unit:play(cue, table.unpack_map(param_map))
 		end
-
 	else
 		self:print_attribute_error("cue", cue, nil, true, env, nil)
 	end
-
 end
 
 function SoundElement:stop(env)
@@ -5833,7 +4893,6 @@ function SoundElement:stop(env)
 	else
 		self:print_attribute_error("cue", cue, nil, true, env, nil)
 	end
-
 end
 
 SpawnUnitElement = SpawnUnitElement or class(BaseElement)
@@ -5867,15 +4926,11 @@ function SpawnUnitElement:init(node, unit_element)
 	self._to_trigger_sequence = self:get("to_trigger_sequence")
 	self._inherit_destroy = self:get("inherit_destroy")
 	self._params = {}
-	local (for generator), (for state), (for control) = pairs(self._parameters)
-	do
-		do break end
+	for k, v in pairs(self._parameters) do
 		if not self.BASE_ATTRIBUTE_MAP[k] and not self.SPAWN_UNIT_ATTRIBUTE_MAP[k] then
 			self._params[k] = self:get(k)
 		end
-
 	end
-
 end
 
 function SpawnUnitElement:activate_callback(env)
@@ -5901,27 +4956,20 @@ function SpawnUnitElement:activate_callback(env)
 				if network_sync ~= "none" and network_sync ~= "client" then
 					return
 				end
-
 			end
-
 			unit = CoreUnit.safe_spawn_unit(name, position, rotation)
 			if unit then
 				if dest_damage_ext.external_spawn_unit_callback then
 					dest_damage_ext:external_spawn_unit_callback(unit, env)
 				end
-
 				if alive(env.src_unit) and env.dest_unit ~= env.src_unit then
 					local src_damage_ext = env.src_unit:damage()
 					if src_damage_ext and src_damage_ext.external_spawn_unit_callback then
 						src_damage_ext:external_spawn_unit_callback(unit, env)
 					end
-
 				end
-
 			end
-
 		end
-
 		if src_link_obj then
 			if not unit then
 				self:print_error("Spawned mass unit must be enabled before it can be linked.", false, env)
@@ -5932,11 +4980,8 @@ function SpawnUnitElement:activate_callback(env)
 				else
 					env.dest_unit:link(src_link_obj, unit)
 				end
-
 			end
-
 		end
-
 		local transfer_velocity = self:run_parsed_func(env, self._transfer_velocity)
 		if transfer_velocity then
 			if not unit then
@@ -5952,7 +4997,6 @@ function SpawnUnitElement:activate_callback(env)
 				else
 					velocity = env.dest_unit:velocity()
 				end
-
 				local ang_velocity = self:run_parsed_func(env, self._transfer_ang_velocity)
 				local physic_effect_name
 				if ang_velocity then
@@ -5967,23 +5011,16 @@ function SpawnUnitElement:activate_callback(env)
 								if ang_velocity:length() < body_ang_velocity:length() then
 									ang_velocity = body_ang_velocity
 								end
-
 							end
-
 						end
-
 					end
-
 					physic_effect_name = "core/physic_effects/sequencemanager_push_with_ang"
 				else
 					physic_effect_name = "core/physic_effects/sequencemanager_push"
 				end
-
 				World:play_physic_effect(physic_effect_name, unit, velocity, unit:mass(), ang_velocity)
 			end
-
 		end
-
 		local params
 		if run_sequence and run_sequence ~= "" then
 			if not unit then
@@ -5996,9 +5033,7 @@ function SpawnUnitElement:activate_callback(env)
 			else
 				self:print_error("Unable to run sequence \"" .. tostring(run_sequence) .. "\" on unit \"" .. tostring(unit) .. "\" since it doesn't have a damage-extension.", true, env)
 			end
-
 		end
-
 		local from_trigger = self:run_parsed_func(env, self._from_trigger)
 		if from_trigger then
 			if not unit then
@@ -6015,20 +5050,15 @@ function SpawnUnitElement:activate_callback(env)
 							local supported_values = SequenceManager:get_keys_as_string(self._unit_element:get_sequence_name_list(), "", true, true)
 							self:print_attribute_error("from_trigger_sequence", from_trigger_sequence, supported_values, true, env)
 						end
-
 					else
 						local supported_values = SequenceManager:get_keys_as_string(damage_ext._unit_element:get_trigger_name_map(), "", true, true)
 						self:print_attribute_error("from_trigger", from_trigger, supported_values, true, env)
 					end
-
 				else
 					self:print_error("Unable to connect trigger \"" .. tostring(from_trigger) .. "\" on unit \"" .. tostring(unit) .. "\" since it doesn't have a damage-extension.", true, env)
 				end
-
 			end
-
 		end
-
 		local to_trigger = self:run_parsed_func(env, self._to_trigger)
 		if to_trigger then
 			if not unit then
@@ -6045,20 +5075,15 @@ function SpawnUnitElement:activate_callback(env)
 							local supported_values = SequenceManager:get_keys_as_string(damage_ext._unit_element:get_sequence_name_list(), "", true, true)
 							self:print_attribute_error("to_trigger_sequence", to_trigger_sequence, supported_values, true, env)
 						end
-
 					else
 						local supported_values = SequenceManager:get_keys_as_string(self._unit_element:get_trigger_name_map(), "", true, true)
 						self:print_attribute_error("to_trigger", to_trigger, supported_values, true, env)
 					end
-
 				else
 					self:print_error("Unable to connect trigger \"" .. tostring(to_trigger) .. "\" on unit \"" .. tostring(unit) .. "\" since it doesn't have a damage-extension.", true, env)
 				end
-
 			end
-
 		end
-
 		local inherit_destroy = self:run_parsed_func(env, self._inherit_destroy)
 		if inherit_destroy then
 			if not unit then
@@ -6066,24 +5091,15 @@ function SpawnUnitElement:activate_callback(env)
 			else
 				dest_damage_ext:add_inherit_destroy_unit(unit)
 			end
-
 		end
-
 	end
-
 end
 
 function SpawnUnitElement:get_params(env)
 	local params = CoreTable.clone(env.params)
-	do
-		local (for generator), (for state), (for control) = pairs(self._params)
-		do
-			do break end
-			params[k] = self:run_parsed_func(env, v)
-		end
-
+	for k, v in pairs(self._params) do
+		params[k] = self:run_parsed_func(env, v)
 	end
-
 	params.spawn_unit = env.dest_unit
 	return params
 end
@@ -6102,7 +5118,6 @@ function StopPhysicEffectElement:activate_callback(env)
 	else
 		World:stop_physic_effect(id)
 	end
-
 end
 
 TriggerElement = TriggerElement or class(BaseElement)

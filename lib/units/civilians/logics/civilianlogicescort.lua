@@ -10,7 +10,6 @@ function CivilianLogicEscort.enter(data, new_logic_name, enter_params)
 	if data.char_tweak.escort_idle_talk then
 		my_data._say_random_t = Application:time() + 45
 	end
-
 	CivilianLogicEscort._get_objective_path_data(data, my_data)
 	data.internal_data = my_data
 	data.unit:contour():add("highlight")
@@ -25,12 +24,10 @@ function CivilianLogicEscort.enter(data, new_logic_name, enter_params)
 		}
 		data.unit:brain():action_request(action_data)
 	end
-
 	if not data.been_outlined and data.char_tweak.outline_on_discover then
 		my_data.outline_detection_task_key = "CivilianLogicIdle._upd_outline_detection" .. tostring(data.key)
 		CopLogicBase.queue_task(my_data, my_data.outline_detection_task_key, CivilianLogicIdle._upd_outline_detection, data, data.t + 2)
 	end
-
 end
 
 function CivilianLogicEscort.exit(data, new_logic_name, enter_params)
@@ -42,7 +39,6 @@ function CivilianLogicEscort.exit(data, new_logic_name, enter_params)
 	if new_logic_name ~= "inactive" then
 		data.unit:brain():set_update_enabled_state(true)
 	end
-
 end
 
 function CivilianLogicEscort.update(data)
@@ -54,7 +50,6 @@ function CivilianLogicEscort.update(data)
 		data.unit:sound():say("a02", true)
 		my_data._say_random_t = t + math.random(30, 60)
 	end
-
 	if CivilianLogicEscort.too_scared_to_move(data) and not data.unit:anim_data().panic then
 		my_data.commanded_to_move = nil
 		data.unit:movement():action_request({
@@ -64,7 +59,6 @@ function CivilianLogicEscort.update(data)
 			clamp_to_graph = true
 		})
 	end
-
 	if my_data.processing_advance_path or my_data.processing_coarse_path then
 		CivilianLogicEscort._upd_pathing(data, my_data)
 	elseif my_data.advancing or my_data.getting_up then
@@ -75,9 +69,7 @@ function CivilianLogicEscort.update(data)
 			else
 				CivilianLogicEscort._begin_stand_hesitant_action(data, my_data)
 			end
-
 		end
-
 	elseif objective then
 		if my_data.coarse_path then
 			local coarse_path = my_data.coarse_path
@@ -93,20 +85,16 @@ function CivilianLogicEscort.update(data)
 				my_data.processing_advance_path = true
 				unit:brain():search_for_path(my_data.advance_path_search_id, to_pos)
 			end
-
 		else
 			local search_id = tostring(unit:key()) .. "coarse"
 			if unit:brain():search_for_coarse_path(search_id, objective.nav_seg) then
 				my_data.coarse_path_search_id = search_id
 				my_data.processing_coarse_path = true
 			end
-
 		end
-
 	else
 		CopLogicBase._exit(data.unit, "idle")
 	end
-
 end
 
 function CivilianLogicEscort.on_intimidated(data, amount, aggressor_unit)
@@ -116,7 +104,6 @@ function CivilianLogicEscort.on_intimidated(data, amount, aggressor_unit)
 	else
 		data.internal_data.commanded_to_move = true
 	end
-
 end
 
 function CivilianLogicEscort.action_complete_clbk(data, action)
@@ -128,7 +115,6 @@ function CivilianLogicEscort.action_complete_clbk(data, action)
 	elseif action_type == "act" and my_data.getting_up then
 		my_data.getting_up = nil
 	end
-
 end
 
 function CivilianLogicEscort._upd_pathing(data, my_data)
@@ -146,9 +132,7 @@ function CivilianLogicEscort._upd_pathing(data, my_data)
 				managers.groupai:state():on_civilian_objective_failed(data.unit, data.objective)
 				return
 			end
-
 		end
-
 		path = pathing_results[my_data.coarse_path_search_id]
 		if path then
 			my_data.processing_coarse_path = nil
@@ -160,11 +144,8 @@ function CivilianLogicEscort._upd_pathing(data, my_data)
 				managers.groupai:state():on_civilian_objective_failed(data.unit, data.objective)
 				return
 			end
-
 		end
-
 	end
-
 end
 
 function CivilianLogicEscort.on_new_objective(data, old_objective)
@@ -183,15 +164,9 @@ function CivilianLogicEscort._get_objective_path_data(data, my_data)
 			local path = {
 				mvector3.copy(data.m_pos)
 			}
-			do
-				local (for generator), (for state), (for control) = ipairs(path_data.points)
-				do
-					do break end
-					table.insert(path, point.position)
-				end
-
+			for _, point in ipairs(path_data.points) do
+				table.insert(path, point.position)
 			end
-
 			my_data.advance_path = path
 			my_data.coarse_path_index = 1
 			local start_seg = data.unit:movement():nav_tracker():nav_segment()
@@ -220,7 +195,6 @@ function CivilianLogicEscort._get_objective_path_data(data, my_data)
 				})
 				i_point = i_point + 1
 			end
-
 		elseif path_style == "destination" then
 			my_data.coarse_path_index = 1
 			local start_seg = data.unit:movement():nav_tracker():nav_segment()
@@ -231,52 +205,34 @@ function CivilianLogicEscort._get_objective_path_data(data, my_data)
 				{end_seg, end_pos}
 			}
 		end
-
 	end
-
 end
 
 function CivilianLogicEscort.too_scared_to_move(data)
 	local my_data = data.internal_data
 	local nobody_close = true
 	local min_dis_sq = 1000000
-	do
-		local (for generator), (for state), (for control) = pairs(managers.groupai:state():all_criminals())
-		do
-			do break end
-			if min_dis_sq > mvector3.distance_sq(c_data.m_pos, data.m_pos) then
-				nobody_close = nil
-		end
-
+	for c_key, c_data in pairs(managers.groupai:state():all_criminals()) do
+		if min_dis_sq > mvector3.distance_sq(c_data.m_pos, data.m_pos) then
+			nobody_close = nil
 		else
 		end
-
 	end
-
 	if nobody_close then
 		return "abandoned"
 	end
-
 	local nobody_close = true
 	local min_dis_sq = tweak_data.character[data.unit:base()._tweak_table].escort_scared_dist
 	min_dis_sq = min_dis_sq * min_dis_sq
-	do
-		local (for generator), (for state), (for control) = pairs(managers.enemy:all_enemies())
-		do
-			do break end
-			if not c_data.unit:anim_data().surrender and c_data.unit:brain()._current_logic_name ~= "trade" and min_dis_sq > mvector3.distance_sq(c_data.m_pos, data.m_pos) and math.abs(c_data.m_pos.z - data.m_pos.z) < 250 then
-				nobody_close = nil
-		end
-
+	for c_key, c_data in pairs(managers.enemy:all_enemies()) do
+		if not c_data.unit:anim_data().surrender and c_data.unit:brain()._current_logic_name ~= "trade" and min_dis_sq > mvector3.distance_sq(c_data.m_pos, data.m_pos) and math.abs(c_data.m_pos.z - data.m_pos.z) < 250 then
+			nobody_close = nil
 		else
 		end
-
 	end
-
 	if not nobody_close then
 		return "pigs"
 	end
-
 	return
 end
 
@@ -296,7 +252,6 @@ function CivilianLogicEscort._begin_advance_action(data, my_data)
 	else
 		debug_pause("[CivilianLogicEscort._begin_advance_action] failed to start")
 	end
-
 end
 
 function CivilianLogicEscort._begin_stand_hesitant_action(data, my_data)

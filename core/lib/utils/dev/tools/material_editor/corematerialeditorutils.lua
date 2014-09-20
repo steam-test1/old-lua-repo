@@ -8,64 +8,41 @@ function CoreMaterialEditor:live_update_parameter(name, param_type, param_ui_typ
 			_value = value
 		})
 	end
-
 end
 
 function CoreMaterialEditor:_get_node(node, name)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for n in node:children() do
 		if n:name() == name then
 			return n
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_get_all_nodes(node, name)
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
-			if n:name() == name then
-				table.insert(t, n)
-			end
-
+	for n in node:children() do
+		if n:name() == name then
+			table.insert(t, n)
 		end
-
 	end
-
 	return t
 end
 
 function CoreMaterialEditor:_find_node(node, name, key, value)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for n in node:children() do
 		if n:parameter(key) == value and (not name or n:name() == name) then
 			return n
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_find_all_nodes(node, name, key, value)
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
-			if n:parameter(key) == value and (not name or n:name() == name) then
-				table.insert(t, n)
-			end
-
+	for n in node:children() do
+		if n:parameter(key) == value and (not name or n:name() == name) then
+			table.insert(t, n)
 		end
-
 	end
-
 	return t
 end
 
@@ -76,22 +53,15 @@ function CoreMaterialEditor:_read_config()
 		if not managers.database:has(managers.database:base_path() .. self._global_material_config_name) then
 			error("Could not find the global material config file!")
 		end
-
 	end
-
 	local settings = managers.database:load_node(managers.database:base_path() .. self.SETTINGS_FILE)
 	if settings then
-		local (for generator), (for state), (for control) = settings:children()
-		do
-			do break end
+		for setting in settings:children() do
 			if setting:name() == "remote" and setting:parameter("host") then
 				self._remote_host = setting:parameter("host")
 			end
-
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_write_config()
@@ -100,7 +70,6 @@ function CoreMaterialEditor:_write_config()
 	if self._remote_host then
 		str = string.format("%s\t<remote host=\"%s\"/>\n", str, self._remote_host)
 	end
-
 	file:write(string.format("%s</material_editor>", str))
 	file:close()
 end
@@ -125,15 +94,9 @@ end
 
 function CoreMaterialEditor:_remot_compile()
 	local defines
-	do
-		local (for generator), (for state), (for control) = pairs(self._shader_defines)
-		do
-			do break end
-			defines = not v._checked or defines and defines .. " " .. k or k
-		end
-
+	for k, v in pairs(self._shader_defines) do
+		defines = not v._checked or defines and defines .. " " .. k or k
 	end
-
 	local cmd = string.format("start /D \"%score\\utils\\shader_server\" lua5.1.exe client.lua %s %s %s %s", managers.database:base_path(), self._remote_host, Application:short_game_name(), self._compilable_shader_combo_box:get_value(), defines)
 	assert(os.execute(cmd) == 0)
 end
@@ -148,36 +111,21 @@ function CoreMaterialEditor:_create_make_file(rebuild)
 	else
 		file:write("\t<compile shader=\"" .. self._compilable_shader_combo_box:get_value() .. "\" defines=\"")
 		local defines
-		do
-			local (for generator), (for state), (for control) = pairs(self._shader_defines)
-			do
-				do break end
-				if v._checked then
-					if not defines then
-						defines = k
-					else
-						defines = defines .. " " .. k
-					end
-
+		for k, v in pairs(self._shader_defines) do
+			if v._checked then
+				if not defines then
+					defines = k
+				else
+					defines = defines .. " " .. k
 				end
-
 			end
-
 		end
-
 		file:write((defines or "") .. "\"/>\n")
 	end
-
 	file:write("\t<file_io\n")
-	do
-		local (for generator), (for state), (for control) = pairs(make_params)
-		do
-			do break end
-			file:write("\t\t" .. k .. "=\"" .. string.gsub(v, "/", "\\") .. "\"\n")
-		end
-
+	for k, v in pairs(make_params) do
+		file:write("\t\t" .. k .. "=\"" .. string.gsub(v, "/", "\\") .. "\"\n")
 	end
-
 	file:write([[
 	/>
 </make>
@@ -233,7 +181,6 @@ function CoreMaterialEditor:_find_unit_material(unit)
 	if node then
 		return node, managers.database:entry_expanded_path("material_config", path)
 	end
-
 end
 
 function CoreMaterialEditor:_find_selected_unit()
@@ -246,37 +193,25 @@ function CoreMaterialEditor:_find_selected_unit()
 			self:_load_node(unit_material_path)
 			self._start_dialog:end_modal()
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_get_material()
 	local units_in_world = World:find_units_quick("all")
-	local (for generator), (for state), (for control) = ipairs(units_in_world)
-	do
-		do break end
+	for _, unit_in_world in ipairs(units_in_world) do
 		local material = unit_in_world:material(Idstring(self._current_material_node:parameter("name")))
 		if material then
 			return material
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_create_rt_name(rt)
 	table.sort(rt)
 	local rt_str = "generic"
-	do
-		local (for generator), (for state), (for control) = ipairs(rt)
-		do
-			do break end
-			rt_str = rt_str .. ":" .. option
-		end
-
+	for _, option in ipairs(rt) do
+		rt_str = rt_str .. ":" .. option
 	end
-
 	return rt_str
 end
 
@@ -288,7 +223,6 @@ function CoreMaterialEditor:_try_convert_parameter(mat, child, rt)
 	else
 		mat:remove_child_at(mat:index_of_child(child))
 	end
-
 end
 
 function CoreMaterialEditor:_version_error(mat)
@@ -297,21 +231,14 @@ function CoreMaterialEditor:_version_error(mat)
 		local rt = {}
 		mat:set_parameter("version", self.MATERIAL_VERSION_TAG)
 		mat:clear_parameter("src")
-		do
-			local (for generator), (for state), (for control) = mat:children()
-			do
-				do break end
-				self:_try_convert_parameter(mat, child, rt)
-			end
-
+		for child in mat:children() do
+			self:_try_convert_parameter(mat, child, rt)
 		end
-
 		mat:set_parameter("render_template", self:_create_rt_name(rt))
 		return true
 	else
 		return false
 	end
-
 end
 
 function CoreMaterialEditor:_update_material(param)
@@ -327,65 +254,38 @@ function CoreMaterialEditor:_update_material(param)
 			else
 				material:set_variable(Idstring(param._name), param._value)
 			end
-
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_live_update()
 	if alive(self._selected_unit) then
-		do
-			local (for generator), (for state), (for control) = ipairs(self._live_update_parameter_list)
-			do
-				do break end
-				self:_update_material(param)
-			end
-
+		for _, param in ipairs(self._live_update_parameter_list) do
+			self:_update_material(param)
 		end
-
 		self._live_update_parameter_list = {}
 	end
-
 end
 
 function CoreMaterialEditor:_check_valid_xml_on_save(node)
 	local str
-	do
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
-			local (for generator), (for state), (for control) = mat:children()
-			do
-				do break end
-				if var:parameter("file") == "[NONE]" then
-					str = (str or "") .. var:name() .. "\n"
-				end
-
+	for mat in node:children() do
+		for var in mat:children() do
+			if var:parameter("file") == "[NONE]" then
+				str = (str or "") .. var:name() .. "\n"
 			end
-
 		end
-
 	end
-
 	return str == nil, str
 end
 
 function CoreMaterialEditor:_set_channels_default_texture(node)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
-		local (for generator), (for state), (for control) = mat:children()
-		do
-			do break end
+	for mat in node:children() do
+		for var in mat:children() do
 			if var:parameter("file") == "[NONE]" then
 				var:set_parameter("file", self.DEFAULT_TEXTURE)
 			end
-
 		end
-
 	end
-
 end
 

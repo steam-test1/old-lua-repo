@@ -35,13 +35,10 @@ function CoreCameraDistancePicker:update(time, delta_time)
 			focus_point:line(screen_position:with_y(screen_position.y + 0.1), screen_position:with_y(1))
 			self.__field:set_value(string.format("%i", math.max(0, math.round(raycast.distance - 10))))
 		end
-
 		if EWS:MouseEvent("EVT_MOTION"):left_is_down() then
 			self:_exit_pick_mode()
 		end
-
 	end
-
 end
 
 function CoreCameraDistancePicker:_screen_to_world(coords)
@@ -67,7 +64,6 @@ function CoreCameraDistancePicker:connect(event_type, script_callback, object_da
 	else
 		self.__field:connect(event_type, script_callback)
 	end
-
 end
 
 function CoreCameraDistancePicker:disconnect(event_type, script_callback, object_data)
@@ -76,7 +72,6 @@ function CoreCameraDistancePicker:disconnect(event_type, script_callback, object
 	else
 		self.__field:disconnect(event_type, script_callback)
 	end
-
 end
 
 function CoreCameraDistancePicker:get_value(value)

@@ -14,17 +14,12 @@ function AIAreaElement:layer_finished()
 	if not self._hed.nav_segs then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._hed.nav_segs)
-	do
-		do break end
+	for _, u_id in ipairs(self._hed.nav_segs) do
 		local unit = managers.worlddefinition:get_unit_on_load(u_id, callback(self, self, "load_nav_seg_unit"))
 		if unit then
 			self._nav_seg_units[u_id] = unit
 		end
-
 	end
-
 end
 
 function AIAreaElement:load_nav_seg_unit(unit)
@@ -36,10 +31,7 @@ function AIAreaElement:draw_links(t, dt, selected_unit, all_units)
 	if selected_unit and self._unit ~= selected_unit and not self._nav_seg_units[selected_unit:unit_data().unit_id] then
 		return
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._nav_seg_units)
-	do
-		do break end
+	for u_id, unit in pairs(self._nav_seg_units) do
 		self:_draw_link({
 			from_unit = self._unit,
 			to_unit = unit,
@@ -48,7 +40,6 @@ function AIAreaElement:draw_links(t, dt, selected_unit, all_units)
 			b = 0
 		})
 	end
-
 end
 
 function AIAreaElement:update_selected(t, dt, selected_unit, all_units)
@@ -63,16 +54,12 @@ function AIAreaElement:update_unselected(t, dt, selected_unit, all_units)
 end
 
 function AIAreaElement:_chk_units_alive()
-	local (for generator), (for state), (for control) = pairs(self._nav_seg_units)
-	do
-		do break end
+	for u_id, unit in pairs(self._nav_seg_units) do
 		if not alive(unit) then
 			self._nav_seg_units[u_id] = nil
 			self:_remove_nav_seg(u_id)
 		end
-
 	end
-
 end
 
 function AIAreaElement:update_editing()
@@ -84,14 +71,12 @@ function AIAreaElement:_raycast()
 	if not ray then
 		return
 	end
-
 	if ray.unit:name():s() == "core/units/nav_surface/nav_surface" then
 		Application:draw(ray.unit, 0, 1, 0)
 		return ray.unit
 	else
 		Application:draw_sphere(ray.position, 10, 1, 1, 1)
 	end
-
 end
 
 function AIAreaElement:_lmb()
@@ -99,7 +84,6 @@ function AIAreaElement:_lmb()
 	if not unit then
 		return
 	end
-
 	local u_id = unit:unit_data().unit_id
 	if self._nav_seg_units[u_id] then
 		self._nav_seg_units[u_id] = nil
@@ -108,7 +92,6 @@ function AIAreaElement:_lmb()
 		self._nav_seg_units[u_id] = unit
 		self:_add_nav_seg(unit)
 	end
-
 end
 
 function AIAreaElement:add_triggers(vc)
@@ -133,19 +116,14 @@ function AIAreaElement:_add_nav_seg(unit)
 end
 
 function AIAreaElement:_remove_nav_seg(u_id)
-	local (for generator), (for state), (for control) = ipairs(self._hed.nav_segs)
-	do
-		do break end
+	for i, test_u_id in ipairs(self._hed.nav_segs) do
 		if u_id == test_u_id then
 			table.remove(self._hed.nav_segs, i)
 			if #self._hed.nav_segs == 0 then
 				self._hed.nav_segs = nil
 			end
-
 			return
 		end
-
 	end
-
 end
 

@@ -25,32 +25,20 @@ end
 function CoreCutsceneFootage:add_clips_to_track(track, time)
 	time = time or 0
 	track:freeze()
-	do
-		local (for generator), (for state), (for control) = self:_camera_cuts()
-		do
-			do break end
-			track:add_clip(self:create_clip(start_frame, end_frame, camera))
-		end
-
+	for start_frame, end_frame, camera in self:_camera_cuts() do
+		track:add_clip(self:create_clip(start_frame, end_frame, camera))
 	end
-
 	track:thaw()
 end
 
 function CoreCutsceneFootage:add_cameras_to_list_ctrl(list_ctrl)
 	list_ctrl:freeze()
 	list_ctrl:delete_all_items()
-	do
-		local (for generator), (for state), (for control) = ipairs(self:camera_names())
-		do
-			do break end
-			local item = list_ctrl:append_item(camera_name)
-			local icon_index = self:camera_icon_index(camera_name, list_ctrl:image_count())
-			list_ctrl:set_item_image(item, icon_index)
-		end
-
+	for _, camera_name in ipairs(self:camera_names()) do
+		local item = list_ctrl:append_item(camera_name)
+		local icon_index = self:camera_icon_index(camera_name, list_ctrl:image_count())
+		list_ctrl:set_item_image(item, icon_index)
 	end
-
 	list_ctrl:thaw()
 end
 
@@ -82,12 +70,10 @@ function CoreCutsceneFootage:colour()
 			g = math.fmod(g * 33 + byte, precision + 1)
 			b = math.fmod(b * 33 + byte, precision + 1)
 		end
-
 		local black_value = 0.7
 		local divisor = precision * (1 / (1 - black_value))
 		self._colour = Color(black_value + r / divisor, black_value + g / divisor, black_value + b / divisor)
 	end
-
 	return self._colour
 end
 
@@ -98,7 +84,6 @@ function CoreCutsceneFootage:camera_icon_index(camera_name, image_count)
 	if image_count <= icon_index then
 		icon_index = 0
 	end
-
 	return icon_index
 end
 
@@ -124,28 +109,19 @@ function CoreCutsceneFootage:_camera_cut_list()
 						camera
 					})
 				end
-
 			end
 
 			local previous_key = responder_map({
 				frame = 0,
 				camera = self._cutscene:default_camera()
 			})
-			do
-				local (for generator), (for state), (for control) = self._cutscene:keys(CoreChangeCameraCutsceneKey.ELEMENT_NAME)
-				do
-					do break end
-					add_camera_cut(previous_key:frame(), key:frame(), previous_key:camera())
-					previous_key = key
-				end
-
+			for key in self._cutscene:keys(CoreChangeCameraCutsceneKey.ELEMENT_NAME) do
+				add_camera_cut(previous_key:frame(), key:frame(), previous_key:camera())
+				previous_key = key
 			end
-
 			add_camera_cut(previous_key:frame(), self._cutscene:frame_count(), previous_key:camera())
 		end
-
 	end
-
 	return self._camera_cut_cache
 end
 

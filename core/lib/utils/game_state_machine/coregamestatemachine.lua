@@ -16,15 +16,9 @@ function GameStateMachine:init(start_state)
 end
 
 function GameStateMachine:destroy()
-	do
-		local (for generator), (for state), (for control) = pairs(self._states)
-		do
-			do break end
-			state:destroy()
-		end
-
+	for _, state in pairs(self._states) do
+		state:destroy()
 	end
-
 	self._states = {}
 	self._transitions = {}
 end
@@ -51,7 +45,6 @@ function GameStateMachine:change_state(state, params)
 		Application:error("[GameStateMachine:change_state] State change during transition!")
 		Application:stack_dump()
 	end
-
 	local transition_debug_string = string.format("'%s' --> '%s'", tostring(self:last_queued_state_name()), tostring(state:name()))
 	cat_print("game_state_machine", "[GameStateMachine] Requested state change " .. transition_debug_string)
 	if not self:can_change_state(state) then
@@ -60,12 +53,10 @@ function GameStateMachine:change_state(state, params)
 			print("[GameStateMachine] Requesting invalid transition " .. transition_debug_string)
 			Application:stack_dump()
 		end
-
 	else
 		self._queued_transitions = self._queued_transitions or {}
 		table.insert(self._queued_transitions, {state, params})
 	end
-
 end
 
 function GameStateMachine:current_state_name()
@@ -86,44 +77,34 @@ function GameStateMachine:update(t, dt)
 	if self._current_state.update then
 		self._current_state:update(t, dt)
 	end
-
 end
 
 function GameStateMachine:paused_update(t, dt)
 	if self._current_state.paused_update then
 		self._current_state:paused_update(t, dt)
 	end
-
 end
 
 function GameStateMachine:end_update(t, dt)
 	if self._queued_transitions then
 		self:_do_state_change()
 	end
-
 end
 
 function GameStateMachine:_do_state_change()
 	if not self._queued_transitions then
 		return
 	end
-
 	self._doing_state_change = true
-	do
-		local (for generator), (for state), (for control) = ipairs(self._queued_transitions)
-		do
-			do break end
-			local new_state = transition[1]
-			local params = transition[2]
-			local old_state = self._current_state
-			local trans_func = self._transitions[old_state][new_state]
-			cat_print("game_state_machine", "[GameStateMachine] Executing state change '" .. tostring(old_state:name()) .. "' --> '" .. tostring(new_state:name()) .. "'")
-			self._current_state = new_state
-			trans_func(old_state, new_state, params)
-		end
-
+	for i_transition, transition in ipairs(self._queued_transitions) do
+		local new_state = transition[1]
+		local params = transition[2]
+		local old_state = self._current_state
+		local trans_func = self._transitions[old_state][new_state]
+		cat_print("game_state_machine", "[GameStateMachine] Executing state change '" .. tostring(old_state:name()) .. "' --> '" .. tostring(new_state:name()) .. "'")
+		self._current_state = new_state
+		trans_func(old_state, new_state, params)
 	end
-
 	self._queued_transitions = nil
 	self._doing_state_change = false
 end
@@ -134,6 +115,5 @@ function GameStateMachine:last_queued_state_name()
 	else
 		return self:current_state_name()
 	end
-
 end
 

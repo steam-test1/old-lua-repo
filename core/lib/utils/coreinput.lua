@@ -28,25 +28,17 @@ end
 
 function RepKey:update(d, dt)
 	local anykey = false
-	do
-		local (for generator), (for state), (for control) = ipairs(self._keys)
-		do
-			do break end
-			if self._input:down(Idstring(key)) then
-				anykey = true
-		end
-
+	for _, key in ipairs(self._keys) do
+		if self._input:down(Idstring(key)) then
+			anykey = true
 		else
 		end
-
 	end
-
 	local down = false
 	if anykey then
 		if self._current_time == 0 then
 			down = true
 		end
-
 		if self._current_time >= self._pause then
 			down = true
 			if self._current_rep_time >= self._rep then
@@ -56,16 +48,13 @@ function RepKey:update(d, dt)
 				down = false
 				self._current_rep_time = self._current_rep_time + dt
 			end
-
 		else
 			self._current_time = self._current_time + dt
 		end
-
 	else
 		self._current_time = 0
 		self._current_rep_time = 0
 	end
-
 	return down
 end
 

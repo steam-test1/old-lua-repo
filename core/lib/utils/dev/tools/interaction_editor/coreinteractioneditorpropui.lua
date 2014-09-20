@@ -20,7 +20,6 @@ function InteractionEditorPropUI:clean()
 		self._current_panel:set_visible(false)
 		self._current_panel = nil
 	end
-
 end
 
 function InteractionEditorPropUI:rebuild(desc, node)

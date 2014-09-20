@@ -4,15 +4,9 @@ core:import("CoreGameStateInGame")
 LoadingGame = LoadingGame or class()
 function LoadingGame:init()
 	self._debug_time = self.game_state._session_manager:_debug_time()
-	do
-		local (for generator), (for state), (for control) = ipairs(World:find_units_quick("all"))
-		do
-			do break end
-			unit:set_slot(0)
-		end
-
+	for _, unit in ipairs(World:find_units_quick("all")) do
+		unit:set_slot(0)
 	end
-
 	local session_info = self.game_state._session_manager:session():session_info()
 	local factory = self.game_state._session_manager._factory
 	local level_name = session_info:level_name()
@@ -35,6 +29,5 @@ function LoadingGame:transition()
 	if current_time > self._debug_time + 2 then
 		return CoreGameStateInGame.InGame, self._level_handler
 	end
-
 end
 

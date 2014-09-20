@@ -67,7 +67,6 @@ function HUDChat:enter_key_callback()
 		local u_name = managers.network.account:username()
 		managers.chat:send_message(self._channel_id, u_name or "Offline", message)
 	end
-
 	text:set_text("")
 	text:set_selection(0, 0)
 	managers.hud:set_chat_focus(false)
@@ -161,7 +160,6 @@ function HUDChat:_layout_output_panel()
 		line:set_h(h)
 		lines = lines + line:number_of_lines()
 	end
-
 	output_panel:set_h(line_height * math.min(10, lines))
 	local y = 0
 	for i = #self._lines, 1, -1 do
@@ -172,10 +170,8 @@ function HUDChat:_layout_output_panel()
 		if icon then
 			icon:set_top(line:top() + 1)
 		end
-
 		y = y + h
 	end
-
 	output_panel:set_bottom(self._input_panel:top())
 end
 
@@ -202,7 +198,6 @@ function HUDChat:_on_focus()
 	if self._focus then
 		return
 	end
-
 	local output_panel = self._panel:child("output_panel")
 	output_panel:stop()
 	output_panel:animate(callback(self, self, "_animate_show_component"), output_panel:alpha())
@@ -223,7 +218,6 @@ function HUDChat:_loose_focus()
 	if not self._focus then
 		return
 	end
-
 	self._focus = false
 	self._input_panel:child("focus_indicator"):set_color(Color.white:with_alpha(0.2))
 	self._ws:disconnect_keyboard()
@@ -253,7 +247,6 @@ function HUDChat.blink(o)
 		o:set_color(Color.white)
 		wait(0.3)
 	end
-
 end
 
 function HUDChat:set_blinking(b)
@@ -261,18 +254,15 @@ function HUDChat:set_blinking(b)
 	if b == self._blinking then
 		return
 	end
-
 	if b then
 		caret:animate(self.blink)
 	else
 		caret:stop()
 	end
-
 	self._blinking = b
 	if not self._blinking then
 		caret:set_color(Color.white)
 	end
-
 end
 
 function HUDChat:update_caret()
@@ -286,20 +276,16 @@ function HUDChat:update_caret()
 		else
 			x = text:world_x()
 		end
-
 		y = text:world_y()
 	end
-
 	h = text:h()
 	if w < 3 then
 		w = 3
 	end
-
 	if not self._focus then
 		w = 0
 		h = 0
 	end
-
 	caret:set_world_shape(x, y + 2, w, h - 4)
 	self:set_blinking(s == e and self._focus)
 	local mid = x / self._input_panel:child("input_bg"):w()
@@ -317,17 +303,14 @@ function HUDChat:enter_text(o, s)
 	if managers.hud and managers.hud:showing_stats_screen() then
 		return
 	end
-
 	if self._skip_first then
 		self._skip_first = false
 		return
 	end
-
 	local text = self._input_panel:child("input_text")
 	if type(self._typing_callback) ~= "number" then
 		self._typing_callback()
 	end
-
 	text:replace_text(s)
 	local lbs = text:line_breaks()
 	if #lbs > 1 then
@@ -336,7 +319,6 @@ function HUDChat:enter_text(o, s)
 		text:set_selection(s, e)
 		text:replace_text("")
 	end
-
 	self:update_caret()
 end
 
@@ -351,49 +333,40 @@ function HUDChat:update_key_down(o, k)
 			if s == e and s > 0 then
 				text:set_selection(s - 1, e)
 			end
-
 			text:replace_text("")
 			if not (utf8.len(text:text()) < 1) or type(self._esc_callback) ~= "number" then
 			end
-
 		elseif self._key_pressed == Idstring("delete") then
 			if s == e and s < n then
 				text:set_selection(s, e + 1)
 			end
-
 			text:replace_text("")
 			if not (utf8.len(text:text()) < 1) or type(self._esc_callback) ~= "number" then
 			end
-
 		elseif self._key_pressed == Idstring("left") then
 			if s < e then
 				text:set_selection(s, s)
 			elseif s > 0 then
 				text:set_selection(s - 1, s - 1)
 			end
-
 		elseif self._key_pressed == Idstring("right") then
 			if s < e then
 				text:set_selection(e, e)
 			elseif s < n then
 				text:set_selection(s + 1, s + 1)
 			end
-
 		else
 			self._key_pressed = false
 		end
-
 		self:update_caret()
 		wait(0.03)
 	end
-
 end
 
 function HUDChat:key_release(o, k)
 	if self._key_pressed == k then
 		self._key_pressed = false
 	end
-
 end
 
 function HUDChat:key_press(o, k)
@@ -401,12 +374,10 @@ function HUDChat:key_press(o, k)
 		self._skip_first = false
 		return
 	end
-
 	if not self._enter_text_set then
 		self._input_panel:enter_text(callback(self, self, "enter_text"))
 		self._enter_text_set = true
 	end
-
 	local text = self._input_panel:child("input_text")
 	local s, e = text:selection()
 	local n = utf8.len(text:text())
@@ -418,34 +389,28 @@ function HUDChat:key_press(o, k)
 		if s == e and s > 0 then
 			text:set_selection(s - 1, e)
 		end
-
 		text:replace_text("")
 		if not (utf8.len(text:text()) < 1) or type(self._esc_callback) ~= "number" then
 		end
-
 	elseif k == Idstring("delete") then
 		if s == e and s < n then
 			text:set_selection(s, e + 1)
 		end
-
 		text:replace_text("")
 		if not (utf8.len(text:text()) < 1) or type(self._esc_callback) ~= "number" then
 		end
-
 	elseif k == Idstring("left") then
 		if s < e then
 			text:set_selection(s, s)
 		elseif s > 0 then
 			text:set_selection(s - 1, s - 1)
 		end
-
 	elseif k == Idstring("right") then
 		if s < e then
 			text:set_selection(e, e)
 		elseif s < n then
 			text:set_selection(s + 1, s + 1)
 		end
-
 	elseif self._key_pressed == Idstring("end") then
 		text:set_selection(n, n)
 	elseif self._key_pressed == Idstring("home") then
@@ -454,13 +419,11 @@ function HUDChat:key_press(o, k)
 		if type(self._enter_callback) ~= "number" then
 			self._enter_callback()
 		end
-
 	elseif k == Idstring("esc") and type(self._esc_callback) ~= "number" then
 		text:set_text("")
 		text:set_selection(0, 0)
 		self._esc_callback()
 	end
-
 	self:update_caret()
 end
 
@@ -482,7 +445,6 @@ function HUDChat:receive_message(name, message, color, icon)
 		})
 		x = icon_bitmap:right()
 	end
-
 	local line = output_panel:text({
 		text = name .. ": " .. message,
 		font = tweak_data.menu.pd2_small_font,
@@ -513,7 +475,6 @@ function HUDChat:receive_message(name, message, color, icon)
 		output_panel:animate(callback(self, self, "_animate_show_component"), output_panel:alpha())
 		output_panel:animate(callback(self, self, "_animate_fade_output"))
 	end
-
 end
 
 function HUDChat:_animate_fade_output()
@@ -524,14 +485,12 @@ function HUDChat:_animate_fade_output()
 		local dt = coroutine.yield()
 		t = t + dt
 	end
-
 	local t = 0
 	while fade_t > t do
 		local dt = coroutine.yield()
 		t = t + dt
 		self:set_output_alpha(1 - t / fade_t)
 	end
-
 	self:set_output_alpha(0)
 end
 
@@ -544,7 +503,6 @@ function HUDChat:_animate_show_component(input_panel, start_alpha)
 		t = t + dt
 		input_panel:set_alpha(start_alpha + t / TOTAL_T * (1 - start_alpha))
 	end
-
 	input_panel:set_alpha(1)
 end
 
@@ -556,7 +514,6 @@ function HUDChat:_animate_hide_input(input_panel)
 		t = t + dt
 		input_panel:set_alpha(1 - t / TOTAL_T)
 	end
-
 	input_panel:set_alpha(0)
 end
 
@@ -568,7 +525,6 @@ function HUDChat:_animate_input_bg(input_bg)
 		local a = 0.75 + (1 + math.sin(t * 200)) / 8
 		input_bg:set_alpha(a)
 	end
-
 end
 
 function HUDChat:set_output_alpha(alpha)

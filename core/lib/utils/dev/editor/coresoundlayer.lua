@@ -19,39 +19,21 @@ function SoundLayer:load(world_holder, offset)
 	CoreEws.change_combobox_value(self._default_environment, managers.sound_environment:default_environment())
 	self._ambience_enabled:set_value(managers.sound_environment:ambience_enabled())
 	CoreEws.change_combobox_value(self._default_occasional, managers.sound_environment:default_occasional())
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.sound_environment:areas())
-		do
-			do break end
-			local unit = SoundLayer.super.do_spawn_unit(self, self._environment_unit, area:position(), area:rotation())
-			unit:sound_data().environment_area = area
-			unit:sound_data().environment_area:set_unit(unit)
-		end
-
+	for _, area in ipairs(managers.sound_environment:areas()) do
+		local unit = SoundLayer.super.do_spawn_unit(self, self._environment_unit, area:position(), area:rotation())
+		unit:sound_data().environment_area = area
+		unit:sound_data().environment_area:set_unit(unit)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.sound_environment:emitters())
-		do
-			do break end
-			local unit = SoundLayer.super.do_spawn_unit(self, self._emitter_unit, emitter:position(), emitter:rotation())
-			unit:sound_data().emitter = emitter
-			unit:sound_data().emitter:set_unit(unit)
-		end
-
+	for _, emitter in ipairs(managers.sound_environment:emitters()) do
+		local unit = SoundLayer.super.do_spawn_unit(self, self._emitter_unit, emitter:position(), emitter:rotation())
+		unit:sound_data().emitter = emitter
+		unit:sound_data().emitter:set_unit(unit)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.sound_environment:area_emitters())
-		do
-			do break end
-			local unit = SoundLayer.super.do_spawn_unit(self, self._area_emitter_unit, emitter:position(), emitter:rotation())
-			unit:sound_data().emitter = emitter
-			unit:sound_data().emitter:set_unit(unit)
-		end
-
+	for _, emitter in ipairs(managers.sound_environment:area_emitters()) do
+		local unit = SoundLayer.super.do_spawn_unit(self, self._area_emitter_unit, emitter:position(), emitter:rotation())
+		unit:sound_data().emitter = emitter
+		unit:sound_data().emitter:set_unit(unit)
 	end
-
 	self:set_select_unit(nil)
 end
 
@@ -66,53 +48,44 @@ function SoundLayer:save(save_params)
 	local sound_environments = {}
 	local sound_emitters = {}
 	local sound_area_emitters = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			if unit:name() == Idstring(self._environment_unit) then
-				local area = unit:sound_data().environment_area
-				local shape_table = area:save_level_data()
-				shape_table.environment = area:environment()
-				shape_table.ambience_event = area:ambience_event()
-				shape_table.occasional_event = area:occasional_event()
-				shape_table.use_environment = area:use_environment()
-				shape_table.use_ambience = area:use_ambience()
-				shape_table.use_occasional = area:use_occasional()
-				shape_table.name = area:name()
-				table.insert(sound_environments, shape_table)
-				managers.editor:add_to_sound_package({
-					category = "soundbanks",
-					name = managers.sound_environment:ambience_soundbank(area:ambience_event())
-				})
-			end
-
-			if unit:name() == Idstring(self._emitter_unit) then
-				local emitter = unit:sound_data().emitter
-				table.insert(sound_emitters, {
-					emitter_event = emitter:emitter_event(),
-					position = emitter:position(),
-					rotation = emitter:rotation(),
-					name = emitter:name()
-				})
-				managers.editor:add_to_sound_package({
-					category = "soundbanks",
-					name = managers.sound_environment:emitter_soundbank(emitter:emitter_event())
-				})
-			end
-
-			if unit:name() == Idstring(self._area_emitter_unit) then
-				table.insert(sound_area_emitters, unit:sound_data().emitter:save_level_data())
-				managers.editor:add_to_sound_package({
-					category = "soundbanks",
-					name = managers.sound_environment:emitter_soundbank(unit:sound_data().emitter:emitter_event())
-				})
-			end
-
+	for _, unit in ipairs(self._created_units) do
+		if unit:name() == Idstring(self._environment_unit) then
+			local area = unit:sound_data().environment_area
+			local shape_table = area:save_level_data()
+			shape_table.environment = area:environment()
+			shape_table.ambience_event = area:ambience_event()
+			shape_table.occasional_event = area:occasional_event()
+			shape_table.use_environment = area:use_environment()
+			shape_table.use_ambience = area:use_ambience()
+			shape_table.use_occasional = area:use_occasional()
+			shape_table.name = area:name()
+			table.insert(sound_environments, shape_table)
+			managers.editor:add_to_sound_package({
+				category = "soundbanks",
+				name = managers.sound_environment:ambience_soundbank(area:ambience_event())
+			})
 		end
-
+		if unit:name() == Idstring(self._emitter_unit) then
+			local emitter = unit:sound_data().emitter
+			table.insert(sound_emitters, {
+				emitter_event = emitter:emitter_event(),
+				position = emitter:position(),
+				rotation = emitter:rotation(),
+				name = emitter:name()
+			})
+			managers.editor:add_to_sound_package({
+				category = "soundbanks",
+				name = managers.sound_environment:emitter_soundbank(emitter:emitter_event())
+			})
+		end
+		if unit:name() == Idstring(self._area_emitter_unit) then
+			table.insert(sound_area_emitters, unit:sound_data().emitter:save_level_data())
+			managers.editor:add_to_sound_package({
+				category = "soundbanks",
+				name = managers.sound_environment:emitter_soundbank(unit:sound_data().emitter:emitter_event())
+			})
+		end
 	end
-
 	local default_ambience = managers.sound_environment:default_ambience()
 	local default_occasional = managers.sound_environment:default_occasional()
 	local sound_data = {
@@ -147,40 +120,31 @@ end
 
 function SoundLayer:update(t, dt)
 	SoundLayer.super.update(self, t, dt)
-	local (for generator), (for state), (for control) = ipairs(self._created_units)
-	do
-		do break end
+	for _, unit in ipairs(self._created_units) do
 		if unit:name() == Idstring(self._emitter_unit) then
 			local r, g, b = 0.6, 0.6, 0
 			if table.contains(self._selected_units, unit) then
 				r, g, b = 1, 1, 0.4
 			end
-
 			unit:sound_data().emitter:draw(t, dt, r, g, b)
 		end
-
 		if unit:name() == Idstring(self._environment_unit) then
 			Application:draw(unit, 1, 1, 1)
 			local r, g, b = 0, 0, 0.8
 			if table.contains(self._selected_units, unit) then
 				r, g, b = 0.4, 0.4, 1
 			end
-
 			unit:sound_data().environment_area:draw(t, dt, r, g, b)
 		end
-
 		if unit:name() == Idstring(self._area_emitter_unit) then
 			Application:draw(unit, 1, 1, 1)
 			local r, g, b = 0, 0, 0.8
 			if table.contains(self._selected_units, unit) then
 				r, g, b = 0.4, 0.4, 1
 			end
-
 			unit:sound_data().emitter:draw(t, dt, r, g, b)
 		end
-
 	end
-
 end
 
 function SoundLayer:build_panel(notebook)
@@ -209,21 +173,14 @@ function SoundLayer:build_panel(notebook)
 	local emitter_paths = managers.sound_environment:emitter_paths()
 	self._emitter_paths = EWS:ComboBox(self._sound_panel, "", "", "CB_DROPDOWN,CB_READONLY")
 	if #emitter_paths > 0 then
-		do
-			local (for generator), (for state), (for control) = ipairs(emitter_paths)
-			do
-				do break end
-				self._emitter_paths:append(path)
-			end
-
+		for _, path in ipairs(emitter_paths) do
+			self._emitter_paths:append(path)
 		end
-
 		self._emitter_paths:set_value(default_emitter_path)
 	else
 		self._emitter_paths:append("- No emitter paths in project -")
 		self._emitter_paths:set_value("- No emitter paths in project -")
 	end
-
 	self._emitter_paths:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "select_emitter_path"), nil)
 	emitter_soundbanks_sizer:add(self._emitter_paths, 3, 0, "EXPAND")
 	self._sound_emitter_sizer:add(emitter_soundbanks_sizer, 1, 0, "EXPAND")
@@ -231,21 +188,14 @@ function SoundLayer:build_panel(notebook)
 	emitter_events_sizer:add(EWS:StaticText(self._sound_panel, "Events", "", "ALIGN_LEFT"), 1, 0, "EXPAND")
 	self._emitter_events = EWS:ComboBox(self._sound_panel, "", "", "CB_DROPDOWN,CB_READONLY")
 	if default_emitter_path then
-		do
-			local (for generator), (for state), (for control) = ipairs(managers.sound_environment:emitter_events(default_emitter_path))
-			do
-				do break end
-				self._emitter_events:append(event)
-			end
-
+		for _, event in ipairs(managers.sound_environment:emitter_events(default_emitter_path)) do
+			self._emitter_events:append(event)
 		end
-
 		self._emitter_events:set_value(managers.sound_environment:emitter_events(default_emitter_path)[1])
 	else
 		self._emitter_events:append("- Talk to your sound designer -")
 		self._emitter_events:set_value("- Talk to your sound designer -")
 	end
-
 	self._emitter_events:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "select_emitter_event"), self._emitter_events)
 	emitter_events_sizer:add(self._emitter_events, 3, 0, "EXPAND")
 	self._sound_emitter_sizer:add(emitter_events_sizer, 1, 0, "EXPAND")
@@ -279,7 +229,6 @@ function SoundLayer:_build_defaults(sizer)
 	local error_text = "- No ambience soundbanks in project -"
 	if not no_ambiences_availible or not {error_text} then
 	end
-
 	self._default_ambience = {
 		name = "Ambience:",
 		panel = self._sound_panel,
@@ -299,7 +248,6 @@ function SoundLayer:_build_defaults(sizer)
 	local error_text = "- No occasional soundbanks in project -"
 	if not no_occasionals_availible or not {error_text} then
 	end
-
 	self._default_occasional = {
 		name = "Occasional:",
 		panel = self._sound_panel,
@@ -421,12 +369,9 @@ end
 
 function SoundLayer:set_sound_emitter_events(path)
 	self._emitter_events:clear()
-	local (for generator), (for state), (for control) = ipairs(managers.sound_environment:emitter_events(path))
-	do
-		do break end
+	for _, event in ipairs(managers.sound_environment:emitter_events(path)) do
 		self._emitter_events:append(event)
 	end
-
 end
 
 function SoundLayer:select_emitter_event()
@@ -465,15 +410,11 @@ function SoundLayer:toggle_use_occasional()
 end
 
 function SoundLayer:on_restart_emitters()
-	local (for generator), (for state), (for control) = ipairs(self._created_units)
-	do
-		do break end
+	for _, unit in ipairs(self._created_units) do
 		if unit:name() == Idstring(self._emitter_unit) or unit:name() == Idstring(self._area_emitter_unit) then
 			unit:sound_data().emitter:restart()
 		end
-
 	end
-
 end
 
 function SoundLayer:clear()
@@ -482,26 +423,17 @@ function SoundLayer:clear()
 	CoreEws.change_combobox_value(self._default_ambience, managers.sound_environment:game_default_ambience())
 	CoreEws.change_combobox_value(self._default_occasional, managers.sound_environment:game_default_occasional())
 	self._ambience_enabled:set_value(managers.sound_environment:ambience_enabled())
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			if unit:name() == Idstring(self._environment_unit) then
-				managers.sound_environment:remove_area(unit:sound_data().environment_area)
-			end
-
-			if unit:name() == Idstring(self._emitter_unit) then
-				managers.sound_environment:remove_emitter(unit:sound_data().emitter)
-			end
-
-			if unit:name() == Idstring(self._area_emitter_unit) then
-				managers.sound_environment:remove_area_emitter(unit:sound_data().emitter)
-			end
-
+	for _, unit in ipairs(self._created_units) do
+		if unit:name() == Idstring(self._environment_unit) then
+			managers.sound_environment:remove_area(unit:sound_data().environment_area)
 		end
-
+		if unit:name() == Idstring(self._emitter_unit) then
+			managers.sound_environment:remove_emitter(unit:sound_data().emitter)
+		end
+		if unit:name() == Idstring(self._area_emitter_unit) then
+			managers.sound_environment:remove_area_emitter(unit:sound_data().emitter)
+		end
 	end
-
 	SoundLayer.super.clear(self)
 	self:set_sound_environment_parameters()
 end
@@ -514,7 +446,6 @@ function SoundLayer:do_spawn_unit(...)
 				unit:sound_data().emitter = managers.sound_environment:add_emitter({})
 				unit:sound_data().emitter:set_unit(unit)
 			end
-
 			self:set_sound_emitter_parameters()
 		elseif unit:name() == Idstring(self._area_emitter_unit) then
 			if not unit:sound_data().emitter then
@@ -523,7 +454,6 @@ function SoundLayer:do_spawn_unit(...)
 				self._current_shape_panel = unit:sound_data().emitter:panel(self._sound_panel, self._sound_emitter_sizer)
 				self._sound_panel:layout()
 			end
-
 			self:set_sound_emitter_parameters()
 		elseif unit:name() == Idstring(self._environment_unit) then
 			if not unit:sound_data().environment_area then
@@ -532,12 +462,9 @@ function SoundLayer:do_spawn_unit(...)
 				self._current_shape_panel = unit:sound_data().environment_area:panel(self._sound_panel, self._sound_environment_sizer)
 				self._sound_panel:layout()
 			end
-
 			self:set_sound_environment_parameters()
 		end
-
 	end
-
 	return unit
 end
 
@@ -546,7 +473,6 @@ function SoundLayer:select_unit_ray_authorised(ray)
 	if unit then
 		return unit:name() == Idstring(self._emitter_unit) or unit:name() == Idstring(self._environment_unit) or unit:name() == Idstring(self._area_emitter_unit)
 	end
-
 end
 
 function SoundLayer:clone_edited_values(unit, source)
@@ -560,13 +486,11 @@ function SoundLayer:clone_edited_values(unit, source)
 		area:set_depth(source_area:depth())
 		area:set_height(source_area:height())
 	end
-
 	if unit:name() == Idstring(self._emitter_unit) or unit:name() == Idstring(self._area_emitter_unit) then
 		local emitter = unit:sound_data().emitter
 		local source_emitter = source:sound_data().emitter
 		emitter:set_emitter_event(source_emitter:emitter_event())
 	end
-
 end
 
 function SoundLayer:delete_unit(unit)
@@ -576,21 +500,16 @@ function SoundLayer:delete_unit(unit)
 			if self._current_shape_panel == unit:sound_data().environment_area:panel() then
 				self._current_shape_panel = nil
 			end
-
 			unit:sound_data().environment_area:panel():destroy()
 			self._sound_panel:layout()
 		end
-
 	end
-
 	if unit:name() == Idstring(self._emitter_unit) then
 		managers.sound_environment:remove_emitter(unit:sound_data().emitter)
 	end
-
 	if unit:name() == Idstring(self._area_emitter_unit) then
 		managers.sound_environment:remove_area_emitter(unit:sound_data().emitter)
 	end
-
 	SoundLayer.super.delete_unit(self, unit)
 end
 
@@ -599,7 +518,6 @@ function SoundLayer:update_unit_settings()
 	if self._current_shape_panel then
 		self._current_shape_panel:set_visible(false)
 	end
-
 	self:set_sound_emitter_parameters()
 	self:set_sound_environment_parameters()
 end
@@ -629,9 +547,7 @@ function SoundLayer:set_sound_environment_parameters()
 			self._use_ambience:set_value(area:use_ambience())
 			self._use_occasional:set_value(area:use_occasional())
 		end
-
 	end
-
 	self._sound_panel:layout()
 end
 
@@ -647,18 +563,14 @@ function SoundLayer:set_sound_emitter_parameters()
 			self._emitter_events:set_enabled(true)
 			self._emitter_events:set_value(emitter:emitter_event())
 		end
-
 		if self._selected_unit:name() == Idstring(self._area_emitter_unit) then
 			local area = self._selected_unit:sound_data().emitter
 			if area then
 				self._current_shape_panel = area:panel(self._sound_panel, self._sound_emitter_sizer)
 				self._current_shape_panel:set_visible(true)
 			end
-
 		end
-
 	end
-
 end
 
 function SoundLayer:activate()
@@ -673,7 +585,6 @@ function SoundLayer:deactivate(params)
 	if not params or not params.simulation then
 		managers.editor:set_wanted_mute(true)
 	end
-
 end
 
 function SoundLayer:add_triggers()
@@ -691,6 +602,5 @@ function SoundLayer:set_unit_name(units)
 		units:set_item_selected(units:selected_item(), false)
 		self._unit_name = ""
 	end
-
 end
 

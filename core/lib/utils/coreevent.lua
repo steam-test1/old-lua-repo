@@ -2,7 +2,6 @@ if core then
 	core:module("CoreEvent")
 	core:import("CoreDebug")
 end
-
 function callback(o, base_callback_class, base_callback_func_name, base_callback_param)
 	if base_callback_class and base_callback_func_name and base_callback_class[base_callback_func_name] then
 		if base_callback_param ~= nil then
@@ -17,7 +16,6 @@ function callback(o, base_callback_class, base_callback_func_name, base_callback
 				end
 
 			end
-
 		elseif o then
 			return function(...)
 				return base_callback_class[base_callback_func_name](o, ...)
@@ -29,7 +27,6 @@ function callback(o, base_callback_class, base_callback_func_name, base_callback
 			end
 
 		end
-
 	elseif base_callback_class then
 		local class_name = base_callback_class and CoreDebug.class_name(getmetatable(base_callback_class) or base_callback_class)
 		error("Callback on class \"" .. tostring(class_name) .. "\" refers to a non-existing function \"" .. tostring(base_callback_func_name) .. "\".")
@@ -38,7 +35,6 @@ function callback(o, base_callback_class, base_callback_func_name, base_callback
 	else
 		error("Callback class and function was nil.")
 	end
-
 end
 
 local tc = 0
@@ -58,7 +54,6 @@ function update_tickets()
 	if tc > 30 then
 		tc = 0
 	end
-
 end
 
 BasicEventHandling = {}
@@ -81,11 +76,8 @@ function BasicEventHandling:disconnect(event_name, wrapped_func)
 			if table.empty(self._event_callbacks) then
 				self._event_callbacks = nil
 			end
-
 		end
-
 	end
-
 end
 
 function BasicEventHandling:_has_callbacks_for_event(event_name)
@@ -94,14 +86,10 @@ end
 
 function BasicEventHandling:_send_event(event_name, ...)
 	if self._event_callbacks then
-		local (for generator), (for state), (for control) = ipairs(self._event_callbacks[event_name] or {})
-		do
-			do break end
+		for _, wrapped_func in ipairs(self._event_callbacks[event_name] or {}) do
 			wrapped_func(...)
 		end
-
 	end
-
 end
 
 CallbackHandler = CallbackHandler or class()
@@ -119,7 +107,6 @@ function CallbackHandler:__insert_sorted(cb)
 	while self._sorted[i] and (self._sorted[i].next == nil or cb.next > self._sorted[i].next) do
 		i = i + 1
 	end
-
 	table.insert(self._sorted, i, cb)
 end
 
@@ -139,7 +126,6 @@ function CallbackHandler:remove(cb)
 	if cb then
 		cb.next = nil
 	end
-
 end
 
 function CallbackHandler:update(dt)
@@ -160,18 +146,13 @@ function CallbackHandler:update(dt)
 				if cb.times <= 0 then
 					cb.next = nil
 				end
-
 			end
-
 			if cb.next then
 				cb.next = cb.next + cb.interval
 				self:__insert_sorted(cb)
 			end
-
 		end
-
 	end
-
 end
 
 CallbackEventHandler = CallbackEventHandler or class()
@@ -191,16 +172,13 @@ function CallbackEventHandler:remove(func)
 	if not self._callback_map or not self._callback_map[func] then
 		return
 	end
-
 	if self._next_callback == func then
 		self._next_callback = next(self._callback_map, self._next_callback)
 	end
-
 	self._callback_map[func] = nil
 	if not next(self._callback_map) then
 		self._callback_map = nil
 	end
-
 end
 
 function CallbackEventHandler:dispatch(...)
@@ -212,11 +190,8 @@ function CallbackEventHandler:dispatch(...)
 			if self._next_callback then
 				self._next_callback(...)
 			end
-
 		end
-
 	end
-
 end
 
 function over(seconds, f, fixed_dt)
@@ -227,10 +202,8 @@ function over(seconds, f, fixed_dt)
 		if seconds <= t then
 			break
 		end
-
 		f(t / seconds, t)
 	end
-
 	f(1, seconds)
 end
 
@@ -238,23 +211,19 @@ function seconds(s, t)
 	if not t then
 		return seconds, s, 0
 	end
-
 	if s and s <= t then
 		return nil
 	end
-
 	local dt = coroutine.yield()
 	t = t + dt
 	if s and s < t then
 		t = s
 	end
-
 	if s then
 		return t, t / s, dt
 	else
 		return t, t, dt
 	end
-
 end
 
 function wait(seconds, fixed_dt)
@@ -263,6 +232,5 @@ function wait(seconds, fixed_dt)
 		local dt = coroutine.yield()
 		t = t + (fixed_dt and 0.033333335 or dt)
 	end
-
 end
 

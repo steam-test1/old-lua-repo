@@ -4,7 +4,6 @@ function UnitBase:init(unit, update_enabled)
 	if not update_enabled then
 		unit:set_extension_update_enabled(Idstring("base"), false)
 	end
-
 	self._destroy_listener_holder = ListenerHolder:new()
 end
 
@@ -12,7 +11,6 @@ function UnitBase:add_destroy_listener(key, clbk)
 	if not self._destroying then
 		self._destroy_listener_holder:add(key, clbk)
 	end
-
 end
 
 function UnitBase:remove_destroy_listener(key)
@@ -35,7 +33,6 @@ function UnitBase:destroy(unit)
 	if self._destroying then
 		return
 	end
-
 	self._destroy_listener_holder:call(unit)
 end
 

@@ -25,9 +25,7 @@ function SkillTreeItem:select(no_sound)
 		if not no_sound then
 			managers.menu_component:post_event("highlight")
 		end
-
 	end
-
 end
 
 function SkillTreeItem:deselect()
@@ -35,7 +33,6 @@ function SkillTreeItem:deselect()
 		self._selected = false
 		self:refresh()
 	end
-
 end
 
 function SkillTreeItem:trigger()
@@ -109,7 +106,6 @@ function SkillTreeTabItem:refresh()
 		self._tree_tab:child("tree_tab_name"):set_color(tweak_data.screen_colors.button_stage_3)
 		self._tree_tab:child("tree_tab_name"):set_blend_mode("add")
 	end
-
 end
 
 SkillTreeSkillItem = SkillTreeSkillItem or class(SkillTreeItem)
@@ -213,7 +209,6 @@ function SkillTreeSkillItem:link(i, items)
 		self._up_item = items[math.max(1, i + 3)]
 		self._down_item = items[math.max(1, i - 3)]
 	end
-
 end
 
 function SkillTreeSkillItem:inside(x, y)
@@ -249,7 +244,6 @@ function SkillTreeSkillItem:refresh(locked)
 	if not alive(self._skill_panel) then
 		return
 	end
-
 	local skill_id = self._skill_panel:name()
 	self._skill_panel:stop()
 	local step = managers.skilltree:next_skill_step(skill_id)
@@ -259,7 +253,6 @@ function SkillTreeSkillItem:refresh(locked)
 	self._locked = locked
 	if Application:production_build() then
 	end
-
 	local selected = self._selected
 	self._box:set_visible(selected)
 	self._box:set_color(tweak_data.screen_colors.item_stage_1)
@@ -277,7 +270,6 @@ function SkillTreeSkillItem:refresh(locked)
 					profession = managers.localization:text(tweak_data.skilltree.trees[self._tree].name_id)
 				})
 			end
-
 		elseif completed then
 			skill_text_string = managers.localization:text("st_menu_skill_maxed")
 		elseif step == 2 then
@@ -299,16 +291,13 @@ function SkillTreeSkillItem:refresh(locked)
 		else
 			skill_text_string = "MISSING"
 		end
-
 	elseif self._tier then
 		if completed then
 			skill_text_string = managers.localization:text("st_menu_skill_maxed")
 		elseif step == 2 then
 			skill_text_string = managers.localization:text("st_menu_skill_owned")
 		end
-
 	end
-
 	skill_text:set_text(utf8.to_upper(skill_text_string))
 	skill_text:set_color(tweak_data.screen_colors.item_stage_1)
 	if not self._tier then
@@ -316,32 +305,25 @@ function SkillTreeSkillItem:refresh(locked)
 		self._skill_panel:child("state_image"):set_color(tweak_data.screen_colors[(step > 1 or selected) and "item_stage_1" or "item_stage_2"])
 		return
 	end
-
 	local color = (completed or selected or step > 1) and tweak_data.screen_colors.item_stage_1 or unlocked and tweak_data.screen_colors.item_stage_2 or tweak_data.screen_colors.item_stage_3
 	self._skill_panel:child("state_image"):set_color(color)
 	if completed then
 		self._skill_panel:child("state_indicator"):set_alpha(1)
 		return
 	end
-
 	if unlocked then
 		if step == 2 then
 		else
 			self._skill_panel:child("state_indicator"):set_alpha(0)
 		end
-
 	else
 		if selected then
 		else
 		end
-
 	end
-
 	if unlocked then
 		local prerequisites = talent.prerequisites or {}
-		local (for generator), (for state), (for control) = ipairs(prerequisites)
-		do
-			do break end
+		for _, prerequisite in ipairs(prerequisites) do
 			local req_unlocked = managers.skilltree:skill_step(prerequisite)
 			if req_unlocked and req_unlocked == 0 then
 				self._skill_panel:child("state_image"):set_color(tweak_data.screen_colors[selected and "important_1" or "important_2"])
@@ -350,21 +332,16 @@ function SkillTreeSkillItem:refresh(locked)
 					skill_text:set_color(tweak_data.screen_colors.important_1)
 					skill_text:set_text(utf8.to_upper(managers.localization:text("st_menu_skill_locked")))
 				end
-
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 end
 
 function SkillTreeSkillItem:trigger()
 	if managers.skilltree:tier_unlocked(self._tree, self._tier) then
 		managers.skilltree:unlock(self._tree, self._skill_id)
 	end
-
 	self:refresh(self._locked)
 	return self._skill_refresh_skills
 end
@@ -379,7 +356,6 @@ function SkillTreeUnlockItem:trigger()
 		managers.skilltree:unlock_tree(self._tree)
 		self:refresh(self._locked)
 	end
-
 end
 
 SkillTreePage = SkillTreePage or class()
@@ -429,9 +405,7 @@ function SkillTreePage:init(tree, data, parent_panel, fullscreen_panel, tree_tab
 			rect:set_alpha(0)
 			rect:hide()
 		end
-
 	end
-
 	local tier_panels = tree_panel:panel({
 		name = "tier_panels"
 	})
@@ -445,156 +419,122 @@ function SkillTreePage:init(tree, data, parent_panel, fullscreen_panel, tree_tab
 		table.insert(self._items, item)
 		item:refresh(false)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(data.tiers)
-		do
-			do break end
-			local unlocked = managers.skilltree:tier_unlocked(tree, tier)
-			local tier_panel = tier_panels:panel({
-				name = "tier_panel" .. tier,
-				h = h
-			})
-			local num_skills = #tier_data
-			tier_panel:set_bottom(tree_panel:child("rect" .. tostring(tier + 1)):top())
-			local base_size = h
-			local base_w = tier_panel:w() / math.max(#tier_data, 1)
-			do
-				local (for generator), (for state), (for control) = ipairs(tier_data)
-				do
-					do break end
-					local item = SkillTreeSkillItem:new(skill_id, tier_panel, num_skills, i, tree, tier, base_w, base_size, skill_prerequisites[skill_id])
-					table.insert(self._items, item)
-					item:refresh(not unlocked)
-				end
-
-			end
-
-			local tier_string = tostring(tier)
-			local debug_text = tier_panel:text({
-				name = "debug_text",
-				text = tier_string,
-				layer = 2,
-				wrap = false,
-				word_wrap = false,
-				font = tweak_data.menu.pd2_small_font,
-				font_size = tweak_data.menu.pd2_small_font_size,
-				h = tweak_data.menu.pd2_small_font_size,
-				align = "right",
-				vertical = "bottom",
-				color = tweak_data.screen_colors.item_stage_3,
-				blend_mode = "add",
-				rotation = 360
-			})
-			debug_text:set_world_bottom(tree_panel:child("rect" .. tostring(tier + 1)):world_top() + 2)
-			local _, _, tw, _ = debug_text:text_rect()
-			debug_text:move(tw * 2, 0)
-			local lock_image = tier_panel:bitmap({
-				name = "lock",
-				texture = "guis/textures/pd2/skilltree/padlock",
-				layer = 3,
-				w = tweak_data.menu.pd2_small_font_size,
-				h = tweak_data.menu.pd2_small_font_size,
-				color = tweak_data.screen_colors.item_stage_3
-			})
-			lock_image:set_blend_mode("add")
-			lock_image:set_rotation(360)
-			lock_image:set_world_position(debug_text:world_right(), debug_text:world_y() - 2)
-			lock_image:set_visible(false)
-			local add_infamy_glow = false
-			if 0 < managers.experience:current_rank() then
-				local tree_name = tweak_data.skilltree.trees[tree].skill
-				local (for generator), (for state), (for control) = pairs(tweak_data.infamy.items)
-				do
-					do break end
-					if managers.infamy:owned(infamy) and item.upgrades and item.upgrades.skilltree and item.upgrades.skilltree.tree == tree_name then
-						add_infamy_glow = true
-				end
-
+	for tier, tier_data in ipairs(data.tiers) do
+		local unlocked = managers.skilltree:tier_unlocked(tree, tier)
+		local tier_panel = tier_panels:panel({
+			name = "tier_panel" .. tier,
+			h = h
+		})
+		local num_skills = #tier_data
+		tier_panel:set_bottom(tree_panel:child("rect" .. tostring(tier + 1)):top())
+		local base_size = h
+		local base_w = tier_panel:w() / math.max(#tier_data, 1)
+		for i, skill_id in ipairs(tier_data) do
+			local item = SkillTreeSkillItem:new(skill_id, tier_panel, num_skills, i, tree, tier, base_w, base_size, skill_prerequisites[skill_id])
+			table.insert(self._items, item)
+			item:refresh(not unlocked)
+		end
+		local tier_string = tostring(tier)
+		local debug_text = tier_panel:text({
+			name = "debug_text",
+			text = tier_string,
+			layer = 2,
+			wrap = false,
+			word_wrap = false,
+			font = tweak_data.menu.pd2_small_font,
+			font_size = tweak_data.menu.pd2_small_font_size,
+			h = tweak_data.menu.pd2_small_font_size,
+			align = "right",
+			vertical = "bottom",
+			color = tweak_data.screen_colors.item_stage_3,
+			blend_mode = "add",
+			rotation = 360
+		})
+		debug_text:set_world_bottom(tree_panel:child("rect" .. tostring(tier + 1)):world_top() + 2)
+		local _, _, tw, _ = debug_text:text_rect()
+		debug_text:move(tw * 2, 0)
+		local lock_image = tier_panel:bitmap({
+			name = "lock",
+			texture = "guis/textures/pd2/skilltree/padlock",
+			layer = 3,
+			w = tweak_data.menu.pd2_small_font_size,
+			h = tweak_data.menu.pd2_small_font_size,
+			color = tweak_data.screen_colors.item_stage_3
+		})
+		lock_image:set_blend_mode("add")
+		lock_image:set_rotation(360)
+		lock_image:set_world_position(debug_text:world_right(), debug_text:world_y() - 2)
+		lock_image:set_visible(false)
+		local add_infamy_glow = false
+		if 0 < managers.experience:current_rank() then
+			local tree_name = tweak_data.skilltree.trees[tree].skill
+			for infamy, item in pairs(tweak_data.infamy.items) do
+				if managers.infamy:owned(infamy) and item.upgrades and item.upgrades.skilltree and item.upgrades.skilltree.tree == tree_name then
+					add_infamy_glow = true
 				else
 				end
-
 			end
-
-			local cost_string = (managers.skilltree:tier_cost(tree, tier) < 10 and "0" or "") .. tostring(managers.skilltree:tier_cost(tree, tier))
-			local cost_text = tier_panel:text({
-				name = "cost_text",
-				text = cost_string,
-				layer = 2,
-				wrap = false,
-				word_wrap = false,
-				font = tweak_data.menu.pd2_small_font,
-				font_size = tweak_data.menu.pd2_small_font_size,
-				h = tweak_data.menu.pd2_small_font_size,
-				align = "left",
-				vertical = "bottom",
-				color = tweak_data.screen_colors.item_stage_3,
+		end
+		local cost_string = (managers.skilltree:tier_cost(tree, tier) < 10 and "0" or "") .. tostring(managers.skilltree:tier_cost(tree, tier))
+		local cost_text = tier_panel:text({
+			name = "cost_text",
+			text = cost_string,
+			layer = 2,
+			wrap = false,
+			word_wrap = false,
+			font = tweak_data.menu.pd2_small_font,
+			font_size = tweak_data.menu.pd2_small_font_size,
+			h = tweak_data.menu.pd2_small_font_size,
+			align = "left",
+			vertical = "bottom",
+			color = tweak_data.screen_colors.item_stage_3,
+			blend_mode = "add",
+			rotation = 360
+		})
+		do
+			local x, y, w, h = cost_text:text_rect()
+			cost_text:set_size(w, h)
+		end
+		cost_text:set_world_bottom(tree_panel:child("rect" .. tostring(tier + 1)):world_top() + 2)
+		cost_text:set_x(debug_text:right() + tw * 3)
+		if add_infamy_glow then
+			local glow = tier_panel:bitmap({
+				name = "cost_glow",
+				w = 56,
+				h = 56,
+				texture = "guis/textures/pd2/crimenet_marker_glow",
 				blend_mode = "add",
+				color = tweak_data.screen_colors.button_stage_3,
 				rotation = 360
 			})
-			do
-				local x, y, w, h = cost_text:text_rect()
-				cost_text:set_size(w, h)
-			end
-
-			cost_text:set_world_bottom(tree_panel:child("rect" .. tostring(tier + 1)):world_top() + 2)
-			cost_text:set_x(debug_text:right() + tw * 3)
-			if add_infamy_glow then
-				local glow = tier_panel:bitmap({
-					name = "cost_glow",
-					w = 56,
-					h = 56,
-					texture = "guis/textures/pd2/crimenet_marker_glow",
-					blend_mode = "add",
-					color = tweak_data.screen_colors.button_stage_3,
-					rotation = 360
-				})
-				local anim_pulse_glow = function(o)
-					local t = 0
-					local dt = 0
-					while true do
-						dt = coroutine.yield()
-						t = (t + dt * 0.5) % 1
-						o:set_alpha((math.sin(t * 180) * 0.5 + 0.5) * 0.8)
-					end
-
+			local anim_pulse_glow = function(o)
+				local t = 0
+				local dt = 0
+				while true do
+					dt = coroutine.yield()
+					t = (t + dt * 0.5) % 1
+					o:set_alpha((math.sin(t * 180) * 0.5 + 0.5) * 0.8)
 				end
-
-				glow:set_center(cost_text:center())
-				glow:animate(anim_pulse_glow)
 			end
 
-			local color = unlocked and tweak_data.screen_colors.item_stage_1 or tweak_data.screen_colors.item_stage_2
-			debug_text:set_color(color)
-			cost_text:set_color(color)
-			if not unlocked then
-			end
-
+			glow:set_center(cost_text:center())
+			glow:animate(anim_pulse_glow)
 		end
-
+		local color = unlocked and tweak_data.screen_colors.item_stage_1 or tweak_data.screen_colors.item_stage_2
+		debug_text:set_color(color)
+		cost_text:set_color(color)
+		if not unlocked then
+		end
 	end
-
 	local ps = managers.skilltree:points_spent(self._tree)
 	local max_points = 1
-	do
-		local (for generator), (for state), (for control) = ipairs(tweak_data.skilltree.trees[self._tree].tiers)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(tier)
-			do
-				do break end
-				local (for generator), (for state), (for control) = ipairs(tweak_data.skilltree.skills[skill])
-				do
-					do break end
-					max_points = max_points + managers.skilltree:get_skill_points(skill, to_unlock)
-				end
-
+	for _, tier in ipairs(tweak_data.skilltree.trees[self._tree].tiers) do
+		for _, skill in ipairs(tier) do
+			for to_unlock, _ in ipairs(tweak_data.skilltree.skills[skill]) do
+				max_points = max_points + managers.skilltree:get_skill_points(skill, to_unlock)
 			end
-
 		end
-
 	end
-
 	local prev_tier_p = 0
 	local next_tier_p = max_points
 	local ct = 0
@@ -604,11 +544,9 @@ function SkillTreePage:init(tree, data, parent_panel, fullscreen_panel, tree_tab
 			next_tier_p = tier_unlocks
 			break
 		end
-
 		ct = i
 		prev_tier_p = tier_unlocks
 	end
-
 	local diff_p = next_tier_p - prev_tier_p
 	local diff_ps = ps - prev_tier_p
 	local dh = self._tree_panel:child("rect2"):bottom()
@@ -621,13 +559,11 @@ function SkillTreePage:init(tree, data, parent_panel, fullscreen_panel, tree_tab
 		next_tier_y = next_tier_object and next_tier_object:top() or 0
 		next_tier_y = 2 * prev_tier_y - next_tier_y
 	end
-
 	if ct > 0 then
 		dh = math.max(2, tier_panels:child("tier_panel1"):world_bottom() - math.lerp(prev_tier_y, next_tier_y, diff_ps / diff_p))
 	else
 		dh = 0
 	end
-
 	local points_spent_panel = tree_panel:panel({
 		name = "points_spent_panel",
 		w = 4,
@@ -644,12 +580,9 @@ function SkillTreePage:init(tree, data, parent_panel, fullscreen_panel, tree_tab
 	self._points_spent_line:set_clipping(dh == 0)
 	points_spent_panel:set_world_center_x(tier_panels:child("tier_panel1"):child("lock"):world_center())
 	points_spent_panel:set_world_bottom(tier_panels:child("tier_panel1"):world_bottom())
-	local (for generator), (for state), (for control) = ipairs(self._items)
-	do
-		do break end
+	for i, item in ipairs(self._items) do
 		item:link(i, self._items)
 	end
-
 end
 
 function SkillTreePage:unlock_tier(tier)
@@ -660,12 +593,9 @@ function SkillTreePage:unlock_tier(tier)
 	self._tree_panel:child("rect" .. tostring(tier + 1)):set_color(color)
 	tier_panel:child("debug_text"):set_color(color)
 	tier_panel:child("cost_text"):set_color(color)
-	local (for generator), (for state), (for control) = ipairs(self._items)
-	do
-		do break end
+	for _, item in ipairs(self._items) do
 		item:refresh(false)
 	end
-
 end
 
 function SkillTreePage:on_points_spent()
@@ -673,25 +603,13 @@ function SkillTreePage:on_points_spent()
 	local tier_panels = self._tree_panel:child("tier_panels")
 	local ps = managers.skilltree:points_spent(self._tree)
 	local max_points = 1
-	do
-		local (for generator), (for state), (for control) = ipairs(tweak_data.skilltree.trees[self._tree].tiers)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(tier)
-			do
-				do break end
-				local (for generator), (for state), (for control) = ipairs(tweak_data.skilltree.skills[skill])
-				do
-					do break end
-					max_points = max_points + managers.skilltree:get_skill_points(skill, to_unlock)
-				end
-
+	for _, tier in ipairs(tweak_data.skilltree.trees[self._tree].tiers) do
+		for _, skill in ipairs(tier) do
+			for to_unlock, _ in ipairs(tweak_data.skilltree.skills[skill]) do
+				max_points = max_points + managers.skilltree:get_skill_points(skill, to_unlock)
 			end
-
 		end
-
 	end
-
 	local prev_tier_p = 0
 	local next_tier_p = max_points
 	local ct = 0
@@ -701,11 +619,9 @@ function SkillTreePage:on_points_spent()
 			next_tier_p = tier_unlocks
 			break
 		end
-
 		ct = i
 		prev_tier_p = tier_unlocks
 	end
-
 	local diff_p = next_tier_p - prev_tier_p
 	local diff_ps = ps - prev_tier_p
 	local dh = self._tree_panel:child("rect2"):bottom()
@@ -718,13 +634,11 @@ function SkillTreePage:on_points_spent()
 		next_tier_y = next_tier_object and next_tier_object:top() or 0
 		next_tier_y = 2 * prev_tier_y - next_tier_y
 	end
-
 	if ct > 0 then
 		dh = math.max(2, tier_panels:child("tier_panel1"):world_bottom() - math.lerp(prev_tier_y, next_tier_y, diff_ps / diff_p))
 	else
 		dh = 0
 	end
-
 	points_spent_panel:set_h(dh)
 	self._points_spent_line:create_sides(points_spent_panel, {
 		sides = {
@@ -779,7 +693,6 @@ function SkillTreeGui:_setup()
 	if alive(self._panel) then
 		self._ws:panel():remove(self._panel)
 	end
-
 	local scaled_size = managers.gui_data:scaled_size()
 	self._panel = self._ws:panel():panel({
 		visible = true,
@@ -865,7 +778,6 @@ function SkillTreeGui:_setup()
 		bg_back:move(13, -9)
 		MenuBackdropGUI.animate_bg_text(self, bg_back)
 	end
-
 	local prefix = not managers.menu:is_pc_controller() and managers.localization:get_default_macro("BTN_Y") or ""
 	self._panel:text({
 		name = "respec_tree_button",
@@ -995,43 +907,26 @@ function SkillTreeGui:_setup()
 		tree_tabs_panel:grow(-tab_x, 0)
 		tree_tabs_panel:move(tab_x, 0)
 	end
-
 	tab_x = 0
 	local skill_prerequisites = {}
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.skilltree.skills)
-		do
-			do break end
-			if data.prerequisites then
-				local (for generator), (for state), (for control) = ipairs(data.prerequisites)
-				do
-					do break end
-					skill_prerequisites[id] = skill_prerequisites[id] or {}
-					table.insert(skill_prerequisites[id], skill_id)
-				end
-
+	for skill_id, data in pairs(tweak_data.skilltree.skills) do
+		if data.prerequisites then
+			for _, id in ipairs(data.prerequisites) do
+				skill_prerequisites[id] = skill_prerequisites[id] or {}
+				table.insert(skill_prerequisites[id], skill_id)
 			end
-
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(tweak_data.skilltree.trees)
-		do
-			do break end
-			local w = math.round(self._tree_tabs_scroll_panel:w() / #tweak_data.skilltree.trees * WIDTH_MULTIPLIER)
-			local tab_item = SkillTreeTabItem:new(self._tree_tabs_scroll_panel, tree, data, w, tab_x)
-			table.insert(self._tab_items, tab_item)
-			local page = SkillTreePage:new(tree, data, self._panel, self._fullscreen_panel, tab_item._tree_tab:h(), skill_prerequisites)
-			table.insert(self._pages_order, tree)
-			self._pages[tree] = page
-			local _, _, tw, _ = self._tab_items[tree]._tree_tab:child("tree_tab_name"):text_rect()
-			tab_x = math.round(tab_x + tw + 15 + 5)
-		end
-
+	for tree, data in ipairs(tweak_data.skilltree.trees) do
+		local w = math.round(self._tree_tabs_scroll_panel:w() / #tweak_data.skilltree.trees * WIDTH_MULTIPLIER)
+		local tab_item = SkillTreeTabItem:new(self._tree_tabs_scroll_panel, tree, data, w, tab_x)
+		table.insert(self._tab_items, tab_item)
+		local page = SkillTreePage:new(tree, data, self._panel, self._fullscreen_panel, tab_item._tree_tab:h(), skill_prerequisites)
+		table.insert(self._pages_order, tree)
+		self._pages[tree] = page
+		local _, _, tw, _ = self._tab_items[tree]._tree_tab:child("tree_tab_name"):text_rect()
+		tab_x = math.round(tab_x + tw + 15 + 5)
 	end
-
 	self._tree_tabs_scroll_panel:set_w(tab_x)
 	local top_tier_panel = self._panel:child("1"):child("tier_panels"):child("tier_panel" .. tostring(#tweak_data.skilltree.trees[1].tiers))
 	local bottom_tier_panel = self._panel:child("1"):child("tier_panels"):child("tier_panel1")
@@ -1058,7 +953,6 @@ function SkillTreeGui:_setup()
 	if alive(respec_tree_button) then
 		respec_tree_button:set_top(points_text:bottom())
 	end
-
 	skill_title_panel:set_left(skill_box_panel:left() + 10)
 	skill_title_panel:set_top(skill_box_panel:top() + 10)
 	skill_title_panel:set_w(skill_box_panel:w() - 20)
@@ -1095,7 +989,6 @@ function SkillTreeGui:_setup()
 		tab_x = math.round(w + 15)
 		tree_tabs_panel:grow(-tab_x, 0)
 	end
-
 	self:set_active_page(managers.skilltree:get_most_progressed_tree())
 	self:set_selected_item(self._active_page:item(), true)
 	self:_rec_round_object(self._panel)
@@ -1103,74 +996,52 @@ end
 
 function SkillTreeGui:_rec_round_object(object)
 	if object.children then
-		local (for generator), (for state), (for control) = ipairs(object:children())
-		do
-			do break end
+		for i, d in ipairs(object:children()) do
 			self:_rec_round_object(d)
 		end
-
 	end
-
 	local x, y = object:position()
 	object:set_position(math.round(x), math.round(y))
 end
 
 function SkillTreeGui:activate_next_tree_panel(play_sound)
-	local (for generator), (for state), (for control) = ipairs(self._pages_order)
-	do
-		do break end
+	for i, tree_name in ipairs(self._pages_order) do
 		if tree_name == self._active_tree then
 			if i == #self._pages_order then
 				return
 			end
-
 			local next_i = i + 1
 			self:set_active_page(self._pages_order[next_i], play_sound)
 			return true
 		end
-
 	end
-
 end
 
 function SkillTreeGui:activate_prev_tree_panel(play_sound)
-	local (for generator), (for state), (for control) = ipairs(self._pages_order)
-	do
-		do break end
+	for i, tree_name in ipairs(self._pages_order) do
 		if tree_name == self._active_tree then
 			if i == 1 then
 				return
 			end
-
 			local prev_i = i - 1
 			self:set_active_page(self._pages_order[prev_i], play_sound)
 			return true
 		end
-
 	end
-
 end
 
 function SkillTreeGui:set_active_page(tree_panel_name, play_sound)
-	do
-		local (for generator), (for state), (for control) = pairs(self._pages)
-		do
-			do break end
-			if tree == tree_panel_name then
-				if self._selected_item then
-					self._selected_item:deselect()
-					self._selected_item = nil
-				end
-
-				local item = page:activate()
-			else
-				page:deactivate()
+	for tree, page in pairs(self._pages) do
+		if tree == tree_panel_name then
+			if self._selected_item then
+				self._selected_item:deselect()
+				self._selected_item = nil
 			end
-
+			local item = page:activate()
+		else
+			page:deactivate()
 		end
-
 	end
-
 	self._active_page = self._pages[tree_panel_name]
 	self._active_tree = tree_panel_name
 	local prev_page_button = self._panel:child("controller_page_tab_panel"):child("prev_page")
@@ -1178,11 +1049,9 @@ function SkillTreeGui:set_active_page(tree_panel_name, play_sound)
 	if prev_page_button then
 		prev_page_button:set_visible(self._active_tree > 1)
 	end
-
 	if next_page_button then
 		next_page_button:set_visible(self._active_tree < #self._pages)
 	end
-
 	local respec_cost_text = self._panel:child("respec_cost_text")
 	if alive(respec_cost_text) then
 		respec_cost_text:set_text(managers.localization:text("st_menu_respec_cost", {
@@ -1191,15 +1060,11 @@ function SkillTreeGui:set_active_page(tree_panel_name, play_sound)
 		self:make_fine_text(respec_cost_text)
 		respec_cost_text:set_bottom(self._panel:child("money_text"):top())
 	end
-
 	self:check_respec_button(nil, nil, true)
 	if play_sound then
 		managers.menu_component:post_event("highlight")
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._tab_items)
-	do
-		do break end
+	for _, tab_item in ipairs(self._tab_items) do
 		tab_item:set_active(tree_panel_name == tab_item:tree())
 		if tree_panel_name == tab_item:tree() then
 			local tree_tabs_panel = self._panel:child("tree_tabs_panel")
@@ -1213,11 +1078,8 @@ function SkillTreeGui:set_active_page(tree_panel_name, play_sound)
 			elseif tab_wr > panel_wr then
 				self._tree_tabs_scroll_panel:move(panel_wr - tab_wr, 0)
 			end
-
 		end
-
 	end
-
 end
 
 function SkillTreeGui:set_layer(layer)
@@ -1233,31 +1095,21 @@ function SkillTreeGui:set_selected_item(item, no_sound)
 		if self._selected_item then
 			self._selected_item:deselect()
 		end
-
 		if item then
 			no_sound = item.tree and no_sound and self._active_tree == item:tree()
 			item:select(no_sound)
 			self._selected_item = item
 		end
-
 	end
-
 	local text = ""
 	local prerequisite_text = ""
 	local title_text = ""
 	self._prerequisites_links = self._prerequisites_links or {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._prerequisites_links)
-		do
-			do break end
-			if data ~= item then
-				data:refresh()
-			end
-
+	for _, data in ipairs(self._prerequisites_links) do
+		if data ~= item then
+			data:refresh()
 		end
-
 	end
-
 	self._prerequisites_links = {}
 	local skill_stat_color = tweak_data.screen_colors.resource
 	local color_replace_table = {}
@@ -1277,7 +1129,6 @@ function SkillTreeGui:set_selected_item(item, no_sound)
 		if not tweak_data.upgrades.skill_descs[skill_id] then
 			local skill_descs = {0, 0}
 		end
-
 		local basic_color_index = 1
 		local pro_color_index = 2 + (skill_descs[1] or 0)
 		if step > 1 then
@@ -1289,7 +1140,6 @@ function SkillTreeGui:set_selected_item(item, no_sound)
 			color_replace_table[basic_color_index] = can_afford and tweak_data.screen_colors.resource or tweak_data.screen_colors.important_1
 			basic_cost = managers.localization:text(basic_cost == 1 and "st_menu_point" or "st_menu_point_plural", {points = basic_cost}) .. " / " .. managers.experience:cash_string(money_cost)
 		end
-
 		if step > 2 then
 			pro_cost = utf8.to_upper(managers.localization:text("st_menu_skill_owned"))
 			color_replace_table[pro_color_index] = tweak_data.screen_colors.resource
@@ -1299,17 +1149,10 @@ function SkillTreeGui:set_selected_item(item, no_sound)
 			color_replace_table[pro_color_index] = can_afford and tweak_data.screen_colors.resource or tweak_data.screen_colors.important_1
 			pro_cost = managers.localization:text(pro_cost == 1 and "st_menu_point" or "st_menu_point_plural", {points = pro_cost}) .. " / " .. managers.experience:cash_string(money_cost)
 		end
-
 		local macroes = {basic = basic_cost, pro = pro_cost}
-		do
-			local (for generator), (for state), (for control) = pairs(skill_descs)
-			do
-				do break end
-				macroes[i] = d
-			end
-
+		for i, d in pairs(skill_descs) do
+			macroes[i] = d
 		end
-
 		title_text = utf8.to_upper(managers.localization:text(tweak_data.skilltree.skills[skill_id].name_id))
 		text = managers.localization:text(tweak_data_skill.desc_id, macroes)
 		if self._selected_item._tier then
@@ -1322,7 +1165,6 @@ function SkillTreeGui:set_selected_item(item, no_sound)
 					tier = self._selected_item._tier
 				}) .. "\n"
 			end
-
 			if not tweak_data.skilltree.SKIP_TIER_BONUS then
 				local skilltree = tweak_data.skilltree.trees[self._active_tree] and tweak_data.skilltree.trees[self._active_tree].skill or "NIL"
 				local tier_descs = tweak_data.upgrades.skill_descs[tostring(skilltree) .. "_tier" .. tostring(self._selected_item._tier)]
@@ -1331,42 +1173,29 @@ function SkillTreeGui:set_selected_item(item, no_sound)
 
 ]] .. utf8.to_upper(managers.localization:text(unlocked and "st_menu_tier_unlocked" or "st_menu_tier_locked")) .. "\n" .. managers.localization:text(tweak_data.skilltree.skills[tweak_data.skilltree.trees[self._selected_item._tree].skill][self._selected_item._tier].desc_id, tier_descs)
 			end
-
 		end
-
 		text = text .. tier_bonus_text
 		local prerequisites = talent.prerequisites or {}
 		local add_prerequisite = true
-		local (for generator), (for state), (for control) = ipairs(prerequisites)
-		do
-			do break end
+		for _, prerequisite in ipairs(prerequisites) do
 			local unlocked = managers.skilltree:skill_step(prerequisite)
 			if unlocked and unlocked == 0 then
 				if add_prerequisite then
 					prerequisite_text = prerequisite_text .. managers.localization:text("st_menu_prerequisite_following_skill" .. (#prerequisites > 1 and "_plural" or ""))
 					add_prerequisite = nil
 				end
-
 				prerequisite_text = prerequisite_text .. "   " .. managers.localization:text(tweak_data.skilltree.skills[prerequisite].name_id) .. "\n"
 				if self._active_page then
-					local (for generator), (for state), (for control) = ipairs(self._active_page._items)
-					do
-						do break end
+					for _, item in ipairs(self._active_page._items) do
 						if item._skill_id == prerequisite then
 							item._skill_panel:child("state_image"):set_color(tweak_data.screen_colors.important_1)
 							table.insert(self._prerequisites_links, item)
 						end
-
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 	self._skill_title_panel:child("text"):set_text(title_text)
 	local desc_pre_text = self._skill_description_panel:child("prerequisites_text")
 	if prerequisite_text == "" then
@@ -1379,43 +1208,31 @@ function SkillTreeGui:set_selected_item(item, no_sound)
 		local x, y, w, h = desc_pre_text:text_rect()
 		desc_pre_text:set_h(h)
 	end
-
 	local text_dissected = utf8.characters(text)
 	local idsp = Idstring("#")
 	local start_ci = {}
 	local end_ci = {}
 	local first_ci = true
-	do
-		local (for generator), (for state), (for control) = ipairs(text_dissected)
-		do
-			do break end
-			if Idstring(c) == idsp then
-				local next_c = text_dissected[i + 1]
-				if next_c and Idstring(next_c) == idsp then
-					if first_ci then
-						table.insert(start_ci, i)
-					else
-						table.insert(end_ci, i)
-					end
-
-					first_ci = not first_ci
+	for i, c in ipairs(text_dissected) do
+		if Idstring(c) == idsp then
+			local next_c = text_dissected[i + 1]
+			if next_c and Idstring(next_c) == idsp then
+				if first_ci then
+					table.insert(start_ci, i)
+				else
+					table.insert(end_ci, i)
 				end
-
+				first_ci = not first_ci
 			end
-
 		end
-
 	end
-
 	if #start_ci ~= #end_ci then
 	else
 		for i = 1, #start_ci do
 			start_ci[i] = start_ci[i] - ((i - 1) * 4 + 1)
 			end_ci[i] = end_ci[i] - (i * 4 - 1)
 		end
-
 	end
-
 	text = string.gsub(text, "##", "")
 	local desc_text = self._skill_description_panel:child("text")
 	desc_text:set_text(text)
@@ -1427,9 +1244,7 @@ function SkillTreeGui:set_selected_item(item, no_sound)
 		for i = 1, #start_ci do
 			desc_text:set_range_color(start_ci[i], end_ci[i], color_replace_table[i] or skill_stat_color)
 		end
-
 	end
-
 end
 
 function SkillTreeGui:check_respec_button(x, y, force_text_update)
@@ -1439,7 +1254,6 @@ function SkillTreeGui:check_respec_button(x, y, force_text_update)
 	if not managers.menu:is_pc_controller() then
 		self._panel:child("respec_tree_button"):set_color(tweak_data.screen_colors.text)
 	end
-
 	if managers.skilltree:points_spent(self._active_tree) == 0 then
 		self._panel:child("respec_tree_button"):set_color(Color.black)
 		self._respec_highlight = false
@@ -1450,7 +1264,6 @@ function SkillTreeGui:check_respec_button(x, y, force_text_update)
 			self._panel:child("respec_tree_button"):set_color(tweak_data.screen_colors.button_stage_2)
 			managers.menu_component:post_event("highlight")
 		end
-
 	else
 		self._respec_highlight = false
 		if not managers.menu:is_pc_controller() then
@@ -1458,15 +1271,12 @@ function SkillTreeGui:check_respec_button(x, y, force_text_update)
 		else
 			self._panel:child("respec_tree_button"):set_color(tweak_data.screen_colors.button_stage_3)
 		end
-
 	end
-
 	if self._respec_text_id ~= text_id or force_text_update then
 		self._respec_text_id = text_id
 		self._panel:child("respec_tree_button"):set_text(prefix .. managers.localization:to_upper_text(text_id, macroes))
 		self:make_fine_text(self._panel:child("respec_tree_button"))
 	end
-
 	return self._respec_highlight
 end
 
@@ -1474,34 +1284,21 @@ function SkillTreeGui:mouse_moved(o, x, y)
 	if self:check_respec_button(x, y) then
 		return true, "link"
 	end
-
 	if self._active_page then
-		local (for generator), (for state), (for control) = ipairs(self._active_page._items)
-		do
-			do break end
+		for _, item in ipairs(self._active_page._items) do
 			if item:inside(x, y) then
 				self:set_selected_item(item)
 				return true, "link"
 			end
-
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._tab_items)
-		do
-			do break end
-			if tab_item:inside(x, y) then
-				local same_tab_item = self._active_tree == tab_item:tree()
-				self:set_selected_item(tab_item, true)
-				return true, same_tab_item and "arrow" or "link"
-			end
-
+	for _, tab_item in ipairs(self._tab_items) do
+		if tab_item:inside(x, y) then
+			local same_tab_item = self._active_tree == tab_item:tree()
+			self:set_selected_item(tab_item, true)
+			return true, same_tab_item and "arrow" or "link"
 		end
-
 	end
-
 	if managers.menu:is_pc_controller() then
 		if self._panel:child("back_button"):inside(x, y) then
 			if not self._back_highlight then
@@ -1509,19 +1306,15 @@ function SkillTreeGui:mouse_moved(o, x, y)
 				self._panel:child("back_button"):set_color(tweak_data.screen_colors.button_stage_2)
 				managers.menu_component:post_event("highlight")
 			end
-
 			return true, "link"
 		else
 			self._back_highlight = false
 			self._panel:child("back_button"):set_color(tweak_data.screen_colors.button_stage_3)
 		end
-
 	end
-
 	if self._panel:inside(x, y) then
 		return true, "arrow"
 	end
-
 	return false, "arrow"
 end
 
@@ -1536,46 +1329,32 @@ function SkillTreeGui:mouse_pressed(button, x, y)
 		self:activate_prev_tree_panel()
 		return
 	end
-
 	if button == Idstring("0") then
 		if self._panel:child("back_button"):inside(x, y) then
 			managers.menu:back()
 			return
 		end
-
 		if self._panel:child("respec_tree_button"):inside(x, y) then
 			self:respec_active_tree()
 			return
 		end
-
 		if self._active_page then
-			local (for generator), (for state), (for control) = ipairs(self._active_page._items)
-			do
-				do break end
+			for _, item in ipairs(self._active_page._items) do
 				if item:inside(x, y) then
 					self:place_point(item)
 					return true
 				end
-
 			end
-
 		end
-
-		local (for generator), (for state), (for control) = ipairs(self._tab_items)
-		do
-			do break end
+		for _, tab_item in ipairs(self._tab_items) do
 			if tab_item:inside(x, y) then
 				if self._active_tree ~= tab_item:tree() then
 					self:set_active_page(tab_item:tree(), true)
 				end
-
 				return true
 			end
-
 		end
-
 	end
-
 end
 
 function SkillTreeGui:move_up()
@@ -1584,7 +1363,6 @@ function SkillTreeGui:move_up()
 	elseif self._selected_item and self._selected_item._up_item then
 		self:set_selected_item(self._selected_item._up_item)
 	end
-
 end
 
 function SkillTreeGui:move_down()
@@ -1593,7 +1371,6 @@ function SkillTreeGui:move_down()
 	elseif self._selected_item and self._selected_item._down_item then
 		self:set_selected_item(self._selected_item._down_item)
 	end
-
 end
 
 function SkillTreeGui:move_left()
@@ -1602,7 +1379,6 @@ function SkillTreeGui:move_left()
 	elseif self._selected_item and self._selected_item._left_item then
 		self:set_selected_item(self._selected_item._left_item)
 	end
-
 end
 
 function SkillTreeGui:move_right()
@@ -1611,21 +1387,18 @@ function SkillTreeGui:move_right()
 	elseif self._selected_item and self._selected_item._right_item then
 		self:set_selected_item(self._selected_item._right_item)
 	end
-
 end
 
 function SkillTreeGui:next_page(play_sound)
 	if self:activate_next_tree_panel(play_sound) then
 		self:set_selected_item(self._active_page:item(), true)
 	end
-
 end
 
 function SkillTreeGui:previous_page(play_sound)
 	if self:activate_prev_tree_panel(play_sound) then
 		self:set_selected_item(self._active_page:item(), true)
 	end
-
 end
 
 function SkillTreeGui:confirm_pressed()
@@ -1633,7 +1406,6 @@ function SkillTreeGui:confirm_pressed()
 		self:place_point(self._selected_item)
 		return true
 	end
-
 	return false
 end
 
@@ -1642,7 +1414,6 @@ function SkillTreeGui:special_btn_pressed(button)
 		self:respec_active_tree()
 		return true
 	end
-
 	return false
 end
 
@@ -1659,15 +1430,12 @@ function SkillTreeGui:place_point(item)
 		self:flash_item(item)
 		return
 	end
-
 	if managers.skilltree:skill_completed(skill_id) then
 		return
 	end
-
 	if not tier and managers.skilltree:tree_unlocked(tree) then
 		return
 	end
-
 	local params = {}
 	local to_unlock = managers.skilltree:next_skill_step(skill_id)
 	local talent = tweak_data.skilltree.skills[skill_id]
@@ -1675,31 +1443,22 @@ function SkillTreeGui:place_point(item)
 	local points = managers.skilltree:get_skill_points(skill_id, to_unlock) or 0
 	local point_cost = managers.money:get_skillpoint_cost(tree, tier, points)
 	local prerequisites = talent.prerequisites or {}
-	do
-		local (for generator), (for state), (for control) = ipairs(prerequisites)
-		do
-			do break end
-			local unlocked = managers.skilltree:skill_step(prerequisite)
-			if unlocked and unlocked == 0 then
-				self:flash_item(item)
-				return
-			end
-
+	for _, prerequisite in ipairs(prerequisites) do
+		local unlocked = managers.skilltree:skill_step(prerequisite)
+		if unlocked and unlocked == 0 then
+			self:flash_item(item)
+			return
 		end
-
 	end
-
 	if not managers.money:can_afford_spend_skillpoint(tree, tier, points) then
 		self:flash_item(item)
 		return
 	end
-
 	if tier then
 		if points > managers.skilltree:points() then
 			self:flash_item(item)
 			return
 		end
-
 		if managers.skilltree:tier_unlocked(tree, tier) then
 			params.skill_name_localized = item._skill_name
 			params.points = points
@@ -1707,7 +1466,6 @@ function SkillTreeGui:place_point(item)
 			params.remaining_points = managers.skilltree:points()
 			params.text_string = "dialog_allocate_skillpoint"
 		end
-
 	elseif points <= managers.skilltree:points() then
 		params.skill_name_localized = item._skill_name
 		params.points = points
@@ -1715,7 +1473,6 @@ function SkillTreeGui:place_point(item)
 		params.remaining_points = managers.skilltree:points()
 		params.text_string = "dialog_unlock_skilltree"
 	end
-
 	if params.text_string then
 		params.yes_func = callback(self, self, "_dialog_confirm_yes", item)
 		params.no_func = callback(self, self, "_dialog_confirm_no")
@@ -1723,7 +1480,6 @@ function SkillTreeGui:place_point(item)
 	else
 		self:flash_item(item)
 	end
-
 end
 
 function SkillTreeGui:_dialog_confirm_yes(item)
@@ -1731,23 +1487,15 @@ function SkillTreeGui:_dialog_confirm_yes(item)
 		local skill_refresh_skills = item:trigger() or {}
 		SimpleGUIEffectSpewer.skill_up(item._skill_panel:child("state_image"):center_x(), item._skill_panel:child("state_image"):center_y(), item._skill_panel)
 		managers.menu_component:post_event("menu_skill_investment")
-		local (for generator), (for state), (for control) = ipairs(skill_refresh_skills)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(self._active_page._items)
-			do
-				do break end
+		for _, id in ipairs(skill_refresh_skills) do
+			for _, item in ipairs(self._active_page._items) do
 				if item._skill_id == id then
 					item:refresh()
+				else
+				end
 			end
-
-			else
-			end
-
 		end
-
 	end
-
 end
 
 function SkillTreeGui:_dialog_confirm_no(item)
@@ -1775,7 +1523,6 @@ function SkillTreeGui:on_points_spent()
 		self:make_fine_text(respec_cost_text)
 		respec_cost_text:set_bottom(self._panel:child("money_text"):top())
 	end
-
 	self._active_page:on_points_spent()
 	self:check_respec_button(nil, nil, true)
 	self:set_selected_item(self._selected_item, true)
@@ -1786,7 +1533,6 @@ function SkillTreeGui:respec_active_tree()
 	if not managers.money:can_afford_respec_skilltree(self._active_tree) or managers.skilltree:points_spent(self._active_tree) == 0 then
 		return
 	end
-
 	self:respec_tree(self._active_tree)
 end
 

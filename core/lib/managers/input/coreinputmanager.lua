@@ -13,12 +13,9 @@ function InputManager:destroy()
 end
 
 function InputManager:update(t, dt)
-	local (for generator), (for state), (for control) = pairs(self._feeders)
-	do
-		do break end
+	for _, feeder in pairs(self._feeders) do
 		feeder:update()
 	end
-
 end
 
 function InputManager:input_provider_id_that_presses_start()
@@ -29,9 +26,7 @@ function InputManager:input_provider_id_that_presses_start()
 		if controller:connected() and controller:pressed(Idstring("start")) then
 			table.insert(layer_description_ids, controller)
 		end
-
 	end
-
 	return layer_description_ids
 end
 
@@ -47,11 +42,8 @@ function InputManager:debug_primary_input_provider_id()
 			elseif best_controller == nil then
 				best_controller = controller
 			end
-
 		end
-
 	end
-
 	assert(best_controller, "You need at least one compatible controller plugged in")
 	return best_controller
 end

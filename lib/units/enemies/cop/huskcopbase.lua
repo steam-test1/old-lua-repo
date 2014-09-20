@@ -14,7 +14,6 @@ function HuskCopBase:pre_destroy(unit)
 	if unit:inventory() then
 		unit:inventory():pre_destroy(unit)
 	end
-
 	UnitBase.pre_destroy(self, unit)
 end
 

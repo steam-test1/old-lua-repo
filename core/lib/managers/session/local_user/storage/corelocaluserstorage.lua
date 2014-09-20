@@ -44,12 +44,10 @@ function Storage:_load_status()
 	if not self._load_task:has_next() then
 		return
 	end
-
 	local profile_data = self._load_task:next()
 	if profile_data:status() == SaveData.OK then
 		self:_profile_data_loaded(profile_data:information())
 	end
-
 	return profile_data:status()
 end
 
@@ -67,7 +65,6 @@ function Storage:_fast_forward_profile_data(handler, profile_data, stored_versio
 			profile_data = func(handler, profile_data)
 			stored_version = stored_version + 1
 		end
-
 	until func == nil
 	return profile_data, stored_version
 end

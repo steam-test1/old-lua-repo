@@ -17,19 +17,15 @@ function Feeder:update(t, dt)
 	if not target_input_context then
 		return
 	end
-
 	local context_description = target_input_context:_context_description()
 	local device_layout_description = context_description:device_layout_description(self._device_type)
 	if device_layout_description == nil then
 		return
 	end
-
 	local binds = device_layout_description:binds()
 	local input_data = target_input_context:input()
 	local controller = self._engine_controller
-	local (for generator), (for state), (for control) = pairs(binds)
-	do
-		do break end
+	for hardware_name, bind in pairs(binds) do
 		local input_data_name = bind.input_target_description:target_name()
 		local control_type = bind.type_name
 		local data
@@ -42,9 +38,7 @@ function Feeder:update(t, dt)
 		else
 			error("Bad!")
 		end
-
 		input_data[input_data_name] = data
 	end
-
 end
 

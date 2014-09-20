@@ -41,7 +41,6 @@ function MenuNodeBaseGui:create_text_button(params)
 	if params.text_to_upper then
 		text = utf8.to_upper(text)
 	end
-
 	local clbk = params.clbk
 	local layer = params.layer or self.layers.items
 	local hide_blur = params.hide_blur
@@ -76,36 +75,25 @@ function MenuNodeBaseGui:create_text_button(params)
 	if right then
 		button_panel:set_right(right)
 	end
-
 	if bottom then
 		button_panel:set_bottom(bottom)
 	end
-
 	local left, right, top, bottom
-	do
-		local (for generator), (for state), (for control) = ipairs(self._text_buttons)
-		do
-			do break end
-			if alive(button.text) then
-				left = button_panel:left() < button.panel:right()
-				right = button_panel:right() > button.panel:left()
-				top = button_panel:top() < button.panel:bottom()
-				bottom = button_panel:bottom() > button.panel:top()
-				if left and right and top and bottom then
-					if button.panel:visible() and button_panel:visible() then
-						Application:error("[MenuNodeBaseGui:create_text_button] Text button intersects with another text button", text, button.text:text())
-					else
-						Application:debug("[MenuNodeBaseGui:create_text_button] Text button intersects with another text button", text, button_panel:visible(), button.text:text(), button.panel:visible())
-					end
-
+	for _, button in ipairs(self._text_buttons) do
+		if alive(button.text) then
+			left = button_panel:left() < button.panel:right()
+			right = button_panel:right() > button.panel:left()
+			top = button_panel:top() < button.panel:bottom()
+			bottom = button_panel:bottom() > button.panel:top()
+			if left and right and top and bottom then
+				if button.panel:visible() and button_panel:visible() then
+					Application:error("[MenuNodeBaseGui:create_text_button] Text button intersects with another text button", text, button.text:text())
+				else
+					Application:debug("[MenuNodeBaseGui:create_text_button] Text button intersects with another text button", text, button_panel:visible(), button.text:text(), button.panel:visible())
 				end
-
 			end
-
 		end
-
 	end
-
 	table.insert(self._text_buttons, {
 		panel = button_panel,
 		text = gui_text,
@@ -120,7 +108,6 @@ function MenuNodeBaseGui:create_gui_box(panel, params)
 	if not alive(panel) then
 		return
 	end
-
 	local box = BoxGuiObject:new(panel, {
 		sides = {
 			1,
@@ -137,11 +124,9 @@ function MenuNodeBaseGui:create_gui_box(panel, params)
 		else
 			self._gui_boxes[name] = box
 		end
-
 	else
 		table.insert(self._gui_boxes, box)
 	end
-
 end
 
 function MenuNodeBaseGui:_align_marker(row_item)
@@ -150,60 +135,43 @@ function MenuNodeBaseGui:_align_marker(row_item)
 		self._marker_data.marker:set_world_right(row_item.gui_panel:world_right())
 		return
 	end
-
 	self._marker_data.marker:set_world_right(self.item_panel:world_right())
 end
 
 function MenuNodeBaseGui:mouse_moved(o, x, y)
 	local used, icon = false, "arrow"
-	do
-		local (for generator), (for state), (for control) = ipairs(self._text_buttons)
-		do
-			do break end
-			if alive(button.panel) and button.panel:visible() then
-				if button.panel:inside(x, y) then
-					if not button.highlighted then
-						button.highlighted = true
-						managers.menu_component:post_event("highlight")
-						if alive(button.text) then
-							button.text:set_color(self.button_highlighted_color)
-						end
-
+	for _, button in ipairs(self._text_buttons) do
+		if alive(button.panel) and button.panel:visible() then
+			if button.panel:inside(x, y) then
+				if not button.highlighted then
+					button.highlighted = true
+					managers.menu_component:post_event("highlight")
+					if alive(button.text) then
+						button.text:set_color(self.button_highlighted_color)
 					end
-
-					used, icon = true, "link"
-				elseif button.highlighted then
-					button.highlighted = false
-					button.text:set_color(self.button_default_color)
 				end
-
+				used, icon = true, "link"
+			elseif button.highlighted then
+				button.highlighted = false
+				button.text:set_color(self.button_default_color)
 			end
-
 		end
-
 	end
-
 	return used, icon
 end
 
 function MenuNodeBaseGui:mouse_pressed(button, x, y)
 	if button == Idstring("0") then
-		local (for generator), (for state), (for control) = ipairs(self._text_buttons)
-		do
-			do break end
+		for _, button in ipairs(self._text_buttons) do
 			if alive(button.panel) and button.panel:visible() and button.panel:inside(x, y) then
 				if button.clbk then
 					button.clbk(button)
 				end
-
 				managers.menu_component:post_event("menu_enter")
 				return true
 			end
-
 		end
-
 	end
-
 	return MenuNodeBaseGui.super.mouse_pressed(self, button, x, y)
 end
 
@@ -235,21 +203,16 @@ function MenuNodeBaseGui:request_texture(texture_path, panel, keep_aspect_ratio)
 	if not managers.menu_component then
 		return
 	end
-
 	local texture_count = managers.menu_component:request_texture(texture_path, callback(self, self, "texture_done_clbk", {panel = panel, keep_aspect_ratio = keep_aspect_ratio}))
 	table.insert(self._requested_textures, {texture_count = texture_count, texture = texture_path})
 end
 
 function MenuNodeBaseGui:unretrieve_textures()
 	if self._requested_textures then
-		local (for generator), (for state), (for control) = pairs(self._requested_textures)
-		do
-			do break end
+		for i, data in pairs(self._requested_textures) do
 			managers.menu_component:unretrieve_texture(data.texture, data.texture_count)
 		end
-
 	end
-
 	self._requested_textures = {}
 end
 
@@ -263,7 +226,6 @@ function MenuNodeBaseGui:texture_done_clbk(params, texture_ids)
 		Application:error("[MenuNodeBaseGui:texture_done_clbk] Missing GUI panel", "texture_ids", texture_ids, "params", inspect(params))
 		return
 	end
-
 	local image = panel:bitmap({
 		name = name,
 		texture = texture_ids,
@@ -283,7 +245,6 @@ function MenuNodeBaseGui:texture_done_clbk(params, texture_ids)
 			tw = 1
 			th = 1
 		end
-
 		local sw = math.min(pw, ph * (tw / th))
 		local sh = math.min(ph, pw / (tw / th))
 		image:set_size(math.round(sw), math.round(sh))
@@ -291,7 +252,6 @@ function MenuNodeBaseGui:texture_done_clbk(params, texture_ids)
 	else
 		image:set_size(panel:size())
 	end
-
 end
 
 function MenuNodeBaseGui:close()

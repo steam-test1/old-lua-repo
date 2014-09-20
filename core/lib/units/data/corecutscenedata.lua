@@ -21,13 +21,11 @@ function CoreCutsceneData:cutscene_player(__skip_stall_warning, __skip_priming)
 			if not __skip_stall_warning then
 				cat_print("spam", "[CoreCutsceneData] The cutscene \"" .. cutscene:name() .. "\" has been cleaned up. Call CoreCutsceneData:reset_cutscene_player() before attempting to replay it.")
 			end
-
 			self.__cutscene_player = core_or_local("CutscenePlayer", cutscene)
 			self.__cutscene_player:add_keys()
 			if not __skip_priming then
 				self.__cutscene_player:prime()
 			end
-
 			local actual_destroy_func = self.__cutscene_player.destroy
 			function self.__cutscene_player.destroy(instance)
 				assert(instance == self.__cutscene_player)
@@ -36,9 +34,7 @@ function CoreCutsceneData:cutscene_player(__skip_stall_warning, __skip_priming)
 			end
 
 		end
-
 	end
-
 	return self.__cutscene_player
 end
 
@@ -47,7 +43,6 @@ function CoreCutsceneData:destroy_cutscene_player()
 		self.__cutscene_player:destroy()
 		assert(self.__cutscene_player == nil)
 	end
-
 end
 
 function CoreCutsceneData:reset_cutscene_player()

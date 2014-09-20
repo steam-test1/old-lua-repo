@@ -13,7 +13,6 @@ function DialogueUnitElement:test_element()
 	if self._hed.dialogue == "none" then
 		return
 	end
-
 	managers.dialog:quit_dialog()
 	managers.dialog:queue_dialog(self._hed.dialogue, {
 		case = "russian",
@@ -35,14 +34,10 @@ function DialogueUnitElement:select_dialog_btn()
 	if dialog:cancelled() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-	do
-		do break end
+	for _, dialogue in ipairs(dialog:_selected_item_assets()) do
 		self._hed.dialogue = dialogue
 		CoreEws.change_combobox_value(self._dialogue_params, self._hed.dialogue)
 	end
-
 end
 
 function DialogueUnitElement:_build_panel(panel, panel_sizer)

@@ -210,7 +210,6 @@ function CopMovement:post_init()
 		Application:error("[CopMovement:post_init] Spawned AI unit with incomplete navigation data.")
 		self._unit:set_extension_update(ids_movement, false)
 	end
-
 	self._unit:kill_mover()
 	self._unit:set_driving("script")
 	self._unit:unit_data().has_alarm_pager = self._tweak_data.has_alarm_pager
@@ -232,22 +231,18 @@ function CopMovement:post_init()
 	if prim_weap_name then
 		self._unit:inventory():add_unit_by_name(prim_weap_name)
 	end
-
 	if sec_weap_name and sec_weap_name ~= prim_weap_name then
 		self._unit:inventory():add_unit_by_name(sec_weap_name)
 	end
-
 	if self._unit:inventory():is_selection_available(2) then
 		if managers.groupai:state():enemy_weapons_hot() or not self._unit:inventory():is_selection_available(1) then
 			self._unit:inventory():equip_selection(2, true)
 		else
 			self._unit:inventory():equip_selection(1, true)
 		end
-
 	elseif self._unit:inventory():is_selection_available(1) then
 		self._unit:inventory():equip_selection(1, true)
 	end
-
 	local weap_name = self._ext_base:default_weapon_name(managers.groupai:state():enemy_weapons_hot() and "primary" or "secondary")
 	local fwd = self._m_rot:y()
 	self._action_common_data = {
@@ -275,7 +270,6 @@ function CopMovement:post_init()
 	if self._gnd_ray then
 		self:set_position(self._gnd_ray.position)
 	end
-
 	self:_post_init()
 end
 
@@ -286,7 +280,6 @@ function CopMovement:_post_init()
 	else
 		self:set_cool(true)
 	end
-
 	self._unit:brain():on_cool_state_changed(self._cool)
 end
 
@@ -294,24 +287,19 @@ function CopMovement:set_character_anim_variables()
 	if self._anim_global then
 		self._machine:set_global(self._anim_global, 1)
 	end
-
 	if self._tweak_data.female then
 		self._machine:set_global("female", 1)
 	end
-
 	if self._tweak_data.allowed_stances and not self._tweak_data.allowed_stances.ntl then
 		if self._tweak_data.allowed_stances.hos then
 			self:_change_stance(2)
 		else
 			self:_change_stance(3)
 		end
-
 	end
-
 	if self._tweak_data.allowed_poses and not self._tweak_data.allowed_poses.stand then
 		self:play_redirect("crouch")
 	end
-
 end
 
 function CopMovement:nav_tracker()
@@ -330,76 +318,55 @@ function CopMovement:update(unit, t, dt)
 	if self._need_upd ~= old_need_upd then
 		unit:set_extension_update_enabled(ids_movement, self._need_upd)
 	end
-
 	if self._force_head_upd then
 		self._force_head_upd = nil
 		self:upd_m_head_pos()
 	end
-
 end
 
 function CopMovement:_upd_actions(t)
 	local a_actions = self._active_actions
 	local has_no_action = true
-	do
-		local (for generator), (for state), (for control) = ipairs(a_actions)
-		do
-			do break end
-			if action then
-				if action.update then
-					action:update(t)
+	for i_action, action in ipairs(a_actions) do
+		if action then
+			if action.update then
+				action:update(t)
+			end
+			if not self._need_upd and action.need_upd then
+				self._need_upd = action:need_upd()
+			end
+			if action.expired and action:expired() then
+				a_actions[i_action] = false
+				if action.on_exit then
+					action:on_exit()
 				end
-
-				if not self._need_upd and action.need_upd then
-					self._need_upd = action:need_upd()
-				end
-
-				if action.expired and action:expired() then
-					a_actions[i_action] = false
-					if action.on_exit then
-						action:on_exit()
-					end
-
-					self._ext_brain:action_complete_clbk(action)
-					self._ext_base:chk_freeze_anims()
-					local (for generator), (for state), (for control) = ipairs(a_actions)
-					do
-						do break end
-						if action then
-							has_no_action = nil
-					end
-
+				self._ext_brain:action_complete_clbk(action)
+				self._ext_base:chk_freeze_anims()
+				for _, action in ipairs(a_actions) do
+					if action then
+						has_no_action = nil
 					else
 					end
-
-				else
-					has_no_action = nil
 				end
-
+			else
+				has_no_action = nil
 			end
-
 		end
-
 	end
-
 	if has_no_action and (not self._queued_actions or not next(self._queued_actions)) then
 		self:action_request({type = "idle", body_part = 1})
 	end
-
 	if not a_actions[1] and not a_actions[2] and (not self._queued_actions or not next(self._queued_actions)) and not self:chk_action_forbidden("action") then
 		if a_actions[3] then
 			self:action_request({type = "idle", body_part = 2})
 		else
 			self:action_request({type = "idle", body_part = 1})
 		end
-
 	end
-
 	self:_upd_stance(t)
 	if not self._need_upd and (self._ext_anim.base_need_upd or self._ext_anim.upper_need_upd or self._stance.transition or self._suppression.transition) then
 		self._need_upd = true
 	end
-
 end
 
 function CopMovement:_upd_stance(t)
@@ -414,40 +381,22 @@ function CopMovement:_upd_stance(t)
 				local v_start = transition.start_values
 				local v_end = transition.end_values
 				local mlerp = math.lerp
-				do
-					local (for generator), (for state), (for control) = ipairs(v_start)
-					do
-						do break end
-						values[i] = mlerp(v, v_end[i], prog_smooth)
-					end
-
+				for i, v in ipairs(v_start) do
+					values[i] = mlerp(v, v_end[i], prog_smooth)
 				end
-
 				transition.next_upd_t = t + 0.033
 			else
-				do
-					local (for generator), (for state), (for control) = ipairs(transition.end_values)
-					do
-						do break end
-						values[i] = v
-					end
-
+				for i, v in ipairs(transition.end_values) do
+					values[i] = v
 				end
-
 				stance.transition = nil
 			end
-
 			local names = CopMovement._stance.names
-			local (for generator), (for state), (for control) = ipairs(values)
-			do
-				do break end
+			for i, v in ipairs(values) do
 				self._machine:set_global(names[i], v)
 			end
-
 		end
-
 	end
-
 	if self._suppression.transition then
 		local suppression = self._suppression
 		local transition = suppression.transition
@@ -464,11 +413,8 @@ function CopMovement:_upd_stance(t)
 				suppression.value = transition.end_val
 				suppression.transition = nil
 			end
-
 		end
-
 	end
-
 end
 
 function CopMovement:on_anim_freeze(state)
@@ -572,36 +518,28 @@ function CopMovement:set_root_blend(state)
 		if self._root_blend_ref == 1 then
 			self._machine:set_root_blending(true)
 		end
-
 		self._root_blend_ref = self._root_blend_ref - 1
 	else
 		if self._root_blend_ref == 0 then
 			self._machine:set_root_blending(false)
 		end
-
 		self._root_blend_ref = self._root_blend_ref + 1
 	end
-
 end
 
 function CopMovement:chk_action_forbidden(action_type)
 	local t = TimerManager:game():time()
-	local (for generator), (for state), (for control) = ipairs(self._active_actions)
-	do
-		do break end
+	for i_action, action in ipairs(self._active_actions) do
 		if action and action.chk_block and action:chk_block(action_type, t) then
 			return true
 		end
-
 	end
-
 end
 
 function CopMovement:action_request(action_desc)
 	if Network:is_server() and self._active_actions[1] and self._active_actions[1]:type() == "hurt" and self._active_actions[1]:hurt_type() == "death" then
 		debug_pause_unit(self._unit, "[CopMovement:action_request] Dead man walking!!!", self._unit, inspect(action_desc))
 	end
-
 	self.has_no_action = nil
 	local body_part = action_desc.body_part
 	local active_actions = self._active_actions
@@ -613,11 +551,9 @@ function CopMovement:action_request(action_desc)
 			if old_action.on_exit then
 				old_action:on_exit()
 			end
-
 			interrupted_actions = interrupted_actions or {}
 			interrupted_actions[body_part] = old_action
 		end
-
 	end
 
 	_interrupt_action(body_part)
@@ -627,26 +563,19 @@ function CopMovement:action_request(action_desc)
 	elseif body_part == 2 or body_part == 3 then
 		_interrupt_action(1)
 	end
-
 	if not self._actions[action_desc.type] then
 		debug_pause("[CopMovement:action_request] invalid action started", inspect(self._actions), inspect(action_desc))
 		return
 	end
-
 	local action, success = self._actions[action_desc.type]:new(action_desc, self._action_common_data)
 	if success and (not action.expired or not action:expired()) then
 		active_actions[body_part] = action
 	end
-
 	if interrupted_actions then
-		local (for generator), (for state), (for control) = pairs(interrupted_actions)
-		do
-			do break end
+		for body_part, interrupted_action in pairs(interrupted_actions) do
 			self._ext_brain:action_complete_clbk(interrupted_action)
 		end
-
 	end
-
 	self._ext_base:chk_freeze_anims()
 	return success and action
 end
@@ -659,41 +588,26 @@ function CopMovement:set_attention(attention)
 	if not attention and not self._attention then
 		return
 	end
-
 	if attention and self._attention then
 		local different
-		do
-			local (for generator), (for state), (for control) = pairs(self._attention)
-			do
-				do break end
-				if attention[i] ~= k then
-					different = true
-			end
-
+		for i, k in pairs(self._attention) do
+			if attention[i] ~= k then
+				different = true
 			else
 			end
-
 		end
-
 		if not different then
-			local (for generator), (for state), (for control) = pairs(attention)
-			do
-				do break end
+			for i, k in pairs(attention) do
 				if self._attention[i] ~= k then
 					different = true
+				else
+				end
 			end
-
-			else
-			end
-
 		end
-
 		if not different then
 			return
 		end
-
 	end
-
 	if self._attention and self._attention.destroy_listener_key then
 		if alive(self._attention.unit) and self._attention.unit:base() then
 			self._attention.unit:base():remove_destroy_listener(self._attention.destroy_listener_key)
@@ -701,9 +615,7 @@ function CopMovement:set_attention(attention)
 		else
 			debug_pause_unit(self._unit, "[CopMovement:set_attention] could not remove destroy listener. self._attention.unit", self._attention.unit, "base", alive(self._attention.unit) and self._attention.unit:base())
 		end
-
 	end
-
 	if attention then
 		if attention.unit then
 			local attention_unit
@@ -714,55 +626,41 @@ function CopMovement:set_attention(attention)
 				else
 					self._ext_network:send("cop_set_attention_pos", mvector3.copy(attention.handler:get_attention_m_pos()))
 				end
-
 			else
 				local attention_unit = attention.unit
 				if attention_unit:id() ~= -1 then
 					self._ext_network:send("set_attention", attention_unit, AIAttentionObject.REACT_IDLE)
 				end
-
 			end
-
 			if attention.unit:base() and attention.unit:base().add_destroy_listener then
 				local attention_unit = attention.unit
 				local listener_key = "CopMovement" .. tostring(self._unit:key())
 				attention.destroy_listener_key = listener_key
 				attention_unit:base():add_destroy_listener(listener_key, callback(self, self, "attention_unit_destroy_clbk"))
 			end
-
 		else
 			self._ext_network:send("cop_set_attention_pos", attention.pos)
 		end
-
 	elseif self._attention and self._unit:id() ~= -1 then
 		self._ext_network:send("set_attention", nil, AIAttentionObject.REACT_IDLE)
 	end
-
 	local old_attention = self._attention
 	self._attention = attention
 	self._action_common_data.attention = attention
-	local (for generator), (for state), (for control) = ipairs(self._active_actions)
-	do
-		do break end
+	for _, action in ipairs(self._active_actions) do
 		if action and action.on_attention then
 			action:on_attention(attention, old_attention)
 		end
-
 	end
-
 end
 
 function CopMovement:set_stance(new_stance_name, instant, execute_queued)
-	local (for generator), (for state), (for control) = ipairs(CopMovement._stance.names)
-	do
-		do break end
+	for i_stance, stance_name in ipairs(CopMovement._stance.names) do
 		if stance_name == new_stance_name then
 			self:set_stance_by_code(i_stance, instant, execute_queued)
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function CopMovement:set_stance_by_code(new_stance_code, instant, execute_queued)
@@ -770,7 +668,6 @@ function CopMovement:set_stance_by_code(new_stance_code, instant, execute_queued
 		self._ext_network:send("set_stance", new_stance_code, instant or false, execute_queued or false)
 		self:_change_stance(new_stance_code, instant)
 	end
-
 end
 
 function CopMovement:_change_stance(stance_code, instant)
@@ -782,9 +679,7 @@ function CopMovement:_change_stance(stance_code, instant)
 		elseif stance_code == 3 and not self._tweak_data.allowed_stances.cbt then
 			return
 		end
-
 	end
-
 	local stance = self._stance
 	if instant then
 		if stance.transition or stance.code ~= stance_code then
@@ -794,30 +689,21 @@ function CopMovement:_change_stance(stance_code, instant)
 			for i = 1, 3 do
 				stance.values[i] = 0
 			end
-
 			stance.values[stance_code] = 1
-			local (for generator), (for state), (for control) = ipairs(stance.values)
-			do
-				do break end
+			for i, v in ipairs(stance.values) do
 				self._machine:set_global(CopMovement._stance.names[i], v)
 			end
-
 		end
-
 	else
 		local end_values = {}
 		if stance_code == 4 then
 			if stance.transition then
 				end_values = stance.transition.end_values
 			else
-				local (for generator), (for state), (for control) = ipairs(stance.values)
-				do
-					do break end
+				for i, value in ipairs(stance.values) do
 					end_values[i] = value
 				end
-
 			end
-
 		elseif stance.transition then
 			end_values = {
 				0,
@@ -833,13 +719,11 @@ function CopMovement:_change_stance(stance_code, instant)
 				stance.values[4]
 			}
 		end
-
 		end_values[stance_code] = 1
 		if stance_code ~= 4 then
 			stance.code = stance_code
 			stance.name = CopMovement._stance.names[stance_code]
 		end
-
 		local delay
 		local vis_state = self._ext_base:lod_stage()
 		if vis_state then
@@ -847,40 +731,24 @@ function CopMovement:_change_stance(stance_code, instant)
 			if vis_state > 2 then
 				delay = delay * 0.5
 			end
-
 		else
 			stance.transition = nil
 			if stance_code ~= 1 then
 				self:_chk_play_equip_weapon()
 			end
-
 			local names = CopMovement._stance.names
-			do
-				local (for generator), (for state), (for control) = ipairs(end_values)
-				do
-					do break end
-					if v ~= stance.values[i] then
-						stance.values[i] = v
-						self._machine:set_global(names[i], v)
-					end
-
+			for i, v in ipairs(end_values) do
+				if v ~= stance.values[i] then
+					stance.values[i] = v
+					self._machine:set_global(names[i], v)
 				end
-
 			end
-
 			return
 		end
-
 		local start_values = {}
-		do
-			local (for generator), (for state), (for control) = ipairs(stance.values)
-			do
-				do break end
-				table.insert(start_values, value)
-			end
-
+		for _, value in ipairs(stance.values) do
+			table.insert(start_values, value)
 		end
-
 		local t = TimerManager:game():time()
 		local transition = {
 			end_values = end_values,
@@ -891,11 +759,9 @@ function CopMovement:_change_stance(stance_code, instant)
 		}
 		stance.transition = transition
 	end
-
 	if stance_code ~= 1 then
 		self:_chk_play_equip_weapon()
 	end
-
 	self:enable_update()
 end
 
@@ -909,14 +775,12 @@ function CopMovement:sync_stance(i_stance, instant, execute_queued)
 		})
 		return
 	end
-
 	self:_change_stance(i_stance, instant)
 	if i_stance == 1 then
 		self:set_cool(true)
 	else
 		self:set_cool(false)
 	end
-
 end
 
 function CopMovement:stance_name()
@@ -937,11 +801,8 @@ function CopMovement:_chk_play_equip_weapon()
 				local weapon_hold = weap_tweak.hold
 				self._machine:set_parameter(redir_res, "to_" .. weapon_hold, 1)
 			end
-
 		end
-
 	end
-
 end
 
 function CopMovement:set_cool(state, giveaway)
@@ -949,11 +810,9 @@ function CopMovement:set_cool(state, giveaway)
 	if not state and not managers.groupai:state():enemy_weapons_hot() then
 		self._coolness_giveaway = managers.groupai:state():fetch_highest_giveaway(self._coolness_giveaway, giveaway)
 	end
-
 	if state == self._cool then
 		return
 	end
-
 	local old_state = self._cool
 	self._cool = state
 	self._action_common_data.is_cool = state
@@ -963,18 +822,14 @@ function CopMovement:set_cool(state, giveaway)
 			self._unit:unit_data().alerted_event_called = true
 			self._unit:unit_data().mission_element:event("alerted", self._unit)
 		end
-
 		if Network:is_server() and not managers.groupai:state():all_criminals()[self._unit:key()] then
 			managers.groupai:state():on_criminal_suspicion_progress(nil, self._unit, true)
 		end
-
 	end
-
 	self._unit:brain():on_cool_state_changed(state)
 	if not state and old_state and self._unit:unit_data().mission_element then
 		self._unit:unit_data().mission_element:event("weapons_hot", self._unit)
 	end
-
 end
 
 function CopMovement:cool()
@@ -1004,28 +859,21 @@ function CopMovement:synch_attention(attention)
 		else
 			debug_pause_unit(self._unit, "[CopMovement:synch_attention] destroyed unit", self._attention.debug_unit_name)
 		end
-
 		self._attention.destroy_listener_key = nil
 	end
-
 	if attention and attention.unit and attention.unit:base() and attention.unit:base().add_destroy_listener then
 		local listener_key = "CopMovement" .. tostring(self._unit:key())
 		attention.destroy_listener_key = listener_key
 		attention.unit:base():add_destroy_listener(listener_key, callback(self, self, "attention_unit_destroy_clbk"))
 		attention.debug_unit_name = attention.unit:name()
 	end
-
 	self._attention = attention
 	self._action_common_data.attention = attention
-	local (for generator), (for state), (for control) = ipairs(self._active_actions)
-	do
-		do break end
+	for _, action in ipairs(self._active_actions) do
 		if action and action.on_attention then
 			action:on_attention(attention)
 		end
-
 	end
-
 end
 
 function CopMovement:attention()
@@ -1038,7 +886,6 @@ function CopMovement:attention_unit_destroy_clbk(unit)
 	else
 		self:synch_attention()
 	end
-
 end
 
 function CopMovement:set_allow_fire_on_client(state, unit)
@@ -1049,35 +896,25 @@ function CopMovement:set_allow_fire_on_client(state, unit)
 			state
 		})
 	end
-
 end
 
 function CopMovement:set_allow_fire(state)
 	if self._allow_fire == state then
 		return
 	end
-
 	self:synch_allow_fire(state)
 	if Network:is_server() then
 		self._ext_network:send("set_allow_fire", state)
 	end
-
 	self:enable_update()
 end
 
 function CopMovement:synch_allow_fire(state)
-	do
-		local (for generator), (for state), (for control) = pairs(self._active_actions)
-		do
-			do break end
-			if action and action.allow_fire_clbk then
-				action:allow_fire_clbk(state)
-			end
-
+	for _, action in pairs(self._active_actions) do
+		if action and action.allow_fire_clbk then
+			action:allow_fire_clbk(state)
 		end
-
 	end
-
 	self._allow_fire = state
 	self._action_common_data.allow_fire = state
 end
@@ -1090,7 +927,6 @@ function CopMovement:linked(state, physical, parent_unit)
 		parent_unit:base():remove_destroy_listener("CopMovement" .. tostring(self._unit:key()))
 		self._link_data = nil
 	end
-
 end
 
 function CopMovement:parent_clbk_unit_destroyed(parent_unit, key)
@@ -1123,7 +959,6 @@ function CopMovement:upd_ground_ray(from_pos)
 			ground_z = math.lerp(gnd_ray_1.position.z, self._m_pos.z, 0.5)
 			hit_ray = gnd_ray_1
 		end
-
 	else
 		local gnd_ray_1 = World:raycast("ray", temp_vec1, temp_vec2, "slot_mask", self._slotmask_gnd_ray, "ray_type", "walk")
 		local move_vec = temp_vec3
@@ -1142,18 +977,14 @@ function CopMovement:upd_ground_ray(from_pos)
 			else
 				ground_z = math.lerp(gnd_ray_1.position.z, self._m_pos.z, 0.5)
 			end
-
 		else
 			local gnd_ray_2 = World:raycast("ray", temp_vec1, temp_vec2, "slot_mask", self._slotmask_gnd_ray, "ray_type", "walk")
 			if gnd_ray_2 then
 				hit_ray = gnd_ray_2
 				ground_z = math.lerp(gnd_ray_2.position.z, self._m_pos.z, 0.5)
 			end
-
 		end
-
 	end
-
 	local fake_ray = {
 		position = new_pos:with_z(ground_z),
 		ray = math.DOWN,
@@ -1182,7 +1013,6 @@ function CopMovement:on_suppressed(state)
 		suppression.value = end_value
 		self._machine:set_global("sup", end_value)
 	end
-
 	self._action_common_data.is_suppressed = state or nil
 	if Network:is_server() and state and (not self._tweak_data.allowed_poses or self._tweak_data.allowed_poses.crouch) and (not self._tweak_data.allowed_poses or self._tweak_data.allowed_poses.stand) and not self:chk_action_forbidden("walk") then
 		if self._ext_anim.idle and (not self._active_actions[2] or self._active_actions[2]:type() == "idle") then
@@ -1197,14 +1027,11 @@ function CopMovement:on_suppressed(state)
 			local action_desc = {type = "crouch", body_part = 4}
 			self:action_request(action_desc)
 		end
-
 	end
-
 	self:enable_update()
 	if Network:is_server() then
 		managers.network:session():send_to_peers_synched("suppressed_state", self._unit, state and true or false)
 	end
-
 end
 
 function CopMovement:damage_clbk(my_unit, damage_info)
@@ -1212,31 +1039,23 @@ function CopMovement:damage_clbk(my_unit, damage_info)
 	if hurt_type == "death" and self._queued_actions then
 		self._queued_actions = {}
 	end
-
 	if not hurt_type or Network:is_server() and self:chk_action_forbidden(hurt_type) then
 		if hurt_type == "death" then
 			debug_pause_unit(self._unit, "[CopMovement:damage_clbk] Death action skipped!!!", self._unit)
 			Application:draw_cylinder(self._m_pos, self._m_pos + math.UP * 5000, 30, 1, 0, 0)
 			print("active_actions")
-			local (for generator), (for state), (for control) = ipairs(self._active_actions)
-			do
-				do break end
+			for body_part, action in ipairs(self._active_actions) do
 				if action then
 					print(body_part, action:type(), inspect(action._blocks))
 				end
-
 			end
-
 		end
-
 		return
 	end
-
 	if hurt_type == "death" and self._rope then
 		self._rope:base():retract()
 		self._rope = nil
 	end
-
 	local attack_dir = damage_info.col_ray and damage_info.col_ray.ray or damage_info.attack_dir
 	local hit_pos = damage_info.col_ray and damage_info.col_ray.position or damage_info.pos
 	local lgt_hurt = hurt_type == "light_hurt"
@@ -1256,21 +1075,17 @@ function CopMovement:damage_clbk(my_unit, damage_info)
 			blocks.heavy_hurt = -1
 			blocks.hurt_sick = -1
 		end
-
 	end
-
 	local block_type
 	if damage_info.variant == "tase" then
 		block_type = "bleedout"
 	else
 		block_type = hurt_type
 	end
-
 	local client_interrupt
 	if Network:is_client() and (hurt_type == "light_hurt" or hurt_type == "hurt" and damage_info.variant ~= "tase" or hurt_type == "heavy_hurt" or hurt_type == "expl_hurt" or hurt_type == "shield_knock" or hurt_type == "counter_tased" or hurt_type == "death" or hurt_type == "hurt_sick") then
 		client_interrupt = true
 	end
-
 	local tweak = self._tweak_data
 	local action_data = {
 		type = "hurt",
@@ -1290,9 +1105,7 @@ function CopMovement:damage_clbk(my_unit, damage_info)
 		if hurt_type == "death" and self._queued_actions then
 			self._queued_actions = {}
 		end
-
 	end
-
 end
 
 function CopMovement:anim_clbk_footstep(unit)
@@ -1308,7 +1121,6 @@ function CopMovement:get_footstep_event()
 		event_name = "footstep_npc_" .. self._footwear .. "_" .. self._footstep_style
 		self._footstep_event = event_name
 	end
-
 	return event_name
 end
 
@@ -1317,50 +1129,36 @@ function CopMovement:get_walk_to_pos()
 	if leg_action and leg_action.get_walk_to_pos then
 		return leg_action:get_walk_to_pos()
 	end
-
 end
 
 function CopMovement:anim_clbk_death_drop(...)
-	local (for generator), (for state), (for control) = ipairs(self._active_actions)
-	do
-		do break end
+	for _, action in ipairs(self._active_actions) do
 		if action and action.on_death_drop then
 			action:on_death_drop(...)
 		end
-
 	end
-
 end
 
 function CopMovement:on_death_exit()
-	local (for generator), (for state), (for control) = ipairs(self._active_actions)
-	do
-		do break end
+	for _, action in ipairs(self._active_actions) do
 		if action and action.on_death_exit then
 			action:on_death_exit()
 		end
-
 	end
-
 end
 
 function CopMovement:anim_clbk_reload_exit()
 	if self._ext_inventory:equipped_unit() then
 		self._ext_inventory:equipped_unit():base():on_reload()
 	end
-
 end
 
 function CopMovement:anim_clbk_force_ragdoll()
-	local (for generator), (for state), (for control) = ipairs(self._active_actions)
-	do
-		do break end
+	for _, action in ipairs(self._active_actions) do
 		if action and action.force_ragdoll then
 			action:force_ragdoll()
 		end
-
 	end
-
 end
 
 function CopMovement:anim_clbk_rope(unit, state)
@@ -1368,7 +1166,6 @@ function CopMovement:anim_clbk_rope(unit, state)
 		if self._rope then
 			self._rope:base():retract()
 		end
-
 		local hips_obj = self._unit:get_object(Idstring("Hips"))
 		self._rope = World:spawn_unit(Idstring("units/payday2/characters/ene_acc_rope/ene_acc_rope"), hips_obj:position(), Rotation())
 		self._rope:base():setup(hips_obj)
@@ -1376,7 +1173,6 @@ function CopMovement:anim_clbk_rope(unit, state)
 		self._rope:base():retract()
 		self._rope = nil
 	end
-
 end
 
 function CopMovement:pos_rsrv_id()
@@ -1384,15 +1180,11 @@ function CopMovement:pos_rsrv_id()
 end
 
 function CopMovement:anim_clbk_melee_strike(unit)
-	local (for generator), (for state), (for control) = pairs(self._active_actions)
-	do
-		do break end
+	for body_part, action in pairs(self._active_actions) do
 		if action and action.anim_clbk_melee_strike then
 			action:anim_clbk_melee_strike()
 		end
-
 	end
-
 end
 
 function CopMovement:anim_clbk_wanted_item(unit, item_type, align_place, droppable)
@@ -1406,28 +1198,20 @@ end
 
 function CopMovement:anim_clbk_block_info(unit, preset_name, block_state)
 	local state_bool = block_state == "true" and true or false
-	local (for generator), (for state), (for control) = pairs(self._active_actions)
-	do
-		do break end
+	for body_part, action in pairs(self._active_actions) do
 		if action and action.set_blocks then
 			action:set_blocks(preset_name, state_bool)
 		end
-
 	end
-
 end
 
 function CopMovement:anim_clbk_ik_change(unit)
 	local preset_name = self._ext_anim.base_aim_ik
-	local (for generator), (for state), (for control) = pairs(self._active_actions)
-	do
-		do break end
+	for body_part, action in pairs(self._active_actions) do
 		if action and action.set_ik_preset then
 			action:set_ik_preset(preset_name)
 		end
-
 	end
-
 end
 
 function CopMovement:anim_clbk_police_called(unit)
@@ -1441,13 +1225,10 @@ function CopMovement:anim_clbk_police_called(unit)
 			else
 				group_state:on_police_called(self:coolness_giveaway())
 			end
-
 		else
 			managers.groupai:state():on_criminal_suspicion_progress(nil, self._unit, "call_interrupted")
 		end
-
 	end
-
 end
 
 function CopMovement:anim_clbk_stance(unit, stance_name, instant)
@@ -1456,18 +1237,11 @@ end
 
 function CopMovement:spawn_wanted_items()
 	if self._wanted_items then
-		do
-			local (for generator), (for state), (for control) = ipairs(self._wanted_items)
-			do
-				do break end
-				self:_equip_item(unpack(spawn_info))
-			end
-
+		for _, spawn_info in ipairs(self._wanted_items) do
+			self:_equip_item(unpack(spawn_info))
 		end
-
 		self._wanted_items = nil
 	end
-
 end
 
 function CopMovement:_equip_item(item_type, align_place, droppable)
@@ -1476,14 +1250,12 @@ function CopMovement:_equip_item(item_type, align_place, droppable)
 		print("[CopMovement:anim_clbk_equip_item] non existent align place:", align_place)
 		return
 	end
-
 	local align_obj = self._unit:get_object(align_name)
 	local available_items = self._gadgets[item_type]
 	if not available_items then
 		print("[CopMovement:anim_clbk_equip_item] non existent item_type:", item_type)
 		return
 	end
-
 	local item_name = available_items[math.random(available_items)]
 	print("[CopMovement:_equip_item]", item_name)
 	local item_unit = World:spawn_unit(item_name, align_obj:position(), align_obj:rotation())
@@ -1495,7 +1267,6 @@ function CopMovement:_equip_item(item_type, align_place, droppable)
 		self._droppable_gadgets = self._droppable_gadgets or {}
 		table.insert(self._droppable_gadgets, item_unit)
 	end
-
 end
 
 function CopMovement:anim_clbk_drop_held_items()
@@ -1510,66 +1281,36 @@ function CopMovement:drop_held_items()
 	if not self._droppable_gadgets then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._droppable_gadgets)
-		do
-			do break end
-			local wanted_item_key = drop_item_unit:key()
-			if alive(drop_item_unit) then
-				do
-					local (for generator), (for state), (for control) = pairs(self._equipped_gadgets)
-					do
-						do break end
-						if wanted_item_key then
-							do
-								local (for generator), (for state), (for control) = ipairs(item_list)
-								do
-									do break end
-									if item_unit:key() == wanted_item_key then
-										table.remove(item_list, i_item)
-										wanted_item_key = nil
-								end
-
-								else
-									do break end
-									break
-								end
-
-							end
-
+	for _, drop_item_unit in ipairs(self._droppable_gadgets) do
+		local wanted_item_key = drop_item_unit:key()
+		if alive(drop_item_unit) then
+			for align_place, item_list in pairs(self._equipped_gadgets) do
+				if wanted_item_key then
+					for i_item, item_unit in ipairs(item_list) do
+						if item_unit:key() == wanted_item_key then
+							table.remove(item_list, i_item)
+							wanted_item_key = nil
+						else
 						end
-
 					end
-
+				else
+					break
 				end
-
-				drop_item_unit:unlink()
-				drop_item_unit:set_slot(0)
-			else
-				local (for generator), (for state), (for control) = pairs(self._equipped_gadgets)
-				do
-					do break end
-					if wanted_item_key then
-						local (for generator), (for state), (for control) = ipairs(item_list)
-						do
-							do break end
-							if not alive(item_unit) then
-								table.remove(item_list, i_item)
-							end
-
-						end
-
-					end
-
-				end
-
 			end
-
+			drop_item_unit:unlink()
+			drop_item_unit:set_slot(0)
+		else
+			for align_place, item_list in pairs(self._equipped_gadgets) do
+				if wanted_item_key then
+					for i_item, item_unit in ipairs(item_list) do
+						if not alive(item_unit) then
+							table.remove(item_list, i_item)
+						end
+					end
+				end
+			end
 		end
-
 	end
-
 	self._droppable_gadgets = nil
 end
 
@@ -1577,24 +1318,13 @@ function CopMovement:_destroy_gadgets()
 	if not self._equipped_gadgets then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._equipped_gadgets)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(item_list)
-			do
-				do break end
-				if alive(item_unit) then
-					item_unit:set_slot(0)
-				end
-
+	for align_place, item_list in pairs(self._equipped_gadgets) do
+		for _, item_unit in ipairs(item_list) do
+			if alive(item_unit) then
+				item_unit:set_slot(0)
 			end
-
 		end
-
 	end
-
 	self._equipped_gadgets = nil
 	self._droppable_gadgets = nil
 end
@@ -1603,7 +1333,6 @@ function CopMovement:anim_clbk_enemy_spawn_melee_item()
 	if alive(self._melee_item_unit) then
 		return
 	end
-
 	local align_obj_l_name = CopMovement._gadgets.aligns.hand_l
 	local align_obj_r_name = CopMovement._gadgets.aligns.hand_r
 	local align_obj_l = self._unit:get_object(align_obj_l_name)
@@ -1614,7 +1343,6 @@ function CopMovement:anim_clbk_enemy_spawn_melee_item()
 		self._melee_item_unit = World:spawn_unit(unit_name, align_obj_l:position(), align_obj_l:rotation())
 		self._unit:link(align_obj_l:name(), self._melee_item_unit, self._melee_item_unit:orientation_object():name())
 	end
-
 end
 
 function CopMovement:anim_clbk_enemy_unspawn_melee_item()
@@ -1623,7 +1351,6 @@ function CopMovement:anim_clbk_enemy_unspawn_melee_item()
 		World:delete_unit(self._melee_item_unit)
 		self._melee_item_unit = nil
 	end
-
 end
 
 function CopMovement:clbk_inventory(unit, event)
@@ -1632,11 +1359,9 @@ function CopMovement:clbk_inventory(unit, event)
 		if self._weapon_hold then
 			self._machine:set_global(self._weapon_hold, 0)
 		end
-
 		if self._weapon_anim_global then
 			self._machine:set_global(self._weapon_anim_global, 0)
 		end
-
 		local weap_tweak = weapon:base():weapon_tweak_data()
 		local weapon_hold = weap_tweak.hold
 		self._machine:set_global(weapon_hold, 1)
@@ -1645,16 +1370,11 @@ function CopMovement:clbk_inventory(unit, event)
 		self._machine:set_global(weapon_usage, 1)
 		self._weapon_anim_global = weapon_usage
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._active_actions)
-	do
-		do break end
+	for _, action in ipairs(self._active_actions) do
 		if action and action.on_inventory_event then
 			action:on_inventory_event(event)
 		end
-
 	end
-
 end
 
 function CopMovement:sync_shot_blank(impact)
@@ -1669,14 +1389,11 @@ function CopMovement:sync_shot_blank(impact)
 				fire_dir = self._attention.pos - self:m_head_pos()
 				mvector3.normalize(fire_dir)
 			end
-
 		else
 			fire_dir = self._action_common_data.fwd
 		end
-
 		equipped_weapon:base():fire_blank(fire_dir, impact)
 	end
-
 end
 
 function CopMovement:sync_taser_fire()
@@ -1684,7 +1401,6 @@ function CopMovement:sync_taser_fire()
 	if tase_action and tase_action:type() == "tase" and not tase_action:expired() then
 		tase_action:fire_taser()
 	end
-
 end
 
 function CopMovement:save(save_data)
@@ -1692,38 +1408,26 @@ function CopMovement:save(save_data)
 	if self._stance.code ~= 1 then
 		my_save_data.stance_code = self._stance.code
 	end
-
 	if self._stance.transition then
 		if self._stance.transition.end_values[4] ~= 0 then
 			my_save_data.stance_wnd = true
 		end
-
 	elseif self._stance.values[4] ~= 0 then
 		my_save_data.stance_wnd = true
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._active_actions)
-		do
-			do break end
-			if action and action.save then
-				local action_save_data = {}
-				action:save(action_save_data)
-				if next(action_save_data) then
-					my_save_data.actions = my_save_data.actions or {}
-					table.insert(my_save_data.actions, action_save_data)
-				end
-
+	for _, action in ipairs(self._active_actions) do
+		if action and action.save then
+			local action_save_data = {}
+			action:save(action_save_data)
+			if next(action_save_data) then
+				my_save_data.actions = my_save_data.actions or {}
+				table.insert(my_save_data.actions, action_save_data)
 			end
-
 		end
-
 	end
-
 	if self._allow_fire then
 		my_save_data.allow_fire = true
 	end
-
 	if self._attention then
 		if self._attention.pos then
 			my_save_data.attention = self._attention
@@ -1733,53 +1437,35 @@ function CopMovement:save(save_data)
 		else
 			managers.enemy:add_delayed_clbk("clbk_sync_attention" .. tostring(self._unit:key()), callback(self, self, "clbk_sync_attention", self._attention), TimerManager:game():time() + 0.1)
 		end
-
 	end
-
 	if self._equipped_gadgets then
 		local equipped_items = {}
 		my_save_data.equipped_gadgets = equipped_items
 		local function _get_item_type_from_unit(item_unit)
 			local wanted_item_name = item_unit:name()
-			local (for generator), (for state), (for control) = pairs(self._gadgets)
-			do
-				do break end
-				local (for generator), (for state), (for control) = ipairs(item_unit_names)
-				do
-					do break end
+			for item_type, item_unit_names in pairs(self._gadgets) do
+				for i_item_unit_name, item_unit_name in ipairs(item_unit_names) do
 					if item_unit_name == wanted_item_name then
 						return item_type
 					end
-
 				end
-
 			end
-
 		end
 
 		local function _is_item_droppable(item_unit)
 			if not self._droppable_gadgets then
 				return
 			end
-
 			local wanted_item_key = item_unit:key()
-			local (for generator), (for state), (for control) = ipairs(self._droppable_gadgets)
-			do
-				do break end
+			for _, droppable_unit in ipairs(self._droppable_gadgets) do
 				if droppable_unit:key() == wanted_item_key then
 					return true
 				end
-
 			end
-
 		end
 
-		local (for generator), (for state), (for control) = pairs(self._equipped_gadgets)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(item_list)
-			do
-				do break end
+		for align_place, item_list in pairs(self._equipped_gadgets) do
+			for i_item, item_unit in ipairs(item_list) do
 				if alive(item_unit) then
 					table.insert(equipped_items, {
 						_get_item_type_from_unit(item_unit),
@@ -1787,17 +1473,12 @@ function CopMovement:save(save_data)
 						_is_item_droppable(item_unit)
 					})
 				end
-
 			end
-
 		end
-
 	end
-
 	if next(my_save_data) then
 		save_data.movement = my_save_data
 	end
-
 end
 
 function CopMovement:load(load_data)
@@ -1805,12 +1486,10 @@ function CopMovement:load(load_data)
 	if not my_load_data then
 		return
 	end
-
 	local res = self:play_redirect("idle")
 	if not res then
 		debug_pause_unit(self._unit, "[CopMovement:load] failed idle redirect in ", self._machine:segment_state(Idstring("base")), self._unit)
 	end
-
 	self._allow_fire = my_load_data.allow_fire
 	self._attention = my_load_data.attention
 	if my_load_data.stance_code then
@@ -1820,31 +1499,20 @@ function CopMovement:load(load_data)
 		else
 			self:set_cool(false)
 		end
-
 	end
-
 	if my_load_data.stance_wnd then
 		self:_change_stance(4)
 	end
-
 	if my_load_data.actions then
-		local (for generator), (for state), (for control) = ipairs(my_load_data.actions)
-		do
-			do break end
+		for _, action_load_data in ipairs(my_load_data.actions) do
 			self:action_request(action_load_data)
 		end
-
 	end
-
 	if my_load_data.equipped_gadgets then
-		local (for generator), (for state), (for control) = ipairs(my_load_data.equipped_gadgets)
-		do
-			do break end
+		for _, item_desc in ipairs(my_load_data.equipped_gadgets) do
 			self:_equip_item(unpack(item_desc))
 		end
-
 	end
-
 end
 
 function CopMovement:tweak_data_clbk_reload()
@@ -1871,19 +1539,14 @@ function CopMovement:_chk_start_queued_action()
 					else
 						self:set_cool(false)
 					end
-
 					self:_chk_start_queued_action()
 				end
-
 				return
 			end
-
 			table.remove(queued_actions, 1)
 			CopMovement.action_request(self, action_desc)
 		end
-
 	end
-
 end
 
 function CopMovement:_push_back_queued_action(action_desc)
@@ -1900,32 +1563,21 @@ function CopMovement:_cancel_latest_action(search_type, explicit)
 			table.remove(self._queued_actions, i)
 			return
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._active_actions)
-		do
-			do break end
-			if action and action:type() == search_type then
-				self._active_actions[body_part] = false
-				if action.on_exit then
-					action:on_exit()
-				end
-
-				self:_chk_start_queued_action()
-				self._ext_brain:action_complete_clbk(action)
-				return
+	for body_part, action in ipairs(self._active_actions) do
+		if action and action:type() == search_type then
+			self._active_actions[body_part] = false
+			if action.on_exit then
+				action:on_exit()
 			end
-
+			self:_chk_start_queued_action()
+			self._ext_brain:action_complete_clbk(action)
+			return
 		end
-
 	end
-
 	if explicit then
 		debug_pause_unit(self._unit, "[CopMovement:_cancel_latest_action] no queued or ongoing ", search_type, "action", self._unit, inspect(self._queued_actions), inspect(self._active_actions))
 	end
-
 end
 
 function CopMovement:_get_latest_walk_action()
@@ -1933,13 +1585,10 @@ function CopMovement:_get_latest_walk_action()
 		if self._queued_actions[i].type == "walk" and self._queued_actions[i].persistent then
 			return self._queued_actions[i], true
 		end
-
 	end
-
 	if self._active_actions[2] and self._active_actions[2]:type() == "walk" then
 		return self._active_actions[2]
 	end
-
 	debug_pause_unit(self._unit, "[CopMovement:_get_latest_walk_action] no queued or ongoing walk action", self._unit, inspect(self._queued_actions), inspect(self._active_actions))
 end
 
@@ -1948,13 +1597,10 @@ function CopMovement:_get_latest_act_action()
 		if self._queued_actions[i].type == "act" and not self._queued_actions[i].host_expired then
 			return self._queued_actions[i], true
 		end
-
 	end
-
 	if self._active_actions[1] and self._active_actions[1]:type() == "act" then
 		return self._active_actions[1]
 	end
-
 end
 
 function CopMovement:sync_action_walk_nav_point(pos)
@@ -1966,7 +1612,6 @@ function CopMovement:sync_action_walk_nav_point(pos)
 	else
 		debug_pause_unit(self._unit, "[CopMovement:sync_action_walk_nav_point] no walk action!!!", self._unit, pos)
 	end
-
 end
 
 function CopMovement:sync_action_walk_nav_link(pos, rot, anim_index, from_idle)
@@ -1987,7 +1632,6 @@ function CopMovement:sync_action_walk_nav_link(pos, rot, anim_index, from_idle)
 	else
 		debug_pause_unit(self._unit, "[CopMovement:sync_action_walk_nav_link] no walk action!!!", self._unit, pos, rot, anim_index)
 	end
-
 end
 
 function CopMovement:sync_action_walk_stop()
@@ -2000,7 +1644,6 @@ function CopMovement:sync_action_walk_stop()
 	else
 		debug_pause("[CopMovement:sync_action_walk_stop] no walk action!!!", self._unit, pos)
 	end
-
 end
 
 function CopMovement:_get_latest_spooc_action(action_id)
@@ -2010,15 +1653,11 @@ function CopMovement:_get_latest_spooc_action(action_id)
 			if action.type == "spooc" and action_id == action.action_id then
 				return self._queued_actions[i], true
 			end
-
 		end
-
 	end
-
 	if self._active_actions[1] and self._active_actions[1]:type() == "spooc" and action_id == self._active_actions[1]:action_id() then
 		return self._active_actions[1]
 	end
-
 end
 
 function CopMovement:sync_action_spooc_nav_point(pos, action_id)
@@ -2033,15 +1672,11 @@ function CopMovement:sync_action_spooc_nav_point(pos, action_id)
 				else
 					spooc_action.nr_expected_nav_points = spooc_action.nr_expected_nav_points - 1
 				end
-
 			end
-
 		end
-
 	elseif spooc_action then
 		spooc_action:sync_append_nav_point(pos)
 	end
-
 end
 
 function CopMovement:sync_action_spooc_stop(pos, nav_index, action_id)
@@ -2050,12 +1685,10 @@ function CopMovement:sync_action_spooc_stop(pos, nav_index, action_id)
 		if spooc_action.host_stop_pos_inserted then
 			nav_index = nav_index + spooc_action.host_stop_pos_inserted
 		end
-
 		local nav_path = spooc_action.nav_path
 		while nav_index < #nav_path do
 			table.remove(nav_path)
 		end
-
 		spooc_action.stop_pos = pos
 		if #nav_path < nav_index - 1 then
 			spooc_action.nr_expected_nav_points = nav_index - #nav_path + 1
@@ -2063,7 +1696,6 @@ function CopMovement:sync_action_spooc_stop(pos, nav_index, action_id)
 			table.insert(nav_path, pos)
 			spooc_action.path_index = math.max(1, math.min(spooc_action.path_index, #nav_path - 1))
 		end
-
 	elseif spooc_action then
 		if Network:is_server() then
 			self:action_request({
@@ -2074,9 +1706,7 @@ function CopMovement:sync_action_spooc_stop(pos, nav_index, action_id)
 		else
 			spooc_action:sync_stop(pos, nav_index)
 		end
-
 	end
-
 end
 
 function CopMovement:sync_action_spooc_strike(pos, action_id)
@@ -2085,13 +1715,11 @@ function CopMovement:sync_action_spooc_strike(pos, action_id)
 		if spooc_action.stop_pos and not spooc_action.nr_expected_nav_points then
 			return
 		end
-
 		table.insert(spooc_action.nav_path, pos)
 		spooc_action.strike = true
 	elseif spooc_action then
 		spooc_action:sync_strike(pos)
 	end
-
 end
 
 function CopMovement:sync_action_tase_end()
@@ -2102,7 +1730,6 @@ function CopMovement:sync_pose(pose_code)
 	if self._ext_damage:dead() then
 		return
 	end
-
 	local pose = pose_code == 1 and "stand" or "crouch"
 	local new_action_data = {type = pose, body_part = 4}
 	self:action_request(new_action_data)
@@ -2112,7 +1739,6 @@ function CopMovement:sync_action_act_start(index, blocks_hurt, clamp_to_graph, s
 	if self._ext_damage:dead() then
 		return
 	end
-
 	local redir_name = self._actions.act:_get_act_name_from_index(index)
 	local action_data = {
 		type = "act",
@@ -2134,7 +1760,6 @@ function CopMovement:sync_action_act_start(index, blocks_hurt, clamp_to_graph, s
 		action_data.blocks.heavy_hurt = -1
 		action_data.blocks.expl_hurt = -1
 	end
-
 	self:action_request(action_data)
 end
 
@@ -2147,18 +1772,15 @@ function CopMovement:sync_action_act_end()
 		if act_action.on_exit then
 			act_action:on_exit()
 		end
-
 		self:_chk_start_queued_action()
 		self._ext_brain:action_complete_clbk(act_action)
 	end
-
 end
 
 function CopMovement:sync_action_dodge_start(var, side, rot, speed)
 	if self._ext_damage:dead() then
 		return
 	end
-
 	local action_data = {
 		type = "dodge",
 		body_part = 1,
@@ -2184,16 +1806,13 @@ function CopMovement:sync_action_hurt_end()
 			table.remove(self._queued_actions, i)
 			return
 		end
-
 	end
-
 	local action = self._active_actions[1]
 	if action and action:type() == "hurt" then
 		self._active_actions[1] = false
 		if action.on_exit then
 			action:on_exit()
 		end
-
 		local hurt_type = action:hurt_type()
 		if hurt_type == "bleedout" or hurt_type == "fatal" then
 			local action_data = {
@@ -2218,10 +1837,8 @@ function CopMovement:sync_action_hurt_end()
 			self:_chk_start_queued_action()
 			self._ext_brain:action_complete_clbk(action)
 		end
-
 		return
 	end
-
 	debug_pause("[CopMovement:sync_action_hurt_end] no queued or ongoing hurt action", self._unit, inspect(self._queued_actions), inspect(self._active_actions))
 end
 
@@ -2231,7 +1848,6 @@ function CopMovement:enable_update(force_head_upd)
 		self._need_upd = true
 		self._force_head_upd = force_head_upd
 	end
-
 end
 
 function CopMovement:ground_ray()
@@ -2239,15 +1855,11 @@ function CopMovement:ground_ray()
 end
 
 function CopMovement:on_nav_link_unregistered(element_id)
-	local (for generator), (for state), (for control) = pairs(self._active_actions)
-	do
-		do break end
+	for body_part, action in pairs(self._active_actions) do
 		if action and action.on_nav_link_unregistered then
 			action:on_nav_link_unregistered(element_id)
 		end
-
 	end
-
 end
 
 function CopMovement:pre_destroy()
@@ -2256,77 +1868,56 @@ function CopMovement:pre_destroy()
 		self._rope:base():retract()
 		self._rope = nil
 	end
-
 	if self._nav_tracker then
 		managers.navigation:destroy_nav_tracker(self._nav_tracker)
 		self._nav_tracker = nil
 	end
-
 	if self._pos_rsrv_id then
 		managers.navigation:release_pos_reservation_id(self._pos_rsrv_id)
 		self._pos_rsrv_id = nil
 	end
-
 	if self._link_data then
 		self._link_data.parent:base():remove_destroy_listener("CopMovement" .. tostring(unit:key()))
 	end
-
 	self:_destroy_gadgets()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._active_actions)
-		do
-			do break end
-			if action and action.on_destroy then
-				action:on_destroy()
-			end
-
+	for i_action, action in ipairs(self._active_actions) do
+		if action and action.on_destroy then
+			action:on_destroy()
 		end
-
 	end
-
 	if self._attention and self._attention.destroy_listener_key then
 		if alive(self._attention.unit) then
 			self._attention.unit:base():remove_destroy_listener(self._attention.destroy_listener_key)
 		else
 			debug_pause_unit(self._unit, "[CopMovement:pre_destroy] destroyed unit did not remove attention: ", self._attention.debug_unit_name)
 		end
-
 		self._attention.destroy_listener_key = nil
 	end
-
 end
 
 function CopMovement:on_anim_act_clbk(anim_act)
-	local (for generator), (for state), (for control) = ipairs(self._active_actions)
-	do
-		do break end
+	for body_part, action in ipairs(self._active_actions) do
 		if action and action.anim_act_clbk then
 			action:anim_act_clbk(anim_act)
 		end
-
 	end
-
 end
 
 function CopMovement:clbk_sync_attention(attention)
 	if not alive(self._unit) or self._unit:id() == -1 then
 		return
 	end
-
 	if self._attention ~= attention then
 		return
 	end
-
 	if attention.handler then
 		if attention.handler:unit():id() ~= -1 then
 			self._ext_network:send("set_attention", attention.handler:unit(), attention.reaction)
 		else
 			self._ext_network:send("cop_set_attention_pos", mvector3.copy(attention.handler:get_attention_m_pos()))
 		end
-
 	elseif self._attention.unit and attention.unit:id() ~= -1 then
 		self._ext_network:send("set_attention", self._attention.unit, AIAttentionObject.REACT_IDLE)
 	end
-
 end
 

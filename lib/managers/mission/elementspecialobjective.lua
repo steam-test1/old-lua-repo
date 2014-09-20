@@ -69,14 +69,12 @@ function ElementSpecialObjective:_finalize_values(values)
 		if values[name_in] == self._DEFAULT_VALUES[name_in] then
 			values[name_in] = nil
 		end
-
 	end
 
 	local function _nil_if_none(name_in)
 		if values[name_in] == "none" then
 			values[name_in] = nil
 		end
-
 	end
 
 	local function _save_boolean(name_in)
@@ -93,12 +91,10 @@ function ElementSpecialObjective:_finalize_values(values)
 		_nil_if_default("ai_group")
 		_nil_if_default("interval")
 	end
-
 	_save_boolean("is_navigation_link")
 	if values.use_instigator then
 		values.search_position = nil
 	end
-
 	if values.align_position then
 		_save_boolean("align_position")
 		_save_boolean("align_rotation")
@@ -110,7 +106,6 @@ function ElementSpecialObjective:_finalize_values(values)
 		if not values.is_navigation_link then
 			values.position = nil
 		end
-
 		values.align_position = nil
 		values.align_rotation = nil
 		values.needs_pos_rsrv = nil
@@ -118,20 +113,17 @@ function ElementSpecialObjective:_finalize_values(values)
 		values.path_haste = nil
 		values.patrol_path = nil
 	end
-
 	if values.align_rotation or values.is_navigation_link then
 		values.rotation = mrotation.yaw(values.rotation)
 	else
 		values.rotation = nil
 	end
-
 	_nil_if_default("base_chance")
 	if values.base_chance then
 		_nil_if_default("chance_inc")
 	else
 		values.chance_inc = nil
 	end
-
 	_nil_if_default("action_duration_min")
 	_nil_if_default("action_duration_max")
 	_index_or_nil(ElementSpecialObjective._TRIGGER_ON, "trigger_on")
@@ -151,24 +143,18 @@ function ElementSpecialObjective:_finalize_values(values)
 	if values.followup_elements and not next(values.followup_elements) then
 		values.followup_elements = nil
 	end
-
 	if values.spawn_instigator_ids and not next(values.spawn_instigator_ids) then
 		values.spawn_instigator_ids = nil
 	end
-
 	values.SO_access = managers.navigation:convert_access_filter_to_number(values.SO_access)
 end
 
 function ElementSpecialObjective:event(name, unit)
 	if self._events and self._events[name] then
-		local (for generator), (for state), (for control) = ipairs(self._events[name])
-		do
-			do break end
+		for _, callback in ipairs(self._events[name]) do
 			callback(unit)
 		end
-
 	end
-
 end
 
 function ElementSpecialObjective:clbk_objective_action_start(unit)
@@ -188,11 +174,9 @@ function ElementSpecialObjective:clbk_objective_administered(unit)
 			}
 			self._pos_rsrv[unit:key()] = unit_rsrv
 		end
-
 		unit_rsrv.filter = unit:movement():pos_rsrv_id()
 		managers.navigation:add_pos_reservation(unit_rsrv)
 	end
-
 	self._receiver_units = self._receiver_units or {}
 	self._receiver_units[unit:key()] = unit
 	self:event("administered", unit)
@@ -205,17 +189,13 @@ function ElementSpecialObjective:clbk_objective_complete(unit)
 			managers.navigation:unreserve_pos(unit_rsrv)
 			self._pos_rsrv[unit:key()] = nil
 		end
-
 	end
-
 	if self._receiver_units then
 		self._receiver_units[unit:key()] = nil
 		if not next(self._receiver_units) then
 			self._receiver_units = nil
 		end
-
 	end
-
 	self:event("complete", unit)
 end
 
@@ -226,21 +206,16 @@ function ElementSpecialObjective:clbk_objective_failed(unit)
 			managers.navigation:unreserve_pos(unit_rsrv)
 			self._pos_rsrv[unit:key()] = nil
 		end
-
 	end
-
 	if self._receiver_units then
 		self._receiver_units[unit:key()] = nil
 		if not next(self._receiver_units) then
 			self._receiver_units = nil
 		end
-
 	end
-
 	if managers.editor and managers.editor._stopping_simulation then
 		return
 	end
-
 	self:event("fail", unit)
 end
 
@@ -257,9 +232,7 @@ function ElementSpecialObjective:clbk_verify_administration(unit)
 		else
 			return false
 		end
-
 	end
-
 	return true
 end
 
@@ -273,19 +246,14 @@ function ElementSpecialObjective:on_executed(instigator)
 	if not self._values.enabled or Network:is_client() then
 		return
 	end
-
 	if not managers.groupai:state():is_AI_enabled() and not Application:editor() then
 	elseif self._values.spawn_instigator_ids then
 		local chosen_units, objectives = self:_select_units_from_spawners()
 		if chosen_units then
-			local (for generator), (for state), (for control) = ipairs(chosen_units)
-			do
-				do break end
+			for i, chosen_unit in ipairs(chosen_units) do
 				self:_administer_objective(chosen_unit, objectives[i])
 			end
-
 		end
-
 	elseif self._values.use_instigator then
 		if self:_is_nav_link() then
 			Application:error("[ElementSpecialObjective:on_executed] Ambiguous nav_link/SO. Element id:", self._id)
@@ -296,24 +264,19 @@ function ElementSpecialObjective:on_executed(instigator)
 					if objective then
 						self:_administer_objective(instigator, objective)
 					end
-
 				end
-
 			else
 				Application:error("[ElementSpecialObjective:on_executed] Special Objective instigator is not an AI unit. Possibly improper \"use instigator\" flag use. Element id:", self._id)
 			end
-
 		elseif not instigator then
 			Application:error("[ElementSpecialObjective:on_executed] Special Objective missing instigator. Possibly improper \"use instigator\" flag use. Element id:", self._id)
 		end
-
 	elseif self:_is_nav_link() then
 		if self._values.so_action then
 			managers.navigation:register_anim_nav_link(self)
 		else
 			Application:error("[ElementSpecialObjective:on_executed] Nav link without animation specified. Element id:", self._id)
 		end
-
 	else
 		local objective = self:get_objective(instigator)
 		if objective then
@@ -334,9 +297,7 @@ function ElementSpecialObjective:on_executed(instigator)
 			}
 			managers.groupai:state():add_special_objective(self._id, so_descriptor)
 		end
-
 	end
-
 	ElementSpecialObjective.super.on_executed(self, instigator)
 end
 
@@ -347,29 +308,18 @@ function ElementSpecialObjective:operation_remove()
 		managers.groupai:state():remove_special_objective(self._id)
 		if self._receiver_units then
 			local cpy = clone(self._receiver_units)
-			local (for generator), (for state), (for control) = pairs(cpy)
-			do
-				do break end
+			for u_key, unit in pairs(cpy) do
 				if self._receiver_units[u_key] and unit:brain():is_available_for_assignment() then
 					unit:brain():set_objective(nil)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function ElementSpecialObjective:get_objective(instigator)
 	local is_AI_SO = self._is_AI_SO or string.begins(self._values.so_action, "AI")
 	local pose, stance, attitude, path_style, pos, rot, interrupt_dis, interrupt_health, haste, trigger_on, interaction_voice = self:_get_misc_SO_params()
-	if not interrupt_dis then
-		-- unhandled boolean indicator
-	else
-	end
-
 	local objective = {
 		element = self,
 		type = false,
@@ -382,7 +332,7 @@ function ElementSpecialObjective:get_objective(instigator)
 		haste = haste,
 		interrupt_dis = interrupt_dis,
 		interrupt_health = interrupt_health,
-		no_retreat = true,
+		no_retreat = not interrupt_dis and not interrupt_health,
 		trigger_on = trigger_on,
 		action_duration = self:_get_action_duration(),
 		interaction_voice = interaction_voice,
@@ -401,9 +351,7 @@ function ElementSpecialObjective:get_objective(instigator)
 			objective.followup_objective = so_element:get_objective()
 			objective.followup_SO = nil
 		end
-
 	end
-
 	if is_AI_SO then
 		local objective_type = string.sub(self._values.so_action, 4)
 		local last_pos, nav_seg
@@ -412,7 +360,6 @@ function ElementSpecialObjective:get_objective(instigator)
 			if not nav_seg then
 				return
 			end
-
 		else
 			local path_name = self._values.patrol_path
 			if not path_name then
@@ -427,9 +374,7 @@ function ElementSpecialObjective:get_objective(instigator)
 				local points = path_data.points
 				last_pos = points[#points].position
 			end
-
 		end
-
 		if objective_type == "search" or objective_type == "hunt" then
 			objective.type = "investigate_area"
 			objective.nav_seg = nav_seg or last_pos and managers.navigation:get_nav_seg_from_pos(last_pos)
@@ -445,13 +390,10 @@ function ElementSpecialObjective:get_objective(instigator)
 			if objective_type == "sniper" then
 				objective.no_retreat = true
 			end
-
 			if objective_type == "security" then
 				objective.rubberband_rotation = true
 			end
-
 		end
-
 	else
 		local action
 		if self._values.so_action then
@@ -473,7 +415,6 @@ function ElementSpecialObjective:get_objective(instigator)
 		else
 			objective.type = "free"
 		end
-
 		objective.action = action
 		if self._values.align_position then
 			objective.nav_seg = managers.navigation:get_nav_seg_from_pos(self._values.position)
@@ -485,15 +426,11 @@ function ElementSpecialObjective:get_objective(instigator)
 				local path_data = managers.ai_data:patrol_path(path_name)
 				objective.path_data = path_data
 			end
-
 		end
-
 	end
-
 	if objective.nav_seg then
 		objective.area = managers.groupai:state():get_area_from_nav_seg_id(objective.nav_seg)
 	end
-
 	return objective
 end
 
@@ -501,33 +438,23 @@ function ElementSpecialObjective:_get_hunt_location(instigator)
 	if not alive(instigator) then
 		return
 	end
-
 	local from_pos = instigator:movement():m_pos()
 	local nearest_criminal, nearest_dis, nearest_pos
 	local criminals = managers.groupai:state():all_criminals()
-	do
-		local (for generator), (for state), (for control) = pairs(criminals)
-		do
-			do break end
-			if not record.status then
-				local my_dis = mvector3.distance(from_pos, record.m_pos)
-				if not nearest_dis or nearest_dis > my_dis then
-					nearest_dis = my_dis
-					nearest_criminal = record.unit
-					nearest_pos = record.m_pos
-				end
-
+	for u_key, record in pairs(criminals) do
+		if not record.status then
+			local my_dis = mvector3.distance(from_pos, record.m_pos)
+			if not nearest_dis or nearest_dis > my_dis then
+				nearest_dis = my_dis
+				nearest_criminal = record.unit
+				nearest_pos = record.m_pos
 			end
-
 		end
-
 	end
-
 	if not nearest_criminal then
 		print("[ElementSpecialObjective:_create_SO_hunt] Could not find a criminal to hunt")
 		return
 	end
-
 	local criminal_tracker = nearest_criminal:movement():nav_tracker()
 	local objective_nav_seg = criminal_tracker:nav_segment()
 	return objective_nav_seg, criminal_tracker:field_position()
@@ -547,13 +474,11 @@ function ElementSpecialObjective:_get_misc_SO_params()
 	elseif values.interrupt_dis ~= 0 then
 		interrupt_dis = values.interrupt_dis * 100
 	end
-
 	if values.interrupt_dmg then
 		interrupt_health = values.interrupt_dmg < 1 and 1 - values.interrupt_dmg or nil
 	else
 		interrupt_health = 1
 	end
-
 	haste = self._HASTES[values.path_haste]
 	trigger_on = self._TRIGGER_ON[values.trigger_on] or nil
 	interaction_voice = values.interaction_voice and self._INTERACTION_VOICES[values.interaction_voice]
@@ -599,36 +524,24 @@ end
 function ElementSpecialObjective:_select_units_from_spawners()
 	local candidates = {}
 	local objectives = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._values.spawn_instigator_ids)
-		do
-			do break end
-			local spawn_element = managers.mission:get_element_by_id(element_id)
-			local (for generator), (for state), (for control) = ipairs(spawn_element:units())
-			do
-				do break end
-				if alive(unit) and (not unit:character_damage() or not unit:character_damage():dead()) and managers.navigation:check_access(self._values.SO_access, unit:brain():SO_access(), 0) then
-					local objective = self:get_objective(unit)
-					if objective and (self._values.forced or unit:brain():is_available_for_assignment(objective)) then
-						table.insert(candidates, unit)
-						table.insert(objectives, objective)
-					end
-
+	for _, element_id in ipairs(self._values.spawn_instigator_ids) do
+		local spawn_element = managers.mission:get_element_by_id(element_id)
+		for _, unit in ipairs(spawn_element:units()) do
+			if alive(unit) and (not unit:character_damage() or not unit:character_damage():dead()) and managers.navigation:check_access(self._values.SO_access, unit:brain():SO_access(), 0) then
+				local objective = self:get_objective(unit)
+				if objective and (self._values.forced or unit:brain():is_available_for_assignment(objective)) then
+					table.insert(candidates, unit)
+					table.insert(objectives, objective)
 				end
-
 			end
-
 		end
-
 	end
-
 	local wanted_nr_units
 	if self._values.trigger_times and 0 < self._values.trigger_times then
 		wanted_nr_units = self._values.trigger_times
 	else
 		return candidates, objectives
 	end
-
 	wanted_nr_units = math.min(wanted_nr_units, #candidates)
 	local chosen_units = {}
 	local chosen_objectives = {}
@@ -638,7 +551,6 @@ function ElementSpecialObjective:_select_units_from_spawners()
 		table.insert(chosen_units, chosen_unit)
 		table.insert(chosen_objectives, table.remove(objectives, i_unit))
 	end
-
 	return chosen_units, chosen_objectives
 end
 
@@ -652,11 +564,9 @@ function ElementSpecialObjective:_administer_objective(unit, objective)
 			local idle_objective = {type = "free", followup_objective = objective}
 			unit:brain():set_objective(idle_objective)
 		end
-
 		unit:brain():set_followup_objective(objective)
 		return
 	end
-
 	if self._values.forced or unit:brain():is_available_for_assignment(objective) or not unit:brain():objective() then
 		if objective.area then
 			local u_key = unit:key()
@@ -664,22 +574,18 @@ function ElementSpecialObjective:_administer_objective(unit, objective)
 			if u_data and u_data.assigned_area then
 				managers.groupai:state():set_enemy_assigned(objective.area, u_key)
 			end
-
 		end
-
 		unit:brain():set_objective(objective)
 		self:clbk_objective_administered(unit)
 	else
 		unit:brain():set_followup_objective(objective)
 	end
-
 end
 
 function ElementSpecialObjective:choose_followup_SO(unit, skip_element_ids)
 	if not self._values.followup_elements then
 		return
 	end
-
 	if skip_element_ids == nil then
 		if self._values.allow_followup_self and self:enabled() then
 			skip_element_ids = {}
@@ -688,57 +594,40 @@ function ElementSpecialObjective:choose_followup_SO(unit, skip_element_ids)
 				[self._id] = true
 			}
 		end
-
 	end
-
 	if self._values.SO_access and unit and not managers.navigation:check_access(self._values.SO_access, unit:brain():SO_access(), 0) then
 		return
 	end
-
 	local total_weight = 0
 	local pool = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._values.followup_elements)
-		do
-			do break end
-			local weight
-			local followup_element = managers.mission:get_element_by_id(followup_element_id)
-			if followup_element:enabled() then
-				followup_element, weight = followup_element:get_as_followup(unit, skip_element_ids)
-				if followup_element and followup_element:enabled() and weight > 0 then
-					table.insert(pool, {element = followup_element, weight = weight})
-					total_weight = total_weight + weight
-				end
-
+	for _, followup_element_id in ipairs(self._values.followup_elements) do
+		local weight
+		local followup_element = managers.mission:get_element_by_id(followup_element_id)
+		if followup_element:enabled() then
+			followup_element, weight = followup_element:get_as_followup(unit, skip_element_ids)
+			if followup_element and followup_element:enabled() and weight > 0 then
+				table.insert(pool, {element = followup_element, weight = weight})
+				total_weight = total_weight + weight
 			end
-
 		end
-
 	end
-
 	if not next(pool) or total_weight <= 0 then
 		return
 	end
-
 	local lucky_w = math.random() * total_weight
 	local accumulated_w = 0
-	local (for generator), (for state), (for control) = ipairs(pool)
-	do
-		do break end
+	for i, followup_data in ipairs(pool) do
 		accumulated_w = accumulated_w + followup_data.weight
 		if lucky_w <= accumulated_w then
 			return pool[i].element
 		end
-
 	end
-
 end
 
 function ElementSpecialObjective:get_as_followup(unit, skip_element_ids)
 	if (not unit or managers.navigation:check_access(self._values.SO_access, unit:brain():SO_access(), 0) and self:clbk_verify_administration(unit)) and not skip_element_ids[self._id] then
 		return self, self:_get_default_value_if_nil("base_chance")
 	end
-
 	self:event("admin_fail", unit)
 end
 
@@ -752,7 +641,6 @@ function ElementSpecialObjective:_get_action_duration()
 		local max = math.max(val1, val2)
 		return math.lerp(min, max, math.random())
 	end
-
 end
 
 function ElementSpecialObjective:_get_default_value_if_nil(name_in)

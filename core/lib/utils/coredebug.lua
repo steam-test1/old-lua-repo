@@ -10,7 +10,6 @@ if not Global.render_debug_initialized.coredebug then
 	Global.render_debug.render_overlay = true
 	Global.render_debug_initialized.coredebug = true
 end
-
 function only_in_debug(f, klass)
 	klass = klass or getmetatable(Application)
 	local old = "old_" .. f
@@ -20,11 +19,9 @@ function only_in_debug(f, klass)
 			if Global.render_debug.draw_enabled then
 				klass[old](...)
 			end
-
 		end
 
 	end
-
 end
 
 only_in_debug("draw")
@@ -51,7 +48,6 @@ if not Global.category_print_initialized.coredebug then
 	Global.category_print.subtitle_manager = false
 	Global.category_print_initialized.coredebug = true
 end
-
 function out(...)
 	local CAT_TYPE = "debug"
 	local NO_CAT = "spam"
@@ -74,19 +70,12 @@ function out(...)
 		local args = {
 			...
 		}
-		do
-			local (for generator), (for state), (for control) = pairs(Global.category_print)
-			do
-				do break end
-				if k == c then
-					cat = c
-			end
-
+		for k, _ in pairs(Global.category_print) do
+			if k == c then
+				cat = c
 			else
 			end
-
 		end
-
 		cat_print(cat, ...)
 	end
 
@@ -99,83 +88,63 @@ function out(...)
 	else
 		do_print(NO_CAT, correct_spaces("[" .. NO_CAT .. "]", unpack(args)))
 	end
-
 end
 
 function cat_print(cat, ...)
 	if Global.category_print[cat] then
 		_G.print(...)
 	end
-
 end
 
 function cat_debug(cat, ...)
 	if Global.category_print[cat] then
 		Application:debug(...)
 	end
-
 end
 
 function cat_error(cat, ...)
 	if Global.category_print[cat] then
 		Application:error(...)
 	end
-
 end
 
 function cat_stack_dump(cat)
 	if Global.category_print[cat] then
 		Application:stack_dump()
 	end
-
 end
 
 function cat_print_inspect(cat, ...)
 	if Global.category_print[cat] then
-		local (for generator), (for state), (for control) = ipairs({
+		for _, var in ipairs({
 			...
-		})
-		do
-			do break end
+		}) do
 			cat_print(cat, CoreCode.inspect(var))
 		end
-
 	end
-
 end
 
 function cat_debug_inspect(cat, ...)
 	if Global.category_print[cat] then
-		local (for generator), (for state), (for control) = ipairs({
+		for _, var in ipairs({
 			...
-		})
-		do
-			do break end
+		}) do
 			cat_debug(cat, "\n" .. tostring(CoreCode.inspect(var)))
 		end
-
 	end
-
 end
 
 function catprint_save()
 	local data = {_meta = "categories"}
-	do
-		local (for generator), (for state), (for control) = pairs(Global.category_print)
-		do
-			do break end
-			if Global.original_category_print[name] ~= allow_print then
-				table.insert(data, {
-					_meta = "category",
-					name = name,
-					print = allow_print
-				})
-			end
-
+	for name, allow_print in pairs(Global.category_print) do
+		if Global.original_category_print[name] ~= allow_print then
+			table.insert(data, {
+				_meta = "category",
+				name = name,
+				print = allow_print
+			})
 		end
-
 	end
-
 	local path = managers.database:base_path() .. "settings/catprint.catprint"
 	local file = SystemFS:open(path, "w")
 	file:print(ScriptSerializer:to_custom_xml(data))
@@ -185,36 +154,27 @@ end
 function catprint_load()
 	if not Global.original_category_print then
 		Global.original_category_print = {}
-		local (for generator), (for state), (for control) = pairs(Global.category_print)
-		do
-			do break end
+		for category, default in pairs(Global.category_print) do
 			Global.original_category_print[category] = default
 		end
-
 	end
-
 	local file_path = "settings/catprint"
 	local file_extension = "catprint"
 	if DB:has(file_extension, file_path) then
 		local xml = DB:open(file_extension, file_path):read()
 		local data = ScriptSerializer:from_custom_xml(xml)
-		local (for generator), (for state), (for control) = ipairs(data)
-		do
-			do break end
+		for _, sub_data in ipairs(data) do
 			local name = tostring(sub_data.name)
 			local allow_print = sub_data.print == true
 			Global.category_print[name] = allow_print
 		end
-
 	end
-
 end
 
 function print_console_result(...)
 	for i = 1, select("#", ...) do
 		cat_print("debug", CoreCode.full_representation(select(i, ...)))
 	end
-
 end
 
 function compile_and_reload()
@@ -260,19 +220,15 @@ function watch(cond_func, exact)
 				cat_print("debug", "[CoreVarTrace] Probably file: " .. (src and src.source or "?"))
 				cat_print("debug", "[CoreVarTrace] Might be line: " .. (src and src.currentline or -1))
 			end
-
 			cat_print("debug", debug.traceback())
 			debug.sethook()
 		end
-
 		if exact then
 			local src = debug.getinfo(2, "Sl")
 			if src then
 				rawset(_G, "__watch_previnfo", string.format("%s : %i", src.source or "?", src.currentline or -1))
 			end
-
 		end
-
 	end
 , "l", 1)
 end
@@ -286,7 +242,6 @@ function trace_ref(class_name, init_name, destroy_name)
 			rawset(_G, "_trace_ref_table", t)
 			cat_print("debug", "[CoreTraceRef] ---------------------- New Script Environment --------------------------")
 		end
-
 	end
 
 	local stack = function()
@@ -307,7 +262,6 @@ function trace_ref(class_name, init_name, destroy_name)
 		end
 )
 	end
-
 	if not rawget(class_mt, "_" .. destroy_name) then
 		rawset(class_mt, "_" .. destroy_name, assert(rawget(class_mt, destroy_name)))
 		rawset(class_mt, destroy_name, function(...)
@@ -321,7 +275,6 @@ function trace_ref(class_name, init_name, destroy_name)
 			else
 				cat_print("debug", "[CoreTraceRef] Delete ref:", o)
 			end
-
 			local r = rawget(class_mt, "_" .. destroy_name)(...)
 			local t = rawget(_G, "_trace_ref_table")
 			t[o] = nil
@@ -329,7 +282,6 @@ function trace_ref(class_name, init_name, destroy_name)
 		end
 )
 	end
-
 	if not rawget(_G, "_destroy") then
 		rawset(_G, "_destroy", rawget(_G, "destroy"))
 		rawset(_G, "destroy", function(...)
@@ -338,29 +290,18 @@ function trace_ref(class_name, init_name, destroy_name)
 			if d then
 				d(...)
 			end
-
 			local c = 0
 			local t = assert(rawget(_G, "_trace_ref_table"))
-			do
-				local (for generator), (for state), (for control) = pairs(t)
-				do
-					do break end
-					c = c + 1
-				end
-
+			for k, v in pairs(t) do
+				c = c + 1
 			end
-
 			cat_print("debug", string.format("[CoreTraceRef] ---------------------- %i Script References Lost --------------------------", c))
-			local (for generator), (for state), (for control) = pairs(t)
-			do
-				do break end
+			for k, v in pairs(t) do
 				cat_print("debug", "[CoreTraceRef]", k, v)
 			end
-
 		end
 )
 	end
-
 end
 
 function trace_ref_add_destroy_all(class_name, func_name)
@@ -374,7 +315,6 @@ function trace_ref_add_destroy_all(class_name, func_name)
 		end
 )
 	end
-
 end
 
 function debug_pause(...)
@@ -384,9 +324,7 @@ function debug_pause(...)
 		if not Application:editor() or Global.running_simulation then
 			Application:set_pause(true)
 		end
-
 	end
-
 end
 
 function debug_pause_unit(unit, ...)
@@ -397,8 +335,6 @@ function debug_pause_unit(unit, ...)
 		else
 			Application:error("[debug_pause] DEAD UNIT")
 		end
-
 	end
-
 end
 

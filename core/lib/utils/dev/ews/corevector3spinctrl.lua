@@ -31,7 +31,6 @@ function Vector3SpinCtrl:init(parent, min, max, step, value, name, dec, style)
 		self._z:connect("", "EVT_FLOAT_SPIN_CTRL_ENTER", callback(self, self, "_enter"), "")
 		box:add(self._z:window(), 1, 0, "EXPAND")
 	end
-
 	self._panel:set_sizer(box)
 end
 

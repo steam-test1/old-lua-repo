@@ -15,7 +15,6 @@ function InteractionEditorSystem:init(ui, path)
 	self._is_new = path == nil
 	if not path or not managers.database:entry_name(path) then
 	end
-
 	self._caption = "New" .. tostring(new_counter)
 	self._op_stack = CoreInteractionEditorSystemEvents.InteractionEditorSystemEvents.setup_stack(self)
 	self._panel, self._id = ui:create_nb_page(self._caption, true)
@@ -34,31 +33,19 @@ function InteractionEditorSystem:init(ui, path)
 	self._node_id_map = path and self._graph:load(assert(managers.database:load_node(path))) or {}
 	local md = self._graph:graph_metadata()
 	if md then
-		do
-			local (for generator), (for state), (for control) = md:children()
-			do
-				do break end
-				if child:name() == "interaction" then
-					self._desc:from_xml(child)
-			end
-
+		for child in md:children() do
+			if child:name() == "interaction" then
+				self._desc:from_xml(child)
 			else
 			end
-
 		end
-
-		local (for generator), (for state), (for control) = md:children()
-		do
-			do break end
+		for child in md:children() do
 			if child:name() == "patterns" then
 				self:_load_patterns(self._desc, self._pattern_data, child)
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 end
 
 function InteractionEditorSystem:caption()
@@ -85,7 +72,6 @@ function InteractionEditorSystem:update(t, dt)
 	if self._active and self._graph then
 		self._graph:update(t, dt)
 	end
-
 end
 
 function InteractionEditorSystem:graph()
@@ -133,7 +119,6 @@ function InteractionEditorSystem:add_node(node_type, skip_stack)
 	self:set_node_colors(node, id)
 	if not skip_stack then
 	end
-
 end
 
 function InteractionEditorSystem:remove_node(node, skip_stack)
@@ -142,7 +127,6 @@ function InteractionEditorSystem:remove_node(node, skip_stack)
 	self._node_id_map[id] = nil
 	if not skip_stack then
 	end
-
 end
 
 function InteractionEditorSystem:panel()
@@ -165,18 +149,12 @@ function InteractionEditorSystem:active()
 end
 
 function InteractionEditorSystem:activate()
-	if not self._is_new then
-		-- unhandled boolean indicator
-	else
-	end
-
-	self._ui:set_title(true)
+	self._ui:set_title(not self._is_new and self._path)
 	self._ui:set_save_close_option_enabled(true)
 	local selected = self._graph:selected_nodes()
 	if #selected == 1 then
 		self._ui:rebuild_prop_panel(self._desc, selected[1]:metadata())
 	end
-
 	self._active = true
 end
 
@@ -216,44 +194,27 @@ function InteractionEditorSystem:has_unsaved_changes()
 end
 
 function InteractionEditorSystem:set_node_colors(node, id)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._desc:node_inputs(id))
-		do
-			do break end
-			local color = assert(self:_slot_color(self._desc:transput_type(id, trans)))
-			node:set_input_colour(trans, color.r, color.g, color.b)
-		end
-
+	for _, trans in ipairs(self._desc:node_inputs(id)) do
+		local color = assert(self:_slot_color(self._desc:transput_type(id, trans)))
+		node:set_input_colour(trans, color.r, color.g, color.b)
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._desc:node_outputs(id))
-	do
-		do break end
+	for _, trans in ipairs(self._desc:node_outputs(id)) do
 		local color = assert(self:_slot_color(self._desc:transput_type(id, trans)))
 		node:set_output_colour(trans, color.r, color.g, color.b)
 	end
-
 end
 
 function InteractionEditorSystem:_slot_color(t)
-	local (for generator), (for state), (for control) = ipairs(CoreInteractionEditorConfig.NODE_TYPES)
-	do
-		do break end
+	for i, v in ipairs(CoreInteractionEditorConfig.NODE_TYPES) do
 		if v == t then
 			return CoreInteractionEditorConfig.NODE_COLORS[i]
 		end
-
 	end
-
 end
 
 function InteractionEditorSystem:_save_patterns(pattern_data, cfg_node)
-	local (for generator), (for state), (for control) = pairs(pattern_data)
-	do
-		do break end
-		local (for generator), (for state), (for control) = pairs(data)
-		do
-			do break end
+	for node, data in pairs(pattern_data) do
+		for _, params in pairs(data) do
 			local inst = cfg_node:make_child("instance")
 			inst:set_parameter("node", node)
 			inst:set_parameter("pat", params[2])
@@ -261,15 +222,11 @@ function InteractionEditorSystem:_save_patterns(pattern_data, cfg_node)
 			inst:set_parameter("name", params[4])
 			inst:set_parameter("full_name", params[5])
 		end
-
 	end
-
 end
 
 function InteractionEditorSystem:_load_patterns(desc, pattern_data, cfg_node)
-	local (for generator), (for state), (for control) = cfg_node:children()
-	do
-		do break end
+	for inst in cfg_node:children() do
 		local node = inst:parameter("node")
 		local pat = inst:parameter("pat")
 		local ptype = inst:parameter("ptype")
@@ -277,6 +234,5 @@ function InteractionEditorSystem:_load_patterns(desc, pattern_data, cfg_node)
 		local full_name = inst:parameter("full_name")
 		self:add_pattern_data(node, pat, ptype, name, full_name)
 	end
-
 end
 

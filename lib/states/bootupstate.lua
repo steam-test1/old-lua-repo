@@ -5,7 +5,6 @@ function BootupState:init(game_state_machine, setup)
 	if setup then
 		self:setup()
 	end
-
 end
 
 function BootupState:old()
@@ -167,7 +166,6 @@ function BootupState:setup()
 		con:enable()
 		self._controller_list[index] = con
 	end
-
 end
 
 function BootupState:at_enter()
@@ -176,7 +174,6 @@ function BootupState:at_enter()
 		self:setup()
 		Application:stack_dump_error("Shouldn't enter boot state more than once. Except when toggling freeflight.")
 	end
-
 	self._sound_listener = SoundDevice:create_listener("main_menu")
 	self._sound_listener:activate(true)
 	self._workspace:show()
@@ -191,7 +188,6 @@ function BootupState:clbk_game_has_music_control(status)
 	if self._play_data and self._play_data.video then
 		self._gui_obj:set_volume_gain(status and 1 or 0)
 	end
-
 end
 
 function BootupState:update(t, dt)
@@ -201,13 +197,10 @@ function BootupState:update(t, dt)
 	else
 		self:update_fades()
 	end
-
 end
 
 function BootupState:check_confirm_pressed()
-	local (for generator), (for state), (for control) = ipairs(self._controller_list)
-	do
-		do break end
+	for index, controller in ipairs(self._controller_list) do
 		if controller:get_input_pressed("confirm") then
 			print("check_confirm_pressed")
 			local active, dialog = managers.system_menu:is_active_by_id("invite_join_message")
@@ -215,11 +208,8 @@ function BootupState:check_confirm_pressed()
 				print("close")
 				dialog:button_pressed_callback()
 			end
-
 		end
-
 	end
-
 end
 
 function BootupState:update_fades()
@@ -232,12 +222,10 @@ function BootupState:update_fades()
 		else
 			time = 0
 		end
-
 	else
 		time = TimerManager:game():time() - self._play_time
 		duration = self._play_data.duration
 	end
-
 	local old_fade = self._fade
 	if self._play_data.fade_in and time < self._play_data.fade_in then
 		if 0 < self._play_data.fade_in then
@@ -245,22 +233,18 @@ function BootupState:update_fades()
 		else
 			self._fade = 1
 		end
-
 	elseif self._play_data.fade_in and duration - time < self._play_data.fade_out then
 		if 0 < self._play_data.fade_out then
 			self._fade = (duration - time) / self._play_data.fade_out
 		else
 			self._fade = 0
 		end
-
 	else
 		self._fade = 1
 	end
-
 	if self._fade ~= old_fade then
 		self:apply_fade()
 	end
-
 end
 
 function BootupState:apply_fade()
@@ -271,26 +255,17 @@ function BootupState:apply_fade()
 		else
 			Application:error("GUI \"" .. tostring(self._play_data.gui) .. "\" lacks a function set_fade( o, fade ).")
 		end
-
 	else
 		self._gui_obj:set_color(self._gui_obj:color():with_alpha(self._fade))
 	end
-
 end
 
 function BootupState:is_skipped()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._controller_list)
-		do
-			do break end
-			if controller:get_any_input_pressed() then
-				return true
-			end
-
+	for _, controller in ipairs(self._controller_list) do
+		if controller:get_any_input_pressed() then
+			return true
 		end
-
 	end
-
 	return false
 end
 
@@ -301,11 +276,9 @@ function BootupState:is_playing()
 		else
 			return TimerManager:game():time() < self._play_time + self._play_data.duration
 		end
-
 	else
 		return false
 	end
-
 end
 
 function BootupState:play_next()
@@ -319,10 +292,8 @@ function BootupState:play_next()
 			if alive(self._gui_obj) then
 				self._full_panel:remove(self._gui_obj)
 			end
-
 			self._gui_obj = nil
 		end
-
 		local res = RenderSettings.resolution
 		local width, height
 		local padding = self._play_data.padding or 0
@@ -334,12 +305,10 @@ function BootupState:play_next()
 				height = self._play_data.height
 				width = self._play_data.width
 			end
-
 		else
 			height = self._play_data.height
 			width = self._play_data.width
 		end
-
 		local x = (self._panel:w() - width) / 2
 		local y = (self._panel:h() - height) / 2
 		local gui_config = {
@@ -356,7 +325,6 @@ function BootupState:play_next()
 			if not managers.music:has_music_control() then
 				self._gui_obj:set_volume_gain(0)
 			end
-
 			local w = self._gui_obj:video_width()
 			local h = self._gui_obj:video_height()
 			local m = h / w
@@ -381,14 +349,11 @@ function BootupState:play_next()
 			if script.setup then
 				script:setup()
 			end
-
 		end
-
 		self:apply_fade()
 	else
 		self:gsm():change_state_by_name("menu_titlescreen")
 	end
-
 end
 
 function BootupState:at_exit()
@@ -398,31 +363,21 @@ function BootupState:at_exit()
 		self._workspace = nil
 		self._gui_obj = nil
 	end
-
 	if alive(self._full_workspace) then
 		Overlay:gui():destroy_workspace(self._full_workspace)
 		self._full_workspace = nil
 	end
-
 	self._back_drop_gui:destroy()
 	if self._controller_list then
-		do
-			local (for generator), (for state), (for control) = ipairs(self._controller_list)
-			do
-				do break end
-				controller:destroy()
-			end
-
+		for _, controller in ipairs(self._controller_list) do
+			controller:destroy()
 		end
-
 		self._controller_list = nil
 	end
-
 	if self._sound_listener then
 		self._sound_listener:delete()
 		self._sound_listener = nil
 	end
-
 	self._play_data_list = nil
 	self._play_index = nil
 	self._play_data = nil
@@ -430,6 +385,5 @@ function BootupState:at_exit()
 	if PackageManager:loaded("packages/boot_screen") then
 		PackageManager:unload("packages/boot_screen")
 	end
-
 end
 

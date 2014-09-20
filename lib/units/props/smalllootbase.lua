@@ -12,7 +12,6 @@ function SmallLootBase:take(unit)
 	if self._empty then
 		return
 	end
-
 	unit:sound():play("money_grab")
 	local small_loot_multiplier_upgrade_level = managers.player:upgrade_level("player", "small_loot_multiplier")
 	local multiplier = managers.player:upgrade_value("player", "small_loot_multiplier", 1)
@@ -22,7 +21,6 @@ function SmallLootBase:take(unit)
 	else
 		managers.network:session():send_to_peers_synched("sync_small_loot_taken", self._unit, small_loot_multiplier_upgrade_level)
 	end
-
 end
 
 function SmallLootBase:taken(small_loot_multiplier_upgrade_level)
@@ -36,7 +34,6 @@ function SmallLootBase:_set_empty()
 	if not self.skip_remove_unit then
 		self._unit:set_slot(0)
 	end
-
 end
 
 function SmallLootBase:destroy()

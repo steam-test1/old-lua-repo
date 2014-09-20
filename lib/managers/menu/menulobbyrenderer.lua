@@ -13,7 +13,6 @@ function MenuLobbyRenderer:show_node(node)
 	if node:parameters().gui_class then
 		gui_class = CoreSerialize.string_to_classtable(node:parameters().gui_class)
 	end
-
 	local parameters = {
 		font = tweak_data.menu.pd2_medium_font,
 		background_color = tweak_data.menu.main_menu_background_color:with_alpha(0),
@@ -63,7 +62,6 @@ function MenuLobbyRenderer:open(...)
 	if not server_peer then
 		return
 	end
-
 	for i = 1, is_single_player and 1 or 4 do
 		local t = {}
 		t.player = {}
@@ -73,10 +71,8 @@ function MenuLobbyRenderer:open(...)
 		for slot = 1, PlayerManager.WEAPON_SLOTS + 3 do
 			table.insert(t.kit_slots, slot)
 		end
-
 		table.insert(self._player_slots, t)
 	end
-
 	if is_server then
 		local level = managers.experience:current_level()
 		local rank = managers.experience:current_rank()
@@ -88,7 +84,6 @@ function MenuLobbyRenderer:open(...)
 			character = "random"
 		})
 	end
-
 	self:_entered_menu()
 end
 
@@ -109,14 +104,12 @@ function MenuLobbyRenderer:close(...)
 	if managers.menu_scene then
 		managers.menu_scene:hide_all_lobby_characters()
 	end
-
 end
 
 function MenuLobbyRenderer:update_level_id(level_id)
 	if self._level_id == (level_id or Global.game_settings.level_id) then
 		return
 	end
-
 	level_id = level_id or Global.game_settings.level_id
 	local level_id_index = tweak_data.levels:get_index_from_level_id(level_id)
 	managers.network:session():send_to_peers("lobby_sync_update_level_id", level_id_index)
@@ -127,7 +120,6 @@ function MenuLobbyRenderer:sync_update_level_id(level_id)
 	if self._level_id == level_id then
 		return
 	end
-
 	Global.game_settings.level_id = level_id
 	self:_update_level_id(level_id)
 end
@@ -182,7 +174,6 @@ function MenuLobbyRenderer:set_slot_outfit(slot, criminal_name, outfit_string)
 		managers.menu_component:set_slot_outfit_mission_briefing_gui(slot, criminal_name, outfit)
 		managers.hud:set_slot_outfit(slot, criminal_name, outfit)
 	end
-
 end
 
 function MenuLobbyRenderer:set_kit_selection(peer_id, category, id, slot)
@@ -207,11 +198,8 @@ function MenuLobbyRenderer:remove_player_slot_by_peer_id(peer, reason)
 	if not self._player_slots then
 		return
 	end
-
 	local peer_id = peer:id()
-	local (for generator), (for state), (for control) = ipairs(self._player_slots)
-	do
-		do break end
+	for _, slot in ipairs(self._player_slots) do
 		if slot.peer_id == peer_id then
 			slot.peer_id = nil
 			slot.params = nil
@@ -220,11 +208,9 @@ function MenuLobbyRenderer:remove_player_slot_by_peer_id(peer, reason)
 			slot.join_msg_shown = nil
 			managers.hud:remove_player_slot_by_peer_id(peer, reason)
 			managers.menu_component:set_slot_outfit_mission_briefing_gui(peer_id)
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function MenuLobbyRenderer:set_character(id, character)
@@ -232,21 +218,14 @@ function MenuLobbyRenderer:set_character(id, character)
 end
 
 function MenuLobbyRenderer:set_choose_character_enabled(enabled)
-	local (for generator), (for state), (for control) = ipairs(self._logic._node_stack)
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(node:items())
-		do
-			do break end
+	for _, node in ipairs(self._logic._node_stack) do
+		for _, item in ipairs(node:items()) do
 			if item:parameters().name == "choose_character" then
 				item:set_enabled(enabled)
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 end
 
 function MenuLobbyRenderer:set_server_state(state)
@@ -255,7 +234,6 @@ function MenuLobbyRenderer:set_server_state(state)
 		s = string.upper(managers.localization:text("menu_lobby_server_state_loading"))
 		self:set_choose_character_enabled(false)
 	end
-
 	local msg = managers.localization:text("menu_lobby_messenger_title") .. managers.localization:text("menu_lobby_message_server_is_loading")
 	self:sync_chat_message(msg, 1)
 end
@@ -282,53 +260,32 @@ function MenuLobbyRenderer:on_request_lobby_slot_reply()
 end
 
 function MenuLobbyRenderer:get_player_slot_by_peer_id(id)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._player_slots)
-		do
-			do break end
-			if slot.peer_id and slot.peer_id == id then
-				return slot
-			end
-
+	for _, slot in ipairs(self._player_slots) do
+		if slot.peer_id and slot.peer_id == id then
+			return slot
 		end
-
 	end
-
 	return self._player_slots[id]
 end
 
 function MenuLobbyRenderer:get_player_slot_nr_by_peer_id(id)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._player_slots)
-		do
-			do break end
-			if slot.peer_id and slot.peer_id == id then
-				return i
-			end
-
+	for i, slot in ipairs(self._player_slots) do
+		if slot.peer_id and slot.peer_id == id then
+			return i
 		end
-
 	end
-
 	return nil
 end
 
 function MenuLobbyRenderer:sync_chat_message(message, id)
 	Application:debug("sync_chat_message", message, id)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._node_gui_stack)
-		do
-			do break end
-			local row_item_chat = node_gui:row_item_by_name("chat")
-			if row_item_chat then
-				node_gui:sync_say(message, row_item_chat, id)
-				return true
-			end
-
+	for _, node_gui in ipairs(self._node_gui_stack) do
+		local row_item_chat = node_gui:row_item_by_name("chat")
+		if row_item_chat then
+			node_gui:sync_say(message, row_item_chat, id)
+			return true
 		end
-
 	end
-
 	return false
 end
 
@@ -353,14 +310,11 @@ function MenuLobbyRenderer:trigger_item(item)
 			else
 				self:post_event("box_untick")
 			end
-
 		elseif item_type == "slider" then
 			local percentage = item:percentage()
 		elseif percentage > 0 and not (percentage < 100) or item_type == "multi_choice" then
 		end
-
 	end
-
 end
 
 function MenuLobbyRenderer:post_event(event)
@@ -392,7 +346,6 @@ function MenuLobbyRenderer:_layout_slot_progress_panel(slot, progress)
 		h = 17
 		sh = 3
 	end
-
 	slot.p_panel:set_size(38 * tweak_data.scale.lobby_info_offset_multiplier, h)
 	slot.p_bg:set_size(slot.p_panel:size())
 	slot.p_ass_bg:set_size(slot.p_panel:w() - 2, sh)
@@ -413,7 +366,6 @@ function MenuLobbyRenderer:_layout_slot_progress_panel(slot, progress)
 		slot.p_sha_bg:set_position(1, 6)
 		slot.p_sup_bg:set_position(1, 11)
 	end
-
 	slot.p_ass:set_shape(slot.p_ass_bg:shape())
 	slot.p_sha:set_shape(slot.p_sha_bg:shape())
 	slot.p_sup:set_shape(slot.p_sup_bg:shape())
@@ -424,7 +376,6 @@ function MenuLobbyRenderer:_layout_slot_progress_panel(slot, progress)
 	if slot.params then
 	else
 	end
-
 	slot.p_tec:set_w(slot.p_sup_bg:w() * ((progress[4] or 0) / 49) or slot.p_tec:w())
 end
 
@@ -479,7 +430,6 @@ function MenuLobbyRenderer:_layout_video()
 		self._level_video:set_y(0)
 		self._level_video:set_center_x(self._gui_info_panel:w() / 2)
 	end
-
 end
 
 function MenuLobbyRenderer:set_bg_visible(visible)
@@ -499,9 +449,7 @@ function MenuLobbyRenderer:set_bg_area(area)
 			self._menu_bg:set_size(self._menu_bg:parent():size())
 			self._menu_bg:set_position(0, 0)
 		end
-
 	end
-
 end
 
 function MenuLobbyRenderer:set_stencil_image(image)
@@ -516,12 +464,10 @@ function MenuLobbyRenderer:set_stencil_align(align, percent)
 	if not self._menu_stencil then
 		return
 	end
-
 	local d = self._menu_stencil:texture_height()
 	if d == 0 then
 		return
 	end
-
 	self._menu_stencil_align = align
 	self._menu_stencil_align_percent = percent
 	local res = RenderSettings.resolution
@@ -552,32 +498,19 @@ function MenuLobbyRenderer:set_stencil_align(align, percent)
 		percent = percent / 100
 		self._menu_stencil:set_left(res.x * percent - y * m * percent)
 	end
-
 end
 
 function MenuLobbyRenderer:current_menu_text(topic_id)
 	local ids = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._node_gui_stack)
-		do
-			do break end
-			table.insert(ids, node_gui.node:parameters().topic_id)
-		end
-
+	for i, node_gui in ipairs(self._node_gui_stack) do
+		table.insert(ids, node_gui.node:parameters().topic_id)
 	end
-
 	table.insert(ids, topic_id)
 	local s = ""
-	do
-		local (for generator), (for state), (for control) = ipairs(ids)
-		do
-			do break end
-			s = s .. managers.localization:text(id)
-			s = s .. (i < #ids and " > " or "")
-		end
-
+	for i, id in ipairs(ids) do
+		s = s .. managers.localization:text(id)
+		s = s .. (i < #ids and " > " or "")
 	end
-
 	return s
 end
 

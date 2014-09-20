@@ -28,7 +28,6 @@ function AccessObjectBase:set_active(active)
 		self.__active_requested = active
 		self.__manager:_prioritize_and_activate()
 	end
-
 end
 
 function AccessObjectBase:_really_activate()

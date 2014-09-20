@@ -25,14 +25,12 @@ function CoreFilteredTreeControl:refresh_tree()
 	if self._freeze_count ~= 0 then
 		return
 	end
-
 	self:freeze()
 	self:_view_tree_root():remove_children()
 	local function append_to_visible_tree(child)
 		if self:_node_passes_filters(child) then
 			self:_view_tree_root():append_path(child:path())
 		end
-
 		return true
 	end
 
@@ -41,18 +39,11 @@ function CoreFilteredTreeControl:refresh_tree()
 end
 
 function CoreFilteredTreeControl:_node_passes_filters(node)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._filters)
-		do
-			do break end
-			if not predicate(node) then
-				return false
-			end
-
+	for _, predicate in ipairs(self._filters) do
+		if not predicate(node) then
+			return false
 		end
-
 	end
-
 	return true
 end
 
@@ -61,11 +52,9 @@ function CoreFilteredTreeControl:_on_node_appended(new_node)
 	if new_node:parent() then
 		visible_parent_node = self:_view_tree_root():child_at_path(new_node:parent():path())
 	end
-
 	if visible_parent_node and self:_node_passes_filters(new_node) then
 		visible_parent_node:append_copy_of_node(new_node)
 	end
-
 end
 
 function CoreFilteredTreeControl:_on_node_removed(removed_node)
@@ -73,7 +62,6 @@ function CoreFilteredTreeControl:_on_node_removed(removed_node)
 	if visible_node then
 		visible_node:remove()
 	end
-
 end
 
 function CoreFilteredTreeControl:clear()
@@ -89,7 +77,6 @@ function CoreFilteredTreeControl:freeze()
 	if self._freeze_count == 0 then
 		self.super.freeze(self)
 	end
-
 	self._freeze_count = self._freeze_count + 1
 end
 
@@ -99,9 +86,7 @@ function CoreFilteredTreeControl:thaw(already_refreshed)
 		if not already_refreshed then
 			self:refresh_tree()
 		end
-
 		self.super.thaw(self)
 	end
-
 end
 

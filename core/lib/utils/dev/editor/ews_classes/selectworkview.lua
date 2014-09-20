@@ -70,19 +70,11 @@ function SelectWorkView:build_cbs()
 	self._continents_cbs = {}
 	local continents = managers.editor:continents()
 	self._continent_names = {}
-	do
-		local (for generator), (for state), (for control) = pairs(continents)
-		do
-			do break end
-			table.insert(self._continent_names, name)
-		end
-
+	for name, continent in pairs(continents) do
+		table.insert(self._continent_names, name)
 	end
-
 	table.sort(self._continent_names)
-	local (for generator), (for state), (for control) = ipairs(self._continent_names)
-	do
-		do break end
+	for _, name in ipairs(self._continent_names) do
 		local cb = EWS:CheckBox(self._panel, name, "")
 		cb:set_value(true)
 		self._continents_cbs[name] = cb
@@ -90,7 +82,6 @@ function SelectWorkView:build_cbs()
 		cb:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")
 		self._continents_sizer:add(cb, 0, 2, "EXPAND,TOP")
 	end
-
 end
 
 function SelectWorkView:key_delete(ctrlr, event)
@@ -98,7 +89,6 @@ function SelectWorkView:key_delete(ctrlr, event)
 	if EWS:name_to_key_code("K_DELETE") == event:key_code() then
 		self:on_delete()
 	end
-
 end
 
 function SelectWorkView:key_cancel(ctrlr, event)
@@ -106,7 +96,6 @@ function SelectWorkView:key_cancel(ctrlr, event)
 	if EWS:name_to_key_code("K_ESCAPE") == event:key_code() then
 		self:on_cancel()
 	end
-
 end
 
 function SelectWorkView:on_continent_cb()
@@ -114,41 +103,23 @@ function SelectWorkView:on_continent_cb()
 end
 
 function SelectWorkView:on_all_continents()
-	do
-		local (for generator), (for state), (for control) = pairs(self._continents_cbs)
-		do
-			do break end
-			cb:set_value(true)
-		end
-
+	for name, cb in pairs(self._continents_cbs) do
+		cb:set_value(true)
 	end
-
 	self:fill_views_list()
 end
 
 function SelectWorkView:on_none_continents()
-	do
-		local (for generator), (for state), (for control) = pairs(self._continents_cbs)
-		do
-			do break end
-			cb:set_value(false)
-		end
-
+	for name, cb in pairs(self._continents_cbs) do
+		cb:set_value(false)
 	end
-
 	self:fill_views_list()
 end
 
 function SelectWorkView:on_invert_continents()
-	do
-		local (for generator), (for state), (for control) = pairs(self._continents_cbs)
-		do
-			do break end
-			cb:set_value(not cb:get_value())
-		end
-
+	for name, cb in pairs(self._continents_cbs) do
+		cb:set_value(not cb:get_value())
 	end
-
 	self:fill_views_list()
 end
 
@@ -157,7 +128,6 @@ function SelectWorkView:on_delete()
 	if index == -1 then
 		return
 	end
-
 	local j = self._list:get_item_data_ref(index)
 	local continent = self._views[j].continent
 	local view_name = self._views[j].name
@@ -170,7 +140,6 @@ function SelectWorkView:on_set_info()
 	if index == -1 then
 		return
 	end
-
 	local j = self._list:get_item_data_ref(index)
 	local view = self._views[j].view
 	view.text = self._info_ctrlr:get_value()
@@ -192,7 +161,6 @@ function SelectWorkView:on_goto()
 	if index == -1 then
 		return
 	end
-
 	local j = self._list:get_item_data_ref(index)
 	managers.editor:goto_workview(self._views[j].view)
 end
@@ -216,37 +184,25 @@ function SelectWorkView:fill_views_list()
 	self._views = {}
 	self._list:freeze()
 	local values = managers.editor:values()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._continent_names)
-		do
-			do break end
-			if self._continents_cbs[c_name]:get_value() then
-				local c_values = values[c_name]
-				if c_values and c_values.workviews then
-					local (for generator), (for state), (for control) = pairs(c_values.workviews)
-					do
-						do break end
-						if string.find(v_name, filter, 1, true) then
-							local i = self._list:append_item(v_name)
-							self._views[j] = {
-								view = view,
-								continent = c_name,
-								name = v_name
-							}
-							self._list:set_item_data(i, j)
-							j = j + 1
-						end
-
+	for _, c_name in ipairs(self._continent_names) do
+		if self._continents_cbs[c_name]:get_value() then
+			local c_values = values[c_name]
+			if c_values and c_values.workviews then
+				for v_name, view in pairs(c_values.workviews) do
+					if string.find(v_name, filter, 1, true) then
+						local i = self._list:append_item(v_name)
+						self._views[j] = {
+							view = view,
+							continent = c_name,
+							name = v_name
+						}
+						self._list:set_item_data(i, j)
+						j = j + 1
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 	self._list:thaw()
 	self._list:autosize_column(0)
 end
@@ -264,16 +220,10 @@ function SelectWorkView:thaw()
 end
 
 function SelectWorkView:recreate()
-	do
-		local (for generator), (for state), (for control) = pairs(self._continents_cbs)
-		do
-			do break end
-			self._continents_sizer:detach(cb)
-			cb:destroy()
-		end
-
+	for name, cb in pairs(self._continents_cbs) do
+		self._continents_sizer:detach(cb)
+		cb:destroy()
 	end
-
 	self._info_ctrlr:change_value("")
 	self:build_cbs()
 	self:fill_views_list()

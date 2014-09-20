@@ -25,7 +25,6 @@ function PlayerIncapacitated:enter(state_data, enter_data)
 	if Network:is_server() then
 		PlayerBleedOut._register_revive_SO(self._revive_SO_data, "revive")
 	end
-
 	managers.groupai:state():report_criminal_downed(self._unit)
 	managers.network:session():send_to_peers_synched("sync_contour_state", self._unit, -1, table.index_of(ContourExt.indexed_types, "teammate_downed"), true, 1)
 end
@@ -38,7 +37,6 @@ function PlayerIncapacitated:_enter(enter_data)
 	if Network:is_server() and self._ext_movement:nav_tracker() then
 		managers.groupai:state():on_player_weapons_hot()
 	end
-
 end
 
 function PlayerIncapacitated:exit(state_data, new_state_name)
@@ -75,7 +73,6 @@ function PlayerIncapacitated:_update_check_actions(t, dt)
 		self._recoil_t = nil
 		self._camera_unit:base():stop_shooting()
 	end
-
 	self._taser_value = math.step(self._taser_value, 0.75, dt / 2)
 	managers.environment_controller:set_taser_value(self._taser_value)
 	if input.btn_stats_screen_press then
@@ -83,7 +80,6 @@ function PlayerIncapacitated:_update_check_actions(t, dt)
 	elseif input.btn_stats_screen_release then
 		self._unit:base():set_stats_screen_visible(false)
 	end
-
 	self:_update_foley(t, input)
 	local new_action
 	self:_check_action_interact(t, input)
@@ -94,7 +90,6 @@ function PlayerIncapacitated:_check_action_interact(t, input)
 		self._intimidate_t = t
 		PlayerArrested.call_teammate(self, "f11", t, true, true, true)
 	end
-
 end
 
 function PlayerIncapacitated:_start_action_incapacitated(t)
@@ -112,7 +107,6 @@ function PlayerIncapacitated:_end_action_incapacitated(t)
 	if not self:_can_stand() then
 		return
 	end
-
 	self._state_data.ducking = false
 	self:_stance_entered()
 	self:_update_crosshair_offset()

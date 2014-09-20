@@ -61,23 +61,15 @@ function LuaProfilerGridBox:set_profilerdata(...)
 	for fnid = 0, self._lpd:numfuncnodes() - 1 do
 		table.insert(self._item2fnid, fnid)
 	end
-
 	self._listctrl:clear_all()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._baseheader)
-		do
-			do break end
-			self._listctrl:append_column(n, "")
-		end
-
+	for _, n in ipairs(self._baseheader) do
+		self._listctrl:append_column(n, "")
 	end
-
 	for i = 0, self._lpd:numheaders() - 1 do
 		local name = self._lpd:headername(i)
 		self._listctrl:append_column("Diff " .. string.capitalize(name), "")
 		self._listctrl:append_column("Peak " .. string.capitalize(name), "")
 	end
-
 	self:_redraw()
 end
 
@@ -87,9 +79,7 @@ function LuaProfilerGridBox:set_displayformat(...)
 	}, "number:displayformat")
 	if self._lpd ~= nil then
 		local frametime = self._lpd:frametime()
-		local (for generator), (for state), (for control) = ipairs(self._item2fnid)
-		do
-			do break end
+		for i, fnid in ipairs(self._item2fnid) do
 			if self._displayformat ~= SECONDS then
 				self._listctrl:set_item(i - 1, 3, string.format("%6.3f %%", 100 * self._lpd:fn_total_time(fnid) / frametime))
 				self._listctrl:set_item(i - 1, 4, string.format("%6.3f %%", 100 * self._lpd:fn_local_time(fnid) / frametime))
@@ -99,11 +89,8 @@ function LuaProfilerGridBox:set_displayformat(...)
 				self._listctrl:set_item(i - 1, 4, string.format("%8.3f ms", 1000 * self._lpd:fn_local_time(fnid)))
 				self._listctrl:set_item(i - 1, 5, string.format("%8.3f ms", 1000 * self._lpd:fn_children_time(fnid)))
 			end
-
 		end
-
 	end
-
 end
 
 function LuaProfilerGridBox:_redraw()
@@ -111,42 +98,32 @@ function LuaProfilerGridBox:_redraw()
 		self:_sort_funcnodes()
 		self._listctrl:delete_all_items()
 		local frametime = self._lpd:frametime()
-		do
-			local (for generator), (for state), (for control) = ipairs(self._item2fnid)
-			do
-				do break end
-				self._listctrl:insert_item(i - 1, self._lpd:fn_func(fnid))
-				self._listctrl:set_item(i - 1, 1, self._lpd:fn_file(fnid))
-				self._listctrl:set_item(i - 1, 2, self._lpd:fn_line(fnid))
-				if self._displayformat ~= SECONDS then
-					self._listctrl:set_item(i - 1, 3, string.format("%6.3f %%", 100 * self._lpd:fn_total_time(fnid) / frametime))
-					self._listctrl:set_item(i - 1, 4, string.format("%6.3f %%", 100 * self._lpd:fn_local_time(fnid) / frametime))
-					self._listctrl:set_item(i - 1, 5, string.format("%6.3f %%", 100 * self._lpd:fn_children_time(fnid) / frametime))
-				else
-					self._listctrl:set_item(i - 1, 3, string.format("%8.3f ms", 1000 * self._lpd:fn_total_time(fnid)))
-					self._listctrl:set_item(i - 1, 4, string.format("%8.3f ms", 1000 * self._lpd:fn_local_time(fnid)))
-					self._listctrl:set_item(i - 1, 5, string.format("%8.3f ms", 1000 * self._lpd:fn_children_time(fnid)))
-				end
-
-				self._listctrl:set_item(i - 1, 6, self._lpd:fn_num_calls(fnid))
-				self._listctrl:set_item(i - 1, 7, self._lpd:fn_num_sub_calls(fnid))
-				local j = 8
-				for k = 0, self._lpd:numheaders() - 1 do
-					self._listctrl:set_item(i - 1, j, string.format("%s", self._lpd:fn_diff(fnid, k)))
-					self._listctrl:set_item(i - 1, j + 1, string.format("%s", self._lpd:fn_peak(fnid, k)))
-					j = j + 2
-				end
-
+		for i, fnid in ipairs(self._item2fnid) do
+			self._listctrl:insert_item(i - 1, self._lpd:fn_func(fnid))
+			self._listctrl:set_item(i - 1, 1, self._lpd:fn_file(fnid))
+			self._listctrl:set_item(i - 1, 2, self._lpd:fn_line(fnid))
+			if self._displayformat ~= SECONDS then
+				self._listctrl:set_item(i - 1, 3, string.format("%6.3f %%", 100 * self._lpd:fn_total_time(fnid) / frametime))
+				self._listctrl:set_item(i - 1, 4, string.format("%6.3f %%", 100 * self._lpd:fn_local_time(fnid) / frametime))
+				self._listctrl:set_item(i - 1, 5, string.format("%6.3f %%", 100 * self._lpd:fn_children_time(fnid) / frametime))
+			else
+				self._listctrl:set_item(i - 1, 3, string.format("%8.3f ms", 1000 * self._lpd:fn_total_time(fnid)))
+				self._listctrl:set_item(i - 1, 4, string.format("%8.3f ms", 1000 * self._lpd:fn_local_time(fnid)))
+				self._listctrl:set_item(i - 1, 5, string.format("%8.3f ms", 1000 * self._lpd:fn_children_time(fnid)))
 			end
-
+			self._listctrl:set_item(i - 1, 6, self._lpd:fn_num_calls(fnid))
+			self._listctrl:set_item(i - 1, 7, self._lpd:fn_num_sub_calls(fnid))
+			local j = 8
+			for k = 0, self._lpd:numheaders() - 1 do
+				self._listctrl:set_item(i - 1, j, string.format("%s", self._lpd:fn_diff(fnid, k)))
+				self._listctrl:set_item(i - 1, j + 1, string.format("%s", self._lpd:fn_peak(fnid, k)))
+				j = j + 2
+			end
 		end
-
 		if self._highlightedfuncnode then
 			self:_highlight(self._highlightedfuncnode)
 		end
-
 	end
-
 end
 
 function LuaProfilerGridBox:_sort_funcnodes()
@@ -206,18 +183,14 @@ function LuaProfilerGridBox:_sort_funcnodes()
 				end
 
 			end
-
 		end
-
 	end
-
 	function sort(fn1, fn2)
 		if self._sortreverse then
 			return convert(fn1) > convert(fn2)
 		else
 			return convert(fn1) < convert(fn2)
 		end
-
 	end
 
 	table.sort(self._item2fnid, sort)
@@ -233,17 +206,13 @@ end
 
 function LuaProfilerGridBox:_highlight(fnid)
 	self._highlightedfuncnode = fnid
-	local (for generator), (for state), (for control) = ipairs(self._item2fnid)
-	do
-		do break end
+	for i, fnid_ in ipairs(self._item2fnid) do
 		if fnid_ == fnid then
 			self._listctrl:set_item_background_colour(i - 1, HIGHLIGHTED)
 		else
 			self._listctrl:set_item_background_colour(i - 1, DEFAULT)
 		end
-
 	end
-
 end
 
 function LuaProfilerGridBox:_on_select()
@@ -269,7 +238,6 @@ function LuaProfilerGridBox:_on_column(id, f)
 		self._sortcolumn = column
 		self._sortreverse = false
 	end
-
 	self:_redraw()
 end
 

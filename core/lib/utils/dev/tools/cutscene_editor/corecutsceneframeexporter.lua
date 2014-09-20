@@ -11,12 +11,10 @@ function CoreCutsceneFrameExporter:begin()
 		assert(SystemFS:exists("/frames") == false, "A root-level file named \"frames\" exists. Unable to create \"frames\" folder.")
 		SystemFS:make_dir("/frames")
 	end
-
 	local output_dir = "/frames/" .. self.__collection_name
 	if SystemFS:exists(output_dir) then
 		SystemFS:delete_file(output_dir)
 	end
-
 	SystemFS:make_dir(output_dir)
 	self:_disable_visual_aids()
 end
@@ -43,26 +41,20 @@ function CoreCutsceneFrameExporter:_enable_visual_aids()
 	if self.__cutscene_editor_camera_was_enabled ~= nil then
 		self.__cutscene_editor:set_cutscene_camera_enabled(self.__cutscene_editor_camera_was_enabled)
 	end
-
 	if managers.editor then
 		if self.__editor_show_camera_info_was_enabled ~= nil then
 			managers.editor:set_show_camera_info(self.__editor_show_camera_info_was_enabled)
 		end
-
 		if self.__editor_draw_grid_was_enabled ~= nil then
 			managers.editor._layer_draw_grid = self.__editor_draw_grid_was_enabled
 		end
-
 		if self.__editor_show_marker_was_enabled ~= nil then
 			managers.editor._layer_draw_marker = self.__editor_show_marker_was_enabled
 		end
-
 		if self.__editor_show_center_was_enabled ~= nil then
 			managers.editor._show_center = self.__editor_show_center_was_enabled
 		end
-
 	end
-
 end
 
 function CoreCutsceneFrameExporter:_disable_visual_aids()
@@ -78,6 +70,5 @@ function CoreCutsceneFrameExporter:_disable_visual_aids()
 		managers.editor._layer_draw_marker = false
 		managers.editor._show_center = false
 	end
-
 end
 

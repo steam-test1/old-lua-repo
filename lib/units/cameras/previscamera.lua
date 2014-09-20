@@ -19,7 +19,6 @@ function PrevisCamera:start()
 	if game_state_machine:current_state_name() ~= "editor" then
 		self._old_game_state_name = game_state_machine:current_state_name()
 	end
-
 	game_state_machine:change_state_by_name("world_camera")
 	self._playing = true
 	self._unit:anim_set_time(Idstring("camera_animation"), 0)
@@ -35,7 +34,6 @@ function PrevisCamera:stop()
 		game_state_machine:change_state_by_name(self._old_game_state_name)
 		self._old_game_state_name = nil
 	end
-
 	self._playing = false
 end
 
@@ -46,13 +44,10 @@ function PrevisCamera:update(unit, t, dt)
 				self._wait_t = nil
 				self:stop()
 			end
-
 		elseif not self._unit:anim_is_playing(Idstring("camera_animation")) then
 			self._wait_t = t + 4
 		end
-
 	end
-
 end
 
 function PrevisCamera:destroy()
@@ -60,11 +55,9 @@ function PrevisCamera:destroy()
 		self._viewport:destroy()
 		self._viewport = nil
 	end
-
 	if alive(self._camera) then
 		World:delete_camera(self._camera)
 		self._camera = nil
 	end
-
 end
 

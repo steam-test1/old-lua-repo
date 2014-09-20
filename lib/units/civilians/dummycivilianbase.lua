@@ -23,7 +23,6 @@ function DummyCivilianBase:_spawn_spear()
 		self._spear = World:spawn_unit(Idstring("units/test/beast/weapon/native_spear"), Vector3(), Rotation())
 		self._unit:link(Idstring("a_weapon_right_front"), self._spear, self._spear:orientation_object():name())
 	end
-
 end
 
 function DummyCivilianBase:_unspawn_spear()
@@ -31,7 +30,6 @@ function DummyCivilianBase:_unspawn_spear()
 		self._spear:set_slot(0)
 		self._spear = nil
 	end
-
 end
 
 function DummyCivilianBase:destroy(unit)

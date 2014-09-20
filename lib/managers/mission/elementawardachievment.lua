@@ -16,7 +16,6 @@ function ElementAwardAchievment:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	managers.achievment:award(self._values.achievment)
 	ElementAwardAchievment.super.on_executed(self, instigator)
 end

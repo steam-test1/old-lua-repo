@@ -19,7 +19,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 		width = 900
 		height = 525
 	end
-
 	local blur = self._fullscreen_panel:bitmap({
 		texture = "guis/textures/test_blur_df",
 		w = self._fullscreen_ws:panel():w(),
@@ -48,7 +47,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 		self._contact_text_header:set_size(width, h)
 		self._contact_text_header:set_center_x(self._panel:w() * 0.5)
 	end
-
 	self._contract_panel = self._panel:panel({
 		h = height,
 		w = width,
@@ -88,7 +86,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 		self._steps = {}
 		return
 	end
-
 	BoxGuiObject:new(self._contract_panel, {
 		sides = {
 			1,
@@ -127,11 +124,9 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 		if h + contract_text:top() > math.round(self._contract_panel:h() * 0.5) - font_size then
 			scale = (math.round(self._contract_panel:h() * 0.5) - font_size) / (h + contract_text:top())
 		end
-
 		contract_text:set_font_size(font_size * scale)
 		self:make_fine_text(contract_text)
 	end
-
 	local contact_w = width - (text_w + 20) - 10
 	local contact_h = contact_w / 1.7777778
 	local is_job_ghostable = managers.job:is_job_ghostable(job_data.job_id)
@@ -145,13 +140,11 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 		else
 			min_string = tostring(math.abs(min_ghost))
 		end
-
 		if max_ghost == 0 and max_ghost_bonus ~= 0 then
 			max_string = string.format("%0.2f", math.abs(max_ghost_bonus * 100))
 		else
 			max_string = tostring(math.abs(max_ghost))
 		end
-
 		local ghost_bonus_string = min_ghost_bonus == max_ghost_bonus and min_string or min_string .. "-" .. max_string
 		local ghostable_text = self._contract_panel:text({
 			text = managers.localization:to_upper_text("menu_ghostable_job", {bonus = ghost_bonus_string}),
@@ -168,7 +161,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 		ghostable_text:set_position(contract_text:x(), contract_text:bottom() + 10)
 		self:make_fine_text(ghostable_text)
 	end
-
 	local contact_panel = self._contract_panel:panel({
 		w = contact_w,
 		h = contact_h,
@@ -190,7 +182,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 			color = tweak_data.screen_colors.button_stage_2
 		})
 	end
-
 	local contact_text = self._contract_panel:text({
 		text = managers.localization:to_upper_text(tweak_data.narrative.contacts[narrative.contact].name_id),
 		font_size = font_size,
@@ -201,7 +192,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 		local x, y, w, h = contact_text:text_rect()
 		contact_text:set_size(w, h)
 	end
-
 	contact_text:set_position(contact_panel:left(), contact_panel:bottom() + 5)
 	BoxGuiObject:new(contact_panel, {
 		sides = {
@@ -234,7 +224,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 	if job_ghost == 0 and ghost_bonus_mul ~= 0 then
 		job_ghost_string = string.format("%0.2f", math.abs(ghost_bonus_mul * 100))
 	end
-
 	local ghost_color = tweak_data.screen_colors.ghost_color
 	local ghost_warning_text = self._contract_panel:text({
 		name = "ghost_color_warning_text",
@@ -263,7 +252,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 		job_heat_string = string.format("%0.2f", math.abs(job_heat_mul * 100))
 	else
 	end
-
 	self._is_job_heated = is_job_heated
 	local heat_color = managers.job:get_job_heat_color(job_data.job_id)
 	local heat_warning_text = self._contract_panel:text({
@@ -282,7 +270,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 	self:make_fine_text(heat_warning_text)
 	if not has_ghost_bonus or not ghost_warning_text:bottom() then
 	end
-
 	heat_warning_text:set_top((modifiers_text:bottom()))
 	heat_warning_text:set_left(20)
 	heat_warning_text:set_visible(is_job_heated)
@@ -305,7 +292,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 	pro_warning_text:set_left(20)
 	if (not is_job_heated or not heat_warning_text:bottom()) and (not has_ghost_bonus or not ghost_warning_text:bottom()) then
 	end
-
 	pro_warning_text:set_top((modifiers_text:bottom()))
 	pro_warning_text:set_visible(narrative.professional)
 	modifiers_text:set_visible(heat_warning_text:visible() or pro_warning_text:visible() or ghost_warning_text:visible())
@@ -328,7 +314,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 	elseif job_data.difficulty == "overkill_290" then
 		menu_risk_id = "menu_risk_elite"
 	end
-
 	local risk_stats_panel = self._contract_panel:panel({
 		name = "risk_stats_panel",
 		w = text_w,
@@ -350,56 +335,48 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 	if not Global.SKIP_OVERKILL_290 then
 		table.insert(risks, "risk_murder_squad")
 	end
-
 	local max_x = 0
 	local max_y = 0
-	do
-		local (for generator), (for state), (for control) = ipairs(risks)
-		do
-			do break end
-			if i ~= 1 then
-				local texture, rect = tweak_data.hud_icons:get_icon_data(name)
-				local active = false
-				local color = active and i ~= 1 and risk_color or Color.white
-				local alpha = active and 1 or 0.25
-				local risk = self._contract_panel:bitmap({
-					name = name,
-					texture = texture,
-					texture_rect = rect,
-					x = 0,
-					y = 0,
-					alpha = alpha,
-					color = color
-				})
-				risk:set_x(rsx)
-				risk:set_top(math.round(risk_title:bottom()))
-				rsx = rsx + risk:w() + 2
-				local stat = managers.statistics:completed_job(job_data.job_id, tweak_data:index_to_difficulty(i + 1))
-				local risk_stat = risk_stats_panel:text({
-					name = name,
-					font = font,
-					font_size = font_size,
-					text = tostring(stat),
-					align = "center"
-				})
-				self:make_fine_text(risk_stat)
-				risk_stat:set_world_center_x(risk:world_center_x() - 1)
-				risk_stat:set_x(math.round(risk_stat:x()))
-				local this_difficulty = i == difficulty_stars + 1
-				active = i <= difficulty_stars + 1
-				color = Color.white
-				alpha = 0.5
-				risk_stat:set_color(color)
-				risk_stat:set_alpha(alpha)
-				max_y = math.max(max_y, risk:bottom())
-				max_x = math.max(max_x, risk:right() + 5)
-				max_x = math.max(max_x, risk_stat:right() + risk_stats_panel:left() + 10)
-			end
-
+	for i, name in ipairs(risks) do
+		if i ~= 1 then
+			local texture, rect = tweak_data.hud_icons:get_icon_data(name)
+			local active = false
+			local color = active and i ~= 1 and risk_color or Color.white
+			local alpha = active and 1 or 0.25
+			local risk = self._contract_panel:bitmap({
+				name = name,
+				texture = texture,
+				texture_rect = rect,
+				x = 0,
+				y = 0,
+				alpha = alpha,
+				color = color
+			})
+			risk:set_x(rsx)
+			risk:set_top(math.round(risk_title:bottom()))
+			rsx = rsx + risk:w() + 2
+			local stat = managers.statistics:completed_job(job_data.job_id, tweak_data:index_to_difficulty(i + 1))
+			local risk_stat = risk_stats_panel:text({
+				name = name,
+				font = font,
+				font_size = font_size,
+				text = tostring(stat),
+				align = "center"
+			})
+			self:make_fine_text(risk_stat)
+			risk_stat:set_world_center_x(risk:world_center_x() - 1)
+			risk_stat:set_x(math.round(risk_stat:x()))
+			local this_difficulty = i == difficulty_stars + 1
+			active = i <= difficulty_stars + 1
+			color = Color.white
+			alpha = 0.5
+			risk_stat:set_color(color)
+			risk_stat:set_alpha(alpha)
+			max_y = math.max(max_y, risk:bottom())
+			max_x = math.max(max_x, risk:right() + 5)
+			max_x = math.max(max_x, risk_stat:right() + risk_stats_panel:left() + 10)
 		end
-
 	end
-
 	risk_stats_panel:set_top(math.round(max_y + 2))
 	local stat = managers.statistics:completed_job(job_data.job_id, tweak_data:index_to_difficulty(difficulty_stars + 2))
 	local risk_text = self._contract_panel:text({
@@ -514,7 +491,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 	if not is_win_32 then
 		payday_text:move(0, 5)
 	end
-
 	self._briefing_event = narrative.briefing_event
 	if self._briefing_event then
 		self._briefing_len_panel = self._contract_panel:panel({
@@ -557,7 +533,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 		if managers.menu:is_pc_controller() then
 			button_text:set_color(tweak_data.screen_colors.button_stage_3)
 		end
-
 		BoxGuiObject:new(self._briefing_len_panel, {
 			sides = {
 				1,
@@ -568,13 +543,11 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 		})
 		self._briefing_len_panel:set_position(contact_text:left(), contact_text:bottom() + 10)
 	end
-
 	local days_multiplier = 0
 	for i = 1, #narrative_chains do
 		local day_mul = narrative.professional and tweak_data:get_value("experience_manager", "pro_day_multiplier", i) or tweak_data:get_value("experience_manager", "day_multiplier", i)
 		days_multiplier = days_multiplier + (day_mul - 1)
 	end
-
 	days_multiplier = 1 + days_multiplier / #narrative_chains
 	local last_day_mul = narrative.professional and tweak_data:get_value("experience_manager", "pro_day_multiplier", #narrative_chains) or tweak_data:get_value("experience_manager", "day_multiplier", #narrative_chains)
 	self._data = {}
@@ -619,7 +592,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 	if not Global.SKIP_OVERKILL_290 then
 		table.insert(self._data.gui_objects.risks, "risk_murder_squad")
 	end
-
 	self._data.gui_objects.num_stars = 10
 	self._wait_t = 0
 	local reached_level_cap = managers.experience:reached_level_cap()
@@ -657,13 +629,11 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 		if self._briefing_len_panel then
 			self._briefing_len_panel:hide()
 		end
-
 		if not is_win_32 then
 			contact_panel:hide()
 			contact_text:set_top(contact_panel:top())
 			contact_text:set_text("")
 		end
-
 		local premium_text = self._contract_panel:text({
 			name = "premium_text",
 			text = "  ",
@@ -684,7 +654,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 			"free_memory"
 		}
 	end
-
 	self._current_job_star = 0
 	self._current_difficulty_star = 0
 	self._post_event_params = {
@@ -698,7 +667,6 @@ function CrimeNetContractGui:init(ws, fullscreen_ws, node)
 	if not managers.menu:is_pc_controller() then
 		managers.menu:active_menu().input:deactivate_controller_mouse()
 	end
-
 	self:_rec_round_object(self._panel)
 end
 
@@ -776,7 +744,6 @@ function CrimeNetContractGui:_update_xp_appendices()
 		local fine_x = math.round(x)
 		potential_level_up_text:set_left(fine_x + 4)
 	end
-
 end
 
 function CrimeNetContractGui:_check_level_up(levels_gained)
@@ -797,26 +764,19 @@ function CrimeNetContractGui:_check_level_up(levels_gained)
 					end
 )
 				end
-
 			end
 
 			potential_level_up_text:animate(pulse_anim)
 		end
-
 	end
-
 end
 
 function CrimeNetContractGui:_rec_round_object(object)
 	if object.children then
-		local (for generator), (for state), (for control) = ipairs(object:children())
-		do
-			do break end
+		for i, d in ipairs(object:children()) do
 			self:_rec_round_object(d)
 		end
-
 	end
-
 	local x, y = object:position()
 	object:set_position(math.round(x), math.round(y))
 end
@@ -836,7 +796,6 @@ function CrimeNetContractGui:count_job_stars(t, dt)
 		self._step = self._step + 1
 		return
 	end
-
 	self._current_job_star = self._current_job_star + 1
 	local stars = self._data.stars.job_stars
 	local gui_panel = self._contract_panel
@@ -859,10 +818,8 @@ function CrimeNetContractGui:count_job_stars(t, dt)
 			self:make_fine_text(self._data.gui_objects.potential_level_up_text)
 			self:_check_level_up(levels_gained)
 		end
-
 		self._data.gui_objects.potential_level_up_text:set_left(math.round((gui_heat_add_xp:visible() and gui_heat_add_xp:right() or gui_add_xp:right()) + 4))
 	end
-
 	local job_cash = math.round(self._data.job_cash * (self._current_job_star / stars))
 	local gui_job_cash = self._data.gui_objects.job_cash
 	local gui_job_add_cash = self._data.gui_objects.job_add_cash
@@ -876,7 +833,6 @@ function CrimeNetContractGui:count_job_stars(t, dt)
 		self._wait_t = t + 1
 		self._step = self._step + 1
 	end
-
 end
 
 function CrimeNetContractGui:count_difficulty_stars(t, dt)
@@ -886,7 +842,6 @@ function CrimeNetContractGui:count_difficulty_stars(t, dt)
 		self._wait_t = t + 0.5
 		return
 	end
-
 	self._current_difficulty_star = self._current_difficulty_star + 1
 	local stars = self._data.stars.difficulty_stars
 	local gui_panel = self._contract_panel
@@ -919,7 +874,6 @@ function CrimeNetContractGui:count_difficulty_stars(t, dt)
 		self:make_fine_text(self._data.gui_objects.potential_level_up_text)
 		self:_check_level_up(levels_gained)
 	end
-
 	self:_update_xp_appendices()
 	local job_cash = math.round(self._data.add_job_cash * (self._current_difficulty_star / stars))
 	local gui_job_cash = self._data.gui_objects.job_cash
@@ -933,7 +887,6 @@ function CrimeNetContractGui:count_difficulty_stars(t, dt)
 		gui_child:set_alpha(1)
 		gui_child:set_color(tweak_data.screen_colors.risk)
 	end
-
 	local gui_child = child_name and self._data.gui_objects.risk_stats_panel:child(child_name)
 	if alive(gui_child) then
 		local this_difficulty = self._current_difficulty_star == stars
@@ -943,7 +896,6 @@ function CrimeNetContractGui:count_difficulty_stars(t, dt)
 		gui_child:set_alpha(alpha)
 		gui_child:set_color(color)
 	end
-
 	managers.menu_component:post_event("count_1_finished")
 	self._counting_sound = false
 	self._wait_t = t + 0.5
@@ -952,7 +904,6 @@ function CrimeNetContractGui:count_difficulty_stars(t, dt)
 		self._step = self._step + 1
 		self._data.gui_objects.risk_text:show()
 	end
-
 end
 
 function CrimeNetContractGui:start_counter(t, dt)
@@ -983,7 +934,6 @@ function CrimeNetContractGui:count_payday(t, dt)
 	if self._data.counted_payday_money == self._data.payday_money then
 		self._step = self._step + 1
 	end
-
 end
 
 function CrimeNetContractGui:end_count_payday(t, dt)
@@ -1025,7 +975,6 @@ function CrimeNetContractGui:count_job_base(t, dt)
 		self:make_fine_text(self._data.gui_objects.potential_level_up_text)
 		self:_check_level_up(levels_gained)
 	end
-
 	self:_update_xp_appendices()
 	self._data.counted_job_cash = math.round(math.step(self._data.counted_job_cash, self._data.job_cash, dt * math.max(self._data.job_cash / (math.rand(1) + 1.5), 80000)))
 	local job_cash = self._data.counted_job_cash
@@ -1037,7 +986,6 @@ function CrimeNetContractGui:count_job_base(t, dt)
 	if self._data.counted_job_xp == self._data.experience and self._data.counted_job_cash == self._data.job_cash and self._data.counted_heat_xp == self._data.heat_experience and self._data.counted_ghost_xp == self._data.ghost_experience then
 		self._step = self._step + 1
 	end
-
 end
 
 function CrimeNetContractGui:count_job_risk(t, dt)
@@ -1068,10 +1016,8 @@ function CrimeNetContractGui:count_job_risk(t, dt)
 			self:make_fine_text(self._data.gui_objects.potential_level_up_text)
 			self:_check_level_up(levels_gained)
 		end
-
 		self._data.gui_objects.potential_level_up_text:set_left(math.round((gui_heat_add_xp:visible() and gui_heat_add_xp:right() or gui_add_xp:right()) + 4))
 	end
-
 	self._data.counted_risk_cash = math.round(math.step(self._data.counted_risk_cash, self._data.add_job_cash, dt * math.max(self._data.job_cash / (math.rand(1) + 0.75), 600000)))
 	local job_cash = self._data.counted_risk_cash
 	local gui_job_cash = self._data.gui_objects.job_cash
@@ -1081,7 +1027,6 @@ function CrimeNetContractGui:count_job_risk(t, dt)
 	if self._data.counted_risk_xp == self._data.add_experience and self._data.counted_risk_cash == self._data.add_job_cash and self._data.counted_heat_xp == self._data.heat_experience + self._data.heat_add_experience then
 		self._step = self._step + 1
 	end
-
 end
 
 function CrimeNetContractGui:count_job_payday(t, dt)
@@ -1093,7 +1038,6 @@ function CrimeNetContractGui:count_job_payday(t, dt)
 	if self._data.counted_payday_money == self._data.payday_money then
 		self._step = self._step + 1
 	end
-
 end
 
 function CrimeNetContractGui:set_all(t, dt)
@@ -1156,7 +1100,6 @@ function CrimeNetContractGui:set_all(t, dt)
 		self:make_fine_text(potential_level_up_text)
 		self:_check_level_up(levels_gained)
 	end
-
 	self:_update_xp_appendices()
 	local job_cash = job_risk_value
 	local gui_job_add_cash = gui_panel:child("job_add_cash")
@@ -1170,23 +1113,16 @@ function CrimeNetContractGui:set_all(t, dt)
 	if not Global.SKIP_OVERKILL_290 then
 		table.insert(risks, "risk_murder_squad")
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(risks)
-		do
-			do break end
-			gui_panel:child(risk):set_alpha(difficulty_stars >= i and 1 or 0.25)
-			gui_panel:child(risk):set_color(difficulty_stars >= i and tweak_data.screen_colors.risk or Color.white)
-			local this_difficulty = i == difficulty_stars
-			local active = difficulty_stars >= i
-			local color = active and tweak_data.screen_colors.risk or Color.white
-			local alpha = this_difficulty and 1 or 0.5
-			gui_panel:child("risk_stats_panel"):child(risk):set_color(color)
-			gui_panel:child("risk_stats_panel"):child(risk):set_alpha(alpha)
-		end
-
+	for i, risk in ipairs(risks) do
+		gui_panel:child(risk):set_alpha(difficulty_stars >= i and 1 or 0.25)
+		gui_panel:child(risk):set_color(difficulty_stars >= i and tweak_data.screen_colors.risk or Color.white)
+		local this_difficulty = i == difficulty_stars
+		local active = difficulty_stars >= i
+		local color = active and tweak_data.screen_colors.risk or Color.white
+		local alpha = this_difficulty and 1 or 0.5
+		gui_panel:child("risk_stats_panel"):child(risk):set_color(color)
+		gui_panel:child("risk_stats_panel"):child(risk):set_alpha(alpha)
 	end
-
 	gui_panel:child("risk_text"):show()
 	gui_panel:child("payday_text"):set_text(managers.localization:to_upper_text("menu_payday", {
 		MONEY = managers.experience:cash_string(total_payout)
@@ -1202,37 +1138,26 @@ function CrimeNetContractGui:set_all(t, dt)
 	local start_ci = {}
 	local end_ci = {}
 	local first_ci = true
-	do
-		local (for generator), (for state), (for control) = ipairs(text_dissected)
-		do
-			do break end
-			if Idstring(c) == idsp then
-				local next_c = text_dissected[i + 1]
-				if next_c and Idstring(next_c) == idsp then
-					if first_ci then
-						table.insert(start_ci, i)
-					else
-						table.insert(end_ci, i)
-					end
-
-					first_ci = not first_ci
+	for i, c in ipairs(text_dissected) do
+		if Idstring(c) == idsp then
+			local next_c = text_dissected[i + 1]
+			if next_c and Idstring(next_c) == idsp then
+				if first_ci then
+					table.insert(start_ci, i)
+				else
+					table.insert(end_ci, i)
 				end
-
+				first_ci = not first_ci
 			end
-
 		end
-
 	end
-
 	if #start_ci ~= #end_ci then
 	else
 		for i = 1, #start_ci do
 			start_ci[i] = start_ci[i] - ((i - 1) * 4 + 1)
 			end_ci[i] = end_ci[i] - (i * 4 - 1)
 		end
-
 	end
-
 	text_string = string.gsub(text_string, "##", "")
 	gui_panel:child("premium_text"):set_text(text_string)
 	gui_panel:child("premium_text"):clear_range_color(1, utf8.len(text_string))
@@ -1242,13 +1167,10 @@ function CrimeNetContractGui:set_all(t, dt)
 		for i = 1, #start_ci do
 			gui_panel:child("premium_text"):set_range_color(start_ci[i], end_ci[i], i == 1 and not can_afford and tweak_data.screen_colors.pro_color or tweak_data.screen_colors.button_stage_2)
 		end
-
 	end
-
 	if self._step == 1 then
 		self._step = self._step + 1
 	end
-
 end
 
 function CrimeNetContractGui:free_memory(t, dt)
@@ -1258,7 +1180,6 @@ function CrimeNetContractGui:free_memory(t, dt)
 		managers.menu_component:post_event("count_1_finished")
 		self._counting_sound = false
 	end
-
 end
 
 function CrimeNetContractGui:sound_event_callback(event_type, duration)
@@ -1277,14 +1198,12 @@ function CrimeNetContractGui:sound_event_callback(event_type, duration)
 		self._briefing_duration = duration
 		self._briefing_remaining = self._briefing_duration
 	end
-
 end
 
 function CrimeNetContractGui:toggle_post_event()
 	if not self._briefing_event then
 		return
 	end
-
 	if managers.briefing:event_playing() then
 		managers.briefing:stop_event()
 	else
@@ -1297,7 +1216,6 @@ function CrimeNetContractGui:toggle_post_event()
 		self:make_fine_text(self._briefing_len_panel:child("button_text"))
 		self._briefing_len_panel:child("button_text"):set_position(self._briefing_len_panel:child("text"):left(), self._briefing_len_panel:child("text"):bottom())
 	end
-
 end
 
 function CrimeNetContractGui:update(t, dt)
@@ -1305,15 +1223,12 @@ function CrimeNetContractGui:update(t, dt)
 		if t > self._wait_t then
 			self._wait_t = nil
 		end
-
 	else
 		local current_step = self._steps[self._step]
 		if current_step then
 			self[current_step](self, t, dt)
 		end
-
 	end
-
 	if self._briefing_duration and self._briefing_remaining then
 		self._briefing_remaining = math.max(self._briefing_remaining - dt, 0)
 		if self._briefing_remaining > 0 then
@@ -1323,9 +1238,7 @@ function CrimeNetContractGui:update(t, dt)
 			self._briefing_duration = nil
 			self._briefing_remaining = nil
 		end
-
 	end
-
 end
 
 function CrimeNetContractGui:mouse_moved(o, x, y)
@@ -1335,19 +1248,15 @@ function CrimeNetContractGui:mouse_moved(o, x, y)
 				self._button_highlight = true
 				self._briefing_len_panel:child("button_text"):set_color(tweak_data.screen_colors.button_stage_2)
 			end
-
 			return true, "link"
 		elseif self._button_highlight then
 			self._briefing_len_panel:child("button_text"):set_color(tweak_data.screen_colors.button_stage_3)
 			self._button_highlight = false
 		end
-
 	end
-
 	if x > self._contract_panel:left() + 270 and y > self._contract_panel:bottom() - 140 and x < self._contract_panel:right() and y < self._contract_panel:bottom() then
 		return false
 	end
-
 	return false, "arrow"
 end
 
@@ -1355,7 +1264,6 @@ function CrimeNetContractGui:mouse_pressed(o, button, x, y)
 	if alive(self._briefing_len_panel) and self._step > 2 and self._briefing_len_panel:child("button_text"):inside(x, y) then
 		self:toggle_post_event()
 	end
-
 end
 
 function CrimeNetContractGui:make_fine_text(text)
@@ -1370,7 +1278,6 @@ function CrimeNetContractGui:special_btn_pressed(button)
 		return true
 	elseif button == Idstring("menu_toggle_filters") then
 	end
-
 	return false
 end
 
@@ -1396,7 +1303,6 @@ function CrimeNetContractGui:set_difficulty_id(difficulty_id)
 	elseif job_data.difficulty == "overkill_290" then
 		menu_risk_id = "menu_risk_elite"
 	end
-
 	local stat = managers.statistics:completed_job(job_data.job_id, tweak_data:index_to_difficulty(difficulty_id))
 	local risk_text = self._contract_panel:child("risk_text")
 	risk_text:set_text(managers.localization:to_upper_text(menu_risk_id) .. " " .. managers.localization:to_upper_text("menu_stat_job_completed", {
@@ -1409,14 +1315,12 @@ function CrimeNetContractGui:close()
 	if not managers.menu:is_pc_controller() then
 		managers.menu:active_menu().input:activate_controller_mouse()
 	end
-
 	self._ws:panel():remove(self._panel)
 	self._fullscreen_ws:panel():remove(self._fullscreen_panel)
 	if self._counting_sound then
 		managers.menu_component:post_event("count_1_finished")
 		self._counting_sound = false
 	end
-
 	managers.briefing:stop_event(true)
 end
 

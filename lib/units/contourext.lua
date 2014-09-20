@@ -75,19 +75,12 @@ ContourExt._types = {
 	}
 }
 ContourExt.indexed_types = {}
-do
-	local (for generator), (for state), (for control) = pairs(ContourExt._types)
-	do
-		do break end
-		table.insert(ContourExt.indexed_types, name)
-	end
-
+for name, preset in pairs(ContourExt._types) do
+	table.insert(ContourExt.indexed_types, name)
 end
-
 if #ContourExt.indexed_types > 32 then
 	Application:error("[ContourExt] max # contour presets exceeded!")
 end
-
 ContourExt._MAX_ID = 100000
 ContourExt._next_id = 1
 function ContourExt:init(unit)
@@ -102,39 +95,27 @@ function ContourExt:add(type, sync, multiplier)
 	if data.fadeout_silent and self._unit:base():char_tweak().silent_priority_shout then
 		fadeout = data.fadeout_silent
 	end
-
 	if multiplier and multiplier > 1 then
 		fadeout = fadeout * multiplier
 	end
-
 	self._contour_list = self._contour_list or {}
 	if sync then
 		local u_id = self._unit:id()
 		if u_id == -1 then
 			u_id = managers.enemy:get_corpse_unit_data_from_key(self._unit:key()).u_id
 		end
-
 		managers.network:session():send_to_peers_synched("sync_contour_state", self._unit, u_id, table.index_of(ContourExt.indexed_types, type), true, multiplier or 1)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._contour_list)
-		do
-			do break end
-			if setup.type == type then
-				if fadeout then
-					setup.fadeout_t = TimerManager:game():time() + fadeout
-				else
-					setup.ref_c = (setup.ref_c or 0) + 1
-				end
-
-				return setup
+	for _, setup in ipairs(self._contour_list) do
+		if setup.type == type then
+			if fadeout then
+				setup.fadeout_t = TimerManager:game():time() + fadeout
+			else
+				setup.ref_c = (setup.ref_c or 0) + 1
 			end
-
+			return setup
 		end
-
 	end
-
 	local setup = {
 		type = type,
 		fadeout_t = fadeout and TimerManager:game():time() + fadeout or nil,
@@ -145,109 +126,80 @@ function ContourExt:add(type, sync, multiplier)
 	while self._contour_list[i] and self._types[self._contour_list[i].type].priority <= data.priority do
 		i = i + 1
 	end
-
 	table.insert(self._contour_list, i, setup)
 	if old_preset_type ~= setup.type then
 		self:_apply_top_preset()
 	end
-
 	if not self._update_enabled then
 		self:_chk_update_state()
 	end
-
 	return setup
 end
 
 function ContourExt:change_color(type, color)
-	local (for generator), (for state), (for control) = ipairs(self._contour_list)
-	do
-		do break end
+	for i, setup in ipairs(self._contour_list) do
 		if setup.type == type then
 			setup.color = color
 			self:_upd_color()
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function ContourExt:flash(type_or_id, frequency)
 	if not self._contour_list then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._contour_list)
-	do
-		do break end
+	for i, setup in ipairs(self._contour_list) do
 		if setup.type == type_or_id or setup == type_or_id then
 			setup.flash_frequency = frequency and frequency > 0 and frequency or nil
 			setup.flash_t = setup.flash_frequency and TimerManager:game():time() + setup.flash_frequency or nil
 			setup.flash_on = nil
 			self:_chk_update_state()
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function ContourExt:is_flashing()
 	if not self._contour_list then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._contour_list)
-	do
-		do break end
+	for i, setup in ipairs(self._contour_list) do
 		if setup.flash_frequency then
 			return true
 		end
-
 	end
-
 end
 
 function ContourExt:remove(type, sync)
 	if not self._contour_list then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._contour_list)
-	do
-		do break end
+	for i, setup in ipairs(self._contour_list) do
 		if setup.type == type then
 			self:_remove(i, sync)
 			if self._update_enabled then
 				self:_chk_update_state()
 			end
-
 			return
 		end
-
 	end
-
 end
 
 function ContourExt:remove_by_id(id, sync)
 	if not self._contour_list then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._contour_list)
-	do
-		do break end
+	for i, setup in ipairs(self._contour_list) do
 		if setup == id then
 			self:_remove(i, sync)
 			if self._update_enabled then
 				self:_chk_update_state()
 			end
-
 			return
 		end
-
 	end
-
 end
 
 function ContourExt:_clear()
@@ -263,27 +215,20 @@ function ContourExt:_remove(index, sync)
 		setup.ref_c = setup.ref_c - 1
 		return
 	end
-
 	if #self._contour_list == 1 then
 		managers.occlusion:add_occlusion(self._unit)
 		if data.material_swap_required then
 			self._unit:base():set_material_state(true)
 			self._unit:base():set_allow_invisible(true)
 		else
-			local (for generator), (for state), (for control) = ipairs(self._materials)
-			do
-				do break end
+			for _, material in ipairs(self._materials) do
 				material:set_variable(idstr_contour_opacity, 0)
 			end
-
 		end
-
 		if data.damage_bonus then
 			self._unit:character_damage():on_marked_state(false)
 		end
-
 	end
-
 	self._last_opacity = nil
 	table.remove(self._contour_list, index)
 	if #self._contour_list == 0 then
@@ -291,16 +236,13 @@ function ContourExt:_remove(index, sync)
 	elseif index == 1 then
 		self:_apply_top_preset()
 	end
-
 	if sync then
 		local u_id = self._unit:id()
 		if u_id == -1 then
 			u_id = managers.enemy:get_corpse_unit_data_from_key(self._unit:key()).u_id
 		end
-
 		managers.network:session():send_to_peers_synched("sync_contour_state", self._unit, u_id, table.index_of(ContourExt.indexed_types, contour_type), false, 1)
 	end
-
 end
 
 function ContourExt:update(unit, t, dt)
@@ -317,9 +259,7 @@ function ContourExt:update(unit, t, dt)
 					turn_on = mvector3.distance_sq(cam_pos, unit:movement():m_com()) > 16000000
 					turn_on = turn_on or unit:raycast("ray", unit:movement():m_com(), cam_pos, "slot_mask", self._slotmask_world_geometry, "report")
 				end
-
 			end
-
 			if turn_on then
 				self:_upd_opacity(1)
 				setup.last_turned_on_t = t
@@ -327,42 +267,32 @@ function ContourExt:update(unit, t, dt)
 				if is_current then
 					self:_upd_opacity(0)
 				end
-
 				setup.last_turned_on_t = nil
 			end
-
 		end
-
 		if setup.flash_t and t > setup.flash_t then
 			setup.flash_t = t + setup.flash_frequency
 			setup.flash_on = not setup.flash_on
 			self:_upd_opacity(setup.flash_on and 1 or 0)
 		end
-
 		if setup.fadeout_t and t > setup.fadeout_t then
 			self:_remove(index)
 			self:_chk_update_state()
 		else
 			index = index + 1
 		end
-
 	end
-
 end
 
 function ContourExt:_upd_opacity(opacity)
 	if opacity == self._last_opacity then
 		return
 	end
-
 	self._last_opacity = opacity
 	self._materials = self._materials or self._unit:get_objects_by_type(idstr_material)
-	local (for generator), (for state), (for control) = ipairs(self._materials)
-	do
-		do break end
+	for _, material in ipairs(self._materials) do
 		material:set_variable(idstr_contour_opacity, opacity)
 	end
-
 end
 
 function ContourExt:_upd_color()
@@ -370,14 +300,10 @@ function ContourExt:_upd_color()
 	if not color then
 		return
 	end
-
 	self._materials = self._materials or self._unit:get_objects_by_type(idstr_material)
-	local (for generator), (for state), (for control) = ipairs(self._materials)
-	do
-		do break end
+	for _, material in ipairs(self._materials) do
 		material:set_variable(idstr_contour_color, color)
 	end
-
 end
 
 function ContourExt:_apply_top_preset()
@@ -392,12 +318,10 @@ function ContourExt:_apply_top_preset()
 		else
 			self:material_applied()
 		end
-
 	else
 		managers.occlusion:remove_occlusion(self._unit)
 		self:material_applied()
 	end
-
 end
 
 function ContourExt:material_applied(material_was_swapped)
@@ -406,40 +330,31 @@ function ContourExt:material_applied(material_was_swapped)
 		managers.occlusion:remove_occlusion(self._unit)
 		self._unit:base():set_allow_invisible(false)
 	end
-
 	local setup = self._contour_list[1]
 	local data = self._types[setup.type]
 	if data.damage_bonus then
 		self._unit:character_damage():on_marked_state(true)
 	end
-
 	self:_upd_color()
 	if not data.ray_check then
 		self:_upd_opacity(1)
 	end
-
 end
 
 function ContourExt:_chk_update_state()
 	local needs_update
 	if self._contour_list and next(self._contour_list) then
-		local (for generator), (for state), (for control) = ipairs(self._contour_list)
-		do
-			do break end
+		for i, setup in ipairs(self._contour_list) do
 			if setup.fadeout_t or self._types[setup.type].ray_check or setup.flash_t then
 				needs_update = true
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 	if self._update_enabled ~= needs_update then
 		self._update_enabled = needs_update
 		self._unit:set_extension_update_enabled(idstr_contour, needs_update and true or false)
 	end
-
 end
 
 function ContourExt:update_materials()
@@ -449,6 +364,5 @@ function ContourExt:update_materials()
 		self._last_opacity = nil
 		self:_upd_opacity(1)
 	end
-
 end
 

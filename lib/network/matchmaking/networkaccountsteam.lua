@@ -29,7 +29,6 @@ function NetworkAccountSTEAM:init()
 	if Steam:overlay_open() then
 		self:_on_open_overlay()
 	end
-
 	Steam:sa_handler():stats_store_callback(NetworkAccountSTEAM._on_stats_stored)
 	Steam:sa_handler():init()
 	self._masks = {}
@@ -61,16 +60,9 @@ function NetworkAccountSTEAM:get_win_ratio(difficulty, level)
 	if #plays == 0 or #wins == 0 then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(plays)
-		do
-			do break end
-			ratio[i] = wins[i] / (plays_n == 0 and 1 or plays_n)
-		end
-
+	for i, plays_n in pairs(plays) do
+		ratio[i] = wins[i] / (plays_n == 0 and 1 or plays_n)
 	end
-
 	table.sort(ratio)
 	return ratio[#ratio / 2]
 end
@@ -83,13 +75,11 @@ function NetworkAccountSTEAM:set_lightfx()
 			self._masks.alienware = true
 			LightFX:set_lamps(0, 255, 0, 255)
 		end
-
 		print("[NetworkAccountSTEAM:init] Initializing LightFX done")
 	else
 		self._has_alienware = nil
 		self._masks.alienware = nil
 	end
-
 end
 
 function NetworkAccountSTEAM:has_mask(mask)
@@ -100,7 +90,6 @@ function NetworkAccountSTEAM._on_troll_group_recieved(success, page)
 	if success and string.find(page, "<steamID64>" .. Steam:userid() .. "</steamID64>") then
 		managers.network.account._masks.troll = true
 	end
-
 	Steam:http_request("http://steamcommunity.com/gid/103582791432592205/memberslistxml/?xml=1", NetworkAccountSTEAM._on_com_group_recieved)
 end
 
@@ -108,7 +97,6 @@ function NetworkAccountSTEAM._on_com_group_recieved(success, page)
 	if success and string.find(page, "<steamID64>" .. Steam:userid() .. "</steamID64>") then
 		managers.network.account._masks.hockey_com = true
 	end
-
 	Steam:http_request("http://steamcommunity.com/gid/103582791432508229/memberslistxml/?xml=1", NetworkAccountSTEAM._on_dev_group_recieved)
 end
 
@@ -116,7 +104,6 @@ function NetworkAccountSTEAM._on_dev_group_recieved(success, page)
 	if success and string.find(page, "<steamID64>" .. Steam:userid() .. "</steamID64>") then
 		managers.network.account._masks.developer = true
 	end
-
 end
 
 function NetworkAccountSTEAM:has_alienware()
@@ -127,7 +114,6 @@ function NetworkAccountSTEAM:_on_open_overlay()
 	if self._overlay_opened then
 		return
 	end
-
 	self._overlay_opened = true
 	game_state_machine:_set_controller_enabled(false)
 end
@@ -136,7 +122,6 @@ function NetworkAccountSTEAM:_on_close_overlay()
 	if not self._overlay_opened then
 		return
 	end
-
 	self._overlay_opened = false
 	game_state_machine:_set_controller_enabled(true)
 	managers.dlc:chk_dlc_purchase()
@@ -144,15 +129,9 @@ end
 
 function NetworkAccountSTEAM:_on_gamepad_text_submitted(submitted, submitted_text)
 	print("[NetworkAccountSTEAM:_on_gamepad_text_submitted]", "submitted", submitted, "submitted_text", submitted_text)
-	do
-		local (for generator), (for state), (for control) = pairs(self._gamepad_text_listeners)
-		do
-			do break end
-			clbk(submitted, submitted_text)
-		end
-
+	for id, clbk in pairs(self._gamepad_text_listeners) do
+		clbk(submitted, submitted_text)
 	end
-
 	self._gamepad_text_listeners = {}
 end
 
@@ -165,12 +144,10 @@ function NetworkAccountSTEAM:show_gamepad_text_input(id, callback, params)
 		max_characters = params.max_characters or params.max_chars or params[4]
 		start_text = params.start_text or params[5]
 	end
-
 	if Steam:show_gamepad_text_input(is_password and "password" or "normal", is_multi_line and "multi" or "single", description_text or "", max_characters or 20, start_text or "") then
 		self:add_gamepad_text_listener(id, callback)
 		return true
 	end
-
 	return false
 end
 
@@ -178,7 +155,6 @@ function NetworkAccountSTEAM:add_gamepad_text_listener(id, clbk)
 	if self._gamepad_text_listeners[id] then
 		debug_pause("[NetworkAccountSTEAM:add_gamepad_text_listener] ID already added!", id, "Old Clbk", self._gamepad_text_listeners[id], "New Clbk", clbk)
 	end
-
 	self._gamepad_text_listeners[id] = clbk
 end
 
@@ -186,7 +162,6 @@ function NetworkAccountSTEAM:remove_gamepad_text_listener(id)
 	if not self._gamepad_text_listeners[id] then
 		debug_pause("[NetworkAccountSTEAM:remove_gamepad_text_listener] ID do not exist!", id)
 	end
-
 	self._gamepad_text_listeners[id] = nil
 end
 
@@ -231,17 +206,12 @@ function NetworkAccountSTEAM:get_global_stat(key, days)
 		for i = days > 1 and 2 or 1, #global_stat do
 			value = value + global_stat[i]
 		end
-
 	else
 		global_stat = Steam:sa_handler():get_global_stat(key)
-		local (for generator), (for state), (for control) = ipairs(global_stat)
-		do
-			do break end
+		for _, day in ipairs(global_stat) do
 			value = value + day
 		end
-
 	end
-
 	return value
 end
 
@@ -249,87 +219,68 @@ function NetworkAccountSTEAM:publish_statistics(stats, force_store)
 	if managers.dlc:is_trial() then
 		return
 	end
-
 	local handler = Steam:sa_handler()
 	print("[NetworkAccountSTEAM:publish_statistics] Publishing statistics to Steam!")
 	if not handler:initialized() then
 		print("[NetworkAccountSTEAM:publish_statistics] Error, SA handler not initialized! Not sending stats.")
 		return
 	end
-
 	local err = false
-	do
-		local (for generator), (for state), (for control) = pairs(stats)
-		do
-			do break end
-			local res
-			if stat.type == "int" then
-				local val = math.max(0, handler:get_stat(key))
-				if stat.method == "lowest" then
-					if val > stat.value then
-						res = handler:set_stat(key, stat.value)
-					else
-						res = true
-					end
-
-				elseif stat.method == "highest" then
-					if val < stat.value then
-						res = handler:set_stat(key, stat.value)
-					else
-						res = true
-					end
-
-				elseif stat.method == "set" then
-					res = handler:set_stat(key, math.clamp(stat.value, 0, 2147483008))
-				elseif 0 < stat.value then
-					local mval = val / 1000 + stat.value / 1000
-					if mval >= 2147483 then
-						Application:error("[NetworkAccountSTEAM:publish_statistics] Warning, trying to set too high a value on stat " .. key)
-						res = handler:set_stat(key, 2147483008)
-					else
-						res = handler:set_stat(key, val + stat.value)
-					end
-
+	for key, stat in pairs(stats) do
+		local res
+		if stat.type == "int" then
+			local val = math.max(0, handler:get_stat(key))
+			if stat.method == "lowest" then
+				if val > stat.value then
+					res = handler:set_stat(key, stat.value)
 				else
 					res = true
 				end
-
-			elseif stat.type == "float" then
-				if 0 < stat.value then
-					local val = handler:get_stat_float(key)
-					res = handler:set_stat_float(key, val + stat.value)
+			elseif stat.method == "highest" then
+				if val < stat.value then
+					res = handler:set_stat(key, stat.value)
 				else
 					res = true
 				end
-
-			elseif stat.type == "avgrate" then
-				res = handler:set_stat_float(key, stat.value, stat.hours)
+			elseif stat.method == "set" then
+				res = handler:set_stat(key, math.clamp(stat.value, 0, 2147483008))
+			elseif 0 < stat.value then
+				local mval = val / 1000 + stat.value / 1000
+				if mval >= 2147483 then
+					Application:error("[NetworkAccountSTEAM:publish_statistics] Warning, trying to set too high a value on stat " .. key)
+					res = handler:set_stat(key, 2147483008)
+				else
+					res = handler:set_stat(key, val + stat.value)
+				end
+			else
+				res = true
 			end
-
-			if not res then
-				Application:error("[NetworkAccountSTEAM:publish_statistics] Error, could not set stat " .. key)
-				err = true
+		elseif stat.type == "float" then
+			if 0 < stat.value then
+				local val = handler:get_stat_float(key)
+				res = handler:set_stat_float(key, val + stat.value)
+			else
+				res = true
 			end
-
+		elseif stat.type == "avgrate" then
+			res = handler:set_stat_float(key, stat.value, stat.hours)
 		end
-
+		if not res then
+			Application:error("[NetworkAccountSTEAM:publish_statistics] Error, could not set stat " .. key)
+			err = true
+		end
 	end
-
 	if Application:production_build() then
 		if err then
 			Application:throw_exception("[NetworkAccountSTEAM:publish_statistics] Missing statistics, needs to be added!!")
 		end
-
 		if not force_store then
 			return
 		end
-
 	end
-
 	if not err then
 		handler:store_data()
 	end
-
 end
 
 function NetworkAccountSTEAM._on_disconnected(lobby_id, friend_id)
@@ -351,11 +302,9 @@ function NetworkAccountSTEAM._on_join_request(lobby_id, friend_id)
 			Global.boot_invite = lobby_id
 			return
 		end
-
 		Global.game_settings.single_player = false
 		managers.network.matchmake:join_server_with_check(lobby_id, true)
 	end
-
 end
 
 function NetworkAccountSTEAM._on_server_request(ip, pw)
@@ -370,7 +319,6 @@ function NetworkAccountSTEAM:signin_state()
 	if self:local_signin_state() == true then
 		return "signed in"
 	end
-
 	return "not signed in"
 end
 
@@ -418,9 +366,7 @@ function NetworkAccountSTEAM.output_global_stats(file)
 			else
 				return st .. stat[1] .. "/" .. stat[2]
 			end
-
 		end
-
 		local num
 		if type(stat) == "string" then
 			num = sa:get_global_stat(diff .. "_" .. heist .. "_" .. stat, num_days)[i] or 0
@@ -429,7 +375,6 @@ function NetworkAccountSTEAM.output_global_stats(file)
 			local s = sa:get_global_stat(diff .. "_" .. heist .. "_" .. stat[2], num_days)[i] or 1
 			num = f / (s == 0 and 1 or s)
 		end
-
 		return num
 	end
 
@@ -441,9 +386,7 @@ function NetworkAccountSTEAM.output_global_stats(file)
 			else
 				return st .. stat[1] .. "/" .. stat[2]
 			end
-
 		end
-
 		local num
 		if type(stat) == "string" then
 			num = sa:get_global_stat(weapon .. "_" .. stat, num_days)[i] or 0
@@ -452,7 +395,6 @@ function NetworkAccountSTEAM.output_global_stats(file)
 			local s = sa:get_global_stat(weapon .. "_" .. stat[2], num_days)[i] or 1
 			num = f / (s == 0 and 1 or s)
 		end
-
 		return num
 	end
 
@@ -498,48 +440,24 @@ function NetworkAccountSTEAM.output_global_stats(file)
 	for i = 0, #invalid do
 		if i == 0 or invalid[i] == 0 then
 			local out = "" .. i
-			do
-				local (for generator), (for state), (for control) = ipairs(lvl_stats)
-				do
-					do break end
-					local (for generator), (for state), (for control) = ipairs(diffs)
-					do
-						do break end
-						local (for generator), (for state), (for control) = ipairs(heists)
-						do
-							do break end
-							out = out .. ";" .. get_lvl_stat(diff, heist, lvl_stat, i)
-						end
-
+			for _, lvl_stat in ipairs(lvl_stats) do
+				for _, diff in ipairs(diffs) do
+					for _, heist in ipairs(heists) do
+						out = out .. ";" .. get_lvl_stat(diff, heist, lvl_stat, i)
 					end
-
 				end
-
 			end
-
-			do
-				local (for generator), (for state), (for control) = ipairs(wep_stats)
-				do
-					do break end
-					local (for generator), (for state), (for control) = ipairs(weapons)
-					do
-						do break end
-						out = out .. ";" .. get_weapon_stat(weapon, wep_stat, i)
-					end
-
+			for _, wep_stat in ipairs(wep_stats) do
+				for _, weapon in ipairs(weapons) do
+					out = out .. ";" .. get_weapon_stat(weapon, wep_stat, i)
 				end
-
 			end
-
 			table.insert(lines, out)
 		end
-
 	end
-
 	local file_handle = SystemFS:open(file, "w")
 	for i = 1, #lines do
 		file_handle:puts(lines[i == 1 and 1 or #lines - i + 2])
 	end
-
 end
 

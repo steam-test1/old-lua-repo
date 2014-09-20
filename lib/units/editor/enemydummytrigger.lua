@@ -9,9 +9,7 @@ end
 
 function EnemyDummyTriggerUnitElement:draw_links(t, dt, selected_unit, all_units)
 	MissionElement.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -23,9 +21,7 @@ function EnemyDummyTriggerUnitElement:draw_links(t, dt, selected_unit, all_units
 				b = 0
 			})
 		end
-
 	end
-
 end
 
 function EnemyDummyTriggerUnitElement:update_editing()
@@ -40,9 +36,7 @@ function EnemyDummyTriggerUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function EnemyDummyTriggerUnitElement:_correct_unit(u_name)
@@ -53,31 +47,20 @@ function EnemyDummyTriggerUnitElement:_correct_unit(u_name)
 		"ai_spawn_civilian",
 		"ai_civilian_group"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(names)
-		do
-			do break end
-			if string.find(u_name, name, 1, true) then
-				return true
-			end
-
+	for _, name in ipairs(names) do
+		if string.find(u_name, name, 1, true) then
+			return true
 		end
-
 	end
-
 	return false
 end
 
 function EnemyDummyTriggerUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function EnemyDummyTriggerUnitElement:add_triggers(vc)

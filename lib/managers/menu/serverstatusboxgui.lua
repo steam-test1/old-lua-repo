@@ -101,17 +101,14 @@ function ServerStatusBoxGui:mouse_pressed(button, x, y)
 	if not self:can_take_input() then
 		return
 	end
-
 	if button ~= Idstring("0") or self._panel:child("info_area"):inside(x, y) then
 	end
-
 end
 
 function ServerStatusBoxGui:mouse_moved(x, y)
 	if not self:can_take_input() then
 		return
 	end
-
 	local pointer
 	return false, pointer
 end
@@ -130,7 +127,6 @@ function ServerStatusBoxGui:set_server_info_state(state)
 	if state == "loading" then
 		s = string.upper(managers.localization:text("menu_lobby_server_state_loading"))
 	end
-
 	self._scroll_panel:child("server_panel"):child("server_state_text"):set_text(string.upper(s))
 end
 

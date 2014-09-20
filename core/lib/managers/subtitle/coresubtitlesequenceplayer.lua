@@ -27,9 +27,7 @@ function SubtitleSequencePlayer:evaluate_at_time(time)
 			self.__presenter:show_text(subtitle and subtitle:string() or "", subtitle and subtitle:duration())
 			self.__previous_subtitle = subtitle
 		end
-
 		self._last_evaluated_time = time
 	end
-
 end
 

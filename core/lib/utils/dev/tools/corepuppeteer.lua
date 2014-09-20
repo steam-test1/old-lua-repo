@@ -5,14 +5,12 @@ function CorePuppeteer:init(unit)
 	if not unit and managers.editor then
 		unit = managers.editor:selected_unit()
 	end
-
 	unit = unit or World:selected_unit()
 	self:_create_window(unit):set_visible(true)
 	CoreEWS.check_news(self._window, "puppeteer", true)
 	if managers.editor then
 		self._selected_unit_callback = managers.editor:add_selected_unit_callback(callback(self, self, "_on_selected_unit_changed"))
 	end
-
 end
 
 function CorePuppeteer:_create_window(unit)
@@ -56,14 +54,12 @@ function CorePuppeteer:destroy()
 		self._window:destroy()
 		self._window = nil
 	end
-
 end
 
 function CorePuppeteer:close()
 	if managers.editor and self._selected_unit_callback then
 		managers.editor:remove_selected_unit_callback(self._selected_unit_callback)
 	end
-
 	self._window:destroy()
 end
 
@@ -71,7 +67,6 @@ function CorePuppeteer:unit()
 	if self._state_tree_panel then
 		return self._state_tree_panel:unit()
 	end
-
 end
 
 function CorePuppeteer:_on_close()
@@ -83,14 +78,12 @@ function CorePuppeteer:_on_tree_item_activated(data, event)
 	if tree_node and not tree_node:has_children() then
 		self:unit():play_state(tree_node:path():id())
 	end
-
 end
 
 function CorePuppeteer:_on_drive_movement_checkbox_clicked(data, event)
 	if not self:unit() then
 		return
 	end
-
 	self:unit():set_driving(iff(event:is_checked(), "animation", "script"))
 end
 
@@ -102,14 +95,11 @@ function CorePuppeteer:_on_selected_unit_changed(selected_unit)
 	if selected_unit == self:unit() then
 		return
 	end
-
 	if self._state_tree_panel then
 		self._state_tree_panel:set_unit(selected_unit)
 	end
-
 	if self._drive_movement_checkbox then
 		self._drive_movement_checkbox:set_value(selected_unit and selected_unit:driving() == "animation")
 	end
-
 end
 

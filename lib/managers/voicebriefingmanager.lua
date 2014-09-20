@@ -16,16 +16,11 @@ function VoiceBriefingManager:_set_parameters(params)
 	if params.listener then
 		self:add_listener(params.listener)
 	end
-
 	if params.listeners then
-		local (for generator), (for state), (for control) = pairs(params.listeners)
-		do
-			do break end
+		for _, listener in pairs(params.listeners) do
 			self:add_listener(listener)
 		end
-
 	end
-
 end
 
 function VoiceBriefingManager:_debug_callback(...)
@@ -42,26 +37,19 @@ function VoiceBriefingManager:_sound_callback(instance, sound_source, event_type
 		if label then
 			self:_play_subtitle(label, cookie)
 		end
-
 	elseif event_type == "duration" then
 		self:_set_duration(label, cookie)
 	end
-
 end
 
 function VoiceBriefingManager:_end_of_event(cookie)
 	if self._listeners_enabled then
-		local (for generator), (for state), (for control) = ipairs(self._listeners)
-		do
-			do break end
+		for _, listener in ipairs(self._listeners) do
 			if listener.end_of_event then
 				listener.clbk("end_of_event", self._event_name, cookie)
 			end
-
 		end
-
 	end
-
 	self:_clear_event()
 end
 
@@ -72,34 +60,23 @@ function VoiceBriefingManager:_play_subtitle(string_id, cookie)
 		managers.subtitle:set_enabled(true)
 		managers.subtitle:show_subtitle(string_id, duration)
 	end
-
 	if self._listeners_enabled then
-		local (for generator), (for state), (for control) = ipairs(self._listeners)
-		do
-			do break end
+		for _, listener in ipairs(self._listeners) do
 			if listener.marker then
 				listener.clbk("marker", string_id, duration, cookie)
 			end
-
 		end
-
 	end
-
 end
 
 function VoiceBriefingManager:_set_duration(duration, cookie)
 	if self._listeners_enabled then
-		local (for generator), (for state), (for control) = ipairs(self._listeners)
-		do
-			do break end
+		for _, listener in ipairs(self._listeners) do
 			if listener.duration then
 				listener.clbk("duration", duration, cookie)
 			end
-
 		end
-
 	end
-
 end
 
 function VoiceBriefingManager:_subtitle_len(id)
@@ -108,7 +85,6 @@ function VoiceBriefingManager:_subtitle_len(id)
 	if duration < tweak_data.dialog.MINIMUM_DURATION then
 		duration = tweak_data.dialog.MINIMUM_DURATION
 	end
-
 	return duration
 end
 
@@ -118,13 +94,11 @@ function VoiceBriefingManager:_check_event_ok()
 			Application:error("[VoiceBriefingManager:_check_event_ok] Wasn't able to play sound event " .. tostring(self._event_name))
 			Application:stack_dump()
 		end
-
 		self._post_event_enabled = false
 		self:_sound_callback(nil, nil, "end_of_event", nil, self._event_name, nil, nil, nil)
 		self._post_event_enabled = true
 		return false
 	end
-
 	return true
 end
 
@@ -143,7 +117,6 @@ function VoiceBriefingManager:post_event_simple(event_name)
 	if not event_name or not self._post_event_enabled then
 		return
 	end
-
 	self:stop_event()
 	self:_set_parameters({show_subtitle = true})
 	self._event_name = event_name
@@ -155,7 +128,6 @@ function VoiceBriefingManager:post_event(event_name, params)
 	if not event_name or not self._post_event_enabled then
 		return
 	end
-
 	self:stop_event()
 	self:_set_parameters(params)
 	self._event_name = event_name
@@ -176,9 +148,7 @@ function VoiceBriefingManager:stop_event(skip_end_of_event)
 		else
 			self:_clear_event()
 		end
-
 	end
-
 	self._event_cookie = nil
 end
 

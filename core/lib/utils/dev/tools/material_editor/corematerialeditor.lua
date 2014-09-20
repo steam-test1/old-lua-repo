@@ -49,28 +49,21 @@ function CoreMaterialEditor:update(t, dt)
 	if self._start_dialog:running() then
 		self._start_dialog:update(t, dt)
 	end
-
 	if self._material_parameter_widgets then
-		local (for generator), (for state), (for control) = pairs(self._material_parameter_widgets)
-		do
-			do break end
+		for k, v in pairs(self._material_parameter_widgets) do
 			v:update(t, dt)
 		end
-
 	end
-
 	self:_find_selected_unit()
 	if not self._disable_live_feedback then
 		self:_live_update()
 	end
-
 end
 
 function CoreMaterialEditor:set_position(pos)
 	if alive(self._main_frame) then
 		self._main_frame:set_position(pos)
 	end
-
 end
 
 function CoreMaterialEditor:destroy()
@@ -82,18 +75,14 @@ function CoreMaterialEditor:version_check(path, node, show_popup)
 		if show_popup then
 			EWS:MessageDialog(self._main_frame, "This material config is not of the expected version!", "Open Material Config", "OK,ICON_ERROR"):show_modal()
 		end
-
 		return false
 	end
-
 	if path == managers.database:base_path() .. self.PROJECT_GLOBAL_GONFIG_NAME or path == managers.database:base_path() .. self.CORE_GLOBAL_GONFIG_NAME then
 		if show_popup then
 			EWS:MessageDialog(self._main_frame, "This is the global material file! You can't open it like this.", "Open Material Config", "OK,ICON_ERROR"):show_modal()
 		end
-
 		return false
 	end
-
 	return true
 end
 
@@ -103,7 +92,6 @@ function CoreMaterialEditor:close()
 		self._main_frame:destroy()
 		self._main_frame = nil
 	end
-
 end
 
 function CoreMaterialEditor:_on_change_remote_server()
@@ -117,7 +105,6 @@ function CoreMaterialEditor:_on_close()
 	if not self._disable_live_feedback and self._material_config_path then
 		Application:reload_material_config(managers.database:entry_path(self._material_config_path):id())
 	end
-
 	managers.toolhub:close(self.TOOLHUB_NAME)
 end
 
@@ -134,9 +121,7 @@ function CoreMaterialEditor:_on_new()
 			self:_update_interface_after_material_list_change()
 			self:_reset_diff()
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_on_open()
@@ -145,7 +130,6 @@ function CoreMaterialEditor:_on_open()
 	if path and not self:_load_node(path) then
 		EWS:MessageDialog(self._main_frame, "The material config file could not be opened.", "Error", "OK,ICON_ERROR"):show_modal()
 	end
-
 end
 
 function CoreMaterialEditor:_on_save()
@@ -159,12 +143,10 @@ function CoreMaterialEditor:_on_save_as()
 		if managers.database:has(path) and EWS:MessageDialog(self._main_frame, "A material config with that name already exists. Do you want to replace it?", "Duplicated!", "YES_NO,ICON_ERROR"):show_modal() == "ID_NO" then
 			return
 		end
-
 		self:_save_to_disk(path)
 		EWS:message_box(self._main_frame, "All data in this material config was saved to disk!", "Save", "OK,ICON_INFORMATION", Vector3(-1, -1, -1))
 		self:_load_node(path)
 	end
-
 end
 
 function CoreMaterialEditor:_on_save_global()
@@ -177,30 +159,25 @@ function CoreMaterialEditor:_on_reload()
 	if self._material_config_path then
 		Application:reload_material_config(managers.database:entry_path(self._material_config_path))
 	end
-
 end
 
 function CoreMaterialEditor:_on_rebuild()
 	if EWS:MessageDialog(self._main_frame, "Do a complete rebuild?", "Rebuild", "YES_NO,ICON_QUESTION"):show_modal() == "ID_NO" then
 		return
 	end
-
 	if EWS:message_box(self._main_frame, "All unsaved data in this material config will be saved before compiling!", "Compile", "OK,CANCEL,ICON_INFORMATION", Vector3(-1, -1, -1)) == "OK" then
 		local make_params, temp_params = self:_create_make_file(true)
 		if self:_run_compiler() then
 			self:_insert_libs_in_database(temp_params, make_params)
 			self:_load_shaders(true)
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_on_edit_global()
 	if EWS:message_box(self._main_frame, "All unsaved data in this material config will be lost unless you save it first. Saved data now?", "Edit Global", "YES_NO,ICON_QUESTION", Vector3(-1, -1, -1)) == "ID_YES" then
 		self:_save_current()
 	end
-
 	CoreMaterialEditorGlobalDialog:new(self._main_frame, self)
 	self._material_config_path = nil
 	self._material_config_node = nil
@@ -219,7 +196,6 @@ function CoreMaterialEditor:_on_parent_combo_box_change()
 	else
 		self._current_material_node:clear_parameter("src")
 	end
-
 	self:_create_parameter_panel()
 end
 
@@ -229,16 +205,13 @@ function CoreMaterialEditor:_on_compile_btn()
 			self:_remot_compile()
 			EWS:message_box(self._main_frame, "The request has been sent to the server. It might take up to a minute before it is commited in to the project repository.", "Remote Compile", "OK", Vector3(-1, -1, -1))
 		end
-
 	elseif EWS:message_box(self._main_frame, "All unsaved data in this material config will be saved before compiling!", "Compile", "OK,CANCEL,ICON_INFORMATION", Vector3(-1, -1, -1)) == "OK" then
 		local make_params, temp_params = self:_create_make_file()
 		if self:_run_compiler() then
 			self:_insert_libs_in_database(temp_params, make_params)
 			self:_load_shaders()
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_on_material_selected(data, event)
@@ -248,7 +221,6 @@ function CoreMaterialEditor:_on_material_selected(data, event)
 	if ver ~= self.MATERIAL_VERSION_TAG and not self:_version_error(mat) then
 		return
 	end
-
 	self._current_material_node = mat
 	self._shader_collapse_box:lower_panel():set_enabled(true)
 	self:_load_shader_options()
@@ -269,9 +241,7 @@ function CoreMaterialEditor:_on_add_material(default_name)
 			self:_update_interface_after_material_list_change(name)
 			self:_update_output()
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_on_copy_material()
@@ -287,15 +257,12 @@ function CoreMaterialEditor:_on_paste_as_material()
 			if EWS:MessageDialog(self._main_frame, "A material with that name already exists! Overwrite?", "Paste As", "YES_NO,ICON_QUESTION"):show_modal() ~= "ID_YES" then
 				return
 			end
-
 			self._material_config_node:remove_child_at(self._material_config_node:index_of_child(mat))
 		end
-
 		self._material_config_node:add_child(CoreSmartNode:new(node)):set_parameter("name", name)
 		self:_update_interface_after_material_list_change(name)
 		self:_update_output()
 	end
-
 end
 
 function CoreMaterialEditor:_on_rename_material(default_name)
@@ -309,9 +276,7 @@ function CoreMaterialEditor:_on_rename_material(default_name)
 			self:_update_interface_after_material_list_change()
 			self:_update_output()
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_on_remove_material()
@@ -320,7 +285,6 @@ function CoreMaterialEditor:_on_remove_material()
 		self:_update_interface_after_material_list_change()
 		self:_update_output()
 	end
-
 end
 
 function CoreMaterialEditor:_on_shader_combobox_selected()
@@ -343,44 +307,31 @@ function CoreMaterialEditor:_on_shader_option_chaged(define_struct, data)
 			self._main_frame_status_bar:set_status_text(msg)
 			self:_find_render_template()
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_load_shaders(load_only)
 	local render_templates_node = DB:has("render_templates", self.RENDER_TEMPLATE_PATH) and DB:load_node("render_templates", self.RENDER_TEMPLATE_PATH)
 	if render_templates_node then
-		local (for generator), (for state), (for control) = render_templates_node:children()
-		do
-			do break end
+		for child in render_templates_node:children() do
 			if child:name() == "render_template_database" and child:has_parameter("name") then
 				cat_print("debug", "render_templates", child:parameter("name"))
 				Application:reload_render_template_database(Idstring(child:parameter("name")))
 			end
-
 		end
-
 	end
-
 	local shader_libs_node = DB:has("shader_libs", self.SHADER_LIB_PATH) and DB:load_node("shader_libs", self.SHADER_LIB_PATH)
 	if shader_libs_node then
-		local (for generator), (for state), (for control) = shader_libs_node:children()
-		do
-			do break end
+		for child in shader_libs_node:children() do
 			if child:name() == "shaders" and child:has_parameter("name") then
 				cat_print("debug", "shader_config", child:parameter("name"))
 				Application:reload_shader_lib(Idstring(child:parameter("name")))
 			end
-
 		end
-
 	end
-
 	if not load_only then
 		self:_find_render_template()
 	end
-
 end
 
 function CoreMaterialEditor:_save_current()
@@ -388,7 +339,6 @@ function CoreMaterialEditor:_save_current()
 		self:_save_to_disk(self._material_config_path)
 		EWS:MessageDialog(self._main_frame, "'" .. managers.database:entry_name(self._material_config_path) .. "' saved.", "Save Complete", "OK,ICON_INFORMATION"):show_modal()
 	end
-
 end
 
 function CoreMaterialEditor:_save_to_disk(path)
@@ -403,14 +353,12 @@ You have customized one or more texture channel(s) in the material but you have 
 Defaulting to ]] .. self.DEFAULT_TEXTURE .. ".", "Writing To Disk", "OK,ICON_WARNING", Vector3(-1, -1, -1))
 		self:_set_channels_default_texture(node)
 	end
-
 	managers.database:save_node(node, path)
 	managers.database:recompile(path)
 	self:_update_output()
 	if not self._disable_live_feedback then
 		Application:reload_material_config(managers.database:entry_path(path))
 	end
-
 	self._text_in_node = node:to_xml()
 	self:_save_global_to_disk()
 end
@@ -435,35 +383,21 @@ function CoreMaterialEditor:_ok_by_law(node)
 	local rule = node:parameter("rule")
 	if rule and rule ~= "" then
 		local code = ""
-		do
-			local (for generator), (for state), (for control) = pairs(self._shader_defines)
-			do
-				do break end
-				code = code .. "local " .. k .. " = " .. tostring(v._checked) .. "; "
-			end
-
+		for k, v in pairs(self._shader_defines) do
+			code = code .. "local " .. k .. " = " .. tostring(v._checked) .. "; "
 		end
-
 		code = code .. "return " .. rule
 		return assert(loadstring(code))()
 	end
-
 	return true
 end
 
 function CoreMaterialEditor:_is_options_valid_by_law()
-	do
-		local (for generator), (for state), (for control) = pairs(self._shader_defines)
-		do
-			do break end
-			if v._checked and not self:_ok_by_law(v._define_node) then
-				return false, v._define_node:parameter("rule_msg") or "This setup is not valid!"
-			end
-
+	for k, v in pairs(self._shader_defines) do
+		if v._checked and not self:_ok_by_law(v._define_node) then
+			return false, v._define_node:parameter("rule_msg") or "This setup is not valid!"
 		end
-
 	end
-
 	return true, ""
 end
 
@@ -477,18 +411,11 @@ end
 
 function CoreMaterialEditor:_find_render_template()
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._shader_defines)
-		do
-			do break end
-			if v._checked then
-				table.insert(t, v._define_node:parameter("name"))
-			end
-
+	for k, v in pairs(self._shader_defines) do
+		if v._checked then
+			table.insert(t, v._define_node:parameter("name"))
 		end
-
 	end
-
 	self._current_render_template_name = RenderTemplateDatabase:render_template_name_from_defines(self._compilable_shader_combo_box:get_value(), t)
 	self._current_render_template = RenderTemplateDatabase:render_template(self._current_render_template_name:id())
 	local msg = ""
@@ -504,7 +431,6 @@ function CoreMaterialEditor:_find_render_template()
 		self:_load_parent_dropdown()
 		self:_create_parameter_panel()
 	end
-
 	self._compile_info_text:set_value(msg)
 	self._main_frame_status_bar:set_status_text(msg)
 	self:_clean_parameters()
@@ -515,40 +441,22 @@ function CoreMaterialEditor:_clean_parameters()
 	if self._current_render_template then
 		local remove_list = {}
 		local variables = self._current_render_template:variables()
-		do
-			local (for generator), (for state), (for control) = self._current_material_node:children()
-			do
-				do break end
-				local found
-				do
-					local (for generator), (for state), (for control) = ipairs(variables)
-					do
-						do break end
-						if param:parameter("type") ~= "texture" and param:parameter("name") == var.name:s() or param:name() == var.name:s() then
-							found = true
-					end
-
-					else
-					end
-
+		for param in self._current_material_node:children() do
+			local found
+			for _, var in ipairs(variables) do
+				if param:parameter("type") ~= "texture" and param:parameter("name") == var.name:s() or param:name() == var.name:s() then
+					found = true
+				else
 				end
-
-				if not found then
-					table.insert(remove_list, param)
-				end
-
 			end
-
+			if not found then
+				table.insert(remove_list, param)
+			end
 		end
-
-		local (for generator), (for state), (for control) = ipairs(remove_list)
-		do
-			do break end
+		for _, param in ipairs(remove_list) do
 			self._current_material_node:remove_child_at(self._current_material_node:index_of_child(param))
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_update_interface_after_material_list_change(listbox_select_material)
@@ -578,7 +486,6 @@ function CoreMaterialEditor:_load_node(path, node)
 		self._material_config_node = prev_node
 		return false
 	end
-
 	self._global_material_config_path = managers.database:base_path() .. self._global_material_config_name
 	self._global_material_config_node = CoreSmartNode:new(managers.database:load_node(self._global_material_config_path))
 	self._text_in_global_node = self._global_material_config_node:to_xml()
@@ -594,7 +501,6 @@ function CoreMaterialEditor:_update_output()
 		self._output_text_ctrl:set_value(self._material_config_node:to_xml())
 		self._global_text_ctrl:set_value(self._global_material_config_node:to_xml())
 	end
-
 end
 
 function CoreMaterialEditor:_layout_all()
@@ -607,57 +513,40 @@ function CoreMaterialEditor:_layout_output()
 end
 
 function CoreMaterialEditor:_set_shader_options(options)
-	local (for generator), (for state), (for control) = pairs(self._shader_defines)
-	do
-		do break end
+	for k, v in pairs(self._shader_defines) do
 		v._check_box:set_state(0)
 		v._checked = false
-		local (for generator), (for state), (for control) = pairs(options)
-		do
-			do break end
+		for _, option in pairs(options) do
 			if k == option then
 				v._check_box:set_state(1)
 				v._checked = true
 			end
-
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_load_material_list(listbox_select_material)
 	self._material_nodes = {}
 	self._material_list_box:clear()
 	if self._material_config_node then
-		local (for generator), (for state), (for control) = self._material_config_node:children()
-		do
-			do break end
+		for material in self._material_config_node:children() do
 			if material:name() == "material" then
 				local name = material:parameter("name")
 				self._material_nodes[name] = material
 				local index = self._material_list_box:append(name)
 				if listbox_select_material == name then
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_check_loaded_shader_sources(t, s)
-	local (for generator), (for state), (for control) = ipairs(t)
-	do
-		do break end
+	for i, source in ipairs(t) do
 		if source._entry == s then
 			return i
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_load_shader_sources()
@@ -668,55 +557,39 @@ end
 
 function CoreMaterialEditor:_load_shader_sources_from_db(t)
 	local sources = managers.database:list_entries_of_type("shader_source")
-	local (for generator), (for state), (for control) = ipairs(sources)
-	do
-		do break end
+	for _, source in ipairs(sources) do
 		local node = DB:load_node("shader_source", source)
 		if node:name() == "shader_library" then
 			local loaded = self:_check_loaded_shader_sources(t, source)
 			if loaded then
 				table.remove(t, loaded)
 			end
-
 			table.insert(t, {_entry = source, _node = node})
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_load_shader_dropdown()
 	self:_freeze_frame()
 	self._compilable_shaders = {}
 	self._compilable_shader_combo_box:clear()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._shader_sources)
-		do
-			do break end
-			local compilable_shaders = self:_get_node(source._node, "compilable_shaders")
-			if compilable_shaders then
-				local shaders = self:_get_all_nodes(compilable_shaders, "shader")
-				local (for generator), (for state), (for control) = ipairs(shaders)
-				do
-					do break end
-					local editor_node = self:_get_node(shader, "editor")
-					if editor_node then
-						local name = shader:parameter("name")
-						self._compilable_shaders[name] = {
-							_entry = source._entry,
-							_node = shader
-						}
-						self._compilable_shader_combo_box:append(name)
-					end
-
+	for _, source in ipairs(self._shader_sources) do
+		local compilable_shaders = self:_get_node(source._node, "compilable_shaders")
+		if compilable_shaders then
+			local shaders = self:_get_all_nodes(compilable_shaders, "shader")
+			for _, shader in ipairs(shaders) do
+				local editor_node = self:_get_node(shader, "editor")
+				if editor_node then
+					local name = shader:parameter("name")
+					self._compilable_shaders[name] = {
+						_entry = source._entry,
+						_node = shader
+					}
+					self._compilable_shader_combo_box:append(name)
 				end
-
 			end
-
 		end
-
 	end
-
 	self._compilable_shader_combo_box:set_value(self.DEFAULT_COMPILABLE_SHADER)
 	self:_unfreeze_frame()
 end
@@ -727,16 +600,12 @@ function CoreMaterialEditor:_load_parent_dropdown()
 	self._parent_combo_box:append("[NONE]")
 	self._parent_materials = {}
 	if self._global_material_config_node then
-		local (for generator), (for state), (for control) = self._global_material_config_node:children()
-		do
-			do break end
+		for material in self._global_material_config_node:children() do
 			local name = material:parameter("name")
 			self._parent_materials[name] = material
 			self._parent_combo_box:append(name)
 		end
-
 	end
-
 	self._parent_combo_box:set_value("[NONE]")
 	self:_unfreeze_frame()
 end

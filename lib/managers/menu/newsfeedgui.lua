@@ -13,7 +13,6 @@ function NewsFeedGui:update(t, dt)
 	if not self._titles then
 		return
 	end
-
 	if self._news and #self._titles > 0 then
 		local color = math.lerp(tweak_data.screen_colors.button_stage_2, tweak_data.screen_colors.button_stage_3, (1 + math.sin(t * 360)) / 2)
 		self._title_panel:child("title"):set_color(self._mouse_over and tweak_data.screen_colors.button_stage_2 or color)
@@ -23,7 +22,6 @@ function NewsFeedGui:update(t, dt)
 			if self._news.i > #self._titles then
 				self._news.i = 1
 			end
-
 			self._title_panel:child("title"):set_text(utf8.to_upper("(" .. self._news.i .. "/" .. #self._titles .. ") " .. self._titles[self._news.i]))
 			local _, _, w, h = self._title_panel:child("title"):text_rect()
 			self._title_panel:child("title"):set_h(h)
@@ -33,7 +31,6 @@ function NewsFeedGui:update(t, dt)
 			self._title_panel:set_bottom(self._panel:h())
 			self._present_t = t + self.PRESENT_TIME
 		end
-
 		if self._present_t then
 			self._title_panel:set_left(0 - (managers.gui_data:safe_scaled_size().x + self._title_panel:w()) * ((self._present_t - t) / self.PRESENT_TIME))
 			if t > self._present_t then
@@ -41,14 +38,11 @@ function NewsFeedGui:update(t, dt)
 				self._present_t = nil
 				self._sustain_t = t + self.SUSTAIN_TIME
 			end
-
 		end
-
 		if self._sustain_t and t > self._sustain_t then
 			self._sustain_t = nil
 			self._remove_t = t + self.REMOVE_TIME
 		end
-
 		if self._remove_t then
 			self._title_panel:set_left(0 - (managers.gui_data:safe_scaled_size().x + self._title_panel:w()) * (1 - (self._remove_t - t) / self.REMOVE_TIME))
 			if t > self._remove_t then
@@ -56,11 +50,8 @@ function NewsFeedGui:update(t, dt)
 				self._remove_t = nil
 				self._next = true
 			end
-
 		end
-
 	end
-
 end
 
 function NewsFeedGui:make_news_request()
@@ -73,7 +64,6 @@ function NewsFeedGui:news_result(success, body)
 	if not alive(self._panel) then
 		return
 	end
-
 	if success then
 		self._titles = self:_get_text_block(body, "<title>", "</title>", self.MAX_NEWS)
 		self._links = self:_get_text_block(body, "<link><![CDATA[", "]]></link>", self.MAX_NEWS)
@@ -81,7 +71,6 @@ function NewsFeedGui:news_result(success, body)
 		self._next = true
 		self._panel:child("title_announcement"):set_visible(#self._titles > 0)
 	end
-
 end
 
 function NewsFeedGui:_create_gui()
@@ -142,7 +131,6 @@ function NewsFeedGui:_get_text_block(s, sp, ep, max_results)
 		if not e1 then
 			return
 		end
-
 		local s2, e2 = string.find(s, ep, e1, true)
 		table.insert(result, string.sub(s, e1 + 1, s2 - 1))
 	end
@@ -152,13 +140,11 @@ function NewsFeedGui:_get_text_block(s, sp, ep, max_results)
 		if not e1 then
 			break
 		end
-
 		local s2, e2 = string.find(s, "</item>", e1, true)
 		local item_s = string.sub(s, e1 + 1, s2 - 1)
 		f(item_s, sp, ep, max_results)
 		i = e1
 	end
-
 	return result
 end
 
@@ -172,18 +158,15 @@ function NewsFeedGui:mouse_pressed(button, x, y)
 	if not self._news then
 		return
 	end
-
 	if button == Idstring("0") and self._panel:inside(x, y) then
 		Steam:overlay_activate("url", self._links[self._news.i])
 		return true
 	end
-
 end
 
 function NewsFeedGui:close()
 	if alive(self._panel) then
 		self._ws:panel():remove(self._panel)
 	end
-
 end
 

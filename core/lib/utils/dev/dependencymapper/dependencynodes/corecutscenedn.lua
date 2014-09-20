@@ -18,9 +18,7 @@ function CutsceneDependencyNode:_walkxml2dependencies(xmlnode, deps)
 			if dn == nil then
 				Application:error("When parsing cutscene: " .. self._name .. ", can not locate unit: " .. unit_name)
 			end
-
 		end
-
 	elseif node_name == "spawn_unit" then
 		local unit_name = xmlnode:parameter("unit_type")
 		if unit_name ~= nil then
@@ -29,10 +27,7 @@ function CutsceneDependencyNode:_walkxml2dependencies(xmlnode, deps)
 			if dn == nil then
 				Application:error("When parsing cutscene: " .. self._name .. ", can not locate unit: " .. unit_name)
 			end
-
 		end
-
 	end
-
 end
 

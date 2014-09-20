@@ -18,7 +18,6 @@ function CoreWorldCameraUnitElement:test_element()
 	elseif self._hed.worldcamera ~= "none" then
 		managers.worldcamera:play_world_camera(self._hed.worldcamera)
 	end
-
 end
 
 function CoreWorldCameraUnitElement:selected()
@@ -28,71 +27,45 @@ function CoreWorldCameraUnitElement:selected()
 		self._hed.worldcamera = "none"
 		self._worldcameras:set_value(self._hed.worldcamera)
 	end
-
 	self:_populate_sequences()
 	if not managers.worldcamera:all_world_camera_sequences()[self._hed.worldcamera_sequence] then
 		self._hed.worldcamera_sequence = "none"
 		self._sequences:set_value(self._hed.worldcamera_sequence)
 	end
-
 end
 
 function CoreWorldCameraUnitElement:_populate_worldcameras()
 	self._worldcameras:clear()
 	self._worldcameras:append("none")
-	do
-		local (for generator), (for state), (for control) = ipairs(self:_sorted_worldcameras())
-		do
-			do break end
-			self._worldcameras:append(name)
-		end
-
+	for _, name in ipairs(self:_sorted_worldcameras()) do
+		self._worldcameras:append(name)
 	end
-
 	self._worldcameras:set_value(self._hed.worldcamera)
 end
 
 function CoreWorldCameraUnitElement:_populate_sequences()
 	self._sequences:clear()
 	self._sequences:append("none")
-	do
-		local (for generator), (for state), (for control) = ipairs(self:_sorted_worldcamera_sequences())
-		do
-			do break end
-			self._sequences:append(name)
-		end
-
+	for _, name in ipairs(self:_sorted_worldcamera_sequences()) do
+		self._sequences:append(name)
 	end
-
 	self._sequences:set_value(self._hed.worldcamera_sequence)
 end
 
 function CoreWorldCameraUnitElement:_sorted_worldcameras()
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(managers.worldcamera:all_world_cameras())
-		do
-			do break end
-			table.insert(t, name)
-		end
-
+	for name, _ in pairs(managers.worldcamera:all_world_cameras()) do
+		table.insert(t, name)
 	end
-
 	table.sort(t)
 	return t
 end
 
 function CoreWorldCameraUnitElement:_sorted_worldcamera_sequences()
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(managers.worldcamera:all_world_camera_sequences())
-		do
-			do break end
-			table.insert(t, name)
-		end
-
+	for name, _ in pairs(managers.worldcamera:all_world_camera_sequences()) do
+		table.insert(t, name)
 	end
-
 	table.sort(t)
 	return t
 end
@@ -102,14 +75,10 @@ function CoreWorldCameraUnitElement:select_camera_btn()
 	if dialog:cancelled() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-	do
-		do break end
+	for _, worldcamera in ipairs(dialog:_selected_item_assets()) do
 		self._hed.worldcamera = worldcamera
 		self._worldcameras:set_value(self._hed.worldcamera)
 	end
-
 end
 
 function CoreWorldCameraUnitElement:select_sequence_btn()
@@ -117,14 +86,10 @@ function CoreWorldCameraUnitElement:select_sequence_btn()
 	if dialog:cancelled() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-	do
-		do break end
+	for _, worldcamera_sequence in ipairs(dialog:_selected_item_assets()) do
 		self._hed.worldcamera_sequence = worldcamera_sequence
 		self._sequences:set_value(self._hed.worldcamera_sequence)
 	end
-
 end
 
 function CoreWorldCameraUnitElement:_build_panel(panel, panel_sizer)

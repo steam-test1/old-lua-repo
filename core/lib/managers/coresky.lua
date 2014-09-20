@@ -18,9 +18,7 @@ end
 
 function CoreSky:parse(xml_node)
 	self._params = {}
-	local (for generator), (for state), (for control) = xml_node:children()
-	do
-		do break end
+	for child in xml_node:children() do
 		local key = child:parameter("key")
 		local value = child:parameter("value")
 		if child:name() == "param" and key and key ~= "" and value and value ~= "" then
@@ -33,51 +31,34 @@ function CoreSky:parse(xml_node)
 			else
 				self._params[key] = tostring(value)
 			end
-
 		end
-
 	end
-
 end
 
 function CoreSky:copy(from)
-	do
-		local (for generator), (for state), (for control) = pairs(from._params)
-		do
-			do break end
-			if type(value) == "string" then
-				self._params[key] = value
-			elseif type(value) ~= "number" then
-				self._params[key] = Vector3(value.x, value.y, value.z)
-			else
-				self._params[key] = value
-			end
-
+	for key, value in pairs(from._params) do
+		if type(value) == "string" then
+			self._params[key] = value
+		elseif type(value) ~= "number" then
+			self._params[key] = Vector3(value.x, value.y, value.z)
+		else
+			self._params[key] = value
 		end
-
 	end
-
 	self._name = from._name
 end
 
 function CoreSky:interpolate(target, with, scale)
 	local invscale = 1 - scale
-	do
-		local (for generator), (for state), (for control) = pairs(with._params)
-		do
-			do break end
-			if not target._params[key] then
-				return
-			elseif type(value) ~= "string" then
-				self._params[key] = target._params[key] * invscale + value * scale
-			else
-				self._params[key] = value
-			end
-
+	for key, value in pairs(with._params) do
+		if not target._params[key] then
+			return
+		elseif type(value) ~= "string" then
+			self._params[key] = target._params[key] * invscale + value * scale
+		else
+			self._params[key] = value
 		end
-
 	end
-
 	self._name = with._name
 end
 

@@ -28,7 +28,6 @@ function CoreSimpleAnimationCutsceneKey:revert(player)
 		unit:anim_set_time(group, 0)
 		unit:anim_stop(group)
 	end
-
 end
 
 function CoreSimpleAnimationCutsceneKey:update(player, time)
@@ -50,20 +49,15 @@ function CoreSimpleAnimationCutsceneKey:refresh_control_for_group(control)
 	if not table.empty(groups) then
 		control:set_enabled(true)
 		local value = self:group()
-		local (for generator), (for state), (for control) = ipairs(groups)
-		do
-			do break end
+		for _, group in ipairs(groups) do
 			control:append(group)
 			if group == value then
 				control:set_value(group)
 			end
-
 		end
-
 	else
 		control:set_enabled(false)
 	end
-
 	control:thaw()
 end
 

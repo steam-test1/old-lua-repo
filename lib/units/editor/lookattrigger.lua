@@ -24,9 +24,7 @@ function LookAtTriggerUnitElement:update_selected(t, dt)
 			brush:half_sphere(self._unit:position(), self._hed.distance, -self._unit:rotation():y(), 4)
 			pen:half_sphere(self._unit:position(), self._hed.distance, -self._unit:rotation():y())
 		end
-
 	end
-
 end
 
 function LookAtTriggerUnitElement:_build_panel(panel, panel_sizer)

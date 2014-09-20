@@ -20,7 +20,6 @@ function GTextureManager:set_texture(texture_name, texture_type, delay)
 	else
 		self:_retrieve()
 	end
-
 end
 
 function GTextureManager:preload(textures, texture_type)
@@ -28,19 +27,13 @@ function GTextureManager:preload(textures, texture_type)
 		if not self._preloaded[textures] then
 			self._preloaded[textures] = TextureCache:retrieve(textures, texture_type)
 		end
-
 	else
-		local (for generator), (for state), (for control) = ipairs(textures)
-		do
-			do break end
+		for _, v in ipairs(textures) do
 			if not self._preloaded[v.name] then
 				self._preloaded[v.name] = TextureCache:retrieve(v.name, v.type)
 			end
-
 		end
-
 	end
-
 end
 
 function GTextureManager:current_texture_name()
@@ -60,7 +53,6 @@ function GTextureManager:reload()
 	if self._texture then
 		self:_retrieve()
 	end
-
 end
 
 function GTextureManager:update(t, dt)
@@ -70,9 +62,7 @@ function GTextureManager:update(t, dt)
 			self:_retrieve()
 			self._delay = nil
 		end
-
 	end
-
 end
 
 function GTextureManager:paused_update(t, dt)
@@ -85,12 +75,9 @@ function GTextureManager:destroy()
 end
 
 function GTextureManager:_unref_preloaded()
-	local (for generator), (for state), (for control) = pairs(self._preloaded)
-	do
-		do break end
+	for _, v in pairs(self._preloaded) do
 		TextureCache:unretrieve(v)
 	end
-
 end
 
 function GTextureManager:_unretrieve()
@@ -99,7 +86,6 @@ function GTextureManager:_unretrieve()
 		TextureCache:unretrieve(self._texture)
 		self._texture = nil
 	end
-
 end
 
 function GTextureManager:_retrieve()

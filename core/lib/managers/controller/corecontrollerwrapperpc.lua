@@ -72,39 +72,29 @@ function ControllerWrapperPC:virtual_connect2(controller_id, controller, input_n
 		if not self._virtual_controller:has_axis(Idstring(connection_name)) then
 			self._virtual_controller:add_axis(Idstring(connection_name))
 		end
-
-		local (for generator), (for state), (for control) = pairs(connection._btn_connections)
-		do
-			do break end
+		for btn, input in pairs(connection._btn_connections) do
 			local controller = self._controller_map.keyboard
 			if (not controller:has_button(Idstring(input.name)) or input.type ~= "button") and (not controller:has_axis(Idstring(input.name)) or input.type ~= "axis") then
 				controller = self._controller_map.gamepads
 			end
-
 			if controller:has_button(Idstring(input.name)) and input.type == "button" or controller:has_axis(Idstring(input.name)) and input.type == "axis" then
 				if input.type == "axis" then
 					self._virtual_controller:connect(controller, Idstring("axis"), Idstring(input.name), tonumber(input.dir), Idstring("range"), tonumber(input.range1), tonumber(input.range2), Idstring("axis"), Idstring(connection_name), btn_data[btn][1], Idstring("range"), btn_data[btn][2], btn_data[btn][3])
 				else
 					self._virtual_controller:connect(controller, Idstring("button"), Idstring(input.name), Idstring("axis"), Idstring(connection_name), btn_data[btn][1], Idstring("range"), btn_data[btn][2], btn_data[btn][3])
 				end
-
 			end
-
 		end
-
 	else
 		local input_name_str = type(input_name) == "number" and tostring(input_name) or input_name
 		if self._controller_map.gamepads:has_button(Idstring(input_name_str)) or self._controller_map.gamepads:has_axis(Idstring(input_name_str)) then
 			controller = self._controller_map.gamepads
 		end
-
 		if controller:has_button(Idstring(input_name_str)) or controller:has_axis(Idstring(input_name_str)) then
 			self._virtual_controller:connect(controller, Idstring(connect_src_type), Idstring(input_name_str), Idstring("range"), min_src, max_src, Idstring(connect_dest_type), Idstring(connection_name), Idstring("range"), min_dest, max_dest)
 		else
 			Application:error("Invalid input name \"" .. tostring(input_name_str) .. "\". Controller type: \"" .. tostring(controller_id) .. "\", Connection name: \"" .. tostring(connection_name) .. "\".")
 		end
-
 	end
-
 end
 

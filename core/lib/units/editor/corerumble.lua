@@ -27,19 +27,13 @@ function CoreRumbleHubElement:_build_panel(panel, panel_sizer)
 	local engines_sizer = EWS:BoxSizer("HORIZONTAL")
 	engines_sizer:add(EWS:StaticText(panel, "Engine", 0, ""), 1, 0, "ALIGN_CENTER_VERTICAL,EXPAND")
 	local engines = EWS:ComboBox(panel, "", "", "CB_DROPDOWN,CB_READONLY")
-	do
-		local (for generator), (for state), (for control) = ipairs({
-			"both",
-			"left",
-			"right"
-		})
-		do
-			do break end
-			engines:append(engine)
-		end
-
+	for _, engine in ipairs({
+		"both",
+		"left",
+		"right"
+	}) do
+		engines:append(engine)
 	end
-
 	engines:set_value(self._hed.rumble_engine)
 	engines_sizer:add(engines, 2, 0, "EXPAND")
 	engines:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {

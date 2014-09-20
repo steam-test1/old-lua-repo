@@ -27,7 +27,6 @@ function CoreEffectStackMember:access()
 	else
 		assert(false, "Unhandled stacktype")
 	end
-
 	return ret
 end
 
@@ -35,30 +34,23 @@ function CoreEffectStackMember:reads_writes()
 	local reads = {}
 	local writes = {}
 	local access = self:access()
-	do
-		local (for generator), (for state), (for control) = ipairs(access)
-		do
-			do break end
-			if a.access == "WRITE" then
-				writes[a.component] = "FULL"
-			elseif a.access == "READ" then
-				reads[a.component] = "FULL"
-			elseif a.access == "WRITE_READ" or a.access == "READ_WRITE" then
-				writes[a.component] = "FULL"
-				reads[a.component] = "FULL"
-			elseif a.access == "READ_WRITE_SOME" then
-				reads[a.component] = "FULL"
-				writes[a.component] = "SOME"
-			elseif a.access == "WRITE_SOME" then
-				writes[a.component] = "SOME"
-			else
-				assert(false, "Unhandled enum")
-			end
-
+	for _, a in ipairs(access) do
+		if a.access == "WRITE" then
+			writes[a.component] = "FULL"
+		elseif a.access == "READ" then
+			reads[a.component] = "FULL"
+		elseif a.access == "WRITE_READ" or a.access == "READ_WRITE" then
+			writes[a.component] = "FULL"
+			reads[a.component] = "FULL"
+		elseif a.access == "READ_WRITE_SOME" then
+			reads[a.component] = "FULL"
+			writes[a.component] = "SOME"
+		elseif a.access == "WRITE_SOME" then
+			writes[a.component] = "SOME"
+		else
+			assert(false, "Unhandled enum")
 		end
-
 	end
-
 	return reads, writes
 end
 
@@ -88,7 +80,6 @@ function CoreEffectStack:move_down(idx)
 	if idx == #self._stack then
 		return
 	end
-
 	local e = self._stack[idx]
 	table.remove(self._stack, idx)
 	table.insert(self._stack, idx + 1, e)
@@ -98,7 +89,6 @@ function CoreEffectStack:move_up(idx)
 	if idx == 1 then
 		return
 	end
-
 	local e = self._stack[idx]
 	table.remove(self._stack, idx)
 	table.insert(self._stack, idx - 1, e)
@@ -118,11 +108,8 @@ function CoreEffectStack:validate(channels)
 		ret.message = self._type .. " stack is empty"
 		return ret
 	end
-
 	if self._type == "visualizer" then
-		local (for generator), (for state), (for control) = ipairs(self._stack)
-		do
-			do break end
+		for _, m in ipairs(self._stack) do
 			if m:name() == "trail" then
 				local num_backlog = tonumber(m:get_property("size")._value)
 				local tesselation = tonumber(m:get_property("tesselation")._value)
@@ -133,101 +120,68 @@ function CoreEffectStack:validate(channels)
 					m._valid_properties = false
 					return ret
 				end
-
 			end
-
 		end
-
 	end
-
 	local position_written = false
-	do
-		local (for generator), (for state), (for control) = ipairs(self._stack)
-		do
-			do break end
-			ret = m:validate_properties()
-			if not ret.valid then
-				ret.message = self._type .. "stack, " .. m:name() .. " - " .. ret.message
-				m._valid_properties = false
-				return ret
-			end
-
-			m._valid_properties = true
-			local access = m:access()
-			local (for generator), (for state), (for control) = ipairs(access)
-			do
-				do break end
-				if a.access == "WRITE" or a.access == "WRITE_READ" then
+	for _, m in ipairs(self._stack) do
+		ret = m:validate_properties()
+		if not ret.valid then
+			ret.message = self._type .. "stack, " .. m:name() .. " - " .. ret.message
+			m._valid_properties = false
+			return ret
+		end
+		m._valid_properties = true
+		local access = m:access()
+		for _, a in ipairs(access) do
+			if a.access == "WRITE" or a.access == "WRITE_READ" then
+				channels[a.component] = true
+				if a.component == "POSITION" then
+					position_written = true
+				end
+			elseif a.access == "READ" or a.access == "READ_WRITE" or a.access == "READ_WRITE_SOME" then
+				if not channels[a.component] then
+					ret.valid = false
+					ret.message = m:name() .. " in " .. self._type .. "stack reads from " .. a.component .. " before it has beeen written"
+					return ret
+				end
+				if a.access == "READ_WRITE" then
 					channels[a.component] = true
 					if a.component == "POSITION" then
 						position_written = true
 					end
-
-				elseif a.access == "READ" or a.access == "READ_WRITE" or a.access == "READ_WRITE_SOME" then
-					if not channels[a.component] then
-						ret.valid = false
-						ret.message = m:name() .. " in " .. self._type .. "stack reads from " .. a.component .. " before it has beeen written"
-						return ret
-					end
-
-					if a.access == "READ_WRITE" then
-						channels[a.component] = true
-						if a.component == "POSITION" then
-							position_written = true
-						end
-
-					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 	if self._type == "simulator" and not position_written then
 		ret.valid = false
 		ret.message = "Position channel not fully written in simulator stack, this is needed for effect bounding box to be valid"
 		return ret
 	end
-
 	return ret
 end
 
 function CoreEffectStack:save(node)
 	local stack = node:make_child(self._type .. "stack")
-	local (for generator), (for state), (for control) = ipairs(self._stack)
-	do
-		do break end
+	for _, m in ipairs(self._stack) do
 		m:save(stack)
 	end
-
 end
 
 function CoreEffectStack:load(node)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for child1 in node:children() do
 		if child1:name() == self._type .. "stack" then
-			do
-				local (for generator), (for state), (for control) = child1:children()
-				do
-					do break end
-					local creator = stack_members[self._type][child2:name()]
-					assert(creator, "Could not resolve creator for member type")
-					local m = creator()
-					m:load_properties(child2)
-					table.insert(self._stack, m)
-				end
-
+			for child2 in child1:children() do
+				local creator = stack_members[self._type][child2:name()]
+				assert(creator, "Could not resolve creator for member type")
+				local m = creator()
+				m:load_properties(child2)
+				table.insert(self._stack, m)
 			end
-
 			return
 		end
-
 	end
-
 end
 
 CoreEffectAtom = CoreEffectAtom or class(CoreEffectPropertyContainer)
@@ -460,47 +414,28 @@ function CoreEffectAtom:collect_stack_time_events()
 		elseif p._type == "variant" then
 			traverse_property(pref, ret, p._variants[p._value])
 		elseif p._type == "compound" then
-			local (for generator), (for state), (for control) = ipairs(p._compound_container)
-			do
-				do break end
+			for _, q in ipairs(p._compound_container) do
 				traverse_property(pref, ret, q)
 			end
-
 		elseif p._type == "keys" then
-			local (for generator), (for state), (for control) = ipairs(p._keys)
-			do
-				do break end
+			for _, k in ipairs(p._keys) do
 				table.insert(ret, {
 					pref .. p:name(),
 					k,
 					"t"
 				})
 			end
-
 		end
-
 	end
 
-	do
-		local (for generator), (for state), (for control) = pairs(self._stacks)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(stack._stack)
-			do
-				do break end
-				local (for generator), (for state), (for control) = ipairs(member._properties)
-				do
-					do break end
-					local pref = stack._type .. "/" .. member:name() .. "/"
-					traverse_property(pref, ret, p)
-				end
-
+	for _, stack in pairs(self._stacks) do
+		for _, member in ipairs(stack._stack) do
+			for _, p in ipairs(member._properties) do
+				local pref = stack._type .. "/" .. member:name() .. "/"
+				traverse_property(pref, ret, p)
 			end
-
 		end
-
 	end
-
 	return ret
 end
 
@@ -508,18 +443,12 @@ function CoreEffectAtom:collect_time_events()
 	local start_time = self:get_property("random_start_time")._variants["false"]
 	local lifetime = self:get_property("lifetime")
 	local ret = self:collect_stack_time_events()
-	do
-		local (for generator), (for state), (for control) = ipairs(ret)
-		do
-			do break end
-			local name = e[1]
-			local t = tonumber(e[2][e[3]]) + tonumber(start_time._value)
-			e[2] = {t}
-			e[3] = 1
-		end
-
+	for _, e in ipairs(ret) do
+		local name = e[1]
+		local t = tonumber(e[2][e[3]]) + tonumber(start_time._value)
+		e[2] = {t}
+		e[3] = 1
 	end
-
 	table.insert(ret, {
 		"start_time",
 		start_time,
@@ -534,7 +463,6 @@ function CoreEffectAtom:collect_time_events()
 			1
 		})
 	end
-
 	return ret
 end
 
@@ -550,56 +478,37 @@ function CoreEffectAtom:scale_timeline(istart, iend, tstart, tend)
 	if tonumber(lifetime._value) >= 0 then
 		table.insert(events, end_time)
 	end
-
 	local start_time_v = tonumber(start_time._value)
-	do
-		local (for generator), (for state), (for control) = ipairs(events)
-		do
-			do break end
-			e[2][e[3]] = e[2][e[3]] + start_time_v
-		end
-
+	for _, e in ipairs(events) do
+		e[2][e[3]] = e[2][e[3]] + start_time_v
 	end
-
 	table.insert(events, {
 		"start_time",
 		start_time,
 		"_value"
 	})
-	do
-		local (for generator), (for state), (for control) = ipairs(events)
-		do
-			do break end
-			local name = e[1]
-			local t = tonumber(e[2][e[3]])
-			if istart >= t then
-				t = t + tstart - istart
-			elseif iend <= t then
-				t = t + tend - iend
-			else
-				local rel = 0
-				if iend - istart ~= 0 then
-					rel = (t - istart) / (iend - istart)
-				end
-
-				t = tstart + rel * (tend - tstart)
+	for _, e in ipairs(events) do
+		local name = e[1]
+		local t = tonumber(e[2][e[3]])
+		if istart >= t then
+			t = t + tstart - istart
+		elseif iend <= t then
+			t = t + tend - iend
+		else
+			local rel = 0
+			if iend - istart ~= 0 then
+				rel = (t - istart) / (iend - istart)
 			end
-
-			e[2][e[3]] = t
+			t = tstart + rel * (tend - tstart)
 		end
-
+		e[2][e[3]] = t
 	end
-
 	local new_start_time_v = tonumber(start_time._value)
-	local (for generator), (for state), (for control) = ipairs(events)
-	do
-		do break end
+	for _, e in ipairs(events) do
 		if e[2] ~= start_time then
 			e[2][e[3]] = e[2][e[3]] - new_start_time_v
 		end
-
 	end
-
 end
 
 function CoreEffectAtom:extend_timeline(istart, iend, tstart, tend)
@@ -614,49 +523,31 @@ function CoreEffectAtom:extend_timeline(istart, iend, tstart, tend)
 	if tonumber(lifetime._value) >= 0 then
 		table.insert(events, end_time)
 	end
-
 	local start_time_v = tonumber(start_time._value)
-	do
-		local (for generator), (for state), (for control) = ipairs(events)
-		do
-			do break end
-			e[2][e[3]] = e[2][e[3]] + start_time_v
-		end
-
+	for _, e in ipairs(events) do
+		e[2][e[3]] = e[2][e[3]] + start_time_v
 	end
-
 	table.insert(events, {
 		"start_time",
 		start_time,
 		"_value"
 	})
-	do
-		local (for generator), (for state), (for control) = ipairs(events)
-		do
-			do break end
-			local name = e[1]
-			local t = tonumber(e[2][e[3]])
-			if istart >= t then
-				t = t + tstart - istart
-			elseif iend <= t then
-				t = t + tend - iend
-			end
-
-			e[2][e[3]] = t
+	for _, e in ipairs(events) do
+		local name = e[1]
+		local t = tonumber(e[2][e[3]])
+		if istart >= t then
+			t = t + tstart - istart
+		elseif iend <= t then
+			t = t + tend - iend
 		end
-
+		e[2][e[3]] = t
 	end
-
 	local new_start_time_v = tonumber(start_time._value)
-	local (for generator), (for state), (for control) = ipairs(events)
-	do
-		do break end
+	for _, e in ipairs(events) do
 		if e[2] ~= start_time then
 			e[2][e[3]] = e[2][e[3]] - new_start_time_v
 		end
-
 	end
-
 end
 
 function CoreEffectAtom:validate()
@@ -668,43 +559,36 @@ function CoreEffectAtom:validate()
 	if not ret.valid then
 		return ret
 	end
-
 	local lifetime = tonumber(self:get_property("lifetime"):value())
 	if not lifetime then
 		ret.valid = false
 		ret.message = "Invalid lifetime for atom " .. self:name()
 		return ret
 	end
-
 	local preroll = tonumber(self:get_property("preroll"):value())
 	if not preroll or preroll < 0 or preroll > 5 then
 		ret.valid = false
 		ret.message = "Invalid preroll time for atom " .. self:name() .. ", must be between 0 and 5 seconds"
 		return ret
 	end
-
 	if lifetime >= 0 and preroll ~= 0 then
 		ret.valid = false
 		ret.message = "Atom " .. self:name() .. " cannot have  a preroll time set - only infinite-lifetime atoms can have a preroll time"
 		return ret
 	end
-
 	local channels = {}
 	ret = self._stacks.initializer:validate(channels)
 	if not ret.valid then
 		return ret
 	end
-
 	ret = self._stacks.simulator:validate(channels)
 	if not ret.valid then
 		return ret
 	end
-
 	ret = self._stacks.visualizer:validate(channels)
 	if not ret.valid then
 		return ret
 	end
-
 	return ret
 end
 
@@ -763,18 +647,11 @@ The CPU cost for for effects with this flag set will end up on the main thread, 
 end
 
 function CoreEffectDefinition:find_atom(name)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._atoms)
-		do
-			do break end
-			if atom:name() == name then
-				return atom
-			end
-
+	for _, atom in ipairs(self._atoms) do
+		if atom:name() == name then
+			return atom
 		end
-
 	end
-
 	return nil
 end
 
@@ -795,51 +672,35 @@ function CoreEffectDefinition:validate()
 	if not ret.valid then
 		return ret
 	end
-
 	if #self._atoms < 1 then
 		ret.valid = false
 		ret.message = "Empty effect - create an atom and fill stacks"
 		return ret
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._atoms)
-		do
-			do break end
-			ret = atom:validate()
-			if not ret.valid then
-				return ret
-			end
-
+	for _, atom in ipairs(self._atoms) do
+		ret = atom:validate()
+		if not ret.valid then
+			return ret
 		end
-
 	end
-
 	return ret
 end
 
 function CoreEffectDefinition:save(n)
 	self:save_properties(n)
-	local (for generator), (for state), (for control) = ipairs(self._atoms)
-	do
-		do break end
+	for _, atom in ipairs(self._atoms) do
 		atom:save(n)
 	end
-
 end
 
 function CoreEffectDefinition:load(n)
 	self:load_properties(n)
-	local (for generator), (for state), (for control) = n:children()
-	do
-		do break end
+	for child in n:children() do
 		if child:name() == "atom" then
 			local atom = CoreEffectAtom:new("default")
 			atom:load(child)
 			table.insert(self._atoms, atom)
 		end
-
 	end
-
 end
 

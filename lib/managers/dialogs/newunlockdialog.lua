@@ -9,9 +9,7 @@ function NewUnlockDialog:init(manager, data, is_title_outside)
 		else
 			self._data.focus_button = 1
 		end
-
 	end
-
 	self._ws = self._data.ws or manager:_get_ws()
 	local text_config = {
 		title_font = data.title_font,
@@ -48,7 +46,6 @@ function NewUnlockDialog:init(manager, data, is_title_outside)
 		image_config.w = 0
 		image_config.h = 0
 	end
-
 	self._panel_script = _G.ImageBoxGui:new(self._ws, self._data.title or "", self._data.text or "", self._data, text_config, image_config)
 	self._panel_script:add_background()
 	self._panel_script:set_layer(_G.tweak_data.gui.DIALOG_LAYER)
@@ -63,7 +60,6 @@ function NewUnlockDialog:init(manager, data, is_title_outside)
 		self._counter = data.counter
 		self._counter_time = self._counter[1]
 	end
-
 	self._sound_event = data.sound_event
 end
 
@@ -78,6 +74,5 @@ function NewUnlockDialog:update(t, dt)
 		managers.menu_component:post_event(self._sound_event)
 		self._start_sound_t = nil
 	end
-
 end
 

@@ -188,7 +188,6 @@ function GuiTweakData:init()
 	elseif SystemInfo:platform() == Idstring("X360") then
 		self.content_updates.item_list = {}
 	end
-
 	self.fav_videos = {
 		title_id = "menu_fav_videos",
 		choice_id = nil,
@@ -3733,7 +3732,6 @@ function GuiTweakData:init()
 		self:_create_location_spawning_dots()
 		print("Generating new spawn points for crimenet")
 	end
-
 	local wts = {}
 	local dlc_1_folder = "units/pd2_dlc1/weapons/wpn_effects_textures/"
 	wts.color_indexes = {
@@ -3813,48 +3811,30 @@ function GuiTweakData:init()
 end
 
 function GuiTweakData:_create_location_bounding_boxes()
-	local (for generator), (for state), (for control) = ipairs(self.crime_net.locations)
-	do
-		do break end
+	for _, location in ipairs(self.crime_net.locations) do
 		local params = location[1]
 		if params then
 			local min_x, max_x, min_y, max_y
-			do
-				local (for generator), (for state), (for control) = ipairs(params[1])
-				do
-					do break end
-					if not min_x then
-					else
-						min_x = x or math.min(min_x, x)
-					end
-
-					if not max_x then
-					else
-						max_x = x or math.max(max_x, x)
-					end
-
+			for _, x in ipairs(params[1]) do
+				if not min_x then
+				else
+					min_x = x or math.min(min_x, x)
 				end
-
-			end
-
-			do
-				local (for generator), (for state), (for control) = ipairs(params[2])
-				do
-					do break end
-					if not min_y then
-					else
-						min_y = y or math.min(min_y, y)
-					end
-
-					if not max_y then
-					else
-						max_y = y or math.max(max_y, y)
-					end
-
+				if not max_x then
+				else
+					max_x = x or math.max(max_x, x)
 				end
-
 			end
-
+			for _, y in ipairs(params[2]) do
+				if not min_y then
+				else
+					min_y = y or math.min(min_y, y)
+				end
+				if not max_y then
+				else
+					max_y = y or math.max(max_y, y)
+				end
+			end
 			params.bounding_box = {
 				min_x,
 				max_x,
@@ -3862,9 +3842,7 @@ function GuiTweakData:_create_location_bounding_boxes()
 				max_y
 			}
 		end
-
 	end
-
 end
 
 function GuiTweakData:_create_location_spawning_dots()
@@ -3886,43 +3864,31 @@ function GuiTweakData:_create_location_spawning_dots()
 			local found_point = false
 			local rx = x + math.random(-random_x, random_x)
 			local ry = y + math.random(-random_y, random_y) + (zig and zig_y or 0)
-			do
-				local (for generator), (for state), (for control) = ipairs(self.crime_net.locations)
-				do
-					do break end
-					local location = location_data[1]
-					local bounding_box = location.bounding_box
-					location.dots = location.dots or {}
-					if rx >= bounding_box[1] and rx <= bounding_box[2] and ry >= bounding_box[3] and ry <= bounding_box[4] then
-						local vx = location[1]
-						local vy = location[2]
-						local j, c
-						j = #vx
-						for i = 1, #vx do
-							if ry < vy[i] ~= (ry < vy[j]) and rx < (vx[j] - vx[i]) * (ry - vy[i]) / (vy[j] - vy[i]) + vx[i] then
-								found_point = not found_point
-							end
-
-							j = i
+			for _, location_data in ipairs(self.crime_net.locations) do
+				local location = location_data[1]
+				local bounding_box = location.bounding_box
+				location.dots = location.dots or {}
+				if rx >= bounding_box[1] and rx <= bounding_box[2] and ry >= bounding_box[3] and ry <= bounding_box[4] then
+					local vx = location[1]
+					local vy = location[2]
+					local j, c
+					j = #vx
+					for i = 1, #vx do
+						if ry < vy[i] ~= (ry < vy[j]) and rx < (vx[j] - vx[i]) * (ry - vy[i]) / (vy[j] - vy[i]) + vx[i] then
+							found_point = not found_point
 						end
-
-						if found_point then
-							table.insert(location.dots, {rx, ry})
-						end
-
-				end
-
+						j = i
+					end
+					if found_point then
+						table.insert(location.dots, {rx, ry})
+					end
 				else
 				end
-
 			end
-
 			zig = not zig
 		end
-
 		zig = not zig
 	end
-
 	local new_locations = {}
 	new_locations[1] = {}
 	new_locations[1].filters = self.crime_net.locations[1].filters
@@ -3931,16 +3897,11 @@ function GuiTweakData:_create_location_spawning_dots()
 	new_locations[1][1].weight = 100
 	for i = #self.crime_net.locations, 1, -1 do
 		if self.crime_net.locations[i][1].dots then
-			local (for generator), (for state), (for control) = pairs(self.crime_net.locations[i][1].dots)
-			do
-				do break end
+			for _, dot in pairs(self.crime_net.locations[i][1].dots) do
 				table.insert(new_locations[1][1].dots, dot)
 			end
-
 		end
-
 	end
-
 	self.crime_net.locations = new_locations
 end
 
@@ -3954,7 +3915,6 @@ function GuiTweakData:print_locations()
 		file:print(save_me)
 		file:close()
 	end
-
 end
 
 function GuiTweakData:serializeTable(val, name, skipnewlines, depth)
@@ -3964,26 +3924,18 @@ function GuiTweakData:serializeTable(val, name, skipnewlines, depth)
 	if name and type(name) == "string" then
 		tmp = tmp .. name .. "="
 	end
-
 	if type(val) == "table" then
 		tmp = tmp .. "{ " .. (depth == 0 and "\n" or "")
 		local i = 1
-		do
-			local (for generator), (for state), (for control) = pairs(val)
-			do
-				do break end
-				tmp = tmp .. self:serializeTable(v, k, skipnewlines, depth + 1)
-				if depth > 0 and i < table.size(val) then
-					tmp = tmp .. ", "
-					i = i + 1
-				else
-					tmp = tmp .. " "
-				end
-
+		for k, v in pairs(val) do
+			tmp = tmp .. self:serializeTable(v, k, skipnewlines, depth + 1)
+			if depth > 0 and i < table.size(val) then
+				tmp = tmp .. ", "
+				i = i + 1
+			else
+				tmp = tmp .. " "
 			end
-
 		end
-
 		tmp = tmp .. "}" .. (depth <= 1 and ", \n" or "")
 	elseif type(val) == "number" then
 		tmp = tmp .. tostring(val)
@@ -3994,7 +3946,6 @@ function GuiTweakData:serializeTable(val, name, skipnewlines, depth)
 	else
 		tmp = tmp .. "\"[inserializeable datatype:" .. type(val) .. "]\""
 	end
-
 	return tmp
 end
 

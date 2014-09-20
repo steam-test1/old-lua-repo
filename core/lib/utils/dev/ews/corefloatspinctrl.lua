@@ -77,7 +77,6 @@ function FloatSpinCtrl:_text_update_cb(data, event)
 	else
 		self:_set_valid(false)
 	end
-
 end
 
 function FloatSpinCtrl:_text_enter_cb(data, event)
@@ -95,7 +94,6 @@ function FloatSpinCtrl:_update_text(send_event)
 	else
 		self._text:change_value(str)
 	end
-
 end
 
 function FloatSpinCtrl:_set_valid(valid)
@@ -105,10 +103,8 @@ function FloatSpinCtrl:_set_valid(valid)
 		else
 			self._text:set_background_colour(unpack(INVALID_COLOR))
 		end
-
 		self._text:refresh()
 	end
-
 end
 
 function FloatSpinCtrl:_add_style(style)

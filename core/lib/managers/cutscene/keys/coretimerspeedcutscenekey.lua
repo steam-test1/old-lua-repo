@@ -20,11 +20,9 @@ function CoreTimerSpeedCutsceneKey:play(player, undo, fast_forward)
 		else
 			self:_set_timer_speed(1, 0)
 		end
-
 	else
 		self:_set_timer_speed(self:speed(), self:duration())
 	end
-
 end
 
 function CoreTimerSpeedCutsceneKey:_set_timer_speed(speed, duration)
@@ -33,11 +31,9 @@ function CoreTimerSpeedCutsceneKey:_set_timer_speed(speed, duration)
 	if speed > 0 and speed < 0.035 then
 		speed = 0.035
 	end
-
 	if duration > 0 and duration < 0.035 then
 		duration = 0
 	end
-
 	TimerManager:ramp_multiplier(TimerManager:game(), speed, duration, TimerManager:pausable())
 	TimerManager:ramp_multiplier(TimerManager:game_animation(), speed, duration, TimerManager:pausable())
 end

@@ -15,12 +15,9 @@ end
 
 function PrePlanningUnitElement:_create_dynamic_on_executed_alternatives()
 	PrePlanningUnitElement.ON_EXECUTED_ALTERNATIVES = {"any"}
-	local (for generator), (for state), (for control) = ipairs(managers.preplanning:types())
-	do
-		do break end
+	for _, type in ipairs(managers.preplanning:types()) do
 		table.insert(PrePlanningUnitElement.ON_EXECUTED_ALTERNATIVES, type)
 	end
-
 end
 
 function PrePlanningUnitElement:_data_updated(value_type, value)

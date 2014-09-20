@@ -28,7 +28,6 @@ function MenuMainState:at_enter(old_state)
 			else
 				self:on_server_left()
 			end
-
 		elseif Global.load_start_menu then
 			managers.overlay_effect:play_effect({
 				color = Color.black,
@@ -38,9 +37,7 @@ function MenuMainState:at_enter(old_state)
 				blend_mode = "normal"
 			})
 		end
-
 	end
-
 	local has_invite = false
 	if SystemInfo:platform() == Idstring("PS3") then
 		Global.boot_invite = Global.boot_invite or {}
@@ -57,9 +54,7 @@ function MenuMainState:at_enter(old_state)
 				end
 )
 			end
-
 		end
-
 	elseif SystemInfo:platform() == Idstring("WIN32") then
 		if Global.boot_invite then
 			has_invite = true
@@ -67,12 +62,10 @@ function MenuMainState:at_enter(old_state)
 			Global.boot_invite = nil
 			managers.network.matchmake:join_server_with_check(lobby)
 		end
-
 	elseif SystemInfo:platform() == Idstring("X360") and Global.boot_invite and next(Global.boot_invite) then
 		has_invite = true
 		managers.network.matchmake:join_boot_invite()
 	end
-
 	if Global.open_trial_buy then
 		Global.open_trial_buy = nil
 		managers.menu:open_node("trial_info")
@@ -83,11 +76,9 @@ function MenuMainState:at_enter(old_state)
 
 		managers.menu:show_question_start_tutorial({yes_func = yes_func})
 	end
-
 	if Global.savefile_manager.backup_save_enabled then
 		managers.savefile:save_progress("local_hdd")
 	end
-
 	managers.dyn_resource:set_file_streaming_chunk_size_mul(0.5, 3)
 end
 
@@ -95,19 +86,16 @@ function MenuMainState:at_exit(new_state)
 	if new_state:name() ~= "freeflight" then
 		managers.menu:close_menu("menu_main")
 	end
-
 	if self._sound_listener then
 		self._sound_listener:delete()
 		self._sound_listener = nil
 	end
-
 end
 
 function MenuMainState:on_server_left()
 	if managers.network:session() and managers.network:session():has_recieved_ok_to_load_level() then
 		return
 	end
-
 	self:_create_server_left_dialog()
 end
 

@@ -10,9 +10,7 @@ function Xbox360SelectUserDialog:init(manager, data)
 		else
 			self._data.count = 1
 		end
-
 	end
-
 end
 
 function Xbox360SelectUserDialog:show()
@@ -26,7 +24,6 @@ function Xbox360SelectUserDialog:update(t, dt)
 	if self._show_time and self._show_time ~= t and not Application:is_showing_system_dialog() and not self._manager:_is_engine_delaying_signin_change() then
 		self:done_callback()
 	end
-
 end
 
 function Xbox360SelectUserDialog:done_callback()

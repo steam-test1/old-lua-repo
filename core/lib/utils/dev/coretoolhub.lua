@@ -20,23 +20,15 @@ end
 
 function ToolHub:destroy()
 	if alive(self._main_frame) then
-		do
-			local (for generator), (for state), (for control) = pairs(self._tools)
-			do
-				do break end
-				if tool.destroy then
-					tool:destroy()
-				end
-
+		for _, tool in pairs(self._tools) do
+			if tool.destroy then
+				tool:destroy()
 			end
-
 		end
-
 		self._main_frame:set_visible(false)
 		self._main_frame:destroy_children()
 		self._main_frame:destroy()
 	end
-
 end
 
 function ToolHub:update(time, rel_time)
@@ -48,51 +40,31 @@ function ToolHub:update(time, rel_time)
 		else
 			self._main_frame:set_focus()
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._tools)
-		do
-			do break end
-			value:update(time, rel_time)
-		end
-
+	for key, value in pairs(self._tools) do
+		value:update(time, rel_time)
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._closelist)
-		do
-			do break end
-			local tool = self._tools[key]
-			if tool ~= nil then
-				cat_print("debug", "ToolHub: Shutting down tool '" .. key .. "'.")
-				self._tools[key]:close()
-				tool = nil
-				self._tools[key] = nil
-				if Global.frame then
-					Global.frame:set_focus()
-				end
-
+	for key, value in pairs(self._closelist) do
+		local tool = self._tools[key]
+		if tool ~= nil then
+			cat_print("debug", "ToolHub: Shutting down tool '" .. key .. "'.")
+			self._tools[key]:close()
+			tool = nil
+			self._tools[key] = nil
+			if Global.frame then
+				Global.frame:set_focus()
 			end
-
 		end
-
 	end
-
 	self._closelist = {}
 end
 
 function ToolHub:end_update(time, delta_time)
-	local (for generator), (for state), (for control) = pairs(self._tools)
-	do
-		do break end
+	for key, value in pairs(self._tools) do
 		if value.end_update then
 			value:end_update(time, delta_time)
 		end
-
 	end
-
 end
 
 function ToolHub:paused_update(time, rel_time)
@@ -112,27 +84,15 @@ end
 
 function ToolHub:get_tool_menu(frame)
 	local sortkeys = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._shed)
-		do
-			do break end
-			sortkeys[#sortkeys + 1] = n
-		end
-
+	for n in pairs(self._shed) do
+		sortkeys[#sortkeys + 1] = n
 	end
-
 	table.sort(sortkeys)
 	local tool_menu = EWS:Menu("")
-	do
-		local (for generator), (for state), (for control) = pairs(sortkeys)
-		do
-			do break end
-			tool_menu:append_item(value, value, "")
-			frame:connect(value, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_opentool"), "")
-		end
-
+	for key, value in pairs(sortkeys) do
+		tool_menu:append_item(value, value, "")
+		frame:connect(value, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_opentool"), "")
 	end
-
 	return tool_menu
 end
 
@@ -140,26 +100,14 @@ function ToolHub:buildmenu()
 	local menu_bar = EWS:MenuBar()
 	local file_menu = EWS:Menu("")
 	local sortkeys = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._shed)
-		do
-			do break end
-			sortkeys[#sortkeys + 1] = n
-		end
-
+	for n in pairs(self._shed) do
+		sortkeys[#sortkeys + 1] = n
 	end
-
 	table.sort(sortkeys)
-	do
-		local (for generator), (for state), (for control) = pairs(sortkeys)
-		do
-			do break end
-			file_menu:append_item(value, value, "")
-			self._main_frame:connect(value, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_opentool"), "")
-		end
-
+	for key, value in pairs(sortkeys) do
+		file_menu:append_item(value, value, "")
+		self._main_frame:connect(value, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_opentool"), "")
 	end
-
 	file_menu:append_separator()
 	file_menu:append_item("TB_CLOSE", "Close", "")
 	menu_bar:append(file_menu, "File")
@@ -180,27 +128,15 @@ function ToolHub:buildmenu()
 	self._main_frame:connect("TB_CATPRINT_DRAWDEBUG", "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_catprint_drawdebug"), "")
 	self._catprintmenu:append_separator()
 	local sorted_category_list = {}
-	do
-		local (for generator), (for state), (for control) = pairs(Global.category_print)
-		do
-			do break end
-			table.insert(sorted_category_list, key)
-		end
-
+	for key in pairs(Global.category_print) do
+		table.insert(sorted_category_list, key)
 	end
-
 	table.sort(sorted_category_list)
-	do
-		local (for generator), (for state), (for control) = ipairs(sorted_category_list)
-		do
-			do break end
-			self._catprintmenu:append_check_item(key, key, "")
-			self._main_frame:connect(key, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_catprint"), "")
-			self._catprintmenu:set_checked(key, not not Global.category_print[key])
-		end
-
+	for _, key in ipairs(sorted_category_list) do
+		self._catprintmenu:append_check_item(key, key, "")
+		self._main_frame:connect(key, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_catprint"), "")
+		self._catprintmenu:set_checked(key, not not Global.category_print[key])
 	end
-
 	menu_bar:append(self._catprintmenu, "CatPrint")
 	self._settingsmenu = EWS:Menu("")
 	menu_bar:append(self._settingsmenu, "Settings")
@@ -226,17 +162,11 @@ function ToolHub:buildmenu()
 	self._main_frame:connect("GLOSSINESS", "EVT_COMMAND_MENU_SELECTED", callback(self, self, "change_visualization"), "glossiness_visualization")
 	if SystemInfo:platform() == Idstring("WIN32") then
 		local resolution_menu = EWS:Menu("")
-		do
-			local (for generator), (for state), (for control) = ipairs(RenderSettings.modes)
-			do
-				do break end
-				local str = res.x .. "x" .. res.y .. ":" .. res.z
-				resolution_menu:append_item(str, str, "")
-				self._main_frame:connect(str, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "change_resolution"), res)
-			end
-
+		for _, res in ipairs(RenderSettings.modes) do
+			local str = res.x .. "x" .. res.y .. ":" .. res.z
+			resolution_menu:append_item(str, str, "")
+			self._main_frame:connect(str, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "change_resolution"), res)
 		end
-
 		resolution_menu:append_separator()
 		resolution_menu:append_item("4/3", "4/3", "")
 		resolution_menu:append_item("16/9", "16/9", "")
@@ -252,16 +182,12 @@ function ToolHub:buildmenu()
 		self._main_frame:connect("TOGGLE_FULLSCREEN", "EVT_COMMAND_MENU_SELECTED", callback(self, self, "toggle_fullscreen"), "")
 		menu_bar:append(resolution_menu, "Resolution")
 	end
-
 end
 
 function ToolHub:change_visualization(viz)
-	local (for generator), (for state), (for control) = ipairs(managers.viewport:viewports())
-	do
-		do break end
+	for _, vp in ipairs(managers.viewport:viewports()) do
 		vp:set_visualization_mode(viz)
 	end
-
 end
 
 function ToolHub:toggle_fullscreen()
@@ -372,7 +298,6 @@ function ToolHub:open(name)
 		self._tools[name] = tool
 		tool:set_position(self:getscreenpos(self._startscreen))
 	end
-
 end
 
 function ToolHub:close(name)
@@ -386,7 +311,6 @@ function ToolHub:prepare(name)
 		local tool = tool_class:new(unpack(self._init[name]))
 		return tool
 	end
-
 	return nil
 end
 
@@ -409,7 +333,6 @@ function ToolHub:on_gaaa(gaa, commandevent)
 	else
 		Application:console_command("set " .. cmdname .. " true")
 	end
-
 end
 
 function ToolHub:on_catprint(gaa, commandevent)
@@ -420,7 +343,6 @@ function ToolHub:on_catprint(gaa, commandevent)
 	else
 		Global.category_print[commandevent:get_id()] = true
 	end
-
 end
 
 function ToolHub:on_catprint_save(gaa, commandevent)
@@ -432,7 +354,6 @@ function ToolHub:on_catprint_drawdebug(gaa, commandevent)
 	if Global.render_debug == nil then
 		return
 	end
-
 	Global.render_debug.draw_enabled = not Global.render_debug.draw_enabled
 	cat_print("debug", "Toggle draw of debug info: " .. tostring(Global.render_debug.draw_enabled))
 end
@@ -442,29 +363,23 @@ function ToolHub:set_screen(gaa, commandevent)
 	if commandevent:get_id() == "TB_SETSCREEN-primary" then
 		self._startscreen = "primary"
 	end
-
 	if commandevent:get_id() == "TB_SETSCREEN-left" then
 		self._startscreen = "left"
 	end
-
 	if commandevent:get_id() == "TB_SETSCREEN-right" then
 		self._startscreen = "right"
 	end
-
 end
 
 function ToolHub:getscreenpos(screen)
 	if screen == "primary" then
 		return Vector3(100, 100, 0)
 	end
-
 	if screen == "left" then
 		return Vector3(-1000, 100, 0)
 	end
-
 	if screen == "right" then
 		return Vector3(1800, 100, 0)
 	end
-
 end
 

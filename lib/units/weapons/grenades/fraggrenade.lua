@@ -55,7 +55,6 @@ function FragGrenade:bullet_hit()
 	if not Network:is_server() then
 		return
 	end
-
 	print("FragGrenade:bullet_hit()")
 	self._timer = nil
 	self:_detonate()
@@ -63,21 +62,14 @@ end
 
 function FragGrenade:OLD_detonate()
 	local units = World:find_units("sphere", self._unit:position(), 400, self._slotmask)
-	do
-		local (for generator), (for state), (for control) = ipairs(units)
-		do
-			do break end
-			local col_ray = {}
-			col_ray.ray = unit:position() - self._unit:position():normalized()
-			col_ray.position = self._unit:position()
-			if unit:character_damage() and unit:character_damage().damage_explosion then
-				self:_give_explosion_damage(col_ray, unit, 10)
-			end
-
+	for _, unit in ipairs(units) do
+		local col_ray = {}
+		col_ray.ray = unit:position() - self._unit:position():normalized()
+		col_ray.position = self._unit:position()
+		if unit:character_damage() and unit:character_damage().damage_explosion then
+			self:_give_explosion_damage(col_ray, unit, 10)
 		end
-
 	end
-
 	self._unit:set_slot(0)
 end
 

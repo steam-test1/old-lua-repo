@@ -23,7 +23,6 @@ function CoreVisualFXCutsceneKey:prime(player)
 	if Application:production_build() then
 		CoreEngineAccess._editor_load(Idstring("effect"), self:effect():id())
 	end
-
 end
 
 function CoreVisualFXCutsceneKey:unload(player)
@@ -51,16 +50,13 @@ function CoreVisualFXCutsceneKey:play(player, undo, fast_forward)
 			end
 
 		end
-
 	end
-
 end
 
 function CoreVisualFXCutsceneKey:update(player, time)
 	if self:duration() and time > self:duration() then
 		self:stop()
 	end
-
 end
 
 function CoreVisualFXCutsceneKey:is_valid_unit_name(value)
@@ -93,7 +89,6 @@ function CoreVisualFXCutsceneKey:refresh_control_for_unit_name(control)
 	if self:unit_name() == "" then
 		control:set_value("")
 	end
-
 end
 
 function CoreVisualFXCutsceneKey:refresh_control_for_object_name(control)
@@ -103,7 +98,6 @@ function CoreVisualFXCutsceneKey:refresh_control_for_object_name(control)
 		self:set_object_name("")
 		control:set_value("")
 	end
-
 	control:set_enabled(self:unit_name() ~= "")
 end
 
@@ -111,19 +105,12 @@ function CoreVisualFXCutsceneKey:refresh_control_for_effect(control)
 	control:freeze()
 	control:clear()
 	local value = self:effect()
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type("effect"))
-		do
-			do break end
-			control:append(name)
-			if name == value then
-				control:set_value(value)
-			end
-
+	for _, name in ipairs(managers.database:list_entries_of_type("effect")) do
+		control:append(name)
+		if name == value then
+			control:set_value(value)
 		end
-
 	end
-
 	control:thaw()
 end
 
@@ -136,6 +123,5 @@ function CoreVisualFXCutsceneKey:stop()
 		self._effect_abort_func()
 		self._effect_abort_func = nil
 	end
-
 end
 

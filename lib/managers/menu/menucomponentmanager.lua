@@ -163,9 +163,7 @@ function MenuComponentManager:_setup_controller_input()
 			self._fullscreen_ws:connect_keyboard(Input:keyboard())
 			self._fullscreen_ws:panel():key_press(callback(self, self, "key_press_controller_support"))
 		end
-
 	end
-
 end
 
 function MenuComponentManager:_destroy_controller_input()
@@ -174,15 +172,12 @@ function MenuComponentManager:_destroy_controller_input()
 		if alive(self._fullscreen_ws:panel()) then
 			self._fullscreen_ws:panel():axis_move(nil)
 		end
-
 		self._controller_connected = nil
 		if SystemInfo:platform() == Idstring("WIN32") then
 			self._fullscreen_ws:disconnect_keyboard()
 			self._fullscreen_ws:panel():key_press(nil)
 		end
-
 	end
-
 end
 
 function MenuComponentManager:key_press_controller_support(o, k)
@@ -192,14 +187,11 @@ function MenuComponentManager:key_press_controller_support(o, k)
 			self._game_chat_gui:open_page()
 			return
 		end
-
 		if managers.hud and not managers.hud:chat_focus() and managers.menu:toggle_chatinput() then
 			managers.hud:set_chat_skip_first(true)
 		end
-
 		return
 	end
-
 end
 
 function MenuComponentManager:saferect_ws()
@@ -216,7 +208,6 @@ function MenuComponentManager:resolution_changed()
 	if self._tcst then
 		managers.gui_data:layout_fullscreen_16_9_workspace(self._tcst)
 	end
-
 end
 
 function MenuComponentManager:_axis_move(o, axis_name, axis_vector, controller)
@@ -225,46 +216,25 @@ function MenuComponentManager:_axis_move(o, axis_name, axis_vector, controller)
 	elseif axis_name == Idstring("right") then
 		mvector3.set(self._right_axis_vector, axis_vector)
 	end
-
 end
 
 function MenuComponentManager:set_active_components(components, node)
 	local to_close = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._active_components)
-		do
-			do break end
-			to_close[component] = true
-		end
-
+	for component, _ in pairs(self._active_components) do
+		to_close[component] = true
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(components)
-		do
-			do break end
-			if self._active_components[component] then
-				to_close[component] = nil
-				self._active_components[component].create(node)
-			end
-
+	for _, component in ipairs(components) do
+		if self._active_components[component] then
+			to_close[component] = nil
+			self._active_components[component].create(node)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(to_close)
-		do
-			do break end
-			self._active_components[component]:close()
-		end
-
+	for component, _ in pairs(to_close) do
+		self._active_components[component]:close()
 	end
-
 	if not managers.menu:is_pc_controller() then
 		self:_setup_controller_input()
 	end
-
 end
 
 function MenuComponentManager:make_color_text(text_object, color)
@@ -274,37 +244,26 @@ function MenuComponentManager:make_color_text(text_object, color)
 	local start_ci = {}
 	local end_ci = {}
 	local first_ci = true
-	do
-		local (for generator), (for state), (for control) = ipairs(text_dissected)
-		do
-			do break end
-			if Idstring(c) == idsp then
-				local next_c = text_dissected[i + 1]
-				if next_c and Idstring(next_c) == idsp then
-					if first_ci then
-						table.insert(start_ci, i)
-					else
-						table.insert(end_ci, i)
-					end
-
-					first_ci = not first_ci
+	for i, c in ipairs(text_dissected) do
+		if Idstring(c) == idsp then
+			local next_c = text_dissected[i + 1]
+			if next_c and Idstring(next_c) == idsp then
+				if first_ci then
+					table.insert(start_ci, i)
+				else
+					table.insert(end_ci, i)
 				end
-
+				first_ci = not first_ci
 			end
-
 		end
-
 	end
-
 	if #start_ci ~= #end_ci then
 	else
 		for i = 1, #start_ci do
 			start_ci[i] = start_ci[i] - ((i - 1) * 4 + 1)
 			end_ci[i] = end_ci[i] - (i * 4 - 1)
 		end
-
 	end
-
 	text = string.gsub(text, "##", "")
 	text_object:set_text(text)
 	text_object:clear_range_color(1, utf8.len(text))
@@ -314,16 +273,13 @@ function MenuComponentManager:make_color_text(text_object, color)
 		for i = 1, #start_ci do
 			text_object:set_range_color(start_ci[i], end_ci[i], color or tweak_data.screen_colors.resource)
 		end
-
 	end
-
 end
 
 function MenuComponentManager:on_job_updated()
 	if self._contract_gui then
 		self._contract_gui:refresh()
 	end
-
 end
 
 function MenuComponentManager:update(t, dt)
@@ -331,101 +287,75 @@ function MenuComponentManager:update(t, dt)
 		if self._crimenet_gui then
 			self._crimenet_gui:enable_crimenet()
 		end
-
 		self._set_crimenet_enabled = nil
 	elseif self._set_crimenet_enabled == false then
 		if self._crimenet_gui then
 			self._crimenet_gui:disable_crimenet()
 		end
-
 		self._set_crimenet_enabled = nil
 	end
-
 	if self._mission_briefing_update_tab_wanted then
 		self:update_mission_briefing_tab_positions()
 	end
-
 	if table.size(self._removing_textures) > 0 then
-		do
-			local (for generator), (for state), (for control) = pairs(self._removing_textures)
-			do
-				do break end
-				if self._cached_textures[key] and self._cached_textures[key] ~= 0 then
-					Application:error("[MenuComponentManager] update(): Still holds references of texture!", texture_ids, self._cached_textures[key])
-				end
-
-				self._cached_textures[key] = nil
-				self._requested_textures[key] = nil
-				self._requested_index[key] = nil
-				TextureCache:unretrieve(texture_ids)
+		for key, texture_ids in pairs(self._removing_textures) do
+			if self._cached_textures[key] and self._cached_textures[key] ~= 0 then
+				Application:error("[MenuComponentManager] update(): Still holds references of texture!", texture_ids, self._cached_textures[key])
 			end
-
+			self._cached_textures[key] = nil
+			self._requested_textures[key] = nil
+			self._requested_index[key] = nil
+			TextureCache:unretrieve(texture_ids)
 		end
-
 		self._removing_textures = {}
 	end
-
 	self:_update_newsfeed_gui(t, dt)
 	if t > self._refresh_friends_t then
 		self:_update_friends_gui()
 		self._refresh_friends_t = t + self._REFRESH_FRIENDS_TIME
 	end
-
 	if self._lobby_profile_gui then
 		self._lobby_profile_gui:update(t, dt)
 	end
-
 	if self._profile_gui then
 		self._profile_gui:update(t, dt)
 	end
-
 	if self._view_character_profile_gui then
 		self._view_character_profile_gui:update(t, dt)
 	end
-
 	if self._contract_gui then
 		self._contract_gui:update(t, dt)
 	end
-
 	if self._menuscene_info_gui then
 		self._menuscene_info_gui:update(t, dt)
 	end
-
 	if self._crimenet_contract_gui then
 		self._crimenet_contract_gui:update(t, dt)
 	end
-
 	if self._lootdrop_gui then
 		self._lootdrop_gui:update(t, dt)
 	end
-
 	if self._lootdrop_casino_gui then
 		self._lootdrop_casino_gui:update(t, dt)
 	end
-
 	if self._stage_endscreen_gui then
 		self._stage_endscreen_gui:update(t, dt)
 	end
-
 	if self._mission_briefing_gui then
 		self._mission_briefing_gui:update(t, dt)
 	end
-
 	if self._ingame_manual_gui then
 		self._ingame_manual_gui:update(t, dt)
 	end
-
 	if self._preplanning_map then
 		self._preplanning_map:update(t, dt)
 	end
-
 end
 
 function MenuComponentManager:get_left_controller_axis()
 	if managers.menu:is_pc_controller() or not self._left_axis_vector then
 		return 0, 0
 	end
-
 	local x = mvector3.x(self._left_axis_vector)
 	local y = mvector3.y(self._left_axis_vector)
 	return x, y
@@ -435,7 +365,6 @@ function MenuComponentManager:get_right_controller_axis()
 	if managers.menu:is_pc_controller() or not self._right_axis_vector then
 		return 0, 0
 	end
-
 	local x = mvector3.x(self._right_axis_vector)
 	local y = mvector3.y(self._right_axis_vector)
 	return x, y
@@ -445,18 +374,15 @@ function MenuComponentManager:accept_input(accept)
 	if not self._weapon_text_box then
 		return
 	end
-
 	if not accept then
 		self._weapon_text_box:release_scroll_bar()
 	end
-
 end
 
 function MenuComponentManager:input_focus()
 	if managers.system_menu and managers.system_menu:is_active() and not managers.system_menu:is_closing() then
 		return true
 	end
-
 	if self._game_chat_gui then
 		local input_focus = self._game_chat_gui:input_focus()
 		if input_focus == true then
@@ -464,476 +390,367 @@ function MenuComponentManager:input_focus()
 		elseif input_focus == 1 then
 			return 1
 		end
-
 	end
-
 	if self._skilltree_gui and self._skilltree_gui:input_focus() then
 		return 1
 	end
-
 	if self._infamytree_gui and self._infamytree_gui:input_focus() then
 		return 1
 	end
-
 	if self:is_preplanning_enabled() then
 		return self._preplanning_map:input_focus()
 	end
-
 	if self._blackmarket_gui then
 		return self._blackmarket_gui:input_focus()
 	end
-
 	if self._mission_briefing_gui then
 		return self._mission_briefing_gui:input_focus()
 	end
-
 	if self._stage_endscreen_gui then
 		return self._stage_endscreen_gui:input_focus()
 	end
-
 	if self._lootdrop_casino_gui then
 		return self._lootdrop_casino_gui:input_focus()
 	end
-
 	if self._lootdrop_gui then
 		return self._lootdrop_gui:input_focus()
 	end
-
 	if self._crimenet_gui then
 		return self._crimenet_gui:input_focus()
 	end
-
 	if self._ingame_manual_gui then
 		return self._ingame_manual_gui:input_focus()
 	end
-
 end
 
 function MenuComponentManager:scroll_up()
 	if self._game_chat_gui and self._game_chat_gui:input_focus() == true then
 		return true
 	end
-
 	if not self._weapon_text_box then
 		return
 	end
-
 	self._weapon_text_box:scroll_up()
 	if self._mission_briefing_gui and self._mission_briefing_gui:scroll_up() then
 		return true
 	end
-
 	if self._stage_endscreen_gui and self._stage_endscreen_gui:scroll_up() then
 		return true
 	end
-
 	if self._lootdrop_gui and self._lootdrop_gui:scroll_up() then
 		return true
 	end
-
 	if self._lootdrop_casino_gui and self._lootdrop_casino_gui:scroll_up() then
 		return true
 	end
-
 end
 
 function MenuComponentManager:scroll_down()
 	if self._game_chat_gui and self._game_chat_gui:input_focus() == true then
 		return true
 	end
-
 	if not self._weapon_text_box then
 		return
 	end
-
 	self._weapon_text_box:scroll_down()
 	if self._mission_briefing_gui and self._mission_briefing_gui:scroll_down() then
 		return true
 	end
-
 	if self._stage_endscreen_gui and self._stage_endscreen_gui:scroll_down() then
 		return true
 	end
-
 	if self._lootdrop_gui and self._lootdrop_gui:scroll_down() then
 		return true
 	end
-
 	if self._lootdrop_casino_gui and self._lootdrop_casino_gui:scroll_down() then
 		return true
 	end
-
 end
 
 function MenuComponentManager:move_up()
 	if self._game_chat_gui and self._game_chat_gui:input_focus() == true then
 		return true
 	end
-
 	if self._skilltree_gui and self._skilltree_gui:move_up() then
 		return true
 	end
-
 	if self._infamytree_gui and self._infamytree_gui:move_up() then
 		return true
 	end
-
 	if self._mission_briefing_gui and self._mission_briefing_gui:move_up() then
 		return true
 	end
-
 	if self._stage_endscreen_gui and self._stage_endscreen_gui:move_up() then
 		return true
 	end
-
 	if self._blackmarket_gui and self._blackmarket_gui:move_up() then
 		return true
 	end
-
 	if self._lootdrop_gui and self._lootdrop_gui:move_up() then
 		return true
 	end
-
 	if self._lootdrop_casino_gui and self._lootdrop_casino_gui:move_up() then
 		return true
 	end
-
 end
 
 function MenuComponentManager:move_down()
 	if self._game_chat_gui and self._game_chat_gui:input_focus() == true then
 		return true
 	end
-
 	if self._skilltree_gui and self._skilltree_gui:move_down() then
 		return true
 	end
-
 	if self._infamytree_gui and self._infamytree_gui:move_down() then
 		return true
 	end
-
 	if self._mission_briefing_gui and self._mission_briefing_gui:move_down() then
 		return true
 	end
-
 	if self._stage_endscreen_gui and self._stage_endscreen_gui:move_down() then
 		return true
 	end
-
 	if self._blackmarket_gui and self._blackmarket_gui:move_down() then
 		return true
 	end
-
 	if self._lootdrop_gui and self._lootdrop_gui:move_down() then
 		return true
 	end
-
 	if self._lootdrop_casino_gui and self._lootdrop_casino_gui:move_down() then
 		return true
 	end
-
 end
 
 function MenuComponentManager:move_left()
 	if self._game_chat_gui and self._game_chat_gui:input_focus() == true then
 		return true
 	end
-
 	if self._skilltree_gui and self._skilltree_gui:move_left() then
 		return true
 	end
-
 	if self._infamytree_gui and self._infamytree_gui:move_left() then
 		return true
 	end
-
 	if self._mission_briefing_gui and self._mission_briefing_gui:move_left() then
 		return true
 	end
-
 	if self._stage_endscreen_gui and self._stage_endscreen_gui:move_left() then
 		return true
 	end
-
 	if self._blackmarket_gui and self._blackmarket_gui:move_left() then
 		return true
 	end
-
 	if self._lootdrop_gui and self._lootdrop_gui:move_left() then
 		return true
 	end
-
 	if self._lootdrop_casino_gui and self._lootdrop_casino_gui:move_left() then
 		return true
 	end
-
 end
 
 function MenuComponentManager:move_right()
 	if self._game_chat_gui and self._game_chat_gui:input_focus() == true then
 		return true
 	end
-
 	if self._skilltree_gui and self._skilltree_gui:move_right() then
 		return true
 	end
-
 	if self._infamytree_gui and self._infamytree_gui:move_right() then
 		return true
 	end
-
 	if self._mission_briefing_gui and self._mission_briefing_gui:move_right() then
 		return true
 	end
-
 	if self._stage_endscreen_gui and self._stage_endscreen_gui:move_right() then
 		return true
 	end
-
 	if self._blackmarket_gui and self._blackmarket_gui:move_right() then
 		return true
 	end
-
 	if self._lootdrop_gui and self._lootdrop_gui:move_right() then
 		return true
 	end
-
 	if self._lootdrop_casino_gui and self._lootdrop_casino_gui:move_right() then
 		return true
 	end
-
 end
 
 function MenuComponentManager:next_page()
 	if self._game_chat_gui and self._game_chat_gui:input_focus() == true then
 		return true
 	end
-
 	if self._skilltree_gui and self._skilltree_gui:next_page(true) then
 		return true
 	end
-
 	if self._mission_briefing_gui and self._mission_briefing_gui:next_page() then
 		return true
 	end
-
 	if self._stage_endscreen_gui and self._stage_endscreen_gui:next_page() then
 		return true
 	end
-
 	if self._blackmarket_gui and self._blackmarket_gui:next_page() then
 		return true
 	end
-
 	if self._crimenet_gui and self._crimenet_gui:next_page() then
 		return true
 	end
-
 	if self:is_preplanning_enabled() and self._preplanning_map:next_page() then
 		return true
 	end
-
 	if self._lootdrop_gui and self._lootdrop_gui:next_page() then
 		return true
 	end
-
 	if self._lootdrop_casino_gui and self._lootdrop_casino_gui:next_page() then
 		return true
 	end
-
 	if self._ingame_manual_gui and self._ingame_manual_gui:next_page() then
 		return true
 	end
-
 end
 
 function MenuComponentManager:previous_page()
 	if self._game_chat_gui and self._game_chat_gui:input_focus() == true then
 		return true
 	end
-
 	if self._skilltree_gui and self._skilltree_gui:previous_page(true) then
 		return true
 	end
-
 	if self._mission_briefing_gui and self._mission_briefing_gui:previous_page() then
 		return true
 	end
-
 	if self._stage_endscreen_gui and self._stage_endscreen_gui:previous_page() then
 		return true
 	end
-
 	if self._blackmarket_gui and self._blackmarket_gui:previous_page() then
 		return true
 	end
-
 	if self._crimenet_gui and self._crimenet_gui:previous_page() then
 		return true
 	end
-
 	if self:is_preplanning_enabled() and self._preplanning_map:previous_page() then
 		return true
 	end
-
 	if self._lootdrop_gui and self._lootdrop_gui:previous_page() then
 		return true
 	end
-
 	if self._lootdrop_casino_gui and self._lootdrop_casino_gui:previous_page() then
 		return true
 	end
-
 	if self._ingame_manual_gui and self._ingame_manual_gui:previous_page() then
 		return true
 	end
-
 end
 
 function MenuComponentManager:confirm_pressed()
 	if self._game_chat_gui and self._game_chat_gui:input_focus() == true then
 		return true
 	end
-
 	if self._skilltree_gui and self._skilltree_gui:confirm_pressed() then
 		return true
 	end
-
 	if self._infamytree_gui and self._infamytree_gui:confirm_pressed() then
 		return true
 	end
-
 	if self._mission_briefing_gui and self._mission_briefing_gui:confirm_pressed() then
 		return true
 	end
-
 	if self._stage_endscreen_gui and self._stage_endscreen_gui:confirm_pressed() then
 		return true
 	end
-
 	if self._blackmarket_gui and self._blackmarket_gui:confirm_pressed() then
 		return true
 	end
-
 	if self._crimenet_gui and self._crimenet_gui:confirm_pressed() then
 		return true
 	end
-
 	if self:is_preplanning_enabled() and self._preplanning_map:confirm_pressed() then
 		return true
 	end
-
 	if self._lootdrop_gui and self._lootdrop_gui:confirm_pressed() then
 		return true
 	end
-
 	if self._lootdrop_casino_gui and self._lootdrop_casino_gui:confirm_pressed() then
 		return true
 	end
-
 	if Application:production_build() and self._debug_font_gui then
 		self._debug_font_gui:toggle()
 	end
-
 end
 
 function MenuComponentManager:back_pressed()
 	if self._game_chat_gui and self._game_chat_gui:input_focus() == true then
 		return true
 	end
-
 	if self._mission_briefing_gui and self._mission_briefing_gui:back_pressed() then
 		return true
 	end
-
 	if self._stage_endscreen_gui and self._stage_endscreen_gui:back_pressed() then
 		return true
 	end
-
 	if self._lootdrop_gui and self._lootdrop_gui:back_pressed() then
 		return true
 	end
-
 	if self._lootdrop_casino_gui and self._lootdrop_casino_gui:back_pressed() then
 		return true
 	end
-
 end
 
 function MenuComponentManager:special_btn_pressed(...)
 	if self._game_chat_gui and self._game_chat_gui:input_focus() == true then
 		return true
 	end
-
 	if self._game_chat_gui and self._game_chat_gui:special_btn_pressed(...) then
 		return true
 	end
-
 	if self._preplanning_map and self._preplanning_map:special_btn_pressed(...) then
 		return true
 	end
-
 	if self._skilltree_gui and self._skilltree_gui:special_btn_pressed(...) then
 		return true
 	end
-
 	if self._blackmarket_gui and self._blackmarket_gui:special_btn_pressed(...) then
 		return true
 	end
-
 	if self._crimenet_contract_gui and self._crimenet_contract_gui:special_btn_pressed(...) then
 		return true
 	end
-
 	if self._crimenet_gui and self._crimenet_gui:special_btn_pressed(...) then
 		return true
 	end
-
 	if self._mission_briefing_gui and self._mission_briefing_gui:special_btn_pressed(...) then
 		return true
 	end
-
 	if self._lootdrop_gui and self._lootdrop_gui:special_btn_pressed(...) then
 		return true
 	end
-
 	if self._lootdrop_casino_gui and self._lootdrop_casino_gui:special_btn_pressed(...) then
 		return true
 	end
-
 	if self._crimenet_casino_gui and self._crimenet_casino_gui:special_btn_pressed(...) then
 		return true
 	end
-
 end
 
 function MenuComponentManager:mouse_pressed(o, button, x, y)
 	if self._game_chat_gui and self._game_chat_gui:mouse_pressed(button, x, y) then
 		return true
 	end
-
 	if self._skilltree_gui and self._skilltree_gui:mouse_pressed(button, x, y) then
 		return true
 	end
-
 	if self._infamytree_gui and self._infamytree_gui:mouse_pressed(button, x, y) then
 		return true
 	end
-
 	if self._blackmarket_gui and self._blackmarket_gui:mouse_pressed(button, x, y) then
 		return true
 	end
-
 	if self._newsfeed_gui and self._newsfeed_gui:mouse_pressed(button, x, y) then
 		return true
 	end
-
 	if self._profile_gui then
 		if self._profile_gui:mouse_pressed(button, x, y) then
 			return true
 		end
-
 		if button == Idstring("0") then
 			if self._profile_gui:check_minimize(x, y) then
 				local minimized_data = {
@@ -943,27 +760,21 @@ function MenuComponentManager:mouse_pressed(o, button, x, y)
 				self._profile_gui:set_minimized(true, minimized_data)
 				return true
 			end
-
 			if self._profile_gui:check_grab_scroll_bar(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel down") then
 			if self._profile_gui:mouse_wheel_down(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel up") and self._profile_gui:mouse_wheel_up(x, y) then
 			return true
 		end
-
 	end
-
 	if self._contract_gui then
 		if self._contract_gui:mouse_pressed(button, x, y) then
 			return true
 		end
-
 		if button == Idstring("0") then
 			if self._contract_gui:check_minimize(x, y) then
 				local minimized_data = {
@@ -973,27 +784,21 @@ function MenuComponentManager:mouse_pressed(o, button, x, y)
 				self._contract_gui:set_minimized(true, minimized_data)
 				return true
 			end
-
 			if self._contract_gui:check_grab_scroll_bar(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel down") then
 			if self._contract_gui:mouse_wheel_down(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel up") and self._contract_gui:mouse_wheel_up(x, y) then
 			return true
 		end
-
 	end
-
 	if self._server_info_gui then
 		if self._server_info_gui:mouse_pressed(button, x, y) then
 			return true
 		end
-
 		if button == Idstring("0") then
 			if self._server_info_gui:check_minimize(x, y) then
 				local minimized_data = {
@@ -1003,185 +808,139 @@ function MenuComponentManager:mouse_pressed(o, button, x, y)
 				self._server_info_gui:set_minimized(true, minimized_data)
 				return true
 			end
-
 			if self._server_info_gui:check_grab_scroll_bar(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel down") then
 			if self._server_info_gui:mouse_wheel_down(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel up") and self._server_info_gui:mouse_wheel_up(x, y) then
 			return true
 		end
-
 	end
-
 	if self._lobby_profile_gui then
 		if self._lobby_profile_gui:mouse_pressed(button, x, y) then
 			return true
 		end
-
 		if button == Idstring("0") then
 			if self._lobby_profile_gui:check_minimize(x, y) then
 				return true
 			end
-
 			if self._lobby_profile_gui:check_grab_scroll_bar(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel down") then
 			if self._lobby_profile_gui:mouse_wheel_down(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel up") and self._lobby_profile_gui:mouse_wheel_up(x, y) then
 			return true
 		end
-
 	end
-
 	if self._mission_briefing_gui and self._mission_briefing_gui:mouse_pressed(button, x, y) then
 		return true
 	end
-
 	if self._stage_endscreen_gui and self._stage_endscreen_gui:mouse_pressed(button, x, y) then
 		return true
 	end
-
 	if self._lootdrop_gui and self._lootdrop_gui:mouse_pressed(button, x, y) then
 		return true
 	end
-
 	if self._lootdrop_casino_gui and self._lootdrop_casino_gui:mouse_pressed(button, x, y) then
 		return true
 	end
-
 	if self._crimenet_casino_gui and self._crimenet_casino_gui:mouse_pressed(button, x, y) then
 		return true
 	end
-
 	if self._view_character_profile_gui then
 		if self._view_character_profile_gui:mouse_pressed(button, x, y) then
 			return true
 		end
-
 		if button == Idstring("0") then
 			if self._view_character_profile_gui:check_minimize(x, y) then
 				return true
 			end
-
 			if self._view_character_profile_gui:check_grab_scroll_bar(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel down") then
 			if self._view_character_profile_gui:mouse_wheel_down(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel up") and self._view_character_profile_gui:mouse_wheel_up(x, y) then
 			return true
 		end
-
 	end
-
 	if self._test_profile1 then
 		if self._test_profile1:check_grab_scroll_bar(x, y) then
 			return true
 		end
-
 		if self._test_profile2:check_grab_scroll_bar(x, y) then
 			return true
 		end
-
 		if self._test_profile3:check_grab_scroll_bar(x, y) then
 			return true
 		end
-
 		if self._test_profile4:check_grab_scroll_bar(x, y) then
 			return true
 		end
-
 	end
-
 	if self._crimenet_contract_gui and self._crimenet_contract_gui:mouse_pressed(o, button, x, y) then
 		return true
 	end
-
 	if self._crimenet_gui and self._crimenet_gui:mouse_pressed(o, button, x, y) then
 		return true
 	end
-
 	if self:is_preplanning_enabled() and self._preplanning_map:mouse_pressed(button, x, y) then
 		return true
 	end
-
 	if self._minimized_list and button == Idstring("0") then
-		local (for generator), (for state), (for control) = ipairs(self._minimized_list)
-		do
-			do break end
+		for i, data in ipairs(self._minimized_list) do
 			if data.panel:inside(x, y) then
 				data.callback(data)
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 	if self._friends_book then
 		if self._friends_book:mouse_pressed(button, x, y) then
 			return true
 		end
-
 		if button == Idstring("0") then
 			if self._friends_book:check_grab_scroll_bar(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel down") then
 			if self._friends_book:mouse_wheel_down(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel up") and self._friends_book:mouse_wheel_up(x, y) then
 			return true
 		end
-
 	end
-
 	if self._debug_strings_book then
 		if self._debug_strings_book:mouse_pressed(button, x, y) then
 			return true
 		end
-
 		if button == Idstring("0") then
 			if self._debug_strings_book:check_grab_scroll_bar(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel down") then
 			if self._debug_strings_book:mouse_wheel_down(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel up") and self._debug_strings_book:mouse_wheel_up(x, y) then
 			return true
 		end
-
 	end
-
 	if self._weapon_text_box then
 		if button == Idstring("0") then
 			if self._weapon_text_box:check_close(x, y) then
 				self:close_weapon_box()
 				return true
 			end
-
 			if self._weapon_text_box:check_minimize(x, y) then
 				self._weapon_text_box:set_visible(false)
 				self._weapon_text_minimized_id = self:add_minimized({
@@ -1190,118 +949,91 @@ function MenuComponentManager:mouse_pressed(o, button, x, y)
 				})
 				return true
 			end
-
 			if self._weapon_text_box:check_grab_scroll_bar(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel down") then
 			if self._weapon_text_box:mouse_wheel_down(x, y) then
 				return true
 			end
-
 		elseif button == Idstring("mouse wheel up") and self._weapon_text_box:mouse_wheel_up(x, y) then
 			return true
 		end
-
 	end
-
 end
 
 function MenuComponentManager:mouse_clicked(o, button, x, y)
 	if self._blackmarket_gui then
 		return self._blackmarket_gui:mouse_clicked(o, button, x, y)
 	end
-
 end
 
 function MenuComponentManager:mouse_double_click(o, button, x, y)
 	if self._blackmarket_gui then
 		return self._blackmarket_gui:mouse_double_click(o, button, x, y)
 	end
-
 end
 
 function MenuComponentManager:mouse_released(o, button, x, y)
 	if self._game_chat_gui and self._game_chat_gui:mouse_released(o, button, x, y) then
 		return true
 	end
-
 	if self._crimenet_gui and self._crimenet_gui:mouse_released(o, button, x, y) then
 		return true
 	end
-
 	if self:is_preplanning_enabled() and self._preplanning_map:mouse_released(button, x, y) then
 		return true
 	end
-
 	if self._blackmarket_gui then
 		return self._blackmarket_gui:mouse_released(button, x, y)
 	end
-
 	if self._friends_book and self._friends_book:release_scroll_bar() then
 		return true
 	end
-
 	if self._skilltree_gui and self._skilltree_gui:mouse_released(button, x, y) then
 		return true
 	end
-
 	if self._debug_strings_book and self._debug_strings_book:release_scroll_bar() then
 		return true
 	end
-
 	if self._chat_book then
 		local used, pointer = self._chat_book:release_scroll_bar()
 		if used then
 			return true, pointer
 		end
-
 	end
-
 	if self._profile_gui and self._profile_gui:release_scroll_bar() then
 		return true
 	end
-
 	if self._contract_gui and self._contract_gui:release_scroll_bar() then
 		return true
 	end
-
 	if self._server_info_gui and self._server_info_gui:release_scroll_bar() then
 		return true
 	end
-
 	if self._lobby_profile_gui and self._lobby_profile_gui:release_scroll_bar() then
 		return true
 	end
-
 	if self._view_character_profile_gui and self._view_character_profile_gui:release_scroll_bar() then
 		return true
 	end
-
 	if self._test_profile1 then
 		if self._test_profile1:release_scroll_bar() then
 			return true
 		end
-
 		if self._test_profile2:release_scroll_bar() then
 			return true
 		end
-
 		if self._test_profile3:release_scroll_bar() then
 			return true
 		end
-
 		if self._test_profile4:release_scroll_bar() then
 			return true
 		end
-
 	end
-
 	if self._weapon_text_box and self._weapon_text_box:release_scroll_bar() then
 		return true
 	end
-
 	return false
 end
 
@@ -1313,251 +1045,195 @@ function MenuComponentManager:mouse_moved(o, x, y)
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._skilltree_gui then
 		local used, pointer = self._skilltree_gui:mouse_moved(o, x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._infamytree_gui then
 		local used, pointer = self._infamytree_gui:mouse_moved(o, x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._blackmarket_gui then
 		local used, pointer = self._blackmarket_gui:mouse_moved(o, x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._crimenet_contract_gui then
 		local used, pointer = self._crimenet_contract_gui:mouse_moved(o, x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._crimenet_gui then
 		local used, pointer = self._crimenet_gui:mouse_moved(o, x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self:is_preplanning_enabled() then
 		local used, pointer = self._preplanning_map:mouse_moved(o, x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._friends_book then
 		local used, pointer = self._friends_book:moved_scroll_bar(x, y)
 		if used then
 			return true, pointer
 		end
-
 		local used, pointer = self._friends_book:mouse_moved(x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._debug_strings_book then
 		local used, pointer = self._debug_strings_book:moved_scroll_bar(x, y)
 		if used then
 			return true, pointer
 		end
-
 		local used, pointer = self._debug_strings_book:mouse_moved(x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._profile_gui then
 		local used, pointer = self._profile_gui:moved_scroll_bar(x, y)
 		if used then
 			return true, pointer
 		end
-
 		local used, pointer = self._profile_gui:mouse_moved(x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._contract_gui then
 		local used, pointer = self._contract_gui:moved_scroll_bar(x, y)
 		if used then
 			return true, pointer
 		end
-
 		local used, pointer = self._contract_gui:mouse_moved(x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._server_info_gui then
 		local used, pointer = self._server_info_gui:moved_scroll_bar(x, y)
 		if used then
 			return true, pointer
 		end
-
 		local used, pointer = self._server_info_gui:mouse_moved(x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._backdrop_gui then
 		local used, pointer = self._backdrop_gui:mouse_moved(x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._mission_briefing_gui then
 		local used, pointer = self._mission_briefing_gui:mouse_moved(x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._stage_endscreen_gui then
 		local used, pointer = self._stage_endscreen_gui:mouse_moved(x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._lootdrop_gui then
 		local used, pointer = self._lootdrop_gui:mouse_moved(x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._lootdrop_casino_gui then
 		local used, pointer = self._lootdrop_casino_gui:mouse_moved(x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._crimenet_casino_gui then
 		local used, pointer = self._crimenet_casino_gui:mouse_moved(x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._lobby_profile_gui then
 		local used, pointer = self._lobby_profile_gui:moved_scroll_bar(x, y)
 		if used then
 			return true, pointer
 		end
-
 		local used, pointer = self._lobby_profile_gui:mouse_moved(x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._view_character_profile_gui then
 		local used, pointer = self._view_character_profile_gui:moved_scroll_bar(x, y)
 		if used then
 			return true, pointer
 		end
-
 		local used, pointer = self._view_character_profile_gui:mouse_moved(x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._test_profile1 then
 		local used, pointer = self._test_profile1:moved_scroll_bar(x, y)
 		if used then
 			return true, pointer
 		end
-
 		local used, pointer = self._test_profile2:moved_scroll_bar(x, y)
 		if used then
 			return true, pointer
 		end
-
 		local used, pointer = self._test_profile3:moved_scroll_bar(x, y)
 		if used then
 			return true, pointer
 		end
-
 		local used, pointer = self._test_profile4:moved_scroll_bar(x, y)
 		if used then
 			return true, pointer
 		end
-
 	end
-
 	if self._newsfeed_gui then
 		local used, pointer = self._newsfeed_gui:mouse_moved(x, y)
 		wanted_pointer = pointer or wanted_pointer
 		if used then
 			return true, wanted_pointer
 		end
-
 	end
-
 	if self._minimized_list then
-		local (for generator), (for state), (for control) = ipairs(self._minimized_list)
-		do
-			do break end
+		for i, data in ipairs(self._minimized_list) do
 			if data.mouse_over ~= data.panel:inside(x, y) then
 				data.mouse_over = data.panel:inside(x, y)
 				data.text:set_font(data.mouse_over and tweak_data.menu.default_font_no_outline_id or Idstring(tweak_data.menu.default_font))
@@ -1565,16 +1241,12 @@ function MenuComponentManager:mouse_moved(o, x, y)
 				data.selected:set_visible(data.mouse_over)
 				data.help_text:set_visible(data.mouse_over)
 			end
-
 			data.help_text:set_position(x + 12, y + 12)
 		end
-
 	end
-
 	if self._weapon_text_box and self._weapon_text_box:moved_scroll_bar(x, y) then
 		return true, wanted_pointer
 	end
-
 	return false, wanted_pointer
 end
 
@@ -1582,11 +1254,9 @@ function MenuComponentManager:on_peer_removed(peer, reason)
 	if self._lootdrop_gui then
 		self._lootdrop_gui:on_peer_removed(peer, reason)
 	end
-
 	if self._lootdrop_casino_gui then
 		self._lootdrop_casino_gui:on_peer_removed(peer, reason)
 	end
-
 end
 
 function MenuComponentManager:_create_crimenet_contract_gui(node)
@@ -1601,14 +1271,12 @@ function MenuComponentManager:close_crimenet_contract_gui(...)
 		self._crimenet_contract_gui = nil
 		self:enable_crimenet()
 	end
-
 end
 
 function MenuComponentManager:set_crimenet_contract_difficulty_id(difficulty_id)
 	if self._crimenet_contract_gui then
 		self._crimenet_contract_gui:set_difficulty_id(difficulty_id)
 	end
-
 end
 
 function MenuComponentManager:_create_crimenet_filters_gui(node)
@@ -1623,7 +1291,6 @@ function MenuComponentManager:close_crimenet_filters_gui(...)
 		self._crimenet_filters_gui = nil
 		self:enable_crimenet()
 	end
-
 end
 
 function MenuComponentManager:_create_crimenet_casino_gui(node)
@@ -1638,21 +1305,18 @@ function MenuComponentManager:close_crimenet_casino_gui(...)
 		self._crimenet_casino_gui = nil
 		self:enable_crimenet()
 	end
-
 end
 
 function MenuComponentManager:can_afford()
 	if self._crimenet_casino_gui then
 		self._crimenet_casino_gui:can_afford()
 	end
-
 end
 
 function MenuComponentManager:_create_crimenet_gui(...)
 	if self._crimenet_gui then
 		return
 	end
-
 	self._crimenet_gui = CrimeNetGui:new(self._ws, self._fullscreen_ws, ...)
 end
 
@@ -1661,7 +1325,6 @@ function MenuComponentManager:start_crimenet_job()
 	if self._crimenet_gui then
 		self._crimenet_gui:start_job()
 	end
-
 end
 
 function MenuComponentManager:enable_crimenet()
@@ -1676,7 +1339,6 @@ function MenuComponentManager:update_crimenet_gui(t, dt)
 	if self._crimenet_gui then
 		self._crimenet_gui:update(t, dt)
 	end
-
 end
 
 function MenuComponentManager:update_crimenet_job(...)
@@ -1691,7 +1353,6 @@ function MenuComponentManager:update_crimenet_server_job(...)
 	if self._crimenet_gui then
 		self._crimenet_gui:update_server_job(...)
 	end
-
 end
 
 function MenuComponentManager:feed_crimenet_server_timer(...)
@@ -1702,7 +1363,6 @@ function MenuComponentManager:criment_goto_lobby(...)
 	if self._crimenet_gui then
 		self._crimenet_gui:goto_lobby(...)
 	end
-
 end
 
 function MenuComponentManager:set_crimenet_players_online(amount)
@@ -1717,14 +1377,12 @@ function MenuComponentManager:add_crimenet_server_job(...)
 	if self._crimenet_gui then
 		self._crimenet_gui:add_server_job(...)
 	end
-
 end
 
 function MenuComponentManager:remove_crimenet_gui_job(id)
 	if self._crimenet_gui then
 		self._crimenet_gui:remove_job(id)
 	end
-
 end
 
 function MenuComponentManager:close_crimenet_gui()
@@ -1732,7 +1390,6 @@ function MenuComponentManager:close_crimenet_gui()
 		self._crimenet_gui:close()
 		self._crimenet_gui = nil
 	end
-
 end
 
 function MenuComponentManager:create_weapon_box(w_id, params)
@@ -1788,20 +1445,17 @@ function MenuComponentManager:create_weapon_box(w_id, params)
 			use_minimize_legend = true
 		})
 	end
-
 end
 
 function MenuComponentManager:close_weapon_box()
 	if self._weapon_text_box then
 		self._weapon_text_box:close()
 	end
-
 	self._weapon_text_box = nil
 	if self._weapon_text_minimized_id then
 		self:remove_minimized(self._weapon_text_minimized_id)
 		self._weapon_text_minimized_id = nil
 	end
-
 end
 
 function MenuComponentManager:_create_chat_gui()
@@ -1814,11 +1468,9 @@ function MenuComponentManager:_create_chat_gui()
 		else
 			self:add_game_chat()
 		end
-
 		self._game_chat_gui:set_params(self._saved_game_chat_params or "default")
 		self._saved_game_chat_params = nil
 	end
-
 end
 
 function MenuComponentManager:_create_lobby_chat_gui()
@@ -1831,11 +1483,9 @@ function MenuComponentManager:_create_lobby_chat_gui()
 		else
 			self:add_game_chat()
 		end
-
 		self._game_chat_gui:set_params(self._saved_game_chat_params or "lobby")
 		self._saved_game_chat_params = nil
 	end
-
 end
 
 function MenuComponentManager:_create_crimenet_chats_gui()
@@ -1848,11 +1498,9 @@ function MenuComponentManager:_create_crimenet_chats_gui()
 		else
 			self:add_game_chat()
 		end
-
 		self._game_chat_gui:set_params(self._saved_game_chat_params or "crimenet")
 		self._saved_game_chat_params = nil
 	end
-
 end
 
 function MenuComponentManager:_create_preplanning_chats_gui()
@@ -1865,11 +1513,9 @@ function MenuComponentManager:_create_preplanning_chats_gui()
 		else
 			self:add_game_chat()
 		end
-
 		self._game_chat_gui:set_params(self._saved_game_chat_params or "preplanning")
 		self._saved_game_chat_params = nil
 	end
-
 end
 
 function MenuComponentManager:create_chat_gui()
@@ -1898,9 +1544,7 @@ function MenuComponentManager:add_game_chat()
 			self._game_chat_gui:set_params(self._game_chat_params)
 			self._game_chat_params = nil
 		end
-
 	end
-
 end
 
 function MenuComponentManager:set_max_lines_game_chat(max_lines)
@@ -1910,7 +1554,6 @@ function MenuComponentManager:set_max_lines_game_chat(max_lines)
 		self._game_chat_params = self._game_chat_params or {}
 		self._game_chat_params.max_lines = max_lines
 	end
-
 end
 
 function MenuComponentManager:pre_set_game_chat_leftbottom(from_left, from_bottom)
@@ -1921,14 +1564,12 @@ function MenuComponentManager:pre_set_game_chat_leftbottom(from_left, from_botto
 		self._game_chat_params.left = from_left
 		self._game_chat_params.bottom = from_bottom
 	end
-
 end
 
 function MenuComponentManager:remove_game_chat()
 	if not self._chat_book then
 		return
 	end
-
 	self._chat_book:remove_page("Game")
 end
 
@@ -1936,42 +1577,36 @@ function MenuComponentManager:hide_lobby_chat_gui()
 	if self._game_chat_gui and self._lobby_chat_gui_active then
 		self._game_chat_gui:hide()
 	end
-
 end
 
 function MenuComponentManager:hide_crimenet_chat_gui()
 	if self._game_chat_gui and self._crimenet_chat_gui_active then
 		self._game_chat_gui:hide()
 	end
-
 end
 
 function MenuComponentManager:hide_preplanning_chat_gui()
 	if self._game_chat_gui and self._preplanning_chat_gui_active then
 		self._game_chat_gui:hide()
 	end
-
 end
 
 function MenuComponentManager:hide_game_chat_gui()
 	if self._game_chat_gui then
 		self._game_chat_gui:hide()
 	end
-
 end
 
 function MenuComponentManager:show_game_chat_gui()
 	if self._game_chat_gui then
 		self._game_chat_gui:show()
 	end
-
 end
 
 function MenuComponentManager:_disable_chat_gui()
 	if self._game_chat_gui and not self._lobby_chat_gui_active and not self._crimenet_chat_gui_active and not self._preplanning_chat_gui_active then
 		self._game_chat_gui:set_enabled(false)
 	end
-
 end
 
 function MenuComponentManager:close_chat_gui()
@@ -1979,12 +1614,10 @@ function MenuComponentManager:close_chat_gui()
 		self._game_chat_gui:close()
 		self._game_chat_gui = nil
 	end
-
 	if self._chat_book_minimized_id then
 		self:remove_minimized(self._chat_book_minimized_id)
 		self._chat_book_minimized_id = nil
 	end
-
 	self._game_chat_bottom = nil
 	self._lobby_chat_gui_active = nil
 	self._crimenet_chat_gui_active = nil
@@ -1995,7 +1628,6 @@ function MenuComponentManager:set_crimenet_chat_gui(state)
 	if self._game_chat_gui then
 		self._game_chat_gui:set_crimenet_chat(state)
 	end
-
 end
 
 function MenuComponentManager:_create_friends_gui()
@@ -2004,10 +1636,8 @@ function MenuComponentManager:_create_friends_gui()
 			self._friends_book:set_enabled(true)
 			return
 		end
-
 		self:create_friends_gui()
 	end
-
 end
 
 function MenuComponentManager:create_friends_gui()
@@ -2026,26 +1656,22 @@ function MenuComponentManager:_update_friends_gui()
 	if self._friends_gui then
 		self._friends_gui:update_friends()
 	end
-
 end
 
 function MenuComponentManager:_disable_friends_gui()
 	if self._friends_book then
 		self._friends_book:set_enabled(false)
 	end
-
 end
 
 function MenuComponentManager:close_friends_gui()
 	if self._friends_gui then
 		self._friends_gui = nil
 	end
-
 	if self._friends_book then
 		self._friends_book:close()
 		self._friends_book = nil
 	end
-
 end
 
 function MenuComponentManager:_create_contract_gui()
@@ -2053,7 +1679,6 @@ function MenuComponentManager:_create_contract_gui()
 		self._contract_gui:set_enabled(true)
 		return
 	end
-
 	self:create_contract_gui()
 end
 
@@ -2064,14 +1689,12 @@ function MenuComponentManager:create_contract_gui()
 	for i = 1, 4 do
 		self._contract_gui:update_character_menu_state(i, peers_state[i])
 	end
-
 end
 
 function MenuComponentManager:update_contract_character(peer_id)
 	if self._contract_gui then
 		self._contract_gui:update_character(peer_id)
 	end
-
 end
 
 function MenuComponentManager:update_contract_character_menu_state(peer_id, state)
@@ -2087,16 +1710,13 @@ function MenuComponentManager:update_contract_character_menu_state(peer_id, stat
 			})
 			lobby_bg:set_alpha(state == "options" and 0.4 or 0)
 		end
-
 	end
-
 end
 
 function MenuComponentManager:_disable_contract_gui()
 	if self._contract_gui then
 		self._contract_gui:set_enabled(false)
 	end
-
 end
 
 function MenuComponentManager:close_contract_gui()
@@ -2104,7 +1724,6 @@ function MenuComponentManager:close_contract_gui()
 		self._contract_gui:close()
 		self._contract_gui = nil
 	end
-
 end
 
 function MenuComponentManager:_create_skilltree_gui()
@@ -2121,28 +1740,24 @@ function MenuComponentManager:close_skilltree_gui()
 		self._skilltree_gui:close()
 		self._skilltree_gui = nil
 	end
-
 end
 
 function MenuComponentManager:on_tier_unlocked(...)
 	if self._skilltree_gui then
 		self._skilltree_gui:on_tier_unlocked(...)
 	end
-
 end
 
 function MenuComponentManager:on_skill_unlocked(...)
 	if self._skilltree_gui then
 		self._skilltree_gui:on_skill_unlocked(...)
 	end
-
 end
 
 function MenuComponentManager:on_points_spent(...)
 	if self._skilltree_gui then
 		self._skilltree_gui:on_points_spent(...)
 	end
-
 end
 
 function MenuComponentManager:_create_infamytree_gui()
@@ -2159,7 +1774,6 @@ function MenuComponentManager:close_infamytree_gui()
 		self._infamytree_gui:close()
 		self._infamytree_gui = nil
 	end
-
 end
 
 function MenuComponentManager:_create_inventory_list_gui(node)
@@ -2176,7 +1790,6 @@ function MenuComponentManager:close_inventory_list_gui()
 		self._inventory_list_gui:close()
 		self._inventory_list_gui = nil
 	end
-
 end
 
 function MenuComponentManager:_create_blackmarket_gui(node)
@@ -2187,23 +1800,19 @@ function MenuComponentManager:create_blackmarket_gui(node)
 	if not node then
 		return
 	end
-
 	if node:parameters().set_blackmarket_enabled == nil then
 		self:close_blackmarket_gui()
 	end
-
 	self._blackmarket_gui = self._blackmarket_gui or BlackMarketGui:new(self._ws, self._fullscreen_ws, node)
 	if node:parameters().set_blackmarket_enabled ~= nil then
 		self._blackmarket_gui:set_enabled(node:parameters().set_blackmarket_enabled)
 	end
-
 end
 
 function MenuComponentManager:set_blackmarket_tab_positions()
 	if self._blackmarket_gui then
 		self._blackmarket_gui:set_tab_positions()
 	end
-
 end
 
 function MenuComponentManager:close_blackmarket_gui()
@@ -2211,14 +1820,12 @@ function MenuComponentManager:close_blackmarket_gui()
 		self._blackmarket_gui:close()
 		self._blackmarket_gui = nil
 	end
-
 end
 
 function MenuComponentManager:_create_server_info_gui()
 	if self._server_info_gui then
 		self:close_server_info_gui()
 	end
-
 	self:create_server_info_gui()
 end
 
@@ -2232,7 +1839,6 @@ function MenuComponentManager:_disable_server_info_gui()
 	if self._server_info_gui then
 		self._server_info_gui:set_enabled(false)
 	end
-
 end
 
 function MenuComponentManager:close_server_info_gui()
@@ -2240,14 +1846,12 @@ function MenuComponentManager:close_server_info_gui()
 		self._server_info_gui:close()
 		self._server_info_gui = nil
 	end
-
 end
 
 function MenuComponentManager:set_server_info_state(state)
 	if self._server_info_gui then
 		self._server_info_gui:set_server_info_state(state)
 	end
-
 end
 
 function MenuComponentManager:_create_mission_briefing_gui(node)
@@ -2263,11 +1867,9 @@ function MenuComponentManager:create_mission_briefing_gui(node)
 				"whisper_mode"
 			}, callback(self, self, "on_whisper_mode_changed"))
 		end
-
 	else
 		self._mission_briefing_gui:reload_loadout()
 	end
-
 	self._mission_briefing_gui:show()
 end
 
@@ -2279,14 +1881,12 @@ function MenuComponentManager:hide_mission_briefing_gui()
 	if self._mission_briefing_gui then
 		self._mission_briefing_gui:hide()
 	end
-
 end
 
 function MenuComponentManager:show_mission_briefing_gui()
 	if self._mission_briefing_gui then
 		self._mission_briefing_gui:show()
 	end
-
 end
 
 function MenuComponentManager:close_mission_briefing_gui()
@@ -2297,9 +1897,7 @@ function MenuComponentManager:close_mission_briefing_gui()
 			managers.groupai:state():remove_listener(self._whisper_listener)
 			self._whisper_listener = nil
 		end
-
 	end
-
 end
 
 function MenuComponentManager:update_mission_briefing_tab_positions()
@@ -2309,7 +1907,6 @@ function MenuComponentManager:update_mission_briefing_tab_positions()
 	else
 		self._mission_briefing_update_tab_wanted = true
 	end
-
 end
 
 function MenuComponentManager:on_whisper_mode_changed()
@@ -2319,58 +1916,49 @@ function MenuComponentManager:on_whisper_mode_changed()
 		if hud then
 			hud:on_whisper_mode_changed()
 		end
-
 	end
-
 end
 
 function MenuComponentManager:set_mission_briefing_description(text_id)
 	if self._mission_briefing_gui then
 		self._mission_briefing_gui:set_description_text_id(text_id)
 	end
-
 end
 
 function MenuComponentManager:on_ready_pressed_mission_briefing_gui(ready)
 	if self._mission_briefing_gui then
 		self._mission_briefing_gui:on_ready_pressed(ready)
 	end
-
 end
 
 function MenuComponentManager:unlock_asset_mission_briefing_gui(asset_id)
 	if self._mission_briefing_gui then
 		self._mission_briefing_gui:unlock_asset(asset_id)
 	end
-
 end
 
 function MenuComponentManager:set_slot_outfit_mission_briefing_gui(slot, criminal_name, outfit)
 	if self._mission_briefing_gui then
 		self._mission_briefing_gui:set_slot_outfit(slot, criminal_name, outfit)
 	end
-
 end
 
 function MenuComponentManager:create_asset_mission_briefing_gui()
 	if self._mission_briefing_gui then
 		self._mission_briefing_gui:create_asset_tab()
 	end
-
 end
 
 function MenuComponentManager:close_asset_mission_briefing_gui()
 	if self._mission_briefing_gui then
 		self._mission_briefing_gui:close_asset()
 	end
-
 end
 
 function MenuComponentManager:flash_ready_mission_briefing_gui()
 	if self._mission_briefing_gui then
 		self._mission_briefing_gui:flash_ready()
 	end
-
 end
 
 function MenuComponentManager:_create_lootdrop_gui()
@@ -2382,7 +1970,6 @@ function MenuComponentManager:create_lootdrop_gui()
 		self._lootdrop_gui = LootDropScreenGui:new(self._ws, self._fullscreen_ws, managers.hud:get_lootscreen_hud(), self._saved_lootdrop_state)
 		self._saved_lootdrop_state = nil
 	end
-
 	self:show_lootdrop_gui()
 end
 
@@ -2392,7 +1979,6 @@ function MenuComponentManager:set_lootdrop_state(state)
 	else
 		self._saved_lootdrop_state = state
 	end
-
 end
 
 function MenuComponentManager:_hide_lootdrop_gui()
@@ -2403,14 +1989,12 @@ function MenuComponentManager:hide_lootdrop_gui()
 	if self._lootdrop_gui then
 		self._lootdrop_gui:hide()
 	end
-
 end
 
 function MenuComponentManager:show_lootdrop_gui()
 	if self._lootdrop_gui then
 		self._lootdrop_gui:show()
 	end
-
 end
 
 function MenuComponentManager:close_lootdrop_gui()
@@ -2418,7 +2002,6 @@ function MenuComponentManager:close_lootdrop_gui()
 		self._lootdrop_gui:close()
 		self._lootdrop_gui = nil
 	end
-
 end
 
 function MenuComponentManager:lootdrop_is_now_active()
@@ -2426,7 +2009,6 @@ function MenuComponentManager:lootdrop_is_now_active()
 		self._lootdrop_gui._panel:show()
 		self._lootdrop_gui._fullscreen_panel:show()
 	end
-
 end
 
 function MenuComponentManager:_create_lootdrop_casino_gui(node)
@@ -2491,14 +2073,11 @@ function MenuComponentManager:create_lootdrop_casino_gui(node)
 		if not managers.menu:is_pc_controller() then
 			managers.menu:active_menu().input:deactivate_controller_mouse()
 		end
-
 	end
-
 	if self._lootdrop_casino_gui then
 		self:disable_crimenet()
 		self._lootdrop_casino_gui:show()
 	end
-
 end
 
 function MenuComponentManager:close_lootdrop_casino_gui()
@@ -2507,16 +2086,13 @@ function MenuComponentManager:close_lootdrop_casino_gui()
 		self._lootdrop_casino_gui = nil
 		self:enable_crimenet()
 	end
-
 	if self._lootscreen_casino_hud then
 		self._lootscreen_casino_hud:close()
 		self._lootscreen_casino_hud = nil
 		if not managers.menu:is_pc_controller() then
 			managers.menu:active_menu().input:activate_controller_mouse()
 		end
-
 	end
-
 end
 
 function MenuComponentManager:check_lootdrop_casino_done()
@@ -2531,25 +2107,20 @@ function MenuComponentManager:create_stage_endscreen_gui()
 	if not self._stage_endscreen_gui then
 		self._stage_endscreen_gui = StageEndScreenGui:new(self._ws, self._fullscreen_ws)
 	end
-
 	game_state_machine:current_state():set_continue_button_text()
 	self._stage_endscreen_gui:show()
 	if self._endscreen_predata then
 		if self._endscreen_predata.cash_summary then
 			self:show_endscreen_cash_summary()
 		end
-
 		if self._endscreen_predata.stats then
 			self:feed_endscreen_statistics(self._endscreen_predata.stats)
 		end
-
 		if self._endscreen_predata.continue then
 			self:set_endscreen_continue_button_text(self._endscreen_predata.continue[1], self._endscreen_predata.continue[2])
 		end
-
 		self._endscreen_predata = nil
 	end
-
 end
 
 function MenuComponentManager:_hide_stage_endscreen_gui()
@@ -2560,14 +2131,12 @@ function MenuComponentManager:hide_stage_endscreen_gui()
 	if self._stage_endscreen_gui then
 		self._stage_endscreen_gui:hide()
 	end
-
 end
 
 function MenuComponentManager:show_stage_endscreen_gui()
 	if self._stage_endscreen_gui then
 		self._stage_endscreen_gui:show()
 	end
-
 end
 
 function MenuComponentManager:close_stage_endscreen_gui()
@@ -2575,7 +2144,6 @@ function MenuComponentManager:close_stage_endscreen_gui()
 		self._stage_endscreen_gui:close()
 		self._stage_endscreen_gui = nil
 	end
-
 end
 
 function MenuComponentManager:show_endscreen_cash_summary()
@@ -2585,7 +2153,6 @@ function MenuComponentManager:show_endscreen_cash_summary()
 		self._endscreen_predata = self._endscreen_predata or {}
 		self._endscreen_predata.cash_summary = true
 	end
-
 end
 
 function MenuComponentManager:feed_endscreen_statistics(data)
@@ -2595,7 +2162,6 @@ function MenuComponentManager:feed_endscreen_statistics(data)
 		self._endscreen_predata = self._endscreen_predata or {}
 		self._endscreen_predata.stats = data
 	end
-
 end
 
 function MenuComponentManager:set_endscreen_continue_button_text(text, not_clickable)
@@ -2605,7 +2171,6 @@ function MenuComponentManager:set_endscreen_continue_button_text(text, not_click
 		self._endscreen_predata = self._endscreen_predata or {}
 		self._endscreen_predata.continue = {text, not_clickable}
 	end
-
 end
 
 function MenuComponentManager:_create_menuscene_info_gui(node)
@@ -2613,7 +2178,6 @@ function MenuComponentManager:_create_menuscene_info_gui(node)
 	if not self._menuscene_info_gui then
 		self._menuscene_info_gui = MenuSceneGui:new(self._ws, self._fullscreen_ws, node)
 	end
-
 end
 
 function MenuComponentManager:_close_menuscene_info_gui()
@@ -2621,7 +2185,6 @@ function MenuComponentManager:_close_menuscene_info_gui()
 		self._menuscene_info_gui:close()
 		self._menuscene_info_gui = nil
 	end
-
 end
 
 function MenuComponentManager:_create_player_profile_gui()
@@ -2637,7 +2200,6 @@ function MenuComponentManager:refresh_player_profile_gui()
 	if self._player_profile_gui then
 		self:create_player_profile_gui()
 	end
-
 end
 
 function MenuComponentManager:close_player_profile_gui()
@@ -2645,7 +2207,6 @@ function MenuComponentManager:close_player_profile_gui()
 		self._player_profile_gui:close()
 		self._player_profile_gui = nil
 	end
-
 end
 
 function MenuComponentManager:_create_ingame_manual_gui()
@@ -2670,7 +2231,6 @@ function MenuComponentManager:ingame_manual_texture_done(texture_ids)
 		})
 		destroy_me:parent():remove(destroy_me)
 	end
-
 end
 
 function MenuComponentManager:close_ingame_manual_gui()
@@ -2678,7 +2238,6 @@ function MenuComponentManager:close_ingame_manual_gui()
 		self._ingame_manual_gui:close()
 		self._ingame_manual_gui = nil
 	end
-
 end
 
 function MenuComponentManager:_create_ingame_contract_gui()
@@ -2696,7 +2255,6 @@ function MenuComponentManager:close_ingame_contract_gui()
 		self._ingame_contract_gui:close()
 		self._ingame_contract_gui = nil
 	end
-
 end
 
 function MenuComponentManager:_create_profile_gui()
@@ -2704,7 +2262,6 @@ function MenuComponentManager:_create_profile_gui()
 		self._profile_gui:set_enabled(true)
 		return
 	end
-
 	self:create_profile_gui()
 end
 
@@ -2718,7 +2275,6 @@ function MenuComponentManager:_disable_profile_gui()
 	if self._profile_gui then
 		self._profile_gui:set_enabled(false)
 	end
-
 end
 
 function MenuComponentManager:close_profile_gui()
@@ -2726,7 +2282,6 @@ function MenuComponentManager:close_profile_gui()
 		self._profile_gui:close()
 		self._profile_gui = nil
 	end
-
 end
 
 function MenuComponentManager:create_test_profiles()
@@ -2756,7 +2311,6 @@ function MenuComponentManager:close_test_profiles()
 		self._test_profile4:close()
 		self._test_profile4 = nil
 	end
-
 end
 
 function MenuComponentManager:create_lobby_profile_gui(peer_id, x, y)
@@ -2775,12 +2329,10 @@ function MenuComponentManager:close_lobby_profile_gui()
 		self._lobby_profile_gui:close()
 		self._lobby_profile_gui = nil
 	end
-
 	if self._lobby_profile_gui_minimized_id then
 		self:remove_minimized(self._lobby_profile_gui_minimized_id)
 		self._lobby_profile_gui_minimized_id = nil
 	end
-
 end
 
 function MenuComponentManager:create_view_character_profile_gui(user, x, y)
@@ -2800,12 +2352,10 @@ function MenuComponentManager:close_view_character_profile_gui()
 		self._view_character_profile_gui:close()
 		self._view_character_profile_gui = nil
 	end
-
 	if self._view_character_profile_gui_minimized_id then
 		self:remove_minimized(self._view_character_profile_gui_minimized_id)
 		self._view_character_profile_gui_minimized_id = nil
 	end
-
 end
 
 function MenuComponentManager:get_texture_from_mod_type(type, sub_type, gadget, silencer, is_auto)
@@ -2825,7 +2375,6 @@ function MenuComponentManager:get_texture_from_mod_type(type, sub_type, gadget, 
 	else
 		texture = "guis/textures/pd2/blackmarket/inv_mod_" .. type
 	end
-
 	return texture
 end
 
@@ -2836,53 +2385,31 @@ function MenuComponentManager:create_weapon_mod_icon_list(weapon, category, fact
 		local weapon_factory_tweak_data = tweak_data.weapon.factory.parts
 		local mods_equip = deep_clone(managers.blackmarket:get_weapon_blueprint(category, slot))
 		local default_blueprint = managers.weapon_factory:get_default_blueprint_by_factory_id(factory_id)
-		do
-			local (for generator), (for state), (for control) = ipairs(default_blueprint)
-			do
-				do break end
-				table.delete(mods_equip, default_part)
-			end
-
+		for _, default_part in ipairs(default_blueprint) do
+			table.delete(mods_equip, default_part)
 		end
-
 		local mods_sorted = {}
-		do
-			local (for generator), (for state), (for control) = pairs(mods_all)
-			do
-				do break end
-				table.insert(mods_sorted, id)
-			end
-
+		for id, _ in pairs(mods_all) do
+			table.insert(mods_sorted, id)
 		end
-
 		table.sort(mods_sorted, function(x, y)
 			return y < x
 		end
 )
-		local (for generator), (for state), (for control) = pairs(mods_sorted)
-		do
-			do break end
+		for _, name in pairs(mods_sorted) do
 			local gadget, silencer, equipped, sub_type
 			local is_auto = tweak_data.weapon[weapon] and tweak_data.weapon[weapon].FIRE_MODE == "auto"
-			do
-				local (for generator), (for state), (for control) = pairs(mods_equip)
-				do
-					do break end
-					if name == weapon_factory_tweak_data[name_equip].type then
-						equipped = true
-						sub_type = weapon_factory_tweak_data[name_equip].sub_type
-						if name == "gadget" then
-							gadget = sub_type
-						end
-
-						silencer = sub_type == "silencer" and true
-				end
-
+			for _, name_equip in pairs(mods_equip) do
+				if name == weapon_factory_tweak_data[name_equip].type then
+					equipped = true
+					sub_type = weapon_factory_tweak_data[name_equip].sub_type
+					if name == "gadget" then
+						gadget = sub_type
+					end
+					silencer = sub_type == "silencer" and true
 				else
 				end
-
 			end
-
 			local texture = self:get_texture_from_mod_type(name, sub_type, gadget, silencer, is_auto)
 			if DB:has(Idstring("texture"), texture) then
 				table.insert(icon_list, {
@@ -2891,11 +2418,8 @@ function MenuComponentManager:create_weapon_mod_icon_list(weapon, category, fact
 					type = name
 				})
 			end
-
 		end
-
 	end
-
 	return icon_list
 end
 
@@ -2903,7 +2427,6 @@ function MenuComponentManager:_create_newsfeed_gui()
 	if self._newsfeed_gui then
 		return
 	end
-
 	self:create_newsfeed_gui()
 end
 
@@ -2912,14 +2435,12 @@ function MenuComponentManager:create_newsfeed_gui()
 	if SystemInfo:platform() == Idstring("WIN32") then
 		self._newsfeed_gui = NewsFeedGui:new(self._ws)
 	end
-
 end
 
 function MenuComponentManager:_update_newsfeed_gui(t, dt)
 	if self._newsfeed_gui then
 		self._newsfeed_gui:update(t, dt)
 	end
-
 end
 
 function MenuComponentManager:close_newsfeed_gui()
@@ -2927,7 +2448,6 @@ function MenuComponentManager:close_newsfeed_gui()
 		self._newsfeed_gui:close()
 		self._newsfeed_gui = nil
 	end
-
 end
 
 function MenuComponentManager:create_preplanning_map_gui(node)
@@ -2936,16 +2456,13 @@ function MenuComponentManager:create_preplanning_map_gui(node)
 	if self._preplanning_peer_draw_lines and self._preplanning_peer_draw_line_index then
 		self:_set_preplanning_drawings(self._preplanning_peer_draw_lines, self._preplanning_peer_draw_line_index)
 	end
-
 	if #self._preplanning_saved_draws > 0 then
 		self:_set_preplanning_saved_draws(self._preplanning_saved_draws)
 	end
-
 	local active_menu = managers.menu:active_menu()
 	if active_menu then
 		active_menu.input:set_force_input(true)
 	end
-
 end
 
 function MenuComponentManager:_create_preplanning_map_gui(node)
@@ -2962,7 +2479,6 @@ function MenuComponentManager:close_preplanning_map_gui()
 	if active_menu then
 		active_menu.input:set_force_input(false)
 	end
-
 end
 
 function MenuComponentManager:kill_preplanning_map_gui()
@@ -2972,102 +2488,87 @@ function MenuComponentManager:kill_preplanning_map_gui()
 			self._preplanning_peer_draw_lines = peer_draw_lines
 			self._preplanning_peer_draw_line_index = peer_draw_line_index
 		end
-
 		self._preplanning_map:close()
 		self._preplanning_map = nil
 	end
-
 end
 
 function MenuComponentManager:_close_preplanning_map_gui()
 	if self._preplanning_map then
 		self._preplanning_map:disable()
 	end
-
 end
 
 function MenuComponentManager:preplanning_flash_error(...)
 	if self._preplanning_map then
 		self._preplanning_map:flash_error(...)
 	end
-
 end
 
 function MenuComponentManager:set_preplanning_category_filter(category)
 	if self._preplanning_map then
 		self._preplanning_map:set_category_filter(category)
 	end
-
 end
 
 function MenuComponentManager:set_preplanning_type_filter(type)
 	if self._preplanning_map then
 		self._preplanning_map:set_type_filter(type)
 	end
-
 end
 
 function MenuComponentManager:get_preplanning_filter()
 	if self._preplanning_map then
 		return self._preplanning_map:current_type_filter()
 	end
-
 end
 
 function MenuComponentManager:set_preplanning_selected_element_item(item)
 	if self._preplanning_map then
 		return self._preplanning_map:set_selected_element_item(item)
 	end
-
 end
 
 function MenuComponentManager:set_preplanning_map_position_to_item(item)
 	if self._preplanning_map then
 		return self._preplanning_map:set_map_position_to_item(item)
 	end
-
 end
 
 function MenuComponentManager:set_preplanning_map_position(x, y, location)
 	if self._preplanning_map then
 		return self._preplanning_map:set_map_position(x, y, location)
 	end
-
 end
 
 function MenuComponentManager:update_preplanning_element(type, id)
 	if self._preplanning_map then
 		return self._preplanning_map:update_element(type, id)
 	end
-
 end
 
 function MenuComponentManager:preplanning_post_event(event, listener_clbk)
 	if self._preplanning_map then
 		return self._preplanning_map:post_event(event, listener_clbk)
 	end
-
 end
 
 function MenuComponentManager:preplanning_stop_event()
 	if self._preplanning_map then
 		return self._preplanning_map:stop_event()
 	end
-
 end
 
 function MenuComponentManager:preplanning_start_custom_talk(id)
 	if self._preplanning_map then
 		return self._preplanning_map:start_custom_talk(id)
 	end
-
 end
 
 function MenuComponentManager:toggle_preplanning_drawing(peer_id)
 	if self._preplanning_map then
 		return self._preplanning_map:toggle_drawing(peer_id)
 	end
-
 end
 
 function MenuComponentManager:sync_preplanning_draw_event(peer_id, event_id, var1, var2)
@@ -3086,11 +2587,8 @@ function MenuComponentManager:sync_preplanning_draw_event(peer_id, event_id, var
 				for i = 1, managers.criminals.get_num_characters() do
 					self._preplanning_map:sync_erase_drawing(i)
 				end
-
 			end
-
 		end
-
 	else
 		table.insert(self._preplanning_saved_draws, {
 			clbk = "sync_preplanning_draw_event",
@@ -3100,7 +2598,6 @@ function MenuComponentManager:sync_preplanning_draw_event(peer_id, event_id, var
 			var2
 		})
 	end
-
 end
 
 function MenuComponentManager:sync_preplanning_draw_point(peer_id, x, y)
@@ -3114,7 +2611,6 @@ function MenuComponentManager:sync_preplanning_draw_point(peer_id, x, y)
 			y
 		})
 	end
-
 end
 
 function MenuComponentManager:clear_preplanning_draws(peer_id)
@@ -3125,18 +2621,14 @@ function MenuComponentManager:clear_preplanning_draws(peer_id)
 			if self._preplanning_saved_draws[i][1] == peer_id then
 				table.remove(self._preplanning_saved_draws, i)
 			end
-
 		end
-
 	end
-
 end
 
 function MenuComponentManager:preplanning_sync_save(data)
 	if not data then
 		return
 	end
-
 	if self._preplanning_map then
 		local peer_draw_lines, peer_draw_line_index = self._preplanning_map:get_drawings()
 		data.peer_draw_lines = peer_draw_lines
@@ -3147,55 +2639,38 @@ function MenuComponentManager:preplanning_sync_save(data)
 	else
 		data.preplanning_saved_draws = self._preplanning_saved_draws
 	end
-
 end
 
 function MenuComponentManager:preplanning_sync_load(data)
 	if not data then
 		return
 	end
-
 	if self._preplanning_map then
 		if data.preplanning_saved_draws then
 			self:_set_preplanning_saved_draws(data.preplanning_saved_draws)
 		elseif data.peer_draw_lines and data.peer_draw_line_index then
 			self:_set_preplanning_drawings(data.peer_draw_lines, data.peer_draw_line_index)
 		end
-
 	elseif data.preplanning_saved_draws then
 		self._preplanning_saved_draws = data.preplanning_saved_draws
 	elseif data.peer_draw_lines and data.peer_draw_line_index then
 		self._preplanning_peer_draw_lines = data.peer_draw_lines
 		self._preplanning_peer_draw_line_index = data.peer_draw_line_index
 	end
-
 end
 
 function MenuComponentManager:_set_preplanning_saved_draws(preplanning_saved_draws)
 	local clbk, vars
-	do
-		local (for generator), (for state), (for control) = ipairs(preplanning_saved_draws)
-		do
-			do break end
-			clbk = draw_data.clbk
-			if clbk and self[clbk] then
-				vars = {}
-				do
-					local (for generator), (for state), (for control) = ipairs(draw_data)
-					do
-						do break end
-						table.insert(vars, var)
-					end
-
-				end
-
-				self[clbk](self, unpack(vars))
+	for _, draw_data in ipairs(preplanning_saved_draws) do
+		clbk = draw_data.clbk
+		if clbk and self[clbk] then
+			vars = {}
+			for _, var in ipairs(draw_data) do
+				table.insert(vars, var)
 			end
-
+			self[clbk](self, unpack(vars))
 		end
-
 	end
-
 	self._preplanning_saved_draws = {}
 end
 
@@ -3209,21 +2684,18 @@ function MenuComponentManager:hide_preplanning_drawboard()
 	if self._preplanning_map then
 		self._preplanning_map:hide_drawboard()
 	end
-
 end
 
 function MenuComponentManager:set_preplanning_drawboard(x, y)
 	if self._preplanning_map then
 		self._preplanning_map:set_drawboard_button_position(x, y)
 	end
-
 end
 
 function MenuComponentManager:get_game_chat_button_shape()
 	if self._game_chat_gui then
 		return self._game_chat_gui:get_chat_button_shape()
 	end
-
 end
 
 function MenuComponentManager:_create_debug_fonts_gui()
@@ -3231,7 +2703,6 @@ function MenuComponentManager:_create_debug_fonts_gui()
 		self._debug_fonts_gui:set_enabled(true)
 		return
 	end
-
 	self:create_debug_fonts_gui()
 end
 
@@ -3244,7 +2715,6 @@ function MenuComponentManager:_disable_debug_fonts_gui()
 	if self._debug_fonts_gui then
 		self._debug_fonts_gui:set_enabled(false)
 	end
-
 end
 
 function MenuComponentManager:close_debug_fonts_gui()
@@ -3252,21 +2722,18 @@ function MenuComponentManager:close_debug_fonts_gui()
 		self._debug_fonts_gui:close()
 		self._debug_fonts_gui = nil
 	end
-
 end
 
 function MenuComponentManager:toggle_debug_fonts_gui()
 	if Application:production_build() and self._debug_fonts_gui then
 		self._debug_fonts_gui:toggle_debug()
 	end
-
 end
 
 function MenuComponentManager:reload_debug_fonts_gui()
 	if self._debug_fonts_gui then
 		self._debug_fonts_gui:reload()
 	end
-
 end
 
 function MenuComponentManager:_create_debug_strings_gui()
@@ -3274,7 +2741,6 @@ function MenuComponentManager:_create_debug_strings_gui()
 		self._debug_strings_book:set_enabled(true)
 		return
 	end
-
 	self:create_debug_strings_gui()
 end
 
@@ -3288,29 +2754,23 @@ function MenuComponentManager:create_debug_strings_gui()
 	})
 	self._debug_strings_book._info_box:close()
 	self._debug_strings_book._info_box = nil
-	do
-		local (for generator), (for state), (for control) = ipairs({
-			"debug",
-			"blackmarket",
-			"challenges",
-			"hud",
-			"atmospheric_text",
-			"subtitles",
-			"heist",
-			"menu",
-			"savefile",
-			"system_text",
-			"systemmenu",
-			"wip"
-		})
-		do
-			do break end
-			local gui = DebugStringsBoxGui:new(self._ws, "file", "", nil, nil, "strings/" .. file_name)
-			self._debug_strings_book:add_page(file_name, gui, i == 1)
-		end
-
+	for i, file_name in ipairs({
+		"debug",
+		"blackmarket",
+		"challenges",
+		"hud",
+		"atmospheric_text",
+		"subtitles",
+		"heist",
+		"menu",
+		"savefile",
+		"system_text",
+		"systemmenu",
+		"wip"
+	}) do
+		local gui = DebugStringsBoxGui:new(self._ws, "file", "", nil, nil, "strings/" .. file_name)
+		self._debug_strings_book:add_page(file_name, gui, i == 1)
 	end
-
 	self._debug_strings_book:add_background()
 	self._debug_strings_book:set_layer(tweak_data.gui.DIALOG_LAYER)
 	self._debug_strings_book:set_centered()
@@ -3320,7 +2780,6 @@ function MenuComponentManager:_disable_debug_strings_gui()
 	if self._debug_strings_book then
 		self._debug_strings_book:set_enabled(false)
 	end
-
 end
 
 function MenuComponentManager:close_debug_strings_gui()
@@ -3328,7 +2787,6 @@ function MenuComponentManager:close_debug_strings_gui()
 		self._debug_strings_book:close()
 		self._debug_strings_book = nil
 	end
-
 end
 
 function MenuComponentManager:_maximize_weapon_box(data)
@@ -3362,7 +2820,6 @@ function MenuComponentManager:add_minimized(config)
 		text:set_size(w + 8, h)
 		panel:set_size(w + 8, h)
 	end
-
 	local help_text = panel:parent():text({
 		text = config.help_text or "CLICK TO MAXIMIZE WEAPON INFO",
 		align = "left",
@@ -3413,33 +2870,23 @@ end
 
 function MenuComponentManager:_layout_minimized()
 	local x = 0
-	local (for generator), (for state), (for control) = ipairs(self._minimized_list)
-	do
-		do break end
+	for i, data in ipairs(self._minimized_list) do
 		data.panel:set_x(x)
 		data.top_line:set_x(x)
 		x = x + data.panel:w() + 2
 	end
-
 end
 
 function MenuComponentManager:remove_minimized(id)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._minimized_list)
-		do
-			do break end
-			if data.id == id then
-				data.help_text:parent():remove(data.help_text)
-				data.top_line:parent():remove(data.top_line)
-				self._main_panel:remove(data.panel)
-				table.remove(self._minimized_list, i)
-		end
-
+	for i, data in ipairs(self._minimized_list) do
+		if data.id == id then
+			data.help_text:parent():remove(data.help_text)
+			data.top_line:parent():remove(data.top_line)
+			self._main_panel:remove(data.panel)
+			table.remove(self._minimized_list, i)
 		else
 		end
-
 	end
-
 	self:_layout_minimized()
 end
 
@@ -3449,24 +2896,14 @@ function MenuComponentManager:_request_done_callback(texture_ids)
 	if not entry then
 		return
 	end
-
 	local clbks = {}
-	do
-		local (for generator), (for state), (for control) = pairs(entry.owners)
-		do
-			do break end
-			table.insert(clbks, owner_data.clbk)
-			owner_data.clbk = nil
-		end
-
+	for index, owner_data in pairs(entry.owners) do
+		table.insert(clbks, owner_data.clbk)
+		owner_data.clbk = nil
 	end
-
-	local (for generator), (for state), (for control) = pairs(clbks)
-	do
-		do break end
+	for _, clbk in pairs(clbks) do
 		clbk(texture_ids)
 	end
-
 end
 
 function MenuComponentManager:request_texture(texture, done_cb)
@@ -3480,7 +2917,6 @@ function MenuComponentManager:request_texture(texture, done_cb)
 		}
 		self._requested_textures[key] = entry
 	end
-
 	local index = entry.next_index
 	entry.owners[index] = {clbk = done_cb}
 	local next_index = index + 1
@@ -3488,14 +2924,11 @@ function MenuComponentManager:request_texture(texture, done_cb)
 		if index == next_index then
 			debug_pause("[MenuComponentManager:request_texture] overflow!")
 		end
-
 		next_index = next_index + 1
 		if next_index == 10000 then
 			next_index = 1
 		end
-
 	end
-
 	entry.next_index = next_index
 	TextureCache:request(texture_ids, "NORMAL", callback(self, self, "_request_done_callback"), 100)
 	return index
@@ -3510,10 +2943,8 @@ function MenuComponentManager:unretrieve_texture(texture, index)
 		if not next(entry.owners) then
 			self._requested_textures[key] = nil
 		end
-
 		TextureCache:unretrieve(texture_ids)
 	end
-
 end
 
 function MenuComponentManager:retrieve_texture(texture)
@@ -3533,37 +2964,26 @@ function MenuComponentManager:add_colors_to_text_object(text_object, ...)
 	start_ci = {}
 	end_ci = {}
 	first_ci = true
-	do
-		local (for generator), (for state), (for control) = ipairs(text_dissected)
-		do
-			do break end
-			if Idstring(c) == idsp then
-				local next_c = text_dissected[i + 1]
-				if next_c and Idstring(next_c) == idsp then
-					if first_ci then
-						table.insert(start_ci, i)
-					else
-						table.insert(end_ci, i)
-					end
-
-					first_ci = not first_ci
+	for i, c in ipairs(text_dissected) do
+		if Idstring(c) == idsp then
+			local next_c = text_dissected[i + 1]
+			if next_c and Idstring(next_c) == idsp then
+				if first_ci then
+					table.insert(start_ci, i)
+				else
+					table.insert(end_ci, i)
 				end
-
+				first_ci = not first_ci
 			end
-
 		end
-
 	end
-
 	if #start_ci ~= #end_ci then
 	else
 		for i = 1, #start_ci do
 			start_ci[i] = start_ci[i] - ((i - 1) * 4 + 1)
 			end_ci[i] = end_ci[i] - (i * 4 - 1)
 		end
-
 	end
-
 	text = string.gsub(text, "##", "")
 	text_object:set_text(text)
 	if colors then
@@ -3574,11 +2994,8 @@ function MenuComponentManager:add_colors_to_text_object(text_object, ...)
 			for i = 1, #start_ci do
 				text_object:set_range_color(start_ci[i], end_ci[i], colors[i] or default_color)
 			end
-
 		end
-
 	end
-
 end
 
 MenuComponentPostEventInstance = MenuComponentPostEventInstance or class()
@@ -3591,19 +3008,16 @@ function MenuComponentPostEventInstance:post_event(event)
 	if alive(self._post_event) then
 		self._post_event:stop()
 	end
-
 	self._post_event = false
 	if alive(self._sound_source) then
 		self._post_event = self._sound_source:post_event(event)
 	end
-
 end
 
 function MenuComponentPostEventInstance:stop_event()
 	if alive(self._post_event) then
 		self._post_event:stop()
 	end
-
 	self._post_event = false
 end
 
@@ -3619,12 +3033,10 @@ function MenuComponentManager:post_event(event, unique)
 		self._post_event:stop()
 		self._post_event = nil
 	end
-
 	local post_event = self._sound_source:post_event(event)
 	if unique then
 		self._post_event = post_event
 	end
-
 	return post_event
 end
 
@@ -3634,7 +3046,6 @@ function MenuComponentManager:stop_event()
 		self._post_event:stop()
 		self._post_event = nil
 	end
-
 end
 
 function MenuComponentManager:close()
@@ -3657,21 +3068,15 @@ function MenuComponentManager:close()
 	if self._resolution_changed_callback_id then
 		managers.viewport:remove_resolution_changed_func(self._resolution_changed_callback_id)
 	end
-
 	if alive(self._sound_source) then
 		self._sound_source:stop()
 	end
-
 	self:_destroy_controller_input()
 	if self._removing_textures then
-		local (for generator), (for state), (for control) = pairs(self._removing_textures)
-		do
-			do break end
+		for key, texture_ids in pairs(self._removing_textures) do
 			TextureCache:unretrieve(texture_ids)
 		end
-
 	end
-
 	self._removing_textures = {}
 end
 
@@ -3679,7 +3084,6 @@ function MenuComponentManager:play_transition(run_in_pause)
 	if self._transition_panel then
 		self._transition_panel:parent():remove(self._transition_panel)
 	end
-
 	self._transition_panel = self._fullscreen_ws:panel():panel({
 		name = "transition_panel",
 		layer = 10000
@@ -3700,12 +3104,10 @@ function MenuComponentManager:play_transition(run_in_pause)
 			if dt == 0 and run_in_pause then
 				dt = TimerManager:main():delta_time()
 			end
-
 			t = t + dt
 			p = t / seconds
 			fade1:set_alpha(1 - p)
 		end
-
 	end
 
 	self._transition_panel:animate(animate_transition)
@@ -3730,7 +3132,6 @@ function MenuComponentManager:test_camera_shutter_tech()
 
 		b:animate(one_frame_hide)
 	end
-
 	local o = self._tcst:panel():children()[1]
 	local animate_fade = function(o)
 		local black = o:child("black")
@@ -3749,7 +3150,6 @@ function MenuComponentManager:create_test_gui()
 		Overlay:gui():destroy_workspace(Global.test_gui)
 		Global.test_gui = nil
 	end
-
 	Global.test_gui = managers.gui_data:create_fullscreen_16_9_workspace()
 	local panel = Global.test_gui:panel()
 	local bg = panel:rect({
@@ -3770,7 +3170,6 @@ function MenuComponentManager:create_test_gui()
 		bitmap:set_position(x, 0)
 		x = bitmap:right() + 10
 	end
-
 end
 
 function MenuComponentManager:destroy_test_gui()
@@ -3778,6 +3177,5 @@ function MenuComponentManager:destroy_test_gui()
 		Overlay:gui():destroy_workspace(Global.test_gui)
 		Global.test_gui = nil
 	end
-
 end
 

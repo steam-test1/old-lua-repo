@@ -25,7 +25,6 @@ function CoreEditor:marker_name()
 	while self._markers["marker" .. i] do
 		i = i + 1
 	end
-
 	return "marker" .. i
 end
 
@@ -37,9 +36,7 @@ function CoreEditor:on_make_marker()
 		else
 			self:make_marker(name)
 		end
-
 	end
-
 end
 
 function CoreEditor:make_marker(name)
@@ -49,9 +46,7 @@ function CoreEditor:make_marker(name)
 			self._ews_markers:append(name)
 			self._markers[name] = m
 		end
-
 	end
-
 end
 
 function CoreEditor:on_use_marker()
@@ -59,14 +54,12 @@ function CoreEditor:on_use_marker()
 	if s then
 		self:use_marker(s)
 	end
-
 end
 
 function CoreEditor:use_marker(name)
 	if self._current_layer and self._markers[name] then
 		self._current_layer:use_marker(self._markers[name])
 	end
-
 end
 
 function CoreEditor:on_delete_marker()
@@ -74,14 +67,12 @@ function CoreEditor:on_delete_marker()
 	if s then
 		self:delete_marker(s)
 	end
-
 end
 
 function CoreEditor:delete_marker(name)
 	if self._markers[name] then
 		self._markers[name] = nil
 	end
-
 	self:remove_marker_from_list(name)
 end
 
@@ -91,9 +82,7 @@ function CoreEditor:get_marker_string()
 		if i >= 0 then
 			return self._ews_markers:get_string(i)
 		end
-
 	end
-
 	return nil
 end
 
@@ -105,10 +94,8 @@ function CoreEditor:remove_marker_from_list(s)
 			self._ews_markers:remove(i)
 			break
 		end
-
 		i = i + 1
 	end
-
 end
 
 function CoreEditor:create_marker(name, pos, rot)
@@ -119,7 +106,6 @@ function CoreEditor:get_marker(name)
 	if self._markers[name] then
 		return self._markers[name]
 	end
-
 	return nil
 end
 

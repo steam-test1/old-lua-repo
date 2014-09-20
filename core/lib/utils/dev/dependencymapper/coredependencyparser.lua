@@ -63,17 +63,13 @@ function DependencyParser:_make_game_node()
 end
 
 function DependencyParser:_make_level_nodes()
-	local (for generator), (for state), (for control) = ipairs(File:list(CoreLevelDn.LEVEL_BASE, true))
-	do
-		do break end
+	for _, dir in ipairs(File:list(CoreLevelDn.LEVEL_BASE, true)) do
 		local file = string.format(CoreLevelDn.LEVEL_FILE, dir)
 		if File:exists(file) then
 			local key = self:_key(LEVEL, dir)
 			self._key2node[key] = CoreLevelDn.LevelDependencyNode:new(dir, self._dn_cb, self._database)
 		end
-
 	end
-
 end
 
 function DependencyParser:_make_materialfile_node()
@@ -82,30 +78,20 @@ function DependencyParser:_make_materialfile_node()
 end
 
 function DependencyParser:_make_nodes_from_db(dn_class, db_type)
-	local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type(db_type))
-	do
-		do break end
+	for _, name in ipairs(managers.database:list_entries_of_type(db_type)) do
 		local dn = dn_class:new(name, self._dn_cb, self._database)
 		local key = self:_key(dn:type_(), name)
 		self._key2node[key] = dn
 	end
-
 end
 
 function DependencyParser:nodes(pattern)
 	local dn_list = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._key2node)
-		do
-			do break end
-			if dn:match(pattern) then
-				table.insert(dn_list, dn)
-			end
-
+	for _, dn in pairs(self._key2node) do
+		if dn:match(pattern) then
+			table.insert(dn_list, dn)
 		end
-
 	end
-
 	return dn_list
 end
 
@@ -117,15 +103,9 @@ end
 
 function DependencyParser:reached(start_dn_list, pattern)
 	local reached_dn = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(start_dn_list)
-		do
-			do break end
-			reached_dn = union(reached_dn, start_dn:reached())
-		end
-
+	for _, start_dn in ipairs(start_dn_list) do
+		reached_dn = union(reached_dn, start_dn:reached())
 	end
-
 	return filter(reached_dn, pattern)
 end
 
@@ -137,116 +117,66 @@ end
 
 function _set2list(set)
 	local list = {}
-	do
-		local (for generator), (for state), (for control) = pairs(set)
-		do
-			do break end
-			table.insert(list, n)
-		end
-
+	for n, _ in pairs(set) do
+		table.insert(list, n)
 	end
-
 	return list
 end
 
 function _list2set(list)
 	local set = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(list)
-		do
-			do break end
-			set[n] = n
-		end
-
+	for _, n in ipairs(list) do
+		set[n] = n
 	end
-
 	return set
 end
 
 function union(A_list, B_list)
 	local set = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(A_list)
-		do
-			do break end
-			set[dn] = dn
-		end
-
+	for _, dn in ipairs(A_list) do
+		set[dn] = dn
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(B_list)
-		do
-			do break end
-			set[dn] = dn
-		end
-
+	for _, dn in ipairs(B_list) do
+		set[dn] = dn
 	end
-
 	return _set2list(set)
 end
 
 function intersect(A_list, B_list)
 	local b_set = _list2set(B_list)
 	local c_set = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(A_list)
-		do
-			do break end
-			if b_set[dn] ~= nil then
-				c_set[dn] = dn
-			end
-
+	for _, dn in ipairs(A_list) do
+		if b_set[dn] ~= nil then
+			c_set[dn] = dn
 		end
-
 	end
-
 	return _set2list(c_set)
 end
 
 function set_difference(A_list, B_list)
 	local set = _list2set(A_list)
-	do
-		local (for generator), (for state), (for control) = ipairs(B_list)
-		do
-			do break end
-			set[n] = nil
-		end
-
+	for _, n in ipairs(B_list) do
+		set[n] = nil
 	end
-
 	return _set2list(set)
 end
 
 function names(A_list)
 	local names = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(A_list)
-		do
-			do break end
-			table.insert(names, dn:name())
-		end
-
+	for _, dn in ipairs(A_list) do
+		table.insert(names, dn:name())
 	end
-
 	table.sort(names)
 	return names
 end
 
 function filter(dn_list, pattern)
 	res_list = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(dn_list)
-		do
-			do break end
-			if dn:match(pattern) then
-				table.insert(res_list, dn)
-			end
-
+	for _, dn in ipairs(dn_list) do
+		if dn:match(pattern) then
+			table.insert(res_list, dn)
 		end
-
 	end
-
 	return res_list
 end
 
@@ -258,7 +188,6 @@ function generate_report(filepath, protected_list, dp)
 	if protected_list ~= nil then
 		reached = union(reached, dp:reached(protected_list))
 	end
-
 	local not_reached = dp:complement(reached)
 	function make_first_worksheet()
 		local ws = CoreWorksheet.Worksheet:new("README")
@@ -292,15 +221,9 @@ function generate_report(filepath, protected_list, dp)
 		ws:add_row(CoreSsRow.Header1Row:new(string.format("%s, Candidates to be Removed:", name)))
 		local node_names = names(filter(not_reached, type_))
 		CoreDebug.cat_print("debug", name, #node_names)
-		do
-			local (for generator), (for state), (for control) = ipairs(node_names)
-			do
-				do break end
-				ws:add_row(CoreSsRow.Row:new(n))
-			end
-
+		for _, n in ipairs(node_names) do
+			ws:add_row(CoreSsRow.Row:new(n))
 		end
-
 		collectgarbage()
 		return ws
 	end
@@ -321,7 +244,6 @@ function generate_report(filepath, protected_list, dp)
 		for i = 1, size do
 			ws:add_row(CoreSsRow.Row:new(levels[i] or "", units[i] or "", objects[i] or "", models[i] or "", mtrlcfgs[i] or "", textures[i] or "", cutscenes[i] or "", effects[i] or ""))
 		end
-
 		collectgarbage()
 		return ws
 	end
@@ -346,7 +268,6 @@ function generate_report(filepath, protected_list, dp)
 		workbook:to_xml(f)
 		f:close()
 	end
-
 end
 
 function generate_BC_report(filepath)

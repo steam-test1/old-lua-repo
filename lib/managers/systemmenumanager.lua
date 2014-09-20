@@ -32,7 +32,6 @@ function GenericSystemMenuManager:init()
 	if not Global.dialog_manager then
 		Global.dialog_manager = {init_show_data_list = nil}
 	end
-
 	self._dialog_shown_callback_handler = CoreEvent.CallbackEventHandler:new()
 	self._dialog_hidden_callback_handler = CoreEvent.CallbackEventHandler:new()
 	self._dialog_closed_callback_handler = CoreEvent.CallbackEventHandler:new()
@@ -50,15 +49,11 @@ function GenericSystemMenuManager:init_finalize()
 	if Global.dialog_manager.init_show_data_list then
 		local init_show_data_list = Global.dialog_manager.init_show_data_list
 		Global.dialog_manager.init_show_data_list = nil
-		local (for generator), (for state), (for control) = ipairs(init_show_data_list)
-		do
-			do break end
+		for index, data in ipairs(init_show_data_list) do
 			cat_print("dialog_manager", "[SystemMenuManager] Processing init dialog. Index: " .. tostring(index) .. "/" .. tostring(#init_show_data_list))
 			self:show(data)
 		end
-
 	end
-
 end
 
 function GenericSystemMenuManager:resolution_changed()
@@ -80,13 +75,10 @@ function GenericSystemMenuManager:add_init_show(data)
 				cat_print("dialog_manager", "[SystemMenuManager] Removed an already added init dialog with the lower priority of \"" .. tostring(next_priority) .. "\". Index: " .. tostring(index) .. "/" .. tostring(#init_show_data_list))
 				table.remove(init_show_data_list, index)
 			end
-
 		end
-
 	else
 		init_show_data_list = {}
 	end
-
 	table.insert(init_show_data_list, data)
 	Global.dialog_manager.init_show_data_list = init_show_data_list
 end
@@ -96,12 +88,10 @@ function GenericSystemMenuManager:destroy()
 		Overlay:gui():destroy_workspace(self._ws)
 		self._ws = nil
 	end
-
 	if self._controller then
 		self._controller:destroy()
 		self._controller = nil
 	end
-
 end
 
 function GenericSystemMenuManager:changed_controller_index(default_wrapper_index)
@@ -115,7 +105,6 @@ function GenericSystemMenuManager:update(t, dt)
 	if self._active_dialog and self._active_dialog.update then
 		self._active_dialog:update(t, dt)
 	end
-
 	self:update_queue()
 	self:check_active_state()
 end
@@ -127,30 +116,20 @@ end
 function GenericSystemMenuManager:update_queue()
 	if not self:is_active(true) and self._dialog_queue then
 		local dialog, index
-		do
-			local (for generator), (for state), (for control) = ipairs(self._dialog_queue)
-			do
-				do break end
-				if not dialog or next_dialog:priority() > dialog:priority() then
-					index = next_index
-					dialog = next_dialog
-				end
-
+		for next_index, next_dialog in ipairs(self._dialog_queue) do
+			if not dialog or next_dialog:priority() > dialog:priority() then
+				index = next_index
+				dialog = next_dialog
 			end
-
 		end
-
 		table.remove(self._dialog_queue, index)
 		if not next(self._dialog_queue) then
 			self._dialog_queue = nil
 		end
-
 		if dialog then
 			self:_show_instance(dialog, true)
 		end
-
 	end
-
 end
 
 function GenericSystemMenuManager:check_active_state()
@@ -159,7 +138,6 @@ function GenericSystemMenuManager:check_active_state()
 		self:event_active_changed(active)
 		self._old_active_state = active
 	end
-
 end
 
 function GenericSystemMenuManager:block_exec()
@@ -178,7 +156,6 @@ function GenericSystemMenuManager:force_close_all()
 	if self._active_dialog and self._active_dialog:blocks_exec() then
 		self._active_dialog:fade_out_close()
 	end
-
 	self._dialog_queue = nil
 end
 
@@ -186,65 +163,46 @@ function GenericSystemMenuManager:get_dialog(id)
 	if not id then
 		return
 	end
-
 	if self._active_dialog and self._active_dialog:id() == id then
 		return self._active_dialog
 	end
-
 end
 
 function GenericSystemMenuManager:close(id)
 	if not id then
 		return
 	end
-
 	print("close active dialog", self._active_dialog and self._active_dialog:id(), id)
 	if self._active_dialog and self._active_dialog:id() == id then
 		self._active_dialog:fade_out_close()
 		return
 	end
-
 	if not self._dialog_queue then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._dialog_queue)
-	do
-		do break end
+	for i, dialog in ipairs(self._dialog_queue) do
 		if dialog:id() == id then
 			print("remove from queue", id)
 			table.remove(self._dialog_queue, i)
 		end
-
 	end
-
 end
 
 function GenericSystemMenuManager:is_active_by_id(id)
 	if not self._active_dialog or not id then
 		return false
 	end
-
 	if self._active_dialog:id() == id then
 		return true, self._active_dialog
 	end
-
 	if not self._dialog_queue then
 		return false
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._dialog_queue)
-		do
-			do break end
-			if dialog:id() == id then
-				return true, dialog
-			end
-
+	for i, dialog in ipairs(self._dialog_queue) do
+		if dialog:id() == id then
+			return true, dialog
 		end
-
 	end
-
 	return false
 end
 
@@ -259,17 +217,12 @@ function GenericSystemMenuManager:_show_result(success, data)
 				if callback_func then
 					callback_func(default_button_index, button_data)
 				end
-
 			end
-
 		end
-
 		if data.callback_func then
 			data.callback_func(default_button_index, data)
 		end
-
 	end
-
 end
 
 function GenericSystemMenuManager:show(data)
@@ -335,12 +288,9 @@ function GenericSystemMenuManager:_show_class(data, generic_dialog_class, dialog
 			if callback_func then
 				callback_func()
 			end
-
 		end
-
 		return false
 	end
-
 end
 
 function GenericSystemMenuManager:_show_instance(dialog, force)
@@ -348,16 +298,13 @@ function GenericSystemMenuManager:_show_instance(dialog, force)
 	if is_active and force then
 		self:hide_active_dialog()
 	end
-
 	local queue = true
 	if not is_active then
 		queue = not dialog:show()
 	end
-
 	if queue then
 		self:queue_dialog(dialog, force and 1 or nil)
 	end
-
 end
 
 function GenericSystemMenuManager:hide_active_dialog()
@@ -365,21 +312,18 @@ function GenericSystemMenuManager:hide_active_dialog()
 		self:queue_dialog(self._active_dialog, 1)
 		self._active_dialog:hide()
 	end
-
 end
 
 function GenericSystemMenuManager:queue_dialog(dialog, index)
 	if Global.category_print.dialog_manager then
 		cat_print("dialog_manager", "[SystemMenuManager] [Queue dialog (index: " .. tostring(index) .. "/" .. tostring(self._dialog_queue and #self._dialog_queue) .. ")] " .. tostring(dialog:to_string()))
 	end
-
 	self._dialog_queue = self._dialog_queue or {}
 	if index then
 		table.insert(self._dialog_queue, index, dialog)
 	else
 		table.insert(self._dialog_queue, dialog)
 	end
-
 end
 
 function GenericSystemMenuManager:set_active_dialog(dialog)
@@ -391,15 +335,12 @@ function GenericSystemMenuManager:set_active_dialog(dialog)
 		else
 			self._ws:hide()
 		end
-
 		self._is_ws_visible = is_ws_visible
 	end
-
 	local is_controller_enabled = dialog and dialog:_get_controller() == self._controller
 	if not self._controller:enabled() ~= not is_controller_enabled then
 		self._controller:set_enabled(is_controller_enabled)
 	end
-
 end
 
 function GenericSystemMenuManager:_is_engine_delaying_signin_change()
@@ -409,11 +350,9 @@ function GenericSystemMenuManager:_is_engine_delaying_signin_change()
 			self._is_engine_delaying_signin_change_delay = nil
 			return false
 		end
-
 	else
 		self._is_engine_delaying_signin_change_delay = 1.2
 	end
-
 	return true
 end
 
@@ -461,11 +400,9 @@ function GenericSystemMenuManager:event_dialog_shown(dialog)
 	if Global.category_print.dialog_manager then
 		cat_print("dialog_manager", "[SystemMenuManager] [Show dialog] " .. tostring(dialog:to_string()))
 	end
-
 	if dialog.fade_in then
 		dialog:fade_in()
 	end
-
 	self:set_active_dialog(dialog)
 	self._dialog_shown_callback_handler:dispatch(dialog)
 end
@@ -474,7 +411,6 @@ function GenericSystemMenuManager:event_dialog_hidden(dialog)
 	if Global.category_print.dialog_manager then
 		cat_print("dialog_manager", "[SystemMenuManager] [Hide dialog] " .. tostring(dialog:to_string()))
 	end
-
 	self:set_active_dialog(nil)
 	self._dialog_hidden_callback_handler:dispatch(dialog)
 end
@@ -483,7 +419,6 @@ function GenericSystemMenuManager:event_dialog_closed(dialog)
 	if Global.category_print.dialog_manager then
 		cat_print("dialog_manager", "[SystemMenuManager] [Close dialog] " .. tostring(dialog:to_string()))
 	end
-
 	self:set_active_dialog(nil)
 	self._dialog_closed_callback_handler:dispatch(dialog)
 end
@@ -492,7 +427,6 @@ function GenericSystemMenuManager:event_active_changed(active)
 	if Global.category_print.dialog_manager then
 		cat_print("dialog_manager", "[SystemMenuManager] [Active changed] Active: " .. tostring(not not active))
 	end
-
 	print("dispacth from system menus", active)
 	self._active_changed_callback_handler:dispatch(active)
 end

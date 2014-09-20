@@ -6,7 +6,6 @@ function string_to_classtable(s)
 	else
 		module_name, name = "_G", s
 	end
-
 	if module_name == "_G" then
 		local obj = rawget(_G, name)
 		assert(obj, "Can't find '" .. name .. "' in _G")
@@ -17,23 +16,15 @@ function string_to_classtable(s)
 		assert(obj, "Can't get name '" .. name .. "' from module '" .. module_name .. "'")
 		return obj
 	end
-
 end
 
 function classtable_to_string(ct)
 	local module_name = core:_module_to_name(ct.__module__)
-	do
-		local (for generator), (for state), (for control) = pairs(ct.__module__)
-		do
-			do break end
-			if obj == ct then
-				return module_name .. "." .. name
-			end
-
+	for name, obj in pairs(ct.__module__) do
+		if obj == ct then
+			return module_name .. "." .. name
 		end
-
 	end
-
 	error("Can't find classtable in module '" .. module_name .. "'")
 end
 

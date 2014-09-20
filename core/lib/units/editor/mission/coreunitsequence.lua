@@ -27,9 +27,7 @@ end
 function CoreUnitSequenceUnitElement:_draw_trigger_units(r, g, b)
 	local trigger_data = self._unit:damage():get_editor_trigger_data()
 	if trigger_data and #trigger_data > 0 then
-		local (for generator), (for state), (for control) = ipairs(trigger_data)
-		do
-			do break end
+		for _, data in ipairs(trigger_data) do
 			if alive(data.notify_unit) then
 				local params = {
 					from_unit = self._unit,
@@ -41,11 +39,8 @@ function CoreUnitSequenceUnitElement:_draw_trigger_units(r, g, b)
 				self:_draw_link(params)
 				Application:draw(data.notify_unit, r, g, b)
 			end
-
 		end
-
 	end
-
 end
 
 function CoreUnitSequenceUnitElement:new_save_values(...)
@@ -64,9 +59,7 @@ function CoreUnitSequenceUnitElement:_set_trigger_list()
 	if #triggers > 0 then
 		local trigger_data = self._unit:damage():get_editor_trigger_data()
 		if trigger_data and #trigger_data > 0 then
-			local (for generator), (for state), (for control) = ipairs(trigger_data)
-			do
-				do break end
+			for _, data in ipairs(trigger_data) do
 				table.insert(self._hed.trigger_list, {
 					name = data.trigger_name,
 					id = data.id,
@@ -75,11 +68,8 @@ function CoreUnitSequenceUnitElement:_set_trigger_list()
 					notify_unit_sequence = data.notify_unit_sequence
 				})
 			end
-
 		end
-
 	end
-
 end
 
 function CoreUnitSequenceUnitElement:_build_panel(panel, panel_sizer)

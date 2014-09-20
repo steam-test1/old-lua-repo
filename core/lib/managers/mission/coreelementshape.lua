@@ -23,7 +23,6 @@ function ElementShape:init(...)
 			radius = self._values.radius
 		}))
 	end
-
 end
 
 function ElementShape:on_script_activated()
@@ -39,18 +38,11 @@ function ElementShape:get_shapes()
 end
 
 function ElementShape:is_inside(pos)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._shapes)
-		do
-			do break end
-			if shape:is_inside(pos) then
-				return true
-			end
-
+	for _, shape in ipairs(self._shapes) do
+		if shape:is_inside(pos) then
+			return true
 		end
-
 	end
-
 	return false
 end
 
@@ -58,7 +50,6 @@ function ElementShape:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	ElementShape.super.on_executed(self, instigator)
 end
 

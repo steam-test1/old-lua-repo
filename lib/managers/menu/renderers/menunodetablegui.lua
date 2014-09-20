@@ -51,33 +51,27 @@ function MenuNodeTableGui:_create_menu_item(row_item)
 		})
 		row_item.gui_columns = {}
 		local x = 0
-		do
-			local (for generator), (for state), (for control) = ipairs(columns)
-			do
-				do break end
-				local text = row_item.gui_panel:text({
-					font_size = self.font_size,
-					x = row_item.position.x,
-					y = 0,
-					align = data.align,
-					halign = data.align,
-					vertical = "center",
-					font = row_item.font,
-					color = row_item.color,
-					layer = self.layers.items,
-					text = row_item.item:parameters().columns[i]
-				})
-				row_item.gui_columns[i] = text
-				local _, _, w, h = text:text_rect()
-				text:set_h(h)
-				local w = data.proportions / total_proportions * row_item.gui_panel:w()
-				text:set_w(w)
-				text:set_x(x)
-				x = x + w
-			end
-
+		for i, data in ipairs(columns) do
+			local text = row_item.gui_panel:text({
+				font_size = self.font_size,
+				x = row_item.position.x,
+				y = 0,
+				align = data.align,
+				halign = data.align,
+				vertical = "center",
+				font = row_item.font,
+				color = row_item.color,
+				layer = self.layers.items,
+				text = row_item.item:parameters().columns[i]
+			})
+			row_item.gui_columns[i] = text
+			local _, _, w, h = text:text_rect()
+			text:set_h(h)
+			local w = data.proportions / total_proportions * row_item.gui_panel:w()
+			text:set_w(w)
+			text:set_x(x)
+			x = x + w
 		end
-
 		local x, y, w, h = row_item.gui_columns[1]:text_rect()
 		row_item.gui_panel:set_height(h)
 	elseif row_item.type == "server_column" then
@@ -91,33 +85,27 @@ function MenuNodeTableGui:_create_menu_item(row_item)
 		})
 		row_item.gui_columns = {}
 		local x = 0
-		do
-			local (for generator), (for state), (for control) = ipairs(columns)
-			do
-				do break end
-				local text = row_item.gui_panel:text({
-					font_size = tweak_data.menu.server_list_font_size,
-					x = row_item.position.x,
-					y = 0,
-					align = data.align,
-					halign = data.align,
-					vertical = "center",
-					font = row_item.font,
-					color = row_item.color,
-					layer = self.layers.items,
-					text = row_item.item:parameters().columns[i]
-				})
-				row_item.gui_columns[i] = text
-				local _, _, w, h = text:text_rect()
-				text:set_h(h)
-				local w = data.proportions / total_proportions * row_item.gui_panel:w()
-				text:set_w(w)
-				text:set_x(x)
-				x = x + w
-			end
-
+		for i, data in ipairs(columns) do
+			local text = row_item.gui_panel:text({
+				font_size = tweak_data.menu.server_list_font_size,
+				x = row_item.position.x,
+				y = 0,
+				align = data.align,
+				halign = data.align,
+				vertical = "center",
+				font = row_item.font,
+				color = row_item.color,
+				layer = self.layers.items,
+				text = row_item.item:parameters().columns[i]
+			})
+			row_item.gui_columns[i] = text
+			local _, _, w, h = text:text_rect()
+			text:set_h(h)
+			local w = data.proportions / total_proportions * row_item.gui_panel:w()
+			text:set_w(w)
+			text:set_x(x)
+			x = x + w
 		end
-
 		local x, y, w, h = row_item.gui_columns[1]:text_rect()
 		row_item.gui_panel:set_height(h)
 		local level_id = row_item.item:parameters().level_id
@@ -262,7 +250,6 @@ function MenuNodeTableGui:_create_menu_item(row_item)
 	else
 		MenuNodeTableGui.super._create_menu_item(self, row_item)
 	end
-
 end
 
 function MenuNodeTableGui:_align_server_column(row_item)

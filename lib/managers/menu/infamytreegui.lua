@@ -18,7 +18,6 @@ function InfamyTreeGui:_setup()
 	if alive(self._panel) then
 		self._ws:panel():remove(self._panel)
 	end
-
 	self._panel = self._ws:panel():panel({
 		visible = true,
 		layer = self._init_layer,
@@ -166,9 +165,7 @@ function InfamyTreeGui:_setup()
 			x = 0
 			y = y - item_height
 		end
-
 	end
-
 	x = self._tree_panel:w() / 2 - item_width / 2
 	item = {
 		panel = self._tree_panel:panel({
@@ -183,121 +180,113 @@ function InfamyTreeGui:_setup()
 	local size = item_height - border_size
 	local pos = item_width / 2 - size / 2
 	local secret_count = 1
-	do
-		local (for generator), (for state), (for control) = pairs(self._tree_items)
-		do
-			do break end
-			if tweak_data.infamy.tree[index] then
-				local infamy_tweak = tweak_data.infamy.items[tweak_data.infamy.tree[index]]
-				local texture_rect_x = infamy_tweak.icon_xy and infamy_tweak.icon_xy[1] or 0
-				local texture_rect_y = infamy_tweak.icon_xy and infamy_tweak.icon_xy[2] or 0
-				item.owned = managers.infamy:owned(tweak_data.infamy.tree[index])
-				item.unlocked = managers.infamy:available(tweak_data.infamy.tree[index])
-				local color = item.owned and tweak_data.screen_colors.item_stage_1 or item.unlocked and tweak_data.screen_colors.item_stage_2 or tweak_data.screen_colors.item_stage_3
-				item.panel:bitmap({
-					name = "image",
-					x = pos,
-					y = border_size,
-					w = size,
-					h = size,
-					texture = "guis/dlcs/infamous/textures/pd2/infamous_tree/infamous_tree_atlas",
-					texture_rect = {
-						texture_rect_x * 128,
-						texture_rect_y * 128,
-						128,
-						128
-					},
-					color = color,
-					layer = 1,
-					blend_mode = "add"
-				})
-				item.panel:text({
-					name = "text",
-					x = 0,
-					y = item_height - tweak_data.menu.pd2_small_font_size - border_size,
-					w = item_width,
-					text = "",
-					layer = 1,
-					wrap = false,
-					word_wrap = false,
-					font = tweak_data.menu.pd2_small_font,
-					font_size = tweak_data.menu.pd2_small_font_size,
-					align = "center"
-				})
-				local glow = item.panel:bitmap({
-					name = "unlock_glow",
-					w = size * 2,
-					h = size * 2,
-					texture = "guis/textures/pd2/crimenet_marker_glow",
-					blend_mode = "add",
-					color = tweak_data.screen_colors.button_stage_3,
-					rotation = 360
-				})
-				glow:set_center(item.panel:child("image"):center_x(), item.panel:child("image"):center_y() - 25)
-				glow:set_visible(item.owned)
-				local anim_pulse_glow = function(o)
-					local t = 0
-					local dt = 0
-					while true do
-						dt = coroutine.yield()
-						t = (t + dt * 0.5) % 1
-						o:set_alpha((math.sin(t * 180) * 0.5 + 0.5) * 0.8)
-					end
-
+	for index, item in pairs(self._tree_items) do
+		if tweak_data.infamy.tree[index] then
+			local infamy_tweak = tweak_data.infamy.items[tweak_data.infamy.tree[index]]
+			local texture_rect_x = infamy_tweak.icon_xy and infamy_tweak.icon_xy[1] or 0
+			local texture_rect_y = infamy_tweak.icon_xy and infamy_tweak.icon_xy[2] or 0
+			item.owned = managers.infamy:owned(tweak_data.infamy.tree[index])
+			item.unlocked = managers.infamy:available(tweak_data.infamy.tree[index])
+			local color = item.owned and tweak_data.screen_colors.item_stage_1 or item.unlocked and tweak_data.screen_colors.item_stage_2 or tweak_data.screen_colors.item_stage_3
+			item.panel:bitmap({
+				name = "image",
+				x = pos,
+				y = border_size,
+				w = size,
+				h = size,
+				texture = "guis/dlcs/infamous/textures/pd2/infamous_tree/infamous_tree_atlas",
+				texture_rect = {
+					texture_rect_x * 128,
+					texture_rect_y * 128,
+					128,
+					128
+				},
+				color = color,
+				layer = 1,
+				blend_mode = "add"
+			})
+			item.panel:text({
+				name = "text",
+				x = 0,
+				y = item_height - tweak_data.menu.pd2_small_font_size - border_size,
+				w = item_width,
+				text = "",
+				layer = 1,
+				wrap = false,
+				word_wrap = false,
+				font = tweak_data.menu.pd2_small_font,
+				font_size = tweak_data.menu.pd2_small_font_size,
+				align = "center"
+			})
+			local glow = item.panel:bitmap({
+				name = "unlock_glow",
+				w = size * 2,
+				h = size * 2,
+				texture = "guis/textures/pd2/crimenet_marker_glow",
+				blend_mode = "add",
+				color = tweak_data.screen_colors.button_stage_3,
+				rotation = 360
+			})
+			glow:set_center(item.panel:child("image"):center_x(), item.panel:child("image"):center_y() - 25)
+			glow:set_visible(item.owned)
+			local anim_pulse_glow = function(o)
+				local t = 0
+				local dt = 0
+				while true do
+					dt = coroutine.yield()
+					t = (t + dt * 0.5) % 1
+					o:set_alpha((math.sin(t * 180) * 0.5 + 0.5) * 0.8)
 				end
-
-				glow:animate(anim_pulse_glow)
-			else
-				local infamy_tweak = tweak_data.infamy.items["infamy_secret_" .. secret_count]
-				secret_count = secret_count + 1
-				local texture_rect_x = infamy_tweak.icon_xy and infamy_tweak.icon_xy[1] or 0
-				local texture_rect_y = infamy_tweak.icon_xy and infamy_tweak.icon_xy[2] or 0
-				item.owned = false
-				item.unlocked = false
-				item.panel:bitmap({
-					name = "image",
-					x = pos,
-					y = border_size,
-					w = size,
-					h = size,
-					texture = "guis/dlcs/infamous/textures/pd2/infamous_tree/infamous_tree_atlas",
-					texture_rect = {
-						texture_rect_x * 128,
-						texture_rect_y * 128,
-						128,
-						128
-					},
-					color = tweak_data.screen_colors.item_stage_3,
-					layer = 1,
-					blend_mode = "add"
-				})
-				item.panel:text({
-					name = "text",
-					x = 0,
-					y = item_height - tweak_data.menu.pd2_small_font_size - border_size,
-					w = item_width,
-					text = "",
-					layer = 1,
-					wrap = false,
-					word_wrap = false,
-					font = tweak_data.menu.pd2_small_font,
-					font_size = tweak_data.menu.pd2_small_font_size,
-					align = "center"
-				})
 			end
 
-			item.border = BoxGuiObject:new(item.panel, {
-				sides = {
-					0,
-					0,
-					0,
-					0
-				}
+			glow:animate(anim_pulse_glow)
+		else
+			local infamy_tweak = tweak_data.infamy.items["infamy_secret_" .. secret_count]
+			secret_count = secret_count + 1
+			local texture_rect_x = infamy_tweak.icon_xy and infamy_tweak.icon_xy[1] or 0
+			local texture_rect_y = infamy_tweak.icon_xy and infamy_tweak.icon_xy[2] or 0
+			item.owned = false
+			item.unlocked = false
+			item.panel:bitmap({
+				name = "image",
+				x = pos,
+				y = border_size,
+				w = size,
+				h = size,
+				texture = "guis/dlcs/infamous/textures/pd2/infamous_tree/infamous_tree_atlas",
+				texture_rect = {
+					texture_rect_x * 128,
+					texture_rect_y * 128,
+					128,
+					128
+				},
+				color = tweak_data.screen_colors.item_stage_3,
+				layer = 1,
+				blend_mode = "add"
+			})
+			item.panel:text({
+				name = "text",
+				x = 0,
+				y = item_height - tweak_data.menu.pd2_small_font_size - border_size,
+				w = item_width,
+				text = "",
+				layer = 1,
+				wrap = false,
+				word_wrap = false,
+				font = tweak_data.menu.pd2_small_font,
+				font_size = tweak_data.menu.pd2_small_font_size,
+				align = "center"
 			})
 		end
-
+		item.border = BoxGuiObject:new(item.panel, {
+			sides = {
+				0,
+				0,
+				0,
+				0
+			}
+		})
 	end
-
 	local points_text = self._panel:text({
 		name = "points",
 		text = utf8.to_upper(managers.localization:text("st_menu_infamy_available_points", {
@@ -351,7 +340,6 @@ function InfamyTreeGui:_setup()
 		bg_back:move(13, -9)
 		MenuBackdropGUI.animate_bg_text(self, bg_back)
 	end
-
 	local black_rect = self._fullscreen_panel:rect({
 		color = Color(0.4, 0, 0, 0),
 		layer = 1
@@ -375,7 +363,6 @@ function InfamyTreeGui:_setup()
 	if managers.experience:current_rank() == 0 then
 		managers.menu:show_infamous_message(MenuCallbackHandler:can_become_infamous() and managers.money:offshore() >= Application:digest_value(tweak_data.infamy.ranks[managers.experience:current_rank() + 1], false))
 	end
-
 end
 
 function InfamyTreeGui:_flash_item(item)
@@ -408,19 +395,12 @@ function InfamyTreeGui:_update_description(name, unlocked)
 	local desc_warning = self._description_panel:child("description_warning")
 	local desc_upgrade = self._description_panel:child("description_upgrade")
 	if desc_upgrade then
-		do
-			local (for generator), (for state), (for control) = pairs(self._requested_textures)
-			do
-				do break end
-				managers.menu_component:unretrieve_texture(data.texture, data.texture_count)
-			end
-
+		for i, data in pairs(self._requested_textures) do
+			managers.menu_component:unretrieve_texture(data.texture, data.texture_count)
 		end
-
 		self._requested_textures = {}
 		self._description_panel:remove(desc_upgrade)
 	end
-
 	if name then
 		local infamy_tweak = tweak_data.infamy.items[name]
 		local params = deep_clone(infamy_tweak.desc_params)
@@ -431,24 +411,14 @@ function InfamyTreeGui:_update_description(name, unlocked)
 			local droppable_items = managers.lootdrop:droppable_items(item_pc, true, skip_types)
 			local items_total = 0
 			local items_infamous = 0
-			do
-				local (for generator), (for state), (for control) = pairs(droppable_items)
-				do
-					do break end
-					items_total = items_total + #items
-					local (for generator), (for state), (for control) = pairs(items)
-					do
-						do break end
-						if item.global_value == "infamous" then
-							items_infamous = items_infamous + 1
-						end
-
+			for type, items in pairs(droppable_items) do
+				items_total = items_total + #items
+				for _, item in pairs(items) do
+					if item.global_value == "infamous" then
+						items_infamous = items_infamous + 1
 					end
-
 				end
-
 			end
-
 			local _, infamous_base_chance, infamous_mod = managers.lootdrop:infamous_chance()
 			local infamous_chance = items_total > 0 and infamous_base_chance * (items_infamous / items_total) or 0
 			local mult = 10
@@ -457,7 +427,6 @@ function InfamyTreeGui:_update_description(name, unlocked)
 			params.base_chance = string.format("%.1f", base_text) .. "%"
 			params.buffed_chance = string.format("%.1f", buffed_text) .. "%"
 		end
-
 		local title_text = utf8.to_upper(managers.localization:text(infamy_tweak.name_id))
 		if infamy_tweak.add_tier then
 			local index = table.get_key(tweak_data.infamy.tree, name) or 0
@@ -467,13 +436,10 @@ function InfamyTreeGui:_update_description(name, unlocked)
 					tier = string.format("%02d", tier)
 				}) .. ": " .. title_text
 			end
-
 		end
-
 		desc_title:set_text(title_text)
 		if not unlocked or not "" then
 		end
-
 		desc_warning:set_text((utf8.to_upper(managers.localization:text("menu_infamy_unlock_prev_tier"))))
 		desc_text:set_text((managers.localization:text(infamy_tweak.desc_id, params)))
 		managers.menu_component:add_colors_to_text_object(desc_text, tweak_data.screen_colors.resource)
@@ -482,7 +448,6 @@ function InfamyTreeGui:_update_description(name, unlocked)
 		desc_warning:set_text("")
 		desc_text:set_text(managers.localization:text("st_menu_infamy_secret_desc"))
 	end
-
 	local _, _, _, h = desc_title:text_rect()
 	desc_title:set_size(self._description_panel:w() - 20, h)
 	local _, _, _, h = desc_warning:text_rect()
@@ -504,9 +469,7 @@ function InfamyTreeGui:_update_description(name, unlocked)
 		}
 		local icon_size = 64
 		local y = desc_text:bottom() + (is_win_32 and 10 or 0)
-		local (for generator), (for state), (for control) = ipairs(infamy_tweak.upgrades)
-		do
-			do break end
+		for bonus, item in ipairs(infamy_tweak.upgrades) do
 			local global_value = item[1]
 			local category = item[2]
 			local item_id = item[3]
@@ -516,7 +479,6 @@ function InfamyTreeGui:_update_description(name, unlocked)
 			if bundle_folder then
 				guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 			end
-
 			if category == "colors" then
 				desc_upgrade:bitmap({
 					name = item_id .. "_color_bg",
@@ -564,7 +526,6 @@ function InfamyTreeGui:_update_description(name, unlocked)
 					}))
 					table.insert(self._requested_textures, {texture_count = texture_count, texture = icon_texture})
 				end
-
 			else
 				local icon_texture = guis_catalog .. "textures/pd2/blackmarket/icons/" .. category .. "/" .. item_id
 				if DB:has(Idstring("texture"), icon_texture) then
@@ -590,11 +551,8 @@ function InfamyTreeGui:_update_description(name, unlocked)
 							layer = 1
 						})
 					end
-
 				end
-
 			end
-
 			local icon_text = desc_upgrade:text({
 				name = item_id .. "_text",
 				x = icon_size + 20,
@@ -610,9 +568,7 @@ function InfamyTreeGui:_update_description(name, unlocked)
 			icon_text:set_text(managers.localization:text(item_tweak_data.name_id))
 			y = y + icon_size
 		end
-
 	end
-
 end
 
 function InfamyTreeGui:_texture_done_clbk(params, texture_ids)
@@ -624,24 +580,16 @@ function InfamyTreeGui:_texture_done_clbk(params, texture_ids)
 			render_template = params.render_template
 		})
 	end
-
 	repeat
 		local found
-		do
-			local (for generator), (for state), (for control) = pairs(self._requested_textures)
-			do
-				do break end
-				if Idstring(data.texture) == texture_ids then
-					managers.menu_component:unretrieve_texture(data.texture, data.texture_count)
-					table.remove(self._requested_textures, i)
-					found = true
-			end
-
+		for i, data in pairs(self._requested_textures) do
+			if Idstring(data.texture) == texture_ids then
+				managers.menu_component:unretrieve_texture(data.texture, data.texture_count)
+				table.remove(self._requested_textures, i)
+				found = true
 			else
 			end
-
 		end
-
 	until not found
 end
 
@@ -649,16 +597,13 @@ function InfamyTreeGui:_unlock_item(index)
 	if not self._tree_items[index] then
 		return
 	end
-
 	if not self._tree_items[index].unlocked then
 		self:_flash_item(self._tree_items[index])
 		return
 	end
-
 	if self._tree_items[index].owned then
 		return
 	end
-
 	local infamy_name = tweak_data.infamy.tree[index]
 	if managers.infamy:required_points(infamy_name) then
 		local params = {}
@@ -671,7 +616,6 @@ function InfamyTreeGui:_unlock_item(index)
 	else
 		self:_flash_item(self._tree_items[index])
 	end
-
 end
 
 function InfamyTreeGui:_select_item(index)
@@ -690,7 +634,6 @@ function InfamyTreeGui:_select_item(index)
 			selected_item.panel:child("image"):set_color(self._tree_items[self._selected_item].owned and tweak_data.screen_colors.item_stage_1 or self._tree_items[self._selected_item].unlocked and tweak_data.screen_colors.item_stage_2 or tweak_data.screen_colors.item_stage_3)
 			selected_item.panel:child("text"):set_text("")
 		end
-
 		self._selected_item = index
 		local infamy_name = tweak_data.infamy.tree[index]
 		local item = self._tree_items[index]
@@ -710,7 +653,6 @@ function InfamyTreeGui:_select_item(index)
 		})
 		self:_update_description(infamy_name, item.unlocked)
 	end
-
 end
 
 function InfamyTreeGui:_dialog_confirm_yes(index)
@@ -728,14 +670,10 @@ function InfamyTreeGui:_dialog_confirm_yes(index)
 	if self._selected_item == index then
 		infamy_item.panel:child("text"):set_text(utf8.to_upper(managers.localization:text("st_menu_skill_owned")))
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._tree_items)
-	do
-		do break end
+	for index, item in pairs(self._tree_items) do
 		item.unlocked = managers.infamy:available(tweak_data.infamy.tree[index])
 		item.panel:child("image"):set_color(item.owned and tweak_data.screen_colors.item_stage_1 or item.unlocked and tweak_data.screen_colors.item_stage_2 or tweak_data.screen_colors.item_stage_3)
 	end
-
 end
 
 function InfamyTreeGui:set_layer(layer)
@@ -747,19 +685,12 @@ function InfamyTreeGui:input_focus()
 end
 
 function InfamyTreeGui:mouse_moved(o, x, y)
-	do
-		local (for generator), (for state), (for control) = pairs(self._tree_items)
-		do
-			do break end
-			if item.panel:inside(x, y) then
-				self:_select_item(index)
-				return true
-			end
-
+	for index, item in pairs(self._tree_items) do
+		if item.panel:inside(x, y) then
+			self:_select_item(index)
+			return true
 		end
-
 	end
-
 	if managers.menu:is_pc_controller() then
 		local back_button = self._panel:child("back_button")
 		if back_button:inside(x, y) then
@@ -768,18 +699,14 @@ function InfamyTreeGui:mouse_moved(o, x, y)
 				back_button:set_color(tweak_data.screen_colors.button_stage_2)
 				managers.menu_component:post_event("highlight")
 			end
-
 		else
 			self._back_highlight = false
 			back_button:set_color(tweak_data.screen_colors.button_stage_3)
 		end
-
 	end
-
 	if self._panel:inside(x, y) then
 		return true
 	end
-
 end
 
 function InfamyTreeGui:mouse_pressed(button, x, y)
@@ -788,17 +715,13 @@ function InfamyTreeGui:mouse_pressed(button, x, y)
 			managers.menu:back()
 			return
 		end
-
 		if self._selected_item then
 			local infamy_item = self._tree_items[self._selected_item]
 			if infamy_item and infamy_item.panel:inside(x, y) then
 				self:_unlock_item(self._selected_item)
 			end
-
 		end
-
 	end
-
 end
 
 function InfamyTreeGui:move_up()
@@ -811,7 +734,6 @@ function InfamyTreeGui:move_up()
 	else
 		self:_select_item(#self._tree_items)
 	end
-
 end
 
 function InfamyTreeGui:move_down()
@@ -822,7 +744,6 @@ function InfamyTreeGui:move_down()
 	elseif self._selected_item > 1 then
 		self:_select_item(math.max(1, self._selected_item - 4))
 	end
-
 end
 
 function InfamyTreeGui:move_left()
@@ -835,7 +756,6 @@ function InfamyTreeGui:move_left()
 	elseif self._selected_item % 4 ~= 2 then
 		self:_select_item(self._selected_item - 1)
 	end
-
 end
 
 function InfamyTreeGui:move_right()
@@ -848,39 +768,25 @@ function InfamyTreeGui:move_right()
 	elseif self._selected_item % 4 ~= 1 then
 		self:_select_item(self._selected_item + 1)
 	end
-
 end
 
 function InfamyTreeGui:confirm_pressed()
 	if self._selected_item then
 		self:_unlock_item(self._selected_item)
 	end
-
 	return false
 end
 
 function InfamyTreeGui:close()
 	managers.menu:active_menu().renderer.ws:show()
 	WalletGuiObject.close_wallet(self._panel)
-	do
-		local (for generator), (for state), (for control) = pairs(self._requested_textures)
-		do
-			do break end
-			managers.menu_component:unretrieve_texture(data.texture, data.texture_count)
-		end
-
+	for i, data in pairs(self._requested_textures) do
+		managers.menu_component:unretrieve_texture(data.texture, data.texture_count)
 	end
-
 	self._requested_textures = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._tree_items)
-		do
-			do break end
-			item.border:close()
-		end
-
+	for _, item in pairs(self._tree_items) do
+		item.border:close()
 	end
-
 	self._ws:panel():remove(self._panel)
 	self._fullscreen_ws:panel():remove(self._fullscreen_panel)
 end

@@ -115,9 +115,7 @@ function MenuItemWeaponUpgradeExpand:on_item_positions_done(row_item, node)
 			row_item.bottom_line:set_lefttop(row_child.gui_panel:leftbottom())
 			row_item.bottom_line:set_top(row_item.bottom_line:top() - 1)
 		end
-
 	end
-
 end
 
 function MenuItemWeaponUpgradeExpand:on_buy(node)
@@ -125,13 +123,10 @@ function MenuItemWeaponUpgradeExpand:on_buy(node)
 end
 
 function MenuItemWeaponUpgradeExpand:on_attach_upgrade(node)
-	local (for generator), (for state), (for control) = ipairs(self:parameters().parent_item:items())
-	do
-		do break end
+	for _, item in ipairs(self:parameters().parent_item:items()) do
 		local row_item = node:row_item(item)
 		item:reload(row_item, node)
 	end
-
 end
 
 function MenuItemWeaponUpgradeExpand:reload(row_item, node)
@@ -150,7 +145,6 @@ function MenuItemWeaponUpgradeExpand:reload(row_item, node)
 	else
 		row_item.menu_unselected:set_color(Color(0.5, 0.5, 0.5))
 	end
-
 	self:_set_row_item_state(node, row_item)
 end
 
@@ -170,7 +164,6 @@ function MenuItemWeaponUpgradeExpand:_set_row_item_state(node, row_item)
 		row_item.upgrade_name:set_color(self:parameter("owned") and self:parameter("unlocked") and row_item.color or Color(1, 0.5, 0.5, 0.5))
 		row_item.upgrade_name:set_font(tweak_data.menu.default_font_id)
 	end
-
 end
 
 function MenuItemWeaponUpgradeExpand:on_delete_row_item(row_item, ...)

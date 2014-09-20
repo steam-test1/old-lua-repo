@@ -80,20 +80,15 @@ function NewRaycastWeaponBase:clbk_assembly_complete(clbk, parts, blueprint)
 					self._bullet_objects[i] = self._bullet_objects[i] or {}
 					table.insert(self._bullet_objects[i], object)
 				end
-
 			end
-
 		end
-
 	end
-
 	self:apply_texture_switches()
 	self:check_npc()
 	self:_set_parts_enabled(self._enabled)
 	if self._second_sight_data then
 		self._second_sight_data.unit = self._parts[self._second_sight_data.part_id].unit
 	end
-
 	clbk()
 end
 
@@ -102,9 +97,7 @@ function NewRaycastWeaponBase:apply_texture_switches()
 	self._parts_texture_switches = self._parts_texture_switches or {}
 	if self._texture_switches then
 		local texture_switch, part_data, unit, material_ids, material_config, switch_material
-		local (for generator), (for state), (for control) = pairs(self._texture_switches)
-		do
-			do break end
+		for part_id, texture_data in pairs(self._texture_switches) do
 			if self._parts_texture_switches[part_id] ~= texture_data then
 				switch_material = nil
 				texture_switch = parts_tweak[part_id] and parts_tweak[part_id].texture_switch
@@ -113,20 +106,13 @@ function NewRaycastWeaponBase:apply_texture_switches()
 					unit = part_data.unit
 					material_ids = Idstring(texture_switch.material)
 					material_config = unit:get_objects_by_type(Idstring("material"))
-					do
-						local (for generator), (for state), (for control) = ipairs(material_config)
-						do
-							do break end
-							print(material:name())
-							if material:name() == material_ids then
-								switch_material = material
-						end
-
+					for _, material in ipairs(material_config) do
+						print(material:name())
+						if material:name() == material_ids then
+							switch_material = material
 						else
 						end
-
 					end
-
 					Application:debug(switch_material)
 					if switch_material then
 						local texture_id = managers.blackmarket:get_texture_switch_from_data(texture_data, part_id)
@@ -136,22 +122,15 @@ function NewRaycastWeaponBase:apply_texture_switches()
 							if self._parts_texture_switches[part_id] then
 								TextureCache:unretrieve(Idstring(self._parts_texture_switches[part_id]))
 							end
-
 							self._parts_texture_switches[part_id] = Idstring(texture_id)
 						else
 							Application:error("[NewRaycastWeaponBase:apply_texture_switches] Switch texture do not exists", texture_id)
 						end
-
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function NewRaycastWeaponBase:check_npc()
@@ -161,25 +140,16 @@ function NewRaycastWeaponBase:has_range_distance_scope()
 	if not self._scopes or not self._parts then
 		return false
 	end
-
 	if not self._assembly_complete then
 		return false
 	end
-
 	local part
-	do
-		local (for generator), (for state), (for control) = ipairs(self._scopes)
-		do
-			do break end
-			part = self._parts[part_id]
-			if part and (part.unit:digital_gui() or part.unit:digital_gui_upper()) then
-				return true
-			end
-
+	for i, part_id in ipairs(self._scopes) do
+		part = self._parts[part_id]
+		if part and (part.unit:digital_gui() or part.unit:digital_gui_upper()) then
+			return true
 		end
-
 	end
-
 	return false
 end
 
@@ -187,45 +157,34 @@ function NewRaycastWeaponBase:set_scope_range_distance(distance)
 	if not self._assembly_complete then
 		return
 	end
-
 	if self._scopes and self._parts then
 		local part
-		local (for generator), (for state), (for control) = ipairs(self._scopes)
-		do
-			do break end
+		for i, part_id in ipairs(self._scopes) do
 			part = self._parts[part_id]
 			if part and part.unit:digital_gui() then
 				part.unit:digital_gui():number_set((not distance or not math.round(distance)) and false, false)
 			end
-
 			if part and part.unit:digital_gui_upper() then
 				part.unit:digital_gui_upper():number_set((not distance or not math.round(distance)) and false, false)
 			end
-
 		end
-
 	end
-
 end
 
 function NewRaycastWeaponBase:check_highlight_unit(unit)
 	if not self._can_highlight then
 		return
 	end
-
 	if self:is_second_sight_on() then
 		return
 	end
-
 	unit = unit:in_slot(8) and alive(unit:parent()) and unit:parent() or unit
 	if not unit:in_slot(managers.slot:get_mask("enemies")) then
 		return
 	end
-
 	if unit:base()._tweak_table and (managers.groupai:state():whisper_mode() and tweak_data.character[unit:base()._tweak_table].silent_priority_shout or tweak_data.character[unit:base()._tweak_table].priority_shout) then
 		managers.game_play_central:auto_highlight_enemy(unit, true)
 	end
-
 end
 
 function NewRaycastWeaponBase:change_part(part_id)
@@ -263,7 +222,6 @@ function NewRaycastWeaponBase:_update_fire_object()
 	if not fire.unit:get_object(Idstring("fire")) then
 		debug_pause("[NewRaycastWeaponBase:_update_fire_object] Weapon \"" .. tostring(self._factory_id) .. "\" is missing fire object for part \"" .. tostring(fire.unit) .. "\"!")
 	end
-
 	self:change_fire_object(fire.unit:get_object(Idstring("fire")))
 end
 
@@ -287,37 +245,29 @@ function NewRaycastWeaponBase:_update_stats_values()
 		if self._ammo_data.can_shoot_through_shield ~= nil then
 			self._can_shoot_through_shield = self._ammo_data.can_shoot_through_shield
 		end
-
 		if self._ammo_data.can_shoot_through_enemy ~= nil then
 			self._can_shoot_through_enemy = self._ammo_data.can_shoot_through_enemy
 		end
-
 		if self._ammo_data.can_shoot_through_wall ~= nil then
 			self._can_shoot_through_wall = self._ammo_data.can_shoot_through_wall
 		end
-
 		if self._ammo_data.bullet_class ~= nil then
 			self._bullet_class = CoreSerialize.string_to_classtable(self._ammo_data.bullet_class)
 			self._bullet_slotmask = self._bullet_class:bullet_slotmask()
 			self._blank_slotmask = self._bullet_class:blank_slotmask()
 		end
-
 		if self._ammo_data.armor_piercing_add ~= nil then
 			self._armor_piercing_chance = math.clamp(self._armor_piercing_chance + self._ammo_data.armor_piercing_add, 0, 1)
 		end
-
 		if self._ammo_data.armor_piercing_mul ~= nil then
 			self._armor_piercing_chance = math.clamp(self._armor_piercing_chance * self._ammo_data.armor_piercing_mul, 0, 1)
 		end
-
 	end
-
 	if self._silencer then
 		self._muzzle_effect = Idstring(self:weapon_tweak_data().muzzleflash_silenced or "effects/payday2/particles/weapons/9mm_auto_silence_fps")
 	else
 		self._muzzle_effect = Idstring(self:weapon_tweak_data().muzzleflash or "effects/particles/test/muzzleflash_maingun")
 	end
-
 	self._muzzle_effect_table = {
 		effect = self._muzzle_effect,
 		parent = self._obj_fire,
@@ -327,7 +277,6 @@ function NewRaycastWeaponBase:_update_stats_values()
 	if not base_stats then
 		return
 	end
-
 	local parts_stats = managers.weapon_factory:get_stats(self._factory_id, self._blueprint)
 	local stats = deep_clone(base_stats)
 	local tweak_data = tweak_data.weapon.stats
@@ -335,48 +284,30 @@ function NewRaycastWeaponBase:_update_stats_values()
 	if stats.zoom then
 		stats.zoom = math.min(stats.zoom + managers.player:upgrade_value(self:weapon_tweak_data().category, "zoom_increase", 0), #tweak_data.zoom)
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(stats)
-		do
-			do break end
-			if stats[stat] < 1 or stats[stat] > #tweak_data[stat] then
-				Application:error("[NewRaycastWeaponBase] Base weapon stat is out of bound!", "stat: " .. stat, "index: " .. stats[stat], "max_index: " .. #tweak_data[stat], "This stat will be clamped!")
-			end
-
-			if parts_stats[stat] then
-				stats[stat] = math_clamp(stats[stat] + parts_stats[stat], 1, #tweak_data[stat])
-			end
-
-			stats[stat] = math_clamp(stats[stat], 1, #tweak_data[stat])
+	for stat, _ in pairs(stats) do
+		if stats[stat] < 1 or stats[stat] > #tweak_data[stat] then
+			Application:error("[NewRaycastWeaponBase] Base weapon stat is out of bound!", "stat: " .. stat, "index: " .. stats[stat], "max_index: " .. #tweak_data[stat], "This stat will be clamped!")
 		end
-
+		if parts_stats[stat] then
+			stats[stat] = math_clamp(stats[stat] + parts_stats[stat], 1, #tweak_data[stat])
+		end
+		stats[stat] = math_clamp(stats[stat], 1, #tweak_data[stat])
 	end
-
 	self._current_stats = {}
-	do
-		local (for generator), (for state), (for control) = pairs(stats)
-		do
-			do break end
-			self._current_stats[stat] = tweak_data[stat][i]
-			if modifier_stats and modifier_stats[stat] then
-				self._current_stats[stat] = self._current_stats[stat] * modifier_stats[stat]
-			end
-
+	for stat, i in pairs(stats) do
+		self._current_stats[stat] = tweak_data[stat][i]
+		if modifier_stats and modifier_stats[stat] then
+			self._current_stats[stat] = self._current_stats[stat] * modifier_stats[stat]
 		end
-
 	end
-
 	self._current_stats.alert_size = tweak_data.alert_size[math_clamp(stats.alert_size, 1, #tweak_data.alert_size)]
 	if modifier_stats and modifier_stats.alert_size then
 		self._current_stats.alert_size = self._current_stats.alert_size * modifier_stats.alert_size
 	end
-
 	if stats.concealment then
 		stats.suspicion = math.clamp(#tweak_data.concealment - base_stats.concealment - (parts_stats.concealment or 0), 1, #tweak_data.concealment)
 		self._current_stats.suspicion = tweak_data.concealment[stats.suspicion]
 	end
-
 	self._alert_size = self._current_stats.alert_size or self._alert_size
 	self._suppression = self._current_stats.suppression or self._suppression
 	self._zoom = self._current_stats.zoom or self._zoom
@@ -396,20 +327,15 @@ function NewRaycastWeaponBase:_check_second_sight()
 	self._second_sight_data = nil
 	if self._has_gadget then
 		local factory = tweak_data.weapon.factory
-		local (for generator), (for state), (for control) = ipairs(self._has_gadget)
-		do
-			do break end
+		for _, part_id in ipairs(self._has_gadget) do
 			if factory.parts[part_id].sub_type == "second_sight" then
 				self._second_sight_data = {}
 				self._second_sight_data.part_id = part_id
 				self._second_sight_data.unit = self._parts and self._parts[part_id] and alive(self._parts[part_id].unit) and self._parts[part_id].unit
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 end
 
 function NewRaycastWeaponBase:zoom()
@@ -417,7 +343,6 @@ function NewRaycastWeaponBase:zoom()
 		local gadget_zoom_stats = tweak_data.weapon.factory.parts[self._second_sight_data.part_id].stats.gadget_zoom
 		return tweak_data.weapon.stats.zoom[gadget_zoom_stats]
 	end
-
 	return NewRaycastWeaponBase.super.zoom(self)
 end
 
@@ -425,7 +350,6 @@ function NewRaycastWeaponBase:is_second_sight_on()
 	if not self._second_sight_data or not self._second_sight_data.unit then
 		return false
 	end
-
 	return self._second_sight_data.unit:base():is_on()
 end
 
@@ -449,7 +373,6 @@ function NewRaycastWeaponBase:replenish()
 	if managers.player:has_category_upgrade("player", "add_armor_stat_skill_ammo_mul") then
 		ammo_max_multiplier = ammo_max_multiplier * managers.player:body_armor_value("skill_ammo_mul", nil, 1)
 	end
-
 	local ammo_max_per_clip = self:calculate_ammo_max_per_clip()
 	local ammo_max = math.round((tweak_data.weapon[self._name_id].AMMO_MAX + managers.player:upgrade_value(self._name_id, "clip_amount_increase") * ammo_max_per_clip) * ammo_max_multiplier)
 	ammo_max_per_clip = math.min(ammo_max_per_clip, ammo_max)
@@ -471,7 +394,6 @@ function NewRaycastWeaponBase:calculate_ammo_max_per_clip()
 	if not self:upgrade_blocked("weapon", "clip_ammo_increase") then
 		ammo = ammo + managers.player:upgrade_value("weapon", "clip_ammo_increase", 0)
 	end
-
 	ammo = ammo + (self._extra_ammo or 0)
 	return ammo
 end
@@ -484,32 +406,22 @@ function NewRaycastWeaponBase:stance_mod()
 	if not self._parts then
 		return nil
 	end
-
 	local using_second_sight = self:is_second_sight_on()
 	local translation = Vector3()
 	local rotation = Rotation()
 	local factory = tweak_data.weapon.factory
-	do
-		local (for generator), (for state), (for control) = pairs(self._parts)
-		do
-			do break end
-			if factory.parts[part_id].stance_mod and (factory.parts[part_id].type ~= "sight" and factory.parts[part_id].type ~= "gadget" or using_second_sight and factory.parts[part_id].type == "gadget" or not using_second_sight and factory.parts[part_id].type == "sight") and factory.parts[part_id].stance_mod[self._factory_id] then
-				local part_translation = factory.parts[part_id].stance_mod[self._factory_id].translation
-				if part_translation then
-					mvector3.add(translation, part_translation)
-				end
-
-				local part_rotation = factory.parts[part_id].stance_mod[self._factory_id].rotation
-				if part_rotation then
-					mrotation.multiply(rotation, part_rotation)
-				end
-
+	for part_id, data in pairs(self._parts) do
+		if factory.parts[part_id].stance_mod and (factory.parts[part_id].type ~= "sight" and factory.parts[part_id].type ~= "gadget" or using_second_sight and factory.parts[part_id].type == "gadget" or not using_second_sight and factory.parts[part_id].type == "sight") and factory.parts[part_id].stance_mod[self._factory_id] then
+			local part_translation = factory.parts[part_id].stance_mod[self._factory_id].translation
+			if part_translation then
+				mvector3.add(translation, part_translation)
 			end
-
+			local part_rotation = factory.parts[part_id].stance_mod[self._factory_id].rotation
+			if part_rotation then
+				mrotation.multiply(rotation, part_rotation)
+			end
 		end
-
 	end
-
 	return {translation = translation, rotation = rotation}
 end
 
@@ -522,23 +434,15 @@ function NewRaycastWeaponBase:tweak_data_anim_play(anim, speed_multiplier)
 		self._unit:anim_stop(Idstring(anim_name))
 		self._unit:anim_play_to(Idstring(anim_name), length, speed_multiplier)
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._parts)
-		do
-			do break end
-			if data.animations and data.animations[anim] then
-				local anim_name = data.animations[anim]
-				local length = data.unit:anim_length(Idstring(anim_name))
-				speed_multiplier = speed_multiplier or 1
-				data.unit:anim_stop(Idstring(anim_name))
-				data.unit:anim_play_to(Idstring(anim_name), length, speed_multiplier)
-			end
-
+	for part_id, data in pairs(self._parts) do
+		if data.animations and data.animations[anim] then
+			local anim_name = data.animations[anim]
+			local length = data.unit:anim_length(Idstring(anim_name))
+			speed_multiplier = speed_multiplier or 1
+			data.unit:anim_stop(Idstring(anim_name))
+			data.unit:anim_play_to(Idstring(anim_name), length, speed_multiplier)
 		end
-
 	end
-
 	NewRaycastWeaponBase.super.tweak_data_anim_play(self, anim, speed_multiplier)
 	return true
 end
@@ -549,44 +453,29 @@ function NewRaycastWeaponBase:tweak_data_anim_stop(anim)
 		local anim_name = data.animations[anim]
 		self._unit:anim_stop(Idstring(anim_name))
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._parts)
-		do
-			do break end
-			if data.animations and data.animations[anim] then
-				local anim_name = data.animations[anim]
-				data.unit:anim_stop(Idstring(anim_name))
-			end
-
+	for part_id, data in pairs(self._parts) do
+		if data.animations and data.animations[anim] then
+			local anim_name = data.animations[anim]
+			data.unit:anim_stop(Idstring(anim_name))
 		end
-
 	end
-
 	NewRaycastWeaponBase.super.tweak_data_anim_stop(self, anim)
 end
 
 function NewRaycastWeaponBase:_set_parts_enabled(enabled)
 	if self._parts then
-		local (for generator), (for state), (for control) = pairs(self._parts)
-		do
-			do break end
+		for part_id, data in pairs(self._parts) do
 			if alive(data.unit) then
 				data.unit:set_enabled(enabled)
 				if data.unit:digital_gui() then
 					data.unit:digital_gui():set_visible(enabled)
 				end
-
 				if data.unit:digital_gui_upper() then
 					data.unit:digital_gui_upper():set_visible(enabled)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function NewRaycastWeaponBase:on_enabled(...)
@@ -611,7 +500,6 @@ function NewRaycastWeaponBase:recoil_wait()
 	if not tweak_is_auto then
 		return nil
 	end
-
 	local multiplier = tweak_is_auto == weapon_is_auto and 1 or 2
 	return self:weapon_tweak_data().fire_mode_data.fire_rate * multiplier
 end
@@ -621,12 +509,7 @@ function NewRaycastWeaponBase:can_toggle_firemode()
 end
 
 function NewRaycastWeaponBase:toggle_firemode()
-	if not self._locked_fire_mode then
-		-- unhandled boolean indicator
-	else
-		local can_toggle = true
-	end
-
+	local can_toggle = not self._locked_fire_mode and self:can_toggle_firemode()
 	if can_toggle then
 		if self._fire_mode == ids_single then
 			self._fire_mode = ids_auto
@@ -635,10 +518,8 @@ function NewRaycastWeaponBase:toggle_firemode()
 			self._fire_mode = ids_single
 			self._sound_fire:post_event("wp_auto_switch_off")
 		end
-
 		return true
 	end
-
 	return false
 end
 
@@ -651,7 +532,6 @@ function NewRaycastWeaponBase:check_bullet_objects()
 	if self._bullet_objects then
 		self:_update_bullet_objects(self:get_ammo_remaining_in_clip())
 	end
-
 end
 
 function NewRaycastWeaponBase:predict_bullet_objects()
@@ -660,19 +540,12 @@ end
 
 function NewRaycastWeaponBase:_update_bullet_objects(ammo)
 	if self._bullet_objects then
-		local (for generator), (for state), (for control) = pairs(self._bullet_objects)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(objects)
-			do
-				do break end
+		for i, objects in pairs(self._bullet_objects) do
+			for _, object in ipairs(objects) do
 				object:set_visibility(i <= ammo)
 			end
-
 		end
-
 	end
-
 end
 
 function NewRaycastWeaponBase:has_part(part_id)
@@ -699,11 +572,9 @@ function NewRaycastWeaponBase:set_gadget_on(gadget_on, ignore_enable, gadgets)
 	if not ignore_enable and not self._enabled then
 		return
 	end
-
 	if not self._assembly_complete then
 		return
 	end
-
 	self._gadget_on = gadget_on or self._gadget_on
 	gadgets = gadgets or managers.weapon_factory:get_parts_from_weapon_by_type_or_perk("gadget", self._factory_id, self._blueprint)
 	if gadgets then
@@ -716,36 +587,27 @@ function NewRaycastWeaponBase:set_gadget_on(gadget_on, ignore_enable, gadgets)
 				if not xd then
 					return false
 				end
-
 				if not yd then
 					return true
 				end
-
 				return xd.unit:base().GADGET_TYPE > yd.unit:base().GADGET_TYPE
 			end
 )
 			local gadget
-			local (for generator), (for state), (for control) = ipairs(gadgets)
-			do
-				do break end
+			for i, id in ipairs(gadgets) do
 				gadget = self._parts[id]
 				if gadget then
 					gadget.unit:base():set_state(self._gadget_on == i, self._sound_fire)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function NewRaycastWeaponBase:toggle_gadget()
 	if not self._enabled then
 		return false
 	end
-
 	local gadget_on = self._gadget_on or 0
 	local gadgets = managers.weapon_factory:get_parts_from_weapon_by_type_or_perk("gadget", self._factory_id, self._blueprint)
 	if gadgets then
@@ -753,26 +615,20 @@ function NewRaycastWeaponBase:toggle_gadget()
 		self:set_gadget_on(gadget_on, false, gadgets)
 		return true
 	end
-
 	do return false end
 	if not self._enabled then
 		return
 	end
-
 	self._gadget_on = self._gadget_on or 0
 	local gadgets = managers.weapon_factory:get_parts_from_weapon_by_type_or_perk("gadget", self._factory_id, self._blueprint)
 	if gadgets then
 		self._gadget_on = ((self._gadget_on or 0) + 1) % (#gadgets + 1)
 		local gadget
-		local (for generator), (for state), (for control) = ipairs(gadgets)
-		do
-			do break end
+		for _, i in ipairs(gadgets) do
 			gadget = self._parts[i]
 			gadget.unit:base():set_state(self._gadget_on == i, self._sound_fire)
 		end
-
 	end
-
 end
 
 function NewRaycastWeaponBase:gadget_update()
@@ -783,23 +639,14 @@ function NewRaycastWeaponBase:gadget_toggle_requires_stance_update()
 	if not self._enabled then
 		return false
 	end
-
 	if not self._has_gadget then
 		return false
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._has_gadget)
-		do
-			do break end
-			if self._parts[part_id].unit:base():toggle_requires_stance_update() then
-				return true
-			end
-
+	for _, part_id in ipairs(self._has_gadget) do
+		if self._parts[part_id].unit:base():toggle_requires_stance_update() then
+			return true
 		end
-
 	end
-
 	return false
 end
 
@@ -809,43 +656,27 @@ function NewRaycastWeaponBase:check_stats()
 		print("no stats")
 		return
 	end
-
 	local parts_stats = managers.weapon_factory:get_stats(self._factory_id, self._blueprint)
 	local stats = deep_clone(base_stats)
 	local tweak_data = tweak_data.weapon.stats
 	local modifier_stats = self:weapon_tweak_data().stats_modifiers
 	stats.zoom = math.min(stats.zoom + managers.player:upgrade_value(self:weapon_tweak_data().category, "zoom_increase", 0), #tweak_data.zoom)
-	do
-		local (for generator), (for state), (for control) = pairs(stats)
-		do
-			do break end
-			if parts_stats[stat] then
-				stats[stat] = math_clamp(stats[stat] + parts_stats[stat], 1, #tweak_data[stat])
-			end
-
+	for stat, _ in pairs(stats) do
+		if parts_stats[stat] then
+			stats[stat] = math_clamp(stats[stat] + parts_stats[stat], 1, #tweak_data[stat])
 		end
-
 	end
-
 	self._current_stats = {}
-	do
-		local (for generator), (for state), (for control) = pairs(stats)
-		do
-			do break end
-			self._current_stats[stat] = tweak_data[stat][i]
-			if modifier_stats and modifier_stats[stat] then
-				self._current_stats[stat] = self._current_stats[stat] * modifier_stats[stat]
-			end
-
+	for stat, i in pairs(stats) do
+		self._current_stats[stat] = tweak_data[stat][i]
+		if modifier_stats and modifier_stats[stat] then
+			self._current_stats[stat] = self._current_stats[stat] * modifier_stats[stat]
 		end
-
 	end
-
 	self._current_stats.alert_size = tweak_data.alert_size[math_clamp(stats.alert_size, 1, #tweak_data.alert_size)]
 	if modifier_stats and modifier_stats.alert_size then
 		self._current_stats.alert_size = self._current_stats.alert_size * modifier_stats.alert_size
 	end
-
 	return stats
 end
 
@@ -857,7 +688,6 @@ function NewRaycastWeaponBase:_convert_add_to_mul(value)
 	else
 		return 1
 	end
-
 end
 
 function NewRaycastWeaponBase:_get_spread(user_unit)
@@ -899,7 +729,6 @@ function NewRaycastWeaponBase:enter_steelsight_speed_multiplier()
 		multiplier = multiplier + (1 - managers.player:upgrade_value("weapon", "silencer_enter_steelsight_speed_multiplier", 1))
 		multiplier = multiplier + (1 - managers.player:upgrade_value(self:weapon_tweak_data().category, "silencer_enter_steelsight_speed_multiplier", 1))
 	end
-
 	return self:_convert_add_to_mul(multiplier)
 end
 
@@ -921,35 +750,26 @@ function NewRaycastWeaponBase:reload_speed_multiplier()
 		if morale_boost_bonus then
 			multiplier = multiplier + (1 - morale_boost_bonus.reload_speed_bonus)
 		end
-
 	end
-
 	return self:_convert_add_to_mul(multiplier)
 end
 
 function NewRaycastWeaponBase:set_timer(timer, ...)
 	NewRaycastWeaponBase.super.set_timer(self, timer)
-	local (for generator), (for state), (for control) = pairs(self._parts)
-	do
-		do break end
+	for _, data in pairs(self._parts) do
 		data.unit:set_timer(timer)
 		data.unit:set_animation_timer(timer)
 	end
-
 end
 
 function NewRaycastWeaponBase:destroy(unit)
 	NewRaycastWeaponBase.super.destroy(self, unit)
 	if self._parts_texture_switches then
-		local (for generator), (for state), (for control) = pairs(self._parts_texture_switches)
-		do
-			do break end
+		for part_id, texture_ids in pairs(self._parts_texture_switches) do
 			print("BYE BYE ")
 			TextureCache:unretrieve(texture_ids)
 		end
-
 	end
-
 	managers.weapon_factory:disassemble(self._parts)
 end
 

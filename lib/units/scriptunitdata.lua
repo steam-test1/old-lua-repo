@@ -4,13 +4,11 @@ function ScriptUnitData:init(unit)
 	if managers.occlusion and self.skip_occlusion then
 		managers.occlusion:remove_occlusion(unit)
 	end
-
 end
 
 function ScriptUnitData:destroy(unit)
 	if managers.occlusion and self.skip_occlusion then
 		managers.occlusion:add_occlusion(unit)
 	end
-
 end
 

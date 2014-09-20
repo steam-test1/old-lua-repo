@@ -7,7 +7,6 @@ function CoreUnitTestBrowser:init()
 		self:error_frame()
 		self:init_tree_view()
 	end
-
 end
 
 function CoreUnitTestBrowser:error_frame()
@@ -85,68 +84,39 @@ function CoreUnitTestBrowser:on_popup()
 	local selected_item = self._error_box.tree_ctrl:selected_item()
 	if selected_item > -1 then
 		local found = false
-		do
-			local (for generator), (for state), (for control) = ipairs(self._error_box.tree_ctrl:get_children(self._failed_id))
-			do
-				do break end
-				if id == selected_item then
-					do
-						local (for generator), (for state), (for control) = ipairs(self._ignore_list)
-						do
-							do break end
-							if ignore_id == selected_item then
-								self:include_popup()
-								found = true
-						end
-
-						else
-						end
-
+		for _, id in ipairs(self._error_box.tree_ctrl:get_children(self._failed_id)) do
+			if id == selected_item then
+				for _, ignore_id in ipairs(self._ignore_list) do
+					if ignore_id == selected_item then
+						self:include_popup()
+						found = true
+					else
 					end
-
-					if not found then
-						self:ignore_popup()
-					end
-
-			end
-
+				end
+				if not found then
+					self:ignore_popup()
+				end
 			else
 			end
-
 		end
-
 		if not found then
-			local (for generator), (for state), (for control) = ipairs(self._error_box.tree_ctrl:get_children(self._critical_id))
-			do
-				do break end
+			for _, id in ipairs(self._error_box.tree_ctrl:get_children(self._critical_id)) do
 				if id == selected_item then
-					do
-						local (for generator), (for state), (for control) = ipairs(self._ignore_list)
-						do
-							do break end
-							if ignore_id == selected_item then
-								self:include_popup(true)
-								found = true
-						end
-
+					for _, ignore_id in ipairs(self._ignore_list) do
+						if ignore_id == selected_item then
+							self:include_popup(true)
+							found = true
 						else
 						end
-
 					end
-
 					if not found then
 						self:ignore_popup(true)
 					end
-
+				else
+				end
 			end
-
-			else
-			end
-
 		end
-
 	end
-
 end
 
 function CoreUnitTestBrowser:ignore_popup(critical)
@@ -172,7 +142,6 @@ function CoreUnitTestBrowser:on_ignore(custom_data, event)
 		self._error_box.tree_ctrl:set_item_text_colour(id, Vector3(1, 1, 1))
 		self._error_box.tree_ctrl:set_item_background_colour(id, Vector3(0.5, 0, 0))
 	end
-
 	table.insert(self._ignore_list, id)
 end
 
@@ -185,110 +154,67 @@ function CoreUnitTestBrowser:on_include(custom_data, event)
 		self._error_box.tree_ctrl:set_item_text_colour(id, Vector3(0.5, 0, 0))
 		self._error_box.tree_ctrl:set_item_background_colour(id, Vector3(1, 1, 1))
 	end
-
 	table.delete(self._ignore_list, id)
 end
 
 function CoreUnitTestBrowser:on_ignore_all()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._error_box.tree_ctrl:get_children(self._failed_id))
-		do
-			do break end
-			local found = false
-			do
-				local (for generator), (for state), (for control) = ipairs(self._ignore_list)
-				do
-					do break end
-					if ignore_id == id then
-						found = true
-				end
-
-				else
-				end
-
-			end
-
-			if not found then
-				self._error_box.tree_ctrl:set_item_text_colour(id, Vector3(1, 1, 1))
-				self._error_box.tree_ctrl:set_item_background_colour(id, Vector3(0.5, 0, 0))
-				table.insert(self._ignore_list, id)
-			end
-
-		end
-
-	end
-
-	local (for generator), (for state), (for control) = ipairs(self._error_box.tree_ctrl:get_children(self._critical_id))
-	do
-		do break end
+	for _, id in ipairs(self._error_box.tree_ctrl:get_children(self._failed_id)) do
 		local found = false
-		do
-			local (for generator), (for state), (for control) = ipairs(self._ignore_list)
-			do
-				do break end
-				if ignore_id == id then
-					found = true
-			end
-
+		for _, ignore_id in ipairs(self._ignore_list) do
+			if ignore_id == id then
+				found = true
 			else
 			end
-
 		end
-
+		if not found then
+			self._error_box.tree_ctrl:set_item_text_colour(id, Vector3(1, 1, 1))
+			self._error_box.tree_ctrl:set_item_background_colour(id, Vector3(0.5, 0, 0))
+			table.insert(self._ignore_list, id)
+		end
+	end
+	for _, id in ipairs(self._error_box.tree_ctrl:get_children(self._critical_id)) do
+		local found = false
+		for _, ignore_id in ipairs(self._ignore_list) do
+			if ignore_id == id then
+				found = true
+			else
+			end
+		end
 		if not found then
 			self._error_box.tree_ctrl:set_item_text_colour(id, Vector3(1, 1, 1))
 			self._error_box.tree_ctrl:set_item_background_colour(id, Vector3(1, 0, 0))
 			table.insert(self._ignore_list, id)
 		end
-
 	end
-
 end
 
 function CoreUnitTestBrowser:on_ignore_none()
 	while #self._ignore_list > 0 do
-		local (for generator), (for state), (for control) = ipairs(self._ignore_list)
-		do
-			do break end
+		for _, ignore_id in ipairs(self._ignore_list) do
 			local found = false
-			do
-				local (for generator), (for state), (for control) = ipairs(self._error_box.tree_ctrl:get_children(self._failed_id))
-				do
-					do break end
-					if ignore_id == id then
-						self._error_box.tree_ctrl:set_item_text_colour(id, Vector3(0.5, 0, 0))
-						self._error_box.tree_ctrl:set_item_background_colour(id, Vector3(1, 1, 1))
-						found = true
-				end
-
+			for _, id in ipairs(self._error_box.tree_ctrl:get_children(self._failed_id)) do
+				if ignore_id == id then
+					self._error_box.tree_ctrl:set_item_text_colour(id, Vector3(0.5, 0, 0))
+					self._error_box.tree_ctrl:set_item_background_colour(id, Vector3(1, 1, 1))
+					found = true
 				else
 				end
-
 			end
-
 			if not found then
-				local (for generator), (for state), (for control) = ipairs(self._error_box.tree_ctrl:get_children(self._critical_id))
-				do
-					do break end
+				for _, id in ipairs(self._error_box.tree_ctrl:get_children(self._critical_id)) do
 					if ignore_id == id then
 						self._error_box.tree_ctrl:set_item_text_colour(id, Vector3(1, 0, 0))
 						self._error_box.tree_ctrl:set_item_background_colour(id, Vector3(1, 1, 1))
 						found = true
+					else
+					end
 				end
-
-				else
-				end
-
 			end
-
 			if found then
 				table.delete(self._ignore_list, ignore_id)
 			end
-
 		end
-
 	end
-
 end
 
 function CoreUnitTestBrowser:destroy()
@@ -296,12 +222,10 @@ function CoreUnitTestBrowser:destroy()
 		self._error_frame:destroy()
 		self._error_frame = nil
 	end
-
 	if alive(self._search_frame) then
 		self._search_frame:destroy()
 		self._search_frame = nil
 	end
-
 end
 
 function CoreUnitTestBrowser:close()
@@ -314,7 +238,6 @@ function CoreUnitTestBrowser:close_search()
 		self._search_frame:destroy()
 		self._search_frame = nil
 	end
-
 end
 
 function CoreUnitTestBrowser:on_find_unit()
@@ -327,7 +250,6 @@ function CoreUnitTestBrowser:on_close()
 	else
 		managers.toolhub:close("Unit Test Browser")
 	end
-
 end
 
 function CoreUnitTestBrowser:on_close_search()
@@ -338,9 +260,7 @@ function CoreUnitTestBrowser:on_search()
 	self._search_box.list_box:clear()
 	local search_str = self._search_box.search_text_ctrl:get_value()
 	if search_str ~= "" then
-		local (for generator), (for state), (for control) = pairs(self._unit_msg)
-		do
-			do break end
+		for key, value in pairs(self._unit_msg) do
 			if value.author and value.diesel and value.id then
 				local str = value.author
 				if self._search_box.type_combobox:get_value() == "Search By Name" then
@@ -348,21 +268,15 @@ function CoreUnitTestBrowser:on_search()
 				elseif self._search_box.type_combobox:get_value() == "Search By Diesel Path" then
 					str = value.diesel
 				end
-
 				if string.len(search_str) <= string.len(str) and (value.note == "failed" or value.note == "critical") then
 					str = string.sub(str, 1, string.len(search_str))
 					if search_str == str then
 						self._search_box.list_box:append(key)
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function CoreUnitTestBrowser:on_listbox_selected()
@@ -374,104 +288,59 @@ function CoreUnitTestBrowser:on_listbox_selected()
 		self._error_box.tree_ctrl:expand(self._critical_id)
 		self._error_box.tree_ctrl:select_item(unit_msg.id, true)
 	end
-
 end
 
 function CoreUnitTestBrowser:on_send_emails()
 	if self._warning_mail_dialog:show_modal() == "ID_OK" then
 		local call = "ruby unit_test_report"
-		do
-			local (for generator), (for state), (for control) = self._report_xml:children()
-			do
-				do break end
-				local found = false
-				local found_failed = true
-				do
-					local (for generator), (for state), (for control) = ipairs(self._ignore_list)
-					do
-						do break end
-						if unit_node:parameter("name") == self._error_box.tree_ctrl:get_item_text(ignore_id) then
-							found = true
-					end
-
-					else
-					end
-
+		for unit_node in self._report_xml:children() do
+			local found = false
+			local found_failed = true
+			for _, ignore_id in ipairs(self._ignore_list) do
+				if unit_node:parameter("name") == self._error_box.tree_ctrl:get_item_text(ignore_id) then
+					found = true
+				else
 				end
-
-				do
-					local (for generator), (for state), (for control) = ipairs(self._error_box.tree_ctrl:get_children(self._passed_id))
-					do
-						do break end
-						if self._error_box.tree_ctrl:get_item_text(id) == unit_node:parameter("name") then
-							found_failed = false
-					end
-
-					else
-					end
-
-				end
-
-				if not found and found_failed then
-					call = call .. " -u" .. unit_node:parameter("name")
-				end
-
 			end
-
+			for _, id in ipairs(self._error_box.tree_ctrl:get_children(self._passed_id)) do
+				if self._error_box.tree_ctrl:get_item_text(id) == unit_node:parameter("name") then
+					found_failed = false
+				else
+				end
+			end
+			if not found and found_failed then
+				call = call .. " -u" .. unit_node:parameter("name")
+			end
 		end
-
 		Application:system(call, false)
 	end
-
 end
 
 function CoreUnitTestBrowser:on_send_emails_to()
 	if self._receiver_dialog:show_modal() then
 		local receiver_name = self._receiver_dialog:get_value()
 		local call = "ruby unit_test_report"
-		do
-			local (for generator), (for state), (for control) = self._report_xml:children()
-			do
-				do break end
-				local found = false
-				local found_failed = true
-				do
-					local (for generator), (for state), (for control) = ipairs(self._ignore_list)
-					do
-						do break end
-						if unit_node:parameter("name") == self._error_box.tree_ctrl:get_item_text(ignore_id) then
-							found = true
-					end
-
-					else
-					end
-
+		for unit_node in self._report_xml:children() do
+			local found = false
+			local found_failed = true
+			for _, ignore_id in ipairs(self._ignore_list) do
+				if unit_node:parameter("name") == self._error_box.tree_ctrl:get_item_text(ignore_id) then
+					found = true
+				else
 				end
-
-				do
-					local (for generator), (for state), (for control) = ipairs(self._error_box.tree_ctrl:get_children(self._passed_id))
-					do
-						do break end
-						if self._error_box.tree_ctrl:get_item_text(id) == unit_node:parameter("name") then
-							found_failed = false
-					end
-
-					else
-					end
-
-				end
-
-				if not found and found_failed then
-					call = call .. " -to" .. receiver_name .. " -u" .. unit_node:parameter("name")
-				end
-
 			end
-
+			for _, id in ipairs(self._error_box.tree_ctrl:get_children(self._passed_id)) do
+				if self._error_box.tree_ctrl:get_item_text(id) == unit_node:parameter("name") then
+					found_failed = false
+				else
+				end
+			end
+			if not found and found_failed then
+				call = call .. " -to" .. receiver_name .. " -u" .. unit_node:parameter("name")
+			end
 		end
-
 		Application:system(call, false)
 	end
-
 end
 
 function CoreUnitTestBrowser:on_tree_ctrl_change()
@@ -485,11 +354,8 @@ function CoreUnitTestBrowser:on_tree_ctrl_change()
 			else
 				self._error_box.text_ctrl:set_value("")
 			end
-
 		end
-
 	end
-
 end
 
 function CoreUnitTestBrowser:init_tree_view()
@@ -503,60 +369,44 @@ function CoreUnitTestBrowser:init_tree_view()
 	self._failed_id = self._error_box.tree_ctrl:append(self._root_id, "Failed")
 	self._critical_id = self._error_box.tree_ctrl:append(self._root_id, "Critical")
 	self._error_box.tree_ctrl:expand(self._root_id)
-	do
-		local (for generator), (for state), (for control) = self._report_xml:children()
-		do
-			do break end
-			if unit_node:name() == "unit" then
-				num_units = num_units + 1
-				local found_error = false
-				local found_critical = false
-				self._unit_msg[unit_node:parameter("name")] = {}
-				self._unit_msg[unit_node:parameter("name")].msg = ""
-				self._unit_msg[unit_node:parameter("name")].author = unit_node:parameter("author")
-				self._unit_msg[unit_node:parameter("name")].diesel = unit_node:parameter("diesel")
-				do
-					local (for generator), (for state), (for control) = unit_node:children()
-					do
-						do break end
-						if info_node:data() ~= "" then
-							if info_node:name() == "crash_output" then
-								found_critical = true
-							else
-								found_error = true
-							end
-
-							self._unit_msg[unit_node:parameter("name")].msg = self._unit_msg[unit_node:parameter("name")].msg .. "---------------------- " .. unit_node:parameter("author") .. " - " .. unit_node:parameter("name") .. " - " .. info_node:name() .. " ----------------------\n" .. info_node:data() .. "\n"
-						end
-
+	for unit_node in self._report_xml:children() do
+		if unit_node:name() == "unit" then
+			num_units = num_units + 1
+			local found_error = false
+			local found_critical = false
+			self._unit_msg[unit_node:parameter("name")] = {}
+			self._unit_msg[unit_node:parameter("name")].msg = ""
+			self._unit_msg[unit_node:parameter("name")].author = unit_node:parameter("author")
+			self._unit_msg[unit_node:parameter("name")].diesel = unit_node:parameter("diesel")
+			for info_node in unit_node:children() do
+				if info_node:data() ~= "" then
+					if info_node:name() == "crash_output" then
+						found_critical = true
+					else
+						found_error = true
 					end
-
+					self._unit_msg[unit_node:parameter("name")].msg = self._unit_msg[unit_node:parameter("name")].msg .. "---------------------- " .. unit_node:parameter("author") .. " - " .. unit_node:parameter("name") .. " - " .. info_node:name() .. " ----------------------\n" .. info_node:data() .. "\n"
 				end
-
-				if found_critical then
-					num_critical = num_critical + 1
-					self._unit_msg[unit_node:parameter("name")].note = "critical"
-					self._unit_msg[unit_node:parameter("name")].id = self._error_box.tree_ctrl:append(self._critical_id, unit_node:parameter("name"))
-					self._error_box.tree_ctrl:set_item_text_colour(self._unit_msg[unit_node:parameter("name")].id, Vector3(1, 0, 0))
-				elseif found_error then
-					num_failed = num_failed + 1
-					self._unit_msg[unit_node:parameter("name")].note = "failed"
-					self._unit_msg[unit_node:parameter("name")].id = self._error_box.tree_ctrl:append(self._failed_id, unit_node:parameter("name"))
-					self._error_box.tree_ctrl:set_item_text_colour(self._unit_msg[unit_node:parameter("name")].id, Vector3(0.5, 0, 0))
-				else
-					num_passed = num_passed + 1
-					self._unit_msg[unit_node:parameter("name")].note = "passed"
-					self._unit_msg[unit_node:parameter("name")].msg = "Unit is OK and exported by: " .. unit_node:parameter("author")
-					self._unit_msg[unit_node:parameter("name")].id = self._error_box.tree_ctrl:append(self._passed_id, unit_node:parameter("name"))
-					self._error_box.tree_ctrl:set_item_text_colour(self._unit_msg[unit_node:parameter("name")].id, Vector3(0, 0.5, 0))
-				end
-
 			end
-
+			if found_critical then
+				num_critical = num_critical + 1
+				self._unit_msg[unit_node:parameter("name")].note = "critical"
+				self._unit_msg[unit_node:parameter("name")].id = self._error_box.tree_ctrl:append(self._critical_id, unit_node:parameter("name"))
+				self._error_box.tree_ctrl:set_item_text_colour(self._unit_msg[unit_node:parameter("name")].id, Vector3(1, 0, 0))
+			elseif found_error then
+				num_failed = num_failed + 1
+				self._unit_msg[unit_node:parameter("name")].note = "failed"
+				self._unit_msg[unit_node:parameter("name")].id = self._error_box.tree_ctrl:append(self._failed_id, unit_node:parameter("name"))
+				self._error_box.tree_ctrl:set_item_text_colour(self._unit_msg[unit_node:parameter("name")].id, Vector3(0.5, 0, 0))
+			else
+				num_passed = num_passed + 1
+				self._unit_msg[unit_node:parameter("name")].note = "passed"
+				self._unit_msg[unit_node:parameter("name")].msg = "Unit is OK and exported by: " .. unit_node:parameter("author")
+				self._unit_msg[unit_node:parameter("name")].id = self._error_box.tree_ctrl:append(self._passed_id, unit_node:parameter("name"))
+				self._error_box.tree_ctrl:set_item_text_colour(self._unit_msg[unit_node:parameter("name")].id, Vector3(0, 0.5, 0))
+			end
 		end
-
 	end
-
 	self._unit_msg.Units = {}
 	self._unit_msg.Units.msg = tostring(num_units) .. " units tested."
 	self._unit_msg.Passed = {}
@@ -596,9 +446,7 @@ function CoreUnitTestBrowserInputDialog:show_modal()
 	while true do
 		if not self._done then
 		end
-
 	end
-
 	return self._return_val
 end
 

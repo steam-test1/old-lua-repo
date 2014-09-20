@@ -73,7 +73,6 @@ function CoreCutsceneBatchOptimizerDialog:update(time, delta_time)
 	if not self.__window then
 		return true
 	end
-
 	if self.__progress_dialog then
 		assert(self.__batch)
 		local project_count = self.__batch:max_queue_size()
@@ -84,9 +83,7 @@ function CoreCutsceneBatchOptimizerDialog:update(time, delta_time)
 		else
 			self.__batch:consume_project()
 		end
-
 	end
-
 	return false
 end
 
@@ -121,17 +118,14 @@ function CoreCutsceneBatchOptimizerDialog:_destroy()
 	if alive(self.__progress_dialog) then
 		self.__progress_dialog:destroy()
 	end
-
 	self.__progress_dialog = nil
 	if self.__projects then
 		self.__projects:destroy()
 	end
-
 	self.__projects = nil
 	if alive(self.__window) then
 		self.__window:destroy()
 	end
-
 	self.__window = nil
 	self.__batch = nil
 end
@@ -139,7 +133,6 @@ end
 function CoreCutsceneBatchOptimizerDialog:_progress_message(project)
 	if project ~= nil or not "Done!" then
 	end
-
 	return (string.format("Exporting %s", project))
 end
 
@@ -182,19 +175,12 @@ function CoreCutsceneBatchOptimizerDialog:_on_export_button_clicked(sender)
 	local projects_to_export = self.__projects:mappings()
 	if not table.empty(projects_to_export) then
 		self.__batch = core_or_local("CutsceneBatchOptimizer")
-		do
-			local (for generator), (for state), (for control) = pairs(projects_to_export)
-			do
-				do break end
-				self.__batch:add_project(project, output)
-			end
-
+		for project, output in pairs(projects_to_export) do
+			self.__batch:add_project(project, output)
 		end
-
 		self.__progress_dialog = EWS:ProgressDialog(self.__window, "Exporting Projects...", "Preparing export", self.__batch:queue_size(), "PD_AUTO_HIDE,PD_APP_MODAL,PD_CAN_ABORT,PD_REMAINING_TIME")
 		self.__progress_dialog:set_visible(true)
 	end
-
 end
 
 function CoreCutsceneBatchOptimizerDialog:_on_new_job_list()
@@ -203,7 +189,6 @@ function CoreCutsceneBatchOptimizerDialog:_on_new_job_list()
 		self.__projects:clear()
 		self.__current_job_list_path = nil
 	end
-
 	return ok_to_proceed
 end
 
@@ -212,7 +197,6 @@ function CoreCutsceneBatchOptimizerDialog:_on_default_job_list()
 	if ok_to_proceed then
 		self.__projects:set_mappings(self:_default_mappings_for_all_projects())
 	end
-
 end
 
 function CoreCutsceneBatchOptimizerDialog:_on_open_job_list()
@@ -222,9 +206,7 @@ function CoreCutsceneBatchOptimizerDialog:_on_open_job_list()
 		if input_path then
 			self:_open_job_list(input_path)
 		end
-
 	end
-
 end
 
 function CoreCutsceneBatchOptimizerDialog:_on_save_job_list()
@@ -234,7 +216,6 @@ function CoreCutsceneBatchOptimizerDialog:_on_save_job_list()
 	else
 		return self:_on_save_job_list_as()
 	end
-
 end
 
 function CoreCutsceneBatchOptimizerDialog:_on_save_job_list_as()
@@ -242,7 +223,6 @@ function CoreCutsceneBatchOptimizerDialog:_on_save_job_list_as()
 	if output_path then
 		self:_save_job_list(output_path)
 	end
-
 	return output_path ~= nil
 end
 
@@ -251,7 +231,6 @@ function CoreCutsceneBatchOptimizerDialog:_on_exit()
 	if ok_to_proceed then
 		self:_destroy()
 	end
-
 	return ok_to_proceed
 end
 
@@ -259,17 +238,14 @@ function CoreCutsceneBatchOptimizerDialog:_verify_user_intent(operation)
 	if table.empty(self.__projects:mappings()) then
 		return true
 	end
-
 	local choice = EWS:MessageDialog(self.__window, "Do you want to save the current job list before " .. operation .. "?", "Save Changes?", "YES_NO,CANCEL,YES_DEFAULT,ICON_EXCLAMATION"):show_modal()
 	if choice == "ID_YES" then
 		if not self:_on_save_job_list() then
 			return false
 		end
-
 	elseif choice == "ID_CANCEL" then
 		return false
 	end
-
 	return true
 end
 

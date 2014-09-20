@@ -19,7 +19,6 @@ function WeaponFlashLight:init(unit)
 		local b = 255
 		self._light:set_color(Vector3(r, g, b) / 255)
 	end
-
 	self._light:link(obj)
 	self._light:set_rotation(Rotation(obj:rotation():z(), -obj:rotation():x(), -obj:rotation():y()))
 	self._light:set_enable(false)
@@ -35,7 +34,6 @@ function WeaponFlashLight:set_npc()
 	if self._light_effect then
 		World:effect_manager():kill(self._light_effect)
 	end
-
 	local obj = self._unit:get_object(Idstring("a_flashlight"))
 	local is_haunted = managers.job and managers.job:current_job_id() == "haunted"
 	local effect_path = is_haunted and "effects/particles/weapons/flashlight_spooky/flashlight" or "effects/particles/weapons/flashlight/flashlight"
@@ -58,11 +56,9 @@ function WeaponFlashLight:destroy(unit)
 	if alive(self._light) then
 		World:delete_light(self._light)
 	end
-
 	if self._light_effect then
 		World:effect_manager():kill(self._light_effect)
 		self._light_effect = nil
 	end
-
 end
 

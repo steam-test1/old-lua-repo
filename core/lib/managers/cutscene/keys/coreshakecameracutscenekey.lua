@@ -17,7 +17,6 @@ function CoreShakeCameraCutsceneKey:play(player, undo, fast_forward)
 		self:stop()
 		self._shake_abort_func = player:play_camera_shake(self:name(), self:amplitude(), self:frequency(), self:offset())
 	end
-
 end
 
 function CoreShakeCameraCutsceneKey:stop()
@@ -25,6 +24,5 @@ function CoreShakeCameraCutsceneKey:stop()
 		self._shake_abort_func()
 		self._shake_abort_func = nil
 	end
-
 end
 

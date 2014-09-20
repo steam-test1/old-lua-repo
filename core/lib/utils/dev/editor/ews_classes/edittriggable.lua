@@ -53,12 +53,10 @@ function EditUnitTriggable:build_element_gui(data)
 		unit_name = data.notify_unit:name()
 		name = data.notify_unit:unit_data().name_id
 	end
-
 	local sequences = {"none"}
 	if 0 < #managers.sequence:get_triggable_sequence_list(unit_name) then
 		sequences = managers.sequence:get_triggable_sequence_list(unit_name)
 	end
-
 	table.sort(sequences)
 	local sequence = data.notify_unit_sequence or "none"
 	local t = data.time or "-"
@@ -68,15 +66,9 @@ function EditUnitTriggable:build_element_gui(data)
 	local name = EWS:TextCtrl(panel, name:s(), "", "TE_CENTRE,TE_READONLY")
 	sizer:add(name, 3, 0, "EXPAND")
 	local trigger = EWS:ComboBox(panel, "", "", "CB_DROPDOWN,CB_READONLY")
-	do
-		local (for generator), (for state), (for control) = ipairs(sequences)
-		do
-			do break end
-			trigger:append(name)
-		end
-
+	for _, name in ipairs(sequences) do
+		trigger:append(name)
 	end
-
 	trigger:set_value(sequence)
 	sizer:add(trigger, 3, 0, "EXPAND")
 	local time = EWS:TextCtrl(panel, t, "", "TE_CENTRE")
@@ -111,15 +103,9 @@ end
 
 function EditUnitTriggable:clear_element_gui()
 	self._scrolled_main_sizer:clear()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._element_guis)
-		do
-			do break end
-			gui:destroy()
-		end
-
+	for _, gui in ipairs(self._element_guis) do
+		gui:destroy()
 	end
-
 	self._element_guis = {}
 end
 
@@ -127,7 +113,6 @@ function EditUnitTriggable:add_unit_btn()
 	if not managers.editor then
 		return
 	end
-
 	local cb = self._btn_toolbar:tool_state("ADD_UNIT") and callback(self, self, "add_unit") or nil
 	managers.editor:set_trigger_add_unit(cb)
 end
@@ -138,34 +123,25 @@ function EditUnitTriggable:add_unit_list_btn()
 	end
 
 	local dialog = SelectUnitByNameModal:new("Add Trigger Unit", f)
-	local (for generator), (for state), (for control) = ipairs(dialog:selected_units())
-	do
-		do break end
+	for _, unit in ipairs(dialog:selected_units()) do
 		self:add_unit(unit)
 	end
-
 end
 
 function EditUnitTriggable:update_element_gui()
 	self:clear_element_gui()
 	local trigger_data = self._ctrls.unit:damage():get_editor_trigger_data()
 	if trigger_data and #trigger_data > 0 then
-		local (for generator), (for state), (for control) = ipairs(trigger_data)
-		do
-			do break end
+		for _, data in ipairs(trigger_data) do
 			if data.trigger_name == self._triggers_params.ctrlr:get_value() then
 				self:build_element_gui(data)
 			end
-
 		end
-
 	end
-
 	if #self._element_guis == 0 then
 		local panel = self:build_element_gui({})
 		panel:set_enabled(false)
 	end
-
 	self._scrolled_window:fit_inside()
 	managers.editor:layout_edit_panel()
 end
@@ -176,14 +152,12 @@ function EditUnitTriggable:add_unit(unit)
 		self._ctrls.unit:damage():add_trigger_sequence(self._triggers_params.ctrlr:get_value(), triggable_sequences[1], unit, 0, nil, nil, true)
 		self:update_element_gui()
 	end
-
 end
 
 function EditUnitTriggable:change_triggers()
 	if alive(self._ctrls.unit) then
 		self:update_element_gui()
 	end
-
 end
 
 function EditUnitTriggable:is_editable(unit)
@@ -196,9 +170,7 @@ function EditUnitTriggable:is_editable(unit)
 			self:update_element_gui()
 			return true
 		end
-
 	end
-
 	self._btn_toolbar:set_tool_state("ADD_UNIT", false)
 	self:add_unit_btn()
 	return false

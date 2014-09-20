@@ -4,7 +4,6 @@ function HUDHint:init(hud)
 	if self._hud_panel:child("hint_panel") then
 		self._hud_panel:remove(self._hud_panel:child("hint_panel"))
 	end
-
 	self._hint_panel = self._hud_panel:panel({
 		visible = false,
 		name = "hint_panel",
@@ -89,14 +88,12 @@ function HUDHint:_animate_show(hint_panel, done_cb, seconds, text)
 		marker:set_alpha((1 + math.sin(Application:time() * 800)) / 2)
 		marker:set_right(clip_panel:right())
 	end
-
 	while (t > 0 or forever) and not self._stop do
 		local dt = coroutine.yield()
 		t = t - dt
 		marker:set_alpha((1 + math.sin(Application:time() * 800)) / 2)
 		marker:set_right(clip_panel:right())
 	end
-
 	self._stop = false
 	local removing = true
 	while removing do
@@ -107,7 +104,6 @@ function HUDHint:_animate_show(hint_panel, done_cb, seconds, text)
 		marker:set_alpha((1 + math.sin(Application:time() * 800)) / 2)
 		marker:set_right(clip_panel:right())
 	end
-
 	hint_panel:set_visible(false)
 	done_cb()
 end

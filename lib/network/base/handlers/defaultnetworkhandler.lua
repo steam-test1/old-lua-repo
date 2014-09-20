@@ -9,9 +9,7 @@ function DefaultNetworkHandler.lost_peer(peer_ip)
 		if peer then
 			managers.network:session():on_peer_lost(peer, peer:id())
 		end
-
 	end
-
 end
 
 function DefaultNetworkHandler.lost_client(peer_ip)
@@ -21,9 +19,7 @@ function DefaultNetworkHandler.lost_client(peer_ip)
 		if peer then
 			managers.network:session():on_peer_lost(peer, peer:id())
 		end
-
 	end
-
 end
 
 function DefaultNetworkHandler.lost_server(peer_ip)
@@ -33,8 +29,6 @@ function DefaultNetworkHandler.lost_server(peer_ip)
 		if peer then
 			managers.network:session():on_peer_lost(peer, peer:id())
 		end
-
 	end
-
 end
 

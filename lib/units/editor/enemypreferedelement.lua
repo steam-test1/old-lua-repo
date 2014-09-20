@@ -16,10 +16,7 @@ function EnemyPreferedAddUnitElement:update_selected(t, dt, selected_unit, all_u
 		if not element_ids then
 			return
 		end
-
-		local (for generator), (for state), (for control) = ipairs(element_ids)
-		do
-			do break end
+		for _, id in ipairs(element_ids) do
 			local unit = all_units[id]
 			local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 			if draw then
@@ -31,9 +28,7 @@ function EnemyPreferedAddUnitElement:update_selected(t, dt, selected_unit, all_u
 					b = 0.75
 				})
 			end
-
 		end
-
 	end
 
 	_draw_func(self._hed.spawn_points)
@@ -53,7 +48,6 @@ function EnemyPreferedAddUnitElement:add_element()
 			id = ray.unit:unit_data().unit_id
 			is_group = true
 		end
-
 		if id then
 			if is_group then
 				if self._hed.spawn_groups and table.contains(self._hed.spawn_groups, id) then
@@ -61,27 +55,21 @@ function EnemyPreferedAddUnitElement:add_element()
 					if not next(self._hed.spawn_groups) then
 						self._hed.spawn_groups = nil
 					end
-
 				else
 					self._hed.spawn_groups = self._hed.spawn_groups or {}
 					table.insert(self._hed.spawn_groups, id)
 				end
-
 			elseif self._hed.spawn_points and table.contains(self._hed.spawn_points, id) then
 				table.delete(self._hed.spawn_points, id)
 				if not next(self._hed.spawn_points) then
 					self._hed.spawn_points = nil
 				end
-
 			else
 				self._hed.spawn_points = self._hed.spawn_points or {}
 				table.insert(self._hed.spawn_points, id)
 			end
-
 		end
-
 	end
-
 end
 
 function EnemyPreferedAddUnitElement:remove_links(unit)
@@ -90,16 +78,11 @@ function EnemyPreferedAddUnitElement:remove_links(unit)
 		if not element_ids then
 			return
 		end
-
-		local (for generator), (for state), (for control) = ipairs(element_ids)
-		do
-			do break end
+		for _, id in ipairs(element_ids) do
 			if id == rem_u_id then
 				table.delete(element_ids, id)
 			end
-
 		end
-
 	end
 
 	_rem_func(self._hed.spawn_points)
@@ -130,9 +113,7 @@ end
 
 function EnemyPreferedRemoveUnitElement:draw_links(t, dt, selected_unit, all_units)
 	EnemyPreferedRemoveUnitElement.super.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -144,9 +125,7 @@ function EnemyPreferedRemoveUnitElement:draw_links(t, dt, selected_unit, all_uni
 				b = 0
 			})
 		end
-
 	end
-
 end
 
 function EnemyPreferedRemoveUnitElement:add_element()
@@ -158,21 +137,15 @@ function EnemyPreferedRemoveUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function EnemyPreferedRemoveUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function EnemyPreferedRemoveUnitElement:add_triggers(vc)

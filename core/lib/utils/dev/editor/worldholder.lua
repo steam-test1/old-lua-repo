@@ -15,7 +15,6 @@ function WorldHolder:init(params)
 		Application:throw_exception("WorldHolder:init needs a table as param (was of type " .. type_name(params) .. "). Check wiki for documentation.")
 		return
 	end
-
 	local file_path = params.file_path
 	local file_type = params.file_type
 	self._worlds = {}
@@ -25,7 +24,6 @@ function WorldHolder:init(params)
 			Application:throw_exception("Level format no longer supported, use type world with resaved data. (" .. file_path .. ")")
 			return
 		end
-
 		local reverse = string.reverse(file_path)
 		local i = string.find(reverse, "/")
 		self._world_dir = string.reverse(string.sub(reverse, i))
@@ -42,27 +40,20 @@ function WorldHolder:init(params)
 			local WorldDefinitionClass = rawget(_G, "WorldDefinition") or rawget(_G, "CoreOldWorldDefinition")
 			local path = managers.database:entry_expanded_path(file_type, file_path)
 			local node = SystemFS:parse_xml(path)
-			local (for generator), (for state), (for control) = node:children()
-			do
-				do break end
+			for world in node:children() do
 				if world:name() == "world" then
 					t.node = world
 					self._worlds[world:parameter("name")] = WorldDefinitionClass:new(t)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function WorldHolder:_error(msg)
 	if Application:editor() then
 		managers.editor:output_error(msg)
 	end
-
 	Application:error(msg)
 end
 
@@ -70,21 +61,17 @@ function WorldHolder:_worldfile_generation(file_type, file_path)
 	if file_type == "level" then
 		return "level"
 	end
-
 	if not Application:editor() then
 		return "new"
 	end
-
 	local path = managers.database:entry_expanded_path(file_type, file_path)
 	local node = SystemFS:parse_xml(path)
 	if node:name() == "worlds" then
 		return "old"
 	end
-
 	if node:name() == "generic_scriptdata" then
 		return "new"
 	end
-
 	return "unknown"
 end
 
@@ -92,7 +79,6 @@ function WorldHolder:is_ok()
 	if self._worldfile_generation == "new" then
 		return true
 	end
-
 	return table.size(self._worlds) > 0 and self._worlds.world
 end
 
@@ -102,10 +88,8 @@ function WorldHolder:create_world(world, layer, offset)
 		if not Application:editor() and (layer == "statics" or layer == "all") and not Global.running_slave then
 			World:occlusion_manager():merge_occluders(5)
 		end
-
 		return return_data
 	end
-
 	local c_world = self._worlds[world]
 	if c_world then
 		local return_data = c_world:create(layer, offset)
@@ -113,16 +97,13 @@ function WorldHolder:create_world(world, layer, offset)
 			World:culling_octree():build_tree()
 			World:occlusion_manager():merge_occluders(5)
 		end
-
 		if not Application:editor() and layer == "all" then
 			c_world:clear_definitions()
 		end
-
 		return return_data
 	else
 		Application:error("WorldHolder:create_world :: Could not create world", world, "for layer", layer)
 	end
-
 end
 
 function WorldHolder:get_player_data(world, layer, offset)
@@ -132,21 +113,18 @@ function WorldHolder:get_player_data(world, layer, offset)
 	else
 		Application:error("WorldHolder:create_world :: Could not create world", world, "for layer", layer)
 	end
-
 end
 
 function WorldHolder:get_max_id(world)
 	if self._definition then
 		return self._definition:get_max_id()
 	end
-
 	local c_world = self._worlds[world]
 	if c_world then
 		return c_world:get_max_id()
 	else
 		Application:error("WorldHolder:create_world :: Could not return max id", world)
 	end
-
 end
 
 function WorldHolder:get_level_name(world)
@@ -156,7 +134,6 @@ function WorldHolder:get_level_name(world)
 	else
 		Application:error("WorldHolder:create_world :: Could not return level name", world)
 	end
-
 end
 
 function CoreOldWorldDefinition:init(params)
@@ -183,18 +160,15 @@ function CoreOldWorldDefinition:init(params)
 		if node:has_parameter("max_id") then
 			self._max_id = tonumber(node:parameter("max_id"))
 		end
-
 		if node:has_parameter("level_name") then
 			self._level_name = node:parameter("level_name")
 		end
-
 		self:parse_definitions(node)
 	elseif level then
 		self._level_file = level
 		self._max_id = self._level_file:data(Idstring("world")).max_id
 		self._level_name = self._level_file:data(Idstring("world")).level_name
 	end
-
 	self._definitions.editor_groups = self._definitions.editor_groups or {
 		groups = self._old_groups.groups,
 		group_names = self._old_groups.group_names
@@ -215,50 +189,40 @@ function CoreOldWorldDefinition:_load_world_package()
 	if Application:editor() then
 		return
 	end
-
 	local package = self._world_dir .. "world"
 	if not DB:has("package", package) then
 		Application:throw_exception("No world.package file found in " .. self._world_dir .. ", please resave level")
 		return
 	end
-
 	if not PackageManager:loaded(package) then
 		PackageManager:load(package)
 		self._current_world_package = package
 	end
-
 end
 
 function CoreOldWorldDefinition:_load_continent_package(path)
 	if Application:editor() then
 		return
 	end
-
 	if not DB:has("package", path) then
 		Application:error("Missing package for a continent(" .. path .. "), resave level " .. self._world_dir .. ".")
 		return
 	end
-
 	self._continent_packages = self._continent_packages or {}
 	if not PackageManager:loaded(path) then
 		PackageManager:load(path)
 		table.insert(self._continent_packages, path)
 		managers.sequence:preload()
 	end
-
 end
 
 function CoreOldWorldDefinition:unload_packages()
 	if self._current_world_package and PackageManager:loaded(self._current_world_package) then
 		PackageManager:unload(self._current_world_package)
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._continent_packages)
-	do
-		do break end
+	for _, package in ipairs(self._continent_packages) do
 		PackageManager:unload(package)
 	end
-
 end
 
 function CoreOldWorldDefinition:nice_path(path)
@@ -271,43 +235,33 @@ function CoreOldWorldDefinition:_parse_world_setting(world_setting)
 	if not world_setting then
 		return
 	end
-
 	local path = self:world_dir() .. world_setting
 	if not DB:has("world_setting", path) then
 		Application:error("There is no world_setting file " .. world_setting .. " at path " .. path)
 		return
 	end
-
 	local settings = DB:load_node("world_setting", path)
-	local (for generator), (for state), (for control) = settings:children()
-	do
-		do break end
+	for continent in settings:children() do
 		self._excluded_continents[continent:parameter("name")] = toboolean(continent:parameter("exclude"))
 	end
-
 end
 
 function CoreOldWorldDefinition:parse_definitions(node)
 	local num_children = node:num_children()
 	local num_progress = 0
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for type in node:children() do
 		local name = type:name()
 		self._definitions[name] = self._definitions[name] or {}
 		if managers.editor then
 			num_progress = num_progress + 50 / num_children
 			managers.editor:update_load_progress(num_progress, "Parse layer: " .. name)
 		end
-
 		if self["parse_" .. name] then
 			self["parse_" .. name](self, type, self._definitions[name])
 		else
 			Application:error("CoreOldWorldDefinition:No parse function for type/layer", name)
 		end
-
 	end
-
 end
 
 function CoreOldWorldDefinition:world_dir()
@@ -327,16 +281,12 @@ function CoreOldWorldDefinition:parse_continents(node, t)
 	if not DB:has("continents", path) then
 		path = self:world_dir() .. path
 	end
-
 	if not DB:has("continents", path) then
 		Application:error("Continent file didn't exist " .. path .. ").")
 		return
 	end
-
 	local continents = self:_load_node("continents", path)
-	local (for generator), (for state), (for control) = continents:children()
-	do
-		do break end
+	for continent in continents:children() do
 		local data = parse_values_node(continent)
 		data = data._values or {}
 		if not self:_continent_editor_only(data) then
@@ -347,58 +297,38 @@ function CoreOldWorldDefinition:parse_continents(node, t)
 				data.base_id = data.base_id or tonumber(continent:parameter("base_id"))
 				if DB:has("continent", path) then
 					local node = self:_load_node("continent", path)
-					local (for generator), (for state), (for control) = node:children()
-					do
-						do break end
+					for world in node:children() do
 						data.level_name = world:parameter("level_name")
 						t[name] = data
 						self:parse_definitions(world)
 					end
-
 				else
 					Application:error("Continent file " .. path .. ".continent doesnt exist.")
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function CoreOldWorldDefinition:_continent_editor_only(data)
-	if not Application:editor() then
-		-- unhandled boolean indicator
-	else
-	end
-
-	return true
+	return not Application:editor() and data.editor_only
 end
 
 function CoreOldWorldDefinition:parse_values(node, t)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for child in node:children() do
 		local name, value = parse_value_node(child)
 		t[name] = value
 	end
-
 end
 
 function CoreOldWorldDefinition:parse_markers(node, t)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for child in node:children() do
 		table.insert(t, LoadedMarker:new(child))
 	end
-
 end
 
 function CoreOldWorldDefinition:parse_groups(node, t)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for child in node:children() do
 		local name = child:parameter("name")
 		local reference = tonumber(child:parameter("reference_unit_id"))
 		if reference ~= 0 then
@@ -406,47 +336,31 @@ function CoreOldWorldDefinition:parse_groups(node, t)
 		else
 			cat_error("Removed empty group", name, "when converting from old GroupHandler to new.")
 		end
-
 	end
-
 end
 
 function CoreOldWorldDefinition:parse_editor_groups(node, t)
 	local groups = self._old_groups.groups
 	local group_names = self._old_groups.group_names
-	do
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
-			local name = group:parameter("name")
-			if not groups[name] then
-				local reference = tonumber(group:parameter("reference_id"))
-				local continent
-				if group:has_parameter("continent") and group:parameter("continent") ~= "nil" then
-					continent = group:parameter("continent")
-				end
-
-				local units = {}
-				do
-					local (for generator), (for state), (for control) = group:children()
-					do
-						do break end
-						table.insert(units, tonumber(unit:parameter("id")))
-					end
-
-				end
-
-				groups[name] = {}
-				groups[name].reference = reference
-				groups[name].continent = continent
-				groups[name].units = units
-				table.insert(group_names, name)
+	for group in node:children() do
+		local name = group:parameter("name")
+		if not groups[name] then
+			local reference = tonumber(group:parameter("reference_id"))
+			local continent
+			if group:has_parameter("continent") and group:parameter("continent") ~= "nil" then
+				continent = group:parameter("continent")
 			end
-
+			local units = {}
+			for unit in group:children() do
+				table.insert(units, tonumber(unit:parameter("id")))
+			end
+			groups[name] = {}
+			groups[name].reference = reference
+			groups[name].continent = continent
+			groups[name].units = units
+			table.insert(group_names, name)
 		end
-
 	end
-
 	t.groups = groups
 	t.group_names = group_names
 end
@@ -471,9 +385,7 @@ function CoreOldWorldDefinition:parse_brush(node)
 		if not DB:has("massunit", self._massunit_path) then
 			self._massunit_path = self:world_dir() .. self._massunit_path
 		end
-
 	end
-
 end
 
 function CoreOldWorldDefinition:parse_sounds(node, t)
@@ -485,14 +397,11 @@ function CoreOldWorldDefinition:parse_sounds(node, t)
 		if not DB:has("world_sounds", path) then
 			path = self:world_dir() .. path
 		end
-
 	end
-
 	if not DB:has("world_sounds", path) then
 		Application:error("The specified sound file '" .. path .. ".world_sounds' was not found for this level! ", path, "No sound will be loaded!")
 		return
 	end
-
 	local node = self:_load_node("world_sounds", path)
 	self._sounds = CoreWDSoundEnvironment:new(node)
 end
@@ -501,28 +410,20 @@ function CoreOldWorldDefinition:parse_mission_scripts(node, t)
 	if not Application:editor() then
 		return
 	end
-
 	t.scripts = t.scripts or {}
 	local values = parse_values_node(node)
-	local (for generator), (for state), (for control) = pairs(values._scripts)
-	do
-		do break end
+	for name, data in pairs(values._scripts) do
 		t.scripts[name] = data
 	end
-
 end
 
 function CoreOldWorldDefinition:parse_mission(node, t)
 	if Application:editor() then
 		local MissionClass = rawget(_G, "MissionElementUnit") or rawget(_G, "CoreMissionElementUnit")
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
+		for child in node:children() do
 			table.insert(t, MissionClass:new(child))
 		end
-
 	end
-
 end
 
 function CoreOldWorldDefinition:parse_environment(node)
@@ -537,9 +438,7 @@ function CoreOldWorldDefinition:parse_world_camera(node)
 		if not DB:has("world_cameras", self._world_camera_path) then
 			self._world_camera_path = self:world_dir() .. self._world_camera_path
 		end
-
 	end
-
 end
 
 function CoreOldWorldDefinition:parse_portal(node)
@@ -547,37 +446,27 @@ function CoreOldWorldDefinition:parse_portal(node)
 end
 
 function CoreOldWorldDefinition:parse_wires(node, t)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for child in node:children() do
 		table.insert(t, CoreWire:new(child))
 	end
-
 end
 
 function CoreOldWorldDefinition:parse_statics(node, t)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for child in node:children() do
 		table.insert(t, CoreStaticUnit:new(child))
 	end
-
 end
 
 function CoreOldWorldDefinition:parse_dynamics(node, t)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for child in node:children() do
 		table.insert(t, CoreDynamicUnit:new(child))
 	end
-
 end
 
 function CoreOldWorldDefinition:release_sky_orientation_modifier()
 	if self._environment then
 		self._environment:release_sky_orientation_modifier()
 	end
-
 end
 
 function CoreOldWorldDefinition:clear_definitions()
@@ -597,7 +486,6 @@ function CoreOldWorldDefinition:create(layer, offset)
 	else
 		return self:create_units(layer, offset)
 	end
-
 end
 
 function CoreOldWorldDefinition:_create_continent_level(layer, offset)
@@ -605,17 +493,13 @@ function CoreOldWorldDefinition:_create_continent_level(layer, offset)
 		Application:error("No continent data saved to level file, please resave.")
 		return
 	end
-
 	local path = self:world_dir() .. self._level_file:data(Idstring("continents")).file
 	if not DB:has("continents", path) then
 		Application:error("Continent file didn't exist " .. path .. ").")
 		return
 	end
-
 	local continents = DB:load_node("continents", path)
-	local (for generator), (for state), (for control) = continents:children()
-	do
-		do break end
+	for continent in continents:children() do
 		local data = parse_values_node(continent)
 		data = data._values or {}
 		if not self:_continent_editor_only(data) then
@@ -634,100 +518,69 @@ function CoreOldWorldDefinition:_create_continent_level(layer, offset)
 				else
 					Application:error("Continent file " .. path .. ".continent doesnt exist.")
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function CoreOldWorldDefinition:create_units(layer, offset)
 	if layer ~= "all" and not self._definitions[layer] then
 		return {}
 	end
-
 	local return_data = {}
 	if layer == "markers" then
 		return_data = self._definitions.markers
 	end
-
 	if layer == "values" then
 		return_data = self._definitions.values
 	end
-
 	if layer == "editor_groups" then
 		return_data = self._definitions.editor_groups
 	end
-
 	if layer == "continents" then
 		return_data = self._definitions.continents
 	end
-
 	if (layer == "portal" or layer == "all") and self._portal then
 		self._portal:create(offset)
 		return_data = self._portal
 	end
-
 	if (layer == "sounds" or layer == "all") and self._sounds then
 		self._sounds:create()
 		return_data = self._sounds
 	end
-
 	if layer == "mission_scripts" then
 		return_data = self._definitions.mission_scripts
 	end
-
 	if layer == "mission" then
-		local (for generator), (for state), (for control) = ipairs(self._definitions.mission)
-		do
-			do break end
+		for _, unit in ipairs(self._definitions.mission) do
 			table.insert(return_data, unit:create_unit(offset))
 		end
-
 	end
-
 	if (layer == "brush" or layer == "all") and self._massunit_path then
 		self:load_massunit(self._massunit_path, offset)
 	end
-
 	if (layer == "environment" or layer == "all") and self._environment then
 		self._environment:create(offset)
 		return_data = self._environment
 	end
-
 	if (layer == "world_camera" or layer == "all") and self._world_camera_path then
 		managers.worldcamera:load(self._world_camera_path, offset)
 	end
-
 	if (layer == "wires" or layer == "all") and self._definitions.wires then
-		local (for generator), (for state), (for control) = ipairs(self._definitions.wires)
-		do
-			do break end
+		for _, unit in ipairs(self._definitions.wires) do
 			table.insert(return_data, unit:create_unit(offset))
 		end
-
 	end
-
 	if layer == "statics" or layer == "all" then
-		local (for generator), (for state), (for control) = ipairs(self._definitions.statics)
-		do
-			do break end
+		for _, unit in ipairs(self._definitions.statics) do
 			table.insert(return_data, unit:create_unit(offset))
 		end
-
 	end
-
 	if layer == "dynamics" or layer == "all" then
-		local (for generator), (for state), (for control) = ipairs(self._definitions.dynamics)
-		do
-			do break end
+		for _, unit in ipairs(self._definitions.dynamics) do
 			table.insert(return_data, unit:create_unit(offset))
 		end
-
 	end
-
 	return return_data
 end
 
@@ -739,47 +592,37 @@ function CoreOldWorldDefinition:create_from_level_file(params)
 		self:create_portals(level_file:data(Idstring("portal")).portals, offset)
 		self:create_portal_unit_groups(level_file:data(Idstring("portal")).unit_groups, offset)
 	end
-
 	if (layer == "sounds" or layer == "all") and level_file:data(Idstring("sounds")) then
 		if level_file:data(Idstring("sounds")).path then
 			self:create_sounds(level_file:data(Idstring("sounds")).path, offset)
 		elseif level_file:data(Idstring("sounds")).file then
 			self:create_sounds(self:world_dir() .. level_file:data(Idstring("sounds")).file, offset)
 		end
-
 	end
-
 	if (layer == "brush" or layer == "all") and level_file:data(Idstring("brush")) then
 		if level_file:data(Idstring("brush")).path then
 			self:load_massunit(level_file:data(Idstring("brush")).path, offset)
 		elseif level_file:data(Idstring("brush")).file then
 			self:load_massunit(self:world_dir() .. level_file:data(Idstring("brush")).file, offset)
 		end
-
 	end
-
 	if (layer == "environment" or layer == "all") and level_file:data(Idstring("environment")) then
 		self:create_environment(level_file:data(Idstring("environment")), offset)
 	end
-
 	if (layer == "world_camera" or layer == "all") and level_file:data(Idstring("world_camera")) then
 		if level_file:data(Idstring("world_camera")).path then
 			managers.worldcamera:load(level_file:data(Idstring("world_camera")).path, offset)
 		elseif level_file:data(Idstring("world_camera")).file then
 			managers.worldcamera:load(self:world_dir() .. level_file:data(Idstring("world_camera")).file, offset)
 		end
-
 	end
-
 	if layer == "wires" or layer == "all" then
 		local t = self:create_level_units({
 			layer = "wires",
 			offset = offset,
 			level_file = level_file
 		})
-		local (for generator), (for state), (for control) = ipairs(t)
-		do
-			do break end
+		for _, d in ipairs(t) do
 			local unit = d[1]
 			local data = d[2]
 			local wire = data.wire
@@ -790,9 +633,7 @@ function CoreOldWorldDefinition:create_from_level_file(params)
 			wire_set_midpoint(unit, Idstring("rp"), Idstring("a_target"), Idstring("a_bender"))
 			unit:set_moving()
 		end
-
 	end
-
 	if layer == "statics" or layer == "all" then
 		self:create_level_units({
 			layer = "statics",
@@ -800,7 +641,6 @@ function CoreOldWorldDefinition:create_from_level_file(params)
 			level_file = level_file
 		})
 	end
-
 	if layer == "dynamics" or layer == "all" then
 		self:create_level_units({
 			layer = "dynamics",
@@ -808,7 +648,6 @@ function CoreOldWorldDefinition:create_from_level_file(params)
 			level_file = level_file
 		})
 	end
-
 end
 
 function CoreOldWorldDefinition:create_level_units(params)
@@ -816,63 +655,40 @@ function CoreOldWorldDefinition:create_level_units(params)
 	local offset = params.offset
 	local level_file = params.level_file
 	local t = level_file:create(layer)
-	do
-		local (for generator), (for state), (for control) = ipairs(t)
-		do
-			do break end
-			local unit = d[1]
-			local data = d[2]
-			local generic_data = self:make_generic_data(data)
-			self:assign_unit_data(unit, generic_data)
-		end
-
+	for _, d in ipairs(t) do
+		local unit = d[1]
+		local data = d[2]
+		local generic_data = self:make_generic_data(data)
+		self:assign_unit_data(unit, generic_data)
 	end
-
 	return t
 end
 
 function CoreOldWorldDefinition:create_portals(portals, offset)
-	local (for generator), (for state), (for control) = ipairs(portals)
-	do
-		do break end
+	for _, portal in ipairs(portals) do
 		local t = {}
-		do
-			local (for generator), (for state), (for control) = ipairs(portal.points)
-			do
-				do break end
-				table.insert(t, point.position + offset)
-			end
-
+		for _, point in ipairs(portal.points) do
+			table.insert(t, point.position + offset)
 		end
-
 		local top = portal.top
 		local bottom = portal.bottom
 		if top == 0 and bottom == 0 then
 			top, bottom = nil, nil
 		end
-
 		managers.portal:add_portal(t, bottom, top)
 	end
-
 end
 
 function CoreOldWorldDefinition:create_portal_unit_groups(unit_groups, offset)
 	if not unit_groups then
 		return
 	end
-
-	local (for generator), (for state), (for control) = pairs(unit_groups)
-	do
-		do break end
+	for name, shapes in pairs(unit_groups) do
 		local group = managers.portal:add_unit_group(name)
-		local (for generator), (for state), (for control) = ipairs(shapes)
-		do
-			do break end
+		for _, shape in ipairs(shapes) do
 			group:add_shape(shape)
 		end
-
 	end
-
 end
 
 function CoreOldWorldDefinition:create_sounds(path)
@@ -881,33 +697,17 @@ function CoreOldWorldDefinition:create_sounds(path)
 	managers.sound_environment:set_default_environment(sounds.environment)
 	managers.sound_environment:set_default_ambience(sounds.ambience, sounds.ambience_soundbank)
 	managers.sound_environment:set_ambience_enabled(sounds.ambience_enabled)
-	do
-		local (for generator), (for state), (for control) = ipairs(sounds.sound_environments)
-		do
-			do break end
-			managers.sound_environment:add_area(sound_environment)
-		end
-
+	for _, sound_environment in ipairs(sounds.sound_environments) do
+		managers.sound_environment:add_area(sound_environment)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(sounds.sound_emitters)
-		do
-			do break end
-			managers.sound_environment:add_emitter(sound_emitter)
-		end
-
+	for _, sound_emitter in ipairs(sounds.sound_emitters) do
+		managers.sound_environment:add_emitter(sound_emitter)
 	end
-
 	if sounds.sound_area_emitters then
-		local (for generator), (for state), (for control) = ipairs(sounds.sound_area_emitters)
-		do
-			do break end
+		for _, sound_area_emitter in ipairs(sounds.sound_area_emitters) do
 			managers.sound_environment:add_area_emitter(sound_area_emitter)
 		end
-
 	end
-
 	sounds_level:destroy()
 end
 
@@ -923,9 +723,7 @@ function CoreOldWorldDefinition:create_environment(data, offset)
 	Wind:set_speed_m_s(wind.speed or 6, wind.speed_variation or 1, 5)
 	Wind:set_enabled(true)
 	if not Application:editor() then
-		local (for generator), (for state), (for control) = ipairs(data.effects)
-		do
-			do break end
+		for _, effect in ipairs(data.effects) do
 			local name = Idstring(effect.name)
 			if DB:has("effect", name) then
 				managers.portal:add_effect({
@@ -934,25 +732,17 @@ function CoreOldWorldDefinition:create_environment(data, offset)
 					rotation = effect.rotation
 				})
 			end
-
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = ipairs(data.environment_areas)
-	do
-		do break end
+	for _, environment_area in ipairs(data.environment_areas) do
 		managers.environment_area:add_area(environment_area)
 	end
-
 end
 
 function CoreOldWorldDefinition:load_massunit(path, offset)
 	if Application:editor() then
 		local l = MassUnitManager:list(path:id())
-		local (for generator), (for state), (for control) = ipairs(l)
-		do
-			do break end
+		for _, name in ipairs(l) do
 			if DB:has(Idstring("unit"), name:id()) then
 				CoreUnit.editor_load_unit(name)
 			elseif not table.has(self._massunit_replace_names, name:s()) then
@@ -962,15 +752,11 @@ function CoreOldWorldDefinition:load_massunit(path, offset)
 				if name and DB:has(Idstring("unit"), name:id()) then
 					CoreUnit.editor_load_unit(name)
 				end
-
 				self._massunit_replace_names[old_name] = name or ""
 				managers.editor:output("Unit " .. old_name .. " changed to " .. tostring(name))
 			end
-
 		end
-
 	end
-
 	MassUnitManager:delete_all_units()
 	MassUnitManager:load(path:id(), offset, self._massunit_replace_names)
 end
@@ -979,20 +765,15 @@ function CoreOldWorldDefinition:parse_replace_unit()
 	local is_editor = Application:editor()
 	if DB:has("xml", self._replace_units_path) then
 		local node = DB:load_node("xml", self._replace_units_path)
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
+		for unit in node:children() do
 			local old_name = unit:name()
 			local replace_with = unit:parameter("replace_with")
 			self._replace_names[old_name] = replace_with
 			if is_editor then
 				managers.editor:output_info("Unit " .. old_name .. " will be replaced with " .. replace_with)
 			end
-
 		end
-
 	end
-
 end
 
 function CoreOldWorldDefinition:preload_unit(name)
@@ -1005,17 +786,14 @@ function CoreOldWorldDefinition:preload_unit(name)
 		else
 			managers.editor:output_info("Unit " .. name .. " is of type " .. CoreEngineAccess._editor_unit_data(name:id()):type():t())
 		end
-
 		local old_name = name
 		name = managers.editor:show_replace_unit()
 		self._replace_names[old_name] = name
 		managers.editor:output_info("Unit " .. old_name .. " changed to " .. tostring(name))
 	end
-
 	if is_editor and name then
 		CoreUnit.editor_load_unit(name)
 	end
-
 end
 
 function CoreOldWorldDefinition:make_unit(name, data, offset)
@@ -1023,7 +801,6 @@ function CoreOldWorldDefinition:make_unit(name, data, offset)
 	if table.has(self._replace_names, name) then
 		name = self._replace_names[name]
 	end
-
 	local unit
 	if name then
 		if MassUnitManager:can_spawn_unit(Idstring(name)) and not is_editor then
@@ -1031,16 +808,13 @@ function CoreOldWorldDefinition:make_unit(name, data, offset)
 		else
 			unit = safe_spawn_unit(name, data._position + offset, data._rotation)
 		end
-
 		if unit then
 			self:assign_unit_data(unit, data)
 		elseif is_editor then
 			local s = "Failed creating unit " .. tostring(name)
 			Application:throw_exception(s)
 		end
-
 	end
-
 	return unit
 end
 
@@ -1049,79 +823,59 @@ function CoreOldWorldDefinition:assign_unit_data(unit, data)
 	if not unit:unit_data() then
 		Application:error("The unit " .. unit:name() .. " (" .. unit:author() .. ") does not have the required extension unit_data (ScriptUnitData)")
 	end
-
 	if unit:unit_data().only_exists_in_editor and not is_editor then
 		unit:set_slot(0)
 		return
 	end
-
 	if data._unit_id then
 		unit:unit_data().unit_id = data._unit_id
 		unit:set_editor_id(unit:unit_data().unit_id)
 		self._all_units[unit:unit_data().unit_id] = unit
 		self:use_me(unit, is_editor)
 	end
-
 	if is_editor then
 		unit:unit_data().name_id = data._name_id
 		unit:unit_data().world_pos = unit:position()
 	end
-
 	if data._group_name and is_editor and not self._level_file and data._group_name ~= "none" then
 		self:add_editor_group_unit(data._group_name, unit:unit_data().unit_id)
 	end
-
 	if data._continent and is_editor then
 		managers.editor:add_unit_to_continent(data._continent, unit)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(data._lights)
-		do
-			do break end
-			local light = unit:get_object(Idstring(l.name))
-			if light then
-				light:set_enable(l.enable)
-				light:set_far_range(l.far_range)
-				light:set_color(l.color)
-				if l.angle_start then
-					light:set_spot_angle_start(l.angle_start)
-					light:set_spot_angle_end(l.angle_end)
-				end
-
-				if l.multiplier then
-					if tonumber(l.multiplier) then
-						l.multiplier = CoreEditorUtils.get_intensity_preset(tonumber(l.multiplier))
-					end
-
-					if type_name(l.multiplier) == "string" then
-						l.multiplier = Idstring(l.multiplier)
-					end
-
-					light:set_multiplier(LightIntensityDB:lookup(l.multiplier))
-					light:set_specular_multiplier(LightIntensityDB:lookup_specular_multiplier(l.multiplier))
-				end
-
-				if l.falloff_exponent then
-					light:set_falloff_exponent(l.falloff_exponent)
-				end
-
+	for _, l in ipairs(data._lights) do
+		local light = unit:get_object(Idstring(l.name))
+		if light then
+			light:set_enable(l.enable)
+			light:set_far_range(l.far_range)
+			light:set_color(l.color)
+			if l.angle_start then
+				light:set_spot_angle_start(l.angle_start)
+				light:set_spot_angle_end(l.angle_end)
 			end
-
+			if l.multiplier then
+				if tonumber(l.multiplier) then
+					l.multiplier = CoreEditorUtils.get_intensity_preset(tonumber(l.multiplier))
+				end
+				if type_name(l.multiplier) == "string" then
+					l.multiplier = Idstring(l.multiplier)
+				end
+				light:set_multiplier(LightIntensityDB:lookup(l.multiplier))
+				light:set_specular_multiplier(LightIntensityDB:lookup_specular_multiplier(l.multiplier))
+			end
+			if l.falloff_exponent then
+				light:set_falloff_exponent(l.falloff_exponent)
+			end
 		end
-
 	end
-
 	if data._variation and data._variation ~= "default" then
 		unit:unit_data().mesh_variation = data._variation
 		managers.sequence:run_sequence_simple2(unit:unit_data().mesh_variation, "change_state", unit)
 	end
-
 	if data._material_variation and data._material_variation ~= "default" then
 		unit:unit_data().material = data._material_variation
 		unit:set_material_config(unit:unit_data().material, true)
 	end
-
 	if data._editable_gui then
 		unit:editable_gui():set_text(data._editable_gui.text)
 		unit:editable_gui():set_font_color(data._editable_gui.font_color)
@@ -1129,53 +883,37 @@ function CoreOldWorldDefinition:assign_unit_data(unit, data)
 		if not is_editor then
 			unit:editable_gui():lock_gui()
 		end
-
 	end
-
 	self:add_trigger_sequence(unit, data._triggers)
 	if not table.empty(data._exists_in_stages) then
 		local t = clone(CoreScriptUnitData.exists_in_stages)
-		do
-			local (for generator), (for state), (for control) = pairs(data._exists_in_stages)
-			do
-				do break end
-				t[i] = value
-			end
-
+		for i, value in pairs(data._exists_in_stages) do
+			t[i] = value
 		end
-
 		unit:unit_data().exists_in_stages = t
 		table.insert(self._stage_depended_units, unit)
 	end
-
 	if unit:unit_data().only_visible_in_editor and not is_editor then
 		unit:set_visible(false)
 	end
-
 	if data.cutscene_actor then
 		unit:unit_data().cutscene_actor = data.cutscene_actor
 		managers.cutscene:register_cutscene_actor(unit)
 	end
-
 	if data.disable_shadows then
 		if is_editor then
 			unit:unit_data().disable_shadows = data.disable_shadows
 		end
-
 		unit:set_shadows_disabled(data.disable_shadows)
 	end
-
 	if not is_editor and self._portal_slot_mask and unit:in_slot(self._portal_slot_mask) and not unit:unit_data().only_visible_in_editor then
 		managers.portal:add_unit(unit)
 	end
-
 end
 
 function CoreOldWorldDefinition:add_trigger_sequence(unit, triggers)
 	local is_editor = Application:editor()
-	local (for generator), (for state), (for control) = ipairs(triggers)
-	do
-		do break end
+	for _, trigger in ipairs(triggers) do
 		if is_editor and Global.running_simulation then
 			local notify_unit = managers.editor:unit_with_id(trigger.notify_unit_id)
 			unit:damage():add_trigger_sequence(trigger.name, trigger.notify_unit_sequence, notify_unit, trigger.time, nil, nil, is_editor)
@@ -1188,62 +926,43 @@ function CoreOldWorldDefinition:add_trigger_sequence(unit, triggers)
 				{unit = unit, trigger = trigger}
 			}
 		end
-
 	end
-
 end
 
 function CoreOldWorldDefinition:use_me(unit, is_editor)
 	local id = unit:unit_data().unit_id
 	if self._trigger_units[id] then
-		local (for generator), (for state), (for control) = ipairs(self._trigger_units[id])
-		do
-			do break end
+		for _, t in ipairs(self._trigger_units[id]) do
 			t.unit:damage():add_trigger_sequence(t.trigger.name, t.trigger.notify_unit_sequence, unit, t.trigger.time, nil, nil, is_editor)
 		end
-
 	end
-
 	if self._use_unit_callbacks[id] then
-		local (for generator), (for state), (for control) = ipairs(self._use_unit_callbacks[id])
-		do
-			do break end
+		for _, call in ipairs(self._use_unit_callbacks[id]) do
 			call(unit)
 		end
-
 	end
-
 end
 
 function CoreOldWorldDefinition:get_unit_on_load(id, call)
 	if self._all_units[id] then
 		return self._all_units[id]
 	end
-
 	if self._use_unit_callbacks[id] then
 		table.insert(self._use_unit_callbacks[id], call)
 	else
 		self._use_unit_callbacks[id] = {call}
 	end
-
 	return nil
 end
 
 function CoreOldWorldDefinition:check_stage_depended_units(stage)
-	local (for generator), (for state), (for control) = ipairs(self._stage_depended_units)
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(unit:unit_data().exists_in_stages)
-		do
-			do break end
+	for _, unit in ipairs(self._stage_depended_units) do
+		for i, value in ipairs(unit:unit_data().exists_in_stages) do
 			if stage == "stage" .. i and not value then
 				World:delete_unit(unit)
 			end
-
 		end
-
 	end
-
 end
 
 function CoreOldWorldDefinition:get_unit(id)
@@ -1312,36 +1031,21 @@ function CoreWDSoundEnvironment:parse_sound_environment(node)
 end
 
 function CoreWDSoundEnvironment:parse_sound_emitter(node)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for emitter in node:children() do
 		table.insert(self._sound_emitters, parse_values_node(emitter))
 	end
-
 end
 
 function CoreWDSoundEnvironment:parse_sound_area_emitter(node)
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
-			do
-				local (for generator), (for state), (for control) = shape:children()
-				do
-					do break end
-					local name, vt = parse_value_node(value)
-					t = vt
-				end
-
-			end
-
-			t.position = math.string_to_vector(shape:parameter("position"))
-			t.rotation = math.string_to_rotation(shape:parameter("rotation"))
+	for shape in node:children() do
+		for value in shape:children() do
+			local name, vt = parse_value_node(value)
+			t = vt
 		end
-
+		t.position = math.string_to_vector(shape:parameter("position"))
+		t.rotation = math.string_to_rotation(shape:parameter("rotation"))
 	end
-
 	table.insert(self._sound_area_emitters, t)
 end
 
@@ -1349,30 +1053,15 @@ function CoreWDSoundEnvironment:create()
 	managers.sound_environment:set_default_environment(self._default_environment)
 	managers.sound_environment:set_default_ambience(self._default_ambience, self._default_ambience_soundbank)
 	managers.sound_environment:set_ambience_enabled(self._ambience_enabled)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._sound_environments)
-		do
-			do break end
-			managers.sound_environment:add_area(sound_environment)
-		end
-
+	for _, sound_environment in ipairs(self._sound_environments) do
+		managers.sound_environment:add_area(sound_environment)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._sound_emitters)
-		do
-			do break end
-			managers.sound_environment:add_emitter(sound_emitter)
-		end
-
+	for _, sound_emitter in ipairs(self._sound_emitters) do
+		managers.sound_environment:add_emitter(sound_emitter)
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._sound_area_emitters)
-	do
-		do break end
+	for _, sound_area_emitter in ipairs(self._sound_area_emitters) do
 		managers.sound_environment:add_area_emitter(sound_area_emitter)
 	end
-
 end
 
 CoreEnvironment = CoreEnvironment or class()
@@ -1381,11 +1070,9 @@ function CoreEnvironment:init(node)
 	if node:has_parameter("environment") then
 		self._values.environment = node:parameter("environment")
 	end
-
 	if node:has_parameter("sky_rot") then
 		self._values.sky_rot = tonumber(node:parameter("sky_rot"))
 	end
-
 	node:for_each("value", callback(self, self, "parse_value"))
 	node:for_each("wind", callback(self, self, "parse_wind"))
 	self._unit_effects = {}
@@ -1402,7 +1089,6 @@ function CoreEnvironment:release_sky_orientation_modifier()
 		managers.viewport:viewports()[1]:destroy_environment_modifier(self._environment_modifier_id)
 		self._environment_modifier_id = nil
 	end
-
 end
 
 function CoreEnvironment:parse_value(node)
@@ -1418,25 +1104,17 @@ function CoreEnvironment:parse_wind(node)
 	if node:has_parameter("speed") then
 		self._wind.wind_speed = tonumber(node:parameter("speed"))
 	end
-
 	if node:has_parameter("speed_variation") then
 		self._wind.wind_speed_variation = tonumber(node:parameter("speed_variation"))
 	end
-
 end
 
 function CoreEnvironment:parse_unit_effect(node)
 	local pos, rot
-	do
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
-			pos = math.string_to_vector(o:parameter("pos"))
-			rot = math.string_to_rotation(o:parameter("rot"))
-		end
-
+	for o in node:children() do
+		pos = math.string_to_vector(o:parameter("pos"))
+		rot = math.string_to_rotation(o:parameter("rot"))
 	end
-
 	local name = node:parameter("name")
 	local t = {
 		pos = pos,
@@ -1448,15 +1126,9 @@ end
 
 function CoreEnvironment:parse_environment_area(node)
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
-			t = managers.shape:parse(shape)
-		end
-
+	for shape in node:children() do
+		t = managers.shape:parse(shape)
 	end
-
 	table.insert(self._environment_areas, t)
 end
 
@@ -1464,7 +1136,6 @@ function CoreEnvironment:parse_unit(node)
 	if not Application:editor() then
 		return
 	end
-
 	local t = {}
 	t.name = node:parameter("name")
 	t.generic = Generic:new(node)
@@ -1479,25 +1150,20 @@ function CoreEnvironment:create(offset)
 	if self._values.environment ~= "none" then
 		managers.environment_area:set_default_environment(self._values.environment)
 	end
-
 	if not Application:editor() then
 		self._environment_modifier_id = self._environment_modifier_id or managers.viewport:viewports()[1]:create_environment_modifier(false, function(interface)
 			return self:sky_rotation_modifier(interface)
 		end
 , "sky_orientation")
 	end
-
 	if self._wind then
 		Wind:set_direction(self._wind.wind_angle, self._wind.wind_dir_var, 5)
 		Wind:set_tilt(self._wind.wind_tilt, self._wind.wind_tilt_var, 5)
 		Wind:set_speed_m_s(self._wind.wind_speed or 6, self._wind.wind_speed_variation or 1, 5)
 		Wind:set_enabled(true)
 	end
-
 	if not Application:editor() then
-		local (for generator), (for state), (for control) = ipairs(self._unit_effects)
-		do
-			do break end
+		for _, unit_effect in ipairs(self._unit_effects) do
 			local name = Idstring(unit_effect.name)
 			if DB:has("effect", name) then
 				managers.portal:add_effect({
@@ -1506,27 +1172,15 @@ function CoreEnvironment:create(offset)
 					rotation = unit_effect.rot
 				})
 			end
-
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._environment_areas)
-		do
-			do break end
-			managers.environment_area:add_area(environment_area)
-		end
-
+	for _, environment_area in ipairs(self._environment_areas) do
+		managers.environment_area:add_area(environment_area)
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._units_data)
-	do
-		do break end
+	for _, data in ipairs(self._units_data) do
 		local unit = managers.worlddefinition:make_unit(data.name, data.generic, offset)
 		table.insert(self._units, unit)
 	end
-
 end
 
 CorePortal = CorePortal or class()
@@ -1550,68 +1204,42 @@ function CorePortal:parse_portal_list(node)
 		draw_base = draw_base
 	}
 	local portal = self._portal_shapes[name].portal
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for o in node:children() do
 		local p = math.string_to_vector(o:parameter("pos"))
 		table.insert(portal, {pos = p})
 	end
-
 end
 
 function CorePortal:parse_unit_group(node)
 	local name = node:parameter("name")
 	local shapes = {}
-	do
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
-			table.insert(shapes, managers.shape:parse(shape))
-		end
-
+	for shape in node:children() do
+		table.insert(shapes, managers.shape:parse(shape))
 	end
-
 	self._unit_groups[name] = shapes
 end
 
 function CorePortal:create(offset)
 	if not Application:editor() then
-		local (for generator), (for state), (for control) = pairs(self._portal_shapes)
-		do
-			do break end
+		for name, portal in pairs(self._portal_shapes) do
 			local t = {}
-			do
-				local (for generator), (for state), (for control) = ipairs(portal.portal)
-				do
-					do break end
-					table.insert(t, data.pos + offset)
-				end
-
+			for _, data in ipairs(portal.portal) do
+				table.insert(t, data.pos + offset)
 			end
-
 			local top = portal.top
 			local bottom = portal.bottom
 			if top == 0 and bottom == 0 then
 				top, bottom = nil, nil
 			end
-
 			managers.portal:add_portal(t, bottom, top)
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._unit_groups)
-	do
-		do break end
+	for name, shapes in pairs(self._unit_groups) do
 		local group = managers.portal:add_unit_group(name)
-		local (for generator), (for state), (for control) = ipairs(shapes)
-		do
-			do break end
+		for _, shape in ipairs(shapes) do
 			group:add_shape(shape)
 		end
-
 	end
-
 end
 
 CoreWire = CoreWire or class()
@@ -1639,7 +1267,6 @@ function CoreWire:create_unit(offset)
 		wire_set_midpoint(self._unit, self._unit:orientation_object():name(), Idstring("a_target"), Idstring("a_bender"))
 		self._unit:set_moving()
 	end
-
 	return self._unit
 end
 
@@ -1675,7 +1302,6 @@ function CoreMissionElementUnit:init(node)
 	if node:has_parameter("script") then
 		self._script = node:parameter("script")
 	end
-
 	self._generic = Generic:new(node)
 	self._generic:continent_upgrade_nil_to_world()
 	node:for_each("values", callback(self, self, "parse_values"))
@@ -1693,13 +1319,10 @@ function CoreMissionElementUnit:create_unit(offset)
 		if self._type then
 			self._type:make_unit(self._unit)
 		end
-
 		if self._values then
 			self._values:set_values(self._unit)
 		end
-
 	end
-
 	return self._unit
 end
 
@@ -1709,12 +1332,9 @@ function MissionElementValues:init(node)
 end
 
 function MissionElementValues:set_values(unit)
-	local (for generator), (for state), (for control) = pairs(self._values)
-	do
-		do break end
+	for name, value in pairs(self._values) do
 		unit:mission_element_data()[name] = value
 	end
-
 end
 
 function CoreOldWorldDefinition:make_generic_data(in_data)
@@ -1735,41 +1355,26 @@ function CoreOldWorldDefinition:make_generic_data(in_data)
 		data._name_id = generic.name_id
 		data._group_name = generic.group_name
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(lights)
-		do
-			do break end
-			table.insert(data._lights, light)
-		end
-
+	for _, light in ipairs(lights) do
+		table.insert(data._lights, light)
 	end
-
 	if variation then
 		data._variation = variation.value
 	end
-
 	if material_variation then
 		data._material_variation = material_variation.value
 	end
-
 	if triggers then
-		local (for generator), (for state), (for control) = ipairs(triggers)
-		do
-			do break end
+		for _, trigger in ipairs(triggers) do
 			table.insert(data._triggers, trigger)
 		end
-
 	end
-
 	if cutscene_actor then
 		data.cutscene_actor = cutscene_actor.name
 	end
-
 	if disable_shadows then
 		data.disable_shadows = disable_shadows.value
 	end
-
 	data._editable_gui = in_data.editable_gui
 	return data
 end
@@ -1804,30 +1409,24 @@ function Generic:parse_generic(node)
 	if node:has_parameter("unit_id") then
 		self._unit_id = tonumber(node:parameter("unit_id"))
 	end
-
 	if node:has_parameter("name_id") then
 		self._name_id = node:parameter("name_id")
 	end
-
 	if node:has_parameter("group_name") then
 		self._group_name = node:parameter("group_name")
 	end
-
 	if node:has_parameter("continent") then
 		local c = node:parameter("continent")
 		if c ~= "nil" then
 			self._continent = c
 		end
-
 	end
-
 end
 
 function Generic:continent_upgrade_nil_to_world()
 	if not self._continent then
 		self._continent = "world"
 	end
-
 end
 
 function Generic:parse_light(node)
@@ -1840,15 +1439,12 @@ function Generic:parse_light(node)
 		angle_start = tonumber(node:parameter("angle_start"))
 		angle_end = tonumber(node:parameter("angle_end"))
 	end
-
 	if node:has_parameter("multiplier") then
 		multiplier = node:parameter("multiplier")
 	end
-
 	if node:has_parameter("falloff_exponent") then
 		falloff_exponent = tonumber(node:parameter("falloff_exponent"))
 	end
-
 	table.insert(self._lights, {
 		name = name,
 		far_range = far_range,

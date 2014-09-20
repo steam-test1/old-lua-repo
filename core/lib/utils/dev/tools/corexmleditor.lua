@@ -17,26 +17,17 @@ function CoreXMLEditor:check_news(new_only)
 	else
 		news = managers.news:get_old_news("xml_editor", self._main_frame_table._main_frame)
 	end
-
 	if news then
 		local str
-		do
-			local (for generator), (for state), (for control) = ipairs(news)
-			do
-				do break end
-				if not str then
-					str = n
-				else
-					str = str .. "\n" .. n
-				end
-
+		for _, n in ipairs(news) do
+			if not str then
+				str = n
+			else
+				str = str .. "\n" .. n
 			end
-
 		end
-
 		EWS:MessageDialog(self._main_frame_table._main_frame, str, "New Features!", "OK,ICON_INFORMATION"):show_modal()
 	end
-
 end
 
 function CoreXMLEditor:check_open()
@@ -49,7 +40,6 @@ function CoreXMLEditor:check_open()
 	else
 		open_editor = "XML Editor"
 	end
-
 	return false
 end
 
@@ -112,7 +102,6 @@ function CoreXMLEditor:on_new()
 	if self._main_frame_table._edit_text_ctrl:get_value() ~= "" and self._save_prev_dialog:show_modal() == "ID_YES" then
 		self:on_save()
 	end
-
 	self._main_frame_table._edit_text_ctrl:set_value("")
 	self._current_node = nil
 	self._current_entry = nil
@@ -139,7 +128,6 @@ function CoreXMLEditor:on_save()
 	else
 		self._compile_error_dialog:show_modal()
 	end
-
 end
 
 function CoreXMLEditor:on_save_as()
@@ -151,7 +139,6 @@ function CoreXMLEditor:on_save_as()
 			if not added_entry:valid() then
 				added_entry = self._active_database:add(entry_type, entry_name, self._current_prop, "xml")
 			end
-
 			self._current_node = test_node
 			self._current_entry = added_entry
 			self._active_database:save_node(self._current_node, self._current_entry)
@@ -160,11 +147,9 @@ function CoreXMLEditor:on_save_as()
 			self._current_node = self._active_database:load_node(self._current_entry)
 			self:update_title()
 		end
-
 	else
 		self._compile_error_dialog:show_modal()
 	end
-
 end
 
 function CoreXMLEditor:openfile()
@@ -175,7 +160,6 @@ function CoreXMLEditor:openfile()
 			if self._main_frame_table._edit_text_ctrl:get_value() ~= "" and self._save_prev_dialog:show_modal() == "ID_YES" then
 				self:on_save()
 			end
-
 			self._current_node = node
 			self._current_entry = self._browse:get_value()
 			self._current_prop = self._current_entry:properties()
@@ -183,9 +167,7 @@ function CoreXMLEditor:openfile()
 			self:update_title()
 			self._browse = nil
 		end
-
 	end
-
 end
 
 function CoreXMLEditor:update_title()
@@ -194,7 +176,6 @@ function CoreXMLEditor:update_title()
 	else
 		self._main_frame_table._main_frame:set_title("XML Editor")
 	end
-
 end
 
 function CoreXMLEditor:update(t, dt)
@@ -203,14 +184,12 @@ function CoreXMLEditor:update(t, dt)
 		self._browse = nil
 	else
 	end
-
 end
 
 function CoreXMLEditor:set_position(newpos)
 	if self._main_frame_table and self._main_frame_table._main_frame then
 		self._main_frame_table._main_frame:set_position(newpos)
 	end
-
 end
 
 function CoreXMLEditor:on_close()
@@ -223,12 +202,10 @@ function CoreXMLEditor:destroy()
 		self._main_frame_table._main_frame:destroy()
 		self._main_frame_table._main_frame = nil
 	end
-
 	if self._browse then
 		self._browse:destroy()
 		self._browse = nil
 	end
-
 end
 
 function CoreXMLEditor:close()
@@ -236,12 +213,10 @@ function CoreXMLEditor:close()
 		self._main_frame_table._main_frame:destroy()
 		open_editor = nil
 	end
-
 	if self._browse then
 		self._browse:destroy()
 		self._browse = nil
 	end
-
 end
 
 CoreXMLEditorNewDialog = CoreXMLEditorNewDialog or class()
@@ -277,9 +252,7 @@ function CoreXMLEditorNewDialog:show_modal()
 	while true do
 		if not self._done then
 		end
-
 	end
-
 	return self._return_val
 end
 

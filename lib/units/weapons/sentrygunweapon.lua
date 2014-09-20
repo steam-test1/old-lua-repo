@@ -36,7 +36,6 @@ function SentryGunWeapon:init(unit)
 			parent = self._obj_shell_ejection
 		}
 	end
-
 	self._damage = my_tweak_data.DAMAGE
 	self._alert_events = {}
 	self._alert_size = my_tweak_data.alert_size
@@ -54,7 +53,6 @@ function SentryGunWeapon:init(unit)
 	else
 		self._ammo_ratio = 1
 	end
-
 	self._spread_mul = 1
 end
 
@@ -80,7 +78,6 @@ function SentryGunWeapon:change_ammo(amount)
 		self._unit:network():send("sentrygun_ammo", self._ammo_sync)
 		self._unit:interaction():set_dirty(true)
 	end
-
 end
 
 function SentryGunWeapon:sync_ammo(ammo_ratio)
@@ -97,7 +94,6 @@ function SentryGunWeapon:start_autofire()
 	if self._shooting then
 		return
 	end
-
 	self:_sound_autofire_start()
 	self._next_fire_allowed = math.max(self._next_fire_allowed, Application:time())
 	self._shooting = true
@@ -108,7 +104,6 @@ function SentryGunWeapon:stop_autofire()
 	if not self._shooting then
 		return
 	end
-
 	if self:out_of_ammo() then
 		self:_sound_autofire_end_empty()
 	elseif self._timer:time() - self._fire_start_t > 3 then
@@ -116,7 +111,6 @@ function SentryGunWeapon:stop_autofire()
 	else
 		self:_sound_autofire_end()
 	end
-
 	self._shooting = nil
 end
 
@@ -128,9 +122,7 @@ function SentryGunWeapon:trigger_held(blanks, expend_ammo)
 			self._next_fire_allowed = self._next_fire_allowed + tweak_data.weapon[self._name_id].auto.fire_rate
 			self._interleaving_fire = self._interleaving_fire == 1 and 2 or 1
 		end
-
 	end
-
 	return fired
 end
 
@@ -139,10 +131,8 @@ function SentryGunWeapon:fire(blanks, expend_ammo)
 		if self._ammo_total <= 0 then
 			return
 		end
-
 		self:change_ammo(-1)
 	end
-
 	local fire_obj = self._effect_align[self._interleaving_fire]
 	local from_pos = fire_obj:position()
 	local direction = fire_obj:rotation():y()
@@ -151,12 +141,10 @@ function SentryGunWeapon:fire(blanks, expend_ammo)
 	if self._use_shell_ejection_effect then
 		World:effect_manager():spawn(self._shell_ejection_effect_table)
 	end
-
 	local ray_res = self:_fire_raycast(from_pos, direction, blanks)
 	if self._alert_events and ray_res.rays then
 		RaycastWeaponBase._check_alert(self, ray_res.rays, from_pos, direction, self._unit)
 	end
-
 	self._unit:movement():give_recoil()
 	return ray_res
 end
@@ -172,16 +160,13 @@ function SentryGunWeapon:_fire_raycast(from_pos, direction, shoot_player)
 	if col_ray then
 		hit_unit = InstantBulletBase:on_collision(col_ray, self._unit, self._unit, self._damage)
 	end
-
 	if not col_ray or col_ray.distance > 600 then
 		self:_spawn_trail_effect(direction, col_ray)
 	end
-
 	result.hit_enemy = hit_unit
 	if self._alert_events then
 		result.rays = {col_ray}
 	end
-
 	return result
 end
 
@@ -194,7 +179,6 @@ function SentryGunWeapon:_sound_autofire_end()
 		self._autofire_sound_event:stop()
 		self._autofire_sound_event = nil
 	end
-
 	self._unit:sound_source():post_event("turret_fire_end")
 end
 
@@ -203,7 +187,6 @@ function SentryGunWeapon:_sound_autofire_end_empty()
 		self._autofire_sound_event:stop()
 		self._autofire_sound_event = nil
 	end
-
 	self._unit:sound_source():post_event("turret_ammo_depleted")
 end
 
@@ -212,7 +195,6 @@ function SentryGunWeapon:_sound_autofire_end_cooldown()
 		self._autofire_sound_event:stop()
 		self._autofire_sound_event = nil
 	end
-
 	self._unit:sound_source():post_event("turret_fire_end")
 	self._unit:sound_source():post_event("turret_cooldown")
 end
@@ -224,7 +206,6 @@ function SentryGunWeapon:_spawn_trail_effect(direction, col_ray)
 	if col_ray then
 		World:effect_manager():set_remaining_lifetime(trail, math.clamp((col_ray.distance - 600) / 10000, 0, col_ray.distance))
 	end
-
 end
 
 function SentryGunWeapon:out_of_ammo()
@@ -233,7 +214,6 @@ function SentryGunWeapon:out_of_ammo()
 	else
 		return self._ammo_ratio == 0
 	end
-
 end
 
 function SentryGunWeapon:ammo_ratio()
@@ -242,7 +222,6 @@ function SentryGunWeapon:ammo_ratio()
 	else
 		return self._ammo_ratio
 	end
-
 end
 
 function SentryGunWeapon:ammo_total()
@@ -258,14 +237,12 @@ function SentryGunWeapon:save(save_data)
 	if self._spread_mul ~= 1 then
 		my_save_data.spread_mul = self._spread_mul
 	end
-
 	my_save_data.ammo_ratio = self:ammo_ratio()
 	my_save_data.setup = {}
 	my_save_data.setup.alert_filter = self._setup.alert_filter
 	if next(my_save_data) then
 		save_data.weapon = my_save_data
 	end
-
 end
 
 function SentryGunWeapon:load(save_data)
@@ -273,15 +250,11 @@ function SentryGunWeapon:load(save_data)
 		self._spread_mul = 1
 		return
 	end
-
 	self._ammo_ratio = save_data.weapon.ammo_ratio or self._ammo_ratio
 	self._spread_mul = save_data.weapon.spread_mul or 1
 	self._setup = self._setup or {}
-	local (for generator), (for state), (for control) = pairs(save_data.weapon.setup)
-	do
-		do break end
+	for name, data in pairs(save_data.weapon.setup) do
 		self._setup[name] = data
 	end
-
 end
 

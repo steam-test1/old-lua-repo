@@ -59,37 +59,24 @@ function HUDLootScreen:init(hud, workspace, saved_lootdrop, saved_selected, save
 	for i = 1, 4 do
 		self:create_peer(self._peers_panel, i)
 	end
-
 	self._num_visible = 1
 	self:set_num_visible(self:get_local_peer_id())
 	self._lootdrops = self._lootdrops or {}
 	if saved_lootdrop then
-		local (for generator), (for state), (for control) = ipairs(saved_lootdrop)
-		do
-			do break end
+		for _, lootdrop in ipairs(saved_lootdrop) do
 			self:feed_lootdrop(lootdrop)
 		end
-
 	end
-
 	if saved_selected then
-		local (for generator), (for state), (for control) = pairs(saved_selected)
-		do
-			do break end
+		for peer_id, selected in pairs(saved_selected) do
 			self:set_selected(peer_id, selected)
 		end
-
 	end
-
 	if saved_chosen then
-		local (for generator), (for state), (for control) = pairs(saved_chosen)
-		do
-			do break end
+		for peer_id, card_id in pairs(saved_chosen) do
 			self:begin_choose_card(peer_id, card_id)
 		end
-
 	end
-
 	local local_peer_id = self:get_local_peer_id()
 	local panel = self._peers_panel:child("peer" .. tostring(local_peer_id))
 	local peer_info_panel = panel:child("peer_info")
@@ -105,7 +92,6 @@ function HUDLootScreen:init(hud, workspace, saved_lootdrop, saved_selected, save
 	else
 		peer_info_panel:child("peer_infamy"):set_visible(false)
 	end
-
 	panel:set_alpha(1)
 	peer_info_panel:show()
 	panel:child("card_info"):hide()
@@ -242,11 +228,9 @@ function HUDLootScreen:create_peer(peers_panel, peer_id)
 		if downcard:rotation() == 0 then
 			downcard:set_rotation(1)
 		end
-
 		if not is_local_peer then
 			downcard:set_size(math.round(0.7111111 * card_panel:h() * 0.85), math.round(card_panel:h() * 0.85))
 		end
-
 		downcard:set_center(card_panel:w() * 0.5, card_panel:h() * 0.5)
 		local bg = card_panel:bitmap({
 			name = "bg",
@@ -266,7 +250,6 @@ function HUDLootScreen:create_peer(peers_panel, peer_id)
 		inside_card_check:set_center(card_panel:center())
 		card_panel:hide()
 	end
-
 	local box = BoxGuiObject:new(panel:panel({
 		x = peer_info_panel:right() + 5,
 		y = 5,
@@ -283,7 +266,6 @@ function HUDLootScreen:create_peer(peers_panel, peer_id)
 	if not is_local_peer then
 		box:set_color(tweak_data.screen_colors.item_stage_2)
 	end
-
 	card_info_panel:hide()
 	peer_info_panel:hide()
 	panel:set_alpha(0)
@@ -294,13 +276,11 @@ function HUDLootScreen:set_num_visible(peers_num)
 	for i = 1, 4 do
 		self._peers_panel:child("peer" .. i):set_visible(i <= self._num_visible)
 	end
-
 	self._peers_panel:set_h(self._num_visible * 110)
 	self._peers_panel:set_center_y(self._hud_panel:h() * 0.5)
 	if managers.menu:is_console() and self._num_visible >= 4 then
 		self._peers_panel:move(0, 30)
 	end
-
 end
 
 function HUDLootScreen:make_fine_text(text)
@@ -344,7 +324,6 @@ function HUDLootScreen:create_selected_panel(peer_id)
 			end
 )
 		end
-
 	end
 
 	selected_panel:animate(anim_func)
@@ -372,7 +351,6 @@ function HUDLootScreen:set_selected(peer_id, selected)
 		bg:set_alpha(1)
 		bg:set_shape(downcard:shape())
 	end
-
 end
 
 function HUDLootScreen:add_callback(key, clbk)
@@ -385,9 +363,7 @@ function HUDLootScreen:clear_other_peers(peer_id)
 		if i ~= peer_id then
 			self:remove_peer(i)
 		end
-
 	end
-
 end
 
 function HUDLootScreen:check_all_ready()
@@ -396,9 +372,7 @@ function HUDLootScreen:check_all_ready()
 		if self._peer_data[i].active and ready then
 			ready = self._peer_data[i].ready
 		end
-
 	end
-
 	return ready
 end
 
@@ -418,11 +392,9 @@ function HUDLootScreen:remove_peer(peer_id, reason)
 		panel:child("item"):stop()
 		panel:child("item"):hide()
 	end
-
 	if panel:child("selected_panel") then
 		panel:child("selected_panel"):hide()
 	end
-
 	self._peer_data[peer_id] = {}
 	self._peer_data[peer_id].active = false
 end
@@ -431,25 +403,21 @@ function HUDLootScreen:hide()
 	if self._active then
 		return
 	end
-
 	self._backdrop:hide()
 	if self._video then
 		managers.video:remove_video(self._video)
 		self._video:parent():remove(self._video)
 		self._video = nil
 	end
-
 	if self._sound_listener then
 		self._sound_listener:delete()
 		self._sound_listener = nil
 	end
-
 	if self._sound_source then
 		self._sound_source:stop()
 		self._sound_source:delete()
 		self._sound_source = nil
 	end
-
 end
 
 function HUDLootScreen:show()
@@ -464,7 +432,6 @@ function HUDLootScreen:show()
 		})
 		managers.video:add_video(self._video)
 	end
-
 	self._backdrop:show()
 	self._active = true
 	if not self._sound_listener then
@@ -472,12 +439,10 @@ function HUDLootScreen:show()
 		self._sound_listener:set_position(Vector3(0, -50000, 0))
 		self._sound_listener:activate(true)
 	end
-
 	if not self._sound_source then
 		self._sound_source = SoundDevice:create_source("HUDLootScreen")
 		self._sound_source:post_event(managers.music:jukebox_menu_track("heistfinish"))
 	end
-
 	local fade_rect = self._foreground_layer_full:rect({
 		layer = 10000,
 		color = Color.black
@@ -507,7 +472,6 @@ function HUDLootScreen:feed_lootdrop(lootdrop_data)
 	if not self:is_active() then
 		self:show()
 	end
-
 	local peer = lootdrop_data[1]
 	local peer_id = peer and peer:id() or 1
 	local is_local_peer = self:get_local_peer_id() == peer_id
@@ -515,7 +479,6 @@ function HUDLootScreen:feed_lootdrop(lootdrop_data)
 	else
 		local peer_name_string = tostring(managers.network.account:username() or managers.blackmarket:get_preferred_character_real_name()) or peer and peer:name() or ""
 	end
-
 	local player_level = is_local_peer and managers.experience:current_level() or peer and peer:level()
 	local player_rank = is_local_peer and managers.experience:current_rank() or peer and peer:rank() or 0
 	local global_value = lootdrop_data[2]
@@ -539,7 +502,6 @@ function HUDLootScreen:feed_lootdrop(lootdrop_data)
 		peer_name:set_text(peer_name_string)
 		peer_info_panel:child("peer_infamy"):set_visible(false)
 	end
-
 	max_quality:set_text(managers.localization:to_upper_text("menu_l_max_quality", {quality = max_pc}))
 	self:make_fine_text(peer_name)
 	self:make_fine_text(max_quality)
@@ -549,13 +511,11 @@ function HUDLootScreen:feed_lootdrop(lootdrop_data)
 		peer_info_panel:child("peer_infamy"):set_right(peer_name:x())
 		peer_info_panel:child("peer_infamy"):set_top(peer_name:y())
 	end
-
 	peer_info_panel:show()
 	panel:child("card_info"):show()
 	for i = 1, 3 do
 		panel:child("card" .. i):show()
 	end
-
 	local anim_fadein = function(o)
 		over(1, function(p)
 			o:set_alpha(p)
@@ -575,7 +535,6 @@ function HUDLootScreen:feed_lootdrop(lootdrop_data)
 	if category == "weapon_mods" then
 		category = "mods"
 	end
-
 	if category == "colors" then
 		local colors = tweak_data.blackmarket.colors[item_id].colors
 		local bg = item_panel:bitmap({
@@ -610,7 +569,6 @@ function HUDLootScreen:feed_lootdrop(lootdrop_data)
 				Application:error("Pattern missing", "PEER", peer_id)
 				return
 			end
-
 		elseif category == "cash" then
 			texture_path = "guis/textures/pd2/blackmarket/cash_drop"
 		elseif category == "xp" then
@@ -622,10 +580,8 @@ function HUDLootScreen:feed_lootdrop(lootdrop_data)
 			if bundle_folder then
 				guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 			end
-
 			texture_path = guis_catalog .. "textures/pd2/blackmarket/icons/" .. tostring(category) .. "/" .. tostring(item_id)
 		end
-
 		Application:debug("Requesting Texture", texture_path, "PEER", peer_id)
 		if DB:has(Idstring("texture"), texture_path) then
 			TextureCache:request(texture_path, "NORMAL", texture_loaded_clbk, 100)
@@ -635,15 +591,12 @@ function HUDLootScreen:feed_lootdrop(lootdrop_data)
 				color = Color.red
 			})
 		end
-
 	end
-
 	self:set_num_visible(math.max(self:get_local_peer_id(), peer_id))
 	if self._peer_data[peer_id].delayed_card_id then
 		self:begin_choose_card(peer_id, self._peer_data[peer_id].delayed_card_id)
 		self._peer_data[peer_id].delayed_card_id = nil
 	end
-
 end
 
 function HUDLootScreen:texture_loaded_clbk(params, texture_idstring)
@@ -656,7 +609,6 @@ function HUDLootScreen:texture_loaded_clbk(params, texture_idstring)
 		item:set_render_template(Idstring("VertexColorTexturedPatterns"))
 		item:set_blend_mode("normal")
 	end
-
 	local texture_width = item:texture_width()
 	local texture_height = item:texture_height()
 	local panel_width = 100
@@ -675,7 +627,6 @@ function HUDLootScreen:texture_loaded_clbk(params, texture_idstring)
 		rect:set_center(panel:w() * 0.5, panel:h() * 0.5)
 		return
 	end
-
 	local s = math.min(texture_width, texture_height)
 	local dw = texture_width / s
 	local dh = texture_height / s
@@ -687,7 +638,6 @@ function HUDLootScreen:texture_loaded_clbk(params, texture_idstring)
 		self._need_item[peer_id] = false
 		self:show_item(peer_id)
 	end
-
 end
 
 function HUDLootScreen:begin_choose_card(peer_id, card_id)
@@ -695,7 +645,6 @@ function HUDLootScreen:begin_choose_card(peer_id, card_id)
 		self._peer_data[peer_id].delayed_card_id = card_id
 		return
 	end
-
 	print("YOU CHOOSED " .. card_id .. ", mr." .. peer_id)
 	local panel = self._peers_panel:child("peer" .. tostring(peer_id))
 	panel:stop()
@@ -721,7 +670,6 @@ function HUDLootScreen:begin_choose_card(peer_id, card_id)
 	if item_pc == 0 then
 		self._peer_data[peer_id].joker = 0 < tweak_data.lootdrop.joker_chance
 	end
-
 	local type_to_card = {
 		weapon_mods = 2,
 		cash = 3,
@@ -740,47 +688,39 @@ function HUDLootScreen:begin_choose_card(peer_id, card_id)
 		"upcard_color",
 		"upcard_pattern"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(cards)
-		do
-			do break end
-			local my_card = i == card_id
-			local card_panel = panel:child("card" .. i)
-			local downcard = card_panel:child("downcard")
-			local joker = pc == 0 and 0 < tweak_data.lootdrop.joker_chance
-			local card_i = my_card and type_to_card[item_category] or math.max(pc, 1)
-			local texture, rect, coords = tweak_data.hud_icons:get_icon_data(card_nums[card_i] or "downcard_overkill_deck")
-			local upcard = card_panel:bitmap({
-				name = "upcard",
-				texture = texture,
-				w = math.round(0.7111111 * card_panel:h()),
-				h = card_panel:h(),
-				blend_mode = "add",
-				layer = 1,
-				halign = "scale",
-				valign = "scale"
-			})
-			upcard:set_rotation(downcard:rotation())
-			upcard:set_shape(downcard:shape())
-			if joker then
-				upcard:set_color(Color(1, 0.8, 0.8))
-			end
-
-			if coords then
-				local tl = Vector3(coords[1][1], coords[1][2], 0)
-				local tr = Vector3(coords[2][1], coords[2][2], 0)
-				local bl = Vector3(coords[3][1], coords[3][2], 0)
-				local br = Vector3(coords[4][1], coords[4][2], 0)
-				upcard:set_texture_coordinates(tl, tr, bl, br)
-			else
-				upcard:set_texture_rect(unpack(rect))
-			end
-
-			upcard:hide()
+	for i, pc in ipairs(cards) do
+		local my_card = i == card_id
+		local card_panel = panel:child("card" .. i)
+		local downcard = card_panel:child("downcard")
+		local joker = pc == 0 and 0 < tweak_data.lootdrop.joker_chance
+		local card_i = my_card and type_to_card[item_category] or math.max(pc, 1)
+		local texture, rect, coords = tweak_data.hud_icons:get_icon_data(card_nums[card_i] or "downcard_overkill_deck")
+		local upcard = card_panel:bitmap({
+			name = "upcard",
+			texture = texture,
+			w = math.round(0.7111111 * card_panel:h()),
+			h = card_panel:h(),
+			blend_mode = "add",
+			layer = 1,
+			halign = "scale",
+			valign = "scale"
+		})
+		upcard:set_rotation(downcard:rotation())
+		upcard:set_shape(downcard:shape())
+		if joker then
+			upcard:set_color(Color(1, 0.8, 0.8))
 		end
-
+		if coords then
+			local tl = Vector3(coords[1][1], coords[1][2], 0)
+			local tr = Vector3(coords[2][1], coords[2][2], 0)
+			local bl = Vector3(coords[3][1], coords[3][2], 0)
+			local br = Vector3(coords[4][1], coords[4][2], 0)
+			upcard:set_texture_coordinates(tl, tr, bl, br)
+		else
+			upcard:set_texture_rect(unpack(rect))
+		end
+		upcard:hide()
 	end
-
 	panel:child("card" .. card_two):animate(callback(self, self, "flipcard"), 5)
 	panel:child("card" .. card_three):animate(callback(self, self, "flipcard"), 5)
 end
@@ -818,7 +758,6 @@ function HUDLootScreen:flipcard(card_panel, timer, done_clbk, peer_id)
 		if downcard:rotation() == 0 then
 			downcard:set_rotation(360)
 		end
-
 		downcard:set_w(start_w * math.cos(p * 90))
 		downcard:set_center(cx, cy)
 		bg:set_rotation(downcard:rotation())
@@ -839,7 +778,6 @@ function HUDLootScreen:flipcard(card_panel, timer, done_clbk, peer_id)
 		if upcard:rotation() == 0 then
 			upcard:set_rotation(360)
 		end
-
 		upcard:set_w(start_w * math.sin(p * 90))
 		upcard:set_center(cx, cy)
 		bg:set_rotation(upcard:rotation())
@@ -859,14 +797,11 @@ function HUDLootScreen:flipcard(card_panel, timer, done_clbk, peer_id)
 		elseif max_pc < item_pc then
 			extra_time = 1.1
 		end
-
 	end
-
 	wait(timer - 1.5 + extra_time)
 	if not done_clbk then
 		managers.menu_component:post_event("loot_fold_cards")
 	end
-
 	over(0.25, function(p)
 		card_panel:set_alpha(math.cos(p * 45))
 	end
@@ -874,7 +809,6 @@ function HUDLootScreen:flipcard(card_panel, timer, done_clbk, peer_id)
 	if done_clbk then
 		done_clbk(peer_id)
 	end
-
 	local cx, cy = card_panel:center()
 	local w, h = card_panel:size()
 	over(0.25, function(p)
@@ -889,20 +823,13 @@ function HUDLootScreen:show_item(peer_id)
 	if not self._peer_data[peer_id].active then
 		return
 	end
-
 	local panel = self._peers_panel:child("peer" .. peer_id)
 	if panel:child("item") then
 		panel:child("item"):set_center(panel:child("selected_panel"):center())
 		panel:child("item"):show()
-		do
-			local (for generator), (for state), (for control) = ipairs(panel:child("item"):children())
-			do
-				do break end
-				child:set_center(panel:child("item"):w() * 0.5, panel:child("item"):h() * 0.5)
-			end
-
+		for _, child in ipairs(panel:child("item"):children()) do
+			child:set_center(panel:child("item"):w() * 0.5, panel:child("item"):h() * 0.5)
 		end
-
 		local anim_fadein = function(o)
 			over(1, function(p)
 				o:set_alpha(p)
@@ -931,14 +858,12 @@ function HUDLootScreen:show_item(peer_id)
 			local amount = tweak_data:get_value("experience_manager", "loot_drop_value", value_id) or 0
 			item_text = managers.experience:experience_string(amount)
 		end
-
 		if item_category then
 			main_text:set_text(managers.localization:to_upper_text("menu_l_you_got", {
 				category = managers.localization:text("bm_menu_" .. item_category),
 				item = item_text
 			}))
 		end
-
 		quality_text:set_text(managers.localization:to_upper_text("menu_l_quality", {
 			quality = item_pc == 0 and "?" or item_pc
 		}))
@@ -949,15 +874,12 @@ function HUDLootScreen:show_item(peer_id)
 			self:make_fine_text(global_value_text)
 			global_value_text:set_visible(true)
 		end
-
 		if item_category == "weapon_mods" then
 			local list_of_weapons = managers.weapon_factory:get_weapons_uses_part(item_id) or {}
 			if table.size(list_of_weapons) == 1 then
 				main_text:set_text(main_text:text() .. " (" .. managers.weapon_factory:get_weapon_name_by_factory_id(list_of_weapons[1]) .. ")")
 			end
-
 		end
-
 		local _, _, _, hh = main_text:text_rect()
 		main_text:set_h(hh + 2)
 		self:make_fine_text(quality_text)
@@ -975,20 +897,16 @@ function HUDLootScreen:show_item(peer_id)
 			elseif item_pc > player_pc then
 				managers.menu_component:post_event("loot_gain_high")
 			end
-
 		end
-
 		self._peer_data[peer_id].ready = true
 		local clbk = self._callback_handler.on_peer_ready
 		if clbk then
 			clbk()
 		end
-
 	else
 		self._need_item = self._need_item or {}
 		self._need_item[peer_id] = true
 	end
-
 end
 
 function HUDLootScreen:update(t, dt)
@@ -1009,11 +927,8 @@ function HUDLootScreen:update(t, dt)
 				panel:child("card" .. self._peer_data[peer_id].selected):animate(callback(self, self, "flipcard"), joker and 7 or 2.5, callback(self, self, "show_item"), peer_id)
 				self._peer_data[peer_id].wait_t = false
 			end
-
 		end
-
 	end
-
 end
 
 function HUDLootScreen:fetch_local_lootdata()
@@ -1027,7 +942,6 @@ function HUDLootScreen:create_stars_giving_animation()
 	if not lootdrops or not lootdrops[5] then
 		return
 	end
-
 	local max_pc = lootdrops[5]
 	local job_stars = managers.job:has_active_job() and managers.job:current_job_and_difficulty_stars() or 1
 	local difficulty_stars = managers.job:has_active_job() and managers.job:current_difficulty_stars() or 0
@@ -1040,7 +954,6 @@ function HUDLootScreen:create_stars_giving_animation()
 		self._stars_panel:parent():remove(self._stars_panel)
 		self._stars_panel = nil
 	end
-
 	self._stars_panel = self._foreground_layer_safe:panel()
 	self._stars_panel:set_left(self._foreground_layer_safe:child("loot_text"):right() + 10)
 	local star_reason_text = self._stars_panel:text({
@@ -1080,9 +993,7 @@ function HUDLootScreen:create_stars_giving_animation()
 )
 				latest_star = i
 			end
-
 		end
-
 		over(0.5, function(p)
 			star_reason_text:set_alpha(1 - p)
 		end
@@ -1104,9 +1015,7 @@ function HUDLootScreen:check_inside_local_peer(x, y)
 		if inside_check_card:inside(x, y) then
 			return i
 		end
-
 	end
-
 end
 
 function HUDLootScreen:set_layer(layer)

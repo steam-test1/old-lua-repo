@@ -39,12 +39,9 @@ function HuskTeamAIBase:load(data)
 			if member then
 				managers.network:session():on_peer_lost(member:peer(), member:peer():id())
 			end
-
 		end
-
 		managers.criminals:add_character(character_name, self._unit, nil, true)
 	end
-
 end
 
 function HuskTeamAIBase:chk_freeze_anims()

@@ -15,9 +15,7 @@ function CoreEditableGui:init(unit)
 		for i = 1, self._sides do
 			self:add_workspace(self._unit:get_object(Idstring(self._gui_object .. i)))
 		end
-
 	end
-
 	local text_object = self._guis[1].gui:child("std_text")
 	self._font_size = text_object:font_size()
 	self:set_font_size(self._font_size)
@@ -43,12 +41,9 @@ end
 
 function CoreEditableGui:set_text(text)
 	self._text = text
-	local (for generator), (for state), (for control) = ipairs(self._guis)
-	do
-		do break end
+	for _, gui in ipairs(self._guis) do
 		gui.gui:child("std_text"):set_text(self._text)
 	end
-
 end
 
 function CoreEditableGui:font_size()
@@ -57,12 +52,9 @@ end
 
 function CoreEditableGui:set_font_size(font_size)
 	self._font_size = font_size
-	local (for generator), (for state), (for control) = ipairs(self._guis)
-	do
-		do break end
+	for _, gui in ipairs(self._guis) do
 		gui.gui:child("std_text"):set_font_size(self._font_size * (10 * gui.gui:child("std_text"):height() / 100))
 	end
-
 end
 
 function CoreEditableGui:font_color()
@@ -71,37 +63,24 @@ end
 
 function CoreEditableGui:set_font_color(font_color)
 	self._font_color = font_color
-	local (for generator), (for state), (for control) = ipairs(self._guis)
-	do
-		do break end
+	for _, gui in ipairs(self._guis) do
 		gui.gui:child("std_text"):set_color(Color(1, font_color.x, font_color.y, font_color.z))
 	end
-
 end
 
 function CoreEditableGui:lock_gui()
-	local (for generator), (for state), (for control) = ipairs(self._guis)
-	do
-		do break end
+	for _, gui in ipairs(self._guis) do
 		gui.workspace:set_cull_distance(self._cull_distance)
 		gui.workspace:set_frozen(true)
 	end
-
 end
 
 function CoreEditableGui:destroy()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._guis)
-		do
-			do break end
-			if alive(self._gui) and alive(gui.workspace) then
-				self._gui:destroy_workspace(gui.workspace)
-			end
-
+	for _, gui in ipairs(self._guis) do
+		if alive(self._gui) and alive(gui.workspace) then
+			self._gui:destroy_workspace(gui.workspace)
 		end
-
 	end
-
 	self._guis = nil
 end
 

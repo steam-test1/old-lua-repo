@@ -174,7 +174,6 @@ function CoreMaterialEditor:_build_shader_options()
 		self._shader_option_panel:layout()
 		self:_unfreeze_frame()
 	end
-
 end
 
 function CoreMaterialEditor:_set_shader_option_tooltip(node, item)
@@ -183,9 +182,7 @@ function CoreMaterialEditor:_set_shader_option_tooltip(node, item)
 end
 
 function CoreMaterialEditor:_build_section(shader_name, shader, node, tree)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for child in node:children() do
 		local project = child:parameter("project")
 		if child:name() == "define" and (not project or project == Application:short_game_name()) then
 			local name = child:parameter("name")
@@ -205,67 +202,50 @@ function CoreMaterialEditor:_build_section(shader_name, shader, node, tree)
 			self:_set_shader_option_tooltip(child, section_node)
 			self:_build_section(shader_name, shader, child, section_node)
 		end
-
 	end
-
 end
 
 function CoreMaterialEditor:_create_parameter_panel()
 	local progress_dialog
 	if not (self._material_config_node:num_children() > 1) or self._output_collapse_box:expanded() then
 	end
-
 	self:_freeze_output()
 	self:_freeze_frame()
 	if self._material_parameter_widgets then
-		local (for generator), (for state), (for control) = pairs(self._material_parameter_widgets)
-		do
-			do break end
+		for k, v in pairs(self._material_parameter_widgets) do
 			v:destroy()
 		end
-
 	end
-
 	self._parent_combo_box:set_value(self._current_material_node and self._current_material_node:parameter("src") or "[NONE]")
 	self._material_parameter_widgets = {}
 	local len = #self._current_render_template:variables()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._current_render_template:variables())
-		do
-			do break end
-			local node
-			if param.type == "texture" then
-				node = self:_get_node(self._current_material_node, param.name:s())
-			else
-				node = self:_find_node(self._current_material_node, "variable", "name", param.name:s())
-			end
-
-			local widget_class = self._parameter_widgets[param.ui_type:s()]
-			if not widget_class then
-				out("[" .. self.TOOLHUB_NAME .. "] Could not find widget class for: " .. param.ui_type:s() .. " Using: " .. param.type)
-				widget_class = self._parameter_widgets[param.type]
-				assert(widget_class)
-			end
-
-			local widget = widget_class:new(self._parameter_collapse_box:lower_panel(), self, param, node)
-			assert(not self._material_parameter_widgets[param.name:s()], string.format("A widget with name %s, already exist! (This might be a bug in the shader config file.)", param.name:s()))
-			self._material_parameter_widgets[param.name:s()] = widget
-			self._parameter_collapse_box:box():add(widget:panel(), 0, 4, "ALL,EXPAND")
-			if progress_dialog then
-				progress_dialog:update_bar(i / (len + 2) * 100)
-			end
-
+	for i, param in ipairs(self._current_render_template:variables()) do
+		local node
+		if param.type == "texture" then
+			node = self:_get_node(self._current_material_node, param.name:s())
+		else
+			node = self:_find_node(self._current_material_node, "variable", "name", param.name:s())
 		end
-
+		local widget_class = self._parameter_widgets[param.ui_type:s()]
+		if not widget_class then
+			out("[" .. self.TOOLHUB_NAME .. "] Could not find widget class for: " .. param.ui_type:s() .. " Using: " .. param.type)
+			widget_class = self._parameter_widgets[param.type]
+			assert(widget_class)
+		end
+		local widget = widget_class:new(self._parameter_collapse_box:lower_panel(), self, param, node)
+		assert(not self._material_parameter_widgets[param.name:s()], string.format("A widget with name %s, already exist! (This might be a bug in the shader config file.)", param.name:s()))
+		self._material_parameter_widgets[param.name:s()] = widget
+		self._parameter_collapse_box:box():add(widget:panel(), 0, 4, "ALL,EXPAND")
+		if progress_dialog then
+			progress_dialog:update_bar(i / (len + 2) * 100)
+		end
 	end
-
 	local widget = self._parameter_widgets.separator:new(self._parameter_collapse_box:lower_panel())
 	self._material_parameter_widgets.separator = widget
 	self._parameter_collapse_box:box():add(widget:panel(), 0, 4, "ALL,EXPAND")
 	if progress_dialog then
 		progress_dialog:update_bar((len + 1) / (len + 2) * 100)
 	end
-
 	widget = self._parameter_widgets.decal:new(self._parameter_collapse_box:lower_panel(), self)
 	self._material_parameter_widgets.decal = widget
 	self._parameter_collapse_box:box():add(widget:panel(), 0, 4, "ALL,EXPAND")
@@ -276,6 +256,5 @@ function CoreMaterialEditor:_create_parameter_panel()
 	if progress_dialog then
 		progress_dialog:update_bar(100)
 	end
-
 end
 

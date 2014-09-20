@@ -21,7 +21,6 @@ function CoreOverlayEffectUnitElement:test_element()
 		effect.fade_out = self._hed.fade_out or effect.fade_out
 		managers.overlay_effect:play_effect(effect)
 	end
-
 end
 
 function CoreOverlayEffectUnitElement:stop_test_element()
@@ -39,7 +38,6 @@ function CoreOverlayEffectUnitElement:changed_effect()
 		self._sustain_default:set_value(string.format("%.2f", effect.sustain))
 		self._fade_out_default:set_value(string.format("%.2f", effect.fade_out))
 	end
-
 end
 
 function CoreOverlayEffectUnitElement:set_option_time(data)
@@ -52,7 +50,6 @@ function CoreOverlayEffectUnitElement:set_option_time(data)
 		c:change_value(string.format("%.2f", value))
 		c:set_selection(-1, -1)
 	end
-
 	self._hed[data.value] = value
 end
 
@@ -61,15 +58,9 @@ function CoreOverlayEffectUnitElement:_build_panel(panel, panel_sizer)
 	panel = panel or self._panel
 	panel_sizer = panel_sizer or self._panel_sizer
 	local options = {}
-	do
-		local (for generator), (for state), (for control) = pairs(managers.overlay_effect:presets())
-		do
-			do break end
-			table.insert(options, name)
-		end
-
+	for name, _ in pairs(managers.overlay_effect:presets()) do
+		table.insert(options, name)
 	end
-
 	local effect_params = {
 		name = "Effect:",
 		panel = panel,

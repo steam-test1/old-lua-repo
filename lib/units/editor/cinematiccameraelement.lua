@@ -27,7 +27,6 @@ function CinematicCameraUnitElement:test_element()
 	self._camera_unit:base():start()
 	if self._hed.state ~= "none" then
 	end
-
 end
 
 function CinematicCameraUnitElement:stop_test_element()
@@ -37,15 +36,9 @@ end
 
 function CinematicCameraUnitElement:_get_states()
 	local states = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._camera_unit:anim_state_machine():config():states())
-		do
-			do break end
-			table.insert(states, state:name():s())
-		end
-
+	for _, state in ipairs(self._camera_unit:anim_state_machine():config():states()) do
+		table.insert(states, state:name():s())
 	end
-
 	table.sort(states)
 	return states
 end
@@ -93,7 +86,6 @@ function CinematicCameraUnitElement:destroy(...)
 	if alive(self._camera_unit) then
 		World:delete_unit(self._camera_unit)
 	end
-
 	CinematicCameraUnitElement.super.destroy(self, ...)
 end
 

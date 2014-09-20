@@ -6,21 +6,14 @@ end
 
 function IngameCleanState:at_enter()
 	local players = managers.player:players()
-	do
-		local (for generator), (for state), (for control) = ipairs(players)
-		do
-			do break end
-			local vp = player:camera():viewport()
-			if vp then
-				vp:set_active(true)
-			else
-				Application:error("No viewport for player " .. tostring(k))
-			end
-
+	for k, player in ipairs(players) do
+		local vp = player:camera():viewport()
+		if vp then
+			vp:set_active(true)
+		else
+			Application:error("No viewport for player " .. tostring(k))
 		end
-
 	end
-
 	managers.hud:show(PlayerBase.PLAYER_INFO_HUD)
 	managers.hud:show(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN)
 	local player = managers.player:player_unit()
@@ -28,7 +21,6 @@ function IngameCleanState:at_enter()
 		player:base():set_enabled(true)
 		player:character_damage():set_invulnerable(true)
 	end
-
 end
 
 function IngameCleanState:at_exit()
@@ -37,7 +29,6 @@ function IngameCleanState:at_exit()
 		player:base():set_enabled(false)
 		player:character_damage():set_invulnerable(false)
 	end
-
 	managers.hud:hide(PlayerBase.PLAYER_INFO_HUD)
 	managers.hud:hide(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN)
 end

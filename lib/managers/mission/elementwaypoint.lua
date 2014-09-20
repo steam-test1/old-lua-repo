@@ -6,7 +6,6 @@ function ElementWaypoint:init(...)
 	if self._values.icon == "guis/textures/waypoint2" or self._values.icon == "guis/textures/waypoint" then
 		self._values.icon = "wp_standard"
 	end
-
 end
 
 function ElementWaypoint:on_script_activated()
@@ -21,7 +20,6 @@ function ElementWaypoint:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	local text = managers.localization:text(self._values.text_id)
 	managers.hud:add_waypoint(self._id, {
 		text = text,

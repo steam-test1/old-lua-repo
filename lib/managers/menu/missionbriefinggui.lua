@@ -110,19 +110,16 @@ function MissionBriefingTabItem:select(no_sound)
 	if self._selected then
 		return
 	end
-
 	self:show()
 	if self._tab_text and alive(self._tab_text) then
 		self._tab_text:set_color(tweak_data.screen_colors.button_stage_1)
 		self._tab_text:set_blend_mode("normal")
 		self._tab_select_rect:show()
 	end
-
 	self._selected = true
 	if no_sound then
 		return
 	end
-
 	managers.menu_component:post_event("menu_enter")
 end
 
@@ -130,14 +127,12 @@ function MissionBriefingTabItem:deselect()
 	if not self._selected then
 		return
 	end
-
 	self:hide()
 	if self._tab_text and alive(self._tab_text) then
 		self._tab_text:set_color(tweak_data.screen_colors.button_stage_3)
 		self._tab_text:set_blend_mode("add")
 		self._tab_select_rect:hide()
 	end
-
 	self._selected = false
 end
 
@@ -149,14 +144,11 @@ function MissionBriefingTabItem:mouse_moved(x, y)
 				self._tab_text:set_color(tweak_data.screen_colors.button_stage_2)
 				managers.menu_component:post_event("highlight")
 			end
-
 		elseif self._highlighted then
 			self._tab_text:set_color(tweak_data.screen_colors.button_stage_3)
 			self._highlighted = false
 		end
-
 	end
-
 	return self._selected, self._highlighted
 end
 
@@ -164,11 +156,9 @@ function MissionBriefingTabItem:mouse_pressed(button, x, y)
 	if button ~= Idstring("0") then
 		return false
 	end
-
 	if not self._selected and self._tab_text:inside(x, y) then
 		return true
 	end
-
 	return self._selected
 end
 
@@ -209,13 +199,11 @@ function MissionBriefingTabItem.animate_select(o, center_helper, instant)
 	if size == 100 then
 		return
 	end
-
 	managers.menu_component:post_event("highlight")
 	local center_x, center_y = o:center()
 	if alive(center_helper) then
 		local center_x, center_y = center_helper:center()
 	end
-
 	local aspect = o:texture_width() / math.max(1, o:texture_height())
 	if instant then
 		local s = math.lerp(size, 100, 1)
@@ -223,13 +211,11 @@ function MissionBriefingTabItem.animate_select(o, center_helper, instant)
 		o:set_center(center_x, center_y)
 		return
 	end
-
 	over(math.abs(100 - size) / 100, function(p)
 		local s = math.lerp(size, 100, p)
 		if alive(center_helper) then
 			center_x, center_y = center_helper:center()
 		end
-
 		o:set_size(s * aspect, s)
 		o:set_center(center_x, center_y)
 	end
@@ -242,19 +228,16 @@ function MissionBriefingTabItem.animate_deselect(o, center_helper)
 	if size == 65 then
 		return
 	end
-
 	local center_x, center_y = o:center()
 	if alive(center_helper) then
 		local center_x, center_y = center_helper:center()
 	end
-
 	local aspect = o:texture_width() / math.max(1, o:texture_height())
 	over(math.abs(65 - size) / 100, function(p)
 		local s = math.lerp(size, 65, p)
 		if alive(center_helper) then
 			center_x, center_y = center_helper:center()
 		end
-
 		o:set_size(s * aspect, s)
 		o:set_center(center_x, center_y)
 	end
@@ -267,7 +250,6 @@ function DescriptionItem:init(panel, text, i, saved_descriptions)
 	if not managers.job:has_active_job() then
 		return
 	end
-
 	local stage_data = managers.job:current_stage_data()
 	local level_data = managers.job:current_level_data()
 	local name_id = stage_data.name_id or level_data.name_id
@@ -298,7 +280,6 @@ function DescriptionItem:init(panel, text, i, saved_descriptions)
 		pro_text:set_size(w, h)
 		pro_text:set_position(title_text:right() + 10, title_text:y())
 	end
-
 	self._scroll_panel = self._panel:panel({
 		x = 10,
 		y = title_text:bottom()
@@ -312,7 +293,6 @@ function DescriptionItem:init(panel, text, i, saved_descriptions)
 
 ]] .. managers.localization:text("menu_ghostable_stage")
 	end
-
 	local desc_text = self._scroll_panel:text({
 		name = "description_text",
 		text = desc_string,
@@ -324,18 +304,11 @@ function DescriptionItem:init(panel, text, i, saved_descriptions)
 	})
 	if saved_descriptions then
 		local text = ""
-		do
-			local (for generator), (for state), (for control) = ipairs(saved_descriptions)
-			do
-				do break end
-				text = text .. managers.localization:text(text_id) .. "\n"
-			end
-
+		for i, text_id in ipairs(saved_descriptions) do
+			text = text .. managers.localization:text(text_id) .. "\n"
 		end
-
 		desc_text:set_text(text)
 	end
-
 	self:_chk_add_scrolling()
 end
 
@@ -369,25 +342,18 @@ function DescriptionItem:_chk_add_scrolling()
 			self._show_scroll_line_top = show_scroll_line_top
 			self._show_scroll_line_bottom = show_scroll_line_bottom
 		end
-
 		if not managers.menu:is_pc_controller() then
 			local legends = {
 				"menu_legend_preview_move"
 			}
 			local t_text = ""
-			do
-				local (for generator), (for state), (for control) = ipairs(legends)
-				do
-					do break end
-					local spacing = i > 1 and "  |  " or ""
-					t_text = t_text .. spacing .. utf8.to_upper(managers.localization:text(string_id, {
-						BTN_UPDATE = managers.localization:btn_macro("menu_update"),
-						BTN_BACK = managers.localization:btn_macro("back")
-					}))
-				end
-
+			for i, string_id in ipairs(legends) do
+				local spacing = i > 1 and "  |  " or ""
+				t_text = t_text .. spacing .. utf8.to_upper(managers.localization:text(string_id, {
+					BTN_UPDATE = managers.localization:btn_macro("menu_update"),
+					BTN_BACK = managers.localization:btn_macro("back")
+				}))
 			end
-
 			local legend_text = self._panel:text({
 				font = tweak_data.menu.pd2_small_font,
 				font_size = tweak_data.menu.pd2_small_font_size,
@@ -399,10 +365,8 @@ function DescriptionItem:_chk_add_scrolling()
 			legend_text:set_size(lw, lh)
 			legend_text:set_righttop(self._panel:w() - 5, 10)
 		end
-
 	elseif self._scrolling then
 	end
-
 end
 
 function DescriptionItem:on_whisper_mode_changed()
@@ -416,10 +380,8 @@ function DescriptionItem:on_whisper_mode_changed()
 
 ]] .. managers.localization:text("menu_ghostable_stage")
 		end
-
 		self:set_description_text(desc_string)
 	end
-
 end
 
 function DescriptionItem:set_title_text(text)
@@ -440,31 +402,26 @@ function DescriptionItem:move_up()
 	if not managers.job:has_active_job() or not self._scrolling then
 		return
 	end
-
 	local desc_text = self._scroll_panel:child("description_text")
 	if desc_text:top() < 0 then
 		self._scroll_speed = 2
 	end
-
 end
 
 function DescriptionItem:move_down()
 	if not managers.job:has_active_job() or not self._scrolling then
 		return
 	end
-
 	local desc_text = self._scroll_panel:child("description_text")
 	if desc_text:bottom() > self._scroll_panel:h() then
 		self._scroll_speed = -2
 	end
-
 end
 
 function DescriptionItem:update(t, dt)
 	if not managers.job:has_active_job() or not self._scrolling then
 		return
 	end
-
 	local desc_text = self._scroll_panel:child("description_text")
 	if desc_text:h() > self._scroll_panel:h() and self._scroll_speed then
 		self._scroll_speed = math.step(self._scroll_speed, 0, dt * 4)
@@ -476,11 +433,9 @@ function DescriptionItem:update(t, dt)
 			desc_text:set_bottom(self._scroll_panel:h())
 			self._scroll_speed = nil
 		end
-
 		if self._scroll_speed == 0 then
 			self._scroll_speed = nil
 		end
-
 		local show_scroll_line_top = 0 > desc_text:top()
 		local show_scroll_line_bottom = desc_text:bottom() > self._scroll_panel:h()
 		if show_scroll_line_top ~= self._show_scroll_line_top or show_scroll_line_bottom ~= self._show_scroll_line_bottom then
@@ -495,9 +450,7 @@ function DescriptionItem:update(t, dt)
 			self._show_scroll_line_top = show_scroll_line_top
 			self._show_scroll_line_bottom = show_scroll_line_bottom
 		end
-
 	end
-
 end
 
 function DescriptionItem:select(no_sound)
@@ -517,7 +470,6 @@ function DescriptionItem:mouse_pressed(button, x, y)
 	if inside == false then
 		return false
 	end
-
 	return inside
 end
 
@@ -537,7 +489,6 @@ function AssetsItem:init(panel, text, i, assets_names, max_assets, menu_componen
 			rotation = 360
 		})
 	end
-
 end
 
 function AssetsItem:post_init()
@@ -545,7 +496,6 @@ function AssetsItem:post_init()
 	for i = 1, #self._assets_names do
 		self._panel:child("asset_" .. tostring(i)):set_rotation(0)
 	end
-
 end
 
 function AssetsItem:select(no_sound)
@@ -574,7 +524,6 @@ function AssetsItem:add_preplanning_button()
 	if preplanning_panel:w() > preplanning_panel:h() then
 		preplanning_panel:grow(preplanning_panel:h() - preplanning_panel:w(), 0)
 	end
-
 	local loading_text = preplanning_panel:text({
 		font = tweak_data.menu.pd2_small_font,
 		font_size = tweak_data.menu.pd2_small_font_size,
@@ -598,29 +547,20 @@ function AssetsItem:add_preplanning_button()
 		self._requested_textures[key] = {texture = texture, index = index}
 	end
 
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.preplanning:current_location_data())
-		do
-			do break end
-			if data.texture then
-				request_texture_func(data.texture)
-			end
-
+	for _, data in ipairs(managers.preplanning:current_location_data()) do
+		if data.texture then
+			request_texture_func(data.texture)
 		end
-
 	end
-
 	local custom_icons_path = tweak_data.preplanning.gui.custom_icons_path
 	local type_icons_path = tweak_data.preplanning.gui.type_icons_path
 	local category_icons_path = tweak_data.preplanning.gui.category_icons_path
 	if type_icons_path then
 		request_texture_func(type_icons_path)
 	end
-
 	if category_icons_path then
 		request_texture_func(category_icons_path)
 	end
-
 	self._ready_to_chk_preplanning_done = true
 	self:chk_preplanning_textures_done()
 end
@@ -633,26 +573,17 @@ function AssetsItem:preplanning_texture_done_clbk(texture_idstring)
 		if self._ready_to_chk_preplanning_done then
 			self:chk_preplanning_textures_done()
 		end
-
 	end
-
 end
 
 function AssetsItem:chk_preplanning_textures_done()
 	self._preplanning_ready = true
-	do
-		local (for generator), (for state), (for control) = pairs(self._requested_textures)
-		do
-			do break end
-			if not self._cached_textures[key] then
-				self._preplanning_ready = false
-				return
-			end
-
+	for key, data in pairs(self._requested_textures) do
+		if not self._cached_textures[key] then
+			self._preplanning_ready = false
+			return
 		end
-
 	end
-
 	local preplanning_panel = self._preplanning_ready and alive(self._panel) and self._panel:child("preplanning")
 	if alive(preplanning_panel) then
 		preplanning_panel:clear()
@@ -679,7 +610,6 @@ function AssetsItem:chk_preplanning_textures_done()
 			h = preplanning_panel:h()
 		})
 	end
-
 end
 
 function AssetsItem:create_assets(assets_names, max_assets)
@@ -729,7 +659,6 @@ function AssetsItem:create_assets(assets_names, max_assets)
 				valign = "top"
 			})
 		end
-
 		local aspect = asset:texture_width() / math.max(1, asset:texture_height())
 		asset:set_w(asset:h() * aspect)
 		rect:set_w(rect:h() * aspect)
@@ -749,10 +678,8 @@ function AssetsItem:create_assets(assets_names, max_assets)
 			asset:set_color(Color.black:with_alpha(0.6))
 			self._asset_locked[i] = true
 		end
-
 		table.insert(self._assets_list, asset)
 	end
-
 	self._text_strings_localized = false
 	self._my_asset_space = w
 	self._my_left_i = self._my_menu_component_data.my_left_i or 1
@@ -782,7 +709,6 @@ function AssetsItem:create_assets(assets_names, max_assets)
 		self._move_right_rect:set_position(math.round(self._move_right_rect:x()), math.round(self._move_right_rect:y()))
 		self._move_right_rect:set_visible(false)
 	end
-
 	if not managers.menu:is_pc_controller() then
 		local legends = {
 			"menu_legend_preview_move",
@@ -791,21 +717,14 @@ function AssetsItem:create_assets(assets_names, max_assets)
 		if managers.preplanning:has_current_level_preplanning() then
 			table.insert(legends, 1, "menu_legend_open_preplanning")
 		end
-
 		local t_text = ""
-		do
-			local (for generator), (for state), (for control) = ipairs(legends)
-			do
-				do break end
-				local spacing = i > 1 and "  |  " or ""
-				t_text = t_text .. spacing .. utf8.to_upper(managers.localization:text(string_id, {
-					BTN_UPDATE = managers.localization:btn_macro("menu_update"),
-					BTN_BACK = managers.localization:btn_macro("back")
-				}))
-			end
-
+		for i, string_id in ipairs(legends) do
+			local spacing = i > 1 and "  |  " or ""
+			t_text = t_text .. spacing .. utf8.to_upper(managers.localization:text(string_id, {
+				BTN_UPDATE = managers.localization:btn_macro("menu_update"),
+				BTN_BACK = managers.localization:btn_macro("back")
+			}))
 		end
-
 		local legend_text = self._panel:text({
 			rotation = 360,
 			font = tweak_data.menu.pd2_small_font,
@@ -816,7 +735,6 @@ function AssetsItem:create_assets(assets_names, max_assets)
 		legend_text:set_size(lw, lh)
 		legend_text:set_righttop(self._panel:w() - 5, 10)
 	end
-
 	local first_rect = self._panel:child("bg_rect_1")
 	if first_rect then
 		self._select_box_panel = self._panel:panel({layer = -3, visible = false})
@@ -830,29 +748,20 @@ function AssetsItem:create_assets(assets_names, max_assets)
 			}
 		})
 	end
-
 	self:post_init()
 end
 
 function AssetsItem:unlock_asset_by_id(id)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._assets_names)
-		do
-			do break end
-			if Idstring(asset_data[4]) == Idstring(id) then
-				self._asset_locked[i] = false
-				self._assets_list[i]:set_color(Color.white)
-				local lock = self._panel:child("asset_lock_" .. tostring(i))
-				if lock then
-					self._panel:remove(lock)
-				end
-
+	for i, asset_data in ipairs(self._assets_names) do
+		if Idstring(asset_data[4]) == Idstring(id) then
+			self._asset_locked[i] = false
+			self._assets_list[i]:set_color(Color.white)
+			local lock = self._panel:child("asset_lock_" .. tostring(i))
+			if lock then
+				self._panel:remove(lock)
 			end
-
 		end
-
 	end
-
 	self:select_asset(self._asset_selected, true)
 end
 
@@ -874,9 +783,7 @@ function AssetsItem:update_asset_positions_and_text()
 	if alive(bg) then
 		self._asset_text_panel:set_center_x(bg:center_x())
 		self._asset_text_panel:set_position(math.round(self._asset_text_panel:x()), math.round(self._asset_text_panel:y()))
-		local (for generator), (for state), (for control) = ipairs(self._asset_text_panel:children())
-		do
-			do break end
+		for i, asset_text in ipairs(self._asset_text_panel:children()) do
 			if asset_text:world_left() < 10 then
 				asset_text:set_world_left(10)
 				asset_text:set_align("left")
@@ -886,40 +793,29 @@ function AssetsItem:update_asset_positions_and_text()
 			else
 				asset_text:set_align("center")
 			end
-
 		end
-
 	end
-
 end
 
 function AssetsItem:update_asset_positions()
 	self._my_menu_component_data.my_left_i = self._my_left_i
 	local w = self._my_asset_space
-	do
-		local (for generator), (for state), (for control) = pairs(self._assets_list)
-		do
-			do break end
-			local cx = (math.ceil(i / 2) - (self._my_left_i - 1) * (self._num_items / 2)) * w - w / 2
-			local lock = self._panel:child("asset_lock_" .. tostring(i))
-			if alive(lock) then
-				lock:set_center_x(cx)
-			end
-
-			self._panel:child("bg_rect_" .. tostring(i)):set_center_x(cx)
-			self._panel:child("bg_rect_" .. tostring(i)):set_left(math.round(self._panel:child("bg_rect_" .. tostring(i)):left()))
-			asset:set_center_x(cx)
-			asset:set_left(math.round(asset:left()))
+	for i, asset in pairs(self._assets_list) do
+		local cx = (math.ceil(i / 2) - (self._my_left_i - 1) * (self._num_items / 2)) * w - w / 2
+		local lock = self._panel:child("asset_lock_" .. tostring(i))
+		if alive(lock) then
+			lock:set_center_x(cx)
 		end
-
+		self._panel:child("bg_rect_" .. tostring(i)):set_center_x(cx)
+		self._panel:child("bg_rect_" .. tostring(i)):set_left(math.round(self._panel:child("bg_rect_" .. tostring(i)):left()))
+		asset:set_center_x(cx)
+		asset:set_left(math.round(asset:left()))
 	end
-
 	self._move_left_rect:set_visible(self._my_left_i > 1)
 	self._move_right_rect:set_visible(self._my_left_i < math.ceil(#self._assets_list / self._num_items))
 	if 1 < math.ceil(#self._assets_list / self._num_items) then
 		self:set_tab_suffix(" (" .. tostring(self._my_left_i) .. "/" .. tostring(math.ceil(#self._assets_list / self._num_items)) .. ")")
 	end
-
 end
 
 function AssetsItem:select_asset(i, instant)
@@ -928,30 +824,24 @@ function AssetsItem:select_asset(i, instant)
 			local page = math.ceil(i / self._num_items)
 			self._my_left_i = page
 		end
-
 		self:update_asset_positions()
 	end
-
 	if not i then
 		return
 	end
-
 	local bg = self._panel:child("bg_rect_" .. tostring(i))
 	if not self._assets_names[i] then
 		return
 	end
-
 	local text_string = self._assets_names[i][2]
 	local extra_string, extra_color
 	if not self._text_strings_localized then
 		text_string = managers.localization:text(text_string)
 	end
-
 	text_string = text_string .. "\n"
 	if self._asset_selected == i and not instant then
 		return
 	end
-
 	local is_init = self._asset_selected == nil
 	self:check_deselect_item()
 	self._asset_selected = i
@@ -968,7 +858,6 @@ function AssetsItem:select_asset(i, instant)
 			}
 		})
 	end
-
 	if self._asset_locked[i] then
 		local can_client_unlock = managers.assets.ALLOW_CLIENTS_UNLOCK == true or type(managers.assets.ALLOW_CLIENTS_UNLOCK) == "string" and managers.player:has_team_category_upgrade("player", managers.assets.ALLOW_CLIENTS_UNLOCK)
 		local is_server = Network:is_server() or can_client_unlock
@@ -980,17 +869,13 @@ function AssetsItem:select_asset(i, instant)
 				extra_string = extra_string .. "\n" .. managers.localization:text("bm_menu_not_enough_cash")
 				extra_color = tweak_data.screen_colors.important_1
 			end
-
 		else
 			if is_server or not "menu_briefing_asset_server_locked" then
 			end
-
 			extra_string = managers.localization:text((managers.assets:get_asset_unlock_text_by_id(self._assets_names[i][4])))
 		end
-
 		extra_color = extra_color or can_unlock and tweak_data.screen_colors.text or tweak_data.screen_colors.important_1
 	end
-
 	extra_color = extra_color or tweak_data.screen_colors.text
 	self._asset_text_panel:clear()
 	if text_string then
@@ -1006,7 +891,6 @@ function AssetsItem:select_asset(i, instant)
 		text:set_top(0)
 		text:set_center_x(self._asset_text_panel:w() / 2)
 	end
-
 	if extra_string then
 		local last_child = self._asset_text_panel:children()[self._asset_text_panel:num_children()]
 		local text = self._asset_text_panel:text({
@@ -1021,10 +905,8 @@ function AssetsItem:select_asset(i, instant)
 		if last_child then
 			text:set_top(last_child:bottom())
 		end
-
 		text:set_center_x(self._asset_text_panel:w() / 2)
 	end
-
 	self._assets_list[i]:stop()
 	self._assets_list[i]:animate(self.animate_select, self._panel:child("bg_rect_" .. tostring(i)), instant)
 	if alive(bg) then
@@ -1033,29 +915,22 @@ function AssetsItem:select_asset(i, instant)
 		self._asset_text_panel:set_position(math.round(self._asset_text_panel:x()), math.round(self._asset_text_panel:y()))
 		local a_left = self._asset_text_panel:left()
 		local a_right = self._asset_text_panel:right()
-		local (for generator), (for state), (for control) = ipairs(self._asset_text_panel:children())
-		do
-			do break end
+		for i, asset_text in ipairs(self._asset_text_panel:children()) do
 			asset_text:set_position(math.round(asset_text:x()), math.round(asset_text:y()))
 			if a_left + asset_text:left() < 12 then
 				asset_text:set_left(12 - a_left)
 			elseif a_left + asset_text:right() > self._panel:w() - 12 then
 				asset_text:set_right(self._panel:w() - 12 - a_left)
 			end
-
 		end
-
 	end
-
 	if rect then
 		if i % 2 > 0 then
 			self._asset_text_panel:set_top(rect:bottom())
 		else
 			self._asset_text_panel:set_bottom(rect:top())
 		end
-
 	end
-
 end
 
 function AssetsItem:check_deselect_item()
@@ -1064,7 +939,6 @@ function AssetsItem:check_deselect_item()
 		self._assets_list[self._asset_selected]:animate(self.animate_deselect, self._panel:child("bg_rect_" .. tostring(self._asset_selected)))
 		self._asset_text_panel:clear()
 	end
-
 	self._asset_selected = nil
 end
 
@@ -1077,14 +951,12 @@ function AssetsItem:mouse_moved(x, y)
 				managers.menu_component:post_event("highlight")
 				self:check_deselect_item()
 			end
-
 			self._asset_text_panel:clear()
 			return false, true
 		elseif self._move_left_highlighted then
 			self._move_left_rect:set_color(tweak_data.screen_colors.button_stage_3)
 			self._move_left_highlighted = false
 		end
-
 		if self._move_right_rect:visible() and self._move_right_rect:inside(x, y) then
 			if not self._move_right_highlighted then
 				self._move_right_highlighted = true
@@ -1092,16 +964,13 @@ function AssetsItem:mouse_moved(x, y)
 				managers.menu_component:post_event("highlight")
 				self:check_deselect_item()
 			end
-
 			self._asset_text_panel:clear()
 			return false, true
 		elseif self._move_right_highlighted then
 			self._move_right_rect:set_color(tweak_data.screen_colors.button_stage_3)
 			self._move_right_highlighted = false
 		end
-
 	end
-
 	local preplanning = self._preplanning_ready and self._panel:child("preplanning")
 	if alive(preplanning) and preplanning:tree_visible() then
 		if preplanning:inside(x, y) then
@@ -1110,22 +979,18 @@ function AssetsItem:mouse_moved(x, y)
 				preplanning:child("button"):set_alpha(1)
 				managers.menu_component:post_event("highlight")
 			end
-
 			self:check_deselect_item()
 			return false, true
 		elseif self._preplanning_highlight then
 			self._preplanning_highlight = false
 			preplanning:child("button"):set_alpha(0.8)
 		end
-
 	end
-
 	local selected, highlighted = AssetsItem.super.mouse_moved(self, x, y)
 	if not self._panel:inside(x, y) or not selected then
 		self:check_deselect_item()
 		return selected, highlighted
 	end
-
 	self._assets_list = self._assets_list or {}
 	local update_select = false
 	if not self._asset_selected then
@@ -1133,25 +998,18 @@ function AssetsItem:mouse_moved(x, y)
 	elseif self._assets_list[self._asset_selected] and not self._panel:child("bg_rect_" .. tostring(self._asset_selected)):inside(x, y) and self._assets_list[self._asset_selected]:visible() then
 		update_select = true
 	end
-
 	if update_select then
-		local (for generator), (for state), (for control) = ipairs(self._assets_list)
-		do
-			do break end
+		for i, asset in ipairs(self._assets_list) do
 			if self._panel:child("bg_rect_" .. tostring(i)):inside(x, y) and asset:visible() then
 				update_select = false
 				self:select_asset(i)
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 	if not update_select then
 		return false, true
 	end
-
 	return selected, highlighted
 end
 
@@ -1160,30 +1018,24 @@ function AssetsItem:mouse_pressed(button, x, y)
 	if inside == false then
 		return false
 	end
-
 	if alive(self._move_left_rect) and alive(self._move_right_rect) then
 		if self._move_left_rect:visible() and self._move_left_rect:inside(x, y) then
 			self:move_assets_left()
 			return
 		end
-
 		if self._move_right_rect:visible() and self._move_right_rect:inside(x, y) then
 			self:move_assets_right()
 			return
 		end
-
 	end
-
 	local preplanning = self._preplanning_ready and self._panel:child("preplanning")
 	if alive(preplanning) and preplanning:inside(x, y) then
 		self:open_preplanning()
 		return
 	end
-
 	if self._asset_selected and alive(self._panel:child("bg_rect_" .. tostring(self._asset_selected))) and self._panel:child("bg_rect_" .. tostring(self._asset_selected)):inside(x, y) then
 		return self:_return_asset_info(self._asset_selected)
 	end
-
 	return inside
 end
 
@@ -1193,21 +1045,18 @@ function AssetsItem:open_preplanning()
 		managers.menu:open_node("preplanning")
 		managers.menu_component:on_ready_pressed_mission_briefing_gui(false)
 	end
-
 end
 
 function AssetsItem:move(x, y)
 	if #self._assets_list == 0 then
 		return
 	end
-
 	local asset_selected = self._asset_selected
 	local new_selected = self._my_left_i and (self._my_left_i - 1) * self._num_items + 1 or 1
 	if asset_selected then
 		local is_top = 0 < asset_selected % 2
 		if not is_top or not math.max(y, 0) then
 		end
-
 		local step = 2 * x + math.min(y, 0)
 		new_selected = asset_selected + step
 		if new_selected > #self._assets_list then
@@ -1216,16 +1065,12 @@ function AssetsItem:move(x, y)
 			if old_page < new_page then
 				new_selected = #self._assets_list
 			end
-
 		end
-
 	end
-
 	if new_selected >= 1 and new_selected <= #self._assets_list then
 		self._asset_selected = asset_selected
 		self:select_asset(new_selected)
 	end
-
 end
 
 function AssetsItem:move_left()
@@ -1234,7 +1079,6 @@ function AssetsItem:move_left()
 	if #self._assets_list == 0 then
 		return
 	end
-
 	self._asset_selected = self._asset_selected or 0
 	local new_selected = math.max(self._asset_selected - 1, 1)
 	self:select_asset(new_selected)
@@ -1255,7 +1099,6 @@ function AssetsItem:move_right()
 	if #self._assets_list == 0 then
 		return
 	end
-
 	self._asset_selected = self._asset_selected or 0
 	local new_selected = math.min(self._asset_selected + 1, #self._assets_list)
 	self:select_asset(new_selected)
@@ -1280,9 +1123,7 @@ function AssetsItem:_return_asset_info(i)
 		else
 			asset_cost = true
 		end
-
 	end
-
 	return i, asset_cost
 end
 
@@ -1294,43 +1135,26 @@ function LoadoutItem:init(panel, text, i, assets_names, menu_component_data)
 	got_deployables = got_deployables and #got_deployables > 0
 	if got_deployables or self._assets_list[4] then
 	end
-
 	local primaries = not managers.blackmarket:get_crafted_category("primaries") and {}
 	local got_primary = false
-	do
-		local (for generator), (for state), (for control) = pairs(primaries)
-		do
-			do break end
-			got_primary = true
-			break
-		end
-
+	for _, d in pairs(primaries) do
+		got_primary = true
+		break
 	end
-
 	if got_primary or self._assets_list[1] then
 	end
-
 	local when_to_split = 6
 	do
 		local equipped_weapon = managers.blackmarket:equipped_primary()
 		local primary_slot = managers.blackmarket:equipped_weapon_slot("primaries")
 		local icon_list = {}
-		do
-			local (for generator), (for state), (for control) = ipairs(managers.menu_component:create_weapon_mod_icon_list(equipped_weapon.weapon_id, "primaries", equipped_weapon.factory_id, primary_slot))
-			do
-				do break end
-				if icon.equipped then
-					table.insert(icon_list, icon)
-				end
-
+		for i, icon in ipairs(managers.menu_component:create_weapon_mod_icon_list(equipped_weapon.weapon_id, "primaries", equipped_weapon.factory_id, primary_slot)) do
+			if icon.equipped then
+				table.insert(icon_list, icon)
 			end
-
 		end
-
 		local split = when_to_split < #icon_list
-		local (for generator), (for state), (for control) = ipairs(icon_list)
-		do
-			do break end
+		for index, icon in ipairs(icon_list) do
 			local texture = icon.texture
 			if DB:has(Idstring("texture"), texture) then
 				local object = self._panel:bitmap({
@@ -1348,35 +1172,21 @@ function LoadoutItem:init(panel, text, i, assets_names, menu_component_data)
 					else
 						object:move(0, 18)
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 	do
 		local equipped_weapon = managers.blackmarket:equipped_secondary()
 		local primary_slot = managers.blackmarket:equipped_weapon_slot("secondaries")
 		local icon_list = {}
-		do
-			local (for generator), (for state), (for control) = ipairs(managers.menu_component:create_weapon_mod_icon_list(equipped_weapon.weapon_id, "secondaries", equipped_weapon.factory_id, primary_slot))
-			do
-				do break end
-				if icon.equipped then
-					table.insert(icon_list, icon)
-				end
-
+		for i, icon in ipairs(managers.menu_component:create_weapon_mod_icon_list(equipped_weapon.weapon_id, "secondaries", equipped_weapon.factory_id, primary_slot)) do
+			if icon.equipped then
+				table.insert(icon_list, icon)
 			end
-
 		end
-
 		local split = when_to_split < #icon_list
-		local (for generator), (for state), (for control) = ipairs(icon_list)
-		do
-			do break end
+		for index, icon in ipairs(icon_list) do
 			local texture = icon.texture
 			if DB:has(Idstring("texture"), texture) then
 				local object = self._panel:bitmap({
@@ -1394,15 +1204,10 @@ function LoadoutItem:init(panel, text, i, assets_names, menu_component_data)
 					else
 						object:move(0, 18)
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 	self._asset_text:move(0, 25)
 	self:select_asset(self._my_menu_component_data.selected or 1, true)
 end
@@ -1411,7 +1216,6 @@ function LoadoutItem:post_init()
 	if Application:production_build() then
 		self._panel:set_debug(false)
 	end
-
 end
 
 function LoadoutItem:select(no_sound)
@@ -1459,7 +1263,6 @@ function LoadoutItem:open_node(node)
 			self:create_deployable_loadout()
 		})
 	end
-
 	managers.menu_component:on_ready_pressed_mission_briefing_gui(false)
 end
 
@@ -1468,7 +1271,6 @@ function LoadoutItem:confirm_pressed()
 		self:open_node(self._asset_selected)
 		return true
 	end
-
 end
 
 function LoadoutItem:mouse_pressed(button, x, y)
@@ -1476,7 +1278,6 @@ function LoadoutItem:mouse_pressed(button, x, y)
 	if inside == false then
 		return false
 	end
-
 	self:open_node(inside)
 	return inside and true
 end
@@ -1491,75 +1292,55 @@ function LoadoutItem:populate_category(category, data)
 	for i = 1, max_items do
 		data[i] = nil
 	end
-
 	local weapon_data = Global.blackmarket_manager.weapons
 	local guis_catalog = "guis/"
-	do
-		local (for generator), (for state), (for control) = pairs(crafted_category)
-		do
-			do break end
-			guis_catalog = "guis/"
-			local bundle_folder = tweak_data.weapon[crafted.weapon_id] and tweak_data.weapon[crafted.weapon_id].texture_bundle_folder
-			if bundle_folder then
-				guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
-			end
-
-			new_data = {}
-			new_data.name = crafted.weapon_id
-			new_data.name_localized = managers.weapon_factory:get_weapon_name_by_factory_id(crafted.factory_id)
-			new_data.category = category
-			new_data.slot = i
-			new_data.unlocked = managers.blackmarket:weapon_unlocked(crafted.weapon_id)
-			if not new_data.unlocked then
-				-- unhandled boolean indicator
-			else
-			end
-
-			new_data.lock_texture = true
-			new_data.equipped = crafted.equipped
-			new_data.can_afford = true
-			new_data.skill_based = weapon_data[crafted.weapon_id].skill_based
-			new_data.skill_name = new_data.skill_based and "bm_menu_skill_locked_" .. new_data.name
-			new_data.level = managers.blackmarket:weapon_level(crafted.weapon_id)
-			local texture_name = tweak_data.weapon[crafted.weapon_id].texture_name or tostring(crafted.weapon_id)
-			new_data.bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
-			new_data.comparision_data = new_data.unlocked and managers.blackmarket:get_weapon_stats(category, i)
-			new_data.stream = false
-			new_data.global_value = tweak_data.weapon[new_data.name] and tweak_data.weapon[new_data.name].global_value or "normal"
-			new_data.dlc_locked = tweak_data.lootdrop.global_values[new_data.global_value].unlock_id or nil
-			new_data.lock_texture = BlackMarketGui.get_lock_icon(self, new_data)
-			if not new_data.equipped and new_data.unlocked then
-				table.insert(new_data, "lo_w_equip")
-			end
-
-			local icon_list = managers.menu_component:create_weapon_mod_icon_list(crafted.weapon_id, category, crafted.factory_id, i)
-			local icon_index = 1
-			new_data.mini_icons = {}
-			do
-				local (for generator), (for state), (for control) = pairs(icon_list)
-				do
-					do break end
-					table.insert(new_data.mini_icons, {
-						texture = icon.texture,
-						right = (icon_index - 1) * 18,
-						bottom = 0,
-						layer = 1,
-						w = 16,
-						h = 16,
-						stream = false,
-						alpha = icon.equipped and 1 or 0.25
-					})
-					icon_index = icon_index + 1
-				end
-
-			end
-
-			data[i] = new_data
-			index = i
+	for i, crafted in pairs(crafted_category) do
+		guis_catalog = "guis/"
+		local bundle_folder = tweak_data.weapon[crafted.weapon_id] and tweak_data.weapon[crafted.weapon_id].texture_bundle_folder
+		if bundle_folder then
+			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
+		new_data = {}
+		new_data.name = crafted.weapon_id
+		new_data.name_localized = managers.weapon_factory:get_weapon_name_by_factory_id(crafted.factory_id)
+		new_data.category = category
+		new_data.slot = i
+		new_data.unlocked = managers.blackmarket:weapon_unlocked(crafted.weapon_id)
+		new_data.lock_texture = not new_data.unlocked and "guis/textures/pd2/lock_level"
+		new_data.equipped = crafted.equipped
+		new_data.can_afford = true
+		new_data.skill_based = weapon_data[crafted.weapon_id].skill_based
+		new_data.skill_name = new_data.skill_based and "bm_menu_skill_locked_" .. new_data.name
+		new_data.level = managers.blackmarket:weapon_level(crafted.weapon_id)
+		local texture_name = tweak_data.weapon[crafted.weapon_id].texture_name or tostring(crafted.weapon_id)
+		new_data.bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
+		new_data.comparision_data = new_data.unlocked and managers.blackmarket:get_weapon_stats(category, i)
+		new_data.stream = false
+		new_data.global_value = tweak_data.weapon[new_data.name] and tweak_data.weapon[new_data.name].global_value or "normal"
+		new_data.dlc_locked = tweak_data.lootdrop.global_values[new_data.global_value].unlock_id or nil
+		new_data.lock_texture = BlackMarketGui.get_lock_icon(self, new_data)
+		if not new_data.equipped and new_data.unlocked then
+			table.insert(new_data, "lo_w_equip")
+		end
+		local icon_list = managers.menu_component:create_weapon_mod_icon_list(crafted.weapon_id, category, crafted.factory_id, i)
+		local icon_index = 1
+		new_data.mini_icons = {}
+		for _, icon in pairs(icon_list) do
+			table.insert(new_data.mini_icons, {
+				texture = icon.texture,
+				right = (icon_index - 1) * 18,
+				bottom = 0,
+				layer = 1,
+				w = 16,
+				h = 16,
+				stream = false,
+				alpha = icon.equipped and 1 or 0.25
+			})
+			icon_index = icon_index + 1
+		end
+		data[i] = new_data
+		index = i
 	end
-
 	for i = 1, max_items do
 		if not data[i] then
 			new_data = {}
@@ -1574,9 +1355,7 @@ function LoadoutItem:populate_category(category, data)
 			new_data.equipped = false
 			data[i] = new_data
 		end
-
 	end
-
 end
 
 function LoadoutItem:populate_primaries(data)
@@ -1591,43 +1370,29 @@ function LoadoutItem:populate_armors(data)
 	local new_data = {}
 	local index = 0
 	local guis_catalog = "guis/"
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.blackmarket.armors)
-		do
-			do break end
-			local bm_data = Global.blackmarket_manager.armors[armor_id]
-			guis_catalog = "guis/"
-			local bundle_folder = tweak_data.blackmarket.armors[armor_id] and tweak_data.blackmarket.armors[armor_id].texture_bundle_folder
-			if bundle_folder then
-				guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
-			end
-
-			if bm_data.owned then
-				index = index + 1
-				new_data = {}
-				new_data.name = tweak_data.blackmarket.armors[armor_id].name_id
-				new_data.category = "armors"
-				new_data.slot = index
-				new_data.unlocked = bm_data.unlocked
-				if not new_data.unlocked then
-					-- unhandled boolean indicator
-				else
-				end
-
-				new_data.lock_texture = true
-				new_data.equipped = bm_data.equipped
-				new_data.bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/armors/" .. armor_id
-				if not new_data.equipped then
-					table.insert(new_data, "a_equip")
-				end
-
-				data[index] = new_data
-			end
-
+	for armor_id, armor_data in pairs(tweak_data.blackmarket.armors) do
+		local bm_data = Global.blackmarket_manager.armors[armor_id]
+		guis_catalog = "guis/"
+		local bundle_folder = tweak_data.blackmarket.armors[armor_id] and tweak_data.blackmarket.armors[armor_id].texture_bundle_folder
+		if bundle_folder then
+			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
+		if bm_data.owned then
+			index = index + 1
+			new_data = {}
+			new_data.name = tweak_data.blackmarket.armors[armor_id].name_id
+			new_data.category = "armors"
+			new_data.slot = index
+			new_data.unlocked = bm_data.unlocked
+			new_data.lock_texture = not new_data.unlocked and "guis/textures/pd2/lock_level"
+			new_data.equipped = bm_data.equipped
+			new_data.bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/armors/" .. armor_id
+			if not new_data.equipped then
+				table.insert(new_data, "a_equip")
+			end
+			data[index] = new_data
+		end
 	end
-
 	for i = 1, 9 do
 		if not data[i] then
 			new_data = {}
@@ -1639,9 +1404,7 @@ function LoadoutItem:populate_armors(data)
 			new_data.equipped = false
 			data[i] = new_data
 		end
-
 	end
-
 end
 
 function LoadoutItem:populate_deployables(data)
@@ -1649,35 +1412,27 @@ function LoadoutItem:populate_deployables(data)
 	local new_data = {}
 	local index = 0
 	local guis_catalog = "guis/"
-	do
-		local (for generator), (for state), (for control) = ipairs(deployables)
-		do
-			do break end
-			guis_catalog = "guis/"
-			local bundle_folder = tweak_data.blackmarket.deployables[deployable] and tweak_data.blackmarket.deployables[deployable].texture_bundle_folder
-			if bundle_folder then
-				guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
-			end
-
-			new_data = {}
-			new_data.name = deployable
-			new_data.name_localized = managers.localization:text(tweak_data.upgrades.definitions[deployable].name_id)
-			new_data.category = "deployables"
-			new_data.bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/deployables/" .. tostring(deployable)
-			new_data.slot = i
-			new_data.unlocked = true
-			new_data.equipped = managers.player:equipment_in_slot(1) == deployable
-			new_data.stream = false
-			if not new_data.equipped then
-				table.insert(new_data, "lo_d_equip")
-			end
-
-			data[i] = new_data
-			index = i
+	for i, deployable in ipairs(deployables) do
+		guis_catalog = "guis/"
+		local bundle_folder = tweak_data.blackmarket.deployables[deployable] and tweak_data.blackmarket.deployables[deployable].texture_bundle_folder
+		if bundle_folder then
+			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
+		new_data = {}
+		new_data.name = deployable
+		new_data.name_localized = managers.localization:text(tweak_data.upgrades.definitions[deployable].name_id)
+		new_data.category = "deployables"
+		new_data.bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/deployables/" .. tostring(deployable)
+		new_data.slot = i
+		new_data.unlocked = true
+		new_data.equipped = managers.player:equipment_in_slot(1) == deployable
+		new_data.stream = false
+		if not new_data.equipped then
+			table.insert(new_data, "lo_d_equip")
+		end
+		data[i] = new_data
+		index = i
 	end
-
 	for i = 1, 9 do
 		if not data[i] then
 			new_data = {}
@@ -1689,9 +1444,7 @@ function LoadoutItem:populate_deployables(data)
 			new_data.equipped = false
 			data[i] = new_data
 		end
-
 	end
-
 end
 
 function LoadoutItem:create_primaries_loadout()
@@ -1809,13 +1562,9 @@ function TeamLoadoutItem:init(panel, text, i)
 				if outfit and character then
 					self:set_slot_outfit(i, character, outfit)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function TeamLoadoutItem:reduce_to_small_font()
@@ -1831,9 +1580,7 @@ function TeamLoadoutItem:reduce_to_small_font()
 				}
 			})
 		end
-
 	end
-
 end
 
 function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
@@ -1841,12 +1588,10 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 	if not player_slot then
 		return
 	end
-
 	player_slot.panel:clear()
 	if not outfit then
 		return
 	end
-
 	local slot_h = player_slot.panel:h()
 	local aspect
 	local x = player_slot.panel:w() / 2
@@ -1865,7 +1610,6 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 	if SystemInfo:platform() == Idstring("WIN32") then
 		criminal_text:move(5, 5)
 	end
-
 	local primary_texture, secondary_texture
 	if outfit.primary.factory_id then
 		local primary_id = managers.weapon_factory:get_weapon_id_by_factory_id(outfit.primary.factory_id)
@@ -1874,7 +1618,6 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
 		local texture_name = tweak_data.weapon[primary_id].texture_name or tostring(primary_id)
 		local texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
 		local primary_bitmap = player_slot.panel:bitmap({
@@ -1892,9 +1635,7 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 		local perks = managers.blackmarket:get_perks_from_weapon_blueprint(outfit.primary.factory_id, outfit.primary.blueprint)
 		if table.size(perks) > 0 then
 			local perk_index = 0
-			local (for generator), (for state), (for control) = pairs(perks)
-			do
-				do break end
+			for perk in pairs(perks) do
 				local texture = "guis/textures/pd2/blackmarket/inv_mod_" .. perk
 				if DB:has(Idstring("texture"), texture) then
 					local perk_object = player_slot.panel:bitmap({
@@ -1907,13 +1648,9 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 					perk_object:set_rightbottom(math.round(primary_bitmap:right() - perk_index * 16), math.round(primary_bitmap:bottom() - 5))
 					perk_index = perk_index + 1
 				end
-
 			end
-
 		end
-
 	end
-
 	if outfit.secondary.factory_id then
 		local secondary_id = managers.weapon_factory:get_weapon_id_by_factory_id(outfit.secondary.factory_id)
 		local guis_catalog = "guis/"
@@ -1921,7 +1658,6 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
 		local texture_name = tweak_data.weapon[secondary_id].texture_name or tostring(secondary_id)
 		local texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
 		local secondary_bitmap = player_slot.panel:bitmap({
@@ -1939,9 +1675,7 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 		local perks = managers.blackmarket:get_perks_from_weapon_blueprint(outfit.secondary.factory_id, outfit.secondary.blueprint)
 		if table.size(perks) > 0 then
 			local perk_index = 0
-			local (for generator), (for state), (for control) = pairs(perks)
-			do
-				do break end
+			for perk in pairs(perks) do
 				local texture = "guis/textures/pd2/blackmarket/inv_mod_" .. perk
 				if DB:has(Idstring("texture"), texture) then
 					local perk_object = player_slot.panel:bitmap({
@@ -1954,20 +1688,15 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 					perk_object:set_rightbottom(secondary_bitmap:right() - perk_index * 16, secondary_bitmap:bottom() - 5)
 					perk_index = perk_index + 1
 				end
-
 			end
-
 		end
-
 	end
-
 	if outfit.melee_weapon then
 		local guis_catalog = "guis/"
 		local bundle_folder = tweak_data.blackmarket.melee_weapons[outfit.melee_weapon] and tweak_data.blackmarket.melee_weapons[outfit.melee_weapon].texture_bundle_folder
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
 		if outfit.melee_weapon == "weapon" then
 			if primary_texture and secondary_texture then
 				local primary = player_slot.panel:bitmap({
@@ -1993,7 +1722,6 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 				secondary:set_center_x(x + secondary:w() * 0.25)
 				secondary:set_center_y(y * 9)
 			end
-
 		else
 			local melee_weapon_bitmap = player_slot.panel:bitmap({
 				texture = guis_catalog .. "textures/pd2/blackmarket/icons/melee_weapons/" .. outfit.melee_weapon,
@@ -2007,16 +1735,13 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 			melee_weapon_bitmap:set_center_x(x)
 			melee_weapon_bitmap:set_center_y(y * 9)
 		end
-
 	end
-
 	if outfit.armor then
 		local guis_catalog = "guis/"
 		local bundle_folder = tweak_data.blackmarket.armors[outfit.armor] and tweak_data.blackmarket.armors[outfit.armor].texture_bundle_folder
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
 		local armor_bitmap = player_slot.panel:bitmap({
 			texture = guis_catalog .. "textures/pd2/blackmarket/icons/armors/" .. outfit.armor,
 			w = w,
@@ -2029,14 +1754,12 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 		armor_bitmap:set_center_x(x)
 		armor_bitmap:set_center_y(y * 12)
 	end
-
 	if outfit.deployable and outfit.deployable ~= "nil" then
 		local guis_catalog = "guis/"
 		local bundle_folder = tweak_data.blackmarket.deployables[outfit.deployable] and tweak_data.blackmarket.deployables[outfit.deployable].texture_bundle_folder
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
 		local deployable_bitmap = player_slot.panel:bitmap({
 			texture = guis_catalog .. "textures/pd2/blackmarket/icons/deployables/" .. outfit.deployable,
 			w = w,
@@ -2062,9 +1785,7 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 			deployable_text:set_rightbottom(player_slot.panel:w(), player_slot.panel:h())
 			deployable_text:set_position(math.round(deployable_text:x()) - 16, math.round(deployable_text:y()) - 5)
 		end
-
 	end
-
 	player_slot.box = BoxGuiObject:new(player_slot.panel, {
 		sides = {
 			1,
@@ -2108,7 +1829,6 @@ function NewLoadoutItem:init(panel, columns, rows, x, y, params)
 		if params.info_text then
 			self:set_info_text(params.info_text)
 		end
-
 		if params.item_texture and DB:has(Idstring("texture"), params.item_texture) then
 			self._item_image = self._item_panel:bitmap({
 				texture = params.item_texture,
@@ -2135,7 +1855,6 @@ function NewLoadoutItem:init(panel, columns, rows, x, y, params)
 				self._item_image1:set_size(sw * 0.5, sh * 0.5)
 				self._item_image1:set_center(self._item_panel:w() * 0.5, self._item_panel:h() * 0.35)
 			end
-
 			if DB:has(Idstring("texture"), params.dual_texture_2) then
 				self._item_image2 = self._item_panel:bitmap({
 					texture = params.dual_texture_2,
@@ -2149,16 +1868,12 @@ function NewLoadoutItem:init(panel, columns, rows, x, y, params)
 				self._item_image2:set_size(sw * 0.5, sh * 0.5)
 				self._item_image2:set_center(self._item_panel:w() * 0.5, self._item_panel:h() * 0.65)
 			end
-
 		end
-
 		if params.info_icons then
 			self._info_icon_panel = self._info_panel:panel()
 			local when_to_split = math.floor(self._info_icon_panel:w() / 18)
 			local split = when_to_split < #params.info_icons
-			local (for generator), (for state), (for control) = ipairs(params.info_icons)
-			do
-				do break end
+			for index, icon in ipairs(params.info_icons) do
 				local texture = icon.texture
 				if DB:has(Idstring("texture"), texture) then
 					local object = self._info_icon_panel:bitmap({
@@ -2172,17 +1887,12 @@ function NewLoadoutItem:init(panel, columns, rows, x, y, params)
 					if split and index > when_to_split then
 						object:move(18 * when_to_split, 0)
 					end
-
 				else
 				end
-
 			end
-
 		end
-
 		self._params = params
 	end
-
 	self:deselect_item()
 end
 
@@ -2199,7 +1909,6 @@ function NewLoadoutItem:mouse_moved(x, y)
 	else
 		self:deselect_item()
 	end
-
 	return mouse_over
 end
 
@@ -2214,7 +1923,6 @@ function NewLoadoutItem:select_item()
 	if alive(self._info_icon_panel) then
 		self._info_icon_panel:set_visible(false)
 	end
-
 end
 
 function NewLoadoutItem:deselect_item()
@@ -2224,7 +1932,6 @@ function NewLoadoutItem:deselect_item()
 	if alive(self._info_icon_panel) then
 		self._info_icon_panel:set_visible(true)
 	end
-
 end
 
 NewLoadoutTab = NewLoadoutTab or class(MissionBriefingTabItem)
@@ -2260,7 +1967,6 @@ function NewLoadoutTab:init(panel, text, i, menu_component_data)
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
 		local texture_name = tweak_data.weapon[weapon_id].texture_name or tostring(weapon_id)
 		primary_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
 		local equipped_weapon = managers.blackmarket:equipped_primary()
@@ -2268,23 +1974,14 @@ function NewLoadoutTab:init(panel, text, i, menu_component_data)
 		primary_string = managers.blackmarket:get_weapon_name_by_category_slot("primaries", equipped_slot)
 		if equipped_weapon and equipped_slot then
 			local icon_list = {}
-			do
-				local (for generator), (for state), (for control) = ipairs(managers.menu_component:create_weapon_mod_icon_list(equipped_weapon.weapon_id, "primaries", equipped_weapon.factory_id, equipped_slot))
-				do
-					do break end
-					if icon.equipped then
-						table.insert(icon_list, icon)
-					end
-
+			for i, icon in ipairs(managers.menu_component:create_weapon_mod_icon_list(equipped_weapon.weapon_id, "primaries", equipped_weapon.factory_id, equipped_slot)) do
+				if icon.equipped then
+					table.insert(icon_list, icon)
 				end
-
 			end
-
 			primary_perks = icon_list
 		end
-
 	end
-
 	if secondary then
 		local guis_catalog = "guis/"
 		local weapon_id = secondary.weapon_id
@@ -2292,7 +1989,6 @@ function NewLoadoutTab:init(panel, text, i, menu_component_data)
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
 		local texture_name = tweak_data.weapon[secondary.weapon_id].texture_name or tostring(secondary.weapon_id)
 		secondary_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
 		local equipped_weapon = managers.blackmarket:equipped_secondary()
@@ -2300,61 +1996,45 @@ function NewLoadoutTab:init(panel, text, i, menu_component_data)
 		secondary_string = managers.blackmarket:get_weapon_name_by_category_slot("secondaries", equipped_slot)
 		if equipped_weapon and equipped_slot then
 			local icon_list = {}
-			do
-				local (for generator), (for state), (for control) = ipairs(managers.menu_component:create_weapon_mod_icon_list(equipped_weapon.weapon_id, "secondaries", equipped_weapon.factory_id, equipped_slot))
-				do
-					do break end
-					if icon.equipped then
-						table.insert(icon_list, icon)
-					end
-
+			for i, icon in ipairs(managers.menu_component:create_weapon_mod_icon_list(equipped_weapon.weapon_id, "secondaries", equipped_weapon.factory_id, equipped_slot)) do
+				if icon.equipped then
+					table.insert(icon_list, icon)
 				end
-
 			end
-
 			secondary_perks = icon_list
 		end
-
 	end
-
 	if melee_weapon then
 		local guis_catalog = "guis/"
 		local bundle_folder = tweak_data.blackmarket.melee_weapons[melee_weapon] and tweak_data.blackmarket.melee_weapons[melee_weapon].texture_bundle_folder
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
 		if melee_weapon == "weapon" then
 			melee_weapon_texture = nil
 		else
 			melee_weapon_texture = guis_catalog .. "textures/pd2/blackmarket/icons/melee_weapons/" .. tostring(melee_weapon)
 		end
-
 		melee_weapon_string = managers.localization:text(tweak_data.blackmarket.melee_weapons[melee_weapon].name_id)
 	end
-
 	if armor then
 		local guis_catalog = "guis/"
 		local bundle_folder = tweak_data.blackmarket.armors[armor] and tweak_data.blackmarket.armors[armor].texture_bundle_folder
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
 		armor_texture = guis_catalog .. "textures/pd2/blackmarket/icons/armors/" .. tostring(armor)
 		armor_string = managers.localization:text(tweak_data.blackmarket.armors[armor].name_id)
 	end
-
 	if deployable then
 		local guis_catalog = "guis/"
 		local bundle_folder = tweak_data.blackmarket.deployables[deployable] and tweak_data.blackmarket.deployables[deployable].texture_bundle_folder
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
 		deployable_texture = guis_catalog .. "textures/pd2/blackmarket/icons/deployables/" .. tostring(deployable)
 		deployable_string = managers.localization:text(tweak_data.upgrades.definitions[deployable].name_id)
 	end
-
 	local primary = {
 		item_texture = primary_texture,
 		info_text = primary_string,
@@ -2395,13 +2075,9 @@ function NewLoadoutTab:init(panel, text, i, menu_component_data)
 					self._item_selected = #self._items
 					self._my_menu_component_data.selected = selected
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function NewLoadoutTab:mouse_moved(x, y)
@@ -2409,33 +2085,25 @@ function NewLoadoutTab:mouse_moved(x, y)
 	if not selected then
 		return selected, highlighted
 	end
-
 	local mouse_over = false
 	if self._items then
-		local (for generator), (for state), (for control) = ipairs(self._items)
-		do
-			do break end
+		for index, item in ipairs(self._items) do
 			local item_state = item:mouse_moved(x, y)
 			if item_state then
 				mouse_over = index
 			end
-
 		end
-
 	end
-
 	if mouse_over then
 		if self._item_selected ~= mouse_over then
 			self._item_selected = mouse_over
 			self._my_menu_component_data.selected = mouse_over
 			managers.menu_component:post_event("highlight")
 		end
-
 	elseif self._item_selected then
 		self._item_selected = false
 		self._my_menu_component_data.selected = false
 	end
-
 	return false, mouse_over
 end
 
@@ -2444,11 +2112,9 @@ function NewLoadoutTab:mouse_pressed(button, x, y)
 	if inside == false then
 		return false
 	end
-
 	if self._item_selected and self._items[self._item_selected] and self._items[self._item_selected]:inside(x, y) then
 		self:confirm_pressed()
 	end
-
 	return inside
 end
 
@@ -2457,14 +2123,12 @@ function NewLoadoutTab:confirm_pressed()
 		self:open_node(self._item_selected)
 		return true
 	end
-
 end
 
 function NewLoadoutTab:move_selected(x, y)
 	if not self._item_selected then
 		self._item_selected = self._my_menu_component_data.selected or 1
 	end
-
 	local columns = NewLoadoutTab.columns
 	local rows = NewLoadoutTab.rows
 	local c = (self._item_selected - 1) % columns + 1
@@ -2479,7 +2143,6 @@ function NewLoadoutTab:move_selected(x, y)
 		self._items[new_selected]:select_item()
 		managers.menu_component:post_event("highlight")
 	end
-
 end
 
 function NewLoadoutTab:move_left()
@@ -2516,76 +2179,56 @@ function NewLoadoutTab:populate_category(category, data)
 	for i = 1, max_items do
 		data[i] = nil
 	end
-
 	local weapon_data = Global.blackmarket_manager.weapons
 	local guis_catalog = "guis/"
-	do
-		local (for generator), (for state), (for control) = pairs(crafted_category)
-		do
-			do break end
-			guis_catalog = "guis/"
-			local bundle_folder = tweak_data.weapon[crafted.weapon_id] and tweak_data.weapon[crafted.weapon_id].texture_bundle_folder
-			if bundle_folder then
-				guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
-			end
-
-			new_data = {}
-			new_data.name = crafted.weapon_id
-			new_data.name_localized = managers.blackmarket:get_weapon_name_by_category_slot(category, i)
-			new_data.category = category
-			new_data.custom_name_text = managers.blackmarket:get_crafted_custom_name(category, i, true)
-			new_data.slot = i
-			new_data.unlocked = managers.blackmarket:weapon_unlocked(crafted.weapon_id)
-			if not new_data.unlocked then
-				-- unhandled boolean indicator
-			else
-			end
-
-			new_data.lock_texture = true
-			new_data.equipped = crafted.equipped
-			new_data.can_afford = true
-			new_data.skill_based = weapon_data[crafted.weapon_id].skill_based
-			new_data.skill_name = new_data.skill_based and "bm_menu_skill_locked_" .. new_data.name
-			new_data.level = managers.blackmarket:weapon_level(crafted.weapon_id)
-			local texture_name = tweak_data.weapon[crafted.weapon_id].texture_name or tostring(crafted.weapon_id)
-			new_data.bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
-			new_data.comparision_data = new_data.unlocked and managers.blackmarket:get_weapon_stats(category, i)
-			new_data.stream = false
-			new_data.global_value = tweak_data.weapon[new_data.name] and tweak_data.weapon[new_data.name].global_value or "normal"
-			new_data.dlc_locked = tweak_data.lootdrop.global_values[new_data.global_value].unlock_id or nil
-			new_data.lock_texture = BlackMarketGui.get_lock_icon(self, new_data)
-			if not new_data.equipped and new_data.unlocked then
-				table.insert(new_data, "lo_w_equip")
-			end
-
-			local icon_list = managers.menu_component:create_weapon_mod_icon_list(crafted.weapon_id, category, crafted.factory_id, i)
-			local icon_index = 1
-			new_data.mini_icons = {}
-			do
-				local (for generator), (for state), (for control) = pairs(icon_list)
-				do
-					do break end
-					table.insert(new_data.mini_icons, {
-						texture = icon.texture,
-						right = (icon_index - 1) * 18,
-						bottom = 0,
-						layer = 1,
-						w = 16,
-						h = 16,
-						stream = false,
-						alpha = icon.equipped and 1 or 0.25
-					})
-					icon_index = icon_index + 1
-				end
-
-			end
-
-			data[i] = new_data
-			index = i
+	for i, crafted in pairs(crafted_category) do
+		guis_catalog = "guis/"
+		local bundle_folder = tweak_data.weapon[crafted.weapon_id] and tweak_data.weapon[crafted.weapon_id].texture_bundle_folder
+		if bundle_folder then
+			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
+		new_data = {}
+		new_data.name = crafted.weapon_id
+		new_data.name_localized = managers.blackmarket:get_weapon_name_by_category_slot(category, i)
+		new_data.category = category
+		new_data.custom_name_text = managers.blackmarket:get_crafted_custom_name(category, i, true)
+		new_data.slot = i
+		new_data.unlocked = managers.blackmarket:weapon_unlocked(crafted.weapon_id)
+		new_data.lock_texture = not new_data.unlocked and "guis/textures/pd2/lock_level"
+		new_data.equipped = crafted.equipped
+		new_data.can_afford = true
+		new_data.skill_based = weapon_data[crafted.weapon_id].skill_based
+		new_data.skill_name = new_data.skill_based and "bm_menu_skill_locked_" .. new_data.name
+		new_data.level = managers.blackmarket:weapon_level(crafted.weapon_id)
+		local texture_name = tweak_data.weapon[crafted.weapon_id].texture_name or tostring(crafted.weapon_id)
+		new_data.bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
+		new_data.comparision_data = new_data.unlocked and managers.blackmarket:get_weapon_stats(category, i)
+		new_data.stream = false
+		new_data.global_value = tweak_data.weapon[new_data.name] and tweak_data.weapon[new_data.name].global_value or "normal"
+		new_data.dlc_locked = tweak_data.lootdrop.global_values[new_data.global_value].unlock_id or nil
+		new_data.lock_texture = BlackMarketGui.get_lock_icon(self, new_data)
+		if not new_data.equipped and new_data.unlocked then
+			table.insert(new_data, "lo_w_equip")
+		end
+		local icon_list = managers.menu_component:create_weapon_mod_icon_list(crafted.weapon_id, category, crafted.factory_id, i)
+		local icon_index = 1
+		new_data.mini_icons = {}
+		for _, icon in pairs(icon_list) do
+			table.insert(new_data.mini_icons, {
+				texture = icon.texture,
+				right = (icon_index - 1) * 18,
+				bottom = 0,
+				layer = 1,
+				w = 16,
+				h = 16,
+				stream = false,
+				alpha = icon.equipped and 1 or 0.25
+			})
+			icon_index = icon_index + 1
+		end
+		data[i] = new_data
+		index = i
 	end
-
 	for i = 1, max_items do
 		if not data[i] then
 			new_data = {}
@@ -2600,9 +2243,7 @@ function NewLoadoutTab:populate_category(category, data)
 			new_data.equipped = false
 			data[i] = new_data
 		end
-
 	end
-
 end
 
 function NewLoadoutTab:populate_primaries(data)
@@ -2617,43 +2258,29 @@ function NewLoadoutTab:populate_armors(data)
 	local new_data = {}
 	local index = 0
 	local guis_catalog = "guis/"
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.blackmarket.armors)
-		do
-			do break end
-			local bm_data = Global.blackmarket_manager.armors[armor_id]
-			guis_catalog = "guis/"
-			local bundle_folder = tweak_data.blackmarket.armors[armor_id] and tweak_data.blackmarket.armors[armor_id].texture_bundle_folder
-			if bundle_folder then
-				guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
-			end
-
-			if bm_data.owned then
-				index = index + 1
-				new_data = {}
-				new_data.name = tweak_data.blackmarket.armors[armor_id].name_id
-				new_data.category = "armors"
-				new_data.slot = index
-				new_data.unlocked = bm_data.unlocked
-				if not new_data.unlocked then
-					-- unhandled boolean indicator
-				else
-				end
-
-				new_data.lock_texture = true
-				new_data.equipped = bm_data.equipped
-				new_data.bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/armors/" .. armor_id
-				if not new_data.equipped then
-					table.insert(new_data, "a_equip")
-				end
-
-				data[index] = new_data
-			end
-
+	for armor_id, armor_data in pairs(tweak_data.blackmarket.armors) do
+		local bm_data = Global.blackmarket_manager.armors[armor_id]
+		guis_catalog = "guis/"
+		local bundle_folder = tweak_data.blackmarket.armors[armor_id] and tweak_data.blackmarket.armors[armor_id].texture_bundle_folder
+		if bundle_folder then
+			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
+		if bm_data.owned then
+			index = index + 1
+			new_data = {}
+			new_data.name = tweak_data.blackmarket.armors[armor_id].name_id
+			new_data.category = "armors"
+			new_data.slot = index
+			new_data.unlocked = bm_data.unlocked
+			new_data.lock_texture = not new_data.unlocked and "guis/textures/pd2/lock_level"
+			new_data.equipped = bm_data.equipped
+			new_data.bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/armors/" .. armor_id
+			if not new_data.equipped then
+				table.insert(new_data, "a_equip")
+			end
+			data[index] = new_data
+		end
 	end
-
 	for i = 1, 9 do
 		if not data[i] then
 			new_data = {}
@@ -2665,9 +2292,7 @@ function NewLoadoutTab:populate_armors(data)
 			new_data.equipped = false
 			data[i] = new_data
 		end
-
 	end
-
 end
 
 function NewLoadoutTab:populate_deployables(data)
@@ -2675,35 +2300,27 @@ function NewLoadoutTab:populate_deployables(data)
 	local new_data = {}
 	local index = 0
 	local guis_catalog = "guis/"
-	do
-		local (for generator), (for state), (for control) = ipairs(deployables)
-		do
-			do break end
-			guis_catalog = "guis/"
-			local bundle_folder = tweak_data.blackmarket.deployables[deployable] and tweak_data.blackmarket.deployables[deployable].texture_bundle_folder
-			if bundle_folder then
-				guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
-			end
-
-			new_data = {}
-			new_data.name = deployable
-			new_data.name_localized = managers.localization:text(tweak_data.upgrades.definitions[deployable].name_id)
-			new_data.category = "deployables"
-			new_data.bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/deployables/" .. tostring(deployable)
-			new_data.slot = i
-			new_data.unlocked = true
-			new_data.equipped = managers.player:equipment_in_slot(1) == deployable
-			new_data.stream = false
-			if not new_data.equipped then
-				table.insert(new_data, "lo_d_equip")
-			end
-
-			data[i] = new_data
-			index = i
+	for i, deployable in ipairs(deployables) do
+		guis_catalog = "guis/"
+		local bundle_folder = tweak_data.blackmarket.deployables[deployable] and tweak_data.blackmarket.deployables[deployable].texture_bundle_folder
+		if bundle_folder then
+			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
+		new_data = {}
+		new_data.name = deployable
+		new_data.name_localized = managers.localization:text(tweak_data.upgrades.definitions[deployable].name_id)
+		new_data.category = "deployables"
+		new_data.bitmap_texture = guis_catalog .. "textures/pd2/blackmarket/icons/deployables/" .. tostring(deployable)
+		new_data.slot = i
+		new_data.unlocked = true
+		new_data.equipped = managers.player:equipment_in_slot(1) == deployable
+		new_data.stream = false
+		if not new_data.equipped then
+			table.insert(new_data, "lo_d_equip")
+		end
+		data[i] = new_data
+		index = i
 	end
-
 	for i = 1, 9 do
 		if not data[i] then
 			new_data = {}
@@ -2715,9 +2332,7 @@ function NewLoadoutTab:populate_deployables(data)
 			new_data.equipped = false
 			data[i] = new_data
 		end
-
 	end
-
 end
 
 function NewLoadoutTab:create_primaries_loadout()
@@ -2838,7 +2453,6 @@ function NewLoadoutTab:open_node(node)
 			self:create_deployable_loadout()
 		})
 	end
-
 	managers.menu_component:on_ready_pressed_mission_briefing_gui(false)
 end
 
@@ -2872,7 +2486,6 @@ function MissionBriefingGui:init(saferect_ws, fullrect_ws, node)
 	self._ready_button:set_size(w, h)
 	if not managers.menu:is_pc_controller() then
 	end
-
 	self._ready_tick_box = self._panel:bitmap({
 		name = "ready_tickbox",
 		texture = "guis/textures/pd2/mission_briefing/gui_tickbox",
@@ -2903,7 +2516,6 @@ function MissionBriefingGui:init(saferect_ws, fullrect_ws, node)
 	if MenuBackdropGUI then
 		MenuBackdropGUI.animate_bg_text(self, big_text)
 	end
-
 	WalletGuiObject.set_wallet(self._safe_workspace:panel(), 10)
 	self._node:parameters().menu_component_data = self._node:parameters().menu_component_data or {}
 	self._node:parameters().menu_component_data.asset = self._node:parameters().menu_component_data.asset or {}
@@ -2927,7 +2539,6 @@ function MissionBriefingGui:init(saferect_ws, fullrect_ws, node)
 		prev_page:set_left(0)
 		self._prev_page = prev_page
 	end
-
 	self._items = {}
 	self._description_item = DescriptionItem:new(self._panel, utf8.to_upper(managers.localization:text("menu_description")), 1, self._node:parameters().menu_component_data.saved_descriptions)
 	table.insert(self._items, self._description_item)
@@ -2939,12 +2550,10 @@ function MissionBriefingGui:init(saferect_ws, fullrect_ws, node)
 		self._team_loadout_item = TeamLoadoutItem:new(self._panel, utf8.to_upper(managers.localization:text("menu_team_loadout")), 4)
 		table.insert(self._items, self._team_loadout_item)
 	end
-
 	if tweak_data.levels[Global.level_data.level_id].music ~= "no_music" then
 		self._jukebox_item = JukeboxItem:new(self._panel, utf8.to_upper(managers.localization:text("menu_jukebox")), Global.game_settings.single_player and 4 or 5)
 		table.insert(self._items, self._jukebox_item)
 	end
-
 	local max_x = self._panel:w()
 	if not managers.menu:is_pc_controller() then
 		local next_page = self._panel:text({
@@ -2964,16 +2573,11 @@ function MissionBriefingGui:init(saferect_ws, fullrect_ws, node)
 		self._next_page = next_page
 		max_x = next_page:left() - 5
 	end
-
 	if max_x < self._items[#self._items]._tab_text:right() then
-		local (for generator), (for state), (for control) = ipairs(self._items)
-		do
-			do break end
+		for i, tab in ipairs(self._items) do
 			tab:reduce_to_small_font()
 		end
-
 	end
-
 	self._selected_item = 0
 	self:set_tab(self._node:parameters().menu_component_data.selected_tab, true)
 	local box_panel = self._panel:panel()
@@ -2989,7 +2593,6 @@ function MissionBriefingGui:init(saferect_ws, fullrect_ws, node)
 	if managers.assets:is_all_textures_loaded() then
 		self:create_asset_tab()
 	end
-
 	self._items[self._selected_item]:select(true)
 	self._enabled = true
 	self:flash_ready()
@@ -2999,19 +2602,15 @@ function MissionBriefingGui:update(t, dt)
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if self._displaying_asset then
 		return
 	end
-
 	if game_state_machine:current_state().blackscreen_started and game_state_machine:current_state():blackscreen_started() then
 		return
 	end
-
 	if self._items[self._selected_item] then
 		self._items[self._selected_item]:update(t, dt)
 	end
-
 end
 
 function MissionBriefingGui:ready_text()
@@ -3023,12 +2622,10 @@ function MissionBriefingGui:flash_ready()
 	if self._ready then
 		return
 	end
-
 	self._next_ready_flash = self._next_ready_flash or 0
 	if TimerManager:main():time() < self._next_ready_flash then
 		return
 	end
-
 	self._next_ready_flash = TimerManager:main():time() + 3
 	local animate_flash_ready = function(o)
 		local center_x, center_y = o:center()
@@ -3041,7 +2638,6 @@ function MissionBriefingGui:flash_ready()
 			if o:rotation() == 0 then
 				o:set_rotation(0.1)
 			end
-
 		end
 )
 		wait(0.01)
@@ -3052,7 +2648,6 @@ function MissionBriefingGui:flash_ready()
 			if o:rotation() == 0 then
 				o:set_rotation(0.01)
 			end
-
 		end
 )
 		o:set_color(color)
@@ -3102,48 +2697,40 @@ function MissionBriefingGui:create_asset_tab()
 	self._fullscreen_asset_background_v:hide()
 	self._fullscreen_asset_background_h:hide()
 	self._fullscreen_assets_list = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(asset_ids)
-		do
-			do break end
-			local asset_tweak_data = managers.assets:get_asset_tweak_data_by_id(asset_id)
-			assets_names[i] = {
-				managers.assets:get_asset_texture(asset_id),
-				asset_tweak_data.name_id,
-				managers.assets:get_asset_unlocked_by_id(asset_id),
-				asset_id,
-				managers.assets:get_asset_can_unlock_by_id(asset_id),
-				managers.assets:get_asset_no_mystery_by_id(asset_id)
-			}
-			local asset = self._fullscreen_panel:bitmap({
-				name = "asset_" .. tostring(i),
-				texture = assets_names[i][1],
-				w = 512,
-				h = 512,
-				layer = 100
-			})
-			local aspect = asset:texture_width() / math.max(asset:texture_height(), 1)
-			local size = math.max(asset:texture_height(), self._panel:h())
-			asset:set_size(size * aspect, size)
-			asset:set_center(self._fullscreen_panel:w() / 2, self._fullscreen_panel:h() / 2)
-			asset:hide()
-			table.insert(self._fullscreen_assets_list, asset)
-		end
-
+	for i, asset_id in ipairs(asset_ids) do
+		local asset_tweak_data = managers.assets:get_asset_tweak_data_by_id(asset_id)
+		assets_names[i] = {
+			managers.assets:get_asset_texture(asset_id),
+			asset_tweak_data.name_id,
+			managers.assets:get_asset_unlocked_by_id(asset_id),
+			asset_id,
+			managers.assets:get_asset_can_unlock_by_id(asset_id),
+			managers.assets:get_asset_no_mystery_by_id(asset_id)
+		}
+		local asset = self._fullscreen_panel:bitmap({
+			name = "asset_" .. tostring(i),
+			texture = assets_names[i][1],
+			w = 512,
+			h = 512,
+			layer = 100
+		})
+		local aspect = asset:texture_width() / math.max(asset:texture_height(), 1)
+		local size = math.max(asset:texture_height(), self._panel:h())
+		asset:set_size(size * aspect, size)
+		asset:set_center(self._fullscreen_panel:w() / 2, self._fullscreen_panel:h() / 2)
+		asset:hide()
+		table.insert(self._fullscreen_assets_list, asset)
 	end
-
 	self._assets_item:create_assets(assets_names)
 	if managers.preplanning:has_current_level_preplanning() then
 		self._assets_item:add_preplanning_button()
 	end
-
 end
 
 function MissionBriefingGui:on_whisper_mode_changed()
 	if self._description_item then
 		self._description_item:on_whisper_mode_changed()
 	end
-
 end
 
 function MissionBriefingGui:open_asset(asset_index)
@@ -3173,14 +2760,12 @@ function MissionBriefingGui:open_asset(asset_index)
 	else
 		self._displaying_asset = nil
 	end
-
 end
 
 function MissionBriefingGui:close_asset()
 	if not self._fullscreen_assets_list then
 		return
 	end
-
 	local fullscreen_asset = self._fullscreen_assets_list[self._displaying_asset]
 	if fullscreen_asset and alive(fullscreen_asset) then
 		local animate_hide = function(o)
@@ -3199,7 +2784,6 @@ function MissionBriefingGui:close_asset()
 		self._fullscreen_asset_background_h:stop()
 		self._fullscreen_asset_background_h:animate(animate_hide)
 	end
-
 	self._displaying_asset = nil
 end
 
@@ -3208,13 +2792,11 @@ function MissionBriefingGui:zoom_asset(zoom)
 	if not fullscreen_asset or not alive(fullscreen_asset) then
 		return
 	end
-
 	if zoom == "in" then
 		self._fullscreen_asset_zoom = math.min(self._fullscreen_asset_zoom + 0.1, 1.5)
 	elseif zoom == "out" then
 		self._fullscreen_asset_zoom = math.max(self._fullscreen_asset_zoom - 0.1, 0.5)
 	end
-
 	local cx, cy = fullscreen_asset:center()
 end
 
@@ -3232,26 +2814,21 @@ function MissionBriefingGui:set_tab(i, no_sound)
 	if self._selected_item == i then
 		return
 	end
-
 	i = math.clamp(i, 1, #self._items)
 	if self._selected_item ~= i then
 		if self._items[self._selected_item] then
 			self._items[self._selected_item]:deselect()
 		end
-
 		self._selected_item = i
 		self._items[self._selected_item]:select(no_sound)
 		self._node:parameters().menu_component_data.selected_tab = self._selected_item
 		if self._prev_page then
 			self._prev_page:set_visible(self._selected_item > 1)
 		end
-
 		if self._next_page then
 			self._next_page:set_visible(self._selected_item < #self._items)
 		end
-
 	end
-
 	return self._selected_item
 end
 
@@ -3259,11 +2836,9 @@ function MissionBriefingGui:mouse_pressed(button, x, y)
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if game_state_machine:current_state().blackscreen_started and game_state_machine:current_state():blackscreen_started() then
 		return
 	end
-
 	if self._displaying_asset then
 		if button == Idstring("mouse wheel down") then
 			self:zoom_asset("out")
@@ -3272,11 +2847,9 @@ function MissionBriefingGui:mouse_pressed(button, x, y)
 			self:zoom_asset("in")
 			return
 		end
-
 		self:close_asset()
 		return
 	end
-
 	if button == Idstring("mouse wheel down") then
 		self:next_tab(true)
 		return
@@ -3284,38 +2857,26 @@ function MissionBriefingGui:mouse_pressed(button, x, y)
 		self:prev_tab(true)
 		return
 	end
-
 	if button ~= Idstring("0") then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._items)
-		do
-			do break end
-			local pressed, cost = tab:mouse_pressed(button, x, y)
-			if pressed == true then
-				self:set_tab(index)
-			elseif type(pressed) == "number" then
-				if cost then
-					if type(cost) == "number" then
-						self:open_asset_buy(pressed, tab:get_asset_id(pressed))
-					end
-
-				else
-					self:open_asset(pressed)
+	for index, tab in ipairs(self._items) do
+		local pressed, cost = tab:mouse_pressed(button, x, y)
+		if pressed == true then
+			self:set_tab(index)
+		elseif type(pressed) == "number" then
+			if cost then
+				if type(cost) == "number" then
+					self:open_asset_buy(pressed, tab:get_asset_id(pressed))
 				end
-
+			else
+				self:open_asset(pressed)
 			end
-
 		end
-
 	end
-
 	if self._ready_button:inside(x, y) or self._ready_tick_box:inside(x, y) then
 		self:on_ready_pressed()
 	end
-
 	return self._selected_item
 end
 
@@ -3323,50 +2884,36 @@ function MissionBriefingGui:mouse_moved(x, y)
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return false, "arrow"
 	end
-
 	if self._displaying_asset then
 		return false, "arrow"
 	end
-
 	if game_state_machine:current_state().blackscreen_started and game_state_machine:current_state():blackscreen_started() then
 		return false, "arrow"
 	end
-
 	local mouse_over_tab = false
-	do
-		local (for generator), (for state), (for control) = ipairs(self._items)
-		do
-			do break end
-			local selected, highlighted = tab:mouse_moved(x, y)
-			if highlighted and not selected then
-				mouse_over_tab = true
-			end
-
+	for _, tab in ipairs(self._items) do
+		local selected, highlighted = tab:mouse_moved(x, y)
+		if highlighted and not selected then
+			mouse_over_tab = true
 		end
-
 	end
-
 	if mouse_over_tab then
 		return true, "link"
 	end
-
 	if self._ready_button:inside(x, y) or self._ready_tick_box:inside(x, y) then
 		if not self._ready_highlighted then
 			self._ready_highlighted = true
 			self._ready_button:set_color(tweak_data.screen_colors.button_stage_2)
 			managers.menu_component:post_event("highlight")
 		end
-
 		return true, "link"
 	elseif self._ready_highlighted then
 		self._ready_button:set_color(tweak_data.screen_colors.button_stage_3)
 		self._ready_highlighted = false
 	end
-
 	if managers.hud._hud_mission_briefing and managers.hud._hud_mission_briefing._backdrop then
 		managers.hud._hud_mission_briefing._backdrop:mouse_moved(x, y)
 	end
-
 	return false, "arrow"
 end
 
@@ -3388,14 +2935,12 @@ function MissionBriefingGui:set_slot_outfit(slot, criminal_name, outfit)
 	if self._team_loadout_item then
 		self._team_loadout_item:set_slot_outfit(slot, criminal_name, outfit)
 	end
-
 end
 
 function MissionBriefingGui:on_ready_pressed(ready)
 	if not managers.network:session() then
 		return
 	end
-
 	local ready_changed = true
 	if ready ~= nil then
 		ready_changed = self._ready ~= ready
@@ -3403,7 +2948,6 @@ function MissionBriefingGui:on_ready_pressed(ready)
 	else
 		self._ready = not self._ready
 	end
-
 	managers.network:session():local_peer():set_waiting_for_player_ready(self._ready)
 	managers.network:session():chk_send_local_player_ready()
 	managers.network:game():on_set_member_ready(managers.network:session():local_peer():id(), self._ready, ready_changed)
@@ -3419,16 +2963,12 @@ function MissionBriefingGui:on_ready_pressed(ready)
 				if item then
 					item:set_icon_visible(false)
 				end
-
 			end
-
 			managers.menu_component:post_event("box_tick")
 		else
 			managers.menu_component:post_event("box_untick")
 		end
-
 	end
-
 end
 
 function MissionBriefingGui:input_focus()
@@ -3436,14 +2976,11 @@ function MissionBriefingGui:input_focus()
 		if self._jukebox_item.displayed and not managers.menu:get_controller():get_input_bool("previous_page") then
 			return false
 		end
-
 		if self._jukebox_item.closing then
 			self._jukebox_item.closing = nil
 			return false
 		end
-
 	end
-
 	return self._displaying_asset and 1 or self._enabled
 end
 
@@ -3451,122 +2988,97 @@ function MissionBriefingGui:scroll_up()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if self._displaying_asset then
 		return
 	end
-
 	if self._items[self._selected_item] then
 		self._items[self._selected_item]:move_right()
 	end
-
 end
 
 function MissionBriefingGui:scroll_down()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if self._displaying_asset then
 		return
 	end
-
 	if self._items[self._selected_item] then
 		self._items[self._selected_item]:move_left()
 	end
-
 end
 
 function MissionBriefingGui:move_up()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if self._displaying_asset then
 		return
 	end
-
 	if game_state_machine:current_state().blackscreen_started and game_state_machine:current_state():blackscreen_started() then
 		return
 	end
-
 	if self._items[self._selected_item] then
 		self._items[self._selected_item]:move_up()
 	end
-
 end
 
 function MissionBriefingGui:move_down()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if self._displaying_asset then
 		return
 	end
-
 	if game_state_machine:current_state().blackscreen_started and game_state_machine:current_state():blackscreen_started() then
 		return
 	end
-
 	if self._items[self._selected_item] then
 		self._items[self._selected_item]:move_down()
 	end
-
 end
 
 function MissionBriefingGui:move_left()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if self._displaying_asset then
 		return
 	end
-
 	if game_state_machine:current_state().blackscreen_started and game_state_machine:current_state():blackscreen_started() then
 		return
 	end
-
 	if self._items[self._selected_item] then
 		self._items[self._selected_item]:move_left()
 	end
-
 end
 
 function MissionBriefingGui:move_right()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if self._displaying_asset then
 		return
 	end
-
 	if game_state_machine:current_state().blackscreen_started and game_state_machine:current_state():blackscreen_started() then
 		return
 	end
-
 	if self._items[self._selected_item] then
 		self._items[self._selected_item]:move_right()
 	end
-
 end
 
 function MissionBriefingGui:confirm_pressed()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return false
 	end
-
 	if self._displaying_asset then
 		self:close_asset()
 		return true
 	end
-
 	if game_state_machine:current_state().blackscreen_started and game_state_machine:current_state():blackscreen_started() then
 		return false
 	end
-
 	if self._items[self._selected_item] then
 		local selected, cost = self._items[self._selected_item]:confirm_pressed()
 		if selected and type(selected) == "number" then
@@ -3575,23 +3087,18 @@ function MissionBriefingGui:confirm_pressed()
 					self:open_asset_buy(selected, self._items[self._selected_item]:get_asset_id(selected))
 					return true
 				end
-
 			else
 				self:open_asset(selected)
 				return true
 			end
-
 		elseif selected then
 			return false
 		end
-
 	end
-
 	if managers.menu:is_pc_controller() then
 		self:on_ready_pressed()
 		return true
 	end
-
 	return false
 end
 
@@ -3599,16 +3106,13 @@ function MissionBriefingGui:back_pressed()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return false
 	end
-
 	if game_state_machine:current_state().blackscreen_started and game_state_machine:current_state():blackscreen_started() then
 		return false
 	end
-
 	if self._displaying_asset then
 		self:close_asset()
 		return true
 	end
-
 	return false
 end
 
@@ -3616,23 +3120,19 @@ function MissionBriefingGui:special_btn_pressed(button)
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return false
 	end
-
 	if self._displaying_asset then
 		self:close_asset()
 		return false
 	end
-
 	if game_state_machine:current_state().blackscreen_started and game_state_machine:current_state():blackscreen_started() then
 		return false
 	end
-
 	if button == Idstring("menu_toggle_ready") then
 		self:on_ready_pressed()
 		return true
 	elseif button == Idstring("menu_toggle_pp_breakdown") and managers.preplanning:has_current_level_preplanning() then
 		self._assets_item:open_preplanning()
 	end
-
 	return false
 end
 
@@ -3644,15 +3144,12 @@ function MissionBriefingGui:next_page()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if self._displaying_asset then
 		return
 	end
-
 	if game_state_machine:current_state().blackscreen_started and game_state_machine:current_state():blackscreen_started() then
 		return
 	end
-
 	self:next_tab(false)
 end
 
@@ -3660,15 +3157,12 @@ function MissionBriefingGui:previous_page()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if self._displaying_asset then
 		return
 	end
-
 	if game_state_machine:current_state().blackscreen_started and game_state_machine:current_state():blackscreen_started() then
 		return
 	end
-
 	self:prev_tab(false)
 end
 
@@ -3686,12 +3180,9 @@ function MissionBriefingGui:show()
 end
 
 function MissionBriefingGui:update_tab_positions()
-	local (for generator), (for state), (for control) = ipairs(self._items)
-	do
-		do break end
+	for i, item in ipairs(self._items) do
 		item:update_tab_position()
 	end
-
 end
 
 function MissionBriefingGui:close()
@@ -3700,22 +3191,16 @@ function MissionBriefingGui:close()
 	self:close_asset()
 	local requested_asset_textures = self._assets_item and self._assets_item:get_requested_textures()
 	if requested_asset_textures then
-		local (for generator), (for state), (for control) = pairs(requested_asset_textures)
-		do
-			do break end
+		for key, data in pairs(requested_asset_textures) do
 			managers.menu_component:unretrieve_texture(data.texture, data.index)
 		end
-
 	end
-
 	if self._panel and alive(self._panel) then
 		self._panel:parent():remove(self._panel)
 	end
-
 	if self._fullscreen_panel and alive(self._fullscreen_panel) then
 		self._fullscreen_panel:parent():remove(self._fullscreen_panel)
 	end
-
 end
 
 function MissionBriefingGui:reload_loadout()
@@ -3728,9 +3213,7 @@ function MissionBriefingGui:reload_loadout()
 		elseif loadout_data.changing_loadout == "secondary" and loadout_data.current_slot ~= managers.blackmarket:equipped_weapon_slot("secondaries") then
 			managers.blackmarket:preload_secondary_weapon()
 		end
-
 	end
-
 	loadout_data.changing_loadout = nil
 	loadout_data.current_slot = nil
 	self._new_loadout_item:destroy()
@@ -3765,11 +3248,9 @@ function JukeboxItem:select(no_sound)
 		if managers.menu:active_menu() then
 			managers.menu:open_node("jukebox")
 		end
-
 		self.displayed = true
 		managers.music:track_listen_start("stop_all_music")
 	end
-
 end
 
 function JukeboxItem:deselect()
@@ -3778,7 +3259,6 @@ function JukeboxItem:deselect()
 		managers.menu:active_menu().logic:selected_node():parameters().block_back = false
 		managers.menu:back(true)
 	end
-
 	self.displayed = nil
 	managers.music:track_listen_stop()
 	JukeboxItem.super.deselect(self)

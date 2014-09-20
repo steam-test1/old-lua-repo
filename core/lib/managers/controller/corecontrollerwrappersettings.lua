@@ -6,14 +6,10 @@ function ControllerWrapperSettings:init(wrapper_type, node, core_setting, debug_
 	self._editable_connection_map = {}
 	self._unselectable_input_map = {}
 	if node then
-		local (for generator), (for state), (for control) = ipairs(node)
-		do
-			do break end
+		for _, setting_node in ipairs(node) do
 			local element_name = setting_node._meta
 			if element_name == "connections" then
-				local (for generator), (for state), (for control) = ipairs(setting_node)
-				do
-					do break end
+				for _, connection_node in ipairs(setting_node) do
 					local element_name = connection_node._meta
 					local name = connection_node.name
 					if not name then
@@ -22,24 +18,18 @@ function ControllerWrapperSettings:init(wrapper_type, node, core_setting, debug_
 						if self._connection_map[name] then
 							Application:error(self:get_origin(debug_path) .. " Duplicate controller button connection (name: \"" .. tostring(name) .. "\"). Overwriting existing one.")
 						end
-
 						self:set_connection(name, ControllerWrapperButton:new(connection_node))
 					elseif element_name == "axis" then
 						if self._connection_map[name] then
 							Application:error(self:get_origin(debug_path) .. " Duplicate controller axis connection (name: \"" .. tostring(name) .. "\"). Overwriting existing one.")
 						end
-
 						self:set_connection(name, ControllerWrapperAxis:new(connection_node))
 					else
 						Application:error(self:get_origin(debug_path) .. " Invalid element \"" .. tostring(element_name) .. "\" inside \"connections\" element.")
 					end
-
 				end
-
 			elseif element_name == "editable" then
-				local (for generator), (for state), (for control) = ipairs(setting_node)
-				do
-					do break end
+				for _, editable_node in ipairs(setting_node) do
 					local element_name = editable_node._meta
 					if element_name == ControllerWrapperEditable.TYPE then
 						local name = editable_node.name
@@ -49,20 +39,14 @@ function ControllerWrapperSettings:init(wrapper_type, node, core_setting, debug_
 							if self._editable_connection_map[name] then
 								Application:error(self:get_origin(debug_path) .. " Duplicate controller editable connection (name: \"" .. tostring(name) .. "\"). Overwriting existing one.")
 							end
-
 							self:set_editable_connection(name, ControllerWrapperEditable:new(editable_node))
 						end
-
 					else
 						Application:error(self:get_origin(debug_path) .. " Invalid element \"" .. tostring(element_name) .. "\" inside \"editable\" element.")
 					end
-
 				end
-
 			elseif element_name == "unselectable" then
-				local (for generator), (for state), (for control) = ipairs(setting_node)
-				do
-					do break end
+				for _, unselectable_node in ipairs(setting_node) do
 					local element_name = unselectable_node._meta
 					if element_name == ControllerWrapperUnselectable.TYPE then
 						local input_name = unselectable_node.name
@@ -72,80 +56,50 @@ function ControllerWrapperSettings:init(wrapper_type, node, core_setting, debug_
 							if self._unselectable_input_map[input_name] then
 								Application:error(self:get_origin(debug_path) .. " Duplicate controller unselectable connection (name: \"" .. tostring(input_name) .. "\"). Overwriting existing one.")
 							end
-
 							self:set_unselectable_input(input_name, ControllerWrapperUnselectable:new(unselectable_node))
 						end
-
 					else
 						Application:error(self:get_origin(debug_path) .. " Invalid element \"" .. tostring(element_name) .. "\" inside \"unselectable\" element.")
 					end
-
 				end
-
 			else
 				Application:error(self:get_origin(debug_path) .. " Invalid element \"" .. tostring(name) .. "\" inside \"" .. tostring(self._wrapper_type) .. "\" element.")
 			end
-
 		end
-
 	end
-
 	if core_setting then
 		self:merge(core_setting, false)
 	end
-
 	self:validate()
 end
 
 function ControllerWrapperSettings:merge(setting, overwrite)
-	do
-		local (for generator), (for state), (for control) = pairs(setting:get_connection_map())
-		do
-			do break end
-			if overwrite or not self._connection_map[name] then
-				self._connection_map[name] = connection
-			end
-
+	for name, connection in pairs(setting:get_connection_map()) do
+		if overwrite or not self._connection_map[name] then
+			self._connection_map[name] = connection
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(setting:get_editable_connection_map())
-		do
-			do break end
-			if overwrite or not self._editable_connection_map[name] then
-				self._editable_connection_map[name] = editable_connection
-			end
-
+	for name, editable_connection in pairs(setting:get_editable_connection_map()) do
+		if overwrite or not self._editable_connection_map[name] then
+			self._editable_connection_map[name] = editable_connection
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = pairs(setting:get_unselectable_input_map())
-	do
-		do break end
+	for name, unselectable_input in pairs(setting:get_unselectable_input_map()) do
 		if overwrite or not self._unselectable_input_map[name] then
 			self._unselectable_input_map[name] = unselectable_input
 		end
-
 	end
-
 end
 
 function ControllerWrapperSettings:validate()
-	local (for generator), (for state), (for control) = pairs(self._editable_connection_map)
-	do
-		do break end
+	for connection_name, editable_connection in pairs(self._editable_connection_map) do
 		local connection = self._connection_map[connection_name]
 		if not connection then
 			self._editable_connection_map[connection_name] = nil
 			Application:error(tostring(editable_connection) .. " Connection \"" .. tostring(connection_name) .. "\" that was supposed to be editable did not exist. It is no longer editable.")
 		else
 			local input_name_list = connection:get_input_name_list()
-			local (for generator), (for state), (for control) = ipairs(input_name_list)
-			do
-				do break end
+			for _, input_name in ipairs(input_name_list) do
 				local unselectable_input = self._unselectable_input_map[input_name]
 				if unselectable_input then
 					local invalid
@@ -154,73 +108,46 @@ function ControllerWrapperSettings:validate()
 					else
 						invalid = unselectable_input:get_single()
 					end
-
 					if invalid then
 						self._editable_connection_map[connection_name] = nil
 						Application:error(tostring(unselectable_input) .. " Connection \"" .. tostring(connection_name) .. "\" was editable but its input \"" .. tostring(input_name) .. "\" is unselectable. It is no longer editable.")
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function ControllerWrapperSettings:populate_data(data)
 	local sub_data = {}
 	local connection_list
-	do
-		local (for generator), (for state), (for control) = pairs(self._connection_map)
-		do
-			do break end
-			if not connection_list then
-				connection_list = {
-					_meta = "connections"
-				}
-				table.insert(sub_data, connection_list)
-			end
-
-			connection:populate_data(connection_list)
+	for _, connection in pairs(self._connection_map) do
+		if not connection_list then
+			connection_list = {
+				_meta = "connections"
+			}
+			table.insert(sub_data, connection_list)
 		end
-
+		connection:populate_data(connection_list)
 	end
-
 	local editable_list
-	do
-		local (for generator), (for state), (for control) = pairs(self._editable_connection_map)
-		do
-			do break end
-			if not editable_list then
-				editable_list = {_meta = "editable"}
-				table.insert(sub_data, editable_list)
-			end
-
-			editable:populate_data(editable_list)
+	for _, editable in pairs(self._editable_connection_map) do
+		if not editable_list then
+			editable_list = {_meta = "editable"}
+			table.insert(sub_data, editable_list)
 		end
-
+		editable:populate_data(editable_list)
 	end
-
 	local unselectable_list
-	do
-		local (for generator), (for state), (for control) = pairs(self._unselectable_input_map)
-		do
-			do break end
-			if not unselectable_list then
-				unselectable_list = {
-					_meta = "unselectable"
-				}
-				table.insert(sub_data, unselectable_list)
-			end
-
-			unselectable:populate_data(unselectable_list)
+	for _, unselectable in pairs(self._unselectable_input_map) do
+		if not unselectable_list then
+			unselectable_list = {
+				_meta = "unselectable"
+			}
+			table.insert(sub_data, unselectable_list)
 		end
-
+		unselectable:populate_data(unselectable_list)
 	end
-
 	data[self._wrapper_type] = sub_data
 end
 
@@ -270,7 +197,6 @@ function ControllerWrapperSettings:get_origin(debug_path)
 	else
 		return "[Controller]"
 	end
-
 end
 
 ControllerWrapperConnection = ControllerWrapperConnection or class()
@@ -295,40 +221,31 @@ function ControllerWrapperConnection:init(node)
 				count = count + 1
 				attribute = "input" .. count
 			end
-
 		until not input_name
 		self._controller_id = node.controller
 		if node.debug == true then
 			self._debug = true
 		end
-
 		if node.enabled == false then
 			self._disabled = true
 		end
-
 		if node.any_input == false then
 			self._single_input = true
 		end
-
 		self._delay = tonumber(node.delay)
 		self._min_src_range = tonumber(node.min_src_range)
 		self._max_src_range = tonumber(node.max_src_range)
 		self._min_dest_range = tonumber(node.min_dest_range)
 		self._max_dest_range = tonumber(node.max_dest_range)
-		local (for generator), (for state), (for control) = ipairs(node)
-		do
-			do break end
+		for _, child in ipairs(node) do
 			local child_name = child._meta
 			if child_name == ControllerWrapperDelayConnection.TYPE then
 				local delay_connection = ControllerWrapperDelayConnection:new(child)
 				self._delay_connection_list = self._delay_connection_list or {}
 				table.insert(self._delay_connection_list, delay_connection)
 			end
-
 		end
-
 	end
-
 end
 
 function ControllerWrapperConnection:set_name(name)
@@ -345,7 +262,6 @@ function ControllerWrapperConnection:set_input_name_list(input_name_list)
 	else
 		self._input_name_list = nil
 	end
-
 end
 
 function ControllerWrapperConnection:get_input_name_list()
@@ -366,7 +282,6 @@ function ControllerWrapperConnection:set_debug(debug)
 	else
 		self._debug = nil
 	end
-
 end
 
 function ControllerWrapperConnection:get_debug()
@@ -379,7 +294,6 @@ function ControllerWrapperConnection:set_enabled(enabled)
 	else
 		self._disabled = nil
 	end
-
 end
 
 function ControllerWrapperConnection:get_enabled()
@@ -392,7 +306,6 @@ function ControllerWrapperConnection:set_any_input(any_input)
 	else
 		self._single_input = nil
 	end
-
 end
 
 function ControllerWrapperConnection:get_any_input()
@@ -405,7 +318,6 @@ function ControllerWrapperConnection:set_delay(delay)
 	else
 		self._delay = nil
 	end
-
 end
 
 function ControllerWrapperConnection:get_delay()
@@ -418,7 +330,6 @@ function ControllerWrapperConnection:set_delay_connection_list(delay_connection_
 	else
 		self._delay_connection_list = nil
 	end
-
 end
 
 function ControllerWrapperConnection:get_delay_connection_list()
@@ -431,25 +342,21 @@ function ControllerWrapperConnection:set_range(min_src, max_src, min_dest, max_d
 	else
 		self._min_src_range = nil
 	end
-
 	if max_src ~= self.DEFAULT_MAX_SRC_RANGE then
 		self._max_src_range = max_src
 	else
 		self._max_src_range = nil
 	end
-
 	if min_dest ~= self.DEFAULT_MIN_DEST_RANGE then
 		self._min_dest_range = min_dest
 	else
 		self._min_dest_range = nil
 	end
-
 	if max_dest ~= self.DEFAULT_MAX_DEST_RANGE then
 		self._max_dest_range = max_dest
 	else
 		self._max_dest_range = nil
 	end
-
 end
 
 function ControllerWrapperConnection:get_range()
@@ -462,7 +369,6 @@ function ControllerWrapperConnection:set_connect_src_type(connect_src_type)
 	else
 		self._connect_src_type = nil
 	end
-
 end
 
 function ControllerWrapperConnection:get_connect_src_type()
@@ -475,7 +381,6 @@ function ControllerWrapperConnection:set_connect_dest_type(connect_dest_type)
 	else
 		self._connect_dest_type = nil
 	end
-
 end
 
 function ControllerWrapperConnection:get_connect_dest_type()
@@ -488,14 +393,10 @@ function ControllerWrapperConnection:populate_data(data)
 	}
 	self:populate_data_attributes(sub_data)
 	if self._delay_connection_list then
-		local (for generator), (for state), (for control) = ipairs(self._delay_connection_list)
-		do
-			do break end
+		for _, delay_connection in ipairs(self._delay_connection_list) do
 			delay_connection:populate_data(sub_data)
 		end
-
 	end
-
 	table.insert(data, sub_data)
 end
 
@@ -512,29 +413,21 @@ function ControllerWrapperConnection:populate_data_attributes(sub_data)
 	if self._debug then
 		sub_data.debug = true
 	end
-
 	if self._disabled then
 		sub_data.enabled = false
 	end
-
 	if self._single_input then
 		sub_data.any_input = false
 	end
-
 	if self._input_name_list then
-		local (for generator), (for state), (for control) = ipairs(self._input_name_list)
-		do
-			do break end
+		for index, input_name in ipairs(self._input_name_list) do
 			local attribute = "input"
 			if index > 1 then
 				attribute = attribute .. index
 			end
-
 			sub_data[attribute] = input_name
 		end
-
 	end
-
 end
 
 function ControllerWrapperConnection:__tostring(additional_info)
@@ -572,44 +465,35 @@ function ControllerWrapperAxis:init(node)
 		if multiplier and multiplier.type_name == Vector3.type_name then
 			self:set_multiplier(multiplier)
 		end
-
 		self:set_lerp(tonumber(node.lerp))
 		local init_lerp_axis = node.init_lerp_axis
 		if init_lerp_axis and init_lerp_axis.type_name == Vector3.type_name then
 			self:set_init_lerp_axis(init_lerp_axis)
 		end
-
 		self:set_pad_bottom(tonumber(node.pad_bottom))
 		self:set_pad_top(tonumber(node.pad_top))
 		self:set_soft_top(tonumber(node.soft_top))
 		if node.no_limit == true then
 			self._no_limit = true
 		end
-
 		local inversion_modifier = node.inversion_modifier
 		if inversion_modifier and inversion_modifier.type_name == Vector3.type_name then
 			self._INVERSION_MODIFIER = inversion_modifier
 			self:set_inversion()
 		end
-
 		local inversion = node.inversion
 		if inversion and inversion.type_name == Vector3.type_name then
 			self:set_inversion(inversion)
 		end
-
 	end
-
 	if node then
 		self._btn_connections = {}
 		self:read_axis_btns(node)
 	end
-
 end
 
 function ControllerWrapperAxis:read_axis_btns(node)
-	local (for generator), (for state), (for control) = ipairs(node)
-	do
-		do break end
+	for _, child in ipairs(node) do
 		local child_name = child._meta
 		if (child_name == "button" or child_name == "axis") and child.name and child.input then
 			self._btn_connections[child.name] = {
@@ -619,19 +503,14 @@ function ControllerWrapperAxis:read_axis_btns(node)
 			if child.dir then
 				self._btn_connections[child.name].dir = child.dir
 			end
-
 			if child.range1 then
 				self._btn_connections[child.name].range1 = child.range1
 			end
-
 			if child.range2 then
 				self._btn_connections[child.name].range2 = child.range2
 			end
-
 		end
-
 	end
-
 end
 
 function ControllerWrapperAxis:print_output(output, indent)
@@ -647,21 +526,16 @@ function ControllerWrapperAxis:print_output(output, indent)
 	else
 		output:puts("/>")
 	end
-
 end
 
 function ControllerWrapperAxis:print_output_axis_btns(output, indent)
-	local (for generator), (for state), (for control) = pairs(self._btn_connections)
-	do
-		do break end
+	for btn, con in pairs(self._btn_connections) do
 		if con.type == "button" then
 			output:puts(string.rep("\t", indent) .. string.format("<%s name=\"%s\" input=\"%s\"/>", con.type, btn, con.name))
 		elseif con.type == "axis" then
 			output:puts(string.rep("\t", indent) .. string.format("<%s name=\"%s\" input=\"%s\" dir=\"%s\" range1=\"%s\" range2=\"%s\"/>", con.type, btn, con.name, con.dir, con.range1, con.range2))
 		end
-
 	end
-
 end
 
 function ControllerWrapperAxis:set_multiplier(multiplier)
@@ -718,7 +592,6 @@ function ControllerWrapperAxis:set_no_limit(no_limit)
 	else
 		self._no_limit = nil
 	end
-
 end
 
 function ControllerWrapperAxis:get_no_limit()
@@ -743,35 +616,27 @@ function ControllerWrapperAxis:get_output_attributes()
 	if self._multiplier and (self._multiplier.x ~= 1 or self._multiplier.y ~= 1 or self._multiplier.z ~= 1) then
 		additional_attributes = additional_attributes .. string.format(" multiplier=\"%g %g %g\"", self._multiplier.x, self._multiplier.y, self._multiplier.z)
 	end
-
 	if self._lerp then
 		additional_attributes = additional_attributes .. string.format(" lerp=\"%g\"", self._lerp)
 		if self._init_lerp_axis and (self._init_lerp_axis.x ~= 1 or self._init_lerp_axis.y ~= 1 or self._init_lerp_axis.z ~= 1) then
 			additional_attributes = additional_attributes .. string.format(" init_lerp_axis=\"%g %g %g\"", self._init_lerp_axis.x, self._init_lerp_axis.y, self._init_lerp_axis.z)
 		end
-
 	end
-
 	if self._pad_bottom and self._pad_bottom ~= 0 then
 		additional_attributes = additional_attributes .. string.format(" pad_bottom=\"%g\"", self._pad_bottom)
 	end
-
 	if self._pad_top and self._pad_top ~= 0 then
 		additional_attributes = additional_attributes .. string.format(" pad_top=\"%g\"", self._pad_top)
 	end
-
 	if self._soft_top and self._soft_top ~= 0 then
 		additional_attributes = additional_attributes .. string.format(" soft_top=\"%g\"", self._soft_top)
 	end
-
 	if self._no_limit then
 		additional_attributes = additional_attributes .. string.format(" no_limit=\"%s\"", tostring(not not self._no_limit))
 	end
-
 	if self._inversion and (self._inversion.x ~= 1 or self._inversion.y ~= 1 or self._inversion.z ~= 1) then
 		additional_attributes = additional_attributes .. string.format(" inversion=\"%g %g %g\"", self._inversion.x, self._inversion.y, self._inversion.z)
 	end
-
 	return ControllerWrapperConnection.get_output_attributes(self) .. additional_attributes
 end
 
@@ -785,7 +650,6 @@ function ControllerWrapperDelayConnection:init(node)
 	if node then
 		self._name = node.name
 	end
-
 end
 
 function ControllerWrapperDelayConnection:set_name(name)
@@ -805,7 +669,6 @@ function ControllerWrapperDelayConnection:populate_data(data)
 		list = {}
 		data.connections = list
 	end
-
 	sub_data.name = self._name
 	table.insert(list, sub_data)
 end
@@ -867,11 +730,9 @@ function ControllerWrapperUnselectable:init(node)
 	if node.single ~= false then
 		self._single = true
 	end
-
 	if node.multi ~= false then
 		self._multi = true
 	end
-
 end
 
 function ControllerWrapperUnselectable:get_input_name()
@@ -892,7 +753,6 @@ function ControllerWrapperUnselectable:set_single(single)
 	else
 		self._single = nil
 	end
-
 end
 
 function ControllerWrapperUnselectable:get_multi()
@@ -905,7 +765,6 @@ function ControllerWrapperUnselectable:set_multi(multi)
 	else
 		self._multi = nil
 	end
-
 end
 
 function ControllerWrapperUnselectable:populate_data(data)
@@ -916,11 +775,9 @@ function ControllerWrapperUnselectable:populate_data(data)
 	if not self._single then
 		sub_data.single = not not self._single
 	end
-
 	if not self._multi then
 		sub_data.multi = not not self._sing_multile
 	end
-
 	table.insert(data, sub_data)
 end
 

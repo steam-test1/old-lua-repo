@@ -23,7 +23,6 @@ function TemplateMixerDummy:init(editor, ...)
 	else
 		error("[TemplateMixerDummy] Bad number of arguments!")
 	end
-
 	self._editor:reg_mixer(self)
 end
 
@@ -47,7 +46,6 @@ function TemplateMixerDummy:update_mix(env1, env2, blend)
 		p1 = self._editor:retrive_sky_param(self._editor._template_skies[env1], self._param)
 		p2 = self._editor:retrive_sky_param(self._editor._template_skies[env2], self._param)
 	end
-
 	if p1 and p2 then
 		local p1type = type(p1)
 		local p2type = type(p2)
@@ -58,15 +56,11 @@ function TemplateMixerDummy:update_mix(env1, env2, blend)
 				else
 					self._val = p2
 				end
-
 			else
 				self._val = math.lerp(p1, p2, blend)
 			end
-
 		end
-
 	end
-
 end
 
 function TemplateMixerDummy:args()
@@ -105,7 +99,6 @@ function FormulaMixerDummy:update(t, dt)
 	if t == "string" and value ~= self._value or t == "number" and math.abs(value - self._value) > self._tol or t == "userdata" and value - self._value:length() > self._tol then
 		self._value = value
 	end
-
 end
 
 DummyWidget = DummyWidget or class()
@@ -130,7 +123,6 @@ function Vector2Slider:init(editor, p, name, picker_bottom, picker_top, min, max
 	else
 		self._display_scale = 1
 	end
-
 	self._box = EWS:StaticBoxSizer(p, "VERTICAL", name)
 	self._top_button_box = EWS:BoxSizer("HORIZONTAL")
 	if picker_top == "depth" or picker_top == "all" then
@@ -138,25 +130,21 @@ function Vector2Slider:init(editor, p, name, picker_bottom, picker_top, min, max
 		self._top_depth_btn:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_pick_top_depth_button"), "")
 		self._top_button_box:add(self._top_depth_btn, 0, 0, "EXPAND")
 	end
-
 	if picker_top == "height" or picker_top == "all" then
 		self._top_height_btn = EWS:Button(p, "Pick Height X", "", "")
 		self._top_height_btn:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_pick_top_height_button"), "")
 		self._top_button_box:add(self._top_height_btn, 0, 0, "EXPAND")
 	end
-
 	if picker_bottom == "depth" or picker_bottom == "all" then
 		self._bottom_depth_btn = EWS:Button(p, "Pick Depth Y", "", "")
 		self._bottom_depth_btn:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_pick_bottom_depth_button"), "")
 		self._top_button_box:add(self._bottom_depth_btn, 0, 0, "EXPAND")
 	end
-
 	if picker_bottom == "height" or picker_bottom == "all" then
 		self._bottom_height_btn = EWS:Button(p, "Pick Height Y", "", "")
 		self._bottom_height_btn:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_pick_bottom_height_button"), "")
 		self._top_button_box:add(self._bottom_height_btn, 0, 0, "EXPAND")
 	end
-
 	self._box:add(self._top_button_box, 0, 0, "EXPAND")
 	self._slider_r_box = EWS:BoxSizer("HORIZONTAL")
 	self._slider_r = EWS:Slider(p, 0, min, max)
@@ -216,12 +204,10 @@ function Vector2Slider:on_update_textctrl()
 	if type(r) ~= "number" then
 		r = 0
 	end
-
 	local g = tonumber(self._slider_g_textctrl:get_value())
 	if type(g) ~= "number" then
 		g = 0
 	end
-
 	self:set_value(Vector3(r * self._display_scale / self._scale, g * self._display_scale / self._scale, 0))
 	self._editor:value_is_changed()
 end
@@ -255,20 +241,13 @@ end
 
 function DBDropdown:append_values()
 	local value
-	do
-		local (for generator), (for state), (for control) = ipairs(LightIntensityDB:list())
-		do
-			do break end
-			self._combobox:append(v:s())
-			value = v:s()
-		end
-
+	for _, v in ipairs(LightIntensityDB:list()) do
+		self._combobox:append(v:s())
+		value = v:s()
 	end
-
 	if value then
 		self._combobox:set_value(value)
 	end
-
 end
 
 function DBDropdown:get_value()
@@ -291,7 +270,6 @@ function DBDropdown:set_value(v)
 		assert(value_key)
 		self._combobox:set_value(value_key)
 	end
-
 end
 
 SingelSlider = SingelSlider or class()
@@ -306,7 +284,6 @@ function SingelSlider:init(editor, p, name, picker, min, max, scale, display_sca
 	else
 		self._display_scale = 1
 	end
-
 	self._box = EWS:StaticBoxSizer(p, "VERTICAL", name)
 	self._button_box = EWS:BoxSizer("HORIZONTAL")
 	if picker == "height" or picker == "all" then
@@ -314,13 +291,11 @@ function SingelSlider:init(editor, p, name, picker, min, max, scale, display_sca
 		self._height_btn:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_pick_height_button"), "")
 		self._button_box:add(self._height_btn, 0, 0, "EXPAND")
 	end
-
 	if picker == "depth" or picker == "all" then
 		self._depth_btn = EWS:Button(p, "Pick Depth", "", "")
 		self._depth_btn:connect("", "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_pick_depth_button"), "")
 		self._button_box:add(self._depth_btn, 0, 0, "EXPAND")
 	end
-
 	self._box:add(self._button_box, 1, 0, "EXPAND")
 	self._slider_box = EWS:BoxSizer("HORIZONTAL")
 	self._chackbox = EWS:CheckBox(p, "", "", "")
@@ -343,7 +318,6 @@ function SingelSlider:get_value()
 	else
 		return self._slider:get_value() / self._scale
 	end
-
 end
 
 function SingelSlider:on_pick_depth_button()
@@ -365,7 +339,6 @@ function SingelSlider:on_slider()
 	if self._picky then
 		self._editor:value_is_changed()
 	end
-
 	self:set_text()
 end
 
@@ -374,7 +347,6 @@ function SingelSlider:on_update_textctrl()
 	if type(n) ~= "number" then
 		n = 0
 	end
-
 	self:set_value(n * self._display_scale / self._scale)
 	self._editor:value_is_changed()
 end
@@ -400,12 +372,9 @@ function EnvironmentEditorEnvMixer:init(editor, p, name)
 	self._slider_box:add(self._slider, 5, 0, "EXPAND")
 	self._box:add(self._slider_box, 1, 0, "EXPAND")
 	self:update_tool_tip(self._editor._template_environment_names[1], self._editor._template_environment_names[2], 0)
-	local (for generator), (for state), (for control) = ipairs(self._editor._template_environment_names)
-	do
-		do break end
+	for _, sub in ipairs(self._editor._template_environment_names) do
 		self._name_str = self._name_str and self._name_str .. " " .. sub or sub
 	end
-
 end
 
 function EnvironmentEditorEnvMixer:get_value()
@@ -428,7 +397,6 @@ function EnvironmentEditorEnvMixer:on_slider_change()
 		i2 = i2 - 1
 		blend = 1
 	end
-
 	local env1 = self._editor._template_environment_names[i1]
 	local env2 = self._editor._template_environment_names[i2]
 	self:update_tool_tip(env1, env2, blend)
@@ -506,7 +474,6 @@ function RgbBox:on_color_button()
 		self:set_text()
 		self._editor:value_is_changed()
 	end
-
 end
 
 function RgbBox:on_pick_button()
@@ -519,17 +486,14 @@ function RgbBox:on_update_textctrl()
 	if type(r) ~= "number" then
 		r = 0
 	end
-
 	local g = tonumber(self._slider_g_textctrl:get_value())
 	if type(g) ~= "number" then
 		g = 0
 	end
-
 	local b = tonumber(self._slider_b_textctrl:get_value())
 	if type(b) ~= "number" then
 		b = 0
 	end
-
 	self:set_value(Vector3(r / 255, g / 255, b / 255))
 	self._editor:value_is_changed()
 end
@@ -631,7 +595,6 @@ function PathBox:on_path_button()
 		self:set_value(managers.database:entry_path(dialog_path))
 		self._editor:value_is_changed()
 	end
-
 end
 
 function PathBox:get_value()
@@ -667,7 +630,6 @@ function DBPickDialog:on_path_button()
 	if path then
 		self:set_value(managers.database:entry_path(path))
 	end
-
 end
 
 function DBPickDialog:get_value()
@@ -699,7 +661,6 @@ function CustomCheckBox:get_value()
 	else
 		return 0
 	end
-
 end
 
 function CustomCheckBox:set_value(v)
@@ -738,9 +699,7 @@ function ConnectDialog:show_modal()
 	while true do
 		if not self._done then
 		end
-
 	end
-
 	return self._return_val
 end
 

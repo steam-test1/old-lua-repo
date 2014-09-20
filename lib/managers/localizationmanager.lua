@@ -35,7 +35,6 @@ function LocalizationManager:_setup_macros()
 		btn_top_r = utf8.char(57355)
 		btn_bottom_r = utf8.char(57353)
 	end
-
 	local btn_accept = btn_a
 	local btn_cancel = btn_b
 	local btn_attack = btn_a
@@ -50,7 +49,6 @@ function LocalizationManager:_setup_macros()
 	if SystemInfo:platform() == Idstring("PS3") and PS3:pad_cross_circle_inverted() then
 		swap_accept = true
 	end
-
 	if swap_accept then
 		local btn_tmp = btn_a
 		btn_a = btn_b
@@ -58,12 +56,10 @@ function LocalizationManager:_setup_macros()
 		btn_accept = btn_a
 		btn_cancel = btn_b
 	end
-
 	if SystemInfo:platform() ~= Idstring("PS3") then
 		btn_stick_r = stick_r
 		btn_stick_l = stick_l
 	end
-
 	self:set_default_macro("BTN_BACK", btn_back)
 	self:set_default_macro("BTN_START", btn_start)
 	self:set_default_macro("BTN_A", btn_a)
@@ -100,7 +96,6 @@ function LocalizationManager:btn_macro(button, to_upper)
 	if not managers.menu:is_pc_controller() then
 		return
 	end
-
 	local type = managers.controller:get_default_wrapper_type()
 	local text = "[" .. managers.controller:get_settings(type):get_connection(button):get_input_name_list()[1] .. "]"
 	return to_upper and utf8.to_upper(text) or text
@@ -117,19 +112,13 @@ end
 function LocalizationManager:debug_file(file)
 	local t = {}
 	local ids_in_file = self:ids(file)
-	do
-		local (for generator), (for state), (for control) = ipairs(ids_in_file)
-		do
-			do break end
-			local s = ids:s()
-			local text = self:text(s, {
-				BTN_INTERACT = self:btn_macro("interact")
-			})
-			t[s] = text
-		end
-
+	for i, ids in ipairs(ids_in_file) do
+		local s = ids:s()
+		local text = self:text(s, {
+			BTN_INTERACT = self:btn_macro("interact")
+		})
+		t[s] = text
 	end
-
 	return t
 end
 

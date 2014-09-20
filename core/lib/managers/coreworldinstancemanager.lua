@@ -15,34 +15,20 @@ function CoreWorldInstanceManager:add_instance_data(data)
 end
 
 function CoreWorldInstanceManager:get_instance_data_by_name(name)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._instance_data)
-		do
-			do break end
-			if instance_data.name == name then
-				return instance_data
-			end
-
+	for _, instance_data in ipairs(self._instance_data) do
+		if instance_data.name == name then
+			return instance_data
 		end
-
 	end
-
 	return false
 end
 
 function CoreWorldInstanceManager:has_instance(name)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._instance_data)
-		do
-			do break end
-			if instance_data.name == name then
-				return true
-			end
-
+	for _, instance_data in ipairs(self._instance_data) do
+		if instance_data.name == name then
+			return true
 		end
-
 	end
-
 	return false
 end
 
@@ -58,92 +44,59 @@ function CoreWorldInstanceManager:get_safe_name(instance_name, name)
 			else
 				break
 			end
-
 		end
-
 		name = sub_name
 	else
 		name = instance_name .. "_"
 	end
-
 	local names = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._instance_data)
-		do
-			do break end
-			names[instance_data.name] = true
-		end
-
+	for _, instance_data in ipairs(self._instance_data) do
+		names[instance_data.name] = true
 	end
-
 	for i = start_number, 10000 do
 		i = (i < 10 and "00" or i < 100 and "0" or "") .. i
 		local name_id = name .. i
 		if not names[name_id] then
 			return name_id
 		end
-
 	end
-
 end
 
 function CoreWorldInstanceManager:get_safe_start_index(index_size, continent)
 	local start_indices = {}
 	local end_indices = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._instance_data)
-		do
-			do break end
-			if instance_data.continent == continent then
-				table.insert(start_indices, instance_data.start_index)
-				table.insert(end_indices, instance_data.start_index + (instance_data.index_size or 600) - 1)
-			end
-
+	for _, instance_data in ipairs(self._instance_data) do
+		if instance_data.continent == continent then
+			table.insert(start_indices, instance_data.start_index)
+			table.insert(end_indices, instance_data.start_index + (instance_data.index_size or 600) - 1)
 		end
-
 	end
-
 	table.sort(start_indices)
 	table.sort(end_indices)
 	local new_index = 0
-	do
-		local (for generator), (for state), (for control) = ipairs(start_indices)
-		do
-			do break end
-			local ei = end_indices[i]
-			if not start_indices[i + 1] then
+	for i, si in ipairs(start_indices) do
+		local ei = end_indices[i]
+		if not start_indices[i + 1] then
+			return ei + 1
+		else
+			local next_si = start_indices[i + 1]
+			if index_size < next_si - ei then
 				return ei + 1
-			else
-				local next_si = start_indices[i + 1]
-				if index_size < next_si - ei then
-					return ei + 1
-				end
-
 			end
-
 		end
-
 	end
-
 	return 0
 end
 
 function CoreWorldInstanceManager:get_used_indices(continent)
 	local start_indices = {}
 	local end_indices = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._instance_data)
-		do
-			do break end
-			if instance_data.continent == continent then
-				table.insert(start_indices, instance_data.start_index)
-				table.insert(end_indices, instance_data.start_index + (instance_data.index_size or 600) - 1)
-			end
-
+	for _, instance_data in ipairs(self._instance_data) do
+		if instance_data.continent == continent then
+			table.insert(start_indices, instance_data.start_index)
+			table.insert(end_indices, instance_data.start_index + (instance_data.index_size or 600) - 1)
 		end
-
 	end
-
 	table.sort(start_indices)
 	table.sort(end_indices)
 	return start_indices, end_indices
@@ -154,7 +107,6 @@ function CoreWorldInstanceManager:rename_instance(name, new_name)
 	if data then
 		data.name = new_name
 	end
-
 end
 
 function CoreWorldInstanceManager:instance_data()
@@ -163,54 +115,33 @@ end
 
 function CoreWorldInstanceManager:instance_names_by_script(script)
 	local names = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._instance_data)
-		do
-			do break end
-			if instance_data.script == script then
-				table.insert(names, instance_data.name)
-			end
-
+	for _, instance_data in ipairs(self._instance_data) do
+		if instance_data.script == script then
+			table.insert(names, instance_data.name)
 		end
-
 	end
-
 	table.sort(names)
 	return names
 end
 
 function CoreWorldInstanceManager:instance_names(continent)
 	local names = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._instance_data)
-		do
-			do break end
-			if not continent or instance_data.continent == continent then
-				table.insert(names, instance_data.name)
-			end
-
+	for _, instance_data in ipairs(self._instance_data) do
+		if not continent or instance_data.continent == continent then
+			table.insert(names, instance_data.name)
 		end
-
 	end
-
 	table.sort(names)
 	return names
 end
 
 function CoreWorldInstanceManager:instances_data_by_continent(continent)
 	local instances = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._instance_data)
-		do
-			do break end
-			if not continent or instance_data.continent == continent then
-				table.insert(instances, instance_data)
-			end
-
+	for _, instance_data in ipairs(self._instance_data) do
+		if not continent or instance_data.continent == continent then
+			table.insert(instances, instance_data)
 		end
-
 	end
-
 	return instances
 end
 
@@ -229,31 +160,21 @@ function CoreWorldInstanceManager:custom_create_instance(instance_name, custom_d
 	instance.rotation = custom_data.rotation or Rotation()
 	local prepared_unit_data = managers.world_instance:prepare_unit_data(instance, continent_data)
 	if prepared_unit_data.statics then
-		local (for generator), (for state), (for control) = ipairs(prepared_unit_data.statics)
-		do
-			do break end
+		for _, static in ipairs(prepared_unit_data.statics) do
 			local unit = managers.worlddefinition:_create_statics_unit(static, Vector3())
 			if Application:editor() then
 				managers.editor:layer("Statics"):add_unit_to_created_units(unit)
 			end
-
 		end
-
 	end
-
 	if prepared_unit_data.dynamics then
-		local (for generator), (for state), (for control) = ipairs(prepared_unit_data.dynamics)
-		do
-			do break end
+		for _, entry in ipairs(prepared_unit_data.dynamics) do
 			local unit = managers.worlddefinition:_create_dynamics_unit(entry, Vector3())
 			if Application:editor() then
 				managers.editor:layer("Dynamics"):add_unit_to_created_units(unit)
 			end
-
 		end
-
 	end
-
 	local prepare_mission_data = self:prepare_mission_data_by_name(instance_name)
 	managers.mission:script(instance.script):external_create_instance_elements(prepare_mission_data)
 end
@@ -262,12 +183,10 @@ function CoreWorldInstanceManager:_get_instance_continent_data(path)
 	if Application:editor() then
 		return self:_serialize_to_script("continent", path)
 	end
-
 	self._instance_continent_data = self._instance_continent_data or {}
 	if self._instance_continent_data[path] then
 		return deep_clone(self._instance_continent_data[path])
 	end
-
 	self._instance_continent_data[path] = self:_serialize_to_script("continent", path)
 	return deep_clone(self._instance_continent_data[path])
 end
@@ -281,10 +200,7 @@ function CoreWorldInstanceManager:prepare_unit_data(instance, continent_data)
 		if not entries then
 			return
 		end
-
-		local (for generator), (for state), (for control) = ipairs(entries)
-		do
-			do break end
+		for _, entry in ipairs(entries) do
 			entry.unit_data.rotation = instance.rotation * entry.unit_data.rotation
 			entry.unit_data.position = instance.position + entry.unit_data.position:rotate_with(instance.rotation)
 			entry.unit_data.unit_id = continent_data.base_id + self:_get_mod_id(entry.unit_data.unit_id) + self._start_offset_index + start_index
@@ -293,9 +209,7 @@ function CoreWorldInstanceManager:prepare_unit_data(instance, continent_data)
 			if entry.unit_data.zipline then
 				entry.unit_data.zipline.end_pos = instance.position + entry.unit_data.zipline.end_pos:rotate_with(instance.rotation)
 			end
-
 		end
-
 	end
 
 	_prepare_entries(instance_data.statics)
@@ -323,20 +237,13 @@ function CoreWorldInstanceManager:check_highest_id(instance)
 		if not datas then
 			return 0
 		end
-
 		local type_amount = 0
-		do
-			local (for generator), (for state), (for control) = ipairs(datas)
-			do
-				do break end
-				local mod_id = self:_get_mod_id(data.unit_data.unit_id)
-				highest_id = mod_id > highest_id and mod_id or highest_id
-				amount = amount + 1
-				type_amount = type_amount + 1
-			end
-
+		for _, data in ipairs(datas) do
+			local mod_id = self:_get_mod_id(data.unit_data.unit_id)
+			highest_id = mod_id > highest_id and mod_id or highest_id
+			amount = amount + 1
+			type_amount = type_amount + 1
 		end
-
 		return type_amount
 	end
 
@@ -359,12 +266,10 @@ function CoreWorldInstanceManager:_get_instance_mission_data(path)
 	if Application:editor() then
 		return self:_serialize_to_script("mission", path)
 	end
-
 	self._instance_mission_data = self._instance_mission_data or {}
 	if self._instance_mission_data[path] then
 		return deep_clone(self._instance_mission_data[path])
 	end
-
 	self._instance_mission_data[path] = self:_serialize_to_script("mission", path)
 	return deep_clone(self._instance_mission_data[path])
 end
@@ -376,72 +281,45 @@ function CoreWorldInstanceManager:prepare_mission_data(instance)
 	local instance_data = self:_get_instance_mission_data(path)
 	local continent_data = managers.worlddefinition._continents[instance.continent]
 	local convert_list = {}
-	do
-		local (for generator), (for state), (for control) = pairs(instance_data)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(script_data.elements)
-			do
-				do break end
-				element.values.instance_name = instance.name
-				convert_list[element.id] = continent_data.base_id + self:_get_mod_id(element.id) + self._start_offset_index + start_index
-				element.id = convert_list[element.id]
-				if element.values.rotation then
-					element.values.rotation = instance.rotation * element.values.rotation
-				end
-
-				if element.values.position then
-					element.values.position = instance.position + element.values.position:rotate_with(instance.rotation)
-				end
-
-				if element.class == "ElementSpecialObjective" then
-					element.values.search_position = instance.position + element.values.search_position:rotate_with(instance.rotation)
-				elseif element.class == "ElementLootBag" then
-					if element.values.spawn_dir then
-						element.values.spawn_dir = element.values.spawn_dir:rotate_with(instance.rotation)
-					end
-
-				elseif element.class == "ElementSpawnGrenade" then
+	for script, script_data in pairs(instance_data) do
+		for _, element in ipairs(script_data.elements) do
+			element.values.instance_name = instance.name
+			convert_list[element.id] = continent_data.base_id + self:_get_mod_id(element.id) + self._start_offset_index + start_index
+			element.id = convert_list[element.id]
+			if element.values.rotation then
+				element.values.rotation = instance.rotation * element.values.rotation
+			end
+			if element.values.position then
+				element.values.position = instance.position + element.values.position:rotate_with(instance.rotation)
+			end
+			if element.class == "ElementSpecialObjective" then
+				element.values.search_position = instance.position + element.values.search_position:rotate_with(instance.rotation)
+			elseif element.class == "ElementLootBag" then
+				if element.values.spawn_dir then
 					element.values.spawn_dir = element.values.spawn_dir:rotate_with(instance.rotation)
-				elseif element.class == "ElementSpawnUnit" then
-					element.values.unit_spawn_dir = element.values.unit_spawn_dir:rotate_with(instance.rotation)
-				elseif element.class == "ElementLaserTrigger" then
-					local (for generator), (for state), (for control) = pairs(element.values.points)
-					do
-						do break end
-						point.rot = instance.rotation * point.rot
-						point.pos = instance.position + point.pos:rotate_with(instance.rotation)
-					end
-
 				end
-
+			elseif element.class == "ElementSpawnGrenade" then
+				element.values.spawn_dir = element.values.spawn_dir:rotate_with(instance.rotation)
+			elseif element.class == "ElementSpawnUnit" then
+				element.values.unit_spawn_dir = element.values.unit_spawn_dir:rotate_with(instance.rotation)
+			elseif element.class == "ElementLaserTrigger" then
+				for _, point in pairs(element.values.points) do
+					point.rot = instance.rotation * point.rot
+					point.pos = instance.position + point.pos:rotate_with(instance.rotation)
+				end
 			end
-
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(instance_data)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(script_data.elements)
-			do
-				do break end
-				self:_convert_table(convert_list, element.values, continent_data, start_index)
-			end
-
+	for script, script_data in pairs(instance_data) do
+		for _, element in ipairs(script_data.elements) do
+			self:_convert_table(convert_list, element.values, continent_data, start_index)
 		end
-
 	end
-
 	return instance_data
 end
 
 function CoreWorldInstanceManager:_convert_table(convert_list, convert_table, continent_data, start_index)
-	local (for generator), (for state), (for control) = pairs(convert_table)
-	do
-		do break end
+	for key, value in pairs(convert_table) do
 		if type_name(value) == "table" then
 			self:_convert_table(convert_list, value, continent_data, start_index)
 		elseif type_name(value) == "number" then
@@ -450,11 +328,8 @@ function CoreWorldInstanceManager:_convert_table(convert_list, convert_table, co
 			elseif value >= 100000 then
 				convert_table[key] = continent_data.base_id + self:_get_mod_id(value) + self._start_offset_index + start_index
 			end
-
 		end
-
 	end
-
 end
 
 function CoreWorldInstanceManager:get_mission_inputs_by_name(name)
@@ -468,24 +343,14 @@ function CoreWorldInstanceManager:get_mission_inputs(instance)
 	local path = folder .. "/" .. "world"
 	local instance_data = self:_serialize_to_script("mission", path)
 	local mission_inputs = {}
-	do
-		local (for generator), (for state), (for control) = pairs(instance_data)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(script_data.elements)
-			do
-				do break end
-				if element.class == "ElementInstanceInput" then
-					local id = element.id + self._start_offset_index + start_index
-					table.insert(mission_inputs, element.values.event)
-				end
-
+	for script, script_data in pairs(instance_data) do
+		for _, element in ipairs(script_data.elements) do
+			if element.class == "ElementInstanceInput" then
+				local id = element.id + self._start_offset_index + start_index
+				table.insert(mission_inputs, element.values.event)
 			end
-
 		end
-
 	end
-
 	table.sort(mission_inputs)
 	return mission_inputs
 end
@@ -501,24 +366,14 @@ function CoreWorldInstanceManager:get_mission_outputs(instance)
 	local path = folder .. "/" .. "world"
 	local instance_data = self:_serialize_to_script("mission", path)
 	local mission_inputs = {}
-	do
-		local (for generator), (for state), (for control) = pairs(instance_data)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(script_data.elements)
-			do
-				do break end
-				if element.class == "ElementInstanceOutput" then
-					local id = element.id + self._start_offset_index + start_index
-					table.insert(mission_inputs, element.values.event)
-				end
-
+	for script, script_data in pairs(instance_data) do
+		for _, element in ipairs(script_data.elements) do
+			if element.class == "ElementInstanceOutput" then
+				local id = element.id + self._start_offset_index + start_index
+				table.insert(mission_inputs, element.values.event)
 			end
-
 		end
-
 	end
-
 	table.sort(mission_inputs)
 	return mission_inputs
 end
@@ -530,10 +385,8 @@ function CoreWorldInstanceManager:_serialize_to_script(type, name)
 		if not PackageManager:has(type:id(), name:id()) then
 			Application:throw_exception("Script data file " .. name .. " of type " .. type .. " has not been loaded.")
 		end
-
 		return PackageManager:script_data(type:id(), name:id())
 	end
-
 end
 
 function CoreWorldInstanceManager:register_input_element(instance_name, instance_input, mission_element)
@@ -546,11 +399,9 @@ function CoreWorldInstanceManager:get_registered_input_elements(instance_name, i
 	if not self._registered_input_elements[instance_name] then
 		return nil
 	end
-
 	if not self._registered_input_elements[instance_name][instance_input] then
 		return nil
 	end
-
 	return self._registered_input_elements[instance_name][instance_input]
 end
 
@@ -564,11 +415,9 @@ function CoreWorldInstanceManager:get_registered_output_event_elements(instance_
 	if not self._registered_output_event_elements[instance_name] then
 		return nil
 	end
-
 	if not self._registered_output_event_elements[instance_name][instance_output] then
 		return nil
 	end
-
 	return self._registered_output_event_elements[instance_name][instance_output]
 end
 

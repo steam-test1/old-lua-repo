@@ -31,7 +31,6 @@ function CoreSpawnUnitCutsceneKey:unload(player)
 	if self._cast then
 		self:_delete_unit()
 	end
-
 end
 
 function CoreSpawnUnitCutsceneKey:play(player, undo, fast_forward)
@@ -44,7 +43,6 @@ function CoreSpawnUnitCutsceneKey:is_valid_unit_category(unit_category)
 	else
 		return unit_category ~= nil and table.contains(managers.database:list_unit_types(), unit_category)
 	end
-
 end
 
 function CoreSpawnUnitCutsceneKey:is_valid_unit_type(unit_type)
@@ -55,7 +53,6 @@ function CoreSpawnUnitCutsceneKey:is_valid_name(name)
 	if name == nil or #name <= 3 or string.match(name, "[a-z_0-9]+") ~= name then
 		return false
 	end
-
 	local existing_unit = self:_unit(name, true)
 	return existing_unit == nil or existing_unit == self._spawned_unit
 end
@@ -70,19 +67,12 @@ function CoreSpawnUnitCutsceneKey:refresh_control_for_unit_category(control)
 	control:freeze()
 	control:clear()
 	local value = self:unit_category()
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_unit_types())
-		do
-			do break end
-			control:append(unit_category)
-			if unit_category == value then
-				control:set_value(value)
-			end
-
+	for _, unit_category in ipairs(managers.database:list_unit_types()) do
+		control:append(unit_category)
+		if unit_category == value then
+			control:set_value(value)
 		end
-
 	end
-
 	control:thaw()
 end
 
@@ -90,19 +80,12 @@ function CoreSpawnUnitCutsceneKey:refresh_control_for_unit_type(control)
 	control:freeze()
 	control:clear()
 	local value = self:unit_type()
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_units_of_type(self:unit_category()))
-		do
-			do break end
-			control:append(unit_type)
-			if unit_type == value then
-				control:set_value(value)
-			end
-
+	for _, unit_type in ipairs(managers.database:list_units_of_type(self:unit_category())) do
+		control:append(unit_type)
+		if unit_type == value then
+			control:set_value(value)
 		end
-
 	end
-
 	control:thaw()
 end
 
@@ -115,18 +98,13 @@ function CoreSpawnUnitCutsceneKey:refresh_control_for_parent_unit_name(control)
 	else
 		control:set_enabled(true)
 		local value = self:parent_unit_name()
-		local (for generator), (for state), (for control) = pairs(unit_names)
-		do
-			do break end
+		for _, unit_name in pairs(unit_names) do
 			control:append(unit_name)
 			if unit_name == value then
 				control:set_value(value)
 			end
-
 		end
-
 	end
-
 	control:thaw()
 end
 
@@ -139,18 +117,13 @@ function CoreSpawnUnitCutsceneKey:refresh_control_for_parent_object_name(control
 	else
 		control:set_enabled(true)
 		local value = self:parent_object_name()
-		local (for generator), (for state), (for control) = ipairs(object_names)
-		do
-			do break end
+		for _, object_name in ipairs(object_names) do
 			control:append(object_name)
 			if object_name == value then
 				control:set_value(value)
 			end
-
 		end
-
 	end
-
 	control:thaw()
 end
 
@@ -168,7 +141,6 @@ function CoreSpawnUnitCutsceneKey:on_attribute_changed(attribute_name, value, pr
 	elseif attribute_name == "parent_object_name" or attribute_name == "offset" or attribute_name == "rotation" then
 		self:_reparent_unit()
 	end
-
 end
 
 function CoreSpawnUnitCutsceneKey:_spawn_unit()
@@ -176,14 +148,12 @@ function CoreSpawnUnitCutsceneKey:_spawn_unit()
 		self._spawned_unit = self._cast:spawn_unit(self:name(), self:unit_type())
 		self:_reparent_unit()
 	end
-
 end
 
 function CoreSpawnUnitCutsceneKey:_delete_unit()
 	if self:is_valid() and self._cast then
 		self._cast:delete_unit(self:name())
 	end
-
 end
 
 function CoreSpawnUnitCutsceneKey:_reparent_unit()
@@ -197,9 +167,7 @@ function CoreSpawnUnitCutsceneKey:_reparent_unit()
 			self._spawned_unit:set_local_rotation(self:rotation())
 			self._cast:_set_unit_and_children_visible(self._spawned_unit, self._cast:unit_visible(self:name()) and parent_unit:visible())
 		end
-
 	end
-
 end
 
 function CoreSpawnUnitCutsceneKey:update_gui(time, delta_time)
@@ -208,11 +176,9 @@ function CoreSpawnUnitCutsceneKey:update_gui(time, delta_time)
 			self._cutscene_editor_window:set_enabled(true)
 			self._cutscene_editor_window:set_focus()
 		end
-
 		self._cutscene_editor_window = nil
 		self._database_browser = nil
 	end
-
 end
 
 function CoreSpawnUnitCutsceneKey:_on_database_browser_button_clicked(button)
@@ -220,7 +186,6 @@ function CoreSpawnUnitCutsceneKey:_on_database_browser_button_clicked(button)
 	while self._cutscene_editor_window and type_name(self._cutscene_editor_window) ~= "EWSFrame" do
 		self._cutscene_editor_window = self._cutscene_editor_window:parent()
 	end
-
 	assert(self._cutscene_editor_window, "Button is not inside a top-level window.")
 	self._cutscene_editor_window:set_enabled(false)
 	self._database_browser = CoreDBDialog:new("unit", self, self._on_database_browser_entry_selected, ProjectDatabase)
@@ -236,6 +201,5 @@ function CoreSpawnUnitCutsceneKey:_on_database_browser_entry_selected()
 		self:refresh_control_for_attribute("unit_category")
 		self:refresh_control_for_attribute("unit_type")
 	end
-
 end
 

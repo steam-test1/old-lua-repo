@@ -10,15 +10,9 @@ function CoreParticleEditorVisualizers:create_billboard()
 Intensity of billboards - choose a template that corresponds closest to the intensity range you want.
 To scale the intensity over time, use the color.]])
 	p:add_value("")
-	do
-		local (for generator), (for state), (for control) = ipairs(intensities)
-		do
-			do break end
-			p:add_value(i:s())
-		end
-
+	for _, i in ipairs(intensities) do
+		p:add_value(i:s())
 	end
-
 	visualizer:add_property(p)
 	help = [[
 Determines alignment type of billboard:
@@ -303,15 +297,9 @@ function CoreParticleEditorVisualizers:create_trail()
 Intensity of billboards - choose a template that corresponds closest to the intensity range you want.
 To scale the intensity over time, use the color.]])
 	p:add_value("")
-	do
-		local (for generator), (for state), (for control) = ipairs(intensities)
-		do
-			do break end
-			p:add_value(i:s())
-		end
-
+	for _, i in ipairs(intensities) do
+		p:add_value(i:s())
 	end
-
 	visualizer:add_property(p)
 	help = [[
 Determines how billboard is blended against the background:

@@ -24,16 +24,11 @@ function CoreAnimationStateTreePanel:_refresh_tree()
 				return a:name():s() < b:name():s()
 			end
 )
-			local (for generator), (for state), (for control) = ipairs(sorted_states)
-			do
-				do break end
+			for _, state in ipairs(sorted_states) do
 				self:_tree_control():append_path(state:name():s())
 			end
-
 		end
-
 	end
-
 	self:_tree_control():thaw()
 end
 

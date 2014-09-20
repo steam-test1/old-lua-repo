@@ -30,7 +30,6 @@ function NetworkAccount:clan_tag()
 	if managers.save.get_profile_setting and managers.save:get_profile_setting("clan_tag") and string.len(managers.save:get_profile_setting("clan_tag")) > 0 then
 		return "[" .. managers.save:get_profile_setting("clan_tag") .. "]"
 	end
-
 	return ""
 end
 

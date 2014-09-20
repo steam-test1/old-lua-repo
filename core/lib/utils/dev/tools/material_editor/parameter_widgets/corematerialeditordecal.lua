@@ -51,13 +51,11 @@ function CoreMaterialEditorDecal:on_toggle_customize()
 		else
 			self._combo_box:set_value("[NONE]")
 		end
-
 	elseif self._value == "[NONE]" then
 		self._editor._current_material_node:clear_parameter("decal_material")
 	else
 		self._editor._current_material_node:set_parameter("decal_material", self._value)
 	end
-
 end
 
 function CoreMaterialEditorDecal:on_copy_to_parent()
@@ -71,11 +69,8 @@ function CoreMaterialEditorDecal:on_copy_to_parent()
 			else
 				self:_copy_to_parent(name)
 			end
-
 		end
-
 	end
-
 	self._editor:_create_parameter_panel()
 end
 
@@ -94,13 +89,11 @@ function CoreMaterialEditorDecal:_copy_to_parent(name)
 	else
 		material_node = self._editor:_find_node(self._editor._global_material_config_node, "material", "name", self._editor._parent_combo_box:get_value())
 	end
-
 	if self._value == "[NONE]" and not name then
 		material_node:clear_parameter("decal_material")
 	else
 		material_node:set_parameter("decal_material", self._value)
 	end
-
 	local parent = self._editor._parent_combo_box:get_value()
 	self._editor:_load_parent_dropdown()
 	self._editor._parent_combo_box:set_value(parent)
@@ -113,7 +106,6 @@ function CoreMaterialEditorDecal:_on_combo_box_change()
 	else
 		self._editor._current_material_node:set_parameter("decal_material", self._value)
 	end
-
 	self._editor:_update_output()
 end
 
@@ -122,17 +114,12 @@ function CoreMaterialEditorDecal:_fill_decal_materials()
 	self._combo_box:append("[NONE]")
 	local root = DB:load_node("decals", self.DECAL_MATERIAL_FILE)
 	if root and root:num_children() > 0 then
-		local (for generator), (for state), (for control) = root:children()
-		do
-			do break end
+		for material in root:children() do
 			if material:name() == "material" then
 				self._combo_box:append(material:parameter("name"))
 			end
-
 		end
-
 	end
-
 	self._combo_box:set_value(self._value)
 end
 

@@ -43,11 +43,9 @@ function ContractBoxGui:init(ws, fullscreen_ws)
 		wfs_text:set_size(w, h)
 		wfs_text:set_rightbottom(self._panel:w(), self._panel:h())
 	end
-
 	if not managers.menu:is_pc_controller() and wfs_text then
 		wfs_text:set_rightbottom(self._panel:w() - 40, self._panel:h() - 150)
 	end
-
 	if MenuBackdropGUI then
 		if crewpage_text then
 			local bg_text = self._fullscreen_panel:text({
@@ -68,7 +66,6 @@ function ContractBoxGui:init(ws, fullscreen_ws)
 			bg_text:move(-13, 9)
 			MenuBackdropGUI.animate_bg_text(self, bg_text)
 		end
-
 		if not managers.menu:is_pc_controller() or wfs_text then
 			do break end
 			local bg_text = self._fullscreen_panel:text({
@@ -88,9 +85,7 @@ function ContractBoxGui:init(ws, fullscreen_ws)
 			bg_text:move(13, -9)
 			MenuBackdropGUI.animate_bg_text(self, bg_text)
 		end
-
 	end
-
 	self:create_contract_box()
 end
 
@@ -98,19 +93,15 @@ function ContractBoxGui:create_contract_box()
 	if not managers.network:session() then
 		return
 	end
-
 	if self._contract_panel and alive(self._contract_panel) then
 		self._panel:remove(self._contract_panel)
 	end
-
 	if self._contract_text_header and alive(self._contract_text_header) then
 		self._panel:remove(self._contract_text_header)
 	end
-
 	if alive(self._panel:child("pro_text")) then
 		self._panel:remove(self._panel:child("pro_text"))
 	end
-
 	self._contract_panel = nil
 	self._contract_text_header = nil
 	local contact_data = managers.job:current_contact_data()
@@ -167,32 +158,27 @@ function ContractBoxGui:create_contract_box()
 			local _, _, tw, th = self._contract_text_header:text_rect()
 			self._contract_text_header:set_size(tw, th)
 		end
-
 		local w = 0
 		do
 			local _, _, tw, th = length_text_header:text_rect()
 			w = math.max(w, tw)
 			length_text_header:set_size(tw, th)
 		end
-
 		do
 			local _, _, tw, th = risk_text_header:text_rect()
 			w = math.max(w, tw)
 			risk_text_header:set_size(tw, th)
 		end
-
 		do
 			local _, _, tw, th = exp_text_header:text_rect()
 			w = math.max(w, tw)
 			exp_text_header:set_size(tw, th)
 		end
-
 		do
 			local _, _, tw, th = payout_text_header:text_rect()
 			w = math.max(w, tw)
 			payout_text_header:set_size(tw, th)
 		end
-
 		w = w + 10
 		length_text_header:set_right(w)
 		risk_text_header:set_right(w)
@@ -218,7 +204,6 @@ function ContractBoxGui:create_contract_box()
 			w = math.max(w, tw)
 			length_text:set_size(tw, th)
 		end
-
 		if managers.job:is_job_ghostable(managers.job:current_job_id()) then
 			local ghost_icon = self._contract_panel:bitmap({
 				texture = "guis/textures/pd2/cn_minighost",
@@ -230,7 +215,6 @@ function ContractBoxGui:create_contract_box()
 			ghost_icon:set_center_y(length_text:center_y())
 			ghost_icon:set_left(length_text:right())
 		end
-
 		local filled_star_rect = {
 			0,
 			32,
@@ -261,14 +245,12 @@ function ContractBoxGui:create_contract_box()
 			local _, _, tw, th = difficulty_text:text_rect()
 			difficulty_text:set_size(tw, th)
 		end
-
 		difficulty_text:set_x(math.round(sx))
 		difficulty_text:set_center_y(cy)
 		difficulty_text:set_y(math.round(difficulty_text:y()))
 		if difficulty_stars > 0 then
 			difficulty_text:set_color(risk_color)
 		end
-
 		local plvl = managers.experience:current_level()
 		local player_stars = math.max(math.ceil(plvl / 10), 1)
 		local total_xp, _ = managers.experience:get_contract_xp_by_stars(job_id, job_stars, difficulty_stars, job_data.professional, #job_chain)
@@ -282,7 +264,6 @@ function ContractBoxGui:create_contract_box()
 			local _, _, tw, th = job_xp:text_rect()
 			job_xp:set_size(tw, th)
 		end
-
 		job_xp:set_position(math.round(exp_text_header:right() + 5), math.round(exp_text_header:top()))
 		local risk_xp = self._contract_panel:text({
 			font = font,
@@ -294,7 +275,6 @@ function ContractBoxGui:create_contract_box()
 			local _, _, tw, th = risk_xp:text_rect()
 			risk_xp:set_size(tw, th)
 		end
-
 		risk_xp:set_position(math.round(job_xp:right()), job_xp:top())
 		risk_xp:hide()
 		local job_ghost_mul = managers.job:get_ghost_bonus() or 0
@@ -306,7 +286,6 @@ function ContractBoxGui:create_contract_box()
 			if job_ghost == 0 and job_ghost_mul ~= 0 then
 				job_ghost_string = string.format("%0.2f", math.abs(job_ghost_mul * 100))
 			end
-
 			local text_prefix = job_ghost_mul < 0 and "-" or "+"
 			local text_string = " (" .. text_prefix .. job_ghost_string .. "%)"
 			ghost_xp_text = self._contract_panel:text({
@@ -320,10 +299,8 @@ function ContractBoxGui:create_contract_box()
 				local _, _, tw, th = ghost_xp_text:text_rect()
 				ghost_xp_text:set_size(tw, th)
 			end
-
 			ghost_xp_text:set_position(math.round(risk_xp:visible() and risk_xp:right() or job_xp:right()), job_xp:top())
 		end
-
 		local job_heat = managers.job:current_job_heat() or 0
 		local job_heat_mul = managers.job:heat_to_experience_multiplier(job_heat) - 1
 		local heat_xp_text
@@ -334,7 +311,6 @@ function ContractBoxGui:create_contract_box()
 			if job_heat == 0 and job_heat_mul ~= 0 then
 				job_heat_string = string.format("%0.2f", math.abs(job_heat_mul * 100))
 			end
-
 			local text_prefix = job_heat_mul < 0 and "-" or "+"
 			local text_string = " (" .. text_prefix .. job_heat_string .. "%)"
 			heat_xp_text = self._contract_panel:text({
@@ -348,13 +324,10 @@ function ContractBoxGui:create_contract_box()
 				local _, _, tw, th = heat_xp_text:text_rect()
 				heat_xp_text:set_size(tw, th)
 			end
-
 			if (not ghost_xp_text or not ghost_xp_text:right()) and (not risk_xp:visible() or not risk_xp:right()) then
 			end
-
 			heat_xp_text:set_position(math.round((job_xp:right())), job_xp:top())
 		end
-
 		local total_payout, stage_payout_table, job_payout_table = managers.money:get_contract_money_by_stars(job_stars, difficulty_stars, #job_chain, managers.job:current_job_id(), managers.job:current_level_id())
 		local total_stage_value = stage_payout_table[2]
 		local total_stage_risk_value = stage_payout_table[4]
@@ -370,7 +343,6 @@ function ContractBoxGui:create_contract_box()
 			local _, _, tw, th = job_money:text_rect()
 			job_money:set_size(tw, th)
 		end
-
 		job_money:set_position(math.round(payout_text_header:right() + 5), math.round(payout_text_header:top()))
 		local risk_money = self._contract_panel:text({
 			font = font,
@@ -382,7 +354,6 @@ function ContractBoxGui:create_contract_box()
 			local _, _, tw, th = risk_money:text_rect()
 			risk_money:set_size(tw, th)
 		end
-
 		risk_money:set_position(math.round(job_money:right()), job_money:top())
 		risk_money:hide()
 		self._contract_panel:set_h(payout_text_header:bottom() + 10)
@@ -399,7 +370,6 @@ function ContractBoxGui:create_contract_box()
 		})
 		debug_start:grow(-debug_start:x() - 10, debug_start:y() - 10)
 	end
-
 	self._contract_panel:set_rightbottom(self._panel:w() - 10, self._panel:h() - 50)
 	if self._contract_text_header then
 		self._contract_text_header:set_bottom(self._contract_panel:top())
@@ -408,9 +378,7 @@ function ContractBoxGui:create_contract_box()
 		if wfs_text and not managers.menu:is_pc_controller() then
 			wfs_text:set_rightbottom(self._panel:w() - 20, self._contract_text_header:top())
 		end
-
 	end
-
 	local wfs = self._panel:child("wfs")
 	if wfs then
 		self._contract_panel:grow(0, wfs:h() + 5)
@@ -418,10 +386,8 @@ function ContractBoxGui:create_contract_box()
 		if self._contract_text_header then
 			self._contract_text_header:move(0, -(wfs:h() + 5))
 		end
-
 		wfs:set_world_rightbottom(self._contract_panel:world_right() - 5, self._contract_panel:world_bottom())
 	end
-
 	if self._contract_text_header and managers.job:is_current_job_professional() then
 		local pro_text = self._panel:text({
 			name = "pro_text",
@@ -435,7 +401,6 @@ function ContractBoxGui:create_contract_box()
 		pro_text:set_size(w, h)
 		pro_text:set_position(self._contract_text_header:right() + 10, self._contract_text_header:y())
 	end
-
 	BoxGuiObject:new(self._contract_panel, {
 		sides = {
 			1,
@@ -452,11 +417,8 @@ function ContractBoxGui:create_contract_box()
 			if peer_pos then
 				self:create_character_text(i, peer_pos.x, peer_pos.y, peer_name)
 			end
-
 		end
-
 	end
-
 	self._enabled = true
 end
 
@@ -468,7 +430,6 @@ function ContractBoxGui:update(t, dt)
 	for i = 1, 4 do
 		self:update_character(i)
 	end
-
 end
 
 function ContractBoxGui:create_character_text(peer_id, x, y, text, icon)
@@ -520,14 +481,12 @@ function ContractBoxGui:create_character_text(peer_id, x, y, text, icon)
 		self._panel:remove(self._peers_icon[peer_id])
 		self._peers_icon[peer_id] = nil
 	end
-
 end
 
 function ContractBoxGui:update_character(peer_id)
 	if not peer_id or not managers.network:session() then
 		return
 	end
-
 	local x = 0
 	local y = 0
 	local text = ""
@@ -545,11 +504,9 @@ function ContractBoxGui:update_character(peer_id)
 			local experience = (player_rank > 0 and managers.experience:rank_string(player_rank) .. "-" or "") .. player_level
 			text = text .. " (" .. experience .. ")"
 		end
-
 	else
 		self:update_character_menu_state(peer_id, nil)
 	end
-
 	self:create_character_text(peer_id, x, y, text, player_rank > 0)
 end
 
@@ -557,11 +514,9 @@ function ContractBoxGui:update_character_menu_state(peer_id, state)
 	if not self._peers_state then
 		return
 	end
-
 	if not self._peers_state[peer_id] then
 		return
 	end
-
 	self._peers_state[peer_id]:set_text(state and managers.localization:to_upper_text("menu_lobby_menu_state_" .. state) or "")
 end
 
@@ -575,17 +530,14 @@ function ContractBoxGui:mouse_pressed(button, x, y)
 	if not self:can_take_input() then
 		return
 	end
-
 	if button == Idstring("0") then
 	end
-
 end
 
 function ContractBoxGui:mouse_moved(x, y)
 	if not self:can_take_input() then
 		return
 	end
-
 	return false, nil
 end
 
@@ -619,19 +571,15 @@ function ContractBoxGui:set_enabled(enabled)
 	if enabled then
 	else
 	end
-
 	if self._contract_panel then
 		self._contract_panel:set_visible(enabled)
 	end
-
 	if self._contract_text_header then
 		self._contract_text_header:set_visible(enabled)
 	end
-
 	if self._panel:child("wfs") then
 		self._panel:child("wfs"):set_visible(enabled)
 	end
-
 end
 
 function ContractBoxGui:set_size(x, y)

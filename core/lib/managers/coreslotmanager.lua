@@ -34,30 +34,21 @@ function SlotManager:get_mask(...)
 	local arg_list = {
 		...
 	}
-	do
-		local (for generator), (for state), (for control) = pairs(arg_list)
-		do
-			do break end
-			local next_mask = self._masks[name]
-			if next_mask then
-				if not mask then
-					mask = next_mask
-				else
-					mask = mask + next_mask
-				end
-
+	for _, name in pairs(arg_list) do
+		local next_mask = self._masks[name]
+		if next_mask then
+			if not mask then
+				mask = next_mask
 			else
-				Application:error("Invalid slotmask \"" .. tostring(name) .. "\".")
+				mask = mask + next_mask
 			end
-
+		else
+			Application:error("Invalid slotmask \"" .. tostring(name) .. "\".")
 		end
-
 	end
-
 	if #arg_list == 0 then
 		Application:error("No parameters passed to get_mask function.")
 	end
-
 	return mask
 end
 

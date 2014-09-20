@@ -23,22 +23,14 @@ function CoreSpawnUnitUnitElement:test_element()
 		table.insert(self._test_units, unit)
 		unit:push(self._hed.unit_spawn_mass, self._hed.unit_spawn_dir * self._hed.unit_spawn_velocity)
 	end
-
 end
 
 function CoreSpawnUnitUnitElement:stop_test_element()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._test_units)
-		do
-			do break end
-			if alive(unit) then
-				World:delete_unit(unit)
-			end
-
+	for _, unit in ipairs(self._test_units) do
+		if alive(unit) then
+			World:delete_unit(unit)
 		end
-
 	end
-
 	self._test_units = {}
 end
 
@@ -52,19 +44,15 @@ function CoreSpawnUnitUnitElement:update_editing(time, rel_time)
 	if kb:down(Idstring("left")) then
 		self._hed.unit_spawn_dir = self._hed.unit_spawn_dir:rotate_with(Rotation(speed, 0, 0))
 	end
-
 	if kb:down(Idstring("right")) then
 		self._hed.unit_spawn_dir = self._hed.unit_spawn_dir:rotate_with(Rotation(-speed, 0, 0))
 	end
-
 	if kb:down(Idstring("up")) then
 		self._hed.unit_spawn_dir = self._hed.unit_spawn_dir:rotate_with(Rotation(0, 0, speed))
 	end
-
 	if kb:down(Idstring("down")) then
 		self._hed.unit_spawn_dir = self._hed.unit_spawn_dir:rotate_with(Rotation(0, 0, -speed))
 	end
-
 	local from = self._unit:position()
 	local to = from + self._hed.unit_spawn_dir * 100000
 	local ray = managers.editor:unit_by_raycast({
@@ -75,7 +63,6 @@ function CoreSpawnUnitUnitElement:update_editing(time, rel_time)
 	if ray and ray.unit then
 		Application:draw_sphere(ray.position, 25, 1, 0, 0)
 	end
-
 end
 
 function CoreSpawnUnitUnitElement:_build_panel(panel, panel_sizer)
@@ -83,15 +70,9 @@ function CoreSpawnUnitUnitElement:_build_panel(panel, panel_sizer)
 	panel = panel or self._panel
 	panel_sizer = panel_sizer or self._panel_sizer
 	local unit_options = {}
-	do
-		local (for generator), (for state), (for control) = pairs(managers.editor:layers().Dynamics:get_unit_map())
-		do
-			do break end
-			table.insert(unit_options, managers.editor:get_real_name(name))
-		end
-
+	for name, _ in pairs(managers.editor:layers().Dynamics:get_unit_map()) do
+		table.insert(unit_options, managers.editor:get_real_name(name))
 	end
-
 	local units_params = {
 		name = "Unit:",
 		panel = panel,

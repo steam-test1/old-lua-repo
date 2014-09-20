@@ -10,14 +10,10 @@ end
 function Dialog:init_button_text_list()
 	local button_list = self._data.button_list
 	if button_list then
-		local (for generator), (for state), (for control) = ipairs(button_list)
-		do
-			do break end
+		for _, button in ipairs(button_list) do
 			table.insert(self._button_text_list, button.text or "ERROR")
 		end
-
 	end
-
 	if #self._button_text_list == 0 and not self._data.no_buttons then
 		Application:error("[SystemMenuManager] Invalid dialog with no button texts. Adds an ok-button.")
 		self._data.button_list = self._data.button_list or {}
@@ -25,7 +21,6 @@ function Dialog:init_button_text_list()
 		self._data.button_list[1].text = "ERROR: OK"
 		table.insert(self._button_text_list, self._data.button_list[1].text)
 	end
-
 end
 
 function Dialog:title()
@@ -49,14 +44,11 @@ function Dialog:button_pressed(button_index)
 		if button and button.callback_func then
 			button.callback_func(button_index, button)
 		end
-
 	end
-
 	local callback_func = self._data.callback_func
 	if callback_func then
 		callback_func(button_index, self._data)
 	end
-
 end
 
 function Dialog:button_text_list()
@@ -66,14 +58,10 @@ end
 function Dialog:to_string()
 	local buttons = ""
 	if self._data.button_list then
-		local (for generator), (for state), (for control) = ipairs(self._data.button_list)
-		do
-			do break end
+		for _, button in ipairs(self._data.button_list) do
 			buttons = buttons .. "[" .. tostring(button.text) .. "]"
 		end
-
 	end
-
 	return string.format("%s, Title: %s, Text: %s, Buttons: %s", tostring(BaseDialog.to_string(self)), tostring(self._data.title), tostring(self:_strip_to_string_text(self._data.text)), buttons)
 end
 

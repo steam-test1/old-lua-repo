@@ -22,14 +22,12 @@ function NetworkMatchMakingSTEAM:_call_callback(name, ...)
 	else
 		Application:error("Callback " .. name .. " not found.")
 	end
-
 end
 
 function NetworkMatchMakingSTEAM:_has_callback(name)
 	if self._callback_map[name] then
 		return true
 	end
-
 	return false
 end
 
@@ -39,7 +37,6 @@ function NetworkMatchMakingSTEAM:_split_attribute_number(attribute_number, split
 		Application:stack_dump()
 		return 1, 1
 	end
-
 	return attribute_number % splitter, math.floor(attribute_number / splitter)
 end
 
@@ -54,7 +51,6 @@ function NetworkMatchMakingSTEAM:_load_globals()
 		if self.lobby_handler then
 			self.lobby_handler:setup_callbacks(NetworkMatchMakingSTEAM._on_memberstatus_change, NetworkMatchMakingSTEAM._on_data_update, NetworkMatchMakingSTEAM._on_chat_message)
 		end
-
 		self._try_re_enter_lobby = Global.steam.match.try_re_enter_lobby
 		self._server_rpc = Global.steam.match.server_rpc
 		self._lobby_filters = Global.steam.match.lobby_filters or self._lobby_filters
@@ -63,14 +59,12 @@ function NetworkMatchMakingSTEAM:_load_globals()
 		self._lobby_return_count = Global.steam.match.lobby_return_count or self._lobby_return_count
 		Global.steam.match = nil
 	end
-
 end
 
 function NetworkMatchMakingSTEAM:_save_globals()
 	if not Global.steam then
 		Global.steam = {}
 	end
-
 	Global.steam.match = {}
 	Global.steam.match.lobby_handler = self.lobby_handler
 	Global.steam.match.lobby_attributes = self._lobby_attributes
@@ -103,15 +97,12 @@ function NetworkMatchMakingSTEAM:update()
 					Application:error("FAIL!")
 					self._try_re_enter_lobby = "open"
 				end
-
 			end
 
 			Steam:join_lobby(self.lobby_handler:id(), _join_lobby_result_f)
 		end
-
 	else
 	end
-
 end
 
 function NetworkMatchMakingSTEAM:leave_game()
@@ -119,13 +110,11 @@ function NetworkMatchMakingSTEAM:leave_game()
 	if self.lobby_handler then
 		self.lobby_handler:leave_lobby()
 	end
-
 	self.lobby_handler = nil
 	self._server_joinable = true
 	if self._try_re_enter_lobby then
 		self._try_re_enter_lobby = nil
 	end
-
 	print("NetworkMatchMakingSTEAM:leave_game()")
 end
 
@@ -144,47 +133,33 @@ function NetworkMatchMakingSTEAM:get_friends_lobbies()
 				room_list = {},
 				attribute_list = {}
 			}
-			do
-				local (for generator), (for state), (for control) = ipairs(lobbies)
-				do
-					do break end
-					if NetworkMatchMakingSTEAM._BUILD_SEARCH_INTEREST_KEY then
-						local ikey = lobby:key_value(NetworkMatchMakingSTEAM._BUILD_SEARCH_INTEREST_KEY)
-						if ikey ~= "value_missing" and ikey ~= "value_pending" then
-							table.insert(info.room_list, {
-								owner_id = lobby:key_value("owner_id"),
-								owner_name = lobby:key_value("owner_name"),
-								room_id = lobby:id()
-							})
-							table.insert(info.attribute_list, {
-								numbers = self:_lobby_to_numbers(lobby)
-							})
-						end
-
+			for _, lobby in ipairs(lobbies) do
+				if NetworkMatchMakingSTEAM._BUILD_SEARCH_INTEREST_KEY then
+					local ikey = lobby:key_value(NetworkMatchMakingSTEAM._BUILD_SEARCH_INTEREST_KEY)
+					if ikey ~= "value_missing" and ikey ~= "value_pending" then
+						table.insert(info.room_list, {
+							owner_id = lobby:key_value("owner_id"),
+							owner_name = lobby:key_value("owner_name"),
+							room_id = lobby:id()
+						})
+						table.insert(info.attribute_list, {
+							numbers = self:_lobby_to_numbers(lobby)
+						})
 					end
-
 				end
-
 			end
-
 			self:_call_callback("search_lobby", info)
 		end
-
 	end
 
 	if Steam:logged_on() and Steam:friends() then
-		local (for generator), (for state), (for control) = ipairs(Steam:friends())
-		do
-			do break end
+		for _, friend in ipairs(Steam:friends()) do
 			local lobby = friend:lobby()
 			if lobby then
 				table.insert(lobbies, lobby)
 			end
-
 		end
-
 	end
-
 	if #lobbies == 0 then
 		local info = {
 			room_list = {},
@@ -192,9 +167,7 @@ function NetworkMatchMakingSTEAM:get_friends_lobbies()
 		}
 		self:_call_callback("search_lobby", info)
 	else
-		local (for generator), (for state), (for control) = ipairs(lobbies)
-		do
-			do break end
+		for _, lobby in ipairs(lobbies) do
 			lobby:setup_callback(f)
 			if lobby:key_value("state") == "value_pending" then
 				print("NetworkMatchMakingSTEAM:get_friends_lobbies value_pending")
@@ -202,11 +175,8 @@ function NetworkMatchMakingSTEAM:get_friends_lobbies()
 			else
 				f(lobby)
 			end
-
 		end
-
 	end
-
 end
 
 function NetworkMatchMakingSTEAM:search_friends_only()
@@ -262,7 +232,6 @@ function NetworkMatchMakingSTEAM:search_lobby(friends_only)
 	if not self:_has_callback("search_lobby") then
 		return
 	end
-
 	if friends_only then
 		self:get_friends_lobbies()
 	else
@@ -270,16 +239,13 @@ function NetworkMatchMakingSTEAM:search_lobby(friends_only)
 			if not self.browser then
 				return
 			end
-
 			local lobbies = self.browser:lobbies()
 			local info = {
 				room_list = {},
 				attribute_list = {}
 			}
 			if lobbies then
-				local (for generator), (for state), (for control) = ipairs(lobbies)
-				do
-					do break end
+				for _, lobby in ipairs(lobbies) do
 					if self._difficulty_filter == 0 or self._difficulty_filter == tonumber(lobby:key_value("difficulty")) then
 						table.insert(info.room_list, {
 							owner_id = lobby:key_value("owner_id"),
@@ -290,11 +256,8 @@ function NetworkMatchMakingSTEAM:search_lobby(friends_only)
 							numbers = self:_lobby_to_numbers(lobby)
 						})
 					end
-
 				end
-
 			end
-
 			self:_call_callback("search_lobby", info)
 		end
 
@@ -318,7 +281,6 @@ function NetworkMatchMakingSTEAM:search_lobby(friends_only)
 		if self._BUILD_SEARCH_INTEREST_KEY then
 			table.insert(interest_keys, self._BUILD_SEARCH_INTEREST_KEY)
 		end
-
 		self.browser:set_interest_keys(interest_keys)
 		self.browser:set_distance_filter(self._distance_filter)
 		self.browser:set_lobby_filter("min_level", managers.experience:current_level(), "equalto_less_than")
@@ -329,28 +291,18 @@ function NetworkMatchMakingSTEAM:search_lobby(friends_only)
 			self.browser:set_lobby_filter("job_class_min", min_ply_jc, "equalto_or_greater_than")
 			self.browser:set_lobby_filter("job_class_max", max_ply_jc, "equalto_less_than")
 		end
-
-		do
-			local (for generator), (for state), (for control) = pairs(self._lobby_filters)
-			do
-				do break end
-				if data.value and data.value ~= -1 then
-					self.browser:set_lobby_filter(data.key, data.value, data.comparision_type)
-				end
-
+		for key, data in pairs(self._lobby_filters) do
+			if data.value and data.value ~= -1 then
+				self.browser:set_lobby_filter(data.key, data.value, data.comparision_type)
 			end
-
 		end
-
 		self.browser:set_max_lobby_return_count(self._lobby_return_count)
 		if Global.game_settings.playing_lan then
 			self.browser:refresh_lan()
 		else
 			self.browser:refresh()
 		end
-
 	end
-
 end
 
 function NetworkMatchMakingSTEAM:search_lobby_done()
@@ -369,26 +321,21 @@ function NetworkMatchMakingSTEAM:is_server_ok(friends_only, room, attributes_num
 		Application:error("No level data for index " .. level_index .. ". Payday1 data not compatible with Payday2.")
 		return false
 	end
-
 	if (not NetworkManager.DROPIN_ENABLED or attributes_numbers[6] == 0) and attributes_numbers[4] ~= 1 then
 		Application:debug("NetworkMatchMakingSTEAM:is_server_ok() server rejected. DROPING NOT ENABLED")
 		return false, 1
 	end
-
 	if managers.experience:current_level() < attributes_numbers[7] then
 		Application:debug("NetworkMatchMakingSTEAM:is_server_ok() server rejected. REPUTATION CAP")
 		return false, 3
 	end
-
 	if not is_invite and permission == "private" then
 		Application:debug("NetworkMatchMakingSTEAM:is_server_ok() server rejected. PRIVATE GAME")
 		return false, 2
 	end
-
 	if permission == "public" then
 		return true
 	end
-
 	return true
 end
 
@@ -410,9 +357,7 @@ function NetworkMatchMakingSTEAM:join_server_with_check(room_id, is_invite)
 				managers.menu:show_failed_joining_dialog()
 				return
 			end
-
 		end
-
 		print(inspect(attributes))
 		local server_ok, ok_error = self:is_server_ok(nil, room_id, attributes, is_invite)
 		if server_ok then
@@ -428,10 +373,8 @@ function NetworkMatchMakingSTEAM:join_server_with_check(room_id, is_invite)
 			elseif ok_error == 4 then
 				managers.menu:show_does_not_own_heist()
 			end
-
 			self:search_lobby(self:search_friends_only())
 		end
-
 	end
 
 	lobby:setup_callback(f)
@@ -441,19 +384,16 @@ function NetworkMatchMakingSTEAM:join_server_with_check(room_id, is_invite)
 	else
 		f()
 	end
-
 end
 
 function NetworkMatchMakingSTEAM._on_member_left(steam_id, status)
 	if not managers.network:session() then
 		return
 	end
-
 	local peer = managers.network:session():peer_by_user_id(steam_id)
 	if not peer then
 		return
 	end
-
 	if peer == managers.network:session():local_peer() and managers.network:session():is_server() then
 		managers.network:session():on_peer_left(peer, peer_id)
 		return
@@ -461,7 +401,6 @@ function NetworkMatchMakingSTEAM._on_member_left(steam_id, status)
 		Application:error("OMG I LEFT THE LOBBY")
 		managers.network.matchmake._try_re_enter_lobby = "lost"
 	end
-
 	managers.network:session():on_peer_left_lobby(peer)
 end
 
@@ -471,7 +410,6 @@ function NetworkMatchMakingSTEAM._on_memberstatus_change(memberstatus)
 	if status == "lost_steam_connection" or status == "left_become_owner" or status == "left" or status == "kicked" or status == "banned" or status == "invalid" then
 		NetworkMatchMakingSTEAM._on_member_left(user, status)
 	end
-
 end
 
 function NetworkMatchMakingSTEAM._on_data_update(...)
@@ -491,7 +429,6 @@ function NetworkMatchMakingSTEAM:join_server(room_id, skip_showing_dialog)
 	if not skip_showing_dialog then
 		managers.menu:show_joining_lobby_dialog()
 	end
-
 	local function f(result, handler)
 		print("[NetworkMatchMakingSTEAM:join_server:f]", result, handler)
 		managers.system_menu:close("join_server")
@@ -507,7 +444,6 @@ function NetworkMatchMakingSTEAM:join_server(room_id, skip_showing_dialog)
 			if not self._server_rpc then
 				return
 			end
-
 			self.lobby_handler:setup_callbacks(NetworkMatchMakingSTEAM._on_memberstatus_change, NetworkMatchMakingSTEAM._on_data_update, NetworkMatchMakingSTEAM._on_chat_message)
 			managers.network:start_client()
 			managers.menu:show_waiting_for_server_response({
@@ -579,7 +515,6 @@ function NetworkMatchMakingSTEAM:join_server(room_id, skip_showing_dialog)
 				else
 					Application:error("[NetworkMatchMakingSTEAM:join_server] FAILED TO START MULTIPLAYER!", res)
 				end
-
 			end
 
 			managers.network:join_game_at_host_rpc(self._server_rpc, joined_game)
@@ -587,7 +522,6 @@ function NetworkMatchMakingSTEAM:join_server(room_id, skip_showing_dialog)
 			managers.menu:show_failed_joining_dialog()
 			self:search_lobby(self:search_friends_only())
 		end
-
 	end
 
 	Steam:join_lobby(room_id, f)
@@ -633,7 +567,6 @@ function NetworkMatchMakingSTEAM:create_lobby(settings)
 			}
 			managers.system_menu:show(dialog_data)
 		end
-
 	end
 
 	return Steam:create_lobby(f, NetworkMatchMakingSTEAM.OPEN_SLOTS, "invisible")
@@ -646,7 +579,6 @@ function NetworkMatchMakingSTEAM:set_num_players(num)
 		self._lobby_attributes.num_players = num
 		self.lobby_handler:set_lobby_data(self._lobby_attributes)
 	end
-
 end
 
 function NetworkMatchMakingSTEAM:set_server_state(state)
@@ -658,11 +590,8 @@ function NetworkMatchMakingSTEAM:set_server_state(state)
 			if not NetworkManager.DROPIN_ENABLED then
 				self.lobby_handler:set_joinable(state == "in_lobby")
 			end
-
 		end
-
 	end
-
 end
 
 function NetworkMatchMakingSTEAM:set_server_joinable(state)
@@ -671,7 +600,6 @@ function NetworkMatchMakingSTEAM:set_server_joinable(state)
 	if self.lobby_handler then
 		self.lobby_handler:set_joinable(state)
 	end
-
 end
 
 function NetworkMatchMakingSTEAM:is_server_joinable()
@@ -686,7 +614,6 @@ function NetworkMatchMakingSTEAM:set_attributes(settings)
 	if not self.lobby_handler then
 		return
 	end
-
 	local permissions = {
 		"public",
 		"friend",
@@ -711,7 +638,6 @@ function NetworkMatchMakingSTEAM:set_attributes(settings)
 	if self._BUILD_SEARCH_INTEREST_KEY then
 		lobby_attributes[self._BUILD_SEARCH_INTEREST_KEY] = "true"
 	end
-
 	self._lobby_attributes = lobby_attributes
 	self.lobby_handler:set_lobby_data(lobby_attributes)
 	self.lobby_handler:set_lobby_type(permissions[settings.numbers[3]])
@@ -740,8 +666,6 @@ function NetworkMatchMakingSTEAM:from_host_lobby_re_opened(status)
 			self._try_re_enter_lobby = nil
 			managers.network.matchmake:leave_game()
 		end
-
 	end
-
 end
 

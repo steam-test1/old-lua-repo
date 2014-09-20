@@ -23,145 +23,111 @@ function MissionAssetsManager:_setup_mission_assets()
 	if not current_stage or not is_host then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._tweak_data)
-		do
-			do break end
-			if asset.stages and (asset.stages == "all" or table.contains(asset.stages, current_stage)) then
-				local requirements = {}
-				requirements.saved_job_lock = nil
-				requirements.job_lock = nil
-				requirements.money_lock = nil
-				requirements.upgrade_lock = nil
-				requirements.achievment_lock = nil
-				requirements.risk_lock = nil
-				requirements.dlc_lock = nil
-				local can_unlock = false
-				local require_to_unlock = asset.require_to_unlock or "all"
-				if asset.money_lock then
-					requirements.money_lock = false
-					can_unlock = true
-				end
-
-				if asset.saved_job_lock then
-					local saved_job_lock = asset.saved_job_lock
-					if type(saved_job_lock) == "table" then
-						local saved_job_value = managers.mission:get_saved_job_value(saved_job_lock[1]) or 0
-						local operator = saved_job_lock[2] or "=="
-						local check_value = saved_job_lock[3] or 0
-						local function_string = "return " .. tostring(tonumber(saved_job_value) or 0) .. operator .. tostring(tonumber(check_value) or 0)
-						requirements.saved_job_lock = loadstring(function_string)() or false
-					else
-						requirements.saved_job_lock = managers.mission:get_saved_job_value(saved_job_lock) or false
-					end
-
-					if not requirements.saved_job_lock or not can_unlock then
-						can_unlock = false
-					end
-
-				end
-
-				if asset.job_lock then
-					local job_lock = asset.job_lock
-					if type(job_lock) == "table" then
-						local job_value = managers.mission:get_job_value(job_lock[1]) or 0
-						local operator = job_lock[2] or "=="
-						local check_value = job_lock[3] or 0
-						local function_string = "return " .. tostring(tonumber(job_value) or 0) .. operator .. tostring(tonumber(check_value) or 0)
-						requirements.job_lock = loadstring(function_string)() or false
-					else
-						requirements.job_lock = managers.mission:get_job_value(job_lock) or false
-					end
-
-					if not requirements.job_lock or not can_unlock then
-						can_unlock = false
-					end
-
-				end
-
-				if asset.upgrade_lock then
-					requirements.upgrade_lock = managers.player:has_category_upgrade(asset.upgrade_lock.category, asset.upgrade_lock.upgrade)
-					if not requirements.upgrade_lock or not can_unlock then
-						can_unlock = false
-					end
-
-				end
-
-				if asset.achievment_lock then
-					requirements.achievment_lock = managers.achievment:exists(asset.achievment_lock) and managers.achievment:get_info(asset.achievment_lock).awarded
-					if not requirements.achievment_lock or not can_unlock then
-						can_unlock = false
-					end
-
-				end
-
-				if asset.dlc_lock then
-					requirements.dlc_lock = managers.dlc:has_dlc(asset.dlc_lock)
-					if not requirements.dlc_lock or not can_unlock then
-						can_unlock = false
-					end
-
-				end
-
-				if asset.risk_lock then
-					requirements.risk_lock = current_stage ~= "safehouse" and (asset.risk_lock == true or managers.job:current_difficulty_stars() == asset.risk_lock)
-					if current_stage == "safehouse" or not requirements.risk_lock or not can_unlock then
-						can_unlock = false
-					end
-
-				end
-
-				local needs_any = Idstring(require_to_unlock) == Idstring("any")
-				local unlocked = true
-				local local_only = asset.local_only
-				if needs_any and asset.money_lock then
-					can_unlock = true
-				end
-
-				do
-					local (for generator), (for state), (for control) = pairs(requirements)
-					do
-						do break end
-						if exist then
-							if needs_any then
-								unlocked = true
-							else
-								else
-									unlocked = false
-									if not needs_any then
-								end
-
-								else
-								end
-
-							end
-
-					end
-
-				end
-
-				local show = unlocked or can_unlock or asset.visible_if_locked
-				if local_only then
-					show = nil
-					unlocked = true
-					can_unlock = true
-				end
-
-				table.insert(self._global.assets, {
-					id = id,
-					unlocked = unlocked,
-					show = show,
-					can_unlock = can_unlock,
-					no_mystery = asset.no_mystery,
-					local_only = local_only
-				})
+	for id, asset in pairs(self._tweak_data) do
+		if asset.stages and (asset.stages == "all" or table.contains(asset.stages, current_stage)) then
+			local requirements = {}
+			requirements.saved_job_lock = nil
+			requirements.job_lock = nil
+			requirements.money_lock = nil
+			requirements.upgrade_lock = nil
+			requirements.achievment_lock = nil
+			requirements.risk_lock = nil
+			requirements.dlc_lock = nil
+			local can_unlock = false
+			local require_to_unlock = asset.require_to_unlock or "all"
+			if asset.money_lock then
+				requirements.money_lock = false
+				can_unlock = true
 			end
-
+			if asset.saved_job_lock then
+				local saved_job_lock = asset.saved_job_lock
+				if type(saved_job_lock) == "table" then
+					local saved_job_value = managers.mission:get_saved_job_value(saved_job_lock[1]) or 0
+					local operator = saved_job_lock[2] or "=="
+					local check_value = saved_job_lock[3] or 0
+					local function_string = "return " .. tostring(tonumber(saved_job_value) or 0) .. operator .. tostring(tonumber(check_value) or 0)
+					requirements.saved_job_lock = loadstring(function_string)() or false
+				else
+					requirements.saved_job_lock = managers.mission:get_saved_job_value(saved_job_lock) or false
+				end
+				if not requirements.saved_job_lock or not can_unlock then
+					can_unlock = false
+				end
+			end
+			if asset.job_lock then
+				local job_lock = asset.job_lock
+				if type(job_lock) == "table" then
+					local job_value = managers.mission:get_job_value(job_lock[1]) or 0
+					local operator = job_lock[2] or "=="
+					local check_value = job_lock[3] or 0
+					local function_string = "return " .. tostring(tonumber(job_value) or 0) .. operator .. tostring(tonumber(check_value) or 0)
+					requirements.job_lock = loadstring(function_string)() or false
+				else
+					requirements.job_lock = managers.mission:get_job_value(job_lock) or false
+				end
+				if not requirements.job_lock or not can_unlock then
+					can_unlock = false
+				end
+			end
+			if asset.upgrade_lock then
+				requirements.upgrade_lock = managers.player:has_category_upgrade(asset.upgrade_lock.category, asset.upgrade_lock.upgrade)
+				if not requirements.upgrade_lock or not can_unlock then
+					can_unlock = false
+				end
+			end
+			if asset.achievment_lock then
+				requirements.achievment_lock = managers.achievment:exists(asset.achievment_lock) and managers.achievment:get_info(asset.achievment_lock).awarded
+				if not requirements.achievment_lock or not can_unlock then
+					can_unlock = false
+				end
+			end
+			if asset.dlc_lock then
+				requirements.dlc_lock = managers.dlc:has_dlc(asset.dlc_lock)
+				if not requirements.dlc_lock or not can_unlock then
+					can_unlock = false
+				end
+			end
+			if asset.risk_lock then
+				requirements.risk_lock = current_stage ~= "safehouse" and (asset.risk_lock == true or managers.job:current_difficulty_stars() == asset.risk_lock)
+				if current_stage == "safehouse" or not requirements.risk_lock or not can_unlock then
+					can_unlock = false
+				end
+			end
+			local needs_any = Idstring(require_to_unlock) == Idstring("any")
+			local unlocked = true
+			local local_only = asset.local_only
+			if needs_any and asset.money_lock then
+				can_unlock = true
+			end
+			for id, exist in pairs(requirements) do
+				if exist then
+					if needs_any then
+						unlocked = true
+					else
+						else
+							unlocked = false
+							if not needs_any then
+						end
+						else
+						end
+					end
+			end
+			local show = unlocked or can_unlock or asset.visible_if_locked
+			if local_only then
+				show = nil
+				unlocked = true
+				can_unlock = true
+			end
+			table.insert(self._global.assets, {
+				id = id,
+				unlocked = unlocked,
+				show = show,
+				can_unlock = can_unlock,
+				no_mystery = asset.no_mystery,
+				local_only = local_only
+			})
 		end
-
 	end
-
 	table.sort(self._global.assets, function(x, y)
 		if x.local_only ~= y.local_only then
 			return x.local_only
@@ -172,11 +138,9 @@ function MissionAssetsManager:_setup_mission_assets()
 		elseif x.can_unlock ~= y.can_unlock then
 			return x.can_unlock
 		end
-
 		if x.no_mystery ~= y.no_mystery then
 			return x.no_mystery
 		end
-
 		if self._tweak_data[x.id].money_lock and self._tweak_data[y.id].money_lock then
 			return self._tweak_data[x.id].money_lock < self._tweak_data[y.id].money_lock
 		elseif self._tweak_data[x.id].money_lock then
@@ -186,7 +150,6 @@ function MissionAssetsManager:_setup_mission_assets()
 		else
 			return x.id < y.id
 		end
-
 	end
 )
 end
@@ -197,7 +160,6 @@ function MissionAssetsManager:init_finalize()
 	if not current_stage or not is_server then
 		return
 	end
-
 	self:create_asset_textures()
 	self:_check_triggers("asset")
 end
@@ -226,10 +188,7 @@ function MissionAssetsManager:_check_triggers(type)
 	if not self._triggers[type] then
 		return
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._triggers[type])
-	do
-		do break end
+	for id, cb_data in pairs(self._triggers[type]) do
 		local asset = self:_get_asset_by_id(cb_data.id)
 		if type ~= "asset" or asset and asset.unlocked and not asset.is_triggered then
 			cb_data.callback()
@@ -237,11 +196,8 @@ function MissionAssetsManager:_check_triggers(type)
 				asset.is_triggered = true
 				self:trigger_asset_tweak(cb_data.id)
 			end
-
 		end
-
 	end
-
 end
 
 function MissionAssetsManager:trigger_asset_tweak(asset_id)
@@ -249,45 +205,37 @@ function MissionAssetsManager:trigger_asset_tweak(asset_id)
 	if not asset_tweak_data then
 		return
 	end
-
 	local set_job_value = asset_tweak_data.set_job_value
 	if set_job_value then
 		managers.mission:set_job_value(set_job_value[1], set_job_value[2])
 	end
-
 	local set_saved_job_value = asset_tweak_data.set_saved_job_value
 	if set_saved_job_value then
 		managers.mission:set_saved_job_value(set_saved_job_value[1], set_saved_job_value[2])
 	end
-
 end
 
 function MissionAssetsManager:unlock_asset(asset_id)
 	if Idstring(asset_id) == Idstring("none") then
 		return
 	end
-
 	if not self:is_unlock_asset_allowed() then
 		return
 	end
-
 	if Network:is_server() then
 		if not self:get_asset_triggered_by_id(asset_id) then
 			self._money_spent = self._money_spent + managers.money:on_buy_mission_asset(asset_id)
 			self:server_unlock_asset(asset_id)
 			self:_on_asset_unlocked(asset_id)
 		end
-
 	elseif self.ALLOW_CLIENTS_UNLOCK and not self:get_asset_unlocked_by_id(asset_id) then
 		self._money_spent = self._money_spent + managers.money:on_buy_mission_asset(asset_id)
 		managers.network:session():send_to_host("server_unlock_asset", asset_id)
 		self:_on_asset_unlocked(asset_id)
 	end
-
 	if WalletGuiObject then
 		WalletGuiObject.refresh()
 	end
-
 end
 
 function MissionAssetsManager:_on_asset_unlocked(asset_id)
@@ -295,11 +243,9 @@ function MissionAssetsManager:_on_asset_unlocked(asset_id)
 	if asset_tweak_data and asset_tweak_data.award_achievement then
 		managers.achievment:award(asset_tweak_data.award_achievement)
 	end
-
 	if asset_tweak_data and asset_tweak_data.progress_stat then
 		managers.achievment:award_progress(asset_tweak_data.progress_stat)
 	end
-
 end
 
 function MissionAssetsManager:get_money_spent()
@@ -310,7 +256,6 @@ function MissionAssetsManager:server_unlock_asset(asset_id, peer)
 	if not self:is_unlock_asset_allowed() then
 		return
 	end
-
 	peer = peer or managers.network:session():local_peer()
 	managers.network:session():send_to_peers_synched("sync_unlock_asset", asset_id, peer:id())
 	self:sync_unlock_asset(asset_id, peer)
@@ -323,12 +268,10 @@ function MissionAssetsManager:sync_unlock_asset(asset_id, peer)
 		Application:error("sync_set_asset_enabled: No asset with id:", asset_id)
 		return
 	end
-
 	if asset.unlocked then
 		Application:error("sync_set_asset_enabled: Asset already unlocked:", asset_id)
 		return
 	end
-
 	asset.unlocked = true
 	managers.menu_component:unlock_asset_mission_briefing_gui(asset_id)
 	self:trigger_asset_tweak(asset_id)
@@ -340,41 +283,26 @@ function MissionAssetsManager:sync_unlock_asset(asset_id, peer)
 				asset = managers.localization:text(asset_tweak_data.name_id)
 			}))
 		end
-
 	end
-
 end
 
 function MissionAssetsManager:get_every_asset_ids()
 	local asset_ids = {}
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.assets)
-		do
-			do break end
-			table.insert(asset_ids, id)
-		end
-
+	for id, asset in pairs(tweak_data.assets) do
+		table.insert(asset_ids, id)
 	end
-
 	return asset_ids
 end
 
 function MissionAssetsManager:get_all_asset_ids(only_visible)
 	local asset_ids = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._global.assets)
-		do
-			do break end
-			local is_visible = not only_visible or asset.show
-			local is_local_only = asset.local_only and self:is_asset_unlockable(asset.id)
-			if is_visible or is_local_only then
-				table.insert(asset_ids, asset.id)
-			end
-
+	for _, asset in ipairs(self._global.assets) do
+		local is_visible = not only_visible or asset.show
+		local is_local_only = asset.local_only and self:is_asset_unlockable(asset.id)
+		if is_visible or is_local_only then
+			table.insert(asset_ids, asset.id)
 		end
-
 	end
-
 	return asset_ids
 end
 
@@ -383,15 +311,11 @@ function MissionAssetsManager:get_default_asset_id()
 end
 
 function MissionAssetsManager:_get_asset_by_id(id)
-	local (for generator), (for state), (for control) = pairs(self._global.assets)
-	do
-		do break end
+	for _, asset in pairs(self._global.assets) do
 		if asset.id == id then
 			return asset
 		end
-
 	end
-
 end
 
 function MissionAssetsManager:is_asset_unlockable(id)
@@ -399,7 +323,6 @@ function MissionAssetsManager:is_asset_unlockable(id)
 	if not asset_tweak_data then
 		return false
 	end
-
 	local upgrade_lock, achievment_lock, dlc_lock
 	local can_unlock = true
 	if asset_tweak_data.upgrade_lock then
@@ -407,25 +330,19 @@ function MissionAssetsManager:is_asset_unlockable(id)
 		if not upgrade_lock or not can_unlock then
 			can_unlock = false
 		end
-
 	end
-
 	if asset_tweak_data.achievment_lock then
 		achievment_lock = managers.achievment:exists(asset_tweak_data.achievment_lock) and managers.achievment:get_info(asset_tweak_data.achievment_lock).awarded or false
 		if not achievment_lock or not can_unlock then
 			can_unlock = false
 		end
-
 	end
-
 	if asset_tweak_data.dlc_lock then
 		dlc_lock = managers.dlc:has_dlc(asset_tweak_data.dlc_lock) or false
 		if not dlc_lock or not can_unlock then
 			can_unlock = false
 		end
-
 	end
-
 	return can_unlock
 end
 
@@ -436,21 +353,17 @@ function MissionAssetsManager:get_asset_can_unlock_by_id(id)
 	if not self:is_unlock_asset_allowed() then
 		return false
 	end
-
 	if self.ALLOW_CLIENTS_UNLOCK and is_client then
 		local asset_tweak_data = self._tweak_data[id]
 		if asset_tweak_data.server_lock and asset and asset.can_unlock then
 			return true
 		end
-
 		if asset_tweak_data and asset_tweak_data.no_mystery and asset_tweak_data.money_lock then
 			return self:is_asset_unlockable(id)
 		end
-
 	elseif asset and asset.can_unlock then
 		return true
 	end
-
 	return false
 end
 
@@ -496,9 +409,7 @@ function MissionAssetsManager:get_asset_unlock_text_by_id(id)
 		elseif asset_tweak_data.dlc_lock then
 			text = "dlc_" .. asset_tweak_data.dlc_lock
 		end
-
 	end
-
 	return prefix .. text
 end
 
@@ -506,7 +417,6 @@ function MissionAssetsManager:is_unlock_asset_allowed()
 	if game_state_machine:current_state_name() ~= "ingame_waiting_for_players" then
 		return false
 	end
-
 	local check_is_dropin = game_state_machine and game_state_machine:current_state() and game_state_machine:current_state().check_is_dropin and game_state_machine:current_state():check_is_dropin()
 	return not check_is_dropin
 end
@@ -522,23 +432,15 @@ end
 
 function MissionAssetsManager:clear_asset_textures()
 	if self._asset_textures_loaded then
-		local (for generator), (for state), (for control) = pairs(self._asset_textures_loaded)
-		do
-			do break end
+		for texture_key, texture in pairs(self._asset_textures_loaded) do
 			TextureCache:unretrieve(texture)
 		end
-
 	end
-
 	if self._asset_textures_in_loading then
-		local (for generator), (for state), (for control) = pairs(self._asset_textures_in_loading)
-		do
-			do break end
+		for texture_key, texture_data in pairs(self._asset_textures_in_loading) do
 			TextureCache:unretrieve(Idstring(texture_data[2]))
 		end
-
 	end
-
 	self._asset_textures_in_loading = {}
 	self._asset_textures_loaded = {}
 end
@@ -548,21 +450,14 @@ function MissionAssetsManager:create_asset_textures()
 		Application:debug("[MissionAssetsManager] create_asset_textures(): ", managers.platform:presence())
 		return
 	end
-
 	local all_visible_assets = self:get_all_asset_ids(true)
 	local texture_loaded_clbk = callback(self, self, "texture_loaded_clbk")
 	local texture
-	do
-		local (for generator), (for state), (for control) = ipairs(all_visible_assets)
-		do
-			do break end
-			texture = self._tweak_data[asset_id].texture
-			self._asset_textures_in_loading[Idstring(texture):key()] = {asset_id, texture}
-			TextureCache:request(texture, "NORMAL", texture_loaded_clbk, 100)
-		end
-
+	for _, asset_id in ipairs(all_visible_assets) do
+		texture = self._tweak_data[asset_id].texture
+		self._asset_textures_in_loading[Idstring(texture):key()] = {asset_id, texture}
+		TextureCache:request(texture, "NORMAL", texture_loaded_clbk, 100)
 	end
-
 	self:check_all_textures_loaded()
 end
 
@@ -571,7 +466,6 @@ function MissionAssetsManager:get_asset_texture(asset_id)
 	if not texture then
 		Application:error("[MissionAssetsManager] get_asset_texture(): Asset texture not loaded!", asset_id)
 	end
-
 	return texture
 end
 
@@ -579,7 +473,6 @@ function MissionAssetsManager:texture_loaded_clbk(texture_idstring)
 	if not self._asset_textures_in_loading[texture_idstring:key()] then
 		return
 	end
-
 	local asset_texture_data = self._asset_textures_in_loading[texture_idstring:key()]
 	local asset_id = asset_texture_data[1]
 	local texture_path = asset_texture_data[2]
@@ -588,7 +481,6 @@ function MissionAssetsManager:texture_loaded_clbk(texture_idstring)
 		TextureCache:unretrieve(texture_idstring)
 		return
 	end
-
 	self._asset_textures_loaded[asset_id] = texture_idstring
 	self._asset_textures_in_loading[texture_idstring:key()] = nil
 	Application:debug("[MissionAssetsManager] Texture loaded for asset", asset_id)
@@ -600,14 +492,12 @@ function MissionAssetsManager:check_all_textures_loaded()
 		Application:debug("[MissionAssetsManager] Creating mission assets")
 		managers.menu_component:create_asset_mission_briefing_gui()
 	end
-
 end
 
 function MissionAssetsManager:is_all_textures_loaded()
 	if not self._asset_textures_in_loading or not self._asset_textures_loaded then
 		return false
 	end
-
 	return table.size(self._asset_textures_in_loading) == 0 and table.size(self._asset_textures_loaded) ~= 0
 end
 

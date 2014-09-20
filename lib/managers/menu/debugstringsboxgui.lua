@@ -25,7 +25,6 @@ function DebugStringsBoxGui:_create_text_box(ws, title, text, content_data, conf
 		self._info_box:close()
 		self._info_box = nil
 	end
-
 	local strings_panel = self._scroll_panel:panel({
 		name = "strings_panel",
 		x = 0,
@@ -36,71 +35,59 @@ function DebugStringsBoxGui:_create_text_box(ws, title, text, content_data, conf
 	local i = 0
 	local ids = managers.localization:debug_file(self._file)
 	local sorted = {}
-	do
-		local (for generator), (for state), (for control) = pairs(ids)
-		do
-			do break end
-			table.insert(sorted, id)
-		end
-
+	for id, _ in pairs(ids) do
+		table.insert(sorted, id)
 	end
-
 	table.sort(sorted)
-	do
-		local (for generator), (for state), (for control) = pairs(sorted)
-		do
-			do break end
-			local localized = ids[id]
-			local even = math.mod(i, 2) == 0
-			local string_panel = strings_panel:panel({
-				name = id,
-				y = y,
-				w = 528
-			})
-			string_panel:rect({
-				name = "bg",
-				color = even and Color.white / 1.5 or Color.white / 2:with_alpha(0.25),
-				halign = "grow",
-				layer = 1
-			})
-			local text_id = string_panel:text({
-				name = "id",
-				text = id,
-				font = tweak_data.menu.pd2_small_font,
-				font_size = tweak_data.menu.pd2_small_font_size,
-				y = 0,
-				x = 16,
-				align = "left",
-				halign = "left",
-				vertical = "center",
-				color = Color.white,
-				layer = 2
-			})
-			local text = string_panel:text({
-				name = "text",
-				text = localized,
-				font = tweak_data.menu.pd2_small_font,
-				font_size = tweak_data.menu.pd2_small_font_size,
-				y = 0,
-				x = string_panel:w() / 2,
-				align = "left",
-				vertical = "top",
-				color = Color.white,
-				layer = 2,
-				wrap = true,
-				word_wrap = true
-			})
-			local _, _, tw, th = text_id:text_rect()
-			local _, _, tw2, th2 = text:text_rect()
-			text_id:set_size(tw, th)
-			text:set_size(tw2, th2)
-			string_panel:set_h(math.max(text_id:h(), text:h()) + 4)
-			y = y + string_panel:h()
-			i = i + 1
-		end
-
+	for _, id in pairs(sorted) do
+		local localized = ids[id]
+		local even = math.mod(i, 2) == 0
+		local string_panel = strings_panel:panel({
+			name = id,
+			y = y,
+			w = 528
+		})
+		string_panel:rect({
+			name = "bg",
+			color = even and Color.white / 1.5 or Color.white / 2:with_alpha(0.25),
+			halign = "grow",
+			layer = 1
+		})
+		local text_id = string_panel:text({
+			name = "id",
+			text = id,
+			font = tweak_data.menu.pd2_small_font,
+			font_size = tweak_data.menu.pd2_small_font_size,
+			y = 0,
+			x = 16,
+			align = "left",
+			halign = "left",
+			vertical = "center",
+			color = Color.white,
+			layer = 2
+		})
+		local text = string_panel:text({
+			name = "text",
+			text = localized,
+			font = tweak_data.menu.pd2_small_font,
+			font_size = tweak_data.menu.pd2_small_font_size,
+			y = 0,
+			x = string_panel:w() / 2,
+			align = "left",
+			vertical = "top",
+			color = Color.white,
+			layer = 2,
+			wrap = true,
+			word_wrap = true
+		})
+		local _, _, tw, th = text_id:text_rect()
+		local _, _, tw2, th2 = text:text_rect()
+		text_id:set_size(tw, th)
+		text:set_size(tw2, th2)
+		string_panel:set_h(math.max(text_id:h(), text:h()) + 4)
+		y = y + string_panel:h()
+		i = i + 1
 	end
-
 	strings_panel:set_h(y + 14)
 	self._scroll_panel:set_h(math.max(self._scroll_panel:h(), strings_panel:h()))
 	self:_set_scroll_indicator()
@@ -118,9 +105,7 @@ function DebugStringsBoxGui:set_size(x, y)
 	local strings_panel = self._scroll_panel:child("strings_panel")
 	strings_panel:set_w(self._scroll_panel:w())
 	local hy = 0
-	local (for generator), (for state), (for control) = ipairs(strings_panel:children())
-	do
-		do break end
+	for _, child in ipairs(strings_panel:children()) do
 		child:set_w(strings_panel:w())
 		child:set_y(hy)
 		local text_id = child:child("id")
@@ -136,7 +121,6 @@ function DebugStringsBoxGui:set_size(x, y)
 		child:set_h(math.max(text_id:h(), text:h()) + 4)
 		hy = hy + child:h()
 	end
-
 end
 
 function DebugStringsBoxGui:set_visible(visible)

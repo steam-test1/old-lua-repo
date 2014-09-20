@@ -39,7 +39,6 @@ function NewNPCRaycastWeaponBase:init(unit)
 			parent = self._obj_shell_ejection
 		}
 	end
-
 	self._trail_effect_table = {
 		effect = self.TRAIL_EFFECT,
 		position = Vector3(),
@@ -50,18 +49,15 @@ function NewNPCRaycastWeaponBase:init(unit)
 		if not NewNPCRaycastWeaponBase._next_i_voice[self._name_id] then
 			NewNPCRaycastWeaponBase._next_i_voice[self._name_id] = 1
 		end
-
 		self._voice = NewNPCRaycastWeaponBase._VOICES[NewNPCRaycastWeaponBase._next_i_voice[self._name_id]]
 		if NewNPCRaycastWeaponBase._next_i_voice[self._name_id] == #NewNPCRaycastWeaponBase._VOICES then
 			NewNPCRaycastWeaponBase._next_i_voice[self._name_id] = 1
 		else
 			NewNPCRaycastWeaponBase._next_i_voice[self._name_id] = NewNPCRaycastWeaponBase._next_i_voice[self._name_id] + 1
 		end
-
 	else
 		self._voice = "a"
 	end
-
 	if self._unit:get_object(Idstring("ls_flashlight")) then
 		self._flashlight_data = {}
 		self._flashlight_data.light = self._unit:get_object(Idstring("ls_flashlight"))
@@ -70,7 +66,6 @@ function NewNPCRaycastWeaponBase:init(unit)
 		self._flashlight_data.light:set_spot_angle_end(25)
 		self._flashlight_data.light:set_multiplier(2)
 	end
-
 end
 
 function NewNPCRaycastWeaponBase:setup(setup_data)
@@ -97,12 +92,10 @@ function NewNPCRaycastWeaponBase:check_npc()
 	if not self._assembly_complete then
 		return
 	end
-
 	local gadget = managers.weapon_factory:get_part_from_weapon_by_type("gadget", self._parts)
 	if gadget then
 		gadget.unit:base():set_npc()
 	end
-
 end
 
 function NewNPCRaycastWeaponBase:start_autofire(nr_shots)
@@ -121,7 +114,6 @@ function NewNPCRaycastWeaponBase:singleshot(...)
 	if fired then
 		self:_sound_singleshot()
 	end
-
 	return fired
 end
 
@@ -132,9 +124,7 @@ function NewNPCRaycastWeaponBase:trigger_held(...)
 		if fired then
 			self._next_fire_allowed = self._next_fire_allowed + tweak_data.weapon[self._name_id].auto.fire_rate
 		end
-
 	end
-
 	return fired
 end
 
@@ -156,7 +146,6 @@ function NewNPCRaycastWeaponBase:fire_blank(direction, impact)
 			self._obj_fire:m_position(self._trail_effect_table.position)
 			mvector3.set(self._trail_effect_table.normal, mspread)
 		end
-
 		local trail
 		trail = self:weapon_tweak_data().no_trail or alive(self._obj_fire) and (not col_ray or col_ray.distance > 650) and World:effect_manager():spawn(self._trail_effect_table) or nil
 		if col_ray then
@@ -164,20 +153,15 @@ function NewNPCRaycastWeaponBase:fire_blank(direction, impact)
 			if trail then
 				World:effect_manager():set_remaining_lifetime(trail, math.clamp((col_ray.distance - 600) / 10000, 0, col_ray.distance))
 			end
-
 			table.insert(rays, col_ray)
 		end
-
 	end
-
 	if alive(self._obj_fire) then
 		World:effect_manager():spawn(self._muzzle_effect_table)
 	end
-
 	if self._use_shell_ejection_effect then
 		World:effect_manager():spawn(self._shell_ejection_effect_table)
 	end
-
 	self:_sound_singleshot()
 end
 
@@ -187,7 +171,6 @@ function NewNPCRaycastWeaponBase:destroy(unit)
 	if self._shooting then
 		self:stop_autofire()
 	end
-
 end
 
 function NewNPCRaycastWeaponBase:_get_spread(user_unit)
@@ -201,7 +184,6 @@ function NewNPCRaycastWeaponBase:_sound_autofire_start(nr_shots)
 		sound_name = tweak_sound.prefix .. "1" .. self._voice .. "_end"
 		sound = self._sound_fire:post_event(sound_name)
 	end
-
 end
 
 function NewNPCRaycastWeaponBase:_sound_autofire_end()
@@ -212,7 +194,6 @@ function NewNPCRaycastWeaponBase:_sound_autofire_end()
 		sound_name = tweak_sound.prefix .. "1" .. self._voice .. "_end"
 		sound = self._sound_fire:post_event(sound_name)
 	end
-
 end
 
 function NewNPCRaycastWeaponBase:_sound_singleshot()
@@ -223,7 +204,6 @@ function NewNPCRaycastWeaponBase:_sound_singleshot()
 		sound_name = tweak_sound.prefix .. "1" .. self._voice .. "_1shot"
 		sound = self._sound_fire:post_event(sound_name)
 	end
-
 end
 
 local mvec_to = Vector3()
@@ -243,24 +223,19 @@ function NewNPCRaycastWeaponBase:_fire_raycast(user_unit, from_pos, direction, d
 		else
 			hit_unit = InstantBulletBase:on_collision(col_ray, self._unit, user_unit, damage)
 		end
-
 	elseif shoot_player and self._hit_player then
 		local hit, ray_data = self:damage_player(col_ray, from_pos, direction)
 		if hit then
 			InstantBulletBase:on_hit_player(ray_data, self._unit, user_unit, damage)
 		end
-
 	end
-
 	if not col_ray or col_ray.distance > 600 then
 		self:_spawn_trail_effect(direction, col_ray)
 	end
-
 	result.hit_enemy = hit_unit
 	if self._alert_events then
 		result.rays = {col_ray}
 	end
-
 	return result
 end
 
@@ -268,14 +243,12 @@ function NewNPCRaycastWeaponBase:_spawn_trail_effect(direction, col_ray)
 	if alive(not self._obj_fire) then
 		return
 	end
-
 	self._obj_fire:m_position(self._trail_effect_table.position)
 	mvector3.set(self._trail_effect_table.normal, direction)
 	local trail = World:effect_manager():spawn(self._trail_effect_table)
 	if col_ray then
 		World:effect_manager():set_remaining_lifetime(trail, math.clamp((col_ray.distance - 600) / 10000, 0, col_ray.distance))
 	end
-
 end
 
 function NewNPCRaycastWeaponBase:has_flashlight_on()
@@ -290,11 +263,9 @@ function NewNPCRaycastWeaponBase:flashlight_state_changed()
 	if not self._flashlight_data then
 		return
 	end
-
 	if not self._flashlight_data.enabled or self._flashlight_data.dropped then
 		return
 	end
-
 	if managers.game_play_central:flashlights_on() then
 		self._flashlight_data.light:set_enable(self._flashlight_light_lod_enabled)
 		self._flashlight_data.effect:activate()
@@ -304,18 +275,15 @@ function NewNPCRaycastWeaponBase:flashlight_state_changed()
 		self._flashlight_data.effect:kill_effect()
 		self._flashlight_data.on = false
 	end
-
 end
 
 function NewNPCRaycastWeaponBase:set_flashlight_enabled(enabled)
 	if not self._flashlight_data then
 		return
 	end
-
 	if not self._assembly_complete then
 		return
 	end
-
 	self._flashlight_data.enabled = enabled
 	if managers.game_play_central:flashlights_on() and enabled then
 		self._flashlight_data.light:set_enable(self._flashlight_light_lod_enabled)
@@ -326,24 +294,20 @@ function NewNPCRaycastWeaponBase:set_flashlight_enabled(enabled)
 		self._flashlight_data.effect:kill_effect()
 		self._flashlight_data.on = false
 	end
-
 end
 
 function NewNPCRaycastWeaponBase:set_flashlight_light_lod_enabled(enabled)
 	if not self._flashlight_data then
 		return
 	end
-
 	if not self._assembly_complete then
 		return
 	end
-
 	self._flashlight_light_lod_enabled = enabled
 	if self._flashlight_data.on and enabled then
 		self._flashlight_data.light:set_enable(true)
 	else
 		self._flashlight_data.light:set_enable(false)
 	end
-
 end
 

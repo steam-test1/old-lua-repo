@@ -16,6 +16,5 @@ function Attract:transition()
 	if self._response:is_done() or Input:any_input() then
 		return CoreMenuStateStart.Start
 	end
-
 end
 

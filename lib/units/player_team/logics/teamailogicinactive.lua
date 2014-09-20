@@ -11,7 +11,6 @@ function TeamAILogicInactive.enter(data, new_logic_name, enter_params)
 		managers.groupai:state():on_criminal_objective_failed(data.unit, data.objective, true)
 		data.unit:brain():set_objective(nil)
 	end
-
 end
 
 function TeamAILogicInactive.is_available_for_assignment(data)

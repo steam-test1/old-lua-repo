@@ -23,14 +23,10 @@ function ObjectiveUnitElement:select_objective_btn(objective_params)
 	if dialog:cancelled() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-	do
-		do break end
+	for _, objective in ipairs(dialog:_selected_item_assets()) do
 		self._hed.objective = objective
 		CoreEws.change_combobox_value(objective_params, self._hed.objective)
 	end
-
 end
 
 function ObjectiveUnitElement:_build_panel(panel, panel_sizer)

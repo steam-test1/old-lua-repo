@@ -12,7 +12,6 @@ function ElementLootBag:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	local unit
 	local pos, rot = self:get_orientation()
 	if self._values.carry_id ~= "none" then
@@ -26,7 +25,6 @@ function ElementLootBag:on_executed(instigator)
 		else
 			print("NO MORE LOOT TO RESPAWN")
 		end
-
 	else
 		local loot = managers.loot:get_distribute()
 		if loot then
@@ -35,14 +33,11 @@ function ElementLootBag:on_executed(instigator)
 		else
 			print("NO MORE LOOT TO DISTRIBUTE")
 		end
-
 	end
-
 	if alive(unit) then
 		self:_check_triggers("spawn", unit)
 		unit:carry_data():set_mission_element(self)
 	end
-
 	ElementLootBag.super.on_executed(self, instigator)
 end
 
@@ -55,13 +50,9 @@ function ElementLootBag:_check_triggers(type, instigator)
 	if not self._triggers[type] then
 		return
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._triggers[type])
-	do
-		do break end
+	for id, cb_data in pairs(self._triggers[type]) do
 		cb_data.callback(instigator)
 	end
-
 end
 
 function ElementLootBag:trigger(type, instigator)
@@ -74,13 +65,10 @@ function ElementLootBagTrigger:init(...)
 end
 
 function ElementLootBagTrigger:on_script_activated()
-	local (for generator), (for state), (for control) = ipairs(self._values.elements)
-	do
-		do break end
+	for _, id in ipairs(self._values.elements) do
 		local element = self:get_mission_element(id)
 		element:add_trigger(self._id, self._values.trigger_type, callback(self, self, "on_executed"))
 	end
-
 end
 
 function ElementLootBagTrigger:client_on_executed(...)
@@ -90,7 +78,6 @@ function ElementLootBagTrigger:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	ElementLootBagTrigger.super.on_executed(self, instigator)
 end
 

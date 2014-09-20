@@ -9,7 +9,6 @@ function CoreShaderLibCompiler:compile(file, dest, force_recompile)
 	if file.name ~= "shaders/base" or file.type ~= "render_template_database" then
 		return false
 	end
-
 	if not force_recompile and self:up_to_date(file, dest) then
 		dest:skip_update("render_template_database", file.name, file.properties)
 		if target() == "win32" then
@@ -24,10 +23,8 @@ function CoreShaderLibCompiler:compile(file, dest, force_recompile)
 		else
 			error("[CoreShaderLibCompiler] Unknown target: " .. target())
 		end
-
 		return true
 	end
-
 	cat_print("debug", "[CoreShaderLibCompiler] Compiling: " .. file.path)
 	local params = self:create_make_file()
 	self:run_compiler()
@@ -43,7 +40,6 @@ function CoreShaderLibCompiler:compile(file, dest, force_recompile)
 	else
 		error("[CoreShaderLibCompiler] Unknown target: " .. target())
 	end
-
 	self:cleanup(params)
 	return false
 end
@@ -75,7 +71,6 @@ function CoreShaderLibCompiler:root_path()
 	if string.sub(out_path, -1) ~= "\\" then
 		out_path = out_path .. "\\"
 	end
-
 	return out_path
 end
 
@@ -96,7 +91,6 @@ function CoreShaderLibCompiler:copy_file(from, to, properties, dest)
 	else
 		cat_print("debug", string.format("[CoreShaderLibCompiler] %s was not compiled! You might be missing dll's...?.", from))
 	end
-
 end
 
 function CoreShaderLibCompiler:create_make_file()
@@ -106,15 +100,9 @@ function CoreShaderLibCompiler:create_make_file()
 	file:write("\t<silent_fail/>\n")
 	file:write("\t<rebuild/>\n")
 	file:write("\t<file_io\n")
-	do
-		local (for generator), (for state), (for control) = pairs(make_params)
-		do
-			do break end
-			file:write("\t\t" .. k .. "=\"" .. string.gsub(v, "/", "\\") .. "\"\n")
-		end
-
+	for k, v in pairs(make_params) do
+		file:write("\t\t" .. k .. "=\"" .. string.gsub(v, "/", "\\") .. "\"\n")
 	end
-
 	file:write([[
 	/>
 </make>
@@ -126,12 +114,9 @@ end
 function CoreShaderLibCompiler:run_compiler()
 	local cmd = string.format("%saux_assets\\engine\\bin\\shaderdev\\shaderdev -m \"%s%smake.xml\"", self:root_path(), self:base_path(), self.TEMP_PATH)
 	local file = assert(io.popen(cmd, "r"), cmd)
-	local (for generator), (for state), (for control) = file:lines()
-	do
-		do break end
+	for line in file:lines() do
 		cat_print("debug", line)
 	end
-
 end
 
 function CoreShaderLibCompiler:get_make_params()
@@ -169,7 +154,6 @@ function CoreShaderLibCompiler:get_make_params()
 	else
 		error("[CoreShaderLibCompiler] Unknown target: " .. target())
 	end
-
 	return make_params
 end
 

@@ -12,7 +12,6 @@ function ElementPlayerState:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	local state = self._values.state
 	local player_unit = managers.player:player_unit()
 	local requires_alive_player = false
@@ -22,18 +21,14 @@ function ElementPlayerState:on_executed(instigator)
 		if alive(player_unit) then
 			player_unit:movement():on_non_lethal_electrocution()
 		end
-
 	end
-
 	if (not self._values.use_instigator or instigator == player_unit) and (not requires_alive_player or alive(player_unit)) then
 		if self._values.state ~= "none" then
 			managers.player:set_player_state(state)
 		elseif Application:editor() then
 			managers.editor:output_error("Cant change to player state " .. state .. " in element " .. self._editor_name .. ".")
 		end
-
 	end
-
 	ElementPlayerState.super.on_executed(self, self._unit or instigator)
 end
 
@@ -52,14 +47,12 @@ function ElementPlayerStateTrigger:send_to_host(instigator)
 	if instigator then
 		managers.network:session():send_to_host("to_server_mission_element_trigger", self._id, instigator)
 	end
-
 end
 
 function ElementPlayerStateTrigger:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	ElementPlayerStateTrigger.super.on_executed(self, self._unit or instigator)
 end
 

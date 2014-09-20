@@ -11,7 +11,6 @@ function GrenadeBase.server_throw_grenade(grenade_type, pos, dir, owner_peer_id)
 	if not GrenadeBase.check_time_cheat(grenade_type, owner_peer_id) then
 		return
 	end
-
 	local unit_name = Idstring(tweak_data.blackmarket.grenades[grenade_entry].unit)
 	local unit = World:spawn_unit(unit_name, pos, Rotation(dir, math.UP))
 	if owner_peer_id and managers.network:game() then
@@ -20,16 +19,13 @@ function GrenadeBase.server_throw_grenade(grenade_type, pos, dir, owner_peer_id)
 		if alive(thrower_unit) then
 			unit:base():set_thrower_unit(thrower_unit)
 		end
-
 	end
-
 	unit:base():throw({dir = dir, grenade_entry = grenade_entry})
 	managers.network:session():send_to_peers_synched("sync_throw_grenade", unit, dir, grenade_type, owner_peer_id or 0)
 	if tweak_data.blackmarket.grenades[grenade_entry].impact_detonation then
 		unit:damage():add_body_collision_callback(callback(unit:base(), unit:base(), "_impact_cbk"))
 		unit:base():create_sweep_data()
 	end
-
 	return unit
 end
 
@@ -37,17 +33,14 @@ function GrenadeBase.check_time_cheat(grenade_type, owner_peer_id)
 	if not owner_peer_id then
 		return true
 	end
-
 	local grenade_entry = GrenadeBase.types[grenade_type]
 	if tweak_data.blackmarket.grenades[grenade_entry].time_cheat then
 		GrenadeBase.time_cheat[grenade_type] = GrenadeBase.time_cheat[grenade_type] or {}
 		if GrenadeBase.time_cheat[grenade_type][owner_peer_id] and GrenadeBase.time_cheat[grenade_type][owner_peer_id] > Application:time() then
 			return false
 		end
-
 		GrenadeBase.time_cheat[grenade_type][owner_peer_id] = Application:time() + tweak_data.blackmarket.grenades[grenade_entry].time_cheat
 	end
-
 	return true
 end
 
@@ -64,7 +57,6 @@ function GrenadeBase:init(unit)
 	if not Network:is_server() then
 		return
 	end
-
 	self:_setup()
 end
 
@@ -90,20 +82,13 @@ function GrenadeBase:add_damage_result(unit, is_dead, damage_percent)
 	if not alive(self._thrower_unit) or self._thrower_unit ~= managers.player:player_unit() then
 		return
 	end
-
 	local unit_type = unit:base()._tweak_table
 	local is_civlian = unit:character_damage():_type_civilian(unit_type)
 	local is_gangster = unit:character_damage():_type_gangster(unit_type)
-	if not is_civlian then
-		-- unhandled boolean indicator
-	else
-		local is_cop = true
-	end
-
+	local is_cop = not is_civlian and not is_gangster
 	if is_civlian then
 		return
 	end
-
 	local weapon_id = tweak_data.blackmarket.grenades[self:grenade_entry()].weapon_id
 	if weapon_id then
 		managers.statistics:shot_fired({
@@ -112,27 +97,17 @@ function GrenadeBase:add_damage_result(unit, is_dead, damage_percent)
 			skip_bullet_count = true
 		})
 	end
-
 	table.insert(self._damage_results, is_dead)
 	local hit_count = #self._damage_results
 	local kill_count = 0
-	do
-		local (for generator), (for state), (for control) = ipairs(self._damage_results)
-		do
-			do break end
-			kill_count = kill_count + (death and 1 or 0)
-		end
-
+	for i, death in ipairs(self._damage_results) do
+		kill_count = kill_count + (death and 1 or 0)
 	end
-
 	local count_pass, grenade_type_pass, kill_pass, distance_pass, enemy_pass, flying_strike_pass, all_pass
-	local (for generator), (for state), (for control) = pairs(tweak_data.achievement.grenade_achievements)
-	do
-		do break end
+	for achievement, achievement_data in pairs(tweak_data.achievement.grenade_achievements) do
 		if achievement_data.count then
 			count_pass = (achievement_data.kill and kill_count or hit_count) >= achievement_data.count
 		end
-
 		grenade_type_pass = not achievement_data.grenade_type or achievement_data.grenade_type == self._grenade_entry
 		kill_pass = not achievement_data.kill or is_dead
 		enemy_pass = not achievement_data.enemy or unit_type == achievement_data.enemy
@@ -142,9 +117,7 @@ function GrenadeBase:add_damage_result(unit, is_dead, damage_percent)
 			if spooc_action and spooc_action:type() == "spooc" and not flying_strike_pass then
 				flying_strike_pass = spooc_action:is_flying_strike()
 			end
-
 		end
-
 		distance_pass = not achievement_data.distance
 		if not distance_pass then
 			mvector3.set(mvec1, self._spawn_position)
@@ -152,7 +125,6 @@ function GrenadeBase:add_damage_result(unit, is_dead, damage_percent)
 			local distance = mvector3.distance_sq(mvec1, mvec2)
 			distance_pass = distance >= achievement_data.distance * achievement_data.distance
 		end
-
 		all_pass = count_pass and grenade_type_pass and kill_pass and distance_pass and enemy_pass and flying_strike_pass
 		if all_pass then
 			if achievement_data.stat then
@@ -160,11 +132,8 @@ function GrenadeBase:add_damage_result(unit, is_dead, damage_percent)
 			elseif achievement_data.award then
 				managers.achievment:award(achievement_data.award)
 			end
-
 		end
-
 	end
-
 end
 
 function GrenadeBase:_setup()
@@ -245,10 +214,8 @@ function GrenadeBase:throw(params)
 			mvector3.multiply(mvec1, 100)
 			sprint:push_at(mass, mvec1, sprint:position())
 		end
-
 		self:set_grenade_entry(params.grenade_entry)
 	end
-
 end
 
 function GrenadeBase:_bounce(...)
@@ -263,9 +230,7 @@ function GrenadeBase:update(unit, t, dt)
 			self:__detonate()
 			return
 		end
-
 	end
-
 	if self._sweep_data then
 		self._unit:m_position(self._sweep_data.current_pos)
 		local col_ray = World:raycast("ray", self._sweep_data.last_pos, self._sweep_data.current_pos, "slot_mask", self._sweep_data.slot_mask)
@@ -273,7 +238,6 @@ function GrenadeBase:update(unit, t, dt)
 			for i = 0, self._unit:num_bodies() - 1 do
 				self._unit:body(i):set_keyframed()
 			end
-
 			mvector3.direction(mvec1, self._sweep_data.last_pos, self._sweep_data.current_pos)
 			mvector3.multiply(mvec1, -10)
 			mvector3.add(mvec1, col_ray.position)
@@ -281,23 +245,19 @@ function GrenadeBase:update(unit, t, dt)
 			self._unit:set_position(mvec1)
 			self:__detonate()
 		end
-
 		self._unit:m_position(self._sweep_data.last_pos)
 	end
-
 end
 
 function GrenadeBase:detonate()
 	if not self._active then
 		return
 	end
-
 end
 
 function GrenadeBase:__detonate()
 	if not self._owner then
 	end
-
 	self:_detonate()
 end
 
@@ -313,7 +273,6 @@ function GrenadeBase:sync_net_event(event_id)
 	if event_id == GrenadeBase.EVENT_IDS.detonate then
 		self:_detonate_on_client()
 	end
-
 end
 
 function GrenadeBase:save(data)

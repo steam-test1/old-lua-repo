@@ -5,7 +5,6 @@ function HUDAssaultCorner:init(hud, full_hud)
 	if self._hud_panel:child("assault_panel") then
 		self._hud_panel:remove(self._hud_panel:child("assault_panel"))
 	end
-
 	local size = 200
 	local assault_panel = self._hud_panel:panel({
 		visible = false,
@@ -60,7 +59,6 @@ function HUDAssaultCorner:init(hud, full_hud)
 	if self._hud_panel:child("hostages_panel") then
 		self._hud_panel:remove(self._hud_panel:child("hostages_panel"))
 	end
-
 	local hostages_panel = self._hud_panel:panel({
 		name = "hostages_panel",
 		w = size,
@@ -102,7 +100,6 @@ function HUDAssaultCorner:init(hud, full_hud)
 	if self._hud_panel:child("point_of_no_return_panel") then
 		self._hud_panel:remove(self._hud_panel:child("point_of_no_return_panel"))
 	end
-
 	local size = 300
 	local point_of_no_return_panel = self._hud_panel:panel({
 		visible = false,
@@ -176,7 +173,6 @@ function HUDAssaultCorner:init(hud, full_hud)
 	if self._hud_panel:child("casing_panel") then
 		self._hud_panel:remove(self._hud_panel:child("casing_panel"))
 	end
-
 	local size = 300
 	local casing_panel = self._hud_panel:panel({
 		visible = false,
@@ -246,7 +242,6 @@ function HUDAssaultCorner:_animate_text(text_panel, bg_box, color)
 			text_panel:remove(texts[text_index].text)
 			texts[text_index] = nil
 		end
-
 		local text_id = text_list[text_index]
 		local text_string = ""
 		if type(text_id) == "string" then
@@ -255,9 +250,7 @@ function HUDAssaultCorner:_animate_text(text_panel, bg_box, color)
 			for i = 1, managers.job:current_difficulty_stars() do
 				text_string = text_string .. managers.localization:get_default_macro("BTN_SKULL")
 			end
-
 		end
-
 		local text = text_panel:text({
 			text = text_string,
 			layer = 1,
@@ -286,16 +279,12 @@ function HUDAssaultCorner:_animate_text(text_panel, bg_box, color)
 				text_index = text_index % #text_list + 1
 				create_new_text(text_panel, text_list, text_index, texts)
 			end
-
 		else
 			text_index = text_index % #text_list + 1
 			create_new_text(text_panel, text_list, text_index, texts)
 		end
-
 		local speed = 90
-		local (for generator), (for state), (for control) = pairs(texts)
-		do
-			do break end
+		for i, data in pairs(texts) do
 			if data.text then
 				data.x = data.x - dt * speed
 				data.text:set_center_x(data.x)
@@ -304,20 +293,15 @@ function HUDAssaultCorner:_animate_text(text_panel, bg_box, color)
 					text_panel:remove(data.text)
 					data.text = nil
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function HUDAssaultCorner:sync_start_assault(data)
 	if self._point_of_no_return then
 		return
 	end
-
 	self:_hide_hostages()
 	if managers.job:current_difficulty_stars() > 0 then
 		local ids_risk = Idstring("risk")
@@ -341,14 +325,12 @@ function HUDAssaultCorner:sync_start_assault(data)
 			"hud_assault_end_line"
 		})
 	end
-
 end
 
 function HUDAssaultCorner:sync_end_assault(result)
 	if self._point_of_no_return then
 		return
 	end
-
 	self:_end_assault()
 end
 
@@ -358,16 +340,10 @@ function HUDAssaultCorner:_start_assault(text_list)
 	local text_panel = assault_panel:child("text_panel")
 	text_panel:script().text_list = {}
 	self._bg_box:script().text_list = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(text_list)
-		do
-			do break end
-			table.insert(text_panel:script().text_list, text_id)
-			table.insert(self._bg_box:script().text_list, text_id)
-		end
-
+	for _, text_id in ipairs(text_list) do
+		table.insert(text_panel:script().text_list, text_id)
+		table.insert(self._bg_box:script().text_list, text_id)
 	end
-
 	self._assault = true
 	if self._bg_box:child("text_panel") then
 		self._bg_box:child("text_panel"):stop()
@@ -375,7 +351,6 @@ function HUDAssaultCorner:_start_assault(text_list)
 	else
 		self._bg_box:panel({name = "text_panel"})
 	end
-
 	self._bg_box:child("bg"):stop()
 	self._bg_box:stop()
 	assault_panel:set_visible(true)
@@ -386,7 +361,6 @@ function HUDAssaultCorner:_end_assault()
 	if not self._assault then
 		return
 	end
-
 	self._assault = false
 	self._bg_box:child("text_panel"):stop()
 	self._bg_box:child("text_panel"):clear()
@@ -410,7 +384,6 @@ function HUDAssaultCorner:_show_icon_assaultbox(icon_assaultbox)
 		local alpha = math.round(math.abs((math.sin(t * 360 * 2))))
 		icon_assaultbox:set_alpha(alpha)
 	end
-
 	icon_assaultbox:set_alpha(1)
 end
 
@@ -423,7 +396,6 @@ function HUDAssaultCorner:_hide_icon_assaultbox(icon_assaultbox)
 		local alpha = math.round(math.abs((math.cos(t * 360 * 2))))
 		icon_assaultbox:set_alpha(alpha)
 	end
-
 	icon_assaultbox:set_alpha(0)
 	self:_show_hostages()
 end
@@ -432,7 +404,6 @@ function HUDAssaultCorner:_show_hostages()
 	if not self._point_of_no_return then
 		self._hud_panel:child("hostages_panel"):show()
 	end
-
 end
 
 function HUDAssaultCorner:_hide_hostages()
@@ -483,7 +454,6 @@ function HUDAssaultCorner:flash_point_of_no_return_timer(beep)
 			o:set_color(Color(r, g, b))
 			o:set_font_size(math.lerp(tweak_data.hud_corner.noreturn_size, tweak_data.hud_corner.noreturn_size * 1.25, n))
 		end
-
 	end
 
 	local point_of_no_return_timer = self._noreturn_bg_box:child("point_of_no_return_timer")
@@ -497,28 +467,21 @@ function HUDAssaultCorner:show_casing()
 	local text_panel = casing_panel:child("text_panel")
 	text_panel:script().text_list = {}
 	self._casing_bg_box:script().text_list = {}
-	do
-		local (for generator), (for state), (for control) = ipairs({
-			"hud_casing_mode_ticker",
-			"hud_assault_end_line",
-			"hud_casing_mode_ticker",
-			"hud_assault_end_line"
-		})
-		do
-			do break end
-			table.insert(text_panel:script().text_list, text_id)
-			table.insert(self._casing_bg_box:script().text_list, text_id)
-		end
-
+	for _, text_id in ipairs({
+		"hud_casing_mode_ticker",
+		"hud_assault_end_line",
+		"hud_casing_mode_ticker",
+		"hud_assault_end_line"
+	}) do
+		table.insert(text_panel:script().text_list, text_id)
+		table.insert(self._casing_bg_box:script().text_list, text_id)
 	end
-
 	if self._casing_bg_box:child("text_panel") then
 		self._casing_bg_box:child("text_panel"):stop()
 		self._casing_bg_box:child("text_panel"):clear()
 	else
 		self._casing_bg_box:panel({name = "text_panel"})
 	end
-
 	self._casing_bg_box:child("bg"):stop()
 	self._hud_panel:child("hostages_panel"):set_visible(false)
 	casing_panel:stop()
@@ -531,7 +494,6 @@ function HUDAssaultCorner:hide_casing()
 		self._casing_bg_box:child("text_panel"):stop()
 		self._casing_bg_box:child("text_panel"):clear()
 	end
-
 	local icon_casingbox = self._hud_panel:child("casing_panel"):child("icon_casingbox")
 	icon_casingbox:stop()
 	local function close_done()
@@ -563,9 +525,7 @@ function HUDAssaultCorner:_animate_simple_text(text)
 			text:set_x(text:parent():w())
 			x = text:x()
 		end
-
 	end
-
 end
 
 function HUDAssaultCorner:_animate_show_casing(casing_panel, delay_time)
@@ -609,35 +569,22 @@ function HUDAssaultCorner:_animate_show_noreturn(point_of_no_return_panel, delay
 end
 
 function HUDAssaultCorner:_animate_show_texts(anim_object, texts)
-	do
-		local (for generator), (for state), (for control) = ipairs(texts)
-		do
-			do break end
-			text:set_visible(true)
-		end
-
+	for _, text in ipairs(texts) do
+		text:set_visible(true)
 	end
-
 	local TOTAL_T = 0.5
 	local t = TOTAL_T
 	while t > 0 do
 		local dt = coroutine.yield()
 		t = t - dt
 		local alpha = math.round(math.abs((math.sin(t * 360 * 3))))
-		local (for generator), (for state), (for control) = ipairs(texts)
-		do
-			do break end
+		for _, text in ipairs(texts) do
 			text:set_alpha(alpha)
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = ipairs(texts)
-	do
-		do break end
+	for _, text in ipairs(texts) do
 		text:set_alpha(1)
 	end
-
 end
 
 function HUDAssaultCorner:test()
@@ -656,10 +603,8 @@ function HUDAssaultCorner:_animate_test_point_of_no_return(panel)
 			prev_time = sec
 			managers.hud:flash_point_of_no_return_timer(sec <= 10)
 		end
-
 		managers.hud:feed_point_of_no_return_timer(math.max(t, 0), false)
 	end
-
 	managers.hud:hide_point_of_no_return_timer()
 end
 

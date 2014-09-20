@@ -9,7 +9,6 @@ function Prioritizer:add_layer_description(input_layer_description_description)
 	if not self._layer_description or input_layer_description_description:priority() < self._layer_description:priority() then
 		self._layer_description = input_layer_description_description
 	end
-
 end
 
 function Prioritizer:remove_layer_description(input_layer_description_description)
@@ -17,18 +16,11 @@ function Prioritizer:remove_layer_description(input_layer_description_descriptio
 	assert(self._layer_descriptions[input_layer_description_description] ~= nil)
 	self._layer_descriptions[input_layer_description_description] = nil
 	local best_layer_description
-	do
-		local (for generator), (for state), (for control) = pairs(self._layer_descriptions)
-		do
-			do break end
-			if not best_layer_description or layer_description:priority() < best_layer_description:priority() then
-				best_layer_description = layer_description
-			end
-
+	for _, layer_description in pairs(self._layer_descriptions) do
+		if not best_layer_description or layer_description:priority() < best_layer_description:priority() then
+			best_layer_description = layer_description
 		end
-
 	end
-
 	self._layer_description = best_layer_description
 end
 

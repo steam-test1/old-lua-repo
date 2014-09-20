@@ -19,14 +19,10 @@ function CoreCutsceneBatchOptimizer:add_project(project_name, optimized_cutscene
 		})
 	else
 		cat_print("debug", string.format("Cutscene Project \"%s\" is invalid:", project_name))
-		local (for generator), (for state), (for control) = ipairs(optimizer:problems())
-		do
-			do break end
+		for _, problem in ipairs(optimizer:problems()) do
 			cat_print("debug", "\t" .. problem)
 		end
-
 	end
-
 	self.__max_queue_size = math.max(self.__max_queue_size or 0, self:queue_size())
 end
 
@@ -41,7 +37,6 @@ function CoreCutsceneBatchOptimizer:consume_project()
 		front.optimizer:export_to_database(front.optimized_cutscene_name)
 		front.optimizer:free_cached_animations()
 	end
-
 	return self:queue_size()
 end
 
@@ -60,7 +55,6 @@ function CoreCutsceneBatchOptimizer:_load_project(project_name)
 		project:set_database_entry(self.__database, database_entry)
 		return project
 	end
-
 	return nil
 end
 
@@ -71,39 +65,18 @@ function CoreCutsceneBatchOptimizer:_create_optimizer_for_project(project)
 		return clip.track_index == 1
 	end
 )
-	do
-		local (for generator), (for state), (for control) = ipairs(exported_clip_descriptors)
-		do
-			do break end
-			local clip = self:_create_clip(clip_descriptor)
-			optimizer:add_clip(clip)
-		end
-
+	for _, clip_descriptor in ipairs(exported_clip_descriptors) do
+		local clip = self:_create_clip(clip_descriptor)
+		optimizer:add_clip(clip)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(project:cutscene_keys())
-		do
-			do break end
-			optimizer:add_key(key)
-		end
-
+	for _, key in ipairs(project:cutscene_keys()) do
+		optimizer:add_key(key)
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(project:animation_patches())
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(patches or {})
-			do
-				do break end
-				optimizer:add_animation_patch(unit_name, blend_set, animation)
-			end
-
+	for unit_name, patches in pairs(project:animation_patches()) do
+		for blend_set, animation in pairs(patches or {}) do
+			optimizer:add_animation_patch(unit_name, blend_set, animation)
 		end
-
 	end
-
 	return optimizer
 end
 

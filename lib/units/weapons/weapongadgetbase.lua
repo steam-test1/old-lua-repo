@@ -12,7 +12,6 @@ function WeaponGadgetBase:set_state(on, sound_source)
 	if self._on ~= on and sound_source and (self._on_event or self._off_event) then
 		sound_source:post_event(on and self._on_event or self._off_event)
 	end
-
 	self._on = on
 	self:_check_state()
 end

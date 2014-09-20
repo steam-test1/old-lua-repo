@@ -24,30 +24,21 @@ function MenuSetup:load_packages()
 	if not PackageManager:loaded("packages/start_menu") then
 		PackageManager:load("packages/start_menu")
 	end
-
 	local prefix = "packages/dlcs/"
 	local sufix = "/start_menu"
 	local package = ""
-	do
-		local (for generator), (for state), (for control) = pairs(DLCManager.BUNDLED_DLC_PACKAGES)
-		do
-			do break end
-			package = prefix .. tostring(dlc_package) .. sufix
-			Application:debug("[MenuSetup:load_packages] DLC package: " .. package, "Is package OK to load?: " .. tostring(bundled))
-			if bundled and (bundled == true or bundled == 1) and PackageManager:package_exists(package) and not PackageManager:loaded(package) then
-				PackageManager:load(package)
-			end
-
+	for dlc_package, bundled in pairs(DLCManager.BUNDLED_DLC_PACKAGES) do
+		package = prefix .. tostring(dlc_package) .. sufix
+		Application:debug("[MenuSetup:load_packages] DLC package: " .. package, "Is package OK to load?: " .. tostring(bundled))
+		if bundled and (bundled == true or bundled == 1) and PackageManager:package_exists(package) and not PackageManager:loaded(package) then
+			PackageManager:load(package)
 		end
-
 	end
-
 	if not PackageManager:loaded("packages/game_base") then
 		PackageManager:load("packages/game_base", function()
 		end
 )
 	end
-
 end
 
 function MenuSetup:unload_packages()
@@ -56,22 +47,16 @@ function MenuSetup:unload_packages()
 		if PackageManager:loaded("packages/start_menu") then
 			PackageManager:unload("packages/start_menu")
 		end
-
 		local prefix = "packages/dlcs/"
 		local sufix = "/start_menu"
 		local package = ""
-		local (for generator), (for state), (for control) = pairs(DLCManager.BUNDLED_DLC_PACKAGES)
-		do
-			do break end
+		for dlc_package, bundled in pairs(DLCManager.BUNDLED_DLC_PACKAGES) do
 			package = prefix .. tostring(dlc_package) .. sufix
 			if bundled and (bundled == true or bundled == 1) and PackageManager:package_exists(package) and PackageManager:loaded(package) then
 				PackageManager:unload(package)
 			end
-
 		end
-
 	end
-
 end
 
 function MenuSetup:init_game()
@@ -106,12 +91,9 @@ function MenuSetup:init_game()
 				elseif arg == "+connect_lobby" then
 					Global.boot_invite = arg_list[i + 1]
 				end
-
 			end
-
 			Global.exe_arguments_parsed = true
 		end
-
 		if level then
 			local preferred_index = managers.controller:get_preferred_default_wrapper_index()
 			managers.user:set_index(preferred_index)
@@ -127,13 +109,10 @@ function MenuSetup:init_game()
 			else
 				game_state_machine:change_state_by_name("menu_main")
 			end
-
 		else
 			game_state_machine:change_state_by_name("bootup")
 		end
-
 	end
-
 	return gsm
 end
 
@@ -151,7 +130,6 @@ function MenuSetup:init_finalize()
 	if managers.network:session() then
 		managers.network:init_finalize()
 	end
-
 	if SystemInfo:platform() == Idstring("PS3") then
 		if not Global.hdd_space_checked then
 			managers.savefile:check_space_required()
@@ -159,13 +137,10 @@ function MenuSetup:init_finalize()
 		else
 			managers.achievment:chk_install_trophies()
 		end
-
 	end
-
 	if managers.music then
 		managers.music:init_finalize()
 	end
-
 	managers.dyn_resource:post_init()
 end
 
@@ -177,11 +152,9 @@ function MenuSetup:update_wait_for_savegame_info(t, dt)
 			Trophies:set_translation_text(managers.localization:text("err_load"), managers.localization:text("err_ins"), managers.localization:text("err_disk"))
 			managers.achievment:chk_install_trophies()
 		end
-
 		Global.hdd_space_checked = true
 		self.update = nil
 	end
-
 end
 
 function MenuSetup:update(t, dt)

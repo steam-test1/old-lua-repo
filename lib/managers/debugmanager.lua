@@ -13,15 +13,9 @@ end
 function DebugManager:set_qa_debug_enabled(username, enabled)
 	enabled = not not enabled
 	local cat_print_list = {"qa"}
-	do
-		local (for generator), (for state), (for control) = ipairs(cat_print_list)
-		do
-			do break end
-			Global.category_print[cat] = enabled
-		end
-
+	for _, cat in ipairs(cat_print_list) do
+		Global.category_print[cat] = enabled
 	end
-
 	self._qa_debug_enabled = enabled
 end
 

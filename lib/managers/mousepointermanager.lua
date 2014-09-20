@@ -81,7 +81,6 @@ function MousePointerManager:set_pointer_image(type)
 		self._mouse_pointer_image = type
 		self._mouse:child("pointer"):set_texture_rect(rect[1], rect[2], rect[3], rect[4])
 	end
-
 end
 
 function MousePointerManager:_scaled_size()
@@ -146,28 +145,23 @@ function MousePointerManager:change_mouse_to_controller(controller)
 						local outside_bottom = math.max(0, converted_y - confine_panel:world_bottom() + o:h() + 1)
 						mouse:move(outside_left - outside_right, outside_top - outside_bottom)
 					end
-
 					mouse:move(move_x, move_y)
 					if self._mouse_callbacks[#self._mouse_callbacks] and self._mouse_callbacks[#self._mouse_callbacks].mouse_move then
 						self._mouse_callbacks[#self._mouse_callbacks].mouse_move(mouse, mouse:x(), mouse:y(), ws)
 					end
-
 				else
 					self._controller_acc_x = 0
 					self._controller_acc_y = 0
 					acc = 0
 				end
-
 				dt = coroutine.yield()
 			end
-
 		end
 
 		self._ws:connect_controller(controller, true)
 		self._controller_updater = self._mouse:animate(update_controller_pointer, self)
 		return true
 	end
-
 end
 
 function MousePointerManager:change_controller_to_mouse()
@@ -181,7 +175,6 @@ function MousePointerManager:change_controller_to_mouse()
 		self._controller_acc_y = 0
 		return true
 	end
-
 end
 
 function MousePointerManager:use_mouse(params, position)
@@ -190,41 +183,32 @@ function MousePointerManager:use_mouse(params, position)
 	else
 		table.insert(self._mouse_callbacks, params)
 	end
-
 	self:_activate()
 end
 
 function MousePointerManager:remove_mouse(id)
 	local removed = false
 	if id then
-		local (for generator), (for state), (for control) = ipairs(self._mouse_callbacks)
-		do
-			do break end
+		for i, params in ipairs(self._mouse_callbacks) do
 			if params.id == id then
 				removed = true
 				table.remove(self._mouse_callbacks, i)
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 	if not removed then
 		table.remove(self._mouse_callbacks)
 	end
-
 	if #self._mouse_callbacks <= 0 then
 		self:_deactivate()
 	end
-
 end
 
 function MousePointerManager:_activate()
 	if self._active then
 		return
 	end
-
 	self._active = true
 	self._enabled = true
 	self._ws:show()
@@ -241,7 +225,6 @@ function MousePointerManager:_activate()
 		self._mouse:button_release(nil)
 		self._mouse:button_click(nil)
 	end
-
 end
 
 function MousePointerManager:_deactivate()
@@ -263,7 +246,6 @@ function MousePointerManager:enable()
 	if self._active then
 		self._ws:show()
 	end
-
 	self._enabled = true
 end
 
@@ -271,7 +253,6 @@ function MousePointerManager:disable()
 	if self._active then
 		self._ws:hide()
 	end
-
 	self._enabled = false
 end
 
@@ -296,73 +277,61 @@ function MousePointerManager:_mouse_move(o, x, y)
 	if self._mouse_callbacks[#self._mouse_callbacks] and self._mouse_callbacks[#self._mouse_callbacks].mouse_move then
 		self._mouse_callbacks[#self._mouse_callbacks].mouse_move(o, x, y, self._ws)
 	end
-
 end
 
 function MousePointerManager:_mouse_press(o, button, x, y)
 	if self._mouse_callbacks[#self._mouse_callbacks] and self._mouse_callbacks[#self._mouse_callbacks].mouse_press then
 		self._mouse_callbacks[#self._mouse_callbacks].mouse_press(o, button, x, y)
 	end
-
 end
 
 function MousePointerManager:_mouse_release(o, button, x, y)
 	if self._mouse_callbacks[#self._mouse_callbacks] and self._mouse_callbacks[#self._mouse_callbacks].mouse_release then
 		self._mouse_callbacks[#self._mouse_callbacks].mouse_release(o, button, x, y)
 	end
-
 end
 
 function MousePointerManager:_mouse_click(o, button, x, y)
 	if self._mouse_callbacks[#self._mouse_callbacks] and self._mouse_callbacks[#self._mouse_callbacks].mouse_click then
 		self._mouse_callbacks[#self._mouse_callbacks].mouse_click(o, button, x, y)
 	end
-
 end
 
 function MousePointerManager:_mouse_double_click(o, button, x, y)
 	if self._mouse_callbacks[#self._mouse_callbacks] and self._mouse_callbacks[#self._mouse_callbacks].mouse_double_click then
 		self._mouse_callbacks[#self._mouse_callbacks].mouse_double_click(o, button, x, y)
 	end
-
 end
 
 function MousePointerManager:_axis_move(o, axis_name, axis_vector, controller)
 	if not self._test_controller_acc then
 		self._test_controller_acc = {}
 	end
-
 	self._test_controller_acc[axis_name:key()] = axis_vector
 	self._controller_x = 0
 	self._controller_y = 0
-	local (for generator), (for state), (for control) = pairs(self._test_controller_acc)
-	do
-		do break end
+	for i, axis in pairs(self._test_controller_acc) do
 		self._controller_x = self._controller_x + axis.x
 		self._controller_y = self._controller_y + axis.y
 	end
-
 end
 
 function MousePointerManager:_button_press(o, button, controller)
 	if self._mouse_callbacks[#self._mouse_callbacks] and self._mouse_callbacks[#self._mouse_callbacks].mouse_press then
 		self._mouse_callbacks[#self._mouse_callbacks].mouse_press(o, button, o:x(), o:y())
 	end
-
 end
 
 function MousePointerManager:_button_release(o, button, controller)
 	if self._mouse_callbacks[#self._mouse_callbacks] and self._mouse_callbacks[#self._mouse_callbacks].mouse_release then
 		self._mouse_callbacks[#self._mouse_callbacks].mouse_release(o, button, o:x(), o:y())
 	end
-
 end
 
 function MousePointerManager:_button_click(o, button, controller)
 	if self._mouse_callbacks[#self._mouse_callbacks] and self._mouse_callbacks[#self._mouse_callbacks].mouse_click then
 		self._mouse_callbacks[#self._mouse_callbacks].mouse_click(o, button, o:x(), o:y())
 	end
-
 end
 
 function MousePointerManager:set_mouse_world_position(x, y)

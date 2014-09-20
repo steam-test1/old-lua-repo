@@ -29,7 +29,6 @@ function KeyboardInputDialog:done_callback(success, input_text)
 	if self._data.callback_func then
 		self._data.callback_func(success, input_text)
 	end
-
 	self:fade_out_close()
 end
 

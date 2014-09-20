@@ -33,7 +33,6 @@ function GenericDLCManager:_set_dlc_save_table()
 			packages = {}
 		}
 	end
-
 end
 
 function GenericDLCManager:init_finalize()
@@ -47,20 +46,15 @@ function GenericDLCManager:_load_done(...)
 	else
 		Application:error("[GenericDLCManager] _load_done(): BlackMarketManager not yet initialized!")
 	end
-
 end
 
 function GenericDLCManager:give_dlc_package()
-	local (for generator), (for state), (for control) = pairs(tweak_data.dlc)
-	do
-		do break end
+	for package_id, data in pairs(tweak_data.dlc) do
 		if data.free or self[data.dlc](self, data) then
 			print("[DLC] Ownes dlc", data.free, data.dlc)
 			if not Global.dlc_save.packages[package_id] then
 				Global.dlc_save.packages[package_id] = true
-				local (for generator), (for state), (for control) = ipairs(data.content.loot_drops or {})
-				do
-					do break end
+				for _, loot_drop in ipairs(data.content.loot_drops or {}) do
 					local loot_drop = #loot_drop > 0 and loot_drop[math.random(#loot_drop)] or loot_drop
 					for i = 1, loot_drop.amount do
 						local entry = tweak_data.blackmarket[loot_drop.type_items][loot_drop.item_entry]
@@ -68,25 +62,17 @@ function GenericDLCManager:give_dlc_package()
 						print(i .. "  give", loot_drop.type_items, loot_drop.item_entry, global_value)
 						managers.blackmarket:add_to_inventory(global_value, loot_drop.type_items, loot_drop.item_entry)
 					end
-
 				end
-
 			else
 				print("[DLC] Allready been given dlc package", package_id)
 			end
-
-			local (for generator), (for state), (for control) = ipairs(data.content.upgrades or {})
-			do
-				do break end
+			for _, upgrade in ipairs(data.content.upgrades or {}) do
 				managers.upgrades:aquire_default(upgrade)
 			end
-
 		else
 			print("[DLC] Didn't own DLC package", package_id)
 		end
-
 	end
-
 end
 
 function GenericDLCManager:give_missing_package()
@@ -96,13 +82,9 @@ function GenericDLCManager:give_missing_package()
 		textures = "pattern"
 	}
 	local entry, global_value, passed, has_item, name
-	local (for generator), (for state), (for control) = pairs(tweak_data.dlc)
-	do
-		do break end
+	for package_id, data in pairs(tweak_data.dlc) do
 		if Global.dlc_save.packages[package_id] and (data.free or self[data.dlc](self, data)) then
-			local (for generator), (for state), (for control) = ipairs(data.content and data.content.loot_drops or {})
-			do
-				do break end
+			for _, loot_drop in ipairs(data.content and data.content.loot_drops or {}) do
 				if #loot_drop == 0 then
 					entry = tweak_data.blackmarket[loot_drop.type_items][loot_drop.item_entry]
 					global_value = loot_drop.global_value and data.content.loot_global_value and package_id
@@ -114,99 +96,64 @@ function GenericDLCManager:give_missing_package()
 						has_item = 0 < managers.blackmarket:get_item_amount(global_value, loot_drop.type_items, loot_drop.item_entry, true)
 						if not has_item then
 							if loot_drop.type_items == "masks" then
-								local (for generator), (for state), (for control) = pairs(Global.blackmarket_manager.crafted_items.masks)
-								do
-									do break end
+								for slot, crafted in pairs(Global.blackmarket_manager.crafted_items.masks) do
 									if slot ~= 1 and crafted.mask_id == loot_drop.item_entry and crafted.global_value == global_value then
 										has_item = true
+									else
+									end
 								end
-
-								else
-								end
-
 							elseif loot_drop.type_items == "materials" or loot_drop.type_items == "textures" or loot_drop.type_items == "colors" then
-								local (for generator), (for state), (for control) = pairs(Global.blackmarket_manager.crafted_items.masks)
-								do
-									do break end
+								for slot, crafted in pairs(Global.blackmarket_manager.crafted_items.masks) do
 									if slot ~= 1 then
 										name = name_converter[loot_drop.type_items]
 										if crafted.blueprint[name].id == loot_drop.item_entry and crafted.blueprint[name].global_value == global_value then
 											has_item = true
 										end
-
+									else
+									end
 								end
-
-								else
-								end
-
 							end
-
 							passed = not has_item
 						end
-
 					end
-
 					if passed then
 						print("[GenericDLCManager:give_missing_package] Found missing Item!", loot_drop.amount, global_value, loot_drop.type_items, loot_drop.item_entry)
 						for i = 1, loot_drop.amount do
 							managers.blackmarket:add_to_inventory(global_value, loot_drop.type_items, loot_drop.item_entry)
 						end
-
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function GenericDLCManager:list_dlc_package(dlcs)
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.dlc)
-		do
-			do break end
-			if not dlcs or dlcs[package_id] or table.contains(dlcs, package_id) then
-				do
-					local (for generator), (for state), (for control) = ipairs(data.content.loot_drops or {})
-					do
-						do break end
-						t.items = t.items or {}
-						if #loot_drop > 0 then
-						else
-							local global_value = loot_drop.global_value or data.content.loot_global_value or package_id
-							local category = loot_drop.type_items
-							local entry = loot_drop.item_entry
-							local amount = loot_drop.amount
-							table.insert(t.items, {
-								global_value,
-								category,
-								entry,
-								amount
-							})
-						end
-
-					end
-
+	for package_id, data in pairs(tweak_data.dlc) do
+		if not dlcs or dlcs[package_id] or table.contains(dlcs, package_id) then
+			for _, loot_drop in ipairs(data.content.loot_drops or {}) do
+				t.items = t.items or {}
+				if #loot_drop > 0 then
+				else
+					local global_value = loot_drop.global_value or data.content.loot_global_value or package_id
+					local category = loot_drop.type_items
+					local entry = loot_drop.item_entry
+					local amount = loot_drop.amount
+					table.insert(t.items, {
+						global_value,
+						category,
+						entry,
+						amount
+					})
 				end
-
-				local (for generator), (for state), (for control) = ipairs(data.content.upgrades or {})
-				do
-					do break end
-					t.upgrades = t.upgrades or {}
-					table.insert(t.upgrades, upgrade)
-				end
-
 			end
-
+			for _, upgrade in ipairs(data.content.upgrades or {}) do
+				t.upgrades = t.upgrades or {}
+				table.insert(t.upgrades, upgrade)
+			end
 		end
-
 	end
-
 	return t
 end
 
@@ -218,7 +165,6 @@ function GenericDLCManager:load(data)
 	if data.dlc_save and data.dlc_save.packages then
 		Global.dlc_save = data.dlc_save
 	end
-
 end
 
 function GenericDLCManager:on_reset_profile()
@@ -246,17 +192,14 @@ function GenericDLCManager:has_dlc(dlc)
 	if tweak_data.dlc[dlc] and tweak_data.dlc[dlc].use_custom_func and tweak_data.dlc[dlc].dlc then
 		return self[tweak_data.dlc[dlc].dlc](self, tweak_data.dlc[dlc])
 	end
-
 	if dlc == "cce" then
 		dlc = "career_criminal_edition"
 	end
-
 	local dlc_data = Global.dlc_manager.all_dlc_data[dlc]
 	if not dlc_data then
 		Application:error("Didn't have dlc data for", dlc)
 		return false
 	end
-
 	return dlc_data.verified
 end
 
@@ -390,41 +333,26 @@ function PS3DLCManager:init()
 		}
 		self:_verify_dlcs()
 	end
-
 end
 
 function PS3DLCManager:_verify_dlcs()
 	local all_dlc = {}
-	do
-		local (for generator), (for state), (for control) = pairs(Global.dlc_manager.all_dlc_data)
-		do
-			do break end
-			if not dlc_data.verified then
-				table.insert(all_dlc, dlc_data.filename)
-			end
-
+	for dlc_name, dlc_data in pairs(Global.dlc_manager.all_dlc_data) do
+		if not dlc_data.verified then
+			table.insert(all_dlc, dlc_data.filename)
 		end
-
 	end
-
 	local verified_dlcs = PS3:check_dlc_availability(all_dlc)
 	Global.dlc_manager.verified_dlcs = verified_dlcs
-	local (for generator), (for state), (for control) = pairs(verified_dlcs)
-	do
-		do break end
-		local (for generator), (for state), (for control) = pairs(Global.dlc_manager.all_dlc_data)
-		do
-			do break end
+	for _, verified_filename in pairs(verified_dlcs) do
+		for dlc_name, dlc_data in pairs(Global.dlc_manager.all_dlc_data) do
 			if dlc_data.filename == verified_filename then
 				print("DLC verified:", verified_filename)
 				dlc_data.verified = true
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 end
 
 function PS3DLCManager:_init_NPCommerce()
@@ -436,7 +364,6 @@ function PS3DLCManager:_init_NPCommerce()
 		NPCommerce:destroy()
 		return
 	end
-
 	local result = NPCommerce:open(callback(self, self, "cb_NPCommerce"))
 	print("open result", result)
 	if result < 0 then
@@ -444,7 +371,6 @@ function PS3DLCManager:_init_NPCommerce()
 		NPCommerce:destroy()
 		return
 	end
-
 	return true
 end
 
@@ -453,11 +379,9 @@ function PS3DLCManager:buy_full_game()
 	if self._activity then
 		return
 	end
-
 	if not self:_init_NPCommerce() then
 		return
 	end
-
 	managers.menu:show_waiting_NPCommerce_open()
 	self._request = {
 		type = "buy_product",
@@ -471,11 +395,9 @@ function PS3DLCManager:buy_product(product_name)
 	if self._activity then
 		return
 	end
-
 	if not self:_init_NPCommerce() then
 		return
 	end
-
 	managers.menu:show_waiting_NPCommerce_open()
 	self._request = {
 		type = "buy_product",
@@ -486,15 +408,9 @@ end
 
 function PS3DLCManager:cb_NPCommerce(result, info)
 	print("[PS3DLCManager:cb_NPCommerce]", result, info)
-	do
-		local (for generator), (for state), (for control) = pairs(info)
-		do
-			do break end
-			print(i, k)
-		end
-
+	for i, k in pairs(info) do
+		print(i, k)
 	end
-
 	self._NPCommerce_cb_results = self._NPCommerce_cb_results or {}
 	print("self._activity", self._activity and inspect(self._activity))
 	table.insert(self._NPCommerce_cb_results, {result, info})
@@ -515,10 +431,8 @@ function PS3DLCManager:cb_NPCommerce(result, info)
 				managers.menu:show_NPCommerce_checkout_fail()
 				self:_close_NPCommerce()
 			end
-
 			self._activity = {type = "browse"}
 		end
-
 	elseif self._activity.type == "browse" then
 		if info.browse_succes then
 			self._activity = nil
@@ -532,7 +446,6 @@ function PS3DLCManager:cb_NPCommerce(result, info)
 			managers.menu:show_NPCommerce_browse_fail()
 			self:_close_NPCommerce()
 		end
-
 	elseif self._activity.type == "checkout" then
 		if info.checkout_error then
 			self._activity = nil
@@ -545,9 +458,7 @@ function PS3DLCManager:cb_NPCommerce(result, info)
 			self._activity = nil
 			self:_close_NPCommerce()
 		end
-
 	end
-
 	print("/[PS3DLCManager:cb_NPCommerce]")
 end
 
@@ -585,7 +496,6 @@ function X360DLCManager:init()
 		}
 		self:_verify_dlcs()
 	end
-
 end
 
 function X360DLCManager:_verify_dlcs()
@@ -595,39 +505,24 @@ function X360DLCManager:_verify_dlcs()
 		Application:error("XboxLive:check_dlc_availability failed", inspect(found_dlc))
 		return
 	end
-
 	print("[X360DLCManager:_verify_dlcs] found DLC:")
-	do
-		local (for generator), (for state), (for control) = pairs(found_dlc)
-		do
-			do break end
-			print(i, k)
-		end
-
+	for i, k in pairs(found_dlc) do
+		print(i, k)
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(Global.dlc_manager.all_dlc_data)
-		do
-			do break end
-			if found_dlc[dlc_data.index] == "corrupt" then
-				print("[X360DLCManager:_verify_dlcs] Found corrupt DLC:", dlc_name)
-				dlc_data.is_corrupt = true
-			elseif dlc_data.is_default or found_dlc[dlc_data.index] == true then
-				dlc_data.verified = true
-			else
-				dlc_data.verified = false
-			end
-
+	for dlc_name, dlc_data in pairs(Global.dlc_manager.all_dlc_data) do
+		if found_dlc[dlc_data.index] == "corrupt" then
+			print("[X360DLCManager:_verify_dlcs] Found corrupt DLC:", dlc_name)
+			dlc_data.is_corrupt = true
+		elseif dlc_data.is_default or found_dlc[dlc_data.index] == true then
+			dlc_data.verified = true
+		else
+			dlc_data.verified = false
 		end
-
 	end
-
 	if found_dlc.has_corrupt_data then
 		print("[X360DLCManager:_verify_dlcs] Found at least one corrupt DLC.")
 		self._has_corrupt_data = true
 	end
-
 end
 
 function X360DLCManager:on_signin_complete()
@@ -662,7 +557,6 @@ function WINDLCManager:init()
 		}
 		self:_verify_dlcs()
 	end
-
 end
 
 function WINDLCManager:_check_dlc_data(dlc_data)
@@ -671,46 +565,33 @@ function WINDLCManager:_check_dlc_data(dlc_data)
 			if Steam:is_product_owned(dlc_data.app_id) then
 				return true
 			end
-
 		elseif Steam:is_product_installed(dlc_data.app_id) then
 			return true
 		end
-
 	elseif dlc_data.source_id then
 		if not Steam.is_user_in_source then
 			Application:error("EXE OUT OF DATE!")
 		end
-
 		if Steam:is_user_in_source(Steam:userid(), dlc_data.source_id) then
 			return true
 		end
-
 	end
-
 end
 
 function WINDLCManager:_verify_dlcs()
-	local (for generator), (for state), (for control) = pairs(Global.dlc_manager.all_dlc_data)
-	do
-		do break end
+	for dlc_name, dlc_data in pairs(Global.dlc_manager.all_dlc_data) do
 		if not dlc_data.verified and self:_check_dlc_data(dlc_data) then
 			dlc_data.verified = true
 		end
-
 	end
-
 end
 
 function WINDLCManager:chk_dlc_purchase()
-	local (for generator), (for state), (for control) = pairs(Global.dlc_manager.all_dlc_data)
-	do
-		do break end
+	for dlc_name, dlc_data in pairs(Global.dlc_manager.all_dlc_data) do
 		if not dlc_data.verified and self:_check_dlc_data(dlc_data) then
 			managers.menu:show_dlc_require_restart()
+		else
+		end
 	end
-
-	else
-	end
-
 end
 

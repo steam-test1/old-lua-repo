@@ -8,9 +8,7 @@ end
 function SessionDebug:_parse_standard_arguments()
 	local level
 	local args = Application:argv()
-	local (for generator), (for state), (for control) = ipairs(args)
-	do
-		do break end
+	for i, arg in ipairs(args) do
 		if arg == "-level" then
 			level = true
 		else
@@ -21,11 +19,8 @@ function SessionDebug:_parse_standard_arguments()
 				self._session_state:player_slots():primary_slot():request_debug_local_user_binding()
 				self._session_state:join_standard_session()
 		end
-
+		else
+		end
 	end
-
-	else
-	end
-
 end
 

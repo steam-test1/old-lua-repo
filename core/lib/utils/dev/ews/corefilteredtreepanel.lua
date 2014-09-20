@@ -20,9 +20,7 @@ function CoreFilteredTreePanel:update(time, delta_time)
 			self._tree_refresh_timeout = 0
 			self:_tree_control():refresh_tree()
 		end
-
 	end
-
 end
 
 function CoreFilteredTreePanel:_tree_control()
@@ -65,7 +63,6 @@ function CoreFilteredTreePanel:_on_filter_enter_pressed()
 		self._tree_refresh_timeout = 0
 		self:_tree_control():refresh_tree()
 	end
-
 	self:_tree_control():expand(true)
 end
 

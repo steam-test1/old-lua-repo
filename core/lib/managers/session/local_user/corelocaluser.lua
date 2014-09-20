@@ -99,7 +99,6 @@ function User:update(t, dt)
 		avatar:set_input(input_input_provider)
 		self._avatar = avatar
 	end
-
 	self._local_user_handler:update(t, dt)
 end
 

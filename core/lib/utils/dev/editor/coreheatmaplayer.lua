@@ -33,45 +33,21 @@ function HeatmapLayer:_draw(t, dt)
 		Vector3(0, 1, 1),
 		Vector3(1, 1, 1)
 	}
-	local (for generator), (for state), (for control) = ipairs(self._heatmap_sets)
-	do
-		do break end
+	for j, set in ipairs(self._heatmap_sets) do
 		self:_draw_path(set.player, colors[j % 5])
-		do
-			local (for generator), (for state), (for control) = pairs(set.enemies)
-			do
-				do break end
-				self:_draw_path(path, Vector3(1, 0, 0))
-			end
-
+		for _, path in pairs(set.enemies) do
+			self:_draw_path(path, Vector3(1, 0, 0))
 		end
-
-		do
-			local (for generator), (for state), (for control) = pairs(set.teamai)
-			do
-				do break end
-				self:_draw_path(path, Vector3(1, 1, 0))
-			end
-
+		for _, path in pairs(set.teamai) do
+			self:_draw_path(path, Vector3(1, 1, 0))
 		end
-
-		do
-			local (for generator), (for state), (for control) = pairs(set.civilians)
-			do
-				do break end
-				self:_draw_path(path, Vector3(0, 0, 0))
-			end
-
+		for _, path in pairs(set.civilians) do
+			self:_draw_path(path, Vector3(0, 0, 0))
 		end
-
-		local (for generator), (for state), (for control) = ipairs(set.events)
-		do
-			do break end
+		for _, event in ipairs(set.events) do
 			Application:draw_sphere(event[1], 25, event[2].x, event[2].y, event[2].z)
 		end
-
 	end
-
 end
 
 function HeatmapLayer:_draw_path(path, color)
@@ -81,9 +57,7 @@ function HeatmapLayer:_draw_path(path, color)
 		if p2 ~= nil then
 			Application:draw_line(p1, p2, color.x, color.y, color.z)
 		end
-
 	end
-
 end
 
 function HeatmapLayer:build_panel(notebook)
@@ -125,7 +99,6 @@ function HeatmapLayer:_add_data()
 			if line == "" then
 				break
 			end
-
 			local comp = string.split(line, " ")
 			local type = tonumber(comp[1])
 			local time = tonumber(comp[2])
@@ -142,15 +115,12 @@ function HeatmapLayer:_add_data()
 				elseif unit_type == 3 then
 					tble = data.civilians
 				end
-
 				if tble ~= nil then
 					if tble[comp[8]] == nil then
 						tble[comp[8]] = {}
 					end
-
 					table.insert(tble[comp[8]], pos)
 				end
-
 			elseif type == 3 then
 				local e_type = comp[6]
 				local color
@@ -169,15 +139,11 @@ function HeatmapLayer:_add_data()
 				elseif e_type == "cash" then
 					color = Vector3(0, 1, 0)
 				end
-
 				if color ~= nil then
 					table.insert(data.events, {pos, color})
 				end
-
 			end
-
 		end
-
 		print("Player positions: " .. #data.player)
 		print("Enemies: " .. table.size(data.enemies))
 		print("TeamAIs: " .. table.size(data.teamai))
@@ -186,10 +152,8 @@ function HeatmapLayer:_add_data()
 		if self._heatmap_sets == nil then
 			self._heatmap_sets = {}
 		end
-
 		table.insert(self._heatmap_sets, data)
 	end
-
 end
 
 function HeatmapLayer:_clr_data()

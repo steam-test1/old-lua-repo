@@ -14,7 +14,6 @@ function Storage:_load_status()
 		self:_create_profile_data()
 		return SaveData.OK
 	end
-
 end
 
 function Storage:_close_load_task()

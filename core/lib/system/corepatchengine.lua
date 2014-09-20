@@ -48,14 +48,12 @@ if Vector3 then
 	end
 
 end
-
 if Color then
 	function Color:unpack()
 		return self.r, self.g, self.b
 	end
 
 end
-
 local AppClass = getmetatable(Application)
 if AppClass then
 	function AppClass:draw_box(s_pos, e_pos, r, g, b)
@@ -117,7 +115,6 @@ if AppClass then
 	end
 
 end
-
 if Draw then
 	Draw:pen()
 	function Pen:arrow(from, to, scale)
@@ -130,4 +127,3 @@ if Draw then
 	end
 
 end
-

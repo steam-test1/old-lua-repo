@@ -71,12 +71,10 @@ function CoreMaterialEditorVector2:_to_slider_range(v)
 	if step_x == 0 then
 		step_x = step_x + 0.001
 	end
-
 	local step_y = self._parameter_info.step.y
 	if step_y == 0 then
 		step_y = step_y + 0.001
 	end
-
 	return Vector3(CoreMaterialEditorParameter.to_slider_range(self, v.x, self._parameter_info.min.x, step_x), CoreMaterialEditorParameter.to_slider_range(self, v.y, self._parameter_info.min.y, step_y))
 end
 
@@ -85,12 +83,10 @@ function CoreMaterialEditorVector2:_from_slider_range(v)
 	if step_x == 0 then
 		step_x = step_x + 0.001
 	end
-
 	local step_y = self._parameter_info.step.y
 	if step_y == 0 then
 		step_y = step_y + 0.001
 	end
-
 	return Vector3(CoreMaterialEditorParameter.from_slider_range(self, v.x, self._parameter_info.min.x, step_x), CoreMaterialEditorParameter.from_slider_range(self, v.y, self._parameter_info.min.y, step_y))
 end
 

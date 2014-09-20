@@ -8,12 +8,9 @@ function verify_number(ctrlr, event)
 			if not tonumber(s) then
 				return
 			end
-
 		end
-
 		event:skip()
 	end
-
 end
 
 function image_path(file_name)
@@ -23,7 +20,6 @@ function image_path(file_name)
 	if file_name ~= "" and EWS and not EWS:system_file_exists(path .. file_name) then
 		path = base_path .. "core\\lib\\utils\\dev\\ews\\images\\"
 	end
-
 	return path .. file_name
 end
 
@@ -122,7 +118,6 @@ function EWSRadioBitmapButton:set_value(value)
 	else
 		self._button:set_label_bitmap(self._off_bmp)
 	end
-
 end
 
 function EWSRadioBitmapButton:value()
@@ -191,11 +186,9 @@ function verify_entered_number(params)
 	if params.min and value < params.min then
 		value = params.min or value
 	end
-
 	if params.max and value > params.max then
 		value = params.max or value
 	end
-
 	params.value = value
 	local floats = params.floats or 0
 	params.number_ctrlr:change_value(string.format("%." .. floats .. "f", value))
@@ -218,13 +211,9 @@ function _connect_events(params)
 	if not params.events then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(params.events)
-	do
-		do break end
+	for _, data in ipairs(params.events) do
 		params.number_ctrlr:connect(data.event, data.callback, params)
 	end
-
 end
 
 function combobox(params)
@@ -246,27 +235,18 @@ function combobox(params)
 		name_ctrlr = EWS:StaticText(panel, name, 0, "")
 		ctrl_sizer:add(name_ctrlr, name_proportions, 0, "ALIGN_CENTER_VERTICAL")
 	end
-
 	if sorted then
 		table.sort(options)
 	end
-
 	local ctrlr = EWS:ComboBox(panel, "", "", styles)
 	ctrlr:set_tool_tip(tooltip)
 	ctrlr:freeze()
 	if default then
 		ctrlr:append(default)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(options)
-		do
-			do break end
-			ctrlr:append(option)
-		end
-
+	for _, option in ipairs(options) do
+		ctrlr:append(option)
 	end
-
 	ctrlr:set_value(value)
 	ctrlr:thaw()
 	params.name_ctrlr = name_ctrlr
@@ -288,17 +268,12 @@ function update_combobox_options(params, options)
 	if params.sorted then
 		table.sort(options)
 	end
-
 	if params.default then
 		params.ctrlr:append(params.default)
 	end
-
-	local (for generator), (for state), (for control) = ipairs(options)
-	do
-		do break end
+	for _, option in ipairs(options) do
 		params.ctrlr:append(option)
 	end
-
 end
 
 function change_combobox_value(params, value)
@@ -344,7 +319,6 @@ function _ctrlr_tooltip(params)
 	elseif max then
 		params.tooltip = (params.tooltip or "") .. " (Below " .. string.format("%." .. params.floats .. "f", max) .. ")"
 	end
-
 end
 
 function _slider_ctrlr(params)
@@ -356,7 +330,6 @@ function _number_ctrlr(params)
 	if CoreClass.type_name(params.value) ~= "number" then
 		params.value = params.min or 0
 	end
-
 	params.number_ctrlr = EWS:TextCtrl(params.panel, string.format("%." .. params.floats .. "f", params.value), "", "TE_PROCESS_ENTER")
 	params.number_ctrlr:set_tool_tip(params.tooltip)
 	params.number_ctrlr:connect("EVT_CHAR", callback(nil, _G, "verify_number"), params.number_ctrlr)
@@ -369,7 +342,6 @@ function _name_ctrlr(params)
 		params.name_ctrlr = EWS:StaticText(params.panel, params.name, 0, "")
 		params.ctrl_sizer:add(params.name_ctrlr, params.name_proportions, 0, "ALIGN_CENTER_VERTICAL")
 	end
-
 end
 
 function verify_entered_number(params)
@@ -378,11 +350,9 @@ function verify_entered_number(params)
 	if params.min and value < params.min then
 		value = params.min or value
 	end
-
 	if params.max and value > params.max then
 		value = params.max or value
 	end
-
 	params.value = value
 	local floats = params.floats or 0
 	ctrlr:change_value(string.format("%." .. floats .. "f", value))
@@ -439,20 +409,13 @@ function list_selector(params)
 	lb_box:add(params.right_list_box, 1, 4, "ALL,EXPAND")
 	params.ctrl_sizer:add(lb_box, 1, 0, "EXPAND")
 	params.sizer:add(params.ctrl_sizer, params.sizer_proportions or 0, 0, "EXPAND")
-	do
-		local (for generator), (for state), (for control) = ipairs(params.options)
-		do
-			do break end
-			if table.contains(params.value, option) then
-				params.right_list_box:append(option)
-			else
-				params.left_list_box:append(option)
-			end
-
+	for _, option in ipairs(params.options) do
+		if table.contains(params.value, option) then
+			params.right_list_box:append(option)
+		else
+			params.left_list_box:append(option)
 		end
-
 	end
-
 	return params
 end
 
@@ -463,21 +426,15 @@ function _list_selector_add_from_list(params)
 	if dialog:cancelled() then
 		return
 	end
-
 	for i = 0, params.left_list_box:nr_items() - 1 do
 		params.left_list_box:deselect_index(i)
-		local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-		do
-			do break end
+		for _, selected in ipairs(dialog:_selected_item_assets()) do
 			if selected == params.left_list_box:get_string(i) then
 				params.left_list_box:select_index(i)
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 	_list_selector_on_left_box(params)
 end
 
@@ -488,71 +445,41 @@ function _list_selector_remove_from_list(params)
 	if dialog:cancelled() then
 		return
 	end
-
 	for i = 0, params.right_list_box:nr_items() - 1 do
 		params.right_list_box:deselect_index(i)
-		local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-		do
-			do break end
+		for _, selected in ipairs(dialog:_selected_item_assets()) do
 			if selected == params.right_list_box:get_string(i) then
 				params.right_list_box:select_index(i)
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 	_list_selector_on_right_box(params)
 end
 
 function _list_selector_on_left_box(params)
 	local selected_indices = params.left_list_box:selected_indices()
-	do
-		local (for generator), (for state), (for control) = ipairs(selected_indices)
-		do
-			do break end
-			local selected = params.left_list_box:get_string(index)
-			params.right_list_box:append(selected)
-			params.left_list_box:deselect_index(index)
-		end
-
+	for _, index in ipairs(selected_indices) do
+		local selected = params.left_list_box:get_string(index)
+		params.right_list_box:append(selected)
+		params.left_list_box:deselect_index(index)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(selected_indices)
-		do
-			do break end
-			params.left_list_box:remove(index - (i - 1))
-		end
-
+	for i, index in ipairs(selected_indices) do
+		params.left_list_box:remove(index - (i - 1))
 	end
-
 	_list_selector_updated_callback(params)
 end
 
 function _list_selector_on_right_box(params)
 	local selected_indices = params.right_list_box:selected_indices()
-	do
-		local (for generator), (for state), (for control) = ipairs(selected_indices)
-		do
-			do break end
-			local selected = params.right_list_box:get_string(index)
-			params.left_list_box:append(selected)
-			params.right_list_box:deselect_index(index)
-		end
-
+	for _, index in ipairs(selected_indices) do
+		local selected = params.right_list_box:get_string(index)
+		params.left_list_box:append(selected)
+		params.right_list_box:deselect_index(index)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(selected_indices)
-		do
-			do break end
-			params.right_list_box:remove(index - (i - 1))
-		end
-
+	for i, index in ipairs(selected_indices) do
+		params.right_list_box:remove(index - (i - 1))
 	end
-
 	_list_selector_updated_callback(params)
 end
 
@@ -561,7 +488,6 @@ function _list_selector_get_left_box_value(params)
 	for i = 0, params.left_list_box:nr_items() - 1 do
 		table.insert(value, params.left_list_box:get_string(i))
 	end
-
 	return value
 end
 
@@ -570,7 +496,6 @@ function _list_selector_get_value(params)
 	for i = 0, params.right_list_box:nr_items() - 1 do
 		table.insert(value, params.right_list_box:get_string(i))
 	end
-
 	return value
 end
 
@@ -578,7 +503,6 @@ function _list_selector_updated_callback(params)
 	if params.updated_callback then
 		params.updated_callback(_list_selector_get_value(params))
 	end
-
 end
 
 function get_notebook_current_page_index(notebook)
@@ -587,9 +511,7 @@ function get_notebook_current_page_index(notebook)
 		if page == notebook:get_page(i) then
 			return i
 		end
-
 	end
-
 	return nil
 end
 

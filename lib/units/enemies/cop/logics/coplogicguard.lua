@@ -15,11 +15,9 @@ function CopLogicGuard.enter(data, new_logic_name, enter_params)
 	else
 		CopLogicBase._reset_attention(data)
 	end
-
 	if managers.groupai:state():is_nav_seg_safe(guard_obj.from_seg) then
 		my_data.from_seg_safe = true
 	end
-
 	local old_internal_data = data.internal_data
 	if old_internal_data then
 		my_data.rsrv_pos = old_internal_data.rsrv_pos or my_data.rsrv_pos
@@ -27,14 +25,11 @@ function CopLogicGuard.enter(data, new_logic_name, enter_params)
 			my_data.best_cover = old_internal_data.best_cover
 			managers.navigation:reserve_cover(my_data.best_cover[1], data.pos_rsrv_id)
 		end
-
 		if old_internal_data.nearest_cover then
 			my_data.nearest_cover = old_internal_data.nearest_cover
 			managers.navigation:reserve_cover(my_data.nearest_cover[1], data.pos_rsrv_id)
 		end
-
 	end
-
 	my_data.need_turn_check = true
 	data.internal_data = my_data
 	my_data.detection_task_key = "CopLogicGuard._upd_enemy_detection" .. tostring(data.unit:key())
@@ -44,7 +39,6 @@ function CopLogicGuard.enter(data, new_logic_name, enter_params)
 	if my_data ~= data.internal_data then
 		return
 	end
-
 	data.unit:brain():set_attention_settings({cbt = true})
 end
 
@@ -54,7 +48,6 @@ function CopLogicGuard.update(data)
 	if my_data.need_turn_check and not my_data.turning and not data.unit:movement():chk_action_forbidden("walk") then
 		my_data.need_turn_check = CopLogicAttack._chk_request_action_turn_to_enemy(data, my_data, data.m_pos, guard_obj.door.center)
 	end
-
 	if guard_obj.type == "door" and not my_data.aiming and not my_data.from_seg_safe then
 		local shoot_action = {}
 		shoot_action.type = "shoot"
@@ -63,13 +56,10 @@ function CopLogicGuard.update(data)
 		if data.unit:brain():action_request(shoot_action) then
 			my_data.aiming = true
 		end
-
 	end
-
 	if my_data.from_seg_safe and not my_data.need_turn_check and not my_data.turning then
 		CopLogicBase._exit(data.unit, "idle")
 	end
-
 end
 
 function CopLogicGuard.action_complete_clbk(data, action)
@@ -79,7 +69,6 @@ function CopLogicGuard.action_complete_clbk(data, action)
 	elseif action_type == "turn" then
 		data.internal_data.turning = nil
 	end
-
 end
 
 function CopLogicGuard.on_new_objective(data, old_objective)
@@ -96,17 +85,14 @@ function CopLogicGuard.on_area_safety(data, nav_seg, safe, event)
 			else
 				CopLogicBase._exit(data.unit, "idle")
 			end
-
 			managers.groupai:state():on_objective_complete(data.unit, objective)
 		else
 			my_data.from_seg_safe = nil
 		end
-
 	elseif nav_seg == data.unit:movement():nav_tracker():nav_segment() then
 		if not safe then
 			CopLogicBase._exit(data.unit, "attack")
 		end
-
 	elseif event.reason == "criminal" then
 		local new_occupation = managers.groupai:state():verify_occupation_in_area(objective)
 		if new_occupation then
@@ -120,8 +106,6 @@ function CopLogicGuard.on_area_safety(data, nav_seg, safe, event)
 			}
 			data.unit:brain():set_objective(new_objective)
 		end
-
 	end
-
 end
 

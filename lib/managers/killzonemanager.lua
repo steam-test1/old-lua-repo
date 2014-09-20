@@ -4,9 +4,7 @@ function KillzoneManager:init()
 end
 
 function KillzoneManager:update(t, dt)
-	local (for generator), (for state), (for control) = pairs(self._units)
-	do
-		do break end
+	for _, data in pairs(self._units) do
 		if alive(data.unit) then
 			if data.type == "sniper" then
 				data.timer = data.timer + dt
@@ -20,29 +18,22 @@ function KillzoneManager:update(t, dt)
 					else
 						self:_deal_damage(data.unit)
 					end
-
 				end
-
 			elseif data.type == "gas" then
 				data.timer = data.timer + dt
 				if data.timer > data.next_gas then
 					data.next_gas = data.timer + 0.25
 					self:_deal_gas_damage(data.unit)
 				end
-
 			elseif data.type == "fire" then
 				data.timer = data.timer + dt
 				if data.timer > data.next_fire then
 					data.next_fire = data.timer + 0.25
 					self:_deal_fire_damage(data.unit)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function KillzoneManager:set_unit(unit, type)
@@ -51,7 +42,6 @@ function KillzoneManager:set_unit(unit, type)
 	else
 		self:_add_unit(unit, type)
 	end
-
 end
 
 function KillzoneManager:_warning_shot(unit)
@@ -66,14 +56,12 @@ function KillzoneManager:_warning_shot(unit)
 	if col_ray and col_ray.unit then
 		managers.game_play_central:play_impact_sound_and_effects({col_ray = col_ray})
 	end
-
 end
 
 function KillzoneManager:_deal_damage(unit)
 	if unit:character_damage():need_revive() then
 		return
 	end
-
 	local col_ray = {}
 	local ray = Rotation(math.rand(360), 0, 0):y()
 	ray = ray:with_z(-0.4):normalized()
@@ -128,7 +116,6 @@ function KillzoneManager:_add_unit(unit, type)
 			unit = unit
 		}
 	end
-
 end
 
 function KillzoneManager:_remove_unit(unit)

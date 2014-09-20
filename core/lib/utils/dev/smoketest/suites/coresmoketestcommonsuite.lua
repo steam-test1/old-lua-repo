@@ -98,7 +98,6 @@ function DelaySubstep:update(t, dt)
 	if self._seconds_left <= 0 then
 		self:_set_done()
 	end
-
 end
 
 CommonSuite = CommonSuite or CoreClass.class(CoreSmoketestSuite.Suite)
@@ -136,15 +135,11 @@ function CommonSuite:update(t, dt)
 			else
 				self._reporter:end_substep(self._step_list[self._current_step_id].name)
 			end
-
 			if not self:next_step() then
 				self._is_done = true
 			end
-
 		end
-
 	end
-
 end
 
 function CommonSuite:next_step()
@@ -152,10 +147,8 @@ function CommonSuite:next_step()
 		if self._current_step.destroy then
 			self._current_step:destroy()
 		end
-
 		self._current_step = nil
 	end
-
 	self._current_step_id = self._current_step_id + 1
 	if self._current_step_id <= #self._step_list then
 		local step_entry = self._step_list[self._current_step_id]
@@ -165,7 +158,6 @@ function CommonSuite:next_step()
 	else
 		return false
 	end
-
 end
 
 function CommonSuite:get_argument(name)

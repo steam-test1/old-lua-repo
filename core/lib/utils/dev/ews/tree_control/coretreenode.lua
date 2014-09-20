@@ -16,12 +16,10 @@ function CoreTreeNode:_invoke_callback(event_name, ...)
 	if not callback_table then
 		return
 	end
-
 	local callback = callback_table[event_name]
 	if callback then
 		callback(...)
 	end
-
 end
 
 function CoreTreeNode:text()
@@ -32,7 +30,6 @@ function CoreTreeNode:parent()
 	if self._parent and self._parent._parent then
 		return self._parent
 	end
-
 end
 
 function CoreTreeNode:remove_children()
@@ -57,7 +54,6 @@ function CoreTreeNode:remove()
 	if self._parent then
 		table.delete(self._parent._children, self)
 	end
-
 	self._text = ""
 	self._parent = nil
 	self._children = {}

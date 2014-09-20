@@ -11,11 +11,9 @@ function ElementSpawnGrenade:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	if self._values.grenade_type == "frag" then
 		GrenadeBase.server_throw_grenade(1, self._values.position, self._values.spawn_dir * self._values.strength)
 	end
-
 	ElementSpawnGrenade.super.on_executed(self, instigator)
 end
 

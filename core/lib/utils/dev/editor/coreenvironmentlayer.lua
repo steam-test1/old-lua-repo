@@ -108,16 +108,12 @@ function EnvironmentLayer:load(world_holder, offset)
 		self:_load_effects(environment.effects)
 		self:_load_environment_areas()
 		self:_load_dome_occ_shapes(environment.dome_occ_shapes)
-		local (for generator), (for state), (for control) = ipairs(environment.units)
-		do
-			do break end
+		for _, unit in ipairs(environment.units) do
 			self:set_up_name_id(unit)
 			self._owner:register_unit_id(unit)
 			table.insert(self._created_units, unit)
 		end
-
 	end
-
 	self:clear_selected_units()
 	return environment
 end
@@ -139,55 +135,38 @@ function EnvironmentLayer:_load_wind(wind)
 end
 
 function EnvironmentLayer:_load_effects(effects)
-	local (for generator), (for state), (for control) = ipairs(effects)
-	do
-		do break end
+	for _, effect in ipairs(effects) do
 		local unit = self:do_spawn_unit(self._effect_unit, effect.position, effect.rotation)
 		self:play_effect(unit, effect.name)
 	end
-
 end
 
 function EnvironmentLayer:_load_environment_areas()
-	local (for generator), (for state), (for control) = ipairs(managers.environment_area:areas())
-	do
-		do break end
+	for _, area in ipairs(managers.environment_area:areas()) do
 		local unit = EnvironmentLayer.super.do_spawn_unit(self, self._environment_area_unit, area:position(), area:rotation())
 		unit:unit_data().environment_area = area
 		unit:unit_data().environment_area:set_unit(unit)
 	end
-
 end
 
 function EnvironmentLayer:_load_dome_occ_shapes(dome_occ_shapes)
 	if not dome_occ_shapes then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dome_occ_shapes)
-	do
-		do break end
+	for _, dome_occ_shape in ipairs(dome_occ_shapes) do
 		local unit = EnvironmentLayer.super.do_spawn_unit(self, self._dome_occ_shape_unit, dome_occ_shape.position, dome_occ_shape.rotation)
 		unit:unit_data().occ_shape = CoreShapeManager.ShapeBox:new(dome_occ_shape)
 		unit:unit_data().occ_shape:set_unit(unit)
 	end
-
 end
 
 function EnvironmentLayer:old_load(environment)
 	if not environment._values then
 		return false
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(environment._values)
-		do
-			do break end
-			self._environment_values[name] = value
-		end
-
+	for name, value in pairs(environment._values) do
+		self._environment_values[name] = value
 	end
-
 	self._environments:set_value(self._environment_values.environment)
 	self._sky_rotation:set_value(self._environment_values.sky_rot)
 	if environment._wind then
@@ -207,38 +186,23 @@ function EnvironmentLayer:old_load(environment)
 		self._wind_ctrls.tilt_variation:set_value(self._wind_tilt_var)
 		self:set_wind()
 	end
-
 	if environment._unit_effects then
-		local (for generator), (for state), (for control) = ipairs(environment._unit_effects)
-		do
-			do break end
+		for _, effect in ipairs(environment._unit_effects) do
 			local unit = self:do_spawn_unit(self._effect_unit, effect.pos, effect.rot)
 			self:play_effect(unit, effect.name)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.environment_area:areas())
-		do
-			do break end
-			local unit = EnvironmentLayer.super.do_spawn_unit(self, self._environment_area_unit, area:position(), area:rotation())
-			unit:unit_data().environment_area = area
-			unit:unit_data().environment_area:set_unit(unit)
-		end
-
+	for _, area in ipairs(managers.environment_area:areas()) do
+		local unit = EnvironmentLayer.super.do_spawn_unit(self, self._environment_area_unit, area:position(), area:rotation())
+		unit:unit_data().environment_area = area
+		unit:unit_data().environment_area:set_unit(unit)
 	end
-
 	if environment._units then
-		local (for generator), (for state), (for control) = ipairs(environment._units)
-		do
-			do break end
+		for _, unit in ipairs(environment._units) do
 			self:set_up_name_id(unit)
 			table.insert(self._created_units, unit)
 		end
-
 	end
-
 	self:clear_selected_units()
 	return environment
 end
@@ -248,32 +212,25 @@ function EnvironmentLayer:save()
 	local environment_areas = {}
 	local cubemap_gizmos = {}
 	local dome_occ_shapes = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			if unit:name() == Idstring(self._effect_unit) then
-				local effect = unit:unit_data().effect or "none"
-				table.insert(effects, {
-					name = effect,
-					position = unit:position(),
-					rotation = unit:rotation()
-				})
-				self:_save_to_world_package("effects", effect)
-			elseif unit:name() == Idstring(self._environment_area_unit) then
-				local area = unit:unit_data().environment_area
-				table.insert(environment_areas, area:save_level_data())
-			elseif unit:name() == Idstring(self._cubemap_unit) then
-				table.insert(cubemap_gizmos, CoreEditorSave.save_data_table(unit))
-			elseif unit:name() == Idstring(self._dome_occ_shape_unit) then
-				local shape = unit:unit_data().occ_shape
-				table.insert(dome_occ_shapes, shape:save_level_data())
-			end
-
+	for _, unit in ipairs(self._created_units) do
+		if unit:name() == Idstring(self._effect_unit) then
+			local effect = unit:unit_data().effect or "none"
+			table.insert(effects, {
+				name = effect,
+				position = unit:position(),
+				rotation = unit:rotation()
+			})
+			self:_save_to_world_package("effects", effect)
+		elseif unit:name() == Idstring(self._environment_area_unit) then
+			local area = unit:unit_data().environment_area
+			table.insert(environment_areas, area:save_level_data())
+		elseif unit:name() == Idstring(self._cubemap_unit) then
+			table.insert(cubemap_gizmos, CoreEditorSave.save_data_table(unit))
+		elseif unit:name() == Idstring(self._dome_occ_shape_unit) then
+			local shape = unit:unit_data().occ_shape
+			table.insert(dome_occ_shapes, shape:save_level_data())
 		end
-
 	end
-
 	local wind = {
 		angle = self._wind_rot:yaw(),
 		angle_var = self._wind_dir_var,
@@ -305,7 +262,6 @@ function EnvironmentLayer:_save_to_world_package(category, name)
 	if name and name ~= "none" then
 		managers.editor:add_to_world_package({category = category, name = name})
 	end
-
 end
 
 function EnvironmentLayer:update(t, dt)
@@ -315,45 +271,33 @@ function EnvironmentLayer:update(t, dt)
 			for j = -0.9, 1.2, 0.3 do
 				self:draw_wind(self._owner:screen_to_world(Vector3(j, i, 0), 1000))
 			end
-
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._created_units)
-	do
-		do break end
+	for _, unit in ipairs(self._created_units) do
 		if unit:unit_data().current_effect then
 			World:effect_manager():move(unit:unit_data().current_effect, unit:position())
 			World:effect_manager():rotate(unit:unit_data().current_effect, unit:rotation())
 		end
-
 		if unit:name() == Idstring(self._effect_unit) then
 			Application:draw(unit, 0, 0, 1)
 		end
-
 		if unit:name() == Idstring(self._environment_area_unit) then
 			local r, g, b = 0, 0.5, 0.5
 			if alive(self._selected_unit) and unit == self._selected_unit then
 				r, g, b = 0, 1, 1
 			end
-
 			Application:draw(unit, r, g, b)
 			unit:unit_data().environment_area:draw(t, dt, r, g, b)
 		end
-
 		if unit:name() == Idstring(self._dome_occ_shape_unit) then
 			local r, g, b = 0.5, 0, 0.5
 			if alive(self._selected_unit) and unit == self._selected_unit then
 				r, g, b = 1, 0, 1
 			end
-
 			Application:draw(unit, r, g, b)
 			unit:unit_data().occ_shape:draw(t, dt, r, g, b)
 		end
-
 	end
-
 end
 
 function EnvironmentLayer:draw_wind(pos)
@@ -385,15 +329,9 @@ function EnvironmentLayer:build_panel(notebook)
 	self._environments = EWS:ComboBox(self._env_panel, "", "", "CB_DROPDOWN,CB_READONLY")
 	local envs = managers.database:list_entries_of_type("environment")
 	table.sort(envs)
-	do
-		local (for generator), (for state), (for control) = pairs(envs)
-		do
-			do break end
-			self._environments:append(env)
-		end
-
+	for _, env in pairs(envs) do
+		self._environments:append(env)
 	end
-
 	self._environments:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "change_environment"), self._environments)
 	env_dd_sizer:add(self._environments, 2, 0, "EXPAND")
 	self._environment_sizer:add(env_dd_sizer, 0, 0, "EXPAND")
@@ -418,15 +356,9 @@ function EnvironmentLayer:build_panel(notebook)
 		"color_xxxgen",
 		"color_matrix"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(gradings)
-		do
-			do break end
-			self._color_gradings:append(grading)
-		end
-
+	for _, grading in ipairs(gradings) do
+		self._color_gradings:append(grading)
 	end
-
 	self._color_gradings:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "change_color_grading"), self._color_gradings)
 	env_cc_sizer:add(self._color_gradings, 2, 0, "EXPAND")
 	self._environment_sizer:add(env_cc_sizer, 0, 0, "EXPAND")
@@ -435,15 +367,9 @@ function EnvironmentLayer:build_panel(notebook)
 	local env_area_sizer = EWS:BoxSizer("HORIZONTAL")
 	env_area_sizer:add(EWS:StaticText(self._env_panel, "Area:", 0, ""), 2, 0, "ALIGN_CENTER_VERTICAL")
 	local environment = EWS:ComboBox(self._env_panel, "", "", "CB_DROPDOWN,CB_READONLY")
-	do
-		local (for generator), (for state), (for control) = pairs(managers.database:list_entries_of_type("environment"))
-		do
-			do break end
-			environment:append(env)
-		end
-
+	for _, env in pairs(managers.database:list_entries_of_type("environment")) do
+		environment:append(env)
 	end
-
 	environment:set_value(managers.environment_area:game_default_environment())
 	environment:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_environment_area"), environment)
 	env_area_sizer:add(environment, 3, 0, "EXPAND")
@@ -471,21 +397,15 @@ function EnvironmentLayer:build_panel(notebook)
 	local resolution_sizer = EWS:BoxSizer("HORIZONTAL")
 	resolution_sizer:add(EWS:StaticText(self._env_panel, "Resolution:", 0, ""), 2, 0, "ALIGN_CENTER_VERTICAL")
 	local resolution = EWS:ComboBox(self._env_panel, "", "", "CB_DROPDOWN,CB_READONLY")
-	do
-		local (for generator), (for state), (for control) = pairs({
-			64,
-			128,
-			256,
-			512,
-			1024
-		})
-		do
-			do break end
-			resolution:append(res)
-		end
-
+	for _, res in pairs({
+		64,
+		128,
+		256,
+		512,
+		1024
+	}) do
+		resolution:append(res)
 	end
-
 	resolution:set_value(self._environment_values.dome_occ_resolution)
 	resolution:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_dome_occ_resolution"), resolution)
 	resolution_sizer:add(resolution, 3, 0, "EXPAND")
@@ -579,18 +499,11 @@ end
 function EnvironmentLayer:populate_unit_effects()
 	self._unit_effects:clear()
 	self._unit_effects:append("none")
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type("effect"))
-		do
-			do break end
-			if string.match(name, "scene_") then
-				self._unit_effects:append(name)
-			end
-
+	for _, name in ipairs(managers.database:list_entries_of_type("effect")) do
+		if string.match(name, "scene_") then
+			self._unit_effects:append(name)
 		end
-
 	end
-
 	self._unit_effects:set_value("none")
 	self:update_unit_settings()
 end
@@ -598,9 +511,7 @@ end
 function EnvironmentLayer:create_cube_map(type)
 	local cubes = {}
 	if type == "all" then
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
+		for _, unit in ipairs(self._created_units) do
 			if unit:name() == Idstring(self._cubemap_unit) then
 				table.insert(cubes, {
 					position = unit:position(),
@@ -608,9 +519,7 @@ function EnvironmentLayer:create_cube_map(type)
 					output_name = "outputcube"
 				})
 			end
-
 		end
-
 	elseif type == "selected" and self._selected_unit:name() == Idstring(self._cubemap_unit) then
 		table.insert(cubes, {
 			position = self._selected_unit:position(),
@@ -618,7 +527,6 @@ function EnvironmentLayer:create_cube_map(type)
 			output_name = "outputcube"
 		})
 	end
-
 	local params = {cubes = cubes}
 	params.output_path = managers.database:base_path() .. "environments\\cubemaps\\"
 	managers.editor:create_cube_map(params)
@@ -655,24 +563,16 @@ end
 
 function EnvironmentLayer:generate_dome_occ()
 	local shape
-	do
-		local (for generator), (for state), (for control) = ipairs(self:created_units())
-		do
-			do break end
-			if unit:name() == Idstring(self._dome_occ_shape_unit) then
-				shape = unit:unit_data().occ_shape
-		end
-
+	for _, unit in ipairs(self:created_units()) do
+		if unit:name() == Idstring(self._dome_occ_shape_unit) then
+			shape = unit:unit_data().occ_shape
 		else
 		end
-
 	end
-
 	if not shape then
 		managers.editor:output_error("No dome occ unit in level!")
 		return
 	end
-
 	local res = self._environment_values.dome_occ_resolution or 256
 	managers.editor:init_create_dome_occlusion(shape, res)
 end
@@ -755,22 +655,17 @@ function EnvironmentLayer:do_spawn_unit(...)
 				unit:unit_data().environment_area:set_unit(unit)
 				self._current_shape_panel = unit:unit_data().environment_area:panel(self._env_panel, self._environment_sizer)
 			end
-
 			self:set_environment_area_parameters()
 		end
-
 		if unit:name() == Idstring(self._dome_occ_shape_unit) then
 			if not unit:unit_data().occ_shape then
 				unit:unit_data().occ_shape = CoreShapeManager.ShapeBox:new({})
 				unit:unit_data().occ_shape:set_unit(unit)
 				self._current_shape_panel = unit:unit_data().occ_shape:panel(self._env_panel, self._dome_occ_sizer)
 			end
-
 			self:set_environment_area_parameters()
 		end
-
 	end
-
 	return unit
 end
 
@@ -785,11 +680,9 @@ function EnvironmentLayer:clone_edited_values(unit, source)
 		area:set_property("depth", source_area:property("depth"))
 		area:set_property("height", source_area:property("height"))
 	end
-
 	if unit:name() == Idstring(self._effect_unit) then
 		self:play_effect(unit, source:unit_data().effect)
 	end
-
 end
 
 function EnvironmentLayer:delete_unit(unit)
@@ -800,22 +693,17 @@ function EnvironmentLayer:delete_unit(unit)
 			if self._current_shape_panel == unit:unit_data().environment_area:panel() then
 				self._current_shape_panel = nil
 			end
-
 			unit:unit_data().environment_area:panel():destroy()
 			self._env_panel:layout()
 		end
-
 	end
-
 	if unit:name() == Idstring(self._dome_occ_shape_unit) and unit:unit_data().occ_shape:panel() then
 		if self._current_shape_panel == unit:unit_data().occ_shape:panel() then
 			self._current_shape_panel = nil
 		end
-
 		unit:unit_data().occ_shape:panel():destroy()
 		self._env_panel:layout()
 	end
-
 	EnvironmentLayer.super.delete_unit(self, unit)
 end
 
@@ -829,7 +717,6 @@ function EnvironmentLayer:play_effect(unit, effect)
 			rotation = unit:rotation()
 		})
 	end
-
 end
 
 function EnvironmentLayer:kill_effect(unit)
@@ -837,7 +724,6 @@ function EnvironmentLayer:kill_effect(unit)
 		World:effect_manager():kill(unit:unit_data().current_effect)
 		unit:unit_data().current_effect = nil
 	end
-
 end
 
 function EnvironmentLayer:change_unit_effect()
@@ -852,7 +738,6 @@ function EnvironmentLayer:update_unit_settings()
 		self._unit_effects:set_enabled(true)
 		self._unit_effects:set_value(self._selected_unit:unit_data().effect or "none")
 	end
-
 	self:set_environment_area_parameters()
 end
 
@@ -863,7 +748,6 @@ function EnvironmentLayer:set_environment_area_parameters()
 	if self._current_shape_panel then
 		self._current_shape_panel:set_visible(false)
 	end
-
 	if alive(self._selected_unit) and self._selected_unit:name() == Idstring(self._environment_area_unit) then
 		local area = self._selected_unit:unit_data().environment_area
 		if area then
@@ -876,18 +760,14 @@ function EnvironmentLayer:set_environment_area_parameters()
 			self._environment_area_ctrls.transition_time:set_enabled(true)
 			self._environment_area_ctrls.transition_time:set_value(string.format("%.2f", area:transition_time()))
 		end
-
 	end
-
 	if alive(self._selected_unit) and self._selected_unit:name() == Idstring(self._dome_occ_shape_unit) then
 		local shape = self._selected_unit:unit_data().occ_shape
 		if shape then
 			self._current_shape_panel = shape:panel(self._env_panel, self._dome_occ_sizer)
 			self._current_shape_panel:set_visible(true)
 		end
-
 	end
-
 	self._env_panel:layout()
 	self._ews_panel:fit_inside()
 	self._ews_panel:refresh()
@@ -895,37 +775,23 @@ end
 
 function EnvironmentLayer:wind_description(speed)
 	local description
-	do
-		local (for generator), (for state), (for control) = ipairs(self._wind_speeds)
-		do
-			do break end
-			if speed < data.speed then
-				return description
-			end
-
-			description = data.description
+	for _, data in ipairs(self._wind_speeds) do
+		if speed < data.speed then
+			return description
 		end
-
+		description = data.description
 	end
-
 	return description
 end
 
 function EnvironmentLayer:wind_beaufort(speed)
 	local beaufort
-	do
-		local (for generator), (for state), (for control) = ipairs(self._wind_speeds)
-		do
-			do break end
-			if speed < data.speed then
-				return beaufort
-			end
-
-			beaufort = data.beaufort
+	for _, data in ipairs(self._wind_speeds) do
+		if speed < data.speed then
+			return beaufort
 		end
-
+		beaufort = data.beaufort
 	end
-
 	return beaufort
 end
 
@@ -958,19 +824,12 @@ function EnvironmentLayer:clear()
 	self._wind_ctrls.tilt_angle:set_value(0)
 	self._wind_ctrls.tilt_variation:set_value(0)
 	self:set_wind()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			self:kill_effect(unit)
-			if unit:name() == Idstring(self._environment_area_unit) then
-				managers.environment_area:remove_area(unit:unit_data().environment_area)
-			end
-
+	for _, unit in ipairs(self._created_units) do
+		self:kill_effect(unit)
+		if unit:name() == Idstring(self._environment_area_unit) then
+			managers.environment_area:remove_area(unit:unit_data().environment_area)
 		end
-
 	end
-
 	EnvironmentLayer.super.clear(self)
 	self:set_environment_area_parameters()
 end

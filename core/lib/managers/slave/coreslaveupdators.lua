@@ -47,40 +47,25 @@ function SlaveUpdator:slaveupdators_sync(key, name, pos, rot, rpc)
 		unit = World:spawn_unit_without_extensions(name:id(), pos, rot)
 		self._units[key] = unit
 	end
-
 	rpc:slaveupdators_ready_to_send()
 end
 
 function SlaveUpdator:slaveupdators_reset(rpc)
-	do
-		local (for generator), (for state), (for control) = pairs(self._pings)
-		do
-			do break end
-			if CoreCode.alive(unit) then
-				World:delete_unit(unit)
-			end
-
+	for _, unit in pairs(self._pings) do
+		if CoreCode.alive(unit) then
+			World:delete_unit(unit)
 		end
-
 	end
-
 	self._pings = table.map_copy(self._units)
 	rpc:slaveupdators_ready_to_send()
 end
 
 function SlaveUpdator:slaveupdators_init()
-	do
-		local (for generator), (for state), (for control) = ipairs(World:find_units_quick("all"))
-		do
-			do break end
-			if CoreCode.alive(unit) then
-				World:delete_unit(unit)
-			end
-
+	for _, unit in ipairs(World:find_units_quick("all")) do
+		if CoreCode.alive(unit) then
+			World:delete_unit(unit)
 		end
-
 	end
-
 	self._units = {}
 	self._pings = {}
 end
@@ -91,7 +76,6 @@ function MasterUpdator:init(vp, host, port, master_listener_port, manual_pumping
 	if not self._peer then
 		return false
 	end
-
 	Network:bind(master_listener_port or DEFAULT_NETWORK_LSPORT, self)
 	Network:set_receiver(NETWORK_MASTER_RECEIVER, self)
 	self._unitqueue = {}
@@ -115,11 +99,9 @@ function MasterUpdator:update(t, dt)
 		self._peer:slaveupdators_reset()
 		self._unitqueue = World:find_units_quick("all")
 	end
-
 	if not self._ready_to_send then
 		return
 	end
-
 	local num_sent = 0
 	for i = #self._unitqueue, 1, -1 do
 		local unit = self._unitqueue[i]
@@ -131,11 +113,8 @@ function MasterUpdator:update(t, dt)
 			if num_sent >= self._units_per_frame then
 				break
 			end
-
 		end
-
 	end
-
 end
 
 function MasterUpdator:slaveupdators_ready_to_send()

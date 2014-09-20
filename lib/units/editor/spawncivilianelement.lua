@@ -104,20 +104,13 @@ function SpawnCivilianUnitElement:get_spawn_anim()
 end
 
 function SpawnCivilianUnitElement:stop_test_element()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._enemies)
-		do
-			do break end
-			if enemy:base() and enemy:base().set_slot then
-				enemy:base():set_slot(enemy, 0)
-			else
-				enemy:set_slot(0)
-			end
-
+	for _, enemy in ipairs(self._enemies) do
+		if enemy:base() and enemy:base().set_slot then
+			enemy:base():set_slot(enemy, 0)
+		else
+			enemy:set_slot(0)
 		end
-
 	end
-
 	self._enemies = {}
 end
 
@@ -126,14 +119,10 @@ function SpawnCivilianUnitElement:select_civilian_btn()
 	if dialog:cancelled() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-	do
-		do break end
+	for _, unit in ipairs(dialog:_selected_item_assets()) do
 		self._hed.enemy = unit
 		CoreEws.change_combobox_value(self._enemies_params, self._hed.enemy)
 	end
-
 end
 
 function SpawnCivilianUnitElement:select_state_btn()
@@ -141,14 +130,10 @@ function SpawnCivilianUnitElement:select_state_btn()
 	if dialog:cancelled() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-	do
-		do break end
+	for _, state in ipairs(dialog:_selected_item_assets()) do
 		self._hed.state = state
 		CoreEws.change_combobox_value(self._states_params, self._hed.state)
 	end
-
 end
 
 function SpawnCivilianUnitElement:_build_panel(panel, panel_sizer)
@@ -201,15 +186,9 @@ function SpawnCivilianUnitElement:_build_panel(panel, panel_sizer)
 	toolbar:realize()
 	state_sizer:add(toolbar, 0, 1, "EXPAND,LEFT")
 	local pickups = {}
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.pickups)
-		do
-			do break end
-			table.insert(pickups, name)
-		end
-
+	for name, _ in pairs(tweak_data.pickups) do
+		table.insert(pickups, name)
 	end
-
 	local pickup_params = {
 		name = "Force Pickup:",
 		panel = panel,
@@ -235,7 +214,6 @@ function SpawnCivilianUnitElement:_load_pickup()
 		local unit_name = tweak_data.pickups[self._hed.force_pickup].unit
 		CoreUnit.editor_load_unit(unit_name)
 	end
-
 end
 
 function SpawnCivilianUnitElement:add_to_mission_package()
@@ -248,9 +226,7 @@ function SpawnCivilianUnitElement:add_to_mission_package()
 		})
 		local sequence_files = {}
 		CoreEditorUtils.get_sequence_files_by_unit_name(unit_name, sequence_files)
-		local (for generator), (for state), (for control) = ipairs(sequence_files)
-		do
-			do break end
+		for _, file in ipairs(sequence_files) do
 			managers.editor:add_to_world_package({
 				category = "script_data",
 				name = file:s() .. ".sequence_manager",
@@ -258,9 +234,7 @@ function SpawnCivilianUnitElement:add_to_mission_package()
 				init = true
 			})
 		end
-
 	end
-
 end
 
 function SpawnCivilianUnitElement:destroy(...)

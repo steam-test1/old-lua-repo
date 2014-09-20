@@ -29,19 +29,15 @@ function SpringCameraNode.compile_settings(xml_node, settings)
 	if xml_node:has_parameter("spring") then
 		settings.spring = math.string_to_vector(xml_node:parameter("spring"))
 	end
-
 	if xml_node:has_parameter("max_displacement") then
 		settings.max_displacement = math.string_to_vector(xml_node:parameter("max_displacement"))
 	end
-
 	if xml_node:has_parameter("damping") then
 		settings.damping = math.string_to_vector(xml_node:parameter("damping"))
 	end
-
 	if xml_node:has_parameter("force_scale") then
 		settings.force_scale = math.string_to_vector(xml_node:parameter("force_scale"))
 	end
-
 	if xml_node:has_parameter("force") then
 		local force = xml_node:parameter("force")
 		if force == "acceleration" then
@@ -51,11 +47,9 @@ function SpringCameraNode.compile_settings(xml_node, settings)
 		elseif force == "position" then
 			settings.force_applicant = SpringCameraPosition
 		end
-
 	else
 		settings.force_applicant = SpringCameraPosition
 	end
-
 	if xml_node:has_parameter("integrator") then
 		local integrator = xml_node:parameter("integrator")
 		if integrator == "euler" then
@@ -65,11 +59,9 @@ function SpringCameraNode.compile_settings(xml_node, settings)
 		elseif integrator == "rk4" then
 			settings.integrator_func = SpringCameraNode.rk4_integration
 		end
-
 	else
 		settings.integrator_func = SpringCameraNode.rk2_integration
 	end
-
 end
 
 function SpringCameraNode:acceleration(displacement, velocity, force)
@@ -145,7 +137,6 @@ function SpringCameraNode:reset()
 	if self._force_applicant then
 		self._force_applicant:reset()
 	end
-
 end
 
 function SpringCameraNode:debug_render(t, dt)
@@ -186,7 +177,6 @@ function SpringCameraPosition:force(t, dt, force, parent_position, parent_rotati
 		mvector3_set_zero(force)
 		self._reset = false
 	end
-
 	mvector3_set(self._previous_parent_position, parent_position)
 end
 
@@ -215,7 +205,6 @@ function SpringCameraVelocity:force(t, dt, force, parent_position, parent_rotati
 		mvector3_set_zero(self._velocity)
 		self._reset = false
 	end
-
 	mvector3_set(self._previous_parent_position, parent_position)
 end
 
@@ -246,7 +235,6 @@ function SpringCameraAcceleration:force(t, dt, force, parent_position, parent_ro
 		mvector3_set_zero(self._velocity)
 		self._reset = false
 	end
-
 	mvector3_set(self._previous_parent_position, parent_position)
 end
 

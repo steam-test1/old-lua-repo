@@ -33,14 +33,12 @@ function FreeFlightActionToggle:do_action()
 		self._toggle = 1
 		self._callback2()
 	end
-
 end
 
 function FreeFlightActionToggle:reset()
 	if self._toggle == 2 then
 		self:do_action()
 	end
-
 end
 
 function FreeFlightActionToggle:name()
@@ -49,6 +47,5 @@ function FreeFlightActionToggle:name()
 	else
 		return self._name2
 	end
-
 end
 

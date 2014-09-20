@@ -8,7 +8,6 @@ function ElementFleePoint:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	self:operation_add()
 	ElementFleePoint.super.on_executed(self, instigator)
 end
@@ -19,7 +18,6 @@ function ElementFleePoint:operation_add()
 	else
 		managers.groupai:state():add_flee_point(self._id, self._values.position)
 	end
-
 end
 
 function ElementFleePoint:operation_remove()
@@ -28,6 +26,5 @@ function ElementFleePoint:operation_remove()
 	else
 		managers.groupai:state():remove_flee_point(self._id)
 	end
-
 end
 

@@ -30,26 +30,20 @@ function NewShotgunBase:_update_stats_values()
 		if self._ammo_data.rays ~= nil then
 			self._rays = self._ammo_data.rays
 		end
-
 		if self._ammo_data.damage_near ~= nil then
 			self._damage_near = self._ammo_data.damage_near
 		end
-
 		if self._ammo_data.damage_near_mul ~= nil then
 			self._damage_near = self._damage_near * self._ammo_data.damage_near_mul
 		end
-
 		if self._ammo_data.damage_far ~= nil then
 			self._damage_far = self._ammo_data.damage_far
 		end
-
 		if self._ammo_data.damage_far_mul ~= nil then
 			self._damage_far = self._damage_far * self._ammo_data.damage_far_mul
 		end
-
 		self._range = self._damage_far
 	end
-
 end
 
 function NewShotgunBase:get_damage_falloff(damage, col_ray, user_unit)
@@ -65,14 +59,12 @@ function NewShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, s
 		local result = NewShotgunBase.super._fire_raycast(self, user_unit, from_pos, direction, dmg_mul, shoot_player, spread_mul, autohit_mul, suppr_mul, shoot_through_data)
 		return result
 	end
-
 	local result = {}
 	local hit_enemies = {}
 	local hit_something, col_rays
 	if self._alert_events then
 		col_rays = {}
 	end
-
 	local damage = self:_get_current_damage(dmg_mul)
 	local autoaim, dodge_enemies = self:check_autoaim(from_pos, direction, self._range)
 	local weight = 0.1
@@ -83,24 +75,20 @@ function NewShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, s
 			if not hit_enemies[enemy_key] or col_ray.unit:character_damage():is_head(col_ray.body) then
 				hit_enemies[enemy_key] = col_ray
 			end
-
 		else
 			self._bullet_class:on_collision(col_ray, self._unit, user_unit, damage)
 		end
-
 	end
 
 	local spread = self:_get_spread(user_unit)
 	mvector3.set(mvec_direction, direction)
 	if spread then
 	end
-
 	for i = 1, self._rays do
 		mvector3.set(mvec_spread_direction, mvec_direction)
 		if spread then
 			mvector3.spread(mvec_spread_direction, spread * (spread_mul or 1))
 		end
-
 		mvector3.set(mvec_to, mvec_spread_direction)
 		mvector3.multiply(mvec_to, 20000)
 		mvector3.add(mvec_to, from_pos)
@@ -113,9 +101,7 @@ function NewShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, s
 				local spread_direction = mvector3.copy(mvec_spread_direction)
 				table.insert(col_rays, {position = ray_to, ray = spread_direction})
 			end
-
 		end
-
 		if self._autoaim and autoaim then
 			if col_ray and col_ray.unit:in_slot(managers.slot:get_mask("enemies")) then
 				self._autohit_current = (self._autohit_current + weight) / (1 + weight)
@@ -133,69 +119,45 @@ function NewShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, s
 					else
 						self._autohit_current = self._autohit_current / (1 + weight)
 					end
-
 				elseif col_ray then
 					hit_something = true
 					hit_enemy(col_ray)
 				end
-
 			end
-
 		elseif col_ray then
 			hit_something = true
 			hit_enemy(col_ray)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(hit_enemies)
-		do
-			do break end
-			local damage = self:get_damage_falloff(damage, col_ray, user_unit)
-			if damage > 0 then
-				local result = self._bullet_class:on_collision(col_ray, self._unit, user_unit, damage)
-				if result and result.type == "death" then
-					managers.game_play_central:do_shotgun_push(col_ray.unit, col_ray.position, col_ray.ray, col_ray.distance)
-				end
-
+	for _, col_ray in pairs(hit_enemies) do
+		local damage = self:get_damage_falloff(damage, col_ray, user_unit)
+		if damage > 0 then
+			local result = self._bullet_class:on_collision(col_ray, self._unit, user_unit, damage)
+			if result and result.type == "death" then
+				managers.game_play_central:do_shotgun_push(col_ray.unit, col_ray.position, col_ray.ray, col_ray.distance)
 			end
-
 		end
-
 	end
-
 	if dodge_enemies and self._suppression then
-		local (for generator), (for state), (for control) = pairs(dodge_enemies)
-		do
-			do break end
+		for enemy_data, dis_error in pairs(dodge_enemies) do
 			enemy_data.unit:character_damage():build_suppression(suppr_mul * dis_error * self._suppression)
 		end
-
 	end
-
 	result.hit_enemy = next(hit_enemies) and true or false
 	if self._alert_events then
 		result.rays = #col_rays > 0 and col_rays
 	end
-
 	managers.statistics:shot_fired({
 		hit = false,
 		weapon_unit = self._unit
 	})
-	do
-		local (for generator), (for state), (for control) = pairs(hit_enemies)
-		do
-			do break end
-			managers.statistics:shot_fired({
-				hit = true,
-				weapon_unit = self._unit,
-				skip_bullet_count = true
-			})
-		end
-
+	for _, _ in pairs(hit_enemies) do
+		managers.statistics:shot_fired({
+			hit = true,
+			weapon_unit = self._unit,
+			skip_bullet_count = true
+		})
 	end
-
 	return result
 end
 
@@ -242,7 +204,6 @@ function NewShotgunBase:update_reloading(t, dt, time_left)
 		self:set_ammo_remaining_in_clip(math.min(self:get_ammo_max_per_clip(), self:get_ammo_remaining_in_clip() + 1))
 		return true
 	end
-
 end
 
 function NewShotgunBase:reload_interuptable()

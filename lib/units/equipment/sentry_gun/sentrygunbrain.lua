@@ -31,7 +31,6 @@ function SentryGunBrain:update(unit, t, dt)
 		self:_chk_focus_enemy_valid()
 		self:_choose_focus_enemy()
 	end
-
 	self:_check_fire(t)
 end
 
@@ -40,7 +39,6 @@ function SentryGunBrain:setup(shaprness_mul)
 	if Network:is_server() then
 		self:_setup_attention_handler()
 	end
-
 end
 
 function SentryGunBrain:is_active()
@@ -52,7 +50,6 @@ function SentryGunBrain:set_active(state)
 	if self._active == state then
 		return
 	end
-
 	self._unit:set_extension_update_enabled(Idstring("brain"), state)
 	self._active = state
 	if not state and self._firing then
@@ -61,13 +58,10 @@ function SentryGunBrain:set_active(state)
 		if Network:is_server() then
 			self._unit:network():send("set_allow_fire", false)
 		end
-
 	end
-
 	if not state and Network:is_server() then
 		PlayerMovement.set_attention_settings(self, nil)
 	end
-
 end
 
 function SentryGunBrain:_chk_focus_enemy_valid()
@@ -75,29 +69,22 @@ function SentryGunBrain:_chk_focus_enemy_valid()
 	if not focus_enemy then
 		return
 	end
-
 	if not focus_enemy.verified and (not focus_enemy.verified_t or t - focus_enemy.verified_t > tweak_data.weapon.sentry_gun.LOST_SIGHT_VERIFICATION * self._shaprness_mul) or focus_enemy.unit:brain()._current_logic_name == "trade" then
 		self._AI_data.focus_enemy = nil
 		self._ext_movement:set_attention()
 	end
-
 end
 
 function SentryGunBrain:_chk_enemies_valid(t)
-	local (for generator), (for state), (for control) = pairs(self._AI_data.detected_enemies)
-	do
-		do break end
+	for e_key, enemy_data in pairs(self._AI_data.detected_enemies) do
 		if enemy_data.death_verify_t and t > enemy_data.death_verify_t then
 			self._AI_data.detected_enemies[e_key] = nil
 			if enemy_data == self._AI_data.focus_enemy then
 				self._AI_data.focus_enemy = nil
 				self._ext_movement:set_attention()
 			end
-
 		end
-
 	end
-
 end
 
 function SentryGunBrain:_choose_focus_enemy(t)
@@ -106,56 +93,45 @@ function SentryGunBrain:_choose_focus_enemy(t)
 	local my_tracker = self._unit:movement():nav_tracker()
 	local chk_vis_func = my_tracker.check_visibility
 	local my_pos = self._m_head_object_pos
-	do
-		local (for generator), (for state), (for control) = pairs(enemies)
-		do
-			do break end
-			local enemy_unit = enemy_data.unit
-			if enemy_data.is_converted or enemy_unit:brain()._current_logic_name == "trade" then
-				self._AI_data.detected_enemies[e_key] = nil
-			elseif self._AI_data.detected_enemies[e_key] then
-				local enemy_data = self._AI_data.detected_enemies[e_key]
-				local visible
-				local enemy_pos = enemy_data.m_com
-				local vis_ray = World:raycast("ray", my_pos, enemy_pos, "slot_mask", self._visibility_slotmask, "ray_type", "ai_vision", "report")
-				if not vis_ray then
-					visible = true
-				end
-
-				enemy_data.verified = visible
-				if visible then
-					delay = math.min(0.6, delay)
-					enemy_data.verified_t = t
-					enemy_data.verified_dis = mvector3.distance(enemy_pos, my_pos)
-				elseif not enemy_data.verified_t or t - enemy_data.verified_t > 3 then
-					enemy_unit:base():remove_destroy_listener(enemy_data.destroy_clbk_key)
-					enemy_unit:character_damage():remove_listener(enemy_data.death_clbk_key)
-					self._AI_data.detected_enemies[e_key] = nil
-				end
-
-			elseif chk_vis_func(my_tracker, enemy_data.tracker) then
-				local my_pos = self._m_head_object_pos
-				local enemy_pos = enemy_unit:movement():m_head_pos()
-				local enemy_dis = mvector3.distance(enemy_pos, my_pos)
-				local dis_multiplier
-				dis_multiplier = enemy_dis / self._AI_data.detection.dis_max
-				if dis_multiplier < 1 then
-					delay = math.min(delay, dis_multiplier)
-					if not World:raycast("ray", my_pos, enemy_pos, "slot_mask", self._visibility_slotmask, "ray_type", "ai_vision", "report") then
-						local enemy_data = self:_create_enemy_detection_data(enemy_unit)
-						enemy_data.verified_t = t
-						enemy_data.verified = true
-						self._AI_data.detected_enemies[e_key] = enemy_data
-					end
-
-				end
-
+	for e_key, enemy_data in pairs(enemies) do
+		local enemy_unit = enemy_data.unit
+		if enemy_data.is_converted or enemy_unit:brain()._current_logic_name == "trade" then
+			self._AI_data.detected_enemies[e_key] = nil
+		elseif self._AI_data.detected_enemies[e_key] then
+			local enemy_data = self._AI_data.detected_enemies[e_key]
+			local visible
+			local enemy_pos = enemy_data.m_com
+			local vis_ray = World:raycast("ray", my_pos, enemy_pos, "slot_mask", self._visibility_slotmask, "ray_type", "ai_vision", "report")
+			if not vis_ray then
+				visible = true
 			end
-
+			enemy_data.verified = visible
+			if visible then
+				delay = math.min(0.6, delay)
+				enemy_data.verified_t = t
+				enemy_data.verified_dis = mvector3.distance(enemy_pos, my_pos)
+			elseif not enemy_data.verified_t or t - enemy_data.verified_t > 3 then
+				enemy_unit:base():remove_destroy_listener(enemy_data.destroy_clbk_key)
+				enemy_unit:character_damage():remove_listener(enemy_data.death_clbk_key)
+				self._AI_data.detected_enemies[e_key] = nil
+			end
+		elseif chk_vis_func(my_tracker, enemy_data.tracker) then
+			local my_pos = self._m_head_object_pos
+			local enemy_pos = enemy_unit:movement():m_head_pos()
+			local enemy_dis = mvector3.distance(enemy_pos, my_pos)
+			local dis_multiplier
+			dis_multiplier = enemy_dis / self._AI_data.detection.dis_max
+			if dis_multiplier < 1 then
+				delay = math.min(delay, dis_multiplier)
+				if not World:raycast("ray", my_pos, enemy_pos, "slot_mask", self._visibility_slotmask, "ray_type", "ai_vision", "report") then
+					local enemy_data = self:_create_enemy_detection_data(enemy_unit)
+					enemy_data.verified_t = t
+					enemy_data.verified = true
+					self._AI_data.detected_enemies[e_key] = enemy_data
+				end
+			end
 		end
-
 	end
-
 	local focus_enemy = self._AI_data.focus_enemy
 	local cam_fwd
 	if focus_enemy then
@@ -164,7 +140,6 @@ function SentryGunBrain:_choose_focus_enemy(t)
 	else
 		cam_fwd = self._ext_movement:m_head_fwd()
 	end
-
 	local max_dis = 15000
 	local function _get_weight(enemy_data)
 		local dis = mvec3_dir(tmp_vec1, my_pos, enemy_data.m_com)
@@ -177,24 +152,15 @@ function SentryGunBrain:_choose_focus_enemy(t)
 	if focus_enemy then
 		focus_enemy_weight = _get_weight(focus_enemy) * 4
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._AI_data.detected_enemies)
-		do
-			do break end
-			if not enemy_data.death_verify_t then
-				local weight = _get_weight(enemy_data)
-				if not focus_enemy_weight or focus_enemy_weight < weight then
-					focus_enemy_weight = weight
-					focus_enemy = enemy_data
-				end
-
+	for e_key, enemy_data in pairs(self._AI_data.detected_enemies) do
+		if not enemy_data.death_verify_t then
+			local weight = _get_weight(enemy_data)
+			if not focus_enemy_weight or focus_enemy_weight < weight then
+				focus_enemy_weight = weight
+				focus_enemy = enemy_data
 			end
-
 		end
-
 	end
-
 	if self._AI_data.focus_enemy ~= focus_enemy then
 		if focus_enemy then
 			local attention = {
@@ -204,10 +170,8 @@ function SentryGunBrain:_choose_focus_enemy(t)
 		else
 			self._ext_movement:set_attention()
 		end
-
 		self._AI_data.focus_enemy = focus_enemy
 	end
-
 	return delay
 end
 
@@ -236,10 +200,8 @@ function SentryGunBrain:_check_fire(t)
 		if self._firing then
 			self._unit:weapon():trigger_held(true, false)
 		end
-
 		return
 	end
-
 	local focus_enemy = self._AI_data.focus_enemy
 	if self._unit:weapon():out_of_ammo() then
 		self:switch_off()
@@ -256,15 +218,12 @@ function SentryGunBrain:_check_fire(t)
 				self._firing = true
 				self._unit:network():send("set_allow_fire", true)
 			end
-
 		end
-
 	elseif self._firing then
 		self._unit:weapon():stop_autofire()
 		self._firing = false
 		self._unit:network():send("set_allow_fire", false)
 	end
-
 end
 
 function SentryGunBrain:on_enemy_destroyed(destroyed_unit)
@@ -273,7 +232,6 @@ function SentryGunBrain:on_enemy_destroyed(destroyed_unit)
 	if self._AI_data.focus_enemy and self._AI_data.focus_enemy.key == destroyed_unit_key then
 		self._AI_data.focus_enemy = nil
 	end
-
 end
 
 function SentryGunBrain:on_enemy_killed(killed_unit)
@@ -282,7 +240,6 @@ function SentryGunBrain:on_enemy_killed(killed_unit)
 		local verif_data = tweak_data.weapon.sentry_gun.DEATH_VERIFICATION
 		self._AI_data.detected_enemies[killed_unit_key].death_verify_t = TimerManager:game():time() + math.lerp(verif_data[1], verif_data[2], math.random())
 	end
-
 end
 
 function SentryGunBrain:synch_allow_fire(state, instant)
@@ -291,16 +248,13 @@ function SentryGunBrain:synch_allow_fire(state, instant)
 		if instant then
 			self._unit:weapon():trigger_held(true, false)
 		end
-
 	elseif not state then
 		if self._unit:weapon():out_of_ammo() then
 			self:switch_off()
 		elseif self._firing then
 			self._unit:weapon():stop_autofire()
 		end
-
 	end
-
 	self._firing = state
 end
 
@@ -310,7 +264,6 @@ function SentryGunBrain:switch_off()
 	if is_server then
 		self._ext_movement:set_attention()
 	end
-
 	self:set_active(false)
 	self._ext_movement:switch_off()
 	self._unit:set_slot(26)
@@ -318,7 +271,6 @@ function SentryGunBrain:switch_off()
 	if Network:is_server() then
 		PlayerMovement.set_attention_settings(self, nil)
 	end
-
 	self._unit:base():unregister()
 	self._AI_data.focus_enemy = nil
 end
@@ -327,12 +279,10 @@ function SentryGunBrain:switch_on()
 	if self._active then
 		return
 	end
-
 	self._unit:damage():run_sequence_simple("laser_activate")
 	local is_server = Network:is_server()
 	if is_server then
 	end
-
 	self:set_active(true)
 	self._ext_movement:switch_on()
 	self._unit:set_slot(25)
@@ -343,7 +293,6 @@ function SentryGunBrain:switch_on()
 			"sentry_gun_enemy_cbt"
 		})
 	end
-
 end
 
 function SentryGunBrain:_setup_attention_handler()
@@ -366,43 +315,31 @@ function SentryGunBrain:save(save_data)
 	if self._firing then
 		my_save_data.firing = true
 	end
-
 	if self._shaprness_mul ~= 1 then
 		my_save_data.shaprness_mul = self._shaprness_mul
 	end
-
 	if next(my_save_data) then
 		save_data.brain = my_save_data
 	end
-
 end
 
 function SentryGunBrain:load(save_data)
 	if not save_data or not save_data.brain then
 		return
 	end
-
 	self._shaprness_mul = save_data.brain.shaprness_mul or 1
 	if save_data.brain.firing then
 		self:synch_allow_fire(true, false)
 	end
-
 end
 
 function SentryGunBrain:pre_destroy()
-	do
-		local (for generator), (for state), (for control) = pairs(self._AI_data.detected_enemies)
-		do
-			do break end
-			enemy_data.unit:base():remove_destroy_listener(enemy_data.destroy_clbk_key)
-		end
-
+	for key, enemy_data in pairs(self._AI_data.detected_enemies) do
+		enemy_data.unit:base():remove_destroy_listener(enemy_data.destroy_clbk_key)
 	end
-
 	self:set_active(false)
 	if Network:is_server() then
 		PlayerMovement.set_attention_settings(self, nil)
 	end
-
 end
 

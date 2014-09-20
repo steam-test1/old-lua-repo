@@ -1,21 +1,16 @@
 core:module("CoreString")
 function utf8.find_char(text, char)
-	local (for generator), (for state), (for control) = ipairs(utf8.characters(text))
-	do
-		do break end
+	for i, c in ipairs(utf8.characters(text)) do
 		if c == char then
 			return i
 		end
-
 	end
-
 end
 
 function string.begins(s, beginning)
 	if s and beginning then
 		return s:sub(1, #beginning) == beginning
 	end
-
 	return false
 end
 
@@ -23,7 +18,6 @@ function string.ends(s, ending)
 	if s and ending then
 		return #ending == 0 or s:sub(-#ending) == ending
 	end
-
 	return false
 end
 
@@ -36,24 +30,16 @@ function string.split(s, separator_pattern, keep_empty, max_splits)
 	local pattern = "(.-)" .. separator_pattern .. "()"
 	local count = 0
 	local final_match_end_index = 0
-	do
-		local (for generator), (for state), (for control) = string.gmatch(s, pattern)
-		do
-			do break end
-			final_match_end_index = end_index
-			if keep_empty or part ~= "" then
-				count = count + 1
-				result[count] = part
-				if count == max_splits then
-				end
-
-		end
-
+	for part, end_index in string.gmatch(s, pattern) do
+		final_match_end_index = end_index
+		if keep_empty or part ~= "" then
+			count = count + 1
+			result[count] = part
+			if count == max_splits then
+			end
 		else
 		end
-
 	end
-
 	local remainder = string.sub(s, final_match_end_index)
 	result[count + 1] = (keep_empty or remainder ~= "") and remainder or nil
 	return result
@@ -65,7 +51,6 @@ function string.join(separator, elements, keep_empty)
 		if as_string ~= "" or keep_empty then
 			return as_string
 		end
-
 	end
 )
 	return table.concat(strings, separator)
@@ -93,7 +78,6 @@ function string:rep(n)
 	for i = 1, n do
 		out = out .. self
 	end
-
 	return out
 end
 

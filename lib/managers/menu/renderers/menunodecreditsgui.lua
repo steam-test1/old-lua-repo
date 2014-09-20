@@ -18,11 +18,9 @@ function MenuNodeCreditsGui:_build_credits_panel(file)
 	if Application:region() == Idstring("eu") and file == "eula" then
 		files[Idstring("english"):key()] = "_uk"
 	end
-
 	if file == "eula" or file == "trial" then
 		file = files[lang_key] and file .. files[lang_key] or file
 	end
-
 	local list = PackageManager:script_data(self.FILE_EXTENSION:id(), self.PATH .. file:id())
 	local ypos = 0
 	local safe_rect_pixels = managers.gui_data:scaled_size()
@@ -108,83 +106,75 @@ function MenuNodeCreditsGui:_build_credits_panel(file)
 
 	blur:animate(func)
 	local commands = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(list)
-		do
-			do break end
-			if data._meta == "text" then
-				local height = 50
-				local color = Color(1, 1, 0, 0)
-				if data.type == "title" then
-					height = 24
-					color = Color(255, 0, 161, 255) / 255
-				elseif data.type == "name" then
-					height = 24
-					color = Color(1, 0.9, 0.9, 0.9)
-				elseif data.type == "fill" then
-					height = 26
-					color = Color(1, 1, 1, 1)
-				elseif data.type == "song" then
-					height = 24
-					color = Color(1, 0.8, 0.8, 0.8)
-				elseif data.type == "song-credit" then
-					height = 24
-					color = Color(1, 0.5, 0.5, 0.5)
-				elseif data.type == "image-text" then
-					height = 24
-					color = Color(1, 0.5, 0.5, 0.5)
-				elseif data.type == "eula" then
-					height = 22
-					color = Color(1, 0.7, 0.7, 0.7)
-				end
-
-				height = height * global_scale
-				local text_field = self._credits_panel:text({
-					text = data.text,
-					x = 0,
-					y = ypos,
-					w = text_width,
-					h = 0,
-					font_size = height,
-					align = "center",
-					halign = "left",
-					vertical = "bottom",
-					font = self.font,
-					color = color,
-					layer = self.layers.items,
-					wrap = true,
-					word_wrap = true
-				})
-				local _, _, _, h = text_field:text_rect()
-				text_field:set_height(h)
-				ypos = ypos + h
-			elseif data._meta == "image" then
-				local scale = (data.scale or 1) * global_scale
-				local bitmap = self._credits_panel:bitmap({
-					layer = self.layers.items,
-					x = 0,
-					y = ypos,
-					texture = data.src
-				})
-				print(res.x, bitmap:width() * scale)
-				bitmap:set_width(bitmap:width() * scale)
-				bitmap:set_height(bitmap:height() * scale)
-				bitmap:set_center_x(self._credits_panel:width() / 2)
-				ypos = ypos + bitmap:height()
-			elseif data._meta == "br" then
-				ypos = ypos + 28 * global_scale
-			elseif data._meta == "command" then
-				table.insert(commands, {
-					pos = ypos - text_offset + (data.offset or 0) * global_scale + self._clipping_panel:height() / 2,
-					cmd = data.cmd,
-					param = data.param
-				})
+	for _, data in ipairs(list) do
+		if data._meta == "text" then
+			local height = 50
+			local color = Color(1, 1, 0, 0)
+			if data.type == "title" then
+				height = 24
+				color = Color(255, 0, 161, 255) / 255
+			elseif data.type == "name" then
+				height = 24
+				color = Color(1, 0.9, 0.9, 0.9)
+			elseif data.type == "fill" then
+				height = 26
+				color = Color(1, 1, 1, 1)
+			elseif data.type == "song" then
+				height = 24
+				color = Color(1, 0.8, 0.8, 0.8)
+			elseif data.type == "song-credit" then
+				height = 24
+				color = Color(1, 0.5, 0.5, 0.5)
+			elseif data.type == "image-text" then
+				height = 24
+				color = Color(1, 0.5, 0.5, 0.5)
+			elseif data.type == "eula" then
+				height = 22
+				color = Color(1, 0.7, 0.7, 0.7)
 			end
-
+			height = height * global_scale
+			local text_field = self._credits_panel:text({
+				text = data.text,
+				x = 0,
+				y = ypos,
+				w = text_width,
+				h = 0,
+				font_size = height,
+				align = "center",
+				halign = "left",
+				vertical = "bottom",
+				font = self.font,
+				color = color,
+				layer = self.layers.items,
+				wrap = true,
+				word_wrap = true
+			})
+			local _, _, _, h = text_field:text_rect()
+			text_field:set_height(h)
+			ypos = ypos + h
+		elseif data._meta == "image" then
+			local scale = (data.scale or 1) * global_scale
+			local bitmap = self._credits_panel:bitmap({
+				layer = self.layers.items,
+				x = 0,
+				y = ypos,
+				texture = data.src
+			})
+			print(res.x, bitmap:width() * scale)
+			bitmap:set_width(bitmap:width() * scale)
+			bitmap:set_height(bitmap:height() * scale)
+			bitmap:set_center_x(self._credits_panel:width() / 2)
+			ypos = ypos + bitmap:height()
+		elseif data._meta == "br" then
+			ypos = ypos + 28 * global_scale
+		elseif data._meta == "command" then
+			table.insert(commands, {
+				pos = ypos - text_offset + (data.offset or 0) * global_scale + self._clipping_panel:height() / 2,
+				cmd = data.cmd,
+				param = data.param
+			})
 		end
-
 	end
-
 	self._credits_panel:set_height(ypos + 50)
 	local function scroll_func(o)
 		local y = o:top()
@@ -202,11 +192,8 @@ function MenuNodeCreditsGui:_build_credits_panel(file)
 				elseif cmd.cmd == "stop" then
 					return
 				end
-
 			end
-
 		end
-
 	end
 
 	self._credits_panel_thread = self._credits_panel:animate(scroll_func)
@@ -239,7 +226,6 @@ function MenuNodeCreditsGui:set_visible(visible)
 	else
 		self._fullscreen_ws:hide()
 	end
-
 end
 
 function MenuNodeCreditsGui:close(...)

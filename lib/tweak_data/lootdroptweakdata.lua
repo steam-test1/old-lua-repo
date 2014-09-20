@@ -101,7 +101,6 @@ function LootDropTweakData:init(tweak_data)
 			xp = xp
 		}
 	end
-
 	self.DEFAULT_WEIGHT = 1
 	self.got_item_weight_mod = 0.5
 	self.type_weight_mod_funcs = {}
@@ -110,37 +109,18 @@ function LootDropTweakData:init(tweak_data)
 		local primaries = managers.blackmarket:get_crafted_category("primaries") or {}
 		local secondaries = managers.blackmarket:get_crafted_category("secondaries") or {}
 		local crafted_weapons = {}
-		do
-			local (for generator), (for state), (for control) = pairs(primaries)
-			do
-				do break end
-				table.insert(crafted_weapons, weapon.factory_id)
-			end
-
+		for _, weapon in pairs(primaries) do
+			table.insert(crafted_weapons, weapon.factory_id)
 		end
-
-		do
-			local (for generator), (for state), (for control) = pairs(secondaries)
-			do
-				do break end
-				table.insert(crafted_weapons, weapon.factory_id)
-			end
-
+		for _, weapon in pairs(secondaries) do
+			table.insert(crafted_weapons, weapon.factory_id)
 		end
-
 		table.list_union(crafted_weapons)
-		do
-			local (for generator), (for state), (for control) = pairs(weapons)
-			do
-				do break end
-				if table.contains(crafted_weapons, factory_id) then
-					return 2
-				end
-
+		for _, factory_id in pairs(weapons) do
+			if table.contains(crafted_weapons, factory_id) then
+				return 2
 			end
-
 		end
-
 		return 1
 	end
 
@@ -458,11 +438,8 @@ function LootDropTweakData:init(tweak_data)
 		"gage_pack_assault"
 	}
 	self.global_value_list_map = {}
-	local (for generator), (for state), (for control) = ipairs(self.global_value_list_index)
-	do
-		do break end
+	for i, d in ipairs(self.global_value_list_index) do
 		self.global_value_list_map[d] = i
 	end
-
 end
 

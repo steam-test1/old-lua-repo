@@ -992,28 +992,18 @@ function UpgradesTweakData:_init_pd2_values()
 		}
 	}
 	self.skill_descs = {}
-	local (for generator), (for state), (for control) = pairs(editable_skill_descs)
-	do
-		do break end
+	for skill_id, skill_desc in pairs(editable_skill_descs) do
 		self.skill_descs[skill_id] = {}
-		local (for generator), (for state), (for control) = ipairs(skill_desc)
-		do
-			do break end
+		for index, skill_version in ipairs(skill_desc) do
 			local version = index == 1 and "multibasic" or "multipro"
 			self.skill_descs[skill_id][index] = #skill_version
-			local (for generator), (for state), (for control) = ipairs(skill_version)
-			do
-				do break end
+			for i, desc in ipairs(skill_version) do
 				if i ~= 1 or not "" then
 				end
-
 				self.skill_descs[skill_id][version .. tostring(i)] = desc
 			end
-
 		end
-
 	end
-
 end
 
 function UpgradesTweakData:init()
@@ -1428,49 +1418,33 @@ function UpgradesTweakData:init()
 		name_id = "menu_lucky_charm"
 	}
 	self.levels = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self.definitions)
-		do
-			do break end
-			local unlock_lvl = upgrade.unlock_lvl or 1
-			self.levels[unlock_lvl] = self.levels[unlock_lvl] or {}
-			if upgrade.prio and upgrade.prio == "high" then
-				table.insert(self.levels[unlock_lvl], 1, name)
-			else
-				table.insert(self.levels[unlock_lvl], name)
-			end
-
+	for name, upgrade in pairs(self.definitions) do
+		local unlock_lvl = upgrade.unlock_lvl or 1
+		self.levels[unlock_lvl] = self.levels[unlock_lvl] or {}
+		if upgrade.prio and upgrade.prio == "high" then
+			table.insert(self.levels[unlock_lvl], 1, name)
+		else
+			table.insert(self.levels[unlock_lvl], name)
 		end
-
 	end
-
 	self.progress = {
 		{},
 		{},
 		{},
 		{}
 	}
-	do
-		local (for generator), (for state), (for control) = pairs(self.definitions)
-		do
-			do break end
-			if upgrade.tree then
-				if upgrade.step then
-					if self.progress[upgrade.tree][upgrade.step] then
-						Application:error("upgrade collision", upgrade.tree, upgrade.step, self.progress[upgrade.tree][upgrade.step], name)
-					end
-
-					self.progress[upgrade.tree][upgrade.step] = name
-				else
-					print(name, upgrade.tree, "is in no step")
+	for name, upgrade in pairs(self.definitions) do
+		if upgrade.tree then
+			if upgrade.step then
+				if self.progress[upgrade.tree][upgrade.step] then
+					Application:error("upgrade collision", upgrade.tree, upgrade.step, self.progress[upgrade.tree][upgrade.step], name)
 				end
-
+				self.progress[upgrade.tree][upgrade.step] = name
+			else
+				print(name, upgrade.tree, "is in no step")
 			end
-
 		end
-
 	end
-
 	self.progress[1][49] = "mr_nice_guy"
 	self.progress[2][49] = "mr_nice_guy"
 	self.progress[3][49] = "mr_nice_guy"
@@ -1601,37 +1575,31 @@ function UpgradesTweakData:_player_definitions()
 		},
 		slot = 2
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.player.thick_skin)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "thick_skin" .. i - 1
-			local unlock_lvl = 3
-			local prio = i == 1 and "high"
-			self.definitions["thick_skin" .. i] = {
-				tree = 2,
-				step = self.steps.player.thick_skin[i],
-				category = "feature",
-				title_id = "debug_upgrade_player_upgrade",
-				subtitle_id = "debug_upgrade_thick_skin" .. i,
-				name_id = "debug_upgrade_thick_skin" .. i,
-				icon = "equipment_thick_skin",
-				image = "upgrades_thugskin",
-				image_slice = "upgrades_thugskin_slice",
-				description_text_id = "thick_skin",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "player",
-					upgrade = "thick_skin",
-					value = i
-				}
+	for i, _ in ipairs(self.values.player.thick_skin) do
+		local depends_on = 0 < i - 1 and "thick_skin" .. i - 1
+		local unlock_lvl = 3
+		local prio = i == 1 and "high"
+		self.definitions["thick_skin" .. i] = {
+			tree = 2,
+			step = self.steps.player.thick_skin[i],
+			category = "feature",
+			title_id = "debug_upgrade_player_upgrade",
+			subtitle_id = "debug_upgrade_thick_skin" .. i,
+			name_id = "debug_upgrade_thick_skin" .. i,
+			icon = "equipment_thick_skin",
+			image = "upgrades_thugskin",
+			image_slice = "upgrades_thugskin_slice",
+			description_text_id = "thick_skin",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "player",
+				upgrade = "thick_skin",
+				value = i
 			}
-		end
-
+		}
 	end
-
 	self.definitions.extra_start_out_ammo = {
 		tree = 3,
 		step = 2,
@@ -1651,37 +1619,31 @@ function UpgradesTweakData:_player_definitions()
 		},
 		slot = 2
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.player.extra_ammo_multiplier)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "extra_ammo_multiplier" .. i - 1
-			local unlock_lvl = 14
-			local prio = i == 1 and "high"
-			self.definitions["extra_ammo_multiplier" .. i] = {
-				tree = 3,
-				step = self.steps.player.extra_ammo_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_extra_start_out_ammo" .. i,
-				title_id = "debug_upgrade_player_upgrade",
-				subtitle_id = "debug_upgrade_extra_start_out_ammo" .. i,
-				icon = "equipment_extra_start_out_ammo",
-				image = "upgrades_extrastartammo",
-				image_slice = "upgrades_extrastartammo_slice",
-				description_text_id = "extra_ammo_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "player",
-					upgrade = "extra_ammo_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.player.extra_ammo_multiplier) do
+		local depends_on = 0 < i - 1 and "extra_ammo_multiplier" .. i - 1
+		local unlock_lvl = 14
+		local prio = i == 1 and "high"
+		self.definitions["extra_ammo_multiplier" .. i] = {
+			tree = 3,
+			step = self.steps.player.extra_ammo_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_extra_start_out_ammo" .. i,
+			title_id = "debug_upgrade_player_upgrade",
+			subtitle_id = "debug_upgrade_extra_start_out_ammo" .. i,
+			icon = "equipment_extra_start_out_ammo",
+			image = "upgrades_extrastartammo",
+			image_slice = "upgrades_extrastartammo_slice",
+			description_text_id = "extra_ammo_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "player",
+				upgrade = "extra_ammo_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
 	self.definitions.player_add_armor_stat_skill_ammo_mul = {
 		category = "feature",
 		name_id = "menu_player_add_armor_stat_skill_ammo_mul",
@@ -3525,9 +3487,7 @@ function UpgradesTweakData:_player_definitions()
 		aquire = {upgrade = "toolset1"},
 		slot = 2
 	}
-	local (for generator), (for state), (for control) = ipairs(self.values.player.toolset)
-	do
-		do break end
+	for i, _ in ipairs(self.values.player.toolset) do
 		local depends_on = i - 1 > 0 and "toolset" .. i - 1
 		local unlock_lvl = 3
 		local prio = i == 1 and "high"
@@ -3552,7 +3512,6 @@ function UpgradesTweakData:_player_definitions()
 			}
 		}
 	end
-
 end
 
 function UpgradesTweakData:_trip_mine_definitions()
@@ -3783,37 +3742,31 @@ function UpgradesTweakData:_ammo_bag_definitions()
 		prio = "high",
 		slot = 1
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.ammo_bag.ammo_increase)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "ammo_bag_ammo_increase" .. i - 1 or "ammo_bag"
-			local unlock_lvl = 11
-			local prio = i == 1 and "high"
-			self.definitions["ammo_bag_ammo_increase" .. i] = {
-				tree = 1,
-				step = self.steps.ammo_bag.ammo_increase[i],
-				category = "equipment_upgrade",
-				name_id = "debug_upgrade_ammo_bag_ammo_increase" .. i,
-				title_id = "debug_ammo_bag",
-				subtitle_id = "debug_upgrade_amount_increase" .. i,
-				icon = "equipment_ammo_bag",
-				image = "upgrades_ammobag",
-				image_slice = "upgrades_ammobag_slice",
-				description_text_id = "ammo_bag_increase",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "ammo_bag",
-					upgrade = "ammo_increase",
-					value = i
-				}
+	for i, _ in ipairs(self.values.ammo_bag.ammo_increase) do
+		local depends_on = i - 1 > 0 and "ammo_bag_ammo_increase" .. i - 1 or "ammo_bag"
+		local unlock_lvl = 11
+		local prio = i == 1 and "high"
+		self.definitions["ammo_bag_ammo_increase" .. i] = {
+			tree = 1,
+			step = self.steps.ammo_bag.ammo_increase[i],
+			category = "equipment_upgrade",
+			name_id = "debug_upgrade_ammo_bag_ammo_increase" .. i,
+			title_id = "debug_ammo_bag",
+			subtitle_id = "debug_upgrade_amount_increase" .. i,
+			icon = "equipment_ammo_bag",
+			image = "upgrades_ammobag",
+			image_slice = "upgrades_ammobag_slice",
+			description_text_id = "ammo_bag_increase",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "ammo_bag",
+				upgrade = "ammo_increase",
+				value = i
 			}
-		end
-
+		}
 	end
-
 	self.definitions.ammo_bag_quantity = {
 		category = "equipment_upgrade",
 		name_id = "menu_ammo_bag_quantity",
@@ -3842,37 +3795,31 @@ function UpgradesTweakData:_doctor_bag_definitions()
 		prio = "high",
 		slot = 1
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.doctor_bag.amount_increase)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "doctor_bag_amount_increase" .. i - 1 or "doctor_bag"
-			local unlock_lvl = 3
-			local prio = i == 1 and "high"
-			self.definitions["doctor_bag_amount_increase" .. i] = {
-				tree = 3,
-				step = self.steps.doctor_bag.amount_increase[i],
-				category = "equipment_upgrade",
-				name_id = "debug_upgrade_doctor_bag_amount_increase" .. i,
-				title_id = "debug_doctor_bag",
-				subtitle_id = "debug_upgrade_amount_increase" .. i,
-				icon = "equipment_doctor_bag",
-				image = "upgrades_doctorbag",
-				image_slice = "upgrades_doctorbag_slice",
-				description_text_id = "doctor_bag_increase",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "doctor_bag",
-					upgrade = "amount_increase",
-					value = i
-				}
+	for i, _ in ipairs(self.values.doctor_bag.amount_increase) do
+		local depends_on = i - 1 > 0 and "doctor_bag_amount_increase" .. i - 1 or "doctor_bag"
+		local unlock_lvl = 3
+		local prio = i == 1 and "high"
+		self.definitions["doctor_bag_amount_increase" .. i] = {
+			tree = 3,
+			step = self.steps.doctor_bag.amount_increase[i],
+			category = "equipment_upgrade",
+			name_id = "debug_upgrade_doctor_bag_amount_increase" .. i,
+			title_id = "debug_doctor_bag",
+			subtitle_id = "debug_upgrade_amount_increase" .. i,
+			icon = "equipment_doctor_bag",
+			image = "upgrades_doctorbag",
+			image_slice = "upgrades_doctorbag_slice",
+			description_text_id = "doctor_bag_increase",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "doctor_bag",
+				upgrade = "amount_increase",
+				value = i
 			}
-		end
-
+		}
 	end
-
 	self.definitions.doctor_bag_quantity = {
 		category = "equipment_upgrade",
 		name_id = "menu_doctor_bag_quantity",
@@ -3924,37 +3871,31 @@ function UpgradesTweakData:_cable_tie_definitions()
 		},
 		slot = 2
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.extra_cable_tie.quantity)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "extra_cable_tie_quantity" .. i - 1 or "extra_cable_tie"
-			local unlock_lvl = 4
-			local prio = i == 1 and "high"
-			self.definitions["extra_cable_tie_quantity" .. i] = {
-				tree = 1,
-				step = self.steps.extra_cable_tie.quantity[i],
-				category = "equipment_upgrade",
-				name_id = "debug_upgrade_extra_cable_tie_quantity" .. i,
-				title_id = "debug_equipment_cable_tie",
-				subtitle_id = "debug_upgrade_amount_increase" .. i,
-				icon = "equipment_extra_cable_ties",
-				image = "upgrades_extracableties",
-				image_slice = "upgrades_extracableties_slice",
-				description_text_id = "extra_cable_tie",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "extra_cable_tie",
-					upgrade = "quantity",
-					value = i
-				}
+	for i, _ in ipairs(self.values.extra_cable_tie.quantity) do
+		local depends_on = 0 < i - 1 and "extra_cable_tie_quantity" .. i - 1 or "extra_cable_tie"
+		local unlock_lvl = 4
+		local prio = i == 1 and "high"
+		self.definitions["extra_cable_tie_quantity" .. i] = {
+			tree = 1,
+			step = self.steps.extra_cable_tie.quantity[i],
+			category = "equipment_upgrade",
+			name_id = "debug_upgrade_extra_cable_tie_quantity" .. i,
+			title_id = "debug_equipment_cable_tie",
+			subtitle_id = "debug_upgrade_amount_increase" .. i,
+			icon = "equipment_extra_cable_ties",
+			image = "upgrades_extracableties",
+			image_slice = "upgrades_extracableties_slice",
+			description_text_id = "extra_cable_tie",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "extra_cable_tie",
+				upgrade = "quantity",
+				value = i
 			}
-		end
-
+		}
 	end
-
 	self.definitions.cable_tie_quantity = {
 		category = "equipment_upgrade",
 		name_id = "menu_cable_tie_quantity",
@@ -4133,18 +4074,14 @@ end
 
 function UpgradesTweakData:_rep_definitions()
 	local rep_upgrades = self.values.rep_upgrades
-	local (for generator), (for state), (for control) = ipairs(rep_upgrades.classes)
-	do
-		do break end
+	for index, rep_class in ipairs(rep_upgrades.classes) do
 		for i = 1, 10 do
 			self.definitions[rep_class .. i] = {
 				category = "rep_upgrade",
 				value = rep_upgrades.values[index]
 			}
 		end
-
 	end
-
 end
 
 function UpgradesTweakData:_c45_definitions()
@@ -4163,71 +4100,57 @@ function UpgradesTweakData:_c45_definitions()
 		prio = "high",
 		description_text_id = "des_c45"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.c45.clip_ammo_increase)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "c45_mag" .. i - 1 or "c45"
-			local unlock_lvl = 31
-			local prio = i == 1 and "high"
-			self.definitions["c45_mag" .. i] = {
-				tree = 1,
-				step = self.steps.c45.clip_ammo_increase[i],
-				category = "feature",
-				name_id = "debug_upgrade_c45_mag" .. i,
-				title_id = "debug_c45_short",
-				subtitle_id = "debug_upgrade_mag" .. i,
-				icon = "c45",
-				image = "upgrades_45",
-				image_slice = "upgrades_45_slice",
-				description_text_id = "clip_ammo_increase",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "c45",
-					upgrade = "clip_ammo_increase",
-					value = i
-				}
+	for i, _ in ipairs(self.values.c45.clip_ammo_increase) do
+		local depends_on = i - 1 > 0 and "c45_mag" .. i - 1 or "c45"
+		local unlock_lvl = 31
+		local prio = i == 1 and "high"
+		self.definitions["c45_mag" .. i] = {
+			tree = 1,
+			step = self.steps.c45.clip_ammo_increase[i],
+			category = "feature",
+			name_id = "debug_upgrade_c45_mag" .. i,
+			title_id = "debug_c45_short",
+			subtitle_id = "debug_upgrade_mag" .. i,
+			icon = "c45",
+			image = "upgrades_45",
+			image_slice = "upgrades_45_slice",
+			description_text_id = "clip_ammo_increase",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "c45",
+				upgrade = "clip_ammo_increase",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.c45.recoil_multiplier)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "c45_recoil" .. i - 1 or "c45"
-			local unlock_lvl = 31
-			local prio = i == 1 and "high"
-			self.definitions["c45_recoil" .. i] = {
-				tree = 1,
-				step = self.steps.c45.recoil_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_c45_recoil" .. i,
-				title_id = "debug_c45_short",
-				subtitle_id = "debug_upgrade_recoil" .. i,
-				icon = "c45",
-				image = "upgrades_45",
-				image_slice = "upgrades_45_slice",
-				description_text_id = "recoil_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "c45",
-					upgrade = "recoil_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.c45.recoil_multiplier) do
+		local depends_on = i - 1 > 0 and "c45_recoil" .. i - 1 or "c45"
+		local unlock_lvl = 31
+		local prio = i == 1 and "high"
+		self.definitions["c45_recoil" .. i] = {
+			tree = 1,
+			step = self.steps.c45.recoil_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_c45_recoil" .. i,
+			title_id = "debug_c45_short",
+			subtitle_id = "debug_upgrade_recoil" .. i,
+			icon = "c45",
+			image = "upgrades_45",
+			image_slice = "upgrades_45_slice",
+			description_text_id = "recoil_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "c45",
+				upgrade = "recoil_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.values.c45.damage_multiplier)
-	do
-		do break end
+	for i, _ in ipairs(self.values.c45.damage_multiplier) do
 		local depends_on = i - 1 > 0 and "c45_damage" .. i - 1 or "c45"
 		local unlock_lvl = 31
 		local prio = i == 1 and "high"
@@ -4252,7 +4175,6 @@ function UpgradesTweakData:_c45_definitions()
 			}
 		}
 	end
-
 end
 
 function UpgradesTweakData:_beretta92_definitions()
@@ -4270,71 +4192,57 @@ function UpgradesTweakData:_beretta92_definitions()
 		prio = "high",
 		description_text_id = "des_beretta92"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.beretta92.clip_ammo_increase)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "beretta_mag" .. i - 1 or "beretta92"
-			local unlock_lvl = 2
-			local prio = i == 1 and "high"
-			self.definitions["beretta_mag" .. i] = {
-				tree = 1,
-				step = self.steps.beretta92.clip_ammo_increase[i],
-				category = "feature",
-				name_id = "debug_upgrade_beretta_mag" .. i,
-				title_id = "debug_beretta92_short",
-				subtitle_id = "debug_upgrade_mag" .. i,
-				icon = "beretta92",
-				image = "upgrades_m9sd",
-				image_slice = "upgrades_m9sd_slice",
-				description_text_id = "clip_ammo_increase",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "beretta92",
-					upgrade = "clip_ammo_increase",
-					value = i
-				}
+	for i, _ in ipairs(self.values.beretta92.clip_ammo_increase) do
+		local depends_on = 0 < i - 1 and "beretta_mag" .. i - 1 or "beretta92"
+		local unlock_lvl = 2
+		local prio = i == 1 and "high"
+		self.definitions["beretta_mag" .. i] = {
+			tree = 1,
+			step = self.steps.beretta92.clip_ammo_increase[i],
+			category = "feature",
+			name_id = "debug_upgrade_beretta_mag" .. i,
+			title_id = "debug_beretta92_short",
+			subtitle_id = "debug_upgrade_mag" .. i,
+			icon = "beretta92",
+			image = "upgrades_m9sd",
+			image_slice = "upgrades_m9sd_slice",
+			description_text_id = "clip_ammo_increase",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "beretta92",
+				upgrade = "clip_ammo_increase",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.beretta92.recoil_multiplier)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "beretta_recoil" .. i - 1 or "beretta92"
-			local unlock_lvl = 2
-			local prio = i == 1 and "high"
-			self.definitions["beretta_recoil" .. i] = {
-				tree = 2,
-				step = self.steps.beretta92.recoil_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_beretta_recoil" .. i,
-				title_id = "debug_beretta92_short",
-				subtitle_id = "debug_upgrade_recoil" .. i,
-				icon = "beretta92",
-				image = "upgrades_m9sd",
-				image_slice = "upgrades_m9sd_slice",
-				description_text_id = "recoil_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "beretta92",
-					upgrade = "recoil_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.beretta92.recoil_multiplier) do
+		local depends_on = 0 < i - 1 and "beretta_recoil" .. i - 1 or "beretta92"
+		local unlock_lvl = 2
+		local prio = i == 1 and "high"
+		self.definitions["beretta_recoil" .. i] = {
+			tree = 2,
+			step = self.steps.beretta92.recoil_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_beretta_recoil" .. i,
+			title_id = "debug_beretta92_short",
+			subtitle_id = "debug_upgrade_recoil" .. i,
+			icon = "beretta92",
+			image = "upgrades_m9sd",
+			image_slice = "upgrades_m9sd_slice",
+			description_text_id = "recoil_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "beretta92",
+				upgrade = "recoil_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.values.beretta92.spread_multiplier)
-	do
-		do break end
+	for i, _ in ipairs(self.values.beretta92.spread_multiplier) do
 		local depends_on = 0 < i - 1 and "beretta_spread" .. i - 1 or "beretta92"
 		local unlock_lvl = 2
 		local prio = i == 1 and "high"
@@ -4359,7 +4267,6 @@ function UpgradesTweakData:_beretta92_definitions()
 			}
 		}
 	end
-
 end
 
 function UpgradesTweakData:_raging_bull_definitions()
@@ -4379,71 +4286,57 @@ function UpgradesTweakData:_raging_bull_definitions()
 		prio = "high",
 		description_text_id = "des_raging_bull"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.raging_bull.spread_multiplier)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "raging_bull_spread" .. i - 1
-			local unlock_lvl = 61
-			local prio = i == 1 and "high"
-			self.definitions["raging_bull_spread" .. i] = {
-				tree = 3,
-				step = self.steps.raging_bull.spread_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_raging_bull_spread" .. i,
-				title_id = "debug_raging_bull_short",
-				subtitle_id = "debug_upgrade_spread" .. i,
-				icon = "raging_bull",
-				image = "upgrades_ragingbull",
-				image_slice = "upgrades_ragingbull_slice",
-				description_text_id = "spread_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "raging_bull",
-					upgrade = "spread_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.raging_bull.spread_multiplier) do
+		local depends_on = i - 1 > 0 and "raging_bull_spread" .. i - 1
+		local unlock_lvl = 61
+		local prio = i == 1 and "high"
+		self.definitions["raging_bull_spread" .. i] = {
+			tree = 3,
+			step = self.steps.raging_bull.spread_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_raging_bull_spread" .. i,
+			title_id = "debug_raging_bull_short",
+			subtitle_id = "debug_upgrade_spread" .. i,
+			icon = "raging_bull",
+			image = "upgrades_ragingbull",
+			image_slice = "upgrades_ragingbull_slice",
+			description_text_id = "spread_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "raging_bull",
+				upgrade = "spread_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.raging_bull.reload_speed_multiplier)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "raging_bull_reload_speed" .. i - 1 or "raging_bull"
-			local unlock_lvl = 61
-			local prio = i == 1 and "high"
-			self.definitions["raging_bull_reload_speed" .. i] = {
-				tree = 3,
-				step = self.steps.raging_bull.reload_speed_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_raging_bull_reload_speed" .. i,
-				title_id = "debug_raging_bull_short",
-				subtitle_id = "debug_upgrade_reload_speed" .. i,
-				icon = "raging_bull",
-				image = "upgrades_ragingbull",
-				image_slice = "upgrades_ragingbull_slice",
-				description_text_id = "reload_speed_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "raging_bull",
-					upgrade = "reload_speed_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.raging_bull.reload_speed_multiplier) do
+		local depends_on = i - 1 > 0 and "raging_bull_reload_speed" .. i - 1 or "raging_bull"
+		local unlock_lvl = 61
+		local prio = i == 1 and "high"
+		self.definitions["raging_bull_reload_speed" .. i] = {
+			tree = 3,
+			step = self.steps.raging_bull.reload_speed_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_raging_bull_reload_speed" .. i,
+			title_id = "debug_raging_bull_short",
+			subtitle_id = "debug_upgrade_reload_speed" .. i,
+			icon = "raging_bull",
+			image = "upgrades_ragingbull",
+			image_slice = "upgrades_ragingbull_slice",
+			description_text_id = "reload_speed_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "raging_bull",
+				upgrade = "reload_speed_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.values.raging_bull.damage_multiplier)
-	do
-		do break end
+	for i, _ in ipairs(self.values.raging_bull.damage_multiplier) do
 		local depends_on = i - 1 > 0 and "raging_bull_damage" .. i - 1 or "raging_bull"
 		local unlock_lvl = 61
 		local prio = i == 1 and "high"
@@ -4468,7 +4361,6 @@ function UpgradesTweakData:_raging_bull_definitions()
 			}
 		}
 	end
-
 end
 
 function UpgradesTweakData:_olympic_definitions()
@@ -6164,71 +6056,57 @@ function UpgradesTweakData:_m4_definitions()
 		prio = "high",
 		description_text_id = "des_m4"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.m4.clip_ammo_increase)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "m4_mag" .. i - 1 or "m4"
-			local unlock_lvl = 3
-			local prio = i == 1 and "high"
-			self.definitions["m4_mag" .. i] = {
-				tree = 3,
-				step = self.steps.m4.clip_ammo_increase[i],
-				category = "feature",
-				name_id = "debug_upgrade_m4_mag" .. i,
-				title_id = "debug_m4_rifle_short",
-				subtitle_id = "debug_upgrade_mag" .. i,
-				icon = "m4",
-				image = "upgrades_m4",
-				image_slice = "upgrades_m4_slice",
-				description_text_id = "clip_ammo_increase",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "m4",
-					upgrade = "clip_ammo_increase",
-					value = i
-				}
+	for i, _ in ipairs(self.values.m4.clip_ammo_increase) do
+		local depends_on = 0 < i - 1 and "m4_mag" .. i - 1 or "m4"
+		local unlock_lvl = 3
+		local prio = i == 1 and "high"
+		self.definitions["m4_mag" .. i] = {
+			tree = 3,
+			step = self.steps.m4.clip_ammo_increase[i],
+			category = "feature",
+			name_id = "debug_upgrade_m4_mag" .. i,
+			title_id = "debug_m4_rifle_short",
+			subtitle_id = "debug_upgrade_mag" .. i,
+			icon = "m4",
+			image = "upgrades_m4",
+			image_slice = "upgrades_m4_slice",
+			description_text_id = "clip_ammo_increase",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "m4",
+				upgrade = "clip_ammo_increase",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.m4.spread_multiplier)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "m4_spread" .. i - 1 or "m4"
-			local unlock_lvl = 4
-			local prio = i == 1 and "high"
-			self.definitions["m4_spread" .. i] = {
-				tree = 2,
-				step = self.steps.m4.spread_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_m4_spread" .. i,
-				title_id = "debug_m4_rifle_short",
-				subtitle_id = "debug_upgrade_spread" .. i,
-				icon = "m4",
-				image = "upgrades_m4",
-				image_slice = "upgrades_m4_slice",
-				description_text_id = "spread_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "m4",
-					upgrade = "spread_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.m4.spread_multiplier) do
+		local depends_on = 0 < i - 1 and "m4_spread" .. i - 1 or "m4"
+		local unlock_lvl = 4
+		local prio = i == 1 and "high"
+		self.definitions["m4_spread" .. i] = {
+			tree = 2,
+			step = self.steps.m4.spread_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_m4_spread" .. i,
+			title_id = "debug_m4_rifle_short",
+			subtitle_id = "debug_upgrade_spread" .. i,
+			icon = "m4",
+			image = "upgrades_m4",
+			image_slice = "upgrades_m4_slice",
+			description_text_id = "spread_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "m4",
+				upgrade = "spread_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.values.m4.damage_multiplier)
-	do
-		do break end
+	for i, _ in ipairs(self.values.m4.damage_multiplier) do
 		local depends_on = 0 < i - 1 and "m4_damage" .. i - 1 or "m4"
 		local unlock_lvl = 5
 		local prio = i == 1 and "high"
@@ -6253,7 +6131,6 @@ function UpgradesTweakData:_m4_definitions()
 			}
 		}
 	end
-
 end
 
 function UpgradesTweakData:_m14_definitions()
@@ -6273,102 +6150,82 @@ function UpgradesTweakData:_m14_definitions()
 		prio = "high",
 		description_text_id = "des_m14"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.m14.clip_ammo_increase)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "m14_mag" .. i - 1 or "m14"
-			local unlock_lvl = 102
-			local prio = i == 1 and "high"
-			self.definitions["m14_mag" .. i] = {
-				tree = 2,
-				step = self.steps.m14.clip_ammo_increase[i],
-				category = "feature",
-				name_id = "debug_upgrade_m14_mag" .. i,
-				title_id = "debug_m14_short",
-				subtitle_id = "debug_upgrade_mag" .. i,
-				icon = "m14",
-				image = "upgrades_m14",
-				image_slice = "upgrades_m14_slice",
-				description_text_id = "clip_ammo_increase",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "m14",
-					upgrade = "clip_ammo_increase",
-					value = i
-				}
+	for i, _ in ipairs(self.values.m14.clip_ammo_increase) do
+		local depends_on = i - 1 > 0 and "m14_mag" .. i - 1 or "m14"
+		local unlock_lvl = 102
+		local prio = i == 1 and "high"
+		self.definitions["m14_mag" .. i] = {
+			tree = 2,
+			step = self.steps.m14.clip_ammo_increase[i],
+			category = "feature",
+			name_id = "debug_upgrade_m14_mag" .. i,
+			title_id = "debug_m14_short",
+			subtitle_id = "debug_upgrade_mag" .. i,
+			icon = "m14",
+			image = "upgrades_m14",
+			image_slice = "upgrades_m14_slice",
+			description_text_id = "clip_ammo_increase",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "m14",
+				upgrade = "clip_ammo_increase",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.m14.spread_multiplier)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "m14_spread" .. i - 1 or "m14"
-			local unlock_lvl = 102
-			local prio = i == 1 and "high"
-			self.definitions["m14_spread" .. i] = {
-				tree = 2,
-				step = self.steps.m14.spread_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_m14_spread" .. i,
-				title_id = "debug_m14_short",
-				subtitle_id = "debug_upgrade_spread" .. i,
-				icon = "m14",
-				image = "upgrades_m14",
-				image_slice = "upgrades_m14_slice",
-				description_text_id = "spread_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "m14",
-					upgrade = "spread_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.m14.spread_multiplier) do
+		local depends_on = i - 1 > 0 and "m14_spread" .. i - 1 or "m14"
+		local unlock_lvl = 102
+		local prio = i == 1 and "high"
+		self.definitions["m14_spread" .. i] = {
+			tree = 2,
+			step = self.steps.m14.spread_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_m14_spread" .. i,
+			title_id = "debug_m14_short",
+			subtitle_id = "debug_upgrade_spread" .. i,
+			icon = "m14",
+			image = "upgrades_m14",
+			image_slice = "upgrades_m14_slice",
+			description_text_id = "spread_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "m14",
+				upgrade = "spread_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.m14.damage_multiplier)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "m14_damage" .. i - 1 or "m14"
-			local unlock_lvl = 102
-			local prio = i == 1 and "high"
-			self.definitions["m14_damage" .. i] = {
-				tree = 2,
-				step = self.steps.m14.damage_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_m14_damage" .. i,
-				title_id = "debug_m14_short",
-				subtitle_id = "debug_upgrade_damage" .. i,
-				icon = "m14",
-				image = "upgrades_m14",
-				image_slice = "upgrades_m14_slice",
-				description_text_id = "damage_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "m14",
-					upgrade = "damage_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.m14.damage_multiplier) do
+		local depends_on = i - 1 > 0 and "m14_damage" .. i - 1 or "m14"
+		local unlock_lvl = 102
+		local prio = i == 1 and "high"
+		self.definitions["m14_damage" .. i] = {
+			tree = 2,
+			step = self.steps.m14.damage_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_m14_damage" .. i,
+			title_id = "debug_m14_short",
+			subtitle_id = "debug_upgrade_damage" .. i,
+			icon = "m14",
+			image = "upgrades_m14",
+			image_slice = "upgrades_m14_slice",
+			description_text_id = "damage_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "m14",
+				upgrade = "damage_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.values.m14.recoil_multiplier)
-	do
-		do break end
+	for i, _ in ipairs(self.values.m14.recoil_multiplier) do
 		local depends_on = i - 1 > 0 and "m14_recoil" .. i - 1 or "m14"
 		local unlock_lvl = 102
 		local prio = i == 1 and "high"
@@ -6393,7 +6250,6 @@ function UpgradesTweakData:_m14_definitions()
 			}
 		}
 	end
-
 end
 
 function UpgradesTweakData:_mp5_definitions()
@@ -6413,102 +6269,82 @@ function UpgradesTweakData:_mp5_definitions()
 		prio = "high",
 		description_text_id = "des_mp5"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.mp5.spread_multiplier)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "mp5_spread" .. i - 1 or "mp5"
-			local unlock_lvl = 7
-			local prio = i == 1 and "high"
-			self.definitions["mp5_spread" .. i] = {
-				tree = 3,
-				step = self.steps.mp5.spread_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_mp5_spread" .. i,
-				title_id = "debug_mp5_short",
-				subtitle_id = "debug_upgrade_spread" .. i,
-				icon = "mp5",
-				image = "upgrades_mp5",
-				image_slice = "upgrades_mp5_slice",
-				description_text_id = "spread_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "mp5",
-					upgrade = "spread_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.mp5.spread_multiplier) do
+		local depends_on = i - 1 > 0 and "mp5_spread" .. i - 1 or "mp5"
+		local unlock_lvl = 7
+		local prio = i == 1 and "high"
+		self.definitions["mp5_spread" .. i] = {
+			tree = 3,
+			step = self.steps.mp5.spread_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_mp5_spread" .. i,
+			title_id = "debug_mp5_short",
+			subtitle_id = "debug_upgrade_spread" .. i,
+			icon = "mp5",
+			image = "upgrades_mp5",
+			image_slice = "upgrades_mp5_slice",
+			description_text_id = "spread_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "mp5",
+				upgrade = "spread_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.mp5.recoil_multiplier)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "mp5_recoil" .. i - 1 or "mp5"
-			local unlock_lvl = 8
-			local prio = i == 1 and "high"
-			self.definitions["mp5_recoil" .. i] = {
-				tree = 3,
-				step = self.steps.mp5.recoil_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_mp5_recoil" .. i,
-				title_id = "debug_mp5_short",
-				subtitle_id = "debug_upgrade_recoil" .. i,
-				icon = "mp5",
-				image = "upgrades_mp5",
-				image_slice = "upgrades_mp5_slice",
-				description_text_id = "recoil_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "mp5",
-					upgrade = "recoil_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.mp5.recoil_multiplier) do
+		local depends_on = i - 1 > 0 and "mp5_recoil" .. i - 1 or "mp5"
+		local unlock_lvl = 8
+		local prio = i == 1 and "high"
+		self.definitions["mp5_recoil" .. i] = {
+			tree = 3,
+			step = self.steps.mp5.recoil_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_mp5_recoil" .. i,
+			title_id = "debug_mp5_short",
+			subtitle_id = "debug_upgrade_recoil" .. i,
+			icon = "mp5",
+			image = "upgrades_mp5",
+			image_slice = "upgrades_mp5_slice",
+			description_text_id = "recoil_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "mp5",
+				upgrade = "recoil_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.mp5.reload_speed_multiplier)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "mp5_reload_speed" .. i - 1 or "mp5"
-			local unlock_lvl = 9
-			local prio = i == 1 and "high"
-			self.definitions["mp5_reload_speed" .. i] = {
-				tree = 3,
-				step = self.steps.mp5.reload_speed_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_mp5_reload_speed" .. i,
-				title_id = "debug_mp5_short",
-				subtitle_id = "debug_upgrade_reload_speed" .. i,
-				icon = "mp5",
-				image = "upgrades_mp5",
-				image_slice = "upgrades_mp5_slice",
-				description_text_id = "reload_speed_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "mp5",
-					upgrade = "reload_speed_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.mp5.reload_speed_multiplier) do
+		local depends_on = i - 1 > 0 and "mp5_reload_speed" .. i - 1 or "mp5"
+		local unlock_lvl = 9
+		local prio = i == 1 and "high"
+		self.definitions["mp5_reload_speed" .. i] = {
+			tree = 3,
+			step = self.steps.mp5.reload_speed_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_mp5_reload_speed" .. i,
+			title_id = "debug_mp5_short",
+			subtitle_id = "debug_upgrade_reload_speed" .. i,
+			icon = "mp5",
+			image = "upgrades_mp5",
+			image_slice = "upgrades_mp5_slice",
+			description_text_id = "reload_speed_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "mp5",
+				upgrade = "reload_speed_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.values.mp5.enter_steelsight_speed_multiplier)
-	do
-		do break end
+	for i, _ in ipairs(self.values.mp5.enter_steelsight_speed_multiplier) do
 		local depends_on = i - 1 > 0 and "mp5_enter_steelsight_speed" .. i - 1 or "mp5"
 		local unlock_lvl = 10
 		local prio = i == 1 and "high"
@@ -6533,7 +6369,6 @@ function UpgradesTweakData:_mp5_definitions()
 			}
 		}
 	end
-
 end
 
 function UpgradesTweakData:_mac11_definitions()
@@ -6553,71 +6388,57 @@ function UpgradesTweakData:_mac11_definitions()
 		prio = "high",
 		description_text_id = "des_mac11"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.mac11.recoil_multiplier)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "mac11_recoil" .. i - 1 or "mac11"
-			local unlock_lvl = 82
-			local prio = i == 1 and "high"
-			self.definitions["mac11_recoil" .. i] = {
-				tree = 1,
-				step = self.steps.mac11.recoil_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_mac11_recoil" .. i,
-				title_id = "debug_mac11_short",
-				subtitle_id = "debug_upgrade_recoil" .. i,
-				icon = "mac11",
-				image = "upgrades_mac10",
-				image_slice = "upgrades_mac10_slice",
-				description_text_id = "recoil_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "mac11",
-					upgrade = "recoil_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.mac11.recoil_multiplier) do
+		local depends_on = i - 1 > 0 and "mac11_recoil" .. i - 1 or "mac11"
+		local unlock_lvl = 82
+		local prio = i == 1 and "high"
+		self.definitions["mac11_recoil" .. i] = {
+			tree = 1,
+			step = self.steps.mac11.recoil_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_mac11_recoil" .. i,
+			title_id = "debug_mac11_short",
+			subtitle_id = "debug_upgrade_recoil" .. i,
+			icon = "mac11",
+			image = "upgrades_mac10",
+			image_slice = "upgrades_mac10_slice",
+			description_text_id = "recoil_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "mac11",
+				upgrade = "recoil_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.mac11.enter_steelsight_speed_multiplier)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "mac11_enter_steelsight_speed" .. i - 1 or "mac11"
-			local unlock_lvl = 82
-			local prio = i == 1 and "high"
-			self.definitions["mac11_enter_steelsight_speed" .. i] = {
-				tree = 1,
-				step = self.steps.mac11.enter_steelsight_speed_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_mac11_enter_steelsight_speed" .. i,
-				title_id = "debug_mac11_short",
-				subtitle_id = "debug_upgrade_enter_steelsight_speed" .. i,
-				icon = "mac11",
-				image = "upgrades_mac10",
-				image_slice = "upgrades_mac10_slice",
-				description_text_id = "enter_steelsight_speed_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "mac11",
-					upgrade = "enter_steelsight_speed_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.mac11.enter_steelsight_speed_multiplier) do
+		local depends_on = i - 1 > 0 and "mac11_enter_steelsight_speed" .. i - 1 or "mac11"
+		local unlock_lvl = 82
+		local prio = i == 1 and "high"
+		self.definitions["mac11_enter_steelsight_speed" .. i] = {
+			tree = 1,
+			step = self.steps.mac11.enter_steelsight_speed_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_mac11_enter_steelsight_speed" .. i,
+			title_id = "debug_mac11_short",
+			subtitle_id = "debug_upgrade_enter_steelsight_speed" .. i,
+			icon = "mac11",
+			image = "upgrades_mac10",
+			image_slice = "upgrades_mac10_slice",
+			description_text_id = "enter_steelsight_speed_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "mac11",
+				upgrade = "enter_steelsight_speed_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.values.mac11.clip_ammo_increase)
-	do
-		do break end
+	for i, _ in ipairs(self.values.mac11.clip_ammo_increase) do
 		local depends_on = i - 1 > 0 and "mac11_mag" .. i - 1 or "mac11"
 		local unlock_lvl = 82
 		local prio = i == 1 and "high"
@@ -6642,7 +6463,6 @@ function UpgradesTweakData:_mac11_definitions()
 			}
 		}
 	end
-
 end
 
 function UpgradesTweakData:_remington_definitions()
@@ -6662,71 +6482,57 @@ function UpgradesTweakData:_remington_definitions()
 		prio = "high",
 		description_text_id = "des_r870_shotgun"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.r870_shotgun.clip_ammo_increase)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "remington_mag" .. i - 1 or "r870_shotgun"
-			local unlock_lvl = 2
-			local prio = i == 1 and "high"
-			self.definitions["remington_mag" .. i] = {
-				tree = 3,
-				step = self.steps.r870_shotgun.clip_ammo_increase[i],
-				category = "feature",
-				name_id = "debug_upgrade_remington_mag" .. i,
-				title_id = "debug_r870_shotgun_short",
-				subtitle_id = "debug_upgrade_mag" .. i,
-				icon = "r870_shotgun",
-				image = "upgrades_remington",
-				image_slice = "upgrades_remington_slice",
-				description_text_id = "clip_ammo_increase",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "r870_shotgun",
-					upgrade = "clip_ammo_increase",
-					value = i
-				}
+	for i, _ in ipairs(self.values.r870_shotgun.clip_ammo_increase) do
+		local depends_on = i - 1 > 0 and "remington_mag" .. i - 1 or "r870_shotgun"
+		local unlock_lvl = 2
+		local prio = i == 1 and "high"
+		self.definitions["remington_mag" .. i] = {
+			tree = 3,
+			step = self.steps.r870_shotgun.clip_ammo_increase[i],
+			category = "feature",
+			name_id = "debug_upgrade_remington_mag" .. i,
+			title_id = "debug_r870_shotgun_short",
+			subtitle_id = "debug_upgrade_mag" .. i,
+			icon = "r870_shotgun",
+			image = "upgrades_remington",
+			image_slice = "upgrades_remington_slice",
+			description_text_id = "clip_ammo_increase",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "r870_shotgun",
+				upgrade = "clip_ammo_increase",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.r870_shotgun.recoil_multiplier)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "remington_recoil" .. i - 1 or "r870_shotgun"
-			local unlock_lvl = 3
-			local prio = i == 1 and "high"
-			self.definitions["remington_recoil" .. i] = {
-				tree = 3,
-				step = self.steps.r870_shotgun.recoil_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_remington_recoil" .. i,
-				title_id = "debug_r870_shotgun_short",
-				subtitle_id = "debug_upgrade_recoil" .. i,
-				icon = "r870_shotgun",
-				image = "upgrades_remington",
-				image_slice = "upgrades_remington_slice",
-				description_text_id = "recoil_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "r870_shotgun",
-					upgrade = "recoil_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.r870_shotgun.recoil_multiplier) do
+		local depends_on = i - 1 > 0 and "remington_recoil" .. i - 1 or "r870_shotgun"
+		local unlock_lvl = 3
+		local prio = i == 1 and "high"
+		self.definitions["remington_recoil" .. i] = {
+			tree = 3,
+			step = self.steps.r870_shotgun.recoil_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_remington_recoil" .. i,
+			title_id = "debug_r870_shotgun_short",
+			subtitle_id = "debug_upgrade_recoil" .. i,
+			icon = "r870_shotgun",
+			image = "upgrades_remington",
+			image_slice = "upgrades_remington_slice",
+			description_text_id = "recoil_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "r870_shotgun",
+				upgrade = "recoil_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.values.r870_shotgun.damage_multiplier)
-	do
-		do break end
+	for i, _ in ipairs(self.values.r870_shotgun.damage_multiplier) do
 		local depends_on = i - 1 > 0 and "remington_damage" .. i - 1 or "r870_shotgun"
 		local unlock_lvl = 4
 		local prio = i == 1 and "high"
@@ -6751,7 +6557,6 @@ function UpgradesTweakData:_remington_definitions()
 			}
 		}
 	end
-
 end
 
 function UpgradesTweakData:_mossberg_definitions()
@@ -6771,102 +6576,82 @@ function UpgradesTweakData:_mossberg_definitions()
 		prio = "high",
 		description_text_id = "des_mossberg"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.mossberg.clip_ammo_increase)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "mossberg_mag" .. i - 1 or "mossberg"
-			local unlock_lvl = 121
-			local prio = i == 1 and "high"
-			self.definitions["mossberg_mag" .. i] = {
-				tree = 2,
-				step = self.steps.mossberg.clip_ammo_increase[i],
-				category = "feature",
-				name_id = "debug_upgrade_mossberg_mag" .. i,
-				title_id = "debug_mossberg_short",
-				subtitle_id = "debug_upgrade_mag" .. i,
-				icon = "mossberg",
-				image = "upgrades_mossberg",
-				image_slice = "upgrades_mossberg_slice",
-				description_text_id = "clip_ammo_increase",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "mossberg",
-					upgrade = "clip_ammo_increase",
-					value = i
-				}
+	for i, _ in ipairs(self.values.mossberg.clip_ammo_increase) do
+		local depends_on = i - 1 > 0 and "mossberg_mag" .. i - 1 or "mossberg"
+		local unlock_lvl = 121
+		local prio = i == 1 and "high"
+		self.definitions["mossberg_mag" .. i] = {
+			tree = 2,
+			step = self.steps.mossberg.clip_ammo_increase[i],
+			category = "feature",
+			name_id = "debug_upgrade_mossberg_mag" .. i,
+			title_id = "debug_mossberg_short",
+			subtitle_id = "debug_upgrade_mag" .. i,
+			icon = "mossberg",
+			image = "upgrades_mossberg",
+			image_slice = "upgrades_mossberg_slice",
+			description_text_id = "clip_ammo_increase",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "mossberg",
+				upgrade = "clip_ammo_increase",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.mossberg.reload_speed_multiplier)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "mossberg_reload_speed" .. i - 1 or "mossberg"
-			local unlock_lvl = 121
-			local prio = i == 1 and "high"
-			self.definitions["mossberg_reload_speed" .. i] = {
-				tree = 2,
-				step = self.steps.mossberg.reload_speed_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_mossberg_reload_speed" .. i,
-				title_id = "debug_mossberg_short",
-				subtitle_id = "debug_upgrade_reload_speed" .. i,
-				icon = "mossberg",
-				image = "upgrades_mossberg",
-				image_slice = "upgrades_mossberg_slice",
-				description_text_id = "reload_speed_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "mossberg",
-					upgrade = "reload_speed_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.mossberg.reload_speed_multiplier) do
+		local depends_on = i - 1 > 0 and "mossberg_reload_speed" .. i - 1 or "mossberg"
+		local unlock_lvl = 121
+		local prio = i == 1 and "high"
+		self.definitions["mossberg_reload_speed" .. i] = {
+			tree = 2,
+			step = self.steps.mossberg.reload_speed_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_mossberg_reload_speed" .. i,
+			title_id = "debug_mossberg_short",
+			subtitle_id = "debug_upgrade_reload_speed" .. i,
+			icon = "mossberg",
+			image = "upgrades_mossberg",
+			image_slice = "upgrades_mossberg_slice",
+			description_text_id = "reload_speed_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "mossberg",
+				upgrade = "reload_speed_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.mossberg.fire_rate_multiplier)
-		do
-			do break end
-			local depends_on = i - 1 > 0 and "mossberg_fire_rate_multiplier" .. i - 1 or "mossberg"
-			local unlock_lvl = 121
-			local prio = i == 1 and "high"
-			self.definitions["mossberg_fire_rate_multiplier" .. i] = {
-				tree = 2,
-				step = self.steps.mossberg.fire_rate_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_mossberg_fire_rate" .. i,
-				title_id = "debug_mossberg_short",
-				subtitle_id = "debug_upgrade_fire_rate" .. i,
-				icon = "mossberg",
-				image = "upgrades_mossberg",
-				image_slice = "upgrades_mossberg_slice",
-				description_text_id = "fire_rate_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "mossberg",
-					upgrade = "fire_rate_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.mossberg.fire_rate_multiplier) do
+		local depends_on = i - 1 > 0 and "mossberg_fire_rate_multiplier" .. i - 1 or "mossberg"
+		local unlock_lvl = 121
+		local prio = i == 1 and "high"
+		self.definitions["mossberg_fire_rate_multiplier" .. i] = {
+			tree = 2,
+			step = self.steps.mossberg.fire_rate_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_mossberg_fire_rate" .. i,
+			title_id = "debug_mossberg_short",
+			subtitle_id = "debug_upgrade_fire_rate" .. i,
+			icon = "mossberg",
+			image = "upgrades_mossberg",
+			image_slice = "upgrades_mossberg_slice",
+			description_text_id = "fire_rate_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "mossberg",
+				upgrade = "fire_rate_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.values.mossberg.recoil_multiplier)
-	do
-		do break end
+	for i, _ in ipairs(self.values.mossberg.recoil_multiplier) do
 		local depends_on = i - 1 > 0 and "mossberg_recoil_multiplier" .. i - 1 or "mossberg"
 		local unlock_lvl = 121
 		local prio = i == 1 and "high"
@@ -6891,7 +6676,6 @@ function UpgradesTweakData:_mossberg_definitions()
 			}
 		}
 	end
-
 end
 
 function UpgradesTweakData:_ak47_definitions()
@@ -6911,102 +6695,82 @@ function UpgradesTweakData:_ak47_definitions()
 		prio = "high",
 		description_text_id = "des_ak47"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.ak47.damage_multiplier)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "ak47_damage" .. i - 1 or "ak47"
-			local unlock_lvl = 141
-			local prio = i == 1 and "high"
-			self.definitions["ak47_damage" .. i] = {
-				tree = 4,
-				step = self.steps.ak47.damage_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_ak47_damage" .. i,
-				title_id = "debug_ak47_short",
-				subtitle_id = "debug_upgrade_damage" .. i,
-				icon = "ak",
-				image = "upgrades_ak",
-				image_slice = "upgrades_ak_slice",
-				description_text_id = "damage_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "ak47",
-					upgrade = "damage_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.ak47.damage_multiplier) do
+		local depends_on = 0 < i - 1 and "ak47_damage" .. i - 1 or "ak47"
+		local unlock_lvl = 141
+		local prio = i == 1 and "high"
+		self.definitions["ak47_damage" .. i] = {
+			tree = 4,
+			step = self.steps.ak47.damage_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_ak47_damage" .. i,
+			title_id = "debug_ak47_short",
+			subtitle_id = "debug_upgrade_damage" .. i,
+			icon = "ak",
+			image = "upgrades_ak",
+			image_slice = "upgrades_ak_slice",
+			description_text_id = "damage_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "ak47",
+				upgrade = "damage_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.ak47.recoil_multiplier)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "ak47_recoil" .. i - 1 or "ak47"
-			local unlock_lvl = 141
-			local prio = i == 1 and "high"
-			self.definitions["ak47_recoil" .. i] = {
-				tree = 4,
-				step = self.steps.ak47.recoil_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_ak47_recoil" .. i,
-				title_id = "debug_ak47_short",
-				subtitle_id = "debug_upgrade_recoil" .. i,
-				icon = "ak",
-				image = "upgrades_ak",
-				image_slice = "upgrades_ak_slice",
-				description_text_id = "recoil_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "ak47",
-					upgrade = "recoil_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.ak47.recoil_multiplier) do
+		local depends_on = 0 < i - 1 and "ak47_recoil" .. i - 1 or "ak47"
+		local unlock_lvl = 141
+		local prio = i == 1 and "high"
+		self.definitions["ak47_recoil" .. i] = {
+			tree = 4,
+			step = self.steps.ak47.recoil_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_ak47_recoil" .. i,
+			title_id = "debug_ak47_short",
+			subtitle_id = "debug_upgrade_recoil" .. i,
+			icon = "ak",
+			image = "upgrades_ak",
+			image_slice = "upgrades_ak_slice",
+			description_text_id = "recoil_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "ak47",
+				upgrade = "recoil_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.ak47.spread_multiplier)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "ak47_spread" .. i - 1 or "ak47"
-			local unlock_lvl = 141
-			local prio = i == 1 and "high"
-			self.definitions["ak47_spread" .. i] = {
-				tree = 4,
-				step = self.steps.ak47.spread_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_ak47_spread" .. i,
-				title_id = "debug_ak47_short",
-				subtitle_id = "debug_upgrade_spread" .. i,
-				icon = "ak",
-				image = "upgrades_ak",
-				image_slice = "upgrades_ak_slice",
-				description_text_id = "spread_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "ak47",
-					upgrade = "spread_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.ak47.spread_multiplier) do
+		local depends_on = 0 < i - 1 and "ak47_spread" .. i - 1 or "ak47"
+		local unlock_lvl = 141
+		local prio = i == 1 and "high"
+		self.definitions["ak47_spread" .. i] = {
+			tree = 4,
+			step = self.steps.ak47.spread_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_ak47_spread" .. i,
+			title_id = "debug_ak47_short",
+			subtitle_id = "debug_upgrade_spread" .. i,
+			icon = "ak",
+			image = "upgrades_ak",
+			image_slice = "upgrades_ak_slice",
+			description_text_id = "spread_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "ak47",
+				upgrade = "spread_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.values.ak47.clip_ammo_increase)
-	do
-		do break end
+	for i, _ in ipairs(self.values.ak47.clip_ammo_increase) do
 		local depends_on = 0 < i - 1 and "ak47_mag" .. i - 1 or "ak47"
 		local unlock_lvl = 141
 		local prio = i == 1 and "high"
@@ -7031,7 +6795,6 @@ function UpgradesTweakData:_ak47_definitions()
 			}
 		}
 	end
-
 end
 
 function UpgradesTweakData:_glock_definitions()
@@ -7051,102 +6814,82 @@ function UpgradesTweakData:_glock_definitions()
 		prio = "high",
 		description_text_id = "des_glock"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.glock.damage_multiplier)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "glock_damage" .. i - 1 or "glock"
-			local unlock_lvl = 141
-			local prio = i == 1 and "high"
-			self.definitions["glock_damage" .. i] = {
-				tree = 4,
-				step = self.steps.glock.damage_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_glock_damage" .. i,
-				title_id = "debug_glock_short",
-				subtitle_id = "debug_upgrade_damage" .. i,
-				icon = "glock",
-				image = "upgrades_glock",
-				image_slice = "upgrades_glock_slice",
-				description_text_id = "damage_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "glock",
-					upgrade = "damage_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.glock.damage_multiplier) do
+		local depends_on = 0 < i - 1 and "glock_damage" .. i - 1 or "glock"
+		local unlock_lvl = 141
+		local prio = i == 1 and "high"
+		self.definitions["glock_damage" .. i] = {
+			tree = 4,
+			step = self.steps.glock.damage_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_glock_damage" .. i,
+			title_id = "debug_glock_short",
+			subtitle_id = "debug_upgrade_damage" .. i,
+			icon = "glock",
+			image = "upgrades_glock",
+			image_slice = "upgrades_glock_slice",
+			description_text_id = "damage_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "glock",
+				upgrade = "damage_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.glock.recoil_multiplier)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "glock_recoil" .. i - 1 or "glock"
-			local unlock_lvl = 141
-			local prio = i == 1 and "high"
-			self.definitions["glock_recoil" .. i] = {
-				tree = 4,
-				step = self.steps.glock.recoil_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_glock_recoil" .. i,
-				title_id = "debug_glock_short",
-				subtitle_id = "debug_upgrade_recoil" .. i,
-				icon = "glock",
-				image = "upgrades_glock",
-				image_slice = "upgrades_glock_slice",
-				description_text_id = "recoil_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "glock",
-					upgrade = "recoil_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.glock.recoil_multiplier) do
+		local depends_on = 0 < i - 1 and "glock_recoil" .. i - 1 or "glock"
+		local unlock_lvl = 141
+		local prio = i == 1 and "high"
+		self.definitions["glock_recoil" .. i] = {
+			tree = 4,
+			step = self.steps.glock.recoil_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_glock_recoil" .. i,
+			title_id = "debug_glock_short",
+			subtitle_id = "debug_upgrade_recoil" .. i,
+			icon = "glock",
+			image = "upgrades_glock",
+			image_slice = "upgrades_glock_slice",
+			description_text_id = "recoil_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "glock",
+				upgrade = "recoil_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.glock.clip_ammo_increase)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "glock_mag" .. i - 1 or "glock"
-			local unlock_lvl = 141
-			local prio = i == 1 and "high"
-			self.definitions["glock_mag" .. i] = {
-				tree = 4,
-				step = self.steps.glock.clip_ammo_increase[i],
-				category = "feature",
-				name_id = "debug_upgrade_glock_mag" .. i,
-				title_id = "debug_glock_short",
-				subtitle_id = "debug_upgrade_mag" .. i,
-				icon = "glock",
-				image = "upgrades_glock",
-				image_slice = "upgrades_glock_slice",
-				description_text_id = "clip_ammo_increase",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "glock",
-					upgrade = "clip_ammo_increase",
-					value = i
-				}
+	for i, _ in ipairs(self.values.glock.clip_ammo_increase) do
+		local depends_on = 0 < i - 1 and "glock_mag" .. i - 1 or "glock"
+		local unlock_lvl = 141
+		local prio = i == 1 and "high"
+		self.definitions["glock_mag" .. i] = {
+			tree = 4,
+			step = self.steps.glock.clip_ammo_increase[i],
+			category = "feature",
+			name_id = "debug_upgrade_glock_mag" .. i,
+			title_id = "debug_glock_short",
+			subtitle_id = "debug_upgrade_mag" .. i,
+			icon = "glock",
+			image = "upgrades_glock",
+			image_slice = "upgrades_glock_slice",
+			description_text_id = "clip_ammo_increase",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "glock",
+				upgrade = "clip_ammo_increase",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.values.glock.reload_speed_multiplier)
-	do
-		do break end
+	for i, _ in ipairs(self.values.glock.reload_speed_multiplier) do
 		local depends_on = 0 < i - 1 and "glock_reload_speed" .. i - 1 or "glock"
 		local unlock_lvl = 141
 		local prio = i == 1 and "high"
@@ -7171,7 +6914,6 @@ function UpgradesTweakData:_glock_definitions()
 			}
 		}
 	end
-
 end
 
 function UpgradesTweakData:_m79_definitions()
@@ -7191,71 +6933,57 @@ function UpgradesTweakData:_m79_definitions()
 		prio = "high",
 		description_text_id = "des_m79"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.m79.damage_multiplier)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "m79_damage" .. i - 1 or "m79"
-			local unlock_lvl = 141
-			local prio = i == 1 and "high"
-			self.definitions["m79_damage" .. i] = {
-				tree = 4,
-				step = self.steps.m79.damage_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_m79_damage" .. i,
-				title_id = "debug_m79_short",
-				subtitle_id = "debug_upgrade_damage" .. i,
-				icon = "m79",
-				image = "upgrades_grenade",
-				image_slice = "upgrades_grenade_slice",
-				description_text_id = "damage_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "m79",
-					upgrade = "damage_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.m79.damage_multiplier) do
+		local depends_on = 0 < i - 1 and "m79_damage" .. i - 1 or "m79"
+		local unlock_lvl = 141
+		local prio = i == 1 and "high"
+		self.definitions["m79_damage" .. i] = {
+			tree = 4,
+			step = self.steps.m79.damage_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_m79_damage" .. i,
+			title_id = "debug_m79_short",
+			subtitle_id = "debug_upgrade_damage" .. i,
+			icon = "m79",
+			image = "upgrades_grenade",
+			image_slice = "upgrades_grenade_slice",
+			description_text_id = "damage_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "m79",
+				upgrade = "damage_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.values.m79.explosion_range_multiplier)
-		do
-			do break end
-			local depends_on = 0 < i - 1 and "m79_expl_range" .. i - 1 or "m79"
-			local unlock_lvl = 141
-			local prio = i == 1 and "high"
-			self.definitions["m79_expl_range" .. i] = {
-				tree = 4,
-				step = self.steps.m79.explosion_range_multiplier[i],
-				category = "feature",
-				name_id = "debug_upgrade_m79_expl_range" .. i,
-				title_id = "debug_m79_short",
-				subtitle_id = "debug_upgrade_expl_range" .. i,
-				icon = "m79",
-				image = "upgrades_grenade",
-				image_slice = "upgrades_grenade_slice",
-				description_text_id = "explosion_range_multiplier",
-				depends_on = depends_on,
-				unlock_lvl = unlock_lvl,
-				prio = prio,
-				upgrade = {
-					category = "m79",
-					upgrade = "explosion_range_multiplier",
-					value = i
-				}
+	for i, _ in ipairs(self.values.m79.explosion_range_multiplier) do
+		local depends_on = 0 < i - 1 and "m79_expl_range" .. i - 1 or "m79"
+		local unlock_lvl = 141
+		local prio = i == 1 and "high"
+		self.definitions["m79_expl_range" .. i] = {
+			tree = 4,
+			step = self.steps.m79.explosion_range_multiplier[i],
+			category = "feature",
+			name_id = "debug_upgrade_m79_expl_range" .. i,
+			title_id = "debug_m79_short",
+			subtitle_id = "debug_upgrade_expl_range" .. i,
+			icon = "m79",
+			image = "upgrades_grenade",
+			image_slice = "upgrades_grenade_slice",
+			description_text_id = "explosion_range_multiplier",
+			depends_on = depends_on,
+			unlock_lvl = unlock_lvl,
+			prio = prio,
+			upgrade = {
+				category = "m79",
+				upgrade = "explosion_range_multiplier",
+				value = i
 			}
-		end
-
+		}
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.values.m79.clip_amount_increase)
-	do
-		do break end
+	for i, _ in ipairs(self.values.m79.clip_amount_increase) do
 		local depends_on = 0 < i - 1 and "m79_clip_num" .. i - 1 or "m79"
 		local unlock_lvl = 141
 		local prio = i == 1 and "high"
@@ -7280,6 +7008,5 @@ function UpgradesTweakData:_m79_definitions()
 			}
 		}
 	end
-
 end
 

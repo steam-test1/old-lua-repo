@@ -16,22 +16,18 @@ function EnvironmentNetworkFeeder:feed(nr, scene, vp, data, block, ...)
 				self._data_cache = data:copy()
 				Network:set_receiver(NETWORK_SLAVE_RECEIVER, self)
 			end
-
 			data:set_parameter_block(self._data_cache:parameter_block(...), ...)
 		else
 			if not self._peer then
 				Network:set_receiver(NETWORK_MASTER_RECEIVER, self)
 			end
-
 			self._peer = assert(managers.slave:peer())
 			self:send(self._block_nr, block, {
 				...
 			}, self._peer)
 		end
-
 		self._block_nr = self._block_nr + 1
 	end
-
 	return false
 end
 
@@ -56,35 +52,22 @@ function EnvironmentNetworkFeeder:send(id, block, params, peer)
 		self._verification_table[id_str] = false
 		peer:env_data_block_sync(self:pack_data(block, params), id)
 	end
-
 end
 
 function EnvironmentNetworkFeeder:pack_data(block, params)
 	assert(table.size(block) > 0 and table.size(params) > 0)
 	local str = ""
 	local bstr, pstr
-	do
-		local (for generator), (for state), (for control) = pairs(block)
-		do
-			do break end
-			bstr = bstr and bstr .. "," or "{"
-			bstr = string.format("%s%s=", bstr, string.match(k, "[%w_]+"))
-			bstr = type(v) == "string" and string.format("%s'%s'", bstr, v) or bstr .. tostring(v)
-		end
-
+	for k, v in pairs(block) do
+		bstr = bstr and bstr .. "," or "{"
+		bstr = string.format("%s%s=", bstr, string.match(k, "[%w_]+"))
+		bstr = type(v) == "string" and string.format("%s'%s'", bstr, v) or bstr .. tostring(v)
 	end
-
 	str = str .. bstr .. "},"
-	do
-		local (for generator), (for state), (for control) = pairs(params)
-		do
-			do break end
-			pstr = pstr and pstr .. "," or "{"
-			pstr = string.format("%s'%s'", pstr, v)
-		end
-
+	for _, v in pairs(params) do
+		pstr = pstr and pstr .. "," or "{"
+		pstr = string.format("%s'%s'", pstr, v)
 	end
-
 	return str .. pstr .. "}"
 end
 

@@ -36,27 +36,21 @@ end
 function _light_data_table(unit)
 	local t = {}
 	local lights = CoreEditorUtils.get_editable_lights(unit)
-	do
-		local (for generator), (for state), (for control) = ipairs(lights)
-		do
-			do break end
-			local data = {
-				name = light:name():s(),
-				enabled = light:enable(),
-				far_range = light:far_range(),
-				near_range = light:near_range(),
-				color = light:color(),
-				spot_angle_start = light:spot_angle_start(),
-				spot_angle_end = light:spot_angle_end(),
-				multiplier = CoreEditorUtils.get_intensity_preset(light:multiplier()):s(),
-				falloff_exponent = light:falloff_exponent(),
-				clipping_values = light:clipping_values()
-			}
-			table.insert(t, data)
-		end
-
+	for _, light in ipairs(lights) do
+		local data = {
+			name = light:name():s(),
+			enabled = light:enable(),
+			far_range = light:far_range(),
+			near_range = light:near_range(),
+			color = light:color(),
+			spot_angle_start = light:spot_angle_start(),
+			spot_angle_end = light:spot_angle_end(),
+			multiplier = CoreEditorUtils.get_intensity_preset(light:multiplier()):s(),
+			falloff_exponent = light:falloff_exponent(),
+			clipping_values = light:clipping_values()
+		}
+		table.insert(t, data)
 	end
-
 	return #t > 0 and t or nil
 end
 
@@ -66,9 +60,7 @@ function _triggers_data_table(unit)
 	if #triggers > 0 and unit:damage() then
 		local trigger_data = unit:damage():get_editor_trigger_data()
 		if trigger_data and #trigger_data > 0 then
-			local (for generator), (for state), (for control) = ipairs(trigger_data)
-			do
-				do break end
+			for _, data in ipairs(trigger_data) do
 				table.insert(t, {
 					name = data.trigger_name,
 					id = data.id,
@@ -77,11 +69,8 @@ function _triggers_data_table(unit)
 					notify_unit_sequence = data.notify_unit_sequence
 				})
 			end
-
 		end
-
 	end
-
 	return #t > 0 and t or nil
 end
 
@@ -94,7 +83,6 @@ function _editable_gui_data_table(unit)
 			font_size = unit:editable_gui():font_size()
 		}
 	end
-
 	return t
 end
 
@@ -106,7 +94,6 @@ function _editable_ladder_table(unit)
 			height = unit:ladder():height()
 		}
 	end
-
 	return t
 end
 
@@ -121,30 +108,21 @@ function _editable_zipline_table(unit)
 			ai_ignores_bag = unit:zipline():ai_ignores_bag()
 		}
 	end
-
 	return t
 end
 
 function save_layout(params)
 	local dialogs = {}
 	if params.save_dialog_states then
-		do
-			local (for generator), (for state), (for control) = pairs(params.dialogs)
-			do
-				do break end
-				dialogs[name] = {
-					class = CoreDebug.class_name(getmetatable(dialog)),
-					position = dialog:position(),
-					size = dialog:size(),
-					visible = dialog:visible()
-				}
-			end
-
+		for name, dialog in pairs(params.dialogs) do
+			dialogs[name] = {
+				class = CoreDebug.class_name(getmetatable(dialog)),
+				position = dialog:position(),
+				size = dialog:size(),
+				visible = dialog:visible()
+			}
 		end
-
-		local (for generator), (for state), (for control) = pairs(params.dialogs_settings)
-		do
-			do break end
+		for name, setting in pairs(params.dialogs_settings) do
 			if not params.dialogs[name] then
 				dialogs[name] = {
 					class = setting.class,
@@ -153,11 +131,8 @@ function save_layout(params)
 					visible = setting.visible
 				}
 			end
-
 		end
-
 	end
-
 	local data = {
 		is_maximized = Global.frame:is_maximized(),
 		is_iconized = Global.frame:is_iconized(),
@@ -172,19 +147,12 @@ end
 
 function load_layout(params)
 	local data = ScriptSerializer:from_generic_xml(params.file:read())
-	do
-		local (for generator), (for state), (for control) = pairs(data.dialogs)
-		do
-			do break end
-			params.dialogs_settings[name] = settings
-			if settings.visible then
-				managers.editor:show_dialog(name, settings.class)
-			end
-
+	for name, settings in pairs(data.dialogs) do
+		params.dialogs_settings[name] = settings
+		if settings.visible then
+			managers.editor:show_dialog(name, settings.class)
 		end
-
 	end
-
 	if not data.is_maximized and not data.is_iconized then
 		Global.frame:maximize(data.is_maximized)
 		Global.frame:set_size(data.size)
@@ -192,6 +160,5 @@ function load_layout(params)
 	elseif data.is_iconized then
 		Global.frame:iconize(data.is_iconized)
 	end
-
 end
 

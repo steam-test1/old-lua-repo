@@ -19,22 +19,15 @@ function CoreWorldCameraTriggerUnitElement:selected()
 		self._hed.worldcamera_trigger_sequence = "none"
 		self._sequences:set_value(self._hed.worldcamera_trigger_sequence)
 	end
-
 	self:_populate_after_clip()
 end
 
 function CoreWorldCameraTriggerUnitElement:_populate_sequences()
 	self._sequences:clear()
 	self._sequences:append("none")
-	do
-		local (for generator), (for state), (for control) = pairs(managers.worldcamera:all_world_camera_sequences())
-		do
-			do break end
-			self._sequences:append(name)
-		end
-
+	for name, _ in pairs(managers.worldcamera:all_world_camera_sequences()) do
+		self._sequences:append(name)
 	end
-
 	self._sequences:set_value(self._hed.worldcamera_trigger_sequence)
 end
 
@@ -45,18 +38,13 @@ function CoreWorldCameraTriggerUnitElement:_populate_after_clip()
 	self._hed.worldcamera_trigger_after_clip = "done"
 	if self._hed.worldcamera_trigger_sequence ~= "none" then
 		local sequence = managers.worldcamera:world_camera_sequence(self._hed.worldcamera_trigger_sequence)
-		local (for generator), (for state), (for control) = ipairs(sequence)
-		do
-			do break end
+		for i, cam in ipairs(sequence) do
 			self._after_clip:append(i)
 			if i == old_clip then
 				self._hed.worldcamera_trigger_after_clip = old_clip
 			end
-
 		end
-
 	end
-
 	self._after_clip:set_value(self._hed.worldcamera_trigger_after_clip)
 end
 

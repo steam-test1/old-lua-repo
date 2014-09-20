@@ -6,15 +6,11 @@ function ExpressionManager:init()
 end
 
 function ExpressionManager:update(t, dt)
-	local (for generator), (for state), (for control) = pairs(self._units)
-	do
-		do break end
+	for i, exp in pairs(self._units) do
 		if not exp:update(t, dt) then
 			self._units[i] = nil
 		end
-
 	end
-
 end
 
 function ExpressionManager:preload(movie_name)

@@ -6,7 +6,6 @@ function NetworkVoiceChatDisabled:init(quiet)
 	else
 		cat_print("lobby", "Voice is disabled.")
 	end
-
 end
 
 function NetworkVoiceChatDisabled:check_status_information()
@@ -25,7 +24,6 @@ function NetworkVoiceChatDisabled:voice_type()
 	else
 		return "voice_disabled"
 	end
-
 end
 
 function NetworkVoiceChatDisabled:set_drop_in(data)
@@ -89,14 +87,12 @@ function NetworkVoiceChatDisabled:_display_warning()
 	if self._quiet == false and self:_have_displayed_warning() == true then
 		managers.menu:show_err_no_chat_parental_control()
 	end
-
 end
 
 function NetworkVoiceChatDisabled:_have_displayed_warning()
 	if Global.psn_parental_voice and Global.psn_parental_voice == true then
 		return false
 	end
-
 	Global.psn_parental_voice = true
 	return true
 end
@@ -108,6 +104,5 @@ function NetworkVoiceChatDisabled:psn_session_destroyed()
 	if Global.psn and Global.psn.voice then
 		Global.psn.voice.restart = nil
 	end
-
 end
 

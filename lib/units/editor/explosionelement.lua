@@ -20,14 +20,10 @@ function ExplosionUnitElement:select_explosion_effect_btn()
 	if dialog:cancelled() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-	do
-		do break end
+	for _, effect in ipairs(dialog:_selected_item_assets()) do
 		self._hed.explosion_effect = effect
 		CoreEws.change_combobox_value(self._explosion_effect_params, self._hed.explosion_effect)
 	end
-
 end
 
 function ExplosionUnitElement:_build_panel(panel, panel_sizer)
@@ -113,6 +109,5 @@ function ExplosionUnitElement:add_to_mission_package()
 			continent = self._unit:unit_data().continent
 		})
 	end
-
 end
 

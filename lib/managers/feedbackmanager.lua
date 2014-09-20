@@ -23,15 +23,9 @@ end
 
 function FeedBackManager:get_effect_names()
 	local names = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._feedback)
-		do
-			do break end
-			table.insert(names, name)
-		end
-
+	for name, _ in pairs(self._feedback) do
+		table.insert(names, name)
 	end
-
 	return names
 end
 
@@ -44,16 +38,13 @@ function FeedBackManager:create(feedback, ...)
 		Application:stack_dump_error("no effect called " .. tostring(feedback))
 		return nil
 	end
-
 	for i = 1, #extra_params, 2 do
 		if extra_params[i] and extra_params[i + 1] and f["set_" .. extra_params[i]] then
 			f["set_" .. extra_params[i]](f, extra_params[i + 1])
 		else
 			Application:stack_dump_error("bad params to create_feedback " .. tostring(extra_params[i]) .. " " .. tostring(extra_params[i + 1]))
 		end
-
 	end
-
 	return f
 end
 
@@ -73,19 +64,15 @@ FeedBack = FeedBack or class()
 function FeedBack:init(effect_name, effect_table)
 	self._name = effect_name
 	self._feedback = {}
-	local (for generator), (for state), (for control) = pairs(effect_table)
-	do
-		do break end
+	for name, param in pairs(effect_table) do
 		self._feedback[name] = managers.feedback._effect_types[name]:new(self._name)
 	end
-
 end
 
 function FeedBack:set_enabled(feedback_type, enabled)
 	if self._feedback[feedback_type] then
 		self._feedback[feedback_type]:set_enabled(enabled)
 	end
-
 end
 
 function FeedBack:is_enabled(feedback_type)
@@ -95,44 +82,34 @@ end
 
 function FeedBack:set_unit(unit, effect)
 	if not effect then
-		local (for generator), (for state), (for control) = pairs(self._feedback)
-		do
-			do break end
+		for _, effect in pairs(self._feedback) do
 			effect:set_unit(unit)
 		end
-
 	elseif self._feedback[effect] then
 		self._feedback[effect]:set_unit(unit)
 	end
-
 end
 
 function FeedBack:set_viewport(vp, effect)
 	if effect then
 		self._feedback[effect]:set_viewport(vp)
 	else
-		local (for generator), (for state), (for control) = pairs(self._feedback)
-		do
-			do break end
+		for _, effect in pairs(self._feedback) do
 			effect:set_viewport(vp)
 		end
-
 	end
-
 end
 
 function FeedBack:set_param(effect, param_name, value)
 	if self._feedback[effect] then
 		self._feedback[effect]:set_param(param_name, value)
 	end
-
 end
 
 function FeedBack:reset_params(effect)
 	if self._feedback[effect] then
 		self._feedback[effect]:reset_params()
 	end
-
 end
 
 function FeedBack:extra_params(effect)
@@ -149,27 +126,17 @@ function FeedBack:play(...)
 			self._extra_params[extra_params[i]] = self._extra_params[extra_params[i]] or {}
 			self._extra_params[extra_params[i]][extra_params[i + 1]] = extra_params[i + 2]
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(managers.feedback:get_effect_table(self._name))
-		do
-			do break end
-			local effect = self._feedback[name]
-			if effect:is_enabled() then
-				if effect then
-					effect:play(self._extra_params[name])
-				else
-					self._feedback[name] = managers.feedback._effect_types[name]:new(self._name)
-				end
-
+	for name in pairs(managers.feedback:get_effect_table(self._name)) do
+		local effect = self._feedback[name]
+		if effect:is_enabled() then
+			if effect then
+				effect:play(self._extra_params[name])
+			else
+				self._feedback[name] = managers.feedback._effect_types[name]:new(self._name)
 			end
-
 		end
-
 	end
-
 	for i = 1, #extra_params, 3 do
 		if extra_params[i] and extra_params[i + 1] and extra_params[i + 2] and self._feedback[extra_params[i]] and self._feedback[extra_params[i]]:is_enabled() then
 			self._feedback[extra_params[i]]:set_param(extra_params[i + 1], extra_params[i + 2])
@@ -179,11 +146,8 @@ function FeedBack:play(...)
 				msg = "no effect called " .. tostring(extra_params[i])
 			else
 			end
-
 		end
-
 	end
-
 end
 
 function FeedBack:stop(effect, ...)
@@ -196,41 +160,27 @@ function FeedBack:stop(effect, ...)
 		else
 			Application:stack_dump_error("bad params to create_feedback " .. tostring(extra_params[i]) .. " " .. tostring(extra_params[i + 1]))
 		end
-
 	end
-
 	if not effect then
-		local (for generator), (for state), (for control) = pairs(self._feedback)
-		do
-			do break end
+		for name, effect in pairs(self._feedback) do
 			effect:stop()
 		end
-
 	else
 		self._feedback[effect]:stop()
 	end
-
 end
 
 function FeedBack:is_playing(effect)
 	if not effect then
-		do
-			local (for generator), (for state), (for control) = pairs(self._feedback)
-			do
-				do break end
-				if effect:is_playing() then
-					return true
-				end
-
+		for name, effect in pairs(self._feedback) do
+			if effect:is_playing() then
+				return true
 			end
-
 		end
-
 		return false
 	else
 		return self._feedback[effect]:is_playing()
 	end
-
 end
 
 FeedBackEffect = FeedBackEffect or class()
@@ -245,10 +195,8 @@ function FeedBackEffect:set_enabled(enabled)
 		if self._enabled then
 			self:stop()
 		end
-
 		self._enabled = enabled
 	end
-
 end
 
 function FeedBackEffect:is_enabled()
@@ -300,7 +248,6 @@ function FeedBackrumble:set_param(name, value)
 	if "multiplier_data" == name and self._id then
 		managers.rumble:set_multiplier(self._id, value)
 	end
-
 end
 
 function FeedBackrumble:play(extra_params)
@@ -310,7 +257,6 @@ function FeedBackrumble:play(extra_params)
 	elseif not self._unit then
 		Application:stack_dump_error("no unit set to rumble in feedbackRumble use either set_unit or send unit at create")
 	end
-
 end
 
 function FeedBackrumble:stop()
@@ -323,24 +269,15 @@ function FeedBackrumble:is_playing()
 	if not self._id then
 		return false
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._id.controllers)
-		do
-			do break end
-			rumble = controller:is_rumble_playing(self._id[1])
-			if self._id[2] and not rumble then
-				rumble = controller:is_rumble_playing(self._id[2])
-			end
-
-			if rumble then
-				return rumble
-			end
-
+	for _, controller in pairs(self._id.controllers) do
+		rumble = controller:is_rumble_playing(self._id[1])
+		if self._id[2] and not rumble then
+			rumble = controller:is_rumble_playing(self._id[2])
 		end
-
+		if rumble then
+			return rumble
+		end
 	end
-
 	return rumble
 end
 
@@ -363,21 +300,17 @@ function FeedBackCameraShake:set_param(name, value)
 	if name == "multiplier" then
 		return
 	end
-
 	if name == "name" then
 		return
 	end
-
 	if name == "amplitude" then
 		value = value * self._multiplier
 	end
-
 	if self._unit_camera then
 		self._unit_camera:shaker():set_parameter(self._id, name, value)
 	elseif alive(self._playing_camera) then
 		self._playing_camera:set_parameter(self._id, name, value)
 	end
-
 end
 
 function FeedBackCameraShake:play(extra_params)
@@ -394,18 +327,12 @@ function FeedBackCameraShake:play(extra_params)
 				local t = {}
 				mixin(t, params, self._params)
 				t.name = nil
-				local (for generator), (for state), (for control) = pairs(t)
-				do
-					do break end
+				for param, value in pairs(t) do
 					self._playing_camera:set_parameter(self._id, param, value)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function FeedBackCameraShake:stop()
@@ -414,7 +341,6 @@ function FeedBackCameraShake:stop()
 	else
 		managers.viewport:get_current_shaker():stop(self._id)
 	end
-
 	self._id = nil
 end
 
@@ -426,7 +352,6 @@ function FeedBackCameraShake:is_playing()
 	else
 		return false
 	end
-
 end
 
 FeedBackAboveCameraEffect = FeedBackAboveCameraEffect or class(FeedBackEffect)
@@ -450,7 +375,6 @@ function FeedBackAboveCameraEffect:play(extra_params)
 	if name == "none" then
 		return
 	end
-
 	local effect_params = {}
 	effect_params.effect = Idstring(name)
 	effect_params.position = self._unit_camera:position() + self._offset
@@ -462,6 +386,5 @@ function FeedBackAboveCameraEffect:stop()
 	if self._id then
 		World:effect_manager():kill(self._id)
 	end
-
 end
 

@@ -23,7 +23,6 @@ function TeammateCommentUnitElement:update_selected(t, dt)
 		brush:sphere(self._unit:position(), self._hed.radius, 4)
 		pen:sphere(self._unit:position(), self._hed.radius)
 	end
-
 end
 
 function TeammateCommentUnitElement:test_element()
@@ -33,7 +32,6 @@ function TeammateCommentUnitElement:test_element()
 		if self._ss then
 			self._ss:stop()
 		end
-
 		self._ss = SoundDevice:create_source(self._unit:unit_data().name_id)
 		self._ss:set_position(self._unit:position())
 		self._ss:set_orientation(self._unit:rotation())
@@ -43,11 +41,8 @@ function TeammateCommentUnitElement:test_element()
 			if self._ss:post_event(self._hed.comment) then
 				break
 			end
-
 		end
-
 	end
-
 end
 
 function TeammateCommentUnitElement:stop_test_element()
@@ -56,7 +51,6 @@ function TeammateCommentUnitElement:stop_test_element()
 	if self._ss then
 		self._ss:stop()
 	end
-
 end
 
 function TeammateCommentUnitElement:select_comment_btn()
@@ -64,14 +58,10 @@ function TeammateCommentUnitElement:select_comment_btn()
 	if dialog:cancelled() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-	do
-		do break end
+	for _, comment in ipairs(dialog:_selected_item_assets()) do
 		self._hed.comment = comment
 		CoreEws.change_combobox_value(self._comment_params, self._hed.comment)
 	end
-
 end
 
 function TeammateCommentUnitElement:_build_panel(panel, panel_sizer)

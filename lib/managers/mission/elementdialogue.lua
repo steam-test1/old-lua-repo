@@ -12,7 +12,6 @@ function ElementDialogue:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	if self._values.dialogue ~= "none" then
 		local done_cbk = self._values.execute_on_executed_when_done and callback(self, self, "_done_callback", instigator) or nil
 		managers.dialog:queue_dialog(self._values.dialogue, {
@@ -22,7 +21,6 @@ function ElementDialogue:on_executed(instigator)
 	elseif Application:editor() then
 		managers.editor:output_error("Cant start dialogue " .. self._values.dialogue .. " in element " .. self._editor_name .. ".")
 	end
-
 	ElementDialogue.super.on_executed(self, instigator, nil, self._values.execute_on_executed_when_done)
 end
 

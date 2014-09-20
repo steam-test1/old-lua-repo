@@ -11,7 +11,6 @@ function ElementMissionEnd:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	if self._values.state ~= "none" then
 		if self._values.state == "success" then
 			if managers.platform:presence() == "Playing" then
@@ -22,17 +21,14 @@ function ElementMissionEnd:on_executed(instigator)
 					personal_win = alive(managers.player:player_unit())
 				})
 			end
-
 		elseif self._values.state == "failed" then
 			print("No fail state yet")
 		elseif self._values.state == "leave_safehouse" and managers.platform:presence() == "Playing" then
 			MenuCallbackHandler:leave_safehouse()
 		end
-
 	elseif Application:editor() then
 		managers.editor:output_error("Cant change to state " .. self._values.state .. " in mission end element " .. self._editor_name .. ".")
 	end
-
 	ElementMissionEnd.super.on_executed(self, instigator)
 end
 

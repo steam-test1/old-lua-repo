@@ -226,15 +226,9 @@ end
 
 function GageAssignmentTweakData:get_max_aquire()
 	local max_aquire = 0
-	do
-		local (for generator), (for state), (for control) = pairs(self.assignments)
-		do
-			do break end
-			max_aquire = math.max(max_aquire, assignment.aquire or 1)
-		end
-
+	for i, assignment in pairs(self.assignments) do
+		max_aquire = math.max(max_aquire, assignment.aquire or 1)
 	end
-
 	return max_aquire
 end
 
@@ -242,28 +236,19 @@ function GageAssignmentTweakData:fetch_new_assignments(level_id)
 	local max_assignments = self.MAX_ACTIVE_ASSIGNMENTS
 	local assignments = {}
 	level_id = tostring(level_id)
-	do
-		local (for generator), (for state), (for control) = pairs(self:get_assignments())
-		do
-			do break end
-			local pass_level = not data.levels or table.contains(data.levels, level_id)
-			local pass_all_tests = pass_level
-			if pass_all_tests then
-				table.insert(assignments, assignment)
-			end
-
+	for assignment, data in pairs(self:get_assignments()) do
+		local pass_level = not data.levels or table.contains(data.levels, level_id)
+		local pass_all_tests = pass_level
+		if pass_all_tests then
+			table.insert(assignments, assignment)
 		end
-
 	end
-
 	if max_assignments and max_assignments ~= true then
 		local num_to_remove = #assignments - max_assignments
 		for i = 1, num_to_remove do
 			table.remove(assignments, math.random(#assignments))
 		end
-
 	end
-
 	return assignments
 end
 
@@ -275,14 +260,12 @@ function GageAssignmentTweakData:get_num_assignment_units()
 	if not self.NUM_ASSIGNMENT_UNITS then
 		return 1
 	end
-
 	local num_assignment_units = self.NUM_ASSIGNMENT_UNITS
 	local difficulty = managers.job:current_difficulty_stars() + 1
 	if difficulty < 1 or difficulty > #self.NUM_ASSIGNMENT_UNITS then
 		debug_pause("GageAssignmentTweakData:get_num_assignment_units() difficulty out of bound", difficulty, inspect(self.NUM_ASSIGNMENT_UNITS))
 		difficulty = math.clamp(difficulty, 1, #self.NUM_ASSIGNMENT_UNITS)
 	end
-
 	local level_id = managers.job:current_level_id()
 	local job_id = managers.job:current_job_id()
 	local level_data = tweak_data.levels[level_id]
@@ -292,7 +275,6 @@ function GageAssignmentTweakData:get_num_assignment_units()
 	elseif job_data and job_data.NUM_ASSIGNMENT_UNITS then
 		num_assignment_units = job_data.NUM_ASSIGNMENT_UNITS
 	end
-
 	return num_assignment_units[difficulty] or 1
 end
 

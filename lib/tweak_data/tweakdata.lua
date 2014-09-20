@@ -40,16 +40,12 @@ end
 function TweakData:digest_recursive(key, parent)
 	local value = parent and parent[key] or key
 	if type(value) == "table" then
-		local (for generator), (for state), (for control) = pairs(value)
-		do
-			do break end
+		for index, data in pairs(value) do
 			self:digest_recursive(index, value)
 		end
-
 	elseif type(value) == "number" then
 		parent[key] = Application:digest_value(value, true)
 	end
-
 end
 
 function TweakData:get_value(...)
@@ -57,26 +53,18 @@ function TweakData:get_value(...)
 		...
 	}
 	local value = self
-	do
-		local (for generator), (for state), (for control) = ipairs(arg)
-		do
-			do break end
-			if not value[v] then
-				return false
-			end
-
-			value = value[v]
+	for _, v in ipairs(arg) do
+		if not value[v] then
+			return false
 		end
-
+		value = value[v]
 	end
-
 	if type(value) == "string" then
 		return Application:digest_value(value, false)
 	elseif type(value) == "table" then
 		Application:debug("TweakData:get_value() value was a table, is this correct? returning false!", inspect(arg), inspect(value))
 		return false
 	end
-
 	return value
 end
 
@@ -91,10 +79,8 @@ function TweakData:get_raw_value(...)
 		if not value[v] then
 			return nil, v, i
 		end
-
 		value = value[v]
 	end
-
 	return value
 end
 
@@ -102,13 +88,11 @@ function TweakData:set_mode()
 	if not Global.game_settings then
 		return
 	end
-
 	if Global.game_settings.single_player then
 		self:_set_singleplayer()
 	else
 		self:_set_multiplayer()
 	end
-
 end
 
 function TweakData:_set_singleplayer()
@@ -123,7 +107,6 @@ function TweakData:set_difficulty()
 	if not Global.game_settings then
 		return
 	end
-
 	if Global.game_settings.difficulty == "easy" then
 		self:_set_easy()
 	elseif Global.game_settings.difficulty == "normal" then
@@ -137,7 +120,6 @@ function TweakData:set_difficulty()
 	else
 		self:_set_hard()
 	end
-
 end
 
 function TweakData:_set_easy()
@@ -246,16 +228,11 @@ function TweakData:menu_sync_state_to_index(state)
 	if not state then
 		return false
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.menu_sync_states)
-	do
-		do break end
+	for i, menu_sync in ipairs(self.menu_sync_states) do
 		if menu_sync == state then
 			return i
 		end
-
 	end
-
 end
 
 function TweakData:index_to_menu_sync_state(index)
@@ -341,7 +318,6 @@ function TweakData:init()
 	elseif SystemInfo:platform() == Idstring("PS3") then
 		self.EFFECT_QUALITY = 0.5
 	end
-
 	self:set_scale()
 	self:_init_pd2()
 	self.menu_themes = {
@@ -484,14 +460,10 @@ function TweakData:init()
 	self.screen_colors.stats_negative = Color(255, 254, 93, 99) / 255
 	self.screen_colors.stats_mods = Color(255, 229, 229, 76) / 255
 	if Global.test_new_colors then
-		local (for generator), (for state), (for control) = pairs(self.screen_colors)
-		do
-			do break end
+		for i, d in pairs(self.screen_colors) do
 			self.screen_colors[i] = Color.purple
 		end
-
 	end
-
 	if Global.old_colors_purple then
 		self.screen_color_white = Color.purple
 		self.screen_color_red = Color.purple
@@ -519,7 +491,6 @@ function TweakData:init()
 		self.screen_color_yellow_selected = Color(1, 0.8, 0)
 		self.screen_color_yellow_noselected = Color(0.73333335, 0.42745098, 0.078431375)
 	end
-
 	self.dialog = {}
 	self.dialog.WIDTH = 400
 	self.dialog.HEIGHT = 300
@@ -2808,7 +2779,6 @@ function TweakData:init()
 			points = math.round((1000000 - exp_step_last_points) * math.pow(exp_step * (i - exp_step_start), exp_step_curve) + exp_step_last_points) * multiplier
 		}
 	end
-
 	local exp_step_start = 5
 	local exp_step_end = 193
 	local exp_step = 1 / (exp_step_end - exp_step_start)
@@ -2817,7 +2787,6 @@ function TweakData:init()
 			points = math.round(22000 * (exp_step * (i - exp_step_start)) - 6000) * multiplier
 		}
 	end
-
 	self.achievement = {}
 	self.achievement.im_a_healer_tank_damage_dealer = 10
 	self.achievement.iron_man = "level_7"
@@ -4065,17 +4034,12 @@ end
 
 function TweakData:_execute_reload_clbks()
 	if self._reload_clbks then
-		local (for generator), (for state), (for control) = pairs(self._reload_clbks)
-		do
-			do break end
+		for key, clbk_data in pairs(self._reload_clbks) do
 			if clbk_data.func then
 				clbk_data.func(clbk_data.clbk_object)
 			end
-
 		end
-
 	end
-
 end
 
 function TweakData:add_reload_callback(object, func)
@@ -4085,18 +4049,13 @@ end
 
 function TweakData:remove_reload_callback(object)
 	if self._reload_clbks then
-		local (for generator), (for state), (for control) = ipairs(self._reload_clbks)
-		do
-			do break end
+		for i, k in ipairs(self._reload_clbks) do
 			if k.clbk_object == object then
 				table.remove(self._reload_clbks, i)
 				return
 			end
-
 		end
-
 	end
-
 end
 
 function TweakData:set_scale()
@@ -4321,7 +4280,6 @@ function TweakData:set_menu_scale()
 			mission_end_font_size = 1
 		}
 	end
-
 	local scale_multiplier = self.scale.default_font_multiplier
 	local small_scale_multiplier = self.scale.small_font_multiplier
 	self.menu.default_font = "fonts/font_medium_shadow_mf"
@@ -4437,7 +4395,6 @@ function TweakData:set_hud_values()
 			location_font_size = 1
 		}
 	end
-
 	self.hud.medium_font = "fonts/font_medium_mf"
 	self.hud.medium_font_noshadow = "fonts/font_medium_mf"
 	self.hud.small_font = "fonts/font_small_mf"
@@ -4481,14 +4438,11 @@ if (not tweak_data or tweak_data.RELOAD) and managers.dlc then
 	if reload then
 		tweak_data:_execute_reload_clbks()
 	end
-
 end
-
 function TweakData:get_controller_help_coords()
 	if managers.controller:get_default_wrapper_type() == "pc" then
 		return false
 	end
-
 	local coords = {}
 	if SystemInfo:platform() == Idstring("PS3") then
 		coords.menu_button_sprint = {
@@ -4688,15 +4642,12 @@ function TweakData:get_controller_help_coords()
 				vertical = "center"
 			}
 		end
-
 	end
-
 	if managers.user and managers.user:get_setting("southpaw") then
 		local tmp = coords.menu_button_move
 		coords.menu_button_move = coords.menu_button_look
 		coords.menu_button_look = tmp
 	end
-
 	return coords
 end
 

@@ -34,14 +34,12 @@ function CoreMaterialEditor:_on_parameter_popup()
 	if b then
 		popup:connect("POPUP_OPEN_TEXTURE", "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_open_texture"), "")
 	end
-
 	popup:append_item("POPUP_GLOBAL_TEXTURE", "Browse Global Textures", "")
 	b = self._parameter_info and self._parameter_info.type == "texture"
 	popup:set_enabled("POPUP_GLOBAL_TEXTURE", b)
 	if b then
 		popup:connect("POPUP_GLOBAL_TEXTURE", "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_pick_global_texture"), "")
 	end
-
 	popup:append_separator()
 	popup:append_item("POPUP_COPY_TO_PARENT", "Copy to Parent", "")
 	popup:set_enabled("POPUP_COPY_TO_PARENT", self._customize)

@@ -15,18 +15,11 @@ function NetworkFriendsXBL:get_friends_list()
 		Application:error("Player map not ready yet.")
 		player_index = 0
 	end
-
 	local friend_list = XboxLive:friends(player_index)
 	local friends = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(friend_list)
-		do
-			do break end
-			table.insert(friends, NetworkFriend:new(friend.xuid, friend.gamertag))
-		end
-
+	for i, friend in ipairs(friend_list) do
+		table.insert(friends, NetworkFriend:new(friend.xuid, friend.gamertag))
 	end
-
 	return friends
 end
 
@@ -34,15 +27,9 @@ function NetworkFriendsXBL:get_friends_by_name()
 	local player_index = managers.user:get_platform_id()
 	local friend_list = XboxLive:friends(player_index)
 	local friends = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(friend_list)
-		do
-			do break end
-			friends[friend.gamertag] = friend
-		end
-
+	for i, friend in ipairs(friend_list) do
+		friends[friend.gamertag] = friend
 	end
-
 	return friends
 end
 
@@ -51,7 +38,6 @@ function NetworkFriendsXBL:get_friends()
 		self._initialized = true
 		self._callback.initialization_done()
 	end
-
 end
 
 function NetworkFriendsXBL:register_callback(event, callback)

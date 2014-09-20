@@ -38,27 +38,18 @@ function GenericPlatformManager:remove_event_callback(event_type, callback_func)
 	if not next(self._event_callback_handler_map[event_type]) then
 		self._event_callback_handler_map[event_type] = nil
 	end
-
 end
 
 function GenericPlatformManager:update(t, dt)
 	if next(self._event_queue_list) then
-		do
-			local (for generator), (for state), (for control) = ipairs(self._event_queue_list)
-			do
-				do break end
-				local callback_handler = self._event_callback_handler_map[event.event_type]
-				if callback_handler then
-					callback_handler:dispatch(unpack(event.param_list))
-				end
-
+		for _, event in ipairs(self._event_queue_list) do
+			local callback_handler = self._event_callback_handler_map[event.event_type]
+			if callback_handler then
+				callback_handler:dispatch(unpack(event.param_list))
 			end
-
 		end
-
 		self._event_queue_list = {}
 	end
-
 end
 
 function GenericPlatformManager:paused_update(t, dt)
@@ -107,7 +98,6 @@ function Xbox360PlatformManager:set_rich_presence(name, callback)
 		end
 )
 	end
-
 end
 
 function Xbox360PlatformManager:set_presence(name, callback)
@@ -134,7 +124,6 @@ function PS3PlatformManager:update(t, dt)
 		print("SET PRESENCE", self._current_psn_presence)
 		PSN:set_presence_info(self._current_psn_presence)
 	end
-
 end
 
 function PS3PlatformManager:set_presence(name)

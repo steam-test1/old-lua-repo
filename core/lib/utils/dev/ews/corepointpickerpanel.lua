@@ -50,7 +50,6 @@ function PointPickerPanel:update(time, delta_time)
 		self.__current_position = Vector3(self.__x_textctrl:get_value(), self.__y_textctrl:get_value(), self.__z_textctrl:get_value())
 		self.__draw_position = self.__current_position
 	end
-
 	self.__point_draw:set_position(self.__draw_position)
 	self.__point_picker:update(time, delta_time)
 	self.__point_draw:update(time, delta_time)
@@ -74,7 +73,6 @@ function PointPickerPanel:_on_picker_toggle()
 		self.__point_picker:start_picking()
 		self.__picker_button:set_value(false)
 	end
-
 end
 
 function PointPickerPanel:_on_picking(sender, raycast)
@@ -87,7 +85,6 @@ function PointPickerPanel:_on_picking(sender, raycast)
 		self.__draw_position = nil
 		self.__current_position = nil
 	end
-
 end
 
 function PointPickerPanel:_on_finished_picking(sender, raycast)
@@ -97,6 +94,5 @@ function PointPickerPanel:_on_finished_picking(sender, raycast)
 		self.__draw_position = nil
 		self:set_value(raycast.position)
 	end
-
 end
 

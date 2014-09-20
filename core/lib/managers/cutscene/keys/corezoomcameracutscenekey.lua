@@ -48,11 +48,9 @@ function CoreZoomCameraCutsceneKey:play(player, undo, fast_forward)
 		else
 			player:set_camera_attribute("fov", CoreZoomCameraCutsceneKey.DEFAULT_CAMERA_FOV)
 		end
-
 	else
 		player:set_camera_attribute("fov", self:start_fov())
 	end
-
 end
 
 function CoreZoomCameraCutsceneKey:update(player, time)
@@ -63,7 +61,6 @@ function CoreZoomCameraCutsceneKey:update(player, time)
 		local fov = self:start_fov() + (self:end_fov() - self:start_fov()) * alpha
 		player:set_camera_attribute("fov", fov)
 	end
-
 end
 
 function CoreZoomCameraCutsceneKey:is_valid_start_fov(value)

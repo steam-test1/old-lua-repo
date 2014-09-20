@@ -46,7 +46,6 @@ function CopInventory:_chk_spawn_shield(weapon_unit)
 		self._shield_unit = World:spawn_unit(Idstring(self._shield_unit_name), align_obj:position(), align_obj:rotation())
 		self._unit:link(align_name, self._shield_unit, self._shield_unit:orientation_object():name())
 	end
-
 end
 
 function CopInventory:add_unit(new_unit, equip)
@@ -72,7 +71,6 @@ function CopInventory:drop_weapon()
 		self:_call_listeners("unequip")
 		managers.game_play_central:weapon_dropped(unit)
 	end
-
 end
 
 function CopInventory:drop_shield()
@@ -81,9 +79,7 @@ function CopInventory:drop_shield()
 		if self._shield_unit:damage() then
 			self._shield_unit:damage():run_sequence_simple("enable_body")
 		end
-
 	end
-
 end
 
 function CopInventory:anim_clbk_weapon_attached(unit, state)
@@ -99,7 +95,6 @@ function CopInventory:anim_clbk_weapon_attached(unit, state)
 		print("unlinking")
 		self._equipped_selection.unit:unlink()
 	end
-
 end
 
 function CopInventory:destroy_all_items()
@@ -108,6 +103,5 @@ function CopInventory:destroy_all_items()
 		self._shield_unit:set_slot(0)
 		self._shield_unit = nil
 	end
-
 end
 

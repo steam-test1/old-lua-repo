@@ -7,7 +7,6 @@ function FreeFlight:enable(...)
 	if managers.hud then
 		managers.hud:set_freeflight_disabled()
 	end
-
 end
 
 function FreeFlight:disable(...)
@@ -15,7 +14,6 @@ function FreeFlight:disable(...)
 	if managers.hud then
 		managers.hud:set_freeflight_enabled()
 	end
-
 end
 
 function FreeFlight:_pause()

@@ -7,7 +7,6 @@ if Application:ews_enabled() then
 	end
 )
 end
-
 function CoreExtendedMultiChoiceDialog:init(parent, caption, message, pos, size, style, objects)
 	self._objects = objects or {}
 	self._dialog = EWS:Dialog(parent, caption or "", "", pos or Vector3(-1, -1, 0), size or Vector3(450, 500, 0), style or "CAPTION,SYSTEM_MENU,STAY_ON_TOP")
@@ -19,7 +18,6 @@ function CoreExtendedMultiChoiceDialog:init(parent, caption, message, pos, size,
 		local line = EWS:StaticLine(self._dialog, "", "")
 		box:add(line, 0, 10, "EXPAND,BOTTOM")
 	end
-
 	self._left_list_box = EWS:ListBox(self._dialog, "", "", "LB_SORT")
 	self._left_list_box:connect("", "EVT_COMMAND_LISTBOX_DOUBLECLICKED", callback(self, self, "on_left_box"), "")
 	lb_box:add(self._left_list_box, 1, 4, "ALL,EXPAND")
@@ -44,15 +42,9 @@ function CoreExtendedMultiChoiceDialog:show_modal()
 	self._value_map = {}
 	self._left_list_box:clear()
 	self._right_list_box:clear()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._objects)
-		do
-			do break end
-			self._left_list_box:append(object)
-		end
-
+	for _, object in ipairs(self._objects) do
+		self._left_list_box:append(object)
 	end
-
 	return self._dialog:show_modal()
 end
 
@@ -60,7 +52,6 @@ function CoreExtendedMultiChoiceDialog:on_ok_button()
 	for i = 0, self._right_list_box:nr_items() - 1 do
 		table.insert(self._value_map, self._right_list_box:get_string(i))
 	end
-
 	self._dialog:end_modal("ID_OK")
 end
 
@@ -75,7 +66,6 @@ function CoreExtendedMultiChoiceDialog:on_left_box()
 		self._right_list_box:append(selected)
 		self._left_list_box:remove(index)
 	end
-
 end
 
 function CoreExtendedMultiChoiceDialog:on_right_box()
@@ -85,7 +75,6 @@ function CoreExtendedMultiChoiceDialog:on_right_box()
 		self._left_list_box:append(selected)
 		self._right_list_box:remove(index)
 	end
-
 end
 
 function CoreExtendedMultiChoiceDialog:get_value()

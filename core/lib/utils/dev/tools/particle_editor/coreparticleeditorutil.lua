@@ -36,7 +36,6 @@ function base_path(n)
 	else
 		return n
 	end
-
 end
 
 function dir_name(n)
@@ -46,6 +45,5 @@ function dir_name(n)
 	else
 		return n
 	end
-
 end
 

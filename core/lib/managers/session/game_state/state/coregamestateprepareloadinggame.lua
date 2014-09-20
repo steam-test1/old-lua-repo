@@ -16,6 +16,5 @@ function PrepareLoadingGame:transition()
 	if self.game_state._session_manager:all_systems_are_stable_for_loading() then
 		return CoreGameStateLoadingGame.LoadingGame
 	end
-
 end
 

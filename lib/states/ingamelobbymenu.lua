@@ -9,7 +9,6 @@ function IngameLobbyMenuState:init(game_state_machine)
 		managers.hud:load_hud(self.GUI_LOOTSCREEN, false, true, false, {}, nil, nil, true)
 		managers.hud:hide(self.GUI_LOOTSCREEN)
 	end
-
 	self._continue_cb = callback(self, self, "_continue")
 end
 
@@ -19,21 +18,17 @@ function IngameLobbyMenuState:setup_controller()
 		if Network:is_server() or managers.dlc:is_trial() then
 			self._controller:add_trigger("continue", self._continue_cb)
 		end
-
 		self._controller:set_enabled(true)
 	end
-
 end
 
 function IngameLobbyMenuState:_clear_controller()
 	if not self._controller then
 		return
 	end
-
 	if Network:is_server() or managers.dlc:is_trial() then
 		self._controller:remove_trigger("continue", self._continue_cb)
 	end
-
 	self._controller:set_enabled(false)
 	self._controller:destroy()
 	self._controller = nil
@@ -47,11 +42,9 @@ function IngameLobbyMenuState:continue()
 	if self:_continue_blocked() then
 		return
 	end
-
 	if managers.network:session() and Network:is_server() then
 		managers.network.matchmake:set_server_joinable(true)
 	end
-
 	if Global.game_settings.single_player then
 		MenuCallbackHandler:_dialog_end_game_yes()
 	elseif Network:is_server() or managers.dlc:is_trial() then
@@ -59,7 +52,6 @@ function IngameLobbyMenuState:continue()
 	else
 		setup:load_start_menu()
 	end
-
 end
 
 function IngameLobbyMenuState:_continue_blocked()
@@ -67,30 +59,24 @@ function IngameLobbyMenuState:_continue_blocked()
 	if not in_focus then
 		return true
 	end
-
 	if managers.hud:showing_stats_screen() then
 		return true
 	end
-
 	if managers.system_menu:is_active() then
 		return true
 	end
-
 	if managers.menu_component:input_focus() == 1 then
 		return true
 	end
-
 	if self._continue_block_timer > Application:time() then
 		return true
 	end
-
 	return false
 end
 
 function IngameLobbyMenuState:set_controller_enabled(enabled)
 	if self._controller then
 	end
-
 end
 
 function IngameLobbyMenuState:update(t, dt)
@@ -107,20 +93,17 @@ function IngameLobbyMenuState:at_enter()
 		managers.network:session():set_state("in_lobby")
 	else
 	end
-
 	managers.mission:pre_destroy()
 	self._continue_block_timer = Application:time() + 0.5
 	managers.menu:close_menu()
 	if managers.job:stage_success() then
 		managers.job:next_stage()
 	end
-
 	if managers.job:is_job_finished() then
 		if not self._setup then
 			self._setup = true
 			managers.hud:load_hud(self.GUI_LOOTSCREEN, false, true, false, {}, nil, nil, true)
 		end
-
 		managers.hud:show(self.GUI_LOOTSCREEN)
 		managers.menu:open_menu("loot_menu")
 		self._loot_menu = managers.menu:get_menu("loot_menu")
@@ -152,39 +135,32 @@ function IngameLobbyMenuState:at_enter()
 		if not Global.game_settings.single_player and managers.network:session() then
 			managers.network:session():send_to_peers("feed_lootdrop", global_value, item_category, item_id, max_pc, item_pc, card_left_pc, card_right_pc)
 		end
-
 	elseif Network:is_client() then
 		if not self._setup then
 			self._setup = true
 			managers.hud:load_hud(self.GUI_LOOTSCREEN, false, true, false, {}, nil, nil, true)
 		end
-
 		managers.hud:hide(self.GUI_LOOTSCREEN)
 		managers.menu:open_menu("loot_menu")
 		self._loot_menu = managers.menu:get_menu("loot_menu")
 		managers.menu_component:set_max_lines_game_chat(6)
 		managers.menu_component:pre_set_game_chat_leftbottom(0, 0)
 	end
-
 	if (Network:is_server() or managers.dlc:is_trial()) and not managers.job:is_job_finished() then
 		if managers.network:session() and Network:is_server() then
 			managers.network.matchmake:set_server_joinable(true)
 		end
-
 		if not managers.job:stage_success() then
 			if managers.job:is_current_job_professional() then
 				MenuCallbackHandler:load_start_menu_lobby()
 			else
 				MenuCallbackHandler:retry_job_stage()
 			end
-
 		else
 			MenuCallbackHandler:on_stage_success()
 			MenuCallbackHandler:lobby_start_the_game()
 		end
-
 	end
-
 end
 
 function IngameLobbyMenuState:at_exit()
@@ -193,7 +169,6 @@ function IngameLobbyMenuState:at_exit()
 		managers.menu:close_menu("loot_menu")
 		managers.hud:hide(self.GUI_LOOTSCREEN)
 	end
-
 	managers.menu_component:hide_game_chat_gui()
 end
 

@@ -16,7 +16,6 @@ function SwitchStateMachine:switch_state(state_class, ...)
 	if self._state_class == state_class then
 		return
 	end
-
 	self:_set_state(state_class, ...)
 end
 

@@ -9,7 +9,6 @@ function SettingsManager:init(settings_file_path)
 	if not file:at_end() then
 		script = file:read()
 	end
-
 	SystemFS:close(file)
 	self.__settings = script and loadstring(script)() or {}
 end
@@ -37,25 +36,18 @@ function SettingsManager:_serialize(value, file, indentation)
 	if t == "table" then
 		local indent = string.rep("\t", indentation)
 		file:write("{\n")
-		do
-			local (for generator), (for state), (for control) = pairs(value)
-			do
-				do break end
-				assert(type(key) ~= "table", "Using a table for a key is unsupported.")
-				file:write(indent .. "[" .. self:_inspect(key) .. "] = ")
-				self:_serialize(value, file, indentation + 1)
-				file:write(";\n")
-			end
-
+		for key, value in pairs(value) do
+			assert(type(key) ~= "table", "Using a table for a key is unsupported.")
+			file:write(indent .. "[" .. self:_inspect(key) .. "] = ")
+			self:_serialize(value, file, indentation + 1)
+			file:write(";\n")
 		end
-
 		file:write(string.rep("\t", indentation - 1) .. "}")
 	elseif t == "string" or t == "number" or t == "boolean" then
 		file:write(self:_inspect(value), file, indentation)
 	else
 		error("Unable to serialize type \"" .. t .. "\".")
 	end
-
 end
 
 function SettingsManager:_inspect(value)
@@ -67,6 +59,5 @@ function SettingsManager:_inspect(value)
 	else
 		error("Unable to inspect type \"" .. t .. "\".")
 	end
-
 end
 

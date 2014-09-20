@@ -30,7 +30,6 @@ function DOFManager:save(data)
 		state.queued_effects = clone(self._queued_effects)
 		data.DOFManager = state
 	end
-
 end
 
 function DOFManager:load(data)
@@ -41,9 +40,7 @@ function DOFManager:load(data)
 		else
 			self._queued_effects = {}
 		end
-
 	end
-
 end
 
 function DOFManager:update(t, dt)
@@ -54,7 +51,6 @@ function DOFManager:update(t, dt)
 		self:update_effect(t, dt, self._current_effect)
 		new_data = self:check_dof_allowed() and self._queued_effects[self._current_effect]
 	end
-
 	if new_data then
 		if self._env_dof_enabled then
 			assert(not self._dof_modifier)
@@ -64,7 +60,6 @@ function DOFManager:update(t, dt)
 ))
 			self._env_dof_enabled = nil
 		end
-
 		new_data = new_data.prog_data
 		new_clamp = new_data.dirty and new_data.clamp
 		new_data = new_clamp and new_data.cur_values
@@ -72,16 +67,13 @@ function DOFManager:update(t, dt)
 			if self._clamp_prev_frame ~= new_clamp then
 				self._clamp_prev_frame = new_clamp
 			end
-
 			self:feed_dof(new_data.near_min, new_data.near_max, new_data.far_min, new_data.far_max, new_clamp)
 		end
-
 	elseif not self._env_dof_enabled and managers.viewport:get_active_vp() then
 		assert(self._dof_modifier)
 		managers.viewport:viewports()[1]:environment_mixer():destroy_modifier(self._dof_modifier)
 		self._env_dof_enabled = true
 	end
-
 end
 
 function DOFManager:update_world_camera(t, dt, effect)
@@ -124,7 +116,6 @@ function DOFManager:debug_draw_feed(near_max, near_min, far_min, far_max, clamp)
 		Application:draw_cone(cam_pos + cam_dir * near_min, cam_pos + cam_dir * near_max, 49 * clamp + 1, 0, 0, 1)
 		Application:draw_cone(cam_pos + cam_dir * far_min, cam_pos + cam_dir * far_max, 49 * clamp + 1, 0, 1, 0)
 	end
-
 end
 
 function DOFManager:remove_expired_effects(t, dt)
@@ -135,12 +126,9 @@ function DOFManager:remove_expired_effects(t, dt)
 			if eff_t >= effect.prog_data.finish_t then
 				self:intern_remove_effect(id)
 			end
-
 		end
-
 		id, effect = next(self._queued_effects, id)
 	end
-
 end
 
 function DOFManager:update_effect(t, dt, id)
@@ -158,7 +146,6 @@ function DOFManager:update_effect(t, dt, id)
 		prog.lerp = (prog.finish_t - eff_t) / preset.fade_out
 		self:calculate_current_parameters_fade_out(t, dt, effect, id)
 	end
-
 end
 
 function DOFManager:calculate_current_parameters_fade_in(t, dt, effect)
@@ -169,20 +156,13 @@ function DOFManager:calculate_current_parameters_fade_in(t, dt, effect)
 		self:update_effect(t, dt, next_eff_id)
 		init = self._queued_effects[self._sorted_effect_list[next_eff_sort]].prog_data.cur_values
 	end
-
 	init = init or self._environment_parameters
 	local cur = effect.prog_data.cur_values
 	local tar = effect.prog_data.target_values
 	local eff_lerp = effect.prog_data.lerp
-	do
-		local (for generator), (for state), (for control) = pairs(self._var_map)
-		do
-			do break end
-			cur[v] = math.lerp(init[v], tar[v], eff_lerp)
-		end
-
+	for _, v in pairs(self._var_map) do
+		cur[v] = math.lerp(init[v], tar[v], eff_lerp)
 	end
-
 	cur.clamp = math.lerp(init.clamp, effect.prog_data.clamp, eff_lerp)
 	effect.prog_data.dirty = true
 end
@@ -194,19 +174,12 @@ function DOFManager:calculate_current_parameters_sustain(t, dt, effect)
 		effect.prog_data.peak_reached = true
 		local cur = effect.prog_data.cur_values
 		local tar = effect.prog_data.target_values
-		do
-			local (for generator), (for state), (for control) = pairs(self._var_map)
-			do
-				do break end
-				cur[v] = tar[v]
-			end
-
+		for _, v in pairs(self._var_map) do
+			cur[v] = tar[v]
 		end
-
 		cur.clamp = effect.prog_data.clamp
 		effect.prog_data.dirty = true
 	end
-
 end
 
 function DOFManager:calculate_current_parameters_fade_out(t, dt, effect, id)
@@ -217,20 +190,13 @@ function DOFManager:calculate_current_parameters_fade_out(t, dt, effect, id)
 		self:update_effect(t, dt, next_eff_id)
 		out = self._queued_effects[self._sorted_effect_list[next_eff_sort]].prog_data.cur_values
 	end
-
 	out = out or self._environment_parameters
 	local cur = effect.prog_data.cur_values
 	local tar = effect.prog_data.target_values
 	local eff_lerp = effect.prog_data.lerp
-	do
-		local (for generator), (for state), (for control) = pairs(self._var_map)
-		do
-			do break end
-			cur[v] = math.lerp(out[v], tar[v], eff_lerp)
-		end
-
+	for _, v in pairs(self._var_map) do
+		cur[v] = math.lerp(out[v], tar[v], eff_lerp)
 	end
-
 	cur.clamp = math.lerp(out.clamp, effect.prog_data.clamp, eff_lerp)
 	effect.prog_data.dirty = true
 end
@@ -265,17 +231,10 @@ function DOFManager:play(dof_data, amplitude_multiplier)
 			clamp = 0
 		}
 	end
-
 	local target_values = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._var_map)
-		do
-			do break end
-			target_values[v] = dof_data[v]
-		end
-
+	for _, v in pairs(self._var_map) do
+		target_values[v] = dof_data[v]
 	end
-
 	prog_data.target_values = target_values
 	prog_data.cur_values = cur_values
 	new_data.preset = dof_data
@@ -287,52 +246,31 @@ end
 
 function DOFManager:add_to_sorted_list(new_id, prio)
 	local allocated
-	do
-		local (for generator), (for state), (for control) = ipairs(self._sorted_effect_list)
-		do
-			do break end
-			if prio >= self._queued_effects[eff_id].preset.prio then
-				table.insert(self._sorted_effect_list, index, new_id)
-				allocated = true
-		end
-
+	for index, eff_id in ipairs(self._sorted_effect_list) do
+		if prio >= self._queued_effects[eff_id].preset.prio then
+			table.insert(self._sorted_effect_list, index, new_id)
+			allocated = true
 		else
 		end
-
 	end
-
 	if not allocated then
 		table.insert(self._sorted_effect_list, new_id)
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._sorted_effect_list)
-	do
-		do break end
+	for index, eff_id in ipairs(self._sorted_effect_list) do
 		self._queued_effects[eff_id].prog_data.sort_index = index
 	end
-
 end
 
 function DOFManager:remove_from_sorted_list(id)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._sorted_effect_list)
-		do
-			do break end
-			if eff_id == id then
-				table.remove(self._sorted_effect_list, index)
-		end
-
+	for index, eff_id in ipairs(self._sorted_effect_list) do
+		if eff_id == id then
+			table.remove(self._sorted_effect_list, index)
 		else
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._sorted_effect_list)
-	do
-		do break end
+	for index, eff_id in ipairs(self._sorted_effect_list) do
 		self._queued_effects[eff_id].prog_data.sort_index = index
 	end
-
 end
 
 function DOFManager:stop(id, instant)
@@ -343,15 +281,12 @@ function DOFManager:stop(id, instant)
 			if self._current_effect == id then
 				self._current_effect = nil
 			end
-
 		else
 			local t = effect.preset.timer or self._game_timer:time()
 			effect.prog_data.sustain_end = t
 			effect.prog_data.finish_t = t + (effect.preset.fade_out or 0)
 		end
-
 	end
-
 end
 
 function DOFManager:stop_all(instant)
@@ -364,7 +299,6 @@ function DOFManager:stop_all(instant)
 	if managers.viewport:get_active_vp() then
 		self:feed_dof(0, 0, 0, 0, 0)
 	end
-
 end
 
 function DOFManager:intern_remove_effect(id)
@@ -409,27 +343,20 @@ function DOFManager:clbk_environment_change()
 			clamp = env_data.clamp
 		}
 	end
-
 end
 
 function DOFManager:set_effect_parameters(id, params, clamp)
 	if self._queued_effects[id] then
 		if params then
-			local (for generator), (for state), (for control) = pairs(params)
-			do
-				do break end
+			for k, v in pairs(params) do
 				self._queued_effects[id].prog_data.target_values[k] = v
 			end
-
 		end
-
 		if clamp then
 			self._queued_effects[id].prog_data.clamp = clamp
 		end
-
 		self._queued_effects[id].prog_data.peak_reached = nil
 		return true
 	end
-
 end
 

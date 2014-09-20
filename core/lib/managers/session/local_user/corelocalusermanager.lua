@@ -28,11 +28,8 @@ function Manager:debug_bind_primary_input_provider_id(player_slot)
 			elseif best_controller == nil then
 				best_controller = controller
 			end
-
 		end
-
 	end
-
 	return self:bind_local_user(player_slot, best_controller)
 end
 
@@ -44,11 +41,9 @@ function Manager:bind_local_user(slot, input_provider_id)
 		if input_provider_id.user_index then
 			user_index = input_provider_id:user_index()
 		end
-
 		local_user = self:_create_local_user(input_provider, user_index)
 		self._controller_to_user[input_provider_id:key()] = local_user
 	end
-
 	slot:assign_local_user(local_user)
 	return local_user
 end
@@ -61,27 +56,17 @@ function Manager:_create_local_user(input_provider, user_index)
 end
 
 function Manager:transition()
-	local (for generator), (for state), (for control) = pairs(self._controller_to_user)
-	do
-		do break end
+	for _, user in pairs(self._controller_to_user) do
 		user:transition()
 	end
-
 end
 
 function Manager:is_stable_for_loading()
-	do
-		local (for generator), (for state), (for control) = pairs(self._controller_to_user)
-		do
-			do break end
-			if not user:is_stable_for_loading() then
-				return false
-			end
-
+	for _, user in pairs(self._controller_to_user) do
+		if not user:is_stable_for_loading() then
+			return false
 		end
-
 	end
-
 	return true
 end
 
@@ -90,29 +75,20 @@ function Manager:users()
 end
 
 function Manager:update(t, dt)
-	local (for generator), (for state), (for control) = pairs(self._controller_to_user)
-	do
-		do break end
+	for _, user in pairs(self._controller_to_user) do
 		user:update(t, dt)
 	end
-
 end
 
 function Manager:enter_level_handler(level_handler)
-	local (for generator), (for state), (for control) = pairs(self._controller_to_user)
-	do
-		do break end
+	for _, user in pairs(self._controller_to_user) do
 		user:enter_level(level_handler)
 	end
-
 end
 
 function Manager:leave_level_handler(level_handler)
-	local (for generator), (for state), (for control) = pairs(self._controller_to_user)
-	do
-		do break end
+	for _, user in pairs(self._controller_to_user) do
 		user:leave_level(level_handler)
 	end
-
 end
 

@@ -17,7 +17,6 @@ function StopLoadingFrontEnd:transition()
 	if not self._response:is_done() then
 		return
 	end
-
 	return CoreMenuStatePreFrontEnd.PreFrontEnd
 end
 

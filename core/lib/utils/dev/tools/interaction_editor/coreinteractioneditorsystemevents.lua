@@ -31,7 +31,6 @@ function InteractionEditorSystemEvents:on_select_node(data, event)
 	if #nodes == 1 then
 		self:ui():rebuild_prop_panel(self:desc(), nodes[1]:metadata())
 	end
-
 	event:skip()
 end
 
@@ -43,7 +42,6 @@ function InteractionEditorSystemEvents:on_connect_node(data, event)
 		self._desc:transition_add(md_src, output, md_dest, input)
 		event:skip()
 	end
-
 end
 
 function InteractionEditorSystemEvents:on_disconnect_node(data, event)

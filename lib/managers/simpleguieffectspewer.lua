@@ -7,77 +7,59 @@ function SimpleGUIEffectSpewer:_particles_update(t, dt)
 	local dead_particles = {}
 	local particle_live_p = 1
 	self._particle_panel:set_visible(self._spew_panel:tree_visible())
-	do
-		local (for generator), (for state), (for control) = pairs(self.__living_particles)
-		do
-			do break end
-			particle_data.pt = particle_data.pt + dt
-			particle_live_p = particle_data.plive_time == 0 and 1 or particle_data.pt / particle_data.plive_time
-			particle_data.particle:set_alpha(math.clamp(math.sin((particle_live_p + 0.2) * 150), 0, 1))
-			local sx, sy = particle_data.particle:center()
-			particle_data.particle:move(particle_data.dir_x * particle_data.particle_speed * dt, particle_data.dir_y * particle_data.particle_speed * dt)
-			if self._particle_gravity ~= 0 then
-				particle_data.gravity = particle_data.gravity + dt * self._particle_gravity
-				particle_data.particle:move(0, dt * particle_data.gravity)
-			end
-
-			if particle_data.sway_speed ~= 0 and particle_data.sway_distance ~= 0 then
-				particle_data.sway_t = particle_data.sway_t + dt
-				particle_data.particle:move(math.cos(particle_data.sway_t * particle_data.sway_speed) * -particle_data.dir_y * particle_data.sway_distance, math.cos(particle_data.sway_t * particle_data.sway_speed) * particle_data.dir_x * particle_data.sway_distance)
-			end
-
-			if particle_data.flip_speed ~= 0 then
-				local dimension = self._particle_flip_dimension or particle_data.w
-				if dimension <= particle_data.particle:w() then
-					particle_data.flip_bit = true
-				else
-					if particle_data.particle:w() <= -dimension then
-						particle_data.flip_bit = false
-					else
-					end
-
-				end
-
-				local cx, cy = particle_data.particle:center()
-				if particle_data.flip_bit then
-					particle_data.particle:grow(-dt * particle_data.flip_speed, 0)
-				else
-					particle_data.particle:grow(dt * particle_data.flip_speed, 0)
-				end
-
-				particle_data.particle:set_center(cx, cy)
-			end
-
-			if particle_data.pt >= particle_data.plive_time then
-				table.insert(dead_particles, key)
-			else
-				local ex, ey = particle_data.particle:center()
-				local dir_x = ex - sx
-				local dir_y = ey - sy
-				local magnitude = (dir_x * dir_x + dir_y * dir_y) ^ 0.5
-				if magnitude ~= 0 then
-					dir_x = dir_x / magnitude
-					dir_y = dir_y / magnitude
-					local rotation = math.atan2(dir_y, dir_x)
-					if math.abs(rotation - particle_data.start_rotation) < 90 then
-						particle_data.particle:set_rotation(rotation)
-					end
-
-				end
-
-			end
-
+	for key, particle_data in pairs(self.__living_particles) do
+		particle_data.pt = particle_data.pt + dt
+		particle_live_p = particle_data.plive_time == 0 and 1 or particle_data.pt / particle_data.plive_time
+		particle_data.particle:set_alpha(math.clamp(math.sin((particle_live_p + 0.2) * 150), 0, 1))
+		local sx, sy = particle_data.particle:center()
+		particle_data.particle:move(particle_data.dir_x * particle_data.particle_speed * dt, particle_data.dir_y * particle_data.particle_speed * dt)
+		if self._particle_gravity ~= 0 then
+			particle_data.gravity = particle_data.gravity + dt * self._particle_gravity
+			particle_data.particle:move(0, dt * particle_data.gravity)
 		end
-
+		if particle_data.sway_speed ~= 0 and particle_data.sway_distance ~= 0 then
+			particle_data.sway_t = particle_data.sway_t + dt
+			particle_data.particle:move(math.cos(particle_data.sway_t * particle_data.sway_speed) * -particle_data.dir_y * particle_data.sway_distance, math.cos(particle_data.sway_t * particle_data.sway_speed) * particle_data.dir_x * particle_data.sway_distance)
+		end
+		if particle_data.flip_speed ~= 0 then
+			local dimension = self._particle_flip_dimension or particle_data.w
+			if dimension <= particle_data.particle:w() then
+				particle_data.flip_bit = true
+			else
+				if particle_data.particle:w() <= -dimension then
+					particle_data.flip_bit = false
+				else
+				end
+			end
+			local cx, cy = particle_data.particle:center()
+			if particle_data.flip_bit then
+				particle_data.particle:grow(-dt * particle_data.flip_speed, 0)
+			else
+				particle_data.particle:grow(dt * particle_data.flip_speed, 0)
+			end
+			particle_data.particle:set_center(cx, cy)
+		end
+		if particle_data.pt >= particle_data.plive_time then
+			table.insert(dead_particles, key)
+		else
+			local ex, ey = particle_data.particle:center()
+			local dir_x = ex - sx
+			local dir_y = ey - sy
+			local magnitude = (dir_x * dir_x + dir_y * dir_y) ^ 0.5
+			if magnitude ~= 0 then
+				dir_x = dir_x / magnitude
+				dir_y = dir_y / magnitude
+				local rotation = math.atan2(dir_y, dir_x)
+				if math.abs(rotation - particle_data.start_rotation) < 90 then
+					particle_data.particle:set_rotation(rotation)
+				end
+			end
+		end
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dead_particles)
-	do
-		do break end
+	for i, dead_particle_key in ipairs(dead_particles) do
 		self._particle_panel:remove(self.__living_particles[dead_particle_key].particle)
 		self.__living_particles[dead_particle_key] = nil
 	end
-
 end
 
 function SimpleGUIEffectSpewer:_spew_update(t, dt)
@@ -88,7 +70,6 @@ function SimpleGUIEffectSpewer:_spew_update(t, dt)
 			if rot == 0 then
 				rot = 360 or rot
 			end
-
 			local new_particle = self._particle_panel:bitmap({
 				texture = self._particle_textures[math.random(#self._particle_textures)],
 				rotation = rot,
@@ -104,29 +85,23 @@ function SimpleGUIEffectSpewer:_spew_update(t, dt)
 				if func then
 					wx, wy = func(wx, wy)
 				end
-
 			end
-
 			new_particle:set_world_center(wx, wy)
 			local red, green, blue = 1, 1, 1
 			if self._particle_colors then
 				if not self._particle_colors.red then
 					local red_data = {1, 1}
 				end
-
 				if not self._particle_colors.green then
 					local green_data = {1, 1}
 				end
-
 				if not self._particle_colors.blue then
 					local blue_data = {1, 1}
 				end
-
 				red = type(red_data) == "number" and red_data or math.rand(red_data[1], red_data[2])
 				green = type(green_data) == "number" and green_data or math.rand(green_data[1], green_data[2])
 				blue = type(blue_data) == "number" and blue_data or math.rand(blue_data[1], blue_data[2])
 			end
-
 			new_particle:set_color(Color(red, green, blue))
 			local dir_x = math.cos(rot)
 			local dir_y = math.sin(rot)
@@ -140,7 +115,6 @@ function SimpleGUIEffectSpewer:_spew_update(t, dt)
 				self._particle_panel:remove(self.__living_particles[new_particle:key()].particle)
 				self.__living_particles[new_particle:key()] = nil
 			end
-
 			self.__living_particles[new_particle:key()] = {
 				particle = new_particle,
 				w = w,
@@ -159,16 +133,13 @@ function SimpleGUIEffectSpewer:_spew_update(t, dt)
 				flip_dir = math.random() < 0.5 and -1 or 1
 			}
 		end
-
 		self.__particle_spawn_interval = self._fixed_spew_rate and self.__particle_spawn_interval or math.rand(self._min_spawn_interval, self._max_spawn_interval)
 		if self._max_num_particles <= table.size(self.__living_particles) then
 			self.__particle_spawn_t = self.__particle_spawn_interval
 		else
 			self.__particle_spawn_t = self.__particle_spawn_t + self.__particle_spawn_interval
 		end
-
 	end
-
 end
 
 function SimpleGUIEffectSpewer:animation_update(o)
@@ -186,28 +157,22 @@ function SimpleGUIEffectSpewer:animation_update(o)
 			done = false
 		else
 		end
-
 		if 0 < table.size(self.__living_particles) then
 			self:_particles_update(t, dt)
 			done = false
 		end
-
 		dt = coroutine.yield()
 		t = t + dt
 		if not alive(self._particle_panel) or not alive(self._spew_panel) then
 			if alive(self._spew_panel) and alive(self._spew_parent_panel) then
 				self._spew_parent_panel:remove(self._spew_panel)
 			end
-
 			if alive(self._particle_panel) then
 				self._ws:panel():remove(self._particle_panel)
 			end
-
 			return
 		end
-
 	end
-
 	self._spew_parent_panel:remove(self._spew_panel)
 	self._ws:panel():remove(self._particle_panel)
 end
@@ -535,37 +500,28 @@ function SimpleGUIEffectSpewer.item_sell(x, y, layer)
 			particle_blend_mode = "normal"
 		}
 	}
-	local (for generator), (for state), (for control) = ipairs(spewers)
-	do
-		do break end
+	for i, spewer in ipairs(spewers) do
 		SimpleGUIEffectSpewer:new(spewer)
 	end
-
 end
 
 function SimpleGUIEffectSpewer.skill_up(x, y, panel)
 	local spewers = {
 		SimpleGUIEffectSpewer.get_skill_spewers(x, y, panel)
 	}
-	local (for generator), (for state), (for control) = ipairs(spewers)
-	do
-		do break end
+	for i, spewer in ipairs(spewers) do
 		SimpleGUIEffectSpewer:new(spewer)
 	end
-
 end
 
 function SimpleGUIEffectSpewer.infamous_up(x, y, panel)
 	local spewers = {
 		SimpleGUIEffectSpewer.get_skill_spewers(x, y, panel)
 	}
-	local (for generator), (for state), (for control) = ipairs(spewers)
-	do
-		do break end
+	for i, spewer in ipairs(spewers) do
 		spewer.particle_w = spewer.particle_w and math.floor(spewer.particle_w * 1.4)
 		spewer.particle_h = spewer.particle_h and math.floor(spewer.particle_h * 1.4)
 		SimpleGUIEffectSpewer:new(spewer)
 	end
-
 end
 

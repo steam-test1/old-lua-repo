@@ -8,7 +8,6 @@ function MenuSceneGui:init(ws, fullscreen_ws, node)
 	if not managers.menu:is_pc_controller() then
 		self:_setup_controller_input()
 	end
-
 end
 
 function MenuSceneGui:_setup_controller_input()
@@ -23,7 +22,6 @@ function MenuSceneGui:_destroy_controller_input()
 	if alive(self._panel) then
 		self._panel:axis_move(nil)
 	end
-
 end
 
 function MenuSceneGui:_axis_move(o, axis_name, axis_vector, controller)
@@ -32,7 +30,6 @@ function MenuSceneGui:_axis_move(o, axis_name, axis_vector, controller)
 	elseif axis_name == Idstring("right") then
 		mvector3.set(self._right_axis_vector, axis_vector)
 	end
-
 end
 
 function MenuSceneGui:update(t, dt)
@@ -52,18 +49,14 @@ function MenuSceneGui:update(t, dt)
 			})
 			self._infamy_increased_text:move(0, self._panel:h() * 0.1)
 		end
-
 	elseif managers.menu_scene:infamy_card_shown() and not alive(self._infamy_increased_text) then
 		self._shown_infamy_text_t = t + 4
 	end
-
 	if alive(self._infamy_increased_text) then
 	end
-
 	if managers.menu:is_pc_controller() then
 		return
 	end
-
 	if mvector3.is_zero(self._left_axis_vector) then
 		managers.menu_scene:stop_controller_move()
 	else
@@ -71,7 +64,6 @@ function MenuSceneGui:update(t, dt)
 		local y = mvector3.y(self._left_axis_vector)
 		managers.menu_scene:controller_move(x * dt, y * dt)
 	end
-
 	if mvector3.is_zero(self._right_axis_vector) then
 		managers.menu_scene:stop_controller_zoom()
 	else
@@ -79,7 +71,6 @@ function MenuSceneGui:update(t, dt)
 		local y = mvector3.y(self._right_axis_vector)
 		managers.menu_scene:controller_zoom(x * dt, y * dt)
 	end
-
 end
 
 function MenuSceneGui:close()
@@ -88,11 +79,9 @@ function MenuSceneGui:close()
 		self._ws:panel():remove(self._panel)
 		self._panel = nil
 	end
-
 	if alive(self._fullscreen_panel) then
 		self._fullscreen_ws:panel():remove(self._fullscreen_panel)
 		self._fullscreen_panel = nil
 	end
-
 end
 

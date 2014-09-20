@@ -43,28 +43,22 @@ function PrefHud:load_config()
 	assert(DB:has(self.CONFIG_FILE_EXTENSION, self.CONFIG_FILE_PATH), "[CorePrefHud] Can't open \"" .. tostring(self.CONFIG_FILE_PATH) .. "." .. tostring(self.CONFIG_FILE_EXTENSION) .. "\".")
 	local data = PackageManager:script_data(Idstring(self.CONFIG_FILE_EXTENSION), Idstring(self.CONFIG_FILE_PATH))
 	self._counters = {}
-	local (for generator), (for state), (for control) = ipairs(data)
-	do
-		do break end
+	for _, sub_data in ipairs(data) do
 		if sub_data._meta == "counter" then
 			self:add_counter(sub_data.name, tonumber(sub_data.sort), tonumber(sub_data.min), tonumber(sub_data.mid), tonumber(sub_data.max), sub_data.precision, sub_data.inv == "true", sub_data.inv_colors == "true", sub_data.call)
 		end
-
 	end
-
 end
 
 function PrefHud:build_gui()
 	if self._workspace then
 		Overlay:newgui():destroy_workspace(self._workspace)
 	end
-
 	local res = RenderSettings.resolution
 	local safe_rect = 0.05
 	if SystemInfo:platform() == Idstring("WIN32") then
 		safe_rect = 0
 	end
-
 	self._workspace = Overlay:newgui():create_sub_screen_workspace(1000, 1000, res.x * safe_rect, res.y * safe_rect)
 	self._gui = self._workspace:panel():gui(Idstring("core/guis/core_prefhud"))
 	self._panel = self._gui:panel()
@@ -74,23 +68,15 @@ function PrefHud:build_gui()
 	local i = 0
 	local s, v, k
 	while i < table.size(self._counters) do
-		do
-			local (for generator), (for state), (for control) = pairs(self._counters)
-			do
-				do break end
-				if not it_v._obj then
-					if it_v._sort <= (s or it_v._sort) then
-						s = it_v._sort
-						v = it_v
-						k = it_k
-					end
-
+		for it_k, it_v in pairs(self._counters) do
+			if not it_v._obj then
+				if it_v._sort <= (s or it_v._sort) then
+					s = it_v._sort
+					v = it_v
+					k = it_k
 				end
-
 			end
-
 		end
-
 		s = nil
 		v._obj = self._panel:rect()
 		v._obj:set_layer(1)
@@ -105,7 +91,6 @@ function PrefHud:build_gui()
 		v._text_obj:set_font_size(c._bar_y)
 		i = i + 1
 	end
-
 end
 
 function PrefHud:show()
@@ -124,34 +109,28 @@ function PrefHud:toggle()
 	else
 		self:show()
 	end
-
 end
 
 function PrefHud:update_bars(t, dt)
 	if (self._prev_upd or self._upd_interval) >= self._upd_interval then
 		self._prev_upd = 0
-		local (for generator), (for state), (for control) = pairs(self._counters)
-		do
-			do break end
+		for k, v in pairs(self._counters) do
 			local raw_value = v._func()
 			if raw_value == nil then
 				raw_value = 0
 			end
-
 			v._raw_value = raw_value
 			local value = math.clamp(raw_value, 0, v._max)
 			v._current_value = value
 			if v._inv then
 				value = v._max - value
 			end
-
 			if value >= v._max then
 				if v._inv_colors then
 					v._obj:set_color(Color(0.8, 0, 0))
 				else
 					v._obj:set_color(Color(0, 0.8, 0))
 				end
-
 			elseif value >= v._mid and value <= v._max then
 				local t = (value - v._mid) / (v._max - v._mid)
 				if v._inv_colors then
@@ -159,7 +138,6 @@ function PrefHud:update_bars(t, dt)
 				else
 					v._obj:set_color(math.lerp(Color(0.8, 0.8, 0), Color(0, 0.8, 0), t))
 				end
-
 			elseif value >= v._min and value <= v._mid then
 				local t = (value - v._min) / (v._mid - v._min)
 				if v._inv_colors then
@@ -167,22 +145,18 @@ function PrefHud:update_bars(t, dt)
 				else
 					v._obj:set_color(math.lerp(Color(0.8, 0, 0), Color(0.8, 0.8, 0), t))
 				end
-
 			elseif v._inv_colors then
 				v._obj:set_color(Color(0, 0.8, 0))
 			else
 				v._obj:set_color(Color(0.8, 0, 0))
 			end
-
 			local proc = value / v._max
 			v._obj:set_width(self._const._bar_x * proc)
 			v._text_obj:set_text(k .. ": " .. tostring(string.format("%." .. v._precision .. "f", v._raw_value)))
 		end
-
 	else
 		self._prev_upd = self._prev_upd + dt
 	end
-
 end
 
 local ids_win32 = Idstring("WIN32")
@@ -193,14 +167,12 @@ function PrefHud:update_keys()
 	if Application:production_build() and is_win32 and Input:keyboard():down(ids_left_ctrl) and Input:keyboard():pressed(ids_f1) then
 		self:toggle()
 	end
-
 end
 
 function PrefHud:update(t, dt)
 	if self._visible then
 		self:update_bars(t, dt)
 	end
-
 	self:update_keys()
 end
 
@@ -212,6 +184,5 @@ function PrefHud:destroy()
 	if alive(self._workspace) then
 		Overlay:newgui():destroy_workspace(self._workspace)
 	end
-
 end
 

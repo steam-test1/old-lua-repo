@@ -63,42 +63,33 @@ function Renderer:show_node(node, parameters)
 			previous_node_gui.safe_rect_panel:set_debug(Global.render_debug.menu_debug and false)
 			previous_node_gui._item_panel_parent:set_debug(Global.render_debug.menu_debug and false)
 		end
-
 		layer = previous_node_gui:layer()
 		previous_node_gui:set_visible(false)
 	end
-
 	local new_node_gui
 	if parameters.node_gui_class then
 		new_node_gui = parameters.node_gui_class:new(node, layer + 1, parameters)
 	else
 		new_node_gui = CoreMenuNodeGui.NodeGui:new(node, layer + 1, parameters)
 	end
-
 	if Application:production_build() then
 		new_node_gui.safe_rect_panel:set_debug(Global.render_debug.menu_debug and true)
 		new_node_gui._item_panel_parent:set_debug(Global.render_debug.menu_debug and true)
 	end
-
 	table.insert(self._node_gui_stack, new_node_gui)
 	if not managers.system_menu:is_active() then
 		self:disable_input(0.2)
 	end
-
 end
 
 function Renderer:refresh_node_stack(parameters)
-	local (for generator), (for state), (for control) = ipairs(self._node_gui_stack)
-	do
-		do break end
+	for i, node_gui in ipairs(self._node_gui_stack) do
 		node_gui:refresh_gui(node_gui.node, parameters)
 		local selected_item = node_gui.node and node_gui.node:selected_item()
 		if selected_item then
 			node_gui:highlight_item(selected_item)
 		end
-
 	end
-
 end
 
 function Renderer:refresh_node(node, parameters)
@@ -112,7 +103,6 @@ function Renderer:highlight_item(item, mouse_over)
 	if active_node_gui then
 		active_node_gui:highlight_item(item, mouse_over)
 	end
-
 end
 
 function Renderer:fade_item(item)
@@ -120,7 +110,6 @@ function Renderer:fade_item(item)
 	if active_node_gui then
 		active_node_gui:fade_item(item)
 	end
-
 end
 
 function Renderer:trigger_item(item)
@@ -128,7 +117,6 @@ function Renderer:trigger_item(item)
 	if node_gui then
 		node_gui:reload_item(item)
 	end
-
 end
 
 function Renderer:navigate_back()
@@ -141,33 +129,24 @@ function Renderer:navigate_back()
 			self:active_node_gui().safe_rect_panel:set_debug(Global.render_debug.menu_debug and true)
 			self:active_node_gui()._item_panel_parent:set_debug(Global.render_debug.menu_debug and true)
 		end
-
 		self:disable_input(0.2)
 	end
-
 end
 
 function Renderer:node_item_dirty(node, item)
 	local node_name = node:parameters().name
-	local (for generator), (for state), (for control) = pairs(self._node_gui_stack)
-	do
-		do break end
+	for _, gui in pairs(self._node_gui_stack) do
 		if gui.name == node_name then
 			gui:reload_item(item)
 		end
-
 	end
-
 end
 
 function Renderer:update(t, dt)
 	self:update_input_timer(dt)
-	local (for generator), (for state), (for control) = ipairs(self._node_gui_stack)
-	do
-		do break end
+	for _, node_gui in ipairs(self._node_gui_stack) do
 		node_gui:update(t, dt)
 	end
-
 end
 
 function Renderer:update_input_timer(dt)
@@ -176,9 +155,7 @@ function Renderer:update_input_timer(dt)
 		if self._timer <= 0 then
 			self._logic:accept_input(true)
 		end
-
 	end
-
 end
 
 function Renderer:active_node_gui()
@@ -196,16 +173,9 @@ function Renderer:close()
 	if self._resolution_changed_callback_id then
 		managers.viewport:remove_resolution_changed_func(self._resolution_changed_callback_id)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._node_gui_stack)
-		do
-			do break end
-			node_gui:close()
-		end
-
+	for _, node_gui in ipairs(self._node_gui_stack) do
+		node_gui:close()
 	end
-
 	self._main_panel:clear()
 	self._fullscreen_panel:clear()
 	self.safe_rect_panel:clear()
@@ -218,7 +188,6 @@ function Renderer:hide()
 	if active_node_gui then
 		active_node_gui:set_visible(false)
 	end
-
 end
 
 function Renderer:show()
@@ -226,7 +195,6 @@ function Renderer:show()
 	if active_node_gui then
 		active_node_gui:set_visible(true)
 	end
-
 end
 
 function Renderer:_layout_main_panel()
@@ -241,12 +209,9 @@ function Renderer:resolution_changed()
 	managers.gui_data:layout_workspace(self.ws)
 	managers.gui_data:layout_fullscreen_workspace(self._fullscreen_ws)
 	self:_layout_main_panel()
-	local (for generator), (for state), (for control) = ipairs(self._node_gui_stack)
-	do
-		do break end
+	for _, node_gui in ipairs(self._node_gui_stack) do
 		node_gui:resolution_changed()
 	end
-
 end
 
 function Renderer:selected_node()

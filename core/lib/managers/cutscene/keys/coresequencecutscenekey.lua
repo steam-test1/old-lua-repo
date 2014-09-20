@@ -26,19 +26,13 @@ function CoreSequenceCutsceneKey:is_valid_unit_name(unit_name)
 	if not self.super.is_valid_unit_name(self, unit_name) then
 		return false
 	end
-
 	local unit = self:_unit(unit_name, true)
 	return unit ~= nil and managers.sequence:has(unit_name)
 end
 
 function CoreSequenceCutsceneKey:is_valid_name(name)
 	local unit = self:_unit(self:unit_name(), true)
-	if unit ~= nil and not string.begins(name, "undo_") and not string.begins(name, "skip_") then
-		-- unhandled boolean indicator
-	else
-	end
-
-	return true
+	return unit ~= nil and not string.begins(name, "undo_") and not string.begins(name, "skip_") and managers.sequence:has_sequence_name(self:unit_name(), name)
 end
 
 function CoreSequenceCutsceneKey:refresh_control_for_name(control)
@@ -49,20 +43,15 @@ function CoreSequenceCutsceneKey:refresh_control_for_name(control)
 	if not table.empty(sequence_names) then
 		control:set_enabled(true)
 		local value = self:name()
-		local (for generator), (for state), (for control) = ipairs(sequence_names)
-		do
-			do break end
+		for _, name in ipairs(sequence_names) do
 			control:append(name)
 			if name == value then
 				control:set_value(value)
 			end
-
 		end
-
 	else
 		control:set_enabled(false)
 	end
-
 	control:thaw()
 end
 
@@ -71,6 +60,5 @@ function CoreSequenceCutsceneKey:_run_sequence_if_exists(sequence_name)
 	if managers.sequence:has_sequence_name(self:unit_name(), sequence_name) then
 		self:_unit_extension(self:unit_name(), "damage"):run_sequence_simple(sequence_name)
 	end
-
 end
 

@@ -20,15 +20,9 @@ end
 function AiLayer:load(world_holder, offset)
 	AiLayer.super.load(self, world_holder, offset)
 	local ai_settings = world_holder:create_world("world", "ai_settings", offset)
-	do
-		local (for generator), (for state), (for control) = pairs(ai_settings or {})
-		do
-			do break end
-			self._ai_settings[name] = value
-		end
-
+	for name, value in pairs(ai_settings or {}) do
+		self._ai_settings[name] = value
 	end
-
 	managers.ai_data:load_units(self._created_units)
 	self:_update_patrol_paths_list()
 	self:_update_settings()
@@ -62,7 +56,6 @@ function AiLayer:_add_project_unit_save_data(unit, data)
 	if unit:name() == self._nav_surface_unit then
 		data.ai_editor_data = unit:ai_editor_data()
 	end
-
 end
 
 function AiLayer:update(t, dt)
@@ -75,7 +68,6 @@ function AiLayer:update(t, dt)
 		self._status_text:set_default_style_colour(color)
 		self._status_text:append(text)
 	end
-
 	self:_draw(t, dt)
 end
 
@@ -84,71 +76,46 @@ function AiLayer:external_draw(t, dt)
 end
 
 function AiLayer:_draw(t, dt)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			local selected = unit == self._selected_unit
-			if unit:name() == self._nav_surface_unit then
-				local a = selected and 0.75 or 0.5
-				local r = selected and 0 or 1
-				local g = selected and 1 or 1
-				local b = selected and 0 or 1
-				self._brush:set_color(Color(a, r, g, b))
-				self:_draw_surface(unit, t, dt, a, r, g, b)
-				if selected then
-					do
-						local (for generator), (for state), (for control) = pairs(unit:ai_editor_data().visibilty_exlude_filter)
-						do
-							do break end
-							local (for generator), (for state), (for control) = ipairs(self._created_units)
-							do
-								do break end
-								if to_unit:unit_data().unit_id == id then
-									Application:draw_link({
-										from_unit = unit,
-										to_unit = to_unit,
-										r = 1,
-										g = 0,
-										b = 0
-									})
-								end
-
-							end
-
+	for _, unit in ipairs(self._created_units) do
+		local selected = unit == self._selected_unit
+		if unit:name() == self._nav_surface_unit then
+			local a = selected and 0.75 or 0.5
+			local r = selected and 0 or 1
+			local g = selected and 1 or 1
+			local b = selected and 0 or 1
+			self._brush:set_color(Color(a, r, g, b))
+			self:_draw_surface(unit, t, dt, a, r, g, b)
+			if selected then
+				for id, _ in pairs(unit:ai_editor_data().visibilty_exlude_filter) do
+					for _, to_unit in ipairs(self._created_units) do
+						if to_unit:unit_data().unit_id == id then
+							Application:draw_link({
+								from_unit = unit,
+								to_unit = to_unit,
+								r = 1,
+								g = 0,
+								b = 0
+							})
 						end
-
 					end
-
-					local (for generator), (for state), (for control) = pairs(unit:ai_editor_data().visibilty_include_filter)
-					do
-						do break end
-						local (for generator), (for state), (for control) = ipairs(self._created_units)
-						do
-							do break end
-							if to_unit:unit_data().unit_id == id then
-								Application:draw_link({
-									from_unit = unit,
-									to_unit = to_unit,
-									r = 0,
-									g = 1,
-									b = 0
-								})
-							end
-
-						end
-
-					end
-
 				end
-
-			elseif unit:name() == self._patrol_point_unit then
+				for id, _ in pairs(unit:ai_editor_data().visibilty_include_filter) do
+					for _, to_unit in ipairs(self._created_units) do
+						if to_unit:unit_data().unit_id == id then
+							Application:draw_link({
+								from_unit = unit,
+								to_unit = to_unit,
+								r = 0,
+								g = 1,
+								b = 0
+							})
+						end
+					end
+				end
 			end
-
+		elseif unit:name() == self._patrol_point_unit then
 		end
-
 	end
-
 	self:_draw_patrol_paths(t, dt)
 end
 
@@ -166,29 +133,22 @@ function AiLayer:_draw_patrol_paths(t, dt)
 	if self._only_draw_selected_patrol_path and self._current_patrol_path then
 		self:_draw_patrol_path(self._current_patrol_path, managers.ai_data:all_patrol_paths()[self._current_patrol_path], t, dt)
 	else
-		local (for generator), (for state), (for control) = pairs(managers.ai_data:all_patrol_paths())
-		do
-			do break end
+		for name, path in pairs(managers.ai_data:all_patrol_paths()) do
 			self:_draw_patrol_path(name, path, t, dt)
 		end
-
 	end
-
 end
 
 function AiLayer:_draw_patrol_path(name, path, t, dt)
 	local selected_path = name == self._current_patrol_path
 	if #path.points > 0 then
-		local (for generator), (for state), (for control) = ipairs(path.points)
-		do
-			do break end
+		for i, point in ipairs(path.points) do
 			local to_unit
 			if i == #path.points then
 				to_unit = path.points[1].unit
 			else
 				to_unit = path.points[i + 1].unit
 			end
-
 			self._patrol_path_brush:set_color(Color.white:with_alpha(selected_path and 1 or 0.25))
 			Application:draw_link({
 				from_unit = point.unit,
@@ -206,11 +166,8 @@ function AiLayer:_draw_patrol_path(name, path, t, dt)
 				self._mid_pos = point.unit:position() + dir / 2
 				Application:draw_sphere(self._mid_pos, 10, 0, 0, 1)
 			end
-
 		end
-
 	end
-
 end
 
 function AiLayer:_draw_patrol_point(unit, first, last, selected_path, t, dt)
@@ -231,15 +188,9 @@ function AiLayer:build_panel(notebook)
 	local ai_sizer = EWS:BoxSizer("VERTICAL")
 	local graphs_sizer = EWS:StaticBoxSizer(self._ews_panel, "VERTICAL", "Graphs")
 	local graphs = EWS:ListBox(self._ews_panel, "", "LB_EXTENDED,LB_HSCROLL,LB_NEEDED_SB,LB_SORT")
-	do
-		local (for generator), (for state), (for control) = pairs(self._graph_types)
-		do
-			do break end
-			graphs:append(name)
-		end
-
+	for name, _ in pairs(self._graph_types) do
+		graphs:append(name)
 	end
-
 	graphs_sizer:add(graphs, 1, 0, "EXPAND")
 	local button_sizer1 = EWS:StaticBoxSizer(self._ews_panel, "HORIZONTAL", "Calculate")
 	local calc_btn = EWS:Button(self._ews_panel, "All", "", "BU_EXACTFIT,NO_BORDER")
@@ -292,15 +243,9 @@ function AiLayer:build_panel(notebook)
 	self._debug_buttons.coarse_graph = EWS:RadioButton(self._ews_panel, "Coarse graph", "draw_debug", "")
 	self._debug_buttons.blockers = EWS:RadioButton(self._ews_panel, "Blockers", "draw_debug", "")
 	self._debug_buttons.doors:set_value(true)
-	do
-		local (for generator), (for state), (for control) = pairs(self._debug_buttons)
-		do
-			do break end
-			visualize_sizer:add(ctrlr, 0, 0, "")
-		end
-
+	for _, ctrlr in pairs(self._debug_buttons) do
+		visualize_sizer:add(ctrlr, 0, 0, "")
 	end
-
 	self._ews_panel:connect("draw_debug", "EVT_COMMAND_RADIOBUTTON_SELECTED", callback(self, self, "_set_debug_options"), nil)
 	graphs_sizer:add(visualize_sizer, 0, 0, "EXPAND")
 	self._status_text = EWS:TextCtrl(self._ews_panel, "", 0, "TE_NOHIDESEL,TE_RICH2,TE_DONTWRAP,TE_READONLY,TE_CENTRE")
@@ -336,19 +281,12 @@ end
 
 function AiLayer:_build_ai_unit_settings()
 	local options = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.localization:ids("strings/atmospheric_text"))
-		do
-			do break end
-			local s = id_string:s()
-			if string.find(s, "location_") then
-				table.insert(options, s)
-			end
-
+	for _, id_string in ipairs(managers.localization:ids("strings/atmospheric_text")) do
+		local s = id_string:s()
+		if string.find(s, "location_") then
+			table.insert(options, s)
 		end
-
 	end
-
 	local sizer = EWS:StaticBoxSizer(self._ews_panel, "VERTICAL", "Unit settings")
 	local locations = {
 		name = "Location id:",
@@ -435,68 +373,43 @@ function AiLayer:_calc_graphs(params)
 		if confirm == "NO" then
 			return
 		end
-
 	end
-
 	local selected = self._graphs:selected_indices()
 	if build_type == "all" then
 		managers.navigation:clear()
 	end
-
-	local (for generator), (for state), (for control) = ipairs(selected)
-	do
-		do break end
+	for _, i in ipairs(selected) do
 		local selection = self._graphs:get_string(i)
 		local type = self._graph_types[selection]
 		if type then
 			local settings = self:_get_build_settings(type, build_type)
 			if #settings > 0 then
 				self._saved_disabled_units = {}
-				do
-					local (for generator), (for state), (for control) = pairs(managers.editor:layers())
-					do
-						do break end
-						local (for generator), (for state), (for control) = ipairs(layer:created_units())
-						do
-							do break end
-							if unit:unit_data().disable_on_ai_graph then
-								unit:set_enabled(false)
-								table.insert(self._saved_disabled_units, unit)
-							end
-
+				for name, layer in pairs(managers.editor:layers()) do
+					for _, unit in ipairs(layer:created_units()) do
+						if unit:unit_data().disable_on_ai_graph then
+							unit:set_enabled(false)
+							table.insert(self._saved_disabled_units, unit)
 						end
-
 					end
-
 				end
-
 				managers.editor:output("Make graph " .. type .. "_" .. self._graphs:get_string(i))
 				managers.navigation:build_nav_segments(settings, callback(self, self, "_graphs_done", params.vis_graph))
 			end
-
 		else
 			Application:error("Invalid selection \"" .. tostring(selection) .. "\".")
 		end
-
 	end
-
 end
 
 function AiLayer:_graphs_done(vis_graph)
 	managers.editor:output("Navigation seqments calculated")
-	do
-		local (for generator), (for state), (for control) = ipairs(self._saved_disabled_units)
-		do
-			do break end
-			unit:set_enabled(true)
-		end
-
+	for _, unit in ipairs(self._saved_disabled_units) do
+		unit:set_enabled(true)
 	end
-
 	if vis_graph then
 		self:_build_visibility_graph()
 	end
-
 end
 
 function AiLayer:_build_visibility_graph()
@@ -505,18 +418,13 @@ function AiLayer:_build_visibility_graph()
 	if not all_visible then
 		exclude = {}
 		include = {}
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
+		for _, unit in ipairs(self._created_units) do
 			if unit:name() == self._nav_surface_unit then
 				exclude[unit:unit_data().unit_id] = unit:ai_editor_data().visibilty_exlude_filter
 				include[unit:unit_data().unit_id] = unit:ai_editor_data().visibilty_include_filter
 			end
-
 		end
-
 	end
-
 	local ray_lenght = self._ray_length_params.value
 	managers.navigation:build_visibility_graph(callback(self, self, "_visibility_graph_done"), all_visible, exclude, include, ray_lenght)
 end
@@ -528,47 +436,33 @@ end
 function AiLayer:_get_build_settings(type, build_type)
 	local settings = {}
 	local units = self:_get_units(type, build_type)
-	do
-		local (for generator), (for state), (for control) = ipairs(units)
-		do
-			do break end
-			local ray = managers.editor:unit_by_raycast({
-				mask = managers.slot:get_mask("all"),
-				from = unit:position() + Vector3(0, 0, 50),
-				to = unit:position() - Vector3(0, 0, 150),
-				sample = true
+	for _, unit in ipairs(units) do
+		local ray = managers.editor:unit_by_raycast({
+			mask = managers.slot:get_mask("all"),
+			from = unit:position() + Vector3(0, 0, 50),
+			to = unit:position() - Vector3(0, 0, 150),
+			sample = true
+		})
+		if ray and ray.position then
+			table.insert(settings, {
+				position = unit:position(),
+				id = unit:unit_data().unit_id,
+				color = Color(),
+				location_id = unit:ai_editor_data().location_id
 			})
-			if ray and ray.position then
-				table.insert(settings, {
-					position = unit:position(),
-					id = unit:unit_data().unit_id,
-					color = Color(),
-					location_id = unit:ai_editor_data().location_id
-				})
-			end
-
 		end
-
 	end
-
 	return settings
 end
 
 function AiLayer:_get_units(type, build_type)
 	local unit_name = self._unit_graph_types[type]
 	local units = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(build_type == "selected" and self._selected_units or self._created_units)
-		do
-			do break end
-			if unit:name() == unit_name then
-				table.insert(units, unit)
-			end
-
+	for _, unit in ipairs(build_type == "selected" and self._selected_units or self._created_units) do
+		if unit:name() == unit_name then
+			table.insert(units, unit)
 		end
-
 	end
-
 	return units
 end
 
@@ -578,7 +472,6 @@ function AiLayer:_toggle_debug_draw(debug)
 		managers.navigation:set_debug_draw_state(false)
 		return
 	end
-
 	self:_set_debug_options()
 end
 
@@ -586,17 +479,10 @@ function AiLayer:_set_debug_options()
 	if not self._debug_draw:get_value() then
 		return
 	end
-
 	local options = {quads = true}
-	do
-		local (for generator), (for state), (for control) = pairs(self._debug_buttons)
-		do
-			do break end
-			options[name] = ctrl:get_value()
-		end
-
+	for name, ctrl in pairs(self._debug_buttons) do
+		options[name] = ctrl:get_value()
 	end
-
 	managers.navigation:set_debug_draw_state(options)
 end
 
@@ -612,15 +498,11 @@ function AiLayer:_set_group_state()
 end
 
 function AiLayer:_update_settings()
-	local (for generator), (for state), (for control) = pairs(self._ai_settings)
-	do
-		do break end
+	for name, value in pairs(self._ai_settings) do
 		if self._ai_settings_guis[name] then
 			CoreEws.change_combobox_value(self._ai_settings_guis[name], value)
 		end
-
 	end
-
 end
 
 function AiLayer:_clear_graphs()
@@ -631,13 +513,10 @@ function AiLayer:_clear_selected_nav_segment()
 	print("[AiLayer:_clear_selected_nav_segment]")
 	local selected = self._graphs:selected_indices()
 	local units = self:_get_units("surface", "selected")
-	local (for generator), (for state), (for control) = ipairs(units)
-	do
-		do break end
+	for _, unit in ipairs(units) do
 		print("deleting", unit:unit_data().unit_id)
 		managers.navigation:delete_nav_segment(unit:unit_data().unit_id)
 	end
-
 end
 
 function AiLayer:set_select_unit(unit)
@@ -653,28 +532,22 @@ function AiLayer:set_select_unit(unit)
 			CoreEws.change_entered_number(self._ai_unit_settings_guis.suspicion_multiplier, unit:ai_editor_data().suspicion_mul)
 			CoreEws.change_entered_number(self._ai_unit_settings_guis.detection_multiplier, unit:ai_editor_data().detection_mul)
 		end
-
 	end
-
 	if not self:_add_to_visible_exlude_filter(unit) then
 		AiLayer.super.set_select_unit(self, unit)
 		if not alive(unit) or unit:name() == self._nav_surface_unit then
 			managers.navigation:set_selected_segment(unit)
 		end
-
 	end
-
 end
 
 function AiLayer:_add_to_visible_exlude_filter(unit)
 	if not alive(unit) then
 		return false
 	end
-
 	if unit:name() ~= self._nav_surface_unit then
 		return false
 	end
-
 	if self._selected_unit and self._editor_data.virtual_controller:down(Idstring("visible_exlude_filter")) and unit ~= self._selected_unit then
 		if self._selected_unit:ai_editor_data().visibilty_exlude_filter[unit:unit_data().unit_id] then
 			self._selected_unit:ai_editor_data().visibilty_exlude_filter[unit:unit_data().unit_id] = nil
@@ -685,10 +558,8 @@ function AiLayer:_add_to_visible_exlude_filter(unit)
 			self._selected_unit:ai_editor_data().visibilty_exlude_filter[unit:unit_data().unit_id] = true
 			unit:ai_editor_data().visibilty_exlude_filter[self._selected_unit:unit_data().unit_id] = true
 		end
-
 		return true
 	end
-
 	if self._selected_unit and self._editor_data.virtual_controller:down(Idstring("visible_include_filter")) and unit ~= self._selected_unit then
 		if self._selected_unit:ai_editor_data().visibilty_include_filter[unit:unit_data().unit_id] then
 			self._selected_unit:ai_editor_data().visibilty_include_filter[unit:unit_data().unit_id] = nil
@@ -699,10 +570,8 @@ function AiLayer:_add_to_visible_exlude_filter(unit)
 			self._selected_unit:ai_editor_data().visibilty_include_filter[unit:unit_data().unit_id] = true
 			unit:ai_editor_data().visibilty_include_filter[self._selected_unit:unit_data().unit_id] = true
 		end
-
 		return true
 	end
-
 	return false
 end
 
@@ -711,9 +580,7 @@ function AiLayer:_set_selection_patrol_paths_listbox(name)
 		if self._patrol_paths_list:get_string(i) == name then
 			self._patrol_paths_list:select_index(i)
 		end
-
 	end
-
 	self:_select_patrol_path()
 end
 
@@ -728,28 +595,18 @@ function AiLayer:_create_new_patrol_path()
 				if self._patrol_paths_list:get_string(i) == name then
 					self._patrol_paths_list:select_index(i)
 				end
-
 			end
-
 			self:_select_patrol_path()
 		end
-
 	end
-
 end
 
 function AiLayer:_current_patrol_units(name)
 	local t = {}
 	local path = managers.ai_data:patrol_path(name)
-	do
-		local (for generator), (for state), (for control) = ipairs(path.points)
-		do
-			do break end
-			table.insert(t, point.unit)
-		end
-
+	for _, point in ipairs(path.points) do
+		table.insert(t, point.unit)
 	end
-
 	return t
 end
 
@@ -760,32 +617,21 @@ function AiLayer:_delete_patrol_path()
 		if confirm == "NO" then
 			return
 		end
-
 		local to_delete = self:_current_patrol_units(name)
-		do
-			local (for generator), (for state), (for control) = ipairs(to_delete)
-			do
-				do break end
-				self:delete_unit(unit)
-			end
-
+		for _, unit in ipairs(to_delete) do
+			self:delete_unit(unit)
 		end
-
 		managers.ai_data:remove_patrol_path(name)
 		self:_update_patrol_paths_list()
 		self._current_patrol_path = nil
 	end
-
 end
 
 function AiLayer:_update_patrol_paths_list()
 	self._patrol_paths_list:clear()
-	local (for generator), (for state), (for control) = pairs(managers.ai_data:all_patrol_paths())
-	do
-		do break end
+	for name, _ in pairs(managers.ai_data:all_patrol_paths()) do
 		self._patrol_paths_list:append(name)
 	end
-
 end
 
 function AiLayer:_selected_patrol_path()
@@ -793,7 +639,6 @@ function AiLayer:_selected_patrol_path()
 	if index ~= -1 then
 		return self._patrol_paths_list:get_string(index)
 	end
-
 	return nil
 end
 
@@ -805,7 +650,6 @@ function AiLayer:_select_patrol_path()
 	elseif not name then
 		self._current_patrol_path = nil
 	end
-
 end
 
 function AiLayer:do_spawn_unit(name, pos, rot)
@@ -813,12 +657,10 @@ function AiLayer:do_spawn_unit(name, pos, rot)
 		managers.editor:output("Create or select a patrol path first!")
 		return
 	end
-
 	local unit = AiLayer.super.do_spawn_unit(self, name, pos, rot)
 	if alive(unit) and unit:name() == self._patrol_point_unit then
 		self:_add_patrol_point(unit, pos)
 	end
-
 	return unit
 end
 
@@ -827,7 +669,6 @@ function AiLayer:_add_patrol_point(unit)
 	if not name then
 		return
 	end
-
 	managers.ai_data:add_patrol_point(name, unit)
 end
 
@@ -835,7 +676,6 @@ function AiLayer:_insert()
 	if not alive(self._selected_unit) or self._selected_unit:name() ~= self._patrol_point_unit then
 		return
 	end
-
 	local _, path = managers.ai_data:patrol_path_by_unit(self._selected_unit)
 	local i, _ = managers.ai_data:patrol_point_index_by_unit(self._selected_unit)
 	self:do_spawn_unit(self._patrol_point_unit:s(), self._mid_pos)
@@ -844,26 +684,18 @@ function AiLayer:_insert()
 end
 
 function AiLayer:delete_unit(unit)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			if u:name() == self._nav_surface_unit and u ~= unit then
-				u:ai_editor_data().visibilty_exlude_filter[unit:unit_data().unit_id] = nil
-				u:ai_editor_data().visibilty_include_filter[unit:unit_data().unit_id] = nil
-			end
-
+	for _, u in ipairs(self._created_units) do
+		if u:name() == self._nav_surface_unit and u ~= unit then
+			u:ai_editor_data().visibilty_exlude_filter[unit:unit_data().unit_id] = nil
+			u:ai_editor_data().visibilty_include_filter[unit:unit_data().unit_id] = nil
 		end
-
 	end
-
 	if unit:name() == self._nav_surface_unit then
 		managers.navigation:delete_nav_segment(unit:unit_data().unit_id)
 		self._ai_unit_settings_guis.locations.ctrlr:set_enabled(false)
 	elseif unit:name() == self._patrol_point_unit then
 		managers.ai_data:delete_point_by_unit(unit)
 	end
-
 	AiLayer.super.delete_unit(self, unit)
 end
 

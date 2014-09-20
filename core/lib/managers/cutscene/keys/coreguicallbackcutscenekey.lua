@@ -14,7 +14,6 @@ function CoreGuiCallbackCutsceneKey:evaluate(player, fast_forward)
 	if self:enabled() then
 		player:invoke_callback_in_gui(self:name(), self:function_name(), player)
 	end
-
 end
 
 function CoreGuiCallbackCutsceneKey:is_valid_name(name)
@@ -25,19 +24,12 @@ function CoreGuiCallbackCutsceneKey:refresh_control_for_name(control)
 	control:freeze()
 	control:clear()
 	local value = self:name()
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type("gui"))
-		do
-			do break end
-			control:append(name)
-			if name == value then
-				control:set_value(value)
-			end
-
+	for _, name in ipairs(managers.database:list_entries_of_type("gui")) do
+		control:append(name)
+		if name == value then
+			control:set_value(value)
 		end
-
 	end
-
 	control:thaw()
 end
 

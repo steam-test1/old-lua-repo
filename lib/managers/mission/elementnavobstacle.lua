@@ -14,32 +14,23 @@ function ElementNavObstacle:on_script_activated()
 			}
 		}
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._values.obstacle_list)
-		do
-			do break end
-			if Global.running_simulation then
+	for _, data in ipairs(self._values.obstacle_list) do
+		if Global.running_simulation then
+			table.insert(self._obstacle_units, {
+				unit = managers.editor:unit_with_id(data.unit_id),
+				obj_name = data.obj_name
+			})
+		else
+			local unit = managers.worlddefinition:get_unit_on_load(data.unit_id, callback(self, self, "_load_unit", data.obj_name))
+			if unit then
+				print("ElementNavObstacle:on_script_activated()", unit, data.obj_name)
 				table.insert(self._obstacle_units, {
-					unit = managers.editor:unit_with_id(data.unit_id),
+					unit = unit,
 					obj_name = data.obj_name
 				})
-			else
-				local unit = managers.worlddefinition:get_unit_on_load(data.unit_id, callback(self, self, "_load_unit", data.obj_name))
-				if unit then
-					print("ElementNavObstacle:on_script_activated()", unit, data.obj_name)
-					table.insert(self._obstacle_units, {
-						unit = unit,
-						obj_name = data.obj_name
-					})
-				end
-
 			end
-
 		end
-
 	end
-
 	self._has_fetched_units = true
 	self._mission_script:add_save_state_cb(self._id)
 end
@@ -56,25 +47,17 @@ function ElementNavObstacle:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._obstacle_units)
-		do
-			do break end
-			if not alive(data.unit) then
-				debug_pause("[ElementNavObstacle:on_executed] dead obstacle unit. element_id:", self._id)
-			elseif not data.unit:get_object(data.obj_name) then
-				debug_pause("[ElementNavObstacle:on_executed] object missing from unit. element_id:", self._id, "unit", data.unit, "Objec3D", data.obj_name)
-			elseif self._values.operation == "add" then
-				managers.navigation:add_obstacle(data.unit, data.obj_name)
-			else
-				managers.navigation:remove_obstacle(data.unit, data.obj_name)
-			end
-
+	for _, data in ipairs(self._obstacle_units) do
+		if not alive(data.unit) then
+			debug_pause("[ElementNavObstacle:on_executed] dead obstacle unit. element_id:", self._id)
+		elseif not data.unit:get_object(data.obj_name) then
+			debug_pause("[ElementNavObstacle:on_executed] object missing from unit. element_id:", self._id, "unit", data.unit, "Objec3D", data.obj_name)
+		elseif self._values.operation == "add" then
+			managers.navigation:add_obstacle(data.unit, data.obj_name)
+		else
+			managers.navigation:remove_obstacle(data.unit, data.obj_name)
 		end
-
 	end
-
 	ElementNavObstacle.super.on_executed(self, instigator)
 end
 
@@ -86,6 +69,5 @@ function ElementNavObstacle:load(data)
 	if not self._has_fetched_units then
 		self:on_script_activated()
 	end
-
 end
 

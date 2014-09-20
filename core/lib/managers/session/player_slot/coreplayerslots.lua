@@ -14,12 +14,9 @@ function PlayerSlots:clear()
 end
 
 function PlayerSlots:clear_session()
-	local (for generator), (for state), (for control) = pairs(self._slots)
-	do
-		do break end
+	for _, slot in pairs(self._slots) do
 		slot:clear_session()
 	end
-
 end
 
 function PlayerSlots:add_player_slot()
@@ -30,19 +27,12 @@ function PlayerSlots:add_player_slot()
 end
 
 function PlayerSlots:_remove_player_slot(player_slot)
-	do
-		local (for generator), (for state), (for control) = pairs(self._slots)
-		do
-			do break end
-			if slot == player_slot then
-				self._slots[index] = nil
-				return
-			end
-
+	for index, slot in pairs(self._slots) do
+		if slot == player_slot then
+			self._slots[index] = nil
+			return
 		end
-
 	end
-
 	assert(false, "couldn't find that player slot")
 end
 
@@ -51,12 +41,9 @@ function PlayerSlots:slots()
 end
 
 function PlayerSlots:transition()
-	local (for generator), (for state), (for control) = pairs(self._slots)
-	do
-		do break end
+	for _, slot in pairs(self._slots) do
 		slot:transition()
 	end
-
 end
 
 function PlayerSlots:primary_slot()
@@ -78,52 +65,36 @@ function PlayerSlots:primary_local_user()
 end
 
 function PlayerSlots:create_players()
-	local (for generator), (for state), (for control) = pairs(self._slots)
-	do
-		do break end
+	for index, slot in pairs(self._slots) do
 		if slot:has_assigned_user() then
 			slot:create_player()
 		end
-
 	end
-
 end
 
 function PlayerSlots:remove_players()
-	local (for generator), (for state), (for control) = pairs(self._slots)
-	do
-		do break end
+	for index, slot in pairs(self._slots) do
 		if slot:has_player() then
 			slot:remove_player()
 		end
-
 	end
-
 end
 
 function PlayerSlots:enter_level_handler(level_handler)
-	local (for generator), (for state), (for control) = pairs(self._slots)
-	do
-		do break end
+	for index, slot in pairs(self._slots) do
 		local player = slot:player()
 		if player then
 			player:enter_level(level_handler)
 		end
-
 	end
-
 end
 
 function PlayerSlots:leave_level_handler(level_handler)
-	local (for generator), (for state), (for control) = pairs(self._slots)
-	do
-		do break end
+	for index, slot in pairs(self._slots) do
 		local player = slot:player()
 		if player then
 			player:leave_level(level_handler)
 		end
-
 	end
-
 end
 

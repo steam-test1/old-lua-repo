@@ -15,15 +15,12 @@ function NetworkAccountXBL:local_signin_state()
 	if xbl_state == "not_signed_in" then
 		return "not signed in"
 	end
-
 	if xbl_state == "signed_in_locally" then
 		return "signed in"
 	end
-
 	if xbl_state == "signed_in_to_live" then
 		return "signed in"
 	end
-
 	return "not signed in"
 end
 
@@ -63,7 +60,6 @@ function NetworkAccountXBL:_translate_signin_state(xbl_state)
 	if xbl_state == "signed_in_to_live" then
 		return "signed in"
 	end
-
 	return "not signed in"
 end
 

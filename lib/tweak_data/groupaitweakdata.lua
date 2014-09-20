@@ -150,7 +150,6 @@ function GroupAITweakData:_init_unit_categories(difficulty_index)
 			shield = 5
 		}
 	end
-
 	self.unit_categories = {}
 	self.unit_categories.spooc = {
 		units = {
@@ -246,7 +245,6 @@ function GroupAITweakData:_init_unit_categories(difficulty_index)
 			access = access_type_all
 		}
 	end
-
 	if difficulty_index < 6 then
 		self.unit_categories.FBI_swat_R870 = {
 			units = {
@@ -263,7 +261,6 @@ function GroupAITweakData:_init_unit_categories(difficulty_index)
 			access = access_type_all
 		}
 	end
-
 	self.unit_categories.FBI_heavy_G36 = {
 		units = {
 			Idstring("units/payday2/characters/ene_fbi_heavy_1/ene_fbi_heavy_1")
@@ -302,7 +299,6 @@ function GroupAITweakData:_init_unit_categories(difficulty_index)
 			special_type = "tank"
 		}
 	end
-
 end
 
 function GroupAITweakData:_init_enemy_spawn_groups(difficulty_index)
@@ -659,7 +655,6 @@ function GroupAITweakData:_init_enemy_spawn_groups(difficulty_index)
 			}
 		}
 	end
-
 	self.enemy_spawn_groups.CS_tanks = {
 		amount = {1, 2},
 		spawn = {
@@ -778,7 +773,6 @@ function GroupAITweakData:_init_enemy_spawn_groups(difficulty_index)
 			}
 		}
 	end
-
 	if difficulty_index < 6 then
 		self.enemy_spawn_groups.FBI_stealth_b = {
 			amount = {2, 3},
@@ -818,7 +812,6 @@ function GroupAITweakData:_init_enemy_spawn_groups(difficulty_index)
 			}
 		}
 	end
-
 	if difficulty_index < 6 then
 		self.enemy_spawn_groups.FBI_swats = {
 			amount = {3, 4},
@@ -879,7 +872,6 @@ function GroupAITweakData:_init_enemy_spawn_groups(difficulty_index)
 			}
 		}
 	end
-
 	if difficulty_index < 6 then
 		self.enemy_spawn_groups.FBI_heavys = {
 			amount = {2, 3},
@@ -926,7 +918,6 @@ function GroupAITweakData:_init_enemy_spawn_groups(difficulty_index)
 			}
 		}
 	end
-
 	if difficulty_index < 6 then
 		self.enemy_spawn_groups.FBI_shields = {
 			amount = {3, 4},
@@ -991,7 +982,6 @@ function GroupAITweakData:_init_enemy_spawn_groups(difficulty_index)
 			}
 		}
 	end
-
 	if difficulty_index < 6 then
 		self.enemy_spawn_groups.FBI_tanks = {
 			amount = {3, 4},
@@ -1049,7 +1039,6 @@ function GroupAITweakData:_init_enemy_spawn_groups(difficulty_index)
 			}
 		}
 	end
-
 	self.enemy_spawn_groups.single_spooc = {
 		amount = {1, 1},
 		spawn = {
@@ -1074,13 +1063,11 @@ function GroupAITweakData:_init_task_data(difficulty_index, difficulty)
 	else
 		self.smoke_and_flash_grenade_timeout = {4, 6}
 	end
-
 	if difficulty_index < 6 then
 		self.smoke_grenade_lifetime = 7.5
 	else
 		self.smoke_grenade_lifetime = 12
 	end
-
 	self.flash_grenade_lifetime = 7.5
 	self.optimal_trade_distance = {0, 0}
 	self.bain_assault_praise_limits = {1, 3}
@@ -1135,7 +1122,6 @@ function GroupAITweakData:_init_task_data(difficulty_index, difficulty)
 			}
 		}
 	end
-
 	self.besiege.regroup.duration = {
 		15,
 		15,
@@ -1196,7 +1182,6 @@ function GroupAITweakData:_init_task_data(difficulty_index, difficulty)
 			10
 		}
 	end
-
 	if difficulty_index <= 5 then
 		self.besiege.assault.hostage_hesitation_delay = {
 			30,
@@ -1210,7 +1195,6 @@ function GroupAITweakData:_init_task_data(difficulty_index, difficulty)
 			10
 		}
 	end
-
 	if is_console then
 		self.besiege.assault.force = {
 			0,
@@ -1234,7 +1218,6 @@ function GroupAITweakData:_init_task_data(difficulty_index, difficulty)
 			50
 		}
 	end
-
 	if is_console then
 		if difficulty_index <= 2 then
 			self.besiege.assault.force_balance_mul = {
@@ -1302,7 +1285,6 @@ function GroupAITweakData:_init_task_data(difficulty_index, difficulty)
 				2.8
 			}
 		end
-
 	elseif difficulty_index <= 2 then
 		self.besiege.assault.force_balance_mul = {
 			0.9,
@@ -1369,7 +1351,6 @@ function GroupAITweakData:_init_task_data(difficulty_index, difficulty)
 			9
 		}
 	end
-
 	if difficulty_index <= 2 then
 		self.besiege.assault.groups = {
 			CS_swats = {
@@ -1531,7 +1512,6 @@ function GroupAITweakData:_init_task_data(difficulty_index, difficulty)
 			}
 		}
 	end
-
 	self.besiege.reenforce.interval = {
 		10,
 		20,
@@ -1643,7 +1623,6 @@ function GroupAITweakData:_init_task_data(difficulty_index, difficulty)
 			}
 		}
 	end
-
 	self.besiege.recon.interval = {
 		5,
 		5,
@@ -1663,7 +1642,6 @@ function GroupAITweakData:_init_task_data(difficulty_index, difficulty)
 			6
 		}
 	end
-
 	if difficulty_index <= 2 then
 		self.besiege.recon.groups = {
 			CS_stealth_a = {
@@ -1765,7 +1743,6 @@ function GroupAITweakData:_init_task_data(difficulty_index, difficulty)
 			}
 		}
 	end
-
 	self.besiege.cloaker.groups = {
 		single_spooc = {
 			1,
@@ -1779,7 +1756,6 @@ function GroupAITweakData:_read_mission_preset(tweak_data)
 	if not Global.game_settings then
 		return
 	end
-
 	local lvl_tweak_data = tweak_data.levels[Global.game_settings.level_id]
 	self._mission_preset = lvl_tweak_data.group_ai_preset
 end

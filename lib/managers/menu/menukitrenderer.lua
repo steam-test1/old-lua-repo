@@ -14,7 +14,6 @@ function MenuKitRenderer:show_node(node)
 	if node:parameters().gui_class then
 		gui_class = CoreSerialize.string_to_classtable(node:parameters().gui_class)
 	end
-
 	local parameters = {
 		row_item_color = tweak_data.screen_colors.button_stage_3,
 		row_item_hightlight_color = tweak_data.screen_colors.button_stage_2,
@@ -37,13 +36,9 @@ function MenuKitRenderer:open(...)
 	self._server_state_string_id = "menu_lobby_server_state_in_game"
 	MenuKitRenderer.super.open(self, ...)
 	if self._player_slots then
-		local (for generator), (for state), (for control) = ipairs(self._player_slots)
-		do
-			break
+		for _, slot in ipairs(self._player_slots) do
 		end
-
 	end
-
 end
 
 function MenuKitRenderer:_entered_menu()
@@ -54,13 +49,9 @@ function MenuKitRenderer:_entered_menu()
 		local criminal_name = managers.network:session():local_peer():character()
 		kit_menu.renderer:set_slot_outfit(id, criminal_name, managers.blackmarket:outfit_string())
 	end
-
-	local (for generator), (for state), (for control) = pairs(managers.network:session():peers())
-	do
-		do break end
+	for peer_id, peer in pairs(managers.network:session():peers()) do
 		self:set_slot_joining(peer, peer_id)
 	end
-
 end
 
 function MenuKitRenderer:_set_player_slot(nr, params)
@@ -82,71 +73,47 @@ function MenuKitRenderer:trigger_item(item)
 	if node_gui and node_gui.trigger_item then
 		node_gui:trigger_item(item)
 	end
-
 end
 
 function MenuKitRenderer:sync_chat_message(message, id)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._node_gui_stack)
-		do
-			do break end
-			local row_item_chat = node_gui:row_item_by_name("chat")
-			if row_item_chat then
-				node_gui:sync_say(message, row_item_chat, id)
-				return true
-			end
-
+	for _, node_gui in ipairs(self._node_gui_stack) do
+		local row_item_chat = node_gui:row_item_by_name("chat")
+		if row_item_chat then
+			node_gui:sync_say(message, row_item_chat, id)
+			return true
 		end
-
 	end
-
 	return false
 end
 
 function MenuKitRenderer:set_all_items_enabled(enabled)
 	self._all_items_enabled = enabled
-	local (for generator), (for state), (for control) = ipairs(self._logic._node_stack)
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(node:items())
-		do
-			do break end
+	for _, node in ipairs(self._logic._node_stack) do
+		for _, item in ipairs(node:items()) do
 			if item:type() == "kitslot" or item:type() == "toggle" then
 				item:set_enabled(enabled)
 			end
-
 		end
-
 	end
-
 end
 
 function MenuKitRenderer:set_ready_items_enabled(enabled)
 	if not self._all_items_enabled then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._logic._node_stack)
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(node:items())
-		do
-			do break end
+	for _, node in ipairs(self._logic._node_stack) do
+		for _, item in ipairs(node:items()) do
 			if item:type() == "kitslot" then
 				item:set_enabled(enabled)
 			end
-
 		end
-
 	end
-
 end
 
 function MenuKitRenderer:set_bg_visible(visible)
 	if self._menu_bg then
 		self._menu_bg:set_visible(visible)
 	end
-
 end
 
 function MenuKitRenderer:set_bg_area(area)
@@ -162,9 +129,7 @@ function MenuKitRenderer:set_bg_area(area)
 			self._menu_bg:set_size(self._menu_bg:parent():size())
 			self._menu_bg:set_position(0, 0)
 		end
-
 	end
-
 end
 
 function MenuKitRenderer:set_slot_joining(peer, peer_id)

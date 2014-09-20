@@ -12,15 +12,9 @@ function EquipmentUnitElement:_build_panel(panel, panel_sizer)
 	panel = panel or self._panel
 	panel_sizer = panel_sizer or self._panel_sizer
 	local options = {}
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.equipments.specials)
-		do
-			do break end
-			table.insert(options, name)
-		end
-
+	for name, _ in pairs(tweak_data.equipments.specials) do
+		table.insert(options, name)
 	end
-
 	local equipment_params = {
 		name = "Equipment:",
 		panel = panel,

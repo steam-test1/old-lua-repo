@@ -21,7 +21,6 @@ function HuskPlayerInventory:synch_equipped_weapon(weap_index, blueprint_string)
 		self:add_unit_by_factory_name(weapon_name, true, true, blueprint_string)
 		return
 	end
-
 	self:add_unit_by_name(weapon_name, true, true)
 end
 
@@ -29,7 +28,6 @@ function HuskPlayerInventory:check_peer_weapon_spawn()
 	if SystemInfo:platform() ~= Idstring("PS3") then
 		return true
 	end
-
 	local next_in_line = self._peer_weapons[1]
 	if next_in_line then
 		if type(next_in_line) == "table" then
@@ -38,12 +36,10 @@ function HuskPlayerInventory:check_peer_weapon_spawn()
 		else
 			print("[HuskPlayerInventory:check_peer_weapon_spawn()] waiting")
 		end
-
 		table.remove(self._peer_weapons, 1)
 	else
 		return true
 	end
-
 end
 
 function HuskPlayerInventory:set_melee_weapon_by_peer(peer)
@@ -51,7 +47,6 @@ function HuskPlayerInventory:set_melee_weapon_by_peer(peer)
 	if blackmarket_outfit then
 		self:set_melee_weapon(blackmarket_outfit.melee_weapon, true)
 	end
-
 end
 
 function HuskPlayerInventory:add_unit_by_name(new_unit_name, equip, instant)
@@ -103,16 +98,13 @@ function HuskPlayerInventory:synch_weapon_gadget_state(state)
 		else
 			self._unit:movement():set_cbt_permanent(false)
 		end
-
 	end
-
 end
 
 function HuskPlayerInventory._get_weapon_name_from_sync_index(w_index)
 	if w_index <= #tweak_data.character.weap_unit_names then
 		return tweak_data.character.weap_unit_names[w_index]
 	end
-
 	w_index = w_index - #tweak_data.character.weap_unit_names
 	HuskPlayerInventory._chk_create_w_factory_indexes()
 	local fps_id = PlayerInventory._weapon_factory_indexed[w_index]
@@ -121,6 +113,5 @@ function HuskPlayerInventory._get_weapon_name_from_sync_index(w_index)
 	else
 		return fps_id
 	end
-
 end
 

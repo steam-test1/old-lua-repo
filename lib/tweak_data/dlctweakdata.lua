@@ -59,26 +59,19 @@ function DLCTweakData:init(tweak_data)
 			"zombie"
 		}
 		local lootdrops = {}
-		do
-			local (for generator), (for state), (for control) = ipairs(all_normal_masks)
-			do
-				do break end
-				table.insert(lootdrops, {
-					type_items = "masks",
-					item_entry = mask_id,
-					amount = 1
-				})
-			end
-
+		for i, mask_id in ipairs(all_normal_masks) do
+			table.insert(lootdrops, {
+				type_items = "masks",
+				item_entry = mask_id,
+				amount = 1
+			})
 		end
-
 		self.starter_kit_mask = {}
 		self.starter_kit_mask.free = true
 		self.starter_kit_mask.content = {}
 		self.starter_kit_mask.content.loot_global_value = "normal"
 		self.starter_kit_mask.content.loot_drops = {lootdrops}
 	end
-
 	self.pd2_clan = {}
 	self.pd2_clan.content = {}
 	self.pd2_clan.dlc = "has_pd2_clan"

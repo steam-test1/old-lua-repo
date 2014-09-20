@@ -11,7 +11,6 @@ function SlaveManager:update(t, dt)
 	if self._status then
 		self._updator:update(t, dt)
 	end
-
 end
 
 function SlaveManager:paused_update(t, dt)

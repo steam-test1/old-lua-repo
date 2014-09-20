@@ -11,9 +11,7 @@ function ElementPlayEffect:init(...)
 		else
 			managers.editor:output_error("Cant load effect named \"none\" [" .. self._editor_name .. "]")
 		end
-
 	end
-
 end
 
 function ElementPlayEffect:client_on_executed(...)
@@ -24,7 +22,6 @@ function ElementPlayEffect:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	self:play_effect()
 	ElementPlayEffect.super.on_executed(self, instigator)
 end
@@ -43,7 +40,6 @@ function ElementPlayEffect:play_effect()
 	elseif Application:editor() then
 		managers.editor:output_error("Cant spawn effect named \"none\" [" .. self._editor_name .. "]")
 	end
-
 end
 
 function ElementPlayEffect:kill()
@@ -67,25 +63,16 @@ function ElementStopEffect:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._values.elements)
-		do
-			do break end
-			local element = self:get_mission_element(id)
-			if element then
-				if self._values.operation == "kill" then
-					element:kill()
-				elseif self._values.operation == "fade_kill" then
-					element:fade_kill()
-				end
-
+	for _, id in ipairs(self._values.elements) do
+		local element = self:get_mission_element(id)
+		if element then
+			if self._values.operation == "kill" then
+				element:kill()
+			elseif self._values.operation == "fade_kill" then
+				element:fade_kill()
 			end
-
 		end
-
 	end
-
 	ElementStopEffect.super.on_executed(self, instigator)
 end
 

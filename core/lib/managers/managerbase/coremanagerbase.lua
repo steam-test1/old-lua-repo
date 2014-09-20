@@ -81,49 +81,27 @@ function ManagerBase:_prioritize_and_activate()
 	end
 )
 	local req_prio = math.huge
-	do
-		local (for generator), (for state), (for control) = ipairs(self.__active_requested)
-		do
-			do break end
-			req_prio = math.min(req_prio, self.__ao2prio[ao])
-		end
-
+	for _, ao in ipairs(self.__active_requested) do
+		req_prio = math.min(req_prio, self.__ao2prio[ao])
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self.__ao2prio)
-		do
-			do break end
-			if prio < req_prio then
-				if ao:really_active() then
-					ao:_really_deactivate()
-				end
-
-			elseif prio == req_prio then
-				if not ao:active_requested() and ao:really_active() then
-					ao:_really_deactivate()
-				end
-
-			elseif ao:really_active() then
+	for ao, prio in pairs(self.__ao2prio) do
+		if prio < req_prio then
+			if ao:really_active() then
 				ao:_really_deactivate()
 			end
-
-		end
-
-	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self.__ao2prio)
-		do
-			do break end
-			if prio == req_prio and ao:active_requested() and not ao:really_active() then
-				ao:_really_activate()
+		elseif prio == req_prio then
+			if not ao:active_requested() and ao:really_active() then
+				ao:_really_deactivate()
 			end
-
+		elseif ao:really_active() then
+			ao:_really_deactivate()
 		end
-
 	end
-
+	for ao, prio in pairs(self.__ao2prio) do
+		if prio == req_prio and ao:active_requested() and not ao:really_active() then
+			ao:_really_activate()
+		end
+	end
 	self.__really_active = table.find_all_values(self.__aos, function(ao)
 		return ao:really_active()
 	end
@@ -134,34 +112,18 @@ end
 function ManagerBase:end_update(t, dt)
 	if self.__changed then
 		local p2aos = {}
-		do
-			local (for generator), (for state), (for control) = pairs(self.__ao2prio)
-			do
-				do break end
-				p2aos[p] = p2aos[p] or {}
-				table.insert(p2aos[p], ao)
-			end
-
+		for ao, p in pairs(self.__ao2prio) do
+			p2aos[p] = p2aos[p] or {}
+			table.insert(p2aos[p], ao)
 		end
-
 		cat_print("spam", "[ManagerBase] During this frame activation states changed for manager " .. string.upper(self.__name) .. ":")
 		cat_print("spam", "[ManagerBase]   <name>           <prio> <active> <really_active>")
-		do
-			local (for generator), (for state), (for control) = ipairs(table.map_keys(p2aos))
-			do
-				do break end
-				local (for generator), (for state), (for control) = ipairs(p2aos[p])
-				do
-					do break end
-					cat_print("spam", string.format("[ManagerBase]    %-15s %5d   %-6s   %s", tostring(ao:name()), p, ao:active_requested() and "YES" or "no", ao:really_active() and "YES" or "no"))
-				end
-
+		for _, p in ipairs(table.map_keys(p2aos)) do
+			for _, ao in ipairs(p2aos[p]) do
+				cat_print("spam", string.format("[ManagerBase]    %-15s %5d   %-6s   %s", tostring(ao:name()), p, ao:active_requested() and "YES" or "no", ao:really_active() and "YES" or "no"))
 			end
-
 		end
-
 		self.__changed = false
 	end
-
 end
 

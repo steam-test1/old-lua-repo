@@ -10,9 +10,7 @@ end
 function UnitLinkCameraNode.compile_settings(xml_node, settings)
 	UnitLinkCameraNode.super.compile_settings(xml_node, settings)
 	local xml_node_children = xml_node:children()
-	local (for generator), (for state), (for control) = xml_node_children, nil, nil
-	do
-		do break end
+	for xml_child_node in xml_node_children, nil, nil do
 		if xml_child_node:name() == "link" then
 			assert(xml_child_node:has_parameter("object") and xml_child_node:has_parameter("connection"))
 			local object_str = xml_child_node:parameter("object")
@@ -36,11 +34,8 @@ function UnitLinkCameraNode.compile_settings(xml_node, settings)
 				settings.link_z = object
 				settings.link_rot = object
 			end
-
 		end
-
 	end
-
 end
 
 function UnitLinkCameraNode:set_unit(unit)
@@ -48,19 +43,15 @@ function UnitLinkCameraNode:set_unit(unit)
 	if settings.link_x then
 		self._link_x = unit:get_object(settings.link_x)
 	end
-
 	if settings.link_y then
 		self._link_y = unit:get_object(settings.link_y)
 	end
-
 	if settings.link_z then
 		self._link_z = unit:get_object(settings.link_z)
 	end
-
 	if settings.link_rot then
 		self._link_rot = unit:get_object(settings.link_rot)
 	end
-
 	self._unit = unit
 end
 
@@ -71,24 +62,19 @@ function UnitLinkCameraNode:update(t, dt, in_data, out_data)
 		if link then
 			mvector3.set_x(local_position, link:position().x)
 		end
-
 		link = self._link_y
 		if link then
 			mvector3.set_y(local_position, link:position().y)
 		end
-
 		link = self._link_z
 		if link then
 			mvector3.set_z(local_position, link:position().z)
 		end
-
 		link = self._link_rot
 		if link then
 			self._local_rotation = link:rotation()
 		end
-
 	end
-
 	UnitLinkCameraNode.super.update(self, t, dt, in_data, out_data)
 end
 

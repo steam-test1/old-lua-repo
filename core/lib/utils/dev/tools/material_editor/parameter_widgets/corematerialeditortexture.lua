@@ -29,7 +29,6 @@ function CoreMaterialEditorTexture:on_toggle_customize()
 	if self._customize then
 		self:_on_browse()
 	end
-
 end
 
 function CoreMaterialEditorTexture:on_open_texture()
@@ -44,9 +43,7 @@ function CoreMaterialEditorTexture:on_open_texture()
 		else
 			EWS:MessageDialog(self._editor._main_frame, "Could not find texture entry: " .. self._value, "Open Texture", "OK,ICON_ERROR"):show_modal()
 		end
-
 	end
-
 end
 
 function CoreMaterialEditorTexture:on_pick_global_texture()
@@ -66,7 +63,6 @@ function CoreMaterialEditorTexture:on_pick_global_texture()
 		self._editor:_update_output()
 		self:update_live()
 	end
-
 end
 
 function CoreMaterialEditorTexture:_on_browse()
@@ -80,12 +76,10 @@ function CoreMaterialEditorTexture:_on_browse()
 		if self._parameter_info.name:s() == "reflection_texture" then
 			self._node:set_parameter("type", "cubemap")
 		end
-
 		self._text:set_value(self._value)
 		self._editor:_update_output()
 		self:update_live()
 	end
-
 end
 
 return CoreMaterialEditorTexture

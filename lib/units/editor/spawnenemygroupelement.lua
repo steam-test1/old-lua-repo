@@ -25,15 +25,11 @@ function SpawnEnemyGroupUnitElement:post_init()
 			else
 				i = i + 1
 			end
-
 		end
-
 		if not next(self._hed.preferred_spawn_groups) then
 			self._hed.preferred_spawn_groups = nil
 		end
-
 	end
-
 end
 
 function SpawnEnemyGroupUnitElement:draw_links(t, dt, selected_unit, all_units)
@@ -44,9 +40,7 @@ function SpawnEnemyGroupUnitElement:update_editing()
 end
 
 function SpawnEnemyGroupUnitElement:update_selected(t, dt, selected_unit, all_units)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -58,9 +52,7 @@ function SpawnEnemyGroupUnitElement:update_selected(t, dt, selected_unit, all_un
 				b = 0
 			})
 		end
-
 	end
-
 end
 
 function SpawnEnemyGroupUnitElement:add_element()
@@ -72,21 +64,15 @@ function SpawnEnemyGroupUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function SpawnEnemyGroupUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function SpawnEnemyGroupUnitElement:add_triggers(vc)
@@ -144,39 +130,25 @@ function SpawnEnemyGroupUnitElement:_build_panel(panel, panel_sizer)
 	local opt2_sizer = EWS:BoxSizer("VERTICAL")
 	local opt3_sizer = EWS:BoxSizer("VERTICAL")
 	local opt = {}
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.group_ai.enemy_spawn_groups)
-		do
-			do break end
-			table.insert(opt, cat_name)
-		end
-
+	for cat_name, team in pairs(tweak_data.group_ai.enemy_spawn_groups) do
+		table.insert(opt, cat_name)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(opt)
-		do
-			do break end
-			local check = EWS:CheckBox(panel, o, "")
-			if self._hed.preferred_spawn_groups and table.contains(self._hed.preferred_spawn_groups, o) then
-				check:set_value(true)
-			else
-				check:set_value(false)
-			end
-
-			check:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "on_preferred_spawn_groups_checkbox_changed"), {ctrlr = check, name = o})
-			if i <= math.round(#opt / 3) then
-				opt1_sizer:add(check, 0, 0, "EXPAND")
-			elseif i <= math.round(#opt / 3) * 2 then
-				opt2_sizer:add(check, 0, 0, "EXPAND")
-			else
-				opt3_sizer:add(check, 0, 0, "EXPAND")
-			end
-
+	for i, o in ipairs(opt) do
+		local check = EWS:CheckBox(panel, o, "")
+		if self._hed.preferred_spawn_groups and table.contains(self._hed.preferred_spawn_groups, o) then
+			check:set_value(true)
+		else
+			check:set_value(false)
 		end
-
+		check:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "on_preferred_spawn_groups_checkbox_changed"), {ctrlr = check, name = o})
+		if i <= math.round(#opt / 3) then
+			opt1_sizer:add(check, 0, 0, "EXPAND")
+		elseif i <= math.round(#opt / 3) * 2 then
+			opt2_sizer:add(check, 0, 0, "EXPAND")
+		else
+			opt3_sizer:add(check, 0, 0, "EXPAND")
+		end
 	end
-
 	filter_sizer:add(opt1_sizer, 1, 0, "EXPAND")
 	filter_sizer:add(opt2_sizer, 1, 0, "EXPAND")
 	filter_sizer:add(opt3_sizer, 1, 0, "EXPAND")
@@ -190,15 +162,12 @@ function SpawnEnemyGroupUnitElement:on_preferred_spawn_groups_checkbox_changed(p
 		if table.contains(self._hed.preferred_spawn_groups, params.name) then
 			return
 		end
-
 		table.insert(self._hed.preferred_spawn_groups, params.name)
 	elseif self._hed.preferred_spawn_groups then
 		table.delete(self._hed.preferred_spawn_groups, params.name)
 		if not next(self._hed.preferred_spawn_groups) then
 			self._hed.preferred_spawn_groups = nil
 		end
-
 	end
-
 end
 

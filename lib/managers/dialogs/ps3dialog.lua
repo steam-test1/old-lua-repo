@@ -18,13 +18,10 @@ function PS3Dialog:show()
 			else
 				Application:error(string.format("[SystemMenuManager] Invalid focus button \"%g\" (it is not between 0 and 3) in dialog: %s", focus_button, self:to_string()))
 			end
-
 		end
-
 	else
 		Application:error(string.format("[SystemMenuManager] Invalid button count \"%g\" (should be between 1 and 3 buttons) in dialog: %s", #button_text_list, self:to_string()))
 	end
-
 	button_type = button_type or self.BUTTON_TYPE_LIST[1]
 	ps3_focus_button = ps3_focus_button or 0
 	local result = PS3:show_dialog(self:text(), button_type, ps3_focus_button)

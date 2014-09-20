@@ -57,23 +57,19 @@ function InstanceEventUnitElement:selected()
 	if self._instance_params then
 		CoreEws.update_combobox_options(self._instance_params, names)
 	end
-
 	if not table.contains(names, self._hed.instance) then
 		self._hed.instance = nil
 		self:_instance_changed()
 	end
-
 	if self._instance_params then
 		CoreEws.change_combobox_value(self._instance_params, self._hed.instance)
 	end
-
 end
 
 function InstanceEventUnitElement:update_selected(t, dt)
 	if self._hed.instance then
 		self:_draw_instance_link(t, dt, self._hed.instance)
 	end
-
 end
 
 function InstanceEventUnitElement:update_editing(t, dt)
@@ -81,7 +77,6 @@ function InstanceEventUnitElement:update_editing(t, dt)
 	if instance_name then
 		self:_draw_instance_link(t, dt, instance_name)
 	end
-
 end
 
 function InstanceEventUnitElement:_draw_instance_link(t, dt, instance_name)
@@ -92,7 +87,6 @@ function InstanceEventUnitElement:_draw_instance_link(t, dt, instance_name)
 	else
 		Application:draw_arrow(managers.world_instance:get_instance_data_by_name(instance_name).position, self._unit:position(), r, g, b, 0.2)
 	end
-
 end
 
 function InstanceEventUnitElement:_instance_name_raycast()
@@ -104,12 +98,10 @@ function InstanceEventUnitElement:_instance_name_raycast()
 	if not ray or not ray.unit then
 		return nil
 	end
-
 	local instance_name = ray.unit:unit_data().instance
 	if not instance_name then
 		return nil
 	end
-
 	local instance_data = managers.world_instance:get_instance_data_by_name(instance_name)
 	return instance_data.script == self._unit:mission_element_data().script and instance_name or nil
 end
@@ -127,18 +119,14 @@ function InstanceEventUnitElement:_instance_changed()
 		else
 			events = managers.world_instance:get_mission_outputs_by_name(self._hed.instance)
 		end
-
 	end
-
 	if not table.contains(events, self._hed.event) then
 		self._hed.event = events[1]
 	end
-
 	if self._event_params then
 		CoreEws.update_combobox_options(self._event_params, events)
 		CoreEws.change_combobox_value(self._event_params, self._hed.event)
 	end
-
 end
 
 function InstanceEventUnitElement:_set_instance_by_raycast()
@@ -148,7 +136,6 @@ function InstanceEventUnitElement:_set_instance_by_raycast()
 		CoreEws.change_combobox_value(self._instance_params, instance_name)
 		self:_instance_changed()
 	end
-
 end
 
 function InstanceEventUnitElement:destroy_panel(...)
@@ -222,7 +209,6 @@ function InstancePointUnitElement:update_selected(t, dt)
 	if self._hed.instance then
 		InstanceEventUnitElement._draw_instance_link(self, t, dt, self._hed.instance)
 	end
-
 end
 
 function InstancePointUnitElement:update_editing(t, dt)
@@ -230,7 +216,6 @@ function InstancePointUnitElement:update_editing(t, dt)
 	if instance_name then
 		InstanceEventUnitElement._draw_instance_link(self, t, dt, instance_name)
 	end
-
 end
 
 function InstancePointUnitElement:selected()
@@ -239,15 +224,12 @@ function InstancePointUnitElement:selected()
 	if self._instance_params then
 		CoreEws.update_combobox_options(self._instance_params, names)
 	end
-
 	if not table.contains(names, self._hed.instance) then
 		self._hed.instance = nil
 	end
-
 	if self._instance_params then
 		CoreEws.change_combobox_value(self._instance_params, self._hed.instance)
 	end
-
 end
 
 function InstancePointUnitElement:external_change_instance(instance)
@@ -260,7 +242,6 @@ function InstancePointUnitElement:_set_instance_by_raycast()
 		self._hed.instance = instance_name
 		CoreEws.change_combobox_value(self._instance_params, instance_name)
 	end
-
 end
 
 function InstancePointUnitElement:_instance_name_raycast()
@@ -272,12 +253,10 @@ function InstancePointUnitElement:_instance_name_raycast()
 	if not ray or not ray.unit then
 		return nil
 	end
-
 	local instance_name = ray.unit:unit_data().instance
 	if not instance_name then
 		return nil
 	end
-
 	local instance_data = managers.world_instance:get_instance_data_by_name(instance_name)
 	return instance_data.mission_placed and instance_data.script == self._unit:mission_element_data().script and instance_name or nil
 end
@@ -285,18 +264,11 @@ end
 function InstancePointUnitElement:_get_options()
 	local _names = managers.world_instance:instance_names_by_script(self._unit:mission_element_data().script)
 	local names = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(_names)
-		do
-			do break end
-			if managers.world_instance:get_instance_data_by_name(name).mission_placed then
-				table.insert(names, name)
-			end
-
+	for _, name in ipairs(_names) do
+		if managers.world_instance:get_instance_data_by_name(name).mission_placed then
+			table.insert(names, name)
 		end
-
 	end
-
 	return names
 end
 

@@ -55,20 +55,16 @@ if Application:ews_enabled() then
 	require("core/lib/utils/dev/tools/particle_editor/CoreParticleEditor")
 	require("core/lib/utils/dev/tools/cutscene_editor/CoreCutsceneEditor")
 end
-
 if Application:production_build() then
 	core:import("CoreDebugManager")
 	core:import("CorePrefHud")
 end
-
 if Global.DEBUG_MENU_ON or Application:production_build() then
 	core:import("CoreFreeFlight")
 end
-
 if Application:editor() then
 	require("core/lib/utils/dev/editor/CoreEditor")
 end
-
 CoreSetup = CoreSetup or class()
 local _CoreSetup = CoreSetup
 function CoreSetup:init()
@@ -149,7 +145,6 @@ function CoreSetup:quit()
 	if not Application:editor() then
 		self.__quit = true
 	end
-
 end
 
 function CoreSetup:block_exec()
@@ -190,7 +185,6 @@ function CoreSetup:__pre_init()
 		Global.application_window = appwin
 		Global.left_toolbar_sizer = left_toolbar_sizer
 	end
-
 end
 
 function CoreSetup:__init()
@@ -198,21 +192,17 @@ function CoreSetup:__init()
 	if not PackageManager:loaded("core/packages/base") then
 		PackageManager:load("core/packages/base")
 	end
-
 	if Application:ews_enabled() and not PackageManager:loaded("core/packages/editor") then
 		PackageManager:load("core/packages/editor")
 	end
-
 	if Application:production_build() and not PackageManager:loaded("core/packages/debug") then
 		PackageManager:load("core/packages/debug")
 	end
-
 	managers.global_texture = managers.global_texture or CoreGTextureManager.GTextureManager:new()
 	if not Global.__coresetup_bootdone then
 		self:start_boot_loading_screen()
 		Global.__coresetup_bootdone = true
 	end
-
 	self:load_packages()
 	World:set_raycast_bounds(Vector3(-50000, -80000, -20000), Vector3(90000, 50000, 30000))
 	World:load((not Application:editor() or not "core/levels/editor/editor") and "core/levels/zone", false)
@@ -228,17 +218,14 @@ function CoreSetup:__init()
 		if aspect_ratio == 0 then
 			aspect_ratio = RenderSettings.resolution.x / RenderSettings.resolution.y
 		end
-
 	elseif SystemInfo:platform() == Idstring("X360") or SystemInfo:platform() == Idstring("PS3") and SystemInfo:widescreen() then
 		aspect_ratio = RenderSettings.resolution.x / RenderSettings.resolution.y
 	else
 		aspect_ratio = RenderSettings.resolution.x / RenderSettings.resolution.y
 	end
-
 	if Application:ews_enabled() then
 		managers.database = CoreDatabaseManager.DatabaseManager:new()
 	end
-
 	managers.localization = CoreLocalizationManager.LocalizationManager:new()
 	managers.controller = CoreControllerManager.ControllerManager:new()
 	managers.slot = CoreSlotManager.SlotManager:new()
@@ -272,7 +259,6 @@ function CoreSetup:__init()
 		managers.debug = CoreDebugManager.DebugManager:new()
 		rawset(_G, "d", managers.debug)
 	end
-
 	self:init_managers(managers)
 	if Application:ews_enabled() then
 		managers.news = CoreNewsReportManager.NewsReportManager:new()
@@ -286,27 +272,22 @@ function CoreSetup:__init()
 		if not Application:editor() then
 			managers.toolhub:add("Unit Reloader", CoreUnitReloader)
 		end
-
 		self:init_toolhub(managers.toolhub)
 		managers.toolhub:buildmenu()
 	end
-
 	self.__gsm = assert(self:init_game(), "self:init_game must return a GameStateMachine.")
 	if Global.DEBUG_MENU_ON or Application:production_build() then
 		self.__freeflight = CoreFreeFlight.FreeFlight:new(self.__gsm, managers.viewport, managers.controller)
 	end
-
 	if Application:editor() then
 		managers.editor = rawget(_G, "WorldEditor") or rawget(_G, "CoreEditor"):new(self.__gsm, self._session:session())
 		managers.editor:toggle()
 	end
-
 	managers.cutscene:post_init()
 	self._smoketest:post_init()
 	if not Application:editor() then
 		PackageManager:unload_lua()
 	end
-
 	self:init_finalize()
 end
 
@@ -322,16 +303,13 @@ function CoreSetup:__destroy()
 	if Application:ews_enabled() then
 		managers.toolhub:destroy()
 	end
-
 	if Application:production_build() then
 		managers.prefhud:destroy()
 		managers.debug:destroy()
 	end
-
 	if Application:editor() then
 		managers.editor:destroy()
 	end
-
 	self._session:destroy()
 	self._input:destroy()
 	self._smoketest:destroy()
@@ -345,7 +323,6 @@ function CoreSetup:__update(t, dt)
 		self:stop_loading_screen()
 		self.__firstupdate = false
 	end
-
 	managers.controller:update(t, dt)
 	managers.cutscene:update()
 	managers.sequence:update(t, dt)
@@ -368,19 +345,15 @@ function CoreSetup:__update(t, dt)
 		managers.prefhud:update(t, dt)
 		managers.debug:update(TimerManager:wall():time(), TimerManager:wall():delta_time())
 	end
-
 	if Global.DEBUG_MENU_ON or Application:production_build() then
 		self.__freeflight:update(t, dt)
 	end
-
 	if Application:ews_enabled() then
 		managers.toolhub:update(t, dt)
 	end
-
 	if Application:editor() then
 		managers.editor:update(t, dt)
 	end
-
 	self:update(t, dt)
 end
 
@@ -397,19 +370,15 @@ function CoreSetup:__paused_update(t, dt)
 	if Application:production_build() then
 		managers.debug:paused_update(TimerManager:wall():time(), TimerManager:wall():delta_time())
 	end
-
 	if Global.DEBUG_MENU_ON or Application:production_build() then
 		self.__freeflight:update(t, dt)
 	end
-
 	if Application:ews_enabled() then
 		managers.toolhub:paused_update(t, dt)
 	end
-
 	if Application:editor() then
 		managers.editor:update(t, dt)
 	end
-
 	self:paused_update(t, dt)
 end
 
@@ -424,7 +393,6 @@ function CoreSetup:__end_update(t, dt)
 	if Application:ews_enabled() then
 		managers.toolhub:end_update(t, dt)
 	end
-
 end
 
 function CoreSetup:__paused_end_update(t, dt)
@@ -447,44 +415,35 @@ function CoreSetup:__end_frame(t, dt)
 		if not self:block_quit() then
 			CoreEngineAccess._quit()
 		end
-
 	elseif self.__exec and not self:block_exec() then
 		if managers.network and managers.network:session() then
 			managers.network:save()
 		end
-
 		if managers.mission then
 			managers.mission:destroy()
 		end
-
 		if managers.menu_scene then
 			managers.menu_scene:pre_unload()
 		end
-
 		World:unload_all_units()
 		if managers.menu_scene then
 			managers.menu_scene:unload()
 		end
-
 		if managers.blackmarket then
 			managers.blackmarket:release_preloaded_blueprints()
 		end
-
 		if managers.dyn_resource and not managers.dyn_resource:is_ready_to_close() then
 			Application:cleanup_thread_garbage()
 			managers.dyn_resource:update()
 		end
-
 		if managers.sound_environment then
 			managers.sound_environment:destroy()
 		end
-
 		self:start_loading_screen()
 		managers.dyn_resource:set_file_streaming_chunk_size_mul(0.1, 10)
 		if managers.worlddefinition then
 			managers.worlddefinition:unload_packages()
 		end
-
 		self:unload_packages()
 		managers.menu:destroy()
 		Overlay:newgui():destroy_all_workspaces()
@@ -492,7 +451,6 @@ function CoreSetup:__end_frame(t, dt)
 		PackageManager:reload_lua()
 		CoreEngineAccess._exec("core/lib/CoreEntry", self.__context)
 	end
-
 end
 
 function CoreSetup:__loading_update(t, dt)
@@ -511,21 +469,18 @@ function CoreSetup:__entering_window(user_data, event_object)
 		Global.application_window:set_focus()
 		Input:keyboard():acquire()
 	end
-
 end
 
 function CoreSetup:__leaving_window(user_data, event_object)
 	if managers.editor._in_mixed_input_mode then
 		Input:keyboard():unacquire()
 	end
-
 end
 
 function CoreSetup:__kill_focus(user_data, event_object)
 	if managers.editor and not managers.editor:in_mixed_input_mode() and not Global.running_simulation then
 		managers.editor:set_in_mixed_input_mode(true)
 	end
-
 end
 
 function CoreSetup:__save(data)
@@ -558,7 +513,6 @@ function CoreSetup:make_entrypoint()
 		assert(nil == rawget(_G, "load"))
 		_G.CoreSetup.__entrypoint_is_setup = true
 	end
-
 	rawset(_G, "pre_init", callback(self, self, "__pre_init"))
 	rawset(_G, "init", callback(self, self, "__init"))
 	rawset(_G, "destroy", callback(self, self, "__destroy"))

@@ -17,7 +17,6 @@ function MenuNodePrePlanningGui:init(node, layer, parameters)
 		parameters.row_item_disabled_text_color = tweak_data.screen_colors.important_1
 		self.marker_disabled_color = tweak_data.screen_colors.important_1:with_alpha(0.2)
 	end
-
 	MenuNodePrePlanningGui.super.init(self, node, layer, parameters)
 end
 
@@ -34,7 +33,6 @@ function MenuNodePrePlanningGui:setup()
 			clbk = callback(MenuCallbackHandler, MenuCallbackHandler, "menu_back")
 		})
 	end
-
 end
 
 function MenuNodePrePlanningGui:_setup_item_panel_parent(safe_rect, shape)
@@ -66,7 +64,6 @@ function MenuNodePrePlanningGui:_setup_item_panel(safe_rect, res)
 		self.item_panel:parent():remove(self.box_panel)
 		self.box_panel = nil
 	end
-
 	local box_h = math.min(self._item_panel_parent:h(), self.item_panel:h())
 	self.box_panel = self.item_panel:parent():panel()
 	self.box_panel:set_x(self.item_panel:x())
@@ -105,7 +102,6 @@ function MenuNodePrePlanningGui:_setup_item_panel(safe_rect, res)
 		self._icon_panel:parent():remove(self._icon_panel)
 		self._icon_panel = nil
 	end
-
 	self._icon_panel = self._item_panel_parent:panel({name = "icons"})
 	self._align_data.panel:set_left(self.box_panel:left())
 	self:_create_tooltip()
@@ -123,7 +119,6 @@ function MenuNodePrePlanningGui:_setup_item_panel(safe_rect, res)
 		self._list_arrows.down:set_world_left(self._align_data.panel:world_left())
 		self._list_arrows.down:set_world_bottom(self._align_data.panel:world_bottom())
 	end
-
 end
 
 function MenuNodePrePlanningGui:_set_topic_position()
@@ -140,22 +135,16 @@ function MenuNodePrePlanningGui:scroll_update(dt)
 		local top = self._item_panel_parent:world_top()
 		local bottom = self._item_panel_parent:world_bottom()
 		local row_item_top, row_item_bottom
-		local (for generator), (for state), (for control) = ipairs(self.row_items)
-		do
-			do break end
+		for i, row_item in ipairs(self.row_items) do
 			if row_item and row_item.gui_panel then
 				row_item_top = row_item.gui_panel:world_top()
 				row_item_bottom = row_item.gui_panel:world_bottom()
 				if top > row_item_top and top < row_item_bottom or not (bottom > row_item_top) or bottom < row_item_bottom then
 				end
-
 			else
 			end
-
 		end
-
 	end
-
 	return scrolled
 end
 
@@ -164,7 +153,6 @@ function MenuNodePrePlanningGui:_create_tooltip()
 		self._tooltip:parent():remove(self._tooltip)
 		self._tooltip = nil
 	end
-
 	self._tooltip = self.ws:panel():panel({
 		layer = self.layers.items
 	})
@@ -270,10 +258,8 @@ function MenuNodePrePlanningGui:_update_tooltip(item)
 		if alive(self._tooltip) then
 			self._tooltip:hide()
 		end
-
 		return
 	end
-
 	local row_item = self:row_item(item)
 	if row_item and alive(self._tooltip) then
 		local tooltip = item:parameters().tooltip
@@ -291,7 +277,6 @@ function MenuNodePrePlanningGui:_update_tooltip(item)
 			else
 				icon:set_image(tooltip.texture)
 			end
-
 			description:set_text(tooltip.desc)
 			description:set_kern(description:kern())
 			local x, y, w, h = description:text_rect()
@@ -300,7 +285,6 @@ function MenuNodePrePlanningGui:_update_tooltip(item)
 			if tooltip.errors and tooltip.errors[1] then
 				text = text .. tooltip.errors[1]
 			end
-
 			error_text:set_top(description:bottom() + 5)
 			error_text:set_text(text)
 			error_text:set_kern(description:kern())
@@ -320,16 +304,13 @@ function MenuNodePrePlanningGui:_update_tooltip(item)
 		else
 			self._tooltip:hide()
 		end
-
 	end
-
 end
 
 function MenuNodePrePlanningGui:_align_marker(row_item)
 	if self.marker_color then
 		self._marker_data.gradient:set_color(row_item.item:enabled() and self.marker_color or self.marker_disabled_color or row_item.disabled_color)
 	end
-
 	self._marker_data.marker:show()
 	self._marker_data.marker:set_width(self:_scaled_size().width - self._marker_data.marker:left())
 	self._marker_data.marker:set_height(64 * row_item.gui_panel:height() / 32)
@@ -342,19 +323,14 @@ function MenuNodePrePlanningGui:_align_marker(row_item)
 	if self._marker_data.back_marker then
 		self._marker_data.back_marker:set_visible(false)
 	end
-
 end
 
 function MenuNodePrePlanningGui:_rec_round_object(object)
 	if object.children then
-		local (for generator), (for state), (for control) = ipairs(object:children())
-		do
-			do break end
+		for i, d in ipairs(object:children()) do
 			self:_rec_round_object(d)
 		end
-
 	end
-
 	local x, y = object:position()
 	object:set_position(math.round(x), math.round(y))
 end
@@ -366,7 +342,6 @@ function MenuNodePrePlanningGui:reload_item(item)
 		row_item.gui_panel:set_halign("right")
 		row_item.gui_panel:set_right(self.item_panel:w())
 	end
-
 end
 
 function MenuNodePrePlanningGui:highlight_item(item, mouse_over)
@@ -376,13 +351,11 @@ function MenuNodePrePlanningGui:highlight_item(item, mouse_over)
 	if not managers.menu:is_pc_controller() then
 		managers.menu_component:set_preplanning_map_position_to_item(item)
 	end
-
 end
 
 function MenuNodePrePlanningGui:trigger_item(item)
 	if not item or item:enabled() then
 	end
-
 end
 
 function MenuNodePrePlanningGui:_fade_row_item(row_item)
@@ -390,7 +363,6 @@ function MenuNodePrePlanningGui:_fade_row_item(row_item)
 	if row_item.icon then
 		row_item.icon:set_left(-2)
 	end
-
 end
 
 function MenuNodePrePlanningGui:_highlight_row_item(row_item, mouse_over)
@@ -398,7 +370,6 @@ function MenuNodePrePlanningGui:_highlight_row_item(row_item, mouse_over)
 	if row_item.icon then
 		row_item.icon:set_left(-2)
 	end
-
 end
 
 function MenuNodePrePlanningGui:refresh_gui(node)
@@ -411,9 +382,7 @@ function MenuNodePrePlanningGui:_set_item_positions()
 	local my_peer_id = managers.network:session():local_peer():id()
 	local node_params = self.node:parameters()
 	local item, icon, texture_rect, texture, texture_color, tooltip, reserved_data
-	local (for generator), (for state), (for control) = pairs(self.row_items)
-	do
-		do break end
+	for i, row_item in pairs(self.row_items) do
 		item = row_item.item
 		if item then
 			tooltip = item:parameters().tooltip
@@ -441,7 +410,6 @@ function MenuNodePrePlanningGui:_set_item_positions()
 							row_item.color = tweak_data.screen_colors.text
 							row_item.gui_panel:set_color(row_item.color)
 						end
-
 						local peer_marker = self._icon_panel:rect({
 							color = tooltip.menu_color or Color.white,
 							blend_mode = "add",
@@ -453,47 +421,36 @@ function MenuNodePrePlanningGui:_set_item_positions()
 						peer_marker:set_world_center_y(row_item.gui_panel:world_center_y())
 						peer_marker:set_world_right(row_item.gui_panel:world_right())
 					end
-
 				end
-
 			end
-
 			local votes = item:parameters().votes
 			if votes and row_item.gui_panel then
 				local new_icon, prev_icon
 				local num_votes = 0
-				do
-					local (for generator), (for state), (for control) = pairs(votes.players)
-					do
-						do break end
-						if voted then
-							new_icon = self._icon_panel:bitmap({
-								texture = "guis/dlcs/big_bank/textures/pd2/pre_planning/preplan_voting",
-								texture_rect = {
-									0,
-									0,
-									24,
-									24
-								},
-								w = row_item.gui_panel:h(),
-								h = row_item.gui_panel:h(),
-								blend_mode = "add",
-								color = tweak_data.chat_colors[peer_id],
-								layer = self.layers.items
-							})
-							if not prev_icon or not (prev_icon:world_left() - 2) then
-							end
-
-							new_icon:set_world_right(row_item.gui_panel:world_right() - 2)
-							new_icon:set_world_center_y(row_item.gui_panel:world_center_y())
-							num_votes = num_votes + 1
-							prev_icon = new_icon
+				for peer_id, voted in pairs(votes.players) do
+					if voted then
+						new_icon = self._icon_panel:bitmap({
+							texture = "guis/dlcs/big_bank/textures/pd2/pre_planning/preplan_voting",
+							texture_rect = {
+								0,
+								0,
+								24,
+								24
+							},
+							w = row_item.gui_panel:h(),
+							h = row_item.gui_panel:h(),
+							blend_mode = "add",
+							color = tweak_data.chat_colors[peer_id],
+							layer = self.layers.items
+						})
+						if not prev_icon or not (prev_icon:world_left() - 2) then
 						end
-
+						new_icon:set_world_right(row_item.gui_panel:world_right() - 2)
+						new_icon:set_world_center_y(row_item.gui_panel:world_center_y())
+						num_votes = num_votes + 1
+						prev_icon = new_icon
 					end
-
 				end
-
 				for i = 1, managers.criminals.get_num_characters() - num_votes do
 					new_icon = self._icon_panel:bitmap({
 						texture = "guis/dlcs/big_bank/textures/pd2/pre_planning/preplan_voting",
@@ -510,18 +467,13 @@ function MenuNodePrePlanningGui:_set_item_positions()
 					})
 					if not prev_icon or not (prev_icon:world_left() - 2) then
 					end
-
 					new_icon:set_world_right(row_item.gui_panel:world_right() - 2)
 					new_icon:set_world_center_y(row_item.gui_panel:world_center_y())
 					prev_icon = new_icon
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function MenuNodePrePlanningGui:test_clbk(...)
@@ -537,29 +489,22 @@ end
 
 function MenuNodePrePlanningGui:mouse_pressed(button, x, y)
 	if button == Idstring("0") or button == Idstring("1") then
-		local (for generator), (for state), (for control) = pairs(self.row_items)
-		do
-			do break end
+		for _, row_item in pairs(self.row_items) do
 			if row_item.gui_panel and row_item.gui_panel:inside(x, y) and self._item_panel_parent:inside(x, y) and row_item.type ~= "divider" then
 				managers.menu_component:set_preplanning_map_position_to_item(row_item.item)
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 	if MenuNodePrePlanningGui.super.mouse_pressed(self, button, x, y) then
 		return true
 	end
-
 end
 
 function MenuNodePrePlanningGui:mouse_released(button, x, y)
 	if MenuNodePrePlanningGui.super.mouse_released(self, button, x, y) then
 		return true
 	end
-
 end
 
 function MenuNodePrePlanningGui:confirm_pressed()

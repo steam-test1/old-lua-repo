@@ -10,15 +10,9 @@ function AwardAchievmentElement:_build_panel(panel, panel_sizer)
 	panel = panel or self._panel
 	panel_sizer = panel_sizer or self._panel_sizer
 	local achievment_list = {}
-	do
-		local (for generator), (for state), (for control) = pairs(managers.achievment.achievments)
-		do
-			do break end
-			table.insert(achievment_list, ach)
-		end
-
+	for ach, _ in pairs(managers.achievment.achievments) do
+		table.insert(achievment_list, ach)
 	end
-
 	local achievment_params = {
 		name = "Achievment:",
 		panel = panel,

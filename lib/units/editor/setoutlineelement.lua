@@ -28,9 +28,7 @@ function SetOutlineElement:update_editing()
 end
 
 function SetOutlineElement:update_selected(t, dt, selected_unit, all_units)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -42,9 +40,7 @@ function SetOutlineElement:update_selected(t, dt, selected_unit, all_units)
 				b = 1
 			})
 		end
-
 	end
-
 end
 
 function SetOutlineElement:add_element()
@@ -56,21 +52,15 @@ function SetOutlineElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function SetOutlineElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function SetOutlineElement:add_triggers(vc)

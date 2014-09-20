@@ -24,30 +24,22 @@ function CoreUnitSequenceTriggerUnitElement:layer_finished()
 			sequence = self._hed.sequence
 		})
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._hed.sequence_list)
-	do
-		do break end
+	for _, data in pairs(self._hed.sequence_list) do
 		local unit = managers.worlddefinition:get_unit_on_load(data.unit_id, callback(self, self, "load_unit"))
 		if unit then
 			self._sequence_units[unit:unit_data().unit_id] = unit
 		end
-
 	end
-
 end
 
 function CoreUnitSequenceTriggerUnitElement:load_unit(unit)
 	if unit then
 		self._sequence_units[unit:unit_data().unit_id] = unit
 	end
-
 end
 
 function CoreUnitSequenceTriggerUnitElement:update_selected()
-	local (for generator), (for state), (for control) = pairs(self._sequence_units)
-	do
-		do break end
+	for id, unit in pairs(self._sequence_units) do
 		if not alive(unit) then
 			self:_remove_by_unit_id(id)
 			self._sequence_units[id] = nil
@@ -62,9 +54,7 @@ function CoreUnitSequenceTriggerUnitElement:update_selected()
 			self:_draw_link(params)
 			Application:draw(unit, 0, 0, 1)
 		end
-
 	end
-
 end
 
 function CoreUnitSequenceTriggerUnitElement:update_unselected(t, dt, selected_unit, all_units)
@@ -72,23 +62,17 @@ function CoreUnitSequenceTriggerUnitElement:update_unselected(t, dt, selected_un
 end
 
 function CoreUnitSequenceTriggerUnitElement:_check_alive_units()
-	local (for generator), (for state), (for control) = pairs(self._sequence_units)
-	do
-		do break end
+	for id, unit in pairs(self._sequence_units) do
 		if not alive(unit) then
 			self:_remove_by_unit_id(id)
 			self._sequence_units[id] = nil
 		end
-
 	end
-
 end
 
 function CoreUnitSequenceTriggerUnitElement:draw_links_unselected(...)
 	CoreUnitSequenceTriggerUnitElement.super.draw_links_unselected(self, ...)
-	local (for generator), (for state), (for control) = pairs(self._sequence_units)
-	do
-		do break end
+	for id, unit in pairs(self._sequence_units) do
 		local params = {
 			from_unit = unit,
 			to_unit = self._unit,
@@ -99,7 +83,6 @@ function CoreUnitSequenceTriggerUnitElement:draw_links_unselected(...)
 		self:_draw_link(params)
 		Application:draw(unit, 0, 0, 0.5)
 	end
-
 end
 
 function CoreUnitSequenceTriggerUnitElement:update_editing()
@@ -113,9 +96,7 @@ function CoreUnitSequenceTriggerUnitElement:update_editing()
 		if #sequences > 0 then
 			Application:draw(ray.unit, 0, 1, 0)
 		end
-
 	end
-
 end
 
 function CoreUnitSequenceTriggerUnitElement:select_unit()
@@ -127,7 +108,6 @@ function CoreUnitSequenceTriggerUnitElement:select_unit()
 	if ray and ray.unit then
 		self:_check_add_unit(ray.unit)
 	end
-
 end
 
 function CoreUnitSequenceTriggerUnitElement:_check_add_unit(unit)
@@ -141,7 +121,6 @@ function CoreUnitSequenceTriggerUnitElement:_check_add_unit(unit)
 		table.insert(self._hed.sequence_list, sequence_list_data)
 		self:_add_unit(unit, sequences, sequence_list_data)
 	end
-
 end
 
 function CoreUnitSequenceTriggerUnitElement:add_triggers(vc)
@@ -153,18 +132,14 @@ function CoreUnitSequenceTriggerUnitElement:select_unit_list_btn()
 		if not managers.editor:layer("Statics"):category_map()[unit:type():s()] then
 			return false
 		end
-
 		local sequences = managers.sequence:get_sequence_list(unit:name())
 		return #sequences > 0
 	end
 
 	local dialog = SelectUnitByNameModal:new("Select Unit", f)
-	local (for generator), (for state), (for control) = ipairs(dialog:selected_units())
-	do
-		do break end
+	for _, unit in ipairs(dialog:selected_units()) do
 		self:_check_add_unit(unit)
 	end
-
 end
 
 function CoreUnitSequenceTriggerUnitElement:_build_panel(panel, panel_sizer)
@@ -177,9 +152,7 @@ function CoreUnitSequenceTriggerUnitElement:_build_panel(panel, panel_sizer)
 	self._btn_toolbar:connect("SELECT_UNIT_LIST", "EVT_COMMAND_MENU_SELECTED", callback(self, self, "select_unit_list_btn"), nil)
 	self._btn_toolbar:realize()
 	panel_sizer:add(self._btn_toolbar, 0, 1, "EXPAND,LEFT")
-	local (for generator), (for state), (for control) = pairs(clone(self._hed.sequence_list))
-	do
-		do break end
+	for _, data in pairs(clone(self._hed.sequence_list)) do
 		local unit = self._sequence_units[data.unit_id]
 		if not alive(unit) then
 			self:_remove_by_unit_id(data.unit_id)
@@ -187,46 +160,24 @@ function CoreUnitSequenceTriggerUnitElement:_build_panel(panel, panel_sizer)
 			local sequences = managers.sequence:get_sequence_list(unit:name())
 			self:_add_unit(unit, sequences, data)
 		end
-
 	end
-
 end
 
 function CoreUnitSequenceTriggerUnitElement:_remove_by_unit_id(unit_id)
 	local remove_entries = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._guis)
-		do
-			do break end
-			if entry.unit_id == unit_id then
-				table.insert(remove_entries, id)
-			end
-
+	for id, entry in pairs(self._guis) do
+		if entry.unit_id == unit_id then
+			table.insert(remove_entries, id)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(remove_entries)
-		do
-			do break end
-			self:remove_entry(id)
+	for _, id in ipairs(remove_entries) do
+		self:remove_entry(id)
+	end
+	for i, data in ipairs(clone(self._hed.sequence_list)) do
+		if data.unit_id == unit_id then
+			table.remove(self._hed.sequence_list, i)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(clone(self._hed.sequence_list))
-		do
-			do break end
-			if data.unit_id == unit_id then
-				table.remove(self._hed.sequence_list, i)
-			end
-
-		end
-
-	end
-
 	self:_remove_from_sequence_list(unit_id)
 end
 
@@ -238,43 +189,25 @@ function CoreUnitSequenceTriggerUnitElement:remove_entry(id)
 	self._guis[id].toolbar:destroy()
 	self._guis[id] = nil
 	self._panel:layout()
-	do
-		local (for generator), (for state), (for control) = pairs(clone(self._hed.sequence_list))
-		do
-			do break end
-			if entry.guis_id == id then
-				table.remove(self._hed.sequence_list, i)
-			end
-
+	for i, entry in pairs(clone(self._hed.sequence_list)) do
+		if entry.guis_id == id then
+			table.remove(self._hed.sequence_list, i)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._guis)
-		do
-			do break end
-			if guis.unit_id == unit_id then
-				return
-			end
-
+	for _, guis in pairs(self._guis) do
+		if guis.unit_id == unit_id then
+			return
 		end
-
 	end
-
 	self._sequence_units[unit_id] = nil
 end
 
 function CoreUnitSequenceTriggerUnitElement:_remove_from_sequence_list(unit_id)
-	local (for generator), (for state), (for control) = pairs(clone(self._hed.sequence_list))
-	do
-		do break end
+	for i, entry in pairs(clone(self._hed.sequence_list)) do
 		if entry.unit_id == unit_id then
 			table.insert(self._hed.sequence_list, i)
 		end
-
 	end
-
 end
 
 function CoreUnitSequenceTriggerUnitElement:_add_unit(unit, sequences, sequence_list_data)
@@ -321,15 +254,11 @@ end
 
 function CoreUnitSequenceTriggerUnitElement:set_sequence_data(guis_id)
 	local sequence = self._guis[guis_id].sequence:get_value()
-	local (for generator), (for state), (for control) = pairs(self._hed.sequence_list)
-	do
-		do break end
+	for i, entry in pairs(self._hed.sequence_list) do
 		if entry.guis_id == guis_id then
 			entry.sequence = sequence
+		else
+		end
 	end
-
-	else
-	end
-
 end
 

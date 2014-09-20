@@ -9,7 +9,6 @@ function SelectUserDialog:done_callback()
 	if self._data.callback_func then
 		self._data.callback_func()
 	end
-
 	self:fade_out_close()
 end
 

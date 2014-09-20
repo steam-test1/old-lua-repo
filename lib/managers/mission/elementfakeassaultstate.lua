@@ -12,7 +12,6 @@ function ElementFakeAssaultState:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	managers.groupai:state():set_fake_assault_mode(self._values.state)
 	ElementFakeAssaultState.super.on_executed(self, instigator)
 end

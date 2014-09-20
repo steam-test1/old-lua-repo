@@ -20,7 +20,6 @@ end
 function HuskPlayerDamage:sync_damage_bullet(attacker_unit, damage, i_body, height_offset)
 	if not attacker_unit or not (attacker_unit:movement():m_pos() - self._unit:movement():m_pos()) then
 	end
-
 	local attack_data = {
 		attacker_unit = attacker_unit,
 		attack_dir = Vector3(1, 0, 0),

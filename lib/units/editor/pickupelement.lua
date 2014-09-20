@@ -9,15 +9,9 @@ end
 
 function PickupUnitElement.get_options()
 	local pickups = {}
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.pickups)
-		do
-			do break end
-			table.insert(pickups, name)
-		end
-
+	for name, _ in pairs(tweak_data.pickups) do
+		table.insert(pickups, name)
 	end
-
 	return pickups
 end
 

@@ -17,15 +17,12 @@ function TeamAILogicIdle.enter(data, new_logic_name, enter_params)
 			my_data.best_cover = old_internal_data.best_cover
 			managers.navigation:reserve_cover(my_data.best_cover[1], data.pos_rsrv_id)
 		end
-
 		if old_internal_data.nearest_cover then
 			my_data.nearest_cover = old_internal_data.nearest_cover
 			managers.navigation:reserve_cover(my_data.nearest_cover[1], data.pos_rsrv_id)
 		end
-
 		my_data.attention_unit = old_internal_data.attention_unit
 	end
-
 	data.internal_data = my_data
 	local key_str = tostring(data.key)
 	my_data.detection_task_key = "TeamAILogicIdle._upd_enemy_detection" .. key_str
@@ -34,14 +31,12 @@ function TeamAILogicIdle.enter(data, new_logic_name, enter_params)
 		my_data.cover_update_task_key = "CopLogicIdle._update_cover" .. key_str
 		CopLogicBase.add_delayed_clbk(my_data, my_data.cover_update_task_key, callback(CopLogicTravel, CopLogicTravel, "_update_cover", data), data.t + 1)
 	end
-
 	my_data.stare_path_search_id = "stare" .. key_str
 	my_data.relocate_chk_t = 0
 	CopLogicBase._reset_attention(data)
 	if data.unit:movement():stance_name() == "cbt" then
 		data.unit:movement():set_stance("hos")
 	end
-
 	data.unit:movement():set_allow_fire(false)
 	local objective = data.objective
 	local entry_action = enter_params and enter_params.action
@@ -50,7 +45,6 @@ function TeamAILogicIdle.enter(data, new_logic_name, enter_params)
 			if objective.action_start_clbk then
 				objective.action_start_clbk(data.unit)
 			end
-
 			local success
 			local revive_unit = objective.follow_unit
 			if revive_unit:interaction() then
@@ -58,18 +52,15 @@ function TeamAILogicIdle.enter(data, new_logic_name, enter_params)
 					revive_unit:interaction():interact_start(data.unit)
 					success = true
 				end
-
 			elseif revive_unit:character_damage():arrested() then
 				if data.unit:brain():action_request(objective.action) then
 					revive_unit:character_damage():pause_arrested_timer()
 					success = true
 				end
-
 			elseif revive_unit:character_damage():need_revive() and data.unit:brain():action_request(objective.action) then
 				revive_unit:character_damage():pause_downed_timer()
 				success = true
 			end
-
 			if success then
 				my_data.performing_act_objective = objective
 				my_data.reviving = revive_unit
@@ -85,47 +76,36 @@ function TeamAILogicIdle.enter(data, new_logic_name, enter_params)
 					elseif downed_time <= tweak_data.player.damage.DOWNED_TIME / 2 + tweak_data.player.damage.DOWNED_TIME_DEC then
 						suffix = "b"
 					end
-
 					data.unit:sound():say("s09" .. suffix, true)
 				end
-
 			else
 				data.unit:brain():set_objective()
 				return
 			end
-
 		else
 			if objective.action_duration then
 				my_data.action_timeout_clbk_id = "TeamAILogicIdle_action_timeout" .. key_str
 				local action_timeout_t = data.t + objective.action_duration
 				CopLogicBase.add_delayed_clbk(my_data, my_data.action_timeout_clbk_id, callback(CopLogicIdle, CopLogicIdle, "clbk_action_timeout", data), action_timeout_t)
 			end
-
 			if objective.type == "act" then
 				if data.unit:brain():action_request(objective.action) then
 					my_data.acting = true
 				end
-
 				my_data.performing_act_objective = objective
 				if objective.action_start_clbk then
 					objective.action_start_clbk(data.unit)
 				end
-
 			end
-
 		end
-
 		if objective.scan then
 			my_data.scan = true
 			if not my_data.acting then
 				my_data.wall_stare_task_key = "CopLogicIdle._chk_stare_into_wall" .. tostring(data.key)
 				CopLogicBase.queue_task(my_data, my_data.wall_stare_task_key, CopLogicIdle._chk_stare_into_wall_1, data, data.t)
 			end
-
 		end
-
 	end
-
 end
 
 function TeamAILogicIdle.exit(data, new_logic_name, enter_params)
@@ -141,9 +121,7 @@ function TeamAILogicIdle.exit(data, new_logic_name, enter_params)
 			elseif revive_unit:character_damage():need_revive() then
 				revive_unit:character_damage():unpause_downed_timer()
 			end
-
 		end
-
 		my_data.performing_act_objective = nil
 		local crouch_action = {
 			type = "act",
@@ -159,18 +137,15 @@ function TeamAILogicIdle.exit(data, new_logic_name, enter_params)
 		}
 		data.unit:movement():action_request(crouch_action)
 	end
-
 	data.unit:brain():cancel_all_pathing_searches()
 	CopLogicBase.cancel_queued_tasks(my_data)
 	CopLogicBase.cancel_delayed_clbks(my_data)
 	if my_data.best_cover then
 		managers.navigation:release_cover(my_data.best_cover[1])
 	end
-
 	if my_data.nearest_cover then
 		managers.navigation:release_cover(my_data.nearest_cover[1])
 	end
-
 	data.brain:rem_pos_rsrv("path")
 end
 
@@ -186,18 +161,14 @@ function TeamAILogicIdle.update(data)
 					objective.in_place = nil
 					TeamAILogicBase._exit(data.unit, "travel")
 				end
-
 			elseif objective.type == "revive" then
 				objective.in_place = nil
 				TeamAILogicBase._exit(data.unit, "travel")
 			end
-
 		end
-
 	elseif not data.path_fail_t or data.t - data.path_fail_t > 6 then
 		managers.groupai:state():on_criminal_jobless(data.unit)
 	end
-
 end
 
 function TeamAILogicIdle.on_detected_enemy_destroyed(data, enemy_unit)
@@ -229,9 +200,7 @@ function TeamAILogicIdle.damage_clbk(data, damage_info)
 				if enemy_data.settings.notice_clbk then
 					enemy_data.settings.notice_clbk(data.unit, true)
 				end
-
 			end
-
 		else
 			local attention_info = managers.groupai:state():get_AI_attention_objects_by_filter(data.SO_access_str)[attacker_key]
 			if attention_info then
@@ -249,20 +218,14 @@ function TeamAILogicIdle.damage_clbk(data, damage_info)
 					if enemy_data.settings.notice_clbk then
 						enemy_data.settings.notice_clbk(data.unit, true)
 					end
-
 					data.detected_attention_objects[attacker_key] = enemy_data
 				end
-
 			end
-
 		end
-
 	end
-
 	if (damage_info.result.type == "bleedout" or damage_info.result.type == "fatal" or damage_info.variant == "tase") and data.name ~= "disabled" then
 		CopLogicBase._exit(data.unit, "disabled")
 	end
-
 end
 
 function TeamAILogicIdle.on_objective_unit_damaged(data, unit, attacker_unit)
@@ -275,7 +238,6 @@ function TeamAILogicIdle.on_objective_unit_damaged(data, unit, attacker_unit)
 			attacker_unit
 		})
 	end
-
 end
 
 function TeamAILogicIdle.on_alert(data, alert_data)
@@ -286,9 +248,7 @@ function TeamAILogicIdle.on_alert(data, alert_data)
 		if att_obj_data and (alert_type == "bullet" or alert_type == "aggression" or alert_type == "explosion") then
 			att_obj_data.alert_t = TimerManager:game():time()
 		end
-
 	end
-
 end
 
 function TeamAILogicIdle.on_long_dis_interacted(data, other_unit)
@@ -303,7 +263,6 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit)
 		else
 			objective_type = "follow"
 		end
-
 	elseif other_unit:movement():need_revive() then
 		objective_type = "revive"
 		if other_unit:movement():current_state_name() == "arrested" then
@@ -311,11 +270,9 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit)
 		else
 			objective_action = "revive"
 		end
-
 	else
 		objective_type = "follow"
 	end
-
 	local objective
 	if objective_type == "follow" then
 		objective = {
@@ -369,7 +326,6 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit)
 		}
 		data.unit:sound():say("r02a_sin", true)
 	end
-
 	data.unit:brain():set_objective(objective)
 end
 
@@ -384,28 +340,22 @@ function TeamAILogicIdle.on_new_objective(data, old_objective)
 			else
 				CopLogicBase._exit(data.unit, "idle")
 			end
-
 		else
 			CopLogicBase._exit(data.unit, "idle")
 		end
-
 	else
 		debug_pause("[TeamAILogicIdle.on_new_objective] Already exiting", data.name, data.unit, old_objective and inspect(old_objective), new_objective and inspect(new_objective))
 	end
-
 	if new_objective and new_objective.stance then
 		if new_objective.stance == "ntl" then
 			data.unit:movement():set_cool(true)
 		else
 			data.unit:movement():set_cool(false)
 		end
-
 	end
-
 	if old_objective and old_objective.fail_clbk then
 		old_objective.fail_clbk(data.unit)
 	end
-
 end
 
 function TeamAILogicIdle._upd_enemy_detection(data)
@@ -416,7 +366,6 @@ function TeamAILogicIdle._upd_enemy_detection(data)
 	if data.cool then
 		max_reaction = AIAttentionObject.REACT_SURPRISED
 	end
-
 	local delay = CopLogicBase._upd_attention_obj_detection(data, nil, max_reaction)
 	local new_attention, new_prio_slot, new_reaction = TeamAILogicIdle._get_priority_attention(data, data.detected_attention_objects, nil)
 	if (not my_data._intimidate_t or my_data._intimidate_t + 2 < data.t) and not data.cool and not my_data._turning_to_intimidate and not my_data.acting and (not new_attention or not (new_reaction >= AIAttentionObject.REACT_SCARED)) then
@@ -431,11 +380,8 @@ function TeamAILogicIdle._upd_enemy_detection(data)
 			else
 				TeamAILogicIdle.intimidate_civilians(data, data.unit, true, true)
 			end
-
 		end
-
 	end
-
 	TeamAILogicBase._set_attention_obj(data, new_attention, new_reaction)
 	if new_reaction and new_reaction >= AIAttentionObject.REACT_SCARED then
 		local objective = data.objective
@@ -452,29 +398,21 @@ function TeamAILogicIdle._upd_enemy_detection(data)
 				elseif revive_unit:interaction().get_waypoint_time then
 					timer = revive_unit:interaction():get_waypoint_time()
 				end
-
 				if timer and timer <= 10 then
 					wanted_state = nil
 				end
-
 			end
-
 		end
-
 		if wanted_state and wanted_state ~= data.name then
 			if obj_failed then
 				managers.groupai:state():on_criminal_objective_failed(data.unit, data.objective)
 			end
-
 			if my_data == data.internal_data then
 				CopLogicBase._exit(data.unit, wanted_state)
 			end
-
 			return
 		end
-
 	end
-
 	data.logic._upd_sneak_spotting(data, my_data)
 	CopLogicBase.queue_task(my_data, my_data.detection_task_key, TeamAILogicIdle._upd_enemy_detection, data, data.t + delay)
 end
@@ -495,50 +433,38 @@ function TeamAILogicIdle._find_intimidateable_civilians(criminal, use_default_sh
 	local highest_wgt = 1
 	local my_tracker = criminal:movement():nav_tracker()
 	local chk_vis_func = my_tracker.check_visibility
-	do
-		local (for generator), (for state), (for control) = pairs(managers.groupai:state():fleeing_civilians())
-		do
-			do break end
-			if chk_vis_func(my_tracker, unit:movement():nav_tracker()) and tweak_data.character[unit:base()._tweak_table].intimidateable and not unit:base().unintimidateable and not unit:anim_data().unintimidateable and not unit:brain():is_tied() then
-				local u_head_pos = unit:movement():m_head_pos() + math.UP * 30
-				local vec = u_head_pos - head_pos
-				local dis = mvector3.normalize(vec)
-				local angle = vec:angle(look_vec)
-				if use_default_shout_shape then
-					max_angle = math.max(8, math.lerp(90, 30, dis / 1200))
-					max_dis = 1200
-				end
-
-				if close_dis > dis or dis < max_dis and angle < max_angle then
-					local slotmask = managers.slot:get_mask("AI_visibility")
-					local ray = World:raycast("ray", head_pos, u_head_pos, "slot_mask", slotmask, "ray_type", "ai_vision")
-					if not ray then
-						local inv_wgt = dis * dis * (1 - vec:dot(look_vec))
-						table.insert(intimidateable_civilians, {
-							unit = unit,
-							key = key,
-							inv_wgt = inv_wgt
-						})
-						if not best_civ_wgt or best_civ_wgt > inv_wgt then
-							best_civ_wgt = inv_wgt
-							best_civ = unit
-							best_civ_angle = angle
-						end
-
-						if highest_wgt < inv_wgt then
-							highest_wgt = inv_wgt
-						end
-
-					end
-
-				end
-
+	for key, unit in pairs(managers.groupai:state():fleeing_civilians()) do
+		if chk_vis_func(my_tracker, unit:movement():nav_tracker()) and tweak_data.character[unit:base()._tweak_table].intimidateable and not unit:base().unintimidateable and not unit:anim_data().unintimidateable and not unit:brain():is_tied() then
+			local u_head_pos = unit:movement():m_head_pos() + math.UP * 30
+			local vec = u_head_pos - head_pos
+			local dis = mvector3.normalize(vec)
+			local angle = vec:angle(look_vec)
+			if use_default_shout_shape then
+				max_angle = math.max(8, math.lerp(90, 30, dis / 1200))
+				max_dis = 1200
 			end
-
+			if close_dis > dis or dis < max_dis and angle < max_angle then
+				local slotmask = managers.slot:get_mask("AI_visibility")
+				local ray = World:raycast("ray", head_pos, u_head_pos, "slot_mask", slotmask, "ray_type", "ai_vision")
+				if not ray then
+					local inv_wgt = dis * dis * (1 - vec:dot(look_vec))
+					table.insert(intimidateable_civilians, {
+						unit = unit,
+						key = key,
+						inv_wgt = inv_wgt
+					})
+					if not best_civ_wgt or best_civ_wgt > inv_wgt then
+						best_civ_wgt = inv_wgt
+						best_civ = unit
+						best_civ_angle = angle
+					end
+					if highest_wgt < inv_wgt then
+						highest_wgt = inv_wgt
+					end
+				end
+			end
 		end
-
 	end
-
 	return best_civ, highest_wgt, intimidateable_civilians
 end
 
@@ -546,7 +472,6 @@ function TeamAILogicIdle.intimidate_civilians(data, criminal, play_sound, play_a
 	if primary_target and (not alive(primary_target) or not managers.groupai:state():fleeing_civilians()[primary_target:key()]) then
 		primary_target = nil
 	end
-
 	local best_civ, highest_wgt, intimidateable_civilians = TeamAILogicIdle._find_intimidateable_civilians(criminal, true)
 	local plural = false
 	if #intimidateable_civilians > 1 then
@@ -554,7 +479,6 @@ function TeamAILogicIdle.intimidate_civilians(data, criminal, play_sound, play_a
 	elseif #intimidateable_civilians <= 0 then
 		return false
 	end
-
 	local act_name, sound_name
 	local sound_suffix = plural and "plu" or "sin"
 	if best_civ:anim_data().move then
@@ -564,11 +488,9 @@ function TeamAILogicIdle.intimidate_civilians(data, criminal, play_sound, play_a
 		act_name = "arrest"
 		sound_name = "f02x_" .. sound_suffix
 	end
-
 	if play_sound then
 		criminal:sound():say(sound_name, true)
 	end
-
 	if play_action and not criminal:movement():chk_action_forbidden("action") then
 		local new_action = {
 			type = "act",
@@ -579,33 +501,22 @@ function TeamAILogicIdle.intimidate_civilians(data, criminal, play_sound, play_a
 		if criminal:brain():action_request(new_action) then
 			data.internal_data.gesture_arrest = true
 		end
-
 	end
-
 	local intimidated_primary_target = false
-	do
-		local (for generator), (for state), (for control) = ipairs(intimidateable_civilians)
-		do
-			do break end
-			local amount = civ.inv_wgt / highest_wgt
-			if best_civ == civ.unit then
-				amount = 1
-			end
-
-			if primary_target == civ.unit then
-				intimidated_primary_target = true
-				amount = 1
-			end
-
-			civ.unit:brain():on_intimidated(amount, criminal)
+	for _, civ in ipairs(intimidateable_civilians) do
+		local amount = civ.inv_wgt / highest_wgt
+		if best_civ == civ.unit then
+			amount = 1
 		end
-
+		if primary_target == civ.unit then
+			intimidated_primary_target = true
+			amount = 1
+		end
+		civ.unit:brain():on_intimidated(amount, criminal)
 	end
-
 	if not intimidated_primary_target and primary_target then
 		primary_target:brain():on_intimidated(1, criminal)
 	end
-
 	if not managers.groupai:state():enemy_weapons_hot() then
 		local alert = {
 			"vo_intimidate",
@@ -616,7 +527,6 @@ function TeamAILogicIdle.intimidate_civilians(data, criminal, play_sound, play_a
 		}
 		managers.groupai:state():propagate_alert(alert)
 	end
-
 	return primary_target or best_civ
 end
 
@@ -630,14 +540,12 @@ function TeamAILogicIdle.action_complete_clbk(data, action)
 			TeamAILogicIdle.intimidate_civilians(data, data.unit, true, true, my_data._primary_intimidation_target)
 			my_data._primary_intimidation_target = nil
 		end
-
 	elseif action_type == "act" then
 		my_data.acting = nil
 		if my_data.scan and not my_data.exiting and (not my_data.queued_tasks or not my_data.queued_tasks[my_data.wall_stare_task_key]) and not my_data.stare_path_pos then
 			my_data.wall_stare_task_key = "CopLogicIdle._chk_stare_into_wall" .. tostring(data.key)
 			CopLogicBase.queue_task(my_data, my_data.wall_stare_task_key, CopLogicIdle._chk_stare_into_wall_1, data, data.t)
 		end
-
 		if my_data.performing_act_objective then
 			local old_objective = my_data.performing_act_objective
 			my_data.performing_act_objective = nil
@@ -645,11 +553,9 @@ function TeamAILogicIdle.action_complete_clbk(data, action)
 				if not my_data.action_timeout_clbk_id then
 					managers.groupai:state():on_objective_complete(data.unit, old_objective)
 				end
-
 			else
 				managers.groupai:state():on_objective_failed(data.unit, old_objective)
 			end
-
 			if my_data.delayed_clbks and my_data.delayed_clbks[my_data.revive_complete_clbk_id] then
 				CopLogicBase.cancel_delayed_clbk(my_data, my_data.revive_complete_clbk_id)
 				my_data.revive_complete_clbk_id = nil
@@ -658,28 +564,22 @@ function TeamAILogicIdle.action_complete_clbk(data, action)
 					if revive_unit:interaction():active() then
 						revive_unit:interaction():interact_interupt(data.unit)
 					end
-
 				elseif revive_unit:character_damage():arrested() then
 					revive_unit:character_damage():unpause_arrested_timer()
 				elseif revive_unit:character_damage():need_revive() then
 					revive_unit:character_damage():unpause_downed_timer()
 				end
-
 				my_data.reviving = nil
 				managers.groupai:state():on_criminal_objective_failed(data.unit, old_objective)
 			elseif action:expired() then
 				if not my_data.action_timeout_clbk_id then
 					managers.groupai:state():on_criminal_objective_complete(data.unit, old_objective)
 				end
-
 			else
 				managers.groupai:state():on_criminal_objective_failed(data.unit, old_objective)
 			end
-
 		end
-
 	end
-
 end
 
 function TeamAILogicIdle.is_available_for_assignment(data, new_objective)
@@ -691,11 +591,9 @@ function TeamAILogicIdle.is_available_for_assignment(data, new_objective)
 		if data.internal_data.performing_act_objective and not data.unit:anim_data().act_idle then
 			return
 		end
-
 		if new_objective and CopLogicBase.is_obstructed(data, new_objective, 0.2) then
 			return
 		end
-
 		local old_objective_type = data.objective.type
 		if not new_objective then
 		elseif old_objective_type == "revive" then
@@ -703,9 +601,7 @@ function TeamAILogicIdle.is_available_for_assignment(data, new_objective)
 		elseif old_objective_type == "follow" and data.objective.called then
 			return
 		end
-
 	end
-
 	return true
 end
 
@@ -714,7 +610,6 @@ function TeamAILogicIdle.clbk_heat(data)
 	if inventory:is_selection_available(2) and inventory:equipped_selection() ~= 2 then
 		inventory:equip_selection(2)
 	end
-
 end
 
 function TeamAILogicIdle.clbk_revive_complete(ignore_this, data)
@@ -729,18 +624,15 @@ function TeamAILogicIdle.clbk_revive_complete(ignore_this, data)
 			if revive_unit:interaction():active() then
 				revive_unit:interaction():interact(data.unit)
 			end
-
 		elseif revive_unit:character_damage() and (revive_unit:character_damage():need_revive() or revive_unit:character_damage():arrested()) then
 			local hint = revive_unit:character_damage():need_revive() and 2 or 3
 			managers.network:session():send_to_peers_synched("sync_teammate_helped_hint", hint, revive_unit, data.unit)
 			revive_unit:character_damage():revive(data.unit)
 		end
-
 	else
 		print("[TeamAILogicIdle.clbk_revive_complete] Revive unit dead.", revive_unit, data.unit)
 		managers.groupai:state():on_criminal_objective_failed(data.unit, my_data.performing_act_objective)
 	end
-
 end
 
 function TeamAILogicIdle.clbk_action_timeout(ignore_this, data)
@@ -752,12 +644,10 @@ function TeamAILogicIdle.clbk_action_timeout(ignore_this, data)
 		my_data.performing_act_objective = nil
 		my_data.acting = nil
 	end
-
 	if not old_objective then
 		debug_pause_unit(data.unit, "[TeamAILogicIdle.clbk_action_timeout] missing objective")
 		return
 	end
-
 	managers.groupai:state():on_criminal_objective_complete(data.unit, old_objective)
 end
 
@@ -766,50 +656,28 @@ function TeamAILogicIdle._check_should_relocate(data, my_data, objective)
 	local my_nav_seg_id = data.unit:movement():nav_tracker():nav_segment()
 	local my_areas = managers.groupai:state():get_areas_from_nav_seg_id(my_nav_seg_id)
 	local follow_unit_nav_seg_id = follow_unit:movement():nav_tracker():nav_segment()
-	do
-		local (for generator), (for state), (for control) = ipairs(my_areas)
-		do
-			do break end
-			if area.nav_segs[follow_unit_nav_seg_id] then
-				return
-			end
-
+	for _, area in ipairs(my_areas) do
+		if area.nav_segs[follow_unit_nav_seg_id] then
+			return
 		end
-
 	end
-
 	local is_my_area_dangerous, is_follow_unit_area_dangerous
-	do
-		local (for generator), (for state), (for control) = ipairs(my_areas)
-		do
-			do break end
-			if area.nav_segs[follow_unit_nav_seg_id] then
-				is_my_area_dangerous = true
-		end
-
+	for _, area in ipairs(my_areas) do
+		if area.nav_segs[follow_unit_nav_seg_id] then
+			is_my_area_dangerous = true
 		else
 		end
-
 	end
-
 	local follow_unit_areas = managers.groupai:state():get_areas_from_nav_seg_id(follow_unit_nav_seg_id)
-	do
-		local (for generator), (for state), (for control) = ipairs(follow_unit_areas)
-		do
-			do break end
-			if next(area.police.units) then
-				is_follow_unit_area_dangerous = true
-		end
-
+	for _, area in ipairs(follow_unit_areas) do
+		if next(area.police.units) then
+			is_follow_unit_area_dangerous = true
 		else
 		end
-
 	end
-
 	if is_my_area_dangerous and not is_follow_unit_area_dangerous then
 		return true
 	end
-
 	local max_allowed_dis_xy = 500
 	local max_allowed_dis_z = 250
 	mvector3.set(tmp_vec1, follow_unit:movement():m_pos())
@@ -822,115 +690,95 @@ function TeamAILogicIdle._check_should_relocate(data, my_data, objective)
 		if max_allowed_dis_xy < mvector3.length(tmp_vec1) then
 			too_far = true
 		end
-
 	end
-
 	if too_far then
 		return true
 	end
-
 end
 
 function TeamAILogicIdle._get_priority_attention(data, attention_objects, reaction_func)
 	reaction_func = reaction_func or TeamAILogicBase._chk_reaction_to_attention_object
 	local best_target, best_target_priority_slot, best_target_priority, best_target_reaction
-	do
-		local (for generator), (for state), (for control) = pairs(attention_objects)
-		do
-			do break end
-			local att_unit = attention_data.unit
-			local crim_record = attention_data.criminal_record
-			if not attention_data.identified then
-			elseif attention_data.pause_expire_t then
-				if data.t > attention_data.pause_expire_t then
-					attention_data.pause_expire_t = nil
-				end
-
-			elseif attention_data.stare_expire_t and data.t > attention_data.stare_expire_t then
-				if attention_data.settings.pause then
-					attention_data.stare_expire_t = nil
-					attention_data.pause_expire_t = data.t + math.lerp(attention_data.settings.pause[1], attention_data.settings.pause[2], math.random())
-				end
-
-			else
-				local distance = mvector3.distance(data.m_pos, attention_data.m_pos)
-				local reaction = reaction_func(data, attention_data, not CopLogicAttack._can_move(data))
-				local aimed_at = TeamAILogicIdle.chk_am_i_aimed_at(data, attention_data, attention_data.aimed_at and 0.95 or 0.985)
-				attention_data.aimed_at = aimed_at
-				local reaction_too_mild
-				if not reaction or best_target_reaction and best_target_reaction > reaction then
-					reaction_too_mild = true
-				elseif distance < 150 and reaction <= AIAttentionObject.REACT_SURPRISED then
-					reaction_too_mild = true
-				end
-
-				if not reaction_too_mild then
-					local alert_dt = attention_data.alert_t and data.t - attention_data.alert_t or 10000
-					local dmg_dt = attention_data.dmg_t and data.t - attention_data.dmg_t or 10000
-					local mark_dt = attention_data.mark_t and data.t - attention_data.mark_t or 10000
-					local near_threshold = 800
-					if data.attention_obj and data.attention_obj.u_key == u_key then
-						alert_dt = alert_dt * 0.8
-						dmg_dt = dmg_dt * 0.8
-						mark_dt = mark_dt * 0.8
-						distance = distance * 0.8
-					end
-
-					local visible = attention_data.verified
-					local near = near_threshold > distance
-					local has_alerted = alert_dt < 5
-					local has_damaged = dmg_dt < 2
-					local been_marked = mark_dt < 8
-					local dangerous_special = attention_data.is_very_dangerous
-					local target_priority = distance
-					local target_priority_slot = 0
-					if visible and (dangerous_special or been_marked) and distance < 1600 then
-						target_priority_slot = 1
-					elseif visible and near and (has_alerted and has_damaged or been_marked) then
-						target_priority_slot = 2
-					elseif visible and near and has_alerted then
-						target_priority_slot = 3
-					elseif visible and has_alerted then
-						target_priority_slot = 4
-					elseif visible then
-						target_priority_slot = 5
-					elseif has_alerted then
-						target_priority_slot = 6
-					else
-						target_priority_slot = 7
-					end
-
-					if reaction < AIAttentionObject.REACT_COMBAT then
-						target_priority_slot = 10 + target_priority_slot + math.max(0, AIAttentionObject.REACT_COMBAT - reaction)
-					end
-
-					if target_priority_slot ~= 0 then
-						local best = false
-						if not best_target then
-							best = true
-						elseif best_target_priority_slot > target_priority_slot then
-							best = true
-						elseif target_priority_slot == best_target_priority_slot and best_target_priority > target_priority then
-							best = true
-						end
-
-						if best then
-							best_target = attention_data
-							best_target_priority_slot = target_priority_slot
-							best_target_priority = target_priority
-							best_target_reaction = reaction
-						end
-
-					end
-
-				end
-
+	for u_key, attention_data in pairs(attention_objects) do
+		local att_unit = attention_data.unit
+		local crim_record = attention_data.criminal_record
+		if not attention_data.identified then
+		elseif attention_data.pause_expire_t then
+			if data.t > attention_data.pause_expire_t then
+				attention_data.pause_expire_t = nil
 			end
-
+		elseif attention_data.stare_expire_t and data.t > attention_data.stare_expire_t then
+			if attention_data.settings.pause then
+				attention_data.stare_expire_t = nil
+				attention_data.pause_expire_t = data.t + math.lerp(attention_data.settings.pause[1], attention_data.settings.pause[2], math.random())
+			end
+		else
+			local distance = mvector3.distance(data.m_pos, attention_data.m_pos)
+			local reaction = reaction_func(data, attention_data, not CopLogicAttack._can_move(data))
+			local aimed_at = TeamAILogicIdle.chk_am_i_aimed_at(data, attention_data, attention_data.aimed_at and 0.95 or 0.985)
+			attention_data.aimed_at = aimed_at
+			local reaction_too_mild
+			if not reaction or best_target_reaction and best_target_reaction > reaction then
+				reaction_too_mild = true
+			elseif distance < 150 and reaction <= AIAttentionObject.REACT_SURPRISED then
+				reaction_too_mild = true
+			end
+			if not reaction_too_mild then
+				local alert_dt = attention_data.alert_t and data.t - attention_data.alert_t or 10000
+				local dmg_dt = attention_data.dmg_t and data.t - attention_data.dmg_t or 10000
+				local mark_dt = attention_data.mark_t and data.t - attention_data.mark_t or 10000
+				local near_threshold = 800
+				if data.attention_obj and data.attention_obj.u_key == u_key then
+					alert_dt = alert_dt * 0.8
+					dmg_dt = dmg_dt * 0.8
+					mark_dt = mark_dt * 0.8
+					distance = distance * 0.8
+				end
+				local visible = attention_data.verified
+				local near = near_threshold > distance
+				local has_alerted = alert_dt < 5
+				local has_damaged = dmg_dt < 2
+				local been_marked = mark_dt < 8
+				local dangerous_special = attention_data.is_very_dangerous
+				local target_priority = distance
+				local target_priority_slot = 0
+				if visible and (dangerous_special or been_marked) and distance < 1600 then
+					target_priority_slot = 1
+				elseif visible and near and (has_alerted and has_damaged or been_marked) then
+					target_priority_slot = 2
+				elseif visible and near and has_alerted then
+					target_priority_slot = 3
+				elseif visible and has_alerted then
+					target_priority_slot = 4
+				elseif visible then
+					target_priority_slot = 5
+				elseif has_alerted then
+					target_priority_slot = 6
+				else
+					target_priority_slot = 7
+				end
+				if reaction < AIAttentionObject.REACT_COMBAT then
+					target_priority_slot = 10 + target_priority_slot + math.max(0, AIAttentionObject.REACT_COMBAT - reaction)
+				end
+				if target_priority_slot ~= 0 then
+					local best = false
+					if not best_target then
+						best = true
+					elseif best_target_priority_slot > target_priority_slot then
+						best = true
+					elseif target_priority_slot == best_target_priority_slot and best_target_priority > target_priority then
+						best = true
+					end
+					if best then
+						best_target = attention_data
+						best_target_priority_slot = target_priority_slot
+						best_target_priority = target_priority
+						best_target_reaction = reaction
+					end
+				end
+			end
 		end
-
 	end
-
 	return best_target, best_target_priority_slot, best_target_reaction
 end
 
@@ -943,26 +791,17 @@ function TeamAILogicIdle._upd_sneak_spotting(data, my_data)
 			TeamAILogicAssault._mark_special_t = data.t
 			TeamAILogicIdle.mark_sneak_char(data, data.unit, nmy, nil, nil)
 		end
-
 	end
-
 end
 
 function TeamAILogicIdle.find_sneak_char_to_mark(data)
 	local best_nmy, best_nmy_wgt
-	do
-		local (for generator), (for state), (for control) = pairs(data.detected_attention_objects)
-		do
-			do break end
-			if attention_info.identified and (attention_info.verified or attention_info.nearly_visible) and attention_info.is_person and attention_info.char_tweak and attention_info.char_tweak.silent_priority_shout and (not attention_info.char_tweak.priority_shout_max_dis or attention_info.dis < attention_info.char_tweak.priority_shout_max_dis) and (not best_nmy_wgt or best_nmy_wgt > attention_info.verified_dis) then
-				best_nmy_wgt = attention_info.verified_dis
-				best_nmy = attention_info.unit
-			end
-
+	for key, attention_info in pairs(data.detected_attention_objects) do
+		if attention_info.identified and (attention_info.verified or attention_info.nearly_visible) and attention_info.is_person and attention_info.char_tweak and attention_info.char_tweak.silent_priority_shout and (not attention_info.char_tweak.priority_shout_max_dis or attention_info.dis < attention_info.char_tweak.priority_shout_max_dis) and (not best_nmy_wgt or best_nmy_wgt > attention_info.verified_dis) then
+			best_nmy_wgt = attention_info.verified_dis
+			best_nmy = attention_info.unit
 		end
-
 	end
-
 	return best_nmy
 end
 
@@ -970,7 +809,6 @@ function TeamAILogicIdle.mark_sneak_char(data, criminal, to_mark, play_sound, pl
 	if play_sound then
 		criminal:sound():say(to_mark:base():char_tweak().silent_priority_shout .. "x_any", nil, true)
 	end
-
 	if play_action and not criminal:movement():chk_action_forbidden("action") then
 		local new_action = {
 			type = "act",
@@ -981,9 +819,7 @@ function TeamAILogicIdle.mark_sneak_char(data, criminal, to_mark, play_sound, pl
 		if criminal:brain():action_request(new_action) then
 			data.internal_data.gesture_arrest = true
 		end
-
 	end
-
 	to_mark:contour():add("mark_enemy", true)
 end
 

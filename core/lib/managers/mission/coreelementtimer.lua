@@ -12,11 +12,8 @@ function ElementTimer:on_script_activated()
 	if not Network:is_server() then
 		return
 	end
-
 	if self._values.digital_gui_unit_ids then
-		local (for generator), (for state), (for control) = ipairs(self._values.digital_gui_unit_ids)
-		do
-			do break end
+		for _, id in ipairs(self._values.digital_gui_unit_ids) do
 			if Global.running_simulation then
 				local unit = managers.editor:unit_with_id(id)
 				table.insert(self._digital_gui_units, unit)
@@ -27,13 +24,9 @@ function ElementTimer:on_script_activated()
 					table.insert(self._digital_gui_units, unit)
 					unit:digital_gui():timer_set(self._timer)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function ElementTimer:_load_unit(unit)
@@ -49,12 +42,10 @@ function ElementTimer:add_updator()
 	if not Network:is_server() then
 		return
 	end
-
 	if not self._updator then
 		self._updator = true
 		self._mission_script:add_updator(self._id, callback(self, self, "update_timer"))
 	end
-
 end
 
 function ElementTimer:remove_updator()
@@ -62,7 +53,6 @@ function ElementTimer:remove_updator()
 		self._mission_script:remove_updator(self._id)
 		self._updator = nil
 	end
-
 end
 
 function ElementTimer:update_timer(t, dt)
@@ -71,17 +61,12 @@ function ElementTimer:update_timer(t, dt)
 		self:remove_updator()
 		self:on_executed()
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._triggers)
-	do
-		do break end
+	for id, cb_data in pairs(self._triggers) do
 		if cb_data.time >= self._timer then
 			cb_data.callback()
 			self:remove_trigger(id)
 		end
-
 	end
-
 end
 
 function ElementTimer:client_on_executed(...)
@@ -91,7 +76,6 @@ function ElementTimer:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	ElementTimer.super.on_executed(self, instigator)
 end
 
@@ -126,51 +110,35 @@ function ElementTimer:timer_operation_set_time(time)
 end
 
 function ElementTimer:_update_digital_guis_timer()
-	local (for generator), (for state), (for control) = ipairs(self._digital_gui_units)
-	do
-		do break end
+	for _, unit in ipairs(self._digital_gui_units) do
 		if alive(unit) then
 			unit:digital_gui():timer_set(self._timer, true)
 		end
-
 	end
-
 end
 
 function ElementTimer:_start_digital_guis_count_down()
-	local (for generator), (for state), (for control) = ipairs(self._digital_gui_units)
-	do
-		do break end
+	for _, unit in ipairs(self._digital_gui_units) do
 		if alive(unit) then
 			unit:digital_gui():timer_start_count_down(true)
 		end
-
 	end
-
 end
 
 function ElementTimer:_start_digital_guis_count_up()
-	local (for generator), (for state), (for control) = ipairs(self._digital_gui_units)
-	do
-		do break end
+	for _, unit in ipairs(self._digital_gui_units) do
 		if alive(unit) then
 			unit:digital_gui():timer_start_count_up(true)
 		end
-
 	end
-
 end
 
 function ElementTimer:_pause_digital_guis()
-	local (for generator), (for state), (for control) = ipairs(self._digital_gui_units)
-	do
-		do break end
+	for _, unit in ipairs(self._digital_gui_units) do
 		if alive(unit) then
 			unit:digital_gui():timer_pause(true)
 		end
-
 	end
-
 end
 
 function ElementTimer:add_trigger(id, time, callback)
@@ -193,33 +161,24 @@ function ElementTimerOperator:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._values.elements)
-		do
-			do break end
-			local element = self:get_mission_element(id)
-			if element then
-				if self._values.operation == "pause" then
-					element:timer_operation_pause()
-				elseif self._values.operation == "start" then
-					element:timer_operation_start()
-				elseif self._values.operation == "add_time" then
-					element:timer_operation_add_time(self._values.time)
-				elseif self._values.operation == "subtract_time" then
-					element:timer_operation_subtract_time(self._values.time)
-				elseif self._values.operation == "reset" then
-					element:timer_operation_reset(self._values.time)
-				elseif self._values.operation == "set_time" then
-					element:timer_operation_set_time(self._values.time)
-				end
-
+	for _, id in ipairs(self._values.elements) do
+		local element = self:get_mission_element(id)
+		if element then
+			if self._values.operation == "pause" then
+				element:timer_operation_pause()
+			elseif self._values.operation == "start" then
+				element:timer_operation_start()
+			elseif self._values.operation == "add_time" then
+				element:timer_operation_add_time(self._values.time)
+			elseif self._values.operation == "subtract_time" then
+				element:timer_operation_subtract_time(self._values.time)
+			elseif self._values.operation == "reset" then
+				element:timer_operation_reset(self._values.time)
+			elseif self._values.operation == "set_time" then
+				element:timer_operation_set_time(self._values.time)
 			end
-
 		end
-
 	end
-
 	ElementTimerOperator.super.on_executed(self, instigator)
 end
 
@@ -229,13 +188,10 @@ function ElementTimerTrigger:init(...)
 end
 
 function ElementTimerTrigger:on_script_activated()
-	local (for generator), (for state), (for control) = ipairs(self._values.elements)
-	do
-		do break end
+	for _, id in ipairs(self._values.elements) do
 		local element = self:get_mission_element(id)
 		element:add_trigger(self._id, self._values.time, callback(self, self, "on_executed"))
 	end
-
 end
 
 function ElementTimerTrigger:client_on_executed(...)
@@ -245,7 +201,6 @@ function ElementTimerTrigger:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	ElementTimerTrigger.super.on_executed(self, instigator)
 end
 

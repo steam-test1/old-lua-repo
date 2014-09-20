@@ -134,7 +134,6 @@ function MissionManager:init(...)
 		Global.mission_manager.saved_job_values = {}
 		Global.mission_manager.has_played_tutorial = false
 	end
-
 end
 
 function MissionManager:set_saved_job_value(key, value)
@@ -167,15 +166,9 @@ function MissionManager:on_retry_job_stage()
 end
 
 function MissionManager:on_stage_success()
-	do
-		local (for generator), (for state), (for control) = pairs(Global.mission_manager.stage_job_values)
-		do
-			do break end
-			Global.mission_manager.job_values[key] = value
-		end
-
+	for key, value in pairs(Global.mission_manager.stage_job_values) do
+		Global.mission_manager.job_values[key] = value
 	end
-
 	Global.mission_manager.stage_job_values = {}
 end
 
@@ -196,54 +189,39 @@ function MissionManager:activate_script(...)
 end
 
 function MissionManager:client_run_mission_element(id, unit, orientation_element_index)
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for name, data in pairs(self._scripts) do
 		if data:element(id) then
 			data:element(id):set_synced_orientation_element_index(orientation_element_index)
 			data:element(id):client_on_executed(unit)
 			return
 		end
-
 	end
-
 end
 
 function MissionManager:client_run_mission_element_end_screen(id, unit, orientation_element_index)
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for name, data in pairs(self._scripts) do
 		if data:element(id) then
 			if data:element(id).client_on_executed_end_screen then
 				data:element(id):set_synced_orientation_element_index(orientation_element_index)
 				data:element(id):client_on_executed_end_screen(unit)
 			end
-
 			return
 		end
-
 	end
-
 end
 
 function MissionManager:server_run_mission_element_trigger(id, unit)
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for name, data in pairs(self._scripts) do
 		local element = data:element(id)
 		if element then
 			element:on_executed(unit)
 			return
 		end
-
 	end
-
 end
 
 function MissionManager:to_server_area_event(event_id, id, unit)
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for name, data in pairs(self._scripts) do
 		local element = data:element(id)
 		if element then
 			if event_id == 1 then
@@ -255,24 +233,17 @@ function MissionManager:to_server_area_event(event_id, id, unit)
 			elseif event_id == 4 then
 				element:sync_rule_failed(unit)
 			end
-
 		end
-
 	end
-
 end
 
 function MissionManager:to_server_access_camera_trigger(id, trigger, instigator)
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for name, data in pairs(self._scripts) do
 		local element = data:element(id)
 		if element then
 			element:check_triggers(trigger, instigator)
 		end
-
 	end
-
 end
 
 function MissionManager:save_job_values(data)
@@ -289,7 +260,6 @@ function MissionManager:load_job_values(data)
 		Global.mission_manager.saved_job_values = state.saved_job_values
 		Global.mission_manager.has_played_tutorial = state.has_played_tutorial
 	end
-
 end
 
 function MissionManager:stop_simulation(...)
@@ -300,21 +270,14 @@ function MissionManager:stop_simulation(...)
 end
 
 function MissionManager:debug_execute_mission_element_by_name(name)
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
-		local (for generator), (for state), (for control) = pairs(data:elements())
-		do
-			do break end
+	for _, data in pairs(self._scripts) do
+		for id, element in pairs(data:elements()) do
 			if element:editor_name() == name then
 				element:on_executed()
 				return
 			end
-
 		end
-
 	end
-
 end
 
 CoreClass.override_class(CoreMissionManager.MissionManager, MissionManager)
@@ -324,26 +287,15 @@ function MissionScript:activate(...)
 		MissionScript.super.activate(self, ...)
 		return
 	end
-
 	managers.mission:add_persistent_debug_output("")
 	managers.mission:add_persistent_debug_output("Activate mission " .. self._name, Color(1, 0, 1, 0))
-	do
-		local (for generator), (for state), (for control) = pairs(self._elements)
-		do
-			do break end
-			element:on_script_activated()
-		end
-
+	for _, element in pairs(self._elements) do
+		element:on_script_activated()
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._elements)
-	do
-		do break end
+	for _, element in pairs(self._elements) do
 		if element:value("execute_on_startup") then
 		end
-
 	end
-
 end
 
 CoreClass.override_class(CoreMissionManager.MissionScript, MissionScript)

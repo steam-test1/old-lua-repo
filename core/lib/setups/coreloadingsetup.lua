@@ -3,7 +3,6 @@ function class(...)
 	if select("#", ...) >= 1 and super == nil then
 		error("trying to inherit from nil", 2)
 	end
-
 	local class_table = {}
 	class_table.super = super
 	class_table.__index = class_table
@@ -14,7 +13,6 @@ function class(...)
 		if object.init then
 			return object, object:init(...)
 		end
-
 		return object
 	end
 
@@ -35,7 +33,6 @@ function callback(o, base_callback_class, base_callback_func_name, base_callback
 				end
 
 			end
-
 		elseif o then
 			return function(...)
 				return base_callback_class[base_callback_func_name](o, ...)
@@ -47,7 +44,6 @@ function callback(o, base_callback_class, base_callback_func_name, base_callback
 			end
 
 		end
-
 	elseif base_callback_class then
 		local class_name = base_callback_class and CoreDebug.class_name(getmetatable(base_callback_class) or base_callback_class)
 		error("Callback on class \"" .. tostring(class_name) .. "\" refers to a non-existing function \"" .. tostring(base_callback_func_name) .. "\".")
@@ -56,7 +52,6 @@ function callback(o, base_callback_class, base_callback_func_name, base_callback
 	else
 		error("Callback class and function was nil.")
 	end
-
 end
 
 CoreLoadingSetup = CoreLoadingSetup or class()

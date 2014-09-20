@@ -14,11 +14,9 @@ function CoreCutsceneSequencerPanel:update(time, delta_time)
 	if current_mouse_event:get_position() ~= self._previous_mouse_event:get_position() then
 		self:_send_event("EVT_SYSTEM_WIDE_MOTION", current_mouse_event)
 	end
-
 	if current_mouse_event:left_is_down() == false and self._previous_mouse_event:left_is_down() == true then
 		self:_send_event("EVT_SYSTEM_WIDE_LEFT_UP", current_mouse_event)
 	end
-
 	self._previous_mouse_event = current_mouse_event
 end
 
@@ -30,24 +28,18 @@ function CoreCutsceneSequencerPanel:freeze()
 	self._ruler:freeze()
 	self:audio_track():freeze()
 	self:key_track():freeze()
-	local (for generator), (for state), (for control) = ipairs(self:film_tracks())
-	do
-		do break end
+	for _, track in ipairs(self:film_tracks()) do
 		track:freeze()
 	end
-
 end
 
 function CoreCutsceneSequencerPanel:thaw()
 	self._ruler:thaw()
 	self:audio_track():thaw()
 	self:key_track():thaw()
-	local (for generator), (for state), (for control) = ipairs(self:film_tracks())
-	do
-		do break end
+	for _, track in ipairs(self:film_tracks()) do
 		track:thaw()
 	end
-
 end
 
 function CoreCutsceneSequencerPanel:ruler()
@@ -70,14 +62,10 @@ function CoreCutsceneSequencerPanel:tracks()
 	if self._tracks == nil then
 		self._tracks = {}
 		table.insert(self._tracks, self:key_track())
-		local (for generator), (for state), (for control) = ipairs(self:film_tracks())
-		do
-			do break end
+		for _, track in ipairs(self:film_tracks()) do
 			table.insert(self._tracks, track)
 		end
-
 	end
-
 	return self._tracks
 end
 
@@ -100,12 +88,9 @@ function CoreCutsceneSequencerPanel:set_units(pixels_per_division, units_per_div
 	self._ruler:set_major_divisions(pixels_per_division, units_per_division)
 	self:audio_track():set_units_from_ruler(self._ruler)
 	self:key_track():set_units_from_ruler(self._ruler)
-	local (for generator), (for state), (for control) = ipairs(self:film_tracks())
-	do
-		do break end
+	for _, track in ipairs(self:film_tracks()) do
 		track:set_units_from_ruler(self._ruler)
 	end
-
 end
 
 function CoreCutsceneSequencerPanel:active_film_track()
@@ -114,15 +99,9 @@ end
 
 function CoreCutsceneSequencerPanel:set_active_film_track(active_track)
 	self._active_film_track = active_track
-	do
-		local (for generator), (for state), (for control) = ipairs(self:film_tracks())
-		do
-			do break end
-			track:set_background_colour(self:_track_background_colour(track == self._active_film_track):unpack())
-		end
-
+	for _, track in ipairs(self:film_tracks()) do
+		track:set_background_colour(self:_track_background_colour(track == self._active_film_track):unpack())
 	end
-
 	self:_send_event("EVT_EVALUATE_FRAME_AT_PLAYHEAD", {
 		position = function()
 			return position
@@ -178,30 +157,19 @@ end
 function CoreCutsceneSequencerPanel:remove_items(clip_list)
 	self:freeze()
 	local removed_count = 0
-	do
-		local (for generator), (for state), (for control) = ipairs(clip_list)
-		do
-			do break end
-			self:_send_event("EVT_REMOVE_ITEM", clip)
-			if self:audio_track():remove_clip(clip) or self:key_track():remove_clip(clip) then
-				removed_count = removed_count + 1
-			else
-				local (for generator), (for state), (for control) = ipairs(self:film_tracks())
-				do
-					do break end
-					if track:remove_clip(clip) then
-						removed_count = removed_count + 1
-				end
-
+	for _, clip in ipairs(clip_list) do
+		self:_send_event("EVT_REMOVE_ITEM", clip)
+		if self:audio_track():remove_clip(clip) or self:key_track():remove_clip(clip) then
+			removed_count = removed_count + 1
+		else
+			for _, track in ipairs(self:film_tracks()) do
+				if track:remove_clip(clip) then
+					removed_count = removed_count + 1
 				else
 				end
-
 			end
-
 		end
-
 	end
-
 	self:thaw()
 	self:_send_event("EVT_EVALUATE_FRAME_AT_PLAYHEAD", {
 		position = function()
@@ -214,44 +182,20 @@ end
 
 function CoreCutsceneSequencerPanel:remove_all_items()
 	self:freeze()
-	do
-		local (for generator), (for state), (for control) = ipairs(self:audio_track():clips())
-		do
-			do break end
-			self:_send_event("EVT_REMOVE_ITEM", clip)
-		end
-
+	for _, clip in ipairs(self:audio_track():clips()) do
+		self:_send_event("EVT_REMOVE_ITEM", clip)
 	end
-
 	self:audio_track():remove_all_clips()
-	do
-		local (for generator), (for state), (for control) = ipairs(self:key_track():clips())
-		do
-			do break end
+	for _, clip in ipairs(self:key_track():clips()) do
+		self:_send_event("EVT_REMOVE_ITEM", clip)
+	end
+	self:key_track():remove_all_clips()
+	for _, track in ipairs(self:film_tracks()) do
+		for _, clip in ipairs(track:clips()) do
 			self:_send_event("EVT_REMOVE_ITEM", clip)
 		end
-
+		track:remove_all_clips()
 	end
-
-	self:key_track():remove_all_clips()
-	do
-		local (for generator), (for state), (for control) = ipairs(self:film_tracks())
-		do
-			do break end
-			do
-				local (for generator), (for state), (for control) = ipairs(track:clips())
-				do
-					do break end
-					self:_send_event("EVT_REMOVE_ITEM", clip)
-				end
-
-			end
-
-			track:remove_all_clips()
-		end
-
-	end
-
 	self:_send_event("EVT_EVALUATE_FRAME_AT_PLAYHEAD", {
 		position = function()
 			return position
@@ -269,30 +213,18 @@ end
 function CoreCutsceneSequencerPanel:select_all_clips()
 	self:audio_track():select_all_clips()
 	self:key_track():select_all_clips()
-	do
-		local (for generator), (for state), (for control) = ipairs(self:film_tracks())
-		do
-			do break end
-			track:select_all_clips()
-		end
-
+	for _, track in ipairs(self:film_tracks()) do
+		track:select_all_clips()
 	end
-
 	self:_send_event("EVT_SELECTION_CHANGED")
 end
 
 function CoreCutsceneSequencerPanel:deselect_all_items()
 	self:audio_track():deselect_all_clips()
 	self:key_track():deselect_all_clips()
-	do
-		local (for generator), (for state), (for control) = ipairs(self:film_tracks())
-		do
-			do break end
-			track:deselect_all_clips()
-		end
-
+	for _, track in ipairs(self:film_tracks()) do
+		track:deselect_all_clips()
 	end
-
 	self:_send_event("EVT_SELECTION_CHANGED")
 end
 
@@ -305,18 +237,11 @@ function CoreCutsceneSequencerPanel:set_playhead_position(position)
 	position = math.max(position, 0)
 	if position ~= current_position then
 		self._ruler:set_playhead_position(position)
-		do
-			local (for generator), (for state), (for control) = ipairs(self._playhead_ornaments)
-			do
-				do break end
-				ornament:set_time(position)
-			end
-
+		for _, ornament in ipairs(self._playhead_ornaments) do
+			ornament:set_time(position)
 		end
-
 		self:_evaluate_frame_at_playhead()
 	end
-
 end
 
 function CoreCutsceneSequencerPanel:_evaluate_frame_at_playhead()
@@ -381,7 +306,6 @@ function CoreCutsceneSequencerPanel:_create_panel(parent_frame)
 		self:_create_ornaments_for_track(track)
 		table.insert(self._film_tracks, track)
 	end
-
 	self:set_active_film_track(self._film_tracks[1])
 	self:set_playhead_position(0)
 end
@@ -399,7 +323,6 @@ function CoreCutsceneSequencerPanel:_track_background_colour(active)
 	if not active then
 		colour = colour * 0.8
 	end
-
 	return colour
 end
 
@@ -409,30 +332,21 @@ function CoreCutsceneSequencerPanel:_show_film_track_context_menu(track, event)
 		local menu = self:_camera_menu(clip_below_cursor)
 		self._panel:popup_menu(menu, Vector3(-1, -1, 0))
 	end
-
 end
 
 function CoreCutsceneSequencerPanel:_camera_menu(clip)
 	local metadata = clip:metadata()
 	if metadata and metadata:footage() then
 		local menu = EWS:Menu("")
-		do
-			local (for generator), (for state), (for control) = ipairs(metadata:footage():camera_names())
-			do
-				do break end
-				menu:append_radio_item(camera_name, camera_name, "Use camera \"" .. camera_name .. "\" during this clip")
-				if camera_name == metadata:camera() then
-					menu:set_checked(camera_name, true)
-				end
-
+		for _, camera_name in ipairs(metadata:footage():camera_names()) do
+			menu:append_radio_item(camera_name, camera_name, "Use camera \"" .. camera_name .. "\" during this clip")
+			if camera_name == metadata:camera() then
+				menu:set_checked(camera_name, true)
 			end
-
 		end
-
 		menu:connect("", "EVT_COMMAND_MENU_SELECTED", callback(self, self, "_on_set_camera_for_film_clip"), clip)
 		return menu
 	end
-
 	local menu = EWS:Menu("")
 	menu:append_item("NO_CAMERAS", "No Cameras", "")
 	menu:set_enabled("NO_CAMERAS", false)
@@ -446,7 +360,6 @@ function CoreCutsceneSequencerPanel:_on_set_camera_for_film_clip(clip, event)
 		clip:set_watermark(clip:metadata():camera_watermark())
 		self:_evaluate_frame_at_playhead()
 	end
-
 end
 
 function CoreCutsceneSequencerPanel:_connect_mouse_events(component)
@@ -464,16 +377,12 @@ function CoreCutsceneSequencerPanel:_propagate_event_to_all_components(behaviour
 		callback_func(behaviour, sender, self._ruler, event)
 		callback_func(behaviour, sender, self:audio_track(), event)
 		callback_func(behaviour, sender, self:key_track(), event)
-		local (for generator), (for state), (for control) = ipairs(self:film_tracks())
-		do
-			do break end
+		for _, track in ipairs(self:film_tracks()) do
 			callback_func(behaviour, sender, track, event)
 		end
-
 	else
 		event:skip()
 	end
-
 end
 
 function CoreCutsceneSequencerPanel:_on_mouse_left_down(sender, event)
@@ -481,7 +390,6 @@ function CoreCutsceneSequencerPanel:_on_mouse_left_down(sender, event)
 	if sender ~= self._ruler and sender ~= self:audio_track() and sender ~= self:key_track() then
 		self:set_active_film_track(sender)
 	end
-
 	self:_propagate_event_to_all_components("on_mouse_left_down", sender, event)
 end
 
@@ -503,7 +411,6 @@ function CoreCutsceneSequencerPanel:_on_mouse_right_up(sender, event)
 	else
 		self:_show_film_track_context_menu(sender, event)
 	end
-
 end
 
 function CoreCutsceneSequencerPanel:_on_mousewheel(track, event)
@@ -511,60 +418,33 @@ function CoreCutsceneSequencerPanel:_on_mousewheel(track, event)
 end
 
 function CoreCutsceneSequencerPanel:_on_start_box_selection(event)
-	local (for generator), (for state), (for control) = ipairs(self._box_selection_ornaments)
-	do
-		do break end
+	for _, selection_box in ipairs(self._box_selection_ornaments) do
 		local cursor_position = event:get_position_on_screen()
 		selection_box:set_start_point(cursor_position)
 		selection_box:set_end_point(cursor_position)
 		selection_box:set_visible(true)
 	end
-
 end
 
 function CoreCutsceneSequencerPanel:_on_drag_box_selection(event)
 	local all_clips_within_box = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._box_selection_ornaments)
-		do
-			do break end
-			selection_box:set_end_point(event:get_position_on_screen())
-			all_clips_within_box = table.list_add(all_clips_within_box, selection_box:clips_within_box())
-		end
-
+	for _, selection_box in ipairs(self._box_selection_ornaments) do
+		selection_box:set_end_point(event:get_position_on_screen())
+		all_clips_within_box = table.list_add(all_clips_within_box, selection_box:clips_within_box())
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._all_clips_within_box_at_last_update or {})
-		do
-			do break end
-			clip:set_selected(false)
-		end
-
+	for _, clip in ipairs(self._all_clips_within_box_at_last_update or {}) do
+		clip:set_selected(false)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(all_clips_within_box)
-		do
-			do break end
-			clip:set_selected(true)
-		end
-
+	for _, clip in ipairs(all_clips_within_box) do
+		clip:set_selected(true)
 	end
-
 	self._all_clips_within_box_at_last_update = all_clips_within_box
 end
 
 function CoreCutsceneSequencerPanel:_on_commit_box_selection(event)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._box_selection_ornaments)
-		do
-			do break end
-			selection_box:set_visible(false)
-		end
-
+	for _, selection_box in ipairs(self._box_selection_ornaments) do
+		selection_box:set_visible(false)
 	end
-
 	self._all_clips_within_box_at_last_update = nil
 	self:_send_event("EVT_SELECTION_CHANGED")
 end

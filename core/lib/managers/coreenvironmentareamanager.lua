@@ -10,15 +10,9 @@ function EnvironmentAreaManager:init()
 	self.GAME_DEFAULT_ENVIRONMENT = "core/environments/default"
 	self._default_environment = self.GAME_DEFAULT_ENVIRONMENT
 	self._current_environment = self.GAME_DEFAULT_ENVIRONMENT
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.viewport:viewports())
-		do
-			do break end
-			self:_set_environment(self.GAME_DEFAULT_ENVIRONMENT, 0, vp)
-		end
-
+	for _, vp in ipairs(managers.viewport:viewports()) do
+		self:_set_environment(self.GAME_DEFAULT_ENVIRONMENT, 0, vp)
 	end
-
 	self._environment_changed_callback = {}
 	self:set_default_transition_time(0.1)
 	self.POSITION_OFFSET = 50
@@ -48,18 +42,13 @@ function EnvironmentAreaManager:set_default_environment(environment, time, vp)
 	self._default_environment = environment
 	if not self._current_area then
 		if not vp then
-			local (for generator), (for state), (for control) = ipairs(managers.viewport:viewports())
-			do
-				do break end
+			for _, viewport in ipairs(managers.viewport:viewports()) do
 				self:_set_environment(self._default_environment, time, viewport)
 			end
-
 		else
 			self:_set_environment(self._default_environment, time, vp)
 		end
-
 	end
-
 end
 
 function EnvironmentAreaManager:set_to_current_environment(vp)
@@ -77,12 +66,9 @@ end
 
 function EnvironmentAreaManager:set_to_default()
 	local vps = managers.viewport:active_viewports()
-	local (for generator), (for state), (for control) = ipairs(vps)
-	do
-		do break end
+	for _, vp in ipairs(vps) do
 		self:set_default_environment(self.GAME_DEFAULT_ENVIRONMENT, nil, vp)
 	end
-
 end
 
 function EnvironmentAreaManager:add_area(area_params)
@@ -95,7 +81,6 @@ function EnvironmentAreaManager:remove_area(area)
 	if area == self._current_area then
 		self:_leave_current_area(self._current_area:transition_time())
 	end
-
 	table.delete(self._areas, area)
 	self._area_iterator = 1
 end
@@ -104,18 +89,14 @@ local mvec1 = Vector3()
 local mvec2 = Vector3()
 function EnvironmentAreaManager:update(t, dt)
 	local vps = managers.viewport:active_viewports()
-	local (for generator), (for state), (for control) = ipairs(vps)
-	do
-		do break end
+	for _, vp in ipairs(vps) do
 		local camera = vp:camera()
 		if not camera then
 			return
 		end
-
 		if self._blocks > 0 then
 			return
 		end
-
 		local check_pos = mvec1
 		local c_fwd = mvec2
 		camera:m_position(check_pos)
@@ -128,20 +109,16 @@ function EnvironmentAreaManager:update(t, dt)
 			if still_inside then
 				return
 			end
-
 			local transition_time = self._current_area:transition_time()
 			self._current_area = nil
 			self:_check_inside(check_pos, vp)
 			if self._current_area then
 				return
 			end
-
 			self:_leave_current_area(transition_time, vp)
 		end
-
 		self:_check_inside(check_pos, vp)
 	end
-
 end
 
 function EnvironmentAreaManager:_check_inside(check_pos, vp)
@@ -158,17 +135,12 @@ function EnvironmentAreaManager:_check_inside(check_pos, vp)
 					else
 						self:_set_environment(area:environment(), transition_time, vp)
 					end
-
 				end
-
 				self._current_area = area
 				break
 			end
-
 		end
-
 	end
-
 end
 
 function EnvironmentAreaManager:_leave_current_area(transition_time, vp)
@@ -176,24 +148,16 @@ function EnvironmentAreaManager:_leave_current_area(transition_time, vp)
 	if self._default_environment ~= self._current_environment then
 		self:_set_environment(self._default_environment, transition_time, vp)
 	end
-
 end
 
 function EnvironmentAreaManager:environment_at_position(pos)
 	local environment = self._default_environment
-	do
-		local (for generator), (for state), (for control) = ipairs(self._areas)
-		do
-			do break end
-			if area:is_inside(pos) then
-				environment = area:environment()
-		end
-
+	for _, area in ipairs(self._areas) do
+		if area:is_inside(pos) then
+			environment = area:environment()
 		else
 		end
-
 	end
-
 	return environment
 end
 

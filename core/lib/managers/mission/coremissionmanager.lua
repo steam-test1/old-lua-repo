@@ -39,30 +39,21 @@ function MissionManager:parse(params, stage_name, offset, file_type)
 		file_path = params
 		file_type = file_type or "mission"
 	end
-
 	CoreDebug.cat_debug("gaspode", "MissionManager", file_path, file_type, activate_mission)
 	if not DB:has(file_type, file_path) then
 		Application:error("Couldn't find", file_path, "(", file_type, ")")
 		return false
 	end
-
 	local reverse = string.reverse(file_path)
 	local i = string.find(reverse, "/")
 	local file_dir = string.reverse(string.sub(reverse, i))
 	local continent_files = self:_serialize_to_script(file_type, file_path)
 	continent_files._meta = nil
-	do
-		local (for generator), (for state), (for control) = pairs(continent_files)
-		do
-			do break end
-			if not managers.worlddefinition:continent_excluded(name) then
-				self:_load_mission_file(file_dir, data)
-			end
-
+	for name, data in pairs(continent_files) do
+		if not managers.worlddefinition:continent_excluded(name) then
+			self:_load_mission_file(file_dir, data)
 		end
-
 	end
-
 	self:_activate_mission(activate_mission)
 	return true
 end
@@ -74,23 +65,18 @@ function MissionManager:_serialize_to_script(type, name)
 		if not PackageManager:has(type:id(), name:id()) then
 			Application:throw_exception("Script data file " .. name .. " of type " .. type .. " has not been loaded. Could be that old mission format is being loaded. Try resaving the level.")
 		end
-
 		return PackageManager:script_data(type:id(), name:id())
 	end
-
 end
 
 function MissionManager:_load_mission_file(file_dir, data)
 	local file_path = file_dir .. data.file
 	local scripts = self:_serialize_to_script("mission", file_path)
 	scripts._meta = nil
-	local (for generator), (for state), (for control) = pairs(scripts)
-	do
-		do break end
+	for name, data in pairs(scripts) do
 		data.name = name
 		self:_add_script(data)
 	end
-
 end
 
 function MissionManager:_add_script(data)
@@ -113,19 +99,13 @@ function MissionManager:_activate_mission(name)
 		else
 			Application:throw_exception("There was no mission named " .. name .. " availible to activate!")
 		end
-
 	else
-		local (for generator), (for state), (for control) = pairs(self._scripts)
-		do
-			do break end
+		for _, script in pairs(self._scripts) do
 			if script:activate_on_parsed() then
 				self:activate_script(script:name())
 			end
-
 		end
-
 	end
-
 end
 
 function MissionManager:activate_script(name, ...)
@@ -137,32 +117,21 @@ function MissionManager:activate_script(name, ...)
 		else
 			Application:throw_exception("Can't activate mission script " .. name .. ". It doesn't exist.")
 		end
-
 	end
-
 	self._scripts[name]:activate(...)
 end
 
 function MissionManager:update(t, dt)
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for _, script in pairs(self._scripts) do
 		script:update(t, dt)
 	end
-
 end
 
 function MissionManager:stop_simulation(...)
 	self:pre_destroy()
-	do
-		local (for generator), (for state), (for control) = pairs(self._scripts)
-		do
-			do break end
-			script:stop_simulation(...)
-		end
-
+	for _, script in pairs(self._scripts) do
+		script:stop_simulation(...)
 	end
-
 	self._scripts = {}
 	self._runned_unit_sequences_callbacks = {}
 	self._global_event_listener = rawget(_G, "EventListenerHolder"):new()
@@ -179,37 +148,28 @@ function MissionManager:add_runned_unit_sequence_trigger(id, sequence, callback)
 		else
 			self._runned_unit_sequences_callbacks[id][sequence] = {callback}
 		end
-
 	else
 		local t = {}
 		t[sequence] = {callback}
 		self._runned_unit_sequences_callbacks[id] = t
 	end
-
 end
 
 function MissionManager:runned_unit_sequence(unit, sequence, params)
 	if self._pre_destroyed then
 		return
 	end
-
 	if alive(unit) and unit:unit_data() then
 		local id = unit:unit_data().unit_id
 		if id == 0 or not id then
 			id = unit:editor_id()
 		end
-
 		if self._runned_unit_sequences_callbacks[id] and self._runned_unit_sequences_callbacks[id][sequence] then
-			local (for generator), (for state), (for control) = ipairs(self._runned_unit_sequences_callbacks[id][sequence])
-			do
-				do break end
+			for _, call in ipairs(self._runned_unit_sequences_callbacks[id][sequence]) do
 				call(params and params.unit)
 			end
-
 		end
-
 	end
-
 end
 
 function MissionManager:add_area_instigator_categories(category)
@@ -243,14 +203,12 @@ function MissionManager:set_persistent_debug_enabled(enabled)
 	else
 		self._persistent_debug_output:hide()
 	end
-
 end
 
 function MissionManager:add_persistent_debug_output(debug, color)
 	if not self._persistent_debug_enabled then
 		return
 	end
-
 	self._persistent_debug_output:script().log(debug, color)
 end
 
@@ -261,18 +219,15 @@ function MissionManager:set_fading_debug_enabled(enabled)
 	else
 		self._fading_debug_output:hide()
 	end
-
 end
 
 function MissionManager:add_fading_debug_output(debug, color, as_subtitle)
 	if not Application:production_build() then
 		return
 	end
-
 	if not self._fading_debug_enabled then
 		return
 	end
-
 	if as_subtitle then
 		self:_show_debug_subtitle(debug, color)
 	else
@@ -286,7 +241,6 @@ function MissionManager:add_fading_debug_output(debug, color, as_subtitle)
 		self._fade_index = self._fade_index > #stuff and self._fade_index and 1 or self._fade_index
 		self._fading_debug_output:script().log(stuff[self._fade_index] .. " " .. debug, color, nil)
 	end
-
 end
 
 function MissionManager:_show_debug_subtitle(debug, color)
@@ -319,15 +273,11 @@ function MissionManager:_show_debug_subtitle(debug, color)
 end
 
 function MissionManager:get_element_by_id(id)
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for name, script in pairs(self._scripts) do
 		if script:element(id) then
 			return script:element(id)
 		end
-
 	end
-
 end
 
 function MissionManager:add_global_event_listener(key, events, clbk)
@@ -352,58 +302,37 @@ end
 
 function MissionManager:save(data)
 	local state = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._scripts)
-		do
-			do break end
-			script:save(state)
-		end
-
+	for _, script in pairs(self._scripts) do
+		script:save(state)
 	end
-
 	data.MissionManager = state
 end
 
 function MissionManager:load(data)
 	local state = data.MissionManager
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for _, script in pairs(self._scripts) do
 		script:load(state)
 	end
-
 end
 
 function MissionManager:pre_destroy()
 	self._pre_destroyed = true
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for _, script in pairs(self._scripts) do
 		script:pre_destroy()
 	end
-
 end
 
 function MissionManager:destroy()
-	local (for generator), (for state), (for control) = pairs(self._scripts)
-	do
-		do break end
+	for _, script in pairs(self._scripts) do
 		script:destroy()
 	end
-
 end
 
 MissionScript = MissionScript or CoreClass.class(CoreEvent.CallbackHandler)
 MissionScript.imported_modules = MissionScript.imported_modules or {}
-do
-	local (for generator), (for state), (for control) = pairs(MissionScript.imported_modules)
-	do
-		do break end
-		MissionScript.import(module_name)
-	end
-
+for module_name, _ in pairs(MissionScript.imported_modules) do
+	MissionScript.import(module_name)
 end
-
 function MissionScript.import(module_name)
 	MissionScript.imported_modules[module_name] = true
 	local module = core:import(module_name)
@@ -419,9 +348,7 @@ function MissionScript:init(data)
 	CoreDebug.cat_debug("gaspode", "New MissionScript:", self._name)
 	self:_create_elements(data.elements)
 	if data.instances then
-		local (for generator), (for state), (for control) = ipairs(data.instances)
-		do
-			do break end
+		for _, instance_name in ipairs(data.instances) do
 			local instance_data = managers.world_instance:get_instance_data_by_name(instance_name)
 			local prepare_mission_data = managers.world_instance:prepare_mission_data_by_name(instance_name)
 			if not instance_data.mission_placed then
@@ -429,11 +356,8 @@ function MissionScript:init(data)
 			else
 				self:_preload_instance_class_elements(prepare_mission_data)
 			end
-
 		end
-
 	end
-
 	self._updators = {}
 	self._save_states = {}
 	self:_on_created(self._elements)
@@ -445,53 +369,34 @@ function MissionScript:external_create_instance_elements(prepare_mission_data)
 	if self._active then
 		self:_on_script_activated(new_elements)
 	end
-
 end
 
 function MissionScript:create_instance_elements(prepare_mission_data)
 	local new_elements = {}
-	do
-		local (for generator), (for state), (for control) = pairs(prepare_mission_data)
-		do
-			do break end
-			new_elements = self:_create_elements(instance_mission_data.elements)
-		end
-
+	for _, instance_mission_data in pairs(prepare_mission_data) do
+		new_elements = self:_create_elements(instance_mission_data.elements)
 	end
-
 	return new_elements
 end
 
 function MissionScript:_preload_instance_class_elements(prepare_mission_data)
-	local (for generator), (for state), (for control) = pairs(prepare_mission_data)
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(instance_mission_data.elements)
-		do
-			do break end
+	for _, instance_mission_data in pairs(prepare_mission_data) do
+		for _, element in ipairs(instance_mission_data.elements) do
 			self:_element_class(element.module, element.class)
 		end
-
 	end
-
 end
 
 function MissionScript:_create_elements(elements)
 	local new_elements = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(elements)
-		do
-			do break end
-			local class = element.class
-			local new_element = self:_element_class(element.module, class):new(self, element)
-			self._elements[element.id] = new_element
-			new_elements[element.id] = new_element
-			self._element_groups[class] = self._element_groups[class] or {}
-			table.insert(self._element_groups[class], new_element)
-		end
-
+	for _, element in ipairs(elements) do
+		local class = element.class
+		local new_element = self:_element_class(element.module, class):new(self, element)
+		self._elements[element.id] = new_element
+		new_elements[element.id] = new_element
+		self._element_groups[class] = self._element_groups[class] or {}
+		table.insert(self._element_groups[class], new_element)
 	end
-
 	return new_elements
 end
 
@@ -500,12 +405,9 @@ function MissionScript:activate_on_parsed()
 end
 
 function MissionScript:_on_created(elements)
-	local (for generator), (for state), (for control) = pairs(elements)
-	do
-		do break end
+	for _, element in pairs(elements) do
 		element:on_created()
 	end
-
 end
 
 function MissionScript:_element_class(module_name, class_name)
@@ -514,12 +416,10 @@ function MissionScript:_element_class(module_name, class_name)
 		local raw_module = rawget(_G, "CoreMissionManager")[module_name]
 		element_class = raw_module and raw_module[class_name] or MissionScript.import(module_name)[class_name]
 	end
-
 	if not element_class then
 		element_class = CoreMissionScriptElement.MissionScriptElement
 		Application:error("[MissionScript]SCRIPT ERROR: Didn't find class", class_name, module_name)
 	end
-
 	return element_class
 end
 
@@ -531,24 +431,14 @@ function MissionScript:activate(...)
 end
 
 function MissionScript:_on_script_activated(elements, ...)
-	do
-		local (for generator), (for state), (for control) = pairs(elements)
-		do
-			do break end
-			element:on_script_activated()
-		end
-
+	for _, element in pairs(elements) do
+		element:on_script_activated()
 	end
-
-	local (for generator), (for state), (for control) = pairs(elements)
-	do
-		do break end
+	for _, element in pairs(elements) do
 		if element:value("execute_on_startup") then
 			element:on_executed(...)
 		end
-
 	end
-
 end
 
 function MissionScript:add_updator(id, updator)
@@ -561,12 +451,9 @@ end
 
 function MissionScript:update(t, dt)
 	MissionScript.super.update(self, dt)
-	local (for generator), (for state), (for control) = pairs(self._updators)
-	do
-		do break end
+	for _, updator in pairs(self._updators) do
 		updator(t, dt)
 	end
-
 end
 
 function MissionScript:_debug_draw(t, dt)
@@ -574,9 +461,7 @@ function MissionScript:_debug_draw(t, dt)
 	local name_brush = Draw:brush(Color.red)
 	name_brush:set_font(Idstring("fonts/font_medium"), 16)
 	name_brush:set_render_template(Idstring("OverlayVertexColorTextured"))
-	local (for generator), (for state), (for control) = pairs(self._elements)
-	do
-		do break end
+	for _, element in pairs(self._elements) do
 		brush:set_color(element:enabled() and Color.green or Color.red)
 		name_brush:set_color(element:enabled() and Color.green or Color.red)
 		if element:value("position") then
@@ -586,18 +471,14 @@ function MissionScript:_debug_draw(t, dt)
 				local cam_right = managers.viewport:get_current_camera():rotation():x()
 				name_brush:center_text(element:value("position") + Vector3(0, 0, 30), element:editor_name(), cam_right, -cam_up)
 			end
-
 		end
-
 		if element:value("rotation") then
 			local rotation = CoreClass.type_name(element:value("rotation")) == "Rotation" and element:value("rotation") or Rotation(element:value("rotation"), 0, 0)
 			brush:cylinder(element:value("position"), element:value("position") + rotation:y() * 50, 2)
 			brush:cylinder(element:value("position"), element:value("position") + rotation:z() * 25, 1)
 		end
-
 		element:debug_draw(t, dt)
 	end
-
 end
 
 function MissionScript:name()
@@ -639,78 +520,46 @@ end
 
 function MissionScript:save(data)
 	local state = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._save_states)
-		do
-			do break end
-			state[id] = {}
-			self._elements[id]:save(state[id])
-		end
-
+	for id, _ in pairs(self._save_states) do
+		state[id] = {}
+		self._elements[id]:save(state[id])
 	end
-
 	data[self._name] = state
 end
 
 function MissionScript:load(data)
 	local state = data[self._name]
 	if self._element_groups.ElementInstancePoint then
-		local (for generator), (for state), (for control) = ipairs(self._element_groups.ElementInstancePoint)
-		do
-			do break end
+		for _, element in ipairs(self._element_groups.ElementInstancePoint) do
 			if state[element:id()] then
 				self._elements[element:id()]:load(state[element:id()])
 				state[element:id()] = nil
 			end
-
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = pairs(state)
-	do
-		do break end
+	for id, mission_state in pairs(state) do
 		self._elements[id]:load(mission_state)
 	end
-
 end
 
 function MissionScript:stop_simulation(...)
-	do
-		local (for generator), (for state), (for control) = pairs(self._elements)
-		do
-			do break end
-			element:stop_simulation(...)
-		end
-
+	for _, element in pairs(self._elements) do
+		element:stop_simulation(...)
 	end
-
 	MissionScript.super.clear(self)
 end
 
 function MissionScript:pre_destroy(...)
-	do
-		local (for generator), (for state), (for control) = pairs(self._elements)
-		do
-			do break end
-			element:pre_destroy(...)
-		end
-
+	for _, element in pairs(self._elements) do
+		element:pre_destroy(...)
 	end
-
 	MissionScript.super.clear(self)
 end
 
 function MissionScript:destroy(...)
-	do
-		local (for generator), (for state), (for control) = pairs(self._elements)
-		do
-			do break end
-			element:destroy(...)
-		end
-
+	for _, element in pairs(self._elements) do
+		element:destroy(...)
 	end
-
 	MissionScript.super.clear(self)
 end
 

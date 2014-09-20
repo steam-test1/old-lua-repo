@@ -33,7 +33,6 @@ function CameraDataInterpreter:init(cud)
 		self._dof_far_min = 0
 		self._dof_far_max = 0
 	end
-
 end
 
 function CameraDataInterpreter:reset()
@@ -103,11 +102,9 @@ function CameraDataInterpreter:transform_with(cud)
 	if cud._pivot_position then
 		self._position = self._position + cud._pivot_position:rotate_with(self._rotation)
 	end
-
 	if cud._pivot_rotation then
 		self._rotation = self._rotation * cud._pivot_rotation
 	end
-
 	self._position = self._position + cud._position:rotate_with(self._rotation)
 	self._rotation = self._rotation * cud._rotation
 	self._fov = self._fov + cud._fov

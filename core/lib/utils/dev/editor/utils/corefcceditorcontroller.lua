@@ -18,7 +18,6 @@ function FFCEditorController:update(time, rel_time)
 			self:create_cube_map()
 			return
 		end
-
 		local speed = self._move_speed * rel_time
 		local turn_speed = self._turn_speed * 0.001
 		local altitude = Vector3(0, 0, speed * (self._controller:button(Idstring("altitude_up")) - self._controller:button(Idstring("altitude_down"))))
@@ -33,23 +32,18 @@ function FFCEditorController:update(time, rel_time)
 			if math.abs(y) < 0.1 then
 				y = 0
 			end
-
 			if math.abs(x) < 0.1 then
 				x = 0
 			end
-
 			self._pitch = math.clamp(self._pitch + 10 * turn_speed * -y, -90, 90)
 			self._yaw = self._yaw + 10 * turn_speed * -x
 		end
-
 		if self._controller:button(Idstring("plane_switch")) ~= 0 then
 			move = Vector3(move.x, move.y, 0)
 		end
-
 		self._camera:set_position(self._camera:position() + move + altitude)
 		self._camera:set_rotation(Rotation(self._yaw, self._pitch, 0))
 	end
-
 end
 
 function FFCEditorController:set_camera(cam)
@@ -120,9 +114,7 @@ function FFCEditorController:start_cube_map(params)
 			rot = Rotation(-rot:z(), rot:y())
 			self._params.unit:set_rotation(rot)
 		end
-
 	end
-
 	self._camera:set_fov(self._params.spot and self._params.light:spot_angle_end() or 90)
 	self._cube_counter = 0
 	self._wait_frames = 5
@@ -153,7 +145,6 @@ function FFCEditorController:create_cube_map()
 		self._wait_frames = self._wait_frames - 1
 		return false
 	end
-
 	self._cube_counter = self._cube_counter + 1
 	if self._params.spot then
 		if self._cube_counter == 1 then
@@ -163,10 +154,8 @@ function FFCEditorController:create_cube_map()
 		else
 			self:_cubemap_done()
 		end
-
 		return true
 	end
-
 	local x1, y1, x2, y2 = self:_get_screen_size()
 	if self._cube_counter == 1 then
 		self._camera:set_rotation(Rotation(Vector3(0, 0, 1), Vector3(0, -1, 0)))
@@ -185,7 +174,6 @@ function FFCEditorController:create_cube_map()
 		self:_cubemap_done()
 		return true
 	end
-
 	local path = self._params.source_path or managers.database:root_path()
 	Application:screenshot(path .. self._names[self._cube_counter], x1, y1, x2, y2)
 	return false
@@ -195,12 +183,10 @@ function FFCEditorController:_cubemap_done()
 	if alive(self._light) then
 		World:delete_light(self._light)
 	end
-
 	self._creating_cube_map = nil
 	if self._cube_map_done_func then
 		self._cube_map_done_func()
 	end
-
 end
 
 function FFCEditorController:_get_screen_size()
@@ -232,16 +218,10 @@ end
 
 function FFCEditorController:_generate_cubemap(file)
 	local execute = managers.database:root_path() .. "aux_assets/engine/tools/" .. file .. ".bat "
-	do
-		local (for generator), (for state), (for control) = ipairs(self._names)
-		do
-			do break end
-			local path = self._params.source_path or managers.database:root_path()
-			execute = execute .. path .. self._name_ordered[i] .. " "
-		end
-
+	for i, _ in ipairs(self._names) do
+		local path = self._params.source_path or managers.database:root_path()
+		execute = execute .. path .. self._name_ordered[i] .. " "
 	end
-
 	local output_path = (self._params.output_path or managers.database:root_path()) .. self._output_name .. " "
 	execute = execute .. output_path .. " "
 	os.execute(execute)
@@ -289,6 +269,5 @@ function FFCEditorController:toggle_orthographic(use)
 		camera:set_position(self._camera_settings.position)
 		camera:set_rotation(self._camera_settings.rotation)
 	end
-
 end
 

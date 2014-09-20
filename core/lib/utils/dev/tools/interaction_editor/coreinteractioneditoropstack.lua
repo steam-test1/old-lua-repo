@@ -48,9 +48,7 @@ function InteractionEditorOpStack:undo()
 		else
 			self:undo()
 		end
-
 	end
-
 end
 
 function InteractionEditorOpStack:redo()
@@ -64,8 +62,6 @@ function InteractionEditorOpStack:redo()
 		else
 			self:redo()
 		end
-
 	end
-
 end
 

@@ -13,7 +13,6 @@ function Xbox360PlayerReviewDialog:show()
 	else
 		Application:error("[SystemMenuManager] Unable to display player review dialog since no player id was specified.")
 	end
-
 	self._show_time = TimerManager:main():time()
 	return true
 end
@@ -22,7 +21,6 @@ function Xbox360PlayerReviewDialog:update(t, dt)
 	if self._show_time and self._show_time ~= t and not Application:is_showing_system_dialog() then
 		self:done_callback()
 	end
-
 end
 
 function Xbox360PlayerReviewDialog:done_callback()

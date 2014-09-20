@@ -14,10 +14,8 @@ function InEditor:transition()
 	if not self.game_state._game_requester:is_requested() then
 		return
 	end
-
 	if self.game_state._session_manager:_main_systems_are_stable_for_loading() then
 		return CoreGameStateInEditorPrepareStartSimulation.PrepareStartSimulation
 	end
-
 end
 

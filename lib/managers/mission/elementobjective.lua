@@ -16,7 +16,6 @@ function ElementObjective:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	if self._values.objective ~= "none" then
 		if self._values.state == "activate" then
 			local amount = self._values.amount and self._values.amount > 0 and self._values.amount or nil
@@ -27,17 +26,14 @@ function ElementObjective:on_executed(instigator)
 			else
 				managers.objectives:complete_objective(self._values.objective)
 			end
-
 		elseif self._values.state == "update" then
 			managers.objectives:update_objective(self._values.objective)
 		elseif self._values.state == "remove" then
 			managers.objectives:remove_objective(self._values.objective)
 		end
-
 	elseif Application:editor() then
 		managers.editor:output_error("Cant operate on objective " .. self._values.objective .. " in element " .. self._editor_name .. ".")
 	end
-
 	ElementObjective.super.on_executed(self, instigator)
 end
 
@@ -47,7 +43,6 @@ function ElementObjective:apply_job_value(amount)
 		Application:error("[ElementObjective:apply_job_value] " .. self._id .. "(" .. self._editor_name .. ") Can't apply job value of type " .. type)
 		return
 	end
-
 	self._values.amount = amount
 end
 

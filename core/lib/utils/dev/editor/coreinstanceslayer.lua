@@ -21,7 +21,6 @@ function InstancesLayer:_load_predefined_instances()
 		local file = DB:open("xml", self._predefined_instances_file)
 		self._predefined_instances = ScriptSerializer:from_generic_xml(file:read())
 	end
-
 end
 
 function InstancesLayer:load(world_holder, offset)
@@ -31,9 +30,7 @@ function InstancesLayer:load(world_holder, offset)
 end
 
 function InstancesLayer:save(save_params)
-	local (for generator), (for state), (for control) = ipairs(managers.world_instance:instance_data())
-	do
-		do break end
+	for _, data in ipairs(managers.world_instance:instance_data()) do
 		local t = {
 			entry = self._save_name,
 			continent = data.continent,
@@ -41,14 +38,12 @@ function InstancesLayer:save(save_params)
 		}
 		managers.editor:add_save_data(t)
 	end
-
 end
 
 function InstancesLayer:clone_unit()
 	if self:ctrl() then
 		self:clone()
 	end
-
 end
 
 function InstancesLayer:clone()
@@ -57,7 +52,6 @@ function InstancesLayer:clone()
 		local suggested_name = managers.world_instance:get_safe_name(nil, data.name)
 		self:add_instance(suggested_name, data.folder, data.index_size, data.script, data.position, data.rotation)
 	end
-
 end
 
 function InstancesLayer:spawn_unit()
@@ -66,7 +60,6 @@ function InstancesLayer:spawn_unit()
 		self._wants_to_create = true
 		self:do_spawn_unit(self._unit_name)
 	end
-
 end
 
 function InstancesLayer:do_spawn_unit(name, pos, rot)
@@ -77,7 +70,6 @@ function InstancesLayer:_mouse_create_instance()
 		self._wants_to_create = false
 		self:_get_instance_info_from_user()
 	end
-
 end
 
 function InstancesLayer:_get_instance_info_from_user()
@@ -85,17 +77,14 @@ function InstancesLayer:_get_instance_info_from_user()
 		managers.editor:output_error("Instance cannot be placed in new level. Open a saved level first.")
 		return
 	end
-
 	local predef = self._selected_predefined_instance
 	if not predef then
 		return
 	end
-
 	local script = self:_get_instance_script()
 	if not script then
 		return
 	end
-
 	local name = self:_get_name_from_user(predef)
 	if name then
 		local folder = self._predefined_instances[predef].folder
@@ -103,7 +92,6 @@ function InstancesLayer:_get_instance_info_from_user()
 		self:add_instance(name, folder, size, script)
 		return
 	end
-
 end
 
 function InstancesLayer:_get_instance_script()
@@ -113,7 +101,6 @@ function InstancesLayer:_get_instance_script()
 		managers.editor:output_error("There are now mission scripts in continent '" .. continent .. "'. Create one first.")
 		return
 	end
-
 	local script = scripts[1]
 	if #scripts > 1 then
 		local dialog = EWS:SingleChoiceDialog(Global.frame_panel, "Select which script the instance should be placed in:", "Scripts", scripts, "")
@@ -122,9 +109,7 @@ function InstancesLayer:_get_instance_script()
 		if not script or script == "" then
 			return nil
 		end
-
 	end
-
 	return script
 end
 
@@ -133,16 +118,13 @@ function InstancesLayer:_get_name_from_user(predef)
 	if predef then
 		return suggested_name
 	end
-
 	local name = EWS:get_text_from_user(Global.frame_panel, "Enter name for the instance:", "Create instance", suggested_name, Vector3(-1, -1, 0), true)
 	if name and name ~= "" then
 		if managers.world_instance:has_instance(name) then
 			return self:_get_name_from_user()
 		end
-
 		return name
 	end
-
 	return nil
 end
 
@@ -153,7 +135,6 @@ function InstancesLayer:use_grab_info()
 		self:set_instance_positions(self._grab_info:position())
 		self:set_instance_rotations(self._grab_info:rotation() * self._selected_instance_data.rotation:inverse())
 	end
-
 end
 
 function InstancesLayer:move_unit(btn, pressed)
@@ -163,9 +144,7 @@ function InstancesLayer:move_unit(btn, pressed)
 		if not managers.editor:invert_move_shift() or managers.editor:invert_move_shift() and self:shift() then
 			self._offset_move_vec = self._selected_instance_data.position - self._current_pos
 		end
-
 	end
-
 end
 
 function InstancesLayer:rotate_unit(btn, pressed)
@@ -180,7 +159,6 @@ function InstancesLayer:rotate_unit(btn, pressed)
 			elseif snap_axis == "z" then
 				rot_axis = self._selected_instance_data.rotation:z()
 			end
-
 		elseif snap_axis == "x" then
 			rot_axis = Vector3(1, 0, 0)
 		elseif snap_axis == "y" then
@@ -188,16 +166,13 @@ function InstancesLayer:rotate_unit(btn, pressed)
 		elseif snap_axis == "z" then
 			rot_axis = Vector3(0, 0, 1)
 		end
-
 		local step = self:snap_rotation()
 		if self:shift() then
 			step = -step
 		end
-
 		local rot = Rotation(rot_axis, step)
 		self:set_instance_rotations(rot)
 	end
-
 end
 
 function InstancesLayer:position_as()
@@ -212,16 +187,13 @@ function InstancesLayer:position_as()
 			self:set_instance_positions(ray.unit:position())
 			self:set_instance_rotations(ray.unit:rotation() * self._selected_instance:data().rotation:inverse())
 		end
-
 	end
-
 end
 
 function InstancesLayer:click_select_unit()
 	if self:condition() or self:grab() then
 		return
 	end
-
 	managers.editor:click_select_unit(self)
 end
 
@@ -244,7 +216,6 @@ function InstancesLayer:select_instance(instance_name)
 		self._instance_info_guis.start_index:set_label("N/A")
 		self._instance_info_guis.end_index:set_label("N/A")
 	end
-
 	self:update_unit_settings()
 	self:_update_overlay_gui()
 end
@@ -261,27 +232,16 @@ function InstancesLayer:get_instance_units_by_name(name)
 	if self._stashed_instance_units[name] then
 		return self._stashed_instance_units[name]
 	end
-
 	local layer_names = {"Statics", "Dynamics"}
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(layer_names)
-		do
-			do break end
-			t[layer_name] = t[layer_name] or {}
-			local (for generator), (for state), (for control) = ipairs(managers.editor:layer(layer_name):created_units())
-			do
-				do break end
-				if alive(unit) and unit:unit_data().instance and unit:unit_data().instance == name then
-					table.insert(t[layer_name], unit)
-				end
-
+	for _, layer_name in ipairs(layer_names) do
+		t[layer_name] = t[layer_name] or {}
+		for _, unit in ipairs(managers.editor:layer(layer_name):created_units()) do
+			if alive(unit) and unit:unit_data().instance and unit:unit_data().instance == name then
+				table.insert(t[layer_name], unit)
 			end
-
 		end
-
 	end
-
 	self._stashed_instance_units[name] = t
 	return t
 end
@@ -290,23 +250,12 @@ function InstancesLayer:_delete_instance_by_name(name)
 	managers.editor:freeze_gui_lists()
 	if self._selected_instance and not self:condition() then
 		local instance_units = self:get_instance_units_by_name(name)
-		do
-			local (for generator), (for state), (for control) = pairs(instance_units)
-			do
-				do break end
-				local (for generator), (for state), (for control) = ipairs(units)
-				do
-					do break end
-					managers.editor:layer(name):delete_unit(unit)
-				end
-
+		for name, units in pairs(instance_units) do
+			for _, unit in ipairs(units) do
+				managers.editor:layer(name):delete_unit(unit)
 			end
-
 		end
-
-		local (for generator), (for state), (for control) = ipairs(managers.world_instance:instance_data())
-		do
-			do break end
+		for i, instance in ipairs(managers.world_instance:instance_data()) do
 			if instance.name == name then
 				table.remove(managers.world_instance:instance_data(), i)
 				self._stashed_instance_units[name] = nil
@@ -314,15 +263,11 @@ function InstancesLayer:_delete_instance_by_name(name)
 					self._selected_instance = nil
 					self._selected_instance_data = nil
 				end
-
 				self:_update_instances_listbox()
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 	managers.editor:thaw_gui_lists()
 	self:update_unit_settings()
 	self:_update_overlay_gui()
@@ -332,7 +277,6 @@ function InstancesLayer:delete_selected_unit(btn, pressed)
 	if self._selected_instance then
 		self:_delete_instance_by_name(self._selected_instance:name())
 	end
-
 end
 
 function InstancesLayer:reset_rotation()
@@ -355,30 +299,21 @@ function InstancesLayer:add_instance(name, folder, index_size, script, pos, rot)
 	local continent_data = managers.editor:current_continent():values()
 	local prepared_unit_data = managers.world_instance:prepare_unit_data(instance, continent_data)
 	if prepared_unit_data.statics then
-		local (for generator), (for state), (for control) = ipairs(prepared_unit_data.statics)
-		do
-			do break end
+		for _, static in ipairs(prepared_unit_data.statics) do
 			local unit = managers.worlddefinition:_create_statics_unit(static, Vector3())
 			managers.editor:layer("Statics"):add_unit_to_created_units(unit)
 		end
-
 	end
-
 	if prepared_unit_data.dynamics then
-		local (for generator), (for state), (for control) = ipairs(prepared_unit_data.dynamics)
-		do
-			do break end
+		for _, entry in ipairs(prepared_unit_data.dynamics) do
 			local unit = managers.worlddefinition:_create_dynamics_unit(entry, Vector3())
 			managers.editor:layer("Dynamics"):add_unit_to_created_units(unit)
 			for i = 0, unit:num_bodies() - 1 do
 				unit:body(i):set_keyframed(true)
 				unit:set_keyframed(true)
 			end
-
 		end
-
 	end
-
 	self:_update_instances_listbox()
 	self:select_instance(instance.name)
 	self:_update_overlay_gui()
@@ -386,28 +321,19 @@ end
 
 function InstancesLayer:update(t, dt)
 	InstancesLayer.super.super.update(self, t, dt)
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.world_instance:instances_data_by_continent(managers.editor:current_continent():name()))
-		do
-			do break end
-			local instance_units = self:get_instance_units_by_name(instance_data.name)
-			if #instance_units == 0 then
-				Application:draw_sphere(instance_data.position, 50, 0.5, 0.5, 0.5)
-			end
-
+	for _, instance_data in ipairs(managers.world_instance:instances_data_by_continent(managers.editor:current_continent():name())) do
+		local instance_units = self:get_instance_units_by_name(instance_data.name)
+		if #instance_units == 0 then
+			Application:draw_sphere(instance_data.position, 50, 0.5, 0.5, 0.5)
 		end
-
 	end
-
 	if self._selected_instance then
 		self:_draw_instance(t, dt, self._selected_instance:name())
 	end
-
 	if not self:condition() then
 		if self._grab and self:shift() and not managers.editor:invert_move_shift() or not self:shift() and managers.editor:invert_move_shift() then
 			self._offset_move_vec = Vector3(0, 0, 0)
 		end
-
 		local current_pos, current_rot = managers.editor:current_orientation(self._offset_move_vec, self._selected_unit)
 		self._current_pos = current_pos or self._current_pos
 		self._current_rot = current_rot
@@ -417,31 +343,23 @@ function InstancesLayer:update(t, dt)
 			else
 				self._grab = false
 			end
-
 		end
-
 		if self._current_rot then
 			if self._ctrl:down(Idstring("assign_suface_normal")) then
 				self:set_unit_rotations(self._current_rot)
 			end
-
 			if self._grab then
 				if self._ctrl:down(Idstring("surface_move_align_normal")) then
 					self:set_unit_rotations(self._current_rot)
 				end
-
 				if self:use_snappoints() then
 					self:set_unit_rotations(self._current_rot)
 				end
-
 			end
-
 		end
-
 		self:draw_marker(t, dt)
 		self:draw_grid(t, dt)
 	end
-
 	self:update_move_triggers(t, dt)
 	self:update_rotate_triggers(t, dt)
 end
@@ -450,11 +368,9 @@ function InstancesLayer:update_move_triggers(t, dt)
 	if not self._selected_instance or not self._editor_data.keyboard_available or self:condition() then
 		return
 	end
-
 	if not self._move_unit_rep:update(d, dt) or CoreInput.shift() then
 		return
 	end
-
 	local mov_vec
 	local u_rot = self._selected_instance_data.rotation
 	if self._ctrl:down(Idstring("move_forward")) then
@@ -470,23 +386,19 @@ function InstancesLayer:update_move_triggers(t, dt)
 	else
 		mov_vec = not self._ctrl:down(Idstring("move_down")) or self:local_rot() and u_rot:z() * -1 or Vector3(0, 0, 1) * -1
 	end
-
 	if mov_vec then
 		self:set_instance_positions(self._selected_instance_data.position + mov_vec * self:grid_size())
 	end
-
 end
 
 function InstancesLayer:update_rotate_triggers(t, dt)
 	if not self._selected_instance or not self._editor_data.keyboard_available or self:condition() then
 		return
 	end
-
 	local rot_speed = self:rotation_speed() * dt
 	if self:shift() then
 		rot_speed = rot_speed / 2
 	end
-
 	local rot_axis
 	local u_rot = self._selected_instance_data.rotation
 	if self._ctrl:down(Idstring("roll_left")) then
@@ -502,12 +414,10 @@ function InstancesLayer:update_rotate_triggers(t, dt)
 	elseif self._ctrl:down(Idstring("yaw_forward")) then
 		rot_axis = (self:local_rot() and u_rot:x() or Vector3(1, 0, 0)) * -1
 	end
-
 	if rot_axis then
 		local rot = Rotation(rot_axis, rot_speed)
 		self:set_instance_rotations(rot)
 	end
-
 end
 
 function InstancesLayer:external_draw_instance(t, dt, instance_name, r, g, b)
@@ -520,36 +430,23 @@ function InstancesLayer:_draw_instance(t, dt, instance_name, r, g, b)
 	b = b or 1
 	local unit_brush = Draw:brush(Color(0.15, r, g, b))
 	local instance_units = self:get_instance_units_by_name(instance_name)
-	do
-		local (for generator), (for state), (for control) = pairs(instance_units)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(units)
-			do
-				do break end
-				if alive(unit) and unit:unit_data().instance and unit:unit_data().instance == instance_name then
-					Application:draw(unit, r, g, b)
-					unit_brush:unit(unit)
-				end
-
+	for name, units in pairs(instance_units) do
+		for _, unit in ipairs(units) do
+			if alive(unit) and unit:unit_data().instance and unit:unit_data().instance == instance_name then
+				Application:draw(unit, r, g, b)
+				unit_brush:unit(unit)
 			end
-
 		end
-
 	end
-
 	if #instance_units == 0 then
 		local instance_data = managers.world_instance:get_instance_data_by_name(instance_name)
 		unit_brush:sphere(instance_data.position, 50, 2)
 		Application:draw_sphere(instance_data.position, 50, r, g, b)
 	end
-
 	local name_brush = Draw:brush(Color(0.3, 1, 0.5))
 	name_brush:set_font(Idstring("fonts/font_medium"), 8)
 	name_brush:set_render_template(Idstring("OverlayVertexColorTextured"))
-	local (for generator), (for state), (for control) = pairs(managers.world_instance:prepare_mission_data_by_name(instance_name).default.elements)
-	do
-		do break end
+	for _, element in pairs(managers.world_instance:prepare_mission_data_by_name(instance_name).default.elements) do
 		unit_brush:set_color(Color(1, r, g, b))
 		if element.values.position then
 			unit_brush:sphere(element.values.position, 2, 2)
@@ -558,7 +455,6 @@ function InstancesLayer:_draw_instance(t, dt, instance_name, r, g, b)
 				local cam_right = managers.viewport:get_current_camera():rotation():x()
 				name_brush:center_text(element.values.position + Vector3(0, 0, 25), element.editor_name, cam_right, -cam_up)
 			end
-
 			if element.values.rotation then
 				local rotation = CoreClass.type_name(element.values.rotation) == "Rotation" and element.values.rotation or Rotation(element.values.rotation, 0, 0)
 				unit_brush:set_color(Color(0.15, 1, 0, 0))
@@ -568,11 +464,8 @@ function InstancesLayer:_draw_instance(t, dt, instance_name, r, g, b)
 				unit_brush:set_color(Color(0.15, 0, 0, 1))
 				unit_brush:cylinder(element.values.position, element.values.position + rotation:z() * 20, 1)
 			end
-
 		end
-
 	end
-
 end
 
 function InstancesLayer:draw_rotation(t, dt)
@@ -594,42 +487,24 @@ function InstancesLayer:use_widget_rotation(rot)
 end
 
 function InstancesLayer:set_instance_positions(pos)
-	do
-		local (for generator), (for state), (for control) = pairs(self:get_instance_units_by_name(self._selected_instance:name()))
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(units)
-			do
-				do break end
-				self:recalc_locals(unit, Reference:new(self._selected_instance_data.position, self._selected_instance_data.rotation))
-				managers.editor:layer("Statics"):set_unit_position(unit, pos, self._selected_instance_data.rotation)
-			end
-
+	for name, units in pairs(self:get_instance_units_by_name(self._selected_instance:name())) do
+		for _, unit in ipairs(units) do
+			self:recalc_locals(unit, Reference:new(self._selected_instance_data.position, self._selected_instance_data.rotation))
+			managers.editor:layer("Statics"):set_unit_position(unit, pos, self._selected_instance_data.rotation)
 		end
-
 	end
-
 	self._selected_instance_data.position = pos
 end
 
 function InstancesLayer:set_instance_rotations(rot)
 	local rot = rot * self._selected_instance_data.rotation
-	do
-		local (for generator), (for state), (for control) = pairs(self:get_instance_units_by_name(self._selected_instance:name()))
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(units)
-			do
-				do break end
-				self:recalc_locals(unit, Reference:new(self._selected_instance_data.position, self._selected_instance_data.rotation))
-				managers.editor:layer("Statics"):set_unit_position(unit, self._selected_instance_data.position, rot)
-				managers.editor:layer("Statics"):set_unit_rotation(unit, rot)
-			end
-
+	for name, units in pairs(self:get_instance_units_by_name(self._selected_instance:name())) do
+		for _, unit in ipairs(units) do
+			self:recalc_locals(unit, Reference:new(self._selected_instance_data.position, self._selected_instance_data.rotation))
+			managers.editor:layer("Statics"):set_unit_position(unit, self._selected_instance_data.position, rot)
+			managers.editor:layer("Statics"):set_unit_rotation(unit, rot)
 		end
-
 	end
-
 	self._selected_instance_data.rotation = rot
 end
 
@@ -718,9 +593,7 @@ function InstancesLayer:_add_predefined_instances_notebook_pages()
 	local style = "LC_REPORT,LC_NO_HEADER,LC_SORT_ASCENDING,LC_SINGLE_SEL"
 	self._predefined_instances_notebook_lists = {}
 	local predefined_data_by_category = self:_predefined_data_by_category()
-	local (for generator), (for state), (for control) = pairs(predefined_data_by_category)
-	do
-		do break end
+	for c, names in pairs(predefined_data_by_category) do
 		local panel = EWS:Panel(self._predefined_instances_notebook, "", "TAB_TRAVERSAL")
 		local instance_sizer = EWS:BoxSizer("VERTICAL")
 		panel:set_sizer(instance_sizer)
@@ -730,16 +603,10 @@ function InstancesLayer:_add_predefined_instances_notebook_pages()
 		local instances = EWS:ListCtrl(panel, "", style)
 		instances:clear_all()
 		instances:append_column("Name")
-		do
-			local (for generator), (for state), (for control) = ipairs(names)
-			do
-				do break end
-				local i = instances:append_item(name)
-				instances:set_item_data(i, name)
-			end
-
+		for _, name in ipairs(names) do
+			local i = instances:append_item(name)
+			instances:set_item_data(i, name)
 		end
-
 		instances:autosize_column(0)
 		instance_sizer:add(instances, 1, 0, "EXPAND")
 		instances:connect("EVT_COMMAND_LIST_ITEM_SELECTED", callback(self, self, "_on_gui_select_predefined_instance"), instances)
@@ -752,7 +619,6 @@ function InstancesLayer:_add_predefined_instances_notebook_pages()
 		self._predefined_instances_notebook_lists[page_name] = {instances = instances, filter = instance_filter}
 		self._predefined_instances_notebook:add_page(panel, page_name, true)
 	end
-
 end
 
 function InstancesLayer:_clear_predefined_instances_notebook()
@@ -760,56 +626,36 @@ function InstancesLayer:_clear_predefined_instances_notebook()
 	while self._predefined_instances_notebook:get_page_count() > 0 do
 		self._predefined_instances_notebook:delete_page(self._predefined_instances_notebook:get_page_count() - 1)
 	end
-
 end
 
 function InstancesLayer:_predefined_data_by_category()
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._predefined_instances)
-		do
-			do break end
-			local category = data.category or "N/A"
-			t[category] = t[category] or {}
-			table.insert(t[category], name)
-		end
-
+	for name, data in pairs(self._predefined_instances) do
+		local category = data.category or "N/A"
+		t[category] = t[category] or {}
+		table.insert(t[category], name)
 	end
-
 	return t
 end
 
 function InstancesLayer:_on_gui_instances_page_changed()
-	local (for generator), (for state), (for control) = pairs(self._predefined_instances_notebook_lists)
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(data.instances:selected_items())
-		do
-			do break end
+	for _, data in pairs(self._predefined_instances_notebook_lists) do
+		for _, item in ipairs(data.instances:selected_items()) do
 			data.instances:set_item_selected(item, false)
 		end
-
 	end
-
 end
 
 function InstancesLayer:_on_gui_instances_update_filter(data)
 	local filter = data.filter:get_value()
 	data.instances:delete_all_items()
 	local instances_names = self:_predefined_data_by_category()[data.category]
-	do
-		local (for generator), (for state), (for control) = ipairs(instances_names)
-		do
-			do break end
-			if string.find(name, filter, 1, true) then
-				local i = data.instances:append_item(name)
-				data.instances:set_item_data(i, name)
-			end
-
+	for _, name in ipairs(instances_names) do
+		if string.find(name, filter, 1, true) then
+			local i = data.instances:append_item(name)
+			data.instances:set_item_data(i, name)
 		end
-
 	end
-
 	data.instances:autosize_column(0)
 end
 
@@ -823,7 +669,6 @@ function InstancesLayer:_on_gui_open_selected_instance_path()
 		local instance_data = managers.world_instance:get_instance_data_by_name(name)
 		self:_open_instance_path(instance_data.folder)
 	end
-
 end
 
 function InstancesLayer:_on_gui_rename_instance()
@@ -834,43 +679,25 @@ function InstancesLayer:_on_gui_rename_instance()
 			local instance_units = self:get_instance_units_by_name(name)
 			self._stashed_instance_units[name] = nil
 			managers.world_instance:rename_instance(name, new_name)
-			do
-				local (for generator), (for state), (for control) = pairs(instance_units)
-				do
-					do break end
-					local (for generator), (for state), (for control) = ipairs(units)
-					do
-						do break end
-						unit:unit_data().instance = new_name
-					end
-
+			for name, units in pairs(instance_units) do
+				for _, unit in ipairs(units) do
+					unit:unit_data().instance = new_name
 				end
-
 			end
-
 			local mission_units = managers.editor:layer("Mission"):get_created_unit_by_pattern({
 				"func_instance_input_event",
 				"func_instance_output_event",
 				"func_instance_point"
 			})
-			do
-				local (for generator), (for state), (for control) = ipairs(mission_units)
-				do
-					do break end
-					if mission_unit:mission_element_data().instance == name then
-						mission_unit:mission_element():external_change_instance(new_name)
-					end
-
+			for _, mission_unit in ipairs(mission_units) do
+				if mission_unit:mission_element_data().instance == name then
+					mission_unit:mission_element():external_change_instance(new_name)
 				end
-
 			end
-
 			self:_update_instances_listbox()
 			self:_set_selection_instances_listbox(new_name)
 		end
-
 	end
-
 end
 
 function InstancesLayer:_on_gui_delete_instance()
@@ -878,7 +705,6 @@ function InstancesLayer:_on_gui_delete_instance()
 	if name then
 		self:_delete_instance_by_name(name)
 	end
-
 end
 
 function InstancesLayer:_on_gui_mission_placed()
@@ -886,7 +712,6 @@ function InstancesLayer:_on_gui_mission_placed()
 	if name then
 		managers.world_instance:get_instance_data_by_name(name).mission_placed = self._mission_placed_ctrlr:get_value() and true or nil
 	end
-
 end
 
 function InstancesLayer:_on_gui_select_predefined_instance(predefined_instances_list_box)
@@ -906,7 +731,6 @@ function InstancesLayer:_set_selected_predefined_instance(name)
 		self._predefined_instances_info_guis.highest_id:set_label("")
 		return
 	end
-
 	local folder = self._predefined_instances[name].folder
 	local size = self._predefined_instances[name].size
 	local id, amount, type_amount = managers.world_instance:check_highest_id({folder = folder})
@@ -923,13 +747,11 @@ function InstancesLayer:_set_selected_predefined_instance(name)
 		self:_set_selected_predefined_instance(nil)
 		return
 	end
-
 	if size < id then
 		local message = "Highest id (" .. id .. ") of instance \"" .. name .. "\" is higher than size in predefined instances xml (" .. size .. "). It will not be allowed to be placed. Any previously placed instances needs to be looked over and replaced if needed."
 		EWS:message_box(Global.frame_panel, message, "Instances", "OK,ICON_ERROR", Vector3(-1, -1, 0))
 		self:_set_selected_predefined_instance(nil)
 	end
-
 end
 
 function InstancesLayer:_get_selection_predefined_instances_listbox(predefined_instances_list_box)
@@ -938,7 +760,6 @@ function InstancesLayer:_get_selection_predefined_instances_listbox(predefined_i
 	if i > -1 then
 		return predefined_instances_list_box:get_item(i, 0)
 	end
-
 	return nil
 end
 
@@ -948,7 +769,6 @@ function InstancesLayer:_on_gui_select_instance()
 		local name = self._instances_listbox:get_string(i)
 		self:select_instance(name)
 	end
-
 end
 
 function InstancesLayer:_get_selection_instances_listbox()
@@ -956,18 +776,14 @@ function InstancesLayer:_get_selection_instances_listbox()
 	if i > -1 then
 		return self._instances_listbox:get_string(i)
 	end
-
 	return nil
 end
 
 function InstancesLayer:_update_instances_listbox()
 	self._instances_listbox:clear()
-	local (for generator), (for state), (for control) = ipairs(managers.world_instance:instance_names(managers.editor:current_continent():name()))
-	do
-		do break end
+	for _, name in ipairs(managers.world_instance:instance_names(managers.editor:current_continent():name())) do
 		self._instances_listbox:append(name)
 	end
-
 end
 
 function InstancesLayer:_set_selection_instances_listbox(name)
@@ -976,17 +792,13 @@ function InstancesLayer:_set_selection_instances_listbox(name)
 		if i > -1 then
 			self._instances_listbox:deselect_index(i)
 		end
-
 		return
 	end
-
 	for i = 0, self._instances_listbox:nr_items() - 1 do
 		if name == self._instances_listbox:get_string(i) then
 			self._instances_listbox:select_index(i)
 		end
-
 	end
-
 end
 
 function InstancesLayer:_on_gui_open_instance_path(name)
@@ -994,7 +806,6 @@ function InstancesLayer:_on_gui_open_instance_path(name)
 	if not name then
 		return
 	end
-
 	local folder = self._predefined_instances[name].folder
 	self:_open_instance_path(folder)
 end
@@ -1003,7 +814,6 @@ function InstancesLayer:_open_instance_path(folder)
 	if managers.editor:confirm_on_new() then
 		return
 	end
-
 	local reverse = string.reverse(folder)
 	local i = string.find(reverse, "/")
 	local p_folder = string.reverse(string.sub(reverse, i + 1))
@@ -1050,7 +860,6 @@ function InstancesLayer:_create_overlay_gui()
 	if self._workspace then
 		Overlay:newgui():destroy_workspace(self._workspace)
 	end
-
 	self._workspace = Overlay:newgui():create_screen_workspace(0, 0, 1, 1)
 	self._workspace:hide()
 	self._gui_panel = self._workspace:panel():panel({
@@ -1072,22 +881,16 @@ function InstancesLayer:_update_overlay_gui()
 	local tot_w = self._workspace:panel():w()
 	local tot_indices = 70000
 	local start_indices, end_indices = managers.world_instance:get_used_indices(managers.editor:current_continent():name())
-	do
-		local (for generator), (for state), (for control) = ipairs(start_indices)
-		do
-			do break end
-			local x = start_index * (tot_w / tot_indices)
-			local w = end_indices[i] * (tot_w / tot_indices) - x
-			self._gui_panel:rect({
-				x = x,
-				w = w,
-				layer = 2,
-				color = Color.green
-			})
-		end
-
+	for i, start_index in ipairs(start_indices) do
+		local x = start_index * (tot_w / tot_indices)
+		local w = end_indices[i] * (tot_w / tot_indices) - x
+		self._gui_panel:rect({
+			x = x,
+			w = w,
+			layer = 2,
+			color = Color.green
+		})
 	end
-
 	if instance_data then
 		local x = instance_data.start_index * (tot_w / tot_indices)
 		local w = instance_data.index_size * (tot_w / tot_indices)
@@ -1098,34 +901,20 @@ function InstancesLayer:_update_overlay_gui()
 			color = Color.blue
 		})
 	end
-
 end
 
 function InstancesLayer:on_simulation_started()
-	local (for generator), (for state), (for control) = ipairs(managers.world_instance:instance_data())
-	do
-		do break end
+	for _, instance_data in ipairs(managers.world_instance:instance_data()) do
 		if instance_data.mission_placed then
 			local instance_units = self:get_instance_units_by_name(instance_data.name)
-			do
-				local (for generator), (for state), (for control) = pairs(instance_units)
-				do
-					do break end
-					local (for generator), (for state), (for control) = ipairs(units)
-					do
-						do break end
-						managers.editor:layer(name):delete_unit(unit)
-					end
-
+			for name, units in pairs(instance_units) do
+				for _, unit in ipairs(units) do
+					managers.editor:layer(name):delete_unit(unit)
 				end
-
 			end
-
 			self._stashed_instance_units[instance_data.name] = nil
 		end
-
 	end
-
 end
 
 function InstancesLayer:activate()
@@ -1133,7 +922,6 @@ function InstancesLayer:activate()
 	if self._workspace then
 		self._workspace:show()
 	end
-
 end
 
 function InstancesLayer:deactivate()
@@ -1141,7 +929,6 @@ function InstancesLayer:deactivate()
 	if self._workspace then
 		self._workspace:hide()
 	end
-
 end
 
 function InstancesLayer:add_triggers()

@@ -10,7 +10,6 @@ function IngameContractGui:init(ws)
 	if job_data and managers.job:current_job_id() == "safehouse" and Global.mission_manager.saved_job_values.playedSafeHouseBefore then
 		self._panel:set_visible(false)
 	end
-
 	local contract_text = self._panel:text({
 		layer = 1,
 		rotation = 360,
@@ -64,13 +63,11 @@ function IngameContractGui:init(ws)
 		else
 			min_string = tostring(math.abs(min_ghost))
 		end
-
 		if max_ghost == 0 and max_ghost_bonus ~= 0 then
 			max_string = string.format("%0.2f", math.abs(max_ghost_bonus * 100))
 		else
 			max_string = tostring(math.abs(max_ghost))
 		end
-
 		local ghost_bonus_string = min_ghost_bonus == max_ghost_bonus and min_string or min_string .. "-" .. max_string
 		local ghostable_text = text_panel:text({
 			text = managers.localization:to_upper_text("menu_ghostable_job", {bonus = ghost_bonus_string}),
@@ -86,7 +83,6 @@ function IngameContractGui:init(ws)
 		ghostable_text:set_position(briefing_description:x(), briefing_description:bottom() + 10)
 		managers.hud:make_fine_text(ghostable_text)
 	end
-
 	local modifiers_text = text_panel:text({
 		name = "modifiers_text",
 		text = managers.localization:to_upper_text("menu_cn_modifiers"),
@@ -106,7 +102,6 @@ function IngameContractGui:init(ws)
 		job_heat_string = string.format("%0.2f", math.abs(job_heat_mul * 100))
 	else
 	end
-
 	local ghost_bonus_mul = managers.job:get_ghost_bonus()
 	local job_ghost = math.round(ghost_bonus_mul * 100)
 	local job_ghost_string = tostring(math.abs(job_ghost))
@@ -114,7 +109,6 @@ function IngameContractGui:init(ws)
 	if job_ghost == 0 and ghost_bonus_mul ~= 0 then
 		job_ghost_string = string.format("%0.2f", math.abs(ghost_bonus_mul * 100))
 	end
-
 	local ghost_warning_text
 	if has_ghost_bonus then
 		local ghost_color = tweak_data.screen_colors.ghost_color
@@ -134,7 +128,6 @@ function IngameContractGui:init(ws)
 		ghost_warning_text:set_top(modifiers_text:bottom())
 		ghost_warning_text:set_left(10)
 	end
-
 	local heat_warning_text
 	local heat_color = managers.job:get_job_heat_color(managers.job:current_job_id())
 	if is_job_heated then
@@ -152,11 +145,9 @@ function IngameContractGui:init(ws)
 		managers.hud:make_fine_text(heat_warning_text)
 		if not has_ghost_bonus or not ghost_warning_text:bottom() then
 		end
-
 		heat_warning_text:set_top((modifiers_text:bottom()))
 		heat_warning_text:set_left(10)
 	end
-
 	local pro_warning_text
 	if managers.job:is_current_job_professional() then
 		pro_warning_text = text_panel:text({
@@ -175,11 +166,9 @@ function IngameContractGui:init(ws)
 		pro_warning_text:set_h(pro_warning_text:h())
 		if (not is_job_heated or not heat_warning_text:bottom()) and (not has_ghost_bonus or not ghost_warning_text:bottom()) then
 		end
-
 		pro_warning_text:set_top((modifiers_text:bottom()))
 		pro_warning_text:set_left(10)
 	end
-
 	modifiers_text:set_visible(heat_warning_text and heat_warning_text:visible() or pro_warning_text and pro_warning_text:visible() or ghost_warning_text and ghost_warning_text:visible())
 	local risk_color = tweak_data.screen_colors.risk
 	local risk_title = text_panel:text({
@@ -191,7 +180,6 @@ function IngameContractGui:init(ws)
 	managers.hud:make_fine_text(risk_title)
 	if (not pro_warning_text or not pro_warning_text:visible() or not pro_warning_text:bottom()) and (not heat_warning_text or not heat_warning_text:visible() or not heat_warning_text:bottom()) and (not ghost_warning_text or not ghost_warning_text:visible() or not ghost_warning_text:bottom()) then
 	end
-
 	risk_title:set_top(math.round(text_panel:h() / 2) + 5)
 	risk_title:set_visible(job_data and true or false)
 	local menu_risk_id = "menu_risk_pd"
@@ -204,7 +192,6 @@ function IngameContractGui:init(ws)
 	elseif Global.game_settings.difficulty == "overkill_290" then
 		menu_risk_id = "menu_risk_elite"
 	end
-
 	local risk_stats_panel = text_panel:panel({
 		name = "risk_stats_panel"
 	})
@@ -224,54 +211,46 @@ function IngameContractGui:init(ws)
 		if not Global.SKIP_OVERKILL_290 then
 			table.insert(risks, "risk_murder_squad")
 		end
-
 		local max_y = 0
 		local max_x = 0
-		do
-			local (for generator), (for state), (for control) = ipairs(risks)
-			do
-				do break end
-				if i ~= 1 then
-					local texture, rect = tweak_data.hud_icons:get_icon_data(name)
-					local active = i <= difficulty_stars + 1
-					local color = active and i ~= 1 and risk_color or tweak_data.screen_colors.text
-					local alpha = active and 1 or 0.25
-					local risk = text_panel:bitmap({
-						texture = texture,
-						texture_rect = rect,
-						x = 0,
-						y = 0,
-						alpha = alpha,
-						color = color
-					})
-					risk:set_x(rsx)
-					risk:set_top(math.round(risk_title:bottom()))
-					rsx = rsx + risk:w() + 2
-					local stat = managers.statistics:completed_job(job_id, tweak_data:index_to_difficulty(i + 1))
-					local risk_stat = risk_stats_panel:text({
-						name = name,
-						font = tweak_data.menu.pd2_small_font,
-						font_size = font_size,
-						text = tostring(stat),
-						align = "center"
-					})
-					managers.hud:make_fine_text(risk_stat)
-					risk_stat:set_world_center_x(risk:world_center_x())
-					local this_difficulty = i == difficulty_stars + 1
-					active = i <= difficulty_stars + 1
-					color = active and risk_color or Color.white
-					alpha = this_difficulty and 1 or active and 0.5 or 0.25
-					risk_stat:set_color(color)
-					risk_stat:set_alpha(alpha)
-					max_y = math.max(max_y, risk:bottom())
-					max_x = math.max(max_x, risk:right() + 5)
-					max_x = math.max(max_x, risk_stat:right() + risk_stats_panel:left() + 10)
-				end
-
+		for i, name in ipairs(risks) do
+			if i ~= 1 then
+				local texture, rect = tweak_data.hud_icons:get_icon_data(name)
+				local active = i <= difficulty_stars + 1
+				local color = active and i ~= 1 and risk_color or tweak_data.screen_colors.text
+				local alpha = active and 1 or 0.25
+				local risk = text_panel:bitmap({
+					texture = texture,
+					texture_rect = rect,
+					x = 0,
+					y = 0,
+					alpha = alpha,
+					color = color
+				})
+				risk:set_x(rsx)
+				risk:set_top(math.round(risk_title:bottom()))
+				rsx = rsx + risk:w() + 2
+				local stat = managers.statistics:completed_job(job_id, tweak_data:index_to_difficulty(i + 1))
+				local risk_stat = risk_stats_panel:text({
+					name = name,
+					font = tweak_data.menu.pd2_small_font,
+					font_size = font_size,
+					text = tostring(stat),
+					align = "center"
+				})
+				managers.hud:make_fine_text(risk_stat)
+				risk_stat:set_world_center_x(risk:world_center_x())
+				local this_difficulty = i == difficulty_stars + 1
+				active = i <= difficulty_stars + 1
+				color = active and risk_color or Color.white
+				alpha = this_difficulty and 1 or active and 0.5 or 0.25
+				risk_stat:set_color(color)
+				risk_stat:set_alpha(alpha)
+				max_y = math.max(max_y, risk:bottom())
+				max_x = math.max(max_x, risk:right() + 5)
+				max_x = math.max(max_x, risk_stat:right() + risk_stats_panel:left() + 10)
 			end
-
 		end
-
 		risk_stats_panel:set_top(math.round(max_y + 2))
 		local stat = managers.statistics:completed_job(job_id, tweak_data:index_to_difficulty(difficulty_stars + 2))
 		local risk_text = text_panel:text({
@@ -448,7 +427,6 @@ function IngameContractGui:init(ws)
 		managers.hud:make_fine_text(payday_text)
 		payday_text:set_bottom(text_panel:h())
 	end
-
 	self:_rec_round_object(self._panel)
 	self._sides = BoxGuiObject:new(self._panel, {
 		sides = {
@@ -462,14 +440,10 @@ end
 
 function IngameContractGui:_rec_round_object(object)
 	if object.children then
-		local (for generator), (for state), (for control) = ipairs(object:children())
-		do
-			do break end
+		for i, d in ipairs(object:children()) do
 			self:_rec_round_object(d)
 		end
-
 	end
-
 	local x, y = object:position()
 	object:set_position(math.round(x), math.round(y))
 end
@@ -492,6 +466,5 @@ function IngameContractGui:close()
 		self._panel:parent():remove(self._panel)
 		self._panel = nil
 	end
-
 end
 

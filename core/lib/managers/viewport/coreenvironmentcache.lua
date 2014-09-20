@@ -14,7 +14,6 @@ function EnvironmentCache:set_shared_handle(full_control, name, handle)
 	else
 		self._part_control_handles[name] = handle
 	end
-
 	return name
 end
 
@@ -33,7 +32,6 @@ function EnvironmentCache:shared_handle(full_control, id)
 	else
 		return self._full_control_handles[id] or self._part_control_handles[id]
 	end
-
 end
 
 function EnvironmentCache:load_environment(name)
@@ -42,11 +40,9 @@ function EnvironmentCache:load_environment(name)
 		if not Application:editor() then
 			Application:error("[EnvironmentCache] WARNING! Environment was not preloaded: " .. name)
 		end
-
 		self:preload_environment(name)
 		env = self._preloaded_environments[name]
 	end
-
 	return env
 end
 
@@ -59,7 +55,6 @@ function EnvironmentCache:preload_environment(name)
 	if not self._preloaded_environments[name] then
 		self._preloaded_environments[name] = CoreEnvironmentData.EnvironmentData:new(name)
 	end
-
 end
 
 function EnvironmentCache:environment(name)

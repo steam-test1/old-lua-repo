@@ -24,17 +24,10 @@ function SelectByName:_on_delete()
 	if confirm == "NO" then
 		return
 	end
-
 	managers.editor:freeze_gui_lists()
-	do
-		local (for generator), (for state), (for control) = ipairs(self:_selected_item_units())
-		do
-			do break end
-			managers.editor:delete_unit(unit)
-		end
-
+	for _, unit in ipairs(self:_selected_item_units()) do
+		managers.editor:delete_unit(unit)
 	end
-
 	managers.editor:thaw_gui_lists()
 end
 

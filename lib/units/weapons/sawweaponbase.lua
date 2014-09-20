@@ -49,7 +49,6 @@ function SawWeaponBase:_start_sawing_effect()
 		self:_play_sound_sawing()
 		self._active_effect = World:effect_manager():spawn(self._active_effect_table)
 	end
-
 end
 
 function SawWeaponBase:_stop_sawing_effect()
@@ -58,7 +57,6 @@ function SawWeaponBase:_stop_sawing_effect()
 		World:effect_manager():fade_kill(self._active_effect)
 		self._active_effect = nil
 	end
-
 end
 
 function SawWeaponBase:setup(setup_data)
@@ -71,7 +69,6 @@ function SawWeaponBase:fire(from_pos, direction, dmg_mul, shoot_player, spread_m
 	if self:get_ammo_remaining_in_clip() == 0 then
 		return
 	end
-
 	local user_unit = self._setup.user_unit
 	local ray_res, hit_something = self:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoot_player, spread_mul, autohit_mul, suppr_mul, target_unit)
 	if hit_something then
@@ -83,9 +80,7 @@ function SawWeaponBase:fire(from_pos, direction, dmg_mul, shoot_player, spread_m
 			else
 				ammo_usage = 15
 			end
-
 		end
-
 		ammo_usage = ammo_usage + math.ceil(math.random() * 10)
 		if managers.player:has_category_upgrade("saw", "consume_no_ammo_chance") then
 			local roll = math.rand(1)
@@ -93,27 +88,22 @@ function SawWeaponBase:fire(from_pos, direction, dmg_mul, shoot_player, spread_m
 			if roll < chance then
 				ammo_usage = 0
 			end
-
 		end
-
 		self:set_ammo_remaining_in_clip(math.max(self:get_ammo_remaining_in_clip() - ammo_usage, 0))
 		self:set_ammo_total(math.max(self:get_ammo_total() - ammo_usage, 0))
 		self:_check_ammo_total(user_unit)
 	else
 		self:_stop_sawing_effect()
 	end
-
 	if self._alert_events and ray_res.rays then
 		if hit_something then
 			self._alert_size = self._hit_alert_size
 		else
 			self._alert_size = self._no_hit_alert_size
 		end
-
 		self._current_stats.alert_size = self._alert_size
 		self:_check_alert(ray_res.rays, from_pos, direction, user_unit)
 	end
-
 	return ray_res
 end
 
@@ -135,19 +125,16 @@ function SawWeaponBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, sh
 	if col_ray then
 		hit_unit = SawHit:on_collision(col_ray, self._unit, user_unit, damage)
 	end
-
 	result.hit_enemy = hit_unit
 	if self._alert_events then
 		result.rays = {col_ray}
 	end
-
 	if col_ray then
 		managers.statistics:shot_fired({
 			hit = true,
 			weapon_unit = self._unit
 		})
 	end
-
 	return result, col_ray and col_ray.unit
 end
 
@@ -167,7 +154,6 @@ function SawHit:on_collision(col_ray, weapon_unit, user_unit, damage)
 	if hit_unit and (hit_unit:name() == tank_name_server or hit_unit:name() == tank_name_client) then
 		damage = 50
 	end
-
 	local result = InstantBulletBase.on_collision(self, col_ray, weapon_unit, user_unit, damage)
 	if hit_unit:damage() and col_ray.body:extension() and col_ray.body:extension().damage then
 		damage = math.clamp(damage * managers.player:upgrade_value("saw", "lock_damage_multiplier", 1) * 4, 0, 200)
@@ -175,9 +161,7 @@ function SawHit:on_collision(col_ray, weapon_unit, user_unit, damage)
 		if hit_unit:id() ~= -1 then
 			managers.network:session():send_to_peers_synched("sync_body_damage_lock", col_ray.body, damage)
 		end
-
 	end
-
 	return result
 end
 

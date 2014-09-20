@@ -120,7 +120,6 @@ function CoreEnvEditor:create_interface()
 		gui = self:add_sky_param("flare_alpha_" .. num_str, SingelSlider:new(self, self:get_tab("Flare"), "Alpha", nil, 0, 1000, 1000, 1000))
 		self:add_gui_element(gui, "Flare", "Plane " .. num_str)
 	end
-
 end
 
 function CoreEnvEditor:create_simple_interface()

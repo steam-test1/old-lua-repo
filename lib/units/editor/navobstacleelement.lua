@@ -18,24 +18,18 @@ function NavObstacleElement:layer_finished()
 			obj_name = self._hed.obstacle_obj_name
 		})
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._hed.obstacle_list)
-	do
-		do break end
+	for _, data in pairs(self._hed.obstacle_list) do
 		local unit = managers.worlddefinition:get_unit_on_load(data.unit_id, callback(self, self, "load_unit"))
 		if unit then
 			self._obstacle_units[unit:unit_data().unit_id] = unit
 		end
-
 	end
-
 end
 
 function NavObstacleElement:load_unit(unit)
 	if unit then
 		self._obstacle_units[unit:unit_data().unit_id] = unit
 	end
-
 end
 
 function NavObstacleElement:update_selected(t, dt, selected_unit, all_units)
@@ -50,9 +44,7 @@ function NavObstacleElement:_check_alive_units_and_draw(type, selected_unit, all
 	local r = type == "selected" and 1 or 0.5
 	local g = 0
 	local b = 0
-	local (for generator), (for state), (for control) = pairs(self._obstacle_units)
-	do
-		do break end
+	for id, unit in pairs(self._obstacle_units) do
 		if not alive(unit) then
 			self:_remove_by_unit_id(id)
 			self._obstacle_units[id] = nil
@@ -66,23 +58,16 @@ function NavObstacleElement:_check_alive_units_and_draw(type, selected_unit, all
 			}
 			self:_draw_link(params)
 			Application:draw(unit, r / 2, g / 2, b / 2)
-			local (for generator), (for state), (for control) = pairs(self._hed.obstacle_list)
-			do
-				do break end
+			for _, data in pairs(self._hed.obstacle_list) do
 				if data.unit_id == id then
 					local obj = unit:get_object(data.obj_name)
 					if obj then
 						Application:draw(obj, r, g, b)
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function NavObstacleElement:draw_links_unselected(...)
@@ -98,7 +83,6 @@ function NavObstacleElement:update_editing()
 	if ray and ray.unit then
 		Application:draw(ray.unit, 0, 1, 0)
 	end
-
 end
 
 function NavObstacleElement:select_unit()
@@ -110,7 +94,6 @@ function NavObstacleElement:select_unit()
 	if ray and ray.unit then
 		self:_check_add_unit(ray.unit)
 	end
-
 end
 
 function NavObstacleElement:_check_add_unit(unit)
@@ -126,39 +109,19 @@ end
 
 function NavObstacleElement:_remove_by_unit_id(unit_id)
 	local remove_entries = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._guis)
-		do
-			do break end
-			if entry.unit_id == unit_id then
-				table.insert(remove_entries, id)
-			end
-
+	for id, entry in pairs(self._guis) do
+		if entry.unit_id == unit_id then
+			table.insert(remove_entries, id)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(remove_entries)
-		do
-			do break end
-			self:remove_entry(id)
+	for _, id in ipairs(remove_entries) do
+		self:remove_entry(id)
+	end
+	for i, data in ipairs(clone(self._hed.obstacle_list)) do
+		if data.unit_id == unit_id then
+			table.remove(self._hed.obstacle_list, i)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(clone(self._hed.obstacle_list))
-		do
-			do break end
-			if data.unit_id == unit_id then
-				table.remove(self._hed.obstacle_list, i)
-			end
-
-		end
-
-	end
-
 	self:_remove_from_obstacle_list(unit_id)
 end
 
@@ -170,43 +133,25 @@ function NavObstacleElement:remove_entry(id)
 	self._guis[id].toolbar:destroy()
 	self._guis[id] = nil
 	self._panel:layout()
-	do
-		local (for generator), (for state), (for control) = pairs(clone(self._hed.obstacle_list))
-		do
-			do break end
-			if entry.guis_id == id then
-				table.remove(self._hed.obstacle_list, i)
-			end
-
+	for i, entry in pairs(clone(self._hed.obstacle_list)) do
+		if entry.guis_id == id then
+			table.remove(self._hed.obstacle_list, i)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._guis)
-		do
-			do break end
-			if guis.unit_id == unit_id then
-				return
-			end
-
+	for _, guis in pairs(self._guis) do
+		if guis.unit_id == unit_id then
+			return
 		end
-
 	end
-
 	self._obstacle_units[unit_id] = nil
 end
 
 function NavObstacleElement:_remove_from_obstacle_list(unit_id)
-	local (for generator), (for state), (for control) = pairs(clone(self._hed.obstacle_list))
-	do
-		do break end
+	for i, entry in pairs(clone(self._hed.obstacle_list)) do
 		if entry.unit_id == unit_id then
 			table.insert(self._hed.obstacle_list, i)
 		end
-
 	end
-
 end
 
 function NavObstacleElement:_add_unit(unit, all_object_names, obstacle_list_data)
@@ -252,16 +197,12 @@ end
 
 function NavObstacleElement:set_obj_name_data(guis_id)
 	local obj_name = self._guis[guis_id].obj_names:get_value()
-	local (for generator), (for state), (for control) = pairs(self._hed.obstacle_list)
-	do
-		do break end
+	for i, entry in pairs(self._hed.obstacle_list) do
 		if entry.guis_id == guis_id then
 			entry.obj_name = Idstring(self._unindent_obj_name(obj_name))
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function NavObstacleElement:add_triggers(vc)
@@ -273,17 +214,13 @@ function NavObstacleElement:select_unit_list_btn()
 		if not managers.editor:layer("Statics"):category_map()[unit:type():s()] then
 			return false
 		end
-
 		return true
 	end
 
 	local dialog = SelectUnitByNameModal:new("Select Unit", f)
-	local (for generator), (for state), (for control) = ipairs(dialog:selected_units())
-	do
-		do break end
+	for _, unit in ipairs(dialog:selected_units()) do
 		self:_check_add_unit(unit)
 	end
-
 end
 
 function NavObstacleElement:_build_panel(panel, panel_sizer)
@@ -308,9 +245,7 @@ function NavObstacleElement:_build_panel(panel, panel_sizer)
 	self._btn_toolbar:connect("SELECT_UNIT_LIST", "EVT_COMMAND_MENU_SELECTED", callback(self, self, "select_unit_list_btn"), nil)
 	self._btn_toolbar:realize()
 	panel_sizer:add(self._btn_toolbar, 0, 1, "EXPAND,LEFT")
-	local (for generator), (for state), (for control) = pairs(clone(self._hed.obstacle_list))
-	do
-		do break end
+	for _, data in pairs(clone(self._hed.obstacle_list)) do
 		local unit = self._obstacle_units[data.unit_id]
 		if not alive(unit) then
 			self:_remove_by_unit_id(data.unit_id)
@@ -321,9 +256,7 @@ function NavObstacleElement:_build_panel(panel, panel_sizer)
 			local all_object_names = self:_get_objects_by_unit(unit)
 			self:_add_unit(unit, all_object_names, data)
 		end
-
 	end
-
 end
 
 function NavObstacleElement:_get_objects_by_unit(unit)
@@ -339,22 +272,16 @@ function NavObstacleElement:_get_objects_by_unit(unit)
 				for i = 1, depth do
 					indented_name = "-" .. indented_name
 				end
-
 				table.insert(all_object_names, indented_name)
 				local children = obj:children()
-				local (for generator), (for state), (for control) = ipairs(children)
-				do
-					do break end
+				for _, child in ipairs(children) do
 					_process_object_tree(child, depth + 1)
 				end
-
 			end
 
 			_process_object_tree(root_obj, 0)
 		end
-
 	end
-
 	return all_object_names
 end
 
@@ -362,7 +289,6 @@ function NavObstacleElement._unindent_obj_name(obj_name)
 	while string.sub(obj_name, 1, 1) == "-" do
 		obj_name = string.sub(obj_name, 2)
 	end
-
 	return obj_name
 end
 
@@ -373,7 +299,6 @@ function NavObstacleElement._get_indented_obj_name(obj, parent, obj_name)
 		obj = obj:parent()
 		obj_name = "-" .. obj_name
 	end
-
 	return obj_name
 end
 

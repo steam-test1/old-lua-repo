@@ -9,7 +9,6 @@ function IngameIncapacitatedState:update(t, dt)
 	if not alive(player) then
 		return
 	end
-
 	if player:character_damage():update_incapacitated(t, dt) then
 		managers.player:force_drop_carry()
 		managers.statistics:downed({death = true})
@@ -20,32 +19,23 @@ function IngameIncapacitatedState:update(t, dt)
 		player:base():_unregister()
 		player:base():set_slot(player, 0)
 	end
-
 end
 
 function IngameIncapacitatedState:at_enter()
 	local players = managers.player:players()
-	do
-		local (for generator), (for state), (for control) = ipairs(players)
-		do
-			do break end
-			local vp = player:camera():viewport()
-			if vp then
-				vp:set_active(true)
-			else
-				Application:error("No viewport for player " .. tostring(k))
-			end
-
+	for k, player in ipairs(players) do
+		local vp = player:camera():viewport()
+		if vp then
+			vp:set_active(true)
+		else
+			Application:error("No viewport for player " .. tostring(k))
 		end
-
 	end
-
 	managers.statistics:downed({incapacitated = true})
 	local player = managers.player:player_unit()
 	if player then
 		player:base():set_enabled(true)
 	end
-
 	managers.hud:show(PlayerBase.PLAYER_INFO_HUD)
 	managers.hud:show(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN)
 	managers.hud:show(PlayerBase.PLAYER_DOWNED_HUD)
@@ -56,7 +46,6 @@ function IngameIncapacitatedState:at_exit()
 	if player then
 		player:base():set_enabled(false)
 	end
-
 	managers.hud:hide(PlayerBase.PLAYER_INFO_HUD)
 	managers.hud:hide(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN)
 	managers.hud:hide(PlayerBase.PLAYER_DOWNED_HUD)

@@ -67,7 +67,6 @@ function MissionElementTimeline:on_btn_zoom(seconds)
 	if not clip then
 		return
 	end
-
 	local offset_in_window = self:size().x / 2
 	local scroll_offset = self._sequence_track:units_to_pixels(clip:start_time()) - offset_in_window
 	self._scrolled_area:scroll(Vector3(scroll_offset / self._scrolled_area:scroll_pixels_per_unit().x, -1, 0))
@@ -80,28 +79,21 @@ end
 
 function MissionElementTimeline:update_timeline()
 	self._sequence_track:remove_all_clips()
-	local (for generator), (for state), (for control) = ipairs(self._mission_unit:mission_element_data().on_executed)
-	do
-		do break end
+	for _, params in ipairs(self._mission_unit:mission_element_data().on_executed) do
 		local unit = self._mission_unit:mission_element():on_execute_unit_by_id(params.id)
 		self:_add_unit(unit, params)
 	end
-
 end
 
 function MissionElementTimeline:delay_updated(params)
-	local (for generator), (for state), (for control) = ipairs(self._sequence_track:clips())
-	do
-		do break end
+	for _, clip in ipairs(self._sequence_track:clips()) do
 		if clip:metadata().params == params then
 			local coor = params.delay * self._multiplier
 			clip:set_range(coor, coor)
 			self._element_delay:set_value(string.format("%.2f", params.delay))
 			return
 		end
-
 	end
-
 end
 
 function MissionElementTimeline:add_element(unit, params)
@@ -109,16 +101,12 @@ function MissionElementTimeline:add_element(unit, params)
 end
 
 function MissionElementTimeline:select_element(params)
-	local (for generator), (for state), (for control) = ipairs(self._sequence_track:clips())
-	do
-		do break end
+	for _, clip in ipairs(self._sequence_track:clips()) do
 		if clip:metadata().params == params then
 			self:_select_clip(clip)
 			return
 		end
-
 	end
-
 end
 
 function MissionElementTimeline:_select_clip(clip)
@@ -128,20 +116,15 @@ function MissionElementTimeline:_select_clip(clip)
 	if clip then
 		clip:set_selected(true)
 	end
-
 end
 
 function MissionElementTimeline:remove_element(params)
-	local (for generator), (for state), (for control) = ipairs(self._sequence_track:clips())
-	do
-		do break end
+	for _, clip in ipairs(self._sequence_track:clips()) do
 		if clip:metadata().params == params then
 			self._sequence_track:remove_clip(clip)
 			return
 		end
-
 	end
-
 end
 
 function MissionElementTimeline:_add_unit(unit, params)
@@ -157,7 +140,6 @@ function MissionElementTimeline:_get_color(unit)
 	if color then
 		return color.x, color.y, color.z
 	end
-
 	return math.rand(1), math.rand(1), math.rand(1)
 end
 
@@ -175,7 +157,6 @@ function MissionElementTimeline:_on_mouse_left_down(sender, event)
 	if key then
 		self._mission_unit:mission_element():set_on_executed_element(key:metadata().unit)
 	end
-
 	managers.editor:select_unit(self._mission_unit)
 	self:_select_clip(key)
 end
@@ -191,7 +172,6 @@ function MissionElementTimeline:_on_mouse_right_down(sender, event)
 	else
 		managers.editor:select_unit(self._mission_unit)
 	end
-
 	self:_select_clip(key)
 end
 
@@ -199,19 +179,15 @@ function MissionElementTimeline:_on_mouse_motion(sender, event)
 	if not self._dragging then
 		return
 	end
-
 	local pos = event:get_position(self._sequence_track)
 	local coor = self._sequence_track:pixels_to_units(pos.x)
-	local (for generator), (for state), (for control) = ipairs(self._sequence_track:selected_clips())
-	do
-		do break end
+	for _, key in ipairs(self._sequence_track:selected_clips()) do
 		key:set_range(coor, coor)
 		local delay = coor / self._multiplier
 		key:metadata().params.delay = delay
 		self._mission_unit:mission_element():set_on_executed_element(key:metadata().unit)
 		self._element_delay:set_value(string.format("%.2f", key:metadata().params.delay))
 	end
-
 end
 
 function MissionElementTimeline:_on_mousewheel(track, event)
@@ -219,7 +195,6 @@ function MissionElementTimeline:_on_mousewheel(track, event)
 	if not clip then
 		return
 	end
-
 	local delta = math.sign(event:get_wheel_rotation()) * math.clamp(self._ruler:pixels_per_major_division() / 100, 1, 20)
 	self:zoom_around(clip:start_time(), self._panel:get_size().x / 2, delta)
 end

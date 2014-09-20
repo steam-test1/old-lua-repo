@@ -6,7 +6,6 @@ function CallbackHandler:init()
 		if value then
 			return value
 		end
-
 	end
 
 end

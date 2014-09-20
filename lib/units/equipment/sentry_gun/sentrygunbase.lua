@@ -7,7 +7,6 @@ function SentryGunBase:init(unit)
 		self._validate_clbk_id = "sentry_gun_validate" .. tostring(unit:key())
 		managers.enemy:add_delayed_clbk(self._validate_clbk_id, callback(self, self, "_clbk_validate"), Application:time() + 60)
 	end
-
 end
 
 function SentryGunBase:_clbk_validate()
@@ -19,7 +18,6 @@ function SentryGunBase:_clbk_validate()
 		}))
 		peer:mark_cheater()
 	end
-
 end
 
 function SentryGunBase:sync_setup(upgrade_lvl, peer_id)
@@ -27,7 +25,6 @@ function SentryGunBase:sync_setup(upgrade_lvl, peer_id)
 		managers.enemy:remove_delayed_clbk(self._validate_clbk_id)
 		self._validate_clbk_id = nil
 	end
-
 	managers.player:verify_equipment(peer_id, "sentry_gun")
 end
 
@@ -37,7 +34,6 @@ function SentryGunBase:post_init()
 	if Network:is_client() then
 		self._unit:brain():set_active(true)
 	end
-
 end
 
 function SentryGunBase.spawn(owner, pos, rot, ammo_multiplier, armor_multiplier, damage_multiplier, peer_id)
@@ -45,7 +41,6 @@ function SentryGunBase.spawn(owner, pos, rot, ammo_multiplier, armor_multiplier,
 	if not attached_data then
 		return
 	end
-
 	local spread_multiplier, rot_speed_multiplier, has_shield
 	if owner and owner:base().upgrade_value then
 		spread_multiplier = owner:base():upgrade_value("sentry_gun", "spread_multiplier") or 1
@@ -56,7 +51,6 @@ function SentryGunBase.spawn(owner, pos, rot, ammo_multiplier, armor_multiplier,
 		rot_speed_multiplier = managers.player:upgrade_value("sentry_gun", "rot_speed_multiplier", 1)
 		has_shield = managers.player:has_category_upgrade("sentry_gun", "shield")
 	end
-
 	local unit = World:spawn_unit(Idstring("units/payday2/equipment/gen_equipment_sentry/gen_equipment_sentry"), pos, rot)
 	managers.network:session():send_to_peers_synched("sync_equipment_setup", unit, 0, peer_id or 0)
 	unit:base():setup(owner, ammo_multiplier, armor_multiplier, damage_multiplier, spread_multiplier, rot_speed_multiplier, has_shield, attached_data)
@@ -88,7 +82,6 @@ function SentryGunBase:setup(owner, ammo_multiplier, armor_multiplier, damage_mu
 	if has_shield then
 		self:enable_shield()
 	end
-
 	local ammo_amount = tweak_data.upgrades.sentry_gun_base_ammo * ammo_multiplier
 	self._unit:weapon():set_ammo(ammo_amount)
 	local armor_amount = tweak_data.upgrades.sentry_gun_base_armor * armor_multiplier
@@ -128,9 +121,7 @@ function SentryGunBase:_check_body()
 				self:remove()
 				return
 			end
-
 		end
-
 	elseif self._attached_data.index == 2 then
 		if not alive(self._attached_data.body) or not mrotation.equal(self._attached_data.rotation, self._attached_data.body:rotation()) then
 			self._attached_data = self._attach(nil, nil, self._unit)
@@ -138,18 +129,14 @@ function SentryGunBase:_check_body()
 				self:remove()
 				return
 			end
-
 		end
-
 	elseif self._attached_data.index == 3 and (not alive(self._attached_data.body) or mvector3.not_equal(self._attached_data.position, self._attached_data.body:position())) then
 		self._attached_data = self._attach(nil, nil, self._unit)
 		if not self._attached_data then
 			self:remove()
 			return
 		end
-
 	end
-
 	self._attached_data.index = (self._attached_data.index < self._attached_data.max_index and self._attached_data.index or 0) + 1
 end
 
@@ -169,7 +156,6 @@ function SentryGunBase._attach(pos, rot, sentrygun_unit)
 	else
 		ray = World:raycast("ray", from_pos, to_pos, "slot_mask", managers.slot:get_mask("world_geometry"))
 	end
-
 	if ray then
 		local attached_data = {
 			body = ray.body,
@@ -180,7 +166,6 @@ function SentryGunBase._attach(pos, rot, sentrygun_unit)
 		}
 		return attached_data
 	end
-
 end
 
 function SentryGunBase:set_visibility_state(stage)
@@ -189,7 +174,6 @@ function SentryGunBase:set_visibility_state(stage)
 		self._unit:set_visible(state)
 		self._visibility_state = state
 	end
-
 	self._lod_stage = stage
 end
 
@@ -214,7 +198,6 @@ function SentryGunBase:show_blocked_hint(interaction_tweak_data, player, skip_hi
 	else
 		managers.hint:show_hint("hint_nea_sentry_gun")
 	end
-
 end
 
 local refill_ratios = {
@@ -240,20 +223,13 @@ function SentryGunBase:get_net_event_id(player)
 	if sentry_gun_reload_ratio == 0 then
 		return 1
 	end
-
 	local ammo_needed = 1 - self._unit:weapon():ammo_ratio()
 	local ammo_got = 0
 	local i = 0
-	do
-		local (for generator), (for state), (for control) = pairs(player:inventory():available_selections())
-		do
-			do break end
-			ammo_got = ammo_got + weapon.unit:base():get_ammo_ratio()
-			i = i + 1
-		end
-
+	for id, weapon in pairs(player:inventory():available_selections()) do
+		ammo_got = ammo_got + weapon.unit:base():get_ammo_ratio()
+		i = i + 1
 	end
-
 	ammo_got = ammo_got / math.max(i, 1)
 	local ammo_wanted = ammo_needed
 	local wanted_event_id
@@ -264,7 +240,6 @@ function SentryGunBase:get_net_event_id(player)
 		elseif ammo_wanted >= refill_ratios[index] then
 			wanted_event_id = index
 		end
-
 		index = index + 1
 	until wanted_event_id
 	local ammo_possible = ammo_got / sentry_gun_reload_ratio
@@ -276,7 +251,6 @@ function SentryGunBase:get_net_event_id(player)
 		elseif ammo_possible >= refill_ratios[index] then
 			possible_event_id = index
 		end
-
 		index = index + 1
 	until possible_event_id
 	local event_id = wanted_event_id and possible_event_id and math.max(wanted_event_id, possible_event_id)
@@ -301,31 +275,24 @@ function SentryGunBase:sync_net_event(event_id, peer)
 		local sentry_gun_reload_ratio = tweak_data.upgrades.sentry_gun_reload_ratio or 1
 		if sentry_gun_reload_ratio > 0 then
 			local ammo_reduction = ammo_ratio * sentry_gun_reload_ratio
-			local (for generator), (for state), (for control) = pairs(player:inventory():available_selections())
-			do
-				do break end
+			for id, weapon in pairs(player:inventory():available_selections()) do
 				weapon.unit:base():reduce_ammo_by_procentage_of_total(ammo_reduction)
 				managers.hud:set_ammo_amount(id, weapon.unit:base():ammo_info())
 			end
-
 		end
-
 	end
-
 end
 
 function SentryGunBase:refill(ammo_ratio)
 	if self._unit:character_damage():dead() then
 		return
 	end
-
 	if Network:is_server() then
 		local ammo_total = self._unit:weapon():ammo_total()
 		local ammo_max = self._unit:weapon():ammo_max()
 		print("SentryGunBase:refill", "ammo_ratio", ammo_ratio, "ammo", math.min(ammo_max, ammo_total + ammo_max * ammo_ratio))
 		self._unit:weapon():change_ammo(math.floor(ammo_max * ammo_ratio))
 	end
-
 	self._unit:interaction():set_dirty(true)
 end
 
@@ -335,7 +302,6 @@ function SentryGunBase:on_death()
 		self._registered = nil
 		managers.groupai:state():unregister_criminal(self._unit)
 	end
-
 end
 
 function SentryGunBase:enable_shield()
@@ -355,7 +321,6 @@ function SentryGunBase:unregister()
 		self._registered = nil
 		managers.groupai:state():unregister_criminal(self._unit)
 	end
-
 end
 
 function SentryGunBase:register()
@@ -375,6 +340,5 @@ function SentryGunBase:pre_destroy()
 		managers.enemy:remove_delayed_clbk(self._validate_clbk_id)
 		self._validate_clbk_id = nil
 	end
-
 end
 

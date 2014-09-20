@@ -16,7 +16,6 @@ function Provider:context()
 	if not layer_description then
 		return
 	end
-
 	local layer = self._layer_description_to_layer[layer_description]
 	return layer:context()
 end

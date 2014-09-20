@@ -98,7 +98,6 @@ function CoreEditor:build_toolbar()
 	else
 		self._toolbar:set_tool_state("TB_SNAPROTATE_Z", true)
 	end
-
 	self._ews_triggers.change_snaprot_axis = callback(self, self, "change_snaprot_axis", {
 		value = "_coordinate_system",
 		combobox = self._ref_coordinate_system,
@@ -150,7 +149,6 @@ function CoreEditor:change_snaprot_axis(data)
 		self._snap_rotations_axis_menu:set_checked("TB_SNAPROTATE_X", true)
 		self._toolbar:set_tool_state("TB_SNAPROTATE_X", true)
 	end
-
 end
 
 function CoreEditor:on_move_transform_type_in()
@@ -168,20 +166,14 @@ end
 function CoreEditor:build_ref_coordinate_system()
 	self._ref_coordinate_system = EWS:ComboBox(self._toolbar, "", "", "CB_DROPDOWN,CB_READONLY")
 	self._ref_coordinate_system:set_tool_tip("Reference Coordinate System (" .. self:ctrl_binding("toggle_coordinate_system") .. ")")
-	do
-		local (for generator), (for state), (for control) = ipairs(self._coordinate_systems)
-		do
-			do break end
-			self._ref_coordinate_system:append(coor)
-			Global.frame:connect(coor, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "set_combobox_value"), {
-				value = "_coordinate_system",
-				combobox = self._ref_coordinate_system,
-				menu = self._coordinate_menu
-			})
-		end
-
+	for _, coor in ipairs(self._coordinate_systems) do
+		self._ref_coordinate_system:append(coor)
+		Global.frame:connect(coor, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "set_combobox_value"), {
+			value = "_coordinate_system",
+			combobox = self._ref_coordinate_system,
+			menu = self._coordinate_menu
+		})
 	end
-
 	self._ref_coordinate_system:set_value(self._coordinate_system)
 	self._ref_coordinate_system:set_size(Vector3(60, 0, 0))
 	self._toolbar:add_control(self._ref_coordinate_system)
@@ -204,21 +196,15 @@ function CoreEditor:build_grid_sizes(icons_path)
 	grid_icon:set_tool_tip(tip)
 	self._toolbar:add_control(grid_icon)
 	local sizes = EWS:ComboBox(self._toolbar, "", "", "CB_DROPDOWN,CB_READONLY")
-	do
-		local (for generator), (for state), (for control) = pairs(self._grid_sizes)
-		do
-			do break end
-			sizes:append(g)
-			Global.frame:connect("TB_GRIDSIZE" .. g, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "set_combobox_value"), {
-				value = "_grid_size",
-				combobox = sizes,
-				menu = self._grid_sizes_menu,
-				choice = g
-			})
-		end
-
+	for _, g in pairs(self._grid_sizes) do
+		sizes:append(g)
+		Global.frame:connect("TB_GRIDSIZE" .. g, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "set_combobox_value"), {
+			value = "_grid_size",
+			combobox = sizes,
+			menu = self._grid_sizes_menu,
+			choice = g
+		})
 	end
-
 	sizes:set_value(self._grid_size)
 	sizes:set_tool_tip(tip)
 	sizes:set_size(Vector3(55, 0, 0))
@@ -244,21 +230,15 @@ function CoreEditor:build_snap_rotations()
 	snap_icon:set_tool_tip(tip)
 	self._toolbar:add_control(snap_icon)
 	local rotations = EWS:ComboBox(self._toolbar, "", "", "CB_DROPDOWN,CB_READONLY")
-	do
-		local (for generator), (for state), (for control) = pairs(self._snap_rotations)
-		do
-			do break end
-			rotations:append(r)
-			Global.frame:connect("TB_SNAPROTATION" .. r, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "set_combobox_value"), {
-				value = "_snap_rotation",
-				combobox = rotations,
-				menu = self._snap_rotations_menu,
-				choice = r
-			})
-		end
-
+	for _, r in pairs(self._snap_rotations) do
+		rotations:append(r)
+		Global.frame:connect("TB_SNAPROTATION" .. r, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "set_combobox_value"), {
+			value = "_snap_rotation",
+			combobox = rotations,
+			menu = self._snap_rotations_menu,
+			choice = r
+		})
 	end
-
 	rotations:set_value(self._snap_rotation)
 	rotations:set_tool_tip(tip)
 	rotations:set_size(Vector3(55, 0, 0))
@@ -308,16 +288,13 @@ function CoreEditor:change_combo_box(data)
 	else
 		self[data.value] = data.combobox:get_value()
 	end
-
 	if data.menu then
 		local id = data.combobox:get_value()
 		if data.prefix then
 			id = data.prefix .. id
 		end
-
 		data.menu:set_checked(id, true)
 	end
-
 end
 
 function CoreEditor:change_combo_box_trg(data)
@@ -330,24 +307,19 @@ function CoreEditor:change_combo_box_trg(data)
 				else
 					next_i = 1
 				end
-
 			elseif shift() then
 				if i == 1 then
 					next_i = #self[data.t]
 				else
 					next_i = i - 1
 				end
-
 			elseif i == #self[data.t] then
 				next_i = 1
 			else
 				next_i = i + 1
 			end
-
 		end
-
 	end
-
 	data.combobox:set_value(self[data.t][next_i])
 	self:change_combo_box(data)
 end
@@ -358,7 +330,6 @@ function CoreEditor:set_combobox_value(data, event)
 	else
 		data.combobox:set_value(event:get_id())
 	end
-
 	self:change_combo_box(data)
 end
 
@@ -380,7 +351,6 @@ function CoreEditor:on_unit_list()
 	else
 		self._unit_list:set_visible(true)
 	end
-
 end
 
 function CoreEditor:on_unhide_by_name()

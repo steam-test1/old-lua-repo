@@ -19,7 +19,6 @@ function UnitCamera:activate()
 	if is_deactivated then
 		self:on_activate(true)
 	end
-
 end
 
 function UnitCamera:deactivate()
@@ -29,7 +28,6 @@ function UnitCamera:deactivate()
 	if should_deactivate then
 		self:on_activate(false)
 	end
-
 	return should_deactivate
 end
 

@@ -10,7 +10,6 @@ function ElementSpotter:on_script_activated()
 	if self._values.enabled then
 		self:add_callback()
 	end
-
 end
 
 function ElementSpotter:set_enabled(enabled)
@@ -20,18 +19,15 @@ function ElementSpotter:set_enabled(enabled)
 	else
 		self:remove_callback()
 	end
-
 end
 
 function ElementSpotter:add_callback()
 	if not Network:is_server() then
 		return
 	end
-
 	if not self._callback then
 		self._callback = self._mission_script:add(callback(self, self, "update_spotter"), 0.1)
 	end
-
 end
 
 function ElementSpotter:remove_callback()
@@ -39,14 +35,12 @@ function ElementSpotter:remove_callback()
 		self._mission_script:remove(self._callback)
 		self._callback = nil
 	end
-
 end
 
 function ElementSpotter:on_executed(instigator, ...)
 	if not self._values.enabled then
 		return
 	end
-
 	ElementSpotter.super.on_executed(self, instigator, ...)
 end
 
@@ -55,12 +49,10 @@ function ElementSpotter:update_spotter()
 	if not self._values.enabled then
 		return
 	end
-
 	if not managers.groupai:state():whisper_mode() then
 		self:remove_callback()
 		return
 	end
-
 	if self._found_units then
 		local unit = table.remove(self._found_units, 1)
 		if alive(unit) and not unit:character_damage():dead() then
@@ -74,19 +66,14 @@ function ElementSpotter:update_spotter()
 					if managers.game_play_central:auto_highlight_enemy(unit, false) then
 						self:on_executed(unit, "on_outlined")
 					end
-
 					self:on_executed(unit, "on_spotted")
 				end
-
 			end
-
 		end
-
 		self._found_units = #self._found_units > 0 and self._found_units or nil
 	else
 		self._found_units = World:find_units_quick("all", managers.slot:get_mask("enemies"))
 		self._found_units = #self._found_units > 0 and self._found_units or nil
 	end
-
 end
 

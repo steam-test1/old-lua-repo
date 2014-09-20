@@ -28,17 +28,11 @@ function GameStateMachine:init()
 	if not Global.game_state_machine then
 		Global.game_state_machine = {is_boot_intro_done = false, is_boot_from_sign_out = false}
 	end
-
 	self._is_boot_intro_done = Global.game_state_machine.is_boot_intro_done
 	Global.game_state_machine.is_boot_intro_done = true
 	self._is_boot_from_sign_out = Global.game_state_machine.is_boot_from_sign_out
 	Global.game_state_machine.is_boot_from_sign_out = false
-	if not self._is_boot_intro_done then
-		-- unhandled boolean indicator
-	else
-		local setup_boot = true
-	end
-
+	local setup_boot = not self._is_boot_intro_done and not Application:editor()
 	local setup_title = (setup_boot or self._is_boot_from_sign_out) and not Application:editor()
 	local states = {}
 	local empty = GameState:new("empty", self)
@@ -303,7 +297,6 @@ function GameStateMachine:init_finilize()
 	if managers.hud then
 		managers.hud:add_chatinput_changed_callback(callback(self, self, "chatinput_changed_callback"))
 	end
-
 end
 
 function GameStateMachine:set_boot_intro_done(is_boot_intro_done)
@@ -346,14 +339,11 @@ function GameStateMachine:_set_controller_enabled(enabled)
 	else
 		self._controller_enabled_count = self._controller_enabled_count - 1
 	end
-
 	if not was_enabled ~= not self:is_controller_enabled() then
 		local state = self:current_state()
 		if state then
 			state:set_controller_enabled(enabled)
 		end
-
 	end
-
 end
 

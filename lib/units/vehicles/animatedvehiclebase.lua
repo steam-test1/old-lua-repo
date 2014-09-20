@@ -20,7 +20,6 @@ function AnimatedVehicleBase:update(unit, t, dt)
 		self._sound_source:set_rtpc("vel_to_listener", vel_dot)
 		self:_set_anim_lod(listener_dis)
 	end
-
 end
 
 function AnimatedVehicleBase:_set_anim_lod(dis)
@@ -29,12 +28,10 @@ function AnimatedVehicleBase:_set_anim_lod(dis)
 			self._lod_high = false
 			self._unit:set_animation_lod(2, 0, 0, 0)
 		end
-
 	elseif dis < 8000 and not self._lod_high then
 		self._lod_high = true
 		self._unit:set_animation_lod(1, 1000000, 1000000, 1000000)
 	end
-
 end
 
 function AnimatedVehicleBase:start_doppler()
@@ -59,14 +56,12 @@ function AnimatedVehicleBase:set_enabled(state)
 			self._ext_enabled_count = 1
 			self._unit:set_extension_update_enabled(Idstring("base"), true)
 		end
-
 	elseif self._ext_enabled_count and self._ext_enabled_count > 1 then
 		self._ext_enabled_count = self._ext_enabled_count - 1
 	else
 		self._ext_enabled_count = nil
 		self._unit:set_extension_update_enabled(Idstring("base"), false)
 	end
-
 end
 
 function AnimatedVehicleBase:anim_clbk_empty_full_blend(unit)
@@ -74,7 +69,6 @@ function AnimatedVehicleBase:anim_clbk_empty_full_blend(unit)
 	if not Application:editor() then
 		unit:set_animations_enabled(false)
 	end
-
 end
 
 function AnimatedVehicleBase:anim_clbk_empty_exit(unit)
@@ -90,6 +84,5 @@ function AnimatedVehicleBase:anim_clbk_animated_driving(unit, state)
 		self._unit:set_driving("orientation_object")
 		self._driving = "orientation_object"
 	end
-
 end
 

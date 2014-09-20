@@ -12,7 +12,6 @@ function AiGlobalEventUnitElement:post_init()
 		self._hed.wave_mode = self._hed.event
 		self._hed.event = nil
 	end
-
 end
 
 function AiGlobalEventUnitElement:_build_panel(panel, panel_sizer)

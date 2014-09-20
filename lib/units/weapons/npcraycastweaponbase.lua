@@ -39,7 +39,6 @@ function NPCRaycastWeaponBase:init(unit)
 			parent = self._obj_shell_ejection
 		}
 	end
-
 	self._trail_effect_table = {
 		effect = self.TRAIL_EFFECT,
 		position = Vector3(),
@@ -51,18 +50,15 @@ function NPCRaycastWeaponBase:init(unit)
 		if not NPCRaycastWeaponBase._next_i_voice[self._name_id] then
 			NPCRaycastWeaponBase._next_i_voice[self._name_id] = 1
 		end
-
 		self._voice = NPCRaycastWeaponBase._VOICES[NPCRaycastWeaponBase._next_i_voice[self._name_id]]
 		if NPCRaycastWeaponBase._next_i_voice[self._name_id] == #NPCRaycastWeaponBase._VOICES then
 			NPCRaycastWeaponBase._next_i_voice[self._name_id] = 1
 		else
 			NPCRaycastWeaponBase._next_i_voice[self._name_id] = NPCRaycastWeaponBase._next_i_voice[self._name_id] + 1
 		end
-
 	else
 		self._voice = "a"
 	end
-
 	if self._unit:get_object(Idstring("ls_flashlight")) then
 		self._flashlight_data = {}
 		self._flashlight_data.light = self._unit:get_object(Idstring("ls_flashlight"))
@@ -71,11 +67,9 @@ function NPCRaycastWeaponBase:init(unit)
 		self._flashlight_data.light:set_spot_angle_end(25)
 		self._flashlight_data.light:set_multiplier(2)
 	end
-
 	if tweak_data.weapon[self._name_id].has_suppressor then
 		self._sound_fire:set_switch("suppressed", tweak_data.weapon[self._name_id].has_suppressor)
 	end
-
 end
 
 function NPCRaycastWeaponBase:setup(setup_data)
@@ -109,7 +103,6 @@ function NPCRaycastWeaponBase:stop_autofire()
 	if not self._shooting then
 		return
 	end
-
 	self:_sound_autofire_end()
 	self._shooting = nil
 end
@@ -119,7 +112,6 @@ function NPCRaycastWeaponBase:singleshot(...)
 	if fired then
 		self:_sound_singleshot()
 	end
-
 	return fired
 end
 
@@ -130,9 +122,7 @@ function NPCRaycastWeaponBase:trigger_held(...)
 		if fired then
 			self._next_fire_allowed = self._next_fire_allowed + tweak_data.weapon[self._name_id].auto.fire_rate
 		end
-
 	end
-
 	return fired
 end
 
@@ -162,12 +152,9 @@ function NPCRaycastWeaponBase:fire_blank(direction, impact)
 			if trail then
 				World:effect_manager():set_remaining_lifetime(trail, math.clamp((col_ray.distance - 600) / 10000, 0, col_ray.distance))
 			end
-
 			table.insert(rays, col_ray)
 		end
-
 	end
-
 	World:effect_manager():spawn(self._muzzle_effect_table)
 	self:_sound_singleshot()
 end
@@ -177,7 +164,6 @@ function NPCRaycastWeaponBase:destroy(unit)
 	if self._shooting then
 		self:stop_autofire()
 	end
-
 end
 
 function NPCRaycastWeaponBase:_get_spread(user_unit)
@@ -191,7 +177,6 @@ function NPCRaycastWeaponBase:_sound_autofire_start(nr_shots)
 		sound_name = tweak_sound.prefix .. "1" .. self._voice .. "_end"
 		sound = self._sound_fire:post_event(sound_name)
 	end
-
 end
 
 function NPCRaycastWeaponBase:_sound_autofire_end()
@@ -202,7 +187,6 @@ function NPCRaycastWeaponBase:_sound_autofire_end()
 		sound_name = tweak_sound.prefix .. "1" .. self._voice .. "_end"
 		sound = self._sound_fire:post_event(sound_name)
 	end
-
 end
 
 function NPCRaycastWeaponBase:_sound_singleshot()
@@ -213,7 +197,6 @@ function NPCRaycastWeaponBase:_sound_singleshot()
 		sound_name = tweak_sound.prefix .. "1" .. self._voice .. "_1shot"
 		sound = self._sound_fire:post_event(sound_name)
 	end
-
 end
 
 local mvec_to = Vector3()
@@ -235,36 +218,27 @@ function NPCRaycastWeaponBase:_fire_raycast(user_unit, from_pos, direction, dmg_
 				if hit then
 					InstantBulletBase:on_hit_player(col_ray, self._unit, user_unit, self._damage * (dmg_mul or 1))
 				end
-
 			end
-
 			if not hit then
 				hit_unit = InstantBulletBase:on_collision(col_ray, self._unit, user_unit, damage)
 				if target_unit and target_unit:character_damage() and target_unit:character_damage().build_suppression then
 					target_unit:character_damage():build_suppression(tweak_data.weapon[self._name_id].suppression)
 				end
-
 			end
-
 		end
-
 	elseif shoot_player and self._hit_player then
 		local hit, ray_data = self:damage_player(col_ray, from_pos, direction)
 		if hit then
 			InstantBulletBase:on_hit_player(ray_data, self._unit, user_unit, damage)
 		end
-
 	end
-
 	if not col_ray or col_ray.distance > 600 then
 		self:_spawn_trail_effect(direction, col_ray)
 	end
-
 	result.hit_enemy = hit_unit
 	if self._alert_events then
 		result.rays = {col_ray}
 	end
-
 	return result
 end
 
@@ -275,7 +249,6 @@ function NPCRaycastWeaponBase:_spawn_trail_effect(direction, col_ray)
 	if col_ray then
 		World:effect_manager():set_remaining_lifetime(trail, math.clamp((col_ray.distance - 600) / 10000, 0, col_ray.distance))
 	end
-
 end
 
 function NPCRaycastWeaponBase:has_flashlight_on()
@@ -290,11 +263,9 @@ function NPCRaycastWeaponBase:flashlight_state_changed()
 	if not self._flashlight_data then
 		return
 	end
-
 	if not self._flashlight_data.enabled or self._flashlight_data.dropped then
 		return
 	end
-
 	if managers.game_play_central:flashlights_on() then
 		self._flashlight_data.light:set_enable(self._flashlight_light_lod_enabled)
 		self._flashlight_data.effect:activate()
@@ -304,14 +275,12 @@ function NPCRaycastWeaponBase:flashlight_state_changed()
 		self._flashlight_data.effect:kill_effect()
 		self._flashlight_data.on = false
 	end
-
 end
 
 function NPCRaycastWeaponBase:set_flashlight_enabled(enabled)
 	if not self._flashlight_data then
 		return
 	end
-
 	self._flashlight_data.enabled = enabled
 	if managers.game_play_central:flashlights_on() and enabled then
 		self._flashlight_data.light:set_enable(self._flashlight_light_lod_enabled)
@@ -322,21 +291,18 @@ function NPCRaycastWeaponBase:set_flashlight_enabled(enabled)
 		self._flashlight_data.effect:kill_effect()
 		self._flashlight_data.on = false
 	end
-
 end
 
 function NPCRaycastWeaponBase:set_flashlight_light_lod_enabled(enabled)
 	if not self._flashlight_data then
 		return
 	end
-
 	self._flashlight_light_lod_enabled = enabled
 	if self._flashlight_data.on and enabled then
 		self._flashlight_data.light:set_enable(true)
 	else
 		self._flashlight_data.light:set_enable(false)
 	end
-
 end
 
 function NPCRaycastWeaponBase:set_laser_enabled(state)
@@ -344,7 +310,6 @@ function NPCRaycastWeaponBase:set_laser_enabled(state)
 		if alive(self._laser_unit) then
 			return
 		end
-
 		local spawn_rot = self._obj_fire:rotation()
 		local spawn_pos = self._obj_fire:position()
 		spawn_pos = spawn_pos - spawn_rot:y() * 8 + spawn_rot:z() * 2 - spawn_rot:x() * 1.5
@@ -358,6 +323,5 @@ function NPCRaycastWeaponBase:set_laser_enabled(state)
 		self._laser_unit:set_slot(0)
 		self._laser_unit = nil
 	end
-
 end
 

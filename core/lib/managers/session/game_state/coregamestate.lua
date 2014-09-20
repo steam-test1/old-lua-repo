@@ -29,14 +29,12 @@ function GameState:update(t, dt)
 	if self._state:state().update then
 		self._state:update(t, dt)
 	end
-
 end
 
 function GameState:end_update(t, dt)
 	if self._state:state().end_update then
 		self._state:state():end_update(t, dt)
 	end
-
 end
 
 function GameState:transition()

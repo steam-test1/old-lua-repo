@@ -11,21 +11,15 @@ local ROTATION_ACCESS_METHODS = {
 	z = "roll"
 }
 local VALID_MAYA_NODE_TYPES = {}
-do
-	local (for generator), (for state), (for control) = ipairs({
-		"A",
-		"L",
-		"T",
-		"U"
-	})
-	do
-		do break end
-		table.insert(VALID_MAYA_NODE_TYPES, "animCurveT" .. char)
-		table.insert(VALID_MAYA_NODE_TYPES, "animCurveU" .. char)
-	end
-
+for _, char in ipairs({
+	"A",
+	"L",
+	"T",
+	"U"
+}) do
+	table.insert(VALID_MAYA_NODE_TYPES, "animCurveT" .. char)
+	table.insert(VALID_MAYA_NODE_TYPES, "animCurveU" .. char)
 end
-
 function CoreCutsceneMayaExporterCurve:init(maya_node_type, node_name, attribute_name)
 	self.__samples = {}
 	self.__sample_count = 0
@@ -40,13 +34,11 @@ function CoreCutsceneMayaExporterCurve:add_sample(frame, value)
 	if frame ~= (self.__previous_frame or -1) + 1 then
 		self.__previous_value = nil
 	end
-
 	if value ~= self.__previous_value then
 		self.__samples[frame] = value
 		self.__sample_count = self.__sample_count + 1
 		self.__previous_value = value
 	end
-
 	self.__previous_frame = frame
 end
 
@@ -65,54 +57,41 @@ function CoreCutsceneMayaExporterCurve:write(file)
 		else
 			file:write(string.format("\tsetAttr -size %i \".keyTimeValue[0:%i]\"", self.__sample_count, self.__sample_count - 1))
 		end
-
 		local max_frame = table.maxn(self.__samples)
 		for frame = 0, max_frame do
 			local value = self.__samples[frame]
 			if value ~= nil then
 				file:write(string.format(" %i %g", frame, value))
 			end
-
 		end
-
 		file:write(";\n")
 		file:write(string.format("connectAttr \"%s.output\" \"%s.%s\";\n", curve_name, self.__node_name, self.__attribute_name))
 	end
-
 end
 
 function CoreCutsceneMayaExporterCurveSet:init(target_object_name)
 	self.__curves = {}
-	local (for generator), (for state), (for control) = ipairs(SAMPLED_COMPONENTS)
-	do
-		do break end
+	for _, axis in ipairs(SAMPLED_COMPONENTS) do
 		self.__curves["t" .. axis] = CoreCutsceneMayaExporterCurve:new("animCurveTL", target_object_name, "t" .. axis)
 		self.__curves["r" .. axis] = CoreCutsceneMayaExporterCurve:new("animCurveTA", target_object_name, "r" .. axis)
 	end
-
 end
 
 function CoreCutsceneMayaExporterCurveSet:add_sample(frame, object)
 	local position = object:local_position()
 	local rotation = object:new_local_rotation()
-	local (for generator), (for state), (for control) = ipairs(SAMPLED_COMPONENTS)
-	do
-		do break end
+	for _, component in ipairs(SAMPLED_COMPONENTS) do
 		local position_value = position[component]
 		self.__curves["t" .. component]:add_sample(frame, position_value)
 		local method = ROTATION_ACCESS_METHODS[component]
 		local rotation_value = rotation[method](rotation)
 		self.__curves["r" .. component]:add_sample(frame, rotation_value)
 	end
-
 end
 
 function CoreCutsceneMayaExporterCurveSet:write(file)
-	local (for generator), (for state), (for control) = pairs(self.__curves)
-	do
-		do break end
+	for _, curve in pairs(self.__curves) do
 		curve:write(file)
 	end
-
 end
 

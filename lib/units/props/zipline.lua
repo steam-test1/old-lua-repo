@@ -41,13 +41,11 @@ function ZipLine:update(unit, t, dt)
 	if not self._enabled then
 		return
 	end
-
 	self:_update_sled(t, dt)
 	self:_update_sounds(t, dt)
 	if ZipLine.DEBUG then
 		self:debug_draw(t, dt)
 	end
-
 end
 
 local mvec1 = Vector3()
@@ -68,21 +66,17 @@ function ZipLine:_update_sled(t, dt)
 			if self._current_time == 1 then
 				self:release_bag(self._attached_bag)
 			end
-
 		else
 			self._attached_bag = nil
 		end
-
 	elseif not alive(self._user_unit) and self._current_time ~= 0 then
 		self._current_time = math.max(0, self._current_time - dt / self._total_time)
 		self:update_and_get_pos_at_time(self._current_time)
 		if self._current_time == 0 then
 			self:_check_interaction_active_state()
 		end
-
 	elseif self._synced_user then
 	end
-
 	self._dirty = self._current_time ~= current_time or self._dirty
 	self:_check_dirty()
 	self._wire_brush:cylinder(self._sled_data.tip1, self._sled_data.tip2, 1, 8)
@@ -93,7 +87,6 @@ function ZipLine:_update_sled(t, dt)
 		self._wire_brush:cylinder(pos, pos + math.UP * -100, 1)
 		self._wire_brush:sphere(pos, 2)
 	end
-
 end
 
 function ZipLine:_update_sounds(t, dt)
@@ -116,16 +109,13 @@ function ZipLine:_update_sounds(t, dt)
 			self._sound_source:post_event("zipline_unhook")
 			self._sound_data.has_hooked_off = true
 		end
-
 	end
-
 end
 
 function ZipLine:_check_dirty()
 	if not self._dirty then
 		return
 	end
-
 	self._dirty = nil
 	mvector3.lerp(self._line_data.current_dir, self._line_data.dir_s, self._line_data.dir_e, self._current_time)
 	local len = 16
@@ -146,9 +136,7 @@ function ZipLine:_update_sled_object()
 		if self._unit:interaction():active() then
 			self._unit:interaction():external_upd_interaction_topology()
 		end
-
 	end
-
 end
 
 function ZipLine:_check_interaction_active_state()
@@ -156,7 +144,6 @@ function ZipLine:_check_interaction_active_state()
 		self._unit:interaction():set_active(false)
 		return
 	end
-
 	self._unit:interaction():set_active(not self:is_interact_blocked())
 end
 
@@ -164,15 +151,12 @@ function ZipLine:is_interact_blocked()
 	if self._booked_by_peer_id then
 		return true
 	end
-
 	if self._booked_bag_peer_id then
 		return true
 	end
-
 	if alive(self._attached_bag) then
 		return true
 	end
-
 	return self._current_time ~= 0 or alive(self:user_unit())
 end
 
@@ -180,7 +164,6 @@ function ZipLine:on_interacted(unit)
 	if self:is_interact_blocked() then
 		return
 	end
-
 	if self:is_usage_type_bag() then
 		if managers.player:is_carrying() then
 			if Network:is_server() then
@@ -188,25 +171,19 @@ function ZipLine:on_interacted(unit)
 			else
 				self:_client_request_attach_bag(unit)
 			end
-
 			return
 		end
-
 		return
 	end
-
 	if self:is_usage_type_person() then
 		if Network:is_server() then
 			if not alive(self._user_unit) then
 				self:set_user(unit)
 			end
-
 		else
 			self:_client_request_access(unit)
 		end
-
 	end
-
 end
 
 function ZipLine:_client_request_attach_bag(player)
@@ -221,9 +198,7 @@ function ZipLine:_attach_bag_response(granted)
 		if granted then
 			managers.player:drop_carry(self._unit)
 		end
-
 	end
-
 	self._request_unit = nil
 end
 
@@ -243,7 +218,6 @@ function ZipLine:set_user(unit)
 		self:run_sequence("on_person_exit_zipline", old_unit)
 		self:_send_net_event(self.NET_EVENTS.remove_user)
 	end
-
 	self:_check_interaction_active_state()
 end
 
@@ -255,7 +229,6 @@ function ZipLine:sync_set_user(unit)
 		self:run_sequence("on_person_enter_zipline", self._user_unit)
 		self._user_unit:movement():on_enter_zipline(self._unit)
 	end
-
 	self:_check_interaction_active_state()
 end
 
@@ -263,7 +236,6 @@ function ZipLine:sync_remove_user()
 	if alive(self._user_unit) then
 		self:run_sequence("on_person_exit_zipline", self._user_unit)
 	end
-
 	self._user_unit = nil
 	self._synced_user = nil
 	self:_check_interaction_active_state()
@@ -281,7 +253,6 @@ function ZipLine:set_speed(speed)
 	if not speed then
 		return
 	end
-
 	self._speed = speed
 	self:_update_total_time()
 end
@@ -302,7 +273,6 @@ function ZipLine:set_slack(slack)
 	if not slack then
 		return
 	end
-
 	self._slack = slack
 	self:_update_pos_data()
 end
@@ -351,7 +321,6 @@ function ZipLine:_update_pos_data()
 	if not self:is_valid() then
 		return
 	end
-
 	mvector3.set(self._sled_data.pos, self._start_pos)
 	mvector3.add(self._sled_data.pos, self._line_data.offset)
 	self._line_data.start_pos = self._start_pos + self._line_data.offset
@@ -370,7 +339,6 @@ function ZipLine:set_enabled(enabled)
 	if self._enabled then
 	else
 	end
-
 	self:_check_interaction_active_state()
 end
 
@@ -378,7 +346,6 @@ function ZipLine:set_usage_type(usage_type)
 	if not usage_type then
 		return
 	end
-
 	self._usage_type = usage_type
 	self._unit:interaction():set_tweak_data(self:is_usage_type_bag() and "bag_zipline" or "player_zipline")
 end
@@ -451,7 +418,6 @@ function ZipLine:sync_net_event(event_id, peer)
 			self._booked_by_peer_id = peer:id()
 			peer:send_queued_sync("sync_unit_event_id_16", self._unit, "zipline", self.NET_EVENTS.access_granted)
 		end
-
 	elseif event_id == net_events.access_denied then
 		print("! access_denied")
 		self._request_unit = nil
@@ -460,7 +426,6 @@ function ZipLine:sync_net_event(event_id, peer)
 		if alive(self._request_unit) then
 			self:set_user(self._request_unit)
 		end
-
 		self._request_unit = nil
 	elseif event_id == net_events.set_user then
 		print("! set user")
@@ -468,7 +433,6 @@ function ZipLine:sync_net_event(event_id, peer)
 		if alive(unit) then
 			self:sync_set_user(unit)
 		end
-
 	elseif event_id == net_events.remove_user then
 		print("! remove user")
 		self:sync_remove_user()
@@ -482,7 +446,6 @@ function ZipLine:sync_net_event(event_id, peer)
 			print(" respons attach_bag_granted")
 			peer:send_queued_sync("sync_unit_event_id_16", self._unit, "zipline", self.NET_EVENTS.attach_bag_granted)
 		end
-
 	elseif event_id == net_events.attach_bag_denied then
 		print("! net_events.attach_bag_denied")
 		self:_attach_bag_response(false)
@@ -490,7 +453,6 @@ function ZipLine:sync_net_event(event_id, peer)
 		print("! net_events.attach_bag_granted")
 		self:_attach_bag_response(true)
 	end
-
 end
 
 function ZipLine:_send_net_event(event_id)
@@ -513,9 +475,7 @@ function ZipLine:attach_bag(bag)
 			table.insert(self._bag_disabled_collisions, body)
 			body:set_collisions_enabled(false)
 		end
-
 	end
-
 	self._attached_bag:set_rotation(Rotation(self._line_data.dir_s, math.UP))
 	self._attached_bag:carry_data():set_zipline_unit(self._unit)
 	self:_check_interaction_active_state()
@@ -526,19 +486,12 @@ function ZipLine:release_bag()
 	local body = self._attached_bag:body("hinge_body_1") or self._attached_bag:body(0)
 	body:set_dynamic()
 	if self._bag_disabled_collisions then
-		do
-			local (for generator), (for state), (for control) = ipairs(self._bag_disabled_collisions)
-			do
-				do break end
-				body:set_dynamic()
-				body:set_collisions_enabled(true)
-			end
-
+		for _, body in ipairs(self._bag_disabled_collisions) do
+			body:set_dynamic()
+			body:set_collisions_enabled(true)
 		end
-
 		self._bag_disabled_collisions = nil
 	end
-
 	self._attached_bag:carry_data():set_zipline_unit(nil)
 	self:run_sequence("on_detached_bag", self._attached_bag)
 	self._attached_bag = nil
@@ -548,7 +501,6 @@ function ZipLine:run_sequence(sequence_name, user_unit)
 	if self._unit:damage():has_sequence(sequence_name) then
 		self._unit:damage():run_sequence_simple(sequence_name, {unit = user_unit})
 	end
-
 end
 
 function ZipLine:destroy(unit)
@@ -558,12 +510,10 @@ function ZipLine:debug_draw(t, dt)
 	if not self:is_valid() then
 		return
 	end
-
 	local brush = Draw:brush(Color.white:with_alpha(0.5))
 	for i = 0, 1, 0.005 do
 		brush:sphere(self:pos_at_time(i), 2)
 	end
-
 	local offset = Vector3(0, 0, 200)
 	local brush = Draw:brush(Color.green:with_alpha(0.5))
 	local pos = self:pos_at_time((1 + math.sin(t * 50)) / 2)
@@ -589,7 +539,6 @@ function ZipLine:load(data)
 	if state.enabled ~= self._enabled then
 		self:set_enabled(state.enabled)
 	end
-
 	self:set_end_pos(state.end_pos)
 	self:set_speed(state.speed)
 	self:set_slack(state.slack)

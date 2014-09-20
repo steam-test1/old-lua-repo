@@ -163,7 +163,6 @@ function HUDMissionBriefing:init(hud, workspace)
 			status:set_right(slot_panel:w())
 			infamy:set_left(name:x())
 		end
-
 		BoxGuiObject:new(self._ready_slot_panel, {
 			sides = {
 				1,
@@ -173,11 +172,9 @@ function HUDMissionBriefing:init(hud, workspace)
 			}
 		})
 	end
-
 	if not managers.job:has_active_job() then
 		return
 	end
-
 	self._current_contact_data = managers.job:current_contact_data()
 	self._current_level_data = managers.job:current_level_data()
 	self._current_stage_data = managers.job:current_stage_data()
@@ -189,7 +186,6 @@ function HUDMissionBriefing:init(hud, workspace)
 	if contact_pattern then
 		self._backdrop:set_pattern(contact_pattern, 0.1, "add")
 	end
-
 	local padding_y = 70
 	self._paygrade_panel = self._background_layer_one:panel({
 		h = 70,
@@ -239,32 +235,25 @@ function HUDMissionBriefing:init(hud, workspace)
 	if not Global.SKIP_OVERKILL_290 then
 		table.insert(risks, "risk_murder_squad")
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(risks)
-		do
-			do break end
-			local texture, rect = tweak_data.hud_icons:get_icon_data(name)
-			local active = i <= difficulty_stars
-			local color = active and risk_color or tweak_data.screen_colors.text
-			local alpha = active and 1 or 0.25
-			local risk = self._paygrade_panel:bitmap({
-				name = name,
-				texture = texture,
-				texture_rect = rect,
-				x = 0,
-				y = 0,
-				alpha = alpha,
-				color = color
-			})
-			risk:set_position(x, y)
-			x = x + risk:w() + 0
-			panel_w = math.max(panel_w, risk:right())
-			panel_h = math.max(panel_h, risk:h())
-		end
-
+	for i, name in ipairs(risks) do
+		local texture, rect = tweak_data.hud_icons:get_icon_data(name)
+		local active = i <= difficulty_stars
+		local color = active and risk_color or tweak_data.screen_colors.text
+		local alpha = active and 1 or 0.25
+		local risk = self._paygrade_panel:bitmap({
+			name = name,
+			texture = texture,
+			texture_rect = rect,
+			x = 0,
+			y = 0,
+			alpha = alpha,
+			color = color
+		})
+		risk:set_position(x, y)
+		x = x + risk:w() + 0
+		panel_w = math.max(panel_w, risk:right())
+		panel_h = math.max(panel_h, risk:h())
 	end
-
 	pg_text:set_color(risk_color)
 	self._paygrade_panel:set_h(panel_h)
 	self._paygrade_panel:set_w(panel_w)
@@ -300,9 +289,7 @@ function HUDMissionBriefing:init(hud, workspace)
 			interupt_text:set_center(self._interupt_panel:w() / 2, self._interupt_panel:h() / 2)
 			self._interupt_panel:set_shape(self._job_schedule_panel:shape())
 		end
-
 	end
-
 	local num_stages = self._current_job_chain and #self._current_job_chain or 0
 	local day_color = tweak_data.screen_colors.item_stage_1
 	local chain = self._current_job_chain and self._current_job_chain or {}
@@ -318,7 +305,6 @@ function HUDMissionBriefing:init(hud, workspace)
 			day_font = content_font
 			day_font_size = content_font_size
 		end
-
 		local day_text = self._job_schedule_panel:text({
 			name = "day_" .. tostring(i),
 			text = utf8.to_upper(managers.localization:text("menu_day_short", {
@@ -335,7 +321,6 @@ function HUDMissionBriefing:init(hud, workspace)
 		})
 		if i ~= 1 or not 0 then
 		end
-
 		day_text:set_left((self._job_schedule_panel:child("day_" .. tostring(i - 1)):right()))
 		local ghost = self._job_schedule_panel:bitmap({
 			name = "ghost_" .. tostring(i),
@@ -351,9 +336,7 @@ function HUDMissionBriefing:init(hud, workspace)
 		if ghost_visible then
 			self:_apply_ghost_color(ghost, i, not Network:is_server())
 		end
-
 	end
-
 	for i = 1, managers.job:current_stage() or 0 do
 		local stage_marker = self._job_schedule_panel:bitmap({
 			name = "stage_done_" .. tostring(i),
@@ -372,7 +355,6 @@ function HUDMissionBriefing:init(hud, workspace)
 		stage_marker:set_center(self._job_schedule_panel:child("day_" .. tostring(i)):center())
 		stage_marker:move(math.random(4) - 2, math.random(4) - 2)
 	end
-
 	if managers.job:has_active_job() then
 		local payday_stamp = self._job_schedule_panel:bitmap({
 			name = "payday_stamp",
@@ -393,9 +375,7 @@ function HUDMissionBriefing:init(hud, workspace)
 		if payday_stamp:rotation() == 0 then
 			payday_stamp:set_rotation(1)
 		end
-
 	end
-
 	local job_overview_text = self._foreground_layer_one:text({
 		name = "job_overview_text",
 		text = utf8.to_upper(managers.localization:text("menu_job_overview")),
@@ -417,7 +397,6 @@ function HUDMissionBriefing:init(hud, workspace)
 		pg_text:move(0, -pg_text:h())
 		self._paygrade_panel:move(0, -pg_text:h())
 	end
-
 	local job_text = self._foreground_layer_one:text({
 		name = "job_text",
 		text = utf8.to_upper(managers.localization:text(self._current_contact_data.name_id) .. ": " .. managers.localization:text(self._current_job_data.name_id)),
@@ -458,7 +437,6 @@ function HUDMissionBriefing:_apply_ghost_color(ghost, i, is_unknown)
 		else
 			ghost:set_color(Color(128, 255, 255, 255) / 255)
 		end
-
 	elseif agb and agb.ghost_success then
 		ghost:set_color(tweak_data.screen_colors.ghost_color)
 	elseif i < managers.job:current_stage() then
@@ -466,7 +444,6 @@ function HUDMissionBriefing:_apply_ghost_color(ghost, i, is_unknown)
 	else
 		ghost:set_color(Color(128, 255, 255, 255) / 255)
 	end
-
 end
 
 function HUDMissionBriefing:on_whisper_mode_changed()
@@ -476,9 +453,7 @@ function HUDMissionBriefing:on_whisper_mode_changed()
 		if alive(ghost_icon) then
 			self:_apply_ghost_color(ghost_icon, i)
 		end
-
 	end
-
 end
 
 function HUDMissionBriefing:hide()
@@ -486,7 +461,6 @@ function HUDMissionBriefing:hide()
 	if alive(self._background_layer_two) then
 		self._background_layer_two:clear()
 	end
-
 end
 
 function HUDMissionBriefing:set_player_slot(nr, params)
@@ -495,7 +469,6 @@ function HUDMissionBriefing:set_player_slot(nr, params)
 	if not slot or not alive(slot) then
 		return
 	end
-
 	slot:child("status"):stop()
 	slot:child("status"):set_alpha(1)
 	slot:child("status"):set_color(slot:child("status"):color():with_alpha(1))
@@ -513,11 +486,9 @@ function HUDMissionBriefing:set_player_slot(nr, params)
 	else
 		slot:child("infamy"):set_visible(false)
 	end
-
 	if params.status then
 		slot:child("status"):set_text(params.status)
 	end
-
 end
 
 function HUDMissionBriefing:set_slot_joining(peer, peer_id)
@@ -526,7 +497,6 @@ function HUDMissionBriefing:set_slot_joining(peer, peer_id)
 	if not slot or not alive(slot) then
 		return
 	end
-
 	slot:child("voice"):set_visible(false)
 	slot:child("infamy"):set_visible(false)
 	slot:child("status"):stop()
@@ -544,7 +514,6 @@ function HUDMissionBriefing:set_slot_joining(peer, peer_id)
 			t = (t + coroutine.yield()) % 1
 			o:set_alpha(0.3 + 0.7 * math.sin(t * 180))
 		end
-
 	end
 
 	slot:child("status"):animate(animate_joining)
@@ -556,7 +525,6 @@ function HUDMissionBriefing:set_slot_ready(peer, peer_id)
 	if not slot or not alive(slot) then
 		return
 	end
-
 	slot:child("status"):stop()
 	slot:child("status"):set_blend_mode("add")
 	slot:child("status"):set_visible(true)
@@ -573,7 +541,6 @@ function HUDMissionBriefing:set_slot_not_ready(peer, peer_id)
 	if not slot or not alive(slot) then
 		return
 	end
-
 	slot:child("status"):stop()
 	slot:child("status"):set_visible(true)
 	slot:child("status"):set_alpha(1)
@@ -587,7 +554,6 @@ function HUDMissionBriefing:set_dropin_progress(peer_id, progress_percentage, mo
 	if not slot or not alive(slot) then
 		return
 	end
-
 	slot:child("status"):stop()
 	slot:child("status"):set_visible(true)
 	slot:child("status"):set_alpha(1)
@@ -606,7 +572,6 @@ function HUDMissionBriefing:set_slot_outfit(peer_id, criminal_name, outfit)
 	if not slot or not alive(slot) then
 		return
 	end
-
 	local detection, reached = managers.blackmarket:get_suspicion_offset_of_outfit_string(outfit, tweak_data.player.SUSPICION_OFFSET_LERP or 0.75)
 	local detection_panel = slot:child("detection")
 	detection_panel:child("detection_left"):set_color(Color(0.5 + detection * 0.5, 1, 1))
@@ -619,7 +584,6 @@ function HUDMissionBriefing:set_slot_outfit(peer_id, criminal_name, outfit)
 	else
 		slot:child("detection_value"):set_color(tweak_data.screen_colors.text)
 	end
-
 end
 
 function HUDMissionBriefing:set_slot_voice(peer, peer_id, active)
@@ -628,7 +592,6 @@ function HUDMissionBriefing:set_slot_voice(peer, peer_id, active)
 	if not slot or not alive(slot) then
 		return
 	end
-
 	slot:child("voice"):set_visible(active)
 end
 
@@ -638,7 +601,6 @@ function HUDMissionBriefing:remove_player_slot_by_peer_id(peer, reason)
 	if not slot or not alive(slot) then
 		return
 	end
-
 	slot:child("status"):stop()
 	slot:child("status"):set_alpha(1)
 	slot:child("criminal"):set_text("")

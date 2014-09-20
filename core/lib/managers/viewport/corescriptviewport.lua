@@ -40,10 +40,8 @@ function _ScriptViewport:init(x, y, width, height, vpm, name)
 			port = string.lower(port)
 			port = port == "default" and DEFAULT_NETWORK_PORT or tonumber(port)
 		end
-
 		self:enable_slave(port)
 	end
-
 	self._editor_callback = nil
 	self._init_trace = debug.traceback()
 end
@@ -52,7 +50,6 @@ function _ScriptViewport:pump_network()
 	if self._manual_net_pumping then
 		self._pump_net = true
 	end
-
 end
 
 function _ScriptViewport:enable_slave(port)
@@ -71,7 +68,6 @@ function _ScriptViewport:enable_master(host_name, port, master_listener_port, ne
 		assert(self._vp:camera())
 		self:remote_update("scriptviewport_update_camera_settings", self._vp:camera():near_range(), self._vp:camera():far_range(), self._vp:camera():fov())
 	end
-
 end
 
 function _ScriptViewport:disable_slave_or_master()
@@ -94,16 +90,10 @@ end
 
 function _ScriptViewport:destroy()
 	self:set_active(false)
-	if not self._replaced_vp then
-		-- unhandled boolean indicator
-	else
-		local vp = true
-	end
-
+	local vp = not self._replaced_vp and self._vp
 	if CoreCode.alive(vp) then
 		Application:destroy_viewport(vp)
 	end
-
 	self._vpm:_viewport_destroyed(self)
 end
 
@@ -165,18 +155,11 @@ function _ScriptViewport:visualization_modes()
 end
 
 function _ScriptViewport:is_rendering_scene(scene_name)
-	do
-		local (for generator), (for state), (for control) = ipairs(self:render_params())
-		do
-			do break end
-			if param == scene_name then
-				return true
-			end
-
+	for _, param in ipairs(self:render_params()) do
+		if param == scene_name then
+			return true
 		end
-
 	end
-
 	return false
 end
 
@@ -193,7 +176,6 @@ function _ScriptViewport:feed_now(nr)
 	if self._editor_callback then
 		self._editor_callback(self._mixer._target_env)
 	end
-
 	self._feeder:set_slaving(self._remote_editor or self._editor_callback)
 	local id = Profiler:start("Environment Feeders")
 	self._feeder:feed(self._mixer:internal_output(), nr or 1, self._render_params[1], self._vp)
@@ -204,21 +186,18 @@ function _ScriptViewport:reset_network_cache()
 	if self._master then
 		self:remote_update("scriptviewport_reset_network_cache", self._editor_callback)
 	end
-
 end
 
 function _ScriptViewport:scriptviewport_update_position(pos)
 	if self._vp:camera() then
 		self._vp:camera():set_position(pos)
 	end
-
 end
 
 function _ScriptViewport:scriptviewport_update_rotation(rot)
 	if self._vp:camera() then
 		self._vp:camera():set_rotation(rot)
 	end
-
 end
 
 function _ScriptViewport:scriptviewport_update_environment(environment, sky_yaw, rpc)
@@ -229,7 +208,6 @@ function _ScriptViewport:scriptviewport_update_environment(environment, sky_yaw,
 		if managers.worlddefinition and managers.worlddefinition.release_sky_orientation_modifier then
 			managers.worlddefinition:release_sky_orientation_modifier()
 		end
-
 		self._sky_yaw = sky_yaw
 		if not self._environment_modifier_id then
 			self._environment_modifier_id = self:create_environment_modifier(false, function()
@@ -237,9 +215,7 @@ function _ScriptViewport:scriptviewport_update_environment(environment, sky_yaw,
 			end
 , "sky_orientation")
 		end
-
 	end
-
 	rpc:scriptviewport_verify_environment(environment, sky_yaw)
 end
 
@@ -249,7 +225,6 @@ function _ScriptViewport:scriptviewport_update_camera_settings(near, far, fov)
 		self._vp:camera():set_far_range(far)
 		self._vp:camera():set_fov(fov)
 	end
-
 end
 
 function _ScriptViewport:scriptviewport_verify_environment(environment, sky_yaw)
@@ -280,23 +255,19 @@ function _ScriptViewport:_update(nr, t, dt)
 		if not object then
 			return
 		end
-
 		local sky_yaw = -object:rotation():yaw()
 		local current_env = self._mixer:current_environment()
 		if not self._env_net_cache or not self._sky_rot_cache or self._env_net_cache ~= current_env or self._sky_rot_cache ~= sky_yaw then
 			self:remote_update("scriptviewport_update_environment", current_env, sky_yaw)
 		end
-
 		self._pump_net = false
 	end
-
 end
 
 function _ScriptViewport:remote_update(msg, ...)
 	if self._master then
 		self._remote_slave[msg](self._remote_slave, ...)
 	end
-
 end
 
 function _ScriptViewport:_render(nr)
@@ -304,10 +275,8 @@ function _ScriptViewport:_render(nr)
 		if self._feed then
 			self:feed_now(nr)
 		end
-
 		Application:render(unpack(self._render_params))
 	end
-
 end
 
 function _ScriptViewport:_resolution_changed()
@@ -324,10 +293,8 @@ function _ScriptViewport:_set_width_multiplier()
 		if rect.ph > 0 then
 			vp_pixel_aspect = rect.pw / rect.ph
 		end
-
 		camera:set_width_multiplier(CoreMath.width_mul(self._vpm:aspect_ratio()) * (vp_pixel_aspect / screen_pixel_aspect))
 	end
-
 end
 
 function _ScriptViewport:_create_environment_modifier_debug(preprocess, callback, shared, ...)

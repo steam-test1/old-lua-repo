@@ -5,7 +5,6 @@ function UnitBase:init(unit, update_enabled)
 	if not update_enabled then
 		unit:set_extension_update_enabled(Idstring("base"), false)
 	end
-
 end
 
 function UnitBase:pre_destroy(unit)

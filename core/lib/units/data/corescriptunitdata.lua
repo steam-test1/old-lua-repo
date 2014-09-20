@@ -28,6 +28,5 @@ function CoreScriptUnitData:init()
 	if Application:editor() then
 		self.unit_groups = {}
 	end
-
 end
 

@@ -18,7 +18,6 @@ function DynamicLayer:pickup_unit()
 		self._lift_effect = World:play_physic_effect(Idstring("core/physic_effects/editor_lift"), self._selected_unit, self._owner:get_cursor_look_point(self._distance), self._up, self._forward)
 		self._unit_picked = true
 	end
-
 end
 
 function DynamicLayer:spawn_unit()
@@ -29,7 +28,6 @@ function DynamicLayer:spawn_unit()
 		local rot = Rotation(Vector3(1, 0, 0), Vector3(0, 1, 0), Vector3(0, 0, 1))
 		self:do_spawn_unit(self._unit_name, pos, rot)
 	end
-
 end
 
 function DynamicLayer:do_spawn_unit(name, pos, rot)
@@ -39,7 +37,6 @@ function DynamicLayer:do_spawn_unit(name, pos, rot)
 		self:set_distance(math.clamp(unit:bounding_sphere_radius() * 2, 100, 1500))
 		self:pickup_unit()
 	end
-
 	return unit
 end
 
@@ -55,38 +52,30 @@ function DynamicLayer:set_select_unit(unit)
 		else
 			self:release_unit()
 		end
-
 	else
 		self:release_unit()
 		DynamicLayer.super.set_select_unit(self, unit)
 	end
-
 end
 
 function DynamicLayer:release_unit()
 	if self._selected_unit and self._unit_picked and World:is_playing_physic_effect(self._lift_effect) then
 		World:stop_physic_effect(self._lift_effect)
 	end
-
 	self._unit_picked = false
 end
 
 function DynamicLayer:delete_selected_unit()
 	if self._selected_unit then
 		self:release_unit()
-		local (for generator), (for state), (for control) = ipairs(CoreTable.clone(self._selected_units))
-		do
-			do break end
+		for _, unit in ipairs(CoreTable.clone(self._selected_units)) do
 			if table.contains(self._created_units, unit) then
 				self:delete_unit(unit)
 			else
 				managers.editor:output_warning("" .. unit:unit_data().name_id .. " belongs to " .. managers.editor:unit_in_layer_name(unit) .. " and cannot be deleted from here.")
 			end
-
 		end
-
 	end
-
 end
 
 function DynamicLayer:update(t, dt)
@@ -97,19 +86,13 @@ function DynamicLayer:update(t, dt)
 	if ray then
 		Application:draw_sphere(ray.position, self._marker_sphere_size, 1, 1, 0)
 	end
-
 	if self._selected_units then
-		local (for generator), (for state), (for control) = ipairs(self._selected_units)
-		do
-			do break end
+		for _, unit in ipairs(self._selected_units) do
 			if alive(unit) then
 				Application:draw(unit, 1, 1, 1)
 			end
-
 		end
-
 	end
-
 	if self._selected_unit then
 		Application:draw(self._selected_unit, 0, 1, 0)
 		if self._unit_picked then
@@ -118,7 +101,6 @@ function DynamicLayer:update(t, dt)
 			elseif vc:down(Idstring("decrease_dynamic_distance")) then
 				self:set_distance(self._distance - 300 * dt)
 			end
-
 			local pos = self._owner:get_cursor_look_point(self._distance)
 			World:set_physic_effect_parameter(self._lift_effect, 1, pos)
 			World:set_physic_effect_parameter(self._lift_effect, 2, self._up)
@@ -127,7 +109,6 @@ function DynamicLayer:update(t, dt)
 			if self:local_rot() then
 				draw_rot = self._selected_unit:rotation()
 			end
-
 			Application:draw_rotation(self._selected_unit:position(), draw_rot)
 			Application:draw_circle(self._selected_unit:position(), 200, 1, 0, 0, draw_rot:x())
 			Application:draw_circle(self._selected_unit:position(), 200, 0, 1, 0, draw_rot:y())
@@ -136,7 +117,6 @@ function DynamicLayer:update(t, dt)
 			if self:shift() then
 				rot_speed = rot_speed / 2
 			end
-
 			local u_rot = self._selected_unit:rotation()
 			local rot_axis
 			if vc:down(Idstring("roll_left")) then
@@ -152,17 +132,13 @@ function DynamicLayer:update(t, dt)
 			elseif vc:down(Idstring("yaw_forward")) then
 				rot_axis = (self:local_rot() and u_rot:x() or Vector3(1, 0, 0)) * -1
 			end
-
 			if rot_axis then
 				local rot = Rotation(rot_axis, rot_speed) * u_rot
 				self._up = rot:z()
 				self._forward = rot:y()
 			end
-
 		end
-
 	end
-
 end
 
 function DynamicLayer:build_panel(notebook)
@@ -192,7 +168,6 @@ function DynamicLayer:deselect()
 	if self._selected_unit then
 		self:release_unit()
 	end
-
 	DynamicLayer.super.deselect(self)
 end
 
@@ -215,12 +190,9 @@ function DynamicLayer:add_triggers()
 	vc:add_trigger(Idstring("rmb"), callback(self, self, "spawn_unit"))
 	vc:add_trigger(Idstring("mmb"), callback(self, self, "release_unit"))
 	vc:add_trigger(Idstring("destroy"), callback(self, self, "delete_selected_unit"))
-	local (for generator), (for state), (for control) = pairs(self._ews_triggers)
-	do
-		do break end
+	for k, cb in pairs(self._ews_triggers) do
 		vc:add_trigger(Idstring(k), cb)
 	end
-
 end
 
 function DynamicLayer:deactivate()

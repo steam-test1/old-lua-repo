@@ -32,17 +32,14 @@ function CopLogicTrade.hostage_trade(unit, enable, trade_success)
 		if managers.network:session() and not managers.trade:is_peer_in_custody(managers.network:session():local_peer():id()) then
 			managers.hint:show_hint("trade_offered")
 		end
-
 		if Network:is_server() and managers.enemy:all_civilians()[unit:key()] and unit:anim_data().stand and unit:brain():is_tied() then
 			unit:brain():on_hostage_move_interaction(nil, "stay")
 		end
-
 		unit:character_damage():set_invulnerable(true)
 		if Network:is_server() then
 			unit:interaction():set_tweak_data("hostage_trade")
 			unit:interaction():set_active(true, true)
 		end
-
 		if Network:is_server() and not unit:anim_data().hands_tied and not unit:anim_data().tied then
 			local action_data
 			if managers.enemy:all_civilians()[unit:key()] then
@@ -60,7 +57,6 @@ function CopLogicTrade.hostage_trade(unit, enable, trade_success)
 						}
 					}
 				end
-
 			else
 				action_data = {
 					type = "act",
@@ -75,13 +71,10 @@ function CopLogicTrade.hostage_trade(unit, enable, trade_success)
 					}
 				}
 			end
-
 			if action_data then
 				unit:brain():action_request(action_data)
 			end
-
 		end
-
 	else
 		managers.hud:remove_waypoint(wp_id)
 		if trade_success then
@@ -93,12 +86,9 @@ function CopLogicTrade.hostage_trade(unit, enable, trade_success)
 			else
 				unit:interaction():set_tweak_data("intimidate")
 			end
-
 			unit:interaction():set_active(false, false)
 		end
-
 	end
-
 end
 
 function CopLogicTrade.exit(data, new_logic_name, enter_params)
@@ -110,7 +100,6 @@ function CopLogicTrade.exit(data, new_logic_name, enter_params)
 		CopLogicTrade.hostage_trade(data.unit, false, false)
 		managers.groupai:state():on_hostage_state(false, data.key)
 	end
-
 	data.unit:character_damage():set_invulnerable(false)
 	data.unit:network():send("set_unit_invulnerable", false)
 end
@@ -119,7 +108,6 @@ function CopLogicTrade.on_trade(data, trading_unit)
 	if not data.internal_data._trade_enabled then
 		return
 	end
-
 	managers.trade:on_hostage_traded(trading_unit)
 	data.internal_data._trade_enabled = false
 	data.unit:network():send("hostage_trade", false, true)
@@ -128,7 +116,6 @@ function CopLogicTrade.on_trade(data, trading_unit)
 	if data.is_converted then
 		managers.groupai:state():remove_minion(data.key, nil)
 	end
-
 	local flee_pos = managers.groupai:state():flee_point(data.unit:movement():nav_tracker():nav_segment())
 	if flee_pos then
 		data.internal_data.fleeing = true
@@ -150,15 +137,12 @@ function CopLogicTrade.on_trade(data, trading_unit)
 					body_part = 1
 				}
 			end
-
 			data.unit:brain():action_request(new_action)
 		end
-
 		data.unit:contour():add("hostage_trade", true, nil)
 	else
 		data.unit:set_slot(0)
 	end
-
 end
 
 function CopLogicTrade.update(data)
@@ -169,7 +153,6 @@ function CopLogicTrade.update(data)
 		if not data.unit:movement():chk_action_forbidden("walk") and data.unit:anim_data().idle_full_blend then
 			data.unit:brain()._current_logic._chk_request_action_walk_to_flee_pos(data, my_data)
 		end
-
 	elseif my_data.flee_pos then
 		local to_pos = my_data.flee_pos
 		my_data.flee_pos = nil
@@ -177,7 +160,6 @@ function CopLogicTrade.update(data)
 		my_data.flee_path_search_id = tostring(data.unit:key()) .. "flee"
 		data.unit:brain():search_for_path(my_data.flee_path_search_id, to_pos)
 	end
-
 end
 
 function CopLogicTrade._process_pathing_results(data, my_data)
@@ -191,13 +173,10 @@ function CopLogicTrade._process_pathing_results(data, my_data)
 			else
 				data.unit:set_slot(0)
 			end
-
 			my_data.pathing_to_flee_pos = nil
 			my_data.flee_path_search_id = nil
 		end
-
 	end
-
 end
 
 function CopLogicTrade._chk_request_action_walk_to_flee_pos(data, my_data, end_rot)
@@ -217,7 +196,6 @@ function CopLogicTrade.action_complete_clbk(data, action)
 		my_data.walking_to_flee_pos = nil
 		data.unit:set_slot(0)
 	end
-
 end
 
 function CopLogicTrade.can_activate()

@@ -76,7 +76,6 @@ function HUDBGBox_animate_open_right(panel, wait_t, target_w, done_cb)
 	if wait_t then
 		wait(wait_t)
 	end
-
 	panel:set_visible(true)
 	local speed = box_speed
 	local bg = panel:child("bg")
@@ -89,7 +88,6 @@ function HUDBGBox_animate_open_right(panel, wait_t, target_w, done_cb)
 		t = t - dt
 		panel:set_w((1 - t / TOTAL_T) * target_w)
 	end
-
 	panel:set_w(target_w)
 	done_cb()
 end
@@ -104,7 +102,6 @@ function HUDBGBox_animate_close_right(panel, done_cb)
 		t = t - dt
 		panel:set_w(t / TOTAL_T * cw)
 	end
-
 	panel:set_w(0)
 	done_cb()
 end
@@ -118,7 +115,6 @@ function HUDBGBox_animate_open_left(panel, wait_t, target_w, done_cb, config)
 	if wait_t then
 		wait(wait_t)
 	end
-
 	panel:set_visible(true)
 	local speed = box_speed
 	local bg = panel:child("bg")
@@ -135,7 +131,6 @@ function HUDBGBox_animate_open_left(panel, wait_t, target_w, done_cb, config)
 		panel:set_w((1 - t / TOTAL_T) * target_w)
 		panel:set_right(right)
 	end
-
 	panel:set_w(target_w)
 	panel:set_right(right)
 	done_cb()
@@ -153,7 +148,6 @@ function HUDBGBox_animate_close_left(panel, done_cb)
 		panel:set_w(t / TOTAL_T * cw)
 		panel:set_right(right)
 	end
-
 	panel:set_w(0)
 	panel:set_right(right)
 	done_cb()
@@ -167,7 +161,6 @@ function HUDBGBox_animate_open_center(panel, wait_t, target_w, done_cb, config)
 	if wait_t then
 		wait(wait_t)
 	end
-
 	panel:set_visible(true)
 	local speed = box_speed
 	local bg = panel:child("bg")
@@ -184,13 +177,11 @@ function HUDBGBox_animate_open_center(panel, wait_t, target_w, done_cb, config)
 		panel:set_w((1 - t / TOTAL_T) * target_w)
 		panel:set_center_x(center_x)
 	end
-
 	panel:set_w(target_w)
 	panel:set_center_x(center_x)
 	if done_cb then
 		done_cb()
 	end
-
 end
 
 function HUDBGBox_animate_close_center(panel, done_cb)
@@ -205,13 +196,11 @@ function HUDBGBox_animate_close_center(panel, done_cb)
 		panel:set_w(t / TOTAL_T * cw)
 		panel:set_center_x(center_x)
 	end
-
 	panel:set_w(0)
 	panel:set_center_x(center_x)
 	if done_cb then
 		done_cb()
 	end
-
 end
 
 function HUDBGBox_animate_bg_attention(bg, config)
@@ -225,7 +214,6 @@ function HUDBGBox_animate_bg_attention(bg, config)
 		local cv = math.abs((math.sin(t * 180 * 1)))
 		bg:set_color(Color(1, color.red * cv, color.green * cv, color.blue * cv))
 	end
-
 	bg:set_color(Color(1, 0, 0, 0))
 end
 
@@ -235,7 +223,6 @@ function HUDObjectives:init(hud)
 	if self._hud_panel:child("objectives_panel") then
 		self._hud_panel:remove(self._hud_panel:child("objectives_panel"))
 	end
-
 	local objectives_panel = self._hud_panel:panel({
 		visible = false,
 		name = "objectives_panel",
@@ -313,14 +300,12 @@ function HUDObjectives:activate_objective(data)
 	if data.amount then
 		self:update_amount_objective(data)
 	end
-
 end
 
 function HUDObjectives:remind_objective(id)
 	if id ~= self._active_objective_id then
 		return
 	end
-
 	local objectives_panel = self._hud_panel:child("objectives_panel")
 	objectives_panel:stop()
 	objectives_panel:animate(callback(self, self, "_animate_activate_objective"))
@@ -333,7 +318,6 @@ function HUDObjectives:complete_objective(data)
 	if data.id ~= self._active_objective_id then
 		return
 	end
-
 	local objectives_panel = self._hud_panel:child("objectives_panel")
 	objectives_panel:stop()
 	objectives_panel:animate(callback(self, self, "_animate_complete_objective"))
@@ -343,7 +327,6 @@ function HUDObjectives:update_amount_objective(data)
 	if data.id ~= self._active_objective_id then
 		return
 	end
-
 	local current = data.current_amount or 0
 	local amount = data.amount
 	local objectives_panel = self._hud_panel:child("objectives_panel")
@@ -370,7 +353,6 @@ function HUDObjectives:_animate_show_text(objective_text, amount_text)
 		objective_text:set_alpha(alpha)
 		amount_text:set_alpha(alpha)
 	end
-
 	objective_text:set_alpha(1)
 	amount_text:set_alpha(1)
 end
@@ -389,7 +371,6 @@ function HUDObjectives:_animate_complete_objective(objectives_panel)
 		objective_text:set_alpha(vis)
 		amount_text:set_alpha(vis)
 	end
-
 	objective_text:set_alpha(1)
 	amount_text:set_alpha(1)
 	objective_text:set_visible(false)
@@ -418,7 +399,6 @@ function HUDObjectives:_animate_icon_objectivebox(icon_objectivebox)
 		t = t - dt
 		icon_objectivebox:set_y(math.round((1 + math.sin((TOTAL_T - t) * 450 * 2)) * (12 * (t / TOTAL_T))))
 	end
-
 	icon_objectivebox:set_y(0)
 end
 

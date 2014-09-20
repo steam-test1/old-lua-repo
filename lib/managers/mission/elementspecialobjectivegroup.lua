@@ -13,9 +13,7 @@ function ElementSpecialObjectiveGroup:init(...)
 		else
 			self._values.SO_access = tonumber(self._values.SO_access)
 		end
-
 	end
-
 	self._events = {}
 end
 
@@ -27,40 +25,31 @@ function ElementSpecialObjectiveGroup:on_executed(instigator)
 	if not self._values.enabled or Network:is_client() then
 		return
 	end
-
 	if not managers.groupai:state():is_AI_enabled() and not Application:editor() then
 	elseif self._values.mode == "forced_spawn" or self._values.mode == "recurring_cloaker_spawn" or self._values.mode == "recurring_spawn_1" then
 		self:_register_to_group_AI()
 	elseif self._values.spawn_instigator_ids and next(self._values.spawn_instigator_ids) then
 		local chosen_units = self:_select_units_from_spawners()
 		if chosen_units then
-			local (for generator), (for state), (for control) = ipairs(chosen_units)
-			do
-				do break end
+			for _, chosen_unit in ipairs(chosen_units) do
 				self:_execute_random_SO(chosen_unit)
 			end
-
 		end
-
 	elseif self._values.use_instigator then
 		if alive(instigator) then
 			if instigator:brain() then
 				if not instigator:character_damage() or not instigator:character_damage():dead() then
 					self:_execute_random_SO(instigator)
 				end
-
 			else
 				Application:error("[ElementSpecialObjectiveGroup:on_executed] Special Objective instigator is not an AI unit. Possibly improper \"use instigator\" flag use. Element id:", self._id)
 			end
-
 		elseif not instigator then
 			Application:error("[ElementSpecialObjectiveGroup:on_executed] Special Objective missing instigator. Possibly improper \"use instigator\" flag use. Element id:", self._id)
 		end
-
 	else
 		self:_execute_random_SO(nil)
 	end
-
 	ElementSpecialObjectiveGroup.super.on_executed(self, instigator)
 end
 
@@ -68,14 +57,10 @@ function ElementSpecialObjectiveGroup:operation_remove()
 	if self._registered_in_groupai then
 		self:_unregister_from_group_AI()
 	else
-		local (for generator), (for state), (for control) = ipairs(self._values.followup_elements)
-		do
-			do break end
+		for _, followup_element_id in ipairs(self._values.followup_elements) do
 			managers.groupai:state():remove_special_objective(followup_element_id)
 		end
-
 	end
-
 end
 
 function ElementSpecialObjectiveGroup:_unregister_from_group_AI()
@@ -83,14 +68,12 @@ function ElementSpecialObjectiveGroup:_unregister_from_group_AI()
 		self._registered_in_groupai = nil
 		managers.groupai:state():remove_grp_SO(self._id)
 	end
-
 end
 
 function ElementSpecialObjectiveGroup:_register_to_group_AI()
 	if self._registered_in_groupai then
 		return
 	end
-
 	managers.groupai:state():add_grp_SO(self._id, self)
 	self._registered_in_groupai = true
 end
@@ -103,13 +86,11 @@ function ElementSpecialObjectiveGroup:choose_followup_SO(unit, skip_element_ids)
 	if skip_element_ids and skip_element_ids[self._id] then
 		return
 	end
-
 	skip_element_ids[self._id] = true
 	local res_element = ElementSpecialObjective.choose_followup_SO(self, unit, skip_element_ids)
 	if not res_element then
 		self:event("admin_fail", unit)
 	end
-
 	return res_element
 end
 
@@ -117,13 +98,11 @@ function ElementSpecialObjectiveGroup:get_as_followup(unit, skip_element_ids)
 	if skip_element_ids[self._id] then
 		return
 	end
-
 	skip_element_ids[self._id] = true
 	local res_element = ElementSpecialObjective.choose_followup_SO(self, unit, skip_element_ids)
 	if not res_element then
 		self:event("admin_fail", unit)
 	end
-
 	return res_element, self._values.base_chance
 end
 
@@ -136,7 +115,6 @@ function ElementSpecialObjectiveGroup:_execute_random_SO(instigator)
 	else
 		self:event("admin_fail", instigator)
 	end
-
 end
 
 function ElementSpecialObjectiveGroup:get_random_SO(receiver_unit)
@@ -146,7 +124,6 @@ function ElementSpecialObjectiveGroup:get_random_SO(receiver_unit)
 	if not random_SO_element then
 		return
 	end
-
 	local objective = random_SO_element:get_objective(receiver_unit)
 	return objective
 end
@@ -160,7 +137,6 @@ function ElementSpecialObjectiveGroup:get_grp_objective()
 		local nav_seg_id = managers.navigation:get_nav_seg_from_pos(self._values.position, nil)
 		self._area = managers.groupai:state():get_area_from_nav_seg_id(nav_seg_id)
 	end
-
 	local grp_objective = {
 		element = self,
 		type = self._values.mode,
@@ -175,7 +151,6 @@ function ElementSpecialObjectiveGroup:clbk_objective_failed(group)
 	if managers.editor and managers.editor._stopping_simulation then
 		return
 	end
-
 	self:event("fail", group)
 end
 

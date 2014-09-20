@@ -32,16 +32,10 @@ end
 function Workbook:to_xml(f)
 	f:write(EMPTY_WORKBOOK_XML1)
 	local ws_xml = ""
-	do
-		local (for generator), (for state), (for control) = ipairs(self._worksheets)
-		do
-			do break end
-			f:write("\n")
-			ws:to_xml(f)
-		end
-
+	for _, ws in ipairs(self._worksheets) do
+		f:write("\n")
+		ws:to_xml(f)
 	end
-
 	f:write(EMPTY_WORKBOOK_XML2)
 end
 

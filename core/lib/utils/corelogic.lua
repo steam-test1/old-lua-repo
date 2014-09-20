@@ -5,7 +5,6 @@ function toboolean(value)
 	elseif type(value) == "number" then
 		return value == 1
 	end
-
 end
 
 function iff(t, a, b)
@@ -14,6 +13,5 @@ function iff(t, a, b)
 	else
 		return b
 	end
-
 end
 

@@ -24,14 +24,12 @@ function AchievmentManager:init()
 			self.handler = Global.achievment_manager.handler
 			self.achievments = Global.achievment_manager.achievments
 		end
-
 	elseif SystemInfo:platform() == Idstring("PS3") then
 		if not Global.achievment_manager then
 			Global.achievment_manager = {
 				trophy_requests = {}
 			}
 		end
-
 		self:_parse_achievments("PSN")
 		AchievmentManager.do_award = AchievmentManager.award_psn
 	elseif SystemInfo:platform() == Idstring("X360") then
@@ -40,70 +38,50 @@ function AchievmentManager:init()
 	else
 		Application:error("[AchievmentManager:init] Unsupported platform")
 	end
-
 end
 
 function AchievmentManager:fetch_trophies()
 	if SystemInfo:platform() == Idstring("PS3") then
 		Trophies:get_unlockstate(AchievmentManager.unlockstate_result)
 	end
-
 end
 
 function AchievmentManager.unlockstate_result(error_str, table)
 	if table then
-		local (for generator), (for state), (for control) = ipairs(table)
-		do
-			do break end
+		for i, data in ipairs(table) do
 			local psn_id = data.index
 			local unlocked = data.unlocked
 			if unlocked then
-				local (for generator), (for state), (for control) = pairs(managers.achievment.achievments)
-				do
-					do break end
+				for id, ach in pairs(managers.achievment.achievments) do
 					if ach.id == psn_id then
 						ach.awarded = true
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 	managers.network.account:achievements_fetched()
 end
 
 function AchievmentManager.fetch_achievments(error_str)
 	print("[AchievmentManager.fetch_achievments]", error_str)
 	if error_str == "success" then
-		local (for generator), (for state), (for control) = pairs(managers.achievment.achievments)
-		do
-			do break end
+		for id, ach in pairs(managers.achievment.achievments) do
 			if managers.achievment.handler:has_achievement(ach.id) then
 				print("Achievment awarded", ach.id)
 				ach.awarded = true
 			end
-
 		end
-
 	end
-
 	managers.network.account:achievements_fetched()
 end
 
 function AchievmentManager:_parse_achievments(platform)
 	local list = PackageManager:script_data(self.FILE_EXTENSION:id(), self.PATH:id())
 	self.achievments = {}
-	local (for generator), (for state), (for control) = ipairs(list)
-	do
-		do break end
+	for _, ach in ipairs(list) do
 		if ach._meta == "achievment" then
-			local (for generator), (for state), (for control) = ipairs(ach)
-			do
-				do break end
+			for _, reward in ipairs(ach) do
 				if reward._meta == "reward" and (Application:editor() or platform == reward.platform) then
 					self.achievments[ach.id] = {
 						id = reward.id,
@@ -113,13 +91,9 @@ function AchievmentManager:_parse_achievments(platform)
 						dlc_loot = reward.dlc_loot or false
 					}
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function AchievmentManager:get_script_data(id)
@@ -144,18 +118,11 @@ end
 
 function AchievmentManager:total_unlocked()
 	local i = 0
-	do
-		local (for generator), (for state), (for control) = pairs(self.achievments)
-		do
-			do break end
-			if ach.awarded then
-				i = i + 1
-			end
-
+	for _, ach in pairs(self.achievments) do
+		if ach.awarded then
+			i = i + 1
 		end
-
 	end
-
 	return i
 end
 
@@ -163,17 +130,14 @@ function AchievmentManager:award(id)
 	if not self:exists(id) then
 		return
 	end
-
 	if self:get_info(id).awarded then
 		return
 	end
-
 	if id == "christmas_present" then
 		managers.network.account._masks.santa = true
 	elseif id == "golden_boy" then
 		managers.network.account._masks.gold = true
 	end
-
 	self:do_award(id)
 end
 
@@ -184,19 +148,16 @@ function AchievmentManager:_give_reward(id, skip_exp)
 	if data.dlc_loot then
 		managers.dlc:on_achievement_award_loot()
 	end
-
 end
 
 function AchievmentManager:award_progress(stat, value)
 	if Application:editor() then
 		return
 	end
-
 	print("[AchievmentManager:award_progress]: ", stat .. " increased by " .. tostring(value or 1))
 	if SystemInfo:platform() == Idstring("WIN32") then
 		self.handler:achievement_store_callback(AchievmentManager.steam_unlock_result)
 	end
-
 	local stats = {}
 	stats[stat] = {
 		type = "int",
@@ -209,7 +170,6 @@ function AchievmentManager:get_stat(stat)
 	if SystemInfo:platform() == Idstring("WIN32") then
 		return managers.network.account:get_stat(stat)
 	end
-
 	return false
 end
 
@@ -219,7 +179,6 @@ function AchievmentManager:award_steam(id)
 		print("[AchievmentManager:award_steam] Achievments are not initialized. Cannot award achievment:", id)
 		return
 	end
-
 	self.handler:achievement_store_callback(AchievmentManager.steam_unlock_result)
 	self.handler:set_achievement(self:get_info(id).id)
 	self.handler:store_data()
@@ -231,7 +190,6 @@ function AchievmentManager:clear_steam(id)
 		print("[AchievmentManager:clear_steam] Achievments are not initialized. Cannot clear achievment:", id)
 		return
 	end
-
 	self.handler:clear_achievement(self:get_info(id).id)
 	self.handler:store_data()
 end
@@ -242,23 +200,18 @@ function AchievmentManager:clear_all_steam()
 		print("[AchievmentManager:clear_steam] Achievments are not initialized. Cannot clear steam:")
 		return
 	end
-
 	self.handler:clear_all_stats(true)
 	self.handler:store_data()
 end
 
 function AchievmentManager.steam_unlock_result(achievment)
 	print("[AchievmentManager:steam_unlock_result] Awarded Steam achievment", achievment)
-	local (for generator), (for state), (for control) = pairs(managers.achievment.achievments)
-	do
-		do break end
+	for id, ach in pairs(managers.achievment.achievments) do
 		if ach.id == achievment then
 			managers.achievment:_give_reward(id)
 			return
 		end
-
 	end
-
 end
 
 function AchievmentManager:award_x360(id)
@@ -268,7 +221,6 @@ function AchievmentManager:award_x360(id)
 		if result then
 			managers.achievment:_give_reward(id)
 		end
-
 	end
 
 	XboxLive:award_achievement(managers.user:get_platform_id(), self:get_info(id).id, x360_unlock_result)
@@ -280,7 +232,6 @@ function AchievmentManager:award_psn(id)
 		print("[AchievmentManager:award] Trophies are not installed. Cannot award trophy:", id)
 		return
 	end
-
 	local request = Trophies:unlock_id(self:get_info(id).id, AchievmentManager.psn_unlock_result)
 	Global.achievment_manager.trophy_requests[request] = id
 end
@@ -292,7 +243,6 @@ function AchievmentManager.psn_unlock_result(request, error_str)
 		Global.achievment_manager.trophy_requests[request] = nil
 		managers.achievment:_give_reward(id)
 	end
-
 end
 
 function AchievmentManager:chk_install_trophies()
@@ -305,7 +255,6 @@ function AchievmentManager:chk_install_trophies()
 		print("[AchievmentManager:chk_install_trophies] Installing")
 		Trophies:install(callback(self, self, "clbk_install_trophies"))
 	end
-
 end
 
 function AchievmentManager:clbk_install_trophies(result)
@@ -314,6 +263,5 @@ function AchievmentManager:clbk_install_trophies(result)
 		self._trophies_installed = true
 		self:fetch_trophies()
 	end
-
 end
 

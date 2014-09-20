@@ -14,7 +14,6 @@ function Layer:init(owner, save_name)
 	if not owner then
 		Application:error("Layer:init was called without parameters owner and save_name")
 	end
-
 	self._owner = owner or self._owner
 	self._save_name = save_name
 	self._confirmed_unit_types = {}
@@ -68,14 +67,10 @@ end
 function Layer:load(world_holder, offset)
 	local world_units = world_holder:create_world("world", self._save_name, offset)
 	if world_units then
-		local (for generator), (for state), (for control) = ipairs(world_units)
-		do
-			do break end
+		for _, unit in ipairs(world_units) do
 			self:add_unit_to_created_units(unit)
 		end
-
 	end
-
 	return world_units
 end
 
@@ -85,7 +80,6 @@ function Layer:add_unit_to_created_units(unit)
 	else
 		self._owner:register_unit_id(unit)
 	end
-
 	self:set_up_name_id(unit)
 	table.insert(self._created_units, unit)
 	self._created_units_pairs[unit:unit_data().unit_id] = unit
@@ -97,7 +91,6 @@ function Layer:set_up_name_id(unit)
 	else
 		self:insert_name_id(unit)
 	end
-
 end
 
 function Layer:insert_name_id(unit)
@@ -120,9 +113,7 @@ function Layer:get_name_id(unit, name)
 			else
 				break
 			end
-
 		end
-
 		name = sub_name
 	else
 		local reverse = string.reverse(u_name)
@@ -130,7 +121,6 @@ function Layer:get_name_id(unit, name)
 		name = string.reverse(string.sub(reverse, 0, i - 1))
 		name = name .. "_"
 	end
-
 	self._name_ids[u_name] = self._name_ids[u_name] or {}
 	local t = self._name_ids[u_name]
 	for i = start_number, 10000 do
@@ -140,9 +130,7 @@ function Layer:get_name_id(unit, name)
 			t[name_id] = 1
 			return name_id
 		end
-
 	end
-
 end
 
 function Layer:remove_name_id(unit)
@@ -153,9 +141,7 @@ function Layer:remove_name_id(unit)
 		if self._name_ids[unit_name][name_id] == 0 then
 			self._name_ids[unit_name][name_id] = nil
 		end
-
 	end
-
 end
 
 function Layer:set_name_id(unit, name_id)
@@ -166,7 +152,6 @@ function Layer:set_name_id(unit, name_id)
 		unit:unit_data().name_id = name_id
 		managers.editor:unit_name_changed(unit)
 	end
-
 end
 
 function Layer:widget_affect_object()
@@ -200,37 +185,29 @@ function Layer:_update_widget_affect_object(t, dt)
 					local result_pos = self._move_widget:calculate(self:widget_affect_object(), widget_rot, widget_pos, widget_screen_pos)
 					self:use_widget_position(result_pos)
 				end
-
 				if self._rotate_widget:enabled() then
 					local result_rot = self._rotate_widget:calculate(self:widget_affect_object(), widget_rot, widget_pos, widget_screen_pos)
 					self:use_widget_rotation(result_rot)
 				end
-
 			end
-
 			if self._move_widget:enabled() then
 				self._move_widget:set_position(widget_pos)
 				self._move_widget:set_rotation(widget_rot)
 				self._move_widget:update(t, dt)
 			end
-
 			if self._rotate_widget:enabled() then
 				self._rotate_widget:set_position(widget_pos)
 				self._rotate_widget:set_rotation(widget_rot)
 				self._rotate_widget:update(t, dt)
 			end
-
 		end
-
 	end
-
 end
 
 function Layer:_update_drag_select(t, dt)
 	if not self._drag_select then
 		return
 	end
-
 	local end_pos = managers.editor:cursor_pos()
 	if self._polyline then
 		local p1 = managers.editor:screen_pos(self._drag_start_pos)
@@ -244,7 +221,6 @@ function Layer:_update_drag_select(t, dt)
 			p4
 		})
 	end
-
 	local len = self._drag_start_pos - end_pos:length()
 	if len > 0.05 then
 		local top_left = self._drag_start_pos
@@ -253,7 +229,6 @@ function Layer:_update_drag_select(t, dt)
 			top_left = Vector3(self._drag_start_pos.x, end_pos.y, 0)
 			bottom_right = Vector3(end_pos.x, self._drag_start_pos.y, 0)
 		end
-
 		local units = World:find_units("camera_frustum", managers.editor:camera(), top_left, bottom_right, 500000, self._slot_mask)
 		self._drag_units = {}
 		local r, g, b = 1, 1, 1
@@ -261,46 +236,33 @@ function Layer:_update_drag_select(t, dt)
 		if CoreInput.alt() then
 			r, g, b = 1, 0, 0
 		end
-
 		if CoreInput.ctrl() then
 			r, g, b = 0, 1, 0
 		end
-
 		brush:set_color(Color(0.15, 0.5 * r, 0.5 * g, 0.5 * b))
-		local (for generator), (for state), (for control) = ipairs(units)
-		do
-			do break end
+		for _, unit in ipairs(units) do
 			if self:authorised_unit_type(unit) and managers.editor:select_unit_ok_conditions(unit, self) then
 				table.insert(self._drag_units, unit)
 				brush:draw(unit)
 				Application:draw(unit, r * 0.75, g * 0.75, b * 0.75)
 			end
-
 		end
-
 	end
-
 end
 
 function Layer:_update_draw_unit_trigger_sequences(t, dt)
 	if alive(self._selected_unit) and self._selected_unit:damage() and not self._selected_unit:mission_element() then
 		local trigger_data = self._selected_unit:damage():get_editor_trigger_data()
 		if trigger_data and #trigger_data > 0 then
-			local (for generator), (for state), (for control) = ipairs(trigger_data)
-			do
-				do break end
+			for _, data in ipairs(trigger_data) do
 				if alive(data.notify_unit) then
 					Application:draw_line(self._selected_unit:position(), data.notify_unit:position(), 0, 1, 1)
 					Application:draw_sphere(data.notify_unit:position(), 50, 0, 1, 1)
 					Application:draw(data.notify_unit, 0, 1, 1)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function Layer:authorised_unit_type(unit)
@@ -308,21 +270,13 @@ function Layer:authorised_unit_type(unit)
 	if self._confirmed_unit_types[name] ~= nil then
 		return self._confirmed_unit_types[name]
 	end
-
 	local u_type = unit:type():s()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._unit_types)
-		do
-			do break end
-			if u_type == type then
-				self._confirmed_unit_types[name] = true
-				return true
-			end
-
+	for _, type in ipairs(self._unit_types) do
+		if u_type == type then
+			self._confirmed_unit_types[name] = true
+			return true
 		end
-
 	end
-
 	self._confirmed_unit_types[name] = false
 	return false
 end
@@ -331,12 +285,10 @@ function Layer:draw_grid(t, dt)
 	if not managers.editor:layer_draw_grid() then
 		return
 	end
-
 	local rot = Rotation(0, 0, 0)
 	if alive(self._selected_unit) and self:local_rot() then
 		rot = self._selected_unit:rotation()
 	end
-
 	for i = -5, 5 do
 		local from_x = self._current_pos + rot:x() * (i * self:grid_size()) - rot:y() * (6 * self:grid_size())
 		local to_x = self._current_pos + rot:x() * (i * self:grid_size()) + rot:y() * (6 * self:grid_size())
@@ -345,19 +297,14 @@ function Layer:draw_grid(t, dt)
 		local to_y = self._current_pos + rot:y() * (i * self:grid_size()) + rot:x() * (6 * self:grid_size())
 		Application:draw_line(from_y, to_y, 0, 0.5, 0)
 	end
-
 end
 
 function Layer:update_always(t, dt)
 	if not self._layer_enabled then
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
+		for _, unit in ipairs(self._created_units) do
 			Application:draw(unit, 0.75, 0.75, 0.75)
 		end
-
 	end
-
 end
 
 function Layer:local_rot()
@@ -401,65 +348,46 @@ function Layer:build_units(params)
 	if params and params.units_notebook_min_size then
 		self._notebook:set_min_size(params.units_notebook_min_size)
 	end
-
 	notebook_sizer:add(self._notebook, 1, 0, "EXPAND")
-	do
-		local (for generator), (for state), (for control) = pairs(self._category_map)
-		do
-			do break end
-			local panel = EWS:Panel(self._notebook, "", "TAB_TRAVERSAL")
-			local units_sizer = EWS:BoxSizer("VERTICAL")
-			panel:set_sizer(units_sizer)
-			local short_name = EWS:CheckBox(panel, "Short name", "", "ALIGN_LEFT")
-			short_name:set_value(true)
-			units_sizer:add(short_name, 0, 0, "EXPAND")
-			units_sizer:add(EWS:StaticText(panel, "Filter", 0, ""), 0, 0, "ALIGN_CENTER_HORIZONTAL")
-			local unit_filter = EWS:TextCtrl(panel, "", "", "TE_CENTRE")
-			units_sizer:add(unit_filter, 0, 0, "EXPAND")
-			local units = EWS:ListCtrl(panel, "", style)
-			units:clear_all()
-			units:append_column("Name")
-			do
-				local (for generator), (for state), (for control) = pairs(names)
-				do
-					do break end
-					local i = units:append_item(self:_stripped_unit_name(name))
-					units:set_item_data(i, name)
-				end
-
-			end
-
-			units:autosize_column(0)
-			units_sizer:add(units, 1, 0, "EXPAND")
-			short_name:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "toggle_short_name"), {
-				filter = unit_filter,
-				units = units,
-				category = c,
-				short_name = short_name
-			})
-			units:connect("EVT_COMMAND_LIST_ITEM_SELECTED", callback(self, self, "set_unit_name"), units)
-			do
-				local (for generator), (for state), (for control) = ipairs(unit_events)
-				do
-					do break end
-					units:connect(event, callback(self, self, "set_unit_name"), units)
-				end
-
-			end
-
-			unit_filter:connect("EVT_COMMAND_TEXT_UPDATED", callback(self, self, "update_filter"), {
-				filter = unit_filter,
-				units = units,
-				category = c,
-				short_name = short_name
-			})
-			local page_name = managers.editor:category_name(c)
-			self._notebook_units_lists[page_name] = {units = units, filter = unit_filter}
-			self._notebook:add_page(panel, page_name, true)
+	for c, names in pairs(self._category_map) do
+		local panel = EWS:Panel(self._notebook, "", "TAB_TRAVERSAL")
+		local units_sizer = EWS:BoxSizer("VERTICAL")
+		panel:set_sizer(units_sizer)
+		local short_name = EWS:CheckBox(panel, "Short name", "", "ALIGN_LEFT")
+		short_name:set_value(true)
+		units_sizer:add(short_name, 0, 0, "EXPAND")
+		units_sizer:add(EWS:StaticText(panel, "Filter", 0, ""), 0, 0, "ALIGN_CENTER_HORIZONTAL")
+		local unit_filter = EWS:TextCtrl(panel, "", "", "TE_CENTRE")
+		units_sizer:add(unit_filter, 0, 0, "EXPAND")
+		local units = EWS:ListCtrl(panel, "", style)
+		units:clear_all()
+		units:append_column("Name")
+		for name, _ in pairs(names) do
+			local i = units:append_item(self:_stripped_unit_name(name))
+			units:set_item_data(i, name)
 		end
-
+		units:autosize_column(0)
+		units_sizer:add(units, 1, 0, "EXPAND")
+		short_name:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "toggle_short_name"), {
+			filter = unit_filter,
+			units = units,
+			category = c,
+			short_name = short_name
+		})
+		units:connect("EVT_COMMAND_LIST_ITEM_SELECTED", callback(self, self, "set_unit_name"), units)
+		for _, event in ipairs(unit_events) do
+			units:connect(event, callback(self, self, "set_unit_name"), units)
+		end
+		unit_filter:connect("EVT_COMMAND_TEXT_UPDATED", callback(self, self, "update_filter"), {
+			filter = unit_filter,
+			units = units,
+			category = c,
+			short_name = short_name
+		})
+		local page_name = managers.editor:category_name(c)
+		self._notebook_units_lists[page_name] = {units = units, filter = unit_filter}
+		self._notebook:add_page(panel, page_name, true)
 	end
-
 	return notebook_sizer
 end
 
@@ -472,19 +400,13 @@ end
 
 function Layer:repopulate_units()
 	self:load_unit_map_from_vector()
-	local (for generator), (for state), (for control) = pairs(self._category_map)
-	do
-		do break end
+	for c, names in pairs(self._category_map) do
 		local data = self._notebook_units_lists[managers.editor:category_name(c)]
 		data.units:clear()
-		local (for generator), (for state), (for control) = pairs(names)
-		do
-			do break end
+		for name, _ in pairs(names) do
 			data.units:append(name)
 		end
-
 	end
-
 end
 
 function Layer:units_notebook()
@@ -506,21 +428,13 @@ function Layer:update_filter(data)
 	if data.category then
 		unit_map = self._category_map[data.category]
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(unit_map)
-		do
-			do break end
-			local stripped_name = data.short_name:get_value() and self:_stripped_unit_name(name) or name
-			if string.find(stripped_name, filter, 1, true) then
-				local i = data.units:append_item(stripped_name)
-				data.units:set_item_data(i, name)
-			end
-
+	for name, _ in pairs(unit_map) do
+		local stripped_name = data.short_name:get_value() and self:_stripped_unit_name(name) or name
+		if string.find(stripped_name, filter, 1, true) then
+			local i = data.units:append_item(stripped_name)
+			data.units:set_item_data(i, name)
 		end
-
 	end
-
 	data.units:autosize_column(0)
 end
 
@@ -538,11 +452,9 @@ function Layer:update_name_id(name_id)
 		self._block_name_id_event = false
 		return
 	end
-
 	if alive(self._selected_unit) then
 		self:set_name_id(self._selected_unit, name_id:get_value())
 	end
-
 end
 
 function Layer:cb_toogle(data)
@@ -568,24 +480,19 @@ function Layer:change_combo_box_trg(data)
 				else
 					next_i = 1
 				end
-
 			elseif self:shift() then
 				if i == 1 then
 					next_i = #self[data.t]
 				else
 					next_i = i - 1
 				end
-
 			elseif i == #self[data.t] then
 				next_i = 1
 			else
 				next_i = i + 1
 			end
-
 		end
-
 	end
-
 	data.combobox:set_value(self[data.t][next_i])
 	self[data.value] = tonumber(data.combobox:get_value())
 end
@@ -596,7 +503,6 @@ function Layer:use_move_widget(value)
 		self._move_widget:set_enabled(alive(self:widget_affect_object()))
 		self._rotate_widget:set_enabled(alive(self:widget_affect_object()))
 	end
-
 end
 
 function Layer:use_rotate_widget(value)
@@ -605,7 +511,6 @@ function Layer:use_rotate_widget(value)
 		self._move_widget:set_enabled(alive(self:widget_affect_object()))
 		self._rotate_widget:set_enabled(alive(self:widget_affect_object()))
 	end
-
 end
 
 function Layer:unit_types()
@@ -616,20 +521,14 @@ function Layer:load_unit_map_from_vector(which)
 	self._unit_types = which or self._unit_types
 	self._unit_map = {}
 	self._category_map = {}
-	local (for generator), (for state), (for control) = pairs(self._unit_types)
-	do
-		do break end
+	for _, t in pairs(self._unit_types) do
 		self._category_map[t] = {}
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_units_of_type(t))
-		do
-			do break end
+		for _, unit_name in ipairs(managers.database:list_units_of_type(t)) do
 			local unit_data = CoreEngineAccess._editor_unit_data(unit_name:id())
 			self._unit_map[unit_name] = unit_data
 			self._category_map[t][unit_name] = unit_data
 		end
-
 	end
-
 end
 
 function Layer:set_unit_map(map)
@@ -653,7 +552,6 @@ function Layer:cancel_all(ctrlr, event)
 	if EWS:name_to_key_code("K_ESCAPE") == event:key_code() then
 		self:ews_replace_unit()
 	end
-
 end
 
 function Layer:deselect()
@@ -661,7 +559,6 @@ function Layer:deselect()
 		self:set_select_unit(nil)
 		self:update_unit_settings()
 	end
-
 end
 
 function Layer:force_editor_state()
@@ -682,9 +579,7 @@ function Layer:update_unit_settings()
 			self._name_id:set_enabled(false)
 			self._name_id:set_value("-")
 		end
-
 	end
-
 	self:set_reference_unit(self._selected_unit)
 end
 
@@ -693,7 +588,6 @@ function Layer:activate()
 	if alive(self._selected_unit) then
 		managers.editor:set_grid_altitude(self._selected_unit:position().z)
 	end
-
 	self:use_move_widget(managers.editor:using_move_widget())
 	self:use_rotate_widget(managers.editor:using_rotate_widget())
 	self:recalc_all_locals()
@@ -714,7 +608,6 @@ function Layer:widget_rot()
 	if self:local_rot() then
 		widget_rot = self:widget_affect_object():rotation()
 	end
-
 	return widget_rot
 end
 
@@ -727,23 +620,19 @@ function Layer:click_widget()
 			if self:shift() then
 				self:clone()
 			end
-
 			self._move_widget:add_move_widget_axis(ray.body:name():s())
 			self._grab = true
 			self._grab_info = CoreEditorUtils.GrabInfo:new(self:widget_affect_object())
 			self._using_widget = true
 			self._move_widget:set_move_widget_offset(self:widget_affect_object(), self:widget_rot())
 		end
-
 	end
-
 	if self._rotate_widget:enabled() then
 		local ray = World:raycast("ray", from, to, "ray_type", "widget", "target_unit", self._rotate_widget:widget())
 		if ray and ray.body then
 			if self:shift() then
 				self:clone()
 			end
-
 			self._rotate_widget:set_rotate_widget_axis(ray.body:name():s())
 			managers.editor:set_value_info_visibility(true)
 			self._grab = true
@@ -753,9 +642,7 @@ function Layer:click_widget()
 			self._rotate_widget:set_rotate_widget_start_screen_position(managers.editor:world_to_screen(ray.position):with_z(0))
 			self._rotate_widget:set_rotate_widget_unit_rot(self:widget_affect_object():rotation())
 		end
-
 	end
-
 end
 
 function Layer:release_widget()
@@ -765,10 +652,8 @@ function Layer:release_widget()
 		if self._selected_unit then
 			managers.editor:set_grid_altitude(self._selected_unit:position().z)
 		end
-
 		self:reset_widget_values()
 	end
-
 end
 
 function Layer:cloned_group()
@@ -776,7 +661,6 @@ function Layer:cloned_group()
 		self._clone_create_group = false
 		managers.editor:group()
 	end
-
 end
 
 function Layer:using_widget()
@@ -794,51 +678,33 @@ function Layer:prepare_replace(names, rules)
 	rules = rules or {}
 	local data = {}
 	local units = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(names)
-		do
-			do break end
-			local slot = CoreEngineAccess._editor_unit_data(name:id()):slot()
-			local (for generator), (for state), (for control) = ipairs(World:find_units_quick("disabled", "all", slot))
-			do
-				do break end
-				if unit:name() == name:id() then
-					local continent = unit:unit_data().continent
-					if not rules.only_current_continent or not continent or managers.editor:current_continent() == continent then
-						local unit_params = {
-							name = unit:name(),
-							continent = continent,
-							position = unit:position(),
-							rotation = unit:rotation(),
-							groups = unit:unit_data().editor_groups
-						}
-						if unit == self._selected_unit then
-							unit_params.reference_unit = true
-						elseif table.contains(self._selected_units, unit) then
-							unit_params.selected = true
-						end
-
-						table.insert(data, unit_params)
-						table.insert(units, unit)
+	for _, name in ipairs(names) do
+		local slot = CoreEngineAccess._editor_unit_data(name:id()):slot()
+		for _, unit in ipairs(World:find_units_quick("disabled", "all", slot)) do
+			if unit:name() == name:id() then
+				local continent = unit:unit_data().continent
+				if not rules.only_current_continent or not continent or managers.editor:current_continent() == continent then
+					local unit_params = {
+						name = unit:name(),
+						continent = continent,
+						position = unit:position(),
+						rotation = unit:rotation(),
+						groups = unit:unit_data().editor_groups
+					}
+					if unit == self._selected_unit then
+						unit_params.reference_unit = true
+					elseif table.contains(self._selected_units, unit) then
+						unit_params.selected = true
 					end
-
+					table.insert(data, unit_params)
+					table.insert(units, unit)
 				end
-
 			end
-
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(units)
-		do
-			do break end
-			self:delete_unit(unit)
-		end
-
+	for _, unit in ipairs(units) do
+		self:delete_unit(unit)
 	end
-
 	return data
 end
 
@@ -846,78 +712,51 @@ function Layer:recreate_units(name, data)
 	local units_to_select = {}
 	local reference_unit
 	self._continent_locked_picked = true
-	do
-		local (for generator), (for state), (for control) = ipairs(data)
-		do
-			do break end
-			local unit_name = name or params.name:id()
-			local continent = params.continent
-			local pos = params.position
-			local rot = params.rotation
-			local new_unit = self:do_spawn_unit(unit_name, pos, rot)
-			if continent and new_unit:unit_data().continent ~= continent then
-				managers.editor:change_continent_for_unit(new_unit, continent)
-			end
-
-			if params.groups then
-				local (for generator), (for state), (for control) = ipairs(params.groups)
-				do
-					do break end
-					group:add_unit(new_unit)
-				end
-
-			end
-
-			if params.reference_unit then
-				reference_unit = new_unit
-			elseif params.selected then
-				table.insert(units_to_select, new_unit)
-			end
-
+	for _, params in ipairs(data) do
+		local unit_name = name or params.name:id()
+		local continent = params.continent
+		local pos = params.position
+		local rot = params.rotation
+		local new_unit = self:do_spawn_unit(unit_name, pos, rot)
+		if continent and new_unit:unit_data().continent ~= continent then
+			managers.editor:change_continent_for_unit(new_unit, continent)
 		end
-
+		if params.groups then
+			for _, group in ipairs(params.groups) do
+				group:add_unit(new_unit)
+			end
+		end
+		if params.reference_unit then
+			reference_unit = new_unit
+		elseif params.selected then
+			table.insert(units_to_select, new_unit)
+		end
 	end
-
 	self._continent_locked_picked = false
 	self:set_select_unit(nil)
 	self._replacing_units = true
 	self:set_select_unit(reference_unit)
-	do
-		local (for generator), (for state), (for control) = ipairs(units_to_select)
-		do
-			do break end
-			self:set_select_unit(unit)
-		end
-
+	for _, unit in ipairs(units_to_select) do
+		self:set_select_unit(unit)
 	end
-
 	self._replacing_units = false
 end
 
 function Layer:replace_unit(name, all)
 	local replace_units = {}
 	if all then
-		local (for generator), (for state), (for control) = ipairs(World:find_units_quick("all", self._selected_unit:slot()))
-		do
-			do break end
+		for _, unit in ipairs(World:find_units_quick("all", self._selected_unit:slot())) do
 			if unit:name() == self._selected_unit:name() and unit ~= self._selected_unit then
 				table.insert(replace_units, unit)
 			end
-
 		end
-
 	else
-		local (for generator), (for state), (for control) = ipairs(self._selected_units)
-		do
-			do break end
+		for _, unit in ipairs(self._selected_units) do
 			if unit ~= self._selected_unit then
 				table.insert(replace_units, unit)
 			end
-
 		end
-
 	end
-
 	table.insert(replace_units, self._selected_unit)
 	self:_replace_units(name, replace_units)
 end
@@ -926,54 +765,35 @@ function Layer:_replace_units(name, replace_units)
 	local selected_units = CoreTable.clone(self._selected_units)
 	local reference_unit = self._selected_unit
 	local units_to_select = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(replace_units)
-		do
-			do break end
-			local continent = unit:unit_data().continent
-			if not continent or managers.editor:current_continent() == continent then
-				local pos = unit:position()
-				local rot = unit:rotation()
-				local unit_name = name or unit:name():s()
-				local new_unit = self:do_spawn_unit(unit_name, pos, rot)
-				if continent and new_unit:unit_data().continent ~= continent then
-					managers.editor:change_continent_for_unit(new_unit, continent)
-				end
-
-				if unit:unit_data().editor_groups then
-					local (for generator), (for state), (for control) = ipairs(unit:unit_data().editor_groups)
-					do
-						do break end
-						group:add_unit(new_unit)
-					end
-
-				end
-
-				if unit == reference_unit then
-					reference_unit = new_unit
-				elseif table.contains(selected_units, unit) then
-					table.insert(units_to_select, new_unit)
-				end
-
-				self:delete_unit(unit)
+	for _, unit in ipairs(replace_units) do
+		local continent = unit:unit_data().continent
+		if not continent or managers.editor:current_continent() == continent then
+			local pos = unit:position()
+			local rot = unit:rotation()
+			local unit_name = name or unit:name():s()
+			local new_unit = self:do_spawn_unit(unit_name, pos, rot)
+			if continent and new_unit:unit_data().continent ~= continent then
+				managers.editor:change_continent_for_unit(new_unit, continent)
 			end
-
+			if unit:unit_data().editor_groups then
+				for _, group in ipairs(unit:unit_data().editor_groups) do
+					group:add_unit(new_unit)
+				end
+			end
+			if unit == reference_unit then
+				reference_unit = new_unit
+			elseif table.contains(selected_units, unit) then
+				table.insert(units_to_select, new_unit)
+			end
+			self:delete_unit(unit)
 		end
-
 	end
-
 	self:set_select_unit(nil)
 	self._replacing_units = true
 	self:set_select_unit(reference_unit)
-	do
-		local (for generator), (for state), (for control) = ipairs(units_to_select)
-		do
-			do break end
-			self:set_select_unit(unit)
-		end
-
+	for _, unit in ipairs(units_to_select) do
+		self:set_select_unit(unit)
 	end
-
 	self._replacing_units = false
 end
 
@@ -994,9 +814,7 @@ function Layer:unit_sampler()
 			local s = managers.editor:select_unit_name(unit_name)
 			managers.editor:output(s)
 		end
-
 	end
-
 end
 
 function Layer:ignore_global_select()
@@ -1016,7 +834,6 @@ function Layer:set_drag_select()
 	if self:condition() or self._grab then
 		return
 	end
-
 	self._drag_select = true
 	self._polyline = managers.editor._gui:polyline({
 		color = Color(0.5, 1, 1, 1)
@@ -1030,7 +847,6 @@ function Layer:remove_polyline()
 		managers.editor._gui:remove(self._polyline)
 		self._polyline = nil
 	end
-
 end
 
 function Layer:adding_units()
@@ -1050,21 +866,14 @@ function Layer:select_release()
 	self:remove_polyline()
 	if self._drag_units then
 		self._selecting_many_units = true
-		do
-			local (for generator), (for state), (for control) = ipairs(self._drag_units)
-			do
-				do break end
-				self:set_select_unit(unit)
-			end
-
+		for _, unit in ipairs(self._drag_units) do
+			self:set_select_unit(unit)
 		end
-
 		self._selecting_many_units = false
 		self:check_referens_exists()
 		managers.editor:selected_units(self._selected_units)
 		self:update_unit_settings()
 	end
-
 	self._drag_units = nil
 end
 
@@ -1072,19 +881,15 @@ function Layer:add_highlighted_unit(unit, config)
 	if not unit then
 		return
 	end
-
 end
 
 function Layer:remove_highlighted_unit(unit)
 end
 
 function Layer:clear_highlighted_units()
-	local (for generator), (for state), (for control) = ipairs(self._selected_units)
-	do
-		do break end
+	for _, unit in ipairs(self._selected_units) do
 		self:remove_highlighted_unit(unit)
 	end
-
 end
 
 function Layer:clear_selected_units_table()
@@ -1102,15 +907,9 @@ function Layer:set_selected_units(units)
 	self:clear_selected_units()
 	self._selecting_many_units = true
 	local id = Profiler:start("call_set_select_unit")
-	do
-		local (for generator), (for state), (for control) = ipairs(units)
-		do
-			do break end
-			self:set_select_unit(unit)
-		end
-
+	for _, unit in ipairs(units) do
+		self:set_select_unit(unit)
 	end
-
 	Profiler:stop(id)
 	Profiler:counter_time("call_set_select_unit")
 	managers.editor:selected_units(self._selected_units)
@@ -1122,15 +921,9 @@ function Layer:select_group(group)
 	self:clear_highlighted_units()
 	self:set_reference_unit(group:reference())
 	self._selected_units = CoreTable.clone(group:units())
-	do
-		local (for generator), (for state), (for control) = ipairs(self._selected_units)
-		do
-			do break end
-			self:add_highlighted_unit(unit, "highlight")
-		end
-
+	for _, unit in ipairs(self._selected_units) do
+		self:add_highlighted_unit(unit, "highlight")
 	end
-
 	managers.editor:group_selected(group)
 	self:recalc_all_locals()
 	self:update_unit_settings()
@@ -1149,13 +942,9 @@ function Layer:unit_in_group(unit)
 				if group and group:closed() and group:continent() == managers.editor:current_continent() then
 					return group
 				end
-
 			end
-
 		end
-
 	end
-
 	return nil
 end
 
@@ -1170,7 +959,6 @@ function Layer:set_select_group(unit)
 					current_group:remove_unit(unit)
 					self:remove_select_unit(unit)
 				end
-
 			elseif CoreInput.shift() then
 				group:set_reference(unit)
 			elseif CoreInput.ctrl() then
@@ -1182,30 +970,23 @@ function Layer:set_select_group(unit)
 						current_group:add_unit(unit)
 						self:add_select_unit(unit)
 					end
-
 				end
-
 			else
 				self:select_group(group)
 			end
-
 			if reference ~= group:reference() then
 				self:select_group(group)
 			end
-
 		elseif CoreInput.ctrl() then
 			if current_group then
 				current_group:add_unit(unit)
 				self:add_select_unit(unit)
 			end
-
 		elseif not self._selecting_many_units then
 			self:clear_selected_units()
 		end
-
 		return true
 	end
-
 	return false
 end
 
@@ -1213,11 +994,9 @@ function Layer:set_select_unit(unit)
 	if managers.editor:loading() then
 		return
 	end
-
 	if self:set_select_group(unit) then
 		return
 	end
-
 	if self:alt() then
 		self:remove_select_unit(unit)
 	elseif self:shift() then
@@ -1228,7 +1007,6 @@ function Layer:set_select_unit(unit)
 			self:set_reference_unit(self._selected_unit or unit)
 			self:add_select_unit(unit)
 		end
-
 	elseif (self:ctrl() or self._selecting_many_units or self._replacing_units) and #self._selected_units > 0 then
 		self:add_select_unit(unit)
 	else
@@ -1237,17 +1015,14 @@ function Layer:set_select_unit(unit)
 		self:add_highlighted_unit(unit, "highlight")
 		table.insert(self._selected_units, unit)
 	end
-
 	if not self._selecting_many_units then
 		self:check_referens_exists()
 	end
-
 	if not self._selecting_many_units then
 		managers.editor:on_selected_unit(unit)
 		managers.editor:selected_units(self._selected_units)
 		self:update_unit_settings()
 	end
-
 end
 
 function Layer:add_select_unit(unit)
@@ -1258,14 +1033,11 @@ function Layer:add_select_unit(unit)
 			if self._selected_unit then
 				self:recalc_locals(unit, self._selected_unit)
 			end
-
 		elseif not self._selecting_many_units then
 			table.delete(self._selected_units, unit)
 			self:remove_highlighted_unit(unit)
 		end
-
 	end
-
 end
 
 function Layer:remove_select_unit(unit)
@@ -1273,7 +1045,6 @@ function Layer:remove_select_unit(unit)
 		table.delete(self._selected_units, unit)
 		self:remove_highlighted_unit(unit)
 	end
-
 end
 
 function Layer:check_referens_exists()
@@ -1282,11 +1053,9 @@ function Layer:check_referens_exists()
 			self:set_reference_unit(self._selected_units[1])
 			self:recalc_all_locals()
 		end
-
 	else
 		self:set_reference_unit(nil)
 	end
-
 end
 
 function Layer:set_reference_unit(unit)
@@ -1298,22 +1067,16 @@ function Layer:recalc_all_locals()
 	if #self._selected_units > 0 and not table.contains(self._selected_units, self._selected_unit) then
 		self:set_reference_unit(self._selected_units[1])
 	end
-
 	if alive(self._selected_unit) then
 		local reference = self._selected_unit
 		reference:unit_data().local_pos = Vector3(0, 0, 0)
 		reference:unit_data().local_rot = Rotation(0, 0, 0)
-		local (for generator), (for state), (for control) = ipairs(self._selected_units)
-		do
-			do break end
+		for _, unit in ipairs(self._selected_units) do
 			if unit ~= reference then
 				self:recalc_locals(unit, reference)
 			end
-
 		end
-
 	end
-
 end
 
 function Layer:recalc_locals(unit, reference)
@@ -1332,7 +1095,6 @@ function Layer:create_unit(name, pos, rot)
 	if self:uses_continents() and managers.editor:current_continent() then
 		managers.editor:current_continent():add_unit(unit)
 	end
-
 	unit:unit_data().world_pos = pos
 	unit:unit_data().unit_id = self._owner:get_unit_id(unit)
 	unit:unit_data().name_id = self:get_name_id(unit)
@@ -1346,7 +1108,6 @@ function Layer:do_spawn_unit(name, pos, rot)
 		managers.editor:output_warning("Can't create units in continent " .. managers.editor:current_continent():name() .. " because it is locked!")
 		return
 	end
-
 	if name:s() ~= "" then
 		pos = pos or self._current_pos
 		rot = rot or Rotation(Vector3(1, 0, 0), Vector3(0, 1, 0), Vector3(0, 0, 1))
@@ -1354,7 +1115,6 @@ function Layer:do_spawn_unit(name, pos, rot)
 		self:set_select_unit(unit)
 		return unit
 	end
-
 end
 
 function Layer:remove_unit(unit)
@@ -1367,7 +1127,6 @@ function Layer:remove_unit(unit)
 	if unit:unit_data().continent then
 		unit:unit_data().continent:remove_unit(unit)
 	end
-
 	World:delete_unit(unit)
 end
 
@@ -1375,7 +1134,6 @@ function Layer:delete_unit(unit)
 	if self._selected_unit == unit then
 		self:set_reference_unit(nil)
 	end
-
 	table.delete(self._created_units, unit)
 	self._created_units_pairs[unit:unit_data().unit_id] = nil
 	self:remove_unit(unit)
@@ -1389,32 +1147,20 @@ function Layer:show_replace_units()
 	if self:ctrl() or self:shift() or self:alt() then
 		return
 	end
-
 	if self._selected_unit then
 		managers.editor:show_layer_replace_dialog(self)
 	end
-
 end
 
 function Layer:get_created_unit_by_pattern(patterns)
 	local units = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(patterns)
-			do
-				do break end
-				if string.find(unit:name():s(), pattern, 1, true) then
-					table.insert(units, unit)
-				end
-
+	for _, unit in ipairs(self._created_units) do
+		for _, pattern in ipairs(patterns) do
+			if string.find(unit:name():s(), pattern, 1, true) then
+				table.insert(units, unit)
 			end
-
 		end
-
 	end
-
 	return units
 end
 
@@ -1457,7 +1203,6 @@ function Layer:on_clone_edited_values()
 	if self:ctrl() then
 		return
 	end
-
 	if self._selected_unit then
 		local ray = self._owner:select_unit_by_raycast(managers.slot:get_mask("editor_all"), "body editor")
 		if ray and ray.unit then
@@ -1466,59 +1211,45 @@ function Layer:on_clone_edited_values()
 			else
 				self:clone_edited_values(ray.unit, self._selected_unit)
 			end
-
 			self:update_unit_settings()
 		end
-
 	end
-
 end
 
 function Layer:clone_edited_values(unit, source)
 	if unit:name() ~= source:name() then
 		return
 	end
-
 	local lights = CoreEditorUtils.get_editable_lights(source)
-	do
-		local (for generator), (for state), (for control) = ipairs(lights)
-		do
-			do break end
-			local new_light = unit:get_object(light:name())
-			new_light:set_near_range(light:near_range())
-			new_light:set_far_range(light:far_range())
-			new_light:set_enable(light:enable())
-			new_light:set_color(light:color())
-			new_light:set_multiplier(light:multiplier())
-			new_light:set_falloff_exponent(light:falloff_exponent())
-			new_light:set_spot_angle_start(light:spot_angle_start())
-			new_light:set_spot_angle_end(light:spot_angle_end())
-			new_light:set_clipping_values(light:clipping_values())
-		end
-
+	for _, light in ipairs(lights) do
+		local new_light = unit:get_object(light:name())
+		new_light:set_near_range(light:near_range())
+		new_light:set_far_range(light:far_range())
+		new_light:set_enable(light:enable())
+		new_light:set_color(light:color())
+		new_light:set_multiplier(light:multiplier())
+		new_light:set_falloff_exponent(light:falloff_exponent())
+		new_light:set_spot_angle_start(light:spot_angle_start())
+		new_light:set_spot_angle_end(light:spot_angle_end())
+		new_light:set_clipping_values(light:clipping_values())
 	end
-
 	unit:unit_data().mesh_variation = source:unit_data().mesh_variation
 	if unit:unit_data().mesh_variation and unit:unit_data().mesh_variation ~= "default" then
 		managers.sequence:run_sequence_simple2(unit:unit_data().mesh_variation, "change_state", unit)
 	end
-
 	unit:unit_data().material = source:unit_data().material
 	if unit:unit_data().material and unit:unit_data().material ~= "default" then
 		unit:set_material_config(unit:unit_data().material, true)
 	end
-
 	if unit:editable_gui() then
 		unit:editable_gui():set_text(source:editable_gui():text())
 		unit:editable_gui():set_font_size(source:editable_gui():font_size())
 		unit:editable_gui():set_font_color(source:editable_gui():font_color())
 	end
-
 	if unit:ladder() then
 		unit:ladder():set_width(source:ladder():width())
 		unit:ladder():set_height(source:ladder():height())
 	end
-
 end
 
 function Layer:_continent_locked(unit)
@@ -1526,65 +1257,42 @@ function Layer:_continent_locked(unit)
 	if not continent then
 		return false
 	end
-
 	return unit:unit_data().continent:value("locked")
 end
 
 function Layer:set_enabled(enabled)
 	self._layer_enabled = enabled
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			if not self:_continent_locked(unit) then
-				unit:set_enabled(enabled)
-			end
-
+	for _, unit in ipairs(self._created_units) do
+		if not self:_continent_locked(unit) then
+			unit:set_enabled(enabled)
 		end
-
 	end
-
 	return true
 end
 
 function Layer:hide_all()
 	local units_in_layer = self._created_units
-	local (for generator), (for state), (for control) = ipairs(units_in_layer)
-	do
-		do break end
+	for _, unit in ipairs(units_in_layer) do
 		if unit:enabled() then
 			managers.editor:set_unit_visible(unit, false)
 		end
-
 	end
-
 end
 
 function Layer:unhide_all()
-	local (for generator), (for state), (for control) = ipairs(self._created_units)
-	do
-		do break end
+	for _, unit in ipairs(self._created_units) do
 		if unit:enabled() then
 			managers.editor:set_unit_visible(unit, true)
 		end
-
 	end
-
 end
 
 function Layer:clear()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._created_units)
-		do
-			do break end
-			if alive(unit) then
-				self:remove_unit(unit)
-			end
-
+	for _, unit in ipairs(self._created_units) do
+		if alive(unit) then
+			self:remove_unit(unit)
 		end
-
 	end
-
 	self._move_widget:set_enabled(false)
 	self:set_reference_unit(nil)
 	self:clear_selected_units_table()
@@ -1595,7 +1303,6 @@ function Layer:clear()
 		self._name_id:set_value("-")
 		self._name_id:set_enabled(false)
 	end
-
 end
 
 function Layer:set_unit_name(units)
@@ -1608,10 +1315,8 @@ function Layer:set_unit_name(units)
 			self._unit_name = ""
 			return
 		end
-
 		self._unit_name = name
 	end
-
 end
 
 function Layer:get_real_name(name)
@@ -1620,7 +1325,6 @@ function Layer:get_real_name(name)
 		local e = string.find(name, fs)
 		name = string.sub(name, 1, e - 1)
 	end
-
 	return name
 end
 
@@ -1654,9 +1358,7 @@ function Layer:_add_project_unit_save_data(unit, data)
 end
 
 function Layer:save()
-	local (for generator), (for state), (for control) = ipairs(self._created_units)
-	do
-		do break end
+	for _, unit in ipairs(self._created_units) do
 		if not unit:unit_data().instance then
 			local t = {
 				entry = self._save_name,
@@ -1674,11 +1376,8 @@ function Layer:save()
 					continent = unit:unit_data().continent
 				})
 			end
-
 		end
-
 	end
-
 end
 
 function Layer:test_spawn(type)
@@ -1691,58 +1390,37 @@ function Layer:test_spawn(type)
 	local row_units = {}
 	local max_rad = 0
 	local removed = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._unit_map)
-		do
-			do break end
-			if not type or unit_data:type() == Idstring(type) then
-				print("Spawning:", name)
-				local unit = self:do_spawn_unit(name, pos, rot)
-				local bsr = unit:bounding_sphere_radius() * 2
-				if bsr > 20000 then
-					table.insert(removed, name)
-					print("  Removing:", name)
-					self:remove_unit(unit)
-				else
-					max_rad = math.max(max_rad, bsr)
-					i = i + 1
-					self:set_unit_position(unit, unit:position() + Vector3(bsr / 2, y_pos, 0), Rotation())
-					pos = pos + Vector3(bsr, 0, 0)
-					table.insert(row_units, unit)
-				end
-
-				if math.mod(i, prow) == 0 then
-					c_rad = max_rad * 1
-					do
-						local (for generator), (for state), (for control) = ipairs(row_units)
-						do
-							break
-						end
-
-					end
-
-					max_rad = 0
-					y_pos = y_pos + c_rad
-					pos = Vector3()
-					row_units = {}
-				end
-
+	for name, unit_data in pairs(self._unit_map) do
+		if not type or unit_data:type() == Idstring(type) then
+			print("Spawning:", name)
+			local unit = self:do_spawn_unit(name, pos, rot)
+			local bsr = unit:bounding_sphere_radius() * 2
+			if bsr > 20000 then
+				table.insert(removed, name)
+				print("  Removing:", name)
+				self:remove_unit(unit)
+			else
+				max_rad = math.max(max_rad, bsr)
+				i = i + 1
+				self:set_unit_position(unit, unit:position() + Vector3(bsr / 2, y_pos, 0), Rotation())
+				pos = pos + Vector3(bsr, 0, 0)
+				table.insert(row_units, unit)
 			end
-
+			if math.mod(i, prow) == 0 then
+				c_rad = max_rad * 1
+				for _, unit in ipairs(row_units) do
+				end
+				max_rad = 0
+				y_pos = y_pos + c_rad
+				pos = Vector3()
+				row_units = {}
+			end
 		end
-
 	end
-
 	print("\n")
-	do
-		local (for generator), (for state), (for control) = ipairs(removed)
-		do
-			do break end
-			print("Removed", name)
-		end
-
+	for _, name in ipairs(removed) do
+		print("Removed", name)
 	end
-
 	print("DONE")
 end
 

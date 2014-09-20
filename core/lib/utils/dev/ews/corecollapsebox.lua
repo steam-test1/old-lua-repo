@@ -7,7 +7,6 @@ function CoreCollapseBox:init(parent, orientation, caption, expanded_size, expan
 	self._panel = EWS:Panel(self._parent, "", "")
 	if style ~= "NO_BORDER" or not EWS:BoxSizer("VERTICAL") then
 	end
-
 	self._box = EWS:StaticBoxSizer(self._panel, "VERTICAL", "")
 	self._panel:set_sizer(self._box)
 	self._btn = EWS:Button(self._panel, "", "", "NO_BORDER")
@@ -19,7 +18,6 @@ function CoreCollapseBox:init(parent, orientation, caption, expanded_size, expan
 	if self._expanded_size then
 		self._lower_panel:set_min_size(self._expanded_size)
 	end
-
 	self._lower_box = EWS:BoxSizer(orientation)
 	self._lower_panel:set_sizer(self._lower_box)
 	self._box:add(self._lower_panel, 1, 4, style == "NO_BORDER" and "LEFT,RIGHT,EXPAND" or "EXPAND")

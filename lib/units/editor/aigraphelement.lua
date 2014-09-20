@@ -15,29 +15,18 @@ function AIGraphUnitElement:update_editing()
 end
 
 function AIGraphUnitElement:_get_unit(id)
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.editor:layer("Ai"):created_units())
-		do
-			do break end
-			if unit:unit_data().unit_id == id then
-				return unit
-			end
-
+	for _, unit in ipairs(managers.editor:layer("Ai"):created_units()) do
+		if unit:unit_data().unit_id == id then
+			return unit
 		end
-
 	end
-
 	return
 end
 
 function AIGraphUnitElement:update_selected(t, dt)
 	managers.editor:layer("Ai"):external_draw(t, dt)
-	local (for generator), (for state), (for control) = ipairs(managers.editor:layer("Ai"):created_units())
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(self._hed.graph_ids)
-		do
-			do break end
+	for _, unit in ipairs(managers.editor:layer("Ai"):created_units()) do
+		for _, id in ipairs(self._hed.graph_ids) do
 			if unit:unit_data().unit_id == id then
 				self:_draw_link({
 					from_unit = self._unit,
@@ -47,24 +36,17 @@ function AIGraphUnitElement:update_selected(t, dt)
 					b = 0
 				})
 			end
-
 		end
-
 	end
-
 end
 
 function AIGraphUnitElement:update_unselected()
-	local (for generator), (for state), (for control) = ipairs(self._hed.graph_ids)
-	do
-		do break end
+	for _, id in ipairs(self._hed.graph_ids) do
 		local unit = self:_get_unit(id)
 		if not alive(unit) then
 			self:_add_or_remove_graph(id)
 		end
-
 	end
-
 end
 
 function AIGraphUnitElement:_add_element()
@@ -72,7 +54,6 @@ function AIGraphUnitElement:_add_element()
 	if ray and ray.unit and string.find(ray.unit:name():s(), "nav_surface", 1, true) then
 		self:_add_or_remove_graph(ray.unit:unit_data().unit_id)
 	end
-
 end
 
 function AIGraphUnitElement:_add_or_remove_graph(id)
@@ -81,7 +62,6 @@ function AIGraphUnitElement:_add_or_remove_graph(id)
 	else
 		table.insert(self._hed.graph_ids, id)
 	end
-
 end
 
 function AIGraphUnitElement:add_unit_list_btn()
@@ -90,24 +70,17 @@ function AIGraphUnitElement:add_unit_list_btn()
 	end
 
 	local dialog = SelectUnitByNameModal:new("Add Trigger Unit", f)
-	local (for generator), (for state), (for control) = ipairs(dialog:selected_units())
-	do
-		do break end
+	for _, unit in ipairs(dialog:selected_units()) do
 		self:_add_or_remove_graph(unit:unit_data().unit_id)
 	end
-
 end
 
 function AIGraphUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.graph_ids)
-	do
-		do break end
+	for _, id in ipairs(self._hed.graph_ids) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.graph_ids, id)
 		end
-
 	end
-
 end
 
 function AIGraphUnitElement:add_triggers(vc)

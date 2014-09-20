@@ -37,22 +37,18 @@ function ImageBoxGui:_create_image_box(image_config)
 	if halign_not_center then
 		grow_w = image_width + image_padding * 2
 	end
-
 	if valign_not_center and not halign_not_center then
 		grow_h = image_height + image_padding * 2
 	end
-
 	main:grow(grow_w, grow_h)
 	info_area:set_size(main:size())
 	local move_x, move_y = 0, 0
 	if image_halign == Idstring("left") then
 		move_x = grow_w
 	end
-
 	if image_valign ~= Idstring("bottom") then
 		move_y = grow_h
 	end
-
 	title:move(move_x, move_y)
 	buttons_panel:move(move_x, move_y)
 	scroll_panel:move(move_x, move_y)
@@ -83,7 +79,6 @@ function ImageBoxGui:_create_image_box(image_config)
 	else
 		image_panel:set_left(10)
 	end
-
 	if image_valign == Idstring("center") then
 		image_panel:set_center_y(self._panel_h / 2)
 	elseif image_valign == Idstring("bottom") then
@@ -91,7 +86,6 @@ function ImageBoxGui:_create_image_box(image_config)
 	else
 		image_panel:set_top(10)
 	end
-
 	if image_texture and DB:has(Idstring("texture"), image_texture) then
 		local image = image_panel:bitmap({
 			texture = image_texture,
@@ -102,7 +96,6 @@ function ImageBoxGui:_create_image_box(image_config)
 		if image_render_template then
 			image:set_render_template(image_render_template)
 		end
-
 		if keep_texure_ratio then
 			local texture_width, texture_height = image:texture_width(), image:texture_height()
 			local image_aspect = math.max(image_width, 1) / math.max(image_height, 1)
@@ -113,9 +106,7 @@ function ImageBoxGui:_create_image_box(image_config)
 			image:set_size(sw, sh)
 			image:set_center(image_panel:w() / 2, image_panel:h() / 2)
 		end
-
 	end
-
 	if image_video then
 		local image = image_panel:video({
 			video = image_video,
@@ -127,7 +118,6 @@ function ImageBoxGui:_create_image_box(image_config)
 		if image_render_template then
 			image:set_render_template(image_render_template)
 		end
-
 		if keep_texure_ratio then
 			local texture_width, texture_height = image:video_width(), image:video_height()
 			local image_aspect = math.max(image_width, 1) / math.max(image_height, 1)
@@ -138,13 +128,9 @@ function ImageBoxGui:_create_image_box(image_config)
 			image:set_size(sw, sh)
 			image:set_center(image_panel:w() / 2, image_panel:h() / 2)
 		end
-
 	end
-
 	if image_shapes then
-		local (for generator), (for state), (for control) = pairs(image_shapes)
-		do
-			do break end
+		for _, shape in pairs(image_shapes) do
 			local type = shape.type or rect
 			local new_shape
 			if type == "rect" then
@@ -165,13 +151,10 @@ function ImageBoxGui:_create_image_box(image_config)
 					blend_mode = image_blend_mode
 				})
 			end
-
 			new_shape:set_center(shape.x * image_panel:w(), shape.y * image_panel:h())
 			new_shape:set_position(math.round(new_shape:x()), math.round(new_shape:y()))
 		end
-
 	end
-
 	self._info_box:create_sides(info_area, {
 		sides = {
 			1,

@@ -11,7 +11,6 @@ function LootDropScreenGui:init(saferect_ws, fullrect_ws, lootscreen_hud, saved_
 		self._panel:hide()
 		self._fullscreen_panel:hide()
 	end
-
 	self._continue_button = self._panel:text({
 		name = "ready_button",
 		text = utf8.to_upper(managers.localization:text("menu_l_waiting_for_all")),
@@ -47,7 +46,6 @@ function LootDropScreenGui:init(saferect_ws, fullrect_ws, lootscreen_hud, saved_
 	if MenuBackdropGUI then
 		MenuBackdropGUI.animate_bg_text(self, big_text)
 	end
-
 	self._time_left_text = self._panel:text({
 		name = "time_left",
 		text = "30",
@@ -70,11 +68,9 @@ function LootDropScreenGui:init(saferect_ws, fullrect_ws, lootscreen_hud, saved_
 	if saved_state then
 		self:set_state(saved_state)
 	end
-
 	if self._no_loot_for_me then
 		return
 	end
-
 	self:_set_selected_and_sync(2)
 end
 
@@ -102,7 +98,6 @@ function LootDropScreenGui:set_state(state)
 	else
 		Application:error("LootDropScreenGui:set_state: unrecognizable state", state)
 	end
-
 	self._panel:show()
 	self._fullscreen_panel:show()
 	managers.menu_component:post_event("menu_exit")
@@ -123,7 +118,6 @@ function LootDropScreenGui:close_network()
 		managers.job:deactivate_current_job()
 		managers.gage_assignment:deactivate_assignments()
 	end
-
 end
 
 function LootDropScreenGui:choose_card(id, selected)
@@ -151,7 +145,6 @@ function LootDropScreenGui:check_all_ready()
 			if managers.menu:is_pc_controller() then
 				self._continue_button:set_color(tweak_data.screen_colors.button_stage_3)
 			end
-
 		else
 			if Network:is_server() then
 				self._button_not_clickable = false
@@ -159,12 +152,9 @@ function LootDropScreenGui:check_all_ready()
 				if managers.menu:is_pc_controller() then
 					self._continue_button:set_color(tweak_data.screen_colors.button_stage_3)
 				end
-
 			else
 			end
-
 		end
-
 		local continue_button = managers.menu:is_pc_controller() and "[ENTER]" or nil
 		local text = managers.localization:to_upper_text(text_id, {CONTINUE = continue_button})
 		self._continue_button:set_text(text)
@@ -180,14 +170,12 @@ function LootDropScreenGui:check_all_ready()
 		big_text:move(13, -9)
 		managers.menu_component:post_event("prompt_enter")
 	end
-
 end
 
 function LootDropScreenGui:on_peer_removed(peer, reason)
 	if peer then
 		self._lootscreen_hud:remove_peer(peer:id(), reason)
 	end
-
 	self:check_all_ready()
 end
 
@@ -196,7 +184,6 @@ function LootDropScreenGui:update(t, dt)
 	if self._no_loot_for_me then
 		return
 	end
-
 	if not self._is_alone then
 		if self._fade_time_left then
 			self._fade_time_left = self._fade_time_left - dt
@@ -204,13 +191,11 @@ function LootDropScreenGui:update(t, dt)
 				self._time_left_text:set_alpha(1)
 				self._fade_time_left = nil
 			end
-
 		elseif self._time_left then
 			self._time_left = math.max(self._time_left - dt, 0)
 			if self._card_chosen then
 				self._time_left = 0
 			end
-
 			if self._time_left > 10 then
 				self._time_left_text:set_text(string.format("%1d", self._time_left))
 			else
@@ -218,10 +203,8 @@ function LootDropScreenGui:update(t, dt)
 					self._time_left_text:set_font(tweak_data.menu.pd2_medium_font_id)
 					self._time_left_text:set_font_size(tweak_data.menu.pd2_medium_font_size)
 				end
-
 				self._time_left_text:set_text(string.format("%0.2f", self._time_left))
 			end
-
 			if 0 >= self._time_left then
 				self._time_left_text:set_text("")
 				self._time_left_text:set_alpha(0)
@@ -231,15 +214,10 @@ function LootDropScreenGui:update(t, dt)
 					if not Global.game_settings.single_player and managers.network:session() then
 						managers.network:session():send_to_peers("choose_lootcard", self._selected or 2)
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function LootDropScreenGui:continue_to_lobby()
@@ -247,31 +225,25 @@ function LootDropScreenGui:continue_to_lobby()
 		managers.menu_component:post_event("menu_enter")
 		game_state_machine:current_state()._continue_cb()
 	end
-
 end
 
 function LootDropScreenGui:mouse_pressed(button, x, y)
 	if self._no_loot_for_me then
 		return
 	end
-
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if button ~= Idstring("0") then
 		return
 	end
-
 	if self._card_chosen and not self._button_not_clickable and self._continue_button:inside(x, y) then
 		self:continue_to_lobby()
 		return true
 	end
-
 	if self._card_chosen then
 		return
 	end
-
 	local inside = self._lootscreen_hud:check_inside_local_peer(managers.mouse_pointer:modified_fullscreen_16_9_mouse_pos())
 	if inside == self._selected then
 		self._card_chosen = true
@@ -280,20 +252,16 @@ function LootDropScreenGui:mouse_pressed(button, x, y)
 		if not Global.game_settings.single_player and managers.network:session() then
 			managers.network:session():send_to_peers("choose_lootcard", self._selected)
 		end
-
 	end
-
 end
 
 function LootDropScreenGui:mouse_moved(x, y)
 	if self._no_loot_for_me then
 		return false
 	end
-
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return false
 	end
-
 	if self._button_not_clickable then
 		self._continue_button:set_color(tweak_data.screen_colors.item_stage_1)
 	elseif self._continue_button:inside(x, y) then
@@ -302,26 +270,21 @@ function LootDropScreenGui:mouse_moved(x, y)
 			self._continue_button:set_color(tweak_data.screen_colors.button_stage_2)
 			managers.menu_component:post_event("highlight")
 		end
-
 		return true, "link"
 	elseif self._continue_button_highlighted then
 		self._continue_button_highlighted = false
 		self._continue_button:set_color(tweak_data.screen_colors.button_stage_3)
 	end
-
 	if self._card_chosen then
 		return false
 	end
-
 	if self._lootscreen_hud then
 		local inside = self._lootscreen_hud:check_inside_local_peer(managers.mouse_pointer:modified_fullscreen_16_9_mouse_pos())
 		if inside then
 			self:_set_selected_and_sync(inside)
 		end
-
 		return inside, "link"
 	end
-
 end
 
 function LootDropScreenGui:input_focus()
@@ -332,15 +295,12 @@ function LootDropScreenGui:scroll_up()
 	if self._no_loot_for_me then
 		return
 	end
-
 	if self._card_chosen then
 		return
 	end
-
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	self:_set_selected_and_sync(self._selected - 1)
 end
 
@@ -348,15 +308,12 @@ function LootDropScreenGui:scroll_down()
 	if self._no_loot_for_me then
 		return
 	end
-
 	if self._card_chosen then
 		return
 	end
-
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	self:_set_selected_and_sync(self._selected + 1)
 end
 
@@ -374,7 +331,6 @@ function LootDropScreenGui:set_selected(selected)
 		managers.menu_component:post_event("highlight")
 		return true
 	end
-
 	return false
 end
 
@@ -382,22 +338,18 @@ function LootDropScreenGui:_set_selected_and_sync(selected)
 	if self:set_selected(selected) and not Global.game_settings.single_player and managers.network:session() then
 		managers.network:session():send_to_peers("set_selected_lootcard", self._selected)
 	end
-
 end
 
 function LootDropScreenGui:move_left()
 	if self._no_loot_for_me then
 		return
 	end
-
 	if self._card_chosen then
 		return
 	end
-
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	self:_set_selected_and_sync(self._selected - 1)
 end
 
@@ -405,15 +357,12 @@ function LootDropScreenGui:move_right()
 	if self._no_loot_for_me then
 		return
 	end
-
 	if self._card_chosen then
 		return
 	end
-
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	self:_set_selected_and_sync(self._selected + 1)
 end
 
@@ -429,27 +378,22 @@ function LootDropScreenGui:confirm_pressed()
 	if self._no_loot_for_me then
 		return
 	end
-
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return
 	end
-
 	if self._card_chosen and not self._button_not_clickable then
 		self:continue_to_lobby()
 		return false
 	end
-
 	if self._card_chosen then
 		return false
 	end
-
 	self._card_chosen = true
 	managers.menu_component:post_event("menu_enter")
 	self:choose_card(self._id, self._selected)
 	if not Global.game_settings.single_player and managers.network:session() then
 		managers.network:session():send_to_peers("choose_lootcard", self._selected)
 	end
-
 	return true
 end
 
@@ -457,26 +401,21 @@ function LootDropScreenGui:back_pressed()
 	if self._no_loot_for_me then
 		return
 	end
-
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return false
 	end
-
 end
 
 function LootDropScreenGui:next_page()
 	if self._no_loot_for_me then
 		return
 	end
-
 	if self._card_chosen then
 		return
 	end
-
 	if not self._enabled then
 		return
 	end
-
 	self:next_tab()
 end
 
@@ -484,15 +423,12 @@ function LootDropScreenGui:previous_page()
 	if self._no_loot_for_me then
 		return
 	end
-
 	if self._card_chosen then
 		return
 	end
-
 	if not self._enabled then
 		return
 	end
-
 	self:prev_tab()
 end
 
@@ -500,22 +436,18 @@ function LootDropScreenGui:special_btn_pressed(button)
 	if self._no_loot_for_me then
 		return
 	end
-
 	if self._card_chosen then
 		return false
 	end
-
 end
 
 function LootDropScreenGui:close()
 	if self._panel and alive(self._panel) then
 		self._panel:parent():remove(self._panel)
 	end
-
 	if self._fullscreen_panel and alive(self._fullscreen_panel) then
 		self._fullscreen_panel:parent():remove(self._fullscreen_panel)
 	end
-
 end
 
 function LootDropScreenGui:reload()

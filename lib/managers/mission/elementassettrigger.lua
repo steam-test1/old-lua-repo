@@ -16,7 +16,6 @@ function ElementAssetTrigger:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	print("ElementAssetTrigger:on_executed()", inspect(self._values))
 	ElementAssetTrigger.super.on_executed(self, instigator)
 end

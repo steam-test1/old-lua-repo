@@ -15,14 +15,11 @@ function ElementAccessCamera:on_script_activated()
 		else
 			unit = managers.worlddefinition:get_unit_on_load(id, callback(self, self, "_load_unit"))
 		end
-
 		if unit then
 			unit:base():set_access_camera_mission_element(self)
 			self._camera_unit = unit
 		end
-
 	end
-
 	self._has_fetched_units = true
 	self._mission_script:add_save_state_cb(self._id)
 end
@@ -39,7 +36,6 @@ function ElementAccessCamera:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	ElementAccessCamera.super.on_executed(self, instigator)
 end
 
@@ -57,7 +53,6 @@ function ElementAccessCamera:remove_trigger(id, type)
 	if self._triggers[type] then
 		self._triggers[type][id] = nil
 	end
-
 end
 
 function ElementAccessCamera:trigger_accessed(instigator)
@@ -66,27 +61,21 @@ function ElementAccessCamera:trigger_accessed(instigator)
 	else
 		self:check_triggers("accessed", instigator)
 	end
-
 end
 
 function ElementAccessCamera:check_triggers(type, instigator)
 	if not self._triggers[type] then
 		return
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._triggers[type])
-	do
-		do break end
+	for id, cb_data in pairs(self._triggers[type]) do
 		cb_data.callback(instigator)
 	end
-
 end
 
 function ElementAccessCamera:enabled(...)
 	if alive(self._camera_unit) then
 		return self._camera_unit:enabled()
 	end
-
 	return ElementAccessCamera.super.enabled(self, ...)
 end
 
@@ -98,7 +87,6 @@ function ElementAccessCamera:camera_unit()
 	if alive(self._camera_unit) then
 		return self._camera_unit
 	end
-
 	return nil
 end
 
@@ -106,7 +94,6 @@ function ElementAccessCamera:camera_position()
 	if alive(self._camera_unit) then
 		return self._camera_unit:get_object(Idstring("CameraLens")):position()
 	end
-
 	return self:value("position")
 end
 
@@ -121,7 +108,6 @@ function ElementAccessCamera:load(data)
 	if not self._has_fetched_units then
 		self:on_script_activated()
 	end
-
 end
 
 ElementAccessCameraOperator = ElementAccessCameraOperator or class(CoreMissionScriptElement.MissionScriptElement)
@@ -137,20 +123,12 @@ function ElementAccessCameraOperator:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._values.elements)
-		do
-			do break end
-			local element = self:get_mission_element(id)
-			if element and self._values.operation == "destroy" then
-				element:access_camera_operation_destroy()
-			end
-
+	for _, id in ipairs(self._values.elements) do
+		local element = self:get_mission_element(id)
+		if element and self._values.operation == "destroy" then
+			element:access_camera_operation_destroy()
 		end
-
 	end
-
 	ElementAccessCameraOperator.super.on_executed(self, instigator)
 end
 
@@ -160,13 +138,10 @@ function ElementAccessCameraTrigger:init(...)
 end
 
 function ElementAccessCameraTrigger:on_script_activated()
-	local (for generator), (for state), (for control) = ipairs(self._values.elements)
-	do
-		do break end
+	for _, id in ipairs(self._values.elements) do
 		local element = self:get_mission_element(id)
 		element:add_trigger(self._id, self._values.trigger_type, callback(self, self, "on_executed"))
 	end
-
 end
 
 function ElementAccessCameraTrigger:client_on_executed(...)
@@ -176,7 +151,6 @@ function ElementAccessCameraTrigger:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	ElementAccessCameraTrigger.super.on_executed(self, instigator)
 end
 

@@ -21,27 +21,17 @@ end
 
 function EnvironmentFeeder:feed(data, nr, scene, vp)
 	data:for_each(function(block, ...)
-		do
-			local (for generator), (for state), (for control) = ipairs(self:feeders())
-			do
-				do break end
-				if feeder:feed(nr, scene, vp, data, block, ...) then
-					return
-				end
-
+		for _, feeder in ipairs(self:feeders()) do
+			if feeder:feed(nr, scene, vp, data, block, ...) then
+				return
 			end
-
 		end
-
 		error("[EnvironmentFeeder] No suitable feeder found! Data: ", ...)
 	end
 )
-	local (for generator), (for state), (for control) = ipairs(self:feeders())
-	do
-		do break end
+	for _, feeder in ipairs(self:feeders()) do
 		feeder:end_feed(nr)
 	end
-
 end
 
 function EnvironmentFeeder:feeders()

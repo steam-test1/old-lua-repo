@@ -14,16 +14,13 @@ function SpecialEquipmentPickup:_pickup(unit)
 		if Network:is_client() then
 			managers.network:session():send_to_host("sync_pickup", self._unit)
 		end
-
 		if self._global_event then
 			managers.mission:call_global_event(self._global_event, unit)
 		end
-
 		unit:sound():play("pickup_ammo", nil, true)
 		self:consume()
 		return true
 	end
-
 	return false
 end
 

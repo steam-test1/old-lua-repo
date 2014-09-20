@@ -14,13 +14,11 @@ function ElementLogicChance:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	local roll = math.random(100)
 	if roll > self._chance then
 		self:_trigger_outcome("fail")
 		return
 	end
-
 	self:_trigger_outcome("success")
 	ElementLogicChance.super.on_executed(self, instigator)
 end
@@ -50,15 +48,11 @@ function ElementLogicChance:remove_trigger(id)
 end
 
 function ElementLogicChance:_trigger_outcome(outcome)
-	local (for generator), (for state), (for control) = pairs(self._triggers)
-	do
-		do break end
+	for _, data in pairs(self._triggers) do
 		if data.outcome == outcome then
 			data.callback()
 		end
-
 	end
-
 end
 
 ElementLogicChanceOperator = ElementLogicChanceOperator or class(CoreMissionScriptElement.MissionScriptElement)
@@ -73,29 +67,20 @@ function ElementLogicChanceOperator:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._values.elements)
-		do
-			do break end
-			local element = self:get_mission_element(id)
-			if element then
-				if self._values.operation == "add_chance" then
-					element:chance_operation_add_chance(self._values.chance)
-				elseif self._values.operation == "subtract_chance" then
-					element:chance_operation_subtract_chance(self._values.chance)
-				elseif self._values.operation == "reset" then
-					element:chance_operation_reset()
-				elseif self._values.operation == "set_chance" then
-					element:chance_operation_set_chance(self._values.chance)
-				end
-
+	for _, id in ipairs(self._values.elements) do
+		local element = self:get_mission_element(id)
+		if element then
+			if self._values.operation == "add_chance" then
+				element:chance_operation_add_chance(self._values.chance)
+			elseif self._values.operation == "subtract_chance" then
+				element:chance_operation_subtract_chance(self._values.chance)
+			elseif self._values.operation == "reset" then
+				element:chance_operation_reset()
+			elseif self._values.operation == "set_chance" then
+				element:chance_operation_set_chance(self._values.chance)
 			end
-
 		end
-
 	end
-
 	ElementLogicChanceOperator.super.on_executed(self, instigator)
 end
 
@@ -105,13 +90,10 @@ function ElementLogicChanceTrigger:init(...)
 end
 
 function ElementLogicChanceTrigger:on_script_activated()
-	local (for generator), (for state), (for control) = ipairs(self._values.elements)
-	do
-		do break end
+	for _, id in ipairs(self._values.elements) do
 		local element = self:get_mission_element(id)
 		element:add_trigger(self._id, self._values.outcome, callback(self, self, "on_executed"))
 	end
-
 end
 
 function ElementLogicChanceTrigger:client_on_executed(...)
@@ -121,7 +103,6 @@ function ElementLogicChanceTrigger:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	ElementLogicChanceTrigger.super.on_executed(self, instigator)
 end
 

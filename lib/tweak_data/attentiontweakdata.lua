@@ -669,15 +669,11 @@ function AttentionTweakData:_init_prop()
 end
 
 function AttentionTweakData:get_attention_index(setting_name)
-	local (for generator), (for state), (for control) = ipairs(self.indexes)
-	do
-		do break end
+	for i_setting, test_setting_name in ipairs(self.indexes) do
 		if setting_name == test_setting_name then
 			return i_setting
 		end
-
 	end
-
 end
 
 function AttentionTweakData:get_attention_name(index)
@@ -685,11 +681,8 @@ function AttentionTweakData:get_attention_name(index)
 end
 
 function AttentionTweakData:_post_init()
-	local (for generator), (for state), (for control) = pairs(self.settings)
-	do
-		do break end
+	for setting_name, setting in pairs(self.settings) do
 		table.insert(self.indexes, setting_name)
 	end
-
 end
 

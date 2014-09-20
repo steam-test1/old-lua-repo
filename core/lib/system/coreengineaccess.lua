@@ -6,7 +6,6 @@ local get_class_table = function(engine_class_name)
 	else
 		return nil, string.format("Engine-side class not found: \"%s\".", engine_class_name)
 	end
-
 end
 
 local function get_method_table(engine_class_name)
@@ -14,21 +13,17 @@ local function get_method_table(engine_class_name)
 	if problem then
 		return nil, problem
 	end
-
 	local class_meta_table = getmetatable(class_table)
 	if class_meta_table == nil then
 		return nil, string.format("Global \"%s\" is not bound to a class table.", engine_class_name)
 	end
-
 	local method_table = rawget(class_meta_table, "__index")
 	if method_table == nil then
 		return nil, string.format("Metatable for class \"%s\" does not have an __index member.", engine_class_name)
 	end
-
 	if type(method_table) ~= "table" then
 		return nil, string.format("Metatable for class \"%s\" does not use a table for indexing methods.", engine_class_name)
 	end
-
 	return method_table, nil
 end
 
@@ -45,12 +40,10 @@ local function hide_static_engine_method(engine_class_name, method_name, message
 	if problem then
 		return failure_func(problem)
 	end
-
 	local method = method_table[method_name]
 	if type(method) ~= "function" then
 		return failure_func("Method not found.")
 	end
-
 	method_table[method_name] = function()
 		error(string.format("%s:%s(...) has been hidden by core. %s", engine_class_name, method_name, message or "You should not call it directly."))
 	end
@@ -72,4 +65,3 @@ if not __required then
 	_editor_reload_node = hide_static_engine_method("PackageManager", "editor_reload_node")
 	_editor_unit_data = hide_static_engine_method("PackageManager", "editor_unit_data")
 end
-

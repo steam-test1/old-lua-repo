@@ -17,7 +17,6 @@ function StopLoadingGame:transition()
 	if not self._response:is_done() then
 		return
 	end
-
 	return CoreMenuStateInGame.InGame
 end
 

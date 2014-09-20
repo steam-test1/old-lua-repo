@@ -19,9 +19,7 @@ function ObjectDependencyNode:_walkxml2dependencies(xmlnode, deps)
 			if dn == nil then
 				Application:error("When parsing object: " .. self._name .. ", can not locate material_config: " .. materials_name)
 			end
-
 		end
-
 		local diesel_file = xmlnode:parameter("file")
 		if diesel_file ~= nil then
 			local dn = self._get_dn({name = diesel_file, type_ = MODEL})
@@ -29,10 +27,7 @@ function ObjectDependencyNode:_walkxml2dependencies(xmlnode, deps)
 			if dn == nil then
 				Application:error("When parsing object: " .. self._name .. ", can not locate model: " .. diesel_file)
 			end
-
 		end
-
 	end
-
 end
 

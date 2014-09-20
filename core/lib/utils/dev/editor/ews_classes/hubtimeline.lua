@@ -72,7 +72,6 @@ function HubTimeline:on_btn_zoom(seconds)
 	if not clip then
 		return
 	end
-
 	local offset_in_window = self:size().x / 2
 	local scroll_offset = self._sequence_track:units_to_pixels(clip:start_time()) - offset_in_window
 	self._scrolled_area:scroll(Vector3(scroll_offset / self._scrolled_area:scroll_pixels_per_unit().x, -1, 0))
@@ -85,27 +84,20 @@ end
 
 function HubTimeline:update_timeline()
 	self._sequence_track:remove_all_clips()
-	local (for generator), (for state), (for control) = pairs(self._hub_unit:hub_element_data().actions)
-	do
-		do break end
+	for _, unit in pairs(self._hub_unit:hub_element_data().actions) do
 		self:_add_unit(unit)
 	end
-
 end
 
 function HubTimeline:action_delay_updated(data)
-	local (for generator), (for state), (for control) = ipairs(self._sequence_track:clips())
-	do
-		do break end
+	for _, clip in ipairs(self._sequence_track:clips()) do
 		if clip:metadata().data == data then
 			local coor = data.action_delay * self._multiplier
 			clip:set_range(coor, coor)
 			self._element_delay:set_value(string.format("%.4f", data.action_delay))
 			return
 		end
-
 	end
-
 end
 
 function HubTimeline:add_action(unit)
@@ -113,16 +105,12 @@ function HubTimeline:add_action(unit)
 end
 
 function HubTimeline:select_action(action)
-	local (for generator), (for state), (for control) = ipairs(self._sequence_track:clips())
-	do
-		do break end
+	for _, clip in ipairs(self._sequence_track:clips()) do
 		if clip:metadata().data == action then
 			self:_select_clip(clip)
 			return
 		end
-
 	end
-
 end
 
 function HubTimeline:_select_clip(clip)
@@ -133,20 +121,15 @@ function HubTimeline:_select_clip(clip)
 	if clip then
 		clip:set_selected(true)
 	end
-
 end
 
 function HubTimeline:remove_action(unit)
-	local (for generator), (for state), (for control) = ipairs(self._sequence_track:clips())
-	do
-		do break end
+	for _, clip in ipairs(self._sequence_track:clips()) do
 		if clip:metadata().unit == unit then
 			self._sequence_track:remove_clip(clip)
 			return
 		end
-
 	end
-
 end
 
 function HubTimeline:_add_unit(unit)
@@ -163,7 +146,6 @@ function HubTimeline:_get_color(unit)
 	if color then
 		return color.x, color.y, color.z
 	end
-
 	return math.rand(1), math.rand(1), math.rand(1)
 end
 
@@ -181,7 +163,6 @@ function HubTimeline:_on_mouse_left_down(sender, event)
 	if key then
 		self._hub_unit:hub_element():select_action_with_unit(key:metadata().unit)
 	end
-
 	managers.editor:select_unit(self._hub_unit)
 end
 
@@ -197,26 +178,21 @@ function HubTimeline:_on_mouse_right_down(sender, event)
 	else
 		managers.editor:select_unit(self._hub_unit)
 	end
-
 end
 
 function HubTimeline:_on_mouse_motion(sender, event)
 	if not self._dragging then
 		return
 	end
-
 	local pos = event:get_position(self._sequence_track)
 	local coor = self._sequence_track:pixels_to_units(pos.x)
-	local (for generator), (for state), (for control) = ipairs(self._sequence_track:selected_clips())
-	do
-		do break end
+	for _, key in ipairs(self._sequence_track:selected_clips()) do
 		key:set_range(coor, coor)
 		local delay = coor / self._multiplier
 		key:metadata().data.action_delay = delay
 		self._hub_unit:hub_element():ews_select_action()
 		self._element_delay:set_value(string.format("%.4f", key:metadata().data.action_delay))
 	end
-
 end
 
 function HubTimeline:_on_mousewheel(track, event)
@@ -224,7 +200,6 @@ function HubTimeline:_on_mousewheel(track, event)
 	if not clip then
 		return
 	end
-
 	local delta = math.sign(event:get_wheel_rotation()) * math.clamp(self._ruler:pixels_per_major_division() / 100, 1, 20)
 	self:zoom_around(clip:start_time(), self._panel:get_size().x / 2, delta)
 end

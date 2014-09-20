@@ -10,7 +10,6 @@ function ControllerWrapper:reset_cache(check_time)
 	if (not check_time or reset_cache_time > self._reset_cache_time) and next(self._input_released_cache) then
 		self._input_released_cache = {}
 	end
-
 	ControllerWrapper.super.reset_cache(self, check_time)
 end
 
@@ -24,10 +23,8 @@ function ControllerWrapper:get_input_released(connection_name)
 			Application:error(self:to_string() .. " No controller input binded to connection \"" .. tostring(connection_name) .. "\".")
 			cache = false
 		end
-
 		self._input_released_cache[connection_name] = cache
 	end
-
 	return cache
 end
 

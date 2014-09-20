@@ -26,38 +26,29 @@ function SubtitleManager:set_presenter(presenter)
 	if self.__presenter then
 		self.__presenter:destroy()
 	end
-
 	self.__presenter = presenter
 	if self.__presenter then
 		self:_update_presenter_visibility()
 	end
-
 end
 
 function SubtitleManager:load_sequences(sequence_file_path)
 	local root_node = DB:load_node("subtitle_sequence", sequence_file_path)
 	assert(root_node:name() == "subtitle_sequence", "File is not a subtitle sequence file.")
 	self.__loaded_sequence_file_paths[sequence_file_path] = true
-	local (for generator), (for state), (for control) = root_node:children()
-	do
-		do break end
+	for sequence_node in root_node:children() do
 		if sequence_node:name() == "sequence" then
 			local sequence = CoreSubtitleSequence.SubtitleSequence:new(sequence_node)
 			self.__subtitle_sequences[sequence:name()] = sequence
 		end
-
 	end
-
 end
 
 function SubtitleManager:reload_sequences()
 	self.__subtitle_sequences = {}
-	local (for generator), (for state), (for control) = pairs(self.__loaded_sequence_file_paths)
-	do
-		do break end
+	for sequence_file_path, _ in pairs(self.__loaded_sequence_file_paths) do
 		self:load_sequences(sequence_file_path)
 	end
-
 end
 
 function SubtitleManager:update(time, delta_time)
@@ -66,9 +57,7 @@ function SubtitleManager:update(time, delta_time)
 		if self.__player:is_done() then
 			self.__player = nil
 		end
-
 	end
-
 	self:presenter():update(time, delta_time)
 end
 

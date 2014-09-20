@@ -9,7 +9,6 @@ function PlayerSound:init(unit)
 	else
 		ss:set_switch("int_ext", "third")
 	end
-
 end
 
 function PlayerSound:destroy(unit)
@@ -21,7 +20,6 @@ function PlayerSound:_play(sound_name, source_name)
 	if source_name then
 		source = Idstring(source_name)
 	end
-
 	local event = self._unit:sound_source(source):post_event(sound_name, self.sound_callback, self._unit, "marker", "end_of_event")
 	return event
 end
@@ -30,12 +28,10 @@ function PlayerSound:sound_callback(instance, event_type, unit, sound_source, la
 	if not alive(unit) then
 		return
 	end
-
 	if event_type == "end_of_event" then
 		managers.hud:set_mugshot_talk(unit:unit_data().mugshot_id, false)
 		unit:sound()._speaking = nil
 	end
-
 end
 
 function PlayerSound:play(sound_name, source_name, sync)
@@ -44,13 +40,11 @@ function PlayerSound:play(sound_name, source_name, sync)
 		event_id = sound_name
 		sound_name = nil
 	end
-
 	if sync then
 		event_id = event_id or SoundDevice:string_to_id(sound_name)
 		source_name = source_name or ""
 		self._unit:network():send("unit_sound_play", event_id, source_name)
 	end
-
 	local event = self:_play(sound_name or event_id, source_name)
 	return event
 end
@@ -60,7 +54,6 @@ function PlayerSound:stop(source_name)
 	if source_name then
 		source = Idstring(source_name)
 	end
-
 	self._unit:sound_source(source):stop()
 end
 
@@ -70,7 +63,6 @@ function PlayerSound:play_footstep(foot, material_name)
 		local material_name = tweak_data.materials[material_name:key()]
 		self._unit:sound_source(Idstring("root")):set_switch("materials", material_name or "no_material")
 	end
-
 	self:_play(self._unit:movement():running() and "footstep_run" or "footstep_walk")
 end
 
@@ -80,7 +72,6 @@ function PlayerSound:play_land(material_name)
 		local material_name = tweak_data.materials[material_name:key()]
 		self._unit:sound_source(Idstring("root")):set_switch("materials", material_name or "concrete")
 	end
-
 	self:_play("footstep_land")
 end
 
@@ -93,24 +84,20 @@ function PlayerSound:say(sound_name, important_say, sync)
 		self._last_speech:stop()
 		self._speaking = nil
 	end
-
 	local event_id
 	if type(sound_name) == "number" then
 		event_id = sound_name
 		sound_name = nil
 	end
-
 	if sync then
 		event_id = event_id or SoundDevice:string_to_id(sound_name)
 		self._unit:network():send("say", event_id)
 	end
-
 	self._last_speech = self:_play(sound_name or event_id, nil, true)
 	if important_say and self._last_speech then
 		managers.hud:set_mugshot_talk(self._unit:unit_data().mugshot_id, true)
 		self._speaking = true
 	end
-
 	return self._last_speech
 end
 

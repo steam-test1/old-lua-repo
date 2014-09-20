@@ -39,7 +39,6 @@ function FilterUnitElement:_check_convertion()
 	if self._hed.difficulty_overkill_290 == nil then
 		self._hed.difficulty_overkill_290 = self._hed.difficulty_overkill_145
 	end
-
 end
 
 function FilterUnitElement:_build_panel(panel, panel_sizer)

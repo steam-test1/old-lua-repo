@@ -5,7 +5,6 @@ function EventListenerHolder:add(key, event_types, clbk)
 	else
 		self:_add(key, event_types, clbk)
 	end
-
 end
 
 function EventListenerHolder:remove(key)
@@ -14,7 +13,6 @@ function EventListenerHolder:remove(key)
 	else
 		self:_remove(key)
 	end
-
 end
 
 function EventListenerHolder:call(event, ...)
@@ -22,49 +20,32 @@ function EventListenerHolder:call(event, ...)
 		local event_listeners = self._listeners[event]
 		if event_listeners then
 			self._calling = true
-			do
-				local (for generator), (for state), (for control) = pairs(event_listeners)
-				do
-					do break end
-					if self:_not_trash(key) then
-						clbk(...)
-					end
-
+			for key, clbk in pairs(event_listeners) do
+				if self:_not_trash(key) then
+					clbk(...)
 				end
-
 			end
-
 			self._calling = nil
 			self:_append_new_additions()
 			self:_dispose_trash()
 		end
-
 	end
-
 end
 
 function EventListenerHolder:_remove(key)
 	local listeners = self._listeners
-	do
-		local (for generator), (for state), (for control) = pairs(self._listener_keys[key])
-		do
-			do break end
-			listeners[event][key] = nil
-			if not next(listeners[event]) then
-				listeners[event] = nil
-			end
-
+	for _, event in pairs(self._listener_keys[key]) do
+		listeners[event][key] = nil
+		if not next(listeners[event]) then
+			listeners[event] = nil
 		end
-
 	end
-
 	if next(listeners) then
 		self._listener_keys[key] = nil
 	else
 		self._listeners = nil
 		self._listener_keys = nil
 	end
-
 end
 
 function EventListenerHolder:_add(key, event_types, clbk)
@@ -72,24 +53,16 @@ function EventListenerHolder:_add(key, event_types, clbk)
 		debug_pause("[EventListenerHolder:_add] duplicate", key, inspect(event_types), clbk)
 		return
 	end
-
 	local listeners = self._listeners
 	if not listeners then
 		self._listeners = {}
 		self._listener_keys = {}
 		listeners = self._listeners
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(event_types)
-		do
-			do break end
-			listeners[event] = listeners[event] or {}
-			listeners[event][key] = clbk
-		end
-
+	for _, event in pairs(event_types) do
+		listeners[event] = listeners[event] or {}
+		listeners[event][key] = clbk
 	end
-
 	self._listener_keys[key] = event_types
 end
 
@@ -99,7 +72,6 @@ function EventListenerHolder:_set_trash(key)
 	if self._additions then
 		self._additions[key] = nil
 	end
-
 end
 
 function EventListenerHolder:_set_new(key, event_types, clbk)
@@ -107,13 +79,11 @@ function EventListenerHolder:_set_new(key, event_types, clbk)
 		debug_pause("[EventListenerHolder:_set_new] duplicate", key, inspect(event_types), clbk)
 		return
 	end
-
 	self._additions = self._additions or {}
 	self._additions[key] = {clbk, event_types}
 	if self._trash then
 		self._trash[key] = nil
 	end
-
 end
 
 function EventListenerHolder:_append_new_additions()
@@ -124,45 +94,24 @@ function EventListenerHolder:_append_new_additions()
 			self._listener_keys = {}
 			listeners = self._listeners
 		end
-
-		do
-			local (for generator), (for state), (for control) = pairs(self._additions)
-			do
-				do break end
-				do
-					local (for generator), (for state), (for control) = ipairs(new_entry[2])
-					do
-						do break end
-						listeners[event] = listeners[event] or {}
-						listeners[event][key] = new_entry[1]
-					end
-
-				end
-
-				self._listener_keys[key] = new_entry[2]
+		for key, new_entry in pairs(self._additions) do
+			for _, event in ipairs(new_entry[2]) do
+				listeners[event] = listeners[event] or {}
+				listeners[event][key] = new_entry[1]
 			end
-
+			self._listener_keys[key] = new_entry[2]
 		end
-
 		self._additions = nil
 	end
-
 end
 
 function EventListenerHolder:_dispose_trash()
 	if self._trash then
-		do
-			local (for generator), (for state), (for control) = pairs(self._trash)
-			do
-				do break end
-				self:_remove(key)
-			end
-
+		for key, _ in pairs(self._trash) do
+			self:_remove(key)
 		end
-
 		self._trash = nil
 	end
-
 end
 
 function EventListenerHolder:_not_trash(key)

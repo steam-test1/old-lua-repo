@@ -25,57 +25,39 @@ function CoreEnvEditor:init_shadow_tab()
 end
 
 function CoreEnvEditor:load_shadow_data(block)
-	local (for generator), (for state), (for control) = pairs(block:map())
-	do
-		do break end
+	for k, v in pairs(block:map()) do
 		self._shadow_params[k]:set_value(v)
 	end
-
 end
 
 function CoreEnvEditor:parse_shadow_data()
 	local values = {}
 	local data = managers.viewport:get_environment_cache():environment(self._env_path):data_root().post_effect.shadow_processor.shadow_rendering.shadow_modifier
-	do
-		local (for generator), (for state), (for control) = pairs(data)
-		do
-			do break end
-			values[key] = value
-		end
-
+	for key, value in pairs(data) do
+		values[key] = value
 	end
-
 	local block = self:convert_to_block(values)
 	self._shadow_blocks[self._env_path] = block
 	self:load_shadow_data(block)
 end
 
 function CoreEnvEditor:set_params_enabled(b)
-	local (for generator), (for state), (for control) = pairs(self._shadow_params)
-	do
-		do break end
+	for _, v in pairs(self._shadow_params) do
 		cat_print("debug", "enabling " .. _)
 		v._slider:set_enabled(b)
 	end
-
 end
 
 function CoreEnvEditor:clear_param_sliders()
-	local (for generator), (for state), (for control) = pairs(self._shadow_params)
-	do
-		do break end
+	for k, v in pairs(self._shadow_params) do
 		v:set_value(1)
 	end
-
 end
 
 function CoreEnvEditor:serialize(str)
-	local (for generator), (for state), (for control) = pairs(self._shadow_params)
-	do
-		do break end
+	for k, v in pairs(self._shadow_params) do
 		self._shadow_blocks[str]:set(k, v:get_value())
 	end
-
 end
 
 function CoreEnvEditor:convert_to_block(values)

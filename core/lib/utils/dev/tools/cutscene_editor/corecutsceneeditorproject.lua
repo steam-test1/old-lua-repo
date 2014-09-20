@@ -38,57 +38,33 @@ function CoreCutsceneEditorProject:save(audio_clips, film_clips, cutscene_keys, 
 	if type(settings.export_type) == "string" then
 		assert(table.contains(self.VALID_EXPORT_TYPES, settings.export_type))
 	end
-
 	export_type_node:set_parameter("value", settings.export_type or self.DEFAULT_EXPORT_TYPE)
 	local animation_patches_node = settings_node:make_child("animation_patches")
-	do
-		local (for generator), (for state), (for control) = pairs(settings.animation_patches or {})
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(patches)
-			do
-				do break end
-				if is_valid(blend_set) and is_valid(animation) then
-					local actor_node = self:child_node("actor", animation_patches_node, {
-						name = tostring(actor_name)
-					}) or animation_patches_node:make_child("actor")
-					actor_node:set_parameter("name", tostring(actor_name))
-					local override_node = actor_node:make_child("override")
-					override_node:set_parameter("blend_set", tostring(blend_set))
-					override_node:set_parameter("animation", tostring(animation))
-				end
-
+	for actor_name, patches in pairs(settings.animation_patches or {}) do
+		for blend_set, animation in pairs(patches) do
+			if is_valid(blend_set) and is_valid(animation) then
+				local actor_node = self:child_node("actor", animation_patches_node, {
+					name = tostring(actor_name)
+				}) or animation_patches_node:make_child("actor")
+				actor_node:set_parameter("name", tostring(actor_name))
+				local override_node = actor_node:make_child("override")
+				override_node:set_parameter("blend_set", tostring(blend_set))
+				override_node:set_parameter("animation", tostring(animation))
 			end
-
 		end
-
 	end
-
 	local audio_track_node = project_node:make_child("audio_track")
-	do
-		local (for generator), (for state), (for control) = ipairs(audio_clips)
-		do
-			do break end
-			if is_valid(clip.sound) then
-				local clip_node = audio_track_node:make_child("clip")
-				clip_node:set_parameter("offset", tostring(clip.offset or 0))
-				clip_node:set_parameter("sound", tostring(clip.sound))
-			end
-
+	for _, clip in ipairs(audio_clips) do
+		if is_valid(clip.sound) then
+			local clip_node = audio_track_node:make_child("clip")
+			clip_node:set_parameter("offset", tostring(clip.offset or 0))
+			clip_node:set_parameter("sound", tostring(clip.sound))
 		end
-
 	end
-
 	local key_track_node = project_node:make_child("key_track")
-	do
-		local (for generator), (for state), (for control) = ipairs(cutscene_keys)
-		do
-			do break end
-			cutscene_key:_save_under(key_track_node)
-		end
-
+	for _, cutscene_key in ipairs(cutscene_keys) do
+		cutscene_key:_save_under(key_track_node)
 	end
-
 	local film_tracks_node = project_node:make_child("film_tracks")
 	local highest_film_track_index = table.inject(film_clips, 0, function(highest, clip)
 		return math.max(highest, clip.track_index or 0)
@@ -97,12 +73,10 @@ function CoreCutsceneEditorProject:save(audio_clips, film_clips, cutscene_keys, 
 	for track_index = 1, highest_film_track_index do
 		do
 			local track_node = film_tracks_node:make_child("track")
-			local (for generator), (for state), (for control) = ipairs(table.find_all_values(film_clips, function(clip)
+			for _, clip in ipairs(table.find_all_values(film_clips, function(clip)
 				return clip.track_index == track_index
 			end
-))
-			do
-				do break end
+)) do
 				if is_valid(clip.cutscene) and is_valid(clip.camera) and 0 < clip.to - clip.from then
 					local clip_node = track_node:make_child("clip")
 					clip_node:set_parameter("offset", tostring(clip.offset or 0))
@@ -111,13 +85,9 @@ function CoreCutsceneEditorProject:save(audio_clips, film_clips, cutscene_keys, 
 					clip_node:set_parameter("to", tostring(clip.to or 0))
 					clip_node:set_parameter("camera", tostring(clip.camera))
 				end
-
 			end
-
 		end
-
 	end
-
 	managers.database:save_node(project_node, self:path())
 	managers.database:recompile()
 end
@@ -127,18 +97,12 @@ function CoreCutsceneEditorProject:audio_clips()
 	local audio_track_node = self:child_node("audio_track") or responder(function()
 	end
 )
-	do
-		local (for generator), (for state), (for control) = audio_track_node:children()
-		do
-			do break end
-			table.insert(clips, {
-				offset = tonumber(clip_node:parameter("offset") or "0"),
-				sound = clip_node:parameter("sound")
-			})
-		end
-
+	for clip_node in audio_track_node:children() do
+		table.insert(clips, {
+			offset = tonumber(clip_node:parameter("offset") or "0"),
+			sound = clip_node:parameter("sound")
+		})
 	end
-
 	return clips
 end
 
@@ -149,25 +113,18 @@ function CoreCutsceneEditorProject:film_clips()
 	local track_count = film_tracks_node:num_children()
 	while index < track_count do
 		local track_node = film_tracks_node:child(index)
-		do
-			local (for generator), (for state), (for control) = track_node:children()
-			do
-				do break end
-				table.insert(clips, {
-					track_index = index + 1,
-					offset = tonumber(clip_node:parameter("offset") or "0"),
-					cutscene = clip_node:parameter("cutscene"),
-					from = tonumber(clip_node:parameter("from") or "0"),
-					to = tonumber(clip_node:parameter("to") or "0"),
-					camera = clip_node:parameter("camera")
-				})
-			end
-
+		for clip_node in track_node:children() do
+			table.insert(clips, {
+				track_index = index + 1,
+				offset = tonumber(clip_node:parameter("offset") or "0"),
+				cutscene = clip_node:parameter("cutscene"),
+				from = tonumber(clip_node:parameter("from") or "0"),
+				to = tonumber(clip_node:parameter("to") or "0"),
+				camera = clip_node:parameter("camera")
+			})
 		end
-
 		index = index + 1
 	end
-
 	return clips
 end
 
@@ -176,17 +133,11 @@ function CoreCutsceneEditorProject:cutscene_keys(key_collection)
 	local key_track_node = self:child_node("key_track") or responder(function()
 	end
 )
-	do
-		local (for generator), (for state), (for control) = key_track_node:children()
-		do
-			do break end
-			local cutscene_key = CoreCutsceneKey:create(key_node:name(), key_collection)
-			cutscene_key:load(key_node)
-			table.insert(cutscene_keys, cutscene_key)
-		end
-
+	for key_node in key_track_node:children() do
+		local cutscene_key = CoreCutsceneKey:create(key_node:name(), key_collection)
+		cutscene_key:load(key_node)
+		table.insert(cutscene_keys, cutscene_key)
 	end
-
 	return cutscene_keys
 end
 
@@ -198,24 +149,15 @@ function CoreCutsceneEditorProject:animation_patches()
 	local animation_patches_node = self:child_node("animation_patches", settings_node) or responder(function()
 	end
 )
-	do
-		local (for generator), (for state), (for control) = animation_patches_node:children()
-		do
-			do break end
-			local unit_name = actor_node:parameter("name")
-			local (for generator), (for state), (for control) = actor_node:children()
-			do
-				do break end
-				local blend_set = override_node:parameter("blend_set")
-				local animation = override_node:parameter("animation")
-				patches[unit_name] = patches[unit_name] or {}
-				patches[unit_name][blend_set] = animation
-			end
-
+	for actor_node in animation_patches_node:children() do
+		local unit_name = actor_node:parameter("name")
+		for override_node in actor_node:children() do
+			local blend_set = override_node:parameter("blend_set")
+			local animation = override_node:parameter("animation")
+			patches[unit_name] = patches[unit_name] or {}
+			patches[unit_name][blend_set] = animation
 		end
-
 	end
-
 	return patches
 end
 
@@ -223,27 +165,23 @@ function CoreCutsceneEditorProject:root_node()
 	if self._root_node == nil then
 		self._root_node = managers.database:load_node(self:path())
 	end
-
 	return self._root_node
 end
 
 function CoreCutsceneEditorProject:child_node(child_name, parent_node, child_properties)
 	parent_node = parent_node or self:root_node()
-	local (for generator), (for state), (for control) = parent_node:children()
-	do
-		do break end
-		if child_node:name() == child_name then
-			if child_properties ~= nil then
-			elseif table.true_for_all(child_properties, function(value, key)
-				return child_node:parameter(key) == value
-			end
+	for child_node in parent_node:children() do
+		do
+			if child_node:name() == child_name then
+				if child_properties ~= nil then
+				elseif table.true_for_all(child_properties, function(value, key)
+					return child_node:parameter(key) == value
+				end
 ) then
-				return child_node
+					return child_node
+				end
 			end
-
 		end
-
 	end
-
 end
 

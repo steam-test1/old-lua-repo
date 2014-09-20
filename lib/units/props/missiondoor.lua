@@ -10,25 +10,20 @@ function MissionDoor:update(unit, t, dt)
 	if self._explode_t and t > self._explode_t then
 		self:_c4_sequence_done()
 	end
-
 end
 
 function MissionDoor:activate()
 	if Network:is_client() then
 		return
 	end
-
 	if self._active then
 		Application:error("[MissionDoor:activate()] allready active", self._unit)
 		return
 	end
-
 	self._active = true
 	CoreDebug.cat_debug("gaspode", "MissionDoor:activate", self.tweak_data)
 	local devices_data = tweak_data.mission_door[self.tweak_data].devices
-	local (for generator), (for state), (for control) = pairs(devices_data)
-	do
-		do break end
+	for type, device_data in pairs(devices_data) do
 		local amount = #device_data
 		self._devices[type] = {
 			units = {},
@@ -38,9 +33,7 @@ function MissionDoor:activate()
 			placed_counter = 0,
 			completed_counter = 0
 		}
-		local (for generator), (for state), (for control) = ipairs(device_data)
-		do
-			do break end
+		for _, unit_data in ipairs(device_data) do
 			local a_obj = self._unit:get_object(Idstring(unit_data.align))
 			local position = a_obj:position()
 			local rotation = a_obj:rotation()
@@ -49,32 +42,26 @@ function MissionDoor:activate()
 			if unit_data.can_jam ~= nil then
 				unit:timer_gui():set_can_jam(unit_data.can_jam)
 			end
-
 			if unit_data.timer then
 				unit:timer_gui():set_override_timer(unit_data.timer)
 			end
-
 			MissionDoor.run_mission_door_device_sequence(unit, "activate")
 			if managers.network:session() then
 				managers.network:session():send_to_peers_synched("run_mission_door_device_sequence", unit, "activate")
 			end
-
 			table.insert(self._devices[type].units, {
 				unit = unit,
 				placed = false,
 				completed = false
 			})
 		end
-
 	end
-
 end
 
 function MissionDoor.run_mission_door_device_sequence(unit, sequence_name)
 	if unit:damage():has_sequence(sequence_name) then
 		unit:damage():run_sequence_simple(sequence_name)
 	end
-
 end
 
 function MissionDoor:deactivate()
@@ -91,53 +78,37 @@ function MissionDoor:set_powered(powered)
 	self._powered = powered
 	local drills = self._devices.drill
 	if drills then
-		local (for generator), (for state), (for control) = ipairs(drills.units)
-		do
-			do break end
+		for _, unit_data in ipairs(drills.units) do
 			if unit_data.placed and alive(unit_data.unit) then
 				unit_data.unit:timer_gui():set_powered(powered)
 				if managers.network:session() then
 					managers.network:session():send_to_peers_synched("set_mission_door_device_powered", unit_data.unit, powered, false)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function MissionDoor:set_on(state)
 	local drills = self._devices.drill
 	if drills then
-		local (for generator), (for state), (for control) = ipairs(drills.units)
-		do
-			do break end
+		for _, unit_data in ipairs(drills.units) do
 			if unit_data.placed and alive(unit_data.unit) then
 				unit_data.unit:timer_gui():set_powered(state, true)
 				if managers.network:session() then
 					managers.network:session():send_to_peers_synched("set_mission_door_device_powered", unit_data.unit, state, true)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function MissionDoor:_get_device_unit_data(unit, type)
-	local (for generator), (for state), (for control) = ipairs(self._devices[type].units)
-	do
-		do break end
+	for _, unit_data in ipairs(self._devices[type].units) do
 		if unit_data.unit == unit then
 			return unit_data
 		end
-
 	end
-
 end
 
 function MissionDoor:device_placed(unit, type)
@@ -146,7 +117,6 @@ function MissionDoor:device_placed(unit, type)
 		CoreDebug.cat_debug("gaspode", "MissionDoor:device_placed", "Allready placed")
 		return
 	end
-
 	self._devices[type].placed_counter = self._devices[type].placed_counter + 1
 	device_unit_data.placed = true
 	self:trigger_sequence(type .. "_placed")
@@ -173,27 +143,18 @@ function MissionDoor:_check_placed_counter(type)
 		CoreDebug.cat_debug("gaspode", "MissionDoor:_check_placed_counter", "All", type, "are not placed yet")
 		return
 	end
-
 	CoreDebug.cat_debug("gaspode", "MissionDoor:_check_placed_counter", "All of type", type, "has been placed")
 	self:trigger_sequence("all_" .. type .. "_placed")
 	if type == "c4" and self._devices[type].placed_counter == self._devices[type].amount then
 		self:_initiate_c4_sequence()
 		return
 	end
-
 	if (type == "key" or type == "ecm") and self._devices[type].placed_counter == self._devices[type].amount then
-		do
-			local (for generator), (for state), (for control) = ipairs(self._devices[type].units)
-			do
-				do break end
-				self:device_completed(type)
-			end
-
+		for _, unit_data in ipairs(self._devices[type].units) do
+			self:device_completed(type)
 		end
-
 		return
 	end
-
 end
 
 function MissionDoor:_check_completed_counter(type)
@@ -208,7 +169,6 @@ function MissionDoor:_check_completed_counter(type)
 				if self._unit:base() then
 					self._unit:base().c4 = true
 				end
-
 				local alert_event = {
 					"aggression",
 					self._unit:position(),
@@ -218,56 +178,34 @@ function MissionDoor:_check_completed_counter(type)
 				}
 				managers.groupai:state():propagate_alert(alert_event)
 			end
-
 		elseif type == "key" then
 			sequence_name = "open_door_keycard"
 		elseif type == "ecm" then
 			sequence_name = "open_door_ecm"
 		end
-
 		if managers.network:session() then
 			managers.network:session():send_to_peers_synched("run_mission_door_sequence", self._unit, sequence_name)
 		end
-
 		self:run_sequence_simple(sequence_name)
 	end
-
 end
 
 function MissionDoor:_initiate_c4_sequence()
-	do
-		local (for generator), (for state), (for control) = pairs(self._devices)
-		do
-			do break end
-			if type ~= "c4" then
-				local (for generator), (for state), (for control) = ipairs(device.units)
-				do
-					do break end
-					if alive(unit_data.unit) then
-						unit_data.unit:set_slot(0)
-					end
-
+	for type, device in pairs(self._devices) do
+		if type ~= "c4" then
+			for _, unit_data in ipairs(device.units) do
+				if alive(unit_data.unit) then
+					unit_data.unit:set_slot(0)
 				end
-
 			end
-
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._devices.c4.units)
-		do
-			do break end
-			MissionDoor.run_mission_door_device_sequence(unit_data.unit, "activate_explode_sequence")
-			if managers.network:session() then
-				managers.network:session():send_to_peers_synched("run_mission_door_device_sequence", unit_data.unit, "activate_explode_sequence")
-			end
-
+	for _, unit_data in ipairs(self._devices.c4.units) do
+		MissionDoor.run_mission_door_device_sequence(unit_data.unit, "activate_explode_sequence")
+		if managers.network:session() then
+			managers.network:session():send_to_peers_synched("run_mission_door_device_sequence", unit_data.unit, "activate_explode_sequence")
 		end
-
 	end
-
 	self._explode_t = Application:time() + 5
 	self._unit:set_extension_update_enabled(Idstring("base"), true)
 end
@@ -278,13 +216,9 @@ function MissionDoor:_c4_sequence_done()
 	if not self._devices.c4 then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._devices.c4.units)
-	do
-		do break end
+	for _, unit_data in ipairs(self._devices.c4.units) do
 		self:device_completed("c4")
 	end
-
 end
 
 function MissionDoor:run_sequence_simple(sequence_name)
@@ -301,41 +235,24 @@ function MissionDoor:_run_sequence_simple(sequence_name)
 end
 
 function MissionDoor:_destroy_devices()
-	do
-		local (for generator), (for state), (for control) = pairs(self._devices)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(device.units)
-			do
-				do break end
-				if alive(unit_data.unit) then
-					unit_data.unit:set_slot(0)
-				end
-
+	for _, device in pairs(self._devices) do
+		for _, unit_data in ipairs(device.units) do
+			if alive(unit_data.unit) then
+				unit_data.unit:set_slot(0)
 			end
-
 		end
-
 	end
-
 	self._devices = {}
 end
 
 function MissionDoor:destroy()
-	local (for generator), (for state), (for control) = pairs(self._devices)
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(device.units)
-		do
-			do break end
+	for _, device in pairs(self._devices) do
+		for _, unit_data in ipairs(device.units) do
 			if alive(unit_data.unit) then
 				unit_data.unit:set_slot(0)
 			end
-
 		end
-
 	end
-
 end
 
 MissionDoorDevice = MissionDoorDevice or class()
@@ -353,7 +270,6 @@ function MissionDoorDevice:placed()
 		CoreDebug.cat_debug("gaspode", "MissionDoor:placed", "Had no parent door unit")
 		return
 	end
-
 	self._placed = true
 	self._parent_door:base():device_placed(self._unit, self._device_type)
 end
@@ -367,13 +283,11 @@ function MissionDoorDevice:report_jammed_state(jammed)
 		CoreDebug.cat_debug("gaspode", "MissionDoor:report_jammed_state", "Had no parent door unit")
 		return
 	end
-
 	if jammed then
 		self._parent_door:base():device_jammed(self._device_type)
 	else
 		self._parent_door:base():device_resumed(self._device_type)
 	end
-
 end
 
 function MissionDoorDevice:report_resumed()
@@ -381,7 +295,6 @@ function MissionDoorDevice:report_resumed()
 		CoreDebug.cat_debug("gaspode", "MissionDoor:report_jammed_state", "Had no parent door unit")
 		return
 	end
-
 	self._parent_door:base():device_resumed(self._device_type)
 end
 
@@ -390,7 +303,6 @@ function MissionDoorDevice:report_completed()
 		CoreDebug.cat_debug("gaspode", "MissionDoor:report_completed", "Had no parent door unit")
 		return
 	end
-
 	self._parent_door:base():device_completed(self._device_type)
 end
 
@@ -400,7 +312,6 @@ function MissionDoorDevice:report_trigger_sequence(trigger_sequence_name)
 		CoreDebug.cat_debug("gaspode", "MissionDoor:report_trigger_sequence", "Had no parent door unit")
 		return
 	end
-
 	self._parent_door:base():trigger_sequence(trigger_sequence_name)
 end
 

@@ -19,7 +19,6 @@ function DramaExt:play_sound(sound, sound_source)
 		Application:stack_dump()
 		self:sound_callback(nil, "end_of_event", self._unit, sound_source, nil, nil, nil)
 	end
-
 end
 
 function DramaExt:play_subtitle(string_id, duration)
@@ -32,7 +31,6 @@ function DramaExt:play_subtitle(string_id, duration)
 	else
 		managers.subtitle:show_subtitle(string_id, duration)
 	end
-
 end
 
 function DramaExt:stop_cue()
@@ -41,14 +39,11 @@ function DramaExt:stop_cue()
 			managers.subtitle:set_visible(false)
 			managers.subtitle:set_enabled(false)
 		end
-
 		if self._cue.sound then
 			self._unit:sound_source(self._cue.sound_source):stop()
 		end
-
 		self._cue = nil
 	end
-
 end
 
 function DramaExt:sound_callback(instance, event_type, unit, sound_source, label, identifier, position)
@@ -61,7 +56,6 @@ function DramaExt:sound_callback(instance, event_type, unit, sound_source, label
 		managers.subtitle:set_enabled(true)
 		managers.subtitle:show_subtitle(sound_source, DramaExt._subtitle_len(DramaExt, sound_source))
 	end
-
 end
 
 function DramaExt:_subtitle_len(id)
@@ -70,7 +64,6 @@ function DramaExt:_subtitle_len(id)
 	if duration < tweak_data.dialog.MINIMUM_DURATION then
 		duration = tweak_data.dialog.MINIMUM_DURATION
 	end
-
 	return duration
 end
 

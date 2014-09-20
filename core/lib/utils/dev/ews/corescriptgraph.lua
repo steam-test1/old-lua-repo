@@ -22,15 +22,9 @@ end
 
 function ScriptGraph:selected_nodes()
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = self._graph_view:selected_nodes()
-		do
-			do break end
-			table.insert(t, n)
-		end
-
+	for n in self._graph_view:selected_nodes() do
+		table.insert(t, n)
 	end
-
 	return t
 end
 
@@ -69,11 +63,8 @@ function ScriptGraph:save(id_map)
 		gm:add_child(self._graph_metadata)
 		config:add_child(gm)
 	end
-
 	if id_map then
-		local (for generator), (for state), (for control) = pairs(id_map)
-		do
-			do break end
+		for id, node in pairs(id_map) do
 			local cfg_node = Node("node")
 			cfg_node:set_parameter("name", node:name())
 			cfg_node:set_parameter("type", node:type())
@@ -85,11 +76,8 @@ function ScriptGraph:save(id_map)
 			self:_write_node_color(cfg_node, node)
 			config:add_child(cfg_node)
 		end
-
 	else
-		local (for generator), (for state), (for control) = self._graph_view:nodes()
-		do
-			do break end
+		for node in self._graph_view:nodes() do
 			local cfg_node = Node("node")
 			cfg_node:set_parameter("name", node:name())
 			cfg_node:set_parameter("type", node:type())
@@ -103,9 +91,7 @@ function ScriptGraph:save(id_map)
 			self:_write_node_color(cfg_node, node)
 			config:add_child(cfg_node)
 		end
-
 	end
-
 	return config, new_id_map
 end
 
@@ -115,179 +101,113 @@ function ScriptGraph:load(config_root)
 	self._name = assert(config_root:parameter("name"))
 	self._nodes = {}
 	self._id_map = {}
-	do
-		local (for generator), (for state), (for control) = config_root:children()
-		do
-			do break end
-			if node:name() == "metadata" then
-				self._graph_metadata = node:child(0)
-		end
-
+	for node in config_root:children() do
+		if node:name() == "metadata" then
+			self._graph_metadata = node:child(0)
 		else
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = config_root:children()
-		do
-			do break end
-			if node:name() == "node" then
-				local node_info = self:_load_node_info(node)
-				local ewsnode = EWS:FlowNode(assert(node:parameter("name")), node_info.in_slot_names, node_info.out_slot_names, tonumber(assert(node:parameter("x"))), tonumber(assert(node:parameter("y"))))
-				self._nodes[assert(node:parameter("id"))] = {
-					node_type = assert(node:parameter("type")),
-					info = node_info,
-					cnode = ewsnode
-				}
-				ewsnode:set_metadata(node:parameter("id"))
-				self._id_map[node:parameter("id")] = ewsnode
-			end
-
+	for node in config_root:children() do
+		if node:name() == "node" then
+			local node_info = self:_load_node_info(node)
+			local ewsnode = EWS:FlowNode(assert(node:parameter("name")), node_info.in_slot_names, node_info.out_slot_names, tonumber(assert(node:parameter("x"))), tonumber(assert(node:parameter("y"))))
+			self._nodes[assert(node:parameter("id"))] = {
+				node_type = assert(node:parameter("type")),
+				info = node_info,
+				cnode = ewsnode
+			}
+			ewsnode:set_metadata(node:parameter("id"))
+			self._id_map[node:parameter("id")] = ewsnode
 		end
-
 	end
-
 	self._graph:clear()
-	do
-		local (for generator), (for state), (for control) = pairs(self._nodes)
-		do
-			do break end
-			self._graph:add_node(node.cnode)
-			if node.info.icon then
-				node.cnode:set_icon(CoreEWS.image_path(node.info.icon:s()))
-			end
-
-			if node.info.color then
-				node.cnode:set_colour(unpack(node.info.color))
-			end
-
+	for _, node in pairs(self._nodes) do
+		self._graph:add_node(node.cnode)
+		if node.info.icon then
+			node.cnode:set_icon(CoreEWS.image_path(node.info.icon:s()))
 		end
-
-	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._nodes)
-		do
-			do break end
-			if node.info.out_slots then
-				local (for generator), (for state), (for control) = pairs(node.info.out_slots)
-				do
-					do break end
-					do
-						local (for generator), (for state), (for control) = pairs(slot.con)
-						do
-							do break end
-							local dest_node = self:_find_node_with_id(self._nodes, con.id)
-							node.cnode:set_target(slot_name, dest_node, con.slot, con.desc)
-						end
-
-					end
-
-					if slot.col then
-						node.cnode:set_output_colour(slot_name, unpack(slot.col))
-					end
-
-				end
-
-			end
-
-			if node.info.in_slots then
-				local (for generator), (for state), (for control) = pairs(node.info.in_slots)
-				do
-					do break end
-					if slot.col then
-						node.cnode:set_input_colour(slot_name, unpack(slot.col))
-					end
-
-				end
-
-			end
-
+		if node.info.color then
+			node.cnode:set_colour(unpack(node.info.color))
 		end
-
 	end
-
+	for _, node in pairs(self._nodes) do
+		if node.info.out_slots then
+			for slot_name, slot in pairs(node.info.out_slots) do
+				for _, con in pairs(slot.con) do
+					local dest_node = self:_find_node_with_id(self._nodes, con.id)
+					node.cnode:set_target(slot_name, dest_node, con.slot, con.desc)
+				end
+				if slot.col then
+					node.cnode:set_output_colour(slot_name, unpack(slot.col))
+				end
+			end
+		end
+		if node.info.in_slots then
+			for slot_name, slot in pairs(node.info.in_slots) do
+				if slot.col then
+					node.cnode:set_input_colour(slot_name, unpack(slot.col))
+				end
+			end
+		end
+	end
 	self._graph_view:refresh()
 	return self._id_map
 end
 
 function ScriptGraph:_load_node_info(node)
 	local info = {}
-	do
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
-			if node_info:name() == "slot" then
-				if assert(node_info:parameter("type")) == "in" then
-					info.in_slots = info.in_slots or {}
-					info.in_slot_names = info.in_slot_names or {}
-					local color
-					local name = assert(node_info:parameter("name"))
-					do
-						local (for generator), (for state), (for control) = node_info:children()
-						do
-							do break end
-							if inf:name() == "color" then
-								color = {
-									tonumber(assert(inf:parameter("r"))),
-									tonumber(assert(inf:parameter("g"))),
-									tonumber(assert(inf:parameter("b")))
-								}
-							end
-
-						end
-
+	for node_info in node:children() do
+		if node_info:name() == "slot" then
+			if assert(node_info:parameter("type")) == "in" then
+				info.in_slots = info.in_slots or {}
+				info.in_slot_names = info.in_slot_names or {}
+				local color
+				local name = assert(node_info:parameter("name"))
+				for inf in node_info:children() do
+					if inf:name() == "color" then
+						color = {
+							tonumber(assert(inf:parameter("r"))),
+							tonumber(assert(inf:parameter("g"))),
+							tonumber(assert(inf:parameter("b")))
+						}
 					end
-
-					table.insert(info.in_slot_names, name)
-					info.in_slots[name] = {col = color}
-				else
-					info.out_slots = info.out_slots or {}
-					info.out_slot_names = info.out_slot_names or {}
-					local connection = {}
-					local color
-					local name = assert(node_info:parameter("name"))
-					do
-						local (for generator), (for state), (for control) = node_info:children()
-						do
-							do break end
-							if inf:name() == "connection" then
-								table.insert(connection, {
-									id = assert(inf:parameter("id")),
-									slot = assert(inf:parameter("slot")),
-									desc = assert(inf:parameter("desc"))
-								})
-							elseif inf:name() == "color" then
-								color = {
-									tonumber(assert(inf:parameter("r"))),
-									tonumber(assert(inf:parameter("g"))),
-									tonumber(assert(inf:parameter("b")))
-								}
-							end
-
-						end
-
-					end
-
-					table.insert(info.out_slot_names, name)
-					info.out_slots[name] = {con = connection, col = color}
 				end
-
-			elseif node_info:name() == "icon" then
-				info.icon = assert(Idstring(node_info:parameter("name")))
-			elseif node_info:name() == "color" then
-				info.color = {
-					tonumber(assert(node_info:parameter("r"))),
-					tonumber(assert(node_info:parameter("g"))),
-					tonumber(assert(node_info:parameter("b")))
-				}
+				table.insert(info.in_slot_names, name)
+				info.in_slots[name] = {col = color}
+			else
+				info.out_slots = info.out_slots or {}
+				info.out_slot_names = info.out_slot_names or {}
+				local connection = {}
+				local color
+				local name = assert(node_info:parameter("name"))
+				for inf in node_info:children() do
+					if inf:name() == "connection" then
+						table.insert(connection, {
+							id = assert(inf:parameter("id")),
+							slot = assert(inf:parameter("slot")),
+							desc = assert(inf:parameter("desc"))
+						})
+					elseif inf:name() == "color" then
+						color = {
+							tonumber(assert(inf:parameter("r"))),
+							tonumber(assert(inf:parameter("g"))),
+							tonumber(assert(inf:parameter("b")))
+						}
+					end
+				end
+				table.insert(info.out_slot_names, name)
+				info.out_slots[name] = {con = connection, col = color}
 			end
-
+		elseif node_info:name() == "icon" then
+			info.icon = assert(Idstring(node_info:parameter("name")))
+		elseif node_info:name() == "color" then
+			info.color = {
+				tonumber(assert(node_info:parameter("r"))),
+				tonumber(assert(node_info:parameter("g"))),
+				tonumber(assert(node_info:parameter("b")))
+			}
 		end
-
 	end
-
 	return info
 end
 
@@ -304,18 +224,11 @@ function ScriptGraph:_find_node_with_id(nodes, id)
 end
 
 function ScriptGraph:_find_id_with_node(id_map, node)
-	do
-		local (for generator), (for state), (for control) = pairs(id_map)
-		do
-			do break end
-			if n == node then
-				return id
-			end
-
+	for id, n in pairs(id_map) do
+		if n == node then
+			return id
 		end
-
 	end
-
 	error("[ScriptGraph] Could not find node: " .. tostring(node))
 end
 
@@ -326,28 +239,21 @@ function ScriptGraph:_write_icon(cfg_node, node)
 		icon:set_parameter("name", string.sub(node:icon(), path_len + 1))
 		cfg_node:add_child(icon)
 	end
-
 end
 
 function ScriptGraph:_write_connections(slot_node, slot, node, id_map)
 	local con_info = node:connection_info(slot)
-	local (for generator), (for state), (for control) = pairs(con_info)
-	do
-		do break end
+	for _, inf in pairs(con_info) do
 		local dest, dest_slots = inf.node, inf.slots
 		local id = id_map and self:_find_id_with_node(id_map, dest) or tostring(dest)
-		local (for generator), (for state), (for control) = ipairs(dest_slots)
-		do
-			do break end
+		for _, dest_slot in ipairs(dest_slots) do
 			local con_node = Node("connection")
 			con_node:set_parameter("id", id)
 			con_node:set_parameter("slot", dest_slot)
 			con_node:set_parameter("desc", "")
 			slot_node:add_child(con_node)
 		end
-
 	end
-
 end
 
 function ScriptGraph:_write_output_color(slot_node, slot, node)
@@ -375,23 +281,15 @@ end
 
 function ScriptGraph:_write_slots(cfg_node, node, id_map)
 	if node:type() == "FlowNode" then
-		do
-			local (for generator), (for state), (for control) = ipairs(node:inputs())
-			do
-				do break end
-				local slot_node = Node("slot")
-				slot_node:set_parameter("name", slot)
-				slot_node:set_parameter("type", "in")
-				self:_write_connections(slot_node, slot, node, id_map)
-				self:_write_input_color(slot_node, slot, node)
-				cfg_node:add_child(slot_node)
-			end
-
+		for _, slot in ipairs(node:inputs()) do
+			local slot_node = Node("slot")
+			slot_node:set_parameter("name", slot)
+			slot_node:set_parameter("type", "in")
+			self:_write_connections(slot_node, slot, node, id_map)
+			self:_write_input_color(slot_node, slot, node)
+			cfg_node:add_child(slot_node)
 		end
-
-		local (for generator), (for state), (for control) = ipairs(node:outputs())
-		do
-			do break end
+		for _, slot in ipairs(node:outputs()) do
 			local slot_node = Node("slot")
 			slot_node:set_parameter("name", slot)
 			slot_node:set_parameter("type", "out")
@@ -399,9 +297,7 @@ function ScriptGraph:_write_slots(cfg_node, node, id_map)
 			self:_write_output_color(slot_node, slot, node)
 			cfg_node:add_child(slot_node)
 		end
-
 	else
 	end
-
 end
 

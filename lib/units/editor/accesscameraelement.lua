@@ -20,16 +20,13 @@ function AccessCameraUnitElement:layer_finished()
 		if unit then
 			self._camera_unit = unit
 		end
-
 	end
-
 end
 
 function AccessCameraUnitElement:load_unit(unit)
 	if unit then
 		self._camera_unit = unit
 	end
-
 end
 
 function AccessCameraUnitElement:update_selected(t, dt, selected_unit, all_units)
@@ -46,7 +43,6 @@ function AccessCameraUnitElement:update_selected(t, dt, selected_unit, all_units
 	elseif self._hed.camera_u_id then
 		self._hed.camera_u_id = nil
 	end
-
 end
 
 function AccessCameraUnitElement:update_unselected(t, dt, selected_unit, all_units)
@@ -54,7 +50,6 @@ function AccessCameraUnitElement:update_unselected(t, dt, selected_unit, all_uni
 	elseif self._hed.camera_u_id then
 		self._hed.camera_u_id = nil
 	end
-
 end
 
 function AccessCameraUnitElement:update_editing()
@@ -62,29 +57,18 @@ end
 
 function AccessCameraUnitElement:_add_text_options()
 	self._text_options = {"debug_none"}
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.localization:ids("strings/hud"))
-		do
-			do break end
-			local s = id_string:s()
-			if string.find(s, "cam_") then
-				table.insert(self._text_options, s)
-			end
-
-		end
-
-	end
-
-	local (for generator), (for state), (for control) = ipairs(managers.localization:ids("strings/wip"))
-	do
-		do break end
+	for _, id_string in ipairs(managers.localization:ids("strings/hud")) do
 		local s = id_string:s()
 		if string.find(s, "cam_") then
 			table.insert(self._text_options, s)
 		end
-
 	end
-
+	for _, id_string in ipairs(managers.localization:ids("strings/wip")) do
+		local s = id_string:s()
+		if string.find(s, "cam_") then
+			table.insert(self._text_options, s)
+		end
+	end
 end
 
 function AccessCameraUnitElement:set_text()
@@ -103,9 +87,7 @@ function AccessCameraUnitElement:add_camera_uid()
 			self._hed.camera_u_id = unit:unit_data().unit_id
 			self._camera_unit = unit
 		end
-
 	end
-
 end
 
 function AccessCameraUnitElement:add_triggers(vc)
@@ -184,9 +166,7 @@ end
 
 function AccessCameraOperatorUnitElement:draw_links(t, dt, selected_unit, all_units)
 	AccessCameraOperatorUnitElement.super.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -198,9 +178,7 @@ function AccessCameraOperatorUnitElement:draw_links(t, dt, selected_unit, all_un
 				b = 0.25
 			})
 		end
-
 	end
-
 end
 
 function AccessCameraOperatorUnitElement:update_editing()
@@ -215,21 +193,15 @@ function AccessCameraOperatorUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function AccessCameraOperatorUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function AccessCameraOperatorUnitElement:add_triggers(vc)
@@ -277,9 +249,7 @@ end
 
 function AccessCameraTriggerUnitElement:draw_links(t, dt, selected_unit, all_units)
 	AccessCameraTriggerUnitElement.super.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -291,9 +261,7 @@ function AccessCameraTriggerUnitElement:draw_links(t, dt, selected_unit, all_uni
 				b = 0.25
 			})
 		end
-
 	end
-
 end
 
 function AccessCameraTriggerUnitElement:update_editing()
@@ -308,21 +276,15 @@ function AccessCameraTriggerUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function AccessCameraTriggerUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function AccessCameraTriggerUnitElement:add_triggers(vc)

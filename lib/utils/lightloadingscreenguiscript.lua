@@ -112,7 +112,6 @@ function LightLoadingScreenGuiScript:setup(res, progress)
 	if progress > 0 then
 		self._init_progress = progress
 	end
-
 end
 
 function LightLoadingScreenGuiScript:update(progress, dt)
@@ -122,10 +121,8 @@ function LightLoadingScreenGuiScript:update(progress, dt)
 		if 100 < self._fake_progress then
 			self._fake_progress = 100
 		end
-
 		progress = self._fake_progress
 	end
-
 end
 
 function LightLoadingScreenGuiScript:set_text(text)
@@ -138,7 +135,6 @@ function LightLoadingScreenGuiScript:destroy()
 		self._ws = nil
 		self._saferect = nil
 	end
-
 end
 
 function LightLoadingScreenGuiScript:visible()
@@ -152,7 +148,6 @@ function LightLoadingScreenGuiScript:set_visible(visible, res)
 		self:layout_saferect()
 		self:setup(res, -1)
 	end
-
 	if visible then
 		self._ws:show()
 		self._saferect:show()
@@ -160,6 +155,5 @@ function LightLoadingScreenGuiScript:set_visible(visible, res)
 		self._ws:hide()
 		self._saferect:hide()
 	end
-
 end
 

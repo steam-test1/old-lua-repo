@@ -30,7 +30,6 @@ function CoreCutsceneInputParam:float_to_string(number, decimals)
 	else
 		return string.format("%f", number or 0)
 	end
-
 end
 
 function CoreCutsceneInputParam:validate(value)
@@ -39,7 +38,6 @@ function CoreCutsceneInputParam:validate(value)
 	elseif self._value_type == "boolean" then
 		value = self:validate_boolean(value)
 	end
-
 	return value
 end
 
@@ -49,23 +47,14 @@ function CoreCutsceneInputParam:validate_number(number, min_value, max_value, de
 		if string.sub(number, 1, 1) == "." then
 			number = "0" .. number
 		end
-
-		do
-			local (for generator), (for state), (for control) = string.gmatch(number, "(%d+%.?%d?)")
-			do
-				do break end
-				stripped_number = stripped_number .. digit
-			end
-
+		for digit in string.gmatch(number, "(%d+%.?%d?)") do
+			stripped_number = stripped_number .. digit
 		end
-
 		number = tonumber(stripped_number)
 	end
-
 	if number == nil then
 		number = default_value
 	end
-
 	if self._decimals ~= nil then
 		local round_helper = 10 ^ self._decimals
 		number = math.round(number * round_helper)
@@ -74,15 +63,12 @@ function CoreCutsceneInputParam:validate_number(number, min_value, max_value, de
 		else
 			number = number / round_helper
 		end
-
 	end
-
 	if min_value ~= nil and min_value > number then
 		number = min_value
 	elseif max_value ~= nil and max_value < number then
 		number = max_value
 	end
-
 	return number
 end
 
@@ -92,6 +78,5 @@ function CoreCutsceneInputParam:validate_boolean(boolean)
 	else
 		return boolean
 	end
-
 end
 

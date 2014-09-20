@@ -12,7 +12,6 @@ function ElementPointOfNoReturn:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	local diff = Global.game_settings and Global.game_settings.difficulty or "hard"
 	if diff == "easy" then
 		managers.groupai:state():set_point_of_no_return_timer(self._values.time_easy, self._id)
@@ -27,7 +26,6 @@ function ElementPointOfNoReturn:on_executed(instigator)
 	elseif diff == "overkill_290" then
 		managers.groupai:state():set_point_of_no_return_timer(self._values.time_overkill_290, self._id)
 	end
-
 	ElementPointOfNoReturn.super.on_executed(self, instigator)
 end
 

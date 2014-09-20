@@ -50,9 +50,7 @@ function LevelDependencyNode:_walkxml2dependencies(xmlnode, deps)
 			if dn == nil then
 				Application:error("When parsing Level: " .. self._name .. ", can not locate Unit: " .. unit_name)
 			end
-
 		end
-
 	elseif node_name == "enemy" then
 		local unit_name = xmlnode:parameter("name")
 		if unit_name ~= nil then
@@ -61,10 +59,7 @@ function LevelDependencyNode:_walkxml2dependencies(xmlnode, deps)
 			if dn == nil then
 				Application:error("When parsing Level: " .. self._name .. ", can not locate enemy-unit: " .. unit_name)
 			end
-
 		end
-
 	end
-
 end
 

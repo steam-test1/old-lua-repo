@@ -47,9 +47,7 @@ function TrackBehaviour:_invoke_on_delegate(method_name, ...)
 		else
 			error("Failed to call required delegate method \"" .. method_name .. "\" - method not defined")
 		end
-
 	end
-
 end
 
 EditableTrackBehaviour.CLIP_EDGE_HANDLE_WIDTH = 6
@@ -65,12 +63,9 @@ function EditableTrackBehaviour:on_mouse_motion(sender, track, event)
 			if drag_mode == "LEFT_EDGE" or drag_mode == "RIGHT_EDGE" then
 				return EWS:set_cursor("SIZEWE")
 			end
-
 		end
-
 		EWS:set_cursor(nil)
 	end
-
 end
 
 function EditableTrackBehaviour:on_mouse_left_down(sender, track, event)
@@ -83,35 +78,27 @@ function EditableTrackBehaviour:on_mouse_left_down(sender, track, event)
 				if event:control_down() then
 					self:_set_item_selected(item_below_cursor, false)
 				end
-
 			else
 				if not event:control_down() then
 					self:_invoke_on_delegate("deselect_all_items")
 				end
-
 				self:_set_item_selected(item_below_cursor, true)
 			end
-
 			if item_below_cursor:selected() then
 				local drag_mode = self:_drag_mode(item_below_cursor, event:get_position(sender))
 				if self:_delegate_supports("_signal_drag") then
 					self:_invoke_on_delegate("_signal_drag", item_below_cursor, drag_mode)
 				end
-
 				self:change_behaviour(ClipDragTrackBehaviour:new(item_below_cursor, event:get_position(sender), drag_mode))
 			end
-
 		else
 			if not event:control_down() then
 				self:_invoke_on_delegate("deselect_all_items")
 			end
-
 			self:_invoke_on_delegate("_on_start_box_selection", event)
 			self:change_behaviour(BoxSelectionTrackBehaviour:new())
 		end
-
 	end
-
 	event:skip()
 end
 
@@ -121,7 +108,6 @@ function EditableTrackBehaviour:_set_item_selected(item, selected)
 	else
 		item:set_selected(selected)
 	end
-
 end
 
 function EditableTrackBehaviour:_drag_mode(clip, position)
@@ -132,7 +118,6 @@ function EditableTrackBehaviour:_drag_mode(clip, position)
 	else
 		return "CLIP"
 	end
-
 end
 
 ClipDragTrackBehaviour.SNAP_RADIUS = 10
@@ -148,44 +133,29 @@ function ClipDragTrackBehaviour:init(clip, drag_start, mode)
 	if self._mode == "RIGHT_EDGE" then
 		self._snapped_edge = "RIGHT"
 	end
-
 end
 
 function ClipDragTrackBehaviour:on_mouse_motion(sender, track, event)
 	self:_determine_snapped_edge(event:get_position(sender))
 	local time_displacement = self:_time_displacement(sender, event)
-	do
-		local (for generator), (for state), (for control) = ipairs(track.selected_clips and track:selected_clips() or {})
-		do
-			do break end
-			clip:drag(time_displacement, self._mode)
-			local metadata = clip:metadata()
-			if metadata and metadata.on_gui_representation_changed then
-				metadata:on_gui_representation_changed(sender, clip)
-			end
-
+	for _, clip in ipairs(track.selected_clips and track:selected_clips() or {}) do
+		clip:drag(time_displacement, self._mode)
+		local metadata = clip:metadata()
+		if metadata and metadata.on_gui_representation_changed then
+			metadata:on_gui_representation_changed(sender, clip)
 		end
-
 	end
-
 	if sender == track and self:_delegate_supports("_signal_drag") then
 		self:_invoke_on_delegate("_signal_drag", self._clip, self._mode)
 	end
-
 	self._previous_mouse_position = event:get_position(sender)
 	event:skip()
 end
 
 function ClipDragTrackBehaviour:on_mouse_left_up(sender, track, event)
-	do
-		local (for generator), (for state), (for control) = ipairs(track.selected_clips and track:selected_clips() or {})
-		do
-			do break end
-			clip:drag_commit()
-		end
-
+	for _, clip in ipairs(track.selected_clips and track:selected_clips() or {}) do
+		clip:drag_commit()
 	end
-
 	self:restore_default_behaviour()
 	event:skip()
 end
@@ -198,9 +168,7 @@ function ClipDragTrackBehaviour:_determine_snapped_edge(position)
 		elseif drag_delta_x < 0 then
 			self._snapped_edge = "LEFT"
 		end
-
 	end
-
 end
 
 function ClipDragTrackBehaviour:_time_displacement(track, event)
@@ -223,9 +191,7 @@ function ClipDragTrackBehaviour:_time_displacement(track, event)
 		else
 			return time_displacement
 		end
-
 	end
-
 end
 
 function ClipDragTrackBehaviour:_snap_to_time(time)
@@ -247,14 +213,12 @@ function ClipDragTrackBehaviour:_dragged_clip_edge_time()
 	elseif self._snapped_edge == "RIGHT" then
 		return self._clip_initial_end_time
 	end
-
 end
 
 function ClipDragTrackBehaviour:_snap_to_clips(track, time_displacement)
 	if not track.clips then
 		return nil
 	end
-
 	local closest_snapped_displacement
 	local function update_closest_snapped_displacement(initial_time, displacement, clip_edge)
 		local unsnapped_time = initial_time + displacement
@@ -269,28 +233,18 @@ function ClipDragTrackBehaviour:_snap_to_clips(track, time_displacement)
 			if snapped_displacement_diff < closest_snapped_displacement_diff then
 				closest_snapped_displacement = snapped_displacement
 			end
-
 		end
-
 	end
 
-	do
-		local (for generator), (for state), (for control) = ipairs(track:clips())
-		do
-			do break end
-			if not clip:selected() then
-				if self._snapped_edge == "LEFT" then
-					update_closest_snapped_displacement(self._clip_initial_start_time, time_displacement, clip:end_time())
-				elseif self._snapped_edge == "RIGHT" then
-					update_closest_snapped_displacement(self._clip_initial_end_time, time_displacement, clip:start_time())
-				end
-
+	for _, clip in ipairs(track:clips()) do
+		if not clip:selected() then
+			if self._snapped_edge == "LEFT" then
+				update_closest_snapped_displacement(self._clip_initial_start_time, time_displacement, clip:end_time())
+			elseif self._snapped_edge == "RIGHT" then
+				update_closest_snapped_displacement(self._clip_initial_end_time, time_displacement, clip:start_time())
 			end
-
 		end
-
 	end
-
 	return closest_snapped_displacement
 end
 
@@ -300,7 +254,6 @@ function MovePlayheadTrackBehaviour:on_mouse_motion(sender, track, event)
 		local time = sender:pixels_to_units(event:get_position(sender).x)
 		self:_invoke_on_delegate("set_playhead_position", time)
 	end
-
 	event:skip()
 end
 
@@ -309,14 +262,12 @@ function MovePlayheadTrackBehaviour:on_mouse_left_up(sender, track, event)
 		self:on_mouse_motion(sender, track, event)
 		self:restore_default_behaviour()
 	end
-
 end
 
 function BoxSelectionTrackBehaviour:on_mouse_motion(sender, track, event)
 	if sender == track then
 		self:_invoke_on_delegate("_on_drag_box_selection", event)
 	end
-
 	event:skip()
 end
 
@@ -326,6 +277,5 @@ function BoxSelectionTrackBehaviour:on_mouse_left_up(sender, track, event)
 		self:_invoke_on_delegate("_on_commit_box_selection", event)
 		self:restore_default_behaviour()
 	end
-
 end
 

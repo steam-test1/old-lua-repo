@@ -17,6 +17,5 @@ function PrepareLoadingGame:transition()
 	if self._response:is_done() then
 		return CoreMenuStateLoadingGame.LoadingGame
 	end
-
 end
 

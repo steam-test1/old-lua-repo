@@ -36,27 +36,17 @@ function CoreCutsceneAnimationPatchesPanel:patches()
 		patches[unit_name] = patches[unit_name] or {}
 		patches[unit_name][blend_set] = animation
 	end
-
 	return patches
 end
 
 function CoreCutsceneAnimationPatchesPanel:set_patches(patches)
 	self:freeze()
 	self:clear()
-	do
-		local (for generator), (for state), (for control) = pairs(patches or {})
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(overrides)
-			do
-				do break end
-				self:add_item(unit_name, blend_set, animation)
-			end
-
+	for unit_name, overrides in pairs(patches or {}) do
+		for blend_set, animation in pairs(overrides) do
+			self:add_item(unit_name, blend_set, animation)
 		end
-
 	end
-
 	self:thaw()
 end
 
@@ -75,7 +65,6 @@ function CoreCutsceneAnimationPatchesPanel:_sizer_with_editable_fields(parent)
 	if unit_name_enabled then
 		unit_name_dropdown:set_focus()
 	end
-
 	return sizer
 end
 
@@ -84,20 +73,13 @@ function CoreCutsceneAnimationPatchesPanel:_create_unit_name_dropdown(parent)
 	local control = EWS:ComboBox(parent, "", "", "CB_DROPDOWN,CB_READONLY,CB_SORT")
 	control:freeze()
 	local first_value
-	do
-		local (for generator), (for state), (for control) = pairs(self:unit_types())
-		do
-			do break end
-			first_value = first_value or unit_name
-			control:append(unit_name)
-		end
-
+	for unit_name, _ in pairs(self:unit_types()) do
+		first_value = first_value or unit_name
+		control:append(unit_name)
 	end
-
 	if value then
 		control:set_value(value)
 	end
-
 	control:set_min_size(control:get_min_size():with_x(0))
 	control:connect("EVT_COMMAND_COMBOBOX_SELECTED", self:_make_control_edited_callback(control, "Unit Name"))
 	control:thaw()
@@ -131,7 +113,6 @@ function CoreCutsceneAnimationPatchesPanel:_on_browse_for_animation(text_ctrl)
 		local relative_path = string.match(dialog:get_path(), "^" .. managers.database:base_path() .. "(.*)")
 		text_ctrl:set_value(relative_path)
 	end
-
 end
 
 function CoreCutsceneAnimationPatchesPanel:_absolute_dir_and_path(relative_path)
@@ -143,6 +124,5 @@ function CoreCutsceneAnimationPatchesPanel:_absolute_dir_and_path(relative_path)
 	else
 		return nil, nil
 	end
-
 end
 

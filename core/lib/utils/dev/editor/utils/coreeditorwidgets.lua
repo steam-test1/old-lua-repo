@@ -86,22 +86,15 @@ function MoveWidget:update(t, dt)
 			if axis == "xy" or axis == "xz" then
 				table.insert(draw_axis, "x")
 			end
-
 			if axis == "xy" or axis == "yz" then
 				table.insert(draw_axis, "y")
 			end
-
 			if axis == "xz" or axis == "yz" then
 				table.insert(draw_axis, "z")
 			end
-
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = ipairs(draw_axis)
-	do
-		do break end
+	for _, axis in ipairs(draw_axis) do
 		if axis == "xy" then
 			self._yellow_pen:cylinder(u_pos + u_rot:y() * ps, u_pos + (u_rot:y() + u_rot:x()) * ps, pr)
 			self._yellow_pen:cylinder(u_pos + u_rot:x() * ps, u_pos + (u_rot:y() + u_rot:x()) * ps, pr)
@@ -114,9 +107,7 @@ function MoveWidget:update(t, dt)
 		else
 			self._yellow_pen:arrow(u_pos + u_rot[axis](u_rot) * 10, u_pos + u_rot[axis](u_rot) * 100, 0.25)
 		end
-
 	end
-
 end
 
 function MoveWidget:calculate(unit, widget_rot)
@@ -138,7 +129,6 @@ function MoveWidget:calc_move_widget_pos(unit, widget_rot)
 			local t = (d - p1:dot(normal)) / p2 - p1:dot(normal)
 			result_pos = (p2 - p1) * t
 		end
-
 	else
 		local axis1 = self._move_widget_axis[1]
 		local from = managers.editor:get_cursor_look_point(0)
@@ -152,7 +142,6 @@ function MoveWidget:calc_move_widget_pos(unit, widget_rot)
 		local line_pos = w_s_pos + dot2_v:normalized() * dot
 		result_pos = line_pos - self._unit_start_pos
 	end
-
 	result_pos = result_pos:rotate_with(widget_rot:inverse())
 	local grid_size = self._layer:grid_size()
 	result_pos = result_pos:with_x(math.round(result_pos.x / grid_size) * grid_size)
@@ -191,7 +180,6 @@ function MoveWidget:add_move_widget_axis(axis)
 		table.insert(self._draw_axis, "z")
 		table.insert(self._draw_axis, "yz")
 	end
-
 	return table
 end
 
@@ -240,13 +228,10 @@ function RotationWidget:update(t, dt)
 		if ray and ray.body then
 			axis = ray.body:name():s()
 		end
-
 	end
-
 	if axis then
 		self._yellow_pen:torus(u_pos, 75, 2.5, u_rot[axis](u_rot))
 	end
-
 end
 
 function RotationWidget:calculate(unit, widget_rot, widget_pos, widget_screen_pos)
@@ -276,7 +261,6 @@ function RotationWidget:calculate(unit, widget_rot, widget_pos, widget_screen_po
 	if self._layer:local_rot() then
 		result_rot = Rotation(self._rotate_widget_unit_rot[self._rotate_widget_axis](self._rotate_widget_unit_rot), rot)
 	end
-
 	result_rot = result_rot * self._rotate_widget_unit_rot
 	Application:draw_rotation(unit:position(), result_rot)
 	managers.editor:set_value_info_pos(widget_screen_pos)

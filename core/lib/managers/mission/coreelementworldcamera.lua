@@ -13,7 +13,6 @@ function ElementWorldCamera:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	if self._values.worldcamera_sequence and self._values.worldcamera_sequence ~= "none" then
 		managers.worldcamera:play_world_camera_sequence(self._values.worldcamera_sequence)
 	elseif self._values.worldcamera ~= "none" then
@@ -21,7 +20,6 @@ function ElementWorldCamera:on_executed(instigator)
 	elseif Application:editor() then
 		managers.editor:output_error("Can not play worldcamera or sequence \"none\"")
 	end
-
 	ElementWorldCamera.super.on_executed(self, instigator)
 end
 
@@ -34,16 +32,13 @@ function ElementWorldCameraTrigger:init(...)
 		else
 			self._sequence = managers.worldcamera:add_sequence_camera_clip_callback(self._values.worldcamera_trigger_sequence, self._values.worldcamera_trigger_after_clip, callback(self, self, "on_executed"))
 		end
-
 	end
-
 end
 
 function ElementWorldCameraTrigger:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	instigator = managers.mission:default_instigator()
 	ElementWorldCameraTrigger.super.on_executed(self, instigator)
 end

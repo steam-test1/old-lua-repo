@@ -12,12 +12,9 @@ end
 function CoreEditor:add_edit_buttons(edit_btn_sizer)
 	cat_print("editor", " CoreEditor:add_edit_buttons( edit_btn_sizer )")
 	self._edit_buttons = {}
-	local (for generator), (for state), (for control) = pairs(self._edit_buttons)
-	do
-		do break end
+	for _, btn in pairs(self._edit_buttons) do
 		self._left_toolbar:set_tool_enabled(btn, false)
 	end
-
 end
 
 function CoreEditor:build_info_frame(parent)
@@ -82,12 +79,9 @@ function CoreEditor:add_open_unit_file_buttons()
 	table.insert(self._open_unit_file_buttons, "LTB_OPEN_LAST_EXPORTED")
 	table.insert(self._open_unit_file_buttons, "LTB_OPEN_FOLDER_EXPORTED")
 	table.insert(self._open_unit_file_buttons, "LTB_OPEN_FOLDER_SOURCE")
-	local (for generator), (for state), (for control) = ipairs(self._open_unit_file_buttons)
-	do
-		do break end
+	for _, btn in ipairs(self._open_unit_file_buttons) do
 		self._unit_info_toolbar:set_tool_enabled(btn, false)
 	end
-
 end
 
 function CoreEditor:_change_unit_info(notebook)
@@ -122,20 +116,16 @@ function CoreEditor:on_open_unit_file(data)
 			os.execute("explorer /select, " .. lookup)
 			return
 		end
-
 		if not lookup then
 			return
 		end
-
 		local full_path = managers.database:entry_expanded_path(data.type, lookup)
 		if managers.database:has(full_path) then
 			os.execute("start " .. full_path)
 		else
 			self:output_warning("Unit " .. u_name:s() .. " didn't have a " .. data.type .. " file.")
 		end
-
 	end
-
 end
 
 function CoreEditor:sequence_file(unit)
@@ -147,22 +137,13 @@ function CoreEditor:sequence_file(unit)
 		else
 			node = SystemFS:parse_xml("data/objects" .. object_file:s())
 		end
-
-		do
-			local (for generator), (for state), (for control) = node:children()
-			do
-				do break end
-				if child:name() == "sequence_manager" then
-					return child:parameter("file")
-				end
-
+		for child in node:children() do
+			if child:name() == "sequence_manager" then
+				return child:parameter("file")
 			end
-
 		end
-
 		managers.editor:output_warning(unit:name():s() .. " didn't have a sequence xml.")
 	end
-
 	return false
 end
 
@@ -184,15 +165,9 @@ end
 
 function CoreEditor:check_edit_buttons()
 	local value = false
-	do
-		local (for generator), (for state), (for control) = pairs(self._edit_buttons)
-		do
-			do break end
-			value = value or self._left_toolbar:tool_state(btn)
-		end
-
+	for _, btn in pairs(self._edit_buttons) do
+		value = value or self._left_toolbar:tool_state(btn)
 	end
-
 	return value
 end
 
@@ -217,15 +192,9 @@ function CoreEditor:unit_output(unit)
 		text = text .. "Diesel filename:" .. t .. unit:diesel_filename() .. n
 		text = text .. "Material filename:" .. t .. unit:material_config():s() .. n
 		text = text .. "Materials:" .. n
-		do
-			local (for generator), (for state), (for control) = ipairs(self:_unit_materials(unit))
-			do
-				do break end
-				text = text .. t .. name .. n
-			end
-
+		for _, name in ipairs(self:_unit_materials(unit)) do
+			text = text .. t .. name .. n
 		end
-
 		text = text .. "Last export from:" .. t .. unit:last_export_source() .. n
 		local models_text = ""
 		models_text = models_text .. "Models:" .. t .. unit:nr_models() .. n
@@ -238,57 +207,34 @@ function CoreEditor:unit_output(unit)
 				for j = 1, tabs do
 					tab = tab .. t
 				end
-
 				models_text = models_text .. unit:model_name(i):s() .. tab .. tostring(unit:is_model_instance(i)) .. t .. t .. unit:vertex_count(i) .. t .. t .. unit:triangle_count(i) .. t .. t .. unit:atom_count(i) .. n
 			end
-
 		end
-
 		models_text = models_text .. n .. "Used texture names:" .. n
-		do
-			local (for generator), (for state), (for control) = ipairs(unit:used_texture_names())
-			do
-				do break end
-				models_text = models_text .. t .. name .. n
-			end
-
+		for _, name in ipairs(unit:used_texture_names()) do
+			models_text = models_text .. t .. name .. n
 		end
-
 		self._unit_info:set_value(text)
 		self._gfx_unit_info:set_value(models_text)
-		local (for generator), (for state), (for control) = ipairs(self._open_unit_file_buttons)
-		do
-			do break end
+		for _, btn in ipairs(self._open_unit_file_buttons) do
 			self._unit_info_toolbar:set_tool_enabled(btn, true)
 		end
-
 	else
 		self._unit_info:set_value("")
 		self._gfx_unit_info:set_value("")
-		local (for generator), (for state), (for control) = ipairs(self._open_unit_file_buttons)
-		do
-			do break end
+		for _, btn in ipairs(self._open_unit_file_buttons) do
 			self._unit_info_toolbar:set_tool_enabled(btn, false)
 		end
-
 	end
-
 end
 
 function CoreEditor:_unit_materials(unit)
 	local names = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(unit:get_objects_by_type(Idstring("material")))
-		do
-			do break end
-			if not table.contains(names, material:name():s()) then
-				table.insert(names, material:name():s())
-			end
-
+	for _, material in ipairs(unit:get_objects_by_type(Idstring("material"))) do
+		if not table.contains(names, material:name():s()) then
+			table.insert(names, material:name():s())
 		end
-
 	end
-
 	return names
 end
 

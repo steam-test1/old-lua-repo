@@ -18,30 +18,18 @@ function UnhideByName:init(...)
 	local layers_sizer = EWS:StaticBoxSizer(self._panel, "VERTICAL", "List Layers")
 	local layers = managers.editor:layers()
 	local names_layers = {}
-	do
-		local (for generator), (for state), (for control) = pairs(layers)
-		do
-			do break end
-			table.insert(names_layers, name)
-		end
-
+	for name, layer in pairs(layers) do
+		table.insert(names_layers, name)
 	end
-
 	table.sort(names_layers)
-	do
-		local (for generator), (for state), (for control) = ipairs(names_layers)
-		do
-			do break end
-			local cb = EWS:CheckBox(self._panel, name, "")
-			cb:set_value(true)
-			self._layer_cbs[name] = cb
-			cb:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "on_layer_cb"), {cb = cb, name = name})
-			cb:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")
-			layers_sizer:add(cb, 0, 2, "EXPAND,TOP")
-		end
-
+	for _, name in ipairs(names_layers) do
+		local cb = EWS:CheckBox(self._panel, name, "")
+		cb:set_value(true)
+		self._layer_cbs[name] = cb
+		cb:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "on_layer_cb"), {cb = cb, name = name})
+		cb:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")
+		layers_sizer:add(cb, 0, 2, "EXPAND,TOP")
 	end
-
 	local layer_buttons_sizer = EWS:BoxSizer("HORIZONTAL")
 	local all_btn = EWS:Button(self._panel, "All", "", "BU_EXACTFIT,NO_BORDER")
 	layer_buttons_sizer:add(all_btn, 0, 2, "TOP,BOTTOM")
@@ -100,19 +88,11 @@ function UnhideByName:build_continent_cbs()
 	self._continents_cbs = {}
 	local continents = managers.editor:continents()
 	self._continent_names = {}
-	do
-		local (for generator), (for state), (for control) = pairs(continents)
-		do
-			do break end
-			table.insert(self._continent_names, name)
-		end
-
+	for name, continent in pairs(continents) do
+		table.insert(self._continent_names, name)
 	end
-
 	table.sort(self._continent_names)
-	local (for generator), (for state), (for control) = ipairs(self._continent_names)
-	do
-		do break end
+	for _, name in ipairs(self._continent_names) do
 		local cb = EWS:CheckBox(self._panel, name, "")
 		cb:set_value(true)
 		self._continents_cbs[name] = cb
@@ -120,7 +100,6 @@ function UnhideByName:build_continent_cbs()
 		cb:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")
 		self._continents_sizer:add(cb, 0, 2, "EXPAND,TOP")
 	end
-
 end
 
 function UnhideByName:on_continent_cb()
@@ -128,80 +107,44 @@ function UnhideByName:on_continent_cb()
 end
 
 function UnhideByName:on_all_layers()
-	do
-		local (for generator), (for state), (for control) = pairs(self._layer_cbs)
-		do
-			do break end
-			cb:set_value(true)
-		end
-
+	for name, cb in pairs(self._layer_cbs) do
+		cb:set_value(true)
 	end
-
 	self:fill_unit_list()
 end
 
 function UnhideByName:on_none_layers()
-	do
-		local (for generator), (for state), (for control) = pairs(self._layer_cbs)
-		do
-			do break end
-			cb:set_value(false)
-		end
-
+	for name, cb in pairs(self._layer_cbs) do
+		cb:set_value(false)
 	end
-
 	self:fill_unit_list()
 end
 
 function UnhideByName:on_invert_layers()
-	do
-		local (for generator), (for state), (for control) = pairs(self._layer_cbs)
-		do
-			do break end
-			cb:set_value(not cb:get_value())
-		end
-
+	for name, cb in pairs(self._layer_cbs) do
+		cb:set_value(not cb:get_value())
 	end
-
 	self:fill_unit_list()
 end
 
 function UnhideByName:on_all_continents()
-	do
-		local (for generator), (for state), (for control) = pairs(self._continents_cbs)
-		do
-			do break end
-			cb:set_value(true)
-		end
-
+	for name, cb in pairs(self._continents_cbs) do
+		cb:set_value(true)
 	end
-
 	self:fill_unit_list()
 end
 
 function UnhideByName:on_none_continents()
-	do
-		local (for generator), (for state), (for control) = pairs(self._continents_cbs)
-		do
-			do break end
-			cb:set_value(false)
-		end
-
+	for name, cb in pairs(self._continents_cbs) do
+		cb:set_value(false)
 	end
-
 	self:fill_unit_list()
 end
 
 function UnhideByName:on_invert_continents()
-	do
-		local (for generator), (for state), (for control) = pairs(self._continents_cbs)
-		do
-			do break end
-			cb:set_value(not cb:get_value())
-		end
-
+	for name, cb in pairs(self._continents_cbs) do
+		cb:set_value(not cb:get_value())
 	end
-
 	self:fill_unit_list()
 end
 
@@ -210,7 +153,6 @@ function UnhideByName:key_cancel(ctrlr, event)
 	if EWS:name_to_key_code("K_ESCAPE") == event:key_code() then
 		self:on_cancel()
 	end
-
 end
 
 function UnhideByName:on_layer_cb(data)
@@ -223,29 +165,17 @@ end
 
 function UnhideByName:on_unhide()
 	managers.editor:freeze_gui_lists()
-	do
-		local (for generator), (for state), (for control) = ipairs(self:_selected_item_units())
-		do
-			do break end
-			managers.editor:set_unit_visible(unit, true)
-		end
-
+	for _, unit in ipairs(self:_selected_item_units()) do
+		managers.editor:set_unit_visible(unit, true)
 	end
-
 	managers.editor:thaw_gui_lists()
 end
 
 function UnhideByName:on_delete()
 	managers.editor:freeze_gui_lists()
-	do
-		local (for generator), (for state), (for control) = ipairs(self:_selected_item_units())
-		do
-			do break end
-			managers.editor:delete_unit(unit)
-		end
-
+	for _, unit in ipairs(self:_selected_item_units()) do
+		managers.editor:delete_unit(unit)
 	end
-
 	managers.editor:thaw_gui_lists()
 end
 
@@ -254,16 +184,10 @@ end
 
 function UnhideByName:_selected_item_units()
 	local units = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._list:selected_items())
-		do
-			do break end
-			local unit = self._units[self._list:get_item_data(i)]
-			table.insert(units, unit)
-		end
-
+	for _, i in ipairs(self._list:selected_items()) do
+		local unit = self._units[self._list:get_item_data(i)]
+		table.insert(units, unit)
 	end
-
 	return units
 end
 
@@ -272,7 +196,6 @@ function UnhideByName:_selected_item_unit()
 	if index ~= -1 then
 		return self._units[self._list:get_item_data(index)]
 	end
-
 end
 
 function UnhideByName:select_unit(unit)
@@ -292,9 +215,7 @@ function UnhideByName:unhid_unit(unit)
 			self._list:delete_item(i)
 			return
 		end
-
 	end
-
 end
 
 function UnhideByName:unit_name_changed(unit)
@@ -306,12 +227,10 @@ function UnhideByName:unit_name_changed(unit)
 				local over = self._units[self._list:get_item_data(i - 1)]:unit_data().name_id
 				sort = sort or over > unit:unit_data().name_id
 			end
-
 			if i + 1 < self._list:item_count() then
 				local under = self._units[self._list:get_item_data(i + 1)]:unit_data().name_id
 				sort = sort or under < unit:unit_data().name_id
 			end
-
 			if sort then
 				self:fill_unit_list()
 				for i = 0, self._list:item_count() - 1 do
@@ -320,16 +239,11 @@ function UnhideByName:unit_name_changed(unit)
 						self._list:ensure_visible(i)
 						break
 					end
-
 				end
-
 			end
-
 			break
 		end
-
 	end
-
 end
 
 function UnhideByName:update_filter()
@@ -343,29 +257,18 @@ function UnhideByName:fill_unit_list()
 	local filter = self._filter:get_value()
 	self._units = {}
 	self._list:freeze()
-	do
-		local (for generator), (for state), (for control) = pairs(layers)
-		do
-			do break end
-			if self._layer_cbs[name]:get_value() then
-				local (for generator), (for state), (for control) = ipairs(layer:created_units())
-				do
-					do break end
-					if self:_continent_ok(unit) and table.contains(managers.editor:hidden_units(), unit) and string.find(unit:unit_data().name_id, filter, 1, true) then
-						local i = self._list:append_item(unit:unit_data().name_id)
-						self._units[j] = unit
-						self._list:set_item_data(i, j)
-						j = j + 1
-					end
-
+	for name, layer in pairs(layers) do
+		if self._layer_cbs[name]:get_value() then
+			for _, unit in ipairs(layer:created_units()) do
+				if self:_continent_ok(unit) and table.contains(managers.editor:hidden_units(), unit) and string.find(unit:unit_data().name_id, filter, 1, true) then
+					local i = self._list:append_item(unit:unit_data().name_id)
+					self._units[j] = unit
+					self._list:set_item_data(i, j)
+					j = j + 1
 				end
-
 			end
-
 		end
-
 	end
-
 	self._list:thaw()
 	self._list:autosize_column(0)
 end
@@ -375,7 +278,6 @@ function UnhideByName:_continent_ok(unit)
 	if not continent then
 		return true
 	end
-
 	return self._continents_cbs[continent:name()]:get_value()
 end
 
@@ -392,16 +294,10 @@ function UnhideByName:thaw()
 end
 
 function UnhideByName:recreate()
-	do
-		local (for generator), (for state), (for control) = pairs(self._continents_cbs)
-		do
-			do break end
-			self._continents_sizer:detach(cb)
-			cb:destroy()
-		end
-
+	for name, cb in pairs(self._continents_cbs) do
+		self._continents_sizer:detach(cb)
+		cb:destroy()
 	end
-
 	self:build_continent_cbs()
 	self:fill_unit_list()
 	self._panel:layout()

@@ -3,17 +3,12 @@ ItemOption = ItemOption or class()
 function ItemOption:init(data_node, parameters)
 	local params = parameters or {}
 	if data_node then
-		local (for generator), (for state), (for control) = pairs(data_node)
-		do
-			do break end
+		for key, value in pairs(data_node) do
 			if key ~= "_meta" and type(value) ~= "table" then
 				params[key] = value
 			end
-
 		end
-
 	end
-
 	self:set_parameters(params)
 end
 

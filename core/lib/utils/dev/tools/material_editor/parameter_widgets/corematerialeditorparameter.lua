@@ -36,31 +36,21 @@ function CoreMaterialEditorParameter:set_params(parent, editor, parameter_info, 
 	self._value = parameter_info.ui_type:s() == "intensity" and "sun" or parameter_info.default or "[NONE]"
 	self._parent_node = self._editor._parent_materials[self._editor._parent_combo_box:get_value()]
 	if self._parent_node then
-		do
-			local (for generator), (for state), (for control) = self._parent_node:children()
-			do
-				do break end
-				if self._parameter_info.type == "texture" and param:name() == self._parameter_info.name:s() then
+		for param in self._parent_node:children() do
+			if self._parameter_info.type == "texture" and param:name() == self._parameter_info.name:s() then
+				self._parent_param_node = param
+				break
+			else
+				if param:parameter("name") == self._parameter_info.name:s() then
 					self._parent_param_node = param
-					break
-				else
-					if param:parameter("name") == self._parameter_info.name:s() then
-						self._parent_param_node = param
-				end
-
 			end
-
 			else
 			end
-
 		end
-
 		if not self._parent_param_node then
 			self._parent_node = nil
 		end
-
 	end
-
 end
 
 function CoreMaterialEditorParameter:on_copy_to_parent()
@@ -74,11 +64,8 @@ function CoreMaterialEditorParameter:on_copy_to_parent()
 			else
 				self:_copy_to_parent(name)
 			end
-
 		end
-
 	end
-
 	self._editor:_create_parameter_panel()
 end
 
@@ -128,7 +115,6 @@ function CoreMaterialEditorParameter:_create_node()
 		local str = tostring(self._value)
 		self._parameter_node:set_parameter("value", str)
 	end
-
 end
 
 function CoreMaterialEditorParameter:_load_value()
@@ -138,17 +124,13 @@ function CoreMaterialEditorParameter:_load_value()
 			self._editor._current_material_node:remove_child_at(self._editor._current_material_node:index_of_child(self._parameter_node))
 			self._parameter_node = nil
 		end
-
 	end
-
 	if not self._editor._current_material_node:parameter("src") or self._customize then
 		if not self._parameter_node then
 			self:_create_node()
 		end
-
 		self._node = self._parameter_node
 	end
-
 	if self._parameter_info.type == "vector3" then
 		self._value = math.string_to_vector(self._node:parameter("value"))
 	elseif self._parameter_info.type == "texture" then
@@ -159,13 +141,11 @@ function CoreMaterialEditorParameter:_load_value()
 			self._value = self._node:parameter("global_texture")
 			self._global_texture_type = "cube"
 		end
-
 	elseif self._parameter_info.ui_type:s() == "intensity" then
 		self._value = self._node:parameter("value")
 	else
 		self._value = tonumber(self._node:parameter("value"))
 	end
-
 end
 
 function CoreMaterialEditorParameter:_copy_to_parent(name)
@@ -176,14 +156,12 @@ function CoreMaterialEditorParameter:_copy_to_parent(name)
 	else
 		material_node = self._editor:_find_node(self._editor._global_material_config_node, "material", "name", self._editor._parent_combo_box:get_value())
 	end
-
 	local parent_param_node
 	if self._parameter_info.type == "texture" then
 		parent_param_node = self._editor:_get_node(material_node, self._parameter_info.name:s())
 	else
 		parent_param_node = self._editor:_find_node(material_node, "variable", "name", self._parameter_info.name:s())
 	end
-
 	parent_param_node = parent_param_node or material_node:add_child(self._parameter_node)
 	if self._parameter_info.type == "texture" then
 		if self._global_texture then
@@ -191,17 +169,14 @@ function CoreMaterialEditorParameter:_copy_to_parent(name)
 			if self._global_texture_type then
 				parent_param_node:set_parameter("type", self._global_texture_type)
 			end
-
 		else
 			parent_param_node:set_parameter("file", self._value)
 		end
-
 	elseif self._parameter_info.type == "vector3" then
 		parent_param_node:set_parameter("value", math.vector_to_string(self._value))
 	else
 		parent_param_node:set_parameter("value", tostring(self._value))
 	end
-
 	local parent = self._editor._parent_combo_box:get_value()
 	self._editor:_load_parent_dropdown()
 	self._editor._parent_combo_box:set_value(parent)

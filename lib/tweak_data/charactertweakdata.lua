@@ -603,7 +603,6 @@ function CharacterTweakData:_init_spooc(presets)
 		if chance > math.random() then
 			return true, t + delay_till_next_use
 		end
-
 		return false, t + delay_till_next_use
 	end
 
@@ -4010,38 +4009,19 @@ function CharacterTweakData:_presets(tweak_data)
 			}
 		}
 	}
-	do
-		local (for generator), (for state), (for control) = pairs(presets.dodge)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(preset_data.occasions)
-			do
-				do break end
-				local total_w = 0
-				do
-					local (for generator), (for state), (for control) = pairs(reason_data.variations)
-					do
-						do break end
-						total_w = total_w + variation_data.chance
-					end
-
-				end
-
-				if total_w > 0 then
-					local (for generator), (for state), (for control) = pairs(reason_data.variations)
-					do
-						do break end
-						variation_data.chance = variation_data.chance / total_w
-					end
-
-				end
-
+	for preset_name, preset_data in pairs(presets.dodge) do
+		for reason_name, reason_data in pairs(preset_data.occasions) do
+			local total_w = 0
+			for variation_name, variation_data in pairs(reason_data.variations) do
+				total_w = total_w + variation_data.chance
 			end
-
+			if total_w > 0 then
+				for variation_name, variation_data in pairs(reason_data.variations) do
+					variation_data.chance = variation_data.chance / total_w
+				end
+			end
 		end
-
 	end
-
 	presets.move_speed = {
 		civ_fast = {
 			stand = {
@@ -4457,27 +4437,15 @@ function CharacterTweakData:_presets(tweak_data)
 			}
 		}
 	}
-	do
-		local (for generator), (for state), (for control) = pairs(presets.move_speed)
-		do
-			do break end
-			do
-				local (for generator), (for state), (for control) = pairs(poses)
-				do
-					do break end
-					hastes.run.ntl = hastes.run.hos
-				end
-
-			end
-
-			poses.crouch.walk.ntl = poses.crouch.walk.hos
-			poses.crouch.run.ntl = poses.crouch.run.hos
-			poses.stand.run.ntl = poses.stand.run.hos
-			poses.panic = poses.stand
+	for speed_preset_name, poses in pairs(presets.move_speed) do
+		for pose, hastes in pairs(poses) do
+			hastes.run.ntl = hastes.run.hos
 		end
-
+		poses.crouch.walk.ntl = poses.crouch.walk.hos
+		poses.crouch.run.ntl = poses.crouch.run.hos
+		poses.stand.run.ntl = poses.stand.run.hos
+		poses.panic = poses.stand
 	end
-
 	presets.surrender = {}
 	presets.surrender.easy = {
 		base_chance = 0.75,
@@ -4658,39 +4626,23 @@ function CharacterTweakData:_create_table_structure()
 end
 
 function CharacterTweakData:_process_weapon_usage_table(weap_usage_table)
-	local (for generator), (for state), (for control) = ipairs(self.weap_ids)
-	do
-		do break end
+	for _, weap_id in ipairs(self.weap_ids) do
 		local usage_data = weap_usage_table[weap_id]
 		if usage_data then
-			local (for generator), (for state), (for control) = ipairs(usage_data.FALLOFF)
-			do
-				do break end
+			for i_range, range_data in ipairs(usage_data.FALLOFF) do
 				local modes = range_data.mode
 				local total = 0
-				do
-					local (for generator), (for state), (for control) = ipairs(modes)
-					do
-						do break end
-						total = total + value
-					end
-
+				for i_firemode, value in ipairs(modes) do
+					total = total + value
 				end
-
 				local prev_value
-				local (for generator), (for state), (for control) = ipairs(modes)
-				do
-					do break end
+				for i_firemode, value in ipairs(modes) do
 					prev_value = (prev_value or 0) + value / total
 					modes[i_firemode] = prev_value
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function CharacterTweakData:_set_easy()
@@ -4833,7 +4785,6 @@ function CharacterTweakData:_set_overkill_145()
 	else
 		self:_multiply_all_hp(1, 1)
 	end
-
 	self:_multiply_all_speeds(1.05, 1.05)
 	self:_multiply_weapon_delay(self.presets.weapon.normal, 0)
 	self:_multiply_weapon_delay(self.presets.weapon.good, 0)
@@ -4892,7 +4843,6 @@ function CharacterTweakData:_set_overkill_290()
 	else
 		self:_multiply_all_hp(1.7, 0.75)
 	end
-
 	self:_multiply_all_speeds(1.05, 1.1)
 	self:_multiply_weapon_delay(self.presets.weapon.normal, 0)
 	self:_multiply_weapon_delay(self.presets.weapon.good, 0)
@@ -5274,16 +5224,12 @@ function CharacterTweakData:_set_overkill_290()
 end
 
 function CharacterTweakData:_multiply_weapon_delay(weap_usage_table, mul)
-	local (for generator), (for state), (for control) = ipairs(self.weap_ids)
-	do
-		do break end
+	for _, weap_id in ipairs(self.weap_ids) do
 		local usage_data = weap_usage_table[weap_id]
 		if usage_data then
 			usage_data.focus_delay = usage_data.focus_delay * mul
 		end
-
 	end
-
 end
 
 function CharacterTweakData:_multiply_all_hp(hp_mul, hs_mul)
@@ -5303,55 +5249,42 @@ function CharacterTweakData:_multiply_all_hp(hp_mul, hs_mul)
 	if self.security.headshot_dmg_mul then
 		self.security.headshot_dmg_mul = self.security.headshot_dmg_mul * hs_mul
 	end
-
 	if self.cop.headshot_dmg_mul then
 		self.cop.headshot_dmg_mul = self.cop.headshot_dmg_mul * hs_mul
 	end
-
 	if self.fbi.headshot_dmg_mul then
 		self.fbi.headshot_dmg_mul = self.fbi.headshot_dmg_mul * hs_mul
 	end
-
 	if self.swat.headshot_dmg_mul then
 		self.swat.headshot_dmg_mul = self.swat.headshot_dmg_mul * hs_mul
 	end
-
 	if self.heavy_swat.headshot_dmg_mul then
 		self.heavy_swat.headshot_dmg_mul = self.heavy_swat.headshot_dmg_mul * hs_mul
 	end
-
 	if self.fbi_heavy_swat.headshot_dmg_mul then
 		self.fbi_heavy_swat.headshot_dmg_mul = self.fbi_heavy_swat.headshot_dmg_mul * hs_mul
 	end
-
 	if self.sniper.headshot_dmg_mul then
 		self.sniper.headshot_dmg_mul = self.sniper.headshot_dmg_mul * hs_mul
 	end
-
 	if self.gangster.headshot_dmg_mul then
 		self.gangster.headshot_dmg_mul = self.gangster.headshot_dmg_mul * hs_mul
 	end
-
 	if self.tank.headshot_dmg_mul then
 		self.tank.headshot_dmg_mul = self.tank.headshot_dmg_mul * hs_mul
 	end
-
 	if self.spooc.headshot_dmg_mul then
 		self.spooc.headshot_dmg_mul = self.spooc.headshot_dmg_mul * hs_mul
 	end
-
 	if self.shield.headshot_dmg_mul then
 		self.shield.headshot_dmg_mul = self.shield.headshot_dmg_mul * hs_mul
 	end
-
 	if self.taser.headshot_dmg_mul then
 		self.taser.headshot_dmg_mul = self.taser.headshot_dmg_mul * hs_mul
 	end
-
 	if self.biker_escape.headshot_dmg_mul then
 		self.biker_escape.headshot_dmg_mul = self.biker_escape.headshot_dmg_mul * hs_mul
 	end
-
 end
 
 function CharacterTweakData:_multiply_all_speeds(walk_mul, run_mul)
@@ -5368,17 +5301,11 @@ function CharacterTweakData:_multiply_all_speeds(walk_mul, run_mul)
 		"shield",
 		"taser"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(all_units)
-		do
-			do break end
-			local speed_table = self[name].SPEED_WALK
-			speed_table.hos = speed_table.hos * walk_mul
-			speed_table.cbt = speed_table.cbt * walk_mul
-		end
-
+	for _, name in ipairs(all_units) do
+		local speed_table = self[name].SPEED_WALK
+		speed_table.hos = speed_table.hos * walk_mul
+		speed_table.cbt = speed_table.cbt * walk_mul
 	end
-
 	self.security.SPEED_RUN = self.security.SPEED_RUN * run_mul
 	self.cop.SPEED_RUN = self.cop.SPEED_RUN * run_mul
 	self.fbi.SPEED_RUN = self.fbi.SPEED_RUN * run_mul
@@ -5403,11 +5330,8 @@ function CharacterTweakData:_set_characters_weapon_preset(preset)
 		"heavy_swat",
 		"gangster"
 	}
-	local (for generator), (for state), (for control) = ipairs(all_units)
-	do
-		do break end
+	for _, name in ipairs(all_units) do
 		self[name].weapon = self.presets.weapon[preset]
 	end
-
 end
 

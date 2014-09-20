@@ -26,8 +26,6 @@ function GameDependencyNode:_walkxml2dependencies(xmlnode, deps)
 		if dn == nil then
 			Application:error("When parsing levels.xml, can not find Level: " .. name)
 		end
-
 	end
-
 end
 

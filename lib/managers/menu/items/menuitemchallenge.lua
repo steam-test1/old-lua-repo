@@ -124,7 +124,6 @@ function MenuItemChallenge:setup_gui(node, row_item)
 		})
 		row_item.progress_text = progress_text
 	end
-
 	self:_layout(node, row_item)
 	return true
 end
@@ -143,7 +142,6 @@ function MenuItemChallenge:highlight_row_item(node, row_item, mouse_over)
 			tweak_data.screen_color_blue:with_alpha(1)
 		})
 	end
-
 	return true
 end
 
@@ -162,7 +160,6 @@ function MenuItemChallenge:fade_row_item(node, row_item)
 			tweak_data.screen_color_blue:with_alpha(0.5)
 		})
 	end
-
 	return true
 end
 
@@ -186,7 +183,6 @@ function MenuItemChallenge:_layout(node, row_item)
 		row_item.bar:set_y(1)
 		row_item.progress_text:set_right(row_item.gui_panel:w() - node._align_line_padding)
 	end
-
 	node._align_item_gui_info_panel(node, row_item.gui_info_panel)
 	node._align_item_gui_info_panel(node, row_item.gui_info_panel)
 	row_item.challenge_hl:set_w(row_item.gui_info_panel:w())

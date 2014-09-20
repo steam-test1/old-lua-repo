@@ -29,55 +29,46 @@ function TransformCameraNode.compile_settings(xml_node, settings)
 	if xml_node:has_parameter("name") then
 		settings.name = xml_node:parameter("name")
 	end
-
 	if xml_node:has_parameter("position") then
 		settings.position = CoreMath.string_to_vector(xml_node:parameter("position"))
 	else
 		settings.position = Vector3(0, 0, 0)
 	end
-
 	if xml_node:has_parameter("rotation") then
 		settings.rotation = CoreMath.string_to_rotation(xml_node:parameter("rotation"))
 	else
 		settings.rotation = Rotation()
 	end
-
 	if xml_node:has_parameter("fov") then
 		settings.fov = tonumber(xml_node:parameter("fov"))
 	else
 		settings.fov = 0
 	end
-
 	if xml_node:has_parameter("dof_near_min") then
 		settings.dof_near_min = tonumber(xml_node:parameter("dof_near_min"))
 	else
 		settings.dof_near_min = 0
 	end
-
 	if xml_node:has_parameter("dof_near_max") then
 		settings.dof_near_max = tonumber(xml_node:parameter("dof_near_max"))
 	else
 		settings.dof_near_max = 0
 	end
-
 	if xml_node:has_parameter("dof_far_min") then
 		settings.dof_far_min = tonumber(xml_node:parameter("dof_far_min"))
 	else
 		settings.dof_far_min = 0
 	end
-
 	if xml_node:has_parameter("dof_far_max") then
 		settings.dof_far_max = tonumber(xml_node:parameter("dof_far_max"))
 	else
 		settings.dof_far_max = 0
 	end
-
 	if xml_node:has_parameter("dof_amount") then
 		settings.dof_amount = tonumber(xml_node:parameter("dof_amount"))
 	else
 		settings.dof_amount = 0
 	end
-
 end
 
 function TransformCameraNode:destroy()
@@ -117,7 +108,6 @@ function TransformCameraNode:set_local_position_from_world_position(position)
 	else
 		mvector3_set(self._local_position, position)
 	end
-
 end
 
 function TransformCameraNode:set_local_rotation_from_world_rotation(rotation)
@@ -128,7 +118,6 @@ function TransformCameraNode:set_local_rotation_from_world_rotation(rotation)
 	else
 		self._local_rotation = rotation
 	end
-
 end
 
 function TransformCameraNode:position()
@@ -151,11 +140,9 @@ function TransformCameraNode:update(t, dt, in_data, out_data)
 	if self._pivot_position then
 		out_data:set_pivot_position(self._pivot_position)
 	end
-
 	if self._pivot_rotation then
 		out_data:set_pivot_rotation(self._pivot_rotation)
 	end
-
 	out_data:set_position(self._local_position)
 	out_data:set_rotation(self._local_rotation)
 	out_data:set_fov(self._local_fov)

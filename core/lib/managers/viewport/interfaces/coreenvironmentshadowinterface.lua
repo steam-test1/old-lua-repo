@@ -50,17 +50,10 @@ function EnvironmentShadowInterface:_process_return(block)
 		return block
 	else
 		local error_msg = "[EnvironmentShadowInterface] You did not return all shadow parameters! "
-		do
-			local (for generator), (for state), (for control) = pairs(block)
-			do
-				do break end
-				error_msg = error_msg .. k .. " " .. v
-			end
-
+		for k, v in pairs(block) do
+			error_msg = error_msg .. k .. " " .. v
 		end
-
 		Application:error(error_msg)
 	end
-
 end
 

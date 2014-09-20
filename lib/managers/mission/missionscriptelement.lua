@@ -12,7 +12,6 @@ function MissionScriptElement:on_executed(...)
 	if Network:is_client() then
 		return
 	end
-
 	MissionScriptElement.super.on_executed(self, ...)
 end
 

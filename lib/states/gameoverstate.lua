@@ -14,11 +14,9 @@ function GameOverState:_shut_down_network(...)
 	if managers.dlc:is_trial() then
 		GameOverState.super._shut_down_network(self)
 	end
-
 	if managers.job:is_current_job_professional() and Global.game_settings.single_player then
 		GameOverState.super._shut_down_network(self, ...)
 	end
-
 end
 
 function GameOverState:_load_start_menu(...)
@@ -26,11 +24,9 @@ function GameOverState:_load_start_menu(...)
 		Global.open_trial_buy = true
 		setup:load_start_menu()
 	end
-
 	if managers.job:is_current_job_professional() and Global.game_settings.single_player then
 		GameOverState.super._load_start_menu(self, ...)
 	end
-
 end
 
 function GameOverState:_set_continue_button_text()
@@ -44,28 +40,23 @@ function GameOverState:_continue()
 	if Network:is_server() or managers.dlc:is_trial() then
 		self:continue()
 	end
-
 end
 
 function GameOverState:continue()
 	if self:_continue_blocked() then
 		return
 	end
-
 	if Network:is_server() and not managers.dlc:is_trial() then
 		managers.network:session():send_to_peers_loaded("enter_ingame_lobby_menu")
 	end
-
 	if managers.dlc:is_trial() then
 		self:gsm():change_state_by_name("empty")
 		return
 	end
-
 	if managers.job:is_current_job_professional() and Global.game_settings.single_player then
 		self:gsm():change_state_by_name("empty")
 		return
 	end
-
 	if self._old_state then
 		self:_clear_controller()
 		managers.menu_component:close_stage_endscreen_gui()
@@ -73,6 +64,5 @@ function GameOverState:continue()
 	else
 		Application:error("Trying to continue from game over screen, but I have no state to goto")
 	end
-
 end
 

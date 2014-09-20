@@ -57,7 +57,6 @@ function TrailerCamera:start()
 	if game_state_machine:current_state_name() ~= "editor" then
 		self._old_game_state_name = game_state_machine:current_state_name()
 	end
-
 	self._viewport:set_environment(managers.environment_area:default_environment())
 	game_state_machine:change_state_by_name("world_camera")
 	managers.enemy:set_gfx_lod_enabled(false)
@@ -94,7 +93,6 @@ function TrailerCamera:stop()
 		game_state_machine:change_state_by_name(self._old_game_state_name)
 		self._old_game_state_name = nil
 	end
-
 	self._playing = false
 end
 
@@ -174,7 +172,6 @@ function TrailerCamera:close_ews()
 		self._main_frame:destroy()
 		self._main_frame = nil
 	end
-
 end
 
 function TrailerCamera:update(unit, t, dt)
@@ -182,7 +179,6 @@ function TrailerCamera:update(unit, t, dt)
 		if self._main_frame then
 			CoreEws.change_slider_and_number_value(self._time_slider, self._unit:anim_time(self._anim_name))
 		end
-
 		self._camera_controller:set_camera(self._ref_camera:position())
 		self._camera_controller:set_target(self._unit:get_object(Idstring("a_camera_target")):position())
 		self._camera:set_fov(self._ref_camera:fov())
@@ -192,36 +188,24 @@ function TrailerCamera:update(unit, t, dt)
 			if t > self._wait_t then
 				self._wait_t = nil
 			end
-
 		elseif not self._unit:anim_is_playing(self._anim_name) then
 			self._wait_t = t + 4
 		end
-
 	end
-
 end
 
 function TrailerCamera:set_depth_mode(depth_mode)
 	self._locked_far_range = depth_mode and 5000 or nil
 	local viz = depth_mode and "depth_visualization" or "deferred_lighting"
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.viewport:viewports())
-		do
-			do break end
-			vp:set_visualization_mode(viz)
-		end
-
+	for _, vp in ipairs(managers.viewport:viewports()) do
+		vp:set_visualization_mode(viz)
 	end
-
 	local effect = depth_mode and "empty" or "default"
-	local (for generator), (for state), (for control) = ipairs(managers.viewport:viewports())
-	do
-		do break end
+	for _, vp in ipairs(managers.viewport:viewports()) do
 		vp:vp():set_post_processor_effect("World", Idstring("hdr_post_processor"), Idstring(effect))
 		local bloom_combine_effect = Idstring(effect) == Idstring("empty") and Idstring("bloom_combine_empty") or Idstring("bloom_combine")
 		vp:vp():set_post_processor_effect("World", Idstring("bloom_combine_post_processor"), bloom_combine_effect)
 	end
-
 end
 
 function TrailerCamera:destroy()
@@ -229,7 +213,6 @@ function TrailerCamera:destroy()
 		self._viewport:destroy()
 		self._viewport = nil
 	end
-
 	self:close_ews()
 end
 

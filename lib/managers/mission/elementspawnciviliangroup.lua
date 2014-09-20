@@ -11,24 +11,18 @@ function ElementSpawnCivilianGroup:init(...)
 end
 
 function ElementSpawnCivilianGroup:on_script_activated()
-	local (for generator), (for state), (for control) = ipairs(self._values.elements)
-	do
-		do break end
+	for i, id in ipairs(self._values.elements) do
 		local element = self:get_mission_element(id)
 		table.insert(self._unused_randoms, i)
 		table.insert(self._group_data.spawn_points, element)
 	end
-
 end
 
 function ElementSpawnCivilianGroup:add_event_callback(name, callback)
-	local (for generator), (for state), (for control) = ipairs(self._values.elements)
-	do
-		do break end
+	for _, id in ipairs(self._values.elements) do
 		local element = self:get_mission_element(id)
 		element:add_event_callback(name, callback)
 	end
-
 end
 
 function ElementSpawnCivilianGroup:_check_spawn_points()
@@ -37,36 +31,28 @@ function ElementSpawnCivilianGroup:_check_spawn_points()
 		self._spawn_points = self._group_data.spawn_points
 		return
 	end
-
 	self._unused_randoms = {}
 	local i = 1
-	local (for generator), (for state), (for control) = pairs(self._group_data.spawn_points)
-	do
-		do break end
+	for _, element in pairs(self._group_data.spawn_points) do
 		if element:enabled() then
 			table.insert(self._unused_randoms, i)
 			table.insert(self._spawn_points, element)
 			i = i + 1
 		end
-
 	end
-
 end
 
 function ElementSpawnCivilianGroup:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	self:_check_spawn_points()
 	if #self._spawn_points > 0 then
 		for i = 1, self._group_data.amount do
 			local element = self._spawn_points[self:_get_spawn_point(i)]
 			element:produce()
 		end
-
 	end
-
 	ElementSpawnCivilianGroup.super.on_executed(self, instigator)
 end
 
@@ -76,13 +62,10 @@ function ElementSpawnCivilianGroup:_get_spawn_point(i)
 			for i = 1, #self._spawn_points do
 				table.insert(self._unused_randoms, i)
 			end
-
 		end
-
 		local rand = math.random(#self._unused_randoms)
 		return table.remove(self._unused_randoms, rand)
 	end
-
 	return 1 + math.mod(i, #self._spawn_points)
 end
 
@@ -100,21 +83,12 @@ end
 
 function ElementSpawnCivilianGroup:units()
 	local all_units = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._group_data.spawn_points)
-		do
-			do break end
-			local element_units = element:units()
-			local (for generator), (for state), (for control) = ipairs(element_units)
-			do
-				do break end
-				table.insert(all_units, unit)
-			end
-
+	for _, element in ipairs(self._group_data.spawn_points) do
+		local element_units = element:units()
+		for _, unit in ipairs(element_units) do
+			table.insert(all_units, unit)
 		end
-
 	end
-
 	return all_units
 end
 

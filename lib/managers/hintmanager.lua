@@ -9,23 +9,18 @@ function HintManager:init()
 		}
 		self:_parse_hints()
 	end
-
 	self._cooldown = {}
 end
 
 function HintManager:_parse_hints()
 	local list = PackageManager:script_data(self.FILE_EXTENSION:id(), self.PATH:id())
-	local (for generator), (for state), (for control) = ipairs(list)
-	do
-		do break end
+	for _, data in ipairs(list) do
 		if data._meta == "hint" then
 			self:_parse_hint(data)
 		else
 			Application:error("Unknown node \"" .. tostring(data._meta) .. "\" in \"" .. self.FULL_PATH .. "\". Expected \"objective\" node.")
 		end
-
 	end
-
 end
 
 function HintManager:_parse_hint(data)
@@ -47,15 +42,9 @@ end
 
 function HintManager:ids()
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(Global.hint_manager.hints)
-		do
-			do break end
-			table.insert(t, id)
-		end
-
+	for id, _ in pairs(Global.hint_manager.hints) do
+		table.insert(t, id)
 	end
-
 	table.sort(t)
 	return t
 end
@@ -73,30 +62,24 @@ function HintManager:show_hint(id, time, only_sync, params)
 		Application:stack_dump_error("Bad id to show hint, " .. tostring(id) .. ".")
 		return
 	end
-
 	if not only_sync then
 		self:_show_hint(id, time, params)
 	end
-
 	if self:hint(id).sync then
 		managers.network:session():send_to_peers_synched("sync_show_hint", id)
 	end
-
 end
 
 function HintManager:_show_hint(id, time, params)
 	if self:hint(id).level and managers.experience:current_level() >= self:hint(id).level then
 		return
 	end
-
 	if self:hint(id).stop_at_level and managers.experience:current_level() < self:hint(id).stop_at_level then
 		return
 	end
-
 	if self._cooldown[id] and self._cooldown[id] > Application:time() then
 		return
 	end
-
 	if not self:hint(id).trigger_times or self:hint(id).trigger_times ~= self:hint(id).trigger_count then
 		self._cooldown[id] = Application:time() + 2
 		self:hint(id).trigger_count = self:hint(id).trigger_count + 1
@@ -107,7 +90,6 @@ function HintManager:_show_hint(id, time, params)
 			time = time
 		})
 	end
-
 end
 
 function HintManager:sync_show_hint(id)
@@ -121,15 +103,11 @@ function HintManager:last_shown_id()
 end
 
 function HintManager:on_simulation_ended()
-	local (for generator), (for state), (for control) = pairs(Global.hint_manager.hints)
-	do
-		do break end
+	for _, hint in pairs(Global.hint_manager.hints) do
 		if hint.trigger_times then
 			hint.trigger_count = 0
 		end
-
 	end
-
 end
 
 function HintManager:save(data)

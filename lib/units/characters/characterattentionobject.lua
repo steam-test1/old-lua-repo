@@ -13,9 +13,7 @@ function CharacterAttentionObject:chk_settings_diff(settings_set)
 	local attention_data = self._attention_data
 	local changes
 	if settings_set then
-		local (for generator), (for state), (for control) = ipairs(settings_set)
-		do
-			do break end
+		for _, id in ipairs(settings_set) do
 			if not attention_data or not attention_data[id] then
 				changes = changes or {}
 				changes.added = changes.added or {}
@@ -25,39 +23,26 @@ function CharacterAttentionObject:chk_settings_diff(settings_set)
 				changes.maintained = changes.maintained or {}
 				table.insert(changes.maintained, id)
 			end
-
 		end
-
 	end
-
 	if attention_data then
-		local (for generator), (for state), (for control) = pairs(attention_data)
-		do
-			do break end
+		for old_id, setting in pairs(attention_data) do
 			local found
 			if settings_set then
-				local (for generator), (for state), (for control) = ipairs(settings_set)
-				do
-					do break end
+				for _, new_id in ipairs(settings_set) do
 					if old_id == new_id then
 						found = true
+					else
+					end
 				end
-
-				else
-				end
-
 			end
-
 			if not found then
 				changes = changes or {}
 				changes.removed = changes.removed or {}
 				table.insert(changes.removed, old_id)
 			end
-
 		end
-
 	end
-
 	return changes
 end
 
@@ -69,90 +54,56 @@ function CharacterAttentionObject:set_settings_set(settings_set)
 			settings_set = nil
 			unregister = true
 		else
-			do
-				local (for generator), (for state), (for control) = pairs(attention_data)
-				do
-					do break end
-					if not settings_set[id] then
-						changed = true
-				end
-
+			for id, settings in pairs(attention_data) do
+				if not settings_set[id] then
+					changed = true
 				else
 				end
-
 			end
-
 			if not changed then
-				local (for generator), (for state), (for control) = pairs(settings_set)
-				do
-					do break end
+				for id, settings in pairs(settings_set) do
 					if not attention_data[id] then
 						changed = true
+					else
+					end
 				end
-
-				else
-				end
-
 			end
-
 		end
-
 	elseif settings_set and next(settings_set) then
 		register = true
 	end
-
 	if self._overrides then
 		if settings_set then
-			do
-				local (for generator), (for state), (for control) = pairs(self._overrides)
-				do
-					do break end
-					if settings_set[id] then
-						self._override_restore = self._override_restore or {}
-						self._override_restore[id] = settings_set[id]
-						settings_set[id] = overrride_setting
-					end
-
+			for id, overrride_setting in pairs(self._overrides) do
+				if settings_set[id] then
+					self._override_restore = self._override_restore or {}
+					self._override_restore[id] = settings_set[id]
+					settings_set[id] = overrride_setting
 				end
-
 			end
-
 			if attention_data and self._override_restore then
-				do
-					local (for generator), (for state), (for control) = pairs(attention_data)
-					do
-						do break end
-						if not settings_set[id] then
-							self._override_restore[id] = nil
-						end
-
+				for id, setting in pairs(attention_data) do
+					if not settings_set[id] then
+						self._override_restore[id] = nil
 					end
-
 				end
-
 				if not next(self._override_restore) then
 					self._override_restore = nil
 				end
-
 			end
-
 		else
 			self._override_restore = nil
 		end
-
 	end
-
 	self._attention_data = settings_set
 	if register then
 		self:_register()
 	elseif unregister then
 		managers.groupai:state():unregister_AI_attention_object(self._parent_unit or self._unit:key())
 	end
-
 	if changed or unregister then
 		self:_call_listeners()
 	end
-
 end
 
 function CharacterAttentionObject:get_attention_m_pos(settings)

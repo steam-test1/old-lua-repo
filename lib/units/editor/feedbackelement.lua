@@ -38,17 +38,13 @@ end
 
 function FeedbackUnitElement:update_selected(t, dt, selected_unit, all_units)
 	if self._hed.orientation_elements then
-		local (for generator), (for state), (for control) = ipairs(self._hed.orientation_elements)
-		do
-			do break end
+		for _, id in ipairs(self._hed.orientation_elements) do
 			local unit = all_units[id]
 			self:_draw_ranges(unit:position())
 		end
-
 	else
 		self:_draw_ranges(self._unit:position())
 	end
-
 end
 
 function FeedbackUnitElement:_draw_ranges(pos)
@@ -355,27 +351,17 @@ function FeedbackUnitElement:select_above_camera_effect_btn()
 	if dialog:cancelled() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-	do
-		do break end
+	for _, effect in ipairs(dialog:_selected_item_assets()) do
 		self._hed.above_camera_effect = effect
 		CoreEws.change_combobox_value(self._above_camera_effect_params, self._hed.above_camera_effect)
 	end
-
 end
 
 function FeedbackUnitElement:_effect_options()
 	local effect_options = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type("effect"))
-		do
-			do break end
-			table.insert(effect_options, name)
-		end
-
+	for _, name in ipairs(managers.database:list_entries_of_type("effect")) do
+		table.insert(effect_options, name)
 	end
-
 	return effect_options
 end
 
@@ -387,6 +373,5 @@ function FeedbackUnitElement:add_to_mission_package()
 			continent = self._unit:unit_data().continent
 		})
 	end
-
 end
 

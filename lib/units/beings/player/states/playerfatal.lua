@@ -17,16 +17,13 @@ function PlayerFatal:enter(state_data, enter_data)
 	if self._ext_movement:nav_tracker() then
 		managers.groupai:state():on_criminal_neutralized(self._unit)
 	end
-
 	self._unit:character_damage():on_fatal_state_enter()
 	if Network:is_server() and enter_data then
 		if enter_data.revive_SO_data then
 			self._revive_SO_data = enter_data.revive_SO_data
 		end
-
 		self._deathguard_SO_id = enter_data.deathguard_SO_id
 	end
-
 	self._reequip_weapon = enter_data and enter_data.equip_weapon
 	managers.network:session():send_to_peers_synched("sync_contour_state", self._unit, -1, table.index_of(ContourExt.indexed_types, "teammate_downed"), true, 1)
 end
@@ -39,7 +36,6 @@ function PlayerFatal:_enter(enter_data)
 	if Network:is_server() and self._ext_movement:nav_tracker() then
 		managers.groupai:state():on_player_weapons_hot()
 	end
-
 end
 
 function PlayerFatal:exit(state_data, new_state_name)
@@ -48,20 +44,17 @@ function PlayerFatal:exit(state_data, new_state_name)
 	if Network:is_server() then
 		PlayerBleedOut._unregister_revive_SO(self)
 	end
-
 	self._revive_SO_data = nil
 	if self._stats_screen then
 		self._stats_screen = false
 		managers.hud:hide_stats_screen()
 	end
-
 	local exit_data = {
 		equip_weapon = self._reequip_weapon
 	}
 	if new_state_name == "standard" then
 		exit_data.wants_crouch = true
 	end
-
 	managers.network:session():send_to_peers_synched("sync_contour_state", self._unit, -1, table.index_of(ContourExt.indexed_types, "teammate_downed"), false, 1)
 	return exit_data
 end
@@ -83,7 +76,6 @@ function PlayerFatal:_update_check_actions(t, dt)
 	elseif input.btn_stats_screen_release then
 		self._unit:base():set_stats_screen_visible(false)
 	end
-
 	self:_check_action_interact(t, input)
 end
 
@@ -93,9 +85,7 @@ function PlayerFatal:_check_action_interact(t, input)
 		if not PlayerArrested.call_teammate(self, "f11", t, true, true, true) then
 			PlayerBleedOut.call_civilian(self, "f11", t, false, true, self._revive_SO_data)
 		end
-
 	end
-
 end
 
 function PlayerFatal:_start_action_dead(t)
@@ -111,7 +101,6 @@ function PlayerFatal:_end_action_dead(t)
 	if not self:_can_stand() then
 		return
 	end
-
 	self._state_data.ducking = false
 	self:_stance_entered()
 	self:_update_crosshair_offset()
@@ -123,13 +112,11 @@ function PlayerFatal:pre_destroy(unit)
 	if Network:is_server() then
 		PlayerBleedOut._unregister_revive_SO(self)
 	end
-
 end
 
 function PlayerFatal:destroy()
 	if Network:is_server() then
 		PlayerBleedOut._unregister_revive_SO(self)
 	end
-
 end
 

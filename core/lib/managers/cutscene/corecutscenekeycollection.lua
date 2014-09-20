@@ -9,7 +9,6 @@ function CoreCutsceneKeyCollection:keys_between(start_time, end_time, element_na
 		end
 
 	end
-
 	local keys = self:_all_keys_sorted_by_time()
 	if start_time < end_time then
 		do
@@ -24,19 +23,14 @@ function CoreCutsceneKeyCollection:keys_between(start_time, end_time, element_na
 							if element_name == nil or element_name == key.ELEMENT_NAME then
 								return key
 							end
-
 						else
 							break
 						end
-
 					end
-
 				end
-
 			end
 
 		end
-
 	else
 		do
 			local index = table.getn(keys) + 1
@@ -49,21 +43,15 @@ function CoreCutsceneKeyCollection:keys_between(start_time, end_time, element_na
 							if element_name == nil or element_name == key.ELEMENT_NAME then
 								return key
 							end
-
 						else
 							break
 						end
-
 					end
-
 				end
-
 			end
 
 		end
-
 	end
-
 end
 
 function CoreCutsceneKeyCollection:keys_to_update(time, element_name)
@@ -79,38 +67,31 @@ function CoreCutsceneKeyCollection:keys_to_update(time, element_name)
 			elseif (element_name == nil or element_name == key.ELEMENT_NAME) and type(key.update) == "function" then
 				return key
 			end
-
 		end
-
 	end
 
 end
 
 function CoreCutsceneKeyCollection:first_key(time, element_name, properties)
-	local (for generator), (for state), (for control) = ipairs(self:_all_keys_sorted_by_time())
-	do
-		do break end
-		if time <= key:time() and (element_name == nil or element_name == key.ELEMENT_NAME) then
-			if properties ~= nil then
-			elseif table.true_for_all(properties, function(value, attribute_name)
-				return key[attribute_name](key) == value
-			end
+	for index, key in ipairs(self:_all_keys_sorted_by_time()) do
+		do
+			if time <= key:time() and (element_name == nil or element_name == key.ELEMENT_NAME) then
+				if properties ~= nil then
+				elseif table.true_for_all(properties, function(value, attribute_name)
+					return key[attribute_name](key) == value
+				end
 ) then
-				return key, index
+					return key, index
+				end
 			end
-
 		end
-
 	end
-
 end
 
 function CoreCutsceneKeyCollection:last_key_before(time, element_name, properties)
 	local last_key
-	do
-		local (for generator), (for state), (for control) = ipairs(self:_all_keys_sorted_by_time())
+	for _, key in ipairs(self:_all_keys_sorted_by_time()) do
 		do
-			do break end
 			if time <= key:time() then
 			elseif element_name == nil or element_name == key.ELEMENT_NAME then
 				if properties ~= nil then
@@ -120,13 +101,9 @@ function CoreCutsceneKeyCollection:last_key_before(time, element_name, propertie
 ) then
 					last_key = key
 				end
-
 			end
-
 		end
-
 	end
-
 	return last_key
 end
 

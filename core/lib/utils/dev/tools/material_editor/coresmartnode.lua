@@ -6,23 +6,13 @@ function CoreSmartNode:init(node)
 		self._name = node
 	else
 		self._name = node:name()
-		do
-			local (for generator), (for state), (for control) = pairs(node:parameters())
-			do
-				do break end
-				self._parameters[k] = v
-			end
-
+		for k, v in pairs(node:parameters()) do
+			self._parameters[k] = v
 		end
-
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
+		for child in node:children() do
 			table.insert(self._children, CoreSmartNode:new(child))
 		end
-
 	end
-
 end
 
 function CoreSmartNode:children()
@@ -33,7 +23,6 @@ function CoreSmartNode:children()
 		if i <= count then
 			return self._children[i]
 		end
-
 	end
 
 end
@@ -76,19 +65,12 @@ end
 
 function CoreSmartNode:index_of_child(c)
 	local i = 0
-	do
-		local (for generator), (for state), (for control) = self:children()
-		do
-			do break end
-			if child == c then
-				return i
-			end
-
-			i = i + 1
+	for child in self:children() do
+		if child == c then
+			return i
 		end
-
+		i = i + 1
 	end
-
 	return -1
 end
 
@@ -100,24 +82,12 @@ end
 
 function CoreSmartNode:to_real_node()
 	local node = Node(self._name)
-	do
-		local (for generator), (for state), (for control) = pairs(self:parameters())
-		do
-			do break end
-			node:set_parameter(k, v)
-		end
-
+	for k, v in pairs(self:parameters()) do
+		node:set_parameter(k, v)
 	end
-
-	do
-		local (for generator), (for state), (for control) = self:children()
-		do
-			do break end
-			node:add_child(child:to_real_node())
-		end
-
+	for child in self:children() do
+		node:add_child(child:to_real_node())
 	end
-
 	return node
 end
 

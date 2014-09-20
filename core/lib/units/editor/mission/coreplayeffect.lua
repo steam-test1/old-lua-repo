@@ -32,7 +32,6 @@ function CorePlayEffectUnitElement:test_element()
 			rotation = rotation
 		})
 	end
-
 end
 
 function CorePlayEffectUnitElement:stop_test_element()
@@ -40,7 +39,6 @@ function CorePlayEffectUnitElement:stop_test_element()
 		World:effect_manager():kill(self._effect)
 		self._effect = false
 	end
-
 end
 
 function CorePlayEffectUnitElement:select_effect_btn()
@@ -48,27 +46,17 @@ function CorePlayEffectUnitElement:select_effect_btn()
 	if dialog:cancelled() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(dialog:_selected_item_assets())
-	do
-		do break end
+	for _, effect in ipairs(dialog:_selected_item_assets()) do
 		self._hed.effect = effect
 		CoreEws.change_combobox_value(self._effects_params, self._hed.effect)
 	end
-
 end
 
 function CorePlayEffectUnitElement:_effect_options()
 	local effect_options = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.database:list_entries_of_type("effect"))
-		do
-			do break end
-			table.insert(effect_options, name)
-		end
-
+	for _, name in ipairs(managers.database:list_entries_of_type("effect")) do
+		table.insert(effect_options, name)
 	end
-
 	return effect_options
 end
 
@@ -174,7 +162,6 @@ function CorePlayEffectUnitElement:add_to_mission_package()
 			continent = self._unit:unit_data().continent
 		})
 	end
-
 end
 
 CoreStopEffectUnitElement = CoreStopEffectUnitElement or class(MissionElement)
@@ -194,20 +181,15 @@ end
 
 function CoreStopEffectUnitElement:layer_finished(...)
 	MissionElement.layer_finished(self, ...)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = managers.worlddefinition:get_mission_element_unit(id)
 		table.insert(self._elements_units, unit)
 	end
-
 end
 
 function CoreStopEffectUnitElement:draw_links(t, dt, selected_unit)
 	MissionElement.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._elements_units)
-	do
-		do break end
+	for _, unit in ipairs(self._elements_units) do
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
 			self:_draw_link({
@@ -218,9 +200,7 @@ function CoreStopEffectUnitElement:draw_links(t, dt, selected_unit)
 				b = 0
 			})
 		end
-
 	end
-
 end
 
 function CoreStopEffectUnitElement:update_editing()
@@ -237,23 +217,17 @@ function CoreStopEffectUnitElement:add_element()
 			table.insert(self._hed.elements, id)
 			table.insert(self._elements_units, ray.unit)
 		end
-
 	end
-
 end
 
 function CoreStopEffectUnitElement:remove_links(unit)
 	MissionElement.remove_links(self, unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 			table.delete(self._elements_units, unit)
 		end
-
 	end
-
 end
 
 function CoreStopEffectUnitElement:add_triggers(vc)

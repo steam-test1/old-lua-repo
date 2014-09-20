@@ -18,7 +18,6 @@ function EditGui:has(unit)
 		self:disable()
 		return false
 	end
-
 end
 
 function EditGui:disable()

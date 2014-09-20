@@ -17,7 +17,6 @@ function CoreCutsceneMayaExporter:add_unit(unit_name, unit)
 	elseif existing_unit ~= unit then
 		error(string.format("Duplicate unit name \"%s\" used for \"%s\" and \"%s\".", unit_name, existing_unit:name(), unit:name()))
 	end
-
 end
 
 function CoreCutsceneMayaExporter:_visit_frame(frame)
@@ -33,7 +32,6 @@ function CoreCutsceneMayaExporter:_done(aborted)
 		self:_write_animation_curves(file)
 		io.close(file)
 	end
-
 end
 
 function CoreCutsceneMayaExporter:_combined_camera_node_name()
@@ -43,7 +41,6 @@ function CoreCutsceneMayaExporter:_combined_camera_node_name()
 		num_suffix = tonumber(num_suffix)
 		node_name = node_name_without_num_suffix .. (num_suffix and num_suffix + 1 or "")
 	end
-
 	return node_name
 end
 
@@ -122,9 +119,7 @@ function CoreCutsceneMayaExporter:_write_header(file)
 end
 
 function CoreCutsceneMayaExporter:_write_hierarchies(file)
-	local (for generator), (for state), (for control) = pairs(self.__sampled_units)
-	do
-		do break end
+	for unit_name, unit in pairs(self.__sampled_units) do
 		if string.begins(unit_name, "camera") then
 			self:_write_camera_node(file, unit_name)
 		elseif string.begins(unit_name, "locator") then
@@ -136,16 +131,11 @@ function CoreCutsceneMayaExporter:_write_hierarchies(file)
 			file:write(string.format("createNode transform -name \"%s\";\n", self:_maya_node_name(unit_name, object)))
 			file:write("\taddAttr -longName \"unitTypeName\" -dataType \"string\";\n")
 			file:write("\tsetAttr -type \"string\" \".unitTypeName\" " .. unit:name() .. ";\n")
-			local (for generator), (for state), (for control) = ipairs(object.children and object:children() or {})
-			do
-				do break end
+			for _, child in ipairs(object.children and object:children() or {}) do
 				self:_write_hierarchy_entry_for_object(file, unit_name, child, object)
 			end
-
 		end
-
 	end
-
 end
 
 function CoreCutsceneMayaExporter:_write_hierarchy_entry_for_object(file, unit_name, object, parent_object)
@@ -157,20 +147,14 @@ function CoreCutsceneMayaExporter:_write_hierarchy_entry_for_object(file, unit_n
 		if full_parent_object_name then
 			file:write(string.format(" -parent \"%s\"", full_parent_object_name))
 		end
-
 		file:write(";\n")
 		if full_parent_object_name then
 			file:write(string.format("\tconnectAttr \"%s.scale\" \"%s.inverseScale\";\n", full_parent_object_name, full_object_name))
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = ipairs(object.children and object:children() or {})
-	do
-		do break end
+	for _, child in ipairs(object.children and object:children() or {}) do
 		self:_write_hierarchy_entry_for_object(file, unit_name, child, object)
 	end
-
 end
 
 function CoreCutsceneMayaExporter:_write_camera_node(file, camera_name)
@@ -190,62 +174,40 @@ function CoreCutsceneMayaExporter:_write_camera_node(file, camera_name)
 end
 
 function CoreCutsceneMayaExporter:_write_animation_curves(file)
-	do
-		local (for generator), (for state), (for control) = pairs(self.__curve_sets)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(curve_sets)
-			do
-				do break end
-				curve_set:write(file)
-			end
-
+	for unit_name, curve_sets in pairs(self.__curve_sets) do
+		for _, curve_set in pairs(curve_sets) do
+			curve_set:write(file)
 		end
-
 	end
-
 	if self.__combined_camera_focal_length_curve then
 		self.__combined_camera_focal_length_curve:write(file)
 	end
-
 end
 
 function CoreCutsceneMayaExporter:_sample_animation_curves()
-	do
-		local (for generator), (for state), (for control) = pairs(self.__sampled_units)
-		do
-			do break end
-			if string.begins(unit_name, "camera") or string.begins(unit_name, "locator") then
-				local object = assert(unit:get_object("locator"), "Object \"locator\" not found inside locator Unit.")
-				self:_curve_set(unit_name, object):add_sample(self.__frame, object)
-			else
-				self:_sample_animation_curves_for_hierarchy(unit_name, unit:orientation_object())
-			end
-
+	for unit_name, unit in pairs(self.__sampled_units) do
+		if string.begins(unit_name, "camera") or string.begins(unit_name, "locator") then
+			local object = assert(unit:get_object("locator"), "Object \"locator\" not found inside locator Unit.")
+			self:_curve_set(unit_name, object):add_sample(self.__frame, object)
+		else
+			self:_sample_animation_curves_for_hierarchy(unit_name, unit:orientation_object())
 		end
-
 	end
-
 	local cutscene_player = self.__cutscene_editor._player
 	local camera_object = cutscene_player:_camera_object()
 	if camera_object then
 		self:_curve_set(self:_combined_camera_node_name(), "just_an_identifier"):add_sample(self.__frame, camera_object)
 		self:_combined_camera_focal_length_curve():add_sample(self.__frame, self:_fov_to_focal_length(cutscene_player:camera_attributes().fov))
 	end
-
 end
 
 function CoreCutsceneMayaExporter:_sample_animation_curves_for_hierarchy(unit_name, object)
 	if self:_should_export(unit_name, object) then
 		self:_curve_set(unit_name, object):add_sample(self.__frame, object)
 	end
-
-	local (for generator), (for state), (for control) = ipairs(object.children and object:children() or {})
-	do
-		do break end
+	for _, child in ipairs(object.children and object:children() or {}) do
 		self:_sample_animation_curves_for_hierarchy(unit_name, child)
 	end
-
 end
 
 function CoreCutsceneMayaExporter:_curve_set(unit_name, object)
@@ -256,12 +218,10 @@ function CoreCutsceneMayaExporter:_curve_set(unit_name, object)
 			curve_sets_for_unit = {}
 			self.__curve_sets[unit_name] = curve_sets_for_unit
 		end
-
 		local target_object_name = self:_maya_node_name(unit_name, object, true)
 		curve_set = CoreCutsceneMayaExporterCurveSet:new(target_object_name)
 		curve_sets_for_unit[object] = curve_set
 	end
-
 	return curve_set
 end
 
@@ -269,7 +229,6 @@ function CoreCutsceneMayaExporter:_combined_camera_focal_length_curve()
 	if self.__combined_camera_focal_length_curve == nil then
 		self.__combined_camera_focal_length_curve = CoreCutsceneMayaExporterCurve:new("animCurveTU", self:_combined_camera_node_name() .. "Shape", "focalLength")
 	end
-
 	return self.__combined_camera_focal_length_curve
 end
 
@@ -286,7 +245,6 @@ function CoreCutsceneMayaExporter:_maya_node_name(unit_name, object, full_path)
 	if string.begins(unit_name, "camera") or string.begins(unit_name, "locator") then
 		return unit_name
 	end
-
 	local valid_node_name = string.match(unit_name, "^%d") and "actor" .. unit_name or unit_name
 	local long_name = valid_node_name .. ":" .. object:name()
 	local parent = full_path and object:parent()

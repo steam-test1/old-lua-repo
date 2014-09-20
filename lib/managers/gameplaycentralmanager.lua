@@ -30,14 +30,10 @@ function GamePlayCentralManager:init()
 	}
 	self._flashlights_on_player_on = false
 	if lvl_tweak_data and lvl_tweak_data.environment_effects then
-		local (for generator), (for state), (for control) = ipairs(lvl_tweak_data.environment_effects)
-		do
-			do break end
+		for _, effect in ipairs(lvl_tweak_data.environment_effects) do
 			managers.environment_effects:use(effect)
 		end
-
 	end
-
 	self._mission_disabled_units = {}
 	self._heist_timer = {start_time = 0, running = false}
 	local is_ps3 = SystemInfo:platform() == Idstring("PS3")
@@ -52,9 +48,7 @@ function GamePlayCentralManager:restart_portal_effects()
 		if Network:is_client() then
 			managers.portal:restart_effects()
 		end
-
 	end
-
 end
 
 function GamePlayCentralManager:_init_impact_sources()
@@ -65,7 +59,6 @@ function GamePlayCentralManager:_init_impact_sources()
 	for i = 1, 20 do
 		table.insert(self._impact_sounds.sources, SoundDevice:create_source("impact_sound" .. i))
 	end
-
 	self._impact_sounds.max_index = #self._impact_sounds.sources
 end
 
@@ -103,18 +96,14 @@ function GamePlayCentralManager:next_weapon()
 		if self._test_weapon_force_gadget then
 			self._test_weapon:base():gadget_on()
 		end
-
 		self._blueprint_i = self._blueprint_i + 1
 		if self._blueprint_i > #self._blueprints then
 			self._blueprint_i = 1
 		end
-
 		if managers.player:player_unit() then
 			managers.player:player_unit():inventory():_send_equipped_weapon()
 		end
-
 	end
-
 end
 
 function GamePlayCentralManager:stop_test_weapon_cycle()
@@ -127,9 +116,7 @@ function GamePlayCentralManager:update(t, dt)
 		if not self._pause_weapon_cycle then
 			self:next_weapon()
 		end
-
 	end
-
 	if #self._dropped_weapons.units > 0 then
 		local data = self._dropped_weapons.units[self._dropped_weapons.index]
 		local unit = data.unit
@@ -145,7 +132,6 @@ function GamePlayCentralManager:update(t, dt)
 				data.state = "off"
 				data.t = 0
 			end
-
 		elseif data.state == "off" then
 			if data.t > 0.2 then
 				data.flashlight_data.light:set_enable(true)
@@ -153,33 +139,25 @@ function GamePlayCentralManager:update(t, dt)
 				data.state = "on"
 				data.t = 0
 			end
-
 		elseif data.state == "on" and 0.1 < data.t then
 			data.flashlight_data.light:set_enable(false)
 			data.flashlight_data.effect:kill_effect()
 			table.remove(self._dropped_weapons.units, self._dropped_weapons.index)
 		end
-
 		self._dropped_weapons.index = self._dropped_weapons.index + 1
 		self._dropped_weapons.index = self._dropped_weapons.index <= #self._dropped_weapons.units and self._dropped_weapons.index or 1
 	end
-
 	if self._heist_timer.running then
 		managers.hud:feed_heist_time(Application:time() - self._heist_timer.start_time + self._heist_timer.offset_time)
 		if Network:is_server() and self._heist_timer.next_sync < Application:time() then
 			self._heist_timer.next_sync = Application:time() + 9
 			local heist_time = Application:time() - self._heist_timer.start_time
-			local (for generator), (for state), (for control) = pairs(managers.network:session():peers())
-			do
-				do break end
+			for peer_id, peer in pairs(managers.network:session():peers()) do
 				local sync_time = math.min(100000, heist_time + Network:qos(peer:rpc()).ping / 1000)
 				peer:send_queued_sync("sync_heist_time", sync_time)
 			end
-
 		end
-
 	end
-
 end
 
 function GamePlayCentralManager:end_update(t, dt)
@@ -201,9 +179,7 @@ function GamePlayCentralManager:request_play_footstep(unit, m_pos)
 		if dis < 250000 and #self._footsteps < 3 then
 			table.insert(self._footsteps, {unit = unit, dis = dis})
 		end
-
 	end
-
 end
 
 function GamePlayCentralManager:physics_push(col_ray, push_multiplier)
@@ -224,14 +200,10 @@ function GamePlayCentralManager:physics_push(col_ray, push_multiplier)
 						closest_body_dis_sq = test_dis_sq
 						body = test_body
 					end
-
 				end
-
 				i_body = i_body + 1
 			end
-
 		end
-
 		local body_mass = math.min(50, body:mass()) * push_multiplier
 		local len = mvector3.distance(col_ray.position, body:center_of_mass())
 		local body_vel = body:velocity()
@@ -244,9 +216,7 @@ function GamePlayCentralManager:physics_push(col_ray, push_multiplier)
 			mvector3.multiply(tmp_vec1, push_vel)
 			body:push_at(body_mass, tmp_vec1, col_ray.position)
 		end
-
 	end
-
 end
 
 function GamePlayCentralManager:play_impact_flesh(params)
@@ -259,9 +229,7 @@ function GamePlayCentralManager:play_impact_flesh(params)
 			if splatter_ray then
 				World:project_decal(idstr_blood_spatter, splatter_ray.position, splatter_ray.ray, splatter_ray.unit, nil, splatter_ray.normal)
 			end
-
 		end
-
 		if managers.player:player_unit() and mvector3.distance_sq(col_ray.position, managers.player:player_unit():movement():m_head_pos()) < 40000 then
 			self._effect_manager:spawn({
 				effect = idstr_blood_screen,
@@ -269,9 +237,7 @@ function GamePlayCentralManager:play_impact_flesh(params)
 				rotation = Rotation()
 			})
 		end
-
 	end
-
 end
 
 function GamePlayCentralManager:sync_play_impact_flesh(from, dir)
@@ -281,7 +247,6 @@ function GamePlayCentralManager:sync_play_impact_flesh(from, dir)
 	if splatter_ray then
 		World:project_decal(idstr_blood_spatter, splatter_ray.position, splatter_ray.ray, splatter_ray.unit, nil, splatter_ray.normal)
 	end
-
 	self._effect_manager:spawn({
 		effect = idstr_bullet_hit_blood,
 		position = from,
@@ -294,7 +259,6 @@ function GamePlayCentralManager:sync_play_impact_flesh(from, dir)
 			rotation = Rotation()
 		})
 	end
-
 	local sound_source = self:_get_impact_source()
 	sound_source:stop()
 	sound_source:set_position(from)
@@ -308,7 +272,6 @@ function GamePlayCentralManager:material_name(idstring)
 		Application:error("Sound for material not found: " .. tostring(idstring))
 		material = "no_material"
 	end
-
 	return material
 end
 
@@ -317,7 +280,6 @@ function GamePlayCentralManager:spawn_pickup(params)
 		Application:error("No pickup definition for " .. tostring(params.name))
 		return
 	end
-
 	local unit_name = tweak_data.pickups[params.name].unit
 	World:spawn_unit(unit_name, params.position, params.rotation)
 end
@@ -326,42 +288,32 @@ function GamePlayCentralManager:_flush_bullet_hits()
 	if #self._bullet_hits > 0 then
 		self:_play_bullet_hit(table.remove(self._bullet_hits, 1))
 	end
-
 end
 
 function GamePlayCentralManager:_flush_play_effects()
 	while #self._play_effects > 0 do
 		self._effect_manager:spawn(table.remove(self._play_effects, 1))
 	end
-
 end
 
 function GamePlayCentralManager:_flush_play_sounds()
 	while #self._play_sounds > 0 do
 		self:_play_sound(table.remove(self._play_sounds, 1))
 	end
-
 end
 
 local zero_vector = Vector3()
 function GamePlayCentralManager:_play_bullet_hit(params)
 	local hit_pos = params.col_ray.position
-	if not params.no_sound then
-		-- unhandled boolean indicator
-	else
-		local need_sound = true
-	end
-
+	local need_sound = not params.no_sound and World:in_view_with_options(hit_pos, 2000, 0, 0)
 	local need_effect = World:in_view_with_options(hit_pos, 20, 100, 5000)
 	local need_decal = not self._block_bullet_decals and not params.no_decal and need_effect and World:in_view_with_options(hit_pos, 3000, 0, 0)
 	if not need_sound and not need_effect and not need_decal then
 		return
 	end
-
 	if not alive(params.col_ray.unit) then
 		return
 	end
-
 	local col_ray = params.col_ray
 	local event = params.event or "bullet_hit"
 	local decal = params.decal and Idstring(params.decal) or idstr_bullet_hit
@@ -386,11 +338,9 @@ function GamePlayCentralManager:_play_bullet_hit(params)
 		elseif need_effect then
 			redir_name, pos, norm = World:pick_decal_effect(decal, col_ray.unit, decal_ray_from, decal_ray_to, slot_mask)
 		end
-
 		if redir_name == empty_idstr then
 			redir_name = idstr_fallback
 		end
-
 		if need_effect then
 			effect = {
 				effect = effect or redir_name,
@@ -398,7 +348,6 @@ function GamePlayCentralManager:_play_bullet_hit(params)
 				normal = col_ray.normal
 			}
 		end
-
 		sound_switch_name = need_sound and material_name
 	else
 		if need_effect then
@@ -409,10 +358,8 @@ function GamePlayCentralManager:_play_bullet_hit(params)
 				normal = col_ray.normal
 			}
 		end
-
 		sound_switch_name = need_sound and idstr_no_material
 	end
-
 	table.insert(self._play_effects, effect)
 	if need_sound then
 		table.insert(self._play_sounds, {
@@ -421,7 +368,6 @@ function GamePlayCentralManager:_play_bullet_hit(params)
 			event = event
 		})
 	end
-
 end
 
 function GamePlayCentralManager:_play_sound(params)
@@ -451,24 +397,20 @@ function GamePlayCentralManager:_flush_footsteps()
 			else
 				material_name, pos, norm = World:pick_decal_material(decal_ray_from, decal_ray_to, self._slotmask_footstep)
 			end
-
 			material_name = material_name ~= empty_idstr and material_name
 			if material_name then
 				sound_switch_name = material_name
 			else
 				sound_switch_name = idstr_no_material
 			end
-
 		else
 			sound_switch_name = idstr_concrete
 		end
-
 		local sound_source = footstep.unit:sound_source()
 		sound_source:set_switch("materials", self:material_name(sound_switch_name))
 		local event = footstep.unit:movement():get_footstep_event()
 		sound_source:post_event(event)
 	end
-
 end
 
 function GamePlayCentralManager:weapon_dropped(weapon)
@@ -476,12 +418,10 @@ function GamePlayCentralManager:weapon_dropped(weapon)
 	if not flashlight_data then
 		return
 	end
-
 	flashlight_data.dropped = true
 	if not weapon:base():has_flashlight_on() then
 		return
 	end
-
 	weapon:set_flashlight_light_lod_enabled(true)
 	table.insert(self._dropped_weapons.units, {
 		unit = weapon,
@@ -496,15 +436,11 @@ function GamePlayCentralManager:set_flashlights_on(flashlights_on)
 	if self._flashlights_on == flashlights_on then
 		return
 	end
-
 	self._flashlights_on = flashlights_on
 	local weapons = World:find_units_quick("all", 13)
-	local (for generator), (for state), (for control) = ipairs(weapons)
-	do
-		do break end
+	for _, weapon in ipairs(weapons) do
 		weapon:base():flashlight_state_changed()
 	end
-
 end
 
 function GamePlayCentralManager:flashlights_on()
@@ -520,13 +456,11 @@ function GamePlayCentralManager:set_flashlights_on_player_on(flashlights_on_play
 	if self._flashlights_on_player_on == flashlights_on_player_on then
 		return
 	end
-
 	self._flashlights_on_player_on = flashlights_on_player_on
 	local player_unit = managers.player:player_unit()
 	if player_unit and alive(player_unit:camera():camera_unit()) then
 		player_unit:camera():camera_unit():base():check_flashlight_enabled()
 	end
-
 end
 
 function GamePlayCentralManager:flashlights_on_player_on()
@@ -538,15 +472,12 @@ function GamePlayCentralManager:mission_disable_unit(unit)
 		if unit:name() == Idstring("units/payday2/vehicles/air_vehicle_blackhawk/helicopter_cops_ref") then
 			print("[GamePlayCentralManager:mission_disable_unit]", unit)
 		end
-
 		self._mission_disabled_units[unit:unit_data().unit_id] = true
 		unit:set_enabled(false)
 		if unit:base() and unit:base().on_unit_set_enabled then
 			unit:base():on_unit_set_enabled(false)
 		end
-
 	end
-
 end
 
 function GamePlayCentralManager:mission_enable_unit(unit)
@@ -554,15 +485,12 @@ function GamePlayCentralManager:mission_enable_unit(unit)
 		if unit:name() == Idstring("units/payday2/vehicles/air_vehicle_blackhawk/helicopter_cops_ref") then
 			print("[GamePlayCentralManager:mission_enable_unit]", unit)
 		end
-
 		self._mission_disabled_units[unit:unit_data().unit_id] = nil
 		unit:set_enabled(true)
 		if unit:base() and unit:base().on_unit_set_enabled then
 			unit:base():on_unit_set_enabled(true)
 		end
-
 	end
-
 end
 
 function GamePlayCentralManager:start_heist_timer()
@@ -604,13 +532,10 @@ function GamePlayCentralManager:_flush_queue_fire_raycast()
 			if alive(ray_data.weapon_unit) and alive(user_unit) then
 				ray_data.weapon_unit:base():_fire_raycast(unpack(data))
 			end
-
 		else
 			i = i + 1
 		end
-
 	end
-
 end
 
 function GamePlayCentralManager:auto_highlight_enemy(unit, use_player_upgrades)
@@ -618,12 +543,10 @@ function GamePlayCentralManager:auto_highlight_enemy(unit, use_player_upgrades)
 	if self._auto_highlighted_enemies[unit:key()] and self._auto_highlighted_enemies[unit:key()] > Application:time() then
 		return false
 	end
-
 	self._auto_highlighted_enemies[unit:key()] = Application:time() + (managers.groupai:state():whisper_mode() and 9 or 4)
 	if not unit:contour() then
 		debug_pause_unit(unit, "[GamePlayCentralManager:auto_highlight_enemy]: Unit doesn't have Contour Extension")
 	end
-
 	local contour_type = use_player_upgrades and managers.player:has_category_upgrade("player", "marked_enemy_extra_damage") and "mark_enemy_damage_bonus" or "mark_enemy"
 	local time_multiplier = use_player_upgrades and managers.player:upgrade_value("player", "mark_enemy_time_multiplier", 1) or 1
 	unit:contour():add(contour_type, true, time_multiplier)
@@ -634,11 +557,9 @@ function GamePlayCentralManager:do_shotgun_push(unit, hit_pos, dir, distance)
 	if distance > 500 then
 		return
 	end
-
 	if unit:movement()._active_actions[1] and unit:movement()._active_actions[1]:type() == "hurt" then
 		unit:movement()._active_actions[1]:force_ragdoll()
 	end
-
 	local scale = math.clamp(1 - distance / 500, 0.5, 1)
 	local height = mvector3.distance(hit_pos, unit:position()) - 100
 	local twist_dir = math.random(2) == 1 and 1 or -1
@@ -652,10 +573,8 @@ function GamePlayCentralManager:do_shotgun_push(unit, hit_pos, dir, distance)
 			local body_mass = u_body:mass()
 			World:play_physic_effect(Idstring("physic_effects/shotgun_hit"), u_body, Vector3(dir.x, dir.y, dir.z + 0.5) * 600 * scale, 4 * body_mass / math.random(2), rot_acc, rot_time)
 		end
-
 		i_u_body = i_u_body + 1
 	end
-
 end
 
 function GamePlayCentralManager:save(data)
@@ -674,20 +593,15 @@ function GamePlayCentralManager:load(data)
 	self:set_flashlights_on(state.flashlights_on)
 	self:set_flashlights_on_player_on(state.flashlights_on_player_on)
 	if state.mission_disabled_units then
-		local (for generator), (for state), (for control) = pairs(state.mission_disabled_units)
-		do
-			do break end
+		for id, _ in pairs(state.mission_disabled_units) do
 			self:mission_disable_unit(managers.worlddefinition:get_unit_on_load(id, callback(self, self, "mission_disable_unit")))
 		end
-
 	end
-
 	if state.heist_timer then
 		self._heist_timer.offset_time = state.heist_timer
 		self._heist_timer.start_time = Application:time()
 		self._heist_timer.running = state.heist_timer_running
 	end
-
 end
 
 function GamePlayCentralManager:debug_weapon()
@@ -700,7 +614,6 @@ function GamePlayCentralManager:debug_weapon()
 		if not managers.player:player_unit() or not managers.player:player_unit():alive() then
 			return ""
 		end
-
 		local unit = managers.player:player_unit()
 		local weapon = unit:inventory():equipped_unit()
 		local blueprint = weapon:base()._blueprint
@@ -713,54 +626,27 @@ function GamePlayCentralManager:debug_weapon()
 		text = add_line(text, weapon:base()._name_id)
 		local base_stats = weapon:base():weapon_tweak_data().stats
 		local stats = base_stats and deep_clone(base_stats) or {}
-		do
-			local (for generator), (for state), (for control) = pairs(parts_stats)
-			do
-				do break end
-				local (for generator), (for state), (for control) = pairs(part)
-				do
-					do break end
-					if not stats[stat_id] then
-						stats[stat_id] = 0
-					end
-
-					stats[stat_id] = math.clamp(stats[stat_id] + stat, 1, #tweak_data[stat_id])
+		for part_id, part in pairs(parts_stats) do
+			for stat_id, stat in pairs(part) do
+				if not stats[stat_id] then
+					stats[stat_id] = 0
 				end
-
+				stats[stat_id] = math.clamp(stats[stat_id] + stat, 1, #tweak_data[stat_id])
 			end
-
 		end
-
-		do
-			local (for generator), (for state), (for control) = pairs(stats)
-			do
-				do break end
+		for stat_id, stat in pairs(stats) do
+			if stat_id ~= "damage" then
+				text = add_line(text, "         " .. stat_id .. " " .. stat)
+			end
+		end
+		for part_id, part in pairs(parts_stats) do
+			text = add_line(text, part_id)
+			for stat_id, stat in pairs(part) do
 				if stat_id ~= "damage" then
 					text = add_line(text, "         " .. stat_id .. " " .. stat)
 				end
-
 			end
-
 		end
-
-		do
-			local (for generator), (for state), (for control) = pairs(parts_stats)
-			do
-				do break end
-				text = add_line(text, part_id)
-				local (for generator), (for state), (for control) = pairs(part)
-				do
-					do break end
-					if stat_id ~= "damage" then
-						text = add_line(text, "         " .. stat_id .. " " .. stat)
-					end
-
-				end
-
-			end
-
-		end
-
 		return text
 	end
 

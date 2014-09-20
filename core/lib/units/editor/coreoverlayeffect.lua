@@ -21,7 +21,6 @@ function CoreOverlayEffectHubElement:test_element()
 		effect.fade_out = self._hed.overlay_effect_fade_out or effect.fade_out
 		managers.overlay_effect:play_effect(effect)
 	end
-
 end
 
 function CoreOverlayEffectHubElement:stop_test_element()
@@ -39,7 +38,6 @@ function CoreOverlayEffectHubElement:changed_effect()
 		self._sustain_default:set_value(string.format("%.2f", effect.sustain))
 		self._fade_out_default:set_value(string.format("%.2f", effect.fade_out))
 	end
-
 end
 
 function CoreOverlayEffectHubElement:set_option_time(data)
@@ -50,7 +48,6 @@ function CoreOverlayEffectHubElement:set_option_time(data)
 	else
 		value = tonumber(value)
 	end
-
 	self._hed[data.value] = value
 end
 
@@ -63,25 +60,13 @@ function CoreOverlayEffectHubElement:_build_panel(panel, panel_sizer)
 	local effects = EWS:ComboBox(panel, "", "", "CB_DROPDOWN,CB_READONLY")
 	effects:append("none")
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(managers.overlay_effect:presets())
-		do
-			do break end
-			table.insert(t, name)
-		end
-
+	for name, _ in pairs(managers.overlay_effect:presets()) do
+		table.insert(t, name)
 	end
-
 	table.sort(t)
-	do
-		local (for generator), (for state), (for control) = ipairs(t)
-		do
-			do break end
-			effects:append(name)
-		end
-
+	for _, name in ipairs(t) do
+		effects:append(name)
 	end
-
 	effects:set_value(self._hed.overlay_effect)
 	effects_sizer:add(effects, 2, 0, "EXPAND")
 	effects:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {

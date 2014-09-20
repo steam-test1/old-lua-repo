@@ -353,20 +353,17 @@ function CopActionAct:init(action_desc, common_data)
 	if self._ext_anim.act_idle then
 		self._blocks.walk = nil
 	end
-
 	if action_desc.needs_full_blend and self._ext_anim.idle and (not self._ext_anim.idle_full_blend or self._ext_anim.to_idle) then
 		self._waiting_full_blend = true
 		self:_set_updator("_upd_wait_for_full_blend")
 	elseif not self:_play_anim() then
 		return
 	end
-
 	self:_sync_anim_play()
 	self._ext_movement:enable_update()
 	if self._host_expired and not self._waiting_full_blend then
 		self._expired = true
 	end
-
 	if not self._expired and Network:is_server() then
 		local stand_rsrv = self._unit:brain():get_pos_rsrv("stand")
 		if not stand_rsrv or mvector3.distance_sq(stand_rsrv.position, common_data.pos) > 400 then
@@ -375,9 +372,7 @@ function CopActionAct:init(action_desc, common_data)
 				radius = 30
 			})
 		end
-
 	end
-
 	return true
 end
 
@@ -388,27 +383,22 @@ function CopActionAct:on_exit()
 		self._ext_movement:set_m_rot(self._unit:rotation())
 		self._ext_movement:set_m_pos(self._unit:position())
 	end
-
 	self._ext_movement:drop_held_items()
 	if self._ext_anim.stop_talk_on_action_exit then
 		self._unit:sound():stop()
 	end
-
 	if self._modifier_on then
 		self._modifier_on = nil
 		self._machine:forbid_modifier(self._modifier_name)
 	end
-
 	if self._expired then
 		CopActionWalk._chk_correct_pose(self)
 	end
-
 	if Network:is_client() then
 		self._ext_movement:set_m_host_stop_pos(self._ext_movement:m_pos())
 	elseif not self._expired then
 		self._common_data.ext_network:send("action_act_end")
 	end
-
 end
 
 function CopActionAct:_init_ik()
@@ -431,7 +421,6 @@ function CopActionAct:_ik_update_func(t)
 			mvec3_set(target_vec, self._attention.pos)
 			mvec3_sub(target_vec, look_from_pos)
 		end
-
 		mvec3_set(tmp_vec1, target_vec)
 		mvec3_set_z(tmp_vec1, 0)
 		mvec3_norm(tmp_vec1)
@@ -441,7 +430,6 @@ function CopActionAct:_ik_update_func(t)
 				self._modifier_on = nil
 				self._machine:forbid_modifier(self._modifier_name)
 			end
-
 		elseif not self._modifier_on then
 			self._modifier_on = true
 			self._machine:force_modifier(self._modifier_name)
@@ -453,7 +441,6 @@ function CopActionAct:_ik_update_func(t)
 				start_vec = old_look_vec
 			}
 		end
-
 		if self._look_trans then
 			local look_trans = self._look_trans
 			local prog = (t - look_trans.start_t) / look_trans.duration
@@ -468,7 +455,6 @@ function CopActionAct:_ik_update_func(t)
 					mvec3_set(end_vec, target_vec)
 					mvec3_norm(end_vec)
 				end
-
 				local prog_smooth = math.bezier({
 					0,
 					0,
@@ -477,18 +463,14 @@ function CopActionAct:_ik_update_func(t)
 				}, prog)
 				mvector3.lerp(target_vec, look_trans.start_vec, end_vec, prog_smooth)
 			end
-
 		end
-
 		if self._modifier_on then
 			self._modifier:set_target_z(target_vec)
 		end
-
 	elseif self._modifier_on then
 		self._modifier_on = nil
 		self._machine:forbid_modifier(self._modifier_name)
 	end
-
 end
 
 function CopActionAct:on_attention(attention)
@@ -499,7 +481,6 @@ function CopActionAct:on_attention(attention)
 		self._modifier_on = nil
 		self._machine:forbid_modifier(self._modifier_name)
 	end
-
 	self._ext_movement:enable_update()
 end
 
@@ -510,7 +491,6 @@ function CopActionAct:_update_ik_type()
 			self._machine:forbid_modifier(self._modifier_name)
 			self._modifier_on = nil
 		end
-
 		if new_ik_type == "head" then
 			self._ik_type = new_ik_type
 			self._modifier_name = Idstring("look_head")
@@ -522,9 +502,7 @@ function CopActionAct:_update_ik_type()
 		else
 			self._ik_type = nil
 		end
-
 	end
-
 end
 
 function CopActionAct:_upd_wait_for_full_blend()
@@ -535,16 +513,12 @@ function CopActionAct:_upd_wait_for_full_blend()
 				self._expired = true
 				self._common_data.ext_network:send("action_act_end")
 			end
-
 			return
 		end
-
 		if self._host_expired then
 			self._expired = true
 		end
-
 	end
-
 end
 
 function CopActionAct:_clamping_update(t)
@@ -559,11 +533,9 @@ function CopActionAct:_clamping_update(t)
 	else
 		self._expired = true
 	end
-
 	if self._ik_update then
 		self._ik_update(t)
 	end
-
 end
 
 function CopActionAct:update(t)
@@ -576,11 +548,9 @@ function CopActionAct:update(t)
 	else
 		self._skipped_frames = 1
 	end
-
 	if self._ik_update then
 		self._ik_update(t)
 	end
-
 	if self._freefall then
 		if self._ext_anim.freefall then
 			local pos_new = tmp_vec1
@@ -595,10 +565,8 @@ function CopActionAct:update(t)
 				if gnd_z > pos_new.z then
 					mvec3_set_z(pos_new, gnd_z)
 				end
-
 				self._last_vel_z = 0
 			end
-
 			local new_rot = self._unit:get_animation_delta_rotation()
 			new_rot = self._common_data.rot * new_rot
 			mrotation.set_yaw_pitch_roll(new_rot, new_rot:yaw(), 0, 0)
@@ -610,17 +578,14 @@ function CopActionAct:update(t)
 			self._unit:set_driving("animation")
 			self._changed_driving = true
 		end
-
 	else
 		self._ext_movement:set_m_rot(self._unit:rotation())
 		self._ext_movement:set_m_pos(self._unit:position())
 	end
-
 	if not self._ext_anim.act then
 		self._expired = true
 		CopActionWalk._chk_correct_pose(self)
 	end
-
 end
 
 function CopActionAct:type()
@@ -632,15 +597,9 @@ function CopActionAct:expired()
 end
 
 function CopActionAct:save(save_data)
-	do
-		local (for generator), (for state), (for control) = pairs(self._action_desc)
-		do
-			do break end
-			save_data[k] = v
-		end
-
+	for k, v in pairs(self._action_desc) do
+		save_data[k] = v
 	end
-
 	save_data.blocks = save_data.blocks or {
 		act = -1,
 		walk = -1,
@@ -652,7 +611,6 @@ function CopActionAct:save(save_data)
 		local state_index = self._machine:state_name_to_index(state_name)
 		save_data.variant = state_index
 	end
-
 	save_data.pos_z = mvector3.z(self._common_data.pos)
 end
 
@@ -669,60 +627,36 @@ function CopActionAct:_create_blocks_table(block_desc)
 	local blocks = self._blocks or {}
 	if block_desc then
 		local t = TimerManager:game():time()
-		local (for generator), (for state), (for control) = pairs(block_desc)
-		do
-			do break end
+		for action_type, block_duration in pairs(block_desc) do
 			blocks[action_type] = block_duration == -1 and -1 or t + block_duration
 		end
-
 	end
-
 	self._blocks = blocks
 end
 
 function CopActionAct:_get_act_index(anim_name)
 	local cat_offset = 0
-	do
-		local (for generator), (for state), (for control) = ipairs(self._ACT_CATEGORY_INDEX)
-		do
-			do break end
-			local category = self._act_redirects[category_name]
-			do
-				local (for generator), (for state), (for control) = ipairs(category)
-				do
-					do break end
-					if test_anim_name == anim_name then
-						return i_anim + cat_offset
-					end
-
-				end
-
+	for _, category_name in ipairs(self._ACT_CATEGORY_INDEX) do
+		local category = self._act_redirects[category_name]
+		for i_anim, test_anim_name in ipairs(category) do
+			if test_anim_name == anim_name then
+				return i_anim + cat_offset
 			end
-
-			cat_offset = cat_offset + #category
 		end
-
+		cat_offset = cat_offset + #category
 	end
-
 	debug_pause("[CopActionAct:_get_act_index] animation", anim_name, "not found on look-up table.")
 	return 1
 end
 
 function CopActionAct:_get_act_name_from_index(index)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._ACT_CATEGORY_INDEX)
-		do
-			do break end
-			local category = self._act_redirects[category_name]
-			if index <= #category then
-				return category[index]
-			end
-
-			index = index - #category
+	for _, category_name in ipairs(self._ACT_CATEGORY_INDEX) do
+		local category = self._act_redirects[category_name]
+		if index <= #category then
+			return category[index]
 		end
-
+		index = index - #category
 	end
-
 	debug_pause("[CopActionAct:_get_act_name_from_index] index", index, "is out of limits.")
 end
 
@@ -730,7 +664,6 @@ function CopActionAct:_play_anim()
 	if self._ext_anim.upper_body_active and not self._ext_anim.upper_body_empty then
 		self._ext_movement:play_redirect("up_idle")
 	end
-
 	local redir_name, redir_res
 	if type(self._action_desc.variant) == "number" then
 		redir_name = self._machine:index_to_state_name(self._action_desc.variant)
@@ -741,21 +674,17 @@ function CopActionAct:_play_anim()
 		if redir_name == "idle" and self._common_data.stance.code == 1 then
 			redir_name = "exit"
 		end
-
 		redir_res = self._ext_movement:play_redirect(redir_name, self._action_desc.start_anim_time)
 	end
-
 	if not redir_res then
 		debug_pause_unit(self._unit, "[CopActionAct:_play_anim] redirect", redir_name, "failed in", self._machine:segment_state(Idstring("base")), self._unit)
 		self._expired = true
 		return
 	end
-
 	if Network:is_client() and self._action_desc.start_rot then
 		self._ext_movement:set_rotation(self._action_desc.start_rot)
 		self._ext_movement:set_position(self._action_desc.start_pos)
 	end
-
 	if self._action_desc.clamp_to_graph then
 		self:_set_updator("_clamping_update")
 	else
@@ -763,21 +692,17 @@ function CopActionAct:_play_anim()
 			self._unit:set_driving("animation")
 			self._changed_driving = true
 		end
-
 		self:_set_updator()
 	end
-
 	if self._ext_anim.freefall then
 		self._freefall = true
 		self._last_vel_z = 0
 	end
-
 	self._ext_movement:set_root_blend(false)
 	self._ext_movement:spawn_wanted_items()
 	if self._ext_anim.ik_type then
 		self:_update_ik_type()
 	end
-
 	return true
 end
 
@@ -790,19 +715,15 @@ function CopActionAct:_sync_anim_play()
 				if yaw < 0 then
 					yaw = 360 + yaw
 				end
-
 				local sync_yaw = 1 + math.ceil(yaw * 254 / 360)
 				self._common_data.ext_network:send("action_act_start_align", action_index, self._blocks.heavy_hurt and true or false, self._action_desc.clamp_to_graph or false, sync_yaw, mvector3.copy(self._common_data.pos))
 			else
 				self._common_data.ext_network:send("action_act_start", action_index, self._blocks.heavy_hurt and true or false, self._action_desc.clamp_to_graph or false)
 			end
-
 		else
 			print("[CopActionAct:_sync_anim_play] redirect", self._action_desc.variant, "not found")
 		end
-
 	end
-
 end
 
 function CopActionAct:_set_updator(func_name)

@@ -16,7 +16,6 @@ function SpoocLogicAttack.enter(data, new_logic_name, enter_params)
 		CopLogicAttack._set_best_cover(data, my_data, old_internal_data.best_cover)
 		CopLogicAttack._set_nearest_cover(my_data, old_internal_data.nearest_cover)
 	end
-
 	local key_str = tostring(data.key)
 	my_data.update_queue_id = "SpoocLogicAttack.queued_update" .. key_str
 	CopLogicBase.queue_task(my_data, my_data.update_queue_id, SpoocLogicAttack.queued_update, data, data.t)
@@ -28,13 +27,11 @@ function SpoocLogicAttack.enter(data, new_logic_name, enter_params)
 	if objective then
 		my_data.attitude = data.objective.attitude or "avoid"
 	end
-
 	my_data.weapon_range = data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
 	data.unit:movement():set_cool(false)
 	if my_data ~= data.internal_data then
 		return
 	end
-
 	my_data.cover_test_step = 1
 	data.spooc_attack_timeout_t = data.spooc_attack_timeout_t or 0
 	data.unit:brain():set_attention_settings({cbt = true})
@@ -49,11 +46,9 @@ function SpoocLogicAttack.exit(data, new_logic_name, enter_params)
 	if my_data.best_cover then
 		managers.navigation:release_cover(my_data.best_cover[1])
 	end
-
 	if my_data.nearest_cover then
 		managers.navigation:release_cover(my_data.nearest_cover[1])
 	end
-
 	data.brain:rem_pos_rsrv("path")
 	data.unit:brain():set_update_enabled_state(true)
 end
@@ -67,56 +62,45 @@ function SpoocLogicAttack.queued_update(data)
 		if my_data.spooc_attack.action:complete() and data.attention_obj and (not data.attention_obj.criminal_record or not data.attention_obj.criminal_record.status) and (data.attention_obj.verified or data.attention_obj.nearly_visible) and data.attention_obj.dis < my_data.weapon_range.close then
 			SpoocLogicAttack._cancel_spooc_attempt(data, my_data)
 		end
-
 		if data.internal_data == my_data then
 			CopLogicBase._report_detections(data.detected_attention_objects)
 			SpoocLogicAttack.queue_update(data, my_data)
 		end
-
 		return
 	end
-
 	if my_data.has_old_action then
 		CopLogicAttack._upd_stop_old_action(data, my_data)
 		SpoocLogicAttack.queue_update(data, my_data)
 		return
 	end
-
 	if CopLogicIdle._chk_relocate(data) then
 		return
 	end
-
 	if my_data.wants_stop_old_walk_action then
 		if not data.unit:anim_data().to_idle and not data.unit:movement():chk_action_forbidden("walk") then
 			data.unit:movement():action_request({type = "idle", body_part = 2})
 			my_data.wants_stop_old_walk_action = nil
 		end
-
 		SpoocLogicAttack.queue_update(data, my_data)
 		return
 	end
-
 	CopLogicAttack._process_pathing_results(data, my_data)
 	if not data.attention_obj or data.attention_obj.reaction < AIAttentionObject.REACT_AIM then
 		CopLogicAttack._upd_enemy_detection(data, true)
 		if my_data ~= data.internal_data or not data.attention_obj then
 			return
 		end
-
 	end
-
 	SpoocLogicAttack._upd_spooc_attack(data, my_data)
 	if my_data.spooc_attack then
 		SpoocLogicAttack.queue_update(data, my_data)
 		return
 	end
-
 	if data.attention_obj.reaction >= AIAttentionObject.REACT_COMBAT then
 		my_data.want_to_take_cover = CopLogicAttack._chk_wants_to_take_cover(data, my_data)
 		CopLogicAttack._update_cover(data)
 		CopLogicAttack._upd_combat_movement(data)
 	end
-
 	SpoocLogicAttack.queue_update(data, my_data)
 	CopLogicBase._report_detections(data.detected_attention_objects)
 end
@@ -135,12 +119,10 @@ function SpoocLogicAttack.action_complete_clbk(data, action)
 				my_data.cover_enter_t = data.t
 				my_data.cover_sideways_chk = nil
 			end
-
 			my_data.moving_to_cover = nil
 		elseif my_data.walking_to_cover_shoot_pos then
 			my_data.walking_to_cover_shoot_pos = nil
 		end
-
 	elseif action_type == "shoot" then
 		my_data.shooting = nil
 	elseif action_type == "turn" then
@@ -150,21 +132,17 @@ function SpoocLogicAttack.action_complete_clbk(data, action)
 		if action:complete() and data.char_tweak.spooc_attack_use_smoke_chance > 0 and math.random() <= data.char_tweak.spooc_attack_use_smoke_chance and not managers.groupai:state():is_smoke_grenade_active() then
 			managers.groupai:state():detonate_smoke_grenade(data.m_pos + math.UP * 10, data.unit:movement():m_head_pos(), math.lerp(15, 30, math.random()), false)
 		end
-
 		my_data.spooc_attack = nil
 	elseif action_type == "dodge" then
 		local timeout = action:timeout()
 		if timeout then
 			data.dodge_timeout_t = TimerManager:game():time() + math.lerp(timeout[1], timeout[2], math.random())
 		end
-
 		CopLogicAttack._cancel_cover_pathing(data, my_data)
 		if action:expired() then
 			SpoocLogicAttack._upd_aim(data, my_data)
 		end
-
 	end
-
 end
 
 function SpoocLogicAttack._cancel_spooc_attempt(data, my_data)
@@ -172,7 +150,6 @@ function SpoocLogicAttack._cancel_spooc_attempt(data, my_data)
 		local new_action = {type = "idle", body_part = 2}
 		data.unit:brain():action_request(new_action)
 	end
-
 end
 
 function SpoocLogicAttack._upd_spooc_attack(data, my_data)
@@ -184,7 +161,6 @@ function SpoocLogicAttack._upd_spooc_attack(data, my_data)
 					CopLogicBase._set_attention(data, focus_enemy)
 					my_data.attention_unit = focus_enemy.u_key
 				end
-
 				local action = SpoocLogicAttack._chk_request_action_spooc_attack(data, my_data)
 				if action then
 					my_data.spooc_attack = {
@@ -194,15 +170,12 @@ function SpoocLogicAttack._upd_spooc_attack(data, my_data)
 					}
 					return true
 				end
-
 			end
-
 			if ActionSpooc.chk_can_start_flying_strike(data.unit, focus_enemy.unit) then
 				if my_data.attention_unit ~= focus_enemy.u_key then
 					CopLogicBase._set_attention(data, focus_enemy)
 					my_data.attention_unit = focus_enemy.u_key
 				end
-
 				local action = SpoocLogicAttack._chk_request_action_spooc_attack(data, my_data, true)
 				if action then
 					my_data.spooc_attack = {
@@ -212,20 +185,15 @@ function SpoocLogicAttack._upd_spooc_attack(data, my_data)
 					}
 					return true
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function SpoocLogicAttack._chk_request_action_spooc_attack(data, my_data, flying_strike)
 	if data.unit:anim_data().crouch then
 		CopLogicAttack._chk_request_action_stand(data)
 	end
-
 	local new_action = {type = "idle", body_part = 3}
 	data.unit:brain():action_request(new_action)
 	local new_action_data = {
@@ -245,18 +213,12 @@ function SpoocLogicAttack._chk_request_action_spooc_attack(data, my_data, flying
 			expl_hurt = -1
 		}
 	end
-
 	local action = data.unit:brain():action_request(new_action_data)
 	return action
 end
 
 function SpoocLogicAttack.chk_should_turn(data, my_data)
-	if not my_data.spooc_attack then
-		-- unhandled boolean indicator
-	else
-	end
-
-	return true
+	return not my_data.spooc_attack and CopLogicAttack.chk_should_turn(data, my_data)
 end
 
 function SpoocLogicAttack.damage_clbk(data, damage_info)
@@ -268,7 +230,6 @@ function SpoocLogicAttack.is_available_for_assignment(data, objective)
 	if data.internal_data.spooc_attack then
 		return
 	end
-
 	return CopLogicAttack.is_available_for_assignment(data, objective)
 end
 
@@ -277,12 +238,7 @@ function SpoocLogicAttack.action_taken(data, my_data)
 end
 
 function SpoocLogicAttack._chk_exit_attack_logic(data, new_reaction)
-	if not data.internal_data.spooc_attack then
-		-- unhandled boolean indicator
-	else
-	end
-
-	return true
+	return not data.internal_data.spooc_attack and CopLogicAttack._chk_exit_attack_logic(data, new_reaction)
 end
 
 function SpoocLogicAttack._upd_aim(data, my_data)
@@ -291,27 +247,18 @@ function SpoocLogicAttack._upd_aim(data, my_data)
 			CopLogicBase._set_attention(data, my_data.spooc_attack.target_u_data)
 			my_data.attention_unit = my_data.spooc_attack.target_u_data.u_key
 		end
-
 	else
 		CopLogicAttack._upd_aim(data, my_data)
 	end
-
 end
 
 function SpoocLogicAttack._is_last_standing_criminal(focus_enemy)
 	local all_criminals = managers.groupai:state():all_char_criminals()
-	do
-		local (for generator), (for state), (for control) = pairs(all_criminals)
-		do
-			do break end
-			if not u_data.status and focus_enemy.u_key ~= u_key then
-				return
-			end
-
+	for u_key, u_data in pairs(all_criminals) do
+		if not u_data.status and focus_enemy.u_key ~= u_key then
+			return
 		end
-
 	end
-
 	return true
 end
 

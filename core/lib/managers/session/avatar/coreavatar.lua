@@ -8,7 +8,6 @@ function Avatar:destroy()
 	if self._input_input_provider then
 		self:release_input()
 	end
-
 	self._avatar_handler:destroy()
 end
 

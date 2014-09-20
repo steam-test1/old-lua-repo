@@ -25,20 +25,16 @@ function CoreVideoCutsceneKey:play(player, undo, fast_forward)
 			if was_paused then
 				self:_play_video(video_ws)
 			end
-
 			if self._video_object:loop_count() > self:loop() then
 				self:_stop()
 				managers.cutscene:_cleanup(true)
 				managers.overlay_effect:play_effect(tweak_data.player.overlay.cutscene_fade_out)
 			end
-
 		elseif self:video() ~= "" then
 			self:_play_video(video_ws)
 		end
-
 		return true
 	end
-
 end
 
 function CoreVideoCutsceneKey:unload(player)
@@ -49,7 +45,6 @@ function CoreVideoCutsceneKey:update(player, time)
 	if self.is_in_cutscene_editor then
 		self:_handle_cutscene_editor_scrubbing(time)
 	end
-
 end
 
 function CoreVideoCutsceneKey:is_valid_video(value)
@@ -58,7 +53,6 @@ function CoreVideoCutsceneKey:is_valid_video(value)
 	else
 		return value ~= nil and value ~= ""
 	end
-
 end
 
 function CoreVideoCutsceneKey:on_attribute_changed(attribute_name, value, previous_value)
@@ -73,18 +67,14 @@ function CoreVideoCutsceneKey:_handle_cutscene_editor_scrubbing(time)
 				self._stopped_frame_count = nil
 				self:pause()
 			end
-
 		else
 			self._stopped_frame_count = nil
 			if alive(self._video_object) and (time < self._last_evaluated_time or time - self._last_evaluated_time > 1) then
 				self._video_object:goto_time(time)
 			end
-
 			self:resume()
 		end
-
 	end
-
 	self._last_evaluated_time = time
 end
 
@@ -111,7 +101,6 @@ function CoreVideoCutsceneKey:_play_video(video_ws)
 		self._video_object:set_center(video_ws:width() / 2, video_ws:height() / 2)
 		self._video_object:set_volume_gain(Global.video_sound_volume or 1)
 	end
-
 	self._video_object:play()
 end
 
@@ -122,7 +111,6 @@ function CoreVideoCutsceneKey:_stop()
 		video_ws:hide()
 		self._video_object = nil
 	end
-
 	self._last_evaluated_time = nil
 end
 
@@ -131,7 +119,6 @@ function CoreVideoCutsceneKey:pause()
 		self._video_object:pause()
 		self._paused = true
 	end
-
 end
 
 function CoreVideoCutsceneKey:resume()
@@ -139,6 +126,5 @@ function CoreVideoCutsceneKey:resume()
 		self._video_object:play()
 		self._paused = false
 	end
-
 end
 

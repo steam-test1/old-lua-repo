@@ -17,6 +17,5 @@ function PrepareLoadingFrontEnd:transition()
 	if self._response:is_done() then
 		return CoreMenuStateLoadingFrontEnd.LoadingFrontEnd
 	end
-
 end
 

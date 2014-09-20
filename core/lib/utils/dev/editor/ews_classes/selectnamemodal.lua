@@ -81,21 +81,14 @@ function SelectNameModal:fill_asset_list()
 	local j = 1
 	self._assets = {}
 	self._list:freeze()
-	do
-		local (for generator), (for state), (for control) = pairs(self._assets_list)
-		do
-			do break end
-			if string.find(asset, filter, 1, true) then
-				local i = self._list:append_item(asset)
-				self._assets[j] = asset
-				self._list:set_item_data(i, j)
-				j = j + 1
-			end
-
+	for _, asset in pairs(self._assets_list) do
+		if string.find(asset, filter, 1, true) then
+			local i = self._list:append_item(asset)
+			self._assets[j] = asset
+			self._list:set_item_data(i, j)
+			j = j + 1
 		end
-
 	end
-
 	self._list:thaw()
 	self._list:autosize_column(0)
 end
@@ -105,7 +98,6 @@ function SelectNameModal:key_delete(ctrlr, event)
 	if EWS:name_to_key_code("K_DELETE") == event:key_code() then
 		self:_on_delete()
 	end
-
 end
 
 function SelectNameModal:key_cancel(ctrlr, event)
@@ -113,7 +105,6 @@ function SelectNameModal:key_cancel(ctrlr, event)
 	if EWS:name_to_key_code("K_ESCAPE") == event:key_code() then
 		self:on_cancel()
 	end
-
 end
 
 function SelectNameModal:_on_delete()
@@ -121,16 +112,10 @@ end
 
 function SelectNameModal:_selected_item_assets()
 	local assets = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._list:selected_items())
-		do
-			do break end
-			local asset = self._list:get_item(i, 0)
-			table.insert(assets, asset)
-		end
-
+	for _, i in ipairs(self._list:selected_items()) do
+		local asset = self._list:get_item(i, 0)
+		table.insert(assets, asset)
 	end
-
 	return assets
 end
 

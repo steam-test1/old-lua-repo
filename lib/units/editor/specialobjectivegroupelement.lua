@@ -24,9 +24,7 @@ end
 function SpecialObjectiveGroupElement:update_selected(t, dt, selected_unit, all_units)
 	self:_draw_follow_up(selected_unit, all_units)
 	if self._hed.spawn_instigator_ids then
-		local (for generator), (for state), (for control) = ipairs(self._hed.spawn_instigator_ids)
-		do
-			do break end
+		for _, id in ipairs(self._hed.spawn_instigator_ids) do
 			local unit = all_units[id]
 			local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 			if draw then
@@ -38,11 +36,8 @@ function SpecialObjectiveGroupElement:update_selected(t, dt, selected_unit, all_
 					b = 0.75
 				})
 			end
-
 		end
-
 	end
-
 end
 
 function SpecialObjectiveGroupElement:update_unselected(t, dt, selected_unit, all_units)
@@ -54,12 +49,9 @@ function SpecialObjectiveGroupElement:update_unselected(t, dt, selected_unit, al
 			if not alive(all_units[element_id]) then
 				table.remove(followup_elements, i)
 			end
-
 			i = i - 1
 		end
-
 	end
-
 	if self._hed.spawn_instigator_ids then
 		local spawn_instigator_ids = self._hed.spawn_instigator_ids
 		local i = #spawn_instigator_ids
@@ -68,12 +60,9 @@ function SpecialObjectiveGroupElement:update_unselected(t, dt, selected_unit, al
 			if not alive(all_units[id]) then
 				table.remove(self._hed.spawn_instigator_ids, i)
 			end
-
 			i = i - 1
 		end
-
 	end
-
 end
 
 function SpecialObjectiveGroupElement:_draw_follow_up(selected_unit, all_units)
@@ -93,7 +82,6 @@ function SpecialObjectiveGroupElement:_so_raycast()
 		Application:draw(ray.unit, 0, 1, 0)
 		return id
 	end
-
 	return nil
 end
 
@@ -102,13 +90,11 @@ function SpecialObjectiveGroupElement:_spawn_raycast()
 	if not ray or not ray.unit then
 		return
 	end
-
 	local id
 	if string.find(ray.unit:name():s(), "ai_enemy_group", 1, true) or string.find(ray.unit:name():s(), "ai_spawn_enemy", 1, true) or string.find(ray.unit:name():s(), "ai_civilian_group", 1, true) or string.find(ray.unit:name():s(), "ai_spawn_civilian", 1, true) then
 		id = ray.unit:unit_data().unit_id
 		Application:draw(ray.unit, 0, 0, 1)
 	end
-
 	return id
 end
 
@@ -120,7 +106,6 @@ function SpecialObjectiveGroupElement:_raycast()
 		Application:draw_sphere(ray.position, 10, 1, 1, 1)
 		return ray.position
 	end
-
 	return nil
 end
 
@@ -128,43 +113,31 @@ function SpecialObjectiveGroupElement:_lmb()
 	local id = self:_so_raycast()
 	if id then
 		if self._hed.followup_elements then
-			local (for generator), (for state), (for control) = ipairs(self._hed.followup_elements)
-			do
-				do break end
+			for i, element_id in ipairs(self._hed.followup_elements) do
 				if element_id == id then
 					table.remove(self._hed.followup_elements, i)
 					return
 				end
-
 			end
-
 		end
-
 		self._hed.followup_elements = self._hed.followup_elements or {}
 		table.insert(self._hed.followup_elements, id)
 		return
 	end
-
 	local id = self:_spawn_raycast()
 	if id then
 		if self._hed.spawn_instigator_ids then
-			local (for generator), (for state), (for control) = ipairs(self._hed.spawn_instigator_ids)
-			do
-				do break end
+			for i, si_id in ipairs(self._hed.spawn_instigator_ids) do
 				if si_id == id then
 					table.remove(self._hed.spawn_instigator_ids, i)
 					return
 				end
-
 			end
-
 		end
-
 		self._hed.spawn_instigator_ids = self._hed.spawn_instigator_ids or {}
 		table.insert(self._hed.spawn_instigator_ids, id)
 		return
 	end
-
 end
 
 function SpecialObjectiveGroupElement:add_triggers(vc)
@@ -181,27 +154,21 @@ function SpecialObjectiveGroupElement:add_unit_list_btn()
 		if not unit:mission_element_data() or unit:mission_element_data().script ~= script then
 			return
 		end
-
 		local id = unit:unit_data().unit_id
 		if self._hed.spawn_instigator_ids and table.contains(self._hed.spawn_instigator_ids, id) then
 			return false
 		end
-
 		if self._hed.followup_elements and table.contains(self._hed.followup_elements, id) then
 			return false
 		end
-
 		if string.find(unit:name():s(), "ai_enemy_group", 1, true) or string.find(unit:name():s(), "ai_spawn_enemy", 1, true) or string.find(unit:name():s(), "ai_civilian_group", 1, true) or string.find(unit:name():s(), "ai_spawn_civilian", 1, true) or string.find(unit:name():s(), "point_special_objective", 1, true) or string.find(unit:name():s(), "ai_so_group", 1, true) then
 			return true
 		end
-
 		return false
 	end
 
 	local dialog = SelectUnitByNameModal:new("Add Unit", f)
-	local (for generator), (for state), (for control) = ipairs(dialog:selected_units())
-	do
-		do break end
+	for _, unit in ipairs(dialog:selected_units()) do
 		local id = unit:unit_data().unit_id
 		if string.find(unit:name():s(), "ai_enemy_group", 1, true) or string.find(unit:name():s(), "ai_spawn_enemy", 1, true) or string.find(unit:name():s(), "ai_civilian_group", 1, true) or string.find(unit:name():s(), "ai_spawn_civilian", 1, true) then
 			self._hed.spawn_instigator_ids = self._hed.spawn_instigator_ids or {}
@@ -210,9 +177,7 @@ function SpecialObjectiveGroupElement:add_unit_list_btn()
 			self._hed.followup_elements = self._hed.followup_elements or {}
 			table.insert(self._hed.followup_elements, id)
 		end
-
 	end
-
 end
 
 function SpecialObjectiveGroupElement:remove_unit_list_btn()
@@ -221,20 +186,15 @@ function SpecialObjectiveGroupElement:remove_unit_list_btn()
 	end
 
 	local dialog = SelectUnitByNameModal:new("Remove Unit", f)
-	local (for generator), (for state), (for control) = ipairs(dialog:selected_units())
-	do
-		do break end
+	for _, unit in ipairs(dialog:selected_units()) do
 		local id = unit:unit_data().unit_id
 		if self._hed.spawn_instigator_ids then
 			table.delete(self._hed.spawn_instigator_ids, id)
 		end
-
 		if self._hed.followup_elements then
 			table.delete(self._hed.followup_elements, id)
 		end
-
 	end
-
 end
 
 function SpecialObjectiveGroupElement:_build_panel(panel, panel_sizer)

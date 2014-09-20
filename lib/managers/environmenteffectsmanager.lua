@@ -60,20 +60,16 @@ function RainEffect:update(t, dt)
 		if alive(self._vp) then
 			self._vp:vp():set_post_processor_effect("World", Idstring("streaks"), Idstring("streaks"))
 		end
-
 		self._vp = vp
 	end
-
 	local c_rot = managers.environment_effects:camera_rotation()
 	if not c_rot then
 		return
 	end
-
 	local c_pos = managers.environment_effects:camera_position()
 	if not c_pos then
 		return
 	end
-
 	World:effect_manager():move_rotate(self._effect, c_pos, c_rot)
 end
 
@@ -92,7 +88,6 @@ function RainEffect:stop()
 		self._vp:vp():set_post_processor_effect("World", Idstring("streaks"), Idstring("streaks"))
 		self._vp = nil
 	end
-
 end
 
 LightningEffect = LightningEffect or class(EnvironmentEffect)
@@ -107,23 +102,19 @@ function LightningEffect:_update_wait_start()
 	if Underlay:loaded() then
 		self:start()
 	end
-
 end
 
 function LightningEffect:_update(t, dt)
 	if self._flashing then
 		self:_update_function(t, dt)
 	end
-
 	if self._sound_delay then
 		self._sound_delay = self._sound_delay - dt
 		if self._sound_delay <= 0 then
 			self._sound_source:post_event("thunder")
 			self._sound_delay = nil
 		end
-
 	end
-
 	self._next = self._next - dt
 	if 0 >= self._next then
 		self:_set_lightning_values()
@@ -132,7 +123,6 @@ function LightningEffect:_update(t, dt)
 		self:_set_next_timer()
 		self._flashing = true
 	end
-
 end
 
 function LightningEffect:start()
@@ -140,7 +130,6 @@ function LightningEffect:start()
 		self.update = self._update_wait_start
 		return
 	end
-
 	self.update = self._update
 	self._sky_material = Underlay:material(Idstring("sky"))
 	self._original_color0 = self._sky_material:get_variable(Idstring("color0"))
@@ -161,7 +150,6 @@ function LightningEffect:_update_first(t, dt)
 		self:_set_original_values()
 		self._update_function = self._update_pause
 	end
-
 end
 
 function LightningEffect:_update_pause(t, dt)
@@ -170,7 +158,6 @@ function LightningEffect:_update_pause(t, dt)
 		self:_make_lightning()
 		self._update_function = self._update_second
 	end
-
 end
 
 function LightningEffect:_update_second(t, dt)
@@ -179,7 +166,6 @@ function LightningEffect:_update_second(t, dt)
 		self:_set_original_values()
 		self._flashing = false
 	end
-
 end
 
 function LightningEffect:_set_original_values()
@@ -209,7 +195,6 @@ function LightningEffect:_set_lightning_values()
 		self._sound_delay = self._distance * 2
 		self._sound_source:set_rtpc("lightning_distance", self._distance * 4000)
 	end
-
 end
 
 function LightningEffect:_set_next_timer()
@@ -245,7 +230,6 @@ function RainDropEffect:stop()
 		World:effect_manager():fade_kill(self._extra_raindrops)
 		self._raindrops = nil
 	end
-
 end
 
 RainDropScreenEffect = RainDropScreenEffect or class(RainDropEffect)

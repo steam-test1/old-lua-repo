@@ -19,9 +19,7 @@ function WireLayer:init(owner, save_name, units_vector, slot_mask)
 end
 
 function WireLayer:save()
-	local (for generator), (for state), (for control) = ipairs(self._created_units)
-	do
-		do break end
+	for _, unit in ipairs(self._created_units) do
 		local target = unit:get_object(self._target_name)
 		local t_pos = math.vector_to_string(target:position())
 		local t_rot = target:rotation()
@@ -46,7 +44,6 @@ function WireLayer:save()
 			continent = unit:unit_data().continent
 		})
 	end
-
 end
 
 function WireLayer:update_unit_settings()
@@ -56,14 +53,12 @@ function WireLayer:update_unit_settings()
 	else
 		CoreEws.change_slider_and_number_value(self._slack_params, 0)
 	end
-
 end
 
 function WireLayer:spawn_unit()
 	if self._grab then
 		return
 	end
-
 	if not self._creating_wire then
 		self:clear_selected_units()
 		local unit = self:do_spawn_unit(self._unit_name, self._current_pos, self._current_rot)
@@ -74,12 +69,10 @@ function WireLayer:spawn_unit()
 			self._selected_unit:get_object(self._target_name):set_position(self._current_pos)
 			self._selected_point = nil
 		end
-
 	else
 		self._creating_wire = false
 		self._selected_point = self._selected_unit:get_object(self._target_name)
 	end
-
 end
 
 function WireLayer:set_select_unit(unit)
@@ -88,19 +81,14 @@ function WireLayer:set_select_unit(unit)
 	if self._selected_unit then
 		self._selected_point = self._selected_unit:get_object(self._target_name)
 	end
-
 end
 
 function WireLayer:delete_selected_unit()
 	if self._selected_unit then
-		local (for generator), (for state), (for control) = ipairs(CoreTable.clone(self._selected_units))
-		do
-			do break end
+		for _, unit in ipairs(CoreTable.clone(self._selected_units)) do
 			self:delete_unit(unit)
 		end
-
 	end
-
 end
 
 function WireLayer:delete_unit(unit)
@@ -123,7 +111,6 @@ function WireLayer:update(t, dt)
 	if ray then
 		Application:draw_sphere(ray.position, 50, 1, 1, 0)
 	end
-
 	local p1 = self._owner:get_cursor_look_point(0)
 	local p2 = self._owner:get_cursor_look_point(25000)
 	local ray = World:raycast(p1, p2, nil, 1, 11, 15, 20, 21, 24, 35, 38)
@@ -137,23 +124,14 @@ function WireLayer:update(t, dt)
 		local rot = Rotation(x, y, z)
 		self._current_rot = rot
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._selected_units)
-		do
-			do break end
-			if alive(unit) then
-				local co = unit:get_object(Idstring("co_cable"))
-				if co then
-					Application:draw(co, 0, 1, 0)
-				end
-
+	for _, unit in ipairs(self._selected_units) do
+		if alive(unit) then
+			local co = unit:get_object(Idstring("co_cable"))
+			if co then
+				Application:draw(co, 0, 1, 0)
 			end
-
 		end
-
 	end
-
 	Application:draw_sphere(self._current_pos, 10, 0, 1, 0)
 	if self._selected_unit then
 		if self._creating_wire or self._grab then
@@ -161,13 +139,11 @@ function WireLayer:update(t, dt)
 			dot = (dot - 1) / -2
 			self._current_rot = self._current_rot * Rotation(180 * dot, 0, 0)
 		end
-
 		Application:draw_sphere(self._selected_unit:get_object(self._middle_name):position(), 15, 0, 0, 1)
 		local co = self._selected_unit:get_object(Idstring("co_cable"))
 		if co then
 			Application:draw(co, 0, 1, 0)
 		end
-
 		if self._creating_wire then
 			local s_pos = self._selected_unit:orientation_object():position()
 			self._selected_unit:get_object(self._target_name):set_position(self._current_pos)
@@ -175,9 +151,7 @@ function WireLayer:update(t, dt)
 			self._selected_unit:set_moving()
 			self:set_midpoint()
 		end
-
 	end
-
 	if self._selected_point then
 		Application:draw_sphere(self._selected_point:position(), 25, 1, 1, 0)
 		if self._grab then
@@ -187,9 +161,7 @@ function WireLayer:update(t, dt)
 			self._selected_unit:set_moving()
 			self:set_midpoint()
 		end
-
 	end
-
 	Application:draw_rotation(self._current_pos, self._current_rot)
 end
 
@@ -233,14 +205,12 @@ function WireLayer:change_slack(wire_slack)
 		self._selected_unit:set_moving()
 		self:set_midpoint()
 	end
-
 end
 
 function WireLayer:set_midpoint()
 	if self._selected_unit then
 		CoreMath.wire_set_midpoint(self._selected_unit, self._selected_unit:orientation_object():name(), self._target_name, self._middle_name)
 	end
-
 end
 
 function WireLayer:deselect()
@@ -268,12 +238,9 @@ function WireLayer:add_triggers()
 	vc:add_trigger(Idstring("rmb"), callback(self, self, "spawn_unit"))
 	vc:add_trigger(Idstring("emb"), callback(self, self, "grab_point"))
 	vc:add_release_trigger(Idstring("emb"), callback(self, self, "release_grab_point"))
-	local (for generator), (for state), (for control) = pairs(self._ews_triggers)
-	do
-		do break end
+	for k, cb in pairs(self._ews_triggers) do
 		vc:add_trigger(Idstring(k), cb)
 	end
-
 end
 
 function WireLayer:deactivate()

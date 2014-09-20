@@ -27,7 +27,6 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 	if self._alert_events then
 		col_rays = {}
 	end
-
 	local damage = self:_get_current_damage(dmg_mul)
 	local autoaim, dodge_enemies = self:check_autoaim(from_pos, direction, self._range)
 	local weight = 0.1
@@ -38,11 +37,9 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 			if not hit_enemies[enemy_key] or col_ray.unit:character_damage():is_head(col_ray.body) then
 				hit_enemies[enemy_key] = col_ray
 			end
-
 		else
 			InstantBulletBase:on_collision(col_ray, self._unit, user_unit, damage)
 		end
-
 	end
 
 	for i = 1, 6 do
@@ -51,7 +48,6 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 		if spread then
 			mvector3.spread(mvec_spread_direction, spread * (spread_mul or 1))
 		end
-
 		mvector3.set(mvec_to, mvec_spread_direction)
 		mvector3.multiply(mvec_to, 20000)
 		mvector3.add(mvec_to, from_pos)
@@ -64,9 +60,7 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 				local spread_direction = mvector3.copy(mvec_spread_direction)
 				table.insert(col_rays, {position = ray_to, ray = spread_direction})
 			end
-
 		end
-
 		if self._autoaim and autoaim then
 			if col_ray and col_ray.unit:in_slot(managers.slot:get_mask("enemies")) then
 				self._autohit_current = (self._autohit_current + weight) / (1 + weight)
@@ -84,71 +78,51 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 					else
 						self._autohit_current = self._autohit_current / (1 + weight)
 					end
-
 				elseif col_ray then
 					hit_something = true
 					hit_enemy(col_ray)
 				end
-
 			end
-
 		elseif col_ray then
 			hit_something = true
 			hit_enemy(col_ray)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(hit_enemies)
-		do
-			do break end
-			local dist = mvector3.distance(col_ray.unit:position(), user_unit:position())
-			damage = (1 - math.min(1, math.max(0, dist - self._damage_near) / self._damage_far)) * damage
-			local result = InstantBulletBase:on_collision(col_ray, self._unit, user_unit, damage)
-			if result and result.type == "death" and col_ray.distance < 500 then
-				if col_ray.unit:movement()._active_actions[1] and col_ray.unit:movement()._active_actions[1]:type() == "hurt" then
-					col_ray.unit:movement()._active_actions[1]:force_ragdoll()
-				end
-
-				local scale = math.clamp(1 - col_ray.distance / 500, 0.5, 1)
-				local unit = col_ray.unit
-				local height = mvector3.distance(col_ray.position, col_ray.unit:position()) - 100
-				local twist_dir = math.random(2) == 1 and 1 or -1
-				local rot_acc = (col_ray.ray:cross(math.UP) + math.UP * (0.5 * twist_dir)) * (-1000 * math.sign(height))
-				local rot_time = 1 + math.rand(2)
-				local nr_u_bodies = unit:num_bodies()
-				local i_u_body = 0
-				while nr_u_bodies > i_u_body do
-					local u_body = unit:body(i_u_body)
-					if u_body:enabled() and u_body:dynamic() then
-						local body_mass = u_body:mass()
-						World:play_physic_effect(Idstring("physic_effects/shotgun_hit"), u_body, Vector3(col_ray.ray.x, col_ray.ray.y, col_ray.ray.z + 0.5) * 600 * scale, 4 * body_mass / math.random(2), rot_acc, rot_time)
-					end
-
-					i_u_body = i_u_body + 1
-				end
-
+	for _, col_ray in pairs(hit_enemies) do
+		local dist = mvector3.distance(col_ray.unit:position(), user_unit:position())
+		damage = (1 - math.min(1, math.max(0, dist - self._damage_near) / self._damage_far)) * damage
+		local result = InstantBulletBase:on_collision(col_ray, self._unit, user_unit, damage)
+		if result and result.type == "death" and col_ray.distance < 500 then
+			if col_ray.unit:movement()._active_actions[1] and col_ray.unit:movement()._active_actions[1]:type() == "hurt" then
+				col_ray.unit:movement()._active_actions[1]:force_ragdoll()
 			end
-
+			local scale = math.clamp(1 - col_ray.distance / 500, 0.5, 1)
+			local unit = col_ray.unit
+			local height = mvector3.distance(col_ray.position, col_ray.unit:position()) - 100
+			local twist_dir = math.random(2) == 1 and 1 or -1
+			local rot_acc = (col_ray.ray:cross(math.UP) + math.UP * (0.5 * twist_dir)) * (-1000 * math.sign(height))
+			local rot_time = 1 + math.rand(2)
+			local nr_u_bodies = unit:num_bodies()
+			local i_u_body = 0
+			while nr_u_bodies > i_u_body do
+				local u_body = unit:body(i_u_body)
+				if u_body:enabled() and u_body:dynamic() then
+					local body_mass = u_body:mass()
+					World:play_physic_effect(Idstring("physic_effects/shotgun_hit"), u_body, Vector3(col_ray.ray.x, col_ray.ray.y, col_ray.ray.z + 0.5) * 600 * scale, 4 * body_mass / math.random(2), rot_acc, rot_time)
+				end
+				i_u_body = i_u_body + 1
+			end
 		end
-
 	end
-
 	if dodge_enemies and self._suppression then
-		local (for generator), (for state), (for control) = pairs(dodge_enemies)
-		do
-			do break end
+		for enemy_data, dis_error in pairs(dodge_enemies) do
 			enemy_data.unit:character_damage():build_suppression(suppr_mul * dis_error * self._suppression)
 		end
-
 	end
-
 	result.hit_enemy = next(hit_enemies) and true or false
 	if self._alert_events then
 		result.rays = #col_rays > 0 and col_rays
 	end
-
 	managers.statistics:shot_fired({
 		hit = result.hit_enemy,
 		weapon_unit = self._unit
@@ -191,7 +165,6 @@ function ShotgunBase:update_reloading(t, dt, time_left)
 		self:set_ammo_remaining_in_clip(math.min(self:get_ammo_max_per_clip(), self:get_ammo_remaining_in_clip() + 1))
 		return true
 	end
-
 end
 
 function ShotgunBase:reload_interuptable()

@@ -34,12 +34,9 @@ function CoreMaterialEditorDBValue:_on_combobox_changed()
 end
 
 function CoreMaterialEditorDBValue:_fill_combobox()
-	local (for generator), (for state), (for control) = ipairs(LightIntensityDB:list())
-	do
-		do break end
+	for _, v in ipairs(LightIntensityDB:list()) do
 		self._combobox:append(v:s())
 	end
-
 end
 
 return CoreMaterialEditorDBValue

@@ -14,11 +14,9 @@ function ColorPickerDraggables:update(time, delta_time)
 	if self._dragged_control and current_mouse_event:get_position() ~= self._previous_mouse_event:get_position() then
 		self:_on_dragging(self._dragged_control, current_mouse_event)
 	end
-
 	if self._dragged_control and current_mouse_event:left_is_down() == false and self._previous_mouse_event:left_is_down() == true then
 		self:_on_drag_stop(self._dragged_control, current_mouse_event)
 	end
-
 	self._previous_mouse_event = current_mouse_event
 end
 
@@ -38,11 +36,9 @@ function ColorPickerDraggables:set_color(color)
 	if self._value_slider then
 		self._value_slider:set_value(value)
 	end
-
 	if self._alpha_slider then
 		self._alpha_slider:set_value(color.alpha)
 	end
-
 	self:_update_ui_except(self._spectrum)
 end
 
@@ -50,11 +46,9 @@ function ColorPickerDraggables:_create_panel(parent_frame, enable_alpha, enable_
 	if enable_alpha == nil then
 		enable_alpha = true or enable_alpha
 	end
-
 	if enable_value == nil then
 		enable_value = true or enable_value
 	end
-
 	self._panel = EWS:Panel(parent_frame)
 	self._panel:set_min_size(Vector3(180, 134, 0))
 	local panel_sizer = EWS:BoxSizer("HORIZONTAL")
@@ -72,7 +66,6 @@ function ColorPickerDraggables:_create_panel(parent_frame, enable_alpha, enable_
 	else
 		spectrum_size = spectrum_size:with_x(spectrum_size.x + slider_width + slider_margin)
 	end
-
 	if enable_alpha then
 		self._alpha_slider = EWS:ColorSlider(self._panel, "")
 		panel_sizer:add(self._alpha_slider, 0, slider_margin, "LEFT,RIGHT,EXPAND")
@@ -80,7 +73,6 @@ function ColorPickerDraggables:_create_panel(parent_frame, enable_alpha, enable_
 	else
 		spectrum_size = spectrum_size:with_x(spectrum_size.x + slider_width + slider_margin)
 	end
-
 	self._spectrum:set_min_size(spectrum_size)
 end
 
@@ -89,19 +81,15 @@ function ColorPickerDraggables:_update_ui_except(sender)
 		if sender ~= self._spectrum then
 			self._spectrum:set_value(self._value_slider:value())
 		end
-
 		if sender ~= self._value_slider then
 			self._value_slider:set_top_color(self._spectrum:unscaled_color())
 		end
-
 	end
-
 	if sender ~= self._alpha_slider and self._alpha_slider ~= nil then
 		local opaque_color = self._value_slider or self._spectrum:color()
 		self._alpha_slider:set_top_color(opaque_color)
 		self._alpha_slider:set_bottom_color(opaque_color:with_alpha(0))
 	end
-
 end
 
 function ColorPickerDraggables:_process_color_update_event(sender, event)
@@ -112,7 +100,6 @@ function ColorPickerDraggables:_process_color_update_event(sender, event)
 	else
 		sender:set_value(sender:point_to_value(event_position_in_sender))
 	end
-
 	self:_update_ui_except(sender)
 	self:_send_event("EVT_COLOR_UPDATED", self:color())
 end

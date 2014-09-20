@@ -11,7 +11,6 @@ function ElementSmokeGrenade:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	local is_flashbang = self._values.effect_type == "flash"
 	if self._values.immediate then
 		if managers.groupai:state():get_assault_mode() or self._values.ignore_control then
@@ -22,7 +21,6 @@ function ElementSmokeGrenade:on_executed(instigator)
 			managers.groupai:state():sync_smoke_grenade(pos, pos, self._values.duration, is_flashbang)
 			managers.groupai:state()._smoke_grenade_ignore_control = self._values.ignore_control
 		end
-
 	else
 		managers.groupai:state()._smoke_grenade_queued = {
 			self._values.position,
@@ -31,7 +29,6 @@ function ElementSmokeGrenade:on_executed(instigator)
 			is_flashbang
 		}
 	end
-
 	print(is_flashbang and "FLAAAASHBAAAAANG" or "SMOOOOOOOKEEEEEEEE")
 	ElementSmokeGrenade.super.on_executed(self, instigator)
 end

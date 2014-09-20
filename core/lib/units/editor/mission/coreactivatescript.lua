@@ -16,7 +16,6 @@ function CoreActivateScriptUnitElement:selected()
 	if self._hed.activate_script ~= "none" and not table.contains(self:_scripts(), self._hed.activate_script) then
 		self._hed.activate_script = "none"
 	end
-
 	CoreEWS.change_combobox_value(self._script_params, self._hed.activate_script)
 end
 

@@ -14,7 +14,6 @@ function Ladder.next_ladder()
 	if Ladder.ladder_index > #Ladder.active_ladders then
 		Ladder.ladder_index = 1
 	end
-
 	return Ladder.current_ladder()
 end
 
@@ -38,7 +37,6 @@ function Ladder:set_config()
 	if self.invert_normal_axis then
 		mvector3.multiply(self._normal, -1)
 	end
-
 	self._up = rotation[self.up_axis](rotation)
 	self._w_dir = math.cross(self._up, self._normal)
 	position = position + self._up * self._offset
@@ -58,7 +56,6 @@ function Ladder:update(t, dt)
 	if Ladder.DEBUG then
 		self:debug_draw()
 	end
-
 end
 
 local mvec1 = Vector3()
@@ -66,45 +63,37 @@ function Ladder:can_access(pos, move_dir)
 	if not self._enabled then
 		return
 	end
-
 	if Ladder.DEBUG then
 		local brush = Draw:brush(Color.red)
 		brush:cylinder(self._bottom, self._top, 5)
 	end
-
 	mvector3.set(mvec1, pos)
 	mvector3.subtract(mvec1, self._corners[1])
 	local n_dot = mvector3.dot(self._normal, mvec1)
 	if n_dot < 0 or n_dot > 50 then
 		return false
 	end
-
 	local w_dot = mvector3.dot(self._w_dir, mvec1)
 	if w_dot < 0 or w_dot > self._width then
 		return false
 	end
-
 	local h_dot = mvector3.dot(self._up, mvec1)
 	if h_dot < 0 or h_dot > self._height then
 		return false
 	end
-
 	local towards_dot = mvector3.dot(move_dir, self._normal)
 	if h_dot > self._height - self._climb_on_top_offset then
 		return towards_dot > 0.5
 	end
-
 	if towards_dot < -0.5 then
 		return true
 	end
-
 end
 
 function Ladder:check_end_climbing(pos, move_dir, gnd_ray)
 	if not self._enabled then
 		return true
 	end
-
 	mvector3.set(mvec1, pos)
 	mvector3.subtract(mvec1, self._corners[1])
 	local w_dot = mvector3.dot(self._w_dir, mvec1)
@@ -119,12 +108,9 @@ function Ladder:check_end_climbing(pos, move_dir, gnd_ray)
 			if h_dot > self._height - self._climb_on_top_offset then
 				return false
 			end
-
 			return true
 		end
-
 	end
-
 	return
 end
 
@@ -189,7 +175,6 @@ function Ladder:set_enabled(enabled)
 	else
 		table.delete(Ladder.active_ladders, self._unit)
 	end
-
 end
 
 function Ladder:destroy(unit)
@@ -203,7 +188,6 @@ function Ladder:debug_draw()
 	for i = 1, 4 do
 		brush:line(self._corners[i], self._corners[i] + self._normal * (50 + i * 25))
 	end
-
 	local brush = Draw:brush(Color.red)
 	brush:sphere(self._corners[1], 5)
 end
@@ -221,7 +205,6 @@ function Ladder:load(data)
 	if state.enabled ~= self._enabled then
 		self:set_enabled(state.enabled)
 	end
-
 	self._width = state.width
 	self._height = state.height
 	self:set_config()

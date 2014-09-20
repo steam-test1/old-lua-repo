@@ -153,7 +153,6 @@ function MenuManager:update_person_joining(id, progress_percentage)
 	if dlg then
 		dlg:set_text(managers.localization:text("dialog_wait") .. " " .. tostring(progress_percentage) .. "%")
 	end
-
 end
 
 function MenuManager:show_kick_peer_dialog()
@@ -379,7 +378,6 @@ function MenuManager:show_dlc_require_restart()
 		dialog_data.button_list = {ok_button}
 		managers.system_menu:show(dialog_data)
 	end
-
 end
 
 function MenuManager:show_video_message_dialog(params)
@@ -396,7 +394,6 @@ function MenuManager:show_video_message_dialog(params)
 		ok_button.text = managers.localization:text("dialog_ok")
 		dialog_data.button_list = {ok_button}
 	end
-
 	dialog_data.texture = params.texture == nil and "guis/textures/pd2/feature_crimenet_heat" or params.texture
 	dialog_data.video = params.video or nil
 	dialog_data.video_loop = params.video_loop or nil
@@ -432,7 +429,6 @@ function MenuManager:show_new_message_dialog(params)
 		ok_button.text = managers.localization:text("dialog_ok")
 		dialog_data.button_list = {ok_button}
 	end
-
 	dialog_data.texture = params.texture == nil and "guis/textures/pd2/feature_crimenet_heat" or params.texture
 	dialog_data.video = params.video or nil
 	dialog_data.video_loop = params.video_loop or nil
@@ -502,9 +498,7 @@ function MenuManager:show_accept_gfx_settings_dialog(func)
 				if dlg then
 					dlg:set_text(managers.localization:text("dialog_accept_changes", {TIME = count}), true)
 				end
-
 			end
-
 		end
 
 	}
@@ -560,7 +554,6 @@ function MenuManager:show_new_item_gained(params)
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
 		texture = guis_catalog .. "textures/pd2/blackmarket/icons/mods/" .. tostring(part_id)
 	elseif category == "colors" then
 		local color_tweak_data = _G.tweak_data.blackmarket.colors[id]
@@ -592,11 +585,9 @@ function MenuManager:show_new_item_gained(params)
 			if bundle_folder then
 				guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 			end
-
 			local texture_name = tweak_data.weapon[weapon_id].texture_name or tostring(weapon_id)
 			texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
 		end
-
 	elseif category == "textures" then
 		texture = _G.tweak_data.blackmarket.textures[id].texture
 		render_template = Idstring("VertexColorTexturedPatterns")
@@ -606,10 +597,8 @@ function MenuManager:show_new_item_gained(params)
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
-
 		texture = guis_catalog .. "textures/pd2/blackmarket/icons/" .. tostring(category) .. "/" .. tostring(id)
 	end
-
 	dialog_data.texture = texture
 	dialog_data.render_template = render_template
 	dialog_data.shapes = shapes
@@ -644,7 +633,6 @@ function MenuManager:show_weapon_mods_available(params)
 	if bundle_folder then
 		guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 	end
-
 	local texture_name = tweak_data.weapon[weapon_id].texture_name or tostring(weapon_id)
 	dialog_data.texture = guis_catalog .. "textures/pd2/blackmarket/icons/weapons/" .. texture_name
 	dialog_data.text_blend_mode = "add"
@@ -796,14 +784,10 @@ function MenuManager:show_confirm_blackmarket_mask_remove(params)
 	})
 	if params.mods_readded and #params.mods_readded > 0 then
 		dialog_data.text = dialog_data.text .. "\n"
-		local (for generator), (for state), (for control) = ipairs(params.mods_readded)
-		do
-			do break end
+		for _, mod_id in ipairs(params.mods_readded) do
 			dialog_data.text = dialog_data.text .. "\n" .. managers.localization:text("dialog_blackmarket_mask_sell_mod_readded", {mod = mod_id})
 		end
-
 	end
-
 	dialog_data.focus_button = 2
 	local yes_button = {}
 	yes_button.text = managers.localization:text("dialog_yes")
@@ -830,14 +814,10 @@ function MenuManager:show_confirm_blackmarket_mask_sell(params)
 	})
 	if params.mods_readded and #params.mods_readded > 0 then
 		dialog_data.text = dialog_data.text .. "\n"
-		local (for generator), (for state), (for control) = ipairs(params.mods_readded)
-		do
-			do break end
+		for _, mod_id in ipairs(params.mods_readded) do
 			dialog_data.text = dialog_data.text .. "\n" .. managers.localization:text("dialog_blackmarket_mask_sell_mod_readded", {mod = mod_id})
 		end
-
 	end
-
 	dialog_data.focus_button = 2
 	local yes_button = {}
 	yes_button.text = managers.localization:text("dialog_yes")
@@ -919,7 +899,6 @@ function MenuManager:show_confirm_blackmarket_buy(params)
 			amount = num_of_same
 		})
 	end
-
 	local dialog_data = {}
 	dialog_data.title = managers.localization:text("dialog_bm_weapon_buy_title")
 	dialog_data.text = managers.localization:text("dialog_blackmarket_buy_item", {
@@ -960,37 +939,26 @@ function MenuManager:show_confirm_blackmarket_mod(params)
 		}) .. "\n"
 		warn_lost_mods = true
 	end
-
 	if params.removes and 0 < #params.removes then
 		local mods = ""
-		do
-			local (for generator), (for state), (for control) = ipairs(params.removes)
-			do
-				do break end
-				if Application:production_build() and managers.weapon_factory:is_part_standard_issue(mod_name) then
-					Application:error("[MenuManager:show_confirm_blackmarket_mod] Standard Issuse Part Detected!", inspect(params))
-				end
-
-				mods = mods .. "\n" .. managers.weapon_factory:get_part_name_by_part_id(mod_name)
+		for _, mod_name in ipairs(params.removes) do
+			if Application:production_build() and managers.weapon_factory:is_part_standard_issue(mod_name) then
+				Application:error("[MenuManager:show_confirm_blackmarket_mod] Standard Issuse Part Detected!", inspect(params))
 			end
-
+			mods = mods .. "\n" .. managers.weapon_factory:get_part_name_by_part_id(mod_name)
 		end
-
 		dialog_data.text = dialog_data.text .. "\n" .. l_local:text("dialog_blackmarket_mod_conflict", {mods = mods}) .. "\n"
 		warn_lost_mods = true
 	end
-
 	if not params.ignore_lost_mods and (warn_lost_mods or not params.add) then
 		dialog_data.text = dialog_data.text .. "\n" .. l_local:text("dialog_blackmarket_lost_mods_warning")
 	end
-
 	if params.add and params.money then
 		dialog_data.text = dialog_data.text .. "\n" .. l_local:text("dialog_blackmarket_mod_cost", {
 			money = params.money
 		})
 	else
 	end
-
 	local yes_button = {}
 	yes_button.text = managers.localization:text("dialog_yes")
 	yes_button.callback_func = params.yes_func
@@ -1011,7 +979,6 @@ function MenuManager:show_confirm_blackmarket_assemble(params)
 			amount = num_of_same
 		})
 	end
-
 	local dialog_data = {}
 	dialog_data.title = managers.localization:text("dialog_bm_mask_assemble_title")
 	dialog_data.text = managers.localization:text("dialog_blackmarket_assemble_item", {
@@ -1325,7 +1292,6 @@ function MenuManager:show_confirm_become_infamous(params)
 			elseif got_usable_secondary_weapon then
 				warning_text_id = "menu_dialog_warning_infamy_replace_primary"
 			end
-
 			local params = {
 				primary = primary_weapon and managers.localization:to_upper_text(tweak_data.weapon[primary_weapon.weapon_id].name_id),
 				secondary = secondary_weapon and managers.localization:to_upper_text(tweak_data.weapon[secondary_weapon.weapon_id].name_id),
@@ -1337,7 +1303,6 @@ function MenuManager:show_confirm_become_infamous(params)
 
 ]] .. managers.localization:text(warning_text_id, params)
 		end
-
 	else
 		no_button.text = managers.localization:text("dialog_ok")
 		dialog_data.text = managers.localization:text("menu_dialog_become_infamous_no_cash", {
@@ -1346,7 +1311,6 @@ function MenuManager:show_confirm_become_infamous(params)
 		dialog_data.focus_button = 1
 		dialog_data.button_list = {no_button}
 	end
-
 	dialog_data.w = 620
 	dialog_data.h = 500
 	managers.system_menu:show_new_unlock(dialog_data)
@@ -1368,7 +1332,6 @@ function MenuManager:show_infamous_message(can_become_infamous)
 			cash = managers.experience:cash_string(Application:digest_value(tweak_data.infamy.ranks[managers.experience:current_rank() + 1], false))
 		})
 	end
-
 	dialog_data.focus_button = 1
 	dialog_data.button_list = {no_button}
 	managers.system_menu:show(dialog_data)

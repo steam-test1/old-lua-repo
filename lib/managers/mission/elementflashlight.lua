@@ -12,11 +12,9 @@ function ElementFlashlight:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	if self._values.on_player then
 		managers.game_play_central:set_flashlights_on_player_on(self._values.state)
 	end
-
 	managers.game_play_central:set_flashlights_on(self._values.state)
 	ElementFlashlight.super.on_executed(self, instigator)
 end

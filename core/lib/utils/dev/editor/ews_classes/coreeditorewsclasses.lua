@@ -65,7 +65,6 @@ function CoreEditorEwsDialog:key_cancel(ctrlr, event)
 	if EWS:name_to_key_code("K_ESCAPE") == event:key_code() then
 		self:on_cancel()
 	end
-
 end
 
 function CoreEditorEwsDialog:on_cancel()
@@ -217,7 +216,6 @@ function UnitList:key_delete(ctrlr, event)
 	if EWS:name_to_key_code("K_DELETE") == event:key_code() then
 		self:on_delete()
 	end
-
 end
 
 function UnitList:key_cancel(ctrlr, event)
@@ -225,7 +223,6 @@ function UnitList:key_cancel(ctrlr, event)
 	if EWS:name_to_key_code("K_ESCAPE") == event:key_code() then
 		self:on_cancel()
 	end
-
 end
 
 function UnitList:on_cancel()
@@ -234,30 +231,18 @@ end
 
 function UnitList:on_delete()
 	managers.editor:freeze_gui_lists()
-	do
-		local (for generator), (for state), (for control) = ipairs(self:selected_item_units())
-		do
-			do break end
-			managers.editor:delete_unit(unit)
-		end
-
+	for _, unit in ipairs(self:selected_item_units()) do
+		managers.editor:delete_unit(unit)
 	end
-
 	managers.editor:thaw_gui_lists()
 end
 
 function UnitList:selected_item_units()
 	local units = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._unit_list:selected_items())
-		do
-			do break end
-			local unit = self._unit_list_units[self._unit_list:get_item_data(i)]
-			table.insert(units, unit)
-		end
-
+	for _, i in ipairs(self._unit_list:selected_items()) do
+		local unit = self._unit_list_units[self._unit_list:get_item_data(i)]
+		table.insert(units, unit)
 	end
-
 	return units
 end
 
@@ -265,15 +250,9 @@ function UnitList:column_click_list(data, event)
 	local column = event:get_column() + 1
 	local value = self._column_states[column].value
 	local state = self._column_states[column].state
-	do
-		local (for generator), (for state), (for control) = pairs(self._column_states)
-		do
-			do break end
-			s = "random"
-		end
-
+	for name, s in pairs(self._column_states) do
+		s = "random"
 	end
-
 	if state == "random" then
 		state = "ascending"
 	elseif state == "ascending" then
@@ -281,7 +260,6 @@ function UnitList:column_click_list(data, event)
 	elseif state == "descending" then
 		state = "ascending"
 	end
-
 	self._column_states[column].state = state
 	local f
 	if state == "ascending" then
@@ -291,7 +269,6 @@ function UnitList:column_click_list(data, event)
 			elseif item1[value] > item2[value] then
 				return 1
 			end
-
 			return 0
 		end
 
@@ -302,12 +279,10 @@ function UnitList:column_click_list(data, event)
 			elseif item1[value] < item2[value] then
 				return 1
 			end
-
 			return 0
 		end
 
 	end
-
 	self._list:sort(f)
 end
 
@@ -318,7 +293,6 @@ function UnitList:on_changed_layer()
 		local s = managers.editor:select_unit_name(unit_name)
 		managers.editor:output(s)
 	end
-
 end
 
 function UnitList:on_select_unit_list(ignore_unit)
@@ -331,34 +305,24 @@ function UnitList:on_select_unit_list(ignore_unit)
 		local units = World:find_units_quick("all")
 		self._unit_list_units = {}
 		local j = 1
-		do
-			local (for generator), (for state), (for control) = ipairs(units)
-			do
-				do break end
-				if unit:name():s() == unit_name and unit:unit_data() and (not ignore_unit or ignore_unit ~= unit) then
-					local i = unit_list:append_item(unit:unit_data().name_id)
-					unit_list:set_item(i, 1, unit:unit_data().unit_id)
-					unit_list:set_item_data(i, j)
-					self._unit_list_units[j] = unit
-					j = j + 1
-				end
-
+		for _, unit in ipairs(units) do
+			if unit:name():s() == unit_name and unit:unit_data() and (not ignore_unit or ignore_unit ~= unit) then
+				local i = unit_list:append_item(unit:unit_data().name_id)
+				unit_list:set_item(i, 1, unit:unit_data().unit_id)
+				unit_list:set_item_data(i, j)
+				self._unit_list_units[j] = unit
+				j = j + 1
 			end
-
 		end
-
 		if #self._unit_list_units == 0 then
 			managers.editor:output_error("Unit " .. unit_name .. " is not placed by editor.")
 		end
-
 		for i = 0, unit_list:column_count() - 1 do
 			unit_list:autosize_column(i)
 		end
-
 	else
 		unit_list:delete_all_items()
 	end
-
 end
 
 function UnitList:on_select_unit_list_unit()
@@ -369,7 +333,6 @@ function UnitList:on_select_unit_list_unit()
 	if not unit:unit_data().instance then
 		managers.editor:select_unit(unit)
 	end
-
 	managers.editor:center_view_on_unit(unit)
 end
 
@@ -387,16 +350,12 @@ function UnitList:deleted_unit(unit)
 			if amount == 0 then
 				self._list:delete_item(i)
 			end
-
 			if index ~= -1 and index == i then
 				self:on_select_unit_list(unit)
 			end
-
 			return
 		end
-
 	end
-
 end
 
 function UnitList:spawned_unit(unit)
@@ -408,12 +367,9 @@ function UnitList:spawned_unit(unit)
 			if index ~= -1 and index == i then
 				self:on_select_unit_list()
 			end
-
 			return
 		end
-
 	end
-
 	local stats = managers.editor:get_unit_stat(unit)
 	stats.amount = 1
 	self:append_item(unit:name():s(), stats)
@@ -421,19 +377,12 @@ function UnitList:spawned_unit(unit)
 end
 
 function UnitList:selected_unit(unit)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._list:selected_items())
-		do
-			do break end
-			self._list:set_item_selected(i, false)
-		end
-
+	for _, i in ipairs(self._list:selected_items()) do
+		self._list:set_item_selected(i, false)
 	end
-
 	if not alive(unit) then
 		return
 	end
-
 	for i = 0, self._list:item_count() - 1 do
 		if self._list:get_item(i, 0) == unit:name():s() then
 			self._list:set_item_selected(i, true)
@@ -444,14 +393,10 @@ function UnitList:selected_unit(unit)
 					self._unit_list:ensure_visible(j)
 					break
 				end
-
 			end
-
 			return
 		end
-
 	end
-
 end
 
 function UnitList:unit_name_changed(unit)
@@ -461,12 +406,9 @@ function UnitList:unit_name_changed(unit)
 			if index ~= -1 and index == i then
 				self:on_select_unit_list()
 			end
-
 			return
 		end
-
 	end
-
 end
 
 function UnitList:fill_unit_list()
@@ -474,16 +416,10 @@ function UnitList:fill_unit_list()
 	list:delete_all_items()
 	local data, total = managers.editor:get_unit_stats()
 	local unique = 0
-	do
-		local (for generator), (for state), (for control) = pairs(data)
-		do
-			do break end
-			unique = unique + 1
-			self:append_item(name, t)
-		end
-
+	for name, t in pairs(data) do
+		unique = unique + 1
+		self:append_item(name, t)
 	end
-
 	self._total_units:set_value(total.amount)
 	self._total_unique_units:set_value(unique)
 	self._total_geometry:set_value(total.geometry_memory)
@@ -495,7 +431,6 @@ function UnitList:_autosize_columns()
 	for i = 0, self._list:column_count() - 1 do
 		self._list:autosize_column(i)
 	end
-
 end
 
 function UnitList:append_item(name, t)
@@ -615,9 +550,7 @@ function UnitTreeBrowser:_create_tree_data()
 	local layers = managers.editor:layers()
 	local layer_names = self:sorted_map(layers)
 	local filter = self._filter:get_value()
-	local (for generator), (for state), (for control) = ipairs(layer_names)
-	do
-		do break end
+	for _, layer_name in ipairs(layer_names) do
 		self._tree_data.layers[layer_name] = {}
 		self._tree_data.layers[layer_name].total_layer_units = 0
 		self._tree_data.layers[layer_name].total_layer_units_preview = 0
@@ -625,17 +558,13 @@ function UnitTreeBrowser:_create_tree_data()
 		local c_map = layers[layer_name]:category_map()
 		if c_map then
 			local c_names = self:sorted_map(c_map)
-			local (for generator), (for state), (for control) = ipairs(c_names)
-			do
-				do break end
+			for _, c_name in ipairs(c_names) do
 				self._tree_data.layers[layer_name].categories[c_name] = {}
 				self._tree_data.layers[layer_name].categories[c_name].total_units = 0
 				self._tree_data.layers[layer_name].categories[c_name].total_preview_units = 0
 				self._tree_data.layers[layer_name].categories[c_name].units = {}
 				local unit_names = self:sorted_map(c_map[c_name])
-				local (for generator), (for state), (for control) = ipairs(unit_names)
-				do
-					do break end
+				for _, unit_name in ipairs(unit_names) do
 					if string.find(unit_name, filter, 1, true) then
 						local preview = self:has_preview(managers.editor:get_real_name(unit_name))
 						if self._not_preview:get_value() and preview or not self._not_preview:get_value() then
@@ -647,17 +576,11 @@ function UnitTreeBrowser:_create_tree_data()
 							self._tree_data.layers[layer_name].categories[c_name].total_units = self._tree_data.layers[layer_name].categories[c_name].total_units + 1
 							self._tree_data.layers[layer_name].categories[c_name].total_preview_units = self._tree_data.layers[layer_name].categories[c_name].total_preview_units + (preview and 1 or 0)
 						end
-
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function UnitTreeBrowser:_populate_tree()
@@ -668,62 +591,42 @@ function UnitTreeBrowser:_populate_tree()
 	self._unit_tree:set_item_image(self._root, self._world_icon)
 	local layer_names = self:sorted_map(self._tree_data.layers)
 	local filter = self._filter:get_value()
-	do
-		local (for generator), (for state), (for control) = ipairs(layer_names)
-		do
-			do break end
-			local layer = self._tree_data.layers[layer_name]
-			local preview = layer.total_layer_units_preview
-			local total = layer.total_layer_units
-			if filter == "" and not self._not_preview:get_value() or total > 0 then
-				local layer_id = self._unit_tree:append(self._root, layer_name .. " [" .. preview .. "/" .. total .. "]")
-				self._unit_tree:set_item_image(layer_id, self._layer_icon)
-				self._unit_tree:set_item_image(layer_id, self._layer_expand_icon, "EXPANDED")
-				local categories = self:sorted_map(layer.categories)
-				local (for generator), (for state), (for control) = ipairs(categories)
-				do
-					do break end
-					local category = layer.categories[category_name]
-					local preview = category.total_preview_units
-					local total = category.total_units
-					if total > 0 then
-						local category_id = self._unit_tree:append(layer_id, category_name .. " [" .. preview .. "/" .. total .. "]")
-						self._unit_tree:set_item_image(category_id, self._category_icon)
-						self._unit_tree:set_item_image(category_id, self._category_expand_icon, "EXPANDED")
-						local unit_names = self:sorted_map(category.units)
-						local (for generator), (for state), (for control) = ipairs(unit_names)
-						do
-							do break end
-							local preview = category.units[unit_name]
-							local name_id = self._unit_tree:append(category_id, unit_name)
-							self._unit_tree:set_item_image(name_id, preview and self._unit_icon or self._no_preview_icon)
-							self._unit_names[name_id] = unit_name
-						end
-
+	for _, layer_name in ipairs(layer_names) do
+		local layer = self._tree_data.layers[layer_name]
+		local preview = layer.total_layer_units_preview
+		local total = layer.total_layer_units
+		if filter == "" and not self._not_preview:get_value() or total > 0 then
+			local layer_id = self._unit_tree:append(self._root, layer_name .. " [" .. preview .. "/" .. total .. "]")
+			self._unit_tree:set_item_image(layer_id, self._layer_icon)
+			self._unit_tree:set_item_image(layer_id, self._layer_expand_icon, "EXPANDED")
+			local categories = self:sorted_map(layer.categories)
+			for _, category_name in ipairs(categories) do
+				local category = layer.categories[category_name]
+				local preview = category.total_preview_units
+				local total = category.total_units
+				if total > 0 then
+					local category_id = self._unit_tree:append(layer_id, category_name .. " [" .. preview .. "/" .. total .. "]")
+					self._unit_tree:set_item_image(category_id, self._category_icon)
+					self._unit_tree:set_item_image(category_id, self._category_expand_icon, "EXPANDED")
+					local unit_names = self:sorted_map(category.units)
+					for _, unit_name in ipairs(unit_names) do
+						local preview = category.units[unit_name]
+						local name_id = self._unit_tree:append(category_id, unit_name)
+						self._unit_tree:set_item_image(name_id, preview and self._unit_icon or self._no_preview_icon)
+						self._unit_names[name_id] = unit_name
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 	self._unit_tree:expand(self._root)
 end
 
 function UnitTreeBrowser:sorted_map(map)
 	local sorted = {}
-	do
-		local (for generator), (for state), (for control) = pairs(map)
-		do
-			do break end
-			table.insert(sorted, index)
-		end
-
+	for index, _ in pairs(map) do
+		table.insert(sorted, index)
 	end
-
 	table.sort(sorted)
 	return sorted
 end
@@ -741,17 +644,14 @@ function UnitTreeBrowser:on_select(a, event)
 			self._preview_image:set_label_bitmap(CoreEWS.image_path("error_32x32.png"))
 			self._preview_image:set_tool_tip("No preview image availible for unit " .. name .. ".")
 		end
-
 		managers.editor:select_unit_name(name)
 	end
-
 end
 
 function UnitTreeBrowser:has_preview(name)
 	if DB:has("preview_texture", name) then
 		return managers.database:entry_expanded_path("preview_texture", name)
 	end
-
 	return nil
 end
 
@@ -760,13 +660,10 @@ function UnitTreeBrowser:on_expand_all()
 end
 
 function UnitTreeBrowser:expand_children(children)
-	local (for generator), (for state), (for control) = ipairs(children)
-	do
-		do break end
+	for _, child in ipairs(children) do
 		self:expand_children(self._unit_tree:get_children(child))
 		self._unit_tree:expand(child)
 	end
-
 end
 
 function UnitTreeBrowser:on_collapse_all()
@@ -774,13 +671,10 @@ function UnitTreeBrowser:on_collapse_all()
 end
 
 function UnitTreeBrowser:collapse_children(children)
-	local (for generator), (for state), (for control) = ipairs(children)
-	do
-		do break end
+	for _, child in ipairs(children) do
 		self:collapse_children(self._unit_tree:get_children(child))
 		self._unit_tree:collapse(child)
 	end
-
 end
 
 GlobalSelectUnit = GlobalSelectUnit or class(CoreEditorEwsDialog)
@@ -818,35 +712,20 @@ function GlobalSelectUnit:init(...)
 	self._layer_cbs = {}
 	local layers = managers.editor:layers()
 	local names_layers = {}
-	do
-		local (for generator), (for state), (for control) = pairs(layers)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(layer:unit_types())
-			do
-				do break end
-				table.insert(names_layers, type)
-			end
-
+	for name, layer in pairs(layers) do
+		for _, type in ipairs(layer:unit_types()) do
+			table.insert(names_layers, type)
 		end
-
 	end
-
 	table.sort(names_layers)
-	do
-		local (for generator), (for state), (for control) = ipairs(names_layers)
-		do
-			do break end
-			local cb = EWS:CheckBox(self._panel, name, "")
-			cb:set_value(true)
-			self._layer_cbs[name] = cb
-			cb:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "on_layer_cb"), {cb = cb, name = name})
-			cb:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")
-			layers_sizer:add(cb, 0, 2, "EXPAND,TOP")
-		end
-
+	for _, name in ipairs(names_layers) do
+		local cb = EWS:CheckBox(self._panel, name, "")
+		cb:set_value(true)
+		self._layer_cbs[name] = cb
+		cb:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "on_layer_cb"), {cb = cb, name = name})
+		cb:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")
+		layers_sizer:add(cb, 0, 2, "EXPAND,TOP")
 	end
-
 	local layer_buttons_sizer = EWS:BoxSizer("HORIZONTAL")
 	local all_btn = EWS:Button(self._panel, "All", "", "BU_EXACTFIT,NO_BORDER")
 	layer_buttons_sizer:add(all_btn, 0, 2, "TOP,BOTTOM")
@@ -887,20 +766,11 @@ end
 function GlobalSelectUnit:_all_unit_names()
 	local names = {}
 	local layers = managers.editor:layers()
-	do
-		local (for generator), (for state), (for control) = pairs(layers)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(layer:get_unit_map())
-			do
-				do break end
-				names[unit_name] = unit_resource:type():s()
-			end
-
+	for name, layer in pairs(layers) do
+		for unit_name, unit_resource in pairs(layer:get_unit_map()) do
+			names[unit_name] = unit_resource:type():s()
 		end
-
 	end
-
 	table.sort(names)
 	return names
 end
@@ -908,33 +778,17 @@ end
 function GlobalSelectUnit:_current_unit_names()
 	local layers = managers.editor:layers()
 	local current_names = {}
-	do
-		local (for generator), (for state), (for control) = pairs(layers)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(layer:created_units())
-			do
-				do break end
-				current_names[unit:name():s()] = (current_names[unit:name():s()] or 0) + 1
-			end
-
+	for name, layer in pairs(layers) do
+		for _, unit in ipairs(layer:created_units()) do
+			current_names[unit:name():s()] = (current_names[unit:name():s()] or 0) + 1
 		end
-
 	end
-
 	local names = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._all_names)
-		do
-			do break end
-			if current_names[managers.editor:get_real_name(name)] then
-				names[name] = current_names[managers.editor:get_real_name(name)]
-			end
-
+	for name, type in pairs(self._all_names) do
+		if current_names[managers.editor:get_real_name(name)] then
+			names[name] = current_names[managers.editor:get_real_name(name)]
 		end
-
 	end
-
 	self._current = names
 	return names
 end
@@ -950,7 +804,6 @@ function GlobalSelectUnit:on_reload()
 		local name = managers.editor:get_real_name(self._units:get_item_data(i))
 		managers.editor:reload_units({name})
 	end
-
 end
 
 function GlobalSelectUnit:on_select_unit_dialog(units)
@@ -959,7 +812,6 @@ function GlobalSelectUnit:on_select_unit_dialog(units)
 		local name = managers.editor:get_real_name(units:get_item_data(i))
 		managers.editor:output(managers.editor:select_unit_name(name))
 	end
-
 end
 
 function GlobalSelectUnit:update_list(current)
@@ -968,9 +820,7 @@ function GlobalSelectUnit:update_list(current)
 	self._units:delete_all_items()
 	if self._only_list_used_units then
 		current = current or self:_current_unit_names()
-		local (for generator), (for state), (for control) = pairs(current)
-		do
-			do break end
+		for name, _ in pairs(current) do
 			local type = self._all_names[name]
 			if self._layer_cbs[type]:get_value() then
 				local stripped_name = self._short_name:get_value() and self:_stripped_unit_name(name) or name
@@ -978,82 +828,55 @@ function GlobalSelectUnit:update_list(current)
 					local i = self._units:append_item(stripped_name)
 					self._units:set_item_data(i, name)
 				end
-
 			end
-
 		end
-
 	else
-		local (for generator), (for state), (for control) = pairs(self._all_names)
-		do
-			do break end
+		for name, type in pairs(self._all_names) do
 			if self._layer_cbs[type]:get_value() then
 				local stripped_name = self._short_name:get_value() and self:_stripped_unit_name(name) or name
 				if string.find(stripped_name, filter, 1, true) then
 					local i = self._units:append_item(stripped_name)
 					self._units:set_item_data(i, name)
 				end
-
 			end
-
 		end
-
 	end
-
 	self._units:thaw()
 	self._units:autosize_column(0)
 end
 
 function GlobalSelectUnit:spawned_unit(unit)
 	if self._only_list_used_units then
-		do
-			local (for generator), (for state), (for control) = pairs(self._current)
-			do
-				do break end
-				if unit:name():s() == managers.editor:get_real_name(name) then
-					self._current[name] = self._current[name] + 1
-					self:update_list(self._current)
-					return
-				end
-
+		for name, _ in pairs(self._current) do
+			if unit:name():s() == managers.editor:get_real_name(name) then
+				self._current[name] = self._current[name] + 1
+				self:update_list(self._current)
+				return
 			end
-
 		end
-
-		local (for generator), (for state), (for control) = pairs(self._all_names)
-		do
-			do break end
+		for name, type in pairs(self._all_names) do
 			if unit:name():s() == managers.editor:get_real_name(name) then
 				self._current[name] = 1
 				self:update_list(self._current)
 				return
 			end
-
 		end
-
 	end
-
 end
 
 function GlobalSelectUnit:deleted_unit(unit)
 	if self._only_list_used_units then
-		local (for generator), (for state), (for control) = pairs(self._current)
-		do
-			do break end
+		for name, _ in pairs(self._current) do
 			if unit:name():s() == managers.editor:get_real_name(name) then
 				self._current[name] = self._current[name] - 1
 				if self._current[name] == 0 then
 					self._current[name] = nil
 				end
-
 				self:update_list(self._current)
 				return
 			end
-
 		end
-
 	end
-
 end
 
 function GlobalSelectUnit:set_visible(...)
@@ -1067,41 +890,23 @@ function GlobalSelectUnit:reset()
 end
 
 function GlobalSelectUnit:on_all_layers()
-	do
-		local (for generator), (for state), (for control) = pairs(self._layer_cbs)
-		do
-			do break end
-			cb:set_value(true)
-		end
-
+	for name, cb in pairs(self._layer_cbs) do
+		cb:set_value(true)
 	end
-
 	self:update_list()
 end
 
 function GlobalSelectUnit:on_none_layers()
-	do
-		local (for generator), (for state), (for control) = pairs(self._layer_cbs)
-		do
-			do break end
-			cb:set_value(false)
-		end
-
+	for name, cb in pairs(self._layer_cbs) do
+		cb:set_value(false)
 	end
-
 	self:update_list()
 end
 
 function GlobalSelectUnit:on_invert_layers()
-	do
-		local (for generator), (for state), (for control) = pairs(self._layer_cbs)
-		do
-			do break end
-			cb:set_value(not cb:get_value())
-		end
-
+	for name, cb in pairs(self._layer_cbs) do
+		cb:set_value(not cb:get_value())
 	end
-
 	self:update_list()
 end
 
@@ -1116,53 +921,32 @@ function ReplaceUnit:init(name, types)
 	local notebook = EWS:Notebook(self._panel, "", "NB_TOP,NB_MULTILINE")
 	self._panel_sizer:add(notebook, 1, 0, "EXPAND")
 	local category_map = {}
-	do
-		local (for generator), (for state), (for control) = pairs(types)
-		do
-			do break end
-			category_map[t] = {}
-			local (for generator), (for state), (for control) = ipairs(managers.database:list_units_of_type(t))
-			do
-				do break end
-				category_map[t][unit_name] = CoreEngineAccess._editor_unit_data(unit_name:id())
-			end
-
+	for _, t in pairs(types) do
+		category_map[t] = {}
+		for _, unit_name in ipairs(managers.database:list_units_of_type(t)) do
+			category_map[t][unit_name] = CoreEngineAccess._editor_unit_data(unit_name:id())
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(category_map)
-		do
-			do break end
-			local panel = EWS:Panel(notebook, "", "TAB_TRAVERSAL")
-			local units_sizer = EWS:BoxSizer("VERTICAL")
-			panel:set_sizer(units_sizer)
-			units_sizer:add(EWS:StaticText(panel, "Filter", 0, ""), 0, 0, "ALIGN_CENTER_HORIZONTAL")
-			local unit_filter = EWS:TextCtrl(panel, "", "", "TE_CENTRE")
-			units_sizer:add(unit_filter, 0, 0, "EXPAND")
-			local units = EWS:ListBox(panel, "", "LB_SINGLE,LB_HSCROLL,LB_NEEDED_SB,LB_SORT")
-			do
-				local (for generator), (for state), (for control) = pairs(names)
-				do
-					do break end
-					units:append(name)
-				end
-
-			end
-
-			units_sizer:add(units, 1, 0, "EXPAND")
-			units:connect("EVT_COMMAND_LISTBOX_SELECTED", callback(self, self, "replace_unit_name"), units)
-			unit_filter:connect("EVT_COMMAND_TEXT_UPDATED", callback(self, self, "update_filter"), {
-				filter = unit_filter,
-				units = units,
-				names = names
-			})
-			notebook:add_page(panel, managers.editor:category_name(c), true)
+	for c, names in pairs(category_map) do
+		local panel = EWS:Panel(notebook, "", "TAB_TRAVERSAL")
+		local units_sizer = EWS:BoxSizer("VERTICAL")
+		panel:set_sizer(units_sizer)
+		units_sizer:add(EWS:StaticText(panel, "Filter", 0, ""), 0, 0, "ALIGN_CENTER_HORIZONTAL")
+		local unit_filter = EWS:TextCtrl(panel, "", "", "TE_CENTRE")
+		units_sizer:add(unit_filter, 0, 0, "EXPAND")
+		local units = EWS:ListBox(panel, "", "LB_SINGLE,LB_HSCROLL,LB_NEEDED_SB,LB_SORT")
+		for name, _ in pairs(names) do
+			units:append(name)
 		end
-
+		units_sizer:add(units, 1, 0, "EXPAND")
+		units:connect("EVT_COMMAND_LISTBOX_SELECTED", callback(self, self, "replace_unit_name"), units)
+		unit_filter:connect("EVT_COMMAND_TEXT_UPDATED", callback(self, self, "update_filter"), {
+			filter = unit_filter,
+			units = units,
+			names = names
+		})
+		notebook:add_page(panel, managers.editor:category_name(c), true)
 	end
-
 	local btn_sizer = EWS:BoxSizer("HORIZONTAL")
 	local ok_btn = EWS:Button(self._panel, "OK", "_ok_dialog", "BU_EXACTFIT,NO_BORDER")
 	ok_btn:connect("EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "close_replace_unit"), {value = true})
@@ -1180,21 +964,16 @@ function ReplaceUnit:replace_unit_name(units)
 	if i > -1 then
 		self._replace_unit_name = units:get_string(i)
 	end
-
 end
 
 function ReplaceUnit:update_filter(data)
 	local filter = data.filter:get_value()
 	data.units:clear()
-	local (for generator), (for state), (for control) = pairs(data.names)
-	do
-		do break end
+	for name, _ in pairs(data.names) do
 		if string.find(name, filter) then
 			data.units:append(name)
 		end
-
 	end
-
 end
 
 function ReplaceUnit:close_replace_unit(data)
@@ -1206,7 +985,6 @@ function ReplaceUnit:result()
 	if self._made_replace_choice and self._replace_unit_name then
 		return self._replace_unit_name
 	end
-
 	return false
 end
 
@@ -1261,15 +1039,9 @@ end
 
 function LayerReplaceUnit:_all_unit_names(layer)
 	local names = {}
-	do
-		local (for generator), (for state), (for control) = pairs(layer:get_unit_map())
-		do
-			do break end
-			table.insert(names, unit_name)
-		end
-
+	for unit_name, _ in pairs(layer:get_unit_map()) do
+		table.insert(names, unit_name)
 	end
-
 	table.sort(names)
 	return names
 end
@@ -1282,35 +1054,20 @@ function LayerReplaceUnit:replace_unit(data)
 			local name = managers.editor:get_real_name(units:get_string(i))
 			self._layer:replace_unit(name, data.all)
 		end
-
 	end
-
 end
 
 function LayerReplaceUnit:_current_unit_names()
 	local current_names = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._layer:created_units())
-		do
-			do break end
-			current_names[unit:name():s()] = (current_names[unit:name():s()] or 0) + 1
-		end
-
+	for _, unit in ipairs(self._layer:created_units()) do
+		current_names[unit:name():s()] = (current_names[unit:name():s()] or 0) + 1
 	end
-
 	local names = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._all_names)
-		do
-			do break end
-			if current_names[managers.editor:get_real_name(name)] then
-				names[name] = current_names[managers.editor:get_real_name(name)]
-			end
-
+	for _, name in ipairs(self._all_names) do
+		if current_names[managers.editor:get_real_name(name)] then
+			names[name] = current_names[managers.editor:get_real_name(name)]
 		end
-
 	end
-
 	self._current = names
 	return names
 end
@@ -1325,27 +1082,18 @@ function LayerReplaceUnit:update_list(current)
 	self._units:clear()
 	if self._only_list_used_units then
 		current = current or self:_current_unit_names()
-		local (for generator), (for state), (for control) = pairs(current)
-		do
-			do break end
+		for name, _ in pairs(current) do
 			if string.find(name, filter) then
 				self._units:append(name)
 			end
-
 		end
-
 	else
-		local (for generator), (for state), (for control) = ipairs(self._all_names)
-		do
-			do break end
+		for _, name in ipairs(self._all_names) do
 			if string.find(name, filter) then
 				self._units:append(name)
 			end
-
 		end
-
 	end
-
 end
 
 function LayerReplaceUnit:set_visible(visible)
@@ -1355,54 +1103,36 @@ end
 
 function LayerReplaceUnit:spawned_unit(unit)
 	if self._only_list_used_units then
-		do
-			local (for generator), (for state), (for control) = pairs(self._current)
-			do
-				do break end
-				if unit:name():s() == managers.editor:get_real_name(name) then
-					self._current[name] = self._current[name] + 1
-					self:update_list(self._current)
-					return
-				end
-
+		for name, _ in pairs(self._current) do
+			if unit:name():s() == managers.editor:get_real_name(name) then
+				self._current[name] = self._current[name] + 1
+				self:update_list(self._current)
+				return
 			end
-
 		end
-
-		local (for generator), (for state), (for control) = ipairs(self._all_names)
-		do
-			do break end
+		for _, name in ipairs(self._all_names) do
 			if unit:name():s() == managers.editor:get_real_name(name) then
 				self._current[name] = 1
 				self:update_list(self._current)
 				return
 			end
-
 		end
-
 	end
-
 end
 
 function LayerReplaceUnit:deleted_unit(unit)
 	if self._only_list_used_units then
-		local (for generator), (for state), (for control) = pairs(self._current)
-		do
-			do break end
+		for name, _ in pairs(self._current) do
 			if unit:name():s() == managers.editor:get_real_name(name) then
 				self._current[name] = self._current[name] - 1
 				if self._current[name] == 0 then
 					self._current[name] = nil
 				end
-
 				self:update_list(self._current)
 				return
 			end
-
 		end
-
 	end
-
 end
 
 function LayerReplaceUnit:reset()
@@ -1442,14 +1172,12 @@ function MoveTransformTypeIn:_create_ctrl(name, coor, value, type, sizer)
 		ctrl:connect("EVT_COMMAND_TEXT_ENTER", callback(self, self, "update_absolut"), {ctrl = ctrl, coor = coor})
 		ctrl:connect("EVT_KILL_FOCUS", callback(self, self, "update_absolut"), {ctrl = ctrl, coor = coor})
 	end
-
 	ctrl_sizer:add(ctrl, 1, 0, "EXPAND")
 	local spin = EWS:SpinButton(self._panel, "", "SP_VERTICAL")
 	local c = ctrl
 	if type == "offset" then
 		c = self["_a" .. coor]
 	end
-
 	spin:connect("EVT_SCROLL_LINEUP", callback(self, self, "update_spin"), {
 		ctrl = c,
 		coor = coor,
@@ -1469,7 +1197,6 @@ function MoveTransformTypeIn:update_spin(data)
 	if not tonumber(data.ctrl:get_value()) then
 		data.ctrl:set_value(0)
 	end
-
 	data.ctrl:set_value(string.format("%.2f", data.ctrl:get_value() + data.step))
 	self:update_absolut(data)
 end
@@ -1479,7 +1206,6 @@ function MoveTransformTypeIn:update_absolut(data)
 	if self._min == value then
 		return
 	end
-
 	value = value * 100
 	if alive(self._unit) then
 		local pos = self._unit:position()
@@ -1488,7 +1214,6 @@ function MoveTransformTypeIn:update_absolut(data)
 		data.ctrl:set_selection(-1, -1)
 		managers.editor:set_selected_units_position(pos)
 	end
-
 end
 
 function MoveTransformTypeIn:update_offset(data, event)
@@ -1500,14 +1225,12 @@ function MoveTransformTypeIn:update_offset(data, event)
 		if local_rot then
 			rot = self._unit:rotation()
 		end
-
 		value = value * 100
 		pos = pos + rot[data.coor](rot) * value
 		managers.editor:set_selected_units_position(pos)
 		data.ctrl:change_value(0)
 		data.ctrl:set_selection(-1, -1)
 	end
-
 end
 
 function MoveTransformTypeIn:set_unit(unit)
@@ -1521,17 +1244,13 @@ function MoveTransformTypeIn:update(t, dt)
 		if not self._ax:in_focus() then
 			self._ax:change_value(string.format("%.2f", pos.x / 100))
 		end
-
 		if not self._ay:in_focus() then
 			self._ay:change_value(string.format("%.2f", pos.y / 100))
 		end
-
 		if not self._az:in_focus() then
 			self._az:change_value(string.format("%.2f", pos.z / 100))
 		end
-
 	end
-
 end
 
 RotateTransformTypeIn = RotateTransformTypeIn or class(CoreEditorEwsDialog)
@@ -1567,14 +1286,12 @@ function RotateTransformTypeIn:_create_ctrl(name, coor, value, type, sizer)
 		ctrl:connect("EVT_COMMAND_TEXT_ENTER", callback(self, self, "update_absolut"), {ctrl = ctrl, coor = coor})
 		ctrl:connect("EVT_KILL_FOCUS", callback(self, self, "update_absolut"), {ctrl = ctrl, coor = coor})
 	end
-
 	ctrl_sizer:add(ctrl, 1, 0, "EXPAND")
 	local spin = EWS:SpinButton(self._panel, "", "SP_VERTICAL")
 	local c = ctrl
 	if type == "offset" then
 		c = self["_a" .. coor]
 	end
-
 	spin:connect("EVT_SCROLL_LINEUP", callback(self, self, "update_spin"), {
 		ctrl = c,
 		coor = coor,
@@ -1594,7 +1311,6 @@ function RotateTransformTypeIn:update_spin(data)
 	if not tonumber(data.ctrl:get_value()) then
 		data.ctrl:set_value(0)
 	end
-
 	data.ctrl:set_value(string.format("%.2f", data.ctrl:get_value() + data.step))
 	self:update_absolut(data)
 end
@@ -1604,7 +1320,6 @@ function RotateTransformTypeIn:update_absolut(data)
 	if self._min == value then
 		return
 	end
-
 	if alive(self._unit) then
 		local rot = self._unit:rotation()
 		if data.coor == "x" then
@@ -1614,12 +1329,10 @@ function RotateTransformTypeIn:update_absolut(data)
 		elseif data.coor == "z" then
 			rot = Rotation(rot:yaw(), rot:pitch(), value)
 		end
-
 		data.ctrl:change_value(string.format("%.2f", value))
 		data.ctrl:set_selection(-1, -1)
 		managers.editor:set_selected_units_rotation(rot * self._unit:rotation():inverse())
 	end
-
 end
 
 function RotateTransformTypeIn:update_offset(data, event)
@@ -1632,13 +1345,11 @@ function RotateTransformTypeIn:update_offset(data, event)
 		if local_rot then
 			rot_axis = u_rot[data.coor](u_rot)
 		end
-
 		rot = Rotation(rot_axis, value)
 		managers.editor:set_selected_units_rotation(rot)
 		data.ctrl:change_value(0)
 		data.ctrl:set_selection(-1, -1)
 	end
-
 end
 
 function RotateTransformTypeIn:set_unit(unit)
@@ -1652,17 +1363,13 @@ function RotateTransformTypeIn:update(t, dt)
 		if not self._ax:in_focus() then
 			self._ax:change_value(string.format("%.2f", rot:yaw()))
 		end
-
 		if not self._ay:in_focus() then
 			self._ay:change_value(string.format("%.2f", rot:pitch()))
 		end
-
 		if not self._az:in_focus() then
 			self._az:change_value(string.format("%.2f", rot:roll()))
 		end
-
 	end
-
 end
 
 CameraTransformTypeIn = CameraTransformTypeIn or class(CoreEditorEwsDialog)
@@ -1752,7 +1459,6 @@ function CameraTransformTypeIn:_create_ctrl(name, coor, value, type, sizer)
 			step = -10
 		})
 	end
-
 	ctrl_sizer:add(ctrl, 1, 0, "EXPAND")
 	ctrl_sizer:add(spin, 0, 0, "EXPAND")
 	sizer:add(ctrl_sizer, 1, 10, "EXPAND,LEFT,RIGHT")
@@ -1763,7 +1469,6 @@ function CameraTransformTypeIn:update_position_spin(data)
 	if not tonumber(data.ctrl:get_value()) then
 		data.ctrl:set_value(0)
 	end
-
 	data.ctrl:set_value(string.format("%.0f", data.ctrl:get_value() + data.step))
 	self:update_position(data)
 end
@@ -1772,7 +1477,6 @@ function CameraTransformTypeIn:update_rotation_spin(data)
 	if not tonumber(data.ctrl:get_value()) then
 		data.ctrl:set_value(0)
 	end
-
 	data.ctrl:set_value(string.format("%.0f", data.ctrl:get_value() + data.step))
 	self:update_rotation(data)
 end
@@ -1782,7 +1486,6 @@ function CameraTransformTypeIn:update_position(data)
 	if self._min == value then
 		return
 	end
-
 	local pos = managers.editor:camera_position()
 	pos = pos["with_" .. data.coor](pos, value)
 	data.ctrl:set_value(string.format("%.0f", value))
@@ -1795,7 +1498,6 @@ function CameraTransformTypeIn:update_rotation(data)
 	if self._min == value then
 		return
 	end
-
 	local rot = managers.editor:camera_rotation()
 	if data.coor == "x" then
 		rot = Rotation(value, rot:pitch(), rot:roll())
@@ -1804,7 +1506,6 @@ function CameraTransformTypeIn:update_rotation(data)
 	elseif data.coor == "z" then
 		rot = Rotation(rot:yaw(), rot:pitch(), value)
 	end
-
 	data.ctrl:set_value(string.format("%.0f", value))
 	data.ctrl:set_selection(-1, -1)
 	managers.editor:set_camera(managers.editor:camera_position(), rot)
@@ -1823,7 +1524,6 @@ function CameraTransformTypeIn:update_far_range()
 	if value < 1 then
 		value = 1 or value
 	end
-
 	value = value * 100
 	self._far_range:set_value(string.format("%.2f", value / 100))
 	self._far_range:set_selection(-1, -1)
@@ -1835,36 +1535,28 @@ function CameraTransformTypeIn:update(t, dt)
 	if not self._ax:in_focus() then
 		self._ax:set_value(string.format("%.0f", pos.x))
 	end
-
 	if not self._ay:in_focus() then
 		self._ay:set_value(string.format("%.0f", pos.y))
 	end
-
 	if not self._az:in_focus() then
 		self._az:set_value(string.format("%.0f", pos.z))
 	end
-
 	local rot = managers.editor:camera_rotation()
 	if not self._ox:in_focus() then
 		self._ox:set_value(string.format("%.0f", rot:yaw()))
 	end
-
 	if not self._oy:in_focus() then
 		self._oy:set_value(string.format("%.0f", rot:pitch()))
 	end
-
 	if not self._oz:in_focus() then
 		self._oz:set_value(string.format("%.0f", rot:roll()))
 	end
-
 	if not self._fov:in_focus() then
 		self._fov:change_value(string.format("%.0f", managers.editor:camera_fov()))
 	end
-
 	if not self._far_range:in_focus() then
 		self._far_range:change_value(string.format("%.2f", managers.editor:camera_far_range() / 100))
 	end
-
 end
 
 EditControllerBindings = EditControllerBindings or class(CoreEditorEwsDialog)
@@ -1890,7 +1582,6 @@ function EditControllerBindings:init(...)
 	for i = 0, self._list:column_count() - 1 do
 		self._list:autosize_column(i)
 	end
-
 	self._list:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")
 	local button_sizer = EWS:BoxSizer("HORIZONTAL")
 	local cancel_btn = EWS:Button(self._panel, "Cancel", "", "")
@@ -1904,23 +1595,14 @@ end
 
 function EditControllerBindings:add_list(list)
 	local names = {}
-	do
-		local (for generator), (for state), (for control) = pairs(list)
-		do
-			do break end
-			table.insert(names, name)
-		end
-
+	for name, _ in pairs(list) do
+		table.insert(names, name)
 	end
-
 	table.sort(names)
-	local (for generator), (for state), (for control) = ipairs(names)
-	do
-		do break end
+	for _, name in ipairs(names) do
 		local i = self._list:append_item(name)
 		self._list:set_item(i, 1, list[name])
 	end
-
 end
 
 MissionGraph = MissionGraph or class(CoreEditorEwsDialog)
@@ -1930,34 +1612,19 @@ function MissionGraph:init(...)
 	self._graph = EWS:Graph()
 	self._graph_view = EWS:GraphView(self._panel, "", self._graph)
 	self._nodes = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.editor._layers.Mission:created_units())
-		do
-			do break end
-			local node = EWS:Node(unit:unit_data().name_id, unit:position().x / 4, unit:position().y / 4 * -1)
-			self._nodes[unit:unit_data().unit_id] = node
-			self._graph:add_node(node)
-		end
-
+	for _, unit in ipairs(managers.editor._layers.Mission:created_units()) do
+		local node = EWS:Node(unit:unit_data().name_id, unit:position().x / 4, unit:position().y / 4 * -1)
+		self._nodes[unit:unit_data().unit_id] = node
+		self._graph:add_node(node)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.editor._layers.Mission:created_units())
-		do
-			do break end
-			local node = self._nodes[unit:unit_data().unit_id]
-			local (for generator), (for state), (for control) = ipairs(unit:mission_element_data().on_executed)
-			do
-				do break end
-				local e_node = self._nodes[data.id]
-				e_node:set_colour(0, 1, 0)
-				node:set_target(node:free_slot(), e_node, "on_executed")
-			end
-
+	for _, unit in ipairs(managers.editor._layers.Mission:created_units()) do
+		local node = self._nodes[unit:unit_data().unit_id]
+		for _, data in ipairs(unit:mission_element_data().on_executed) do
+			local e_node = self._nodes[data.id]
+			e_node:set_colour(0, 1, 0)
+			node:set_target(node:free_slot(), e_node, "on_executed")
 		end
-
 	end
-
 	self._graph_view:pan_to_selected(true)
 	self._graph_view:refresh()
 	self._panel_sizer:add(self._graph_view, 1, 0, "EXPAND")
@@ -2003,7 +1670,6 @@ function WorldEditorNews:set_visible(visible)
 		self._cancel_btn:set_caption(self._captions[math.random(#self._captions)])
 		self._panel:layout()
 	end
-
 	CoreEditorEwsDialog.set_visible(self, visible)
 end
 
@@ -2019,31 +1685,23 @@ function UnitDuality:init(collisions, pos)
 	local y_size = 0
 	local complete_sizer = EWS:StaticBoxSizer(self._panel, "VERTICAL", "Collisions with both position and rotation")
 	if 0 < #collisions.complete then
-		local (for generator), (for state), (for control) = ipairs(collisions.complete)
-		do
-			do break end
+		for _, collision in ipairs(collisions.complete) do
 			complete_sizer:add(self:build_collision(collision), 0, 0, "EXPAND")
 		end
-
 	else
 		complete_sizer:add(EWS:StaticText(self._panel, "No collisions found. Great!", 0, ""), 0, 5, "ALIGN_CENTER_HORIZONTAL,TOP,BOTTOM")
 		y_size = y_size + 25
 	end
-
 	self._panel_sizer:add(complete_sizer, 0, 0, "EXPAND")
 	local position_sizer = EWS:StaticBoxSizer(self._panel, "VERTICAL", "Collisions with only position")
 	if 0 < #collisions.only_positions then
-		local (for generator), (for state), (for control) = ipairs(collisions.only_positions)
-		do
-			do break end
+		for _, collision in ipairs(collisions.only_positions) do
 			position_sizer:add(self:build_collision(collision), 0, 0, "EXPAND")
 		end
-
 	else
 		position_sizer:add(EWS:StaticText(self._panel, "No collisions found. Great!", 0, ""), 0, 5, "ALIGN_CENTER_HORIZONTAL,TOP,BOTTOM")
 		y_size = y_size + 25
 	end
-
 	self._panel_sizer:add(position_sizer, 0, 0, "EXPAND")
 	local button_sizer = EWS:BoxSizer("HORIZONTAL")
 	self._check_btn = EWS:Button(self._panel, "Check Again", "", "")
@@ -2112,7 +1770,6 @@ function UnitDuality:goto(collision)
 	if not alive(u1) then
 		return
 	end
-
 	managers.editor:center_view_on_unit(u1)
 end
 
@@ -2120,7 +1777,6 @@ function UnitDuality:delete_unit(data)
 	if alive(data.unit) then
 		managers.editor:delete_unit(data.unit)
 	end
-
 	data.text:set_value("DELETED")
 	data.panel:set_enabled(false)
 end

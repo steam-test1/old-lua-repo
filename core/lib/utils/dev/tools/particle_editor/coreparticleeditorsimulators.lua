@@ -259,7 +259,6 @@ keys - use key curve over time]]
 			ret.message = "Invalid particle lifetime, can be < 0 (infinite) or > 0"
 			ret.valid = false
 		end
-
 		return ret
 	end
 

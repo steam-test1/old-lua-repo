@@ -26,7 +26,6 @@ function MenuItemCustomizeController:reload(row_item, node)
 	else
 		row_item.controller_binding:set_text(string.upper(self:parameters().binding))
 	end
-
 	return true
 end
 

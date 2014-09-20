@@ -39,15 +39,11 @@ function CoreCutsceneOptimizer:_write_cutscene_xml(path, animation_blobs)
 	cutscene_node:set_parameter("frames", tostring(self:frame_count()))
 	if not table.empty(animation_blobs) then
 		local animation_blobs_node = cutscene_node:make_child("animation_blobs")
-		local (for generator), (for state), (for control) = ipairs(animation_blobs)
-		do
-			do break end
+		for _, animation_blob in ipairs(animation_blobs) do
 			local part_node = animation_blobs_node:make_child("part")
 			part_node:set_parameter("animation_blob", animation_blob)
 		end
-
 	end
-
 	if not table.empty(self:_all_controlled_unit_names(true)) then
 		do
 			local controlled_units_node = cutscene_node:make_child("controlled_units")
@@ -59,38 +55,24 @@ function CoreCutsceneOptimizer:_write_cutscene_xml(path, animation_blobs)
 				if unit_is_patched then
 					unit_node:set_parameter("blend_set", "patched")
 				end
-
 			end
 
 			if self:_has_cameras() then
 				add_controlled_unit("locator", "camera")
 			end
-
-			local (for generator), (for state), (for control) = ipairs(self:_all_controlled_unit_names())
-			do
-				do break end
+			for _, unit_name in ipairs(self:_all_controlled_unit_names()) do
 				local unit_type = self:_all_controlled_unit_types()[unit_name]
 				add_controlled_unit(unit_type, unit_name)
 			end
-
 		end
-
 	end
-
 	local keys_node = cutscene_node:make_child("keys")
 	if self:_has_cameras() then
 		CoreCutsceneKey:create(CoreChangeCameraCutsceneKey.ELEMENT_NAME):_save_under(keys_node)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self.__cutscene_keys)
-		do
-			do break end
-			cutscene_key:_save_under(keys_node)
-		end
-
+	for _, cutscene_key in ipairs(self.__cutscene_keys) do
+		cutscene_key:_save_under(keys_node)
 	end
-
 	self:_add_unit_visibility_keys(keys_node)
 	self:_add_discontinuity_keys(keys_node)
 	managers.database:save_node(cutscene_node, path)
@@ -99,72 +81,59 @@ end
 function CoreCutsceneOptimizer:_add_unit_visibility_keys(keys_node)
 	local unit_names = self:_all_controlled_unit_names()
 	local was_visible = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(unit_names)
-		do
-			do break end
-			was_visible[unit_name] = true
-		end
-
+	for _, unit_name in ipairs(unit_names) do
+		was_visible[unit_name] = true
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.__clips)
-	do
-		do break end
-		local cutscene = clip:metadata():footage()._cutscene
-		local (for generator), (for state), (for control) = ipairs(unit_names)
+	for _, clip in ipairs(self.__clips) do
 		do
-			do break end
-			local existing_visibility_key = table.find_value(self.__cutscene_keys, function(key)
-				return key:frame() == clip:start_time() and key.ELEMENT_NAME == CoreUnitVisibleCutsceneKey.ELEMENT_NAME and key:unit_name() == unit_name
-			end
-)
-			if existing_visibility_key then
-				was_visible[unit_name] = existing_visibility_key:visible()
-			else
-				local visible = cutscene:animation_for_unit(unit_name) ~= nil
-				if visible ~= was_visible[unit_name] then
-					local visibility_key = CoreCutsceneKey:create(CoreUnitVisibleCutsceneKey.ELEMENT_NAME)
-					function visibility_key.is_valid_unit_name()
-						return true
+			local cutscene = clip:metadata():footage()._cutscene
+			for _, unit_name in ipairs(unit_names) do
+				do
+					local existing_visibility_key = table.find_value(self.__cutscene_keys, function(key)
+						return key:frame() == clip:start_time() and key.ELEMENT_NAME == CoreUnitVisibleCutsceneKey.ELEMENT_NAME and key:unit_name() == unit_name
 					end
+)
+					if existing_visibility_key then
+						was_visible[unit_name] = existing_visibility_key:visible()
+					else
+						local visible = cutscene:animation_for_unit(unit_name) ~= nil
+						if visible ~= was_visible[unit_name] then
+							local visibility_key = CoreCutsceneKey:create(CoreUnitVisibleCutsceneKey.ELEMENT_NAME)
+							function visibility_key.is_valid_unit_name()
+								return true
+							end
 
-					visibility_key:set_frame(clip:start_time())
-					visibility_key:set_unit_name(unit_name)
-					visibility_key:set_visible(visible)
-					visibility_key:_save_under(keys_node)
-					was_visible[unit_name] = visible
+							visibility_key:set_frame(clip:start_time())
+							visibility_key:set_unit_name(unit_name)
+							visibility_key:set_visible(visible)
+							visibility_key:_save_under(keys_node)
+							was_visible[unit_name] = visible
+						end
+					end
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function CoreCutsceneOptimizer:_add_discontinuity_keys(keys_node)
 	local previous_clip
-	local (for generator), (for state), (for control) = ipairs(self.__clips)
-	do
-		do break end
-		if previous_clip == nil or clip:metadata():footage() ~= previous_clip:metadata():footage() or clip:start_time_in_source() ~= previous_clip:end_time_in_source() then
-			local existing_discontinuity_key = table.find_value(self.__cutscene_keys, function(key)
-				return key:frame() == clip:start_time() and key.ELEMENT_NAME == CoreDiscontinuityCutsceneKey.ELEMENT_NAME
-			end
+	for _, clip in ipairs(self.__clips) do
+		do
+			if previous_clip == nil or clip:metadata():footage() ~= previous_clip:metadata():footage() or clip:start_time_in_source() ~= previous_clip:end_time_in_source() then
+				local existing_discontinuity_key = table.find_value(self.__cutscene_keys, function(key)
+					return key:frame() == clip:start_time() and key.ELEMENT_NAME == CoreDiscontinuityCutsceneKey.ELEMENT_NAME
+				end
 )
-			if existing_discontinuity_key == nil then
-				local discontinuity_key = CoreCutsceneKey:create(CoreDiscontinuityCutsceneKey.ELEMENT_NAME)
-				discontinuity_key:set_frame(clip:start_time())
-				discontinuity_key:_save_under(keys_node)
+				if existing_discontinuity_key == nil then
+					local discontinuity_key = CoreCutsceneKey:create(CoreDiscontinuityCutsceneKey.ELEMENT_NAME)
+					discontinuity_key:set_frame(clip:start_time())
+					discontinuity_key:_save_under(keys_node)
+				end
 			end
-
+			previous_clip = clip
 		end
-
-		previous_clip = clip
 	end
-
 end
 
 function CoreCutsceneOptimizer:_write_cutscene_unit_xml(path)
@@ -186,34 +155,20 @@ end
 
 function CoreCutsceneOptimizer:_create_merged_animation()
 	local unit_animation_map = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self:_all_controlled_unit_names())
-		do
-			do break end
-			unit_animation_map[unit_name] = self:_get_final_animation(unit_name)
-		end
-
+	for _, unit_name in ipairs(self:_all_controlled_unit_names()) do
+		unit_animation_map[unit_name] = self:_get_final_animation(unit_name)
 	end
-
 	if self:_has_cameras() then
 		unit_animation_map.camera = self:_get_joined_camera_animation()
 	end
-
 	local merged_animation
-	do
-		local (for generator), (for state), (for control) = pairs(unit_animation_map)
-		do
-			do break end
-			local prefixed_animation = AnimationCutter:add_prefix(animation, unit_name)
-			merged_animation = merged_animation and self:_process_animation("merge", merged_animation, prefixed_animation) or prefixed_animation
-			if merged_animation ~= prefixed_animation then
-				prefixed_animation:free()
-			end
-
+	for unit_name, animation in pairs(unit_animation_map) do
+		local prefixed_animation = AnimationCutter:add_prefix(animation, unit_name)
+		merged_animation = merged_animation and self:_process_animation("merge", merged_animation, prefixed_animation) or prefixed_animation
+		if merged_animation ~= prefixed_animation then
+			prefixed_animation:free()
 		end
-
 	end
-
 	return merged_animation
 end
 
@@ -241,38 +196,26 @@ function CoreCutsceneOptimizer:_write_animation_blobs(full_animation, dest, part
 		start_time = start_time + self.ANIMATION_BLOB_PART_DURATION
 		index = index + 1
 	end
-
 	return animation_blob_names
 end
 
 function CoreCutsceneOptimizer:_write_animation_part(dest, path, animation, compressed_animation)
 	local platforms_to_export = {}
 	local base_path = path
-	do
-		local (for generator), (for state), (for control) = pairs(self.__compression_enabled)
-		do
-			do break end
-			if string.find(base_path, "%." .. platform .. "%.") then
-				table.insert(platforms_to_export, platform)
-				base_path = string.gsub(base_path, "%." .. platform .. "%.", ".")
-			end
-
+	for platform, _ in pairs(self.__compression_enabled) do
+		if string.find(base_path, "%." .. platform .. "%.") then
+			table.insert(platforms_to_export, platform)
+			base_path = string.gsub(base_path, "%." .. platform .. "%.", ".")
 		end
-
 	end
-
 	if #platforms_to_export == 0 then
 		platforms_to_export = table.map_keys(self.__compression_enabled)
 	end
-
-	local (for generator), (for state), (for control) = ipairs(platforms_to_export)
-	do
-		do break end
+	for _, platform in ipairs(platforms_to_export) do
 		local use_compressed = self.__compression_enabled[platform]
 		local save_func = platform == "win32" and AnimationCutter.save or AnimationCutter.save_cross_compiled
 		save_func(AnimationCutter, use_compressed and compressed_animation or animation, path)
 	end
-
 end
 
 function CoreCutsceneOptimizer:_problem_map()
@@ -284,7 +227,6 @@ function CoreCutsceneOptimizer:_problem_map()
 	if self:contains_optimized_footage() then
 		add_problem("Projects with optimized clips are not currently supported.")
 	end
-
 	return problem_map
 end
 

@@ -33,19 +33,16 @@ function CopActionDodge:init(action_desc, common_data)
 		if action_desc.speed then
 			self._machine:set_speed(redir_res, action_desc.speed)
 		end
-
 		self._machine:set_parameter(redir_res, action_desc.side, 1)
 		if Network:is_server() then
 			common_data.ext_network:send("action_dodge_start", CopActionDodge._get_variation_index(action_desc.variation), CopActionDodge._get_side_index(action_desc.side), Rotation(action_desc.direction, math.UP):yaw(), action_desc.speed or 1)
 		end
-
 		self._ext_movement:enable_update()
 		return true
 	else
 		debug_pause_unit(self._unit, "[CopActionDodge:init] redirect", redir_name, "failed in", self._machine:segment_state(Idstring("base")), common_data.unit)
 		return
 	end
-
 end
 
 function CopActionDodge:on_exit()
@@ -54,7 +51,6 @@ function CopActionDodge:on_exit()
 	elseif not self._expired then
 		self._common_data.ext_network:send("action_dodge_end")
 	end
-
 end
 
 function CopActionDodge:update(t)
@@ -72,18 +68,15 @@ function CopActionDodge:update(t)
 			else
 				new_rot = self._rot_transition.start_rot:slerp(self._rot_transition.end_rot, rot_prog)
 			end
-
 		else
 			new_rot = self._unit:get_animation_delta_rotation()
 			new_rot = self._common_data.rot * new_rot
 			mrotation.set_yaw_pitch_roll(new_rot, new_rot:yaw(), 0, 0)
 		end
-
 		self._ext_movement:set_rotation(new_rot)
 	else
 		self._expired = true
 	end
-
 end
 
 function CopActionDodge:type()
@@ -102,7 +95,6 @@ function CopActionDodge:chk_block(action_type, t)
 	if action_type == "death" or action_type == "bleedout" or action_type == "fatal" then
 		return false
 	end
-
 	return true
 end
 
@@ -111,15 +103,11 @@ function CopActionDodge:timeout()
 end
 
 function CopActionDodge._get_variation_index(var_name)
-	local (for generator), (for state), (for control) = ipairs(CopActionDodge._VARIATIONS)
-	do
-		do break end
+	for index, test_var_name in ipairs(CopActionDodge._VARIATIONS) do
 		if var_name == test_var_name then
 			return index
 		end
-
 	end
-
 end
 
 function CopActionDodge.get_variation_name(var_index)
@@ -127,15 +115,11 @@ function CopActionDodge.get_variation_name(var_index)
 end
 
 function CopActionDodge._get_side_index(side_name)
-	local (for generator), (for state), (for control) = ipairs(CopActionDodge._SIDES)
-	do
-		do break end
+	for index, test_side_name in ipairs(CopActionDodge._SIDES) do
 		if side_name == test_side_name then
 			return index
 		end
-
 	end
-
 end
 
 function CopActionDodge.get_side_name(side_index)
@@ -152,7 +136,6 @@ function CopActionDodge:_determine_rotation_transition()
 	elseif wanted_side == "r" then
 		mrotation.set_yaw_pitch_roll(end_rot, mrotation.yaw(end_rot) + 90, 0, 0)
 	end
-
 	self._rot_transition = {
 		end_rot = end_rot,
 		start_rot = self._unit:rotation(),

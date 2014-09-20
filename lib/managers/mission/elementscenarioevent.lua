@@ -12,7 +12,6 @@ function ElementScenarioEvent:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	ElementScenarioEvent.super.on_executed(self, instigator)
 end
 

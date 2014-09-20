@@ -15,15 +15,9 @@ function CoreModule:init()
 	self.__pristine_G = {}
 	self.__pristine_closed = false
 	self.__obj2nametable = {}
-	do
-		local (for generator), (for state), (for control) = pairs(_G)
-		do
-			do break end
-			self.__pristine_G[k] = v
-		end
-
+	for k, v in pairs(_G) do
+		self.__pristine_G[k] = v
 	end
-
 	self.__pristine_G.core = self
 	return self
 end
@@ -45,7 +39,6 @@ function CoreModule:import(module_name)
 	else
 		error("Can't import module '" .. tostring(module_name) .. "'. It is not registred (is spelling correct?)")
 	end
-
 end
 
 function CoreModule:from_module_import(module_name, ...)
@@ -54,19 +47,15 @@ function CoreModule:from_module_import(module_name, ...)
 		require(fp)
 		local m = self.__modules[module_name]
 		assert(m, "Can't import. Please check statement core:module('" .. module_name .. "') in: " .. fp)
-		local (for generator), (for state), (for control) = ipairs({
+		for _, name in ipairs({
 			...
-		})
-		do
-			do break end
+		}) do
 			local v = assert(m[name], "Can't import name '" .. tostring(name) .. "' from module '" .. module_name .. "'")
 			rawset(getfenv(2), name, v)
 		end
-
 	else
 		error("Can't import module '" .. tostring(module_name) .. "'. It is not registred (is spelling correct?)")
 	end
-
 end
 
 function CoreModule:module(module_name)
@@ -90,12 +79,9 @@ end
 function CoreModule:_copy_module_to_global(module_name)
 	assert(not self.__pristine_closed)
 	local module = self:import(module_name)
-	local (for generator), (for state), (for control) = pairs(module)
-	do
-		do break end
+	for k, v in pairs(module) do
 		rawset(_G, k, v)
 	end
-
 end
 
 function CoreModule:_close_pristine_namespace(module_name)
@@ -110,7 +96,6 @@ function CoreModule:_get_module_name(module_file_path)
 		i = j + 1
 		j = string.find(module_file_path, "/", i, true)
 	end
-
 	local module_name = string.sub(module_file_path, i)
 	assert(module_name ~= "", string.format("Malformed module_file_path '%s'", module_file_path))
 	return module_name
@@ -125,27 +110,19 @@ function CoreModule:_lookup(object)
 	assert(Application:production_build(), "core:_lookup(...) is for debugging only!")
 	if not self.__obj2nametable[object] then
 		local function find(o, n, t)
-			local (for generator), (for state), (for control) = pairs(t)
-			do
-				do break end
+			for k, v in pairs(t) do
 				if v == o then
 					self.__obj2nametable[o] = {k, n}
 					return true
 				end
-
 			end
-
 		end
 
 		find(object, "_G", _G)
-		local (for generator), (for state), (for control) = pairs(self.__modules)
-		do
-			do break end
+		for n, m in pairs(self.__modules) do
 			find(object, n, m)
 		end
-
 	end
-
 	return unpack(self.__obj2nametable[object] or {"<notfound>", "<notfound>"})
 end
 
@@ -159,25 +136,16 @@ function CoreModule:_name_to_module(module_name)
 		else
 			error("Can't import module '" .. tostring(module_name) .. "'. It is not registred (is spelling correct?)")
 		end
-
 	end
-
 	return self.__modules[module_name]
 end
 
 function CoreModule:_module_to_name(module)
-	do
-		local (for generator), (for state), (for control) = pairs(self.__modules)
-		do
-			do break end
-			if m == module then
-				return n
-			end
-
+	for n, m in pairs(self.__modules) do
+		if m == module then
+			return n
 		end
-
 	end
-
 	error("Can't locate module")
 end
 
@@ -186,4 +154,3 @@ if _G.core == nil then
 else
 	_G.core:_prepare_reload()
 end
-

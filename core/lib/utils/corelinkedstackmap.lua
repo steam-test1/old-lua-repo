@@ -41,13 +41,11 @@ function LinkedStackMap:top_bottom_iterator()
 			else
 				return nil, nil
 			end
-
 		elseif self._top_link then
 			return self._top_link.id, self._top_link.value
 		else
 			return nil, nil
 		end
-
 	end
 
 	return func, self._linked_map, nil
@@ -62,13 +60,11 @@ function LinkedStackMap:bottom_top_iterator()
 			else
 				return nil, nil
 			end
-
 		elseif self._bottom_link then
 			return self._bottom_link.id, self._bottom_link.value
 		else
 			return nil, nil
 		end
-
 	end
 
 	return func, self._linked_map, nil
@@ -87,7 +83,6 @@ function LinkedStackMap:add(value)
 	else
 		self._bottom_link = link
 	end
-
 	self._top_link = link
 	return self._last_link_id
 end
@@ -100,22 +95,17 @@ function LinkedStackMap:remove(link_id)
 		if previous_link then
 			previous_link.next = next_link
 		end
-
 		if next_link then
 			next_link.previous = previous_link
 		end
-
 		if self._top_link == link then
 			self._top_link = previous_link
 		end
-
 		if self._bottom_link == link then
 			self._bottom_link = next_link
 		end
-
 		self._linked_map[link_id] = nil
 	end
-
 end
 
 function LinkedStackMap:to_string()
@@ -127,10 +117,8 @@ function LinkedStackMap:to_string()
 		else
 			string = string .. ", " .. tostring(link.value)
 		end
-
 		link = link.previous
 	end
-
 	return string
 end
 

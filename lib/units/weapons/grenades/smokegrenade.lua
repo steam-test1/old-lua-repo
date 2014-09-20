@@ -12,22 +12,17 @@ function SmokeGrenade:update(unit, t, dt)
 			self._smoke_timer = nil
 			World:effect_manager():fade_kill(self._smoke_effect)
 		end
-
 	end
-
 end
 
 function SmokeGrenade:_detonate()
 	local units = World:find_units("sphere", self._unit:position(), 400, self._slotmask)
-	local (for generator), (for state), (for control) = ipairs(units)
-	do
-		do break end
+	for _, unit in ipairs(units) do
 		local col_ray = {}
 		col_ray.ray = unit:position() - self._unit:position():normalized()
 		col_ray.position = self._unit:position()
 		self:_give_smoke_damage(col_ray, unit, 10)
 	end
-
 end
 
 function SmokeGrenade:_play_sound_and_effects()
@@ -52,7 +47,6 @@ function SmokeGrenade:destroy()
 	if self._smoke_effect then
 		World:effect_manager():kill(self._smoke_effect)
 	end
-
 	SmokeGrenade.super.destroy(self)
 end
 

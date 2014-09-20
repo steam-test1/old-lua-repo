@@ -31,30 +31,18 @@ function UnitByName:init(name, unit_filter_function, ...)
 	local layers_sizer = EWS:StaticBoxSizer(panel, "VERTICAL", "List Layers")
 	local layers = managers.editor:layers()
 	local names_layers = {}
-	do
-		local (for generator), (for state), (for control) = pairs(layers)
-		do
-			do break end
-			table.insert(names_layers, name)
-		end
-
+	for name, layer in pairs(layers) do
+		table.insert(names_layers, name)
 	end
-
 	table.sort(names_layers)
-	do
-		local (for generator), (for state), (for control) = ipairs(names_layers)
-		do
-			do break end
-			local cb = EWS:CheckBox(panel, name, "")
-			cb:set_value(true)
-			self._layer_cbs[name] = cb
-			cb:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "on_layer_cb"), {cb = cb, name = name})
-			cb:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")
-			layers_sizer:add(cb, 0, 2, "EXPAND,TOP")
-		end
-
+	for _, name in ipairs(names_layers) do
+		local cb = EWS:CheckBox(panel, name, "")
+		cb:set_value(true)
+		self._layer_cbs[name] = cb
+		cb:connect("EVT_COMMAND_CHECKBOX_CLICKED", callback(self, self, "on_layer_cb"), {cb = cb, name = name})
+		cb:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")
+		layers_sizer:add(cb, 0, 2, "EXPAND,TOP")
 	end
-
 	local layer_buttons_sizer = EWS:BoxSizer("HORIZONTAL")
 	local all_btn = EWS:Button(panel, "All", "", "BU_EXACTFIT,NO_BORDER")
 	layer_buttons_sizer:add(all_btn, 0, 2, "TOP,BOTTOM")
@@ -97,41 +85,23 @@ function UnitByName:on_filter_with_name_id(params)
 end
 
 function UnitByName:on_all_layers()
-	do
-		local (for generator), (for state), (for control) = pairs(self._layer_cbs)
-		do
-			do break end
-			cb:set_value(true)
-		end
-
+	for name, cb in pairs(self._layer_cbs) do
+		cb:set_value(true)
 	end
-
 	self:fill_unit_list()
 end
 
 function UnitByName:on_none_layers()
-	do
-		local (for generator), (for state), (for control) = pairs(self._layer_cbs)
-		do
-			do break end
-			cb:set_value(false)
-		end
-
+	for name, cb in pairs(self._layer_cbs) do
+		cb:set_value(false)
 	end
-
 	self:fill_unit_list()
 end
 
 function UnitByName:on_invert_layers()
-	do
-		local (for generator), (for state), (for control) = pairs(self._layer_cbs)
-		do
-			do break end
-			cb:set_value(not cb:get_value())
-		end
-
+	for name, cb in pairs(self._layer_cbs) do
+		cb:set_value(not cb:get_value())
 	end
-
 	self:fill_unit_list()
 end
 
@@ -140,7 +110,6 @@ function UnitByName:key_delete(ctrlr, event)
 	if EWS:name_to_key_code("K_DELETE") == event:key_code() then
 		self:_on_delete()
 	end
-
 end
 
 function UnitByName:key_cancel(ctrlr, event)
@@ -148,7 +117,6 @@ function UnitByName:key_cancel(ctrlr, event)
 	if EWS:name_to_key_code("K_ESCAPE") == event:key_code() then
 		self:on_cancel()
 	end
-
 end
 
 function UnitByName:on_layer_cb(data)
@@ -170,19 +138,12 @@ end
 
 function UnitByName:_selected_item_units()
 	local units = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._list:selected_items())
-		do
-			do break end
-			local unit = self._units[self._list:get_item_data(i)]
-			if not self:_continent_locked(unit) then
-				table.insert(units, unit)
-			end
-
+	for _, i in ipairs(self._list:selected_items()) do
+		local unit = self._units[self._list:get_item_data(i)]
+		if not self:_continent_locked(unit) then
+			table.insert(units, unit)
 		end
-
 	end
-
 	return units
 end
 
@@ -191,7 +152,6 @@ function UnitByName:_selected_item_unit()
 	if index ~= -1 then
 		return self._units[self._list:get_item_data(index)]
 	end
-
 end
 
 function UnitByName:deleted_unit(unit)
@@ -200,9 +160,7 @@ function UnitByName:deleted_unit(unit)
 			self._list:delete_item(i)
 			return
 		end
-
 	end
-
 end
 
 function UnitByName:spawned_unit(unit)
@@ -213,54 +171,34 @@ function UnitByName:spawned_unit(unit)
 end
 
 function UnitByName:selected_unit(unit)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._list:selected_items())
-		do
-			do break end
-			self._list:set_item_selected(i, false)
-		end
-
+	for _, i in ipairs(self._list:selected_items()) do
+		self._list:set_item_selected(i, false)
 	end
-
 	for i = 0, self._list:item_count() - 1 do
 		if self._units[self._list:get_item_data(i)] == unit then
 			self._list:set_item_selected(i, true)
 			self._list:ensure_visible(i)
 			return
 		end
-
 	end
-
 end
 
 function UnitByName:selected_units(units)
 	if self._blocked then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._list:selected_items())
-		do
-			do break end
-			self._list:set_item_selected(i, false)
-		end
-
+	for _, i in ipairs(self._list:selected_items()) do
+		self._list:set_item_selected(i, false)
 	end
-
-	local (for generator), (for state), (for control) = ipairs(units)
-	do
-		do break end
+	for _, unit in ipairs(units) do
 		for i = 0, self._list:item_count() - 1 do
 			if self._units[self._list:get_item_data(i)] == unit then
 				self._list:set_item_selected(i, true)
 				self._list:ensure_visible(i)
 				break
 			end
-
 		end
-
 	end
-
 end
 
 function UnitByName:unit_name_changed(unit)
@@ -272,12 +210,10 @@ function UnitByName:unit_name_changed(unit)
 				local over = self._units[self._list:get_item_data(i - 1)]:unit_data().name_id
 				sort = sort or over > unit:unit_data().name_id
 			end
-
 			if i + 1 < self._list:item_count() then
 				local under = self._units[self._list:get_item_data(i + 1)]:unit_data().name_id
 				sort = sort or under < unit:unit_data().name_id
 			end
-
 			if sort then
 				self:fill_unit_list()
 				for i = 0, self._list:item_count() - 1 do
@@ -286,16 +222,11 @@ function UnitByName:unit_name_changed(unit)
 						self._list:ensure_visible(i)
 						break
 					end
-
 				end
-
 			end
-
 			break
 		end
-
 	end
-
 end
 
 function UnitByName:update_filter()
@@ -309,31 +240,20 @@ function UnitByName:fill_unit_list()
 	local filter = self._filter:get_value()
 	self._units = {}
 	self._list:freeze()
-	do
-		local (for generator), (for state), (for control) = pairs(layers)
-		do
-			do break end
-			if self._layer_cbs[name]:get_value() then
-				local (for generator), (for state), (for control) = ipairs(layer:created_units())
-				do
-					do break end
-					if string.find(self:_get_filter_string(unit), filter, 1, true) and self:_unit_condition(unit) then
-						local i = self._list:append_item(unit:unit_data().name_id)
-						self._units[j] = unit
-						self._list:set_item_data(i, j)
-						local colour = self:_continent_locked(unit) and Vector3(0.75, 0.75, 0.75) or Vector3(0, 0, 0)
-						self._list:set_item_text_colour(i, colour)
-						j = j + 1
-					end
-
+	for name, layer in pairs(layers) do
+		if self._layer_cbs[name]:get_value() then
+			for _, unit in ipairs(layer:created_units()) do
+				if string.find(self:_get_filter_string(unit), filter, 1, true) and self:_unit_condition(unit) then
+					local i = self._list:append_item(unit:unit_data().name_id)
+					self._units[j] = unit
+					self._list:set_item_data(i, j)
+					local colour = self:_continent_locked(unit) and Vector3(0.75, 0.75, 0.75) or Vector3(0, 0, 0)
+					self._list:set_item_text_colour(i, colour)
+					j = j + 1
 				end
-
 			end
-
 		end
-
 	end
-
 	self._list:thaw()
 	self._list:autosize_column(0)
 end
@@ -347,7 +267,6 @@ function UnitByName:_continent_locked(unit)
 	if not continent then
 		return false
 	end
-
 	return unit:unit_data().continent:value("locked")
 end
 
@@ -355,7 +274,6 @@ function UnitByName:_unit_condition(unit)
 	if self._unit_filter_function then
 		return self._unit_filter_function(unit)
 	end
-
 	return not unit:unit_data().instance
 end
 

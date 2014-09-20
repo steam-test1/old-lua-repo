@@ -15,42 +15,28 @@ end
 
 function CoreTimerUnitElement:layer_finished()
 	MissionElement.layer_finished(self)
-	local (for generator), (for state), (for control) = pairs(self._hed.digital_gui_unit_ids)
-	do
-		do break end
+	for _, id in pairs(self._hed.digital_gui_unit_ids) do
 		local unit = managers.worlddefinition:get_unit_on_load(id, callback(self, self, "load_unit"))
 		if unit then
 			self._digital_gui_units[unit:unit_data().unit_id] = unit
 		end
-
 	end
-
 end
 
 function CoreTimerUnitElement:load_unit(unit)
 	if unit then
 		self._digital_gui_units[unit:unit_data().unit_id] = unit
 	end
-
 end
 
 function CoreTimerUnitElement:update_selected()
-	do
-		local (for generator), (for state), (for control) = pairs(self._hed.digital_gui_unit_ids)
-		do
-			do break end
-			if not alive(self._digital_gui_units[id]) then
-				table.delete(self._hed.digital_gui_unit_ids, id)
-				self._digital_gui_units[id] = nil
-			end
-
+	for _, id in pairs(self._hed.digital_gui_unit_ids) do
+		if not alive(self._digital_gui_units[id]) then
+			table.delete(self._hed.digital_gui_unit_ids, id)
+			self._digital_gui_units[id] = nil
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._digital_gui_units)
-	do
-		do break end
+	for id, unit in pairs(self._digital_gui_units) do
 		if not alive(unit) then
 			table.delete(self._hed.digital_gui_unit_ids, id)
 			self._digital_gui_units[id] = nil
@@ -65,42 +51,27 @@ function CoreTimerUnitElement:update_selected()
 			self:_draw_link(params)
 			Application:draw(unit, 0, 1, 0)
 		end
-
 	end
-
 end
 
 function CoreTimerUnitElement:update_unselected(t, dt, selected_unit, all_units)
-	do
-		local (for generator), (for state), (for control) = pairs(self._hed.digital_gui_unit_ids)
-		do
-			do break end
-			if not alive(self._digital_gui_units[id]) then
-				table.delete(self._hed.digital_gui_unit_ids, id)
-				self._digital_gui_units[id] = nil
-			end
-
+	for _, id in pairs(self._hed.digital_gui_unit_ids) do
+		if not alive(self._digital_gui_units[id]) then
+			table.delete(self._hed.digital_gui_unit_ids, id)
+			self._digital_gui_units[id] = nil
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._digital_gui_units)
-	do
-		do break end
+	for id, unit in pairs(self._digital_gui_units) do
 		if not alive(unit) then
 			table.delete(self._hed.digital_gui_unit_ids, id)
 			self._digital_gui_units[id] = nil
 		end
-
 	end
-
 end
 
 function CoreTimerUnitElement:draw_links_unselected(...)
 	CoreTimerUnitElement.super.draw_links_unselected(self, ...)
-	local (for generator), (for state), (for control) = pairs(self._digital_gui_units)
-	do
-		do break end
+	for id, unit in pairs(self._digital_gui_units) do
 		local params = {
 			from_unit = self._unit,
 			to_unit = unit,
@@ -111,7 +82,6 @@ function CoreTimerUnitElement:draw_links_unselected(...)
 		self:_draw_link(params)
 		Application:draw(unit, 0, 0.5, 0)
 	end
-
 end
 
 function CoreTimerUnitElement:update_editing()
@@ -123,7 +93,6 @@ function CoreTimerUnitElement:update_editing()
 	if ray and ray.unit and ray.unit:digital_gui() and ray.unit:digital_gui():is_timer() then
 		Application:draw(ray.unit, 0, 1, 0)
 	end
-
 end
 
 function CoreTimerUnitElement:select_unit()
@@ -139,9 +108,7 @@ function CoreTimerUnitElement:select_unit()
 		else
 			self:_add_unit(unit)
 		end
-
 	end
-
 end
 
 function CoreTimerUnitElement:_remove_unit(unit)
@@ -163,20 +130,15 @@ function CoreTimerUnitElement:add_unit_list_btn()
 		if self._digital_gui_units[unit:unit_data().unit_id] then
 			return false
 		end
-
 		return unit:digital_gui() and unit:digital_gui():is_timer()
 	end
 
 	local dialog = SelectUnitByNameModal:new("Add Unit", f)
-	local (for generator), (for state), (for control) = ipairs(dialog:selected_units())
-	do
-		do break end
+	for _, unit in ipairs(dialog:selected_units()) do
 		if not self._digital_gui_units[unit:unit_data().unit_id] then
 			self:_add_unit(unit)
 		end
-
 	end
-
 end
 
 function CoreTimerUnitElement:remove_unit_list_btn()
@@ -185,15 +147,11 @@ function CoreTimerUnitElement:remove_unit_list_btn()
 	end
 
 	local dialog = SelectUnitByNameModal:new("Remove Unit", f)
-	local (for generator), (for state), (for control) = ipairs(dialog:selected_units())
-	do
-		do break end
+	for _, unit in ipairs(dialog:selected_units()) do
 		if self._digital_gui_units[unit:unit_data().unit_id] then
 			self:_remove_unit(unit)
 		end
-
 	end
-
 end
 
 function CoreTimerUnitElement:_build_panel(panel, panel_sizer)
@@ -247,9 +205,7 @@ end
 
 function CoreTimerOperatorUnitElement:draw_links(t, dt, selected_unit, all_units)
 	CoreTimerOperatorUnitElement.super.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -261,9 +217,7 @@ function CoreTimerOperatorUnitElement:draw_links(t, dt, selected_unit, all_units
 				b = 0.25
 			})
 		end
-
 	end
-
 end
 
 function CoreTimerOperatorUnitElement:update_editing()
@@ -278,21 +232,15 @@ function CoreTimerOperatorUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function CoreTimerOperatorUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function CoreTimerOperatorUnitElement:add_triggers(vc)
@@ -362,9 +310,7 @@ end
 
 function CoreTimerTriggerUnitElement:draw_links(t, dt, selected_unit, all_units)
 	CoreTimerTriggerUnitElement.super.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -376,9 +322,7 @@ function CoreTimerTriggerUnitElement:draw_links(t, dt, selected_unit, all_units)
 				b = 0.25
 			})
 		end
-
 	end
-
 end
 
 function CoreTimerTriggerUnitElement:update_editing()
@@ -393,21 +337,15 @@ function CoreTimerTriggerUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function CoreTimerTriggerUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function CoreTimerTriggerUnitElement:add_triggers(vc)

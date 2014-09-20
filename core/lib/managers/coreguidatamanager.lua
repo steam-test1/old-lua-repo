@@ -1,7 +1,6 @@
 if core then
 	core:module("CoreGuiDataManager")
 end
-
 GuiDataManager = GuiDataManager or class()
 function GuiDataManager:init(scene_gui, res, safe_rect_pixels, safe_rect, static_aspect_ratio)
 	self._scene_gui = scene_gui
@@ -63,7 +62,6 @@ function GuiDataManager:_get_safe_rect_pixels()
 	if self._safe_rect_pixels then
 		return self._safe_rect_pixels
 	end
-
 	return managers.viewport:get_safe_rect_pixels()
 end
 
@@ -71,7 +69,6 @@ function GuiDataManager:_get_safe_rect()
 	if self._safe_rect then
 		return self._safe_rect
 	end
-
 	return managers.viewport:get_safe_rect()
 end
 
@@ -79,7 +76,6 @@ function GuiDataManager:_aspect_ratio()
 	if self._static_aspect_ratio then
 		return self._static_aspect_ratio
 	end
-
 	return managers.viewport:aspect_ratio()
 end
 

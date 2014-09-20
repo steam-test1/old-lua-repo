@@ -23,7 +23,6 @@ function CoreOverlayFXCutsceneKey:preroll(player)
 		effect_data.fade_out = 0
 		managers.cutscene:play_overlay_effect(effect_data)
 	end
-
 end
 
 function CoreOverlayFXCutsceneKey:skip(player)
@@ -36,7 +35,6 @@ function CoreOverlayFXCutsceneKey:skip(player)
 		effect_data.sustain = math.max(full_intensity_end - cutscene_end, 0)
 		managers.cutscene:play_overlay_effect(effect_data)
 	end
-
 end
 
 function CoreOverlayFXCutsceneKey:evaluate(player, fast_forward)
@@ -55,7 +53,6 @@ function CoreOverlayFXCutsceneKey:update_gui(time, delta_time, player)
 	if self.__color_picker_dialog then
 		self.__color_picker_dialog:update(time, delta_time)
 	end
-
 end
 
 function CoreOverlayFXCutsceneKey:is_valid_blend_mode(value)
@@ -101,7 +98,6 @@ function CoreOverlayFXCutsceneKey:_on_pick_color(sender)
 		self.__color_picker_dialog:set_color(self:color())
 		self.__color_picker_dialog:set_visible(true)
 	end
-
 end
 
 function CoreOverlayFXCutsceneKey:_effect_data()

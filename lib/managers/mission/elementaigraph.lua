@@ -15,16 +15,9 @@ function ElementAIGraph:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._values.graph_ids)
-		do
-			do break end
-			managers.navigation:set_nav_segment_state(id, self._values.operation)
-		end
-
+	for _, id in ipairs(self._values.graph_ids) do
+		managers.navigation:set_nav_segment_state(id, self._values.operation)
 	end
-
 	ElementAIGraph.super.on_executed(self, instigator)
 end
 

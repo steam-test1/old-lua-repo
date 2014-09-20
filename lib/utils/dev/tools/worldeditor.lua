@@ -144,7 +144,6 @@ function WorldEditor:project_run_simulation(with_mission)
 			rotation = Rotation:yaw_pitch_roll(self._vp:camera():rotation():yaw(), 0, 0)
 		})
 	end
-
 	managers.network:game():on_load_complete()
 	managers.network:game():spawn_players()
 	managers.mission:set_mission_filter(self:layer("Level Settings"):get_mission_filter())
@@ -180,18 +179,14 @@ end
 function WorldEditor:project_clear_units()
 	managers.groupai:state():set_AI_enabled(false)
 	local units = World:find_units_quick("all", World:make_slot_mask(0, 2, 4, 5, 6, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25))
-	local (for generator), (for state), (for control) = ipairs(units)
-	do
-		do break end
+	for _, unit in ipairs(units) do
 		local layer = self:unit_in_layer(unit)
 		if layer then
 			layer:delete_unit(unit)
 		else
 			World:delete_unit(unit)
 		end
-
 	end
-
 end
 
 function WorldEditor:project_clear_layers()

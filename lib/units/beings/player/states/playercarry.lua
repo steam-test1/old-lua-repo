@@ -18,11 +18,9 @@ function PlayerCarry:_enter(enter_data)
 	else
 		self._tweak_data_name = "light"
 	end
-
 	if self._ext_movement:nav_tracker() then
 		managers.groupai:state():on_criminal_recovered(self._unit)
 	end
-
 	local skip_equip = enter_data and enter_data.skip_equip
 	if not self:_changing_weapon() and not skip_equip then
 		if not self._state_data.mask_equipped then
@@ -36,14 +34,11 @@ function PlayerCarry:_enter(enter_data)
 			elseif equipped_mask_type == "helmet" then
 				self._camera_unit:anim_state_machine():set_global("helmet_equip", 1)
 			end
-
 			self:_start_action_equip(self.IDS_MASK_EQUIP, 1.6)
 		else
 			self:_start_action_equip(self.IDS_EQUIP)
 		end
-
 	end
-
 	if not self._state_data.ducking then
 		self._ext_movement:set_attention_settings({
 			"pl_enemy_cbt",
@@ -51,7 +46,6 @@ function PlayerCarry:_enter(enter_data)
 			"pl_civ_cbt"
 		})
 	end
-
 end
 
 function PlayerCarry:exit(state_data, new_state_name)
@@ -68,7 +62,6 @@ function PlayerCarry:update(t, dt)
 	if self._dye_risk and t > self._dye_risk.next_t then
 		self:_check_dye_explode()
 	end
-
 end
 
 function PlayerCarry:set_tweak_data(name)
@@ -82,7 +75,6 @@ function PlayerCarry:_check_dye_pack()
 		self._dye_risk = {}
 		self._dye_risk.next_t = managers.player:player_timer():time() + 2 + math.random(3)
 	end
-
 end
 
 function PlayerCarry:_check_dye_explode()
@@ -93,7 +85,6 @@ function PlayerCarry:_check_dye_explode()
 		managers.player:dye_pack_exploded()
 		return
 	end
-
 	self._dye_risk.next_t = managers.player:player_timer():time() + 2 + math.random(3)
 end
 
@@ -112,7 +103,6 @@ function PlayerCarry:_update_check_actions(t, dt)
 	elseif input.btn_stats_screen_release then
 		self._unit:base():set_stats_screen_visible(false)
 	end
-
 	self:_update_foley(t, input)
 	local new_action
 	new_action = new_action or self:_check_action_weapon_gadget(t, input)
@@ -125,7 +115,6 @@ function PlayerCarry:_update_check_actions(t, dt)
 		new_action = self:_check_action_primary_attack(t, input)
 		self._shooting = new_action
 	end
-
 	new_action = new_action or self:_check_action_throw_grenade(t, input)
 	self:_check_action_interact(t, input)
 	self:_check_action_jump(t, input)
@@ -142,7 +131,6 @@ function PlayerCarry:_check_action_run(...)
 	if tweak_data.carry.types[self._tweak_data_name].can_run or managers.player:has_category_upgrade("carry", "movement_penalty_nullifier") then
 		PlayerCarry.super._check_action_run(self, ...)
 	end
-
 end
 
 function PlayerCarry:_check_use_item(t, input)
@@ -154,9 +142,7 @@ function PlayerCarry:_check_use_item(t, input)
 			managers.player:drop_carry()
 			new_action = true
 		end
-
 	end
-
 	return new_action
 end
 
@@ -181,7 +167,6 @@ function PlayerCarry:_perform_jump(jump_vec)
 	else
 		mvector3.multiply(jump_vec, tweak_data.carry.types[self._tweak_data_name].jump_modifier)
 	end
-
 	PlayerCarry.super._perform_jump(self, jump_vec)
 end
 
@@ -192,7 +177,6 @@ function PlayerCarry:_get_max_walk_speed(...)
 	else
 		multiplier = math.clamp(multiplier * managers.player:upgrade_value("carry", "movement_speed_multiplier", 1), 0, 1)
 	end
-
 	return PlayerCarry.super._get_max_walk_speed(self, ...) * multiplier
 end
 

@@ -17,7 +17,6 @@ function UpgradesManager:_setup()
 		Global.upgrades_manager.target_tree = self:_autochange_tree()
 		Global.upgrades_manager.disabled_visual_upgrades = {}
 	end
-
 	self._global = Global.upgrades_manager
 end
 
@@ -34,7 +33,6 @@ function UpgradesManager:toggle_visual_weapon_upgrade(upgrade)
 	else
 		self._global.disabled_visual_upgrades[upgrade] = true
 	end
-
 end
 
 function UpgradesManager:set_target_tree(tree)
@@ -44,7 +42,6 @@ function UpgradesManager:set_target_tree(tree)
 	if cap and level < cap then
 		return
 	end
-
 	self:_set_target_tree(tree)
 end
 
@@ -86,13 +83,9 @@ function UpgradesManager:aquire_from_level_tree(level, loading)
 	if not tree_data then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(tree_data.upgrades)
-	do
-		do break end
+	for _, upgrade in ipairs(tree_data.upgrades) do
 		self:aquire(upgrade, loading)
 	end
-
 end
 
 function UpgradesManager:_next_tree()
@@ -100,13 +93,11 @@ function UpgradesManager:_next_tree()
 	if self._global.automanage then
 		tree = self:_autochange_tree()
 	end
-
 	local level = managers.experience:current_level() + 1
 	local cap = tweak_data.upgrades.tree_caps[self._global.progress[self._global.target_tree] + 1]
 	if cap and level < cap then
 		tree = self:_autochange_tree(self._global.target_tree)
 	end
-
 	return tree or self._global.target_tree
 end
 
@@ -119,26 +110,17 @@ function UpgradesManager:_autochange_tree(exlude_tree)
 	if exlude_tree then
 		progress[exlude_tree] = nil
 	end
-
 	if not managers.dlc:has_preorder() then
 		progress[4] = nil
 	end
-
 	local n_tree = 0
 	local n_v = 100
-	do
-		local (for generator), (for state), (for control) = pairs(progress)
-		do
-			do break end
-			if v < n_v then
-				n_tree = tree
-				n_v = v
-			end
-
+	for tree, v in pairs(progress) do
+		if v < n_v then
+			n_tree = tree
+			n_v = v
 		end
-
 	end
-
 	return n_tree
 end
 
@@ -146,7 +128,6 @@ function UpgradesManager:aquired(id)
 	if self._global.aquired[id] then
 		return true
 	end
-
 end
 
 function UpgradesManager:aquire_default(id)
@@ -154,11 +135,9 @@ function UpgradesManager:aquire_default(id)
 		Application:error("Tried to aquire an upgrade that doesn't exist: " .. id .. "")
 		return
 	end
-
 	if self._global.aquired[id] then
 		return
 	end
-
 	self._global.aquired[id] = true
 	local upgrade = tweak_data.upgrades.definitions[id]
 	self:_aquire_upgrade(upgrade, id, true)
@@ -169,18 +148,15 @@ function UpgradesManager:enable_weapon(id)
 		Application:error("Tried to aquire an upgrade that doesn't exist: " .. (id or "nil") .. "")
 		return
 	end
-
 	if self._global.aquired[id] then
 		Application:error("Tried to aquire an upgrade that has allready been aquired: " .. id .. "")
 		return
 	end
-
 	local upgrade = tweak_data.upgrades.definitions[id]
 	if upgrade.dlc and (tweak_data.dlc[upgrade.dlc] and tweak_data.dlc[upgrade.dlc].free or not managers.dlc:has_dlc(upgrade.dlc)) then
 		Application:error("Tried to aquire an upgrade locked to a dlc you do not have: " .. id .. " DLC: ", upgrade.dlc)
 		return
 	end
-
 	self._global.aquired[id] = true
 	managers.player:aquire_weapon(upgrade, id)
 end
@@ -190,18 +166,15 @@ function UpgradesManager:aquire(id, loading)
 		Application:error("Tried to aquire an upgrade that doesn't exist: " .. (id or "nil") .. "")
 		return
 	end
-
 	if self._global.aquired[id] then
 		Application:error("Tried to aquire an upgrade that has allready been aquired: " .. id .. "")
 		return
 	end
-
 	local upgrade = tweak_data.upgrades.definitions[id]
 	if upgrade.dlc and (tweak_data.dlc[upgrade.dlc] and tweak_data.dlc[upgrade.dlc].free or not managers.dlc:has_dlc(upgrade.dlc)) then
 		Application:error("Tried to aquire an upgrade locked to a dlc you do not have: " .. id .. " DLC: ", upgrade.dlc)
 		return
 	end
-
 	local level = managers.experience:current_level() + 1
 	self._global.aquired[id] = true
 	self:_aquire_upgrade(upgrade, id, loading)
@@ -213,12 +186,10 @@ function UpgradesManager:unaquire(id)
 		Application:error("Tried to unaquire an upgrade that doesn't exist: " .. (id or "nil") .. "")
 		return
 	end
-
 	if not self._global.aquired[id] then
 		Application:error("Tried to unaquire an upgrade that hasn't benn aquired: " .. id .. "")
 		return
 	end
-
 	self._global.aquired[id] = nil
 	local upgrade = tweak_data.upgrades.definitions[id]
 	self:_unaquire_upgrade(upgrade, id)
@@ -244,7 +215,6 @@ function UpgradesManager:_aquire_upgrade(upgrade, id, loading)
 	elseif upgrade.category == "melee_weapon" then
 		self:_aquire_melee_weapon(upgrade, id, loading)
 	end
-
 end
 
 function UpgradesManager:_unaquire_upgrade(upgrade, id)
@@ -265,7 +235,6 @@ function UpgradesManager:_unaquire_upgrade(upgrade, id)
 	elseif upgrade.category == "melee_weapon" then
 		self:_unaquire_melee_weapon(upgrade, id)
 	end
-
 end
 
 function UpgradesManager:_aquire_weapon(upgrade, id, loading)
@@ -294,7 +263,6 @@ function UpgradesManager:_aquire_feature(feature)
 	else
 		managers.player:aquire_upgrade(feature.upgrade)
 	end
-
 end
 
 function UpgradesManager:_unaquire_feature(feature)
@@ -303,7 +271,6 @@ function UpgradesManager:_unaquire_feature(feature)
 	else
 		managers.player:unaquire_upgrade(feature.upgrade)
 	end
-
 end
 
 function UpgradesManager:_aquire_equipment(equipment, id)
@@ -320,7 +287,6 @@ function UpgradesManager:_aquire_equipment_upgrade(equipment_upgrade)
 	else
 		managers.player:aquire_upgrade(equipment_upgrade.upgrade)
 	end
-
 end
 
 function UpgradesManager:_unaquire_equipment_upgrade(equipment_upgrade)
@@ -329,7 +295,6 @@ function UpgradesManager:_unaquire_equipment_upgrade(equipment_upgrade)
 	else
 		managers.player:unaquire_upgrade(equipment_upgrade.upgrade)
 	end
-
 end
 
 function UpgradesManager:_aquire_temporary(temporary, id)
@@ -338,7 +303,6 @@ function UpgradesManager:_aquire_temporary(temporary, id)
 	else
 		managers.player:aquire_upgrade(temporary.upgrade, id)
 	end
-
 end
 
 function UpgradesManager:_unaquire_temporary(temporary, id)
@@ -347,7 +311,6 @@ function UpgradesManager:_unaquire_temporary(temporary, id)
 	else
 		managers.player:unaquire_upgrade(temporary.upgrade)
 	end
-
 end
 
 function UpgradesManager:_aquire_team(team, id)
@@ -391,20 +354,13 @@ function UpgradesManager:get_value(upgrade_id, ...)
 		local is_default_weapon = table.contains(default_weapons, weapon_id) and true or false
 		local weapon_level = 0
 		local new_weapon_id = tweak_data.weapon[weapon_id] and tweak_data.weapon[weapon_id].parent_weapon_id or weapon_id
-		do
-			local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.level_tree)
-			do
-				do break end
-				local upgrades = data.upgrades
-				if upgrades and table.contains(upgrades, new_weapon_id) then
-					weapon_level = level
-			end
-
+		for level, data in pairs(tweak_data.upgrades.level_tree) do
+			local upgrades = data.upgrades
+			if upgrades and table.contains(upgrades, new_weapon_id) then
+				weapon_level = level
 			else
 			end
-
 		end
-
 		return is_default_weapon, weapon_level, weapon_id ~= new_weapon_id
 	elseif upgrade.category == "melee_weapon" then
 		local params = {
@@ -414,23 +370,15 @@ function UpgradesManager:get_value(upgrade_id, ...)
 		local melee_weapon_id = upgrade_id
 		local is_default_weapon = melee_weapon_id == default_id
 		local melee_weapon_level = 0
-		do
-			local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.level_tree)
-			do
-				do break end
-				local upgrades = data.upgrades
-				if upgrades and table.contains(upgrades, melee_weapon_id) then
-					melee_weapon_level = level
-			end
-
+		for level, data in pairs(tweak_data.upgrades.level_tree) do
+			local upgrades = data.upgrades
+			if upgrades and table.contains(upgrades, melee_weapon_id) then
+				melee_weapon_level = level
 			else
 			end
-
 		end
-
 		return is_default_weapon, melee_weapon_level
 	end
-
 	print("no value for", upgrade_id, upgrade.category)
 end
 
@@ -453,52 +401,31 @@ end
 
 function UpgradesManager:is_upgrade_locked(upgrade_id)
 	local locks = self:get_upgrade_locks(upgrade_id)
-	do
-		local (for generator), (for state), (for control) = pairs(locks)
-		do
-			do break end
-			if category == "dlc" and not managers.dlc:is_dlc_unlocked(id) then
-				return true
-			else
-			end
-
+	for category, id in pairs(locks) do
+		if category == "dlc" and not managers.dlc:is_dlc_unlocked(id) then
+			return true
+		else
 		end
-
 	end
-
 	return false
 end
 
 function UpgradesManager:is_locked(step)
 	local level = managers.experience:current_level()
-	do
-		local (for generator), (for state), (for control) = ipairs(tweak_data.upgrades.itree_caps)
-		do
-			do break end
-			if level < d.level then
-				return step >= d.step
-			end
-
+	for i, d in ipairs(tweak_data.upgrades.itree_caps) do
+		if level < d.level then
+			return step >= d.step
 		end
-
 	end
-
 	return false
 end
 
 function UpgradesManager:get_level_from_step(step)
-	do
-		local (for generator), (for state), (for control) = ipairs(tweak_data.upgrades.itree_caps)
-		do
-			do break end
-			if step == d.step then
-				return d.level
-			end
-
+	for i, d in ipairs(tweak_data.upgrades.itree_caps) do
+		if step == d.step then
+			return d.level
 		end
-
 	end
-
 	return 0
 end
 
@@ -511,7 +438,6 @@ function UpgradesManager:progress()
 			self._global.progress[4]
 		}
 	end
-
 	return {
 		self._global.progress[1],
 		self._global.progress[2],
@@ -528,7 +454,6 @@ function UpgradesManager:name(id)
 		Application:error("Tried to get name from an upgrade that doesn't exist: " .. id .. "")
 		return
 	end
-
 	local upgrade = tweak_data.upgrades.definitions[id]
 	return managers.localization:text(upgrade.name_id)
 end
@@ -538,7 +463,6 @@ function UpgradesManager:title(id)
 		Application:error("Tried to get title from an upgrade that doesn't exist: " .. id .. "")
 		return
 	end
-
 	local upgrade = tweak_data.upgrades.definitions[id]
 	return upgrade.title_id and managers.localization:text(upgrade.title_id) or nil
 end
@@ -548,7 +472,6 @@ function UpgradesManager:subtitle(id)
 		Application:error("Tried to get subtitle from an upgrade that doesn't exist: " .. id .. "")
 		return
 	end
-
 	local upgrade = tweak_data.upgrades.definitions[id]
 	return upgrade.subtitle_id and managers.localization:text(upgrade.subtitle_id) or nil
 end
@@ -558,21 +481,17 @@ function UpgradesManager:complete_title(id, type)
 	if not title then
 		return nil
 	end
-
 	local subtitle = self:subtitle(id)
 	if not subtitle then
 		return title
 	end
-
 	if type then
 		if type == "single" then
 			return title .. " " .. subtitle
 		else
 			return title .. type .. subtitle
 		end
-
 	end
-
 	return title .. "\n" .. subtitle
 end
 
@@ -581,12 +500,10 @@ function UpgradesManager:description(id)
 		Application:error("Tried to get description from an upgrade that doesn't exist: " .. id .. "")
 		return
 	end
-
 	local upgrade = tweak_data.upgrades.definitions[id]
 	if upgrade.subtitle_id then
 	else
 	end
-
 	return managers.localization:text(upgrade.description_text_id or id) or nil
 end
 
@@ -595,7 +512,6 @@ function UpgradesManager:image(id)
 	if not image then
 		return nil, nil
 	end
-
 	return tweak_data.hud_icons:get_icon_data(image)
 end
 
@@ -604,7 +520,6 @@ function UpgradesManager:image_slice(id)
 	if not image_slice then
 		return nil, nil
 	end
-
 	return tweak_data.hud_icons:get_icon_data(image_slice)
 end
 
@@ -613,24 +528,16 @@ function UpgradesManager:icon(id)
 		Application:error("Tried to aquire an upgrade that doesn't exist: " .. id .. "")
 		return
 	end
-
 	return tweak_data.upgrades.definitions[id].icon
 end
 
 function UpgradesManager:aquired_by_category(category)
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._global.aquired)
-		do
-			do break end
-			if tweak_data.upgrades.definitions[name].category == category then
-				table.insert(t, name)
-			end
-
+	for name, _ in pairs(self._global.aquired) do
+		if tweak_data.upgrades.definitions[name].category == category then
+			table.insert(t, name)
 		end
-
 	end
-
 	return t
 end
 
@@ -646,87 +553,55 @@ function UpgradesManager:list_level_rewards(dlcs)
 	local t = {}
 	local tree_data = tweak_data.upgrades.level_tree
 	local def
-	do
-		local (for generator), (for state), (for control) = pairs(tree_data)
-		do
-			do break end
-			if data.upgrades then
-				local (for generator), (for state), (for control) = ipairs(data.upgrades)
-				do
-					do break end
-					def = tweak_data.upgrades.definitions[upgrade]
-					if def and (not dlcs or def.dlc) and (not dlcs or dlcs == true and def.dlc or dlcs[def.dlc] or table.contains(dlcs, def.dlc)) then
-						table.insert(t, {
-							upgrade,
-							level,
-							def.dlc
-						})
-					end
-
+	for level, data in pairs(tree_data) do
+		if data.upgrades then
+			for _, upgrade in ipairs(data.upgrades) do
+				def = tweak_data.upgrades.definitions[upgrade]
+				if def and (not dlcs or def.dlc) and (not dlcs or dlcs == true and def.dlc or dlcs[def.dlc] or table.contains(dlcs, def.dlc)) then
+					table.insert(t, {
+						upgrade,
+						level,
+						def.dlc
+					})
 				end
-
 			end
-
 		end
-
 	end
-
 	return t
 end
 
 function UpgradesManager:all_weapon_upgrades()
-	local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.definitions)
-	do
-		do break end
+	for id, data in pairs(tweak_data.upgrades.definitions) do
 		if data.category == "weapon" then
 			print(id)
 		end
-
 	end
-
 end
 
 function UpgradesManager:weapon_upgrade_by_weapon_id(weapon_id)
-	local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.definitions)
-	do
-		do break end
+	for id, data in pairs(tweak_data.upgrades.definitions) do
 		if data.category == "weapon" and data.weapon_id == weapon_id then
 			return data
 		end
-
 	end
-
 end
 
 function UpgradesManager:weapon_upgrade_by_factory_id(factory_id)
-	local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.definitions)
-	do
-		do break end
+	for id, data in pairs(tweak_data.upgrades.definitions) do
 		if data.category == "weapon" and data.factory_id == factory_id then
 			return data
 		end
-
 	end
-
 end
 
 function UpgradesManager:print_aquired_tree()
 	local tree = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._global.aquired)
-		do
-			do break end
-			tree[data.level] = {name = name}
-		end
-
+	for name, data in pairs(self._global.aquired) do
+		tree[data.level] = {name = name}
 	end
-
-	local (for generator), (for state), (for control) = pairs(tree)
-	do
-		do break end
+	for i, data in pairs(tree) do
 		print(self:name(data.name))
 	end
-
 end
 
 function UpgradesManager:analyze()
@@ -734,95 +609,46 @@ function UpgradesManager:analyze()
 	local placed = {}
 	local features = {}
 	local amount = 0
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.levels)
-		do
-			do break end
-			print("Upgrades at level " .. lvl .. ":")
-			local (for generator), (for state), (for control) = ipairs(upgrades)
-			do
-				do break end
-				print("\t" .. upgrade)
-			end
-
+	for lvl, upgrades in pairs(tweak_data.upgrades.levels) do
+		print("Upgrades at level " .. lvl .. ":")
+		for _, upgrade in ipairs(upgrades) do
+			print("\t" .. upgrade)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.definitions)
-		do
-			do break end
-			amount = amount + 1
-			do
-				local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.levels)
-				do
-					do break end
-					local (for generator), (for state), (for control) = ipairs(upgrades)
-					do
-						do break end
-						if upgrade == name then
-							if placed[name] then
-								print("ERROR: Upgrade " .. name .. " is already placed in level " .. placed[name] .. "!")
-							else
-								placed[name] = lvl
-							end
-
-							if data.category == "feature" then
-								features[data.upgrade.category] = features[data.upgrade.category] or {}
-								table.insert(features[data.upgrade.category], {level = lvl, name = name})
-							end
-
-						end
-
+	for name, data in pairs(tweak_data.upgrades.definitions) do
+		amount = amount + 1
+		for lvl, upgrades in pairs(tweak_data.upgrades.levels) do
+			for _, upgrade in ipairs(upgrades) do
+				if upgrade == name then
+					if placed[name] then
+						print("ERROR: Upgrade " .. name .. " is already placed in level " .. placed[name] .. "!")
+					else
+						placed[name] = lvl
 					end
-
+					if data.category == "feature" then
+						features[data.upgrade.category] = features[data.upgrade.category] or {}
+						table.insert(features[data.upgrade.category], {level = lvl, name = name})
+					end
 				end
-
 			end
-
-			if not placed[name] then
-				not_placed[name] = true
-			end
-
 		end
-
-	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(placed)
-		do
-			do break end
-			print("Upgrade " .. name .. " is placed in level\t\t " .. lvl .. ".")
+		if not placed[name] then
+			not_placed[name] = true
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(not_placed)
-		do
-			do break end
-			print("Upgrade " .. name .. " is not placed any level!")
-		end
-
+	for name, lvl in pairs(placed) do
+		print("Upgrade " .. name .. " is placed in level\t\t " .. lvl .. ".")
 	end
-
+	for name, _ in pairs(not_placed) do
+		print("Upgrade " .. name .. " is not placed any level!")
+	end
 	print("")
-	do
-		local (for generator), (for state), (for control) = pairs(features)
-		do
-			do break end
-			print("Upgrades for category " .. category .. " is recieved at:")
-			local (for generator), (for state), (for control) = ipairs(upgrades)
-			do
-				do break end
-				print("  Level: " .. upgrade.level .. ", " .. upgrade.name .. "")
-			end
-
+	for category, upgrades in pairs(features) do
+		print("Upgrades for category " .. category .. " is recieved at:")
+		for _, upgrade in ipairs(upgrades) do
+			print("  Level: " .. upgrade.level .. ", " .. upgrade.name .. "")
 		end
-
 	end
-
 	print([[
 
 Total upgrades ]] .. amount .. ".")
@@ -843,26 +669,16 @@ function UpgradesManager:tree_stats()
 			a = 0
 		}
 	}
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.upgrades.definitions)
-		do
-			do break end
-			if d.tree then
-				t[d.tree].a = t[d.tree].a + 1
-				table.insert(t[d.tree].u, name)
-			end
-
+	for name, d in pairs(tweak_data.upgrades.definitions) do
+		if d.tree then
+			t[d.tree].a = t[d.tree].a + 1
+			table.insert(t[d.tree].u, name)
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = ipairs(t)
-	do
-		do break end
+	for i, d in ipairs(t) do
 		print(inspect(d.u))
 		print(d.a)
 	end
-
 end
 
 function UpgradesManager:save(data)
@@ -874,15 +690,11 @@ function UpgradesManager:save(data)
 	}
 	if self._global.incompatible_data_loaded and self._global.incompatible_data_loaded.progress then
 		state.progress = clone(self._global.progress)
-		local (for generator), (for state), (for control) = pairs(self._global.incompatible_data_loaded.progress)
-		do
-			do break end
+		for i, k in pairs(self._global.incompatible_data_loaded.progress) do
 			print("saving incompatible data", i, k)
 			state.progress[i] = math.max(state.progress[i], k)
 		end
-
 	end
-
 	data.UpgradesManager = state
 end
 

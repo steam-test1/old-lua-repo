@@ -4,7 +4,6 @@ function HUDBlackScreen:init(hud)
 	if self._hud_panel:child("blackscreen_panel") then
 		self._hud_panel:remove(self._hud_panel:child("blackscreen_panel"))
 	end
-
 	self._blackscreen_panel = self._hud_panel:panel({
 		visible = true,
 		name = "blackscreen_panel",
@@ -91,7 +90,6 @@ function HUDBlackScreen:set_loading_text_status(status)
 			if Network:is_server() then
 				self._blackscreen_panel:child("skip_text"):set_visible(true)
 			end
-
 		elseif status == "wait_for_peers" then
 			local peer_name, peer_status = managers.network:session():peer_streaming_status()
 			local loading_text = utf8.to_upper(managers.localization:text("menu_waiting_for_players_progress", {player_name = peer_name, prog = peer_status}))
@@ -100,15 +98,12 @@ function HUDBlackScreen:set_loading_text_status(status)
 			local loading_text = utf8.to_upper(managers.localization:text("menu_loading_progress", {prog = status}))
 			self._blackscreen_panel:child("loading_text"):set_text(loading_text)
 		end
-
 	else
 		self._blackscreen_panel:child("loading_text"):set_visible(false)
 		if Network:is_server() then
 			self._blackscreen_panel:child("skip_text"):set_visible(true)
 		end
-
 	end
-
 end
 
 function HUDBlackScreen:skip_circle_done()
@@ -141,7 +136,6 @@ function HUDBlackScreen:set_job_data()
 	if not managers.job:has_active_job() then
 		return
 	end
-
 	local job_panel = self._blackscreen_panel:panel({
 		visible = true,
 		name = "job_panel",
@@ -162,7 +156,6 @@ function HUDBlackScreen:set_job_data()
 		})
 		last_risk_level:move((i - 1) * last_risk_level:w(), 0)
 	end
-
 	if last_risk_level then
 		risk_panel:set_size(last_risk_level:right(), last_risk_level:bottom())
 		risk_panel:set_center(job_panel:w() / 2, job_panel:h() / 2)
@@ -183,14 +176,12 @@ function HUDBlackScreen:set_job_data()
 		risk_panel:set_bottom(job_panel:h() / 2)
 		risk_panel:set_position(math.round(risk_panel:x()), math.round(risk_panel:y()))
 	end
-
 	do return end
 	local contact_data = managers.job:current_contact_data()
 	local job_data = managers.job:current_job_data()
 	if self._blackscreen_panel:child("job_panel") then
 		self._blackscreen_panel:remove(self._blackscreen_panel:child("job_panel"))
 	end
-
 	local job_panel = self._blackscreen_panel:panel({
 		visible = true,
 		name = "job_panel",
@@ -339,107 +330,98 @@ function HUDBlackScreen:_create_stages()
 		}
 	}
 	local x = 0
-	do
-		local (for generator), (for state), (for control) = ipairs(job_chain)
-		do
-			do break end
-			local is_current_stage = managers.job:current_stage() == i
-			local is_completed = i < managers.job:current_stage()
-			local panel = stages_panel:panel({
-				visible = true,
-				name = "panel",
-				y = 0,
-				x = x,
-				w = is_current_stage and 256 or 80
+	for i, heist in ipairs(job_chain) do
+		local is_current_stage = managers.job:current_stage() == i
+		local is_completed = i < managers.job:current_stage()
+		local panel = stages_panel:panel({
+			visible = true,
+			name = "panel",
+			y = 0,
+			x = x,
+			w = is_current_stage and 256 or 80
+		})
+		if not is_completed and not is_current_stage then
+			local image = panel:bitmap({
+				texture = "guis/textures/pd2/icon_mission_overview_unknown",
+				layer = 1,
+				blend_mode = "normal"
 			})
-			if not is_completed and not is_current_stage then
-				local image = panel:bitmap({
-					texture = "guis/textures/pd2/icon_mission_overview_unknown",
-					layer = 1,
-					blend_mode = "normal"
-				})
-				image:set_center(panel:w() / 2, panel:h() / 2)
-			else
-				local image = panel:bitmap({
-					texture = "guis/textures/pd2/icon_mission_overview",
-					layer = 1,
-					texture_rect = level_rects[i],
-					blend_mode = "normal"
-				})
-				image:set_center(panel:w() / 2, panel:h() / 2)
-			end
-
-			local badge = panel:bitmap({
-				texture = "guis/textures/pd2/gui_grade_badges",
-				layer = 4,
-				texture_rect = types[heist.type]
+			image:set_center(panel:w() / 2, panel:h() / 2)
+		else
+			local image = panel:bitmap({
+				texture = "guis/textures/pd2/icon_mission_overview",
+				layer = 1,
+				texture_rect = level_rects[i],
+				blend_mode = "normal"
 			})
-			badge:set_right(panel:w() - 8)
-			badge:set_bottom(panel:h() - 8)
-			if (not is_completed or not {
-				0,
-				Color(120, 255, 120) / 255:with_alpha(0.25),
-				1,
-				Color(120, 255, 120) / 255:with_alpha(0)
-			}) and (not is_current_stage or not {
-				0,
-				Color(230, 200, 150) / 255:with_alpha(0.5),
-				1,
-				Color(230, 200, 150) / 255:with_alpha(0)
-			}) then
-				local gradient_points = {
-					0,
-					Color.black:with_alpha(0),
-					1,
-					Color.black:with_alpha(0)
-				}
-			end
-
-			panel:gradient({
-				layer = 3,
-				gradient_points = gradient_points,
-				orientation = "vertical",
-				h = panel:h() / 2
-			})
-			x = x + panel:w() + 10
-			local level_data = tweak_data.levels[heist.level_id]
-			if is_current_stage then
-				local pad = 8
-				panel:text({
-					name = "stage_name",
-					text = utf8.to_upper(managers.localization:text(level_data.name_id)),
-					layer = 0,
-					align = "left",
-					vertical = "top",
-					font_size = tweak_data.hud.small_font_size,
-					font = tweak_data.hud.small_font,
-					w = panel:w(),
-					h = 24,
-					x = pad,
-					y = pad,
-					layer = 4
-				})
-				panel:text({
-					name = "type",
-					text = utf8.to_upper(managers.localization:text(heist.type_id)),
-					layer = 0,
-					align = "left",
-					vertical = "top",
-					font_size = tweak_data.hud.small_font_size,
-					font = tweak_data.hud.small_font,
-					w = panel:w(),
-					h = 24,
-					x = pad,
-					y = pad + 24,
-					layer = 4
-				})
-			end
-
-			stages_panel:set_w(panel:right())
+			image:set_center(panel:w() / 2, panel:h() / 2)
 		end
-
+		local badge = panel:bitmap({
+			texture = "guis/textures/pd2/gui_grade_badges",
+			layer = 4,
+			texture_rect = types[heist.type]
+		})
+		badge:set_right(panel:w() - 8)
+		badge:set_bottom(panel:h() - 8)
+		if (not is_completed or not {
+			0,
+			Color(120, 255, 120) / 255:with_alpha(0.25),
+			1,
+			Color(120, 255, 120) / 255:with_alpha(0)
+		}) and (not is_current_stage or not {
+			0,
+			Color(230, 200, 150) / 255:with_alpha(0.5),
+			1,
+			Color(230, 200, 150) / 255:with_alpha(0)
+		}) then
+			local gradient_points = {
+				0,
+				Color.black:with_alpha(0),
+				1,
+				Color.black:with_alpha(0)
+			}
+		end
+		panel:gradient({
+			layer = 3,
+			gradient_points = gradient_points,
+			orientation = "vertical",
+			h = panel:h() / 2
+		})
+		x = x + panel:w() + 10
+		local level_data = tweak_data.levels[heist.level_id]
+		if is_current_stage then
+			local pad = 8
+			panel:text({
+				name = "stage_name",
+				text = utf8.to_upper(managers.localization:text(level_data.name_id)),
+				layer = 0,
+				align = "left",
+				vertical = "top",
+				font_size = tweak_data.hud.small_font_size,
+				font = tweak_data.hud.small_font,
+				w = panel:w(),
+				h = 24,
+				x = pad,
+				y = pad,
+				layer = 4
+			})
+			panel:text({
+				name = "type",
+				text = utf8.to_upper(managers.localization:text(heist.type_id)),
+				layer = 0,
+				align = "left",
+				vertical = "top",
+				font_size = tweak_data.hud.small_font_size,
+				font = tweak_data.hud.small_font,
+				w = panel:w(),
+				h = 24,
+				x = pad,
+				y = pad + 24,
+				layer = 4
+			})
+		end
+		stages_panel:set_w(panel:right())
 	end
-
 	stages_panel:set_center_x(math.round(job_panel:child("portrait"):w() + (job_panel:w() - job_panel:child("portrait"):w()) / 2))
 end
 
@@ -469,15 +451,12 @@ function HUDBlackScreen:_animate_fade_in(mid_text)
 		if job_panel then
 			job_panel:set_alpha(a)
 		end
-
 		self._blackscreen_panel:set_alpha(a)
 	end
-
 	mid_text:set_alpha(1)
 	if job_panel then
 		job_panel:set_alpha(1)
 	end
-
 	self._blackscreen_panel:set_alpha(1)
 end
 
@@ -493,15 +472,12 @@ function HUDBlackScreen:_animate_fade_out(mid_text)
 		if job_panel then
 			job_panel:set_alpha(a)
 		end
-
 		self._blackscreen_panel:set_alpha(a)
 	end
-
 	mid_text:set_alpha(0)
 	if job_panel then
 		job_panel:set_alpha(0)
 	end
-
 	self._blackscreen_panel:set_alpha(0)
 end
 

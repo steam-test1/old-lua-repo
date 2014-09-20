@@ -12,7 +12,6 @@ function CoreManagedTreeControl:init(parent_frame, styles)
 		self._tree_ctrl:connect("", "EVT_LEFT_DOWN", callback(self, self, "_change_state"), "")
 		self._tree_ctrl:connect("", "EVT_COMMAND_TREE_ITEM_GETTOOLTIP", callback(self, self, "_tooltip"), "")
 	end
-
 	self._visible_root_node = CoreEWSTreeCtrlTreeNode:new(self._tree_ctrl, self._tree_ctrl:append_root("hidden_root"), self._checkbox_style)
 	self._tree_event_wrapper_map = {}
 	self._custom_callbacks = {}
@@ -22,20 +21,13 @@ end
 function CoreManagedTreeControl:_eat_checkbox_style(styles)
 	local checkbox_style = false
 	local ret = ""
-	do
-		local (for generator), (for state), (for control) = string.gmatch(styles, "[%w_]+")
-		do
-			do break end
-			if style == self.CHECKBOX_STYLE_STR then
-				checkbox_style = true
-			else
-				ret = ret .. "," .. style
-			end
-
+	for style in string.gmatch(styles, "[%w_]+") do
+		if style == self.CHECKBOX_STYLE_STR then
+			checkbox_style = true
+		else
+			ret = ret .. "," .. style
 		end
-
 	end
-
 	return ret, checkbox_style
 end
 
@@ -45,7 +37,6 @@ function CoreManagedTreeControl:_init_checkbox_icons()
 		self._image_list:add(self.CHECKBOX_STATE0_ICON)
 		self._image_list:add(self.CHECKBOX_STATE1_ICON)
 	end
-
 end
 
 function CoreManagedTreeControl:_change_state(data, event)
@@ -63,7 +54,6 @@ function CoreManagedTreeControl:_change_state(data, event)
 				self._tree_ctrl:update()
 				return
 			end
-
 			self._tree_ctrl:set_item_image(id, state, "NORMAL")
 			self._tree_ctrl:thaw()
 			self._tree_ctrl:update()
@@ -75,12 +65,9 @@ function CoreManagedTreeControl:_change_state(data, event)
 			else
 				self._tree_ctrl:expand(id)
 			end
-
 			return
 		end
-
 	end
-
 	event:skip()
 end
 
@@ -89,19 +76,14 @@ function CoreManagedTreeControl:_tooltip(data, event)
 	if id > -1 and (hit == "ONITEMICON" or hit == "ONITEMLABEL") then
 		event:set_tool_tip(self._tooltips[tostring(id)] or "")
 	end
-
 end
 
 function CoreManagedTreeControl:_find_and_do_custom_callback(cb_type, data)
-	local (for generator), (for state), (for control) = pairs(self._custom_callbacks)
-	do
-		do break end
+	for k, v in pairs(self._custom_callbacks) do
 		if v._event_type == cb_type then
 			k(v._script_data, data)
 		end
-
 	end
-
 end
 
 function CoreManagedTreeControl:_view_tree_root()
@@ -127,15 +109,11 @@ end
 
 function CoreManagedTreeControl:clear()
 	self:_tree_root():remove_children()
-	local (for generator), (for state), (for control) = pairs(self._custom_callbacks)
-	do
-		do break end
+	for k, v in pairs(self._custom_callbacks) do
 		if v._event_type == self.CHECKBOX_UPDATED_EVENT_NAME then
 			self._custom_callbacks[k] = nil
 		end
-
 	end
-
 end
 
 function CoreManagedTreeControl:set_size(size)
@@ -216,11 +194,9 @@ function CoreManagedTreeControl:connect(event_type, script_callback, script_data
 			self._tree_event_wrapper_map[script_callback] = tree_event_wrapper
 			self._tree_ctrl:connect(event_type, tree_event_wrapper, script_data)
 		end
-
 	else
 		self._tree_ctrl:connect(event_type, script_callback, script_data)
 	end
-
 end
 
 function CoreManagedTreeControl:disconnect(event_type, script_callback)
@@ -232,10 +208,8 @@ function CoreManagedTreeControl:disconnect(event_type, script_callback)
 			self._tree_ctrl:disconnect(event_type, resolved_wrapper)
 			self._tree_event_wrapper_map[script_callback] = nil
 		end
-
 	else
 		self._tree_ctrl:disconnect(event_type, script_callback)
 	end
-
 end
 

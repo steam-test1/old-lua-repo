@@ -33,6 +33,5 @@ function DisconnectedState:_load_start_menu()
 	if not managers.job:stage_success() or not managers.job:on_last_stage() then
 		setup:load_start_menu()
 	end
-
 end
 

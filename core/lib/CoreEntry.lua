@@ -4,4 +4,3 @@ if table.contains(Application:argv(), "-slave") then
 else
 	require("lib/Entry")
 end
-

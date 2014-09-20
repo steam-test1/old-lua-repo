@@ -5,7 +5,6 @@ function HUDSuspicion:init(hud, sound_source)
 	if self._hud_panel:child("suspicion_panel") then
 		self._hud_panel:remove(self._hud_panel:child("suspicion_panel"))
 	end
-
 	self._suspicion_panel = self._hud_panel:panel({
 		visible = false,
 		name = "suspicion_panel",
@@ -106,7 +105,6 @@ function HUDSuspicion:animate_eye()
 	if self._eye_animation then
 		return
 	end
-
 	self._suspicion_value = 0
 	self._discovered = nil
 	self._back_to_stealth = nil
@@ -150,7 +148,6 @@ function HUDSuspicion:animate_eye()
 			if not alive(o) then
 				return
 			end
-
 			dt = coroutine.yield()
 			if self._discovered then
 				self._discovered = nil
@@ -178,13 +175,10 @@ function HUDSuspicion:animate_eye()
 					suspicion_detected:stop()
 					suspicion_detected:animate(animate_detect_text)
 				end
-
 			end
-
 			if not detect_me and wanted_value ~= self._suspicion_value then
 				wanted_value = self._suspicion_value
 			end
-
 			if (not detect_me or time_to_end < 2) and self._back_to_stealth then
 				self._back_to_stealth = nil
 				detect_me = false
@@ -193,13 +187,11 @@ function HUDSuspicion:animate_eye()
 				misc_panel:stop()
 				misc_panel:animate(animate_hide_misc)
 			end
-
 			value = math.lerp(value, wanted_value, 0.9)
 			c = math.lerp(1, 0, value)
 			if math.abs(value - wanted_value) < 0.01 then
 				value = wanted_value
 			end
-
 			suspicion_left:set_color(Color(0.5 + value * 0.5, 1, 1))
 			suspicion_right:set_color(Color(0.5 + value * 0.5, 1, 1))
 			local misc_panel = o:child("misc_panel")
@@ -212,7 +204,6 @@ function HUDSuspicion:animate_eye()
 					self:hide()
 					return
 				end
-
 			elseif value == 0 then
 				time_to_end = time_to_end - dt * 2
 				if time_to_end <= 0 then
@@ -220,15 +211,12 @@ function HUDSuspicion:animate_eye()
 					self:hide()
 					return
 				end
-
 			elseif time_to_end ~= 4 then
 				time_to_end = 4
 				misc_panel:stop()
 				misc_panel:animate(animate_show_misc)
 			end
-
 		end
-
 	end
 
 	self._sound_source:post_event("hud_suspicion_start")
@@ -246,7 +234,6 @@ function HUDSuspicion:hide()
 		self._eye_animation = nil
 		self._sound_source:post_event("hud_suspicion_end")
 	end
-
 	self._suspicion_value = 0
 	self._discovered = nil
 	self._back_to_stealth = nil
@@ -256,13 +243,11 @@ function HUDSuspicion:hide()
 		self._misc_panel:child("hud_stealth_exclam"):set_alpha(0)
 		self._misc_panel:child("hud_stealthmeter_bg"):set_alpha(0)
 	end
-
 	if alive(self._suspicion_panel) then
 		self._suspicion_panel:set_visible(false)
 		self._suspicion_panel:child("suspicion_detected"):stop()
 		self._suspicion_panel:child("suspicion_detected"):set_alpha(0)
 	end
-
 end
 
 function HUDSuspicion:feed_value(value)
@@ -275,7 +260,6 @@ function HUDSuspicion:back_to_stealth()
 	if not self._eye_animation then
 		self:hide()
 	end
-
 end
 
 function HUDSuspicion:discovered()

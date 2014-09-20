@@ -50,7 +50,6 @@ function PlayerMovement:init(unit)
 			morale_boost_cooldown_t = tweak_data.upgrades.morale_boost_base_cooldown * managers.player:upgrade_value("player", "morale_boost_cooldown_multiplier", 1)
 		}
 	end
-
 end
 
 function PlayerMovement:post_init()
@@ -60,7 +59,6 @@ function PlayerMovement:post_init()
 		self._nav_tracker = managers.navigation:create_nav_tracker(self._unit:position())
 		self._pos_rsrv_id = managers.navigation:get_pos_reservation_id()
 	end
-
 	self._unit:inventory():add_listener("PlayerMovement" .. tostring(self._unit:key()), {"add", "equip"}, callback(self, self, "inventory_clbk_listener"))
 	self:_setup_states()
 	self._attention_handler = CharacterAttentionObject:new(self._unit, true)
@@ -136,7 +134,6 @@ function PlayerMovement:set_character_anim_variables()
 			spanish = "_chains"
 		}
 	end
-
 	local mesh_name = Idstring("g_fps_hand" .. (mesh_names[char_name] or "") .. managers.player._player_mesh_suffix)
 	local mesh_obj = self._unit:camera():camera_unit():get_object(mesh_name)
 	if mesh_obj then
@@ -145,22 +142,17 @@ function PlayerMovement:set_character_anim_variables()
 			if old_mesh_obj then
 				old_mesh_obj:set_visibility(false)
 			end
-
 		end
-
 		self._plr_mesh_name = mesh_name
 		mesh_obj:set_visibility(true)
 	end
-
 	local camera_unit = self._unit:camera():camera_unit()
 	if camera_unit:damage() then
 		local sequence = managers.blackmarket:character_sequence_by_character_name(char_name)
 		if camera_unit:damage():has_sequence(sequence) then
 			camera_unit:damage():run_sequence_simple(sequence)
 		end
-
 	end
-
 end
 
 function PlayerMovement:set_driving(mode)
@@ -172,7 +164,6 @@ function PlayerMovement:change_state(name)
 	if self._current_state then
 		exit_data = self._current_state:exit(self._state_data, name)
 	end
-
 	local new_state = self._states[name]
 	self._current_state = new_state
 	self._current_state_name = name
@@ -186,17 +177,14 @@ function PlayerMovement:update(unit, t, dt)
 	if self:_check_out_of_world(t) then
 		return
 	end
-
 	self:_upd_underdog_skill(t)
 	if self._current_state then
 		self._current_state:update(t, dt)
 	end
-
 	if self._kill_overlay_t and t > self._kill_overlay_t then
 		self._kill_overlay_t = nil
 		managers.overlay_effect:stop_effect()
 	end
-
 	self:update_stamina(t, dt)
 end
 
@@ -210,11 +198,8 @@ function PlayerMovement:update_stamina(t, dt, ignore_running)
 			if self._stamina >= self:_max_stamina() then
 				self._regenerate_timer = nil
 			end
-
 		end
-
 	end
-
 end
 
 function PlayerMovement:set_position(pos)
@@ -278,9 +263,7 @@ function PlayerMovement:_check_out_of_world(t)
 			managers.player:on_out_of_world()
 			return true
 		end
-
 	end
-
 	return false
 end
 
@@ -309,7 +292,6 @@ function PlayerMovement:linked(state, physical, parent_unit)
 	else
 		self._link_data = nil
 	end
-
 end
 
 function PlayerMovement:parent_clbk_unit_destroyed(parent_unit, key)
@@ -325,20 +307,17 @@ function PlayerMovement:on_cuffed()
 	if self._unit:character_damage()._god_mode then
 		return
 	end
-
 	if self._current_state_name == "standard" or self._current_state_name == "bleed_out" or self._current_state_name == "carry" or self._current_state_name == "mask_off" or self._current_state_name == "clean" then
 		managers.player:set_player_state("arrested")
 	else
 		debug_pause("[PlayerMovement:on_cuffed] transition failed", self._current_state_name)
 	end
-
 end
 
 function PlayerMovement:on_uncovered(enemy_unit)
 	if self._current_state_name ~= "mask_off" and self._current_state_name ~= "clean" then
 		return
 	end
-
 	self._state_data.uncovered = true
 	managers.player:set_player_state("standard")
 	self._state_data.uncovered = nil
@@ -348,13 +327,11 @@ function PlayerMovement:on_SPOOCed(enemy_unit)
 	if self._unit:character_damage()._god_mode then
 		return
 	end
-
 	if self._current_state_name == "standard" or self._current_state_name == "carry" or self._current_state_name == "bleed_out" or self._current_state_name == "tased" then
 		managers.player:set_player_state("incapacitated")
 		managers.achievment:award(tweak_data.achievement.finally.award)
 		return true
 	end
-
 end
 
 function PlayerMovement:on_non_lethal_electrocution()
@@ -366,7 +343,6 @@ function PlayerMovement:on_tase_ended()
 		self._unit:character_damage():erase_tase_data()
 		self._current_state:on_tase_ended()
 	end
-
 end
 
 function PlayerMovement:tased()
@@ -392,13 +368,10 @@ function PlayerMovement:_create_attention_setting_from_descriptor(setting_desc, 
 		else
 			debug_pause("[PlayerMovement:_create_attention_setting_from_descriptor] no notice_clbk defined in class", self._unit, setting.notice_clbk)
 		end
-
 	end
-
 	if self._apply_attention_setting_modifications then
 		self:_apply_attention_setting_modifications(setting)
 	end
-
 	return setting
 end
 
@@ -407,7 +380,6 @@ function PlayerMovement:_apply_attention_setting_modifications(setting)
 	if managers.player:has_category_upgrade("player", "camouflage_bonus") then
 		setting.weight_mul = (setting.weight_mul or 1) * managers.player:upgrade_value("player", "camouflage_bonus", 1)
 	end
-
 end
 
 function PlayerMovement:set_attention_settings(setting_names)
@@ -415,12 +387,9 @@ function PlayerMovement:set_attention_settings(setting_names)
 	if not changes then
 		return
 	end
-
 	local all_attentions
 	local function _add_attentions_to_all(names)
-		local (for generator), (for state), (for control) = ipairs(names)
-		do
-			do break end
+		for _, setting_name in ipairs(names) do
 			local setting_desc = tweak_data.attention.settings[setting_name]
 			if setting_desc then
 				all_attentions = all_attentions or {}
@@ -429,43 +398,30 @@ function PlayerMovement:set_attention_settings(setting_names)
 			else
 				debug_pause_unit(self._unit, "[PlayerMovement:set_attention_settings] invalid setting", setting_name, self._unit)
 			end
-
 		end
-
 	end
 
 	if changes.added then
 		_add_attentions_to_all(changes.added)
 	end
-
 	if changes.maintained then
 		_add_attentions_to_all(changes.maintained)
 	end
-
 	self._attention_handler:set_settings_set(all_attentions)
 	if Network:is_client() then
 		if changes.added then
-			local (for generator), (for state), (for control) = ipairs(changes.added)
-			do
-				do break end
+			for _, id in ipairs(changes.added) do
 				local index = tweak_data.attention:get_attention_index(id)
 				self._unit:network():send_to_host("set_attention_enabled", index, true)
 			end
-
 		end
-
 		if changes.removed then
-			local (for generator), (for state), (for control) = ipairs(changes.removed)
-			do
-				do break end
+			for _, id in ipairs(changes.removed) do
 				local index = tweak_data.attention:get_attention_index(id)
 				self._unit:network():send_to_host("set_attention_enabled", index, false)
 			end
-
 		end
-
 	end
-
 end
 
 function PlayerMovement:set_attention_setting_enabled(setting_name, state, sync)
@@ -477,16 +433,13 @@ function PlayerMovement:set_attention_setting_enabled(setting_name, state, sync)
 		else
 			debug_pause_unit(self._unit, "[PlayerMovement:add_attention_setting] invalid setting", setting_name, self._unit)
 		end
-
 	else
 		self._unit:movement():attention_handler():remove_attention(setting_name)
 	end
-
 	if sync then
 		local index = tweak_data.player:get_attention_index("player", setting_name)
 		self._ext_network:send_to_host("set_attention_enabled", index, state)
 	end
-
 end
 
 function PlayerMovement:clbk_attention_notice_sneak(observer_unit, status)
@@ -507,29 +460,24 @@ function PlayerMovement:on_suspicion(observer_unit, status)
 		else
 			visible_status = false
 		end
-
 		self._suspicion = self._suspicion or {}
 		if visible_status == false or visible_status == true then
 			self._suspicion[observer_unit:key()] = nil
 			if not next(self._suspicion) then
 				self._suspicion = nil
 			end
-
 			if visible_status and observer_unit:movement() and not observer_unit:movement():cool() and TimerManager:game():time() - observer_unit:movement():not_cool_t() > 1 then
 				return
 			end
-
 		elseif type(visible_status) == "number" and (not observer_unit:movement() or observer_unit:movement():cool()) then
 			self._suspicion[observer_unit:key()] = visible_status
 		else
 			return
 		end
-
 		self:_calc_suspicion_ratio_and_sync(observer_unit, visible_status)
 	else
 		self._suspicion_ratio = status
 	end
-
 	self:_feed_suspicion_to_hud()
 end
 
@@ -539,7 +487,6 @@ function PlayerMovement:_feed_suspicion_to_hud()
 		local offset = self._unit:base():suspicion_settings().hud_offset
 		susp_ratio = susp_ratio * (1 - offset) + offset
 	end
-
 	managers.hud:set_suspicion(susp_ratio)
 end
 
@@ -547,18 +494,11 @@ function PlayerMovement:_calc_suspicion_ratio_and_sync(observer_unit, status)
 	local suspicion_sync
 	if self._suspicion and status ~= true then
 		local max_suspicion
-		do
-			local (for generator), (for state), (for control) = pairs(self._suspicion)
-			do
-				do break end
-				if not max_suspicion or val > max_suspicion then
-					max_suspicion = val
-				end
-
+		for u_key, val in pairs(self._suspicion) do
+			if not max_suspicion or val > max_suspicion then
+				max_suspicion = val
 			end
-
 		end
-
 		if max_suspicion then
 			self._suspicion_ratio = max_suspicion
 			suspicion_sync = math.ceil(self._suspicion_ratio * 254)
@@ -566,7 +506,6 @@ function PlayerMovement:_calc_suspicion_ratio_and_sync(observer_unit, status)
 			self._suspicion_ratio = false
 			suspicion_sync = false
 		end
-
 	elseif type(status) == "boolean" then
 		self._suspicion_ratio = status
 		suspicion_sync = status and 255 or 0
@@ -574,7 +513,6 @@ function PlayerMovement:_calc_suspicion_ratio_and_sync(observer_unit, status)
 		self._suspicion_ratio = false
 		suspicion_sync = 0
 	end
-
 	if suspicion_sync ~= self._synced_suspicion then
 		self._synced_suspicion = suspicion_sync
 		local member = managers.network:game():member_from_unit(self._unit)
@@ -582,9 +520,7 @@ function PlayerMovement:_calc_suspicion_ratio_and_sync(observer_unit, status)
 			local member_id = member:peer():id()
 			managers.network:session():send_to_peers_synched("suspicion", member_id, suspicion_sync)
 		end
-
 	end
-
 end
 
 function PlayerMovement.clbk_msg_overwrite_suspicion(overwrite_data, msg_queue, msg_name, suspect_peer_id, suspicion)
@@ -601,18 +537,15 @@ function PlayerMovement.clbk_msg_overwrite_suspicion(overwrite_data, msg_queue, 
 			})
 			overwrite_data.indexes[suspect_peer_id] = #msg_queue
 		end
-
 	else
 		overwrite_data.indexes = {}
 	end
-
 end
 
 function PlayerMovement:clbk_enemy_weapons_hot()
 	if self._current_state_name == "mask_off" or self._current_state_name == "clean" then
 		self:on_uncovered(nil)
 	end
-
 	self._suspicion_ratio = false
 	self._suspicion = false
 	if Network:is_server() and self._synced_suspicion ~= 0 then
@@ -622,9 +555,7 @@ function PlayerMovement:clbk_enemy_weapons_hot()
 			local member_id = member:peer():id()
 			managers.network:session():send_to_peers_synched("suspicion", member_id, 0)
 		end
-
 	end
-
 	self:_feed_suspicion_to_hud()
 end
 
@@ -633,11 +564,9 @@ function PlayerMovement:inventory_clbk_listener(unit, event)
 		local data = self._unit:inventory():get_latest_addition_hud_data()
 		managers.hud:add_weapon(data)
 	end
-
 	if self._current_state and self._current_state.inventory_clbk_listener then
 		self._current_state:inventory_clbk_listener(unit, event)
 	end
-
 end
 
 function PlayerMovement:chk_play_mask_on_slow_mo(state_data)
@@ -647,7 +576,6 @@ function PlayerMovement:chk_play_mask_on_slow_mo(state_data)
 		local effect_id_player = "player_MaskOn_Peer" .. tostring(managers.network:session():local_peer():id())
 		managers.time_speed:play_effect(effect_id_player, tweak_data.timespeed.mask_on_player)
 	end
-
 end
 
 function PlayerMovement:SO_access()
@@ -663,42 +591,30 @@ function PlayerMovement:_upd_underdog_skill(t)
 	if not self._attackers or not data.has_dmg_dampener and not data.has_dmg_mul or t < self._underdog_skill_data.chk_t then
 		return
 	end
-
 	local my_pos = self._m_pos
 	local nr_guys = 0
 	local activated
-	do
-		local (for generator), (for state), (for control) = pairs(self._attackers)
-		do
-			do break end
-			if not alive(attacker_unit) then
-				self._attackers[u_key] = nil
-				return
-			end
-
-			local attacker_pos = attacker_unit:movement():m_pos()
-			local dis_sq = mvector3.distance_sq(attacker_pos, my_pos)
-			if dis_sq < data.max_dis_sq and math.abs(attacker_pos.z - my_pos.z) < 250 then
-				nr_guys = nr_guys + 1
-				if nr_guys >= data.nr_enemies then
-					activated = true
-					if data.has_dmg_mul then
-						managers.player:activate_temporary_upgrade("temporary", "dmg_multiplier_outnumbered")
-					end
-
-					if data.has_dmg_dampener then
-						managers.player:activate_temporary_upgrade("temporary", "dmg_dampener_outnumbered")
-					end
-
-				end
-
+	for u_key, attacker_unit in pairs(self._attackers) do
+		if not alive(attacker_unit) then
+			self._attackers[u_key] = nil
+			return
 		end
-
+		local attacker_pos = attacker_unit:movement():m_pos()
+		local dis_sq = mvector3.distance_sq(attacker_pos, my_pos)
+		if dis_sq < data.max_dis_sq and math.abs(attacker_pos.z - my_pos.z) < 250 then
+			nr_guys = nr_guys + 1
+			if nr_guys >= data.nr_enemies then
+				activated = true
+				if data.has_dmg_mul then
+					managers.player:activate_temporary_upgrade("temporary", "dmg_multiplier_outnumbered")
+				end
+				if data.has_dmg_dampener then
+					managers.player:activate_temporary_upgrade("temporary", "dmg_dampener_outnumbered")
+				end
+			end
 		else
 		end
-
 	end
-
 	data.chk_t = t + (activated and data.chk_interval_active or data.chk_interval_inactive)
 end
 
@@ -711,9 +627,7 @@ function PlayerMovement:on_targetted_for_attack(state, attacker_unit)
 		if not next(self._attackers) then
 			self._attackers = nil
 		end
-
 	end
-
 end
 
 function PlayerMovement:set_carry_restriction(state)
@@ -740,7 +654,6 @@ function PlayerMovement:on_morale_boost(benefactor_unit)
 		}
 		managers.enemy:add_delayed_clbk(self._morale_boost.expire_clbk_id, callback(self, self, "clbk_morale_boost_expire"), managers.player:player_timer():time() + tweak_data.upgrades.morale_boost_time)
 	end
-
 end
 
 function PlayerMovement:morale_boost()
@@ -755,7 +668,6 @@ function PlayerMovement:push(vel)
 	if self._current_state.push then
 		self._current_state:push(vel)
 	end
-
 end
 
 function PlayerMovement:save(data)
@@ -775,18 +687,13 @@ function PlayerMovement:save(data)
 	else
 		data.movement.stance = 2
 	end
-
 	data.movement.pose = self._state_data.ducking and 2 or 1
 	if Network:is_client() then
-		local (for generator), (for state), (for control) = ipairs(self._attention_handler:attention_data())
-		do
-			do break end
+		for _, settings in ipairs(self._attention_handler:attention_data()) do
 			local index = tweak_data.player:get_attention_index("player", settings.id)
 			table.insert(data.movement.attentions, index)
 		end
-
 	end
-
 	data.zip_line_unit_id = self:zipline_unit() and self:zipline_unit():editor_id()
 	data.down_time = self._unit:character_damage():down_time()
 	self._current_state:save(data.movement)
@@ -799,19 +706,16 @@ function PlayerMovement:pre_destroy(unit)
 		managers.navigation:destroy_nav_tracker(self._nav_tracker)
 		self._nav_tracker = nil
 	end
-
 	if self._enemy_weapons_hot_listen_id then
 		managers.groupai:state():remove_listener(self._enemy_weapons_hot_listen_id)
 		self._enemy_weapons_hot_listen_id = nil
 	end
-
 end
 
 function PlayerMovement:destroy(unit)
 	if self._link_data then
 		self._link_data.parent:base():remove_destroy_listener("PlayerMovement" .. tostring(self._unit:key()))
 	end
-
 	self._current_state:destroy(unit)
 	managers.hud:set_suspicion(false)
 	SoundDevice:set_rtpc("suspicion", 0)
@@ -834,7 +738,6 @@ function PlayerMovement:_change_stamina(value)
 	elseif not stamina_maxed and max_stamina <= self._stamina then
 		self._unit:sound():play("fatigue_breath_stop")
 	end
-
 	local stamina_to_threshold = max_stamina - tweak_data.player.movement_state.stamina.MIN_STAMINA_THRESHOLD
 	local stamina_breath = math.clamp((self._stamina - tweak_data.player.movement_state.stamina.MIN_STAMINA_THRESHOLD) / stamina_to_threshold, 0, 1) * 100
 	SoundDevice:set_rtpc("stamina", stamina_breath)
@@ -893,7 +796,6 @@ function PlayerMovement:on_exit_zipline()
 	if alive(self._zipline_unit) then
 		self._zipline_unit:zipline():set_user(nil)
 	end
-
 	self._zipline_unit = nil
 end
 

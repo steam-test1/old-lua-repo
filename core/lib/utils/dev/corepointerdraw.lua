@@ -17,7 +17,6 @@ function PointerDraw:update(time, delta_time)
 		pen:set(self.__color)
 		pen:sphere(self.__position, self.__size)
 	end
-
 end
 
 function PointerDraw:set_position(position)

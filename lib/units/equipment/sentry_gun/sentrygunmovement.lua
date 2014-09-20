@@ -24,7 +24,6 @@ function SentryGunMovement:init(unit)
 	else
 		Application:error("[SentryGunBase:setup] Spawned Sentry gun unit with incomplete navigation data.")
 	end
-
 	self._tweak = tweak_data.weapon.sentry_gun
 	self._sound_source = self._unit:sound_source()
 	self._last_attention_t = 0
@@ -40,7 +39,6 @@ function SentryGunMovement:update(unit, t, dt)
 	if t > self._warmup_t then
 		self:_upd_movement(dt)
 	end
-
 end
 
 function SentryGunMovement:setup(rot_speed_multiplier)
@@ -53,7 +51,6 @@ function SentryGunMovement:set_active(state)
 		self._motor_sound:stop()
 		self._motor_sound = false
 	end
-
 end
 
 function SentryGunMovement:nav_tracker()
@@ -64,7 +61,6 @@ function SentryGunMovement:set_attention(attention)
 	if self._attention and self._attention.destroy_listener_key then
 		self._attention.unit:base():remove_destroy_listener(self._attention.destroy_listener_key)
 	end
-
 	if attention then
 		if attention.unit then
 			local listener_key = "SentryGunMovement" .. tostring(self._unit:key())
@@ -74,11 +70,9 @@ function SentryGunMovement:set_attention(attention)
 		else
 			self._ext_network:send("cop_set_attention_pos", attention.pos)
 		end
-
 	elseif self._attention and Network:is_server() and self._unit:id() ~= -1 then
 		self._ext_network:send("set_attention", nil, AIAttentionObject.REACT_IDLE)
 	end
-
 	self:chk_play_alert(attention, self._attention)
 	self._attention = attention
 end
@@ -87,13 +81,11 @@ function SentryGunMovement:synch_attention(attention)
 	if self._attention and self._attention.destroy_listener_key then
 		self._attention.unit:base():remove_destroy_listener(self._attention.destroy_listener_key)
 	end
-
 	if attention and attention.unit then
 		local listener_key = "SentryGunMovement" .. tostring(self._unit:key())
 		attention.destroy_listener_key = listener_key
 		attention.unit:base():add_destroy_listener(listener_key, callback(self, self, "attention_unit_destroy_clbk"))
 	end
-
 	self:chk_play_alert(attention, self._attention)
 	self._attention = attention
 end
@@ -102,12 +94,10 @@ function SentryGunMovement:chk_play_alert(attention, old_attention)
 	if not attention and old_attention then
 		self._last_attention_t = TimerManager:game():time()
 	end
-
 	if attention and not old_attention and TimerManager:game():time() - self._last_attention_t > 3 then
 		self._sound_source:post_event("turret_alert")
 		self._warmup_t = TimerManager:game():time() + 0.5
 	end
-
 end
 
 function SentryGunMovement:attention()
@@ -120,7 +110,6 @@ function SentryGunMovement:attention_unit_destroy_clbk(unit)
 	else
 		self:synch_attention()
 	end
-
 end
 
 function SentryGunMovement:m_head_pos()
@@ -171,7 +160,6 @@ function SentryGunMovement:_upd_movement(dt)
 		else
 			wanted_vel = max_vel * sign_err
 		end
-
 		local err_vel = wanted_vel - vel
 		local sign_err_vel = math.sign(err_vel)
 		local abs_err_vel = math.abs(err_vel)
@@ -185,7 +173,6 @@ function SentryGunMovement:_upd_movement(dt)
 			correction = err
 			at_end = true
 		end
-
 		local new_val = value + correction
 		return at_end, new_vel, new_val
 	end
@@ -198,17 +185,14 @@ function SentryGunMovement:_upd_movement(dt)
 			self._sound_source:post_event("turret_spin_start")
 			self._motor_sound = self._sound_source:post_event("turret_spin_loop")
 		end
-
 	elseif self._motor_sound and new_vel < self._tweak.MAX_VEL_SPIN * self._rot_speed_mul * 0.2 then
 		self._sound_source:post_event("turret_spin_stop")
 		self._motor_sound:stop()
 		self._motor_sound = false
 	end
-
 	if self._motor_sound then
 		self._sound_source:set_rtpc("spin_vel", math.clamp((new_vel - self._tweak.MAX_VEL_SPIN * self._rot_speed_mul * 0.25) / (self._tweak.MAX_VEL_SPIN * self._rot_speed_mul), 0, 1))
 	end
-
 	pitch_end, new_vel, new_pitch = _ramp_value(fwd_polar.pitch, error_polar.pitch, self._vel.pitch, self._tweak.SLOWDOWN_ANGLE_PITCH, self._tweak.MAX_VEL_PITCH * self._rot_speed_mul, self._tweak.MIN_VEL_PITCH, self._tweak.ACC_PITCH * self._rot_speed_mul)
 	self._vel.pitch = new_vel
 	local new_fwd_polar = Polar(1, new_pitch, new_spin)
@@ -219,7 +203,6 @@ function SentryGunMovement:_upd_movement(dt)
 	if pitch_end and spin_end and self._switched_off then
 		self:set_active(false)
 	end
-
 end
 
 function SentryGunMovement:give_recoil()
@@ -249,7 +232,6 @@ function SentryGunMovement:_get_target_dir(attention)
 		else
 			return self._unit_fwd
 		end
-
 	else
 		local target_pos
 		if attention.unit then
@@ -258,12 +240,10 @@ function SentryGunMovement:_get_target_dir(attention)
 		else
 			target_pos = attention.pos
 		end
-
 		local target_vec = tmp_vec2
 		mvec3_dir(target_vec, self._m_head_pos, target_pos)
 		return target_vec
 	end
-
 end
 
 function SentryGunMovement:tased()
@@ -307,29 +287,23 @@ function SentryGunMovement:save(save_data)
 				self._attention.unit
 			}), TimerManager:game():time() + 0.1)
 		end
-
 	end
-
 	if self._rot_speed_mul ~= 1 then
 		my_save_data.rot_speed_mul = self._rot_speed_mul
 	end
-
 	if next(my_save_data) then
 		save_data.movement = my_save_data
 	end
-
 end
 
 function SentryGunMovement:load(save_data)
 	if not save_data or not save_data.movement then
 		return
 	end
-
 	self._rot_speed_mul = save_data.movement.rot_speed_mul or 1
 	if save_data.movement.attention then
 		self._attention = save_data.movement.attention
 	end
-
 end
 
 function SentryGunMovement:pre_destroy()
@@ -338,16 +312,13 @@ function SentryGunMovement:pre_destroy()
 	else
 		self:synch_attention()
 	end
-
 	if self._nav_tracker then
 		managers.navigation:destroy_nav_tracker(self._nav_tracker)
 		self._nav_tracker = nil
 	end
-
 	if self._pos_reservation then
 		managers.navigation:unreserve_pos(self._pos_reservation)
 		self._pos_reservation = nil
 	end
-
 end
 

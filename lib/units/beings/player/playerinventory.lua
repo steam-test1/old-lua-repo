@@ -32,43 +32,28 @@ function PlayerInventory:pre_destroy(unit)
 end
 
 function PlayerInventory:destroy_all_items()
-	do
-		local (for generator), (for state), (for control) = pairs(self._available_selections)
-		do
-			do break end
-			if selection_data.unit and selection_data.unit:base() then
-				selection_data.unit:base():remove_destroy_listener(self._listener_id)
-				selection_data.unit:base():set_slot(selection_data.unit, 0)
-			else
-				debug_pause_unit(self._unit, "[PlayerInventory:destroy_all_items] broken inventory unit", selection_data.unit, selection_data.unit:base())
-			end
-
+	for i_sel, selection_data in pairs(self._available_selections) do
+		if selection_data.unit and selection_data.unit:base() then
+			selection_data.unit:base():remove_destroy_listener(self._listener_id)
+			selection_data.unit:base():set_slot(selection_data.unit, 0)
+		else
+			debug_pause_unit(self._unit, "[PlayerInventory:destroy_all_items] broken inventory unit", selection_data.unit, selection_data.unit:base())
 		end
-
 	end
-
 	self._equipped_selection = nil
 	self._available_selections = {}
 	if alive(self._mask_unit) then
-		do
-			local (for generator), (for state), (for control) = ipairs(self._mask_unit:children())
-			do
-				do break end
-				linked_unit:unlink()
-				World:delete_unit(linked_unit)
-			end
-
+		for _, linked_unit in ipairs(self._mask_unit:children()) do
+			linked_unit:unlink()
+			World:delete_unit(linked_unit)
 		end
-
 		World:delete_unit(self._mask_unit)
 		self._mask_unit = nil
 	end
-
 	if self._melee_weapon_unit_name then
 		managers.dyn_resource:unload(Idstring("unit"), self._melee_weapon_unit_name, DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
 		self._melee_weapon_unit_name = nil
 	end
-
 end
 
 function PlayerInventory:equipped_selection()
@@ -103,9 +88,7 @@ function PlayerInventory:add_unit(new_unit, is_equip, equip_is_instant)
 		if self._equipped_selection == selection_index then
 			self._equipped_selection = nil
 		end
-
 	end
-
 	self._available_selections[selection_index] = new_selection
 	self._latest_addition = selection_index
 	self._selected_primary = self._selected_primary or selection_index
@@ -115,25 +98,19 @@ function PlayerInventory:add_unit(new_unit, is_equip, equip_is_instant)
 	else
 		self:_place_selection(selection_index, is_equip)
 	end
-
 end
 
 function PlayerInventory:clbk_weapon_unit_destroyed(weap_unit)
 	local weapon_key = weap_unit:key()
-	local (for generator), (for state), (for control) = pairs(self._available_selections)
-	do
-		do break end
+	for i_sel, sel_data in pairs(self._available_selections) do
 		if sel_data.unit:key() == weapon_key then
 			if i_sel == self._equipped_selection then
 				self:_call_listeners("unequip")
 			end
-
 			self:remove_selection(i_sel, true)
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function PlayerInventory:get_latest_addition_hud_data()
@@ -148,18 +125,11 @@ function PlayerInventory:get_latest_addition_hud_data()
 end
 
 function PlayerInventory:add_unit_by_name(new_unit_name, equip, instant)
-	do
-		local (for generator), (for state), (for control) = pairs(self._available_selections)
-		do
-			do break end
-			if selection.unit:name() == new_unit_name then
-				return
-			end
-
+	for _, selection in pairs(self._available_selections) do
+		if selection.unit:name() == new_unit_name then
+			return
 		end
-
 	end
-
 	local new_unit = World:spawn_unit(new_unit_name, Vector3(), Rotation())
 	local setup_data = {}
 	setup_data.user_unit = self._unit
@@ -186,7 +156,6 @@ function PlayerInventory:add_unit_by_factory_name(factory_name, equip, instant, 
 	else
 		new_unit:base():assemble(factory_name)
 	end
-
 	local setup_data = {}
 	setup_data.user_unit = self._unit
 	setup_data.ignore_units = {
@@ -208,16 +177,13 @@ function PlayerInventory:remove_selection(selection_index, instant)
 	if alive(weap_unit) then
 		weap_unit:base():remove_destroy_listener(self._listener_id)
 	end
-
 	self._available_selections[selection_index] = nil
 	if self._equipped_selection == selection_index then
 		self._equipped_selection = nil
 	end
-
 	if selection_index == self._selected_primary then
 		self._selected_primary = self:_select_new_primary()
 	end
-
 end
 
 function PlayerInventory:equip_latest_addition(instant)
@@ -235,9 +201,7 @@ function PlayerInventory:equip_next(instant)
 		if self._available_selections[selection] then
 			return self:equip_selection(selection, instant)
 		end
-
 	end
-
 	return false
 end
 
@@ -248,9 +212,7 @@ function PlayerInventory:equip_previous(instant)
 		if self._available_selections[selection] then
 			return self:equip_selection(selection, instant)
 		end
-
 	end
-
 	return false
 end
 
@@ -259,7 +221,6 @@ function PlayerInventory:equip_selection(selection_index, instant)
 		if self._equipped_selection then
 			self:unequip_selection(nil, instant)
 		end
-
 		self._equipped_selection = selection_index
 		self:_place_selection(selection_index, true)
 		self._selected_primary = selection_index
@@ -269,12 +230,10 @@ function PlayerInventory:equip_selection(selection_index, instant)
 			local hud_icon_id = self:equipped_unit():base():weapon_tweak_data().hud_icon
 			managers.hud:set_mugshot_weapon(self._unit:unit_data().mugshot_id, hud_icon_id, self:equipped_unit():base():weapon_tweak_data().use_data.selection_index)
 		end
-
 		self:equipped_unit():base():set_flashlight_enabled(true)
 		return true
 	else
 	end
-
 	return false
 end
 
@@ -285,7 +244,6 @@ function PlayerInventory:_send_equipped_weapon()
 		debug_pause("[PlayerInventory:_send_equipped_weapon] cannot sync weapon", eq_weap_name, self._unit)
 		return
 	end
-
 	local blueprint_string = self:equipped_unit():base().blueprint_to_string and self:equipped_unit():base():blueprint_to_string() or ""
 	self._unit:network():send("set_equipped_weapon", index, blueprint_string)
 end
@@ -298,7 +256,6 @@ function PlayerInventory:unequip_selection(selection_index, instant)
 		self._equipped_selection = nil
 		self:_call_listeners("unequip")
 	end
-
 end
 
 function PlayerInventory:is_equipped(index)
@@ -323,7 +280,6 @@ function PlayerInventory:_place_selection(selection_index, is_equip)
 			unit:set_enabled(true)
 			unit:base():on_enabled()
 		end
-
 		local parent_unit = align_place.on_body and self._unit or self._unit:camera()._camera_unit
 		local res = parent_unit:link(align_place.obj3d_name, unit, unit:orientation_object():name())
 	else
@@ -333,18 +289,13 @@ function PlayerInventory:_place_selection(selection_index, is_equip)
 		if unit:base().gadget_on and self._unit:movement().set_cbt_permanent then
 			self._unit:movement():set_cbt_permanent(false)
 		end
-
 	end
-
 end
 
 function PlayerInventory:_select_new_primary()
-	local (for generator), (for state), (for control) = pairs(self._available_selections)
-	do
-		do break end
+	for index, use_data in pairs(self._available_selections) do
 		return index
 	end
-
 end
 
 function PlayerInventory:add_listener(key, events, clbk)
@@ -361,33 +312,22 @@ function PlayerInventory:_call_listeners(event)
 end
 
 function PlayerInventory:on_death_exit()
-	local (for generator), (for state), (for control) = pairs(self._available_selections)
-	do
-		do break end
+	for i, selection in pairs(self._available_selections) do
 		selection.unit:unlink()
 	end
-
 end
 
 function PlayerInventory._chk_create_w_factory_indexes()
 	if PlayerInventory._weapon_factory_indexed then
 		return
 	end
-
 	local weapon_factory_indexed = {}
 	PlayerInventory._weapon_factory_indexed = weapon_factory_indexed
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.weapon.factory)
-		do
-			do break end
-			if id ~= "parts" and data.unit then
-				table.insert(weapon_factory_indexed, id)
-			end
-
+	for id, data in pairs(tweak_data.weapon.factory) do
+		if id ~= "parts" and data.unit then
+			table.insert(weapon_factory_indexed, id)
 		end
-
 	end
-
 	table.sort(weapon_factory_indexed, function(a, b)
 		return a < b
 	end
@@ -396,35 +336,25 @@ end
 
 function PlayerInventory._get_weapon_sync_index(wanted_weap_name)
 	if type_name(wanted_weap_name) == "Idstring" then
-		local (for generator), (for state), (for control) = ipairs(tweak_data.character.weap_unit_names)
-		do
-			do break end
+		for i, test_weap_name in ipairs(tweak_data.character.weap_unit_names) do
 			if test_weap_name == wanted_weap_name then
 				return i
 			end
-
 		end
-
 	end
-
 	PlayerInventory._chk_create_w_factory_indexes()
 	local start_index = #tweak_data.character.weap_unit_names
-	local (for generator), (for state), (for control) = ipairs(PlayerInventory._weapon_factory_indexed)
-	do
-		do break end
+	for i, factory_id in ipairs(PlayerInventory._weapon_factory_indexed) do
 		if wanted_weap_name == factory_id then
 			return start_index + i
 		end
-
 	end
-
 end
 
 function PlayerInventory._get_weapon_name_from_sync_index(w_index)
 	if w_index <= #tweak_data.character.weap_unit_names then
 		return tweak_data.character.weap_unit_names[w_index]
 	end
-
 	w_index = w_index - #tweak_data.character.weap_unit_names
 	PlayerInventory._chk_create_w_factory_indexes()
 	return PlayerInventory._weapon_factory_indexed[w_index]
@@ -437,7 +367,6 @@ function PlayerInventory:hide_equipped_unit()
 		unit:set_visible(false)
 		unit:base():on_disabled()
 	end
-
 end
 
 function PlayerInventory:show_equipped_unit()
@@ -448,9 +377,7 @@ function PlayerInventory:show_equipped_unit()
 			self._available_selections[self._equipped_selection].unit:base():set_gadget_on(self._was_gadget_on)
 			self._was_gadget_on = nil
 		end
-
 	end
-
 end
 
 function PlayerInventory:save(data)
@@ -462,7 +389,6 @@ function PlayerInventory:save(data)
 		data.blueprint_string = self:equipped_unit():base().blueprint_to_string and self:equipped_unit():base():blueprint_to_string() or nil
 		data.gadget_on = self:equipped_unit():base().gadget_on and self:equipped_unit():base()._gadget_on
 	end
-
 end
 
 function PlayerInventory:load(data)
@@ -474,14 +400,11 @@ function PlayerInventory:load(data)
 		else
 			self._unit:inventory():add_unit_by_name(eq_weap_name, true, true)
 		end
-
 		if self._unit:unit_data().mugshot_id then
 			local icon = self:equipped_unit():base():weapon_tweak_data().hud_icon
 			managers.hud:set_mugshot_weapon(self._unit:unit_data().mugshot_id, icon, self:equipped_unit():base():weapon_tweak_data().use_data.selection_index)
 		end
-
 	end
-
 	self._mask_visibility = data.mask_visibility and true or false
 end
 
@@ -490,42 +413,30 @@ function PlayerInventory:set_mask_visibility(state)
 	if self._unit == managers.player:player_unit() then
 		return
 	end
-
 	local character_name = managers.criminals:character_name_by_unit(self._unit)
 	if not character_name then
 		return
 	end
-
 	self._mask_visibility = state
 	if alive(self._mask_unit) then
 		if not state then
-			do
-				local (for generator), (for state), (for control) = ipairs(self._mask_unit:children())
-				do
-					do break end
-					linked_unit:unlink()
-					World:delete_unit(linked_unit)
-				end
-
+			for _, linked_unit in ipairs(self._mask_unit:children()) do
+				linked_unit:unlink()
+				World:delete_unit(linked_unit)
 			end
-
 			self._mask_unit:unlink()
 			local name = self._mask_unit:name()
 			World:delete_unit(self._mask_unit)
 		end
-
 		return
 	end
-
 	if not state then
 		return
 	end
-
 	local mask_unit_name = managers.criminals:character_data_by_name(character_name).mask_obj
 	if not managers.dyn_resource:is_resource_ready(Idstring("unit"), mask_unit_name, managers.dyn_resource.DYN_RESOURCES_PACKAGE) then
 		return
 	end
-
 	mask_unit_name = mask_unit_name[Global.level_data.level_id] or mask_unit_name.default or mask_unit_name
 	local mask_align = self._unit:get_object(Idstring("Head"))
 	local mask_unit = World:spawn_unit(Idstring(mask_unit_name), mask_align:position(), mask_align:rotation())
@@ -537,15 +448,12 @@ function PlayerInventory:set_mask_visibility(state)
 		local backside = World:spawn_unit(Idstring("units/payday2/masks/msk_backside/msk_backside"), mask_align:position(), mask_align:rotation())
 		self._mask_unit:link(self._mask_unit:orientation_object():name(), backside, backside:orientation_object():name())
 	end
-
 	if not mask_id or not tweak_data.blackmarket.masks[mask_id].skip_mask_on_sequence then
 		local mask_on_sequence = managers.blackmarket:character_mask_on_sequence_by_character_name(character_name)
 		if mask_on_sequence then
 			self._unit:damage():run_sequence_simple(mask_on_sequence)
 		end
-
 	end
-
 end
 
 function PlayerInventory:set_melee_weapon(melee_weapon_id, is_npc)
@@ -554,59 +462,39 @@ function PlayerInventory:set_melee_weapon(melee_weapon_id, is_npc)
 		if self._melee_weapon_data.third_unit then
 			self._melee_weapon_unit_name = Idstring(self._melee_weapon_data.third_unit)
 		end
-
 	elseif self._melee_weapon_data.unit then
 		self._melee_weapon_unit_name = Idstring(self._melee_weapon_data.unit)
 	end
-
 	if self._melee_weapon_unit_name then
 		managers.dyn_resource:load(Idstring("unit"), self._melee_weapon_unit_name, "packages/dyn_resources", false)
 	end
-
 end
 
 function PlayerInventory:set_melee_weapon_by_peer(peer)
 end
 
 function PlayerInventory:set_ammo(ammo)
-	local (for generator), (for state), (for control) = pairs(self._available_selections)
-	do
-		do break end
+	for id, weapon in pairs(self._available_selections) do
 		weapon.unit:base():set_ammo(ammo)
 		managers.hud:set_ammo_amount(id, weapon.unit:base():ammo_info())
 	end
-
 end
 
 function PlayerInventory:need_ammo()
-	do
-		local (for generator), (for state), (for control) = pairs(self._available_selections)
-		do
-			do break end
-			if not weapon.unit:base():ammo_full() then
-				return true
-			end
-
+	for _, weapon in pairs(self._available_selections) do
+		if not weapon.unit:base():ammo_full() then
+			return true
 		end
-
 	end
-
 	return false
 end
 
 function PlayerInventory:all_out_of_ammo()
-	do
-		local (for generator), (for state), (for control) = pairs(self._available_selections)
-		do
-			do break end
-			if not weapon.unit:base():out_of_ammo() then
-				return false
-			end
-
+	for _, weapon in pairs(self._available_selections) do
+		if not weapon.unit:base():out_of_ammo() then
+			return false
 		end
-
 	end
-
 	return true
 end
 
@@ -615,18 +503,11 @@ function PlayerInventory:anim_clbk_equip_exit(unit)
 end
 
 function PlayerInventory:set_visibility_state(state)
-	do
-		local (for generator), (for state), (for control) = pairs(self._available_selections)
-		do
-			do break end
-			sel_data.unit:base():set_visibility_state(state)
-		end
-
+	for i, sel_data in pairs(self._available_selections) do
+		sel_data.unit:base():set_visibility_state(state)
 	end
-
 	if alive(self._shield_unit) then
 		self._shield_unit:set_visible(state)
 	end
-
 end
 

@@ -65,7 +65,6 @@ function SecurityLockGui:setup()
 		self._timer_lenght = timer:w()
 		timer:set_w(0)
 	end
-
 	self._gui_script.working_text:set_center_x(self._gui_script.working_text:parent():w() / 2)
 	self._gui_script.working_text:set_center_y(self._gui_script.working_text:parent():h() / 1.25)
 	self._gui_script.working_text:set_font_size(80 * self._size_multiplier)
@@ -80,12 +79,9 @@ function SecurityLockGui:setup()
 	self._gui_script.time_text:set_center_x(self._gui_script.working_text:parent():w() / 2)
 	self._gui_script.time_text:set_center_y(self._gui_script.working_text:parent():h() / 1.15)
 	self._original_colors = {}
-	local (for generator), (for state), (for control) = ipairs(self._gui_script.panel:children())
-	do
-		do break end
+	for _, child in ipairs(self._gui_script.panel:children()) do
 		self._original_colors[child:key()] = child:color()
 	end
-
 end
 
 function SecurityLockGui:_start(bar, timer, current_timer)
@@ -106,7 +102,6 @@ function SecurityLockGui:_start(bar, timer, current_timer)
 	if Network:is_client() then
 		return
 	end
-
 end
 
 function SecurityLockGui:restart(bar, timer)
@@ -117,11 +112,9 @@ function SecurityLockGui:start(bar, timer, restart)
 	if not restart and self._started then
 		return
 	end
-
 	self:_start(bar, timer)
 	if managers.network:session() then
 	end
-
 end
 
 function SecurityLockGui:sync_start(bar, timer)
@@ -132,16 +125,13 @@ function SecurityLockGui:update(unit, t, dt)
 	if not self._powered then
 		return
 	end
-
 	self._current_timer = self._current_timer - dt
 	if not self._5sec_bars[self._current_bar] and self._current_timer < 5 then
 		self._5sec_bars[self._current_bar] = true
 		if self._unit:damage() then
 			self._unit:damage():run_sequence_simple("5sec_" .. self._current_bar)
 		end
-
 	end
-
 	self._gui_script.time_text:set_text(math.floor(self._current_timer) .. " " .. managers.localization:text("prop_timer_gui_seconds"))
 	self._gui_script["timer" .. self._current_bar]:set_w(self._timer_lenght * (1 - self._current_timer / self._timer))
 	if self._current_timer <= 0 then
@@ -151,7 +141,6 @@ function SecurityLockGui:update(unit, t, dt)
 	else
 		self._gui_script.working_text:set_color(self._gui_script.working_text:color():with_alpha(0.5 + (math.sin(t * 750) + 1) / 4))
 	end
-
 end
 
 function SecurityLockGui:set_visible(visible)
@@ -166,23 +155,16 @@ end
 function SecurityLockGui:_set_powered(powered)
 	self._powered = powered
 	if not self._powered then
-		local (for generator), (for state), (for control) = ipairs(self._gui_script.panel:children())
-		do
-			do break end
+		for _, child in ipairs(self._gui_script.panel:children()) do
 			local color = self._original_colors[child:key()]
 			local c = Color(0, 0, 0, 0)
 			child:set_color(c)
 		end
-
 	else
-		local (for generator), (for state), (for control) = ipairs(self._gui_script.panel:children())
-		do
-			do break end
+		for _, child in ipairs(self._gui_script.panel:children()) do
 			child:set_color(self._original_colors[child:key()])
 		end
-
 	end
-
 end
 
 function SecurityLockGui:done()
@@ -190,7 +172,6 @@ function SecurityLockGui:done()
 	if self._unit:damage() then
 		self._unit:damage():run_sequence_simple("done_" .. self._current_bar)
 	end
-
 	self:post_event(self._done_event)
 end
 
@@ -207,7 +188,6 @@ function SecurityLockGui:_set_done(bar)
 	else
 		self._started = false
 	end
-
 	self._gui_script.time_header_text:set_visible(false)
 	self._gui_script.time_text:set_visible(false)
 end
@@ -216,7 +196,6 @@ function SecurityLockGui:post_event(event)
 	if not event then
 		return
 	end
-
 	self._unit:sound_source():post_event(event)
 end
 
@@ -231,7 +210,6 @@ function SecurityLockGui:destroy()
 		self._ws = nil
 		self._new_gui = nil
 	end
-
 end
 
 function SecurityLockGui:save(data)
@@ -249,23 +227,15 @@ end
 
 function SecurityLockGui:load(data)
 	local state = data.SecurityLockGui
-	do
-		local (for generator), (for state), (for control) = pairs(state.done_bars)
-		do
-			do break end
-			self:_set_done(bar)
-		end
-
+	for bar, _ in pairs(state.done_bars) do
+		self:_set_done(bar)
 	end
-
 	if state.update_enabled then
 		self:_start(state.current_bar, state.timer, state.current_timer)
 		if not state.powered then
 			self:_set_powered(state.powered)
 		end
-
 	end
-
 	self:set_visible(state.visible)
 end
 

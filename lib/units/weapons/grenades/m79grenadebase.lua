@@ -34,11 +34,9 @@ function M79GrenadeBase:update(unit, t, dt)
 		self:_detonate()
 		return
 	end
-
 	if t < self._next_upd_t then
 		return
 	end
-
 	local dt = t - self._last_upd_t
 	mvector3.set(self._last_last_pos, self._last_pos)
 	mvector3.set(self._last_pos, self._new_pos)
@@ -47,7 +45,6 @@ function M79GrenadeBase:update(unit, t, dt)
 		self:_detonate()
 		return
 	end
-
 	self:_upd_position()
 	if self._hidden then
 		local safe_dis_sq = 120
@@ -56,9 +53,7 @@ function M79GrenadeBase:update(unit, t, dt)
 			self._hidden = false
 			self._unit:set_visible(true)
 		end
-
 	end
-
 	self._last_upd_t = t
 	self._next_upd_t = t + self._upd_interval
 end
@@ -82,7 +77,6 @@ function M79GrenadeBase:_chk_collision()
 		self._col_ray = col_ray
 		return true
 	end
-
 end
 
 function M79GrenadeBase:_detonate()
@@ -91,11 +85,9 @@ function M79GrenadeBase:_detonate()
 		if self._unit:slot() == 0 then
 			self._unit:set_slot(14)
 		end
-
 		self._unit:set_slot(0)
 		return
 	end
-
 	self._detonated = true
 	local expl_normal = mvector3.copy(self._velocity)
 	mvector3.negate(expl_normal)
@@ -107,13 +99,11 @@ function M79GrenadeBase:_detonate()
 	else
 		mvector3.add(expl_pos, self._new_pos)
 	end
-
 	managers.explosion:play_sound_and_effects(expl_pos, expl_normal, self._range)
 	self._unit:set_slot(0)
 	if not alive(self._owner) or not alive(self._user) then
 		return
 	end
-
 	GrenadeBase._detect_and_give_dmg(self, expl_pos)
 	managers.network:session():send_to_peers_synched("m79grenade_explode_on_client", expl_pos, expl_normal, self._user, self._damage, self._range, self._curve_pow)
 end

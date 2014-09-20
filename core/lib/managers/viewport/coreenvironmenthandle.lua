@@ -26,12 +26,10 @@ function EnvironmentHandle:do_callback()
 	if self._interface._pre_call then
 		self._interface:_pre_call()
 	end
-
 	local ret = self._script_cb(self._interface)
 	if self._interface._process_return then
 		ret = self._interface:_process_return(ret)
 	end
-
 	return assert(ret, "[EnvironmentHandle] The script callback should return a table!")
 end
 

@@ -11,23 +11,18 @@ function ElementProfileFilter:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	if not self:_check_player_lvl() then
 		return
 	end
-
 	if not self:_check_total_money_earned() then
 		return
 	end
-
 	if not self:_check_total_money_offshore() then
 		return
 	end
-
 	if not self:_check_achievement() then
 		return
 	end
-
 	ElementProfileFilter.super.on_executed(self, instigator)
 end
 
@@ -45,7 +40,6 @@ function ElementProfileFilter:_check_total_money_offshore()
 	if not self._values.money_offshore then
 		return false
 	end
-
 	local pass = managers.money:offshore() >= self._values.money_offshore * 1000
 	return pass
 end
@@ -54,7 +48,6 @@ function ElementProfileFilter:_check_achievement()
 	if self._values.achievement == "none" then
 		return true
 	end
-
 	local info = managers.achievment:get_info(self._values.achievement)
 	local pass = info and info.awarded
 	return pass

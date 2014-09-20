@@ -6,41 +6,28 @@ function CoreMusicManager:init()
 		Global.music_manager.volume = 0
 		self:init_globals()
 	end
-
 	self._path_list = {}
 	self._path_map = {}
 	self._event_map = {}
 	local temp_list = {}
 	local events = Application:editor() and PackageManager:has(Idstring("bnk"), Idstring("soundbanks/music")) and SoundDevice:events("soundbanks/music")
 	if events then
-		local (for generator), (for state), (for control) = pairs(events)
-		do
-			do break end
+		for k, v in pairs(events) do
 			if not temp_list[v.path] then
 				temp_list[v.path] = 1
 				table.insert(self._path_list, v.path)
 			end
-
 			self._path_map[k] = v.path
 			if not self._event_map[v.path] then
 				self._event_map[v.path] = {}
 			end
-
 			table.insert(self._event_map[v.path], k)
 		end
-
 	end
-
 	table.sort(self._path_list)
-	do
-		local (for generator), (for state), (for control) = pairs(self._event_map)
-		do
-			do break end
-			table.sort(v)
-		end
-
+	for k, v in pairs(self._event_map) do
+		table.sort(v)
 	end
-
 	self._has_music_control = true
 	self._external_media_playing = false
 end
@@ -52,7 +39,6 @@ function CoreMusicManager:init_finalize()
 		managers.platform:add_event_callback("media_player_control", callback(self, self, "clbk_game_has_music_control"))
 		self:set_volume(Global.music_manager.volume)
 	end
-
 	managers.savefile:add_load_sequence_done_callback_handler(callback(self, self, "on_load_complete"))
 end
 
@@ -67,22 +53,18 @@ function CoreMusicManager:check_music_switch()
 		Global.music_manager.source:set_switch("music_randomizer", Global.music_manager.current_track)
 	else
 	end
-
 end
 
 function CoreMusicManager:post_event(name)
 	if not name then
 		return
 	end
-
 	if Global.music_manager.current_event ~= name then
 		if not self._skip_play then
 			Global.music_manager.source:post_event(name)
 		end
-
 		Global.music_manager.current_event = name
 	end
-
 end
 
 function CoreMusicManager:stop()
@@ -109,7 +91,6 @@ function CoreMusicManager:set_volume(volume)
 	else
 		SoundDevice:set_rtpc("option_music_volume", 0)
 	end
-
 end
 
 function CoreMusicManager:clbk_game_has_music_control(status)
@@ -119,7 +100,6 @@ function CoreMusicManager:clbk_game_has_music_control(status)
 	else
 		SoundDevice:set_rtpc("option_music_volume", 0)
 	end
-
 	self._has_music_control = status
 end
 
@@ -136,7 +116,6 @@ function CoreMusicManager:save(data)
 	if game_state_machine:current_state_name() ~= "ingame_waiting_for_players" then
 		state.event = Global.music_manager.current_event
 	end
-
 	state.track = Global.music_manager.current_track
 	data.CoreMusicManager = state
 end
@@ -146,7 +125,6 @@ function CoreMusicManager:load(data)
 	if state.event then
 		self:post_event(state.event)
 	end
-
 	Global.music_manager.synced_track = state.track
 end
 

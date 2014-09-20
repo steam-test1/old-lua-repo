@@ -17,12 +17,10 @@ function ElementCinematicCamera:on_executed(instigator, alternative, ...)
 	if not self._values.enabled then
 		return
 	end
-
 	if not alternative or type_name(alternative) ~= "string" then
 		self._camera_unit:base():start()
 		self._camera_unit:base():play_state(Idstring(self._values.state))
 	end
-
 	ElementCinematicCamera.super.on_executed(self, instigator, alternative or "normal", ...)
 end
 
@@ -35,7 +33,6 @@ function ElementCinematicCamera:_delete_camera_unit()
 	if not self._camera_unit then
 		return
 	end
-
 	World:delete_unit(self._camera_unit)
 	self._camera_unit = nil
 end

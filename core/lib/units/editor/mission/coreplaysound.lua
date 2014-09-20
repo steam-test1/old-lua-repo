@@ -23,9 +23,7 @@ function CorePlaySoundUnitElement:update_editing()
 end
 
 function CorePlaySoundUnitElement:update_selected(t, dt, selected_unit, all_units)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -37,9 +35,7 @@ function CorePlaySoundUnitElement:update_selected(t, dt, selected_unit, all_unit
 				b = 0
 			})
 		end
-
 	end
-
 end
 
 function CorePlaySoundUnitElement:add_element()
@@ -51,21 +47,15 @@ function CorePlaySoundUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function CorePlaySoundUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function CorePlaySoundUnitElement:add_triggers(vc)
@@ -84,13 +74,11 @@ function CorePlaySoundUnitElement:test_element()
 		if self._ss then
 			self._ss:stop()
 		end
-
 		self._ss = SoundDevice:create_source(self._unit:unit_data().name_id)
 		self._ss:set_position(self._unit:position())
 		self._ss:set_orientation(self._unit:rotation())
 		self._ss:post_event(self._hed.sound_event)
 	end
-
 end
 
 function CorePlaySoundUnitElement:stop_test_element()
@@ -99,7 +87,6 @@ function CorePlaySoundUnitElement:stop_test_element()
 	if self._ss then
 		self._ss:stop()
 	end
-
 end
 
 function CorePlaySoundUnitElement:set_category()
@@ -128,7 +115,6 @@ function CorePlaySoundUnitElement:_build_panel(panel, panel_sizer)
 		self:add_help_text(help)
 		return
 	end
-
 	self._hed.sound_event = self._hed.sound_event or managers.sound_environment:scene_events(paths[1])[1]
 	self:_add_soundbank()
 	local path_value = managers.sound_environment:scene_path(self._hed.sound_event)

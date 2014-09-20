@@ -23,30 +23,15 @@ EscortWithSuitcaseActionWalk._walk_anim_lengths = {
 		}
 	}
 }
-do
-	local (for generator), (for state), (for control) = pairs(EscortWithSuitcaseActionWalk._walk_anim_lengths)
-	do
-		do break end
-		local (for generator), (for state), (for control) = pairs(stances)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(speeds)
-			do
-				do break end
-				local (for generator), (for state), (for control) = pairs(sides)
-				do
-					do break end
-					sides[side] = speed * 0.03333
-				end
-
+for pose, stances in pairs(EscortWithSuitcaseActionWalk._walk_anim_lengths) do
+	for stance, speeds in pairs(stances) do
+		for speed, sides in pairs(speeds) do
+			for side, speed in pairs(sides) do
+				sides[side] = speed * 0.03333
 			end
-
 		end
-
 	end
-
 end
-
 EscortPrisonerActionWalk = EscortPrisonerActionWalk or class(CopActionWalk)
 EscortPrisonerActionWalk._walk_anim_velocities = {
 	stand = {
@@ -72,24 +57,12 @@ EscortPrisonerActionWalk._walk_anim_lengths = {
 		}
 	}
 }
-local (for generator), (for state), (for control) = pairs(EscortPrisonerActionWalk._walk_anim_lengths)
-do
-	do break end
-	local (for generator), (for state), (for control) = pairs(stances)
-	do
-		do break end
-		local (for generator), (for state), (for control) = pairs(speeds)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(sides)
-			do
-				do break end
+for pose, stances in pairs(EscortPrisonerActionWalk._walk_anim_lengths) do
+	for stance, speeds in pairs(stances) do
+		for speed, sides in pairs(speeds) do
+			for side, speed in pairs(sides) do
 				sides[side] = speed * 0.03333
 			end
-
 		end
-
 	end
-
 end
-

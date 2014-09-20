@@ -120,15 +120,9 @@ function EditUnitLight:init(editor)
 	}
 	CoreEws.number_controller(self._lower_clipping_params)
 	local intensity_options = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(LightIntensityDB:list())
-		do
-			do break end
-			table.insert(intensity_options, intensity:s())
-		end
-
+	for _, intensity in ipairs(LightIntensityDB:list()) do
+		table.insert(intensity_options, intensity:s())
 	end
-
 	self._intensity_params = {
 		name = "Intensity:",
 		panel = panel,
@@ -238,15 +232,9 @@ function EditUnitLight:get_spot_projection_textures()
 	local entry_path = managers.database:entry_path(managers.database:base_path() .. "units\\lights\\spot_light_projection_textures")
 	local files = SystemFS:list(managers.database:base_path() .. "units\\lights\\spot_light_projection_textures")
 	local textures = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(files)
-		do
-			do break end
-			table.insert(textures, managers.database:entry_path(entry_path .. "\\" .. file))
-		end
-
+	for _, file in ipairs(files) do
+		table.insert(textures, managers.database:entry_path(entry_path .. "\\" .. file))
 	end
-
 	return textures
 end
 
@@ -255,7 +243,6 @@ function EditUnitLight:change_light()
 		local light = self._reference_unit:get_object(Idstring(self._lights_params.ctrlr:get_value()))
 		self:update_light_ctrls_from_light(light)
 	end
-
 end
 
 function EditUnitLight:update_light_ctrls_from_light(light)
@@ -278,7 +265,6 @@ function EditUnitLight:update_light_ctrls_from_light(light)
 	else
 		-- unhandled boolean indicator
 	end
-
 	local is_spot = true
 	self._spot_start_angle_params.number_ctrlr:set_enabled(is_spot)
 	self._spot_start_angle_params.slider_ctrlr:set_enabled(is_spot)
@@ -297,69 +283,48 @@ function EditUnitLight:update_light_ctrls_from_light(light)
 end
 
 function EditUnitLight:update_falloff()
-	local (for generator), (for state), (for control) = ipairs(self:_selected_lights())
-	do
-		do break end
+	for _, light in ipairs(self:_selected_lights()) do
 		light:set_falloff_exponent(self._falloff_params.value)
 	end
-
 end
 
 function EditUnitLight:update_enabled()
-	local (for generator), (for state), (for control) = ipairs(self:_selected_lights())
-	do
-		do break end
+	for _, light in ipairs(self:_selected_lights()) do
 		light:set_enable(self._enabled_ctrlr:get_value())
 	end
-
 end
 
 function EditUnitLight:show_color_dialog()
 	local colordlg = EWS:ColourDialog(self._panel, true, self._color_ctrlr:background_colour() / 255)
 	if colordlg:show_modal() then
 		self._color_ctrlr:set_background_colour(colordlg:get_colour().x * 255, colordlg:get_colour().y * 255, colordlg:get_colour().z * 255)
-		local (for generator), (for state), (for control) = ipairs(self:_selected_lights())
-		do
-			do break end
+		for _, light in ipairs(self:_selected_lights()) do
 			light:set_color(self._color_ctrlr:background_colour() / 255)
 		end
-
 	end
-
 end
 
 function EditUnitLight:update_intensity()
-	local (for generator), (for state), (for control) = ipairs(self:_selected_lights())
-	do
-		do break end
+	for _, light in ipairs(self:_selected_lights()) do
 		light:set_multiplier(LightIntensityDB:lookup(Idstring(self._intensity_params.value)))
 		light:set_specular_multiplier(LightIntensityDB:lookup_specular_multiplier(Idstring(self._intensity_params.value)))
 	end
-
 end
 
 function EditUnitLight:update_near_range(params)
-	local (for generator), (for state), (for control) = ipairs(self:_selected_lights())
-	do
-		do break end
+	for _, light in ipairs(self:_selected_lights()) do
 		light:set_near_range(params.value)
 	end
-
 end
 
 function EditUnitLight:update_far_range(params)
-	local (for generator), (for state), (for control) = ipairs(self:_selected_lights())
-	do
-		do break end
+	for _, light in ipairs(self:_selected_lights()) do
 		light:set_far_range(params.value)
 	end
-
 end
 
 function EditUnitLight:update_clipping(value, params)
-	local (for generator), (for state), (for control) = ipairs(self:_selected_lights())
-	do
-		do break end
+	for _, light in ipairs(self:_selected_lights()) do
 		local clipping_values = light:clipping_values()
 		if value == "x" then
 			light:set_clipping_values(clipping_values:with_x(params.value))
@@ -368,52 +333,37 @@ function EditUnitLight:update_clipping(value, params)
 		elseif value == "z" then
 			light:set_clipping_values(clipping_values:with_z(params.value))
 		end
-
 	end
-
 end
 
 function EditUnitLight:update_start_angle()
-	local (for generator), (for state), (for control) = ipairs(self:_selected_lights())
-	do
-		do break end
+	for _, light in ipairs(self:_selected_lights()) do
 		light:set_spot_angle_start(self._spot_start_angle_params.value)
 	end
-
 end
 
 function EditUnitLight:update_end_angle()
-	local (for generator), (for state), (for control) = ipairs(self:_selected_lights())
-	do
-		do break end
+	for _, light in ipairs(self:_selected_lights()) do
 		light:set_spot_angle_end(self._spot_end_angle_params.value)
 	end
-
 end
 
 function EditUnitLight:update_resolution()
 	local value = self._shadow_resolution_params.value
-	local (for generator), (for state), (for control) = ipairs(self._selected_units)
-	do
-		do break end
+	for _, unit in ipairs(self._selected_units) do
 		if alive(unit) then
 			local light = unit:get_object(Idstring(self._lights_params.ctrlr:get_value()))
 			if light then
 				unit:unit_data().projection_lights = unit:unit_data().projection_lights or {}
 				unit:unit_data().projection_lights[light:name():s()] = {x = value, y = value}
 			end
-
 		end
-
 	end
-
 end
 
 function EditUnitLight:update_spot_projection_texture()
 	local value = self._spot_projection_texture_params.value
-	local (for generator), (for state), (for control) = ipairs(self._selected_units)
-	do
-		do break end
+	for _, unit in ipairs(self._selected_units) do
 		if alive(unit) then
 			local light = unit:get_object(Idstring(self._lights_params.ctrlr:get_value()))
 			if light then
@@ -421,31 +371,20 @@ function EditUnitLight:update_spot_projection_texture()
 				unit:unit_data().projection_textures = unit:unit_data().projection_textures or {}
 				unit:unit_data().projection_textures[light:name():s()] = value
 			end
-
 		end
-
 	end
-
 end
 
 function EditUnitLight:_selected_lights()
 	local lights = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._selected_units)
-		do
-			do break end
-			if alive(unit) then
-				local light = unit:get_object(Idstring(self._lights_params.ctrlr:get_value()))
-				if light then
-					table.insert(lights, light)
-				end
-
+	for _, unit in ipairs(self._selected_units) do
+		if alive(unit) then
+			local light = unit:get_object(Idstring(self._lights_params.ctrlr:get_value()))
+			if light then
+				table.insert(lights, light)
 			end
-
 		end
-
 	end
-
 	return lights
 end
 
@@ -453,7 +392,6 @@ function EditUnitLight:_reference_light()
 	if alive(self._reference_unit) then
 		return self._reference_unit:get_object(Idstring(self._lights_params.ctrlr:get_value()))
 	end
-
 end
 
 function EditUnitLight:_is_type(type)
@@ -464,15 +402,9 @@ function EditUnitLight:is_editable(unit, units)
 	if alive(unit) then
 		local lights = CoreEditorUtils.get_editable_lights(unit)
 		local options = {}
-		do
-			local (for generator), (for state), (for control) = ipairs(lights)
-			do
-				do break end
-				table.insert(options, light:name():s())
-			end
-
+		for _, light in ipairs(lights) do
+			table.insert(options, light:name():s())
 		end
-
 		CoreEws.update_combobox_options(self._lights_params, options)
 		if lights[1] then
 			self._reference_unit = unit
@@ -480,9 +412,7 @@ function EditUnitLight:is_editable(unit, units)
 			self:update_light_ctrls_from_light(lights[1])
 			return true
 		end
-
 	end
-
 	self._selected_units = {}
 	return false
 end
@@ -495,20 +425,15 @@ function EditUnitLight:_draw(t, dt)
 	if not self._debug then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self:_selected_lights())
-	do
-		do break end
+	for _, light in ipairs(self:_selected_lights()) do
 		self:_draw_light(light, t, dt)
 	end
-
 end
 
 function EditUnitLight:_draw_light(light, t, dt)
 	if not light:enable() then
 		return
 	end
-
 	local c = light:color()
 	local clipping_values = light:clipping_values()
 	if self:_is_type("omni") then
@@ -528,7 +453,6 @@ function EditUnitLight:_draw_light(light, t, dt)
 		Application:draw_cone(light:position(), light:position() - light:rotation():z() * light:far_range(), far_radius, c.x * 1, c.y * 1, c.z * 1)
 		Application:draw_cone(light:position(), light:position() - light:rotation():z() * light:near_range(), near_radius, c.x * 0.5, c.y * 0.5, c.z * 0.5)
 	end
-
 	self._brush:set_color(Color(0.5, c.x * 1, c.y * 0.5, c.z * 0))
 	self._brush:disc(light:position() + Vector3(0, 0, clipping_values.x), light:far_range())
 	self._pen:circle(light:position() + Vector3(0, 0, clipping_values.x), light:far_range())

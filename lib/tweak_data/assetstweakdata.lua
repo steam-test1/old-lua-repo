@@ -1013,65 +1013,37 @@ end
 
 function AssetsTweakData:debug_assets()
 	local levels = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(tweak_data.levels:get_level_index())
-		do
-			do break end
-			levels[level_id] = 0
-		end
-
+	for i, level_id in ipairs(tweak_data.levels:get_level_index()) do
+		levels[level_id] = 0
 	end
-
 	local function f(id)
 		if id == "all" then
-			local (for generator), (for state), (for control) = pairs(levels)
-			do
-				do break end
+			for i, d in pairs(levels) do
 				levels[i] = levels[i] + 1
 			end
-
 		else
 			levels[id] = levels[id] + 1
 		end
-
 	end
 
-	do
-		local (for generator), (for state), (for control) = pairs(self)
-		do
-			do break end
-			if id ~= "none" then
-				local stages = asset.stages
-				if not stages or type(stages) == "string" then
-					f(stages)
-				else
-					local (for generator), (for state), (for control) = ipairs(stages)
-					do
-						do break end
-						f(lid)
-					end
-
+	for id, asset in pairs(self) do
+		if id ~= "none" then
+			local stages = asset.stages
+			if not stages or type(stages) == "string" then
+				f(stages)
+			else
+				for _, lid in ipairs(stages) do
+					f(lid)
 				end
-
 			end
-
 		end
-
 	end
-
 	local asset_levels = {}
-	do
-		local (for generator), (for state), (for control) = pairs(levels)
-		do
-			do break end
-			if d > 0 then
-				asset_levels[i] = d
-			end
-
+	for i, d in pairs(levels) do
+		if d > 0 then
+			asset_levels[i] = d
 		end
-
 	end
-
 	print(inspect(asset_levels))
 end
 

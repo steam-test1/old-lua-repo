@@ -31,9 +31,7 @@ end
 
 function InstigatorOperatorUnitElement:draw_links(t, dt, selected_unit, all_units)
 	InstigatorOperatorUnitElement.super.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -45,9 +43,7 @@ function InstigatorOperatorUnitElement:draw_links(t, dt, selected_unit, all_unit
 				b = 0.25
 			})
 		end
-
 	end
-
 end
 
 function InstigatorOperatorUnitElement:update_editing()
@@ -62,21 +58,15 @@ function InstigatorOperatorUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function InstigatorOperatorUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function InstigatorOperatorUnitElement:add_triggers(vc)
@@ -137,9 +127,7 @@ end
 
 function InstigatorTriggerUnitElement:draw_links(t, dt, selected_unit, all_units)
 	InstigatorTriggerUnitElement.super.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -151,9 +139,7 @@ function InstigatorTriggerUnitElement:draw_links(t, dt, selected_unit, all_units
 				b = 0.25
 			})
 		end
-
 	end
-
 end
 
 function InstigatorTriggerUnitElement:update_editing()
@@ -168,21 +154,15 @@ function InstigatorTriggerUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function InstigatorTriggerUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function InstigatorTriggerUnitElement:add_triggers(vc)

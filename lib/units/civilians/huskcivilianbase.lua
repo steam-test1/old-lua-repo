@@ -23,6 +23,5 @@ function HuskCivilianBase:sync_net_event(event_id)
 	elseif event_id == 2 then
 		managers.groupai:state():on_hostage_follow(managers.player:player_unit(), self._unit, false)
 	end
-
 end
 

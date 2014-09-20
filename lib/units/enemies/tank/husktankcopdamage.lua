@@ -5,7 +5,6 @@ function HuskTankCopDamage:damage_melee(attack_data)
 	else
 		return
 	end
-
 end
 
 function HuskTankCopDamage:seq_clbk_vizor_shatter()

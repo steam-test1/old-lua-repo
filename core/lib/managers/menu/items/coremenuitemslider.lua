@@ -15,7 +15,6 @@ function ItemSlider:init(data_node, parameters)
 		self._step = data_node.step or self._step
 		self._show_value = data_node.show_value
 	end
-
 	self._min = tonumber(self._min)
 	self._max = tonumber(self._max)
 	self._step = tonumber(self._step)
@@ -142,7 +141,6 @@ function ItemSlider:setup_gui(node, row_item)
 	})
 	if row_item.help_text then
 	end
-
 	self:_layout(node, row_item)
 	return true
 end
@@ -170,7 +168,6 @@ function ItemSlider:highlight_row_item(node, row_item, mouse_over)
 	if row_item.gui_info_panel then
 		row_item.gui_info_panel:set_visible(true)
 	end
-
 	return true
 end
 
@@ -188,7 +185,6 @@ function ItemSlider:fade_row_item(node, row_item)
 	if row_item.gui_info_panel then
 		row_item.gui_info_panel:set_visible(false)
 	end
-
 	return true
 end
 
@@ -215,7 +211,6 @@ function ItemSlider:_layout(node, row_item)
 	else
 		row_item.gui_slider_text:set_x(row_item.gui_slider_text:x() - node.align_line_padding(node))
 	end
-
 	row_item.gui_slider_gfx:set_h(sh)
 	row_item.gui_slider_gfx:set_x(row_item.gui_slider_bg:x())
 	row_item.gui_slider_gfx:set_y(row_item.gui_slider_bg:y())
@@ -229,7 +224,6 @@ function ItemSlider:_layout(node, row_item)
 	else
 		row_item.gui_text:set_left(node._right_align(node) - row_item.gui_panel:x())
 	end
-
 	row_item.gui_text:set_height(h)
 end
 

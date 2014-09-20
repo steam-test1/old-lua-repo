@@ -37,7 +37,6 @@ function CivilianBrain:update(unit, t, dt)
 		l_data.dt = dt
 		logic.update(l_data)
 	end
-
 end
 
 function CivilianBrain:_reset_logic_data()
@@ -53,7 +52,6 @@ function CivilianBrain:cancel_trade()
 	if not self._active then
 		return
 	end
-
 	self:set_logic("surrender")
 end
 
@@ -61,27 +59,23 @@ function CivilianBrain:on_rescue_allowed_state(state)
 	if self._current_logic.on_rescue_allowed_state then
 		self._current_logic.on_rescue_allowed_state(self._logic_data, state)
 	end
-
 end
 
 function CivilianBrain:wants_rescue()
 	if self._current_logic.wants_rescue then
 		return self._current_logic.wants_rescue(self._logic_data)
 	end
-
 end
 
 function CivilianBrain:on_cool_state_changed(state)
 	if self._logic_data then
 		self._logic_data.cool = state
 	end
-
 	if self._alert_listen_key then
 		managers.groupai:state():remove_alert_listener(self._alert_listen_key)
 	else
 		self._alert_listen_key = "CopBrain" .. tostring(self._unit:key())
 	end
-
 	local alert_listen_filter, alert_types
 	if state then
 		alert_listen_filter = managers.groupai:state():get_unit_type_filter("criminals_enemies_civilians")
@@ -98,7 +92,6 @@ function CivilianBrain:on_cool_state_changed(state)
 		alert_listen_filter = managers.groupai:state():get_unit_type_filter("criminal")
 		alert_types = {bullet = true}
 	end
-
 	managers.groupai:state():add_alert_listener(self._alert_listen_key, callback(self, self, "on_alert"), alert_listen_filter, alert_types, self._unit:movement():m_head_pos())
 end
 
@@ -106,17 +99,14 @@ function CivilianBrain:on_hostage_move_interaction(interacting_unit, command)
 	if not self._logic_data.is_tied then
 		return
 	end
-
 	if command == "move" then
 		local following_hostages = managers.groupai:state():get_following_hostages(interacting_unit)
 		if following_hostages and table.size(following_hostages) >= tweak_data.player.max_nr_following_hostages then
 			return
 		end
-
 		if not self._unit:anim_data().drop and self._unit:anim_data().tied then
 			return
 		end
-
 		local stand_action_desc = {
 			type = "act",
 			variant = "stand_tied",
@@ -127,7 +117,6 @@ function CivilianBrain:on_hostage_move_interaction(interacting_unit, command)
 		if not action then
 			return
 		end
-
 		self._unit:movement():set_stance("cbt", nil, true)
 		local follow_objective = {
 			type = "follow",
@@ -150,7 +139,6 @@ function CivilianBrain:on_hostage_move_interaction(interacting_unit, command)
 		if not self._unit:anim_data().stand then
 			return
 		end
-
 		self:set_objective({
 			type = "surrender",
 			amount = 1,
@@ -159,7 +147,6 @@ function CivilianBrain:on_hostage_move_interaction(interacting_unit, command)
 		if not self._unit:anim_data().stand then
 			return
 		end
-
 		local stand_action_desc = {
 			type = "act",
 			variant = "drop",
@@ -170,19 +157,16 @@ function CivilianBrain:on_hostage_move_interaction(interacting_unit, command)
 		if not action then
 			return
 		end
-
 		self._unit:movement():set_stance("hos", nil, true)
 		self._unit:interaction():set_tweak_data("hostage_move")
 		self._unit:interaction():set_active(true, true)
 		if alive(interacting_unit) then
 			interacting_unit:sound():say("f02x_sin", false, true)
 		end
-
 		if self._following_hostage_contour_id then
 			self._unit:contour():remove_by_id(self._following_hostage_contour_id, true)
 			self._following_hostage_contour_id = nil
 		end
-
 		managers.groupai:state():on_hostage_follow(interacting_unit, self._unit, false)
 	elseif command == "release" then
 		self._logic_data.is_tied = nil
@@ -197,17 +181,14 @@ function CivilianBrain:on_hostage_move_interaction(interacting_unit, command)
 		if not action then
 			return
 		end
-
 		self._unit:interaction():set_tweak_data("intimidate")
 		self._unit:interaction():set_active(false, true)
 		if self._following_hostage_contour_id then
 			self._unit:contour():remove_by_id(self._following_hostage_contour_id, true)
 			self._following_hostage_contour_id = nil
 		end
-
 		managers.groupai:state():on_hostage_follow(interacting_unit, self._unit, false)
 	end
-
 	return true
 end
 
@@ -215,7 +196,6 @@ function CivilianBrain:on_hostage_follow_objective_failed(unit)
 	if not unit:character_damage():dead() then
 		self:on_hostage_move_interaction(nil, "stay")
 	end
-
 end
 
 function CivilianBrain:is_tied()
@@ -228,6 +208,5 @@ function CivilianBrain:save(save_data)
 	if self._following_hostage_contour_id then
 		my_save_data.following_hostage_contour = true
 	end
-
 end
 

@@ -15,11 +15,9 @@ function PlayerClean:_enter(enter_data)
 		self._ext_inventory:equip_selection(1, false)
 		managers.upgrades:setup_current_weapon()
 	end
-
 	if self._unit:camera():anim_data().equipped then
 		self._unit:camera():play_redirect(self._ids_unequip)
 	end
-
 	self._unit:base():set_slot(self._unit, 4)
 	self._ext_movement:set_attention_settings({
 		"pl_law_susp_peaceful",
@@ -33,7 +31,6 @@ function PlayerClean:_enter(enter_data)
 			"enemy_weapons_hot"
 		}, callback(self, self, "clbk_enemy_weapons_hot"))
 	end
-
 	self._ext_network:send("set_stance", 1, false, false)
 end
 
@@ -43,12 +40,10 @@ function PlayerClean:exit(state_data, new_state_name)
 		self._unit:inventory():equip_selection(self._previous_equipped_selection, false)
 		self._previous_equipped_selection = nil
 	end
-
 	self._unit:base():set_slot(self._unit, 2)
 	if self._enemy_weapons_hot_listen_id then
 		managers.groupai:state():remove_listener(self._enemy_weapons_hot_listen_id)
 	end
-
 	return
 end
 
@@ -70,22 +65,18 @@ function PlayerClean:_update_check_actions(t, dt)
 		local cam_flat_rot = Rotation(self._cam_fwd_flat, math.UP)
 		mvector3.rotate_with(self._move_dir, cam_flat_rot)
 	end
-
 	if input.btn_stats_screen_press then
 		self._unit:base():set_stats_screen_visible(true)
 	elseif input.btn_stats_screen_release then
 		self._unit:base():set_stats_screen_visible(false)
 	end
-
 	self:_update_foley(t, input)
 	local new_action
 	if not new_action then
 	end
-
 	if not new_action and self._state_data.ducking then
 		self:_end_action_ducking(t)
 	end
-
 end
 
 function PlayerClean:_get_walk_headbob()
@@ -100,9 +91,7 @@ function PlayerClean:_check_action_interact(t, input)
 		if not action_forbidden then
 			self:_start_action_state_standard(t)
 		end
-
 	end
-
 	return new_action
 end
 

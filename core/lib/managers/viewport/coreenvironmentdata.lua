@@ -8,7 +8,6 @@ function EnvironmentData:init(entry_path)
 	if entry_path then
 		self:load(entry_path)
 	end
-
 end
 
 function EnvironmentData:load(entry_path)
@@ -17,15 +16,9 @@ function EnvironmentData:load(entry_path)
 	local env_data = self:_serialize_to_script("environment", entry_path)
 	env_data.metadata._meta = nil
 	env_data.metadata.param = nil
-	do
-		local (for generator), (for state), (for control) = ipairs(env_data.metadata)
-		do
-			do break end
-			self._metadata[data.key] = data.key.value
-		end
-
+	for _, data in ipairs(env_data.metadata) do
+		self._metadata[data.key] = data.key.value
 	end
-
 	self:_serialized_load_data(env_data.data, self._data)
 	return
 end
@@ -70,39 +63,27 @@ function EnvironmentData:_serialize_to_script(type, name)
 	else
 		return PackageManager:script_data(type:id(), name:id())
 	end
-
 end
 
 function EnvironmentData:_for_each(cb, data, path)
-	local (for generator), (for state), (for control) = pairs(data)
-	do
-		do break end
+	for k, v in pairs(data) do
 		local t = {
 			unpack(path)
 		}
 		local the_end = false
-		do
-			local (for generator), (for state), (for control) = pairs(v)
-			do
-				do break end
-				if type(pv) ~= "table" then
-					table.insert(t, k)
-					cb(v, unpack(t))
-					the_end = true
-			end
-
+		for _, pv in pairs(v) do
+			if type(pv) ~= "table" then
+				table.insert(t, k)
+				cb(v, unpack(t))
+				the_end = true
 			else
 			end
-
 		end
-
 		if not the_end then
 			table.insert(t, k)
 			self:_for_each(cb, v, t)
 		end
-
 	end
-
 end
 
 function EnvironmentData:_get(data, ...)
@@ -115,7 +96,6 @@ function EnvironmentData:_get(data, ...)
 	else
 		return self:_get(arg, select(2, ...))
 	end
-
 	error("[EnvironmentData] Bad path!")
 end
 
@@ -128,30 +108,20 @@ function EnvironmentData:_set(create_new, data, block, ...)
 		arg = {}
 		data[args[1]] = arg
 	end
-
 	if #args == 1 then
-		do
-			local (for generator), (for state), (for control) = pairs(block)
-			do
-				do break end
-				arg[pk] = pv
-			end
-
+		for pk, pv in pairs(block) do
+			arg[pk] = pv
 		end
-
 		return
 	else
 		self:_set(create_new, arg, block, select(2, ...))
 		return
 	end
-
 	error("[EnvironmentData] Bad path!")
 end
 
 function EnvironmentData:_serialized_load_data(data, data_table)
-	local (for generator), (for state), (for control) = ipairs(data)
-	do
-		do break end
+	for _, d in ipairs(data) do
 		if d._meta == "param" then
 			data_table[d.key] = d.value
 		else
@@ -159,8 +129,6 @@ function EnvironmentData:_serialized_load_data(data, data_table)
 			data_table[d._meta] = child_data
 			self:_serialized_load_data(d, child_data)
 		end
-
 	end
-
 end
 

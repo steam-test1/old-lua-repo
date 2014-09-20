@@ -8,7 +8,6 @@ function QuickSmokeGrenade:update(unit, t, dt)
 	if self._remove_t and t > self._remove_t then
 		self._unit:set_slot(0)
 	end
-
 	if self._state == 1 then
 		self._timer = self._timer - dt
 		if 0 >= self._timer then
@@ -16,16 +15,13 @@ function QuickSmokeGrenade:update(unit, t, dt)
 			self._state = 2
 			self:_play_sound_and_effects()
 		end
-
 	elseif self._state == 2 then
 		self._timer = self._timer - dt
 		if 0 >= self._timer then
 			self._state = 3
 			self:detonate()
 		end
-
 	end
-
 end
 
 function QuickSmokeGrenade:activate(position, duration)
@@ -70,13 +66,11 @@ function QuickSmokeGrenade:_play_sound_and_effects()
 			parent = parent
 		})
 	end
-
 end
 
 function QuickSmokeGrenade:destroy()
 	if self._smoke_effect then
 		World:effect_manager():fade_kill(self._smoke_effect)
 	end
-
 end
 

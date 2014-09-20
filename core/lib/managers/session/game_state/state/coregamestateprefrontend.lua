@@ -15,11 +15,9 @@ function PreFrontEnd:transition()
 	if not self.game_state:player_slots():has_primary_local_user() then
 		return
 	end
-
 	local local_user = self.game_state:player_slots():primary_local_user()
 	if local_user:profile_data_is_loaded() then
 		return CoreGameStateFrontEnd.FrontEnd
 	end
-
 end
 

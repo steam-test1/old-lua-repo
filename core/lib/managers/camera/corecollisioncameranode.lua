@@ -21,7 +21,6 @@ function CollisionCameraNode:set_unit(unit)
 	if self._ignore_unit then
 		self._pop_controller:set_parameter("ignore_units", {unit})
 	end
-
 end
 
 function CollisionCameraNode:set_safe_position(position)
@@ -35,31 +34,26 @@ function CollisionCameraNode.compile_settings(xml_node, settings)
 	else
 		settings.ignore_unit = true
 	end
-
 	if xml_node:has_parameter("smooth_radius") then
 		settings.smooth_radius = tonumber(xml_node:parameter("smooth_radius"))
 	else
 		settings.smooth_radius = 30
 	end
-
 	if xml_node:has_parameter("near_radius") then
 		settings.near_radius = tonumber(xml_node:parameter("near_radius"))
 	else
 		settings.near_radius = 5
 	end
-
 	if xml_node:has_parameter("precision") then
 		settings.precision = tonumber(xml_node:parameter("precision"))
 	else
 		settings.precision = 0.005
 	end
-
 	if xml_node:has_parameter("max_velocity") then
 		settings.max_velocity = tonumber(xml_node:parameter("max_velocity"))
 	else
 		settings.max_velocity = 300
 	end
-
 end
 
 function CollisionCameraNode:update(t, dt, in_data, out_data)
@@ -93,14 +87,12 @@ function CollisionCameraNode:_update_fast_smooth(t, dt, in_data, out_data)
 			local diff = math.clamp(collision_distance - self._camera_distance, 0, self._camera_max_velocity * dt)
 			new_distance = self._camera_distance + diff
 		end
-
 		local new_position = safe_position + position - safe_position:normalized() * new_distance
 		self._camera_distance = new_distance
 		self._local_position = new_position - position:rotate_with(rotation:inverse())
 	else
 		self._local_position = Vector3(0, 0, 0)
 	end
-
 end
 
 function CollisionCameraNode:debug_render(t, dt)

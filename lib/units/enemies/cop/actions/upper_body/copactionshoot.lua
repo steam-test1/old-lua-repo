@@ -73,12 +73,10 @@ function CopActionShoot:init(action_desc, common_data)
 	if Network:is_server() then
 		self._ext_movement:set_stance_by_code(3)
 	end
-
 	CopActionAct._create_blocks_table(self, action_desc.blocks)
 	if Network:is_server() then
 		common_data.ext_network:send("action_aim_state", true)
 	end
-
 	self._skipped_frames = 1
 	return true
 end
@@ -89,9 +87,7 @@ function CopActionShoot:on_inventory_event(event)
 		if self._ext_anim.recoil then
 			self._ext_movement:play_redirect("up_idle")
 		end
-
 	end
-
 	local weapon_unit = self._ext_inventory:equipped_unit()
 	self._weapon_unit = weapon_unit
 	if weapon_unit then
@@ -113,7 +109,6 @@ function CopActionShoot:on_inventory_event(event)
 		self._falloff = nil
 		self._automatic_weap = nil
 	end
-
 	self._autofiring = nil
 	self._autoshots_fired = nil
 	if self._weapon_unit then
@@ -121,14 +116,12 @@ function CopActionShoot:on_inventory_event(event)
 	else
 		self.update = self._upd_empty()
 	end
-
 end
 
 function CopActionShoot:on_attention(attention, old_attention)
 	if self._shooting_player and old_attention and alive(old_attention.unit) then
 		old_attention.unit:movement():on_targetted_for_attack(false, self._common_data.unit)
 	end
-
 	self._shooting_player = nil
 	self._shooting_husk_player = nil
 	self._next_vis_ray_t = nil
@@ -147,7 +140,6 @@ function CopActionShoot:on_attention(attention, old_attention)
 			self._aim_transition = nil
 			self._get_target_pos = nil
 		end
-
 		self._mod_enable_t = TimerManager:game():time() + 0.5
 		if attention.unit then
 			self._shooting_player = attention.unit:base() and attention.unit:base().is_local_player
@@ -156,20 +148,16 @@ function CopActionShoot:on_attention(attention, old_attention)
 				if self._shooting_husk_player then
 					self._next_vis_ray_t = TimerManager:game():time()
 				end
-
 			end
-
 			if self._shooting_player or self._shooting_husk_player then
 				self._verif_slotmask = managers.slot:get_mask("AI_visibility")
 				self._line_of_sight_t = -100
 				if self._shooting_player then
 					attention.unit:movement():on_targetted_for_attack(true, self._common_data.unit)
 				end
-
 			else
 				self._verif_slotmask = nil
 			end
-
 			local usage_tweak = self._w_usage_tweak
 			local target_pos = attention.handler and attention.handler:get_attention_m_pos() or attention.unit:movement():m_head_pos()
 			local focus_error_roll = math.random(360)
@@ -190,18 +178,14 @@ function CopActionShoot:on_attention(attention, old_attention)
 				}
 				self._shoot_history = shoot_hist
 			end
-
 		end
-
 	else
 		self[self._ik_preset.stop](self)
 		if self._aim_transition then
 			self._aim_transition = nil
 			self._get_target_pos = nil
 		end
-
 	end
-
 	self._attention = attention
 end
 
@@ -214,27 +198,21 @@ function CopActionShoot:on_exit()
 	if Network:is_server() then
 		self._ext_movement:set_stance("hos")
 	end
-
 	if self._modifier_on then
 		self[self._ik_preset.stop](self)
 	end
-
 	if self._autofiring then
 		self._weapon_base:stop_autofire()
 	end
-
 	if self._ext_anim.recoil then
 		self._ext_movement:play_redirect("up_idle")
 	end
-
 	if Network:is_server() then
 		self._common_data.unit:network():send("action_aim_state", false)
 	end
-
 	if self._shooting_player and alive(self._attention.unit) then
 		self._attention.unit:movement():on_targetted_for_attack(false, self._common_data.unit)
 	end
-
 end
 
 function CopActionShoot:update(t)
@@ -247,7 +225,6 @@ function CopActionShoot:update(t)
 	else
 		self._skipped_frames = 1
 	end
-
 	local shoot_from_pos = self._shoot_from_pos
 	local ext_anim = self._ext_anim
 	local target_vec, target_dis, autotarget, target_pos
@@ -273,14 +250,10 @@ function CopActionShoot:update(t)
 					}
 					self._ext_movement:action_request(new_action_data)
 				end
-
 			end
-
 		end
-
 		target_vec = self:_upd_ik(target_vec, fwd_dot, t)
 	end
-
 	if ext_anim.reload or ext_anim.equip or ext_anim.melee or ext_anim.equip then
 	elseif self._weapon_base:clip_empty() then
 		if self._autofiring then
@@ -288,11 +261,9 @@ function CopActionShoot:update(t)
 			if ext_anim.recoil then
 				self._ext_movement:play_redirect("up_idle")
 			end
-
 			self._autofiring = nil
 			self._autoshots_fired = nil
 		end
-
 		if not ext_anim.recoil then
 			if self._ext_anim.base_no_reload then
 				self._weapon_unit:base():on_reload()
@@ -301,11 +272,8 @@ function CopActionShoot:update(t)
 				if res then
 					self._machine:set_speed(res, self._reload_speed)
 				end
-
 			end
-
 		end
-
 	elseif self._autofiring then
 		if not target_vec or not self._common_data.allow_fire then
 			self._weapon_base:stop_autofire()
@@ -315,7 +283,6 @@ function CopActionShoot:update(t)
 			if ext_anim.recoil then
 				self._ext_movement:play_redirect("up_idle")
 			end
-
 		else
 			local spread = self._spread
 			local falloff, i_range = self:_get_shoot_falloff(target_dis, self._falloff)
@@ -325,7 +292,6 @@ function CopActionShoot:update(t)
 			else
 				spread = math.min(20, spread)
 			end
-
 			local spread_pos = temp_vec2
 			mvec3_rand_orth(spread_pos, target_vec)
 			mvec3_set_l(spread_pos, spread)
@@ -336,7 +302,6 @@ function CopActionShoot:update(t)
 				if not ext_anim.recoil and vis_state == 1 and not ext_anim.base_no_recoil then
 					self._ext_movement:play_redirect("recoil_auto")
 				end
-
 				if not self._autofiring or self._autoshots_fired == self._autofiring - 1 then
 					self._autofiring = nil
 					self._autoshots_fired = nil
@@ -344,28 +309,22 @@ function CopActionShoot:update(t)
 					if ext_anim.recoil then
 						self._ext_movement:play_redirect("up_idle")
 					end
-
 					if vis_state == 1 then
 						self._shoot_t = t + (self._common_data.is_suppressed and 1.5 or 1) * math.lerp(falloff.recoil[1], falloff.recoil[2], math.random())
 					else
 						self._shoot_t = t + falloff.recoil[2]
 					end
-
 				else
 					self._autoshots_fired = self._autoshots_fired + 1
 				end
-
 			end
-
 		end
-
 	elseif target_vec and self._common_data.allow_fire and t > self._shoot_t and t > self._mod_enable_t then
 		local shoot
 		if autotarget or self._shooting_husk_player and t > self._next_vis_ray_t then
 			if self._shooting_husk_player then
 				self._next_vis_ray_t = t + 2
 			end
-
 			local fire_line = World:raycast("ray", shoot_from_pos, target_pos, "slot_mask", self._verif_slotmask, "ray_type", "ai_vision")
 			if fire_line then
 				if 3 < t - self._line_of_sight_t then
@@ -376,12 +335,10 @@ function CopActionShoot:update(t)
 					if self._common_data.is_suppressed then
 						aim_delay = aim_delay * 1.5
 					end
-
 					self._shoot_t = t + aim_delay
 				elseif fire_line.distance > 300 then
 					shoot = true
 				end
-
 			else
 				if 1 < t - self._line_of_sight_t and not self._last_vis_check_status then
 					local shoot_hist = self._shoot_history
@@ -391,43 +348,34 @@ function CopActionShoot:update(t)
 					shoot_hist.focus_delay = focus_delay
 					shoot_hist.m_last_pos = mvector3.copy(target_pos)
 				end
-
 				self._line_of_sight_t = t
 				shoot = true
 			end
-
 			self._last_vis_check_status = shoot
 		elseif self._shooting_husk_player then
 			shoot = self._last_vis_check_status
 		else
 			shoot = true
 		end
-
 		if shoot then
 			local melee
 			if autotarget and target_dis < 130 and self._w_usage_tweak.melee_speed and t > self._melee_timeout_t then
 				melee = self:_chk_start_melee(target_vec, target_dis, autotarget, target_pos)
 			end
-
 			if not melee then
 				local falloff, i_range = self:_get_shoot_falloff(target_dis, self._falloff)
 				local firemode
 				if self._automatic_weap then
 					local random_mode = math.random()
-					local (for generator), (for state), (for control) = ipairs(falloff.mode)
-					do
-						do break end
+					for i_mode, mode_chance in ipairs(falloff.mode) do
 						if mode_chance >= random_mode then
 							firemode = i_mode
+						else
+						end
 					end
-
-					else
-					end
-
 				else
 					firemode = 1
 				end
-
 				if firemode > 1 then
 					self._weapon_base:start_autofire(firemode < 4 and firemode)
 					self._autofiring = firemode < 4 and firemode or math.random(self._w_usage_tweak.autofire_rounds[1], self._w_usage_tweak.autofire_rounds[2])
@@ -435,7 +383,6 @@ function CopActionShoot:update(t)
 					if vis_state == 1 and not ext_anim.base_no_recoil then
 						self._ext_movement:play_redirect("recoil_auto")
 					end
-
 				else
 					local spread = self._spread
 					if autotarget then
@@ -445,9 +392,7 @@ function CopActionShoot:update(t)
 						else
 							spread = math.min(20, spread)
 						end
-
 					end
-
 					local spread_pos = temp_vec2
 					mvec3_rand_orth(spread_pos, target_vec)
 					mvec3_set_l(spread_pos, spread)
@@ -458,24 +403,17 @@ function CopActionShoot:update(t)
 						if not ext_anim.base_no_recoil then
 							self._ext_movement:play_redirect("recoil_single")
 						end
-
 						self._shoot_t = t + (self._common_data.is_suppressed and 1.5 or 1) * math.lerp(falloff.recoil[1], falloff.recoil[2], math.random())
 					else
 						self._shoot_t = t + falloff.recoil[2]
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 	if self._ext_anim.base_need_upd then
 		self._ext_movement:upd_m_head_pos()
 	end
-
 end
 
 function CopActionShoot:_upd_empty(t)
@@ -486,18 +424,11 @@ function CopActionShoot:type()
 end
 
 function CopActionShoot:_get_shoot_falloff(target_dis, falloff)
-	do
-		local (for generator), (for state), (for control) = ipairs(falloff)
-		do
-			do break end
-			if target_dis < range_data.r then
-				return range_data, i_range
-			end
-
+	for i_range, range_data in ipairs(falloff) do
+		if target_dis < range_data.r then
+			return range_data, i_range
 		end
-
 	end
-
 	return falloff[#falloff], #falloff
 end
 
@@ -511,11 +442,9 @@ function CopActionShoot:_get_unit_shoot_pos(t, pos, dis, w_tweak, falloff, i_ran
 			shoot_hist.focus_delay = nil
 			focus_prog = 1
 		end
-
 	else
 		focus_prog = 1
 	end
-
 	local dis_lerp
 	local hit_chances = falloff.acc
 	local hit_chance
@@ -528,11 +457,9 @@ function CopActionShoot:_get_unit_shoot_pos(t, pos, dis, w_tweak, falloff, i_ran
 		local prev_range_hit_chance = math.lerp(prev_falloff.acc[1], prev_falloff.acc[2], focus_prog)
 		hit_chance = math.lerp(prev_range_hit_chance, math.lerp(hit_chances[1], hit_chances[2], focus_prog), dis_lerp)
 	end
-
 	if self._common_data.is_suppressed then
 		hit_chance = hit_chance * 0.5
 	end
-
 	if hit_chance > math.random() then
 		mvec3_set(shoot_hist.m_last_pos, pos)
 	else
@@ -550,14 +477,12 @@ function CopActionShoot:_get_unit_shoot_pos(t, pos, dis, w_tweak, falloff, i_ran
 		mvec3_set(shoot_hist.m_last_pos, error_vec)
 		return error_vec
 	end
-
 end
 
 function CopActionShoot:on_death_drop()
 	if self._weapon_dropped then
 		return
 	end
-
 	if self._shooting_hurt then
 		if stage == 2 then
 			self._weapon_base:stop_autofire()
@@ -565,12 +490,10 @@ function CopActionShoot:on_death_drop()
 			self._weapon_dropped = true
 			self._shooting_hurt = false
 		end
-
 	elseif self._ext_inventory then
 		self._ext_inventory:drop_weapon()
 		self._weapon_dropped = true
 	end
-
 end
 
 function CopActionShoot:get_husk_interrupt_desc()
@@ -594,7 +517,6 @@ function CopActionShoot:_get_transition_target_pos(shoot_from_pos, attention, t)
 		self._get_target_pos = nil
 		return self:_get_target_pos(shoot_from_pos, attention)
 	end
-
 	prog = math.bezier(bezier_curve, prog)
 	local target_pos, target_vec, target_dis, autotarget
 	if attention.handler then
@@ -603,18 +525,15 @@ function CopActionShoot:_get_transition_target_pos(shoot_from_pos, attention, t)
 		if self._shooting_player then
 			autotarget = true
 		end
-
 	elseif attention.unit then
 		if self._shooting_player then
 			autotarget = true
 		end
-
 		target_pos = temp_vec1
 		attention.unit:character_damage():shoot_pos_mid(target_pos)
 	else
 		target_pos = attention.pos
 	end
-
 	target_vec = temp_vec3
 	target_dis = mvec3_dir(target_vec, shoot_from_pos, target_pos)
 	mvec3_lerp(target_vec, transition.start_vec, target_vec, prog)
@@ -629,18 +548,15 @@ function CopActionShoot:_get_target_pos(shoot_from_pos, attention)
 		if self._shooting_player then
 			autotarget = true
 		end
-
 	elseif attention.unit then
 		if self._shooting_player then
 			autotarget = true
 		end
-
 		target_pos = temp_vec1
 		attention.unit:character_damage():shoot_pos_mid(target_pos)
 	else
 		target_pos = attention.pos
 	end
-
 	target_vec = temp_vec3
 	target_dis = mvec3_dir(target_vec, shoot_from_pos, target_pos)
 	return target_pos, target_vec, target_dis, autotarget
@@ -657,7 +573,6 @@ function CopActionShoot:_begin_ik_spine()
 	if self._modifier then
 		return
 	end
-
 	self._modifier_name = Idstring("action_upper_body")
 	self._modifier = self._machine:get_modifier(self._modifier_name)
 	self:_set_ik_updator("_upd_ik_spine")
@@ -669,7 +584,6 @@ function CopActionShoot:_stop_ik_spine()
 	if not self._modifier then
 		return
 	end
-
 	self._machine:allow_modifier(self._modifier_name)
 	self._modifier_name = nil
 	self._modifier = nil
@@ -683,7 +597,6 @@ function CopActionShoot:_upd_ik_spine(target_vec, fwd_dot, t)
 			self._machine:force_modifier(self._modifier_name)
 			self._mod_enable_t = t + 0.5
 		end
-
 		self._modifier:set_target_y(target_vec)
 		mvec3_set(self._common_data.look_vec, target_vec)
 		return target_vec
@@ -692,10 +605,8 @@ function CopActionShoot:_upd_ik_spine(target_vec, fwd_dot, t)
 			self._modifier_on = nil
 			self._machine:allow_modifier(self._modifier_name)
 		end
-
 		return nil
 	end
-
 end
 
 function CopActionShoot:_get_blend_ik_spine()
@@ -706,7 +617,6 @@ function CopActionShoot:_begin_ik_r_arm()
 	if self._head_modifier then
 		return
 	end
-
 	self._head_modifier_name = Idstring("look_head")
 	self._head_modifier = self._machine:get_modifier(self._head_modifier_name)
 	self._r_arm_modifier_name = Idstring("aim_r_arm")
@@ -720,7 +630,6 @@ function CopActionShoot:_stop_ik_r_arm()
 	if not self._head_modifier then
 		return
 	end
-
 	self._machine:allow_modifier(self._head_modifier_name)
 	self._machine:allow_modifier(self._r_arm_modifier_name)
 	self._head_modifier_name = nil
@@ -738,7 +647,6 @@ function CopActionShoot:_upd_ik_r_arm(target_vec, fwd_dot, t)
 			self._machine:force_modifier(self._r_arm_modifier_name)
 			self._mod_enable_t = t + 0.5
 		end
-
 		self._head_modifier:set_target_z(target_vec)
 		self._r_arm_modifier:set_target_y(target_vec)
 		mvec3_set(self._common_data.look_vec, target_vec)
@@ -749,10 +657,8 @@ function CopActionShoot:_upd_ik_r_arm(target_vec, fwd_dot, t)
 			self._machine:allow_modifier(self._head_modifier_name)
 			self._machine:allow_modifier(self._r_arm_modifier_name)
 		end
-
 		return nil
 	end
-
 end
 
 function CopActionShoot:_get_blend_ik_r_arm()
@@ -774,17 +680,14 @@ function CopActionShoot:_chk_start_melee(target_vec, target_dis, autotarget, tar
 			local param = tweak_data.weapon.npc_melee[melee_weapon].animation_param
 			self._common_data.machine:set_parameter(state, param, 1)
 		end
-
 		if is_weapon then
 			local anim_speed = self._w_usage_tweak.melee_speed
 			self._common_data.machine:set_speed(state, anim_speed)
 		end
-
 		self._melee_timeout_t = TimerManager:game():time() + (self._w_usage_tweak.melee_retry_delay and math.lerp(self._w_usage_tweak.melee_retry_delay[1], self._w_usage_tweak.melee_retry_delay[2], math.random()) or 1)
 	else
 		debug_pause_unit(self._common_data.unit, "[CopActionShoot:_chk_start_melee] redirect failed in state", self._common_data.machine:segment_state(Idstring("base")), self._common_data.unit)
 	end
-
 	return state and true
 end
 
@@ -792,7 +695,6 @@ function CopActionShoot:anim_clbk_melee_strike()
 	if not self._attention then
 		return
 	end
-
 	local shoot_from_pos = self._shoot_from_pos
 	local ext_anim = self._ext_anim
 	local max_dix = 165
@@ -800,7 +702,6 @@ function CopActionShoot:anim_clbk_melee_strike()
 	if not autotarget or not (max_dix > target_dis) then
 		return
 	end
-
 	local min_dot = math.lerp(0, 0.4, target_dis / max_dix)
 	local tar_vec_flat = temp_vec2
 	mvec3_set(tar_vec_flat, target_vec)
@@ -811,7 +712,6 @@ function CopActionShoot:anim_clbk_melee_strike()
 	if min_dot > fwd_dot then
 		return
 	end
-
 	local push_vel = target_vec:with_z(0.1):normalized() * 600
 	local melee_weapon = self._common_data.char_tweak.melee_weapon or "weapon"
 	local is_weapon = melee_weapon == "weapon"

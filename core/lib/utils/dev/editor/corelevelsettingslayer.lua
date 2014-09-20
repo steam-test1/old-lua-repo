@@ -22,23 +22,17 @@ function LevelSettingsLayer:get_mission_filter()
 		if self:get_setting("mission_filter_" .. i) then
 			table.insert(t, i)
 		end
-
 	end
-
 	return t
 end
 
 function LevelSettingsLayer:load(world_holder, offset)
 	self._settings = world_holder:create_world("world", self._save_name, offset)
-	local (for generator), (for state), (for control) = pairs(self._settings_ctrlrs)
-	do
-		do break end
+	for id, setting in pairs(self._settings_ctrlrs) do
 		if setting.type == "combobox" then
 			CoreEws.change_combobox_value(setting.params, self._settings[id])
 		end
-
 	end
-
 end
 
 function LevelSettingsLayer:save(save_params)
@@ -106,7 +100,6 @@ function LevelSettingsLayer:_add_simulation_mission_filter(sizer)
 			type = "checkbox"
 		}
 	end
-
 end
 
 function LevelSettingsLayer:_set_data(data)
@@ -129,20 +122,13 @@ end
 
 function LevelSettingsLayer:clear()
 	LevelSettingsLayer.super.clear(self)
-	do
-		local (for generator), (for state), (for control) = pairs(self._settings_ctrlrs)
-		do
-			do break end
-			if setting.type == "combobox" then
-				CoreEws.change_combobox_value(setting.params, setting.default)
-			elseif setting.type == "checkbox" then
-				setting.ctrlr:set_value(setting.default)
-			end
-
+	for id, setting in pairs(self._settings_ctrlrs) do
+		if setting.type == "combobox" then
+			CoreEws.change_combobox_value(setting.params, setting.default)
+		elseif setting.type == "checkbox" then
+			setting.ctrlr:set_value(setting.default)
 		end
-
 	end
-
 	self._settings = {}
 end
 

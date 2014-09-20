@@ -10,7 +10,6 @@ function ClientNetworkSession:request_join_host(host_rpc, result_cb)
 	if SystemInfo:platform() == self._ids_WIN32 then
 		peer:set_steam_rpc(host_rpc)
 	end
-
 	local ticket = peer:create_ticket()
 	self._server_peer = peer
 	Network:set_multiplayer(true)
@@ -42,12 +41,10 @@ function ClientNetworkSession:on_join_request_reply(reply, my_peer_id, my_charac
 	if not self._server_peer or not self._cb_find_game then
 		return
 	end
-
 	if self._server_peer:ip() and sender:ip_at_index(0) ~= self._server_peer:ip() then
 		print("[ClientNetworkSession:on_join_request_reply] wrong host replied", self._server_peer:ip(), sender:ip_at_index(0))
 		return
 	end
-
 	self._last_join_request_t = nil
 	if SystemInfo:platform() == self._ids_WIN32 then
 		if self._server_peer:user_id() and user_id ~= self._server_peer:user_id() then
@@ -59,20 +56,17 @@ function ClientNetworkSession:on_join_request_reply(reply, my_peer_id, my_charac
 			else
 				self._server_protocol = "TCP_IP"
 			end
-
 			print("self._server_protocol", self._server_protocol)
 			self._server_peer:set_rpc(sender)
 			self._server_peer:set_ip_verified(true)
 			Network:set_client(sender)
 		end
-
 	else
 		self._server_protocol = "TCP_IP"
 		self._server_peer:set_rpc(sender)
 		self._server_peer:set_ip_verified(true)
 		Network:set_client(sender)
 	end
-
 	local cb = self._cb_find_game
 	self._cb_find_game = nil
 	if reply == 1 then
@@ -87,7 +81,6 @@ function ClientNetworkSession:on_join_request_reply(reply, my_peer_id, my_charac
 			self._server_peer:set_xnaddr(xnaddr)
 			managers.network.matchmake:on_peer_added(self._server_peer)
 		end
-
 		self._local_peer:set_id(my_peer_id)
 		self._local_peer:set_character(my_character)
 		self._server_peer:set_id(1)
@@ -96,7 +89,6 @@ function ClientNetworkSession:on_join_request_reply(reply, my_peer_id, my_charac
 		self._server_peer:set_synched_soft(state_index ~= 1)
 		if SystemInfo:platform() == Idstring("PS3") then
 		end
-
 		self:_chk_send_proactive_outfit_loaded()
 		if job_id_index ~= 0 then
 			local job_id = tweak_data.narrative:get_job_name_from_index(job_id_index)
@@ -104,15 +96,12 @@ function ClientNetworkSession:on_join_request_reply(reply, my_peer_id, my_charac
 			if alternative_job_stage ~= 0 then
 				managers.job:synced_alternative_stage(alternative_job_stage)
 			end
-
 			if interupt_job_stage_level_index ~= 0 then
 				local interupt_level = tweak_data.levels:get_level_name_from_index(interupt_job_stage_level_index)
 				managers.job:synced_interupt_stage(interupt_level)
 			end
-
 			Global.game_settings.world_setting = managers.job:current_world_setting()
 		end
-
 		cb(state_index == 1 and "JOINED_LOBBY" or "JOINED_GAME", level_index, difficulty_index, state_index)
 	elseif reply == 2 then
 		self:remove_peer(self._server_peer, 1)
@@ -139,7 +128,6 @@ function ClientNetworkSession:on_join_request_reply(reply, my_peer_id, my_charac
 		self:remove_peer(self._server_peer, 1)
 		cb("AUTH_FAILED")
 	end
-
 end
 
 function ClientNetworkSession:on_join_request_timed_out()
@@ -155,10 +143,8 @@ function ClientNetworkSession:on_join_request_cancelled()
 		if self._server_peer then
 			self:remove_peer(self._server_peer, 1)
 		end
-
 		cb("CANCELLED")
 	end
-
 end
 
 function ClientNetworkSession:discover_hosts()
@@ -177,33 +163,23 @@ function ClientNetworkSession:on_host_discovered(new_host, new_host_name, level_
 			difficulty = difficulty
 		}
 		local already_known
-		do
-			local (for generator), (for state), (for control) = ipairs(self._discovered_hosts)
-			do
-				do break end
-				if host_data.host_name == new_host_name and host_data.rpc:ip_at_index(0) == new_host:ip_at_index(0) then
-					self._discovered_hosts[i_host] = new_host_data
-					already_known = true
-			end
-
+		for i_host, host_data in ipairs(self._discovered_hosts) do
+			if host_data.host_name == new_host_name and host_data.rpc:ip_at_index(0) == new_host:ip_at_index(0) then
+				self._discovered_hosts[i_host] = new_host_data
+				already_known = true
 			else
 			end
-
 		end
-
 		if not already_known then
 			table.insert(self._discovered_hosts, new_host_data)
 		end
-
 	end
-
 end
 
 function ClientNetworkSession:on_server_up_received(host_rpc)
 	if self._discovered_hosts then
 		host_rpc:request_host_discover_reply()
 	end
-
 end
 
 function ClientNetworkSession:discovered_hosts()
@@ -216,7 +192,6 @@ function ClientNetworkSession:send_to_host(...)
 	else
 		print("[ClientNetworkSession:send_to_host] no host")
 	end
-
 end
 
 function ClientNetworkSession:is_host()
@@ -243,30 +218,24 @@ function ClientNetworkSession:peer_handshake(name, peer_id, peer_user_id, in_lob
 		if peer:ip_verified() then
 			self._server_peer:send("connection_established", peer_id)
 		end
-
 		return
 	end
-
 	local rpc
 	if self._server_protocol == "STEAM" then
 		rpc = Network:handshake(peer_user_id, nil, "STEAM")
 		Network:add_co_client(rpc)
 	end
-
 	if SystemInfo:platform() == Idstring("X360") then
 		local ip = managers.network.matchmake:internal_address(xnaddr)
 		rpc = Network:handshake(ip, managers.network.DEFAULT_PORT, "TCP_IP")
 		Network:add_co_client(rpc)
 	end
-
 	if SystemInfo:platform() ~= self._ids_WIN32 or not peer_user_id then
 		peer_user_id = false
 	end
-
 	if SystemInfo:platform() == Idstring("WIN32") then
 		name = managers.network.account:username_by_id(peer_user_id)
 	end
-
 	local id, peer = self:add_peer(name, rpc, in_lobby, loading, synched, peer_id, character, peer_user_id, xuid, xnaddr)
 	cat_print("multiplayer_base", "[ClientNetworkSession:peer_handshake]", name, peer_user_id, loading, synched, id, inspect(peer))
 	local check_peer = SystemInfo:platform() == Idstring("X360") and peer or nil
@@ -274,14 +243,12 @@ function ClientNetworkSession:peer_handshake(name, peer_id, peer_user_id, in_lob
 	if managers.trade then
 		managers.trade:handshake_complete(peer_id)
 	end
-
 end
 
 function ClientNetworkSession:on_PSN_connection_established(name, ip)
 	if SystemInfo:platform() ~= Idstring("PS3") then
 		return
 	end
-
 	self:chk_send_connection_established(name, nil, false)
 end
 
@@ -291,7 +258,6 @@ function ClientNetworkSession:on_peer_synched(peer_id)
 		cat_error("multiplayer_base", "[ClientNetworkSession:on_peer_synched] Unknown Peer:", peer_id)
 		return
 	end
-
 	peer:set_loading(false)
 	peer:set_synched(true)
 	managers.network:game():on_peer_sync_complete(peer, peer_id)
@@ -302,18 +268,15 @@ function ClientNetworkSession:ok_to_load_level()
 	if self._closing then
 		return
 	end
-
 	self:send_to_host("set_loading_state", true)
 	if self._recieved_ok_to_load_level then
 		print("Allready recieved ok to load level, returns")
 		return
 	end
-
 	self._recieved_ok_to_load_level = true
 	if managers.menu:active_menu() then
 		managers.menu:close_menu()
 	end
-
 	managers.system_menu:force_close_all()
 	local level_id = Global.game_settings.level_id
 	local level_name = level_id and tweak_data.levels[level_id].world_name
@@ -327,22 +290,18 @@ function ClientNetworkSession:ok_to_load_lobby()
 	if self._closing then
 		return
 	end
-
 	if self:_local_peer_in_lobby() then
 		return
 	end
-
 	self:send_to_host("set_loading_state", true)
 	if self._recieved_ok_to_load_lobby then
 		print("Allready recieved ok to load lobby, returns")
 		return
 	end
-
 	self._recieved_ok_to_load_lobby = true
 	if managers.menu:active_menu() then
 		managers.menu:close_menu()
 	end
-
 	managers.system_menu:force_close_all()
 	managers.network:session():load_lobby()
 end
@@ -352,7 +311,6 @@ function ClientNetworkSession:on_mutual_connection(other_peer_id)
 	if not other_peer then
 		return
 	end
-
 end
 
 function ClientNetworkSession:on_peer_requested_info(peer_id)
@@ -360,7 +318,6 @@ function ClientNetworkSession:on_peer_requested_info(peer_id)
 	if not other_peer then
 		return
 	end
-
 	other_peer:set_ip_verified(true)
 	Global.local_member:sync_lobby_data(other_peer)
 	Global.local_member:sync_data(other_peer)
@@ -376,10 +333,8 @@ function ClientNetworkSession:update()
 			self._server_peer:send("sanity_check_network_status")
 			self._host_sanity_send_t = wall_time + self.HOST_SANITY_CHECK_INTERVAL
 		end
-
 		self:_upd_request_join_resend(wall_time)
 	end
-
 end
 
 function ClientNetworkSession:_soft_remove_peer(peer)
@@ -387,14 +342,12 @@ function ClientNetworkSession:_soft_remove_peer(peer)
 	if peer:id() == 1 then
 		Network:set_disconnected()
 	end
-
 end
 
 function ClientNetworkSession:on_peer_save_received(event, event_data)
 	if managers.network:stopping() then
 		return
 	end
-
 	local packet_index = event_data.index
 	local total_nr_packets = event_data.total
 	print("[ClientNetworkSession:on_peer_save_received]", packet_index, "/", total_nr_packets)
@@ -402,7 +355,6 @@ function ClientNetworkSession:on_peer_save_received(event, event_data)
 	if not kit_menu or not kit_menu.renderer:is_open() then
 		return
 	end
-
 	if packet_index == total_nr_packets then
 		local is_ready = self._local_peer:waiting_for_player_ready()
 		if is_ready then
@@ -410,14 +362,12 @@ function ClientNetworkSession:on_peer_save_received(event, event_data)
 		else
 			kit_menu.renderer:set_slot_not_ready(self._local_peer, self._local_peer:id())
 		end
-
 		self._local_peer:set_synched(true)
 	else
 		local progress_ratio = packet_index / total_nr_packets
 		local progress_percentage = math.floor(math.clamp(progress_ratio * 100, 0, 100))
 		managers.menu:get_menu("kit_menu").renderer:set_dropin_progress(self._local_peer:id(), progress_percentage, "join")
 	end
-
 end
 
 function ClientNetworkSession:is_expecting_sanity_chk_reply()
@@ -437,7 +387,6 @@ function ClientNetworkSession:_get_join_attempt_identifier()
 	if not self._join_attempt_identifier then
 		self._join_attempt_identifier = math.random(1, 65536)
 	end
-
 	return self._join_attempt_identifier
 end
 
@@ -446,7 +395,6 @@ function ClientNetworkSession:_upd_request_join_resend(wall_time)
 		self._join_request_params.host_rpc:request_join(unpack(self._join_request_params.params))
 		self._last_join_request_t = wall_time
 	end
-
 end
 
 function ClientNetworkSession:chk_send_outfit_loading_status()
@@ -457,7 +405,6 @@ function ClientNetworkSession:chk_send_outfit_loading_status()
 		self._notify_host_when_outfits_loaded = nil
 		return true
 	end
-
 end
 
 function ClientNetworkSession:notify_host_when_outfits_loaded(request_id, outfit_versions_str)
@@ -475,20 +422,17 @@ function ClientNetworkSession:_chk_send_proactive_outfit_loaded()
 	if not self:server_peer() or not self:server_peer():ip_verified() or self:server_peer():id() == 0 or self._local_peer:id() == 0 then
 		return
 	end
-
 	local sent = self:chk_send_outfit_loading_status()
 	if not sent and self:are_all_peer_assets_loaded() then
 		print("[ClientNetworkSession:_chk_send_proactive_outfit_loaded] sending outfit_ready proactively")
 		self:send_to_host("set_member_ready", self._local_peer:id(), 0, 3, "proactive")
 	end
-
 end
 
 function ClientNetworkSession:on_set_member_ready(peer_id, ready, state_changed)
 	if ready then
 		self:chk_send_outfit_loading_status()
 	end
-
 end
 
 function ClientNetworkSession:remove_peer(...)

@@ -59,13 +59,11 @@ function CoreDepthOfFieldCutsceneKey:play(player, undo, fast_forward)
 		else
 			self:_set_camera_depth_of_field(player, self.DEFAULT_NEAR_DISTANCE, self.DEFAULT_FAR_DISTANCE)
 		end
-
 	elseif self:_is_editing_target_values() then
 		self:_set_camera_depth_of_field(player, self:_final_target_near_distance(player), self:_final_target_far_distance(player))
 	else
 		self:_set_camera_depth_of_field(player, self:_final_near_distance(player), self:_final_far_distance(player))
 	end
-
 end
 
 function CoreDepthOfFieldCutsceneKey:update(player, time)
@@ -79,7 +77,6 @@ function CoreDepthOfFieldCutsceneKey:update(player, time)
 	else
 		alpha = self:_calc_interpolation(t)
 	end
-
 	local start_near = self:_final_near_distance(player)
 	local end_near = transition_time == 0 and start_near or self:_final_target_near_distance(player)
 	local near = start_near + (end_near - start_near) * alpha
@@ -95,22 +92,18 @@ function CoreDepthOfFieldCutsceneKey:update_gui(time, delta_time, player)
 		self.__near_distance_control:update(time, delta_time)
 		self.__near_distance_control:set_pick_button_enabled(cutscene_camera_enabled)
 	end
-
 	if self.__far_distance_control then
 		self.__far_distance_control:update(time, delta_time)
 		self.__far_distance_control:set_pick_button_enabled(cutscene_camera_enabled)
 	end
-
 	if self.__target_near_distance_control then
 		self.__target_near_distance_control:update(time, delta_time)
 		self.__target_near_distance_control:set_pick_button_enabled(cutscene_camera_enabled)
 	end
-
 	if self.__target_far_distance_control then
 		self.__target_far_distance_control:update(time, delta_time)
 		self.__target_far_distance_control:set_pick_button_enabled(cutscene_camera_enabled)
 	end
-
 end
 
 function CoreDepthOfFieldCutsceneKey:is_valid_near_distance(value)
@@ -179,7 +172,6 @@ function CoreDepthOfFieldCutsceneKey:refresh_control_for_tracked_unit_name(contr
 	if self:tracked_unit_name() == "" then
 		control:set_value("")
 	end
-
 end
 
 function CoreDepthOfFieldCutsceneKey:refresh_control_for_tracked_object_name(control)
@@ -189,7 +181,6 @@ function CoreDepthOfFieldCutsceneKey:refresh_control_for_tracked_object_name(con
 		self:set_tracked_object_name("")
 		control:set_value("")
 	end
-
 end
 
 function CoreDepthOfFieldCutsceneKey:refresh_control_for_target_tracked_unit_name(control)
@@ -198,7 +189,6 @@ function CoreDepthOfFieldCutsceneKey:refresh_control_for_target_tracked_unit_nam
 	if self:target_tracked_unit_name() == "" then
 		control:set_value("")
 	end
-
 	control:set_enabled(self:transition_time() > 0)
 end
 
@@ -209,7 +199,6 @@ function CoreDepthOfFieldCutsceneKey:refresh_control_for_target_tracked_object_n
 		self:set_target_tracked_object_name("")
 		control:set_value("")
 	end
-
 	control:set_enabled(self:transition_time() > 0 and self:target_tracked_unit_name() ~= "")
 end
 
@@ -253,7 +242,6 @@ function CoreDepthOfFieldCutsceneKey:_final_near_distance(player)
 	else
 		return self:near_distance()
 	end
-
 end
 
 function CoreDepthOfFieldCutsceneKey:_final_far_distance(player)
@@ -264,7 +252,6 @@ function CoreDepthOfFieldCutsceneKey:_final_far_distance(player)
 	else
 		return self:far_distance()
 	end
-
 end
 
 function CoreDepthOfFieldCutsceneKey:_final_target_near_distance(player)
@@ -275,7 +262,6 @@ function CoreDepthOfFieldCutsceneKey:_final_target_near_distance(player)
 	else
 		return self:target_near_distance()
 	end
-
 end
 
 function CoreDepthOfFieldCutsceneKey:_final_target_far_distance(player)
@@ -286,7 +272,6 @@ function CoreDepthOfFieldCutsceneKey:_final_target_far_distance(player)
 	else
 		return self:target_far_distance()
 	end
-
 end
 
 function CoreDepthOfFieldCutsceneKey:_hyperfocal_distance()

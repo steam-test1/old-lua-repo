@@ -4,7 +4,6 @@ function HUDPresenter:init(hud)
 	if self._hud_panel:child("present_panel") then
 		self._hud_panel:remove(self._hud_panel:child("present_panel"))
 	end
-
 	local h = 68
 	local w = 450
 	local x = math.round(self._hud_panel:w() / 2 - w / 2)
@@ -58,11 +57,9 @@ function HUDPresenter:present(params)
 		table.insert(self._present_queue, params)
 		return
 	end
-
 	if params.present_mid_text then
 		self:_present_information(params)
 	end
-
 end
 
 function HUDPresenter:_present_information(params)
@@ -82,11 +79,9 @@ function HUDPresenter:_present_information(params)
 	self._bg_box:set_left(math.round(self._bg_box:parent():w() / 2 - self._bg_box:w() / 2))
 	if params.icon then
 	end
-
 	if params.event then
 		managers.hud._sound_source:post_event(params.event)
 	end
-
 	present_panel:animate(callback(self, self, "_animate_present_information"), {
 		done_cb = callback(self, self, "_present_done"),
 		seconds = params.time or 4,
@@ -102,7 +97,6 @@ function HUDPresenter:_present_done()
 	if queued and queued.present_mid_text then
 		setup:add_end_frame_clbk(callback(self, self, "_do_it", queued))
 	end
-
 end
 
 function HUDPresenter:_do_it(queued)
@@ -144,7 +138,6 @@ function HUDPresenter:_animate_show_text(title, text)
 		title:set_alpha(alpha)
 		text:set_alpha(alpha)
 	end
-
 	title:set_alpha(1)
 	text:set_alpha(1)
 end
@@ -159,7 +152,6 @@ function HUDPresenter:_animate_hide_text(title, text)
 		title:set_alpha(vis)
 		text:set_alpha(vis)
 	end
-
 	title:set_alpha(1)
 	text:set_alpha(1)
 	title:set_visible(false)

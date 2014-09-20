@@ -15,12 +15,9 @@ end
 
 function CoreLightGroupCutsceneKey:evaluate()
 	local group = assert(self:_light_groups()[self:group()], "Could not find group!")
-	local (for generator), (for state), (for control) = ipairs(group)
-	do
-		do break end
+	for _, unit in ipairs(group) do
 		self:_enable_lights(unit, self:enable())
 	end
-
 end
 
 function CoreLightGroupCutsceneKey:revert()
@@ -31,28 +28,18 @@ function CoreLightGroupCutsceneKey:revert()
 		prev_key:evaluate()
 	else
 		local group = assert(self:_light_groups()[self:group()], "Could not find group!")
-		local (for generator), (for state), (for control) = ipairs(group)
-		do
-			do break end
+		for _, unit in ipairs(group) do
 			self:_enable_lights(unit, false)
 		end
-
 	end
-
 end
 
 function CoreLightGroupCutsceneKey:unload()
-	local (for generator), (for state), (for control) = pairs(self:_light_groups())
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(group)
-		do
-			do break end
+	for group_name, group in pairs(self:_light_groups()) do
+		for _, unit in ipairs(group) do
 			self:_enable_lights(unit, false)
 		end
-
 	end
-
 end
 
 function CoreLightGroupCutsceneKey:can_evaluate_with_player(player)
@@ -60,15 +47,11 @@ function CoreLightGroupCutsceneKey:can_evaluate_with_player(player)
 end
 
 function CoreLightGroupCutsceneKey:is_valid_group(name)
-	local (for generator), (for state), (for control) = pairs(self:_light_groups())
-	do
-		do break end
+	for group_name, _ in pairs(self:_light_groups()) do
 		if group_name == name then
 			return true
 		end
-
 	end
-
 end
 
 function CoreLightGroupCutsceneKey:is_valid_enable()
@@ -79,14 +62,12 @@ function CoreLightGroupCutsceneKey:on_attribute_changed(attribute_name, value, p
 	if attribute_name == "group" or attribute_name == "enable" and not value then
 		self:_eval_prev_group()
 	end
-
 end
 
 function CoreLightGroupCutsceneKey:_light_groups()
 	if not self._light_groups_cache then
 		self:_build_group_cache()
 	end
-
 	return self._light_groups_cache
 end
 
@@ -95,32 +76,23 @@ function CoreLightGroupCutsceneKey:_enable_lights(unit, enabled)
 	if #lights == 0 then
 		Application:stack_dump_error("[CoreLightGroupCutsceneKey] No lights in unit: " .. unit:name())
 	end
-
-	local (for generator), (for state), (for control) = ipairs(lights)
-	do
-		do break end
+	for _, light in ipairs(lights) do
 		light:set_enable(enabled)
 	end
-
 end
 
 function CoreLightGroupCutsceneKey:_build_group_cache()
 	self._light_groups_cache = {}
-	local (for generator), (for state), (for control) = pairs(managers.cutscene:cutscene_actors_in_world())
-	do
-		do break end
+	for key, unit in pairs(managers.cutscene:cutscene_actors_in_world()) do
 		local identifier, name, id = string.match(key, "(.+)_(.+)_(.+)")
 		if identifier == "lightgroup" then
 			if not self._light_groups_cache[name] then
 				self._light_groups_cache[name] = {}
 			end
-
 			table.insert(self._light_groups_cache[name], unit)
 			self:_enable_lights(unit, false)
 		end
-
 	end
-
 end
 
 function CoreLightGroupCutsceneKey:_eval_prev_group()
@@ -132,26 +104,18 @@ function CoreLightGroupCutsceneKey:_eval_prev_group()
 	else
 		self:evaluate()
 	end
-
 end
 
 function CoreLightGroupCutsceneKey:refresh_control_for_group(control)
 	control:freeze()
 	control:clear()
 	local value = self:group()
-	do
-		local (for generator), (for state), (for control) = pairs(self:_light_groups())
-		do
-			do break end
-			control:append(group_name)
-			if group_name == value then
-				control:set_value(group_name)
-			end
-
+	for group_name, _ in pairs(self:_light_groups()) do
+		control:append(group_name)
+		if group_name == value then
+			control:set_value(group_name)
 		end
-
 	end
-
 	control:thaw()
 end
 

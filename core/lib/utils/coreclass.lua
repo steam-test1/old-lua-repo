@@ -6,12 +6,10 @@ function class(...)
 	if select("#", ...) >= 1 and super == nil then
 		error("trying to inherit from nil", 2)
 	end
-
 	local class_table = {}
 	if __everyclass then
 		table.insert(__everyclass, class_table)
 	end
-
 	class_table.super = __overrides[super] or super
 	class_table.__index = class_table
 	class_table.__module__ = getfenv(2)
@@ -22,7 +20,6 @@ function class(...)
 		if object.init then
 			return object, object:init(...)
 		end
-
 		return object
 	end
 
@@ -31,19 +28,12 @@ end
 
 function override_class(old_class, new_class)
 	assert(__everyclass, "Too late to override class now.")
-	do
-		local (for generator), (for state), (for control) = ipairs(__everyclass)
-		do
-			do break end
-			if ct ~= new_class and ct.super == old_class then
-				ct.super = new_class
-				setmetatable(ct, new_class)
-			end
-
+	for _, ct in ipairs(__everyclass) do
+		if ct ~= new_class and ct.super == old_class then
+			ct.super = new_class
+			setmetatable(ct, new_class)
 		end
-
 	end
-
 	__overrides[old_class] = new_class
 end
 
@@ -56,30 +46,19 @@ function type_name(value)
 	if name == "userdata" and value.type_name then
 		return value.type_name
 	end
-
 	return name
 end
 
 function mixin(res, ...)
-	do
-		local (for generator), (for state), (for control) = ipairs({
-			...
-		})
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(t)
-			do
-				do break end
-				if k ~= "new" and k ~= "__index" then
-					rawset(res, k, v)
-				end
-
+	for _, t in ipairs({
+		...
+	}) do
+		for k, v in pairs(t) do
+			if k ~= "new" and k ~= "__index" then
+				rawset(res, k, v)
 			end
-
 		end
-
 	end
-
 	return res
 end
 
@@ -88,22 +67,13 @@ function mix(...)
 end
 
 function mixin_add(res, ...)
-	do
-		local (for generator), (for state), (for control) = ipairs({
-			...
-		})
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(t)
-			do
-				do break end
-				table.insert(res, v)
-			end
-
+	for _, t in ipairs({
+		...
+	}) do
+		for k, v in pairs(t) do
+			table.insert(res, v)
 		end
-
 	end
-
 	return res
 end
 
@@ -125,9 +95,7 @@ function hijack_func(instance_or_meta, func_name, func)
 			end
 
 		end
-
 	end
-
 end
 
 function unhijack_func(instance_or_meta, func_name)
@@ -140,9 +108,7 @@ function unhijack_func(instance_or_meta, func_name)
 			meta[func_name] = meta[old_func_name]
 			meta[old_func_name] = nil
 		end
-
 	end
-
 end
 
 __frozen__newindex = __frozen__newindex or function(self, key, value)
@@ -150,30 +116,22 @@ __frozen__newindex = __frozen__newindex or function(self, key, value)
 end
 
 function freeze(...)
-	do
-		local (for generator), (for state), (for control) = ipairs({
-			...
-		})
-		do
-			do break end
-			if not is_frozen(instance) then
-				local metatable = getmetatable(instance)
-				if metatable == nil then
-					setmetatable(instance, {__newindex = __frozen__newindex, __metatable = nil})
-				else
-					setmetatable(instance, {
-						__index = metatable.__index,
-						__newindex = __frozen__newindex,
-						__metatable = metatable
-					})
-				end
-
+	for _, instance in ipairs({
+		...
+	}) do
+		if not is_frozen(instance) then
+			local metatable = getmetatable(instance)
+			if metatable == nil then
+				setmetatable(instance, {__newindex = __frozen__newindex, __metatable = nil})
+			else
+				setmetatable(instance, {
+					__index = metatable.__index,
+					__newindex = __frozen__newindex,
+					__metatable = metatable
+				})
 			end
-
 		end
-
 	end
-
 	return ...
 end
 
@@ -211,10 +169,8 @@ end
 
 function responder_map(response_table)
 	local responder = {}
-	do
-		local (for generator), (for state), (for control) = pairs(response_table)
+	for key, value in pairs(response_table) do
 		do
-			do break end
 			if key == "default" then
 				setmetatable(responder, {
 					__index = function()
@@ -231,29 +187,25 @@ function responder_map(response_table)
 				end
 
 			end
-
 		end
-
 	end
-
 	return responder
 end
 
 GetSet = GetSet or class()
 function GetSet:init(t)
-	local (for generator), (for state), (for control) = pairs(t)
-	do
-		do break end
-		self["_" .. k] = v
-		self[k] = function(self)
-			return self["_" .. k]
-		end
-
-		self["set_" .. k] = function(self, v)
+	for k, v in pairs(t) do
+		do
 			self["_" .. k] = v
+			self[k] = function(self)
+				return self["_" .. k]
+			end
+
+			self["set_" .. k] = function(self, v)
+				self["_" .. k] = v
+			end
+
 		end
-
 	end
-
 end
 

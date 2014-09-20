@@ -34,15 +34,12 @@ function ProfileBoxGui:update(t, dt)
 			else
 				self._name_right = false
 			end
-
 		elseif name:right() > name_panel:w() then
 			name:set_x(name:x() - dt * 10)
 		else
 			self._name_right = true
 		end
-
 	end
-
 end
 
 function ProfileBoxGui:_create_text_box(ws, title, text, content_data, config)
@@ -142,7 +139,6 @@ function ProfileBoxGui:_create_text_box(ws, title, text, content_data, config)
 	else
 		profile_panel:set_h(math.ceil(self._stats_items[#self._stats_items]:bottom()) + 10)
 	end
-
 	self._scroll_panel:set_h(math.max(self._scroll_panel:h(), profile_panel:h()))
 	self:_set_scroll_indicator()
 end
@@ -180,15 +176,9 @@ end
 
 function ProfileBoxGui:_add_stats(params)
 	local y = 64
-	do
-		local (for generator), (for state), (for control) = ipairs(self._stats_items)
-		do
-			do break end
-			y = y + panel:h() + 4
-		end
-
+	for _, panel in ipairs(self._stats_items) do
+		y = y + panel:h() + 4
 	end
-
 	local xo = 4
 	local panel = self._scroll_panel:child("profile_panel"):panel({
 		name = params.name,
@@ -230,7 +220,6 @@ function ProfileBoxGui:_add_stats(params)
 			text = params.data
 		})
 	end
-
 	if params.type == "progress" then
 		h = h + 4
 		topic:set_h(math.ceil(h))
@@ -279,7 +268,6 @@ function ProfileBoxGui:_add_stats(params)
 			text = params.text or "" .. math.floor(params.data * 100) .. "%"
 		})
 	end
-
 	table.insert(self._stats_items, panel)
 end
 
@@ -287,7 +275,6 @@ function ProfileBoxGui:mouse_pressed(button, x, y)
 	if not self:can_take_input() then
 		return
 	end
-
 	if button == Idstring("0") and self._panel:child("info_area"):inside(x, y) then
 		local profile_panel = self._scroll_panel:child("profile_panel")
 		local name_panel = profile_panel:child("name_panel")
@@ -301,9 +288,7 @@ function ProfileBoxGui:mouse_pressed(button, x, y)
 			self:_trigger_achievements()
 			return true
 		end
-
 	end
-
 end
 
 function ProfileBoxGui:_trigger_stats()
@@ -322,7 +307,6 @@ function ProfileBoxGui:mouse_moved(x, y)
 	if not self:can_take_input() then
 		return
 	end
-
 	local pointer
 	local inside_info = self._panel:child("info_area"):inside(x, y)
 	local profile_panel = self._scroll_panel:child("profile_panel")
@@ -330,11 +314,9 @@ function ProfileBoxGui:mouse_moved(x, y)
 	local inside = inside_info and name_panel:inside(x, y)
 	if not inside or not Color.white then
 	end
-
 	name_panel:child("name"):set_color((Color(0.8, 1, 0.8)))
 	if not inside or not Color.white then
 	end
-
 	profile_panel:child("level"):set_color((Color(0.8, 1, 0.8)))
 	profile_panel:child("arrow"):set_visible(inside)
 	pointer = inside and "link" or pointer
@@ -347,7 +329,6 @@ function ProfileBoxGui:mouse_moved(x, y)
 		profile_panel:child("achievements"):child("bar_text"):set_color(inside and Color(0.8, 1, 0.8) or Color.white)
 		pointer = inside and "link" or pointer
 	end
-
 	local inside = inside_info and profile_panel:inside(x, y)
 	pointer = not pointer and inside and "arrow"
 	return false, pointer

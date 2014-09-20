@@ -4,7 +4,6 @@ function HUDHeistTimer:init(hud)
 	if self._hud_panel:child("heist_timer_panel") then
 		self._hud_panel:remove(self._hud_panel:child("heist_timer_panel"))
 	end
-
 	self._heist_timer_panel = self._hud_panel:panel({
 		visible = true,
 		name = "heist_timer_panel",
@@ -32,7 +31,6 @@ function HUDHeistTimer:set_time(time)
 	if math.floor(time) < self._last_time then
 		return
 	end
-
 	self._last_time = time
 	time = math.floor(time)
 	local hours = math.floor(time / 3600)
@@ -44,7 +42,6 @@ function HUDHeistTimer:set_time(time)
 	else
 		local text = (hours < 10 and "0" .. hours or hours) .. ":" or ""
 	end
-
 	local text = text .. (minutes < 10 and "0" .. minutes or minutes) .. ":" .. (seconds < 10 and "0" .. seconds or seconds)
 	self._timer_text:set_text(text)
 end

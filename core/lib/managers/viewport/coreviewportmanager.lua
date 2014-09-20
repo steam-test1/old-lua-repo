@@ -17,12 +17,9 @@ function ViewportManager:init(aspect_ratio)
 end
 
 function ViewportManager:update(t, dt)
-	local (for generator), (for state), (for control) = ipairs(self:_all_really_active())
-	do
-		do break end
+	for i, svp in ipairs(self:_all_really_active()) do
 		svp:_update(i, t, dt)
 	end
-
 end
 
 function ViewportManager:paused_update(t, dt)
@@ -30,47 +27,33 @@ function ViewportManager:paused_update(t, dt)
 end
 
 function ViewportManager:render()
-	local (for generator), (for state), (for control) = ipairs(self:_all_really_active())
-	do
-		do break end
+	for i, svp in ipairs(self:_all_really_active()) do
 		svp:_render(i)
 	end
-
 end
 
 function ViewportManager:end_frame(t, dt)
 	if self._render_settings_change_map then
 		local is_resolution_changed = self._render_settings_change_map.resolution ~= nil
-		do
-			local (for generator), (for state), (for control) = pairs(self._render_settings_change_map)
-			do
-				do break end
-				RenderSettings[setting_name] = setting_value
-			end
-
+		for setting_name, setting_value in pairs(self._render_settings_change_map) do
+			RenderSettings[setting_name] = setting_value
 		end
-
 		self._render_settings_change_map = nil
 		Application:apply_render_settings()
 		Application:save_render_settings()
 		if is_resolution_changed then
 			self:resolution_changed()
 		end
-
 	end
-
 	self._current_camera = nil
 	self._current_camera_position_updated = nil
 	self._current_camera_rotation = nil
 end
 
 function ViewportManager:destroy()
-	local (for generator), (for state), (for control) = pairs(self:_all_ao())
-	do
-		do break end
+	for _, svp in pairs(self:_all_ao()) do
 		svp:destroy()
 	end
-
 end
 
 function ViewportManager:new_vp(x, y, width, height, name, priority)
@@ -120,16 +103,9 @@ function ViewportManager:resolution_changed()
 	if rawget(_G, "tweak_data").resolution_changed then
 		rawget(_G, "tweak_data"):resolution_changed()
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self:viewports())
-		do
-			do break end
-			svp:_resolution_changed(i)
-		end
-
+	for i, svp in ipairs(self:viewports()) do
+		svp:_resolution_changed(i)
 	end
-
 	self._resolution_changed_event_handler:dispatch()
 end
 
@@ -150,22 +126,17 @@ function ViewportManager:_get_environment_cache()
 end
 
 function ViewportManager:first_active_world_viewport()
-	local (for generator), (for state), (for control) = ipairs(self:active_viewports())
-	do
-		do break end
+	for _, vp in ipairs(self:active_viewports()) do
 		if vp:is_rendering_scene("World") then
 			return vp
 		end
-
 	end
-
 end
 
 function ViewportManager:get_current_camera()
 	if self._current_camera then
 		return self._current_camera
 	end
-
 	local vps = self:_all_really_active()
 	self._current_camera = #vps > 0 and vps[1]:camera()
 	return self._current_camera
@@ -175,12 +146,10 @@ function ViewportManager:get_current_camera_position()
 	if self._current_camera_position_updated then
 		return self._current_camera_position
 	end
-
 	if self:get_current_camera() then
 		self:get_current_camera():m_position(self._current_camera_position)
 		self._current_camera_position_updated = true
 	end
-
 	return self._current_camera_position
 end
 
@@ -188,7 +157,6 @@ function ViewportManager:get_current_camera_rotation()
 	if self._current_camera_rotation then
 		return self._current_camera_rotation
 	end
-
 	self._current_camera_rotation = self:get_current_camera() and self:get_current_camera():rotation()
 	return self._current_camera_rotation
 end
@@ -230,7 +198,6 @@ function ViewportManager:set_resolution(resolution)
 		self._render_settings_change_map = self._render_settings_change_map or {}
 		self._render_settings_change_map.resolution = resolution
 	end
-
 end
 
 function ViewportManager:set_fullscreen(fullscreen)
@@ -238,7 +205,6 @@ function ViewportManager:set_fullscreen(fullscreen)
 		self._render_settings_change_map = self._render_settings_change_map or {}
 		self._render_settings_change_map.fullscreen = not not fullscreen
 	end
-
 end
 
 function ViewportManager:set_aspect_ratio(aspect_ratio)
@@ -247,7 +213,6 @@ function ViewportManager:set_aspect_ratio(aspect_ratio)
 		self._render_settings_change_map.aspect_ratio = aspect_ratio
 		self._aspect_ratio = aspect_ratio
 	end
-
 end
 
 function ViewportManager:set_vsync(vsync)
@@ -256,7 +221,6 @@ function ViewportManager:set_vsync(vsync)
 		self._render_settings_change_map.v_sync = vsync
 		self._v_sync = vsync
 	end
-
 end
 
 function ViewportManager:aspect_ratio()

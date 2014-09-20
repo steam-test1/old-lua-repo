@@ -38,7 +38,6 @@ function TeamAIInventory:_unload_mask()
 		managers.dyn_resource:unload(Idstring("unit"), Idstring(self._mask_unit_name), DynamicResourceManager.DYN_RESOURCES_PACKAGE, false)
 		self._mask_unit_name = nil
 	end
-
 end
 
 function TeamAIInventory:_reset_mask_visibility()

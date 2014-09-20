@@ -18,7 +18,6 @@ function ControllerWrapperPS3:virtual_connect_confirm(controller_id, controller,
 	else
 		input_name = "cross"
 	end
-
 	self:virtual_connect2(controller_id, controller, input_name, connection_name, connection)
 end
 
@@ -28,7 +27,6 @@ function ControllerWrapperPS3:virtual_connect_cancel(controller_id, controller, 
 	else
 		input_name = "circle"
 	end
-
 	self:virtual_connect2(controller_id, controller, input_name, connection_name, connection)
 end
 

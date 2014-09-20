@@ -7,7 +7,6 @@ function FiniteStateMachine:init(state_class, object_name, object)
 	if state_class then
 		self:_set_state(state_class)
 	end
-
 	self._debug = true
 end
 
@@ -35,7 +34,6 @@ function FiniteStateMachine:transition()
 	if new_state_class then
 		self:_set_state(new_state_class, arg)
 	end
-
 end
 
 function FiniteStateMachine:state()
@@ -52,14 +50,12 @@ function FiniteStateMachine:_destroy_current_state()
 		self._state:destroy()
 		self._state = nil
 	end
-
 end
 
 function FiniteStateMachine:_set_state(new_state_class, ...)
 	if self._debug then
 		cat_print("debug", "transitions from '" .. self:_class_name(self._state_class) .. "' to '" .. self:_class_name(new_state_class) .. "'")
 	end
-
 	self:_destroy_current_state()
 	local init_function = new_state_class.init
 	function new_state_class.init()
@@ -73,6 +69,5 @@ function FiniteStateMachine:_set_state(new_state_class, ...)
 	if init_function then
 		self._state:init(...)
 	end
-
 end
 

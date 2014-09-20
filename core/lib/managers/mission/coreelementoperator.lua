@@ -13,25 +13,16 @@ function ElementOperator:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._values.elements)
-		do
-			do break end
-			local element = self:get_mission_element(id)
-			if element then
-				if self._values.operation == "add" then
-					element:operation_add()
-				elseif self._values.operation == "remove" then
-					element:operation_remove()
-				end
-
+	for _, id in ipairs(self._values.elements) do
+		local element = self:get_mission_element(id)
+		if element then
+			if self._values.operation == "add" then
+				element:operation_add()
+			elseif self._values.operation == "remove" then
+				element:operation_remove()
 			end
-
 		end
-
 	end
-
 	ElementOperator.super.on_executed(self, instigator)
 end
 

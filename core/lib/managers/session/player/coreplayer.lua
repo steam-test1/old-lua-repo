@@ -12,11 +12,9 @@ function Player:destroy()
 	if self._level_handler then
 		self:leave_level(self._level_handler)
 	end
-
 	if self._avatar then
 		self:_destroy_avatar()
 	end
-
 	self._player_handler:destroy()
 	self._player_handler = nil
 end
@@ -56,7 +54,6 @@ function Player:leave_level(level_handler)
 	if self._avatar then
 		self:_destroy_avatar()
 	end
-
 	self._player_handler:leave_level(level_handler)
 	self._level_handler = nil
 end

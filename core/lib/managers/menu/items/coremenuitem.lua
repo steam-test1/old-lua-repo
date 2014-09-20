@@ -6,53 +6,36 @@ function Item:init(data_node, parameters)
 	local params = parameters or {}
 	params.info_panel = ""
 	if data_node then
-		local (for generator), (for state), (for control) = pairs(data_node)
-		do
-			do break end
+		for key, value in pairs(data_node) do
 			if key ~= "_meta" and type(value) ~= "table" then
 				params[key] = value
 			end
-
 		end
-
 	end
-
 	local required_params = {"name"}
-	do
-		local (for generator), (for state), (for control) = ipairs(required_params)
-		do
-			do break end
-			if not params[p_name] then
-				Application:error("Menu item without parameter '" .. p_name .. "'")
-			end
-
+	for _, p_name in ipairs(required_params) do
+		if not params[p_name] then
+			Application:error("Menu item without parameter '" .. p_name .. "'")
 		end
-
 	end
-
 	if params.visible_callback then
 		self._visible_callback_name_list = string.split(params.visible_callback, " ")
 	end
-
 	if params.enabled_callback then
 		self._enabled_callback_name_list = string.split(params.enabled_callback, " ")
 	end
-
 	if params.icon_visible_callback then
 		self._icon_visible_callback_name_list = string.split(params.icon_visible_callback, " ")
 	end
-
 	if params.callback then
 		params.callback = string.split(params.callback, " ")
 	else
 		params.callback = {}
 	end
-
 	if params.callback then
 		params.callback_name = params.callback
 		params.callback = {}
 	end
-
 	self:set_parameters(params)
 	self._enabled = true
 end
@@ -96,39 +79,23 @@ end
 
 function Item:set_callback_handler(callback_handler)
 	self._callback_handler = callback_handler
-	do
-		local (for generator), (for state), (for control) = pairs(self._parameters.callback_name)
-		do
-			do break end
-			table.insert(self._parameters.callback, callback(callback_handler, callback_handler, callback_name))
-		end
-
+	for _, callback_name in pairs(self._parameters.callback_name) do
+		table.insert(self._parameters.callback, callback(callback_handler, callback_handler, callback_name))
 	end
-
 	if self._visible_callback_name_list then
-		local (for generator), (for state), (for control) = pairs(self._visible_callback_name_list)
-		do
-			do break end
+		for _, visible_callback_name in pairs(self._visible_callback_name_list) do
 			self._visible_callback_list = self._visible_callback_list or {}
 			table.insert(self._visible_callback_list, callback(callback_handler, callback_handler, visible_callback_name))
 		end
-
 	end
-
 	if self._icon_visible_callback_name_list then
-		local (for generator), (for state), (for control) = pairs(self._icon_visible_callback_name_list)
-		do
-			do break end
+		for _, visible_callback_name in pairs(self._icon_visible_callback_name_list) do
 			self._icon_visible_callback_list = self._icon_visible_callback_list or {}
 			table.insert(self._icon_visible_callback_list, callback(callback_handler, callback_handler, visible_callback_name))
 		end
-
 	end
-
 	if self._enabled_callback_name_list then
-		local (for generator), (for state), (for control) = pairs(self._enabled_callback_name_list)
-		do
-			do break end
+		for _, enabled_callback_name in pairs(self._enabled_callback_name_list) do
 			if callback_handler[enabled_callback_name] then
 				if not callback_handler[enabled_callback_name](self) then
 					self:set_enabled(false)
@@ -136,44 +103,31 @@ function Item:set_callback_handler(callback_handler)
 					else
 						Application:error("[Item:set_callback_handler] inexistent callback:", enabled_callback_name)
 					end
-
 				end
-
 		end
-
 	end
-
 end
 
 function Item:trigger()
-	local (for generator), (for state), (for control) = pairs(self:parameters().callback)
-	do
-		do break end
+	for _, callback in pairs(self:parameters().callback) do
 		callback(self)
 	end
-
 end
 
 function Item:dirty()
 	if self.dirty_callback then
 		self.dirty_callback(self)
 	end
-
 end
 
 function Item:visible()
 	if self._visible_callback_list then
-		local (for generator), (for state), (for control) = pairs(self._visible_callback_list)
-		do
-			do break end
+		for _, visible_callback in pairs(self._visible_callback_list) do
 			if not visible_callback(self) then
 				return false
 			end
-
 		end
-
 	end
-
 	return true
 end
 
@@ -218,17 +172,12 @@ end
 
 function Item:icon_visible()
 	if self._icon_visible_callback_list then
-		local (for generator), (for state), (for control) = pairs(self._icon_visible_callback_list)
-		do
-			do break end
+		for _, visible_callback in pairs(self._icon_visible_callback_list) do
 			if not visible_callback(self) then
 				return false
 			end
-
 		end
-
 	end
-
 	return true
 end
 

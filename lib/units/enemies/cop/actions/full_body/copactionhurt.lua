@@ -132,7 +132,6 @@ function CopActionHurt:init(action_desc, common_data)
 			debug_pause("[CopActionHurt:init] fatal redirect failed in", self._machine:segment_state(Idstring("base")))
 			return
 		end
-
 		managers.hud:set_mugshot_downed(self._unit:unit_data().mugshot_id)
 	elseif action_desc.variant == "tase" then
 		redir_res = self._ext_movement:play_redirect("tased")
@@ -140,7 +139,6 @@ function CopActionHurt:init(action_desc, common_data)
 			debug_pause("[CopActionHurt:init] tased redirect failed in", self._machine:segment_state(Idstring("base")))
 			return
 		end
-
 		managers.hud:set_mugshot_tased(self._unit:unit_data().mugshot_id)
 	elseif action_type == "light_hurt" then
 		if not self._ext_anim.upper_body_active or self._ext_anim.upper_body_empty or self._ext_anim.recoil then
@@ -149,7 +147,6 @@ function CopActionHurt:init(action_desc, common_data)
 				debug_pause("[CopActionHurt:init] light_hurt redirect failed in", self._machine:segment_state(Idstring("upper_body")))
 				return
 			end
-
 			local dir_str
 			local fwd_dot = action_desc.direction_vec:dot(common_data.fwd)
 			if fwd_dot < 0 then
@@ -160,16 +157,13 @@ function CopActionHurt:init(action_desc, common_data)
 				else
 					dir_str = "l"
 				end
-
 			else
 				dir_str = "bwd"
 			end
-
 			self._machine:set_parameter(redir_res, dir_str, 1)
 			local height_str = action_desc.hit_pos.z > self._ext_movement:m_com().z and "high" or "low"
 			self._machine:set_parameter(redir_res, height_str, 1)
 		end
-
 		self._expired = true
 		return true
 	elseif action_type == "hurt_sick" then
@@ -178,39 +172,24 @@ function CopActionHurt:init(action_desc, common_data)
 			debug_pause_unit(self._unit, "[CopActionHurt:init] Unit missing ecm_hurts in Character Tweak Data", self._unit)
 			return
 		end
-
 		redir_res = self._ext_movement:play_redirect("hurt_sick")
 		if not redir_res then
 			debug_pause("[CopActionHurt:init] hurt_sick redirect failed in", self._machine:segment_state(Idstring("base")))
 			return
 		end
-
 		local is_cop = true
 		if is_civilian then
 			is_cop = false
 		end
-
 		local sick_variants = {}
-		do
-			local (for generator), (for state), (for control) = pairs(ecm_hurts_table)
-			do
-				do break end
-				table.insert(sick_variants, i)
-			end
-
+		for i, d in pairs(ecm_hurts_table) do
+			table.insert(sick_variants, i)
 		end
-
 		local variant = sick_variants[math.random(#sick_variants)]
 		local duration = math.random(ecm_hurts_table[variant].min_duration, ecm_hurts_table[variant].max_duration)
-		do
-			local (for generator), (for state), (for control) = ipairs(sick_variants)
-			do
-				do break end
-				self._machine:set_global(hurt_sick, hurt_sick == variant and 1 or 0)
-			end
-
+		for _, hurt_sick in ipairs(sick_variants) do
+			self._machine:set_global(hurt_sick, hurt_sick == variant and 1 or 0)
 		end
-
 		self._sick_time = t + duration
 	elseif action_type == "bleedout" then
 		redir_res = self._ext_movement:play_redirect("bleedout")
@@ -218,19 +197,16 @@ function CopActionHurt:init(action_desc, common_data)
 			debug_pause("[CopActionHurt:init] bleedout redirect failed in", self._machine:segment_state(Idstring("base")))
 			return
 		end
-
 	elseif action_type == "death" and (self._ext_anim.run and self._ext_anim.move_fwd or self._ext_anim.sprint) and not common_data.char_tweak.no_run_death_anim then
 		redir_res = self._ext_movement:play_redirect("death_run")
 		if not redir_res then
 			debug_pause("[CopActionHurt:init] death_run redirect failed in", self._machine:segment_state(Idstring("base")))
 			return
 		end
-
 		local variant = self.running_death_anim_variants[is_female and "female" or "male"] or 1
 		if variant > 1 then
 			variant = math.random(variant)
 		end
-
 		self._machine:set_parameter(redir_res, "var" .. tostring(variant), 1)
 	elseif action_type == "death" and (self._ext_anim.run or self._ext_anim.ragdoll) and self:_start_ragdoll() then
 		self.update = self._upd_ragdolled
@@ -240,12 +216,10 @@ function CopActionHurt:init(action_desc, common_data)
 			debug_pause("[CopActionHurt:init] heavy_run redirect failed in", self._machine:segment_state(Idstring("base")))
 			return
 		end
-
 		local variant = self.running_hurt_anim_variants.fwd or 1
 		if variant > 1 then
 			variant = math.random(variant)
 		end
-
 		self._machine:set_parameter(redir_res, "var" .. tostring(variant), 1)
 	else
 		local variant, height, old_variant, old_info
@@ -255,9 +229,7 @@ function CopActionHurt:init(action_desc, common_data)
 					old_variant = i
 					break
 				end
-
 			end
-
 			if old_variant ~= nil then
 				old_info = {
 					fwd = self._machine:get_parameter(self._machine:segment_state(Idstring("base")), "fwd"),
@@ -271,15 +243,12 @@ function CopActionHurt:init(action_desc, common_data)
 					hvy = self._machine:get_parameter(self._machine:segment_state(Idstring("base")), "hvy")
 				}
 			end
-
 		end
-
 		redir_res = self._ext_movement:play_redirect(action_type)
 		if not redir_res then
 			debug_pause_unit(self._unit, "[CopActionHurt:init]", action_type, "redirect failed in", self._machine:segment_state(Idstring("base")), self._unit)
 			return
 		end
-
 		if action_desc.variant == "bleeding" then
 		else
 			local nr_variants = self._ext_anim.base_nr_variants
@@ -295,13 +264,11 @@ function CopActionHurt:init(action_desc, common_data)
 					else
 						dir_str = "bwd"
 					end
-
 				elseif right_dot > 0 then
 					dir_str = "l"
 				else
 					dir_str = "r"
 				end
-
 				self._machine:set_parameter(redir_res, dir_str, 1)
 				local hit_z = action_desc.hit_pos.z
 				height = hit_z > self._ext_movement:m_com().z and "high" or "low"
@@ -312,46 +279,35 @@ function CopActionHurt:init(action_desc, common_data)
 					else
 						variant = self.death_anim_variants[death_type][crouching and "crouching" or "not_crouching"][dir_str][height]
 					end
-
 					if variant > 1 then
 						variant = math.random(variant)
 					end
-
 				elseif action_type ~= "shield_knock" and action_type ~= "counter_tased" then
 					if old_variant and (old_info[dir_str] == 1 and old_info[height] == 1 and old_info.mod == 1 and action_type == "hurt" or old_info.hvy == 1 and action_type == "heavy_hurt") then
 						variant = old_variant
 					end
-
 					if not variant then
 						if action_type == "expl_hurt" then
 							variant = self.hurt_anim_variants[action_type][dir_str]
 						else
 							variant = self.hurt_anim_variants[action_type].not_crouching[dir_str][height]
 						end
-
 						if variant > 1 then
 							variant = math.random(variant)
 						end
-
 					end
-
 				end
-
 			end
-
 			variant = variant or 1
 			if variant then
 				self._machine:set_parameter(redir_res, "var" .. tostring(variant), 1)
 			end
-
 			if height then
 				self._machine:set_parameter(redir_res, height, 1)
 			end
-
 			if crouching then
 				self._machine:set_parameter(redir_res, "crh", 1)
 			end
-
 			if action_type == "hurt" then
 				self._machine:set_parameter(redir_res, "mod", 1)
 			elseif action_type == "heavy_hurt" then
@@ -361,15 +317,11 @@ function CopActionHurt:init(action_desc, common_data)
 			elseif action_type == "expl_hurt" then
 				self._machine:set_parameter(redir_res, "expl", 1)
 			end
-
 		end
-
 	end
-
 	if self._ext_anim.upper_body_active and not self._ragdolled then
 		self._ext_movement:play_redirect("up_idle")
 	end
-
 	self._last_vel_z = 0
 	self._hurt_type = action_type
 	self._variant = action_desc.variant
@@ -380,7 +332,6 @@ function CopActionHurt:init(action_desc, common_data)
 		if Network:is_server() then
 			self._ext_inventory:equip_selection(1, true)
 		end
-
 		local weapon_unit = self._ext_inventory:equipped_unit()
 		self._weapon_base = weapon_unit:base()
 		local weap_tweak = weapon_unit:base():weapon_tweak_data()
@@ -405,7 +356,6 @@ function CopActionHurt:init(action_desc, common_data)
 				m_last_pos = common_data.pos + common_data.fwd * 500
 			}
 		end
-
 	elseif action_type == "hurt_sick" then
 		self.update = self._upd_sick
 	elseif action_desc.variant == "tase" then
@@ -415,7 +365,6 @@ function CopActionHurt:init(action_desc, common_data)
 	else
 		self.update = self._upd_hurt
 	end
-
 	local shoot_chance
 	if self._ext_inventory and not self._weapon_dropped and common_data.char_tweak.shooting_death and not self._ext_movement:cool() and t - self._ext_movement:not_cool_t() > 3 then
 		local weapon_unit = self._ext_inventory:equipped_unit()
@@ -426,11 +375,8 @@ function CopActionHurt:init(action_desc, common_data)
 			elseif action_type == "death" or action_type == "hurt" or action_type == "heavy_hurt" then
 				shoot_chance = 0.1
 			end
-
 		end
-
 	end
-
 	if shoot_chance then
 		local equipped_weapon = self._ext_inventory:equipped_unit()
 		if equipped_weapon and (not equipped_weapon:base().clip_empty or not equipped_weapon:base():clip_empty()) and shoot_chance > math.random() then
@@ -444,11 +390,8 @@ function CopActionHurt:init(action_desc, common_data)
 				self._delayed_shooting_hurt_clbk_id = "shooting_hurt" .. tostring(self._unit:key())
 				managers.enemy:add_delayed_clbk(self._delayed_shooting_hurt_clbk_id, callback(self, self, "clbk_shooting_hurt"), TimerManager:game():time() + math.lerp(0.2, 0.4, math.random()))
 			end
-
 		end
-
 	end
-
 	if not self._unit:base().nick_name then
 		if action_type == "death" then
 			self._unit:sound():say("x02a_any_3p")
@@ -457,7 +400,6 @@ function CopActionHurt:init(action_desc, common_data)
 		else
 			self._unit:sound():say("x01a_any_3p")
 		end
-
 		if Network:is_server() then
 			local radius, filter_name
 			if action_desc.attacker_unit and action_desc.attacker_unit:base().upgrade_value then
@@ -465,7 +407,6 @@ function CopActionHurt:init(action_desc, common_data)
 			elseif action_desc.attacker_unit and action_desc.attacker_unit:base().is_local_player then
 				radius = managers.player:upgrade_value("player", "silent_kill", nil)
 			end
-
 			if managers.groupai:state():whisper_mode() then
 				radius = radius or tweak_data.upgrades.cop_hurt_alert_radius_whisper or 600
 				filter_name = "civilians_enemies"
@@ -473,7 +414,6 @@ function CopActionHurt:init(action_desc, common_data)
 				radius = radius or tweak_data.upgrades.cop_hurt_alert_radius or 400
 				filter_name = "enemies"
 			end
-
 			local new_alert = {
 				"vo_distress",
 				common_data.ext_movement:m_head_pos(),
@@ -483,13 +423,10 @@ function CopActionHurt:init(action_desc, common_data)
 			}
 			managers.groupai:state():propagate_alert(new_alert)
 		end
-
 	end
-
 	if action_type == "death" or action_type == "bleedout" or action_desc.variant == "tased" or action_type == "fatal" then
 		self._floor_normal = self:_get_floor_normal(common_data.pos, common_data.fwd, common_data.right)
 	end
-
 	CopActionAct._create_blocks_table(self, action_desc.blocks)
 	self._ext_movement:enable_update()
 	if (self._body_part == 1 or self._body_part == 2) and Network:is_server() then
@@ -500,9 +437,7 @@ function CopActionHurt:init(action_desc, common_data)
 				radius = 30
 			})
 		end
-
 	end
-
 	return true
 end
 
@@ -523,7 +458,6 @@ function CopActionHurt:_get_floor_normal(at_pos, fwd, right)
 	else
 		fwd_pos = to_pos:with_z(at_pos.z)
 	end
-
 	mvec3_set(from_pos, fwd)
 	mvec3_mul(from_pos, -dis)
 	mvec3_add(from_pos, center_pos)
@@ -535,7 +469,6 @@ function CopActionHurt:_get_floor_normal(at_pos, fwd, right)
 	else
 		bwd_pos = to_pos:with_z(at_pos.z)
 	end
-
 	mvec3_set(from_pos, right)
 	mvec3_mul(from_pos, dis)
 	mvec3_add(from_pos, center_pos)
@@ -547,7 +480,6 @@ function CopActionHurt:_get_floor_normal(at_pos, fwd, right)
 	else
 		r_pos = to_pos:with_z(at_pos.z)
 	end
-
 	mvec3_set(from_pos, right)
 	mvec3_mul(from_pos, -dis)
 	mvec3_add(from_pos, center_pos)
@@ -560,7 +492,6 @@ function CopActionHurt:_get_floor_normal(at_pos, fwd, right)
 		l_pos = to_pos
 		mvec3_set_z(l_pos, at_pos.z)
 	end
-
 	local pose_fwd = fwd_pos
 	mvec3_sub(pose_fwd, bwd_pos)
 	local pose_l = l_pos
@@ -575,41 +506,32 @@ function CopActionHurt:on_exit()
 		self._shooting_hurt = false
 		self._weapon_unit:base():stop_autofire()
 	end
-
 	if self._delayed_shooting_hurt_clbk_id then
 		managers.enemy:remove_delayed_clbk(self._delayed_shooting_hurt_clbk_id)
 		self._delayed_shooting_hurt_clbk_id = nil
 	end
-
 	if self._original_bullet_hit_slotmask and alive(self._weapon_unit) then
 		self._weapon_unit:base():set_bullet_hit_slotmask(self._original_bullet_hit_slotmask)
 		self._original_bullet_hit_slotmask = nil
 	end
-
 	if self._modifier_on then
 		self._machine:allow_modifier(self._head_modifier_name)
 		self._machine:allow_modifier(self._arm_modifier_name)
 	end
-
 	if self._expired then
 		CopActionWalk._chk_correct_pose(self)
 	end
-
 	if not self._expired and Network:is_server() then
 		if self._hurt_type == "bleedout" or self._hurt_type == "fatal" or self._variant == "tase" then
 			self._unit:network():send("action_hurt_end")
 		end
-
 		if self._hurt_type == "bleedout" or self._hurt_type == "fatal" then
 			self._ext_inventory:equip_selection(2, true)
 		end
-
 	end
-
 	if self._hurt_type == "fatal" or self._variant == "tase" then
 		managers.hud:set_mugshot_normal(self._unit:unit_data().mugshot_id)
 	end
-
 end
 
 function CopActionHurt:_get_pos_clamped_to_graph(test_head)
@@ -640,11 +562,9 @@ function CopActionHurt:_get_pos_clamped_to_graph(test_head)
 			mvec3_mul(tmp_vec3, error_amount)
 			mvector3.add(new_pos, tmp_vec3)
 		end
-
 	else
 		ray_params = {tracker_from = tracker}
 	end
-
 	ray_params.pos_to = new_pos
 	ray_params.trace = true
 	managers.navigation:raycast(ray_params)
@@ -659,7 +579,6 @@ function CopActionHurt:_upd_sick(t)
 	if not self._sick_time or t > self._sick_time then
 		self._expired = true
 	end
-
 end
 
 function CopActionHurt:_upd_hurt(t)
@@ -675,9 +594,7 @@ function CopActionHurt:_upd_hurt(t)
 				self._shooting_hurt = false
 				weap_unit_base:stop_autofire()
 			end
-
 		end
-
 		self._last_pos = self:_get_pos_clamped_to_graph(true)
 		CopActionWalk._set_new_pos(self, dt)
 		local new_rot = self._unit:get_animation_delta_rotation()
@@ -691,22 +608,18 @@ function CopActionHurt:_upd_hurt(t)
 			mvec3_cross(fwd, normal, tmp_vec1)
 			new_rot = Rotation(fwd, normal)
 		end
-
 		self._ext_movement:set_rotation(new_rot)
 	else
 		if self._shooting_hurt then
 			self._shooting_hurt = false
 			self._weapon_unit:base():stop_autofire()
 		end
-
 		if self._hurt_type == "death" then
 			self._died = true
 		else
 			self._expired = true
 		end
-
 	end
-
 end
 
 function CopActionHurt:_upd_bleedout(t)
@@ -722,13 +635,11 @@ function CopActionHurt:_upd_bleedout(t)
 			normal = self._floor_normal
 			self._floor_normal = nil
 		end
-
 		mvec3_cross(tmp_vec1, self._common_data.fwd, normal)
 		mvec3_cross(tmp_vec2, normal, tmp_vec1)
 		local new_rot = Rotation(tmp_vec2, normal)
 		self._ext_movement:set_rotation(new_rot)
 	end
-
 	if not self._ext_anim.bleedout_enter and self._weapon_unit then
 		if self._attention and not self._ext_anim.reload and not self._ext_anim.equip then
 			local autotarget, target_pos
@@ -740,7 +651,6 @@ function CopActionHurt:_upd_bleedout(t)
 			else
 				target_pos = self._attention.pos
 			end
-
 			local shoot_from_pos = self._ext_movement:m_head_pos()
 			local target_vec = target_pos - shoot_from_pos
 			local target_dis = mvec3_norm(target_vec)
@@ -749,7 +659,6 @@ function CopActionHurt:_upd_bleedout(t)
 				self._machine:force_modifier(self._head_modifier_name)
 				self._machine:force_modifier(self._arm_modifier_name)
 			end
-
 			if self._look_dir then
 				local angle_diff = self._look_dir:angle(target_vec)
 				local rot_speed_rel = math.pow(math.min(angle_diff / 90, 1), 0.5)
@@ -763,7 +672,6 @@ function CopActionHurt:_upd_bleedout(t)
 			else
 				self._look_dir = target_vec
 			end
-
 			self._bleedout_look_t = t
 			self._head_modifier:set_target_z(self._look_dir)
 			self._arm_modifier:set_target_y(self._look_dir)
@@ -784,7 +692,6 @@ function CopActionHurt:_upd_bleedout(t)
 					if res then
 						self._machine:set_speed(res, self._reload_speed)
 					end
-
 				elseif self._common_data.allow_fire then
 					local falloff = CopActionShoot._get_shoot_falloff(self, target_dis, self._falloff)
 					local spread = self._spread
@@ -795,9 +702,7 @@ function CopActionHurt:_upd_bleedout(t)
 						else
 							spread = math.min(20, spread)
 						end
-
 					end
-
 					local spread_pos = tmp_vec2
 					mvec3_rand_orth(spread_pos, target_vec)
 					mvec3_set_l(spread_pos, spread)
@@ -807,17 +712,13 @@ function CopActionHurt:_upd_bleedout(t)
 					local rand = math.random()
 					self._shoot_t = t + math.lerp(falloff.recoil[1], falloff.recoil[2], rand)
 				end
-
 			end
-
 		elseif self._modifier_on then
 			self._modifier_on = false
 			self._machine:allow_modifier(self._head_modifier_name)
 			self._machine:allow_modifier(self._arm_modifier_name)
 		end
-
 	end
-
 end
 
 function CopActionHurt:_upd_ragdolled(t)
@@ -832,18 +733,14 @@ function CopActionHurt:_upd_ragdolled(t)
 			self._shooting_hurt = false
 			weap_unit_base:stop_autofire()
 		end
-
 	end
-
 	if self._ragdoll_active then
 		self._hips_obj:m_position(tmp_vec1)
 		self._ext_movement:set_position(tmp_vec1)
 	end
-
 	if not self._ragdoll_freeze_clbk_id and not self._shooting_hurt then
 		self._died = true
 	end
-
 end
 
 function CopActionHurt:type()
@@ -865,7 +762,6 @@ function CopActionHurt:chk_block(action_type, t)
 	elseif (action_type == "hurt" or action_type == "heavy_hurt" or action_type == "hurt_sick") and not self._ext_anim.hurt_exit then
 		return true
 	end
-
 end
 
 function CopActionHurt:on_attention(attention)
@@ -877,23 +773,19 @@ function CopActionHurt:on_death_exit()
 		self._shooting_hurt = false
 		self._weapon_unit:base():stop_autofire()
 	end
-
 	if not self._ragdolled then
 		self._unit:set_animations_enabled(false)
 	end
-
 end
 
 function CopActionHurt:on_death_drop(unit, stage)
 	if self._weapon_dropped then
 		return
 	end
-
 	if self._delayed_shooting_hurt_clbk_id then
 		managers.enemy:remove_delayed_clbk(self._delayed_shooting_hurt_clbk_id)
 		self._delayed_shooting_hurt_clbk_id = nil
 	end
-
 	if self._shooting_hurt then
 		if stage == 2 then
 			self._weapon_unit:base():stop_autofire()
@@ -901,12 +793,10 @@ function CopActionHurt:on_death_drop(unit, stage)
 			self._weapon_dropped = true
 			self._shooting_hurt = false
 		end
-
 	elseif self._ext_inventory then
 		self._ext_inventory:drop_weapon()
 		self._weapon_dropped = true
 	end
-
 	return
 end
 
@@ -920,7 +810,6 @@ function CopActionHurt:need_upd()
 	else
 		return true
 	end
-
 end
 
 function CopActionHurt:on_inventory_event(event)
@@ -940,26 +829,20 @@ function CopActionHurt:on_inventory_event(event)
 		self._weapon_unit = false
 		self._shooting_hurt = false
 	end
-
 end
 
 function CopActionHurt:save(save_data)
-	local (for generator), (for state), (for control) = pairs(self._action_desc)
-	do
-		do break end
+	for i, k in pairs(self._action_desc) do
 		if type_name(k) ~= "Unit" or alive(k) then
 			save_data[i] = k
 		end
-
 	end
-
 end
 
 function CopActionHurt:_start_ragdoll()
 	if self._ragdolled then
 		return true
 	end
-
 	if self._unit:damage() and self._unit:damage():has_sequence("switch_to_ragdoll") then
 		self:on_death_drop(self._unit, 2)
 		self._ragdolled = true
@@ -976,14 +859,12 @@ function CopActionHurt:_start_ragdoll()
 			tag = Idstring("root_follow")
 			hips_body:set_activate_tag(tag)
 		end
-
 		self._root_act_tags[tag:key()] = true
 		tag = hips_body:deactivate_tag()
 		if tag == Idstring("") then
 			tag = Idstring("root_follow")
 			hips_body:set_deactivate_tag(tag)
 		end
-
 		self._root_act_tags[tag:key()] = true
 		self._hips_obj = self._unit:get_object(Idstring("Hips"))
 		self._ragdoll_active = true
@@ -995,10 +876,8 @@ function CopActionHurt:_start_ragdoll()
 		if self._unit:anim_data().repel_loop then
 			self._unit:sound():anim_clbk_play_sound(self._unit, "repel_end")
 		end
-
 		return true
 	end
-
 end
 
 function CopActionHurt:force_ragdoll()
@@ -1006,7 +885,6 @@ function CopActionHurt:force_ragdoll()
 		self.update = self._upd_ragdolled
 		self._ext_movement:enable_update()
 	end
-
 end
 
 function CopActionHurt:clbk_body_active_state(tag, unit, body, activated)
@@ -1020,11 +898,8 @@ function CopActionHurt:clbk_body_active_state(tag, unit, body, activated)
 			if not self._shooting_hurt then
 				self._died = true
 			end
-
 		end
-
 	end
-
 end
 
 CopActionHurt._apply_freefall = CopActionWalk._apply_freefall
@@ -1033,7 +908,6 @@ function CopActionHurt:_freeze_ragdoll()
 	if self._unit:damage() and self._unit:damage():has_sequence("freeze_ragdoll") then
 		self._unit:damage():run_sequence_simple("freeze_ragdoll")
 	end
-
 end
 
 function CopActionHurt:clbk_chk_freeze_ragdoll()
@@ -1041,7 +915,6 @@ function CopActionHurt:clbk_chk_freeze_ragdoll()
 		self._ragdoll_freeze_clbk_id = nil
 		return
 	end
-
 	local t = TimerManager:game():time()
 	self._hips_obj:m_position(tmp_vec1)
 	local cur_dis = mvec3_dis(self._rag_pos, tmp_vec1)
@@ -1052,7 +925,6 @@ function CopActionHurt:clbk_chk_freeze_ragdoll()
 		mvec3_set(self._rag_pos, tmp_vec1)
 		managers.enemy:add_delayed_clbk(self._ragdoll_freeze_clbk_id, callback(self, self, "clbk_chk_freeze_ragdoll"), t + 1.5)
 	end
-
 end
 
 function CopActionHurt:clbk_shooting_hurt()
@@ -1060,7 +932,6 @@ function CopActionHurt:clbk_shooting_hurt()
 	if not alive(self._weapon_unit) then
 		return
 	end
-
 	local fire_obj = self._weapon_unit:get_object(Idstring("fire"))
 	self._weapon_unit:base():singleshot(fire_obj:position(), fire_obj:rotation(), 1, false, nil, nil, nil, nil)
 end
@@ -1070,11 +941,9 @@ function CopActionHurt:on_destroy()
 		self._shooting_hurt = false
 		self._weapon_unit:base():stop_autofire()
 	end
-
 	if self._delayed_shooting_hurt_clbk_id then
 		managers.enemy:remove_delayed_clbk(self._delayed_shooting_hurt_clbk_id)
 		self._delayed_shooting_hurt_clbk_id = nil
 	end
-
 end
 

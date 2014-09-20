@@ -26,7 +26,6 @@ function ContextDescription:device_layout_description(device_type, layout_name)
 	if layout_description == nil then
 		return
 	end
-
 	return layout_description:device_layout_description(device_type)
 end
 

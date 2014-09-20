@@ -13,7 +13,6 @@ function SessionManager:init(session_factory, input_manager)
 	if not session_factory then
 		return
 	end
-
 	assert(session_factory ~= nil, "SessionManager must have a valid session_factory to work")
 	self._factory = session_factory
 	local settings_handler = self._factory:create_profile_settings_handler()
@@ -59,19 +58,12 @@ function SessionManager:all_systems_are_stable_for_loading()
 end
 
 function SessionManager:_check_if_stable_for_loading(collection)
-	do
-		local (for generator), (for state), (for control) = pairs(collection)
-		do
-			do break end
-			if not state:is_stable_for_loading() then
-				cat_print("debug", CoreDebug.full_class_name(state) .. " is not ready....")
-				return false
-			end
-
+	for _, state in pairs(collection) do
+		if not state:is_stable_for_loading() then
+			cat_print("debug", CoreDebug.full_class_name(state) .. " is not ready....")
+			return false
 		end
-
 	end
-
 	return true
 end
 
@@ -79,35 +71,25 @@ function SessionManager:_update(t, dt)
 	if not self._factory then
 		return
 	end
-
 	self._local_user_manager:update(t, dt)
 	self._debug_timer = (self._debug_timer or 0) + dt
-	local (for generator), (for state), (for control) = pairs(self._state_machines)
-	do
-		do break end
+	for _, state in pairs(self._state_machines) do
 		if state.update then
 			state:update(t, dt)
 		end
-
 		state:transition()
 	end
-
 end
 
 function SessionManager:end_update(t, dt)
 	if not self._factory then
 		return
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._state_machines)
-	do
-		do break end
+	for _, state in pairs(self._state_machines) do
 		if state.end_update then
 			state:end_update(t, dt)
 		end
-
 	end
-
 end
 
 function SessionManager:update(t, dt)

@@ -4,7 +4,6 @@ function Init:transition()
 	if self.storage._load:is_requested() then
 		return Loading
 	end
-
 end
 
 DetectSignOut = DetectSignOut or class()
@@ -26,7 +25,6 @@ function Loading:transition()
 	if not status then
 		return
 	end
-
 	if status == SaveData.OK then
 		return Ready
 	elseif status == SaveData.FILE_NOT_FOUND then
@@ -34,7 +32,6 @@ function Loading:transition()
 	else
 		return LoadError
 	end
-
 end
 
 Ready = Ready or class()

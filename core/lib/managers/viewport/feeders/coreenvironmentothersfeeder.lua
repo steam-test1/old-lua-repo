@@ -27,28 +27,23 @@ function EnvironmentOthersFeeder:feed(nr, scene, vp, data, block, ...)
 				World:delete_light(Global._global_light)
 				Global._global_light = nil
 			end
-
 			if CoreCode.alive(Global._underlay_ref_camera) then
 				Underlay:delete_camera(Global._underlay_ref_camera)
 				Global._underlay_ref_camera = nil
 			end
-
 			local entry_path = managers.database and managers.database:entry_path(underlay_name) or underlay_name
 			if Application:editor() or CoreApp.arg_value("-slave") then
 				CoreEngineAccess._editor_load(Idstring("scene"), entry_path:id())
 			end
-
 			Underlay:load(entry_path, false)
 			managers.environment_controller:feed_params()
 		end
-
 		if not CoreCode.alive(Global._global_light) then
 			Global._global_light = World:create_light("directional|specular")
 			Global._global_light:link(Underlay:get_object(Idstring("d_sun")))
 			Global._global_light:set_local_rotation(Rotation(0, 0, 0))
 			World:set_global_shadow_caster(Global._global_light)
 		end
-
 		if not CoreCode.alive(Global._underlay_ref_camera) then
 			Global._underlay_ref_camera = Underlay:create_camera()
 			Global._underlay_ref_camera:set_near_range(1000)
@@ -60,10 +55,8 @@ function EnvironmentOthersFeeder:feed(nr, scene, vp, data, block, ...)
 			else
 				Global._underlay_ref_camera:set_local_position(camrefpos:position())
 			end
-
 			Underlay:set_reference_camera(Global._underlay_ref_camera)
 		end
-
 		Global._global_light:set_color(sun_ray_color * sun_ray_color_scale)
 		if not self._global_texture or self._global_texture ~= global_texture then
 			if global_texture and global_texture ~= "" then
@@ -71,19 +64,15 @@ function EnvironmentOthersFeeder:feed(nr, scene, vp, data, block, ...)
 			else
 				print("[EnvironmentOthersFeeder] VARNING! This environment has no cubemap!")
 			end
-
 			self._global_texture = global_texture
 		end
-
 		return true
 	elseif args[1] == "sky_orientation" then
 		if nr == 1 then
 			Underlay:get_object(Idstring("rp_skydome")):set_rotation(Rotation(-block.rotation, 0, 0))
 		end
-
 		return true
 	end
-
 	return false
 end
 

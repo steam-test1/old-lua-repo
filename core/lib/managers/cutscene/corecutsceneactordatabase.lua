@@ -44,49 +44,31 @@ function CoreCutsceneActorDatabaseUnitTypeInfo:_append_unit_info(unit)
 		table.sort(self._object_names, string.case_insensitive_compare)
 		freeze(self._object_names)
 	end
-
 	if self._object_visibilities == nil then
 		self._object_visibilities = table.remap(unit:get_objects("*"), function(_, object)
 			return object:name(), object.visibility and object:visibility() or nil
 		end
 )
 	end
-
 	if self._extensions == nil then
 		self._extensions = {}
-		do
-			local (for generator), (for state), (for control) = ipairs(unit:extensions())
-			do
-				do break end
-				local extension = unit[extension_name] and unit[extension_name](unit)
-				if extension then
-					local methods = {}
-					do
-						local (for generator), (for state), (for control) = pairs(getmetatable(extension))
-						do
-							do break end
-							if type(value) == "function" and not string.begins(key, "_") and key ~= "new" and key ~= "init" then
-								methods[key] = self:_argument_names_for_function(value)
-							end
-
-						end
-
+		for _, extension_name in ipairs(unit:extensions()) do
+			local extension = unit[extension_name] and unit[extension_name](unit)
+			if extension then
+				local methods = {}
+				for key, value in pairs(getmetatable(extension)) do
+					if type(value) == "function" and not string.begins(key, "_") and key ~= "new" and key ~= "init" then
+						methods[key] = self:_argument_names_for_function(value)
 					end
-
-					self._extensions[extension_name] = methods
 				end
-
+				self._extensions[extension_name] = methods
 			end
-
 		end
-
 		freeze(self._extensions)
 	end
-
 	if self._animation_groups == nil then
 		self._animation_groups = unit:anim_groups()
 	end
-
 	freeze(self)
 end
 
@@ -94,7 +76,6 @@ function CoreCutsceneActorDatabaseUnitTypeInfo:_argument_names_for_function(func
 	if not Application:ews_enabled() then
 		return {}
 	end
-
 	local argument_names = {}
 	local info = debug.getinfo(func)
 	local source_path = managers.database:base_path() .. info.source
@@ -112,8 +93,6 @@ function CoreCutsceneActorDatabaseUnitTypeInfo:_file_line(file, line)
 		if line == 0 then
 			return text
 		end
-
 	end
-
 end
 

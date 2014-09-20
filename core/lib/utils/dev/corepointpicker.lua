@@ -24,11 +24,8 @@ function PointPicker:update(time, delta_time)
 			else
 				self:_mouse_moved(raycast)
 			end
-
 		end
-
 	end
-
 end
 
 function PointPicker:start_picking()

@@ -53,39 +53,27 @@ function EditLadder:init(editor)
 end
 
 function EditLadder:update(t, dt)
-	local (for generator), (for state), (for control) = ipairs(self._selected_units)
-	do
-		do break end
+	for _, unit in ipairs(self._selected_units) do
 		if unit:ladder() then
 			unit:ladder():debug_draw()
 		end
-
 	end
-
 end
 
 function EditLadder:_update_width(params)
-	local (for generator), (for state), (for control) = ipairs(self._selected_units)
-	do
-		do break end
+	for _, unit in ipairs(self._selected_units) do
 		if unit:ladder() then
 			unit:ladder():set_width(self._width_params.value)
 		end
-
 	end
-
 end
 
 function EditLadder:_update_height(params)
-	local (for generator), (for state), (for control) = ipairs(self._selected_units)
-	do
-		do break end
+	for _, unit in ipairs(self._selected_units) do
 		if unit:ladder() then
 			unit:ladder():set_height(self._height_params.value)
 		end
-
 	end
-
 end
 
 function EditLadder:is_editable(unit, units)
@@ -98,7 +86,6 @@ function EditLadder:is_editable(unit, units)
 		self._no_event = false
 		return true
 	end
-
 	self._selected_units = {}
 	return false
 end

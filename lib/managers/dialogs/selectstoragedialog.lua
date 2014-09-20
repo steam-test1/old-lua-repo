@@ -17,7 +17,6 @@ function SelectStorageDialog:done_callback(success, result)
 	if self._data.callback_func then
 		self._data.callback_func(success, result)
 	end
-
 	self:fade_out_close()
 end
 

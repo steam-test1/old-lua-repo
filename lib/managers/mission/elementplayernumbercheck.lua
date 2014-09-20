@@ -12,12 +12,10 @@ function ElementPlayerNumberCheck:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	local num_plrs = managers.network:game():amount_of_members()
 	if not self._values["num" .. num_plrs] then
 		return
 	end
-
 	ElementPlayerNumberCheck.super.on_executed(self, instigator)
 end
 

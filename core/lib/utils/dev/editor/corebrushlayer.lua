@@ -54,22 +54,17 @@ function BrushLayer:_save_brushfile(path)
 		category = "massunits",
 		name = managers.database:entry_path(path:s())
 	})
-	local (for generator), (for state), (for control) = ipairs(MassUnitManager:list())
-	do
-		do break end
+	for _, unit_name in ipairs(MassUnitManager:list()) do
 		managers.editor:add_to_world_package({
 			category = "units",
 			name = unit_name:s()
 		})
 	end
-
 end
 
 function BrushLayer:reposition_all()
 	managers.editor:output("Reposition all brushes:")
-	local (for generator), (for state), (for control) = pairs(self._unit_map)
-	do
-		do break end
+	for name, unit in pairs(self._unit_map) do
 		name = self:get_real_name(name)
 		local unit = safe_spawn_unit(name, Vector3(0, 0, 20000), Rotation(Vector3(1, 0, 0), Vector3(0, 1, 0), Vector3(0, 0, 1)))
 		if unit then
@@ -79,10 +74,8 @@ function BrushLayer:reposition_all()
 				if unit:body_by_index(index):dynamic() then
 					dynamic_unit = true
 				end
-
 				index = index + 1
 			end
-
 			World:delete_unit(unit)
 			if dynamic_unit then
 				managers.editor:output(" * Skipped unit type " .. name .. " it seems to be dynamic")
@@ -106,35 +99,24 @@ function BrushLayer:reposition_all()
 							if nudge_length > 0.05 then
 								nudged_units = nudged_units + 1
 							end
-
 						else
 							Application:error(" * Lost one of type", name, "- it was too alone at:", pos)
 							managers.editor:output(" * Lost one of type " .. name .. " - it was too alone at: " .. pos)
 						end
-
 					end
-
 				end
-
 				if nudged_units > 0 then
 					managers.editor:output(" * Nudged " .. nudged_units .. " units of type " .. name)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function BrushLayer:reload()
-	local (for generator), (for state), (for control) = pairs(self._unit_map)
-	do
-		do break end
+	for name, unit in pairs(self._unit_map) do
 		name = self:get_real_name(name)
 	end
-
 end
 
 function BrushLayer:clear_all()
@@ -142,7 +124,6 @@ function BrushLayer:clear_all()
 	if confirm == "NO" then
 		return
 	end
-
 	MassUnitManager:delete_all_units()
 end
 
@@ -151,13 +132,9 @@ function BrushLayer:clear_unit()
 	if confirm == "NO" then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._brush_names)
-	do
-		do break end
+	for _, name in ipairs(self._brush_names) do
 		MassUnitManager:delete_units(Idstring(name))
 	end
-
 end
 
 function BrushLayer:set_visibility(cb)
@@ -172,7 +149,6 @@ function BrushLayer:spray_units()
 	if not self._visible then
 		return
 	end
-
 	self:erase_units_release()
 	self._spraying = true
 end
@@ -181,14 +157,12 @@ function BrushLayer:spray_units_release()
 	if self._spraying then
 		self._spraying = false
 	end
-
 end
 
 function BrushLayer:erase_units()
 	if not self._visible then
 		return
 	end
-
 	self:spray_units_release()
 	self._erasing = true
 end
@@ -197,7 +171,6 @@ function BrushLayer:erase_units_release()
 	if self._erasing then
 		self._erasing = false
 	end
-
 end
 
 function BrushLayer:update(time, rel_time)
@@ -221,10 +194,8 @@ function BrushLayer:update(time, rel_time)
 			Application:draw_circle(base + ray_normal * tunnel, self._brush_size, 0.3 + 0.7 * (tunnel / 9000), 0, 0, ray_normal)
 			tunnel = tunnel * 0.9 - 100
 		end
-
 		Application:draw_circle(base, self._brush_size, 0.3, 0.2, 0.2, ray_normal)
 	end
-
 	if self._spraying and ray or self._erasing then
 		local units = World:find_units_quick("cylinder", base, tip, self._brush_size, self._brush_slot_mask)
 		local area = 3.1416 * math.pow(self._brush_size / 100, 2)
@@ -239,11 +210,9 @@ function BrushLayer:update(time, rel_time)
 				created = created + 1
 				density = (#units + created) / area
 			end
-
 			if self._brush_density == 0 then
 				self:spray_units_release()
 			end
-
 		elseif self._erasing then
 			if self._erase_with_pressure and ray then
 				local removed = 0
@@ -258,37 +227,24 @@ function BrushLayer:update(time, rel_time)
 							else
 								removed = removed + 1
 							end
-
 						end
-
 					end
-
 					if found then
 						World:delete_unit(units[removed])
 					end
-
 				end
-
 				if self._brush_density == 0 then
 					self:erase_units_release()
 				end
-
 			else
-				local (for generator), (for state), (for control) = ipairs(units)
-				do
-					do break end
+				for _, brush in ipairs(units) do
 					if not self._erase_with_units or self._erase_with_units and table.contains(self._brush_names, brush:name():s()) then
 						World:delete_unit(brush)
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function BrushLayer:add_brush_header(name)
@@ -300,7 +256,6 @@ function BrushLayer:add_brush_header(name)
 	else
 		return self._brush_types[name]
 	end
-
 end
 
 function BrushLayer:create_brush(ray)
@@ -314,7 +269,6 @@ function BrushLayer:create_brush(ray)
 		if self._angle_override ~= 0 then
 			rand_rotator = Rotation(up, self._angle_override)
 		end
-
 		local right
 		if math.abs(up.z) > 0.7 then
 			local camera_rot = self._owner._vp:camera():rotation()
@@ -325,15 +279,12 @@ function BrushLayer:create_brush(ray)
 				at = up:cross(camera_rot:x()):rotate_with(rand_rotator)
 				right = at:cross(up)
 			end
-
 		else
 			right = at:cross(up):rotate_with(rand_rotator)
 			at = up:cross(right)
 		end
-
 		brush_type:spawn_brush(ray.position + up * self._offset, Rotation(right, at, up))
 	end
-
 end
 
 function BrushLayer:build_panel(notebook)
@@ -418,15 +369,9 @@ function BrushLayer:build_panel(notebook)
 	self._sizer:add(btn_sizer, 0, 0, "EXPAND")
 	local brushes_sizer = EWS:StaticBoxSizer(self._ews_panel, "HORIZONTAL", "Brushes")
 	local brushes = EWS:ListBox(self._ews_panel, "", "LB_SINGLE,LB_HSCROLL,LB_NEEDED_SB,LB_SORT")
-	do
-		local (for generator), (for state), (for control) = pairs(self._unit_brushes)
-		do
-			do break end
-			brushes:append(name)
-		end
-
+	for name, _ in pairs(self._unit_brushes) do
+		brushes:append(name)
 	end
-
 	brushes_sizer:add(brushes, 1, 0, "EXPAND")
 	self._sizer:add(brushes_sizer, 1, 0, "EXPAND")
 	self._main_sizer:add(self._sizer, 2, 2, "LEFT,RIGHT,EXPAND")
@@ -452,16 +397,11 @@ function BrushLayer:show_create_brush(data)
 						data.brushes:select_index(i)
 						break
 					end
-
 				end
-
 				self:select_brush(data)
 			end
-
 		end
-
 	end
-
 end
 
 function BrushLayer:hide_create_brush(data)
@@ -477,31 +417,18 @@ function BrushLayer:remove_brush(brushes)
 		self:save_brushes()
 		self._brush_names = {}
 	end
-
 end
 
 function BrushLayer:save_brushes()
 	local f = SystemFS:open(managers.database:base_path() .. self._brushed_path .. ".xml", "w")
 	f:puts("<brushes>")
-	do
-		local (for generator), (for state), (for control) = pairs(self._unit_brushes)
-		do
-			do break end
-			f:puts("\t<brush name=\"" .. name .. "\">")
-			do
-				local (for generator), (for state), (for control) = ipairs(unit_names)
-				do
-					do break end
-					f:puts("\t\t<unit name=\"" .. unit_name .. "\"/>")
-				end
-
-			end
-
-			f:puts("\t</brush>")
+	for name, unit_names in pairs(self._unit_brushes) do
+		f:puts("\t<brush name=\"" .. name .. "\">")
+		for _, unit_name in ipairs(unit_names) do
+			f:puts("\t\t<unit name=\"" .. unit_name .. "\"/>")
 		end
-
+		f:puts("\t</brush>")
 	end
-
 	f:puts("</brushes>")
 	f:close()
 	managers.database:recompile(self._brushed_path)
@@ -510,25 +437,15 @@ end
 function BrushLayer:load_brushes()
 	if DB:has("xml", self._brushed_path) then
 		local node = DB:load_node("xml", self._brushed_path)
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
+		for brush in node:children() do
 			local name = brush:parameter("name")
 			local unit_names = {}
-			do
-				local (for generator), (for state), (for control) = brush:children()
-				do
-					do break end
-					table.insert(unit_names, unit:parameter("name"))
-				end
-
+			for unit in brush:children() do
+				table.insert(unit_names, unit:parameter("name"))
 			end
-
 			self._unit_brushes[name] = unit_names
 		end
-
 	end
-
 end
 
 function BrushLayer:create_slider(name, value, s_value, e_value, default_value)
@@ -555,21 +472,14 @@ end
 function BrushLayer:set_unit_name(units)
 	self._brush_names = {}
 	local selected = units:selected_items()
-	do
-		local (for generator), (for state), (for control) = ipairs(selected)
-		do
-			do break end
-			local name = self:get_real_name(units:get_item_data(i))
-			table.insert(self._brush_names, name)
-		end
-
+	for _, i in ipairs(selected) do
+		local name = self:get_real_name(units:get_item_data(i))
+		table.insert(self._brush_names, name)
 	end
-
 	local i = self._brushes_ctrlr:selected_index()
 	if i > -1 then
 		self._brushes_ctrlr:deselect_index(i)
 	end
-
 end
 
 function BrushLayer:select_brush(data)
@@ -578,13 +488,9 @@ function BrushLayer:select_brush(data)
 	if i < 0 then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._unit_brushes[data.brushes:get_string(i)])
-	do
-		do break end
+	for _, name in ipairs(self._unit_brushes[data.brushes:get_string(i)]) do
 		table.insert(self._brush_names, name)
 	end
-
 end
 
 function BrushLayer:update_slider(data)
@@ -626,7 +532,6 @@ function BrushHeader:set_name(name)
 	if self._name then
 		CoreUnit.editor_load_unit(self._name)
 	end
-
 	self:setup_brush_distance()
 end
 
@@ -634,19 +539,13 @@ function BrushHeader:setup_brush_distance()
 	if self._name then
 		local node = CoreEngineAccess._editor_unit_data(self._name:id()):script_data()
 		if node then
-			local (for generator), (for state), (for control) = node:children()
-			do
-				do break end
+			for data in node:children() do
 				if data:name() == "brush" then
 					self._distance = tonumber(data:parameter("distance"))
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function BrushHeader:get_spawn_dist()

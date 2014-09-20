@@ -57,7 +57,6 @@ function HUDManager:init()
 	else
 		self:debug_hide_coordinates()
 	end
-
 	self._visible_huds_states = {}
 end
 
@@ -82,29 +81,23 @@ function HUDManager:init_finalize()
 	if not self:exists(self.WAITING_FOR_PLAYERS_SAFERECT) then
 		managers.hud:load_hud(self.WAITING_FOR_PLAYERS_SAFERECT, false, true, true, {})
 	end
-
 	if not self:exists(PlayerBase.PLAYER_DOWNED_HUD) then
 		managers.hud:load_hud(PlayerBase.PLAYER_DOWNED_HUD, false, false, true, {})
 	end
-
 	if not self:exists(PlayerBase.PLAYER_CUSTODY_HUD) then
 		managers.hud:load_hud(PlayerBase.PLAYER_CUSTODY_HUD, false, false, true, {})
 	end
-
 	if not self:exists(IngameAccessCamera.GUI_SAFERECT) then
 		managers.hud:load_hud(IngameAccessCamera.GUI_FULLSCREEN, false, false, false, {})
 		managers.hud:load_hud(IngameAccessCamera.GUI_SAFERECT, false, false, true, {})
 	end
-
 	if not self:exists(PlayerBase.PLAYER_INFO_HUD_PD2) then
 		managers.hud:load_hud(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN_PD2, false, false, false, {})
 		managers.hud:load_hud(PlayerBase.PLAYER_INFO_HUD_PD2, false, false, true, {})
 	end
-
 	if not self:exists(PlayerBase.PLAYER_HUD) then
 		managers.hud:load_hud(PlayerBase.PLAYER_HUD, false, false, true, {})
 	end
-
 end
 
 function HUDManager:set_safe_rect(rect)
@@ -117,7 +110,6 @@ function HUDManager:load_hud(name, visible, using_collision, using_saferect, mut
 		Application:error("ERROR! Component " .. tostring(name) .. " have already been loaded!")
 		return
 	end
-
 	local bounding_box = {}
 	local panel
 	if using_16_9_fullscreen then
@@ -129,25 +121,18 @@ function HUDManager:load_hud(name, visible, using_collision, using_saferect, mut
 	else
 		panel = self._workspace:panel():gui(name, {})
 	end
-
 	panel:hide()
 	local bb_list = bounding_box_list
 	if not bb_list and panel:has_script() then
-		local (for generator), (for state), (for control) = pairs(panel:script())
-		do
-			do break end
+		for k, v in pairs(panel:script()) do
 			if k == "get_bounding_box_list" then
 				if type(v) == "function" then
 					bb_list = v()
 				end
-
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 	if bb_list then
 		if bb_list.x then
 			table.insert(bb_list, {
@@ -157,9 +142,7 @@ function HUDManager:load_hud(name, visible, using_collision, using_saferect, mut
 				y2 = bb_list.y + bb_list.h
 			})
 		else
-			local (for generator), (for state), (for control) = pairs(bb_list)
-			do
-				do break end
+			for _, rect in pairs(bb_list) do
 				table.insert(bounding_box, {
 					x1 = rect.x,
 					y1 = rect.y,
@@ -167,13 +150,10 @@ function HUDManager:load_hud(name, visible, using_collision, using_saferect, mut
 					y2 = rect.y + rect.h
 				})
 			end
-
 		end
-
 	else
 		bounding_box = self:_create_bounding_boxes(panel)
 	end
-
 	self._component_map[name:key()] = {}
 	self._component_map[name:key()].panel = panel
 	self._component_map[name:key()].bb_list = bounding_box
@@ -186,15 +166,12 @@ function HUDManager:load_hud(name, visible, using_collision, using_saferect, mut
 	if mutex_list then
 		self._component_map[name:key()].mutex_list = mutex_list
 	end
-
 	if using_collision then
 		self._component_map[name:key()].overlay_list = self:_create_overlay_list(name)
 	end
-
 	if visible then
 		panel:show()
 	end
-
 	self:setup(name)
 	self:layout(name)
 end
@@ -204,17 +181,12 @@ function HUDManager:setup(name)
 	if not panel:has_script() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = pairs(panel:script())
-	do
-		do break end
+	for k, v in pairs(panel:script()) do
 		if k == "setup" then
 			panel:script().setup(self)
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function HUDManager:layout(name)
@@ -222,17 +194,12 @@ function HUDManager:layout(name)
 	if not panel:has_script() then
 		return
 	end
-
-	local (for generator), (for state), (for control) = pairs(panel:script())
-	do
-		do break end
+	for k, v in pairs(panel:script()) do
 		if k == "layout" then
 			panel:script().layout(self)
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function HUDManager:delete(name)
@@ -241,36 +208,26 @@ end
 
 function HUDManager:set_disabled()
 	self._disabled = true
-	local (for generator), (for state), (for control) = pairs(HUDManager.HIDEABLE_HUDS)
-	do
-		do break end
+	for name, _ in pairs(HUDManager.HIDEABLE_HUDS) do
 		if self._visible_huds_states[name] then
 			local component = self._component_map[name]
 			if component and alive(component.panel) then
 				component.panel:hide()
 			end
-
 		end
-
 	end
-
 end
 
 function HUDManager:set_enabled()
 	self._disabled = false
-	local (for generator), (for state), (for control) = pairs(HUDManager.HIDEABLE_HUDS)
-	do
-		do break end
+	for name, _ in pairs(HUDManager.HIDEABLE_HUDS) do
 		if self._visible_huds_states[name] then
 			local component = self._component_map[name]
 			if component and alive(component.panel) then
 				component.panel:show()
 			end
-
 		end
-
 	end
-
 end
 
 function HUDManager:set_freeflight_disabled()
@@ -302,14 +259,11 @@ function HUDManager:reload_player_hud()
 		self:show(name)
 		self:_player_hud_layout()
 	end
-
 end
 
 function HUDManager:reload_all()
 	self:reload()
-	local (for generator), (for state), (for control) = pairs(clone(self._component_map))
-	do
-		do break end
+	for name, gui in pairs(clone(self._component_map)) do
 		local visible = self:visible(gui.idstring)
 		self:hide(gui.idstring)
 		self:delete(gui.idstring)
@@ -317,9 +271,7 @@ function HUDManager:reload_all()
 		if visible then
 			self:show(gui.idstring)
 		end
-
 	end
-
 end
 
 function HUDManager:reload()
@@ -340,40 +292,22 @@ function HUDManager:_recompile(dir)
 	Application:data_compile(t)
 	DB:reload()
 	managers.database:clear_all_cached_indices()
-	local (for generator), (for state), (for control) = ipairs(source_files)
-	do
-		do break end
+	for _, file in ipairs(source_files) do
 		PackageManager:reload(managers.database:entry_type(file):id(), managers.database:entry_path(file):id())
 	end
-
 end
 
 function HUDManager:_source_files(dir)
 	local files = {}
 	local entry_path = managers.database:entry_path(dir) .. "/"
-	do
-		local (for generator), (for state), (for control) = ipairs(SystemFS:list(dir))
-		do
-			do break end
-			table.insert(files, entry_path .. file)
-		end
-
+	for _, file in ipairs(SystemFS:list(dir)) do
+		table.insert(files, entry_path .. file)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(SystemFS:list(dir, true))
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(SystemFS:list(dir .. "/" .. sub_dir))
-			do
-				do break end
-				table.insert(files, entry_path .. sub_dir .. "/" .. file)
-			end
-
+	for _, sub_dir in ipairs(SystemFS:list(dir, true)) do
+		for _, file in ipairs(SystemFS:list(dir .. "/" .. sub_dir)) do
+			table.insert(files, entry_path .. sub_dir .. "/" .. file)
 		end
-
 	end
-
 	return files
 end
 
@@ -383,7 +317,6 @@ function HUDManager:panel(name)
 	else
 		return self._component_map[name:key()].panel
 	end
-
 end
 
 function HUDManager:alive(name)
@@ -397,7 +330,6 @@ function HUDManager:script(name)
 		return self._component_map[name:key()].panel:script()
 	else
 	end
-
 end
 
 function HUDManager:exists(name)
@@ -408,96 +340,68 @@ function HUDManager:show(name)
 	if name == PlayerBase.PLAYER_INFO_HUD then
 		name = PlayerBase.PLAYER_INFO_HUD_PD2
 	end
-
 	if name == PlayerBase.PLAYER_INFO_HUD_FULLSCREEN then
 		name = PlayerBase.PLAYER_INFO_HUD_FULLSCREEN_PD2
 	end
-
 	if HUDManager.disabled[name:key()] then
 		return
 	end
-
 	self._visible_huds_states[name:key()] = true
 	if self._disabled and HUDManager.HIDEABLE_HUDS[name:key()] then
 		return
 	end
-
 	if self._component_map[name:key()] then
 		local panel = self:script(name).panel
 		if panel:has_script() then
-			local (for generator), (for state), (for control) = pairs(panel:script())
-			do
-				do break end
+			for k, v in pairs(panel:script()) do
 				if k == "show" then
 					panel:script().show(self)
-			end
-
-			else
-			end
-
-		end
-
-		do
-			local (for generator), (for state), (for control) = pairs(self._component_map[name:key()].mutex_list)
-			do
-				do break end
-				if self._component_map[mutex_name:key()].panel:visible() then
-					self._component_map[mutex_name:key()].panel:hide()
+				else
 				end
-
 			end
-
 		end
-
+		for _, mutex_name in pairs(self._component_map[name:key()].mutex_list) do
+			if self._component_map[mutex_name:key()].panel:visible() then
+				self._component_map[mutex_name:key()].panel:hide()
+			end
+		end
 		if self:_validate_components(name) then
 			self._component_map[name:key()].panel:show()
 		end
-
 	else
 		Application:error("ERROR! Component " .. tostring(name) .. " isn't loaded!")
 	end
-
 	if name == PlayerBase.PLAYER_INFO_HUD_PD2 then
 		self._hud_chat = self._hud_chat_ingame or self._hud_chat
 	end
-
 end
 
 function HUDManager:hide(name)
 	if name == PlayerBase.PLAYER_INFO_HUD then
 		name = PlayerBase.PLAYER_INFO_HUD_PD2
 	end
-
 	if name == PlayerBase.PLAYER_INFO_HUD_FULLSCREEN then
 		name = PlayerBase.PLAYER_INFO_HUD_FULLSCREEN_PD2
 	end
-
 	self._visible_huds_states[name:key()] = nil
 	local panel = self:script(name).panel
 	if panel:has_script() then
-		local (for generator), (for state), (for control) = pairs(panel:script())
-		do
-			do break end
+		for k, v in pairs(panel:script()) do
 			if k == "hide" then
 				panel:script().hide(self)
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 	local component = self._component_map[name:key()]
 	if component and alive(component.panel) then
 		component.panel:hide()
 	elseif not component then
 		Application:error("ERROR! Component " .. tostring(name) .. " isn't loaded!")
 	end
-
 	if name == PlayerBase.PLAYER_INFO_HUD_PD2 then
 		self._hud_chat = self._hud_chat_access or self._hud_chat
 	end
-
 end
 
 function HUDManager:visible(name)
@@ -506,26 +410,21 @@ function HUDManager:visible(name)
 	else
 		Application:error("ERROR! Component " .. tostring(name) .. " isn't loaded!")
 	end
-
 end
 
 function HUDManager:_collision(rect1_map, rect2_map)
 	if rect1_map.x1 >= rect2_map.x2 then
 		return false
 	end
-
 	if rect1_map.x2 <= rect2_map.x1 then
 		return false
 	end
-
 	if rect1_map.y1 >= rect2_map.y2 then
 		return false
 	end
-
 	if rect1_map.y2 <= rect2_map.y1 then
 		return false
 	end
-
 	return true
 end
 
@@ -533,56 +432,35 @@ function HUDManager:_inside(rect1_map, rect2_map)
 	if rect1_map.x1 < rect2_map.x1 or rect1_map.x1 > rect2_map.x2 then
 		return false
 	end
-
 	if rect1_map.y1 < rect2_map.y1 or rect1_map.y1 > rect2_map.y2 then
 		return false
 	end
-
 	if rect1_map.x2 < rect2_map.x1 or rect1_map.x2 > rect2_map.x2 then
 		return false
 	end
-
 	if rect1_map.y2 < rect2_map.x1 or rect1_map.y2 > rect2_map.y2 then
 		return false
 	end
-
 	return true
 end
 
 function HUDManager:_collision_rects(rect1_list, rect2_list)
-	do
-		local (for generator), (for state), (for control) = pairs(rect1_list)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(rect2_list)
-			do
-				do break end
-				if self:_collision(rc1_map, rc2_map) then
-					return true
-				end
-
+	for _, rc1_map in pairs(rect1_list) do
+		for _, rc2_map in pairs(rect2_list) do
+			if self:_collision(rc1_map, rc2_map) then
+				return true
 			end
-
 		end
-
 	end
-
 	return false
 end
 
 function HUDManager:_is_mutex(component_map, name)
-	do
-		local (for generator), (for state), (for control) = pairs(component_map.mutex_list)
-		do
-			do break end
-			if mutex_name:key() == name then
-				return true
-			end
-
+	for _, mutex_name in pairs(component_map.mutex_list) do
+		if mutex_name:key() == name then
+			return true
 		end
-
 	end
-
 	return false
 end
 
@@ -590,78 +468,51 @@ function HUDManager:_create_bounding_boxes(panel)
 	local bounding_box_list = {}
 	local childrens = panel:children()
 	local rect_map = {}
-	do
-		local (for generator), (for state), (for control) = pairs(childrens)
-		do
-			do break end
-			rect_map = {
-				x1 = object:x(),
-				y1 = object:y(),
-				x2 = object:x() + object:w(),
-				y2 = object:y() + object:h()
-			}
-			if #bounding_box_list == 0 then
-				table.insert(bounding_box_list, rect_map)
-			else
-				local (for generator), (for state), (for control) = pairs(bounding_box_list)
-				do
-					do break end
-					if self:_inside(rect_map, bb_rect_map) == false then
-						table.insert(bounding_box_list, rect_map)
-				end
-
+	for _, object in pairs(childrens) do
+		rect_map = {
+			x1 = object:x(),
+			y1 = object:y(),
+			x2 = object:x() + object:w(),
+			y2 = object:y() + object:h()
+		}
+		if #bounding_box_list == 0 then
+			table.insert(bounding_box_list, rect_map)
+		else
+			for _, bb_rect_map in pairs(bounding_box_list) do
+				if self:_inside(rect_map, bb_rect_map) == false then
+					table.insert(bounding_box_list, rect_map)
 				else
 				end
-
 			end
-
 		end
-
 	end
-
 	return bounding_box_list
 end
 
 function HUDManager:_create_overlay_list(name)
 	local component = self._component_map[name:key()]
 	local overlay_list = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._component_map)
-		do
-			do break end
-			if name:key() ~= cmp_name and not self:_is_mutex(cmp_map, name:key()) and self:_collision_rects(component.bb_list, cmp_map.bb_list) then
-				table.insert(overlay_list, cmp_map.idstring)
-				if not self:_is_mutex(component, cmp_name) then
-					table.insert(self._component_map[cmp_name].overlay_list, name)
-				end
-
-				if Application:production_build() then
-					Application:error("WARNING! Component " .. tostring(name) .. " collides with " .. tostring(cmp_map.idstring))
-				end
-
+	for cmp_name, cmp_map in pairs(self._component_map) do
+		if name:key() ~= cmp_name and not self:_is_mutex(cmp_map, name:key()) and self:_collision_rects(component.bb_list, cmp_map.bb_list) then
+			table.insert(overlay_list, cmp_map.idstring)
+			if not self:_is_mutex(component, cmp_name) then
+				table.insert(self._component_map[cmp_name].overlay_list, name)
 			end
-
+			if Application:production_build() then
+				Application:error("WARNING! Component " .. tostring(name) .. " collides with " .. tostring(cmp_map.idstring))
+			end
 		end
-
 	end
-
 	return overlay_list
 end
 
 function HUDManager:_validate_components(name)
-	do
-		local (for generator), (for state), (for control) = pairs(self._component_map[name:key()].overlay_list)
-		do
-			do break end
-			if self._component_map[overlay_name:key()] and self._component_map[overlay_name:key()].panel:visible() then
-				Application:error("WARNING! Component " .. tostring(name) .. " collides with " .. tostring(overlay_name))
-				return false
-			end
-
+	for _, overlay_name in pairs(self._component_map[name:key()].overlay_list) do
+		if self._component_map[overlay_name:key()] and self._component_map[overlay_name:key()].panel:visible() then
+			Application:error("WARNING! Component " .. tostring(name) .. " collides with " .. tostring(overlay_name))
+			return false
 		end
-
 	end
-
 	return true
 end
 
@@ -673,15 +524,9 @@ function HUDManager:resolution_changed()
 	managers.gui_data:layout_fullscreen_workspace(self._workspace)
 	managers.gui_data:layout_workspace(self._mid_saferect)
 	managers.gui_data:layout_fullscreen_16_9_workspace(self._fullscreen_workspace)
-	do
-		local (for generator), (for state), (for control) = pairs(self._component_map)
-		do
-			do break end
-			self:layout(gui.idstring)
-		end
-
+	for name, gui in pairs(self._component_map) do
+		self:layout(gui.idstring)
 	end
-
 	self:_additional_layout()
 end
 
@@ -689,15 +534,9 @@ function HUDManager:_additional_layout()
 end
 
 function HUDManager:update(t, dt)
-	do
-		local (for generator), (for state), (for control) = pairs(self._updators)
-		do
-			do break end
-			cb(t, dt)
-		end
-
+	for _, cb in pairs(self._updators) do
+		cb(t, dt)
 	end
-
 	self:_update_name_labels(t, dt)
 	self:_update_waypoints(t, dt)
 	if self._debug then
@@ -705,9 +544,7 @@ function HUDManager:update(t, dt)
 		if cam_pos then
 			self._debug.coord:set_text(string.format("Cam pos:   \"%.0f %.0f %.0f\" [cm]", cam_pos.x, cam_pos.y, cam_pos.z))
 		end
-
 	end
-
 end
 
 function HUDManager:add_updator(id, cb)
@@ -728,7 +565,6 @@ function HUDManager:_update_name_labels(t, dt)
 	if not cam then
 		return
 	end
-
 	local player = managers.player:local_player()
 	local in_steelsight = false
 	in_steelsight = alive(player) and player:movement() and player:movement():current_state() and player:movement():current_state():in_steelsight() or false
@@ -736,9 +572,7 @@ function HUDManager:_update_name_labels(t, dt)
 	local cam_rot = managers.viewport:get_current_camera_rotation()
 	mrotation.y(cam_rot, nl_cam_forward)
 	local panel
-	local (for generator), (for state), (for control) = ipairs(self._hud.name_labels)
-	do
-		do break end
+	for _, data in ipairs(self._hud.name_labels) do
 		local label_panel = data.panel
 		panel = panel or label_panel:parent()
 		local movement = data.movement
@@ -754,7 +588,6 @@ function HUDManager:_update_name_labels(t, dt)
 			if label_panel:visible() then
 				label_panel:set_visible(false)
 			end
-
 		else
 			label_panel:set_alpha(in_steelsight and math.clamp((1 - dot) * 100, 0, 1) or 1)
 			label_panel:set_visible(true)
@@ -764,18 +597,13 @@ function HUDManager:_update_name_labels(t, dt)
 				if dot > 0.925 then
 				else
 				end
-
 			end
-
 		end
-
 		local offset = data.panel:child("cheater"):h() / 2
 		if label_panel:visible() then
 			label_panel:set_center(nl_pos.x, nl_pos.y - offset)
 		end
-
 	end
-
 end
 
 function HUDManager:_init_player_hud_values()
@@ -795,27 +623,21 @@ function HUDManager:_player_hud_layout()
 	if not self:alive(PlayerBase.PLAYER_HUD) then
 		return
 	end
-
 	self:_init_player_hud_values()
-	local (for generator), (for state), (for control) = pairs(self._hud.stored_waypoints)
-	do
-		do break end
+	for id, data in pairs(self._hud.stored_waypoints) do
 		self:add_waypoint(id, data)
 	end
-
 end
 
 function HUDManager:add_waypoint(id, data)
 	if self._hud.waypoints[id] then
 		self:remove_waypoint(id)
 	end
-
 	local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_PD2)
 	if not hud then
 		self._hud.stored_waypoints[id] = data
 		return
 	end
-
 	local waypoint_panel = hud.panel
 	local icon = data.icon or "wp_standard"
 	local text = ""
@@ -866,7 +688,6 @@ function HUDManager:add_waypoint(id, data)
 		})
 		distance:set_visible(false)
 	end
-
 	local timer = data.timer and waypoint_panel:text({
 		name = "timer" .. id,
 		text = (math.round(data.timer) < 10 and "0" or "") .. math.round(data.timer),
@@ -915,26 +736,17 @@ function HUDManager:add_waypoint(id, data)
 	self._hud.waypoints[id].init_data.position = data.position or data.unit:position()
 	local slot = 1
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._hud.waypoints)
-		do
-			do break end
-			if data.slot then
-				t[data.slot] = data.text:w()
-			end
-
+	for _, data in pairs(self._hud.waypoints) do
+		if data.slot then
+			t[data.slot] = data.text:w()
 		end
-
 	end
-
 	for i = 1, 10 do
 		if not t[i] then
 			self._hud.waypoints[id].slot = i
 			break
 		end
-
 	end
-
 	self._hud.waypoints[id].slot_x = 0
 	if self._hud.waypoints[id].slot == 2 then
 		self._hud.waypoints[id].slot_x = t[1] / 2 + self._hud.waypoints[id].text:w() / 2 + 10
@@ -945,7 +757,6 @@ function HUDManager:add_waypoint(id, data)
 	elseif self._hud.waypoints[id].slot == 5 then
 		self._hud.waypoints[id].slot_x = -t[1] / 2 - t[3] - self._hud.waypoints[id].text:w() / 2 - 20
 	end
-
 end
 
 function HUDManager:change_waypoint_icon(id, icon)
@@ -953,7 +764,6 @@ function HUDManager:change_waypoint_icon(id, icon)
 		Application:error("[HUDManager:change_waypoint_icon] no waypoint with id", id)
 		return
 	end
-
 	local wp_data = self._hud.waypoints[id]
 	local texture, rect = tweak_data.hud_icons:get_icon_data(icon, {
 		0,
@@ -971,7 +781,6 @@ function HUDManager:change_waypoint_icon_alpha(id, alpha)
 		Application:error("[HUDManager:change_waypoint_icon] no waypoint with id", id)
 		return
 	end
-
 	local wp_data = self._hud.waypoints[id]
 	wp_data.bitmap:set_alpha(alpha)
 end
@@ -981,7 +790,6 @@ function HUDManager:change_waypoint_arrow_color(id, color)
 		Application:error("[HUDManager:change_waypoint_icon] no waypoint with id", id)
 		return
 	end
-
 	local wp_data = self._hud.waypoints[id]
 	wp_data.arrow:set_color(color)
 end
@@ -992,12 +800,10 @@ function HUDManager:remove_waypoint(id)
 		Application:error("Trying to remove waypoint that hasn't been added! Id: " .. id .. ".")
 		return
 	end
-
 	local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_PD2)
 	if not hud then
 		return
 	end
-
 	local waypoint_panel = hud.panel
 	waypoint_panel:remove(self._hud.waypoints[id].bitmap)
 	waypoint_panel:remove(self._hud.waypoints[id].text)
@@ -1005,11 +811,9 @@ function HUDManager:remove_waypoint(id)
 	if self._hud.waypoints[id].timer_gui then
 		waypoint_panel:remove(self._hud.waypoints[id].timer_gui)
 	end
-
 	if self._hud.waypoints[id].distance then
 		waypoint_panel:remove(self._hud.waypoints[id].distance)
 	end
-
 	self._hud.waypoints[id] = nil
 end
 
@@ -1017,7 +821,6 @@ function HUDManager:set_waypoint_timer_pause(id, pause)
 	if not self._hud.waypoints[id] then
 		return
 	end
-
 	self._hud.waypoints[id].pause_timer = self._hud.waypoints[id].pause_timer + (pause and 1 or -1)
 end
 
@@ -1026,12 +829,9 @@ function HUDManager:get_waypoint_data(id)
 end
 
 function HUDManager:clear_waypoints()
-	local (for generator), (for state), (for control) = pairs(clone(self._hud.waypoints))
-	do
-		do break end
+	for id, _ in pairs(clone(self._hud.waypoints)) do
 		self:remove_waypoint(id)
 	end
-
 end
 
 function HUDManager:clear_weapons()
@@ -1042,40 +842,30 @@ function HUDManager:add_mugshot_by_unit(unit)
 	if unit:base().is_local_player then
 		return
 	end
-
 	local character_name = unit:base():nick_name()
 	local name_label_id = managers.hud:_add_name_label({name = character_name, unit = unit})
 	unit:unit_data().name_label_id = name_label_id
 	local is_husk_player = unit:base().is_husk_player
 	local character_name_id = managers.criminals:character_name_by_unit(unit)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._hud.mugshots)
-		do
-			do break end
-			if data.character_name_id == character_name_id then
-				if is_husk_player and not data.peer_id then
-					self:_remove_mugshot(data.id)
-					break
-				else
-					unit:unit_data().mugshot_id = data.id
-					managers.hud:set_mugshot_normal(unit:unit_data().mugshot_id)
-					managers.hud:set_mugshot_armor(unit:unit_data().mugshot_id, 1)
-					managers.hud:set_mugshot_health(unit:unit_data().mugshot_id, 1)
-					return
-				end
-
+	for i, data in ipairs(self._hud.mugshots) do
+		if data.character_name_id == character_name_id then
+			if is_husk_player and not data.peer_id then
+				self:_remove_mugshot(data.id)
+				break
+			else
+				unit:unit_data().mugshot_id = data.id
+				managers.hud:set_mugshot_normal(unit:unit_data().mugshot_id)
+				managers.hud:set_mugshot_armor(unit:unit_data().mugshot_id, 1)
+				managers.hud:set_mugshot_health(unit:unit_data().mugshot_id, 1)
+				return
 			end
-
 		end
-
 	end
-
 	local peer, peer_id
 	if is_husk_player then
 		peer = unit:network():peer()
 		peer_id = peer:id()
 	end
-
 	local use_lifebar = is_husk_player and true or false
 	local mugshot_id = managers.hud:add_mugshot({
 		name = utf8.to_upper(character_name),
@@ -1087,7 +877,6 @@ function HUDManager:add_mugshot_by_unit(unit)
 	if peer and peer:is_cheater() then
 		self:mark_cheater(peer_id)
 	end
-
 	return mugshot_id
 end
 
@@ -1096,7 +885,6 @@ function HUDManager:add_mugshot_without_unit(char_name, ai, peer_id, name)
 	local character_name_id = char_name
 	if not ai then
 	end
-
 	local use_lifebar = not ai
 	local mugshot_id = managers.hud:add_mugshot({
 		name = utf8.to_upper(character_name),
@@ -1124,20 +912,15 @@ function HUDManager:remove_hud_info_by_unit(unit)
 	if unit:unit_data().name_label_id then
 		self:_remove_name_label(unit:unit_data().name_label_id)
 	end
-
 end
 
 function HUDManager:remove_mugshot_by_character_name(character_name)
-	local (for generator), (for state), (for control) = ipairs(self._hud.mugshots)
-	do
-		do break end
+	for i, data in ipairs(self._hud.mugshots) do
 		if data.character_name_id == character_name then
 			self:_remove_mugshot(data.id)
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function HUDManager:remove_mugshot(id)
@@ -1145,17 +928,13 @@ function HUDManager:remove_mugshot(id)
 end
 
 function HUDManager:_remove_mugshot(id)
-	local (for generator), (for state), (for control) = ipairs(self._hud.mugshots)
-	do
-		do break end
+	for i, data in ipairs(self._hud.mugshots) do
 		if data.id == id then
 			table.remove(self._hud.mugshots, i)
 			self:remove_teammate_panel_by_name_id(data.character_name_id)
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function HUDManager:remove_teammate_panel_by_name_id(name_id)
@@ -1163,103 +942,77 @@ function HUDManager:remove_teammate_panel_by_name_id(name_id)
 	if character_data and character_data.panel_id then
 		self:remove_teammate_panel(character_data.panel_id)
 	end
-
 end
 
 function HUDManager:set_mugshot_weapon(id, hud_icon_id, weapon_index)
-	local (for generator), (for state), (for control) = ipairs(self._hud.mugshots)
-	do
-		do break end
+	for i, data in ipairs(self._hud.mugshots) do
 		if data.id == id then
 			print("set_mugshot_weapon", id, hud_icon_id, weapon_index)
 			self:_set_teammate_weapon_selected(managers.criminals:character_data_by_name(data.character_name_id).panel_id, weapon_index, hud_icon_id)
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function HUDManager:set_mugshot_damage_taken(id)
 	if not id then
 		return
 	end
-
 end
 
 function HUDManager:set_mugshot_armor(id, amount)
 	if not id then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._hud.mugshots)
-	do
-		do break end
+	for i, data in ipairs(self._hud.mugshots) do
 		if data.id == id then
 			self:set_teammate_armor(managers.criminals:character_data_by_name(data.character_name_id).panel_id, {
 				current = amount,
 				total = 1,
 				max = 1
 			})
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function HUDManager:set_mugshot_health(id, amount)
 	if not id then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._hud.mugshots)
-	do
-		do break end
+	for i, data in ipairs(self._hud.mugshots) do
 		if data.id == id then
 			self:set_teammate_health(managers.criminals:character_data_by_name(data.character_name_id).panel_id, {
 				current = amount,
 				total = 1,
 				max = 1
 			})
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function HUDManager:set_mugshot_talk(id, active)
 	if not id then
 		return
 	end
-
 end
 
 function HUDManager:set_mugshot_voice(id, active)
 	if not id then
 		return
 	end
-
 end
 
 function HUDManager:_get_mugshot_data(id)
 	if not id then
 		return nil
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._hud.mugshots)
-		do
-			do break end
-			if data.id == id then
-				return data
-			end
-
+	for i, data in ipairs(self._hud.mugshots) do
+		if data.id == id then
+			return data
 		end
-
 	end
-
 	return nil
 end
 
@@ -1268,7 +1021,6 @@ function HUDManager:set_mugshot_normal(id)
 	if not data then
 		return
 	end
-
 	self:set_teammate_condition(managers.criminals:character_data_by_name(data.character_name_id).panel_id, "mugshot_normal", "")
 end
 
@@ -1292,7 +1044,6 @@ function HUDManager:set_mugshot_custody(id)
 			no_hint = true
 		})
 	end
-
 end
 
 function HUDManager:set_mugshot_cuffed(id)
@@ -1308,30 +1059,24 @@ function HUDManager:_set_mugshot_state(id, icon_data, text)
 	if not data then
 		return
 	end
-
 	local i = managers.criminals:character_data_by_name(data.character_name_id).panel_id
 	self:set_teammate_condition(i, icon_data, text)
 	return data
 end
 
 function HUDManager:update_name_label_by_peer(peer)
-	local (for generator), (for state), (for control) = pairs(self._hud.name_labels)
-	do
-		do break end
+	for _, data in pairs(self._hud.name_labels) do
 		if data.peer_id == peer:id() then
 			local name = data.character_name
 			if peer:level() then
 				local experience = (peer:rank() > 0 and managers.experience:rank_string(peer:rank()) .. "-" or "") .. peer:level()
 				name = name .. " (" .. experience .. ")"
 			end
-
 			data.text:set_text(utf8.to_upper(name))
 			self:align_teammate_name_label(data.panel, data.interact)
+		else
+		end
 	end
-
-	else
-	end
-
 end
 
 function HUDManager:start_anticipation(data)
@@ -1339,7 +1084,6 @@ function HUDManager:start_anticipation(data)
 	if not hud then
 		return
 	end
-
 end
 
 function HUDManager:sync_start_anticipation()
@@ -1351,7 +1095,6 @@ function HUDManager:check_start_anticipation_music(t)
 		managers.network:session():send_to_peers("sync_start_anticipation_music")
 		self:sync_start_anticipation_music()
 	end
-
 end
 
 function HUDManager:sync_start_anticipation_music()
@@ -1380,41 +1123,34 @@ function HUDManager:setup_anticipation(total_t)
 	elseif exists and total_t == 45 then
 		table.insert(self._anticipation_dialogs, {time = 30, dialog = 6})
 	end
-
 	if total_t == 45 then
 		table.insert(self._anticipation_dialogs, {time = 20, dialog = 3})
 		table.insert(self._anticipation_dialogs, {time = 10, dialog = 4})
 	end
-
 	if total_t == 35 then
 		table.insert(self._anticipation_dialogs, {time = 20, dialog = 7})
 		table.insert(self._anticipation_dialogs, {time = 10, dialog = 4})
 	end
-
 	if total_t == 25 then
 		table.insert(self._anticipation_dialogs, {time = 10, dialog = 8})
 	end
-
 end
 
 function HUDManager:check_anticipation_voice(t)
 	if not self._anticipation_dialogs[1] then
 		return
 	end
-
 	if t < self._anticipation_dialogs[1].time then
 		local data = table.remove(self._anticipation_dialogs, 1)
 		self:sync_assault_dialog(data.dialog)
 		managers.network:session():send_to_peers("sync_assault_dialog", data.dialog)
 	end
-
 end
 
 function HUDManager:sync_assault_dialog(index)
 	if not managers.groupai:state():bain_state() then
 		return
 	end
-
 	local dialog = HUDManager.ASSAULT_DIALOGS[index]
 	managers.dialog:queue_dialog(dialog, {})
 end
@@ -1447,17 +1183,13 @@ function HUDManager:_update_waypoints(t, dt)
 	if not cam then
 		return
 	end
-
 	local cam_pos = managers.viewport:get_current_camera_position()
 	local cam_rot = managers.viewport:get_current_camera_rotation()
 	mrotation.y(cam_rot, wp_cam_forward)
-	local (for generator), (for state), (for control) = pairs(self._hud.waypoints)
-	do
-		do break end
+	for id, data in pairs(self._hud.waypoints) do
 		local panel = data.bitmap:parent()
 		if data.state == "dirty" then
 		end
-
 		if data.state == "sneak_present" then
 			data.current_position = Vector3(panel:center_x(), panel:center_y())
 			data.bitmap:set_center_x(data.current_position.x)
@@ -1471,7 +1203,6 @@ function HUDManager:_update_waypoints(t, dt)
 			if data.distance then
 				data.distance:set_visible(true)
 			end
-
 		elseif data.state == "present" then
 			data.current_position = Vector3(panel:center_x() + data.slot_x, panel:center_y() + panel:center_y() / 2)
 			data.bitmap:set_center_x(data.current_position.x)
@@ -1489,15 +1220,12 @@ function HUDManager:_update_waypoints(t, dt)
 				if data.distance then
 					data.distance:set_visible(true)
 				end
-
 			end
-
 		else
 			if data.text_alpha ~= 0 then
 				data.text_alpha = math.clamp(data.text_alpha - dt, 0, 1)
 				data.text:set_color(data.text:color():with_alpha(data.text_alpha))
 			end
-
 			data.position = data.unit and data.unit:position() or data.position
 			mvector3.set(wp_pos, self._saferect:world_to_screen(cam, data.position))
 			mvector3.set(wp_dir, data.position)
@@ -1515,13 +1243,10 @@ function HUDManager:_update_waypoints(t, dt)
 					if data.distance then
 						data.distance:set_visible(false)
 					end
-
 					if data.timer_gui then
 						data.timer_gui:set_visible(false)
 					end
-
 				end
-
 				local direction = wp_onscreen_direction
 				local panel_center_x, panel_center_y = panel:center()
 				mvector3.set_static(direction, wp_pos.x - panel_center_x, wp_pos.y - panel_center_y, 0)
@@ -1547,7 +1272,6 @@ function HUDManager:_update_waypoints(t, dt)
 				else
 					mvector3.set(data.current_position, target_pos)
 				end
-
 				data.bitmap:set_center(mvector3.x(data.current_position), mvector3.y(data.current_position))
 				data.arrow:set_center(mvector3.x(data.current_position) + direction.x * 24, mvector3.y(data.current_position) + direction.y * 24)
 				local angle = math.X:angle(direction) * math.sign(direction.y)
@@ -1556,7 +1280,6 @@ function HUDManager:_update_waypoints(t, dt)
 					data.text:set_center_x(data.bitmap:center_x())
 					data.text:set_top(data.bitmap:bottom())
 				end
-
 			else
 				if data.state == "offscreen" then
 					data.state = "onscreen"
@@ -1567,30 +1290,23 @@ function HUDManager:_update_waypoints(t, dt)
 					if data.distance then
 						data.distance:set_visible(true)
 					end
-
 					if data.timer_gui then
 						data.timer_gui:set_visible(true)
 					end
-
 				end
-
 				local alpha = 0.8
 				if dot > 0.99 then
 					alpha = math.clamp((1 - dot) / 0.01, 0.4, alpha)
 				end
-
 				if data.bitmap:color().alpha ~= alpha then
 					data.bitmap:set_color(data.bitmap:color():with_alpha(alpha))
 					if data.distance then
 						data.distance:set_color(data.distance:color():with_alpha(alpha))
 					end
-
 					if data.timer_gui then
 						data.timer_gui:set_color(data.bitmap:color():with_alpha(alpha))
 					end
-
 				end
-
 				if data.in_timer ~= 1 then
 					data.in_timer = math.clamp(data.in_timer + dt / data.move_speed, 0, 1)
 					mvector3.set(data.current_position, math.bezier({
@@ -1609,24 +1325,19 @@ function HUDManager:_update_waypoints(t, dt)
 				else
 					mvector3.set(data.current_position, wp_pos)
 				end
-
 				data.bitmap:set_center(mvector3.x(data.current_position), mvector3.y(data.current_position))
 				if data.text_alpha ~= 0 then
 					data.text:set_center_x(data.bitmap:center_x())
 					data.text:set_top(data.bitmap:bottom())
 				end
-
 				if data.distance then
 					local length = wp_dir:length()
 					data.distance:set_text(string.format("%.0f", length / 100) .. "m")
 					data.distance:set_center_x(data.bitmap:center_x())
 					data.distance:set_top(data.bitmap:bottom())
 				end
-
 			end
-
 		end
-
 		if data.timer_gui then
 			data.timer_gui:set_center_x(data.bitmap:center_x())
 			data.timer_gui:set_bottom(data.bitmap:top())
@@ -1635,11 +1346,8 @@ function HUDManager:_update_waypoints(t, dt)
 				local text = 0 > data.timer and "00" or (math.round(data.timer) < 10 and "0" or "") .. math.round(data.timer)
 				data.timer_gui:set_text(text)
 			end
-
 		end
-
 	end
-
 end
 
 function HUDManager:reset_player_hpbar()
@@ -1647,7 +1355,6 @@ function HUDManager:reset_player_hpbar()
 	if not crim_entry then
 		return
 	end
-
 	local color_id = managers.network:session():local_peer():id()
 	self:set_teammate_callsign(4, color_id)
 	self:set_teammate_name(4, managers.network:session():local_peer():name())
@@ -1660,7 +1367,6 @@ function HUDManager:show_stats_screen()
 		self:load_hud(safe, false, true, true, {})
 		self:load_hud(full, false, true, false, {})
 	end
-
 	self:script(safe):layout()
 	managers.hud:show(safe)
 	managers.hud:show(full)
@@ -1674,7 +1380,6 @@ function HUDManager:hide_stats_screen()
 	if not self:exists(safe) then
 		return
 	end
-
 	self:script(safe):hide()
 	managers.hud:hide(safe)
 	managers.hud:hide(full)
@@ -1689,7 +1394,6 @@ function HUDManager:pd_start_progress(current, total, msg, icon_id)
 	if not hud then
 		return
 	end
-
 	self._pd2_hud_interaction = HUDInteraction:new(managers.hud:script(PlayerBase.PLAYER_DOWNED_HUD))
 	self._pd2_hud_interaction:show_interact({
 		text = utf8.to_upper(managers.localization:text(msg))
@@ -1702,7 +1406,6 @@ function HUDManager:pd_start_progress(current, total, msg, icon_id)
 			t = t + coroutine.yield()
 			self._pd2_hud_interaction:set_interaction_bar_width(t, total)
 		end
-
 	end
 
 	self._pd2_hud_interaction._interact_circle._circle:stop()
@@ -1714,12 +1417,10 @@ function HUDManager:pd_stop_progress()
 	if not hud then
 		return
 	end
-
 	if self._pd2_hud_interaction then
 		self._pd2_hud_interaction:destroy()
 		self._pd2_hud_interaction = nil
 	end
-
 	self._hud_player_downed:show_timer()
 end
 
@@ -1747,7 +1448,6 @@ function HUDManager:pd_stop_timer()
 		hud.timer:stop(self._hud.timer_thread)
 		self._hud.timer_thread = nil
 	end
-
 	hud.unpause_timer()
 end
 
@@ -1771,7 +1471,6 @@ function HUDManager:debug_show_coordinates()
 	if self._debug then
 		return
 	end
-
 	self._debug = {}
 	self._debug.ws = Overlay:newgui():create_screen_workspace()
 	self._debug.panel = self._debug.ws:panel()
@@ -1791,7 +1490,6 @@ function HUDManager:debug_hide_coordinates()
 	if not self._debug then
 		return
 	end
-
 	Overlay:newgui():destroy_workspace(self._debug.ws)
 	self._debug = nil
 end
@@ -1801,39 +1499,25 @@ function HUDManager:save(data)
 		waypoints = {},
 		in_assault = self._hud.in_assault
 	}
-	do
-		local (for generator), (for state), (for control) = pairs(self._hud.waypoints)
-		do
-			do break end
-			if not data.no_sync then
-				state.waypoints[id] = data.init_data
-				state.waypoints[id].timer = data.timer
-				state.waypoints[id].pause_timer = data.pause_timer
-				state.waypoints[id].unit = nil
-			end
-
+	for id, data in pairs(self._hud.waypoints) do
+		if not data.no_sync then
+			state.waypoints[id] = data.init_data
+			state.waypoints[id].timer = data.timer
+			state.waypoints[id].pause_timer = data.pause_timer
+			state.waypoints[id].unit = nil
 		end
-
 	end
-
 	data.HUDManager = state
 end
 
 function HUDManager:load(data)
 	local state = data.HUDManager
-	do
-		local (for generator), (for state), (for control) = pairs(state.waypoints)
-		do
-			do break end
-			self:add_waypoint(id, init_data)
-		end
-
+	for id, init_data in pairs(state.waypoints) do
+		self:add_waypoint(id, init_data)
 	end
-
 	if state.in_assault then
 		self:sync_start_assault()
 	end
-
 end
 
 require("lib/managers/HUDManagerPD2")

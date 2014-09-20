@@ -9,7 +9,6 @@ function CreateWorldSettingFile:init(params)
 		if not t then
 			return
 		end
-
 		self._path = params.path
 		self:_add_continent_cbs(t)
 		local save_btn = EWS:Button(self._panel, "Save", "", "")
@@ -24,7 +23,6 @@ function CreateWorldSettingFile:init(params)
 		button_sizer:add(create_btn, 0, 2, "RIGHT,LEFT")
 		create_btn:connect("EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_create"), "")
 	end
-
 	local cancel_btn = EWS:Button(self._panel, "Cancel", "", "")
 	button_sizer:add(cancel_btn, 0, 2, "RIGHT,LEFT")
 	cancel_btn:connect("EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "on_cancel"), "")
@@ -36,32 +34,20 @@ end
 function CreateWorldSettingFile:_add_continent_cbs(params)
 	self._cbs = {}
 	local sizer = EWS:StaticBoxSizer(self._panel, "VERTICAL", "Exclude continents")
-	do
-		local (for generator), (for state), (for control) = pairs(params or managers.editor:continents())
-		do
-			do break end
-			local cb = EWS:CheckBox(self._panel, name, "", "ALIGN_LEFT")
-			sizer:add(cb, 0, 0, "EXPAND")
-			cb:set_value(params and params[name] or false)
-			self._cbs[name] = cb
-		end
-
+	for name, _ in pairs(params or managers.editor:continents()) do
+		local cb = EWS:CheckBox(self._panel, name, "", "ALIGN_LEFT")
+		sizer:add(cb, 0, 0, "EXPAND")
+		cb:set_value(params and params[name] or false)
+		self._cbs[name] = cb
 	end
-
 	self._panel_sizer:add(sizer, 1, 0, "EXPAND")
 end
 
 function CreateWorldSettingFile:on_create()
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._cbs)
-		do
-			do break end
-			t[name] = cb:get_value()
-		end
-
+	for name, cb in pairs(self._cbs) do
+		t[name] = cb:get_value()
 	end
-
 	local settings = SystemFS:open(self._path, "w")
 	settings:puts(ScriptSerializer:to_generic_xml(t))
 	SystemFS:close(settings)
@@ -98,24 +84,16 @@ function CreateWorldSettingFile:_parse_file(path)
 	if not DB:has("world_setting", path) then
 		return
 	end
-
 	local settings = SystemFS:parse_xml(managers.database:entry_expanded_path("world_setting", path))
 	if settings:name() == "settings" then
 		local t = {}
-		do
-			local (for generator), (for state), (for control) = settings:children()
-			do
-				do break end
-				t[continent:parameter("name")] = toboolean(continent:parameter("exclude"))
-			end
-
+		for continent in settings:children() do
+			t[continent:parameter("name")] = toboolean(continent:parameter("exclude"))
 		end
-
 		return t
 	else
 		return self:_serialize_to_script("world_setting", path)
 	end
-
 end
 
 function CreateWorldSettingFile:on_cancel()

@@ -12,12 +12,9 @@ function ShapeManager:init()
 end
 
 function ShapeManager:update(t, dt)
-	local (for generator), (for state), (for control) = ipairs(self._shapes)
-	do
-		do break end
+	for _, shape in ipairs(self._shapes) do
 		shape:draw(t, dt, 0.8, 0.8)
 	end
-
 end
 
 function ShapeManager:add_shape(type, params)
@@ -37,12 +34,9 @@ function ShapeManager:remove_shape(shape)
 end
 
 function ShapeManager:clear_shapes()
-	local (for generator), (for state), (for control) = ipairs(clone(self._shapes))
-	do
-		do break end
+	for _, shape in ipairs(clone(self._shapes)) do
 		self:remove_shape(shape)
 	end
-
 end
 
 function ShapeManager:save()
@@ -53,20 +47,11 @@ function ShapeManager:parse(shape)
 	t.type = shape:parameter("type")
 	t.position = math.string_to_vector(shape:parameter("position"))
 	t.rotation = math.string_to_rotation(shape:parameter("rotation"))
-	do
-		local (for generator), (for state), (for control) = shape:children()
-		do
-			do break end
-			local (for generator), (for state), (for control) = properties:children()
-			do
-				do break end
-				t[value:parameter("name")] = CoreMath.string_to_value(value:parameter("type"), value:parameter("value"))
-			end
-
+	for properties in shape:children() do
+		for value in properties:children() do
+			t[value:parameter("name")] = CoreMath.string_to_value(value:parameter("type"), value:parameter("value"))
 		end
-
 	end
-
 	return t
 end
 
@@ -88,7 +73,6 @@ function Shape:build_dialog()
 	if not Application:editor() then
 		return
 	end
-
 	self._properties_ctrls = {}
 	self._dialog = EWS:Dialog(nil, "Shape properties", "", Vector3(200, 100, 0), Vector3(750, 600, 0), "DEFAULT_DIALOG_STYLE,RESIZE_BORDER,STAY_ON_TOP")
 	self._dialog_sizer = EWS:BoxSizer("VERTICAL")
@@ -141,18 +125,13 @@ function Shape:set_property(property, value)
 	if not self._properties[property] then
 		return
 	end
-
 	value = math.clamp(value, self._min_value, self._max_value)
 	self._properties[property] = value
 	if self._properties_ctrls then
-		local (for generator), (for state), (for control) = ipairs(self._properties_ctrls[property])
-		do
-			do break end
+		for _, ctrl in ipairs(self._properties_ctrls[property]) do
 			ctrl:set_value(string.format("%.2f", value / 100))
 		end
-
 	end
-
 end
 
 function Shape:set_property_string(property, value)
@@ -170,7 +149,6 @@ function Shape:panel(panel, sizer)
 	if not self._panel and panel and sizer then
 		self:create_panel(panel, sizer)
 	end
-
 	return self._panel
 end
 
@@ -210,12 +188,9 @@ end
 
 function Shape:connect_event(name, event, callback, params)
 	local ctrls = self._properties_ctrls[name] or {}
-	local (for generator), (for state), (for control) = ipairs(ctrls)
-	do
-		do break end
+	for _, ctrl in ipairs(ctrls) do
 		ctrl:connect(event, callback, params)
 	end
-
 end
 
 function Shape:update_size(data)
@@ -254,15 +229,9 @@ function Shape:save_level_data()
 	t.type = self._type
 	t.position = self:position()
 	t.rotation = self:rotation()
-	do
-		local (for generator), (for state), (for control) = pairs(self._properties)
-		do
-			do break end
-			t[name] = value
-		end
-
+	for name, value in pairs(self._properties) do
+		t[name] = value
 	end
-
 	return t
 end
 
@@ -292,7 +261,6 @@ function ShapeBox:build_properties_ctrls()
 	if not Application:editor() then
 		return
 	end
-
 	self:_create_size_ctrl("Width [m]", "width", self._properties.width, self._dialog, self._dialog_sizer)
 	self:_create_size_ctrl("Depth [m]", "depth", self._properties.depth, self._dialog, self._dialog_sizer)
 	self:_create_size_ctrl("Height [m]", "height", self._properties.height, self._dialog, self._dialog_sizer)
@@ -346,11 +314,8 @@ function ShapeBox:is_inside(pos)
 			if inside > 0 and inside < self._properties.height then
 				return true
 			end
-
 		end
-
 	end
-
 	return false
 end
 
@@ -399,11 +364,8 @@ function ShapeBoxMiddle:is_inside(pos)
 			if inside > 0 and inside < self._properties.height then
 				return true
 			end
-
 		end
-
 	end
-
 	return false
 end
 
@@ -436,11 +398,8 @@ function ShapeBoxMiddleBottom:is_inside(pos)
 			if inside > 0 and inside < self._properties.height then
 				return true
 			end
-
 		end
-
 	end
-
 	return false
 end
 
@@ -466,7 +425,6 @@ function ShapeSphere:build_properties_ctrls()
 	if not Application:editor() then
 		return
 	end
-
 	self:_create_size_ctrl("Radius [m]", "radius", self._properties.radius, self._dialog_sizer)
 	self._dialog:set_size(Vector3(190, 50, 0))
 end
@@ -502,7 +460,6 @@ function ShapeCylinder:build_properties_ctrls()
 	if not Application:editor() then
 		return
 	end
-
 	self:_create_size_ctrl("Radius [m]", "radius", self._properties.radius, self._dialog, self._dialog_sizer)
 	self:_create_size_ctrl("Height [m]", "height", self._properties.height, self._dialog, self._dialog_sizer)
 	self._dialog:set_size(Vector3(190, 70, 0))
@@ -543,9 +500,7 @@ function ShapeCylinder:is_inside(pos)
 		if math.distance_to_segment(pos, pos_a, pos_b) <= self._properties.radius then
 			return true
 		end
-
 	end
-
 	return false
 end
 
@@ -576,9 +531,7 @@ function ShapeCylinderMiddle:is_inside(pos)
 		if math.distance_to_segment(pos, position, to) <= self._properties.radius then
 			return true
 		end
-
 	end
-
 	return false
 end
 

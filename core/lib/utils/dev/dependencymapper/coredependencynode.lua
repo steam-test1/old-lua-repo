@@ -47,49 +47,28 @@ function DependencyNodeBase:match(pattern)
 	elseif pattern.isdependencynode then
 		return pattern == self
 	elseif type(pattern) == "table" then
-		do
-			local (for generator), (for state), (for control) = ipairs(pattern)
-			do
-				do break end
-				if f == self then
-					return true
-				end
-
+		for _, f in ipairs(pattern) do
+			if f == self then
+				return true
 			end
-
 		end
-
 		return false
 	else
 		error(string.format("Filter '%s' not supported", pattern))
 	end
-
 end
 
 function DependencyNodeBase:get_dependencies()
 	if not self._parsed then
-		do
-			local (for generator), (for state), (for control) = ipairs(self:_parse())
-			do
-				do break end
-				self:_walkxml(xmlnode)
-			end
-
+		for _, xmlnode in ipairs(self:_parse()) do
+			self:_walkxml(xmlnode)
 		end
-
 		self._parsed = true
 	end
-
 	local dn_list = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._depends_on)
-		do
-			do break end
-			table.insert(dn_list, dn)
-		end
-
+	for dn, _ in pairs(self._depends_on) do
+		table.insert(dn_list, dn)
 	end
-
 	return dn_list
 end
 
@@ -107,15 +86,10 @@ function DependencyNodeBase:_reached(pattern, traversed, found)
 		if self:match(pattern) then
 			table.insert(found, self)
 		end
-
-		local (for generator), (for state), (for control) = ipairs(self:get_dependencies())
-		do
-			do break end
+		for _, dn in ipairs(self:get_dependencies()) do
 			dn:_reached(pattern, traversed, found)
 		end
-
 	end
-
 end
 
 function DependencyNodeBase:_parse()
@@ -128,21 +102,12 @@ end
 function DependencyNodeBase:_walkxml(xmlnode)
 	local deps = _Deps:new()
 	self:_walkxml2dependencies(xmlnode, deps)
-	do
-		local (for generator), (for state), (for control) = deps:get_pairs()
-		do
-			do break end
-			self._depends_on[dn] = true
-		end
-
+	for _, dn in deps:get_pairs() do
+		self._depends_on[dn] = true
 	end
-
-	local (for generator), (for state), (for control) = xmlnode:children()
-	do
-		do break end
+	for child in xmlnode:children() do
 		self:_walkxml(child)
 	end
-
 end
 
 function DependencyNodeBase:_walkxml2dependencies(xmlnode, deps)

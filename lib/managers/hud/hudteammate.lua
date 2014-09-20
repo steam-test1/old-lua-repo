@@ -24,7 +24,6 @@ function HUDTeammate:init(i, teammates_panel, is_player, width)
 		teammate_panel:set_bottom(teammates_panel:h())
 		teammate_panel:set_halign("left")
 	end
-
 	self._player_panel = teammate_panel:panel({name = "player"})
 	local name = teammate_panel:text({
 		name = "name",
@@ -43,7 +42,6 @@ function HUDTeammate:init(i, teammates_panel, is_player, width)
 		name:set_x(48 + name:h() + 4)
 		name:set_bottom(teammate_panel:h() - 30)
 	end
-
 	local tabs_texture = "guis/textures/pd2/hud_tabs"
 	local bg_rect = {
 		84,
@@ -338,7 +336,6 @@ function HUDTeammate:init(i, teammates_panel, is_player, width)
 		primary_weapon_panel:child("bg"):set_image(tabs_texture, eq_rect[1], eq_rect[2], eq_rect[3], eq_rect[4])
 		primary_weapon_panel:child("bg"):set_size(primary_weapon_panel:size())
 	end
-
 	local secondary_weapon_panel = weapons_panel:panel({
 		name = "secondary_weapon_panel",
 		visible = false,
@@ -423,7 +420,6 @@ function HUDTeammate:init(i, teammates_panel, is_player, width)
 		secondary_weapon_panel:child("bg"):set_image(tabs_texture, eq_rect[1], eq_rect[2], eq_rect[3], eq_rect[4])
 		secondary_weapon_panel:child("bg"):set_size(secondary_weapon_panel:size())
 	end
-
 	local eq_rect = {
 		84,
 		0,
@@ -490,7 +486,6 @@ function HUDTeammate:init(i, teammates_panel, is_player, width)
 		local bg = deployable_equipment_panel:child("bg")
 		bg:set_size(deployable_equipment_panel:size())
 	end
-
 	local texture, rect = tweak_data.hud_icons:get_icon_data(tweak_data.equipments.specials.cable_tie.icon)
 	local cable_ties_panel = self._player_panel:panel({
 		name = "cable_ties_panel",
@@ -543,7 +538,6 @@ function HUDTeammate:init(i, teammates_panel, is_player, width)
 	else
 		cable_ties_panel:set_bottom(weapons_panel:bottom())
 	end
-
 	if not main_player then
 		local scale = eq_tm_scale
 		cable_ties_panel:set_size(cable_ties_panel:w() * 0.9, cable_ties_panel:h() * scale)
@@ -557,7 +551,6 @@ function HUDTeammate:init(i, teammates_panel, is_player, width)
 		local bg = cable_ties_panel:child("bg")
 		bg:set_size(cable_ties_panel:size())
 	end
-
 	if PlayerBase.USE_GRENADES then
 		local texture, rect = tweak_data.hud_icons:get_icon_data("frag_grenade")
 		local grenades_panel = self._player_panel:panel({
@@ -620,9 +613,7 @@ function HUDTeammate:init(i, teammates_panel, is_player, width)
 			local bg = grenades_panel:child("bg")
 			bg:set_size(grenades_panel:size())
 		end
-
 	end
-
 	local bag_rect = {
 		32,
 		33,
@@ -720,11 +711,9 @@ function HUDTeammate:_create_primary_weapon_firemode()
 	if alive(old_single) then
 		weapon_selection_panel:remove(old_single)
 	end
-
 	if alive(old_auto) then
 		weapon_selection_panel:remove(old_auto)
 	end
-
 	if self._main_player then
 		local equipped_primary = managers.blackmarket:equipped_primary()
 		local weapon_tweak_data = tweak_data.weapon[equipped_primary.weapon_id]
@@ -761,9 +750,7 @@ function HUDTeammate:_create_primary_weapon_firemode()
 		else
 			firemode_auto:show()
 		end
-
 	end
-
 end
 
 function HUDTeammate:_create_secondary_weapon_firemode()
@@ -774,11 +761,9 @@ function HUDTeammate:_create_secondary_weapon_firemode()
 	if alive(old_single) then
 		weapon_selection_panel:remove(old_single)
 	end
-
 	if alive(old_auto) then
 		weapon_selection_panel:remove(old_auto)
 	end
-
 	if self._main_player then
 		local equipped_secondary = managers.blackmarket:equipped_secondary()
 		local weapon_tweak_data = tweak_data.weapon[equipped_secondary.weapon_id]
@@ -815,21 +800,15 @@ function HUDTeammate:_create_secondary_weapon_firemode()
 		else
 			firemode_auto:show()
 		end
-
 	end
-
 end
 
 function HUDTeammate:_rec_round_object(object)
 	if object.children then
-		local (for generator), (for state), (for control) = ipairs(object:children())
-		do
-			do break end
+		for i, d in ipairs(object:children()) do
 			self:_rec_round_object(d)
 		end
-
 	end
-
 	local x, y = object:position()
 	object:set_position(math.round(x), math.round(y))
 end
@@ -850,7 +829,6 @@ function HUDTeammate:remove_panel()
 	while special_equipment[1] do
 		teammate_panel:remove(table.remove(special_equipment))
 	end
-
 	self:set_condition("mugshot_normal")
 	self._player_panel:child("weapons_panel"):child("secondary_weapon_panel"):set_visible(false)
 	self._player_panel:child("weapons_panel"):child("primary_weapon_panel"):set_visible(false)
@@ -909,11 +887,8 @@ function HUDTeammate:set_weapon_firemode(id, firemode)
 				firemode_single:hide()
 				firemode_auto:show()
 			end
-
 		end
-
 	end
-
 end
 
 function HUDTeammate:set_ammo_amount_by_type(type, max_clip, current_clip, current_left, max)
@@ -949,7 +924,6 @@ function HUDTeammate:set_health(data)
 	if red < radial_health:color().red then
 		self:_damage_taken()
 	end
-
 	radial_health:set_color(Color(1, red, 1, 1))
 end
 
@@ -961,7 +935,6 @@ function HUDTeammate:set_armor(data)
 	if red < radial_shield:color().red then
 		self:_damage_taken()
 	end
-
 	radial_shield:set_color(Color(1, red, 1, 1))
 end
 
@@ -986,7 +959,6 @@ function HUDTeammate:_animate_damage_taken(damage_indicator)
 		damage_indicator:set_color(Color(1, red_t / st_red_t, red_t / st_red_t))
 		damage_indicator:set_alpha(t / st)
 	end
-
 	damage_indicator:set_alpha(0)
 end
 
@@ -1036,7 +1008,6 @@ function HUDTeammate:set_cable_ties_amount(amount)
 	else
 		self:_set_amount_string(cable_ties_amount, amount)
 	end
-
 	local cable_ties = cable_ties_panel:child("cable_ties")
 	cable_ties:set_visible(visible)
 end
@@ -1046,7 +1017,6 @@ function HUDTeammate:_set_amount_string(text, amount)
 		text:set_text(tostring(amount))
 		return
 	end
-
 	local zero = self._main_player and amount < 10 and "0" or ""
 	text:set_text(zero .. amount)
 	text:set_range_color(0, string.len(zero), Color.white:with_alpha(0.5))
@@ -1068,12 +1038,10 @@ function HUDTeammate:set_state(state)
 			name:set_x(48 + name:h() + 4)
 			name:set_bottom(teammate_panel:h())
 		end
-
 		name_bg:set_position(name:x(), name:y() - 1)
 		callsign_bg:set_position(name:x() - name:h(), name:y() + 1)
 		callsign:set_position(name:x() - name:h(), name:y() + 1)
 	end
-
 end
 
 function HUDTeammate:set_deployable_equipment(data)
@@ -1098,7 +1066,6 @@ function HUDTeammate:set_grenades(data)
 	if not PlayerBase.USE_GRENADES then
 		return
 	end
-
 	local icon, texture_rect = tweak_data.hud_icons:get_icon_data(data.icon)
 	local grenades_panel = self._player_panel:child("grenades_panel")
 	local grenades = grenades_panel:child("grenades")
@@ -1111,7 +1078,6 @@ function HUDTeammate:set_grenades_amount(data)
 	if not PlayerBase.USE_GRENADES then
 		return
 	end
-
 	local teammate_panel = self._panel:child("player")
 	local grenades_panel = self._player_panel:child("grenades_panel")
 	local amount = grenades_panel:child("amount")
@@ -1178,7 +1144,6 @@ function HUDTeammate:add_special_equipment(data)
 		})
 		amount_bg:set_visible(1 < data.amount)
 	end
-
 	local flash_icon = equipment_panel:bitmap({
 		name = "bitmap",
 		texture = icon,
@@ -1196,7 +1161,6 @@ function HUDTeammate:add_special_equipment(data)
 		amount_bg:move(7, 7)
 		amount:set_center(amount_bg:center())
 	end
-
 	local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_PD2)
 	flash_icon:set_center(bitmap:center())
 	flash_icon:animate(hud.flash_icon, nil, equipment_panel)
@@ -1206,35 +1170,27 @@ end
 function HUDTeammate:remove_special_equipment(equipment)
 	local teammate_panel = self._panel
 	local special_equipment = self._special_equipment
-	local (for generator), (for state), (for control) = ipairs(special_equipment)
-	do
-		do break end
+	for i, panel in ipairs(special_equipment) do
 		if panel:name() == equipment then
 			local data = table.remove(special_equipment, i)
 			teammate_panel:remove(panel)
 			self:layout_special_equipments()
 			return
 		end
-
 	end
-
 end
 
 function HUDTeammate:set_special_equipment_amount(equipment_id, amount)
 	local teammate_panel = self._panel
 	local special_equipment = self._special_equipment
-	local (for generator), (for state), (for control) = ipairs(special_equipment)
-	do
-		do break end
+	for i, panel in ipairs(special_equipment) do
 		if panel:name() == equipment_id then
 			panel:child("amount"):set_text(tostring(amount))
 			panel:child("amount"):set_visible(amount > 1)
 			panel:child("amount_bg"):set_visible(amount > 1)
 			return
 		end
-
 	end
-
 end
 
 function HUDTeammate:clear_special_equipment()
@@ -1247,9 +1203,7 @@ function HUDTeammate:layout_special_equipments()
 	local special_equipment = self._special_equipment
 	local name = teammate_panel:child("name")
 	local w = teammate_panel:w()
-	local (for generator), (for state), (for control) = ipairs(special_equipment)
-	do
-		do break end
+	for i, panel in ipairs(special_equipment) do
 		if self._main_player then
 			panel:set_x(w - (panel:w() + 0) * i)
 			panel:set_y(0)
@@ -1257,9 +1211,7 @@ function HUDTeammate:layout_special_equipments()
 			panel:set_x(48 + panel:w() * (i - 1))
 			panel:set_y(0)
 		end
-
 	end
-
 end
 
 function HUDTeammate:set_condition(icon_data, text)
@@ -1271,7 +1223,6 @@ function HUDTeammate:set_condition(icon_data, text)
 		local icon, texture_rect = tweak_data.hud_icons:get_icon_data(icon_data)
 		condition_icon:set_image(icon, texture_rect[1], texture_rect[2], texture_rect[3], texture_rect[4])
 	end
-
 end
 
 function HUDTeammate:teammate_progress(enabled, tweak_data_id, timer, success)
@@ -1303,7 +1254,6 @@ function HUDTeammate:teammate_progress(enabled, tweak_data_id, timer, success)
 		circle:set_position(bitmap:position())
 		bitmap:animate(callback(HUDInteraction, HUDInteraction, "_animate_interaction_complete"), circle)
 	end
-
 end
 
 function HUDTeammate:start_timer(time)
@@ -1320,7 +1270,6 @@ function HUDTeammate:set_pause_timer(pause)
 	if not self._timer_paused then
 		return
 	end
-
 	self._timer_paused = self._timer_paused + (pause and 1 or -1)
 end
 
@@ -1328,7 +1277,6 @@ function HUDTeammate:stop_timer()
 	if not alive(self._panel) then
 		return
 	end
-
 	self._panel:child("condition_timer"):set_visible(false)
 	self._panel:child("condition_timer"):stop()
 end
@@ -1350,13 +1298,9 @@ function HUDTeammate:_animate_timer()
 				if rounded_timer < 11 then
 					self._panel:child("condition_timer"):animate(callback(self, self, "_animate_timer_flash"))
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function HUDTeammate:_animate_timer_flash()
@@ -1371,7 +1315,6 @@ function HUDTeammate:_animate_timer_flash()
 		condition_timer:set_color(Color(r, g, b))
 		condition_timer:set_font_size(math.lerp(tweak_data.hud_players.timer_size, tweak_data.hud_players.timer_flash_size, n))
 	end
-
 	condition_timer:set_font_size(30)
 end
 

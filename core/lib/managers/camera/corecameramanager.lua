@@ -20,15 +20,9 @@ function CameraBase:init()
 end
 
 function CameraBase:destroy()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._nodes)
-		do
-			do break end
-			node:destroy()
-		end
-
+	for index, node in ipairs(self._nodes) do
+		node:destroy()
 	end
-
 	self._nodes = {}
 	self._setup = nil
 end
@@ -60,40 +54,25 @@ function CameraManager:init(templates)
 end
 
 function CameraManager:destroy()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._layers)
-		do
-			do break end
-			mixer:destroy()
-		end
-
+	for index, mixer in ipairs(self._layers) do
+		mixer:destroy()
 	end
-
 	self._layers = {}
 end
 
 function CameraManager:create_layers(templates)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._layers)
-		do
-			do break end
-			mixer:destroy()
-		end
-
+	for index, mixer in ipairs(self._layers) do
+		mixer:destroy()
 	end
-
 	self._layers = {}
 	self._name_to_layer = {}
 	self._templates = templates
 	self._interpreter = templates._interpreter_class:new()
-	local (for generator), (for state), (for control) = ipairs(templates._layers)
-	do
-		do break end
+	for index, layer_name in ipairs(templates._layers) do
 		local mixer = CoreCameraMixer.CameraMixer:new(layer_name)
 		table.insert(self._layers, mixer)
 		self._name_to_layer[layer_name] = mixer
 	end
-
 end
 
 function CameraManager:view_camera(camera_name, force_new_camera)
@@ -103,13 +82,11 @@ function CameraManager:view_camera(camera_name, force_new_camera)
 	if active_camera and not force_new_camera and active_camera:name() == camera_name then
 		return active_camera
 	end
-
 	local camera = self:create_camera(camera_name, self._unit)
 	local blend_time = 0
 	if active_camera then
 		blend_time = camera:transition_blend(active_camera)
 	end
-
 	blend_time = blend_time or camera:default_blend()
 	assert(blend_time)
 	mixer:add_camera(camera, blend_time)
@@ -117,12 +94,9 @@ function CameraManager:view_camera(camera_name, force_new_camera)
 end
 
 function CameraManager:stop_all_layers()
-	local (for generator), (for state), (for control) = ipairs(self._layers)
-	do
-		do break end
+	for index, layer in ipairs(self._layers) do
 		layer:stop()
 	end
-
 end
 
 function CameraManager:stop_layer(layer_name)
@@ -132,7 +106,6 @@ function CameraManager:stop_layer(layer_name)
 	else
 		mixer = self._layers[1]
 	end
-
 	mixer:stop()
 end
 
@@ -145,12 +118,10 @@ function CameraManager:get_camera_layer(name)
 		if layer then
 			return layer
 		end
-
 		local parent_name = camera_setup._inherits
 		if parent_name then
 			return get_camera_layer(parent_name)
 		end
-
 	end
 
 	local layer_name = get_camera_layer(name)
@@ -170,7 +141,6 @@ function CameraManager:create_camera(name)
 		if parent_name then
 			get_camera_chain(parent_name, cam_list)
 		end
-
 		table.insert(cam_list, camera_setup)
 	end
 
@@ -181,61 +151,37 @@ function CameraManager:create_camera(name)
 	local blend_table = camera._blend_table
 	local parent_node
 	local num_cameras = 0
-	do
-		local (for generator), (for state), (for control) = ipairs(camera_list)
-		do
-			do break end
-			num_cameras = num_cameras + 1
-			do
-				local (for generator), (for state), (for control) = ipairs(camera_setup._camera_nodes)
-				do
-					do break end
-					local node_setup = camera_node_setups[node_table._node_name]
-					local camera_node = node_setup._class:new(node_setup._settings)
-					if node_table._name then
-						camera_node._name = node_table._name
-					end
-
-					name_to_nodes[camera_node._name] = camera_node
-					if node_table._position then
-						camera_node._pivot_position = node_table._position
-					end
-
-					if node_table._rotation then
-						camera_node._pivot_rotation = node_table._rotation
-					end
-
-					if parent_node then
-						camera_node:set_parent(parent_node)
-					end
-
-					parent_node = camera_node
-					table.insert(nodes, camera_node)
-				end
-
+	for _, camera_setup in ipairs(camera_list) do
+		num_cameras = num_cameras + 1
+		for index, node_table in ipairs(camera_setup._camera_nodes) do
+			local node_setup = camera_node_setups[node_table._node_name]
+			local camera_node = node_setup._class:new(node_setup._settings)
+			if node_table._name then
+				camera_node._name = node_table._name
 			end
-
-			if camera_setup._default_blend then
-				camera._default_blend = camera_setup._default_blend
+			name_to_nodes[camera_node._name] = camera_node
+			if node_table._position then
+				camera_node._pivot_position = node_table._position
 			end
-
-			do
-				local (for generator), (for state), (for control) = pairs(camera_setup._blend_table)
-				do
-					do break end
-					blend_table[key] = value
-				end
-
+			if node_table._rotation then
+				camera_node._pivot_rotation = node_table._rotation
 			end
-
-			if camera_setup._layer then
-				camera._layer = camera_setup._layer
+			if parent_node then
+				camera_node:set_parent(parent_node)
 			end
-
+			parent_node = camera_node
+			table.insert(nodes, camera_node)
 		end
-
+		if camera_setup._default_blend then
+			camera._default_blend = camera_setup._default_blend
+		end
+		for key, value in pairs(camera_setup._blend_table) do
+			blend_table[key] = value
+		end
+		if camera_setup._layer then
+			camera._layer = camera_setup._layer
+		end
 	end
-
 	camera._setup = camera_list[num_cameras]
 	return camera
 end
@@ -243,24 +189,14 @@ end
 function CameraManager:update(time, dt)
 	self._interpreter:reset()
 	local interpreter_class = self._templates._interpreter_class
-	do
-		local (for generator), (for state), (for control) = ipairs(self._layers)
-		do
-			do break end
-			mixer:update(self._interpreter, interpreter_class, time, dt)
-		end
-
+	for index, mixer in ipairs(self._layers) do
+		mixer:update(self._interpreter, interpreter_class, time, dt)
 	end
-
 	if self._debug_render_enable then
-		local (for generator), (for state), (for control) = ipairs(self._layers)
-		do
-			do break end
+		for index, mixer in ipairs(self._layers) do
 			mixer:debug_render(time, dt)
 		end
-
 	end
-
 end
 
 function CameraManager:interpreter()
@@ -268,19 +204,13 @@ function CameraManager:interpreter()
 end
 
 function CameraManager:print_cameras()
-	local (for generator), (for state), (for control) = ipairs(self._layers)
-	do
-		do break end
+	for index, mixer in ipairs(self._layers) do
 		cat_print("debug", "layer: '" .. mixer._name .. "'")
 		local cameras = mixer:cameras()
-		local (for generator), (for state), (for control) = ipairs(cameras)
-		do
-			do break end
+		for _, camera in ipairs(cameras) do
 			cat_print("debug", "camera: '" .. camera._setup._name .. "'")
 		end
-
 	end
-
 end
 
 CameraTemplateManager = CameraTemplateManager or CoreClass.class()
@@ -310,25 +240,17 @@ function CameraTemplateManager:load_cameras()
 	if DB:has(CameraTemplateManager.camera_db_type, CameraTemplateManager.camera_db_path) then
 		local xml_node = DB:load_node(CameraTemplateManager.camera_db_type, CameraTemplateManager.camera_db_path)
 		local xml_node_children = xml_node:children()
-		local (for generator), (for state), (for control) = xml_node_children, nil, nil
-		do
-			do break end
+		for xml_child_node in xml_node_children, nil, nil do
 			if xml_child_node:name() == "camera_file" and xml_child_node:has_parameter("file") then
 				self:load_camera_file(xml_child_node:parameter("file"))
 			end
-
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._camera_managers)
-	do
-		do break end
+	for index, cm in ipairs(self._camera_managers) do
 		local template_name = cm._templates._name
 		local template = self._camera_space[template_name]
 		cm:create_layers(template)
 	end
-
 end
 
 function CameraTemplateManager:load_camera_file(file_name)
@@ -344,20 +266,14 @@ function CameraTemplateManager:load_camera_file(file_name)
 			space._setups = {}
 			space._layers = {}
 			local xml_node_children = xml_node:children()
-			local (for generator), (for state), (for control) = xml_node_children, nil, nil
-			do
-				do break end
+			for xml_child_node in xml_node_children, nil, nil do
 				local parse_func = self._parse_func_table[xml_child_node:name()]
 				if parse_func then
 					parse_func(self, xml_child_node, space)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function CameraTemplateManager:clear()
@@ -387,11 +303,9 @@ function CameraTemplateManager:parse_camera(xml_node, space)
 	if xml_node:has_parameter("inherits") then
 		setup._inherits = xml_node:parameter("inherits")
 	end
-
 	if xml_node:has_parameter("layer") then
 		setup._layer = xml_node:parameter("layer")
 	end
-
 	setup._name = name
 	setup._camera_nodes = {}
 	setup._blend_table = {}
@@ -403,15 +317,12 @@ function CameraTemplateManager:parse_camera(xml_node, space)
 		if xml_node:has_parameter("name") then
 			node._name = xml_node:parameter("name")
 		end
-
 		if xml_node:has_parameter("position") then
 			node._position = math.string_to_vector(xml_node:parameter("position"))
 		end
-
 		if xml_node:has_parameter("rotation") then
 			node._rotation = CoreMath.string_to_rotation(xml_node:parameter("rotation"))
 		end
-
 		table.insert(setup._camera_nodes, node)
 	end
 
@@ -419,7 +330,6 @@ function CameraTemplateManager:parse_camera(xml_node, space)
 		if xml_node:has_parameter("blend") then
 			setup._default_blend = tonumber(xml_node:parameter("blend"))
 		end
-
 	end
 
 	local function parse_from_blend(xml_node)
@@ -429,10 +339,8 @@ function CameraTemplateManager:parse_camera(xml_node, space)
 			if xml_node:has_parameter("blend") then
 				blend_value = xml_node:parameter("blend")
 			end
-
 			setup._blend_table[name] = blend_value
 		end
-
 	end
 
 	local parse_func_table = {}
@@ -440,30 +348,20 @@ function CameraTemplateManager:parse_camera(xml_node, space)
 	parse_func_table.default = parse_default_blend
 	parse_func_table.from = parse_from_blend
 	local xml_node_children = xml_node:children()
-	local (for generator), (for state), (for control) = xml_node_children, nil, nil
-	do
-		do break end
+	for xml_child_node in xml_node_children, nil, nil do
 		local parse_func = parse_func_table[xml_child_node:name()]
 		if parse_func then
 			parse_func(xml_child_node)
 		end
-
 	end
-
 end
 
 function CameraTemplateManager:parse_camera_node(xml_node, space)
 	local split_string = function(str)
 		local strings = {}
-		do
-			local (for generator), (for state), (for control) = string.gmatch(str, "[^%p]+")
-			do
-				do break end
-				table.insert(strings, word)
-			end
-
+		for word in string.gmatch(str, "[^%p]+") do
+			table.insert(strings, word)
 		end
-
 		return strings
 	end
 
@@ -478,11 +376,9 @@ function CameraTemplateManager:parse_camera_node(xml_node, space)
 		else
 			class = rawget(_G, class_name)
 		end
-
 		if not class then
 			assert(class)
 		end
-
 		local settings = {}
 		class.compile_settings(xml_node, settings)
 		local setup = {}
@@ -492,7 +388,6 @@ function CameraTemplateManager:parse_camera_node(xml_node, space)
 		local name = xml_node:parameter("name")
 		camera_node_setups[name] = setup
 	end
-
 end
 
 function CameraTemplateManager:parse_depends_on(xml_node, space)
@@ -502,17 +397,12 @@ function CameraTemplateManager:parse_depends_on(xml_node, space)
 		elseif xml_node:has_parameter("effect") then
 			CoreEngineAccess._editor_load("effect", xml_node:parameter("effect"):id())
 		end
-
 	end
-
 end
 
 function CameraTemplateManager:update(t, dt)
-	local (for generator), (for state), (for control) = ipairs(self._camera_managers)
-	do
-		do break end
+	for index, cam_man in ipairs(self._camera_managers) do
 		cam_man:update(t, dt)
 	end
-
 end
 

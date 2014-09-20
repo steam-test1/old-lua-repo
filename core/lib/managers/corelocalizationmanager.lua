@@ -15,7 +15,6 @@ function LocalizationManager:init()
 	else
 		self._platform = "WIN32"
 	end
-
 end
 
 function LocalizationManager:add_default_macro(macro, value)
@@ -26,7 +25,6 @@ function LocalizationManager:set_default_macro(macro, value)
 	if not self._default_macros then
 		self._default_macros = {}
 	end
-
 	self._default_macros["$" .. macro .. ";"] = tostring(value)
 end
 
@@ -48,13 +46,11 @@ function LocalizationManager:text(string_id, macros)
 	elseif self:exists(string_id) then
 		str_id = string_id
 	end
-
 	if str_id then
 		self._macro_context = macros
 		return_string = Localizer:lookup(Idstring(str_id))
 		self._macro_context = nil
 	end
-
 	return return_string
 end
 
@@ -64,29 +60,15 @@ function LocalizationManager:_localizer_post_process(string)
 	if type(self._macro_context) ~= "table" then
 		self._macro_context = {}
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._default_macros)
-		do
-			do break end
-			macros[k] = v
-		end
-
+	for k, v in pairs(self._default_macros) do
+		macros[k] = v
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._macro_context)
-		do
-			do break end
-			macros["$" .. k .. ";"] = tostring(v)
-		end
-
+	for k, v in pairs(self._macro_context) do
+		macros["$" .. k .. ";"] = tostring(v)
 	end
-
 	if self._pre_process_func then
 		self._pre_process_func(macros)
 	end
-
 	localized_string = string.gsub(localized_string, "%b$;", macros)
 	return localized_string
 end

@@ -27,14 +27,12 @@ function CoreShapeUnitElement:update_selected(t, dt, selected_unit, all_units)
 	if shape then
 		shape:draw(t, dt, 1, 1, 1)
 	end
-
 end
 
 function CoreShapeUnitElement:get_shape()
 	if not self._shape then
 		self:_create_shapes()
 	end
-
 	return self._hed.shape_type == "box" and self._shape or self._hed.shape_type == "cylinder" and self._cylinder_shape
 end
 
@@ -92,7 +90,6 @@ function CoreShapeUnitElement:_build_panel(panel, panel_sizer)
 	if not self._shape then
 		self:_create_shapes()
 	end
-
 	local base_params = {
 		panel = panel,
 		sizer = panel_sizer,

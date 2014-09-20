@@ -106,7 +106,6 @@ function PlayerProfileGuiObject:init(ws)
 		})
 		skill_glow:set_center_y(skill_icon:center_y())
 	end
-
 	local mastermind_ponts, num_skills = managers.skilltree:get_tree_progress("mastermind")
 	mastermind_ponts = string.format("%02d", mastermind_ponts)
 	local mastermind_text = panel:text({
@@ -170,7 +169,6 @@ function PlayerProfileGuiObject:init(ws)
 	self._panel = panel
 	if not skill_text or not skill_text:bottom() then
 	end
-
 	self._panel:set_size(exp_ring:w() + max_left_len + 15 + max_right_len + 10, ghost_text:bottom() + 10)
 	self._panel:set_bottom(self._panel:parent():h() - 70)
 	BoxGuiObject:new(self._panel, {
@@ -196,14 +194,12 @@ function PlayerProfileGuiObject:init(ws)
 				end
 )
 			end
-
 		end
 
 		skill_glow:set_w(self._panel:w())
 		skill_glow:set_center_x(skill_text and skill_text:center_x() or 0)
 		skill_glow:animate(animate_new_skillpoints)
 	end
-
 end
 
 function PlayerProfileGuiObject:get_text(text, macros)
@@ -221,6 +217,5 @@ function PlayerProfileGuiObject:close()
 		self._panel:parent():remove(self._panel)
 		self._panel = nil
 	end
-
 end
 

@@ -9,7 +9,6 @@ function HostStateInGame:on_join_request_received(data, peer_name, client_prefer
 	if SystemInfo:platform() == Idstring("WIN32") then
 		peer_name = managers.network.account:username_by_id(sender:ip_at_index(0))
 	end
-
 	if self:_has_peer_left_PSN(peer_name) then
 		print("this CLIENT has left us from PSN, ignore his request", peer_name)
 		return
@@ -39,29 +38,24 @@ function HostStateInGame:on_join_request_received(data, peer_name, client_prefer
 		self:_send_request_denied(sender, 0, my_user_id)
 		return
 	end
-
 	local old_peer = data.session:chk_peer_already_in(sender)
 	if old_peer then
 		if join_attempt_identifier ~= old_peer:join_attempt_identifier() then
 			data.session:remove_peer(old_peer, old_peer:id(), "lost")
 			self:_send_request_denied(sender, 0, my_user_id)
 		end
-
 		return
 	end
-
 	if 3 <= table.size(data.peers) then
 		print("server is full")
 		self:_send_request_denied(sender, 5, my_user_id)
 		return
 	end
-
 	local character = managers.network:game():check_peer_preferred_character(client_preferred_character)
 	local xnaddr = ""
 	if SystemInfo:platform() == Idstring("X360") then
 		xnaddr = managers.network.matchmake:external_address(sender)
 	end
-
 	local new_peer_id, new_peer
 	new_peer_id, new_peer = data.session:add_peer(peer_name, nil, false, false, false, nil, character, sender:ip_at_index(0), xuid, xnaddr)
 	if not new_peer_id then
@@ -69,7 +63,6 @@ function HostStateInGame:on_join_request_received(data, peer_name, client_prefer
 		self:_send_request_denied(sender, 0, my_user_id)
 		return
 	end
-
 	new_peer:set_dlcs(dlcs)
 	new_peer:set_xuid(xuid)
 	new_peer:set_join_attempt_identifier(join_attempt_identifier)
@@ -79,7 +72,6 @@ function HostStateInGame:on_join_request_received(data, peer_name, client_prefer
 	else
 		new_peer_rpc = sender
 	end
-
 	new_peer:set_rpc(new_peer_rpc)
 	new_peer:set_ip_verified(true)
 	Network:add_co_client(new_peer_rpc)
@@ -88,7 +80,6 @@ function HostStateInGame:on_join_request_received(data, peer_name, client_prefer
 		self:_send_request_denied(sender, 8, my_user_id)
 		return
 	end
-
 	local ticket = new_peer:create_ticket()
 	local level_index = tweak_data.levels:get_index_from_level_id(Global.game_settings.level_id)
 	local difficulty_index = tweak_data:difficulty_to_index(Global.game_settings.difficulty)
@@ -103,14 +94,12 @@ function HostStateInGame:on_join_request_received(data, peer_name, client_prefer
 		local interupt_stage_level = managers.job:interupt_stage()
 		interupt_job_stage_level_index = interupt_stage_level and tweak_data.levels:get_index_from_level_id(interupt_stage_level) or 0
 	end
-
 	local server_xuid = SystemInfo:platform() == Idstring("X360") and managers.network.account:player_id() or ""
 	new_peer:send("join_request_reply", 1, new_peer_id, character, level_index, difficulty_index, 2, data.local_peer:character(), my_user_id, Global.game_settings.mission, job_id_index, job_stage, alternative_job_stage, interupt_job_stage_level_index, server_xuid, ticket)
 	new_peer:send("set_loading_state", false)
 	if SystemInfo:platform() == Idstring("X360") then
 		new_peer:send("request_player_name_reply", managers.network:session():local_peer():name())
 	end
-
 	self:on_handshake_confirmation(data, new_peer, 1)
 end
 
@@ -120,7 +109,6 @@ function HostStateInGame:on_peer_finished_loading(data, peer)
 	if data.game_started then
 		peer:send_after_load("set_dropin")
 	end
-
 end
 
 function HostStateInGame:is_joinable(data)

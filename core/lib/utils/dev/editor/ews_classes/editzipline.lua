@@ -80,88 +80,60 @@ function EditZipLine:init(editor)
 end
 
 function EditZipLine:update(t, dt)
-	local (for generator), (for state), (for control) = ipairs(self._selected_units)
-	do
-		do break end
+	for _, unit in ipairs(self._selected_units) do
 		if unit:zipline() then
 			unit:zipline():debug_draw(t, dt)
 		end
-
 	end
-
 end
 
 function EditZipLine:_use_camera_pos()
-	local (for generator), (for state), (for control) = ipairs(self._selected_units)
-	do
-		do break end
+	for _, unit in ipairs(self._selected_units) do
 		if unit:zipline() then
 			unit:zipline():set_end_pos(managers.editor:camera_position())
 		end
-
 	end
-
 end
 
 function EditZipLine:_use_camera_pos_for_line()
-	local (for generator), (for state), (for control) = ipairs(self._selected_units)
-	do
-		do break end
+	for _, unit in ipairs(self._selected_units) do
 		if unit:zipline() then
 			unit:zipline():set_end_pos_by_line(managers.editor:camera_position())
 		end
-
 	end
-
 end
 
 function EditZipLine:_update_speed(params)
-	local (for generator), (for state), (for control) = ipairs(self._selected_units)
-	do
-		do break end
+	for _, unit in ipairs(self._selected_units) do
 		if unit:zipline() then
 			unit:zipline():set_speed(self._speed_params.value)
 		end
-
 	end
-
 end
 
 function EditZipLine:_update_slack(params)
-	local (for generator), (for state), (for control) = ipairs(self._selected_units)
-	do
-		do break end
+	for _, unit in ipairs(self._selected_units) do
 		if unit:zipline() then
 			unit:zipline():set_slack(self._slack_params.value)
 		end
-
 	end
-
 end
 
 function EditZipLine:_change_type()
-	local (for generator), (for state), (for control) = ipairs(self._selected_units)
-	do
-		do break end
+	for _, unit in ipairs(self._selected_units) do
 		if alive(unit) and unit:zipline() then
 			local type = self._type_params.ctrlr:get_value()
 			unit:zipline():set_usage_type(type)
 		end
-
 	end
-
 end
 
 function EditZipLine:set_ai_ignores_bag()
-	local (for generator), (for state), (for control) = ipairs(self._selected_units)
-	do
-		do break end
+	for _, unit in ipairs(self._selected_units) do
 		if alive(unit) and unit:zipline() then
 			unit:zipline():set_ai_ignores_bag(self._ai_ignores_bag:get_value())
 		end
-
 	end
-
 end
 
 function EditZipLine:is_editable(unit, units)
@@ -177,7 +149,6 @@ function EditZipLine:is_editable(unit, units)
 		self._no_event = false
 		return true
 	end
-
 	self._selected_units = {}
 	return false
 end

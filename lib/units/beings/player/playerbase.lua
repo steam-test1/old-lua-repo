@@ -29,7 +29,6 @@ function PlayerBase:post_init()
 	else
 		self._unregistered = true
 	end
-
 	self._unit:character_damage():post_init()
 	local con_mul, index = managers.blackmarket:get_concealment_of_peer(Global.local_member:peer())
 	self:set_suspicion_multiplier("equipment", 1 / con_mul)
@@ -44,14 +43,11 @@ function PlayerBase:update(unit, t, dt)
 				self._wanted_controller_enabled = nil
 				self._wanted_controller_enabled_t = nil
 			end
-
 			self._unit:set_extension_update_enabled(Idstring("base"), false)
 		else
 			self._wanted_controller_enabled_t = self._wanted_controller_enabled_t - 1
 		end
-
 	end
-
 end
 
 function PlayerBase:_setup_suspicion_and_detection_data()
@@ -73,7 +69,6 @@ function PlayerBase:_chk_set_unit_upgrades()
 		local mul = managers.player:upgrade_value("player", "suspicion_multiplier", 1)
 		self:set_suspicion_multiplier("suspicion_multiplier", mul)
 	end
-
 	managers.environment_controller:set_flashbang_multiplier(managers.player:upgrade_value("player", "flashbang_multiplier"))
 	local is_client = Network:is_client()
 	if is_client then
@@ -81,171 +76,132 @@ function PlayerBase:_chk_set_unit_upgrades()
 			local level = managers.player:upgrade_level("player", "suspicion_multiplier")
 			managers.network:session():send_to_host("sync_upgrade", "player", "suspicion_multiplier", level)
 		end
-
 		if managers.player:has_category_upgrade("player", "passive_concealment_modifier") then
 			local level = managers.player:upgrade_level("player", "passive_concealment_modifier")
 			managers.network:session():send_to_host("sync_upgrade", "player", "passive_concealment_modifier", level)
 		end
-
 		if managers.player:has_category_upgrade("player", "silent_kill") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "silent_kill", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "crouch_speed_multiplier") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "crouch_speed_multiplier", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "run_speed_multiplier") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "run_speed_multiplier", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "silent_drill") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "silent_drill", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "drill_alert_rad") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "drill_alert_rad", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "drill_autorepair") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "drill_autorepair", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "intimidate_enemies") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "intimidate_enemies", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "intimidate_specials") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "intimidate_specials", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "empowered_intimidation_mul") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "empowered_intimidation_mul", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "intimidation_multiplier") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "intimidation_multiplier", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "intimidate_aura") then
 			local level = managers.player:upgrade_level("player", "intimidate_aura")
 			managers.network:session():send_to_host("sync_upgrade", "player", "intimidate_aura", level)
 		end
-
 		if managers.player:has_category_upgrade("player", "uncover_progress_mul") then
 			local level = managers.player:upgrade_level("player", "uncover_progress_mul")
 			managers.network:session():send_to_host("sync_upgrade", "player", "uncover_progress_mul", level)
 		end
-
 		if managers.player:has_category_upgrade("player", "uncover_progress_decay_mul") then
 			local level = managers.player:upgrade_level("player", "uncover_progress_decay_mul")
 			managers.network:session():send_to_host("sync_upgrade", "player", "uncover_progress_decay_mul", level)
 		end
-
 		if managers.player:has_category_upgrade("player", "civilian_gives_ammo") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "civilian_gives_ammo", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "drill_speed_multiplier") then
 			local level = managers.player:upgrade_level("player", "drill_speed_multiplier")
 			managers.network:session():send_to_host("sync_upgrade", "player", "drill_speed_multiplier", level)
 		end
-
 		if managers.player:has_category_upgrade("player", "saw_speed_multiplier") then
 			local level = managers.player:upgrade_level("player", "saw_speed_multiplier")
 			managers.network:session():send_to_host("sync_upgrade", "player", "saw_speed_multiplier", level)
 		end
-
 		if managers.player:has_category_upgrade("player", "camouflage_bonus") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "camouflage_bonus", 1)
 		end
-
 		if managers.player:has_category_upgrade("sentry_gun", "spread_multiplier") then
 			managers.network:session():send_to_host("sync_upgrade", "sentry_gun", "spread_multiplier", 1)
 		end
-
 		if managers.player:has_category_upgrade("sentry_gun", "rot_speed_multiplier") then
 			managers.network:session():send_to_host("sync_upgrade", "sentry_gun", "rot_speed_multiplier", 1)
 		end
-
 		if managers.player:has_category_upgrade("sentry_gun", "shield") then
 			managers.network:session():send_to_host("sync_upgrade", "sentry_gun", "shield", 1)
 		end
-
 		if managers.player:has_category_upgrade("ecm_jammer", "affects_cameras") then
 			managers.network:session():send_to_host("sync_upgrade", "ecm_jammer", "affects_cameras", 1)
 		end
-
 		if managers.player:has_category_upgrade("ecm_jammer", "affects_pagers") then
 			managers.network:session():send_to_host("sync_upgrade", "ecm_jammer", "affects_pagers", 1)
 		end
-
 		if managers.player:has_category_upgrade("ecm_jammer", "feedback_duration_boost") then
 			managers.network:session():send_to_host("sync_upgrade", "ecm_jammer", "feedback_duration_boost", 1)
 		end
-
 		if managers.player:has_category_upgrade("ecm_jammer", "feedback_duration_boost_2") then
 			managers.network:session():send_to_host("sync_upgrade", "ecm_jammer", "feedback_duration_boost_2", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "convert_enemies_health_multiplier") then
 			local level = managers.player:upgrade_level("player", "convert_enemies_health_multiplier")
 			managers.network:session():send_to_host("sync_upgrade", "player", "convert_enemies_health_multiplier", level)
 		end
-
 		if managers.player:has_category_upgrade("player", "passive_convert_enemies_health_multiplier") then
 			local level = managers.player:upgrade_level("player", "passive_convert_enemies_health_multiplier")
 			managers.network:session():send_to_host("sync_upgrade", "player", "passive_convert_enemies_health_multiplier", level)
 		end
-
 		if managers.player:has_category_upgrade("player", "convert_enemies_damage_multiplier") then
 			local level = managers.player:upgrade_level("player", "convert_enemies_damage_multiplier")
 			managers.network:session():send_to_host("sync_upgrade", "player", "convert_enemies_damage_multiplier", level)
 		end
-
 		if managers.player:has_category_upgrade("player", "passive_convert_enemies_damage_multiplier") then
 			local level = managers.player:upgrade_level("player", "passive_convert_enemies_damage_multiplier")
 			managers.network:session():send_to_host("sync_upgrade", "player", "passive_convert_enemies_damage_multiplier", level)
 		end
-
 		if managers.player:has_category_upgrade("player", "corpse_alarm_pager_bluff") then
 			local level = managers.player:upgrade_level("player", "corpse_alarm_pager_bluff")
 			managers.network:session():send_to_host("sync_upgrade", "player", "corpse_alarm_pager_bluff", level)
 		end
-
 		if managers.player:has_category_upgrade("player", "civ_harmless_bullets") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "civ_harmless_bullets", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "civ_harmless_melee") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "civ_harmless_melee", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "civ_calming_alerts") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "civ_calming_alerts", 1)
 		end
-
 		if managers.player:has_category_upgrade("player", "convert_enemies_max_minions") then
 			local level = managers.player:upgrade_level("player", "convert_enemies_max_minions")
 			managers.network:session():send_to_host("sync_upgrade", "player", "convert_enemies_max_minions", level)
 		end
-
 		if managers.player:has_category_upgrade("player", "ene_hostage_lim_1") then
 			managers.network:session():send_to_host("sync_upgrade", "player", "ene_hostage_lim_1", 1)
 		end
-
 		if managers.player:has_category_upgrade("sentry_gun", "armor_piercing_chance") then
 			local level = managers.player:upgrade_level("sentry_gun", "armor_piercing_chance")
 			managers.network:session():send_to_host("sync_upgrade", "sentry_gun", "armor_piercing_chance", level)
 		end
-
 		if managers.player:has_category_upgrade("sentry_gun", "armor_piercing_chance_2") then
 			local level = managers.player:upgrade_level("sentry_gun", "armor_piercing_chance_2")
 			managers.network:session():send_to_host("sync_upgrade", "sentry_gun", "armor_piercing_chance_2", level)
 		end
-
 	end
-
 end
 
 function PlayerBase:stats_screen_visible()
@@ -259,7 +215,6 @@ function PlayerBase:set_stats_screen_visible(visible)
 	else
 		managers.hud:hide_stats_screen()
 	end
-
 end
 
 function PlayerBase:set_enabled(enabled)
@@ -274,18 +229,15 @@ function PlayerBase:set_visible(visible)
 	else
 		self._unit:inventory():hide_equipped_unit()
 	end
-
 end
 
 function PlayerBase:_setup_hud()
 	if not managers.hud:exists(self.PLAYER_HUD) then
 		managers.hud:load_hud(self.PLAYER_HUD, false, false, true, {})
 	end
-
 	if not managers.hud:exists(self.PLAYER_DOWNED_HUD) then
 		managers.hud:load_hud(self.PLAYER_DOWNED_HUD, false, false, true, {})
 	end
-
 end
 
 function PlayerBase:_equip_default_weapon()
@@ -308,17 +260,14 @@ function PlayerBase:set_controller_enabled(enabled)
 	if not self._controller then
 		return
 	end
-
 	if not enabled then
 		self._controller:set_enabled(false)
 	end
-
 	self._wanted_controller_enabled = enabled
 	if self._wanted_controller_enabled then
 		self._wanted_controller_enabled_t = 1
 		self._unit:set_extension_update_enabled(Idstring("base"), true)
 	end
-
 end
 
 function PlayerBase:controller()
@@ -339,19 +288,12 @@ function PlayerBase:get_rumble_position()
 end
 
 function PlayerBase:replenish()
-	do
-		local (for generator), (for state), (for control) = pairs(self._unit:inventory():available_selections())
-		do
-			do break end
-			if alive(weapon.unit) then
-				weapon.unit:base():replenish()
-				managers.hud:set_ammo_amount(id, weapon.unit:base():ammo_info())
-			end
-
+	for id, weapon in pairs(self._unit:inventory():available_selections()) do
+		if alive(weapon.unit) then
+			weapon.unit:base():replenish()
+			managers.hud:set_ammo_amount(id, weapon.unit:base():ammo_info())
 		end
-
 	end
-
 	self._unit:character_damage():replenish()
 end
 
@@ -367,19 +309,12 @@ function PlayerBase:set_suspicion_multiplier(reason, multiplier)
 	self._suspicion_settings.multipliers[reason] = multiplier
 	local buildup_mul = self._suspicion_settings.init_buildup_mul
 	local range_mul = self._suspicion_settings.init_range_mul
-	do
-		local (for generator), (for state), (for control) = pairs(self._suspicion_settings.multipliers)
-		do
-			do break end
-			buildup_mul = buildup_mul * mul
-			if mul > 1 then
-				range_mul = range_mul * math.sqrt(mul)
-			end
-
+	for reason, mul in pairs(self._suspicion_settings.multipliers) do
+		buildup_mul = buildup_mul * mul
+		if mul > 1 then
+			range_mul = range_mul * math.sqrt(mul)
 		end
-
 	end
-
 	self._suspicion_settings.buildup_mul = buildup_mul
 	self._suspicion_settings.range_mul = range_mul
 end
@@ -388,16 +323,10 @@ function PlayerBase:set_detection_multiplier(reason, multiplier)
 	self._detection_settings.multipliers[reason] = multiplier
 	local delay_mul = self._detection_settings.init_delay_mul
 	local range_mul = self._detection_settings.init_range_mul
-	do
-		local (for generator), (for state), (for control) = pairs(self._detection_settings.multipliers)
-		do
-			do break end
-			delay_mul = delay_mul * 1 / mul
-			range_mul = range_mul * math.sqrt(mul)
-		end
-
+	for reason, mul in pairs(self._detection_settings.multipliers) do
+		delay_mul = delay_mul * 1 / mul
+		range_mul = range_mul * math.sqrt(mul)
 	end
-
 	self._detection_settings.delay_mul = delay_mul
 	self._detection_settings.range_mul = range_mul
 end
@@ -412,7 +341,6 @@ function PlayerBase:_unregister()
 		managers.groupai:state():unregister_criminal(self._unit)
 		self._unregistered = true
 	end
-
 end
 
 function PlayerBase:pre_destroy(unit)
@@ -424,17 +352,14 @@ function PlayerBase:pre_destroy(unit)
 		self._controller:destroy()
 		self._controller = nil
 	end
-
 	if managers.hud:alive(self.PLAYER_HUD) then
 		managers.hud:clear_weapons()
 		managers.hud:hide(self.PLAYER_HUD)
 	end
-
 	self:set_stats_screen_visible(false)
 	if Global.local_member then
 		Global.local_member:set_unit(nil)
 	end
-
 	unit:movement():pre_destroy(unit)
 	unit:inventory():pre_destroy(unit)
 	unit:character_damage():pre_destroy()

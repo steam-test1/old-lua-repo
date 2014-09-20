@@ -60,23 +60,18 @@ function LuaProfilerTreeBox:set_displayformat(...)
 				for i = 0, self._lpd:cn_numchildren(cnid) - 1 do
 					relabel(self._lpd:cn_child(cnid, i))
 				end
-
 				for i = 0, self._lpd:cn_numexpensivechildren(cnid) - 1 do
 					local echild = self._lpd:cn_expensivechild(cnid, i)
 					local tnid = self._lpd:cn_treenodeid(echild)
 					if tnid ~= -1 then
 						self._treectrl:set_item_text_colour(tnid, Vector3(1, 0, 0))
 					end
-
 				end
-
 			end
-
 		end
 
 		relabel(self._lpd:rootcallnode())
 	end
-
 end
 
 function LuaProfilerTreeBox:_redraw()
@@ -87,7 +82,6 @@ function LuaProfilerTreeBox:_redraw()
 		local treenodeid = self._lpd:cn_treenodeid(self._lpd:rootcallnode())
 		self._treectrl:expand(treenodeid)
 	end
-
 end
 
 function LuaProfilerTreeBox:_clear()
@@ -97,9 +91,7 @@ function LuaProfilerTreeBox:_clear()
 			for i = 0, self._lpd:cn_numchildren(cnid) - 1 do
 				clear_treenodeid(self._lpd:cn_child(cnid, i))
 			end
-
 		end
-
 	end
 
 	clear_treenodeid(self._lpd:rootcallnode())
@@ -123,22 +115,17 @@ function LuaProfilerTreeBox:_populate_plus2(cnid, plus1)
 			local tnid = self._treectrl:append(self._lpd:cn_treenodeid(cnid), label)
 			self._lpd:cn_settreenodeid(child_id, tnid)
 		end
-
 		if not plus1 then
 			self:_populate_plus2(child_id, true)
 		end
-
 	end
-
 	if populated_children then
 		for i = 0, self._lpd:cn_numexpensivechildren(cnid) - 1 do
 			local echild = self._lpd:cn_expensivechild(cnid, i)
 			local tnid = self._lpd:cn_treenodeid(echild)
 			self._treectrl:set_item_text_colour(tnid, Vector3(1, 0, 0))
 		end
-
 	end
-
 end
 
 function LuaProfilerTreeBox:_populate_path(cnid)
@@ -147,11 +134,9 @@ function LuaProfilerTreeBox:_populate_path(cnid)
 		cnid = self._lpd:cn_parent(cnid)
 		table.insert(nodes2expand, cnid)
 	end
-
 	for i = #nodes2expand, 1, -1 do
 		self:_populate_plus2(nodes2expand[i])
 	end
-
 end
 
 function LuaProfilerTreeBox:_on_item_expanded(_, tree_event)
@@ -171,7 +156,6 @@ function LuaProfilerTreeBox:_makelabel(cnid)
 		elseif self._displayformat == PLAIN then
 			label = label .. string.format("LUA")
 		end
-
 	else
 		if self._displayformat == PERCENT then
 			label = label .. string.format("%6.3f%%  ", 100 * self._lpd:cn_value(cnid) / frametime)
@@ -180,15 +164,12 @@ function LuaProfilerTreeBox:_makelabel(cnid)
 		elseif self._displayformat == PLAIN then
 			label = label .. string.format("%s    ", self._lpd:cn_value(cnid))
 		end
-
 		local fnid = self._lpd:cn_funcnode(cnid)
 		label = label .. string.format("%s (%s/%s)", self._lpd:fn_func(fnid), self._lpd:fn_file(fnid), self._lpd:fn_line(fnid))
 		if self._lpd:cn_num_acc_nodes(cnid) > 1 then
 			label = label .. string.format(" x%d", self._lpd:cn_num_acc_nodes(cnid))
 		end
-
 	end
-
 	return label
 end
 
@@ -203,12 +184,10 @@ function LuaProfilerTreeBox:deselect_and_expand(...)
 	for i = 0, self._lpd:fn_numcallnodes(fnid) - 1 do
 		self:_populate_path(self._lpd:fn_callnode(fnid, i))
 	end
-
 	for i = 0, self._lpd:fn_numcallnodes(fnid) - 1 do
 		self:_expand_path(self._lpd:fn_callnode(fnid, i))
 		self:_highlight_callnode(self._lpd:fn_callnode(fnid, i))
 	end
-
 	self._treectrl:connect("EVT_COMMAND_TREE_ITEM_EXPANDED", self.__on_item_expanded_cb)
 end
 
@@ -221,9 +200,7 @@ function LuaProfilerTreeBox:_collapse_all()
 				local child_id = self._lpd:cn_child(cnid, i)
 				collapse(child_id)
 			end
-
 		end
-
 	end
 
 	collapse(self._lpd:rootcallnode())
@@ -234,7 +211,6 @@ function LuaProfilerTreeBox:_expand_path(cnid)
 		cnid = self._lpd:cn_parent(cnid)
 		self._treectrl:expand(self._lpd:cn_treenodeid(cnid))
 	end
-
 end
 
 function LuaProfilerTreeBox:deselect_and_highlight(...)
@@ -254,9 +230,7 @@ function LuaProfilerTreeBox:_clear_highlights()
 				local child_id = self._lpd:cn_child(cnid, i)
 				clear_highlight(child_id)
 			end
-
 		end
-
 	end
 
 	clear_highlight(self._lpd:rootcallnode())
@@ -268,7 +242,6 @@ function LuaProfilerTreeBox:_highlight_funcnode(fnid)
 		local cnid = self._lpd:fn_callnode(fnid, i)
 		self:_highlight_callnode(cnid)
 	end
-
 end
 
 function LuaProfilerTreeBox:_highlight_callnode(cnid)
@@ -276,7 +249,6 @@ function LuaProfilerTreeBox:_highlight_callnode(cnid)
 	if tnid ~= -1 then
 		self._treectrl:set_item_background_colour(tnid, HIGHLIGHTED)
 	end
-
 end
 
 function LuaProfilerTreeBox:_on_select()
@@ -287,6 +259,5 @@ function LuaProfilerTreeBox:_on_select()
 		self:_highlight_funcnode(fnid)
 		self._gridview:deselect_and_highlight({fnid = fnid})
 	end
-
 end
 

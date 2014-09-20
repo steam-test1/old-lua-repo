@@ -13,7 +13,6 @@ function Xbox360PlayerDialog:show()
 	else
 		Application:error("[SystemMenuManager] Unable to display player dialog since no player id was specified.")
 	end
-
 	self._show_time = TimerManager:main():time()
 	return true
 end
@@ -22,7 +21,6 @@ function Xbox360PlayerDialog:update(t, dt)
 	if self._show_time and self._show_time ~= t and not Application:is_showing_system_dialog() then
 		self:done_callback()
 	end
-
 end
 
 function Xbox360PlayerDialog:done_callback()

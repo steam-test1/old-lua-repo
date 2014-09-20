@@ -17,7 +17,6 @@ function CoreCutsceneManager:replace_cutscene_actor_unit_type(original_unit_type
 	elseif Global.__CutsceneManager__replaced_actor_unit_types[original_unit_type] then
 		cat_print("cutscene", string.format("[CoreCutsceneManager] Undoing replacement of all \"%s\" actors.", original_unit_type))
 	end
-
 	Global.__CutsceneManager__replaced_actor_unit_types[original_unit_type] = replacement_unit_type
 end
 
@@ -39,23 +38,19 @@ function CoreCutsceneManager:destroy()
 		self._player:destroy()
 		self._player = nil
 	end
-
 	self:_destroy_units_with_cutscene_data_extension()
 	if alive(self._video_workspace) then
 		Overlay:newgui():destroy_workspace(self._video_workspace)
 	end
-
 	self._video_workspace = nil
 	if alive(self._gui_workspace) then
 		Overlay:newgui():destroy_workspace(self._gui_workspace)
 	end
-
 	self._gui_workspace = nil
 	if self._input_controller then
 		self._input_controller:destroy()
 		self._input_controller = nil
 	end
-
 	managers.listener:remove_set("cutscene")
 end
 
@@ -68,15 +63,12 @@ function CoreCutsceneManager:set_timer(timer)
 	if self._player then
 		self._player:set_timer(timer)
 	end
-
 	if self:gui_workspace() then
 		self:gui_workspace():set_timer(self._timer)
 	end
-
 	if self:video_workspace() then
 		self:video_workspace():set_timer(self._timer)
 	end
-
 end
 
 function CoreCutsceneManager:register_unit_with_cutscene_data_extension(unit)
@@ -90,41 +82,28 @@ function CoreCutsceneManager:unregister_unit_with_cutscene_data_extension(unit)
 		if #self._units_with_cutscene_data_extension == 0 then
 			self._units_with_cutscene_data_extension = nil
 		end
-
 	end
-
 end
 
 function CoreCutsceneManager:_prime_cutscenes_in_world()
-	local (for generator), (for state), (for control) = ipairs(self._units_with_cutscene_data_extension or {})
-	do
-		do break end
+	for _, unit in ipairs(self._units_with_cutscene_data_extension or {}) do
 		if alive(unit) then
 			local player = unit:cutscene_data():cutscene_player()
 			cat_print("cutscene", string.format("[CoreCutsceneManager] Priming in-world cutscene \"%s\".", player:cutscene_name()))
 			player:prime()
 		end
-
 	end
-
 end
 
 function CoreCutsceneManager:_destroy_units_with_cutscene_data_extension()
 	local units_to_destroy = table.list_copy(self._units_with_cutscene_data_extension or {})
-	do
-		local (for generator), (for state), (for control) = ipairs(units_to_destroy)
-		do
-			do break end
-			self:unregister_unit_with_cutscene_data_extension(unit)
-			if alive(unit) then
-				cat_print("cutscene", string.format("[CoreCutsceneManager] Destroying Unit with CutsceneData extension \"%s\".", unit:name()))
-				World:delete_unit(unit)
-			end
-
+	for _, unit in ipairs(units_to_destroy) do
+		self:unregister_unit_with_cutscene_data_extension(unit)
+		if alive(unit) then
+			cat_print("cutscene", string.format("[CoreCutsceneManager] Destroying Unit with CutsceneData extension \"%s\".", unit:name()))
+			World:delete_unit(unit)
 		end
-
 	end
-
 	assert(self._units_with_cutscene_data_extension == nil, "Not all units with the CutsceneData extension were destroyed.")
 end
 
@@ -136,7 +115,6 @@ function CoreCutsceneManager:register_cutscene_actor(unit)
 	if existing_unit ~= nil then
 		return existing_unit == unit
 	end
-
 	self:actor_database():append_unit_info(unit)
 	self._cutscene_actors = self._cutscene_actors or {}
 	self._cutscene_actors[actor_name] = unit
@@ -151,12 +129,10 @@ function CoreCutsceneManager:unregister_cutscene_actor(unit)
 	if existing_unit == nil then
 		return false
 	end
-
 	self._cutscene_actors[actor_name] = nil
 	if table.empty(self._cutscene_actors) then
 		self._cutscene_actors = nil
 	end
-
 	return true
 end
 
@@ -164,20 +140,13 @@ function CoreCutsceneManager:cutscene_actors_in_world()
 	if self._cutscene_actors == nil then
 		return {}
 	end
-
 	local dead_units = table.collect(self._cutscene_actors, function(unit)
 		return not alive(unit) or nil
 	end
 )
-	do
-		local (for generator), (for state), (for control) = pairs(dead_units)
-		do
-			do break end
-			self._cutscene_actors[dead_unit_name] = nil
-		end
-
+	for dead_unit_name, _ in pairs(dead_units) do
+		self._cutscene_actors[dead_unit_name] = nil
 	end
-
 	return self._cutscene_actors
 end
 
@@ -209,7 +178,6 @@ function CoreCutsceneManager:start_delayed_cutscene()
 		end
 )
 	end
-
 end
 
 function CoreCutsceneManager:update()
@@ -219,7 +187,6 @@ function CoreCutsceneManager:update()
 	if Application:production_build() then
 		self:start_delayed_cutscene()
 	end
-
 	if self._stop_playback then
 		self:_cleanup()
 		self._stop_playback = nil
@@ -229,29 +196,23 @@ function CoreCutsceneManager:update()
 			if not self._player:is_primed() then
 				self._player:prime()
 			end
-
 			if self._start_playback and not self:is_paused() then
 				self._player:play()
 				self._start_playback = nil
 			end
-
 			if self._player:is_presentable() and not self._player:is_viewport_enabled() then
 				self._player:set_viewport_enabled(true)
 				self:set_gui_visible(true)
 				self:_on_playback_started(self._player:cutscene_name())
 				self:_send_event("EVT_PLAYBACK_STARTED", self._player:cutscene_name())
 			end
-
 		end
-
 		local just_finished_playing_in_game_cutscene = self._player and self._player:update(time, delta_time) == false and self:_video() == nil
 		local just_finished_playing_video = self:_video() ~= nil and self:_video():loop_count() > 0
 		if just_finished_playing_in_game_cutscene or just_finished_playing_video then
 			self:_cleanup()
 		end
-
 	end
-
 end
 
 function CoreCutsceneManager:paused_update()
@@ -271,7 +232,6 @@ function CoreCutsceneManager:stop_overlay_effect(fade_out)
 		managers.overlay_effect[fade_out and "fade_out_effect" or "stop_effect"](managers.overlay_effect, self.__overlay_effect_id)
 		self.__overlay_effect_id = nil
 	end
-
 end
 
 function CoreCutsceneManager:_create_gui_workspace()
@@ -307,7 +267,6 @@ function CoreCutsceneManager:set_gui_visible(visible)
 	if gui_workspace:visible() ~= visible then
 		gui_workspace[visible and "show" or "hide"](gui_workspace)
 	end
-
 	local input_controller = self:input_controller()
 	input_controller[visible and "enable" or "disable"](input_controller)
 end
@@ -325,7 +284,6 @@ function CoreCutsceneManager:prime(name, time)
 		self:_cleanup(true)
 		self._player = self:_player_for_cutscene(cutscene)
 	end
-
 	self._player:seek(time, true)
 end
 
@@ -339,7 +297,6 @@ function CoreCutsceneManager:_player_for_cutscene(cutscene)
 		player:add_keys()
 		return player
 	end
-
 end
 
 function CoreCutsceneManager:play_cutscene(name)
@@ -347,7 +304,6 @@ function CoreCutsceneManager:play_cutscene(name)
 		self:prime(name)
 		self:play()
 	end
-
 end
 
 function CoreCutsceneManager:play()
@@ -356,11 +312,9 @@ function CoreCutsceneManager:play()
 			managers.music:override_user_music(true)
 			self._is_overriding_user_music = true
 		end
-
 		self._player:preroll_cutscene_keys()
 		self._start_playback = true
 	end
-
 end
 
 function CoreCutsceneManager:stop(disable_events)
@@ -374,7 +328,6 @@ function CoreCutsceneManager:skip()
 	if self._player then
 		self._player:skip_to_end()
 	end
-
 	self:stop(false)
 end
 
@@ -383,32 +336,26 @@ function CoreCutsceneManager:_cleanup(called_from_prime)
 		managers.music:override_user_music(false)
 		self._is_overriding_user_music = nil
 	end
-
 	local playing_cutscene_name
 	if self._player then
 		if called_from_prime then
 			self._player:skip_to_end()
 		end
-
 		playing_cutscene_name = self._player:cutscene_name()
 		self._player:destroy()
 		self._player = nil
 	end
-
 	if not called_from_prime then
 		self:set_gui_visible(false)
 	end
-
 	if self:_video() then
 		self:_video():pause()
 		self:video_workspace():panel():clear()
 	end
-
 	if playing_cutscene_name and not self._disable_events then
 		self:_send_event("EVT_PLAYBACK_FINISHED", playing_cutscene_name)
 		self:_on_playback_finished(playing_cutscene_name)
 	end
-
 end
 
 function CoreCutsceneManager:pause()
@@ -418,11 +365,9 @@ function CoreCutsceneManager:pause()
 			managers.music:override_user_music(false)
 			self._is_overriding_user_music = nil
 		end
-
 		self._player:pause()
 		self:_send_event("EVT_PLAYBACK_PAUSED", self._player:cutscene_name())
 	end
-
 end
 
 function CoreCutsceneManager:resume()
@@ -430,7 +375,6 @@ function CoreCutsceneManager:resume()
 		self._paused = nil
 		self:play()
 	end
-
 end
 
 function CoreCutsceneManager:evaluate_at_time(name, time)
@@ -466,16 +410,13 @@ function CoreCutsceneManager:get_cutscene(name)
 		if not DB:has("cutscene", name) then
 			error("Cutscene \"" .. tostring(name) .. "\" does not exist.")
 		end
-
 		cutscene = core_or_local("Cutscene", DB:load_node("cutscene", name), self)
 		if not Application:ews_enabled() then
 			assert(cutscene:is_optimized(), "Cutscene \"" .. tostring(name) .. "\" is production-only (un-optimized).")
 		end
-
 		self._cutscenes = self._cutscenes or {}
 		self._cutscenes[name] = cutscene
 	end
-
 	return cutscene
 end
 
@@ -487,41 +428,25 @@ end
 
 function CoreCutsceneManager:_debug_persistent_keys_per_cutscene()
 	local persistent_keys_per_cutscene = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self:get_cutscene_names())
-		do
-			do break end
-			local cutscene = self:get_cutscene(name)
-			local persistent_keys = cutscene:_debug_persistent_keys()
-			persistent_keys_per_cutscene[name] = table.map_keys(persistent_keys)
-		end
-
+	for _, name in ipairs(self:get_cutscene_names()) do
+		local cutscene = self:get_cutscene(name)
+		local persistent_keys = cutscene:_debug_persistent_keys()
+		persistent_keys_per_cutscene[name] = table.map_keys(persistent_keys)
 	end
-
 	return persistent_keys_per_cutscene
 end
 
 function CoreCutsceneManager:_debug_persistent_keys_report()
 	local output_string = "Persistent Cutscene Keys Report\n"
 	output_string = output_string .. "-------------------------------\n"
-	do
-		local (for generator), (for state), (for control) = pairs(self:_debug_persistent_keys_per_cutscene())
-		do
-			do break end
-			if not table.empty(persistent_keys) then
-				output_string = output_string .. "\n" .. cutscene_name .. "\n"
-				local (for generator), (for state), (for control) = ipairs(persistent_keys)
-				do
-					do break end
-					output_string = output_string .. "\t" .. persistent_key_description .. "\n"
-				end
-
+	for cutscene_name, persistent_keys in pairs(self:_debug_persistent_keys_per_cutscene()) do
+		if not table.empty(persistent_keys) then
+			output_string = output_string .. "\n" .. cutscene_name .. "\n"
+			for _, persistent_key_description in ipairs(persistent_keys) do
+				output_string = output_string .. "\t" .. persistent_key_description .. "\n"
 			end
-
 		end
-
 	end
-
 	return output_string
 end
 
@@ -535,7 +460,6 @@ function CoreCutsceneManager:_debug_dump_persistent_keys_report(path)
 		cat_print("debug", "")
 		cat_print("debug", self:_debug_persistent_keys_report())
 	end
-
 end
 
 function CoreCutsceneManager:set_active_camera()

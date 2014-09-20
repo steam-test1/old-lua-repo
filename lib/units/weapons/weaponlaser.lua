@@ -70,7 +70,6 @@ function WeaponLaser:update(unit, t, dt)
 			self._light:set_multiplier(scale)
 			self._light_glow:set_multiplier(scale * 0.1)
 		end
-
 		self._brush:cylinder(ray.position, from, self._is_npc and 0.5 or 0.25)
 		local pos = mvec1
 		mvector3.set(pos, mvec_l_dir)
@@ -84,7 +83,6 @@ function WeaponLaser:update(unit, t, dt)
 		self._light_glow:set_position(to)
 		self._brush:cylinder(from, to, self._is_npc and 0.5 or 0.25)
 	end
-
 end
 
 function WeaponLaser:_check_state()
@@ -105,11 +103,9 @@ function WeaponLaser:destroy(unit)
 	if alive(self._light) then
 		World:delete_light(self._light)
 	end
-
 	if alive(self._light_glow) then
 		World:delete_light(self._light_glow)
 	end
-
 end
 
 function WeaponLaser:set_color_by_theme(type)

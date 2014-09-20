@@ -6,18 +6,12 @@ end
 
 function FlashGrenade:_detonate()
 	local units = World:find_units("sphere", self._unit:position(), 400, self._slotmask)
-	do
-		local (for generator), (for state), (for control) = ipairs(units)
-		do
-			do break end
-			local col_ray = {}
-			col_ray.ray = unit:position() - self._unit:position():normalized()
-			col_ray.position = self._unit:position()
-			self:_give_flash_damage(col_ray, unit, 10)
-		end
-
+	for _, unit in ipairs(units) do
+		local col_ray = {}
+		col_ray.ray = unit:position() - self._unit:position():normalized()
+		col_ray.position = self._unit:position()
+		self:_give_flash_damage(col_ray, unit, 10)
 	end
-
 	self._unit:set_slot(0)
 end
 

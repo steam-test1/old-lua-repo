@@ -10,7 +10,6 @@ SavefileManager.MAX_PROFILE_SAVE_INTERVAL = 300
 if SystemInfo:platform() == Idstring("X360") then
 	SavefileManager.TASK_MIN_DURATION = 3
 end
-
 SavefileManager.IDLE_TASK_TYPE = 1
 SavefileManager.LOAD_TASK_TYPE = 2
 SavefileManager.SAVE_TASK_TYPE = 3
@@ -33,7 +32,6 @@ else
 	SavefileManager.VERSION_NAME = "1.8"
 	SavefileManager.LOWEST_COMPATIBLE_VERSION = "1.7"
 end
-
 SavefileManager.SAVE_SYSTEM = "steam_cloud"
 SavefileManager._USER_ID_OVERRRIDE = nil
 function SavefileManager:init()
@@ -52,7 +50,6 @@ function SavefileManager:init()
 			safe_profile_save_time = nil
 		}
 	end
-
 	self._workspace = managers.gui_data:create_saferect_workspace()
 	self._gui = self._workspace:panel():gui(Idstring("guis/savefile_manager"))
 	self._gui_script = self._gui:script()
@@ -75,7 +72,6 @@ function SavefileManager:destroy()
 		self._gui = nil
 		self._gui_script = nil
 	end
-
 end
 
 function SavefileManager:active_user_changed()
@@ -85,9 +81,7 @@ function SavefileManager:active_user_changed()
 		if is_signed_in then
 			self:load_settings()
 		end
-
 	end
-
 end
 
 function SavefileManager:storage_changed()
@@ -96,7 +90,6 @@ function SavefileManager:storage_changed()
 	if not managers.user.STORE_SETTINGS_ON_PROFILE then
 		self:_clean_meta_data_list(true)
 	end
-
 	self:_clean_meta_data_list(false)
 	if storage_device_selected then
 		self._loading_sequence = true
@@ -105,7 +98,6 @@ function SavefileManager:storage_changed()
 		if self._backup_data == nil and SystemInfo:platform() == Idstring("WIN32") then
 			self:load_progress("local_hdd")
 		end
-
 		local task_data = {
 			task_type = self.ENUMERATE_SLOTS_TASK_TYPE,
 			user_index = managers.user:get_platform_id(),
@@ -116,13 +108,11 @@ function SavefileManager:storage_changed()
 		if SystemInfo:platform() == Idstring("WIN32") then
 			task_data.save_system = self.SAVE_SYSTEM
 		end
-
 		self:_on_task_queued(task_data)
 		SaveGameManager:iterate_savegame_slots(task_data, callback(self, self, "clbk_result_iterate_savegame_slots"))
 	else
 		Application:error("[SavefileManager:storage_changed] Unable to load meta data. Signed in: " .. tostring(managers.user:is_signed_in(nil)) .. ", Storage device selected: " .. tostring(storage_device_selected))
 	end
-
 end
 
 function SavefileManager:check_space_required()
@@ -149,7 +139,6 @@ function SavefileManager:save_setting(is_user_initiated_action)
 	if self:_is_saving_setting_allowed(is_user_initiated_action) then
 		self:_save(self.SETTING_SLOT, false)
 	end
-
 end
 
 function SavefileManager:save_progress(save_system)
@@ -157,7 +146,6 @@ function SavefileManager:save_progress(save_system)
 		self:_save(self.PROGRESS_SLOT, nil, save_system)
 		Global.savefile_manager.backup_save_enabled = SystemInfo:platform() == Idstring("WIN32")
 	end
-
 end
 
 function SavefileManager:load_progress(save_system)
@@ -181,19 +169,14 @@ function SavefileManager:update(t, dt)
 	if self._loading_sequence and not next(self._save_slots_to_load) and not self:_is_loading() then
 		self:_on_load_sequence_complete()
 	end
-
 end
 
 function SavefileManager:_is_loading()
-	local (for generator), (for state), (for control) = ipairs(self._queued_tasks)
-	do
-		do break end
+	for i, task_data in ipairs(self._queued_tasks) do
 		if task_data.task_type == self.LOAD_TASK_TYPE or task_data.task_type == self.ENUMERATE_SLOTS_TASK_TYPE then
 			return true
 		end
-
 	end
-
 end
 
 function SavefileManager:_on_load_sequence_complete()
@@ -211,15 +194,9 @@ function SavefileManager:break_loading_sequence()
 	self._try_again = nil
 	self._loading_sequence = nil
 	self._save_slots_to_load = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(self._queued_tasks)
-		do
-			do break end
-			SaveGameManager:abort(task_data)
-		end
-
+	for i, task_data in ipairs(self._queued_tasks) do
+		SaveGameManager:abort(task_data)
 	end
-
 	self._queued_tasks = {}
 	managers.system_menu:close("savefile_try_again")
 	managers.system_menu:close("savefile_new_safefile")
@@ -240,7 +217,6 @@ function SavefileManager:update_gui_visibility()
 		self._gui_script:set_text("")
 		self._hide_gui_time = nil
 	end
-
 end
 
 function SavefileManager:debug_get_task_name(task_type)
@@ -254,36 +230,23 @@ end
 function SavefileManager:get_save_info_list(include_empty_slot)
 	local data_list = {}
 	local save_info_list = {}
-	do
-		local (for generator), (for state), (for control) = pairs(Global.savefile_manager.meta_data_list)
-		do
-			do break end
-			if meta_data.is_synched_text and (not include_empty_slot or slot ~= self.AUTO_SAVE_SLOT) and slot ~= self.SETTING_SLOT and slot ~= self.PROGRESS_SLOT then
-				table.insert(data_list, {
-					slot = slot,
-					text = meta_data.text,
-					sort_list = meta_data.sort_list
-				})
-			end
-
+	for slot, meta_data in pairs(Global.savefile_manager.meta_data_list) do
+		if meta_data.is_synched_text and (not include_empty_slot or slot ~= self.AUTO_SAVE_SLOT) and slot ~= self.SETTING_SLOT and slot ~= self.PROGRESS_SLOT then
+			table.insert(data_list, {
+				slot = slot,
+				text = meta_data.text,
+				sort_list = meta_data.sort_list
+			})
 		end
-
 	end
-
 	local function sort_func(data1, data2)
 		return self:_compare_sort_list(data1.sort_list, data2.sort_list) < 0
 	end
 
 	table.sort(data_list, sort_func)
-	do
-		local (for generator), (for state), (for control) = ipairs(data_list)
-		do
-			do break end
-			table.insert(save_info_list, SavefileInfo:new(data.slot, data.text))
-		end
-
+	for _, data in ipairs(data_list) do
+		table.insert(save_info_list, SavefileInfo:new(data.slot, data.text))
 	end
-
 	if include_empty_slot then
 		for empty_slot = 0, self.MAX_SLOT do
 			local meta_data = Global.savefile_manager.meta_data_list[empty_slot]
@@ -292,11 +255,8 @@ function SavefileManager:get_save_info_list(include_empty_slot)
 				table.insert(save_info_list, 1, save_info)
 				break
 			end
-
 		end
-
 	end
-
 	return save_info_list
 end
 
@@ -353,27 +313,18 @@ function SavefileManager:_clean_meta_data_list(is_setting_slot)
 		Global.savefile_manager.meta_data_list[self.SETTING_SLOT] = nil
 	else
 		local empty_list
-		do
-			local (for generator), (for state), (for control) = pairs(Global.savefile_manager.meta_data_list)
-			do
-				do break end
-				if slot ~= self.SETTING_SLOT then
-					empty_list = true
-			end
-
+		for slot in pairs(Global.savefile_manager.meta_data_list) do
+			if slot ~= self.SETTING_SLOT then
+				empty_list = true
 			else
 			end
-
 		end
-
 		if empty_list then
 			local setting_meta_data = Global.savefile_manager.meta_data_list[self.SETTING_SLOT]
 			Global.savefile_manager.meta_data_list = {}
 			Global.savefile_manager.meta_data_list[self.SETTING_SLOT] = setting_meta_data
 		end
-
 	end
-
 end
 
 function SavefileManager:_save(slot, cache_only, save_system)
@@ -386,11 +337,9 @@ function SavefileManager:_save(slot, cache_only, save_system)
 		self:_save_done(slot, cache_only, nil, nil, true)
 		return
 	end
-
 	if is_setting_slot then
 		self:_set_setting_changed(false)
 	end
-
 	if is_setting_slot and managers.user.STORE_SETTINGS_ON_PROFILE then
 		Global.savefile_manager.safe_profile_save_time = TimerManager:wall():time() + self.MAX_PROFILE_SAVE_INTERVAL
 		local task_data = {
@@ -415,10 +364,8 @@ function SavefileManager:_save(slot, cache_only, save_system)
 			if is_setting_slot then
 				task_data.disable_ownership_check = true
 			end
-
 			task_data.small_icon_path = "ICON0.PNG"
 		end
-
 		task_data.subtitle = managers.localization:text(is_setting_slot and "savefile_setting" or "savefile_progress", {
 			VERSION = self.LOWEST_COMPATIBLE_VERSION
 		})
@@ -429,11 +376,9 @@ function SavefileManager:_save(slot, cache_only, save_system)
 		if SystemInfo:platform() == Idstring("WIN32") then
 			task_data.save_system = save_system or "steam_cloud"
 		end
-
 		self:_on_task_queued(task_data)
 		SaveGameManager:save(task_data, callback(self, self, "clbk_result_save"))
 	end
-
 end
 
 function SavefileManager:_save_cache(slot)
@@ -446,10 +391,8 @@ function SavefileManager:_save_cache(slot)
 		if old_slot then
 			self:_set_cache(old_slot, nil)
 		end
-
 		self:_set_current_game_cache_slot(slot)
 	end
-
 	local cache = {
 		version = SavefileManager.VERSION,
 		version_name = SavefileManager.VERSION_NAME
@@ -473,12 +416,10 @@ function SavefileManager:_save_cache(slot)
 		managers.gage_assignment:save(cache)
 		managers.music:save_profile(cache)
 	end
-
 	if SystemInfo:platform() == Idstring("WIN32") then
 		cache.user_id = self._USER_ID_OVERRRIDE or Steam:userid()
 		print("[SavefileManager:_save_cache] user_id:", cache.user_id)
 	end
-
 	self:_set_cache(slot, cache)
 	self:_set_synched_cache(slot, false)
 end
@@ -488,17 +429,14 @@ function SavefileManager:_save_done(slot, cache_only, task_data, slot_data, succ
 	if not success then
 		self:_set_cache(slot, nil)
 	end
-
 	if not cache_only then
 		self:_set_corrupt(slot, not success)
 	end
-
 	self:_set_synched_cache(slot, success and not cache_only)
 	local is_setting_slot = slot == self.SETTING_SLOT
 	if is_setting_slot and not success then
 		self:_set_setting_changed(true)
 	end
-
 	self._save_done_callback_handler:dispatch(slot, success, is_setting_slot, cache_only)
 end
 
@@ -508,7 +446,6 @@ function SavefileManager:_load(slot, cache_only, save_system)
 	if not is_setting_slot then
 		self:_set_current_game_cache_slot(slot)
 	end
-
 	self._load_begin_callback_handler:dispatch(slot, is_setting_slot, cache_only)
 	local meta_data = self:_meta_data(slot)
 	if cache_only or meta_data.is_synched_cache and meta_data.cache then
@@ -519,7 +456,6 @@ function SavefileManager:_load(slot, cache_only, save_system)
 		else
 			self:_set_cache(Global.savefile_manager.current_game_cache_slot, nil)
 		end
-
 		if is_setting_slot and managers.user.STORE_SETTINGS_ON_PROFILE then
 			local task_data = {
 				task_type = self.LOAD_TASK_TYPE,
@@ -539,18 +475,14 @@ function SavefileManager:_load(slot, cache_only, save_system)
 			if SystemInfo:platform() == Idstring("PS3") then
 				task_data.disable_ownership_check = is_setting_slot
 			end
-
 			if SystemInfo:platform() == Idstring("WIN32") then
 				task_data.save_system = save_system or "steam_cloud"
 			end
-
 			local load_callback_obj = task_data.save_system == "local_hdd" and callback(self, self, "clbk_result_load_backup") or callback(self, self, "clbk_result_load")
 			self:_on_task_queued(task_data)
 			SaveGameManager:load(task_data, load_callback_obj)
 		end
-
 	end
-
 end
 
 function SavefileManager:_on_task_queued(task_data)
@@ -568,33 +500,25 @@ function SavefileManager:_on_task_queued(task_data)
 				else
 					i_task = i_task + 1
 				end
-
 			else
 				i_task = i_task + 1
 			end
-
 		end
-
 	end
-
 	table.insert(self._queued_tasks, task_data)
 	self:update_current_task_type()
 end
 
 function SavefileManager:_on_task_completed(task_data)
 	print("[SavefileManager:_on_task_completed]", inspect(task_data))
-	local (for generator), (for state), (for control) = ipairs(self._queued_tasks)
-	do
-		do break end
+	for i, test_task_data in ipairs(self._queued_tasks) do
 		if task_data == test_task_data then
 			table.remove(self._queued_tasks, i)
 			self:update_current_task_type()
 			print("found and removed")
 			return true
 		end
-
 	end
-
 end
 
 function SavefileManager:_load_done(slot, cache_only, wrong_user, wrong_version)
@@ -608,7 +532,6 @@ function SavefileManager:_load_done(slot, cache_only, wrong_user, wrong_version)
 		self:_set_corrupt(slot, not success)
 		self:_set_synched_cache(slot, success)
 	end
-
 	if self._backup_data and is_progress_slot then
 		local meta_data = self:_meta_data(slot)
 		local cache = meta_data.cache
@@ -616,21 +539,17 @@ function SavefileManager:_load_done(slot, cache_only, wrong_user, wrong_version)
 			self:_ask_load_backup("low_progress", true, {cache_only, wrong_user})
 			return
 		end
-
 	end
-
 	local req_version = self:_load_cache(slot)
 	if req_version ~= nil or not success then
 		success = false
 	end
-
 	self._load_done_callback_handler:dispatch(slot, success, is_setting_slot, cache_only)
 	if not success and wrong_user then
 		if not self._queued_wrong_user then
 			self._queued_wrong_user = true
 			managers.menu:show_savefile_wrong_user()
 		end
-
 		self._save_slots_to_load[slot] = nil
 	elseif not success then
 		self._try_again = self._try_again or {}
@@ -664,7 +583,6 @@ function SavefileManager:_load_done(slot, cache_only, wrong_user, wrong_version)
 						end
 
 					end
-
 					function no_button.callback_func()
 						if is_progress_slot and self._backup_data then
 							self:_ask_load_backup("progress_" .. (req_version == nil and "corrupt" or "wrong_version"), false)
@@ -682,7 +600,6 @@ function SavefileManager:_load_done(slot, cache_only, wrong_user, wrong_version)
 							rem_dialog_data.button_list = {ok_button}
 							managers.system_menu:show(rem_dialog_data)
 						end
-
 					end
 
 					self._try_again[slot] = true
@@ -699,22 +616,17 @@ function SavefileManager:_load_done(slot, cache_only, wrong_user, wrong_version)
 						end
 
 					end
-
 				end
-
 				if at_init then
 					managers.system_menu:add_init_show(dialog_data)
 				else
 					managers.system_menu:show(dialog_data)
 				end
-
 			end
-
 		else
 			dialog_data.text = managers.localization:text("dialog_fail_load_game_corrupt")
 			managers.system_menu:add_init_show(dialog_data)
 		end
-
 	elseif wrong_user then
 		Global.savefile_manager.progress_wrong_user = true
 		self._save_slots_to_load[slot] = nil
@@ -729,11 +641,9 @@ function SavefileManager:_load_done(slot, cache_only, wrong_user, wrong_version)
 			dialog_data.button_list = {ok_button}
 			managers.system_menu:add_init_show(dialog_data)
 		end
-
 	else
 		self._save_slots_to_load[slot] = nil
 	end
-
 end
 
 function SavefileManager:_remove(slot, save_system)
@@ -746,7 +656,6 @@ function SavefileManager:_remove(slot, save_system)
 	if SystemInfo:platform() == Idstring("WIN32") then
 		task_data.save_system = save_system or "steam_cloud"
 	end
-
 	self._save_slots_to_load[slot] = nil
 	self._ws = Overlay:gui():create_screen_workspace()
 	self._remove_rect = self._ws:panel():rect({
@@ -765,14 +674,12 @@ function SavefileManager:_load_cache(slot)
 	if not is_setting_slot then
 		self:_set_current_game_cache_slot(slot)
 	end
-
 	if cache then
 		local version = cache.version or 0
 		local version_name = cache.version_name
 		if version > SavefileManager.VERSION then
 			return version_name
 		end
-
 		if is_setting_slot then
 			managers.user:load(cache, version)
 			managers.music:load_settings(cache, version)
@@ -793,12 +700,10 @@ function SavefileManager:_load_cache(slot)
 			managers.gage_assignment:load(cache, version)
 			managers.music:load_profile(cache, version)
 		end
-
 	else
 		Application:error("[SavefileManager] Unable to load savefile from slot \"" .. tostring(slot) .. "\".")
 		Application:stack_dump("error")
 	end
-
 end
 
 function SavefileManager:_meta_data(slot)
@@ -815,7 +720,6 @@ function SavefileManager:_meta_data(slot)
 		Global.savefile_manager.meta_data_list[slot] = meta_data
 		cat_print("savefile_manager", "[SavefileManager] Created meta data for slot \"" .. tostring(slot) .. "\".")
 	end
-
 	return meta_data
 end
 
@@ -825,14 +729,12 @@ function SavefileManager:_set_current_task_type(task_type)
 		if Global.category_print.savefile_manager then
 			cat_print("savefile_manager", "[SavefileManager] Changed current task from \"" .. self:debug_get_task_name(old_task_type) .. "\" to \"" .. self:debug_get_task_name(task_type) .. "\".")
 		end
-
 		self._current_task_type = task_type
 		if task_type == self.IDLE_TASK_TYPE then
 			self._active_changed_callback_handler:dispatch(false, task_type)
 		elseif old_task_type == self.IDLE_TASK_TYPE then
 			self._active_changed_callback_handler:dispatch(true, task_type)
 		end
-
 		local wall_time = TimerManager:wall():time()
 		local ps3_load_enabled = true
 		local use_load_task_type = ps3_load_enabled and SystemInfo:platform() == Idstring("PS3") and task_type == self.LOAD_TASK_TYPE
@@ -851,7 +753,6 @@ function SavefileManager:_set_current_task_type(task_type)
 				self._gui_script:set_text(utf8.to_upper(managers.localization:text("savefile_removing")))
 				self._gui_script.indicator:animate(self._gui_script.saving)
 			end
-
 		elseif self._show_gui_time then
 			if check_t < wall_time - self._show_gui_time then
 				self._hide_gui_time = wall_time
@@ -860,12 +761,9 @@ function SavefileManager:_set_current_task_type(task_type)
 			else
 				self._hide_gui_time = self._show_gui_time + check_t
 			end
-
 			self._show_gui_time = nil
 		end
-
 	end
-
 end
 
 function SavefileManager:_set_current_game_cache_slot(current_game_cache_slot)
@@ -875,10 +773,8 @@ function SavefileManager:_set_current_game_cache_slot(current_game_cache_slot)
 		if old_slot then
 			self:_set_cache(old_slot, nil)
 		end
-
 		Global.savefile_manager.current_game_cache_slot = current_game_cache_slot
 	end
-
 end
 
 function SavefileManager:_set_corrupt(slot, is_corrupt)
@@ -887,7 +783,6 @@ function SavefileManager:_set_corrupt(slot, is_corrupt)
 		cat_print("savefile_manager", "[SavefileManager] Slot \"" .. tostring(slot) .. "\" changed corrupt state to \"" .. tostring(not not is_corrupt) .. "\".")
 		meta_data.is_corrupt = is_corrupt
 	end
-
 end
 
 function SavefileManager:_set_synched_cache(slot, is_synched_cache)
@@ -896,7 +791,6 @@ function SavefileManager:_set_synched_cache(slot, is_synched_cache)
 		cat_print("savefile_manager", "[SavefileManager] Slot \"" .. tostring(slot) .. "\" changed synched cache state to \"" .. tostring(not not is_synched_cache) .. "\".")
 		meta_data.is_synched_cache = is_synched_cache
 	end
-
 end
 
 function SavefileManager:_set_cache(slot, cache)
@@ -905,7 +799,6 @@ function SavefileManager:_set_cache(slot, cache)
 		cat_print("savefile_manager", "[SavefileManager] Slot \"" .. tostring(slot) .. "\" changed cache from \"" .. tostring(meta_data.cache) .. "\" to \"" .. tostring(cache) .. "\".")
 		meta_data.cache = cache
 	end
-
 end
 
 function SavefileManager:_set_setting_changed(setting_changed)
@@ -913,22 +806,18 @@ function SavefileManager:_set_setting_changed(setting_changed)
 		cat_print("savefile_manager", "[SavefileManager] Setting changed: \"" .. tostring(setting_changed) .. "\".")
 		Global.savefile_manager.setting_changed = setting_changed
 	end
-
 end
 
 function SavefileManager:_is_saving_progress_allowed()
 	if not managers.user:is_signed_in(nil) then
 		return false
 	end
-
 	if not managers.user:is_storage_selected(nil) then
 		return false
 	end
-
 	if Global.savefile_manager.progress_wrong_user then
 		return false
 	end
-
 	return true
 end
 
@@ -936,7 +825,6 @@ function SavefileManager:_is_saving_setting_allowed(is_user_initiated_action)
 	if not managers.user:is_signed_in(nil) then
 		return false
 	end
-
 	if not Global.savefile_manager.setting_changed then
 		cat_print("savefile_manager", "[SavefileManager] Skips saving setting. Setting is already saved.")
 		return false
@@ -950,11 +838,8 @@ function SavefileManager:_is_saving_setting_allowed(is_user_initiated_action)
 			else
 				Global.savefile_manager.safe_profile_save_time = nil
 			end
-
 		end
-
 	end
-
 	return true
 end
 
@@ -992,7 +877,6 @@ function SavefileManager:_ask_load_backup(reason, dialog_at_init, load_params)
 			end
 
 		end
-
 	elseif reason == "progress_corrupt" or reason == "progress_wrong_version" then
 		dialog_data.text = managers.localization:text("dialog_ask_load_progress_backup_" .. (reason == "progress_corrupt" and "corrupt" or "wrong_version"))
 		function no_button.callback_func()
@@ -1001,13 +885,11 @@ function SavefileManager:_ask_load_backup(reason, dialog_at_init, load_params)
 		end
 
 	end
-
 	if dialog_at_init then
 		managers.system_menu:add_init_show(dialog_data)
 	else
 		managers.system_menu:show(dialog_data)
 	end
-
 end
 
 function SavefileManager:clbk_result_load_platform_setting_map(task_data, platform_setting_map)
@@ -1015,12 +897,10 @@ function SavefileManager:clbk_result_load_platform_setting_map(task_data, platfo
 	if not self:_on_task_completed(task_data) then
 		return
 	end
-
 	local cache
 	if platform_setting_map then
 		cache = managers.user:get_setting_map()
 	end
-
 	self:_set_cache(self.SETTING_SLOT, cache)
 	self:_load_done(self.SETTING_SLOT, false)
 end
@@ -1030,11 +910,8 @@ function SavefileManager:clbk_result_load(task_data, result_data)
 	if not self:_on_task_completed(task_data) then
 		return
 	end
-
 	if type_name(result_data) == "table" then
-		local (for generator), (for state), (for control) = pairs(result_data)
-		do
-			do break end
+		for slot, slot_data in pairs(result_data) do
 			print("slot:", slot, "\n", inspect(slot_data))
 			local status = slot_data.status
 			local cache
@@ -1043,29 +920,23 @@ function SavefileManager:clbk_result_load(task_data, result_data)
 			if status == "OK" or wrong_user then
 				cache = slot_data.data
 			end
-
 			if cache and SystemInfo:platform() == Idstring("WIN32") and cache.version ~= SavefileManager.VERSION then
 				cache = nil
 				wrong_version = true
 			end
-
 			if cache and SystemInfo:platform() == Idstring("WIN32") then
 				if cache.user_id ~= (self._USER_ID_OVERRRIDE or Steam:userid()) then
 					print("[SavefileManager:clbk_result_load] User ID missmatch. cache.user_id:", cache.user_id, ". expected user id:", self._USER_ID_OVERRRIDE or Steam:userid())
 					cache = nil
 					wrong_user = true
 				end
-
 			end
-
 			self:_set_cache(slot, cache)
 			self:_load_done(slot, false, wrong_user, wrong_version)
 		end
-
 	else
 		Application:error("[SavefileManager:clbk_result_load] error:", result_data)
 	end
-
 end
 
 function SavefileManager:clbk_result_load_backup(task_data, result_data)
@@ -1073,11 +944,8 @@ function SavefileManager:clbk_result_load_backup(task_data, result_data)
 	if not self:_on_task_completed(task_data) then
 		return
 	end
-
 	if type_name(result_data) == "table" then
-		local (for generator), (for state), (for control) = pairs(result_data)
-		do
-			do break end
+		for slot, slot_data in pairs(result_data) do
 			print("slot:", slot, "\n", inspect(slot_data))
 			local status = slot_data.status
 			if slot == self.BACKUP_SLOT then
@@ -1090,24 +958,18 @@ function SavefileManager:clbk_result_load_backup(task_data, result_data)
 						if cache.user_id ~= (self._USER_ID_OVERRRIDE or Steam:userid()) then
 							print("[SavefileManager:clbk_result_load_backup] User ID missmatch. cache.user_id:", cache.user_id, ". expected user id:", self._USER_ID_OVERRRIDE or Steam:userid())
 						end
-
 					elseif version <= SavefileManager.VERSION then
 						print("[SavefileManager:clbk_result_load_backup] backup loaded")
 						self._backup_data = {save_data = slot_data}
 					else
 						Application:error("[SavefileManager:clbk_result_load_backup] local savegame backup is wrong version")
 					end
-
 				end
-
 			end
-
 		end
-
 	else
 		Application:error("[SavefileManager:clbk_result_load_backup] error:", result_data)
 	end
-
 end
 
 function SavefileManager:clbk_result_remove(task_data, result_data)
@@ -1115,7 +977,6 @@ function SavefileManager:clbk_result_remove(task_data, result_data)
 	if not self:_on_task_completed(task_data) then
 		return
 	end
-
 	self._remove_rect:set_visible(false)
 	Overlay:gui():destroy_workspace(self._ws)
 end
@@ -1125,13 +986,10 @@ function SavefileManager:clbk_result_iterate_savegame_slots(task_data, result_da
 	if not self:_on_task_completed(task_data) then
 		return
 	end
-
 	self._save_slots_to_load = {}
 	local found_progress_slot
 	if type_name(result_data) == "table" then
-		local (for generator), (for state), (for control) = pairs(result_data)
-		do
-			do break end
+		for slot, slot_data in pairs(result_data) do
 			print("slot:", slot, "\n", inspect(slot_data))
 			self._save_slots_to_load[slot] = true
 			if slot == self.SETTING_SLOT then
@@ -1140,18 +998,14 @@ function SavefileManager:clbk_result_iterate_savegame_slots(task_data, result_da
 				found_progress_slot = true
 				self:load_progress()
 			end
-
 		end
-
 	else
 		Application:error("[SavefileManager:clbk_result_iterate_savegame_slots] error:", result_data)
 	end
-
 	if not found_progress_slot and self._backup_data then
 		self._save_slots_to_load[self.PROGRESS_SLOT] = true
 		self:_ask_load_backup("no_progress", true)
 	end
-
 end
 
 function SavefileManager:clbk_result_save(task_data, result_data)
@@ -1159,20 +1013,15 @@ function SavefileManager:clbk_result_save(task_data, result_data)
 	if not self:_on_task_completed(task_data) then
 		return
 	end
-
 	if type_name(result_data) == "table" then
-		local (for generator), (for state), (for control) = pairs(result_data)
-		do
-			do break end
+		for slot, slot_data in pairs(result_data) do
 			print("slot:", slot, "\n", inspect(slot_data))
 			local success = slot_data.status == "OK"
 			self:_save_done(slot, false, task_data, slot_data, success)
 		end
-
 	else
 		Application:error("[SavefileManager:clbk_result_save] error:", result_data)
 	end
-
 end
 
 function SavefileManager:clbk_result_save_platform_setting(task_data, success)
@@ -1180,13 +1029,11 @@ function SavefileManager:clbk_result_save_platform_setting(task_data, success)
 	if not self:_on_task_completed(task_data) then
 		return
 	end
-
 	self:_save_done(self.SETTING_SLOT, false, nil, nil, success)
 	if not success then
 		managers.menu:show_save_settings_failed()
 		self:_set_setting_changed(false)
 	end
-
 end
 
 function SavefileManager:clbk_result_space_required(task_data, result_data)
@@ -1194,16 +1041,13 @@ function SavefileManager:clbk_result_space_required(task_data, result_data)
 	if not self:_on_task_completed(task_data) then
 		return
 	end
-
 	if type_name(result_data) == "table" then
 		if SystemInfo:platform() == Idstring("PS3") then
 			self._savegame_hdd_space_required = (2 - table.size(result_data)) * self.RESERVED_BYTES / 1024
 		end
-
 	else
 		Application:error("[SavefileManager:clbk_result_space_required] error:", result_data)
 	end
-
 end
 
 SavefileInfo = SavefileInfo or class()

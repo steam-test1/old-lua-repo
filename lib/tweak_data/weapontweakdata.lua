@@ -100,12 +100,9 @@ function WeaponTweakData:_init_data_npc_melee()
 end
 
 function WeaponTweakData:_set_npc_weapon_damage_multiplier(mul)
-	local (for generator), (for state), (for control) = pairs(self.npc_melee)
-	do
-		do break end
+	for name, data in pairs(self.npc_melee) do
 		data.damage = data.damage * mul
 	end
-
 end
 
 function WeaponTweakData:_init_data_c45_npc()
@@ -1070,7 +1067,6 @@ function WeaponTweakData:_init_data_player_weapons()
 			near_angle = 3
 		}
 	end
-
 	aim_assist_rifle_default = deep_clone(autohit_rifle_default)
 	aim_assist_pistol_default = deep_clone(autohit_pistol_default)
 	aim_assist_shotgun_default = deep_clone(autohit_shotgun_default)
@@ -1290,12 +1286,10 @@ function WeaponTweakData:_init_stats()
 	for i = -10, 50, 2 do
 		table.insert(self.stats.extra_ammo, i)
 	end
-
 	self.stats.total_ammo_mod = {}
 	for i = -100, 100, 5 do
 		table.insert(self.stats.total_ammo_mod, i / 100)
 	end
-
 end
 
 function WeaponTweakData:_pickup_chance(max_ammo, selection_index)
@@ -1307,7 +1301,6 @@ function WeaponTweakData:_pickup_chance(max_ammo, selection_index)
 		low = 0.02
 		high = 0.05
 	end
-
 	return {
 		max_ammo * low,
 		max_ammo * high

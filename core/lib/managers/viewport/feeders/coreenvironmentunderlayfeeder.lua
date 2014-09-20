@@ -18,29 +18,21 @@ function EnvironmentUnderlayFeeder:feed(nr, scene, vp, data, block, ...)
 			if not material then
 				return true
 			end
-
-			local (for generator), (for state), (for control) = pairs(block)
-			do
-				do break end
+			for k, v in pairs(block) do
 				local value = v
 				if k == sun_color_scale or k == color0_scale or k == color1_scale or k == color2_scale or k == color_opposite_sun_scale or k == color_sun_scale or k == sky_intensity or k == sky_intensity then
 					value = v
 				end
-
 				local scalar = block[k .. "_scale"]
 				if scalar then
 					material:set_variable(Idstring(k), value * scalar)
 				else
 					material:set_variable(Idstring(k), value)
 				end
-
 			end
-
 		end
-
 		return true
 	end
-
 	return false
 end
 

@@ -24,12 +24,10 @@ function FadeoutGuiObject:init(params)
 				dt = coroutine.yield()
 				o:rotate(dt * 180)
 			end
-
 		end
 
 		loading_icon:animate(spin_forever_animation)
 	end
-
 	local function fade_out_animation(panel)
 		local loading_icon = panel:child("loading_icon")
 		wait(sustain)
@@ -38,7 +36,6 @@ function FadeoutGuiObject:init(params)
 			if alive(loading_icon) then
 				loading_icon:set_alpha(1 - p)
 			end
-
 		end
 )
 		Application:debug("FadeoutGuiObject: Destroy")

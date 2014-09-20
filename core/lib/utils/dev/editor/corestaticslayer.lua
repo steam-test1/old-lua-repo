@@ -17,7 +17,6 @@ function StaticsLayer:set_enabled(enabled)
 	if not enabled then
 		managers.editor:output_warning("Don't want to disable Statics layer since it would cause all dynamics to fall.")
 	end
-
 	return false
 end
 

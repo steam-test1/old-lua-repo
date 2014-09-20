@@ -24,28 +24,18 @@ function CoreMaterialEditorGlobalDialog:init(parent, editor)
 	self._dialog:connect("", "EVT_CLOSE_WINDOW", callback(self, self, "destroy"), false)
 	self._destroy_map = {}
 	self._item_map = {}
-	do
-		local (for generator), (for state), (for control) = self._editor._global_material_config_node:children()
-		do
-			do break end
-			self:_fill_tree(self._tree_ctrl:append_root(""), self._editor._global_material_config_node, child, self._item_map)
-		end
-
+	for child in self._editor._global_material_config_node:children() do
+		self:_fill_tree(self._tree_ctrl:append_root(""), self._editor._global_material_config_node, child, self._item_map)
 	end
-
 	self._dialog:show_modal()
 end
 
 function CoreMaterialEditorGlobalDialog:destroy(clean)
 	if clean then
-		local (for generator), (for state), (for control) = ipairs(self._destroy_map)
-		do
-			do break end
+		for _, n in ipairs(self._destroy_map) do
 			n._parent:remove_child_at(n._parent:index_of_child(n._node))
 		end
-
 	end
-
 	self._editor:_save_global_to_disk()
 	self._dialog:end_modal("")
 end
@@ -64,42 +54,22 @@ end
 
 function CoreMaterialEditorGlobalDialog:_fill_tree(id, parent, node)
 	local text = node:name()
-	do
-		local (for generator), (for state), (for control) = pairs(node:parameters())
-		do
-			do break end
-			if k == "name" then
-				text = text .. " | " .. k .. "=" .. v
-		end
-
+	for k, v in pairs(node:parameters()) do
+		if k == "name" then
+			text = text .. " | " .. k .. "=" .. v
 		else
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(node:parameters())
-		do
-			do break end
-			if k ~= "name" then
-				text = text .. " | " .. k .. "=" .. v
-			end
-
+	for k, v in pairs(node:parameters()) do
+		if k ~= "name" then
+			text = text .. " | " .. k .. "=" .. v
 		end
-
 	end
-
 	local new_id = self._tree_ctrl:append(id, text)
 	self._item_map[tostring(new_id)] = {_node = node, _parent = parent}
-	do
-		local (for generator), (for state), (for control) = node:children()
-		do
-			do break end
-			self:_fill_tree(new_id, node, child)
-		end
-
+	for child in node:children() do
+		self:_fill_tree(new_id, node, child)
 	end
-
 	return new_id
 end
 
@@ -132,13 +102,11 @@ function CoreMaterialEditorStartDialog:on_new()
 		if managers.database:has(path) and EWS:MessageDialog(self._parent, "A material config with that name already exists. Do you want to replace it?", "Duplicated!", "YES_NO,ICON_ERROR"):show_modal() == "ID_NO" then
 			return
 		end
-
 		self._editor:_create_new_material_config(path)
 		self._editor:_update_interface_after_material_list_change()
 		self._editor:_reset_diff()
 		self:end_modal()
 	end
-
 end
 
 function CoreMaterialEditorStartDialog:on_open()
@@ -146,7 +114,6 @@ function CoreMaterialEditorStartDialog:on_open()
 	if node and path and self._editor:_load_node(path, node) then
 		self:end_modal()
 	end
-
 end
 
 function CoreMaterialEditorStartDialog:on_exit()

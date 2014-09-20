@@ -19,16 +19,10 @@ end
 
 function Worksheet:to_xml(f)
 	f:write(string.format(EMPTY_WORKSHEET_XML1, self._name))
-	do
-		local (for generator), (for state), (for control) = ipairs(self._rows)
-		do
-			do break end
-			f:write("\n")
-			r:to_xml(f)
-		end
-
+	for _, r in ipairs(self._rows) do
+		f:write("\n")
+		r:to_xml(f)
 	end
-
 	f:write(EMPTY_WORKSHEET_XML2)
 end
 

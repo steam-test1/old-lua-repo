@@ -19,7 +19,6 @@ function CivilianLogicFlee.enter(data, new_logic_name, enter_params)
 			if my_data ~= data.internal_data then
 				return
 			end
-
 			if data.unit:anim_data().react_enter and not data.unit:anim_data().idle then
 				my_data.delayed_post_react_alert_id = "postreact_alert" .. key_str
 				CopLogicBase.add_delayed_clbk(my_data, my_data.delayed_post_react_alert_id, callback(CivilianLogicFlee, CivilianLogicFlee, "post_react_alert_clbk", {
@@ -27,38 +26,30 @@ function CivilianLogicFlee.enter(data, new_logic_name, enter_params)
 					alert_data = clone(data.objective.alert_data)
 				}), TimerManager:game():time() + math.lerp(4, 8, math.random()))
 			end
-
 		elseif data.objective.dmg_info then
 			CivilianLogicFlee.damage_clbk(data, data.objective.dmg_info)
 		end
-
 	end
-
 	data.unit:movement():set_stance(data.is_tied and "cbt" or "hos")
 	data.unit:movement():set_cool(false)
 	if my_data ~= data.internal_data then
 		return
 	end
-
 	CivilianLogicFlee._chk_add_delayed_rescue_SO(data, my_data)
 	if data.objective and data.objective.was_rescued then
 		data.objective.was_rescued = nil
 		if CivilianLogicFlee._get_coarse_flee_path(data) then
 			managers.groupai:state():on_civilian_freed()
 		end
-
 	end
-
 	if not data.been_outlined and data.char_tweak.outline_on_discover then
 		my_data.outline_detection_task_key = "CivilianLogicFlee_upd_outline_detection" .. key_str
 		CopLogicBase.queue_task(my_data, my_data.outline_detection_task_key, CivilianLogicIdle._upd_outline_detection, data, data.t + 2)
 	end
-
 	if not my_data.detection_task_key and data.unit:anim_data().react_enter then
 		my_data.detection_task_key = "CivilianLogicFlee._upd_detection" .. key_str
 		CopLogicBase.queue_task(my_data, my_data.detection_task_key, CivilianLogicFlee._upd_detection, data, data.t + 0)
 	end
-
 	local attention_settings
 	if not managers.groupai:state():enemy_weapons_hot() then
 		attention_settings = {
@@ -70,20 +61,17 @@ function CivilianLogicFlee.enter(data, new_logic_name, enter_params)
 			"enemy_weapons_hot"
 		}, callback(CivilianLogicIdle, CivilianLogicIdle, "clbk_enemy_weapons_hot", data))
 	end
-
 	CivilianLogicFlee.schedule_run_away_clbk(data)
 	if not my_data.delayed_post_react_alert_id and data.unit:movement():stance_name() == "ntl" then
 		my_data.delayed_post_react_alert_id = "postreact_alert" .. key_str
 		CopLogicBase.add_delayed_clbk(my_data, my_data.delayed_post_react_alert_id, callback(CivilianLogicFlee, CivilianLogicFlee, "post_react_alert_clbk", {data = data}), TimerManager:game():time() + math.lerp(4, 8, math.random()))
 	end
-
 	data.unit:brain():set_attention_settings(attention_settings)
 	if not managers.groupai:state():is_police_called() then
 		my_data.call_police_clbk_id = "civ_call_police" .. key_str
 		local call_t = math.max(data.call_police_delay_t or 0, TimerManager:game():time() + math.lerp(1, 10, math.random()))
 		CopLogicBase.add_delayed_clbk(my_data, my_data.call_police_clbk_id, callback(CivilianLogicFlee, CivilianLogicFlee, "clbk_chk_call_the_police", data), call_t)
 	end
-
 	my_data.next_action_t = 0
 end
 
@@ -99,19 +87,15 @@ function CivilianLogicFlee.exit(data, new_logic_name, enter_params)
 	if my_data.best_cover then
 		managers.navigation:release_cover(my_data.best_cover[1])
 	end
-
 	if my_data.nearest_cover then
 		managers.navigation:release_cover(my_data.nearest_cover[1])
 	end
-
 	if my_data.enemy_weapons_hot_listen_id then
 		managers.groupai:state():remove_listener(my_data.enemy_weapons_hot_listen_id)
 	end
-
 	if my_data.calling_the_police then
 		managers.groupai:state():on_criminal_suspicion_progress(nil, data.unit, "call_interrupted")
 	end
-
 end
 
 function CivilianLogicFlee.update(data)
@@ -127,7 +111,6 @@ function CivilianLogicFlee.update(data)
 		if not unit:movement():chk_action_forbidden("walk") then
 			CivilianLogicFlee._start_moving_to_cover(data, my_data)
 		end
-
 	elseif my_data.coarse_path then
 		if not my_data.advancing and data.t > my_data.next_action_t then
 			local coarse_path = my_data.coarse_path
@@ -137,7 +120,6 @@ function CivilianLogicFlee.update(data)
 				if data.unit:unit_data().mission_element then
 					data.unit:unit_data().mission_element:event("fled", data.unit)
 				end
-
 				data.unit:base():set_slot(unit, 0)
 			else
 				local to_pos, to_cover
@@ -152,9 +134,7 @@ function CivilianLogicFlee.update(data)
 					else
 						to_pos = CopLogicTravel._get_pos_on_wall(coarse_path[cur_index + 1][2], 700)
 					end
-
 				end
-
 				my_data.flee_path_search_id = "civ_flee" .. tostring(data.key)
 				if to_cover then
 					my_data.pathing_to_cover = to_cover
@@ -163,11 +143,8 @@ function CivilianLogicFlee.update(data)
 					data.brain:add_pos_rsrv("path", {position = to_pos, radius = 30})
 					unit:brain():search_for_path(my_data.flee_path_search_id, to_pos)
 				end
-
 			end
-
 		end
-
 	elseif my_data.best_cover then
 		local best_cover = my_data.best_cover
 		if my_data.moving_to_cover and my_data.moving_to_cover == best_cover or my_data.in_cover and my_data.in_cover == best_cover then
@@ -183,15 +160,12 @@ function CivilianLogicFlee.update(data)
 				data.unit:brain():set_update_enabled_state(true)
 				CopLogicBase._reset_attention(data)
 			end
-
 			my_data.pathing_to_cover = my_data.best_cover
 			local search_id = "civ_cover" .. tostring(data.key)
 			my_data.flee_path_search_id = search_id
 			data.unit:brain():search_for_path_to_cover(search_id, my_data.best_cover[1])
 		end
-
 	end
-
 end
 
 function CivilianLogicFlee._upd_detection(data)
@@ -201,7 +175,6 @@ function CivilianLogicFlee._upd_detection(data)
 		CopLogicBase._reset_attention(data)
 		return
 	end
-
 	managers.groupai:state():on_unit_detection_updated(data.unit)
 	data.t = TimerManager:game():time()
 	local delay = CopLogicBase._upd_attention_obj_detection(data, nil, nil)
@@ -210,11 +183,9 @@ function CivilianLogicFlee._upd_detection(data)
 	if not managers.groupai:state():is_police_called() then
 		CopLogicArrest._mark_call_in_event(data, my_data, new_attention)
 	end
-
 	if not my_data.flee_target then
 		CivilianLogicFlee._chk_add_delayed_rescue_SO(data, my_data)
 	end
-
 	delay = delay * 3
 	CopLogicBase.queue_task(my_data, my_data.detection_task_key, CivilianLogicFlee._upd_detection, data, data.t + delay)
 end
@@ -231,16 +202,12 @@ function CivilianLogicFlee._update_pathing(data, my_data)
 				if my_data.pathing_to_cover then
 					my_data.has_path_to_cover = my_data.pathing_to_cover
 				end
-
 			else
 			end
-
 			my_data.pathing_to_cover = nil
 			my_data.flee_path_search_id = nil
 		end
-
 	end
-
 end
 
 function CivilianLogicFlee.action_complete_clbk(data, action)
@@ -254,27 +221,21 @@ function CivilianLogicFlee.action_complete_clbk(data, action)
 				CopLogicAttack._set_nearest_cover(my_data, my_data.in_cover)
 				CivilianLogicFlee._chk_add_delayed_rescue_SO(data, my_data)
 			end
-
 			if my_data.coarse_path_index then
 				my_data.coarse_path_index = my_data.coarse_path_index + 1
 			end
-
 		end
-
 		my_data.moving_to_cover = nil
 		my_data.advancing = nil
 		if not my_data.coarse_path_index then
 			data.unit:brain():set_update_enabled_state(false)
 		end
-
 	elseif action:type() == "act" and my_data.calling_the_police then
 		my_data.calling_the_police = nil
 		if not my_data.called_the_police then
 			managers.groupai:state():on_criminal_suspicion_progress(nil, data.unit, "call_interrupted")
 		end
-
 	end
-
 end
 
 function CivilianLogicFlee.on_alert(data, alert_data)
@@ -282,7 +243,6 @@ function CivilianLogicFlee.on_alert(data, alert_data)
 	if my_data.coarse_path then
 		return
 	end
-
 	if CopLogicBase.is_alert_aggressive(alert_data[1]) then
 		local aggressor = alert_data[5]
 		if aggressor and aggressor:base() then
@@ -291,20 +251,15 @@ function CivilianLogicFlee.on_alert(data, alert_data)
 				if managers.player:has_category_upgrade("player", "civ_calming_alerts") then
 					is_intimidation = true
 				end
-
 			elseif aggressor:base().is_husk_player and aggressor:base():upgrade_value("player", "civ_calming_alerts") then
 				is_intimidation = true
 			end
-
 			if is_intimidation then
 				data.unit:brain():on_intimidated(1, aggressor)
 				return
 			end
-
 		end
-
 	end
-
 	local anim_data = data.unit:anim_data()
 	if anim_data.react_enter and not anim_data.idle then
 		if not my_data.delayed_post_react_alert_id then
@@ -314,7 +269,6 @@ function CivilianLogicFlee.on_alert(data, alert_data)
 				alert_data = clone(alert_data)
 			}), TimerManager:game():time() + 1)
 		end
-
 		return
 	elseif anim_data.peaceful or data.unit:movement():stance_name() == "ntl" then
 		local action_data = {
@@ -328,7 +282,6 @@ function CivilianLogicFlee.on_alert(data, alert_data)
 		if data.unit:unit_data().mission_element then
 			data.unit:unit_data().mission_element:event("panic", data.unit)
 		end
-
 		if not managers.groupai:state():enemy_weapons_hot() then
 			local alert = {
 				"vo_distress",
@@ -339,7 +292,6 @@ function CivilianLogicFlee.on_alert(data, alert_data)
 			}
 			managers.groupai:state():propagate_alert(alert)
 		end
-
 		return
 	elseif alert_data[1] ~= "bullet" and alert_data[1] ~= "aggression" and alert_data[1] ~= "explosion" then
 		return
@@ -355,11 +307,9 @@ function CivilianLogicFlee.on_alert(data, alert_data)
 		if is_dangerous then
 			data.unit:sound():say("a01x_any", true)
 		end
-
 		if data.unit:unit_data().mission_element then
 			data.unit:unit_data().mission_element:event("panic", data.unit)
 		end
-
 		CopLogicBase._reset_attention(data)
 		if is_dangerous and not managers.groupai:state():enemy_weapons_hot() then
 			local alert = {
@@ -371,10 +321,8 @@ function CivilianLogicFlee.on_alert(data, alert_data)
 			}
 			managers.groupai:state():propagate_alert(alert)
 		end
-
 		return
 	end
-
 	CivilianLogicFlee._run_away_from_alert(data, alert_data)
 end
 
@@ -394,13 +342,11 @@ function CivilianLogicFlee._run_away_from_alert(data, alert_data)
 	else
 		avoid_pos = alert_data[2] or alert_data[5] and alert_data[5]:position() or math.UP:random_orthogonal() * 100 + data.m_pos
 	end
-
 	my_data.avoid_pos = avoid_pos
 	if not my_data.cover_search_task_key then
 		my_data.cover_search_task_key = "CivilianLogicFlee._find_hide_cover" .. tostring(data.key)
 		CopLogicBase.queue_task(my_data, my_data.cover_search_task_key, CivilianLogicFlee._find_hide_cover, data, data.t + 0.5)
 	end
-
 end
 
 function CivilianLogicFlee.post_react_alert_clbk(shait, params)
@@ -416,17 +362,14 @@ function CivilianLogicFlee.post_react_alert_clbk(shait, params)
 		}), TimerManager:game():time() + 1)
 		return
 	end
-
 	my_data.delayed_post_react_alert_id = nil
 	if not anim_data.react then
 		return
 	end
-
 	if alert_data and alive(alert_data[5]) then
 		CivilianLogicFlee._run_away_from_alert(data, alert_data)
 		return
 	end
-
 	if anim_data.react or anim_data.drop then
 		local action_data = {
 			type = "act",
@@ -439,7 +382,6 @@ function CivilianLogicFlee.post_react_alert_clbk(shait, params)
 		if data.unit:unit_data().mission_element then
 			data.unit:unit_data().mission_element:event("panic", data.unit)
 		end
-
 		CopLogicBase._reset_attention(data)
 		if not managers.groupai:state():enemy_weapons_hot() then
 			local alert = {
@@ -451,10 +393,8 @@ function CivilianLogicFlee.post_react_alert_clbk(shait, params)
 			}
 			managers.groupai:state():propagate_alert(alert)
 		end
-
 		return
 	end
-
 	CopLogicBase.add_delayed_clbk(my_data, my_data.delayed_post_react_alert_id, callback(CivilianLogicFlee, CivilianLogicFlee, "post_react_alert_clbk", {
 		data = data,
 		alert_data = data.objective and data.objective.alert_data and clone(data.objective.alert_data) or alert_data
@@ -469,7 +409,6 @@ function CivilianLogicFlee.on_intimidated(data, amount, aggressor_unit)
 	if not data.char_tweak.intimidateable or data.unit:base().unintimidateable or data.unit:anim_data().unintimidateable then
 		return
 	end
-
 	local my_data = data.internal_data
 	if not my_data.delayed_intimidate_id then
 		my_data.delayed_intimidate_id = "intimidate" .. tostring(data.key)
@@ -480,7 +419,6 @@ function CivilianLogicFlee.on_intimidated(data, amount, aggressor_unit)
 			aggressor_unit
 		}), TimerManager:game():time() + delay)
 	end
-
 end
 
 function CivilianLogicFlee._delayed_intimidate_clbk(ignore_this, params)
@@ -491,7 +429,6 @@ function CivilianLogicFlee._delayed_intimidate_clbk(ignore_this, params)
 	if not alive(params[3]) then
 		return
 	end
-
 	CivilianLogicIdle.on_intimidated(data, params[2], params[3])
 end
 
@@ -512,7 +449,6 @@ function CivilianLogicFlee._find_hide_cover(data)
 	if data.unit:anim_data().dont_flee then
 		return
 	end
-
 	local avoid_pos
 	if my_data.avoid_pos then
 		avoid_pos = my_data.avoid_pos
@@ -520,19 +456,12 @@ function CivilianLogicFlee._find_hide_cover(data)
 		avoid_pos = data.attention_obj.m_pos
 	else
 		local closest_crim, closest_crim_dis
-		do
-			local (for generator), (for state), (for control) = pairs(data.detected_attention_objects)
-			do
-				do break end
-				if not closest_crim_dis or closest_crim_dis > att_data.dis then
-					closest_crim = att_data
-					closest_crim_dis = att_data.dis
-				end
-
+		for u_key, att_data in pairs(data.detected_attention_objects) do
+			if not closest_crim_dis or closest_crim_dis > att_data.dis then
+				closest_crim = att_data
+				closest_crim_dis = att_data.dis
 			end
-
 		end
-
 		if closest_crim then
 			avoid_pos = closest_crim.m_pos
 		else
@@ -541,17 +470,13 @@ function CivilianLogicFlee._find_hide_cover(data)
 			mvector3.multiply(avoid_pos, 100)
 			mvector3.add(data.m_pos, 100)
 		end
-
 	end
-
 	if my_data.best_cover then
 		local best_cover_vec = avoid_pos - my_data.best_cover[1][1]
 		if mvector3.dot(best_cover_vec, my_data.best_cover[1][2]) > 0.7 then
 			return
 		end
-
 	end
-
 	local cover = managers.navigation:find_cover_away_from_pos(data.m_pos, avoid_pos, my_data.panic_area.nav_segs)
 	if cover then
 		if not data.unit:anim_data().panic then
@@ -563,7 +488,6 @@ function CivilianLogicFlee._find_hide_cover(data)
 			}
 			data.unit:brain():action_request(action_data)
 		end
-
 		CivilianLogicFlee._cancel_pathing(data, my_data)
 		CopLogicAttack._set_best_cover(data, my_data, {cover})
 		data.unit:brain():set_update_enabled_state(true)
@@ -580,7 +504,6 @@ function CivilianLogicFlee._find_hide_cover(data)
 		if data.unit:unit_data().mission_element then
 			data.unit:unit_data().mission_element:event("panic", data.unit)
 		end
-
 		CopLogicBase._reset_attention(data)
 		if not managers.groupai:state():enemy_weapons_hot() then
 			local alert = {
@@ -592,9 +515,7 @@ function CivilianLogicFlee._find_hide_cover(data)
 			}
 			managers.groupai:state():propagate_alert(alert)
 		end
-
 	end
-
 end
 
 function CivilianLogicFlee._start_moving_to_cover(data, my_data)
@@ -615,14 +536,12 @@ function CivilianLogicFlee._start_moving_to_cover(data, my_data)
 		my_data.moving_to_cover = my_data.has_path_to_cover
 		my_data.has_path_to_cover = nil
 	end
-
 end
 
 function CivilianLogicFlee._add_delayed_rescue_SO(data, my_data)
 	if my_data.rescue_active then
 		return
 	end
-
 	if data.char_tweak.flee_type == "hide" or data.unit:unit_data() and data.unit:unit_data().not_rescued then
 	elseif my_data.delayed_clbks and my_data.delayed_clbks[my_data.delayed_rescue_SO_id] then
 		managers.enemy:reschedule_delayed_clbk(my_data.delayed_rescue_SO_id, TimerManager:game():time() + 1)
@@ -636,11 +555,9 @@ function CivilianLogicFlee._add_delayed_rescue_SO(data, my_data)
 			managers.groupai:state():remove_special_objective(my_data.rescue_SO_id)
 			my_data.rescue_SO_id = nil
 		end
-
 		my_data.delayed_rescue_SO_id = "rescue" .. tostring(data.key)
 		CopLogicBase.add_delayed_clbk(my_data, my_data.delayed_rescue_SO_id, callback(CivilianLogicFlee, CivilianLogicFlee, "register_rescue_SO", data), TimerManager:game():time() + 1)
 	end
-
 	my_data.rescue_active = true
 end
 
@@ -651,7 +568,6 @@ function CivilianLogicFlee.register_rescue_SO(ignore_this, data)
 	if data.unit:anim_data().dont_flee then
 		return
 	end
-
 	local my_tracker = data.unit:movement():nav_tracker()
 	local objective_pos = my_tracker:field_position()
 	local side = data.unit:movement():m_rot():x()
@@ -679,9 +595,7 @@ function CivilianLogicFlee.register_rescue_SO(ignore_this, data)
 			so_pos = mvector3.copy(objective_pos)
 			so_rot = nil
 		end
-
 	end
-
 	local objective = {
 		type = "act",
 		follow_unit = data.unit,
@@ -735,7 +649,6 @@ function CivilianLogicFlee._unregister_rescue_SO(data, my_data)
 		CopLogicBase.chk_cancel_delayed_clbk(my_data, my_data.delayed_rescue_SO_id)
 		my_data.delayed_rescue_SO_id = nil
 	end
-
 	my_data.rescue_active = nil
 end
 
@@ -751,17 +664,12 @@ function CivilianLogicFlee.rescue_SO_verification(ignore_this, areas, unit)
 	if not unit:base():char_tweak().rescue_hostages or unit:movement():cool() then
 		return
 	end
-
 	local u_nav_seg = unit:movement():nav_tracker():nav_segment()
-	local (for generator), (for state), (for control) = ipairs(areas)
-	do
-		do break end
+	for _, area in ipairs(areas) do
 		if area.nav_segs[u_nav_seg] then
 			return true
 		end
-
 	end
-
 end
 
 function CivilianLogicFlee.on_rescue_SO_failed(ignore_this, data)
@@ -771,7 +679,6 @@ function CivilianLogicFlee.on_rescue_SO_failed(ignore_this, data)
 		my_data.rescuer = nil
 		CivilianLogicFlee._add_delayed_rescue_SO(data, data.internal_data)
 	end
-
 end
 
 function CivilianLogicFlee.on_rescue_SO_completed(ignore_this, data, good_pig)
@@ -789,13 +696,11 @@ function CivilianLogicFlee.on_rescue_SO_completed(ignore_this, data, good_pig)
 					body_part = 1
 				}
 			end
-
 			if new_action then
 				data.is_tied = nil
 				data.unit:interaction():set_active(false, true)
 				data.unit:brain():action_request(new_action)
 			end
-
 			data.unit:brain():set_objective({
 				type = "free",
 				is_default = true,
@@ -804,9 +709,7 @@ function CivilianLogicFlee.on_rescue_SO_completed(ignore_this, data, good_pig)
 		elseif not CivilianLogicFlee._get_coarse_flee_path(data) then
 			return
 		end
-
 	end
-
 	data.unit:brain():set_update_enabled_state(true)
 	managers.groupai:state():on_civilian_freed()
 	good_pig:sound():say("h01", true)
@@ -817,7 +720,6 @@ function CivilianLogicFlee._get_coarse_flee_path(data)
 	if not flee_point then
 		return
 	end
-
 	local my_data = data.internal_data
 	local verify_clbk = callback(CivilianLogicFlee, CivilianLogicFlee, "_flee_coarse_path_verify_clbk")
 	local search_params = {
@@ -831,7 +733,6 @@ function CivilianLogicFlee._get_coarse_flee_path(data)
 	if not coarse_path then
 		return
 	end
-
 	managers.groupai:state():trim_coarse_path_to_areas(coarse_path)
 	my_data.coarse_path_index = 1
 	my_data.coarse_path = coarse_path
@@ -866,7 +767,6 @@ function CivilianLogicFlee.reset_actions(data)
 		local action = {type = "idle", body_part = 2}
 		data.unit:movement():action_request(action)
 	end
-
 end
 
 function CivilianLogicFlee._chk_add_delayed_rescue_SO(data, my_data)
@@ -874,11 +774,9 @@ function CivilianLogicFlee._chk_add_delayed_rescue_SO(data, my_data)
 		if not my_data.rescue_active then
 			CivilianLogicFlee._add_delayed_rescue_SO(data, my_data)
 		end
-
 	elseif my_data.rescue_active then
 		CivilianLogicFlee._unregister_rescue_SO(data, my_data)
 	end
-
 end
 
 function CivilianLogicFlee.clbk_chk_run_away(ignore_this, data)
@@ -888,7 +786,6 @@ function CivilianLogicFlee.clbk_chk_run_away(ignore_this, data)
 	if not my_data.coarse_path and CivilianLogicFlee._get_coarse_flee_path(data) then
 		data.unit:brain():set_update_enabled_state(true)
 	end
-
 	data.run_away_next_chk_t = TimerManager:game():time() + math.lerp(5, 8, math.random())
 	CivilianLogicFlee.schedule_run_away_clbk(data)
 end
@@ -898,7 +795,6 @@ function CivilianLogicFlee.schedule_run_away_clbk(data)
 	if my_data.run_away_clbk_id or not data.char_tweak.run_away_delay then
 		return
 	end
-
 	data.run_away_next_chk_t = data.run_away_next_chk_t or data.t + math.lerp(data.char_tweak.run_away_delay[1], data.char_tweak.run_away_delay[2], math.random())
 	my_data.run_away_clbk_id = "runaway_chk" .. tostring(data.key)
 	CopLogicBase.add_delayed_clbk(my_data, my_data.run_away_clbk_id, callback(CivilianLogicFlee, CivilianLogicFlee, "clbk_chk_run_away", data), data.run_away_next_chk_t)
@@ -911,23 +807,15 @@ function CivilianLogicFlee.clbk_chk_call_the_police(ignore_this, data)
 	if managers.groupai:state():is_police_called() then
 		return
 	end
-
 	local my_areas = managers.groupai:state():get_areas_from_nav_seg_id(data.unit:movement():nav_tracker():nav_segment())
 	local already_calling = false
-	do
-		local (for generator), (for state), (for control) = pairs(managers.enemy:all_civilians())
-		do
-			do break end
-			local civ_nav_seg = u_data.unit:movement():nav_tracker():nav_segment()
-			if my_areas[civ_nav_seg] and u_data.unit:anim_data().call_police then
-				already_calling = true
-		end
-
+	for u_key, u_data in pairs(managers.enemy:all_civilians()) do
+		local civ_nav_seg = u_data.unit:movement():nav_tracker():nav_segment()
+		if my_areas[civ_nav_seg] and u_data.unit:anim_data().call_police then
+			already_calling = true
 		else
 		end
-
 	end
-
 	if not already_calling and (not my_data.calling_the_police or not data.unit:movement():chk_action_forbidden("walk")) then
 		local action = {
 			type = "act",
@@ -940,9 +828,7 @@ function CivilianLogicFlee.clbk_chk_call_the_police(ignore_this, data)
 			CivilianLogicFlee._say_call_the_police(data, my_data)
 			managers.groupai:state():on_criminal_suspicion_progress(nil, data.unit, "calling")
 		end
-
 	end
-
 	my_data.call_police_clbk_id = "civ_call_police" .. tostring(data.key)
 	CopLogicBase.add_delayed_clbk(my_data, my_data.call_police_clbk_id, callback(CivilianLogicFlee, CivilianLogicFlee, "clbk_chk_call_the_police", data), TimerManager:game():time() + math.lerp(15, 20, math.random()))
 end

@@ -31,7 +31,6 @@ function StaticLayer:clone_unit()
 		self:clone()
 		self:cloned_group()
 	end
-
 end
 
 function StaticLayer:clone()
@@ -41,28 +40,20 @@ function StaticLayer:clone()
 		if managers.editor:using_groups() then
 			self._clone_create_group = true
 		end
-
 		self._selected_units = {}
-		do
-			local (for generator), (for state), (for control) = ipairs(clone_units)
-			do
-				do break end
-				local pos = unit:position()
-				local rot = unit:rotation()
-				self._unit_name = unit:name():s()
-				local old_unit = unit
-				local new_unit = self:do_spawn_unit(self._unit_name, pos, rot)
-				self:remove_name_id(new_unit)
-				new_unit:unit_data().name_id = self:get_name_id(new_unit, old_unit:unit_data().name_id)
-				managers.editor:unit_name_changed(new_unit)
-				self:clone_edited_values(new_unit, old_unit)
-			end
-
+		for _, unit in ipairs(clone_units) do
+			local pos = unit:position()
+			local rot = unit:rotation()
+			self._unit_name = unit:name():s()
+			local old_unit = unit
+			local new_unit = self:do_spawn_unit(self._unit_name, pos, rot)
+			self:remove_name_id(new_unit)
+			new_unit:unit_data().name_id = self:get_name_id(new_unit, old_unit:unit_data().name_id)
+			managers.editor:unit_name_changed(new_unit)
+			self:clone_edited_values(new_unit, old_unit)
 		end
-
 		self:update_unit_settings()
 	end
-
 	managers.editor:thaw_gui_lists()
 	self:_cloning_done()
 end
@@ -71,7 +62,6 @@ function StaticLayer:spawn_unit()
 	if not self._grab and not self:condition() then
 		self:do_spawn_unit(self._unit_name)
 	end
-
 end
 
 function StaticLayer:do_spawn_unit(name, pos, rot)
@@ -81,7 +71,6 @@ function StaticLayer:do_spawn_unit(name, pos, rot)
 		self._created_units_pairs[unit:unit_data().unit_id] = unit
 		self:set_bodies_keyframed(unit)
 	end
-
 	return unit
 end
 
@@ -91,14 +80,11 @@ function StaticLayer:set_bodies_keyframed(unit)
 		if unit:body(i):keyframed() then
 			return
 		end
-
 	end
-
 	for i = 0, bodies - 1 do
 		local body = unit:body(i)
 		body:set_keyframed()
 	end
-
 end
 
 function StaticLayer:use_grab_info()
@@ -108,27 +94,18 @@ function StaticLayer:use_grab_info()
 		self:set_unit_positions(self._grab_info:position())
 		self:set_unit_rotations(self._grab_info:rotation() * self._selected_unit:rotation():inverse())
 	end
-
 end
 
 function StaticLayer:set_unit_positions(pos)
 	if not self._grab then
 		managers.editor:set_grid_altitude(pos.z)
 	end
-
 	local reference = self._selected_unit
-	do
-		local (for generator), (for state), (for control) = ipairs(self._selected_units)
-		do
-			do break end
-			if unit ~= reference then
-				self:set_unit_position(unit, pos, reference:rotation())
-			end
-
+	for _, unit in ipairs(self._selected_units) do
+		if unit ~= reference then
+			self:set_unit_position(unit, pos, reference:rotation())
 		end
-
 	end
-
 	reference:set_position(pos)
 	reference:unit_data().world_pos = pos
 	self:_on_unit_moved(reference, pos)
@@ -147,16 +124,12 @@ function StaticLayer:set_unit_rotations(rot)
 	local rot = rot * reference:rotation()
 	reference:set_rotation(rot)
 	self:_on_unit_rotated(reference, rot)
-	local (for generator), (for state), (for control) = ipairs(self._selected_units)
-	do
-		do break end
+	for _, unit in ipairs(self._selected_units) do
 		if unit ~= reference then
 			self:set_unit_position(unit, reference:position(), rot)
 			self:set_unit_rotation(unit, rot)
 		end
-
 	end
-
 end
 
 function StaticLayer:set_unit_rotation(unit, rot)
@@ -170,11 +143,9 @@ function StaticLayer:_on_unit_moved(unit, pos)
 		unit:set_position(pos)
 		unit:ladder():set_config()
 	end
-
 	if unit:zipline() then
 		unit:zipline():set_start_pos(pos)
 	end
-
 end
 
 function StaticLayer:_on_unit_rotated(unit, rot)
@@ -182,7 +153,6 @@ function StaticLayer:_on_unit_rotated(unit, rot)
 		unit:set_rotation(rot)
 		unit:ladder():set_config()
 	end
-
 end
 
 function StaticLayer:move_unit(btn, pressed)
@@ -192,9 +162,7 @@ function StaticLayer:move_unit(btn, pressed)
 		if not managers.editor:invert_move_shift() or managers.editor:invert_move_shift() and self:shift() then
 			self._offset_move_vec = self._selected_unit:position() - self._current_pos
 		end
-
 	end
-
 end
 
 function StaticLayer:rotate_unit(btn, pressed)
@@ -209,7 +177,6 @@ function StaticLayer:rotate_unit(btn, pressed)
 			elseif snap_axis == "z" then
 				rot_axis = self._selected_unit:rotation():z()
 			end
-
 		elseif snap_axis == "x" then
 			rot_axis = Vector3(1, 0, 0)
 		elseif snap_axis == "y" then
@@ -217,16 +184,13 @@ function StaticLayer:rotate_unit(btn, pressed)
 		elseif snap_axis == "z" then
 			rot_axis = Vector3(0, 0, 1)
 		end
-
 		local step = self:snap_rotation()
 		if self:shift() then
 			step = -step
 		end
-
 		local rot = Rotation(rot_axis, step)
 		self:set_unit_rotations(rot)
 	end
-
 end
 
 function StaticLayer:position_as()
@@ -241,9 +205,7 @@ function StaticLayer:position_as()
 			self:set_unit_positions(ray.unit:position())
 			self:set_unit_rotations(ray.unit:rotation() * self._selected_unit:rotation():inverse())
 		end
-
 	end
-
 end
 
 function StaticLayer:set_select_unit(unit)
@@ -251,11 +213,9 @@ function StaticLayer:set_select_unit(unit)
 	if unit then
 		self:set_bodies_keyframed(unit)
 	end
-
 	if alive(self._selected_unit) then
 		managers.editor:set_grid_altitude(self._selected_unit:position().z)
 	end
-
 end
 
 function StaticLayer:release_unit()
@@ -264,26 +224,20 @@ function StaticLayer:release_unit()
 	if self._selected_unit then
 		managers.editor:set_grid_altitude(self._selected_unit:position().z)
 	end
-
 end
 
 function StaticLayer:delete_selected_unit(btn, pressed)
 	managers.editor:freeze_gui_lists()
 	if self._selected_unit and not self:condition() then
 		local to_delete = CoreTable.clone(self._selected_units)
-		local (for generator), (for state), (for control) = ipairs(to_delete)
-		do
-			do break end
+		for _, unit in ipairs(to_delete) do
 			if table.contains(self._created_units, unit) then
 				self:delete_unit(unit)
 			else
 				managers.editor:output_warning("" .. unit:unit_data().name_id .. " belongs to " .. managers.editor:unit_in_layer_name(unit) .. " and cannot be deleted from here.")
 			end
-
 		end
-
 	end
-
 	managers.editor:thaw_gui_lists()
 end
 
@@ -293,7 +247,6 @@ function StaticLayer:create_marker(marker)
 		marker:set_rot(self._selected_unit:rotation())
 		return true
 	end
-
 end
 
 function StaticLayer:use_marker(marker)
@@ -301,7 +254,6 @@ function StaticLayer:use_marker(marker)
 		self:set_unit_positions(marker._pos)
 		self:set_unit_rotations(marker._rot * self._selected_unit:rotation():inverse())
 	end
-
 end
 
 function StaticLayer:reset_rotation()
@@ -309,7 +261,6 @@ function StaticLayer:reset_rotation()
 		local yaw = not self:shift() and self._selected_unit:rotation():yaw() or 0
 		self:set_unit_rotations(Rotation(yaw, 0, 0) * self._selected_unit:rotation():inverse())
 	end
-
 end
 
 function StaticLayer:update(t, dt)
@@ -320,7 +271,6 @@ function StaticLayer:update(t, dt)
 		if self._grab and self:shift() and not managers.editor:invert_move_shift() or not self:shift() and managers.editor:invert_move_shift() then
 			self._offset_move_vec = Vector3(0, 0, 0)
 		end
-
 		local current_pos, current_rot = managers.editor:current_orientation(self._offset_move_vec, self._selected_unit)
 		self._current_pos = current_pos or self._current_pos
 		self._current_rot = current_rot
@@ -330,31 +280,23 @@ function StaticLayer:update(t, dt)
 			else
 				self._grab = false
 			end
-
 		end
-
 		if self._current_rot then
 			if self._ctrl:down(Idstring("assign_suface_normal")) then
 				self:set_unit_rotations(self._current_rot)
 			end
-
 			if self._grab then
 				if self._ctrl:down(Idstring("surface_move_align_normal")) then
 					self:set_unit_rotations(self._current_rot)
 				end
-
 				if self:use_snappoints() then
 					self:set_unit_rotations(self._current_rot)
 				end
-
 			end
-
 		end
-
 		self:draw_marker(t, dt)
 		self:draw_grid(t, dt)
 	end
-
 	self:update_move_triggers(t, dt)
 	self:update_rotate_triggers(t, dt)
 end
@@ -363,14 +305,12 @@ function StaticLayer:draw_marker(t, dt)
 	if not managers.editor:layer_draw_marker() then
 		return
 	end
-
 	local ray
 	if alive(self._selected_unit) then
 		ray = self._selected_unit:raycast(self._current_pos + Vector3(0, 0, 2000), self._current_pos + Vector3(0, 0, -500), nil, self._slot_mask)
 	else
 		ray = World:raycast(self._current_pos + Vector3(0, 0, 2000), self._current_pos + Vector3(0, 0, -500), nil, self._slot_mask)
 	end
-
 	if ray and ray.unit then
 		Application:draw_line(self._current_pos - Vector3(0, 0, 2000), self._current_pos + Vector3(0, 0, 2000), 1, 0, 0)
 		Application:draw_sphere(self._current_pos, self._marker_sphere_size, 1, 0, 0)
@@ -378,18 +318,15 @@ function StaticLayer:draw_marker(t, dt)
 		Application:draw_line(self._current_pos - Vector3(0, 0, 2000), self._current_pos + Vector3(0, 0, 2000), 0, 1, 0)
 		Application:draw_sphere(self._current_pos, self._marker_sphere_size, 0, 1, 0)
 	end
-
 end
 
 function StaticLayer:update_move_triggers(t, dt)
 	if not alive(self._selected_unit) or not self._editor_data.keyboard_available or self:condition() then
 		return
 	end
-
 	if not self._move_unit_rep:update(d, dt) or CoreInput.shift() then
 		return
 	end
-
 	local mov_vec
 	local u_rot = self._selected_unit:rotation()
 	if self._ctrl:down(Idstring("move_forward")) then
@@ -405,23 +342,19 @@ function StaticLayer:update_move_triggers(t, dt)
 	else
 		mov_vec = not self._ctrl:down(Idstring("move_down")) or self:local_rot() and u_rot:z() * -1 or Vector3(0, 0, 1) * -1
 	end
-
 	if mov_vec then
 		self:set_unit_positions(self._selected_unit:position() + mov_vec * self:grid_size())
 	end
-
 end
 
 function StaticLayer:update_rotate_triggers(t, dt)
 	if not alive(self._selected_unit) or not self._editor_data.keyboard_available or self:condition() then
 		return
 	end
-
 	local rot_speed = self:rotation_speed() * dt
 	if self:shift() then
 		rot_speed = rot_speed / 2
 	end
-
 	local rot_axis
 	local u_rot = self._selected_unit:rotation()
 	if self._ctrl:down(Idstring("roll_left")) then
@@ -437,45 +370,35 @@ function StaticLayer:update_rotate_triggers(t, dt)
 	elseif self._ctrl:down(Idstring("yaw_forward")) then
 		rot_axis = (self:local_rot() and u_rot:x() or Vector3(1, 0, 0)) * -1
 	end
-
 	if rot_axis then
 		local rot = Rotation(rot_axis, rot_speed)
 		self:set_unit_rotations(rot)
 	end
-
 end
 
 function StaticLayer:draw_rotation(t, dt)
 	if not alive(self._selected_unit) then
 		return
 	end
-
 	local p_rot = self._owner:get_cursor_look_point(500)
 	if self:local_rot() then
 		Application:draw_rotation(p_rot, self._selected_unit:rotation())
 	else
 		Application:draw_rotation(p_rot, Rotation(0, 0, 0))
 	end
-
 end
 
 function StaticLayer:draw_units(t, dt)
 	if self._selected_units then
-		local (for generator), (for state), (for control) = ipairs(self._selected_units)
-		do
-			do break end
+		for _, unit in ipairs(self._selected_units) do
 			if alive(unit) and unit ~= self._selected_unit then
 				Application:draw(unit, 1, 1, 1)
 			end
-
 		end
-
 	end
-
 	if not alive(self._selected_unit) then
 		return
 	end
-
 	Application:draw_rotation(self._selected_unit:position(), self._selected_unit:rotation())
 	Application:draw(self._selected_unit, 0, 1, 0)
 end
@@ -550,11 +473,8 @@ function StaticLayer:add_triggers()
 	vc:add_trigger(Idstring("reset_rotation"), callback(self, self, "reset_rotation"))
 	vc:add_trigger(Idstring("clone"), callback(self, self, "clone_unit"))
 	vc:add_trigger(Idstring("snap_rotate"), callback(self, self, "rotate_unit"))
-	local (for generator), (for state), (for control) = pairs(self._ews_triggers)
-	do
-		do break end
+	for k, cb in pairs(self._ews_triggers) do
 		vc:add_trigger(Idstring(k), cb)
 	end
-
 end
 

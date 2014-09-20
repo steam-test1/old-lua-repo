@@ -15,7 +15,6 @@ function MenuManager:update(t, dt, ...)
 	if managers.menu_scene then
 		managers.menu_scene:update(t, dt)
 	end
-
 	managers.menu_component:update(t, dt)
 end
 
@@ -25,11 +24,9 @@ function MenuManager:on_view_character(user)
 		if managers.menu:active_menu().logic:selected_node_name() ~= "view_character" then
 			managers.menu:active_menu().logic:select_node("view_character", true, {})
 		end
-
 		managers.menu_scene:set_main_character_outfit(outfit)
 		managers.menu_component:create_view_character_profile_gui(user, 0, 300)
 	end
-
 end
 
 function MenuManager:on_enter_lobby()
@@ -51,7 +48,6 @@ function MenuManager:on_leave_active_job()
 	if managers.groupai then
 		managers.groupai:state():set_AI_enabled(false)
 	end
-
 	self._sound_source:post_event("menu_exit")
 	managers.menu:close_menu("lobby_menu")
 	managers.menu:close_menu("menu_pause")
@@ -66,7 +62,6 @@ function MenuManager:setup_local_lobby_character()
 	if managers.menu_scene then
 		managers.menu_scene:set_lobby_character_out_fit(local_peer:id(), managers.blackmarket:outfit_string(), rank)
 	end
-
 	local_peer:set_outfit_string(managers.blackmarket:outfit_string())
 	managers.network:session():send_to_peers_loaded("sync_profile", level, rank)
 	managers.network:session():send_to_peers_loaded("sync_outfit", managers.blackmarket:outfit_string(), managers.network:session():local_peer():outfit_version())
@@ -92,7 +87,6 @@ function MenuCallbackHandler:on_view_character_focus(node, in_focus, data)
 		managers.menu_scene:set_main_character_outfit(managers.blackmarket:outfit_string())
 		managers.menu_component:close_view_character_profile_gui()
 	end
-
 end
 
 function MenuCallbackHandler:on_character_customization()
@@ -103,7 +97,6 @@ function MenuCallbackHandler:start_job(job_data)
 	if not managers.job:activate_job(job_data.job_id) then
 		return
 	end
-
 	Global.game_settings.level_id = managers.job:current_level_id()
 	Global.game_settings.mission = managers.job:current_mission()
 	Global.game_settings.world_setting = managers.job:current_world_setting()
@@ -121,7 +114,6 @@ function MenuCallbackHandler:start_job(job_data)
 	else
 		managers.network.matchmake:create_lobby(matchmake_attributes)
 	end
-
 end
 
 function MenuCallbackHandler:play_single_player_job(item)
@@ -143,7 +135,6 @@ function MenuCallbackHandler:start_single_player_job(job_data)
 	if not managers.job:activate_job(job_data.job_id) then
 		return
 	end
-
 	Global.game_settings.level_id = managers.job:current_level_id()
 	Global.game_settings.mission = managers.job:current_mission()
 	Global.game_settings.difficulty = job_data.difficulty
@@ -158,13 +149,11 @@ function MenuCallbackHandler:crimenet_focus_changed(node, in_focus)
 		else
 			managers.crimenet:start()
 		end
-
 		managers.menu_component:create_crimenet_gui()
 	else
 		managers.crimenet:stop()
 		managers.menu_component:close_crimenet_gui()
 	end
-
 end
 
 function MenuCallbackHandler:can_buy_weapon(item)
@@ -228,7 +217,6 @@ function MenuCallbackHandler:test_clicked_weapon(item)
 			condition = math.round(item:parameter("condition") / item:_max_condition() * 100)
 		})
 	end
-
 end
 
 function MenuCallbackHandler:buy_weapon(item)
@@ -247,22 +235,17 @@ end
 
 function MenuCallbackHandler:equip_weapon(item)
 	Global.player_manager.kit.weapon_slots[item:parameter("weapon_slot")] = item:parameter("weapon_id")
-	local (for generator), (for state), (for control) = pairs(Global.blackmarket_manager.weapons)
-	do
-		do break end
+	for weapon_id, data in pairs(Global.blackmarket_manager.weapons) do
 		if data.selection_index == item:parameter("weapon_slot") then
 			data.equipped = weapon_id == item:parameter("weapon_id")
 		end
-
 	end
-
 end
 
 function MenuCallbackHandler:repair_weapon(item)
 	if item:_at_max_condition() then
 		return
 	end
-
 	local name = managers.localization:text(tweak_data.weapon[item:parameter("weapon_id")].name_id)
 	local cost = 50000 * (1 - item:parameter("parent_item"):condition() / item:_max_condition())
 	local yes_func = callback(self, self, "on_repair_yes", {item = item, cost = cost})
@@ -315,15 +298,11 @@ function MenuCallbackHandler:attach_weapon_upgrade(item)
 	local upgrade = item:parameter("weapon_upgrade")
 	local attach = not Global.blackmarket_manager.weapon_upgrades[weapon_id][upgrade].attached
 	Global.blackmarket_manager.weapon_upgrades[weapon_id][upgrade].attached = not Global.blackmarket_manager.weapon_upgrades[weapon_id][upgrade].attached
-	local (for generator), (for state), (for control) = ipairs(tweak_data.weapon_upgrades.weapon[weapon_id][item:parameter("upgrade_type")])
-	do
-		do break end
+	for _, _upgrade in ipairs(tweak_data.weapon_upgrades.weapon[weapon_id][item:parameter("upgrade_type")]) do
 		if _upgrade ~= upgrade then
 			Global.blackmarket_manager.weapon_upgrades[weapon_id][_upgrade].attached = false
 		end
-
 	end
-
 end
 
 function MenuCallbackHandler:clicked_customize_character_category(item)
@@ -333,12 +312,10 @@ function MenuCallbackHandler:clicked_customize_character_category(item)
 			managers.menu_scene:clicked_masks()
 			return
 		end
-
 	elseif name == "armor" and item:expanded() then
 		managers.menu_scene:clicked_armor()
 		return
 	end
-
 	managers.menu_scene:clicked_customize_character_category()
 end
 
@@ -346,7 +323,6 @@ function MenuCallbackHandler:test_clicked_mask(item)
 	if not item:parameter("customize") then
 		managers.menu_scene:clicked_blackmarket_item()
 	end
-
 	managers.menu_component:close_weapon_box()
 	managers.menu_scene:spawn_mask(item:parameter("mask_id"))
 end
@@ -371,7 +347,6 @@ function MenuCallbackHandler:_update_outfit_information()
 	if self:is_win32() then
 		Steam:set_rich_presence("outfit", outfit_string)
 	end
-
 	if managers.network:session() then
 		local local_peer = managers.network:session():local_peer()
 		local in_lobby = local_peer:in_lobby() and game_state_machine:current_state_name() ~= "ingame_lobby_menu"
@@ -379,18 +354,15 @@ function MenuCallbackHandler:_update_outfit_information()
 			local id = local_peer:id()
 			managers.menu_scene:set_lobby_character_out_fit(id, outfit_string, managers.experience:current_rank())
 		end
-
 		local kit_menu = managers.menu:get_menu("kit_menu")
 		if kit_menu then
 			local id = local_peer:id()
 			local criminal_name = local_peer:character()
 			kit_menu.renderer:set_slot_outfit(id, criminal_name, outfit_string)
 		end
-
 		local_peer:set_outfit_string(outfit_string)
 		managers.network:session():send_to_peers_loaded("sync_outfit", outfit_string, local_peer:outfit_version())
 	end
-
 end
 
 function MenuCallbackHandler:buy_mask(item)
@@ -419,18 +391,11 @@ function MenuCallbackHandler:equip_character(item)
 	local character_id = item:parameter("character_id")
 	Global.blackmarket_manager.characters[character_id].equipped = true
 	managers.menu_scene:set_character(character_id)
-	do
-		local (for generator), (for state), (for control) = pairs(Global.blackmarket_manager.characters)
-		do
-			do break end
-			if id ~= character_id then
-				character.equipped = false
-			end
-
+	for id, character in pairs(Global.blackmarket_manager.characters) do
+		if id ~= character_id then
+			character.equipped = false
 		end
-
 	end
-
 	self:_update_outfit_information()
 end
 
@@ -460,7 +425,6 @@ function MenuCallbackHandler:test_clicked_armor(item)
 	managers.menu_component:close_weapon_box()
 	if not item:parameter("customize") then
 	end
-
 end
 
 function MenuCallbackHandler:can_buy_armor(item)
@@ -489,18 +453,11 @@ function MenuCallbackHandler:equip_armor(item)
 	local armor_id = item:parameter("armor_id")
 	Global.blackmarket_manager.armors[armor_id].equipped = true
 	managers.menu_scene:set_character_armor(armor_id)
-	do
-		local (for generator), (for state), (for control) = pairs(Global.blackmarket_manager.armors)
-		do
-			do break end
-			if id ~= armor_id then
-				armor.equipped = false
-			end
-
+	for id, armor in pairs(Global.blackmarket_manager.armors) do
+		if id ~= armor_id then
+			armor.equipped = false
 		end
-
 	end
-
 	self:_update_outfit_information()
 end
 
@@ -508,7 +465,6 @@ function MenuCallbackHandler:repair_armor(item)
 	if item:_at_max_condition() then
 		return
 	end
-
 	local armor_id = item:parameter("armor_id")
 	local name = managers.localization:text(tweak_data.blackmarket.armors[armor_id].name_id)
 	local cost = 30000 * (1 - item:parameter("parent_item"):condition() / item:_max_condition())
@@ -525,7 +481,6 @@ function MenuCallbackHandler:stage_success()
 	if not managers.job:has_active_job() then
 		return true
 	end
-
 	return managers.job:stage_success()
 end
 
@@ -565,13 +520,11 @@ function MenuMarketItemInitiator:modify_node(node)
 		support_equipment_item:set_parameter("current", 1)
 		support_equipment_item:set_parameter("total", 4)
 	end
-
 	local miscellaneous_item = node:item("miscellaneous")
 	if miscellaneous_item and self:_uses_owned_stats() then
 		miscellaneous_item:set_parameter("current", 0)
 		miscellaneous_item:set_parameter("total", 6)
 	end
-
 	local masks_item = node:item("masks")
 	self:_add_expand_mask(masks_item)
 	local character_item = node:item("character")
@@ -615,59 +568,47 @@ function MenuMarketItemInitiator:_add_expand_weapon(item, selection_index)
 	if not item then
 		return
 	end
-
 	local i = 0
 	local j = 0
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.weapon)
-		do
-			do break end
-			if data.autohit and data.use_data.selection_index == selection_index then
-				i = i + 1
-				local bm_data = Global.blackmarket_manager.weapons[weapon]
-				local unlocked = bm_data.unlocked
-				local owned = bm_data.owned
-				if owned and unlocked then
-					j = j + 1
-				end
-
-				local equipped = bm_data.equipped
-				local condition = bm_data.condition
-				if self:_add_weapon(bm_data) then
-					local weapon_item = item:get_item(weapon)
-					if not weapon_item then
-						local params = {
-							type = "MenuItemWeaponExpand",
-							name = weapon,
-							text_id = data.name_id,
-							callback = "test_clicked_weapon",
-							weapon_id = weapon,
-							unlocked = unlocked and true or false,
-							condition = condition,
-							weapon_slot = selection_index
-						}
-						self:_add_weapon_params(params)
-						weapon_item = CoreMenuNode.MenuNode.create_item(item, params)
-						item:add_item(weapon_item)
-					end
-
-					weapon_item:parameters().unlocked = unlocked
-					weapon_item:parameters().equipped = equipped and true or false
-					weapon_item:parameters().owned = owned
-					weapon_item:parameters().condition = condition
-				end
-
+	for weapon, data in pairs(tweak_data.weapon) do
+		if data.autohit and data.use_data.selection_index == selection_index then
+			i = i + 1
+			local bm_data = Global.blackmarket_manager.weapons[weapon]
+			local unlocked = bm_data.unlocked
+			local owned = bm_data.owned
+			if owned and unlocked then
+				j = j + 1
 			end
-
+			local equipped = bm_data.equipped
+			local condition = bm_data.condition
+			if self:_add_weapon(bm_data) then
+				local weapon_item = item:get_item(weapon)
+				if not weapon_item then
+					local params = {
+						type = "MenuItemWeaponExpand",
+						name = weapon,
+						text_id = data.name_id,
+						callback = "test_clicked_weapon",
+						weapon_id = weapon,
+						unlocked = unlocked and true or false,
+						condition = condition,
+						weapon_slot = selection_index
+					}
+					self:_add_weapon_params(params)
+					weapon_item = CoreMenuNode.MenuNode.create_item(item, params)
+					item:add_item(weapon_item)
+				end
+				weapon_item:parameters().unlocked = unlocked
+				weapon_item:parameters().equipped = equipped and true or false
+				weapon_item:parameters().owned = owned
+				weapon_item:parameters().condition = condition
+			end
 		end
-
 	end
-
 	if self:_uses_owned_stats() then
 		item:set_parameter("current", j)
 		item:set_parameter("total", i)
 	end
-
 	item:_show_items(nil)
 	return i
 end
@@ -675,48 +616,38 @@ end
 function MenuMarketItemInitiator:_add_expand_mask(item)
 	local i = 0
 	local j = 0
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.blackmarket.masks)
-		do
-			do break end
-			i = i + 1
-			local bm_data = Global.blackmarket_manager.masks[mask_id]
-			local unlocked = bm_data.unlocked
-			local owned = bm_data.owned
-			local equipped = bm_data.equipped
-			if owned then
-				j = j + 1
-			end
-
-			if self:_add_mask(bm_data) then
-				local mask_item = item:get_item(mask_id)
-				if not mask_item then
-					local params = {
-						type = "MenuItemMaskExpand",
-						name = mask_id,
-						text_id = data.name_id,
-						callback = "test_clicked_mask",
-						unlocked = unlocked and true or false,
-						mask_id = mask_id
-					}
-					self:_add_mask_params(params)
-					mask_item = CoreMenuNode.MenuNode.create_item(item, params)
-					item:add_item(mask_item)
-				end
-
-				mask_item:parameters().equipped = equipped and true or false
-				mask_item:parameters().owned = owned
-			end
-
+	for mask_id, data in pairs(tweak_data.blackmarket.masks) do
+		i = i + 1
+		local bm_data = Global.blackmarket_manager.masks[mask_id]
+		local unlocked = bm_data.unlocked
+		local owned = bm_data.owned
+		local equipped = bm_data.equipped
+		if owned then
+			j = j + 1
 		end
-
+		if self:_add_mask(bm_data) then
+			local mask_item = item:get_item(mask_id)
+			if not mask_item then
+				local params = {
+					type = "MenuItemMaskExpand",
+					name = mask_id,
+					text_id = data.name_id,
+					callback = "test_clicked_mask",
+					unlocked = unlocked and true or false,
+					mask_id = mask_id
+				}
+				self:_add_mask_params(params)
+				mask_item = CoreMenuNode.MenuNode.create_item(item, params)
+				item:add_item(mask_item)
+			end
+			mask_item:parameters().equipped = equipped and true or false
+			mask_item:parameters().owned = owned
+		end
 	end
-
 	if self:_uses_owned_stats() then
 		item:set_parameter("current", j)
 		item:set_parameter("total", i)
 	end
-
 	item:_show_items(nil)
 	return i
 end
@@ -724,48 +655,38 @@ end
 function MenuMarketItemInitiator:_add_expand_character(item)
 	local i = 0
 	local j = 0
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.blackmarket.characters)
-		do
-			do break end
-			i = i + 1
-			local bm_data = Global.blackmarket_manager.characters[character_id]
-			local unlocked = bm_data.unlocked
-			local owned = bm_data.owned
-			local equipped = bm_data.equipped
-			if owned then
-				j = j + 1
-			end
-
-			if self:_add_character(bm_data) then
-				local character_item = item:get_item(character_id)
-				if not character_item then
-					local params = {
-						type = "MenuItemCharacterExpand",
-						name = character_id,
-						text_id = data.name_id,
-						callback = "clicked_character",
-						unlocked = unlocked and true or false,
-						character_id = character_id
-					}
-					self:_add_character_params(params)
-					character_item = CoreMenuNode.MenuNode.create_item(item, params)
-					item:add_item(character_item)
-				end
-
-				character_item:parameters().equipped = equipped and true or false
-				character_item:parameters().owned = owned
-			end
-
+	for character_id, data in pairs(tweak_data.blackmarket.characters) do
+		i = i + 1
+		local bm_data = Global.blackmarket_manager.characters[character_id]
+		local unlocked = bm_data.unlocked
+		local owned = bm_data.owned
+		local equipped = bm_data.equipped
+		if owned then
+			j = j + 1
 		end
-
+		if self:_add_character(bm_data) then
+			local character_item = item:get_item(character_id)
+			if not character_item then
+				local params = {
+					type = "MenuItemCharacterExpand",
+					name = character_id,
+					text_id = data.name_id,
+					callback = "clicked_character",
+					unlocked = unlocked and true or false,
+					character_id = character_id
+				}
+				self:_add_character_params(params)
+				character_item = CoreMenuNode.MenuNode.create_item(item, params)
+				item:add_item(character_item)
+			end
+			character_item:parameters().equipped = equipped and true or false
+			character_item:parameters().owned = owned
+		end
 	end
-
 	if self:_uses_owned_stats() then
 		item:set_parameter("current", j)
 		item:set_parameter("total", i)
 	end
-
 	item:_show_items(nil)
 	return i
 end
@@ -774,54 +695,43 @@ function MenuMarketItemInitiator:_add_expand_armor(item)
 	if not item then
 		return
 	end
-
 	local i = 0
 	local j = 0
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.blackmarket.armors)
-		do
-			do break end
-			i = i + 1
-			local bm_data = Global.blackmarket_manager.armors[armor_id]
-			local unlocked = bm_data.unlocked
-			local owned = bm_data.owned
-			local equipped = bm_data.equipped
-			local condition = bm_data.condition
-			if owned then
-				j = j + 1
-			end
-
-			if self:_add_armor(bm_data) then
-				local armor_item = item:get_item(armor_id)
-				if not armor_item then
-					local params = {
-						type = "MenuItemArmorExpand",
-						name = armor_id,
-						text_id = data.name_id,
-						callback = "test_clicked_armor",
-						armor_id = armor_id,
-						condition = condition
-					}
-					self:_add_armor_params(params)
-					armor_item = CoreMenuNode.MenuNode.create_item(item, params)
-					item:add_item(armor_item)
-				end
-
-				armor_item:parameters().equipped = equipped
-				armor_item:parameters().unlocked = unlocked
-				armor_item:parameters().owned = owned
-				armor_item:parameters().condition = condition
-			end
-
+	for armor_id, data in pairs(tweak_data.blackmarket.armors) do
+		i = i + 1
+		local bm_data = Global.blackmarket_manager.armors[armor_id]
+		local unlocked = bm_data.unlocked
+		local owned = bm_data.owned
+		local equipped = bm_data.equipped
+		local condition = bm_data.condition
+		if owned then
+			j = j + 1
 		end
-
+		if self:_add_armor(bm_data) then
+			local armor_item = item:get_item(armor_id)
+			if not armor_item then
+				local params = {
+					type = "MenuItemArmorExpand",
+					name = armor_id,
+					text_id = data.name_id,
+					callback = "test_clicked_armor",
+					armor_id = armor_id,
+					condition = condition
+				}
+				self:_add_armor_params(params)
+				armor_item = CoreMenuNode.MenuNode.create_item(item, params)
+				item:add_item(armor_item)
+			end
+			armor_item:parameters().equipped = equipped
+			armor_item:parameters().unlocked = unlocked
+			armor_item:parameters().owned = owned
+			armor_item:parameters().condition = condition
+		end
 	end
-
 	if self:_uses_owned_stats() then
 		item:set_parameter("current", j)
 		item:set_parameter("total", i)
 	end
-
 	item:_show_items(nil)
 	return i
 end
@@ -848,15 +758,12 @@ function MenuBuyUpgradesInitiator:_add_expand_upgrade(item, weapon_id, upgrade)
 	if weapon_upgrades then
 		local upgrades = weapon_upgrades[upgrade]
 		if upgrades then
-			local (for generator), (for state), (for control) = ipairs(upgrades)
-			do
-				do break end
+			for _, w_upgrade in ipairs(upgrades) do
 				i = i + 1
 				local owned = Global.blackmarket_manager.weapon_upgrades[weapon_id][w_upgrade].owned
 				if owned then
 					j = j + 1
 				end
-
 				local params = {
 					type = "MenuItemWeaponUpgradeExpand",
 					name = w_upgrade,
@@ -872,11 +779,8 @@ function MenuBuyUpgradesInitiator:_add_expand_upgrade(item, weapon_id, upgrade)
 				local upgrade_item = CoreMenuNode.MenuNode.create_item(item, params)
 				item:add_item(upgrade_item)
 			end
-
 		end
-
 	end
-
 	item:set_parameter("current", j)
 	item:set_parameter("total", i)
 	item:_show_items(nil)
@@ -888,7 +792,6 @@ function MenuComponentInitiator:modify_node(original_node, data)
 	if data and data.back_callback then
 		table.insert(node:parameters().back_callback, data.back_callback)
 	end
-
 	node:parameters().menu_component_data = data
 	return node
 end
@@ -948,31 +851,18 @@ end
 function MenuCrimeNetInitiator:refresh_node(node)
 	do return node end
 	local dead_list = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(node:items())
-		do
-			do break end
-			dead_list[item:parameters().name] = true
-		end
-
+	for _, item in ipairs(node:items()) do
+		dead_list[item:parameters().name] = true
 	end
-
 	local online = {}
 	local offline = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(Steam:friends())
-		do
-			do break end
-			if math.random(2) == 1 and user:state() == "online" or user:state() == "away" then
-				table.insert(online, user)
-			else
-				table.insert(offline, user)
-			end
-
+	for _, user in ipairs(Steam:friends()) do
+		if math.random(2) == 1 and user:state() == "online" or user:state() == "away" then
+			table.insert(online, user)
+		else
+			table.insert(offline, user)
 		end
-
 	end
-
 	node:delete_item("online")
 	if not node:item("online") then
 		local params = {
@@ -985,28 +875,20 @@ function MenuCrimeNetInitiator:refresh_node(node)
 		}, params)
 		node:add_item(new_item)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(online)
-		do
-			do break end
-			local name = user:id()
-			local item = node:item(name)
-			if item then
-				node:delete_item(name)
-			end
-
-			local params = {
-				name = name,
-				text_id = user:name(),
-				localize = "false"
-			}
-			local new_item = node:create_item(nil, params)
-			node:add_item(new_item)
+	for _, user in ipairs(online) do
+		local name = user:id()
+		local item = node:item(name)
+		if item then
+			node:delete_item(name)
 		end
-
+		local params = {
+			name = name,
+			text_id = user:name(),
+			localize = "false"
+		}
+		local new_item = node:create_item(nil, params)
+		node:add_item(new_item)
 	end
-
 	node:delete_item("offline")
 	if not node:item("offline") then
 		local params = {
@@ -1019,36 +901,22 @@ function MenuCrimeNetInitiator:refresh_node(node)
 		}, params)
 		node:add_item(new_item)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(offline)
-		do
-			do break end
-			local name = user:id()
-			local item = node:item(name)
-			if item then
-				node:delete_item(name)
-			end
-
-			local params = {
-				name = name,
-				text_id = user:name(),
-				localize = "false"
-			}
-			local new_item = node:create_item(nil, params)
-			node:add_item(new_item)
+	for _, user in ipairs(offline) do
+		local name = user:id()
+		local item = node:item(name)
+		if item then
+			node:delete_item(name)
 		end
-
+		local params = {
+			name = name,
+			text_id = user:name(),
+			localize = "false"
+		}
+		local new_item = node:create_item(nil, params)
+		node:add_item(new_item)
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(dead_list)
-		do
-			break
-		end
-
+	for name, _ in pairs(dead_list) do
 	end
-
 	managers.menu:add_back_button(node)
 	return node
 end

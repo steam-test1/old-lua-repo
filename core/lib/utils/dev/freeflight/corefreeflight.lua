@@ -43,9 +43,7 @@ function FreeFlight:_setup_F9_key()
 			self._f9_con:connect(keyboard, Idstring("f9"), Idstring("btn_toggle"))
 			self._f9_con:add_trigger(Idstring("btn_toggle"), callback(self, self, "_on_F9"))
 		end
-
 	end
-
 end
 
 function FreeFlight:_setup_modifiers()
@@ -222,45 +220,31 @@ function FreeFlight:_setup_gui()
 	local text_script = {fade_out = anim_fade_out_func, fade_in = anim_fade_in_func}
 	self._action_gui = {}
 	self._action_vis_time = nil
-	do
-		local (for generator), (for state), (for control) = ipairs(self._actions)
-		do
-			do break end
-			local text = self._panel:text(config)
-			text:set_script(text_script)
-			text:set_text(a:name())
-			text:set_y(text:y() + i * TEXT_HEIGHT_OFFSET)
-			if i == self._action_index then
-				text:set_color(SELECTED)
-			end
-
-			text:set_color(text:color():with_alpha(0))
-			table.insert(self._action_gui, text)
+	for i, a in ipairs(self._actions) do
+		local text = self._panel:text(config)
+		text:set_script(text_script)
+		text:set_text(a:name())
+		text:set_y(text:y() + i * TEXT_HEIGHT_OFFSET)
+		if i == self._action_index then
+			text:set_color(SELECTED)
 		end
-
+		text:set_color(text:color():with_alpha(0))
+		table.insert(self._action_gui, text)
 	end
-
 	self._modifier_gui = {}
 	self._modifier_vis_time = nil
-	do
-		local (for generator), (for state), (for control) = ipairs(self._modifiers)
-		do
-			do break end
-			local text = self._panel:text(config)
-			text:set_script(text_script)
-			text:set_text(m:name_value())
-			text:set_y(text:y() + i * TEXT_HEIGHT_OFFSET)
-			text:set_x(res.x - SCREEN_RIGHT_OFFSET)
-			if i == self._modifier_index then
-				text:set_color(SELECTED)
-			end
-
-			text:set_color(text:color():with_alpha(0))
-			table.insert(self._modifier_gui, text)
+	for i, m in ipairs(self._modifiers) do
+		local text = self._panel:text(config)
+		text:set_script(text_script)
+		text:set_text(m:name_value())
+		text:set_y(text:y() + i * TEXT_HEIGHT_OFFSET)
+		text:set_x(res.x - SCREEN_RIGHT_OFFSET)
+		if i == self._modifier_index then
+			text:set_color(SELECTED)
 		end
-
+		text:set_color(text:color():with_alpha(0))
+		table.insert(self._modifier_gui, text)
 	end
-
 	self._workspace:hide()
 end
 
@@ -275,9 +259,7 @@ function FreeFlight:enable()
 				local pos = self._start_cam:position() - (alive(self._attached_to_unit) and self._attached_to_unit:position() or Vector3())
 				self:_set_camera(pos, self._start_cam:rotation())
 			end
-
 		end
-
 		self._state = FF_ON
 		self._vp:set_active(true)
 		self._con:enable()
@@ -287,21 +269,13 @@ function FreeFlight:enable()
 		if managers.enemy then
 			managers.enemy:set_gfx_lod_enabled(false)
 		end
-
 	end
-
 end
 
 function FreeFlight:disable()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._actions)
-		do
-			do break end
-			a:reset()
-		end
-
+	for _, a in ipairs(self._actions) do
+		a:reset()
 	end
-
 	self._state = FF_OFF
 	self._con:disable()
 	self._workspace:hide()
@@ -309,7 +283,6 @@ function FreeFlight:disable()
 	if managers.enemy then
 		managers.enemy:set_gfx_lod_enabled(true)
 	end
-
 end
 
 function FreeFlight:enabled()
@@ -325,7 +298,6 @@ function FreeFlight:_on_F9()
 		self._state = FF_ON
 		self._con:enable()
 	end
-
 end
 
 function FreeFlight:_action_toggle()
@@ -334,7 +306,6 @@ function FreeFlight:_action_toggle()
 		self._action_index = self._action_index % #self._actions + 1
 		self._action_gui[self._action_index]:set_color(SELECTED)
 	end
-
 	self:_draw_actions()
 end
 
@@ -342,7 +313,6 @@ function FreeFlight:_action_execute()
 	if self:_actions_are_visible() then
 		self:_current_action():do_action()
 	end
-
 	self:_draw_actions()
 end
 
@@ -392,7 +362,6 @@ function FreeFlight:_frustum_freeze()
 	if self._start_cam then
 		old_cam:set_far_range(self._start_cam:far_range())
 	end
-
 	Application:set_frustum_freeze_camera(old_cam, new_cam)
 	self._frozen_camera = old_cam
 	self._camera_object = new_cam
@@ -412,7 +381,6 @@ function FreeFlight:_next_modifier_toggle()
 		self._modifier_index = self._modifier_index % #self._modifiers + 1
 		self._modifier_gui[self._modifier_index]:set_color(SELECTED)
 	end
-
 	self:_draw_modifiers()
 end
 
@@ -421,7 +389,6 @@ function FreeFlight:_curr_modifier_up()
 		self:_current_modifier():step_up()
 		self._modifier_gui[self._modifier_index]:set_text(self:_current_modifier():name_value())
 	end
-
 	self:_draw_modifiers()
 end
 
@@ -430,7 +397,6 @@ function FreeFlight:_curr_modifier_down()
 		self:_current_modifier():step_down()
 		self._modifier_gui[self._modifier_index]:set_text(self:_current_modifier():name_value())
 	end
-
 	self:_draw_modifiers()
 end
 
@@ -463,38 +429,24 @@ end
 
 function FreeFlight:_draw_actions()
 	if not self:_actions_are_visible() then
-		local (for generator), (for state), (for control) = ipairs(self._action_gui)
-		do
-			do break end
+		for i, text in ipairs(self._action_gui) do
 			text:stop()
 			text:animate(text:script().fade_in)
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._actions)
-		do
-			do break end
-			self._action_gui[i]:set_text(self._actions[i]:name())
-		end
-
+	for i, _ in ipairs(self._actions) do
+		self._action_gui[i]:set_text(self._actions[i]:name())
 	end
-
 	self._action_vis_time = TimerManager:main():time() + TEXT_ON_SCREEN_TIME
 end
 
 function FreeFlight:_draw_modifiers()
 	if not self:_modifiers_are_visible() then
-		local (for generator), (for state), (for control) = ipairs(self._modifier_gui)
-		do
-			do break end
+		for _, text in ipairs(self._modifier_gui) do
 			text:stop()
 			text:animate(text:script().fade_in)
 		end
-
 	end
-
 	self._modifier_vis_time = TimerManager:main():time() + TEXT_ON_SCREEN_TIME
 end
 
@@ -514,7 +466,6 @@ function FreeFlight:update(t, dt)
 		self:_update_camera(main_t, main_dt)
 		self:_update_frustum_debug_box(main_t, main_dt)
 	end
-
 end
 
 function FreeFlight:_update_controller(t, dt)
@@ -522,33 +473,19 @@ end
 
 function FreeFlight:_update_gui(t, dt)
 	if self._action_vis_time and t > self._action_vis_time then
-		do
-			local (for generator), (for state), (for control) = ipairs(self._action_gui)
-			do
-				do break end
-				text:stop()
-				text:animate(text:script().fade_out)
-			end
-
+		for _, text in ipairs(self._action_gui) do
+			text:stop()
+			text:animate(text:script().fade_out)
 		end
-
 		self._action_vis_time = nil
 	end
-
 	if self._modifier_vis_time and t > self._modifier_vis_time then
-		do
-			local (for generator), (for state), (for control) = ipairs(self._modifier_gui)
-			do
-				do break end
-				text:stop()
-				text:animate(text:script().fade_out)
-			end
-
+		for _, text in ipairs(self._modifier_gui) do
+			text:stop()
+			text:animate(text:script().fade_out)
 		end
-
 		self._modifier_vis_time = nil
 	end
-
 end
 
 function FreeFlight:_update_camera(t, dt)
@@ -566,7 +503,6 @@ function FreeFlight:_update_camera(t, dt)
 	if not CoreApp.arg_supplied("-vpslave") then
 		self:_set_camera(pos_new, rot_new)
 	end
-
 end
 
 function FreeFlight:_attach_unit()
@@ -581,9 +517,7 @@ function FreeFlight:_attach_unit()
 			print("[FreeFlight] Attach")
 			self:attach_to_unit(ray.unit)
 		end
-
 	end
-
 end
 
 function FreeFlight:attach_to_unit(unit)
@@ -591,13 +525,11 @@ function FreeFlight:attach_to_unit(unit)
 		local pos = self._camera_pos + self._attached_to_unit:position()
 		self:_set_camera(pos, self._camera_rot)
 	end
-
 	if alive(unit) and unit ~= self._attached_to_unit then
 		self._attached_to_unit_pos = unit:position()
 		local pos = self._camera_pos - self._attached_to_unit_pos
 		self:_set_camera(pos, self._camera_rot)
 	end
-
 	self._attached_to_unit = unit
 end
 
@@ -627,7 +559,6 @@ function FreeFlight:_update_frustum_debug_box(t, dt)
 		Application:draw_line(f3, f4, R, G, B)
 		Application:draw_line(f4, f1, R, G, B)
 	end
-
 end
 
 function FreeFlight:destroy()
@@ -635,12 +566,10 @@ function FreeFlight:destroy()
 		Input:destroy_virtual_controller(self._con_toggle)
 		self._con_toggle = nil
 	end
-
 	if alive(self._con) then
 		self._con:destroy()
 		self._con = nil
 	end
-
 	self._vp:destroy()
 	self._vp = nil
 end

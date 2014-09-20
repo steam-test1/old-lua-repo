@@ -5,7 +5,6 @@ function HUDManager:_animate_test_circle()
 		local dt = coroutine.yield()
 		t = t - dt
 	end
-
 	print("done")
 end
 
@@ -18,9 +17,7 @@ function HUDManager:_animate_ammo_test(panel)
 		if t < 2 then
 			panel:set_alpha(t / 2)
 		end
-
 	end
-
 	panel:set_alpha(0)
 end
 

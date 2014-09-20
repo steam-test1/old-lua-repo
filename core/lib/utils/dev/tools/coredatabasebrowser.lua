@@ -11,19 +11,16 @@ function CoreDBDialog:update(t, dt)
 	if self._window then
 		self._window:update(t, dt)
 	end
-
 	if self._browser_data.destroy == "OK" then
 		self._window = nil
 		if self._browser_data.cb then
 			self._browser_data.cb(self._browser_data.cb_self)
 		end
-
 		return "OK"
 	elseif self._browser_data.destroy then
 		self._window = nil
 		return "CANCEL"
 	end
-
 end
 
 function CoreDBDialog:get_value()
@@ -34,7 +31,6 @@ function CoreDBDialog:destroy()
 	if self._window then
 		self._window:close()
 	end
-
 end
 
 CoreDatabaseBrowser = CoreDatabaseBrowser or class()
@@ -49,7 +45,6 @@ function CoreDatabaseBrowser:init(browser_data, db)
 		EWS:MessageDialog(self._main_frame, "You cannot commit or edit files when the vista user folder is enabled. Run the database browser from the editor instead.", "Error", "OK,ICON_ERROR"):show_modal()
 		managers.toolhub:close("Database Browser")
 	end
-
 	self._dirty_flag = true
 	self:check_news(true)
 end
@@ -64,7 +59,6 @@ function CoreDatabaseBrowser:check_open()
 	else
 		open_editor = "Unit Editor"
 	end
-
 	return false
 end
 
@@ -73,7 +67,6 @@ function CoreDatabaseBrowser:create_main_frame()
 	if self._browser_data then
 		style = "FRAME_FLOAT_ON_PARENT,FRAME_TOOL_WINDOW,CAPTION"
 	end
-
 	self._main_frame = EWS:Frame("Database Browser", Vector3(100, 400, 0), Vector3(500, 500, 0), style, Global.frame)
 	self._main_frame:set_icon(CoreEWS.image_path("database_browser_16x16.png"))
 	local menu_bar = EWS:MenuBar()
@@ -97,7 +90,6 @@ function CoreDatabaseBrowser:create_main_frame()
 		self._db_menu:set_checked("DB_PROJECT", true)
 		menu_bar:append(self._db_menu, "Database")
 	end
-
 	self._op_menu = EWS:Menu("")
 	self._op_menu:append_check_item("OP_AUTO_CONVERT_TEXTURES", "Auto Convert Textures", "")
 	self._op_menu:set_checked("OP_AUTO_CONVERT_TEXTURES", true)
@@ -137,7 +129,6 @@ function CoreDatabaseBrowser:create_main_frame()
 	if self._browser_data then
 		self._search_box.list_box:connect("", "EVT_COMMAND_LISTBOX_DOUBLECLICKED", callback(self, self, "on_close"), "OK")
 	end
-
 	self._search_box.panel_box:add(self._search_box.list_box, 2, 0, "EXPAND")
 	self._search_box.panel:set_sizer(self._search_box.panel_box)
 	self._main_notebook:add_page(self._search_box.panel, "Search View", true)
@@ -159,7 +150,6 @@ function CoreDatabaseBrowser:create_main_frame()
 	if self._browser_data then
 		self._tree_box.tree_ctrl:connect("", "EVT_COMMAND_TREE_ITEM_ACTIVATED", callback(self, self, "on_close"), "OK")
 	end
-
 	self._tree_box.panel_box:add(self._tree_box.tree_ctrl, 2, 0, "EXPAND")
 	self._tree_box.panel:set_sizer(self._tree_box.panel_box)
 	self._main_notebook:add_page(self._tree_box.panel, "Tree View", false)
@@ -195,7 +185,6 @@ function CoreDatabaseBrowser:create_main_frame()
 	else
 		self._local_box.panel:set_visible(false)
 	end
-
 	self._preview_panel = EWS:Panel(self._main_frame, "", "")
 	local text_box = EWS:BoxSizer("VERTICAL")
 	local msg = EWS:StaticText(self._preview_panel, "No preview!", "", "ALIGN_CENTER_VERTICAL")
@@ -218,7 +207,6 @@ function CoreDatabaseBrowser:create_main_frame()
 		button_box:add(self._cancel_btn, 1, 0, "EXPAND")
 		main_box:add(button_box, 0, 0, "EXPAND")
 	end
-
 	self._open_xml_file_dialog = EWS:FileDialog(self._main_frame, "Import XML", Application:base_path(), "", "XML files (*.xml)|*.xml", "OPEN,FILE_MUST_EXIST")
 	self._remove_dialog = EWS:MessageDialog(self._main_frame, "This will delete the selected entry(s). Proceed?", "Remove", "YES_NO,ICON_QUESTION")
 	self._invalid_path_dialog = EWS:MessageDialog(self._main_frame, "The path you have chosen is invalid!", "Error", "OK,ICON_ERROR")
@@ -257,33 +245,23 @@ function CoreDatabaseBrowser:check_news(new_only)
 	else
 		news = managers.news:get_old_news("database_browser", self._main_frame)
 	end
-
 	if news then
 		local str
-		do
-			local (for generator), (for state), (for control) = ipairs(news)
-			do
-				do break end
-				if not str then
-					str = n
-				else
-					str = str .. "\n" .. n
-				end
-
+		for _, n in ipairs(news) do
+			if not str then
+				str = n
+			else
+				str = str .. "\n" .. n
 			end
-
 		end
-
 		EWS:MessageDialog(self._main_frame, str, "New Features!", "OK,ICON_INFORMATION"):show_modal()
 	end
-
 end
 
 function CoreDatabaseBrowser:on_dirty_entrys()
 	if self._dirty_flag then
 		cat_print("debug", "The database is dirty and it needs to be reloaded. RELOADING!")
 	end
-
 	self:on_reload()
 	self._dirty_flag = true
 end
@@ -301,58 +279,39 @@ function CoreDatabaseBrowser:append_local_changes()
 	local change_table = {}
 	self._local_changes = {}
 	self._local_box.list_box:clear()
-	do
-		local (for generator), (for state), (for control) = ipairs(db_changes)
-		do
-			do break end
-			if (self._local_box.type_combobox:get_value() == "[all]" or self._local_box.type_combobox:get_value() == change.entry:type()) and self:filter_local_changes(change.entry) then
-				local describe = self:create_unique_name(change.entry)
-				if not change_table[describe] then
-					change_table[describe] = {}
-				end
-
-				if not change_table[describe].str then
-					change_table[describe].str = change.change
-				else
-					change_table[describe].str = change_table[describe].str .. " : " .. change.change
-				end
-
-				change_table[describe].entry = change.entry
-				if change.change == "REMOVE" then
-					change_table[describe].change = "REMOVE"
-				elseif (not change_table[describe].change or change.change == "SET_METADATA") and (change.change == "ADD" or change.change == "MODIFY") then
-					change_table[describe].change = "ADD_OR_MODIFY"
-				elseif not change_table[describe].change and change.change == "SET_METADATA" then
-					change_table[describe].change = "SET_METADATA"
-				end
-
+	for _, change in ipairs(db_changes) do
+		if (self._local_box.type_combobox:get_value() == "[all]" or self._local_box.type_combobox:get_value() == change.entry:type()) and self:filter_local_changes(change.entry) then
+			local describe = self:create_unique_name(change.entry)
+			if not change_table[describe] then
+				change_table[describe] = {}
 			end
-
+			if not change_table[describe].str then
+				change_table[describe].str = change.change
+			else
+				change_table[describe].str = change_table[describe].str .. " : " .. change.change
+			end
+			change_table[describe].entry = change.entry
+			if change.change == "REMOVE" then
+				change_table[describe].change = "REMOVE"
+			elseif (not change_table[describe].change or change.change == "SET_METADATA") and (change.change == "ADD" or change.change == "MODIFY") then
+				change_table[describe].change = "ADD_OR_MODIFY"
+			elseif not change_table[describe].change and change.change == "SET_METADATA" then
+				change_table[describe].change = "SET_METADATA"
+			end
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = pairs(change_table)
-	do
-		do break end
+	for describe, struct in pairs(change_table) do
 		local str = describe .. " - " .. struct.str
 		self._local_changes[str] = struct
 		self._local_box.list_box:append(str)
 	end
-
 end
 
 function CoreDatabaseBrowser:format_comment(str)
 	local comment = ""
-	do
-		local (for generator), (for state), (for control) = string.gmatch(str, "[%w%s_]+")
-		do
-			do break end
-			comment = comment .. word
-		end
-
+	for word in string.gmatch(str, "[%w%s_]+") do
+		comment = comment .. word
 	end
-
 	return comment
 end
 
@@ -366,113 +325,64 @@ function CoreDatabaseBrowser:on_commit_btn()
 		local comment = self:format_comment(self._comment_dialog:get_value())
 		local commit_table = {}
 		local progress = EWS:ProgressDialog(self._main_frame, "Commit", "", 100, "PD_AUTO_HIDE,PD_SMOOTH")
-		do
-			local (for generator), (for state), (for control) = ipairs(self._local_box.list_box:selected_indices())
-			do
-				do break end
-				commit_table[tostring(id)] = self._local_box.list_box:get_string(id)
-				progress:update_bar(10)
-			end
-
+		for _, id in ipairs(self._local_box.list_box:selected_indices()) do
+			commit_table[tostring(id)] = self._local_box.list_box:get_string(id)
+			progress:update_bar(10)
 		end
-
 		local new_entrys = {}
 		local i = 1
-		do
-			local (for generator), (for state), (for control) = pairs(commit_table)
-			do
-				do break end
-				if not self._local_changes[entry] then
-					cat_print("debug", "############# commit_table #############")
-					do
-						local (for generator), (for state), (for control) = pairs(commit_table)
-						do
-							do break end
-							cat_print("debug", id_str, entry)
-						end
-
-					end
-
-					cat_print("debug", "############# self._local_changes #############")
-					do
-						local (for generator), (for state), (for control) = pairs(self._local_changes)
-						do
-							do break end
-							cat_print("debug", k, v)
-						end
-
-					end
-
-					cat_print("debug", "############# self._local_box.list_box:selected_indices() #############")
-					do
-						local (for generator), (for state), (for control) = ipairs(self._local_box.list_box:selected_indices())
-						do
-							do break end
-							cat_print("debug", id, self._local_box.list_box:get_string(id))
-						end
-
-					end
-
-					cat_print("debug", "############# new_entrys #############")
-					do
-						local (for generator), (for state), (for control) = ipairs(new_entrys)
-						do
-							do break end
-							cat_print("debug", k, v)
-						end
-
-					end
-
-					cat_print("debug", "############# failing entry #############")
-					cat_print("debug", entry)
-					cat_print("debug", "LC_BUGFIX: ", self.LC_BUGFIX)
-					cat_print("debug", "failing entry index: ", i)
-					error("REPORT THIS BUG TO: andreas.jonsson@grin.se (Send the entire log!)")
+		for id_str, entry in pairs(commit_table) do
+			if not self._local_changes[entry] then
+				cat_print("debug", "############# commit_table #############")
+				for id_str, entry in pairs(commit_table) do
+					cat_print("debug", id_str, entry)
 				end
-
-				if self._local_changes[entry].change == "ADD_OR_MODIFY" and self._local_changes[entry].entry:type() == "texture" and (self:is_entry_raw(self._local_changes[entry].entry) or self._local_changes[entry].entry:property("platform") == "") then
-					conversion_dialog = conversion_dialog and nil
-					progress:update_bar(30, "Converting 3DC...")
-					if not self.LC_BUGFIX then
-						self:append_local_changes()
-					end
-
-					local x360_entry = self:convert_to_x360(self._local_changes[entry].entry)
-					if x360_entry and x360_entry:valid() then
-						table.insert(new_entrys, x360_entry)
-					end
-
-					progress:update_bar(50, "Converting GTF...")
-					if not self.LC_BUGFIX then
-						self:append_local_changes()
-					end
-
-					local ps3_entry = self:convert_to_ps3(self._local_changes[entry].entry)
-					if ps3_entry and ps3_entry:valid() then
-						table.insert(new_entrys, ps3_entry)
-					end
-
-					if not self.LC_BUGFIX then
-						self:append_local_changes()
-					end
-
+				cat_print("debug", "############# self._local_changes #############")
+				for k, v in pairs(self._local_changes) do
+					cat_print("debug", k, v)
 				end
-
-				i = i + 1
+				cat_print("debug", "############# self._local_box.list_box:selected_indices() #############")
+				for _, id in ipairs(self._local_box.list_box:selected_indices()) do
+					cat_print("debug", id, self._local_box.list_box:get_string(id))
+				end
+				cat_print("debug", "############# new_entrys #############")
+				for k, v in ipairs(new_entrys) do
+					cat_print("debug", k, v)
+				end
+				cat_print("debug", "############# failing entry #############")
+				cat_print("debug", entry)
+				cat_print("debug", "LC_BUGFIX: ", self.LC_BUGFIX)
+				cat_print("debug", "failing entry index: ", i)
+				error("REPORT THIS BUG TO: andreas.jonsson@grin.se (Send the entire log!)")
 			end
-
-		end
-
-		do
-			local (for generator), (for state), (for control) = pairs(commit_table)
-			do
-				do break end
-				progress:update_bar(70, "Sending data...")
-				table.insert(new_entrys, self._local_changes[entry].entry)
+			if self._local_changes[entry].change == "ADD_OR_MODIFY" and self._local_changes[entry].entry:type() == "texture" and (self:is_entry_raw(self._local_changes[entry].entry) or self._local_changes[entry].entry:property("platform") == "") then
+				conversion_dialog = conversion_dialog and nil
+				progress:update_bar(30, "Converting 3DC...")
+				if not self.LC_BUGFIX then
+					self:append_local_changes()
+				end
+				local x360_entry = self:convert_to_x360(self._local_changes[entry].entry)
+				if x360_entry and x360_entry:valid() then
+					table.insert(new_entrys, x360_entry)
+				end
+				progress:update_bar(50, "Converting GTF...")
+				if not self.LC_BUGFIX then
+					self:append_local_changes()
+				end
+				local ps3_entry = self:convert_to_ps3(self._local_changes[entry].entry)
+				if ps3_entry and ps3_entry:valid() then
+					table.insert(new_entrys, ps3_entry)
+				end
+				if not self.LC_BUGFIX then
+					self:append_local_changes()
+				end
 			end
-
+			i = i + 1
 		end
-
+		for _, entry in pairs(commit_table) do
+			progress:update_bar(70, "Sending data...")
+			table.insert(new_entrys, self._local_changes[entry].entry)
+		end
 		self._dirty_flag = false
 		local commit_ret
 		while not commit_ret do
@@ -481,13 +391,10 @@ function CoreDatabaseBrowser:on_commit_btn()
 				if EWS:message_box(self._main_frame, "The index is locked by another user... Do you want to retry?", "Retry", "YES_NO,ICON_QUESTION", Vector3(-1, -1, -1)) == "YES" then
 					commit_ret = nil
 				end
-
 			elseif commit_ret == "FATAL" then
 				EWS:message_box(self._main_frame, "A fatal error during commit occurred. (This could be caused by a connection problem.) Contact technical support!", "Fatal Error", "OK,ICON_ERROR", Vector3(-1, -1, -1))
 			end
-
 		end
-
 		if commit_ret ~= "SUCCESS" then
 			progress:update_bar(100)
 			self._commit_error_dialog:show_modal()
@@ -495,12 +402,10 @@ function CoreDatabaseBrowser:on_commit_btn()
 			progress:update_bar(100)
 			EWS:MessageDialog(self._main_frame, "Success! You now need to close down the application and update your project.", "Success", "OK,ICON_INFORMATION"):show_modal()
 		end
-
 		self._active_database:load()
 		self:on_read_database()
 		self:append_local_changes()
 	end
-
 end
 
 function CoreDatabaseBrowser:on_revert_btn()
@@ -509,41 +414,26 @@ function CoreDatabaseBrowser:on_revert_btn()
 		local revert_table = {}
 		local progress = EWS:ProgressDialog(self._main_frame, "Revert", "Reverting data...", 100, "PD_AUTO_HIDE,PD_SMOOTH")
 		progress:update_bar(0)
-		do
-			local (for generator), (for state), (for control) = ipairs(self._local_box.list_box:selected_indices())
-			do
-				do break end
-				revert_table[tostring(id)] = self._local_box.list_box:get_string(id)
-			end
-
+		for _, id in ipairs(self._local_box.list_box:selected_indices()) do
+			revert_table[tostring(id)] = self._local_box.list_box:get_string(id)
 		end
-
 		progress:update_bar(50)
-		do
-			local (for generator), (for state), (for control) = pairs(revert_table)
-			do
-				do break end
-				self._dirty_flag = false
-				if not self._active_database:revert_changes(self._local_changes[entry].entry) then
-					self:append_local_changes()
-					flag = true
-				else
-					self:append_local_changes()
-				end
-
+		for id_str, entry in pairs(revert_table) do
+			self._dirty_flag = false
+			if not self._active_database:revert_changes(self._local_changes[entry].entry) then
+				self:append_local_changes()
+				flag = true
+			else
+				self:append_local_changes()
 			end
-
 		end
-
 		if flag then
 			EWS:MessageDialog(self._main_frame, "Could not revert the selected entry(s)!", "Error", "OK,ICON_ERROR"):show_modal()
 		end
-
 		self._active_database:load()
 		self:on_read_database()
 		progress:update_bar(100)
 	end
-
 end
 
 function CoreDatabaseBrowser:on_update_btn()
@@ -561,7 +451,6 @@ function CoreDatabaseBrowser:on_import_xml()
 			self._no_nodes_dialog:show_modal()
 			return
 		end
-
 		local node
 		if xml_root and self._import_dialog:show_modal() then
 			node = Node(xml_root:name())
@@ -573,36 +462,24 @@ function CoreDatabaseBrowser:on_import_xml()
 				self._active_database:save()
 				self._active_database:load()
 			end
-
 			self._active_database:save_node(node, self._active_database:add(entry_type, entry_name, {}, "xml"))
 			self._dirty_flag = false
 			self._active_database:save()
 			self._active_database:load()
 			self:on_read_database()
 		end
-
 	else
 		self._not_available_dialog:show_modal()
 	end
-
 end
 
 function CoreDatabaseBrowser:create_node(node, parent)
-	do
-		local (for generator), (for state), (for control) = pairs(parent:parameter_map())
-		do
-			do break end
-			node:set_parameter(key, value)
-		end
-
+	for key, value in pairs(parent:parameter_map()) do
+		node:set_parameter(key, value)
 	end
-
-	local (for generator), (for state), (for control) = parent:children()
-	do
-		do break end
+	for child in parent:children() do
 		self:create_node(node:make_child(child:name()), child)
 	end
-
 end
 
 function CoreDatabaseBrowser:on_read_database()
@@ -621,33 +498,19 @@ function CoreDatabaseBrowser:on_read_database()
 	elseif current_page == self._main_notebook:get_page(1) then
 		data_table, database_type = apply_type_filter(self._tree_box.type_combobox, self._search_box.type_combobox)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(data_table or {})
-		do
-			do break end
-			if not self._browser_data or entry:num_properties() == 0 or database_type ~= "texture" then
-				self._entrys[self:create_unique_name(entry)] = entry
-			end
-
+	for _, entry in ipairs(data_table or {}) do
+		if not self._browser_data or entry:num_properties() == 0 or database_type ~= "texture" then
+			self._entrys[self:create_unique_name(entry)] = entry
 		end
-
 	end
-
 	self:on_search()
 end
 
 function CoreDatabaseBrowser:create_unique_name(entry)
 	local str = entry:type() .. " - " .. entry:name()
-	do
-		local (for generator), (for state), (for control) = pairs(entry:properties())
-		do
-			do break end
-			str = str .. " : " .. value
-		end
-
+	for key, value in pairs(entry:properties()) do
+		str = str .. " : " .. value
 	end
-
 	return str
 end
 
@@ -660,9 +523,7 @@ function CoreDatabaseBrowser:get_meta_data(selected_type, selected)
 			local meta_value = entry:metadata_value(i - 1)
 			str = str .. meta_key .. "->" .. meta_value .. "\n"
 		end
-
 	end
-
 	return str
 end
 
@@ -673,34 +534,23 @@ function CoreDatabaseBrowser:on_view_metadata()
 			for i = 1, #self._search_box.list_box:selected_indices() do
 				local selected = self._search_box.list_box:get_string(self._search_box.list_box:selected_indices()[i])
 				local entry = self._active_database:lookup(self._entrys[selected]:type(), self._entrys[selected]:name(), self._entrys[selected]:properties())
-				local (for generator), (for state), (for control) = pairs(entry:metadatas())
-				do
-					do break end
+				for k, v in pairs(entry:metadatas()) do
 					str = (str or "") .. k .. "->" .. v .. "\n"
 				end
-
 			end
-
 		end
-
 	else
 		local ids = self._tree_box.tree_ctrl:selected_items()
 		if #ids > 0 then
 			for i = 1, #ids do
 				local selected = self._tree_box.tree_ctrl:get_item_text(ids[i])
 				local entry = self._active_database:lookup(self._entrys[selected]:type(), self._entrys[selected]:name(), self._entrys[selected]:properties())
-				local (for generator), (for state), (for control) = pairs(entry:metadatas())
-				do
-					do break end
+				for k, v in pairs(entry:metadatas()) do
 					str = (str or "") .. k .. "->" .. v .. "\n"
 				end
-
 			end
-
 		end
-
 	end
-
 	EWS:MessageDialog(self._main_frame, str or "No metadata!", "Metadata", "OK,ICON_INFORMATION"):show_modal()
 end
 
@@ -720,11 +570,8 @@ function CoreDatabaseBrowser:on_set_metadata()
 					self._dirty_flag = false
 					self._active_database:save()
 				end
-
 			end
-
 		end
-
 	else
 		local ids = self._tree_box.tree_ctrl:selected_items()
 		if #ids > 0 and self._metadata_dialog:show_modal() then
@@ -741,13 +588,9 @@ function CoreDatabaseBrowser:on_set_metadata()
 					self._dirty_flag = false
 					self._active_database:save()
 				end
-
 			end
-
 		end
-
 	end
-
 	self._active_database:load()
 	self:on_read_database()
 end
@@ -759,30 +602,21 @@ function CoreDatabaseBrowser:append_all_types(gui)
 	else
 		local data_table = self._active_database:all(false)
 		local name_table = {}
-		do
-			local (for generator), (for state), (for control) = ipairs(data_table)
-			do
-				do break end
-				if not name_table[entry:type()] then
-					name_table[entry:type()] = entry
-					gui:append(entry:type())
-					gui:set_value(entry:type())
-				end
-
+		for _, entry in ipairs(data_table) do
+			if not name_table[entry:type()] then
+				name_table[entry:type()] = entry
+				gui:append(entry:type())
+				gui:set_value(entry:type())
 			end
-
 		end
-
 		name_table = nil
 	end
-
 end
 
 function CoreDatabaseBrowser:set_position(newpos)
 	if self._main_frame then
 		self._main_frame:set_position(newpos)
 	end
-
 end
 
 function CoreDatabaseBrowser:on_close(custom_data, event_object)
@@ -792,7 +626,6 @@ function CoreDatabaseBrowser:on_close(custom_data, event_object)
 	else
 		managers.toolhub:close("Database Browser")
 	end
-
 end
 
 function CoreDatabaseBrowser:destroy()
@@ -800,7 +633,6 @@ function CoreDatabaseBrowser:destroy()
 		self._main_frame:destroy()
 		self._main_frame = nil
 	end
-
 end
 
 function CoreDatabaseBrowser:close()
@@ -809,9 +641,7 @@ function CoreDatabaseBrowser:close()
 		if not self._browser_data then
 			open_editor = nil
 		end
-
 	end
-
 end
 
 function CoreDatabaseBrowser:update(t, dt)
@@ -820,7 +650,6 @@ function CoreDatabaseBrowser:update(t, dt)
 		self:on_search()
 		self._search_flag = nil
 	end
-
 end
 
 function CoreDatabaseBrowser:on_reload()
@@ -838,9 +667,7 @@ function CoreDatabaseBrowser:on_select()
 		if self._browser_data then
 			self._browser_data.entry = self._entrys[selected]
 		end
-
 	end
-
 end
 
 function CoreDatabaseBrowser:on_tree_ctrl_change()
@@ -852,35 +679,24 @@ function CoreDatabaseBrowser:on_tree_ctrl_change()
 			if self._browser_data then
 				self._browser_data.entry = self._entrys[selected]
 			end
-
 		end
-
 	end
-
 end
 
 function CoreDatabaseBrowser:get_node(node, name)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for n in node:children() do
 		if n:name() == name then
 			return n
 		end
-
 	end
-
 end
 
 function CoreDatabaseBrowser:find_node(node, name, key, value)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for n in node:children() do
 		if n:parameter(key) == value and (not name or n:name() == name) then
 			return n
 		end
-
 	end
-
 end
 
 function CoreDatabaseBrowser:update_preview(entry)
@@ -898,11 +714,8 @@ function CoreDatabaseBrowser:update_preview(entry)
 					self._preview_image:set_visible(true)
 					return true
 				end
-
 			end
-
 		end
-
 	end
 
 	self._main_frame:freeze()
@@ -921,20 +734,15 @@ function CoreDatabaseBrowser:update_preview(entry)
 						local model_xml_node = self._active_database:load_node(model_xml_entry)
 						flag = preview_model_xml(self, model_xml_node, valid_node)
 					end
-
 				end
-
 			end
-
 			if not flag then
 				self._preview_panel:set_visible(true)
 			end
-
 		elseif entry:type() == "object" then
 			if not preview_model_xml(self, node, valid_node) then
 				self._preview_panel:set_visible(true)
 			end
-
 		elseif entry:type() == "model" then
 			local preview = self._active_database:lookup("preview_texture", entry:name())
 			if preview:valid() then
@@ -943,18 +751,15 @@ function CoreDatabaseBrowser:update_preview(entry)
 			else
 				self._preview_panel:set_visible(true)
 			end
-
 		elseif valid_node(node) then
 			self._preview_text_ctrl:set_value(node:to_xml())
 			self._preview_text_ctrl:text_ctrl():set_visible(true)
 		else
 			self._preview_panel:set_visible(true)
 		end
-
 	else
 		self._preview_panel:set_visible(true)
 	end
-
 	self._main_frame:layout()
 	self._main_frame:thaw()
 	self._main_frame:refresh()
@@ -992,25 +797,20 @@ function CoreDatabaseBrowser:on_move()
 		else
 			self._invalid_path_dialog:show_modal()
 		end
-
 	end
-
 end
 
 function CoreDatabaseBrowser:check_path(path)
 	if path ~= "" and (string.sub(path, 1, 1) ~= "/" or string.sub(path, string.len(path), string.len(path)) == "/") then
 		return false
 	end
-
 	return true
 end
 
 function CoreDatabaseBrowser:move_entry(path)
 	if #self._tree_box.tree_ctrl:selected_items() > 0 then
 		local ids = self:filter_folders(self._tree_box.tree_ctrl:selected_items())
-		local (for generator), (for state), (for control) = ipairs(ids)
-		do
-			do break end
+		for _, id in ipairs(ids) do
 			local selected = self._tree_box.tree_ctrl:get_item_text(id)
 			local entry = self._entrys[selected]
 			if path == "" and entry:has_metadata("db_browser_folder") then
@@ -1018,53 +818,34 @@ function CoreDatabaseBrowser:move_entry(path)
 			else
 				self._active_database:set_metadata(entry, "db_browser_folder", path)
 			end
-
 		end
-
 	end
-
 end
 
 function CoreDatabaseBrowser:filter_folders(ids)
 	local out_table = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(ids)
-		do
-			do break end
-			if id ~= self._folder_table.id and not self:is_folder(self._folder_table, id) then
-				table.insert(out_table, id)
-			end
-
+	for _, id in ipairs(ids) do
+		if id ~= self._folder_table.id and not self:is_folder(self._folder_table, id) then
+			table.insert(out_table, id)
 		end
-
 	end
-
 	return out_table
 end
 
 function CoreDatabaseBrowser:is_folder(folder_table, id)
-	do
-		local (for generator), (for state), (for control) = pairs(folder_table.children)
-		do
-			do break end
-			if child.id == id then
-				return true
-			elseif self:is_folder(child, id) then
-				return true
-			end
-
+	for _, child in pairs(folder_table.children) do
+		if child.id == id then
+			return true
+		elseif self:is_folder(child, id) then
+			return true
 		end
-
 	end
-
 	return false
 end
 
 function CoreDatabaseBrowser:build_tree(path)
 	local parent = self._folder_table
-	local (for generator), (for state), (for control) = string.gmatch(path, "[%w_]+")
-	do
-		do break end
+	for folder_name in string.gmatch(path, "[%w_]+") do
 		if not parent.children[folder_name] then
 			local new_folder_table = {}
 			new_folder_table.id = self._tree_box.tree_ctrl:append(parent.id, folder_name)
@@ -1075,26 +856,17 @@ function CoreDatabaseBrowser:build_tree(path)
 		else
 			parent = parent.children[folder_name]
 		end
-
 	end
-
 end
 
 function CoreDatabaseBrowser:get_tree_id(path, expand)
 	local parent = self._folder_table
-	do
-		local (for generator), (for state), (for control) = string.gmatch(path, "[%w_]+")
-		do
-			do break end
-			if expand then
-				self._tree_box.tree_ctrl:expand(parent.id)
-			end
-
-			parent = parent.children[folder_name]
+	for folder_name in string.gmatch(path, "[%w_]+") do
+		if expand then
+			self._tree_box.tree_ctrl:expand(parent.id)
 		end
-
+		parent = parent.children[folder_name]
 	end
-
 	self._tree_box.tree_ctrl:expand(parent.id)
 	return parent.id
 end
@@ -1107,17 +879,12 @@ function CoreDatabaseBrowser:on_search()
 		local search_str = self._search_box.search_text_ctrl:get_value()
 		local type_filter = self._search_box.type_combobox:get_value()
 		if type_filter ~= "[all]" or #search_str > 2 then
-			local (for generator), (for state), (for control) = pairs(self._entrys)
-			do
-				do break end
+			for key, value in pairs(self._entrys) do
 				if string.find(key, search_str) then
 					self._search_box.list_box:append(key)
 				end
-
 			end
-
 		end
-
 		self._search_box.list_box:thaw()
 		self._search_box.list_box:refresh()
 		self._search_box.search_text_ctrl:set_focus()
@@ -1132,9 +899,7 @@ function CoreDatabaseBrowser:on_search()
 		local search_str = self._tree_box.search_text_ctrl:get_value()
 		local type_filter = self._tree_box.type_combobox:get_value()
 		if type_filter ~= "[all]" or #search_str > 2 then
-			local (for generator), (for state), (for control) = pairs(self._entrys)
-			do
-				do break end
+			for key, value in pairs(self._entrys) do
 				if string.find(key, search_str) then
 					local folder = value:metadata("db_browser_folder")
 					if folder ~= "" then
@@ -1145,17 +910,12 @@ function CoreDatabaseBrowser:on_search()
 						if expand then
 							self._tree_box.tree_ctrl:expand(folder_id)
 						end
-
 					else
 						self._tree_box.tree_ctrl:append(self._folder_table.id, key)
 					end
-
 				end
-
 			end
-
 		end
-
 		self._tree_box.tree_ctrl:expand(self._folder_table.id)
 		self._tree_box.tree_ctrl:thaw()
 		self._tree_box.tree_ctrl:refresh()
@@ -1164,7 +924,6 @@ function CoreDatabaseBrowser:on_search()
 		self:append_local_changes()
 		self:hide_preview()
 	end
-
 end
 
 function CoreDatabaseBrowser:on_remove()
@@ -1172,49 +931,33 @@ function CoreDatabaseBrowser:on_remove()
 		if self._main_notebook:get_current_page() == self._main_notebook:get_page(0) then
 			local ids = self._search_box.list_box:selected_indices()
 			if #ids > 0 and self._remove_dialog:show_modal() == "ID_YES" then
-				do
-					local (for generator), (for state), (for control) = ipairs(ids)
-					do
-						do break end
-						local selected = self._search_box.list_box:get_string(id)
-						self._active_database:remove(self._entrys[selected]:type(), self._entrys[selected]:name(), self._entrys[selected]:properties())
-						self._entrys[selected] = nil
-						self._dirty_flag = false
-						self._active_database:save()
-					end
-
+				for _, id in ipairs(ids) do
+					local selected = self._search_box.list_box:get_string(id)
+					self._active_database:remove(self._entrys[selected]:type(), self._entrys[selected]:name(), self._entrys[selected]:properties())
+					self._entrys[selected] = nil
+					self._dirty_flag = false
+					self._active_database:save()
 				end
-
 				self:on_search()
 			end
-
 		elseif self._main_notebook:get_current_page() == self._main_notebook:get_page(1) then
 			if 0 < #self._tree_box.tree_ctrl:selected_items() and self._remove_dialog:show_modal() == "ID_YES" then
 				local ids = self:filter_folders(self._tree_box.tree_ctrl:selected_items())
-				do
-					local (for generator), (for state), (for control) = ipairs(ids)
-					do
-						do break end
-						local selected = self._tree_box.tree_ctrl:get_item_text(id)
-						self._active_database:remove(self._entrys[selected]:type(), self._entrys[selected]:name(), self._entrys[selected]:properties())
-						self._entrys[selected] = nil
-						self._dirty_flag = false
-						self._active_database:save()
-					end
-
+				for _, id in ipairs(ids) do
+					local selected = self._tree_box.tree_ctrl:get_item_text(id)
+					self._active_database:remove(self._entrys[selected]:type(), self._entrys[selected]:name(), self._entrys[selected]:properties())
+					self._entrys[selected] = nil
+					self._dirty_flag = false
+					self._active_database:save()
 				end
-
 				self:on_search()
 			end
-
 		elseif self._main_notebook:get_current_page() == self._main_notebook:get_page(2) then
 			self:on_revert_btn()
 		end
-
 	else
 		self._not_available_dialog:show_modal()
 	end
-
 end
 
 function CoreDatabaseBrowser:on_special_rename(new_entry, old_name)
@@ -1228,34 +971,20 @@ function CoreDatabaseBrowser:on_special_rename(new_entry, old_name)
 		if preview:valid() then
 			self._active_database:rename(preview, "preview_texture", new_entry:name(), preview:properties())
 		end
-
 	end
-
 end
 
 function CoreDatabaseBrowser:_rename_and_transfer_metadata(entry, new_name)
 	local old_name = entry:name()
 	local old_ref = self._active_database:lookup(entry:type(), old_name, entry:properties())
 	local metadatas = old_ref and old_ref:metadatas() or {}
-	do
-		local (for generator), (for state), (for control) = pairs(metadatas)
-		do
-			do break end
-			self._active_database:clear_metadata(old_ref, k)
-		end
-
+	for k, _ in pairs(metadatas) do
+		self._active_database:clear_metadata(old_ref, k)
 	end
-
 	local new_ref = self._active_database:rename(old_ref, old_ref:type(), new_name, old_ref:properties())
-	do
-		local (for generator), (for state), (for control) = pairs(metadatas)
-		do
-			do break end
-			self._active_database:set_metadata(new_ref, k, v)
-		end
-
+	for k, v in pairs(metadatas) do
+		self._active_database:set_metadata(new_ref, k, v)
 	end
-
 	return new_ref
 end
 
@@ -1266,33 +995,24 @@ function CoreDatabaseBrowser:on_rename()
 			if #ids > 0 then
 				self._rename_dialog:set_value(self._entrys[self._search_box.list_box:get_string(ids[1])]:name())
 				if self._rename_dialog:show_modal() then
-					do
-						local (for generator), (for state), (for control) = ipairs(ids)
-						do
-							do break end
-							local selected = self._search_box.list_box:get_string(id)
-							if not self._active_database:has(self._entrys[selected]:type(), self._rename_dialog:get_value(), self._entrys[selected]:properties()) then
-								local old_name = self._entrys[selected]:name()
-								local new_ref = self:_rename_and_transfer_metadata(self._entrys[selected], self._rename_dialog:get_value())
-								self._entrys[selected] = nil
-								self._entrys[new_ref:type() .. " - " .. new_ref:name()] = new_ref
-								self._dirty_flag = false
-								self:on_special_rename(new_ref, old_name)
-								self._active_database:save()
-								self._active_database:load()
-							else
-								self._rename_error_dialog:show_modal()
-							end
-
+					for _, id in ipairs(ids) do
+						local selected = self._search_box.list_box:get_string(id)
+						if not self._active_database:has(self._entrys[selected]:type(), self._rename_dialog:get_value(), self._entrys[selected]:properties()) then
+							local old_name = self._entrys[selected]:name()
+							local new_ref = self:_rename_and_transfer_metadata(self._entrys[selected], self._rename_dialog:get_value())
+							self._entrys[selected] = nil
+							self._entrys[new_ref:type() .. " - " .. new_ref:name()] = new_ref
+							self._dirty_flag = false
+							self:on_special_rename(new_ref, old_name)
+							self._active_database:save()
+							self._active_database:load()
+						else
+							self._rename_error_dialog:show_modal()
 						end
-
 					end
-
 					self:on_read_database()
 				end
-
 			end
-
 		elseif self._main_notebook:get_current_page() == self._main_notebook:get_page(1) and 0 < #self._tree_box.tree_ctrl:selected_items() then
 			local id = self:filter_folders(self._tree_box.tree_ctrl:selected_items())[1]
 			local selected = self._tree_box.tree_ctrl:get_item_text(id)
@@ -1311,29 +1031,19 @@ function CoreDatabaseBrowser:on_rename()
 				else
 					self._rename_error_dialog:show_modal()
 				end
-
 				self:on_read_database()
 			end
-
 		end
-
 	else
 		self._not_available_dialog:show_modal()
 	end
-
 end
 
 function CoreDatabaseBrowser:unpack_prop(in_table, target)
 	local str = " "
-	do
-		local (for generator), (for state), (for control) = pairs(in_table)
-		do
-			do break end
-			str = str .. "-" .. target .. " " .. key .. "=" .. value .. " "
-		end
-
+	for key, value in pairs(in_table) do
+		str = str .. "-" .. target .. " " .. key .. "=" .. value .. " "
 	end
-
 	return str
 end
 
@@ -1349,9 +1059,7 @@ function CoreDatabaseBrowser:convert_to_x360(entry)
 				cat_print("debug", "[CoreDatabaseBrowser] Could not find any raw texture for " .. entry:name() .. " during x360 conversion.")
 				return
 			end
-
 		end
-
 		prop.platform = "x360"
 		local str = "imageexportertool -d \"" .. Application:base_path() .. "db\" -sn " .. raw_texture:name() .. self:unpack_prop(raw_texture:properties(), "sp") .. "-qpf A8L8"
 		if Application:system(str, true, true) == 0 then
@@ -1361,10 +1069,8 @@ function CoreDatabaseBrowser:convert_to_x360(entry)
 			self._active_database:load()
 			return self._active_database:lookup("texture", raw_texture:name(), prop)
 		end
-
 		self._active_database:load()
 	end
-
 end
 
 function CoreDatabaseBrowser:convert_to_ps3(entry)
@@ -1379,9 +1085,7 @@ function CoreDatabaseBrowser:convert_to_ps3(entry)
 				cat_print("debug", "[CoreDatabaseBrowser] Could not find any raw texture for " .. entry:name() .. " during ps3 conversion.")
 				return
 			end
-
 		end
-
 		prop.platform = "ps3"
 		local str = "imageexportertool -d \"" .. Application:base_path() .. "db\" -sn " .. raw_texture:name() .. self:unpack_prop(raw_texture:properties(), "sp") .. "-qpf A8L8"
 		if Application:system(str, true, true) == 0 then
@@ -1389,13 +1093,11 @@ function CoreDatabaseBrowser:convert_to_ps3(entry)
 		else
 			str = "imageexportertool -d \"" .. Application:base_path() .. "db\" -sn " .. raw_texture:name() .. self:unpack_prop(raw_texture:properties(), "sp") .. "-dn " .. raw_texture:name() .. self:unpack_prop(prop, "dp") .. "-f gtf"
 		end
-
 		cat_print("debug", "[CoreDatabaseBrowser] " .. str)
 		Application:system(str, true, true)
 		self._active_database:load()
 		return self._active_database:lookup("texture", raw_texture:name(), prop)
 	end
-
 end
 
 CoreDatabaseBrowserMoveDialog = CoreDatabaseBrowserMoveDialog or class()
@@ -1426,9 +1128,7 @@ function CoreDatabaseBrowserMoveDialog:show_modal()
 	while true do
 		if not self._done then
 		end
-
 	end
-
 	return self._return_val
 end
 
@@ -1483,9 +1183,7 @@ function CoreDatabaseBrowserImportDialog:show_modal()
 	while true do
 		if not self._done then
 		end
-
 	end
-
 	return self._return_val
 end
 
@@ -1541,9 +1239,7 @@ function CoreDatabaseBrowserMetadataDialog:show_modal()
 	while true do
 		if not self._done then
 		end
-
 	end
-
 	return self._return_val
 end
 
@@ -1594,9 +1290,7 @@ function CoreDatabaseBrowserInputDialog:show_modal()
 	while true do
 		if not self._done then
 		end
-
 	end
-
 	return self._return_val
 end
 
@@ -1645,9 +1339,7 @@ function CoreDatabaseBrowserRenameDialog:show_modal()
 	while true do
 		if not self._done then
 		end
-
 	end
-
 	return self._return_val
 end
 

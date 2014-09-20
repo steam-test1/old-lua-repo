@@ -12,7 +12,6 @@ function CoreUnitVisibleCutsceneKey:unload()
 	if self._cast then
 		self:play(nil, true)
 	end
-
 end
 
 function CoreUnitVisibleCutsceneKey:play(player, undo, fast_forward)
@@ -26,11 +25,9 @@ function CoreUnitVisibleCutsceneKey:play(player, undo, fast_forward)
 		else
 			self:evaluate(player, false, true)
 		end
-
 	else
 		self:evaluate(player, fast_forward)
 	end
-
 end
 
 function CoreUnitVisibleCutsceneKey:evaluate(player, fast_forward, visible)
@@ -44,8 +41,6 @@ function CoreUnitVisibleCutsceneKey:evaluate(player, fast_forward, visible)
 		if unit_in_world then
 			set_unit_and_children_visible(unit_in_world, visible)
 		end
-
 	end
-
 end
 

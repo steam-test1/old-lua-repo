@@ -16,17 +16,13 @@ end
 
 function ObjectivesManager:_parse_objectives()
 	local list = PackageManager:script_data(self.FILE_EXTENSION:id(), self.PATH:id())
-	local (for generator), (for state), (for control) = ipairs(list)
-	do
-		do break end
+	for _, data in ipairs(list) do
 		if data._meta == "objective" then
 			self:_parse_objective(data)
 		else
 			Application:error("Unknown node \"" .. tostring(data._meta) .. "\" in \"" .. self.FULL_PATH .. "\". Expected \"objective\" node.")
 		end
-
 	end
-
 end
 
 function ObjectivesManager:_parse_objective(data)
@@ -39,19 +35,13 @@ function ObjectivesManager:_parse_objective(data)
 	local level_id = data.level_id
 	local xp_weight = data.xp_weight
 	local sub_objectives = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(data)
-		do
-			do break end
-			local sub_text = managers.localization:text(sub.text)
-			sub_objectives[sub.id] = {
-				id = sub.id,
-				text = sub_text
-			}
-		end
-
+	for _, sub in ipairs(data) do
+		local sub_text = managers.localization:text(sub.text)
+		sub_objectives[sub.id] = {
+			id = sub.id,
+			text = sub_text
+		}
 	end
-
 	self._objectives[id] = {
 		text = text,
 		description = description,
@@ -70,30 +60,23 @@ function ObjectivesManager:_parse_objective(data)
 			xp_weight = xp_weight or 0
 		}
 	end
-
 end
 
 function ObjectivesManager:update(t, dt)
-	local (for generator), (for state), (for control) = pairs(self._remind_objectives)
-	do
-		do break end
+	for id, data in pairs(self._remind_objectives) do
 		if t > data.next_t then
 			self:_remind_objetive(id)
 		end
-
 	end
-
 end
 
 function ObjectivesManager:_remind_objetive(id, title_id)
 	if not Application:editor() and managers.platform:presence() ~= "Playing" then
 		return
 	end
-
 	if self._remind_objectives[id] then
 		self._remind_objectives[id].next_t = Application:time() + self.REMINDER_INTERVAL
 	end
-
 	if managers.user:get_setting("objective_reminder") then
 		title_id = title_id or "hud_objective_reminder"
 		local objective = self._objectives[id]
@@ -107,7 +90,6 @@ function ObjectivesManager:_remind_objetive(id, title_id)
 			event = nil
 		})
 	end
-
 	managers.hud:remind_objective(id)
 end
 
@@ -122,21 +104,13 @@ function ObjectivesManager:activate_objective(id, load_data, data)
 		Application:stack_dump_error("Bad id to activate objective, " .. tostring(id) .. ".")
 		return
 	end
-
 	if self._active_objectives[id] or self._completed_objectives[id] then
 		Application:error("Tried to activate objective " .. tostring(id) .. ". This objective is already active or completed")
 	end
-
 	local objective = self._objectives[id]
-	do
-		local (for generator), (for state), (for control) = pairs(objective.sub_objectives)
-		do
-			do break end
-			sub_objective.completed = false
-		end
-
+	for _, sub_objective in pairs(objective.sub_objectives) do
+		sub_objective.completed = false
 	end
-
 	objective.current_amount = load_data and load_data.current_amount or data and data.amount and 0 or objective.current_amount
 	objective.amount = load_data and load_data.amount or data and data.amount or objective.amount
 	managers.hud:activate_objective({
@@ -158,7 +132,6 @@ function ObjectivesManager:activate_objective(id, load_data, data)
 			event = "stinger_objectivecomplete"
 		})
 	end
-
 	self._active_objectives[id] = objective
 	self._remind_objectives[id] = {
 		next_t = Application:time() + self.REMINDER_INTERVAL
@@ -171,14 +144,11 @@ function ObjectivesManager:remove_objective(id, load_data)
 			Application:stack_dump_error("Bad id to remove objective, " .. tostring(id) .. ".")
 			return
 		end
-
 		if not self._active_objectives[id] then
 			Application:error("Tried to remove objective " .. tostring(id) .. ". This objective has never been given to the player.")
 			return
 		end
-
 	end
-
 	local objective = self._objectives[id]
 	managers.hud:complete_objective({
 		id = id,
@@ -195,19 +165,15 @@ function ObjectivesManager:complete_objective(id, load_data)
 			Application:stack_dump_error("Bad id to complete objective, " .. tostring(id) .. ".")
 			return
 		end
-
 		if not self._active_objectives[id] then
 			if not self._completed_objectives[id] then
 				self._completed_objectives[id] = self._objectives[id]
 				table.insert(self._completed_objectives_ordered, 1, id)
 			end
-
 			Application:error("Tried to complete objective " .. tostring(id) .. ". This objective has never been given to the player.")
 			return
 		end
-
 	end
-
 	local objective = self._objectives[id]
 	if objective.amount then
 		objective.current_amount = objective.current_amount + 1
@@ -222,10 +188,8 @@ function ObjectivesManager:complete_objective(id, load_data)
 			self:_remind_objetive(id, "mission_objective_updated")
 			return
 		end
-
 		objective.current_amount = 0
 	end
-
 	managers.hud:complete_objective({
 		id = id,
 		text = objective.text
@@ -243,49 +207,36 @@ function ObjectivesManager:complete_sub_objective(id, sub_id, load_data)
 			Application:stack_dump_error("Bad id to complete objective, " .. tostring(id) .. ".")
 			return
 		end
-
 		if not self._active_objectives[id] then
 			if not self._completed_objectives[id] then
 				self._completed_objectives[id] = self._objectives[id]
 				table.insert(self._completed_objectives_ordered, 1, id)
 			end
-
 			Application:error("Tried to complete objective " .. tostring(id) .. ". This objective has never been given to the player.")
 			return
 		end
-
 	end
-
 	local objective = self._objectives[id]
 	local sub_objective = objective.sub_objectives[sub_id]
 	if not sub_objective then
 		Application:error("No sub objective " .. tostring(sub_id) .. ". For objective " .. tostring(id) .. "")
 		return
 	end
-
 	sub_objective.completed = true
 	managers.hud:complete_sub_objective({
 		text = objective.text,
 		sub_id = sub_id
 	})
 	local completed = true
-	do
-		local (for generator), (for state), (for control) = pairs(objective.sub_objectives)
-		do
-			do break end
-			if not sub_objective.completed then
-				completed = false
-		end
-
+	for _, sub_objective in pairs(objective.sub_objectives) do
+		if not sub_objective.completed then
+			completed = false
 		else
 		end
-
 	end
-
 	if completed then
 		self:complete_objective(id)
 	end
-
 end
 
 function ObjectivesManager:objective_is_active(id)
@@ -320,15 +271,9 @@ end
 
 function ObjectivesManager:objectives_by_name()
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._objectives)
-		do
-			do break end
-			table.insert(t, name)
-		end
-
+	for name, _ in pairs(self._objectives) do
+		table.insert(t, name)
 	end
-
 	table.sort(t)
 	return t
 end
@@ -337,14 +282,10 @@ function ObjectivesManager:sub_objectives_by_name(id)
 	local t = {}
 	local objective = self._objectives[id]
 	if objective then
-		local (for generator), (for state), (for control) = pairs(objective.sub_objectives)
-		do
-			do break end
+		for name, _ in pairs(objective.sub_objectives) do
 			table.insert(t, name)
 		end
-
 	end
-
 	table.sort(t)
 	return t
 end
@@ -354,12 +295,10 @@ function ObjectivesManager:_get_xp(level_id, id)
 		Application:error("Had no xp for level", level_id)
 		return 0
 	end
-
 	if not self._objectives_level_id[level_id][id] then
 		Application:error("Had no xp for objective", id)
 		return 0
 	end
-
 	local xp_weight = self:_get_real_xp_weight(level_id, self._objectives_level_id[level_id][id].xp_weight)
 	return math.round(xp_weight * tweak_data:get_value("experience_manager", "total_level_objectives"))
 end
@@ -373,34 +312,21 @@ function ObjectivesManager:_total_xp_weight(level_id)
 	if not self._objectives_level_id[level_id] then
 		return 0
 	end
-
 	local xp_weight = 0
-	do
-		local (for generator), (for state), (for control) = pairs(self._objectives_level_id[level_id])
-		do
-			do break end
-			xp_weight = xp_weight + data.xp_weight
-		end
-
+	for obj, data in pairs(self._objectives_level_id[level_id]) do
+		xp_weight = xp_weight + data.xp_weight
 	end
-
 	return xp_weight
 end
 
 function ObjectivesManager:_check_xp_weight(level_id)
 	local total_xp = 0
 	local total_xp_weight = self:_total_xp_weight(level_id)
-	do
-		local (for generator), (for state), (for control) = pairs(self._objectives_level_id[level_id])
-		do
-			do break end
-			local xp = math.round(data.xp_weight / total_xp_weight * tweak_data:get_value("experience_manager", "total_level_objectives"))
-			total_xp = total_xp + xp
-			print(obj, xp)
-		end
-
+	for obj, data in pairs(self._objectives_level_id[level_id]) do
+		local xp = math.round(data.xp_weight / total_xp_weight * tweak_data:get_value("experience_manager", "total_level_objectives"))
+		total_xp = total_xp + xp
+		print(obj, xp)
 	end
-
 	print("total", total_xp)
 end
 
@@ -408,17 +334,10 @@ function ObjectivesManager:total_objectives(level_id)
 	if not self._objectives_level_id[level_id] then
 		return 0
 	end
-
 	local i = 0
-	do
-		local (for generator), (for state), (for control) = pairs(self._objectives_level_id[level_id])
-		do
-			do break end
-			i = i + 1
-		end
-
+	for _, _ in pairs(self._objectives_level_id[level_id]) do
+		i = i + 1
 	end
-
 	return i
 end
 
@@ -427,85 +346,60 @@ function ObjectivesManager:save(data)
 		local state = {}
 		local objective_map = {}
 		state.completed_objectives_ordered = self._completed_objectives_ordered
-		do
-			local (for generator), (for state), (for control) = pairs(self._objectives)
-			do
-				do break end
-				local save_data = {}
-				if self._active_objectives[name] then
-					save_data.active = true
-					save_data.current_amount = self._active_objectives[name].current_amount
-					save_data.amount = self._active_objectives[name].amount
-					save_data.sub_objective = {}
-					local (for generator), (for state), (for control) = pairs(self._active_objectives[name].sub_objectives)
-					do
-						do break end
-						save_data.sub_objective[sub_id] = sub_objective.completed
-					end
-
+		for name, objective in pairs(self._objectives) do
+			local save_data = {}
+			if self._active_objectives[name] then
+				save_data.active = true
+				save_data.current_amount = self._active_objectives[name].current_amount
+				save_data.amount = self._active_objectives[name].amount
+				save_data.sub_objective = {}
+				for sub_id, sub_objective in pairs(self._active_objectives[name].sub_objectives) do
+					save_data.sub_objective[sub_id] = sub_objective.completed
 				end
-
-				if self._completed_objectives[name] then
-					save_data.complete = true
-				end
-
-				if self._read_objectives[name] then
-					save_data.read = true
-				end
-
-				if next(save_data) then
-					objective_map[name] = save_data
-				end
-
 			end
-
+			if self._completed_objectives[name] then
+				save_data.complete = true
+			end
+			if self._read_objectives[name] then
+				save_data.read = true
+			end
+			if next(save_data) then
+				objective_map[name] = save_data
+			end
 		end
-
 		state.objective_map = objective_map
 		data.ObjectivesManager = state
 		return true
 	else
 		return false
 	end
-
 end
 
 function ObjectivesManager:load(data)
 	local state = data.ObjectivesManager
 	if state then
 		self._completed_objectives_ordered = state.completed_objectives_ordered
-		local (for generator), (for state), (for control) = pairs(state.objective_map)
-		do
-			do break end
+		for name, save_data in pairs(state.objective_map) do
 			local objective_data = self._objectives[name]
 			if save_data.active then
 				self:activate_objective(name, {
 					current_amount = save_data.current_amount,
 					amount = save_data.amount
 				})
-				local (for generator), (for state), (for control) = pairs(save_data.sub_objective)
-				do
-					do break end
+				for sub_id, completed in pairs(save_data.sub_objective) do
 					if completed then
 						self:complete_sub_objective(name, sub_id, {})
 					end
-
 				end
-
 			end
-
 			if save_data.complete then
 				self._completed_objectives[name] = objective_data
 			end
-
 			if save_data.read then
 				self._read_objectives[name] = true
 			end
-
 		end
-
 	end
-
 end
 
 function ObjectivesManager:reset()

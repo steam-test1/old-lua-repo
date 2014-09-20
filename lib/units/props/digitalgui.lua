@@ -35,7 +35,6 @@ function DigitalGui:init(unit)
 	if self.BG_COLOR_TYPE then
 		self.BG_COLOR = DigitalGui.COLORS[self.BG_COLOR_TYPE]
 	end
-
 	self._number = self._number or 0
 	self._timer = self._timer or 0
 	self._floored_last_timer = self._timer + 1
@@ -60,7 +59,6 @@ function DigitalGui:setup()
 			layer = -1
 		})
 	end
-
 	local font_size = self.FONT_SIZE
 	self._title_text = self._panel:text({
 		text = "01:23",
@@ -76,17 +74,14 @@ function DigitalGui:setup()
 	if self.RENDER_TEMPLATE then
 		self._title_text:set_render_template(Idstring(self.RENDER_TEMPLATE))
 	end
-
 	if self.BLEND_MODE then
 		self._title_text:set_blend_mode(self.BLEND_MODE)
 	end
-
 	if self.TYPE == "timer" then
 		self:_update_timer_text()
 	else
 		self:_update_number_text()
 	end
-
 end
 
 function DigitalGui:is_timer()
@@ -104,21 +99,15 @@ function DigitalGui:update(unit, t, dt)
 		elseif self._timer_count_down then
 			self._timer = self._timer - dt
 		end
-
 		if Network:is_server() and self._next_timer_sync < Application:time() then
 			self._next_timer_sync = Application:time() + (7 + math.rand(2))
-			local (for generator), (for state), (for control) = pairs(managers.network:session():peers())
-			do
-				do break end
+			for peer_id, peer in pairs(managers.network:session():peers()) do
 				local sync_time = math.clamp(self._timer + Network:qos(peer:rpc()).ping / 1000, 0, 100000)
 				peer:send_queued_sync("sync_gui_net_event", self._unit, DigitalGui.GUI_EVENT_IDS.syncronize, sync_time)
 			end
-
 		end
-
 		self:_update_timer_text()
 	end
-
 end
 
 function DigitalGui:set_color_type(type)
@@ -140,7 +129,6 @@ function DigitalGui:set_bg_color_type(type)
 		self._bg_rect:parent():remove(self._bg_rect)
 		self._bg_rect = nil
 	end
-
 end
 
 function DigitalGui:number_set(number, sync)
@@ -149,7 +137,6 @@ function DigitalGui:number_set(number, sync)
 	if sync and Network:is_server() then
 		managers.network:session():send_to_peers_synched("sync_gui_net_event", self._unit, DigitalGui.GUI_EVENT_IDS.number_set, self._number)
 	end
-
 end
 
 function DigitalGui:number_increase()
@@ -169,12 +156,10 @@ function DigitalGui:_update_number_text()
 		for i = 1, self.NUMBER_DIGITS - 1 do
 			zero = zero .. (self._number < math.pow(10, i) and "0" or "")
 		end
-
 		self._title_text:set_text(zero .. self._number)
 	elseif self._number == false then
 		self._title_text:set_text("---")
 	end
-
 end
 
 function DigitalGui:timer_start_count_up(sync)
@@ -185,7 +170,6 @@ function DigitalGui:timer_start_count_up(sync)
 	if sync and Network:is_server() then
 		managers.network:session():send_to_peers_synched("sync_gui_net_event", self._unit, DigitalGui.GUI_EVENT_IDS.timer_start_count_up, 0)
 	end
-
 end
 
 function DigitalGui:timer_start_count_down(sync)
@@ -196,7 +180,6 @@ function DigitalGui:timer_start_count_down(sync)
 	if sync and Network:is_server() then
 		managers.network:session():send_to_peers_synched("sync_gui_net_event", self._unit, DigitalGui.GUI_EVENT_IDS.timer_start_count_down, 0)
 	end
-
 end
 
 function DigitalGui:timer_pause(sync)
@@ -205,7 +188,6 @@ function DigitalGui:timer_pause(sync)
 	if sync and Network:is_server() then
 		managers.network:session():send_to_peers_synched("sync_gui_net_event", self._unit, DigitalGui.GUI_EVENT_IDS.timer_pause, 0)
 	end
-
 end
 
 function DigitalGui:timer_resume(sync)
@@ -214,7 +196,6 @@ function DigitalGui:timer_resume(sync)
 	if sync and Network:is_server() then
 		managers.network:session():send_to_peers_synched("sync_gui_net_event", self._unit, DigitalGui.GUI_EVENT_IDS.timer_resume, 0)
 	end
-
 end
 
 function DigitalGui:timer_set(timer, sync)
@@ -224,7 +205,6 @@ function DigitalGui:timer_set(timer, sync)
 		local sync_time = math.clamp(self._timer, 0, 100000)
 		managers.network:session():send_to_peers_synched("sync_gui_net_event", self._unit, DigitalGui.GUI_EVENT_IDS.timer_set, sync_time)
 	end
-
 end
 
 function DigitalGui:_timer_stop()
@@ -237,23 +217,19 @@ function DigitalGui:_sequence_trigger(sequence_name)
 	if not Network:is_server() then
 		return
 	end
-
 	if self._unit:damage():has_sequence(sequence_name) then
 		self._unit:damage():run_sequence_simple(sequence_name)
 	end
-
 end
 
 function DigitalGui:_update_timer_text()
 	if math.floor(self._timer) == self._floored_last_timer then
 		return
 	end
-
 	if self._timer_count_down and self._timer <= 0 then
 		self:_sequence_trigger("timer_reach_zero")
 		self:_timer_stop()
 	end
-
 	self._floored_last_timer = math.floor(self._timer)
 	self._timer = self._timer < 0 and 0 or self._timer
 	local time = math.floor(self._timer)
@@ -272,7 +248,6 @@ function DigitalGui:set_visible(visible)
 	else
 		self._ws:hide()
 	end
-
 end
 
 function DigitalGui:lock_gui()
@@ -296,7 +271,6 @@ function DigitalGui:sync_gui_net_event(event_id, value)
 	elseif event_id == DigitalGui.GUI_EVENT_IDS.number_set then
 		self:number_set(value)
 	end
-
 end
 
 function DigitalGui:destroy()
@@ -305,7 +279,6 @@ function DigitalGui:destroy()
 		self._ws = nil
 		self._new_gui = nil
 	end
-
 end
 
 function DigitalGui:save(data)
@@ -333,16 +306,13 @@ function DigitalGui:load(data)
 	elseif self.TYPE == "number" then
 		self:_update_number_text()
 	end
-
 	if not self._timer_paused and (self._timer_count_up or self._timer_count_down) then
 		self._unit:set_extension_update_enabled(Idstring("digital_gui"), true)
 	end
-
 	self:set_color_type(state.COLOR_TYPE)
 	self:set_bg_color_type(state.BG_COLOR_TYPE)
 	if state.visible ~= self._visible then
 		self:set_visible(state.visible)
 	end
-
 end
 

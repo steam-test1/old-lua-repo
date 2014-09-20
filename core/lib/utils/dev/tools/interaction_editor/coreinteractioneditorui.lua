@@ -89,30 +89,23 @@ end
 function InteractionEditorUI:create_graph_context_menu(system)
 	system:graph():connect("", "EVT_RIGHT_UP", callback(self._owner, self._owner, "on_show_graph_context_menu"), system)
 	local add_menu = EWS:Menu("")
-	do
-		local (for generator), (for state), (for control) = ipairs(InteractionDescription:node_types())
+	for _, v in ipairs(InteractionDescription:node_types()) do
 		do
-			do break end
 			add_menu:append_item("ADD_NODE_" .. string.upper(v), string.upper(v), "")
 			system:graph():window():connect("ADD_NODE_" .. string.upper(v), "EVT_COMMAND_MENU_SELECTED", callback(self._owner, self._owner, "on_add_node"), function()
 				system:add_node(v)
 			end
 )
 		end
-
 	end
-
 	local menu = EWS:Menu("")
 	menu:append_menu("ADD_NODE", "Add Node", add_menu, "")
 	menu:append_separator()
 	menu:append_item("DELETE_NODE", "Delete Node", "")
 	system:graph():window():connect("DELETE_NODE", "EVT_COMMAND_MENU_SELECTED", callback(self._owner, self._owner, "on_remove_node"), function()
-		local (for generator), (for state), (for control) = ipairs(system:selected_nodes())
-		do
-			do break end
+		for _, n in ipairs(system:selected_nodes()) do
 			system:remove_node(n)
 		end
-
 	end
 )
 	return menu
@@ -128,7 +121,6 @@ function InteractionEditorUI:destroy()
 		self._main_frame:destroy()
 		self._main_frame = nil
 	end
-
 end
 
 function InteractionEditorUI:clean_prop_panel()
@@ -178,9 +170,7 @@ function InteractionEditorUI:get_nb_page_by_caption(text)
 		if self._main_notebook:get_page_text(i) == text then
 			return i
 		end
-
 	end
-
 end
 
 function InteractionEditorUI:get_nb_page_id(panel)
@@ -188,9 +178,7 @@ function InteractionEditorUI:get_nb_page_id(panel)
 		if self._main_notebook:get_page(i) == panel then
 			return i
 		end
-
 	end
-
 end
 
 function InteractionEditorUI:set_save_close_option_enabled(b)

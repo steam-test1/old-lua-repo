@@ -30,9 +30,7 @@ function Context:_context_description()
 end
 
 function Context:_construct_input_data(input_context_description)
-	local (for generator), (for state), (for control) = pairs(input_context_description:input_targets())
-	do
-		do break end
+	for name, input_target in pairs(input_context_description:input_targets()) do
 		local type_name = input_target:target_type_name()
 		if type_name == "vector" then
 			self._input_data[name] = Vector3(0, 0, 0)
@@ -41,8 +39,6 @@ function Context:_construct_input_data(input_context_description)
 		else
 			assert(false, "unknown type:'" .. type_name .. "'")
 		end
-
 	end
-
 end
 

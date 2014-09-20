@@ -75,18 +75,15 @@ function MissionAccessCamera:destroy()
 		self._viewport:destroy()
 		self._viewport = nil
 	end
-
 	if alive(self._camera) then
 		World:delete_camera(self._camera)
 		self._camera = nil
 	end
-
 	if self._listener_id then
 		managers.sound_environment:remove_check_object(self._sound_check_object)
 		managers.listener:remove_listener(self._listener_id)
 		managers.listener:remove_set("access_camera")
 		self._listener_id = nil
 	end
-
 end
 

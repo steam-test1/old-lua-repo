@@ -4,7 +4,6 @@ function HUDTemp:init(hud)
 	if self._hud_panel:child("temp_panel") then
 		self._hud_panel:remove(self._hud_panel:child("temp_panel"))
 	end
-
 	self._temp_panel = self._hud_panel:panel({
 		visible = true,
 		name = "temp_panel",
@@ -219,7 +218,6 @@ function HUDTemp:_animate_show_bag_panel(bag_panel)
 		bag_panel:set_center_x(math.lerp(scx, ecx, 1 - t / TOTAL_T))
 		bag_panel:set_center_y(math.lerp(scy, ecy, 1 - t / TOTAL_T))
 	end
-
 	self._temp_panel:child("throw_instruction"):set_visible(true)
 	bag_panel:set_size(w, h)
 	bag_panel:set_center_x(ecx)
@@ -254,7 +252,6 @@ function HUDTemp:_animate_show_bag_panel_old(bag_panel)
 		bag_panel:set_center_y(scy)
 		bag_text:set_font_size(math.lerp(0, font_size * scale, 1 - t / TOTAL_T))
 	end
-
 	wait(0.5)
 	local TOTAL_T = 0.5
 	local t = TOTAL_T
@@ -268,7 +265,6 @@ function HUDTemp:_animate_show_bag_panel_old(bag_panel)
 		bag_panel:set_center_y(math.lerp(scy, ecy, 1 - t / TOTAL_T))
 		bag_text:set_font_size(math.lerp(font_size * scale, font_size, 1 - t / TOTAL_T))
 	end
-
 	bag_panel:set_size(w, h)
 	bag_panel:set_center_x(ecx)
 	bag_panel:set_center_y(ecy)
@@ -284,7 +280,6 @@ function HUDTemp:_animate_show_text(text)
 		local alpha = math.round(math.abs((math.sin(t * 360 * 3))))
 		text:set_alpha(alpha)
 	end
-
 	text:set_alpha(1)
 end
 
@@ -297,7 +292,6 @@ function HUDTemp:_animate_hide_text(text)
 		local vis = math.round(math.abs((math.cos(t * 360 * 3))))
 		text:set_alpha(vis)
 	end
-
 	text:set_alpha(1)
 	text:set_visible(false)
 end
@@ -312,7 +306,6 @@ function HUDTemp:set_stamina_value(value)
 		self._stamina_panel:child("low_stamina_bar"):set_alpha(0)
 		self._stamina_panel:stop()
 	end
-
 end
 
 function HUDTemp:set_max_stamina(value)
@@ -328,6 +321,5 @@ function HUDTemp:_animate_low_stamina(input_panel)
 		low_stamina_bar:set_color(Color(a, 0, 0.8 - a))
 		coroutine.yield()
 	end
-
 end
 

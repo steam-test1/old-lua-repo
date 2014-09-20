@@ -7,25 +7,17 @@ end
 
 function IngameMaskOffState:at_enter()
 	local players = managers.player:players()
-	do
-		local (for generator), (for state), (for control) = ipairs(players)
-		do
-			do break end
-			local vp = player:camera():viewport()
-			if vp then
-				vp:set_active(true)
-			else
-				Application:error("No viewport for player " .. tostring(k))
-			end
-
+	for k, player in ipairs(players) do
+		local vp = player:camera():viewport()
+		if vp then
+			vp:set_active(true)
+		else
+			Application:error("No viewport for player " .. tostring(k))
 		end
-
 	end
-
 	if not managers.hud:exists(self._MASK_OFF_HUD) then
 		managers.hud:load_hud(self._MASK_OFF_HUD, false, false, true, {})
 	end
-
 	managers.hud:show(self._MASK_OFF_HUD)
 	managers.hud:show(PlayerBase.PLAYER_INFO_HUD)
 	managers.hud:show(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN)
@@ -34,7 +26,6 @@ function IngameMaskOffState:at_enter()
 		player:base():set_enabled(true)
 		player:character_damage():set_invulnerable(true)
 	end
-
 end
 
 function IngameMaskOffState:at_exit()
@@ -43,7 +34,6 @@ function IngameMaskOffState:at_exit()
 		player:base():set_enabled(false)
 		player:character_damage():set_invulnerable(false)
 	end
-
 	managers.hud:hide(self._MASK_OFF_HUD)
 	managers.hud:hide(PlayerBase.PLAYER_INFO_HUD)
 	managers.hud:hide(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN)

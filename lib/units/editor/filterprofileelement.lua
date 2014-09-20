@@ -73,15 +73,9 @@ function FilterProfileUnitElement:_build_panel(panel, panel_sizer)
 		value = "money_offshore"
 	})
 	local achievement_list = {}
-	do
-		local (for generator), (for state), (for control) = pairs(managers.achievment.achievments)
-		do
-			do break end
-			table.insert(achievement_list, ach)
-		end
-
+	for ach, _ in pairs(managers.achievment.achievments) do
+		table.insert(achievement_list, ach)
 	end
-
 	local achievement_params = {
 		name = "Achievement:",
 		panel = panel,

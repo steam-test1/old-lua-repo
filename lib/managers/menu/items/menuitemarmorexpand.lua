@@ -25,7 +25,6 @@ end
 function MenuItemArmorExpand:toggle(...)
 	if not self:parameter("unlocked") then
 	end
-
 	MenuItemArmorExpand.super.toggle(self, ...)
 end
 
@@ -66,7 +65,6 @@ function MenuItemArmorExpand:setup_gui(node, row_item)
 	if row_item.align == "right" then
 		row_item.armor_name:set_right(row_item.locked_icon:left() - 10)
 	end
-
 	local texture, rect = tweak_data.hud_icons:get_icon_data("icon_circlebg")
 	row_item.circlefill = row_item.gui_panel:bitmap({
 		visible = self._parameters.unlocked and self._parameters.owned,
@@ -110,9 +108,7 @@ function MenuItemArmorExpand:on_item_positions_done(row_item, node)
 			row_item.bottom_line:set_lefttop(row_child.gui_panel:leftbottom())
 			row_item.bottom_line:set_top(row_item.bottom_line:top() - 1)
 		end
-
 	end
-
 end
 
 function MenuItemArmorExpand:on_buy(node)
@@ -120,13 +116,10 @@ function MenuItemArmorExpand:on_buy(node)
 end
 
 function MenuItemArmorExpand:on_equip(node)
-	local (for generator), (for state), (for control) = ipairs(self:parameters().parent_item:items())
-	do
-		do break end
+	for _, item in ipairs(self:parameters().parent_item:items()) do
 		local row_item = node:row_item(item)
 		item:reload(row_item, node)
 	end
-
 end
 
 function MenuItemArmorExpand:on_repair(node)
@@ -139,18 +132,13 @@ end
 function MenuItemArmorExpand:get_h(row_item, node)
 	local h = row_item.gui_panel:h()
 	if self:expanded() then
-		local (for generator), (for state), (for control) = ipairs(self:items())
-		do
-			do break end
+		for _, item in ipairs(self:items()) do
 			local child_row_item = node:row_item(item)
 			if child_row_item then
 				h = h + child_row_item.gui_panel:h()
 			end
-
 		end
-
 	end
-
 	return h
 end
 
@@ -170,7 +158,6 @@ function MenuItemArmorExpand:reload(row_item, node)
 	else
 		row_item.menu_unselected:set_color(node.row_item_color)
 	end
-
 	self:_set_row_item_state(node, row_item)
 end
 
@@ -192,7 +179,6 @@ function MenuItemArmorExpand:_set_row_item_state(node, row_item)
 		row_item.armor_name:set_color(self:parameter("owned") and self:parameter("unlocked") and row_item.color or Color(1, 0.5, 0.5, 0.5))
 		row_item.armor_name:set_font(tweak_data.menu.default_font_id)
 	end
-
 end
 
 function MenuItemArmorExpand:on_delete_row_item(row_item, ...)

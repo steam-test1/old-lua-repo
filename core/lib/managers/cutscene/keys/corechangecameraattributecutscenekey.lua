@@ -27,15 +27,11 @@ function CoreChangeCameraAttributeCutsceneKey:evaluate(player, fast_forward)
 		if value and self["is_valid_" .. attribute_name](self, value) then
 			player:set_camera_attribute(attribute_name, value)
 		end
-
 	end
 
-	local (for generator), (for state), (for control) = pairs(self.__serialized_attributes)
-	do
-		do break end
+	for attribute_name, _ in pairs(self.__serialized_attributes) do
 		set_attribute_if_valid(attribute_name)
 	end
-
 end
 
 function CoreChangeCameraAttributeCutsceneKey:is_valid_near_range(value)

@@ -14,7 +14,6 @@ function CoreMusicUnitElement:test_element()
 		managers.editor:set_wanted_mute(false)
 		managers.music:post_event(self._hed.music_event)
 	end
-
 end
 
 function CoreMusicUnitElement:stop_test_element()
@@ -42,7 +41,6 @@ function CoreMusicUnitElement:_build_panel(panel, panel_sizer)
 		self:add_help_text(help)
 		return
 	end
-
 	self._hed.music_event = self._hed.music_event or managers.music:music_events(paths[1])[1]
 	local path_value = managers.music:music_path(self._hed.music_event)
 	self._paths_params = {

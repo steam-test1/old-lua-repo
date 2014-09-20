@@ -18,9 +18,7 @@ end
 
 function CoreToggleUnitElement:draw_links(t, dt, selected_unit, all_units)
 	MissionElement.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -32,9 +30,7 @@ function CoreToggleUnitElement:draw_links(t, dt, selected_unit, all_units)
 				b = 0
 			})
 		end
-
 	end
-
 end
 
 function CoreToggleUnitElement:update_editing()
@@ -49,21 +45,15 @@ function CoreToggleUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function CoreToggleUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function CoreToggleUnitElement:add_triggers(vc)
@@ -76,23 +66,18 @@ function CoreToggleUnitElement:add_unit_list_btn()
 		if not unit:mission_element_data() or unit:mission_element_data().script ~= script then
 			return
 		end
-
 		local id = unit:unit_data().unit_id
 		if table.contains(self._hed.elements, id) then
 			return false
 		end
-
 		return managers.editor:layer("Mission"):category_map()[unit:type():s()]
 	end
 
 	local dialog = SelectUnitByNameModal:new("Add Unit", f)
-	local (for generator), (for state), (for control) = ipairs(dialog:selected_units())
-	do
-		do break end
+	for _, unit in ipairs(dialog:selected_units()) do
 		local id = unit:unit_data().unit_id
 		table.insert(self._hed.elements, id)
 	end
-
 end
 
 function CoreToggleUnitElement:remove_unit_list_btn()
@@ -101,13 +86,10 @@ function CoreToggleUnitElement:remove_unit_list_btn()
 	end
 
 	local dialog = SelectUnitByNameModal:new("Remove Unit", f)
-	local (for generator), (for state), (for control) = ipairs(dialog:selected_units())
-	do
-		do break end
+	for _, unit in ipairs(dialog:selected_units()) do
 		local id = unit:unit_data().unit_id
 		table.delete(self._hed.elements, id)
 	end
-
 end
 
 function CoreToggleUnitElement:_build_panel(panel, panel_sizer)

@@ -16,6 +16,5 @@ function Init:transition()
 	elseif self.player_slot._perform_local_user_binding:is_requested() then
 		return CorePlayerSlotStateDetectLocalUser.DetectLocalUser
 	end
-
 end
 

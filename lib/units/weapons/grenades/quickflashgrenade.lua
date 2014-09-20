@@ -26,7 +26,6 @@ function QuickFlashGrenade:_play_sound_and_effects()
 			nil
 		})
 	end
-
 end
 
 function QuickFlashGrenade:make_flash(detonate_pos, range, ignore_units)
@@ -37,7 +36,6 @@ function QuickFlashGrenade:make_flash(detonate_pos, range, ignore_units)
 		local sound_eff_mul = math.clamp(1 - (travel_dis or linear_dis) / range, 0.3, 1)
 		managers.player:player_unit():character_damage():on_flashbanged(sound_eff_mul)
 	end
-
 end
 
 function QuickFlashGrenade:_chk_dazzle_local_player(detonate_pos, range, ignore_units)
@@ -45,14 +43,12 @@ function QuickFlashGrenade:_chk_dazzle_local_player(detonate_pos, range, ignore_
 	if not alive(player) then
 		return
 	end
-
 	local detonate_pos = detonate_pos or self._unit:position() + math.UP * 150
 	local m_pl_head_pos = player:movement():m_head_pos()
 	local linear_dis = mvector3.distance(detonate_pos, m_pl_head_pos)
 	if range < linear_dis then
 		return
 	end
-
 	local slotmask = managers.slot:get_mask("bullet_impact_targets")
 	local function _vis_ray_func(from, to, boolean)
 		if ignore_units then
@@ -60,26 +56,20 @@ function QuickFlashGrenade:_chk_dazzle_local_player(detonate_pos, range, ignore_
 		else
 			return World:raycast("ray", from, to, "slot_mask", slotmask, boolean and "report" or nil)
 		end
-
 	end
 
 	if not _vis_ray_func(m_pl_head_pos, detonate_pos, true) then
 		return true, true, nil, linear_dis
 	end
-
 	local random_rotation = Rotation(360 * math.random(), 360 * math.random(), 360 * math.random())
 	local raycast_dir = Vector3()
 	local bounce_pos = Vector3()
-	local (for generator), (for state), (for control) = ipairs({
+	for _, axis in ipairs({
 		"x",
 		"y",
 		"z"
-	})
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs({1, -1})
-		do
-			do break end
+	}) do
+		for _, polarity in ipairs({1, -1}) do
 			mvector3.set_zero(raycast_dir)
 			mvector3["set_" .. axis](raycast_dir, polarity)
 			mvector3.rotate_with(raycast_dir, random_rotation)
@@ -97,15 +87,10 @@ function QuickFlashGrenade:_chk_dazzle_local_player(detonate_pos, range, ignore_
 					if range > travel_dis then
 						return true, false, travel_dis, linear_dis
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function QuickFlashGrenade:sound_playback_complete_clbk(event_instance, sound_source, event_type, sound_source_again)

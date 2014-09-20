@@ -15,12 +15,9 @@ function InteractionEditor:set_position(pos)
 end
 
 function InteractionEditor:update(t, dt)
-	local (for generator), (for state), (for control) = pairs(self._systems)
-	do
-		do break end
+	for _, sys in pairs(self._systems) do
 		sys:update(t, dt)
 	end
-
 end
 
 function InteractionEditor:ui()
@@ -28,29 +25,17 @@ function InteractionEditor:ui()
 end
 
 function InteractionEditor:close()
-	do
-		local (for generator), (for state), (for control) = pairs(self._systems)
-		do
-			do break end
-			sys:close()
-		end
-
+	for _, sys in pairs(self._systems) do
+		sys:close()
 	end
-
 	self._system = nil
 	self._ui:destroy()
 end
 
 function InteractionEditor:open_system(path)
-	do
-		local (for generator), (for state), (for control) = pairs(self._systems)
-		do
-			do break end
-			sys:deactivate()
-		end
-
+	for _, sys in pairs(self._systems) do
+		sys:deactivate()
 	end
-
 	local sys = CoreInteractionEditorSystem.InteractionEditorSystem:new(self._ui, path)
 	self._systems[sys] = sys
 end
@@ -69,48 +54,31 @@ function InteractionEditor:close_system(sys)
 			elseif res == "YES" then
 				self:do_save(system)
 			end
-
 		end
-
 		system:close()
 		assert(self._systems[system])
 		self._systems[system] = nil
 	end
-
 end
 
 function InteractionEditor:active_system()
-	local (for generator), (for state), (for control) = pairs(self._systems)
-	do
-		do break end
+	for _, sys in pairs(self._systems) do
 		if sys:active() then
 			return sys
 		end
-
 	end
-
 end
 
 function InteractionEditor:activate_system(panel)
-	do
-		local (for generator), (for state), (for control) = pairs(self._systems)
-		do
-			do break end
-			sys:deactivate()
-		end
-
+	for _, sys in pairs(self._systems) do
+		sys:deactivate()
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._systems)
-	do
-		do break end
+	for _, sys in pairs(self._systems) do
 		if sys:panel() == panel then
 			sys:activate()
 			return
 		end
-
 	end
-
 end
 
 function InteractionEditor:do_save(sys)
@@ -121,9 +89,7 @@ function InteractionEditor:do_save(sys)
 		else
 			self:save_system(system, system:path())
 		end
-
 	end
-
 end
 
 function InteractionEditor:do_save_as(sys)
@@ -133,23 +99,17 @@ function InteractionEditor:do_save_as(sys)
 		if path then
 			self:save_system(system, path)
 		end
-
 	end
-
 end
 
 function InteractionEditor:do_save_all()
-	local (for generator), (for state), (for control) = pairs(self._systems)
-	do
-		do break end
+	for _, system in pairs(self._systems) do
 		if system:is_new() then
 			self:do_save_as(system)
 		else
 			self:save_system(system, system:path())
 		end
-
 	end
-
 end
 
 function InteractionEditor:undo(sys)
@@ -157,7 +117,6 @@ function InteractionEditor:undo(sys)
 	if system then
 		system:undo()
 	end
-
 end
 
 function InteractionEditor:redo(sys)
@@ -165,6 +124,5 @@ function InteractionEditor:redo(sys)
 	if system then
 		system:redo()
 	end
-
 end
 

@@ -23,14 +23,12 @@ function CrimeNetFiltersGui:init(ws, fullscreen_ws, node)
 	if not managers.menu:is_pc_controller() then
 		managers.menu:active_menu().input:deactivate_controller_mouse()
 	end
-
 end
 
 function CrimeNetFiltersGui:close()
 	if not managers.menu:is_pc_controller() then
 		managers.menu:active_menu().input:activate_controller_mouse()
 	end
-
 	self._ws:panel():remove(self._panel)
 	self._fullscreen_ws:panel():remove(self._fullscreen_panel)
 end

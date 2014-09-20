@@ -16,7 +16,6 @@ require("lib/tweak_data/TweakData")
 if Application:production_build() then
 	core:import("DebugManager")
 end
-
 require("lib/utils/EventListenerHolder")
 require("lib/managers/UpgradesManager")
 require("lib/managers/ExperienceManager")
@@ -79,10 +78,8 @@ function Setup:init_category_print()
 	if Global.category_print_initialized.setup then
 		return
 	end
-
 	if not Global.interface_sound then
 	end
-
 	local cat_list = {
 		"dialog_manager",
 		"user_manager",
@@ -103,15 +100,9 @@ function Setup:init_category_print()
 		"sound_placeholder",
 		"spam"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(cat_list)
-		do
-			do break end
-			Global.category_print[cat] = false
-		end
-
+	for _, cat in ipairs(cat_list) do
+		Global.category_print[cat] = false
 	end
-
 	catprint_load()
 end
 
@@ -120,15 +111,12 @@ function Setup:load_packages()
 		TextureCache:set_streaming_enabled(true)
 		PackageManager:set_streaming_enabled(true)
 	end
-
 	if not PackageManager:loaded("packages/base") then
 		PackageManager:load("packages/base")
 	end
-
 	if not PackageManager:loaded("packages/dyn_resources") then
 		PackageManager:load("packages/dyn_resources")
 	end
-
 end
 
 function Setup:init_managers(managers)
@@ -179,7 +167,6 @@ function Setup:start_boot_loading_screen()
 	if not PackageManager:loaded("packages/boot_screen") then
 		PackageManager:load("packages/boot_screen")
 	end
-
 	self:_start_loading_screen()
 end
 
@@ -196,7 +183,6 @@ function Setup:stop_loading_screen()
 	else
 		Application:stack_dump_error("[LoadingEnvironment] Tried to stop loading screen when it wasn't started.")
 	end
-
 end
 
 function Setup:_start_loading_screen()
@@ -208,19 +194,16 @@ function Setup:_start_loading_screen()
 		Global.is_loading = true
 		return
 	end
-
 	cat_print("loading_environment", "[LoadingEnvironment] Start.")
 	local setup
 	if not LoadingEnvironmentScene:loaded() then
 		LoadingEnvironmentScene:load("levels/zone", false)
 	end
-
 	local load_level_data
 	if Global.load_level then
 		if not PackageManager:loaded("packages/load_level") then
 			PackageManager:load("packages/load_level")
 		end
-
 		setup = "lib/setups/LevelLoadingSetup"
 		load_level_data = {}
 		load_level_data.level_data = Global.level_data
@@ -232,20 +215,15 @@ function Setup:_start_loading_screen()
 		load_level_data.tip_id = tweak_data.tips:get_a_tip()
 		load_level_data.controller_coords = tweak_data:get_controller_help_coords()
 		if load_level_data.controller_coords then
-			local (for generator), (for state), (for control) = pairs(load_level_data.controller_coords)
-			do
-				do break end
+			for id, data in pairs(load_level_data.controller_coords) do
 				data.string = managers.localization:to_upper_text(id)
 			end
-
 		end
-
 		local load_data = load_level_data.level_tweak_data.load_data
 		Global.current_load_package = load_data and load_data.package or "packages/load_default"
 		if Global.current_load_package then
 			PackageManager:load(Global.current_load_package)
 		end
-
 		local safe_rect_pixels = managers.viewport:get_safe_rect_pixels()
 		local safe_rect = managers.viewport:get_safe_rect()
 		local aspect_ratio = managers.viewport:aspect_ratio()
@@ -274,7 +252,6 @@ function Setup:_start_loading_screen()
 	else
 		setup = "lib/setups/HeavyLoadingSetup"
 	end
-
 	self:_setup_loading_environment()
 	local data = {
 		res = RenderSettings.resolution,
@@ -402,7 +379,6 @@ function Setup:init_game()
 		Global.level_data = {}
 		Global.initialized = true
 	end
-
 	self._end_frame_clbks = {}
 	local scene_gui = Overlay:gui()
 	self._main_thread_loading_screen_gui_script = LightLoadingScreenGuiScript:new(scene_gui, RenderSettings.resolution, -1, tweak_data.gui.LOADING_SCREEN_LAYER, SystemInfo:platform() == Idstring("WIN32"))
@@ -418,13 +394,11 @@ function Setup:init_finalize()
 	if Application:editor() then
 		managers.user:init_finalize()
 	end
-
 	managers.player:aquire_default_upgrades()
 	managers.blackmarket:init_finalize()
 	if SystemInfo:platform() == Idstring("WIN32") then
 		AnimationManager:set_anim_cache_size(10485760, 0)
 	end
-
 end
 
 function Setup:update(t, dt)
@@ -441,7 +415,6 @@ function Setup:update(t, dt)
 	if self._main_thread_loading_screen_gui_visible then
 		self._main_thread_loading_screen_gui_script:update(-1, dt)
 	end
-
 end
 
 function Setup:paused_update(t, dt)
@@ -459,7 +432,6 @@ function Setup:end_update(t, dt)
 	while #self._end_frame_clbks > 0 do
 		table.remove(self._end_frame_clbks, 1)()
 	end
-
 end
 
 function Setup:paused_end_update(t, dt)
@@ -467,14 +439,12 @@ function Setup:paused_end_update(t, dt)
 	while #self._end_frame_clbks > 0 do
 		table.remove(self._end_frame_clbks, 1)()
 	end
-
 end
 
 function Setup:end_frame(t, dt)
 	while self._end_frame_callbacks and #self._end_frame_callbacks > 0 do
 		table.remove(self._end_frame_callbacks)()
 	end
-
 end
 
 function Setup:add_end_frame_callback(callback)
@@ -493,7 +463,6 @@ function Setup:destroy()
 		self._main_thread_loading_screen_gui_script:destroy()
 		self._main_thread_loading_screen_gui_script = nil
 	end
-
 end
 
 function Setup:load_level(level, mission, world_setting, level_class_name, level_id)
@@ -537,7 +506,6 @@ function Setup:exec(context)
 	if not managers.system_menu:is_active() then
 		self:set_main_thread_loading_screen_visible(true)
 	end
-
 	CoreSetup.CoreSetup.exec(self, context)
 end
 
@@ -547,7 +515,6 @@ function Setup:quit()
 		self:set_main_thread_loading_screen_visible(true)
 		self._main_thread_loading_screen_gui_script:set_text("Exiting")
 	end
-
 end
 
 function Setup:restart()
@@ -557,7 +524,6 @@ function Setup:restart()
 	else
 		self:load_start_menu()
 	end
-
 end
 
 function Setup:block_exec()
@@ -565,24 +531,20 @@ function Setup:block_exec()
 		self:set_main_thread_loading_screen_visible(true)
 		return true
 	end
-
 	if not managers.network:is_ready_to_load() then
 		print("BLOCKED BY STOPPING NETWORK")
 		return true
 	end
-
 	if not managers.dyn_resource:is_ready_to_close() then
 		print("BLOCKED BY DYNAMIC RESOURCE MANAGER")
 		managers.dyn_resource:set_file_streaming_chunk_size_mul(1, 1)
 		return true
 	end
-
 	if managers.system_menu:block_exec() or managers.savefile:is_active() then
 		return true
 	else
 		return false
 	end
-
 end
 
 function Setup:block_quit()
@@ -595,14 +557,12 @@ function Setup:set_main_thread_loading_screen_visible(visible)
 		self._main_thread_loading_screen_gui_script:set_visible(visible, RenderSettings.resolution)
 		self._main_thread_loading_screen_gui_visible = visible
 	end
-
 end
 
 function Setup:set_fps_cap(value)
 	if not self._framerate_low then
 		Application:cap_framerate(value)
 	end
-
 end
 
 function Setup:george_test()
@@ -623,6 +583,5 @@ function Setup:clbk_george_test(status, type, name)
 	print("[Setup:clbk_george_test] status", status, "type", type, "name", name)
 	if status then
 	end
-
 end
 

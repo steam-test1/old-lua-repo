@@ -17,9 +17,7 @@ function NetworkVoiceChatSTEAM:open()
 		if not self._push_to_talk then
 			self.handler:start_recording()
 		end
-
 	end
-
 end
 
 function NetworkVoiceChatSTEAM:destroy_voice(disconnected)
@@ -28,7 +26,6 @@ function NetworkVoiceChatSTEAM:destroy_voice(disconnected)
 		self.handler:close()
 		self._enabled = false
 	end
-
 end
 
 function NetworkVoiceChatSTEAM:_load_globals()
@@ -36,14 +33,12 @@ function NetworkVoiceChatSTEAM:_load_globals()
 		self.handler = Global.steam.voip.handler
 		Global.steam.voip = nil
 	end
-
 end
 
 function NetworkVoiceChatSTEAM:_save_globals()
 	if not Global.steam then
 		Global.steam = {}
 	end
-
 	Global.steam.voip = {}
 	Global.steam.voip.handler = self.handler
 end
@@ -56,30 +51,24 @@ function NetworkVoiceChatSTEAM:set_recording(enabled)
 	if not self._push_to_talk then
 		return
 	end
-
 	if enabled then
 		self.handler:start_recording()
 	else
 		self.handler:stop_recording()
 	end
-
 end
 
 function NetworkVoiceChatSTEAM:update()
 	self.handler:update()
 	local t = Application:time()
 	local playing = self.handler:get_voice_receivers_playing()
-	local (for generator), (for state), (for control) = pairs(playing)
-	do
-		do break end
+	for id, pl in pairs(playing) do
 		if not self._users_talking[id] then
 			self._users_talking[id] = {time = 0}
 		end
-
 		if pl then
 			self._users_talking[id].time = t
 		end
-
 		local active = t < self._users_talking[id].time + 0.15
 		if active ~= self._users_talking[id].active then
 			self._users_talking[id].active = active
@@ -93,24 +82,17 @@ function NetworkVoiceChatSTEAM:update()
 							local mugshot = crim_data.mugshot_id
 							managers.hud:set_mugshot_voice(mugshot, active)
 						end
-
 					end
-
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function NetworkVoiceChatSTEAM:on_member_added(peer)
 	if peer:rpc() then
 		self.handler:add_receiver(peer:id(), peer:rpc())
 	end
-
 end
 
 function NetworkVoiceChatSTEAM:on_member_removed(peer)

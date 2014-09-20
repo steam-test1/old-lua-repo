@@ -97,7 +97,6 @@ function WalletGuiObject.refresh()
 		skillpoint_text:set_center_y(skillpoint_icon:center_y())
 		skillpoint_text:set_y(math.round(skillpoint_text:y()))
 	end
-
 end
 
 function WalletGuiObject.make_fine_text(text)
@@ -111,7 +110,6 @@ function WalletGuiObject.set_layer(layer)
 	if not alive(Global.wallet_panel) then
 		return
 	end
-
 	Global.wallet_panel:set_layer(layer)
 end
 
@@ -119,7 +117,6 @@ function WalletGuiObject.move_wallet(mx, my)
 	if not alive(Global.wallet_panel) then
 		return
 	end
-
 	Global.wallet_panel:move(mx, my)
 end
 
@@ -127,7 +124,6 @@ function WalletGuiObject.set_object_visible(object, visible)
 	if not alive(Global.wallet_panel) then
 		return
 	end
-
 	Global.wallet_panel:child(object):set_visible(visible)
 	local bg_blur = Global.wallet_panel:child("bg_blur")
 	if Global.wallet_panel:child("wallet_skillpoint_icon"):visible() then
@@ -139,7 +135,6 @@ function WalletGuiObject.set_object_visible(object, visible)
 	else
 		bg_blur:set_h(0)
 	end
-
 	bg_blur:set_leftbottom(Global.wallet_panel:child("wallet_money_icon"):leftbottom())
 end
 
@@ -148,7 +143,6 @@ function WalletGuiObject.remove_wallet()
 		Global.wallet_panel = nil
 		return
 	end
-
 	Global.wallet_panel:parent():remove(Global.wallet_panel)
 	Global.wallet_panel = nil
 end
@@ -158,11 +152,9 @@ function WalletGuiObject.close_wallet(panel)
 		Global.wallet_panel = nil
 		return
 	end
-
 	if panel ~= Global.wallet_panel:parent() then
 		return
 	end
-
 	panel:remove(Global.wallet_panel)
 	Global.wallet_panel = nil
 end

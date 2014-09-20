@@ -35,7 +35,6 @@ function HuskPlayerBase:set_upgrade_value(category, upgrade, level)
 	elseif upgrade == "suspicion_multiplier" then
 		self:set_suspicion_multiplier(upgrade, value)
 	end
-
 end
 
 function HuskPlayerBase:upgrade_value(category, upgrade)
@@ -55,9 +54,7 @@ function HuskPlayerBase:pre_destroy(unit)
 		if member then
 			member:set_unit(nil)
 		end
-
 	end
-
 	UnitBase.pre_destroy(self, unit)
 end
 

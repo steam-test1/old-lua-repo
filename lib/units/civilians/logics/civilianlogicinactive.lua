@@ -12,7 +12,6 @@ function CivilianLogicInactive._register_attention(data, my_data)
 	else
 		data.unit:brain():set_attention_settings(nil)
 	end
-
 end
 
 function CivilianLogicInactive._set_interaction(data, my_data)
@@ -20,6 +19,5 @@ function CivilianLogicInactive._set_interaction(data, my_data)
 		data.unit:interaction():set_tweak_data("corpse_dispose")
 		data.unit:interaction():set_active(true, true, true)
 	end
-
 end
 

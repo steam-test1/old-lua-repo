@@ -34,16 +34,13 @@ function HuskCopBrain:clbk_death(my_unit, damage_info)
 		managers.groupai:state():remove_alert_listener(self._alert_listen_key)
 		self._alert_listen_key = nil
 	end
-
 	if self._unit:inventory():equipped_unit() then
 		self._unit:inventory():equipped_unit():base():set_laser_enabled(false)
 	end
-
 	if self._following_hostage_contour_id then
 		self._unit:contour():remove_by_id(self._following_hostage_contour_id)
 		self._following_hostage_contour_id = nil
 	end
-
 end
 
 function HuskCopBrain:set_interaction_voice(voice)
@@ -56,15 +53,12 @@ function HuskCopBrain:load(load_data)
 	if my_load_data.weapon_laser_on then
 		self:sync_net_event(self._NET_EVENTS.weapon_laser_on)
 	end
-
 	if my_load_data.trade_flee_contour then
 		self._unit:contour():add("hostage_trade", nil, nil)
 	end
-
 	if my_load_data.following_hostage_contour then
 		self._unit:contour():add("friendly", nil, nil)
 	end
-
 end
 
 function HuskCopBrain:on_tied(aggressor_unit)
@@ -85,15 +79,12 @@ function HuskCopBrain:on_alert(alert_data)
 	if self._unit:id() == -1 then
 		return
 	end
-
 	if TimerManager:game():time() - self._last_alert_t < 5 then
 		return
 	end
-
 	if CopLogicBase._chk_alert_obstructed(self._unit:movement():m_head_pos(), alert_data) then
 		return
 	end
-
 	self._unit:network():send_to_host("alert", alert_data[5])
 	self._last_alert_t = TimerManager:game():time()
 end
@@ -113,13 +104,10 @@ function HuskCopBrain:sync_net_event(event_id)
 		if self._unit:inventory():equipped_unit() then
 			self._unit:inventory():equipped_unit():base():set_laser_enabled(false)
 		end
-
 		if not self._unit:character_damage():dead() then
 			managers.enemy:_create_unit_gfx_lod_data(self._unit)
 		end
-
 	end
-
 end
 
 function HuskCopBrain:pre_destroy()
@@ -127,10 +115,8 @@ function HuskCopBrain:pre_destroy()
 		managers.groupai:state():remove_alert_listener(self._alert_listen_key)
 		self._alert_listen_key = nil
 	end
-
 	if self._weapon_laser_on then
 		self:sync_net_event(self._NET_EVENTS.weapon_laser_off)
 	end
-
 end
 

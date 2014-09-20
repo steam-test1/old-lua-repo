@@ -5,18 +5,11 @@ core:import("CoreMenuItemToggle")
 MenuNode = MenuNode or class()
 function MenuNode:init(data_node)
 	local parameters = {}
-	do
-		local (for generator), (for state), (for control) = pairs(data_node)
-		do
-			do break end
-			if key ~= "_meta" and type(value) ~= "table" then
-				parameters[key] = value
-			end
-
+	for key, value in pairs(data_node) do
+		if key ~= "_meta" and type(value) ~= "table" then
+			parameters[key] = value
 		end
-
 	end
-
 	if parameters.modifier then
 		local modifier_names = string.split(parameters.modifier, " ")
 		parameters.modifier = {}
@@ -24,9 +17,7 @@ function MenuNode:init(data_node)
 			local modifier_instance = loadstring("return " .. modifier_names[i] .. ":new()")()
 			parameters.modifier[i] = callback(modifier_instance, modifier_instance, "modify_node")
 		end
-
 	end
-
 	if parameters.refresh then
 		local refresh_names = string.split(parameters.refresh, " ")
 		parameters.refresh = {}
@@ -34,9 +25,7 @@ function MenuNode:init(data_node)
 			local refresh_instance = loadstring("return " .. refresh_names[i] .. ":new()")()
 			parameters.refresh[i] = callback(refresh_instance, refresh_instance, "refresh_node")
 		end
-
 	end
-
 	if parameters.update then
 		local update_names = string.split(parameters.update, " ")
 		parameters.update = {}
@@ -44,35 +33,28 @@ function MenuNode:init(data_node)
 			local update_instance = loadstring("return " .. update_names[i] .. ":new()")()
 			parameters.update[i] = callback(update_instance, update_instance, "update_node")
 		end
-
 	end
-
 	if parameters.back_callback then
 		parameters.back_callback = string.split(parameters.back_callback, " ")
 	else
 		parameters.back_callback = {}
 	end
-
 	if parameters.back_callback then
 		parameters.back_callback_name = parameters.back_callback
 		parameters.back_callback = {}
 	end
-
 	if parameters.focus_changed_callback then
 		parameters.focus_changed_callback = string.split(parameters.focus_changed_callback, " ")
 	else
 		parameters.focus_changed_callback = {}
 	end
-
 	if parameters.focus_changed_callback then
 		parameters.focus_changed_callback_name = parameters.focus_changed_callback
 		parameters.focus_changed_callback = {}
 	end
-
 	if parameters.menu_components then
 		parameters.menu_components = string.split(parameters.menu_components, " ")
 	end
-
 	self:set_parameters(parameters)
 	self:_parse_items(data_node)
 	self._selected_item = nil
@@ -81,9 +63,7 @@ end
 function MenuNode:_parse_items(data_node)
 	self._items = {}
 	self._legends = {}
-	local (for generator), (for state), (for control) = ipairs(data_node)
-	do
-		do break end
+	for _, c in ipairs(data_node) do
 		local type = c._meta
 		if type == "item" then
 			local item = self:create_item(c)
@@ -96,9 +76,7 @@ function MenuNode:_parse_items(data_node)
 				pc = c.pc
 			})
 		end
-
 	end
-
 end
 
 function MenuNode:update(t, dt)
@@ -116,9 +94,7 @@ function MenuNode:create_item(data_node, parameters)
 			item_type = type
 			item = CoreSerialize.string_to_classtable(item_type)
 		end
-
 	end
-
 	item = item:new(data_node, parameters)
 	return item
 end
@@ -144,7 +120,6 @@ function MenuNode:add_item(item)
 	if self.callback_handler then
 		item:set_callback_handler(self.callback_handler)
 	end
-
 	local last = self._items[#self._items]
 	local is_back = last and (last:parameters().back or last:parameters().last_item)
 	if is_back then
@@ -152,7 +127,6 @@ function MenuNode:add_item(item)
 	else
 		table.insert(self._items, item)
 	end
-
 end
 
 function MenuNode:insert_item(item, i)
@@ -160,44 +134,31 @@ function MenuNode:insert_item(item, i)
 	if self.callback_handler then
 		item:set_callback_handler(self.callback_handler)
 	end
-
 	table.insert(self._items, i, item)
 end
 
 function MenuNode:delete_item(item_name)
-	local (for generator), (for state), (for control) = ipairs(self:items())
-	do
-		do break end
+	for i, item in ipairs(self:items()) do
 		if item:parameters().name == item_name then
 			if item == self:selected_item() then
 				self._selected_item = nil
 			end
-
 			local del_item = table.remove(self._items, i)
 			del_item:on_delete_item()
 			return del_item
 		end
-
 	end
-
 end
 
 function MenuNode:item(item_name)
 	item_name = item_name or self._default_item_name
 	local item
-	do
-		local (for generator), (for state), (for control) = ipairs(self:items())
-		do
-			do break end
-			if not item_name and i:visible() or i:parameters().name == item_name then
-				item = i
-		end
-
+	for _, i in ipairs(self:items()) do
+		if not item_name and i:visible() or i:parameters().name == item_name then
+			item = i
 		else
 		end
-
 	end
-
 	return item
 end
 
@@ -215,81 +176,50 @@ end
 
 function MenuNode:select_item(item_name)
 	if not item_name and self:item() and not self:item():visible() then
-		local (for generator), (for state), (for control) = ipairs(self:items())
-		do
-			do break end
+		for i, item in ipairs(self:items()) do
 			if item:visible() then
 				self._default_item_name = item:name()
+			else
+			end
 		end
-
-		else
-		end
-
 	end
-
 	self._selected_item = self:item(item_name)
 end
 
 function MenuNode:set_callback_handler(callback_handler)
 	self.callback_handler = callback_handler
-	do
-		local (for generator), (for state), (for control) = pairs(self._parameters.back_callback_name)
-		do
-			do break end
-			table.insert(self._parameters.back_callback, callback(callback_handler, callback_handler, callback_name))
-		end
-
+	for _, callback_name in pairs(self._parameters.back_callback_name) do
+		table.insert(self._parameters.back_callback, callback(callback_handler, callback_handler, callback_name))
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._parameters.focus_changed_callback_name)
-		do
-			do break end
-			table.insert(self._parameters.focus_changed_callback, callback(callback_handler, callback_handler, callback_name))
-		end
-
+	for _, callback_name in pairs(self._parameters.focus_changed_callback_name) do
+		table.insert(self._parameters.focus_changed_callback, callback(callback_handler, callback_handler, callback_name))
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._items)
-	do
-		do break end
+	for _, item in ipairs(self._items) do
 		item:set_callback_handler(callback_handler)
 	end
-
 end
 
 function MenuNode:trigger_back()
 	if self:parameters().block_back then
 		return true
 	end
-
 	local block_back
-	do
-		local (for generator), (for state), (for control) = pairs(self:parameters().back_callback)
-		do
-			do break end
-			block_back = block_back or callback(self)
-		end
-
+	for _, callback in pairs(self:parameters().back_callback) do
+		block_back = block_back or callback(self)
 	end
-
 	return block_back
 end
 
 function MenuNode:trigger_focus_changed(in_focus, ...)
-	local (for generator), (for state), (for control) = pairs(self:parameters().focus_changed_callback)
-	do
-		do break end
+	for _, callback in pairs(self:parameters().focus_changed_callback) do
 		callback(self, in_focus, ...)
 	end
-
 end
 
 function MenuNode:item_dirty(item)
 	if self.dirty_callback then
 		self.dirty_callback(self, item)
 	end
-
 end
 
 function MenuNode:legends()

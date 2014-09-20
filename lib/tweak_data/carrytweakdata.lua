@@ -243,18 +243,11 @@ end
 
 function CarryTweakData:get_carry_ids()
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.carry)
-		do
-			do break end
-			if type(tweak_data.carry[id]) == "table" and tweak_data.carry[id].type then
-				table.insert(t, id)
-			end
-
+	for id, _ in pairs(tweak_data.carry) do
+		if type(tweak_data.carry[id]) == "table" and tweak_data.carry[id].type then
+			table.insert(t, id)
 		end
-
 	end
-
 	return t
 end
 
@@ -265,7 +258,6 @@ function CarryTweakData:get_zipline_offset(carry_id)
 	elseif unit_name == "units/payday2/pickups/gen_pku_canvasbag/gen_pku_canvasbag" then
 		return Vector3(0, 0, 180)
 	end
-
 	return Vector3(15, 0, 172)
 end
 

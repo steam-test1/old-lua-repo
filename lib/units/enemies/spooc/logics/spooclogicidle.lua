@@ -13,34 +13,26 @@ function SpoocLogicIdle._upd_enemy_detection(data)
 		if allow_trans then
 			wanted_state = CopLogicBase._get_logic_state_from_reaction(data)
 		end
-
 		if wanted_state and wanted_state ~= data.name then
 			if obj_failed then
 				managers.groupai:state():on_objective_failed(data.unit, data.objective)
 			end
-
 			if my_data == data.internal_data then
 				CopLogicBase._exit(data.unit, wanted_state)
 			end
-
 		end
-
 	end
-
 	if my_data ~= data.internal_data then
 		return delay
 	end
-
 	CopLogicBase._chk_call_the_police(data)
 	if my_data ~= data.internal_data then
 		return delay
 	end
-
 	SpoocLogicIdle._chk_exit_hiding(data)
 	if my_data ~= data.internal_data then
 		return delay
 	end
-
 	return delay
 end
 
@@ -49,7 +41,6 @@ function SpoocLogicIdle.damage_clbk(data, damage_info)
 	if data.unit:anim_data().hide then
 		SpoocLogicIdle._exit_hiding(data)
 	end
-
 	return res
 end
 
@@ -81,19 +72,13 @@ function SpoocLogicIdle._chk_exit_hiding(data)
 		elseif data.attention_obj.dis < 700 then
 			local my_nav_seg_id = data.unit:movement():nav_tracker():nav_segment()
 			local enemy_areas = managers.groupai:state():get_areas_from_nav_seg_id(data.attention_obj.nav_tracker:nav_segment())
-			local (for generator), (for state), (for control) = ipairs(enemy_areas)
-			do
-				do break end
+			for _, area in ipairs(enemy_areas) do
 				if area.nav_segs[my_nav_seg_id] then
 					SpoocLogicIdle._exit_hiding(data)
+				else
+				end
 			end
-
-			else
-			end
-
 		end
-
 	end
-
 end
 

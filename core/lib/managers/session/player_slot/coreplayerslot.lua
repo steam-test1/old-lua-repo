@@ -18,7 +18,6 @@ function PlayerSlot:destroy()
 	if self._player then
 		self._player:destroy()
 	end
-
 end
 
 function PlayerSlot:clear_session()
@@ -26,7 +25,6 @@ function PlayerSlot:clear_session()
 		self._player:destroy()
 		self._player = nil
 	end
-
 end
 
 function PlayerSlot:remove()
@@ -37,7 +35,6 @@ function PlayerSlot:_release_user_from_slot()
 	if self._assigned_user then
 		self._assigned_user:_player_slot_lost(self)
 	end
-
 	self._assigned_user = nil
 	self._init:request()
 end
@@ -82,14 +79,12 @@ function PlayerSlot:create_player()
 	if self._assigned_user then
 		self._assigned_user:assign_player(self._player)
 	end
-
 end
 
 function PlayerSlot:remove_player()
 	if self._assigned_user then
 		self._assigned_user:release_player(self._player)
 	end
-
 	self._player:destroy()
 	self._player = nil
 end

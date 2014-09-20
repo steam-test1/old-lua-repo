@@ -14,19 +14,15 @@ function CoreEditorGroups:group_names()
 end
 
 function CoreEditorGroups:update(t, dt)
-	local (for generator), (for state), (for control) = pairs(self._groups)
-	do
-		do break end
+	for _, group in pairs(self._groups) do
 		group:draw(t, dt)
 	end
-
 end
 
 function CoreEditorGroups:create(name, reference, units)
 	if not table.contains(self._group_names, name) then
 		table.insert(self._group_names, name)
 	end
-
 	local group = CoreEditorGroup:new(name, reference, units)
 	self._groups[name] = group
 	return group
@@ -54,9 +50,7 @@ function CoreEditorGroups:group_name()
 		else
 			return name
 		end
-
 	end
-
 	return nil
 end
 
@@ -68,28 +62,18 @@ function CoreEditorGroups:new_group_name()
 		if i > 9 then
 			s = "Group"
 		end
-
 	end
-
 	return s .. i
 end
 
 function CoreEditorGroups:save()
-	local (for generator), (for state), (for control) = ipairs(self._group_names)
-	do
-		do break end
+	for _, name in ipairs(self._group_names) do
 		local group = self._groups[name]
 		if group then
 			local units = {}
-			do
-				local (for generator), (for state), (for control) = ipairs(group:units())
-				do
-					do break end
-					table.insert(units, unit:unit_data().unit_id)
-				end
-
+			for _, unit in ipairs(group:units()) do
+				table.insert(units, unit:unit_data().unit_id)
 			end
-
 			local t = {
 				entry = "editor_groups",
 				continent = group:continent() and group:continent_name(),
@@ -102,66 +86,45 @@ function CoreEditorGroups:save()
 			}
 			managers.editor:add_save_data(t)
 		end
-
 	end
-
 end
 
 function CoreEditorGroups:load(world_holder, offset)
 	local load_data = world_holder:create_world("world", "editor_groups", offset)
 	local group_names = load_data.group_names
 	local groups = {}
-	do
-		local (for generator), (for state), (for control) = pairs(load_data.groups)
-		do
-			do break end
-			if #data.units > 0 then
-				local reference = managers.worlddefinition:get_unit(data.reference)
-				local units = {}
-				do
-					local (for generator), (for state), (for control) = ipairs(data.units)
-					do
-						do break end
-						table.insert(units, managers.worlddefinition:get_unit(unit))
-					end
-
-				end
-
-				local continent
-				if data.continent then
-					continent = managers.editor:continent(data.continent)
-				end
-
-				if not table.contains(units, reference) then
-					reference = units[1]
-					cat_error("editor", "Changed reference for group,", name, ".")
-				end
-
-				groups[name] = {}
-				groups[name].reference = reference
-				groups[name].units = units
-				groups[name].continent = continent
-			else
-				table.delete(group_names, name)
-				cat_error("editor", "Removed old group", name, "since it didnt contain any units.")
+	for name, data in pairs(load_data.groups) do
+		if #data.units > 0 then
+			local reference = managers.worlddefinition:get_unit(data.reference)
+			local units = {}
+			for _, unit in ipairs(data.units) do
+				table.insert(units, managers.worlddefinition:get_unit(unit))
 			end
-
+			local continent
+			if data.continent then
+				continent = managers.editor:continent(data.continent)
+			end
+			if not table.contains(units, reference) then
+				reference = units[1]
+				cat_error("editor", "Changed reference for group,", name, ".")
+			end
+			groups[name] = {}
+			groups[name].reference = reference
+			groups[name].units = units
+			groups[name].continent = continent
+		else
+			table.delete(group_names, name)
+			cat_error("editor", "Removed old group", name, "since it didnt contain any units.")
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = ipairs(group_names)
-	do
-		do break end
+	for _, name in ipairs(group_names) do
 		if not groups[name].reference then
 			managers.editor:output_error("Reference unit is nil since there are no units left in group. Will remove, " .. name .. ".")
 		else
 			local group = self:create(name, groups[name].reference, groups[name].units)
 			group:set_continent(groups[name].continent)
 		end
-
 	end
-
 end
 
 function CoreEditorGroups:load_group()
@@ -169,7 +132,6 @@ function CoreEditorGroups:load_group()
 	if path then
 		self:load_group_file(path)
 	end
-
 end
 
 function CoreEditorGroups:load_group_file(path)
@@ -179,54 +141,38 @@ function CoreEditorGroups:load_group_file(path)
 	if node:has_parameter("layer") then
 		layer_name = node:parameter("layer")
 	end
-
 	local layer = managers.editor:layer(layer_name)
 	local pos = managers.editor:current_layer():current_pos()
 	managers.editor:change_layer_notebook(layer_name)
 	local reference
 	local units = {}
 	if pos then
-		do
-			local (for generator), (for state), (for control) = node:children()
-			do
-				do break end
-				local rot, new_unit
-				if unit:name() == "ref_unit" then
-					reference = layer:do_spawn_unit(unit:parameter("name"), pos)
-					new_unit = reference
-				else
-					local pos = pos + math.string_to_vector(unit:parameter("local_pos"))
-					local rot = math.string_to_rotation(unit:parameter("local_rot"))
-					new_unit = layer:do_spawn_unit(unit:parameter("name"), pos, rot)
-				end
-
-				do
-					local (for generator), (for state), (for control) = unit:children()
-					do
-						do break end
-						if setting:name() == "light" then
-							self:parse_light(new_unit, setting)
-						elseif setting:name() == "variation" then
-							self:parse_variation(new_unit, setting)
-						elseif setting:name() == "material_variation" then
-							self:parse_material_variation(new_unit, setting)
-						elseif setting:name() == "editable_gui" then
-							self:parse_editable_gui(new_unit, setting)
-						end
-
-					end
-
-				end
-
-				table.insert(units, new_unit)
+		for unit in node:children() do
+			local rot, new_unit
+			if unit:name() == "ref_unit" then
+				reference = layer:do_spawn_unit(unit:parameter("name"), pos)
+				new_unit = reference
+			else
+				local pos = pos + math.string_to_vector(unit:parameter("local_pos"))
+				local rot = math.string_to_rotation(unit:parameter("local_rot"))
+				new_unit = layer:do_spawn_unit(unit:parameter("name"), pos, rot)
 			end
-
+			for setting in unit:children() do
+				if setting:name() == "light" then
+					self:parse_light(new_unit, setting)
+				elseif setting:name() == "variation" then
+					self:parse_variation(new_unit, setting)
+				elseif setting:name() == "material_variation" then
+					self:parse_material_variation(new_unit, setting)
+				elseif setting:name() == "editable_gui" then
+					self:parse_editable_gui(new_unit, setting)
+				end
+			end
+			table.insert(units, new_unit)
 		end
-
 		self:create(name, reference, units)
 		layer:select_group(self._groups[name])
 	end
-
 end
 
 function CoreEditorGroups:parse_light(unit, node)
@@ -234,7 +180,6 @@ function CoreEditorGroups:parse_light(unit, node)
 	if not light then
 		return
 	end
-
 	light:set_enable(toboolean(node:parameter("enabled")))
 	light:set_far_range(tonumber(node:parameter("far_range")))
 	light:set_color(math.string_to_vector(node:parameter("color")))
@@ -244,7 +189,6 @@ function CoreEditorGroups:parse_light(unit, node)
 	if node:has_parameter("falloff_exponent") then
 		light:set_falloff_exponent(tonumber(node:parameter("falloff_exponent")))
 	end
-
 end
 
 function CoreEditorGroups:parse_variation(unit, node)
@@ -253,7 +197,6 @@ function CoreEditorGroups:parse_variation(unit, node)
 		unit:unit_data().mesh_variation = variation
 		managers.sequence:run_sequence_simple2(unit:unit_data().mesh_variation, "change_state", unit)
 	end
-
 end
 
 function CoreEditorGroups:parse_material_variation(unit, node)
@@ -262,7 +205,6 @@ function CoreEditorGroups:parse_material_variation(unit, node)
 		unit:unit_data().material = material_variation
 		unit:set_material_config(unit:unit_data().material, true)
 	end
-
 end
 
 function CoreEditorGroups:parse_editable_gui(unit, node)
@@ -277,15 +219,9 @@ function CoreEditorGroup:init(name, reference, units)
 	self._reference = reference
 	self._units = {}
 	self._continent = managers.editor:current_continent()
-	do
-		local (for generator), (for state), (for control) = ipairs(units)
-		do
-			do break end
-			self:add_unit(unit)
-		end
-
+	for _, unit in ipairs(units) do
+		self:add_unit(unit)
 	end
-
 	self._closed = true
 end
 
@@ -324,7 +260,6 @@ function CoreEditorGroup:add_unit(unit)
 	if not unit then
 		return
 	end
-
 	table.insert(self._units, unit)
 	unit:unit_data().editor_groups = unit:unit_data().editor_groups or {}
 	table.insert(unit:unit_data().editor_groups, self)
@@ -339,18 +274,13 @@ function CoreEditorGroup:remove_unit(unit)
 		else
 			managers.editor:remove_group(self._name)
 		end
-
 	end
-
 end
 
 function CoreEditorGroup:remove()
-	local (for generator), (for state), (for control) = ipairs(self._units)
-	do
-		do break end
+	for _, unit in ipairs(self._units) do
 		table.delete(unit:unit_data().editor_groups, self)
 	end
-
 end
 
 function CoreEditorGroup:reference()
@@ -369,35 +299,27 @@ function CoreEditorGroup:save_to_file()
 		f:puts("\t<ref_unit name=\"" .. self._reference:name():s() .. "\">")
 		self:save_edited_settings(f, "\t\t", self._reference)
 		f:puts("\t</ref_unit>")
-		do
-			local (for generator), (for state), (for control) = ipairs(self._units)
-			do
-				do break end
-				if unit ~= self._reference then
-					local name = unit:name():s()
-					local local_pos = unit:unit_data().local_pos
-					local local_rot = unit:unit_data().local_rot
-					local x = string.format("%.4f", local_pos.x)
-					local y = string.format("%.4f", local_pos.y)
-					local z = string.format("%.4f", local_pos.z)
-					local_pos = "" .. x .. " " .. y .. " " .. z
-					local yaw = string.format("%.4f", local_rot:yaw())
-					local pitch = string.format("%.4f", local_rot:pitch())
-					local roll = string.format("%.4f", local_rot:roll())
-					local_rot = "" .. yaw .. " " .. pitch .. " " .. roll
-					f:puts("\t<unit name=\"" .. name .. "\" local_pos=\"" .. local_pos .. "\" local_rot=\"" .. local_rot .. "\">")
-					self:save_edited_settings(f, "\t\t", unit)
-					f:puts("\t</unit>")
-				end
-
+		for _, unit in ipairs(self._units) do
+			if unit ~= self._reference then
+				local name = unit:name():s()
+				local local_pos = unit:unit_data().local_pos
+				local local_rot = unit:unit_data().local_rot
+				local x = string.format("%.4f", local_pos.x)
+				local y = string.format("%.4f", local_pos.y)
+				local z = string.format("%.4f", local_pos.z)
+				local_pos = "" .. x .. " " .. y .. " " .. z
+				local yaw = string.format("%.4f", local_rot:yaw())
+				local pitch = string.format("%.4f", local_rot:pitch())
+				local roll = string.format("%.4f", local_rot:roll())
+				local_rot = "" .. yaw .. " " .. pitch .. " " .. roll
+				f:puts("\t<unit name=\"" .. name .. "\" local_pos=\"" .. local_pos .. "\" local_rot=\"" .. local_rot .. "\">")
+				self:save_edited_settings(f, "\t\t", unit)
+				f:puts("\t</unit>")
 			end
-
 		end
-
 		f:puts("</group>")
 		SystemFS:close(f)
 	end
-
 end
 
 function CoreEditorGroup:save_edited_settings(...)
@@ -408,9 +330,7 @@ end
 
 function CoreEditorGroup:save_lights(file, t, unit, data_table)
 	local lights = CoreEditorUtils.get_editable_lights(unit)
-	local (for generator), (for state), (for control) = ipairs(lights)
-	do
-		do break end
+	for _, light in ipairs(lights) do
 		local c_s = "" .. light:color().x .. " " .. light:color().y .. " " .. light:color().z
 		local as = light:spot_angle_start()
 		local ae = light:spot_angle_end()
@@ -418,18 +338,15 @@ function CoreEditorGroup:save_lights(file, t, unit, data_table)
 		local falloff_exponent = light:falloff_exponent()
 		file:puts(t .. "<light name=\"" .. light:name():s() .. "\" enabled=\"" .. tostring(light:enable()) .. "\" far_range=\"" .. light:far_range() .. "\" color=\"" .. c_s .. "\" angle_start=\"" .. as .. "\" angle_end=\"" .. ae .. "\" multiplier=\"" .. multiplier .. "\" falloff_exponent=\"" .. falloff_exponent .. "\"/>")
 	end
-
 end
 
 function CoreEditorGroup:save_variation(file, t, unit, data_table)
 	if unit:unit_data().mesh_variation and #managers.sequence:get_editable_state_sequence_list(unit:name()) > 0 then
 		file:puts(t .. "<variation value=\"" .. unit:unit_data().mesh_variation .. "\"/>")
 	end
-
 	if unit:unit_data().material and unit:unit_data().material ~= "default" then
 		file:puts(t .. "<material_variation value=\"" .. unit:unit_data().material .. "\"/>")
 	end
-
 end
 
 function CoreEditorGroup:save_editable_gui(file, t, unit, data_table)
@@ -439,7 +356,6 @@ function CoreEditorGroup:save_editable_gui(file, t, unit, data_table)
 		local font_size = unit:editable_gui():font_size()
 		file:puts(t .. "<editable_gui text=\"" .. text .. "\" font_size=\"" .. font_size .. "\" font_color=\"" .. math.vector_to_string(font_color) .. "\"/>")
 	end
-
 end
 
 function CoreEditorGroup:draw(t, dt)
@@ -448,21 +364,13 @@ function CoreEditorGroup:draw(t, dt)
 		if self._continent ~= managers.editor:current_continent() then
 			return
 		end
-
 		i = 0.65
 	elseif not managers.editor:debug_draw_groups() then
 		return
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._units)
-		do
-			do break end
-			Application:draw(unit, 1 * i, 1 * i, 1 * i)
-		end
-
+	for _, unit in ipairs(self._units) do
+		Application:draw(unit, 1 * i, 1 * i, 1 * i)
 	end
-
 	Application:draw(self._reference, 0, 1 * i, 0)
 end
 
@@ -481,15 +389,9 @@ function GroupPresetsDialog:init(files, path)
 	self._panel_sizer:add(option_sizer, 0, 0, "ALIGN_RIGHT")
 	self._list = EWS:ListBox(self._panel, "", "LB_SINGLE,LB_HSCROLL,LB_NEEDED_SB,LB_SORT")
 	self._panel_sizer:add(self._list, 1, 0, "EXPAND")
-	do
-		local (for generator), (for state), (for control) = ipairs(files)
-		do
-			do break end
-			self._list:append(file)
-		end
-
+	for _, file in ipairs(files) do
+		self._list:append(file)
 	end
-
 	self._list:connect("EVT_COMMAND_LISTBOX_SELECTED", callback(self, self, "select_group"), nil)
 	self._list:connect("EVT_COMMAND_LISTBOX_DOUBLECLICKED", callback(self, self, "create_group"), nil)
 	self._list:connect("EVT_KEY_DOWN", callback(self, self, "key_cancel"), "")
@@ -513,7 +415,6 @@ function GroupPresetsDialog:select_group()
 		local name = self._list:get_string(i)
 		self._file = managers.database:base_path() .. self._path .. "\\" .. name
 	end
-
 end
 
 function GroupPresetsDialog:create_group()
@@ -521,10 +422,8 @@ function GroupPresetsDialog:create_group()
 		if self._hide_on_create then
 			self._dialog:set_visible(false)
 		end
-
 		managers.editor:groups():load_group_file(self._file)
 	end
-
 end
 
 function GroupPresetsDialog:hide_on_create(hide)

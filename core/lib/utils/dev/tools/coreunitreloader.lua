@@ -10,7 +10,6 @@ function CoreUnitReloader:destroy()
 		self._unitreloader_frame:destroy()
 		self._unitreloader_frame = nil
 	end
-
 end
 
 function CoreUnitReloader:create_main_frame()
@@ -57,15 +56,11 @@ function CoreUnitReloader:update(t, dt)
 		self._initialized = true
 		local units_in_world = World:find_units_quick("all")
 		self._main_box.unit_combo_box:clear()
-		local (for generator), (for state), (for control) = ipairs(units_in_world)
-		do
-			do break end
+		for _, unit_in_world in ipairs(units_in_world) do
 			self._main_box.unit_combo_box:append(unit_in_world:name())
 			self._main_box.unit_combo_box:set_value(unit_in_world:name())
 		end
-
 	end
-
 end
 
 function CoreUnitReloader:close()
@@ -74,26 +69,15 @@ end
 
 function CoreUnitReloader:check_extensions()
 	local units = World:find_units_quick("all")
-	do
-		local (for generator), (for state), (for control) = ipairs(units)
-		do
-			do break end
-			if unit:name() == self._main_box.unit_combo_box:get_value() then
-				local (for generator), (for state), (for control) = ipairs(unit:extensions())
-				do
-					do break end
-					if extension ~= "unit_data" and extension ~= "damage" then
-						return self._warning_dialog:show_modal() == "ID_OK"
-					end
-
+	for _, unit in ipairs(units) do
+		if unit:name() == self._main_box.unit_combo_box:get_value() then
+			for _, extension in ipairs(unit:extensions()) do
+				if extension ~= "unit_data" and extension ~= "damage" then
+					return self._warning_dialog:show_modal() == "ID_OK"
 				end
-
 			end
-
 		end
-
 	end
-
 	return true
 end
 
@@ -101,7 +85,6 @@ function CoreUnitReloader:on_reload()
 	if self:check_extensions(self._main_box.unit_combo_box:get_value()) then
 		self:reload_units(self._main_box.unit_combo_box:get_value())
 	end
-
 end
 
 function CoreUnitReloader:on_reload_all()
@@ -109,14 +92,10 @@ function CoreUnitReloader:on_reload_all()
 		self._initialized = false
 		local units_in_world = World:find_units_quick("all")
 		self._main_box.unit_combo_box:clear()
-		local (for generator), (for state), (for control) = ipairs(units_in_world)
-		do
-			do break end
+		for _, unit_in_world in ipairs(units_in_world) do
 			self:reload_units(unit_in_world:name())
 		end
-
 	end
-
 end
 
 function CoreUnitReloader:on_reload_list()

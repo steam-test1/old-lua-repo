@@ -52,13 +52,9 @@ function DebugDrawFonts:init(ws)
 	}
 	local sides = {left_side, right_side}
 	local x = 10
-	local (for generator), (for state), (for control) = pairs(sides)
-	do
-		do break end
+	for i, side in pairs(sides) do
 		local y = 10
-		local (for generator), (for state), (for control) = ipairs(fonts)
-		do
-			do break end
+		for _, font_data in ipairs(fonts) do
 			local text = side:text({
 				font = font_data[1],
 				font_size = font_data[2],
@@ -73,7 +69,6 @@ function DebugDrawFonts:init(ws)
 			if i == 2 then
 				text:set_text(utf8.to_upper(text:text()))
 			end
-
 			local _, _, tw, th = text:text_rect()
 			y = y + math.round(th + 0)
 			local text = side:text({
@@ -90,7 +85,6 @@ function DebugDrawFonts:init(ws)
 			if i == 2 then
 				text:set_text(utf8.to_upper(text:text()))
 			end
-
 			local _, _, tw, th = text:text_rect()
 			text:set_size(tw, th)
 			side:rect({
@@ -100,9 +94,7 @@ function DebugDrawFonts:init(ws)
 			}):set_shape(text:shape())
 			y = y + math.round(th + 20)
 		end
-
 	end
-
 end
 
 function DebugDrawFonts:toggle_debug()

@@ -28,42 +28,34 @@ function TeamAILogicTravel.enter(data, new_logic_name, enter_params)
 			my_data.nearest_cover = old_internal_data.nearest_cover
 			managers.navigation:reserve_cover(my_data.nearest_cover[1], data.pos_rsrv_id)
 		end
-
 		if old_internal_data.best_cover then
 			my_data.best_cover = old_internal_data.best_cover
 			managers.navigation:reserve_cover(my_data.best_cover[1], data.pos_rsrv_id)
 		end
-
 	end
-
 	data.internal_data = my_data
 	local key_str = tostring(data.key)
 	if not data.unit:movement():cool() then
 		my_data.detection_task_key = "TeamAILogicTravel._upd_enemy_detection" .. key_str
 		CopLogicBase.queue_task(my_data, my_data.detection_task_key, TeamAILogicTravel._upd_enemy_detection, data, data.t)
 	end
-
 	my_data.cover_update_task_key = "CopLogicTravel._update_cover" .. key_str
 	if my_data.nearest_cover or my_data.best_cover then
 		CopLogicBase.add_delayed_clbk(my_data, my_data.cover_update_task_key, callback(CopLogicTravel, CopLogicTravel, "_update_cover", data), data.t + 1)
 	end
-
 	if data.objective then
 		data.objective.called = false
 		my_data.called = true
 		if data.objective.follow_unit then
 			my_data.cover_wait_t = {0, 0}
 		end
-
 	end
-
 	data.unit:movement():set_allow_fire(false)
 	my_data.weapon_range = data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
 	if not data.unit:movement():chk_action_forbidden("walk") or data.unit:anim_data().act_idle then
 		local new_action = {type = "idle", body_part = 2}
 		data.unit:brain():action_request(new_action)
 	end
-
 end
 
 function TeamAILogicTravel.exit(data, new_logic_name, enter_params)
@@ -75,15 +67,12 @@ function TeamAILogicTravel.exit(data, new_logic_name, enter_params)
 	if my_data.moving_to_cover then
 		managers.navigation:release_cover(my_data.moving_to_cover[1])
 	end
-
 	if my_data.nearest_cover then
 		managers.navigation:release_cover(my_data.nearest_cover[1])
 	end
-
 	if my_data.best_cover then
 		managers.navigation:release_cover(my_data.best_cover[1])
 	end
-
 	data.brain:rem_pos_rsrv("path")
 end
 
@@ -94,7 +83,6 @@ function TeamAILogicTravel.update(data)
 		TeamAILogicIdle.on_new_objective(data, nil)
 		return
 	end
-
 	local my_data = data.internal_data
 	local t = data.t
 	if my_data.processing_advance_path or my_data.processing_coarse_path then
@@ -102,7 +90,6 @@ function TeamAILogicTravel.update(data)
 		if my_data ~= data.internal_data then
 			return
 		end
-
 	elseif my_data.advancing then
 		if data.objective.type == "follow" and (not unit:movement():chk_action_forbidden("walk") or unit:anim_data().act_idle) then
 			local follow_unit_nav_seg = data.objective.follow_unit:movement():nav_tracker():nav_segment()
@@ -113,11 +100,8 @@ function TeamAILogicTravel.update(data)
 					TeamAILogicTravel.on_new_objective(data)
 					return
 				end
-
 			end
-
 		end
-
 	elseif my_data.cover_leave_t then
 		if not my_data.turning and (not unit:movement():chk_action_forbidden("walk") or not not unit:anim_data().act_idle) then
 			if t > my_data.cover_leave_t then
@@ -127,15 +111,11 @@ function TeamAILogicTravel.update(data)
 				if not unit:movement():attention() then
 					action_taken = CopLogicTravel._chk_request_action_turn_to_cover(data, my_data)
 				end
-
 				if not action_taken and not my_data.best_cover[4] and not unit:anim_data().crouch and not data.unit:movement():cool() then
 					CopLogicAttack._chk_request_action_crouch(data)
 				end
-
 			end
-
 		end
-
 	elseif my_data.advance_path then
 		if not unit:movement():chk_action_forbidden("walk") or unit:anim_data().act_idle then
 			local haste, no_strafe
@@ -146,14 +126,11 @@ function TeamAILogicTravel.update(data)
 			else
 				haste = "run"
 			end
-
 			CopLogicTravel._chk_request_action_walk_to_advance_pos(data, my_data, haste, objective and objective.rot, no_strafe)
 			if my_data.advancing then
 				TeamAILogicTravel._check_start_path_ahead(data)
 			end
-
 		end
-
 	elseif objective then
 		if my_data.coarse_path then
 			local coarse_path = my_data.coarse_path
@@ -165,7 +142,6 @@ function TeamAILogicTravel.update(data)
 					managers.groupai:state():on_criminal_objective_complete(unit, objective)
 					return
 				end
-
 				TeamAILogicTravel.on_new_objective(data)
 				return
 			else
@@ -176,11 +152,9 @@ function TeamAILogicTravel.update(data)
 				if objective and objective.follow_unit then
 					prio = 5
 				end
-
 				local nav_segs = CopLogicTravel._get_allowed_travel_nav_segs(data, my_data, to_pos)
 				unit:brain():search_for_path(my_data.advance_path_search_id, to_pos, prio, nil, nav_segs)
 			end
-
 		else
 			local search_id = tostring(unit:key()) .. "coarse"
 			local nav_seg
@@ -189,19 +163,15 @@ function TeamAILogicTravel.update(data)
 			else
 				nav_seg = objective.nav_seg
 			end
-
 			if unit:brain():search_for_coarse_path(search_id, nav_seg) then
 				my_data.coarse_path_search_id = search_id
 				my_data.processing_coarse_path = true
 			end
-
 		end
-
 	else
 		CopLogicBase._exit(data.unit, "idle", {scan = true})
 		return
 	end
-
 	local action_taken = data.unit:movement():chk_action_forbidden("walk") and not unit:anim_data().act_idle
 	local want_to_take_cover = TeamAILogicTravel._chk_wants_to_take_cover(data, my_data)
 	if not action_taken then
@@ -209,13 +179,10 @@ function TeamAILogicTravel.update(data)
 			if not unit:anim_data().crouch then
 				action_taken = CopLogicAttack._chk_request_action_crouch(data)
 			end
-
 		elseif unit:anim_data().crouch and data.char_tweak.allowed_poses and not data.char_tweak.allowed_poses.crouch then
 			action_taken = CopLogicAttack._chk_request_action_stand(data)
 		end
-
 	end
-
 end
 
 function TeamAILogicTravel._upd_pathing(data, my_data)
@@ -235,11 +202,8 @@ function TeamAILogicTravel._upd_pathing(data, my_data)
 					managers.groupai:state():on_criminal_objective_failed(data.unit, data.objective)
 					return
 				end
-
 			end
-
 		end
-
 		if my_data.processing_coarse_path then
 			local path = pathing_results[my_data.coarse_path_search_id]
 			if path then
@@ -255,13 +219,9 @@ function TeamAILogicTravel._upd_pathing(data, my_data)
 					managers.groupai:state():on_criminal_objective_failed(data.unit, data.objective)
 					return
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function TeamAILogicTravel.action_complete_clbk(data, action)
@@ -276,13 +236,10 @@ function TeamAILogicTravel.action_complete_clbk(data, action)
 				my_data.advance_path_search_id = nil
 				my_data.processing_advance_path = nil
 			end
-
 		elseif my_data.advance_path then
 			my_data.advance_path = nil
 		end
-
 	end
-
 end
 
 function TeamAILogicTravel.on_intimidated(data, amount, aggressor_unit)
@@ -290,7 +247,6 @@ function TeamAILogicTravel.on_intimidated(data, amount, aggressor_unit)
 	if surrender and data.objective then
 		managers.groupai:state():on_criminal_objective_failed(data.unit, data.objective)
 	end
-
 end
 
 function TeamAILogicTravel._determine_destination_occupation(data, objective)
@@ -302,7 +258,6 @@ function TeamAILogicTravel._determine_destination_occupation(data, objective)
 		else
 			occupation = managers.groupai:state():find_occupation_in_area(objective.nav_seg)
 		end
-
 	elseif objective.type == "defend_area" then
 		if objective.cover then
 			occupation = {
@@ -326,9 +281,7 @@ function TeamAILogicTravel._determine_destination_occupation(data, objective)
 					radius = objective.radius
 				}
 			end
-
 		end
-
 	elseif objective.type == "act" then
 		occupation = {
 			type = "act",
@@ -345,7 +298,6 @@ function TeamAILogicTravel._determine_destination_occupation(data, objective)
 		if data.attention_obj and data.attention_obj.nav_tracker and data.attention_obj.reaction >= AIAttentionObject.REACT_COMBAT then
 			threat_pos = data.attention_obj.nav_tracker:field_position()
 		end
-
 		local cover = managers.navigation:find_cover_in_nav_seg_3(dest_area.nav_segs, nil, follow_pos, threat_pos)
 		if cover then
 			local cover_entry = {cover}
@@ -355,11 +307,9 @@ function TeamAILogicTravel._determine_destination_occupation(data, objective)
 			if objective.called then
 				max_dist = 600
 			end
-
 			local to_pos = CopLogicTravel._get_pos_on_wall(dest_area.pos, max_dist)
 			occupation = {type = "defend", pos = to_pos}
 		end
-
 	elseif objective.type == "revive" then
 		local is_local_player = objective.follow_unit:base().is_local_player
 		local revive_u_mv = objective.follow_unit:movement()
@@ -372,7 +322,6 @@ function TeamAILogicTravel._determine_destination_occupation(data, objective)
 		if revive_u_tracker:lost() then
 			ray_params.pos_from = revive_u_pos
 		end
-
 		local stand_dis
 		if is_local_player or objective.follow_unit:base().is_husk_player then
 			stand_dis = 120
@@ -385,7 +334,6 @@ function TeamAILogicTravel._determine_destination_occupation(data, objective)
 			local ray_res = managers.navigation:raycast(ray_params)
 			revive_u_pos = ray_params.trace[1]
 		end
-
 		local rand_side_mul = math.random() > 0.5 and 1 or -1
 		local revive_pos = mvector3.copy(revive_u_right)
 		mvector3.multiply(revive_pos, rand_side_mul * stand_dis)
@@ -405,15 +353,12 @@ function TeamAILogicTravel._determine_destination_occupation(data, objective)
 				else
 					revive_pos = old_trace
 				end
-
 			else
 				revive_pos = ray_params.trace[1]
 			end
-
 		else
 			revive_pos = ray_params.trace[1]
 		end
-
 		local revive_rot = revive_u_pos - revive_pos
 		local revive_rot = Rotation(revive_rot, math.UP)
 		occupation = {
@@ -427,7 +372,6 @@ function TeamAILogicTravel._determine_destination_occupation(data, objective)
 			pos = objective.pos
 		}
 	end
-
 	return occupation
 end
 
@@ -438,7 +382,6 @@ function TeamAILogicTravel._upd_enemy_detection(data)
 	if data.cool then
 		max_reaction = AIAttentionObject.REACT_SURPRISED
 	end
-
 	local delay = CopLogicBase._upd_attention_obj_detection(data, AIAttentionObject.REACT_CURIOUS, max_reaction)
 	local new_attention, new_prio_slot, new_reaction = TeamAILogicIdle._get_priority_attention(data, data.detected_attention_objects, nil)
 	TeamAILogicBase._set_attention_obj(data, new_attention, new_reaction)
@@ -451,18 +394,14 @@ function TeamAILogicTravel._upd_enemy_detection(data)
 		else
 			allow_trans, obj_failed = CopLogicBase.is_obstructed(data, objective, nil, new_attention)
 		end
-
 		if obj_failed and not dont_exit then
 			if objective.type == "follow" then
 				debug_pause_unit(data.unit, "failing follow", allow_trans, obj_failed, inspect(objective))
 			end
-
 			managers.groupai:state():on_criminal_objective_failed(data.unit, data.objective)
 			return
 		end
-
 	end
-
 	CopLogicAttack._upd_aim(data, my_data)
 	if not my_data._intimidate_t or my_data._intimidate_t + 2 < data.t then
 		local civ = TeamAILogicIdle.intimidate_civilians(data, data.unit, true, false)
@@ -473,11 +412,8 @@ function TeamAILogicTravel._upd_enemy_detection(data)
 				local key = "RemoveAttentionOnUnit" .. tostring(data.key)
 				CopLogicBase.queue_task(my_data, key, TeamAILogicTravel._remove_enemy_attention, data, data.t + 1.5)
 			end
-
 		end
-
 	end
-
 	TeamAILogicAssault._chk_request_combat_chatter(data, my_data)
 	TeamAILogicIdle._upd_sneak_spotting(data, my_data)
 	CopLogicBase.queue_task(my_data, my_data.detection_task_key, TeamAILogicTravel._upd_enemy_detection, data, data.t + delay)
@@ -511,9 +447,7 @@ function TeamAILogicTravel._get_exact_move_pos(data, nav_index)
 						objective.guard_obj = guard_object
 						to_pos = reservation.pos
 					end
-
 				end
-
 			elseif new_occupation.type == "defend" then
 				if new_occupation.cover then
 					to_pos = new_occupation.cover[1][1]
@@ -523,7 +457,6 @@ function TeamAILogicTravel._get_exact_move_pos(data, nav_index)
 				elseif new_occupation.pos then
 					to_pos = new_occupation.pos
 				end
-
 				wants_reservation = true
 			elseif new_occupation.type == "act" then
 				to_pos = new_occupation.pos
@@ -536,15 +469,12 @@ function TeamAILogicTravel._get_exact_move_pos(data, nav_index)
 				to_pos = new_occupation.pos
 				wants_reservation = true
 			end
-
 		end
-
 		if not to_pos then
 			to_pos = managers.navigation:find_random_position_in_segment(objective.nav_seg)
 			to_pos = CopLogicTravel._get_pos_on_wall(to_pos)
 			wants_reservation = true
 		end
-
 	else
 		local nav_seg = coarse_path[nav_index][1]
 		local area = managers.groupai:state():get_area_from_nav_seg_id(nav_seg)
@@ -557,16 +487,13 @@ function TeamAILogicTravel._get_exact_move_pos(data, nav_index)
 			to_pos = coarse_path[nav_index][2]
 			my_data.moving_to_cover = nil
 		end
-
 	end
-
 	if not reservation and wants_reservation then
 		data.brain:add_pos_rsrv("path", {
 			position = mvector3.copy(to_pos),
 			radius = 60
 		})
 	end
-
 	return to_pos
 end
 
@@ -575,7 +502,6 @@ function TeamAILogicTravel._check_start_path_ahead(data)
 	if my_data.processing_advance_path then
 		return
 	end
-
 	local objective = data.objective
 	local coarse_path = my_data.coarse_path
 	local next_index = my_data.coarse_path_index + 2
@@ -583,7 +509,6 @@ function TeamAILogicTravel._check_start_path_ahead(data)
 	if next_index > total_nav_points then
 		return
 	end
-
 	local to_pos = TeamAILogicTravel._get_exact_move_pos(data, next_index)
 	my_data.advance_path_search_id = tostring(data.key) .. "advance"
 	my_data.processing_advance_path = true
@@ -591,7 +516,6 @@ function TeamAILogicTravel._check_start_path_ahead(data)
 	if objective and objective.follow_unit then
 		prio = 5
 	end
-
 	local from_pos = data.pos_rsrv.move_dest.position
 	local nav_segs = CopLogicTravel._get_allowed_travel_nav_segs(data, my_data, to_pos)
 	data.unit:brain():search_for_path_from_pos(my_data.advance_path_search_id, from_pos, to_pos, prio, nil, nav_segs)
@@ -611,28 +535,22 @@ function TeamAILogicTravel._chk_wants_to_take_cover(data, my_data)
 	if not data.attention_obj or data.attention_obj.reaction < AIAttentionObject.REACT_COMBAT then
 		return
 	end
-
 	if data.is_suppressed or data.unit:anim_data().reload then
 		return true
 	end
-
 	local last_sup_t = data.unit:character_damage():last_suppression_t()
 	if last_sup_t then
 		if my_data.attitude == "engage" then
 			if data.t - last_sup_t < 2 then
 				return true
 			end
-
 		elseif data.t - last_sup_t < 3 then
 			return true
 		end
-
 	end
-
 	local ammo_max, ammo = data.unit:inventory():equipped_unit():base():ammo_info()
 	if ammo / ammo_max < 0.2 then
 		return true
 	end
-
 end
 

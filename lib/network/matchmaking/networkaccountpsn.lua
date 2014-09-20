@@ -8,7 +8,6 @@ function NetworkAccountPSN:signin_state()
 	if PSN:is_online() == true then
 		return "signed in"
 	end
-
 	return "not signed in"
 end
 
@@ -16,16 +15,13 @@ function NetworkAccountPSN:local_signin_state()
 	if not PSN:cable_connected() then
 		return false
 	end
-
 	local n = PSN:get_localinfo()
 	if not n then
 		return false
 	end
-
 	if not n.local_ip then
 		return false
 	end
-
 	return true
 end
 
@@ -42,9 +38,7 @@ function NetworkAccountPSN:username_id()
 		if local_user_info_name then
 			return local_user_info_name
 		end
-
 	end
-
 	return managers.localization:text("menu_mp_player")
 end
 
@@ -54,11 +48,9 @@ function NetworkAccountPSN:player_id()
 		if n and n.local_ip then
 			return n.local_ip
 		end
-
 		Application:error("Could not get local ip, returning \"player_id\" VERY BAD!.")
 		return "player_id"
 	end
-
 	return PSN:get_npid_user()
 end
 
@@ -75,7 +67,6 @@ function NetworkAccountPSN:_lan_ip()
 	if l and l.lan_ip then
 		return l.lan_ip
 	end
-
 	return "player_lan"
 end
 

@@ -13,6 +13,5 @@ function PreFrontEndOnce:transition()
 	if not state:is_in_pre_front_end() or self.intro_screens_done then
 		return CoreMenuStatePreFrontEnd.PreFrontEnd
 	end
-
 end
 

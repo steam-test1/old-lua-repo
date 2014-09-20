@@ -12,6 +12,5 @@ function LocalUserBound:transition()
 	if self.player_slot._init:is_requested() then
 		return CorePlayerSlotStateInit.Init
 	end
-
 end
 

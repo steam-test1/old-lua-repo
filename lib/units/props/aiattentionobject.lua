@@ -24,21 +24,15 @@ function AIAttentionObject:init(unit, is_not_extension)
 		if Network:is_client() and unit:unit_data().only_visible_in_editor then
 			unit:set_visible(false)
 		end
-
 		if self._initial_settings then
 			local preset_list = string.split(self._initial_settings, " ")
-			local (for generator), (for state), (for control) = ipairs(preset_list)
-			do
-				do break end
+			for _, preset_name in ipairs(preset_list) do
 				local attention_desc = tweak_data.attention.settings[preset_name]
 				local att_setting = PlayerMovement._create_attention_setting_from_descriptor(self, attention_desc, preset_name)
 				self:add_attention(att_setting)
 			end
-
 		end
-
 	end
-
 end
 
 function AIAttentionObject:update(unit, t, dt)
@@ -60,7 +54,6 @@ function AIAttentionObject:setup_attention_positions()
 	else
 		self._attention_obj = self._unit:orientation_object()
 	end
-
 	self._observer_info = {
 		m_pos = self._attention_obj:position()
 	}
@@ -80,7 +73,6 @@ function AIAttentionObject:add_attention(settings)
 		self._attention_data = {}
 		needs_register = true
 	end
-
 	if self._overrides and self._overrides[settings.id] then
 		self._override_restore = self._override_restore or {}
 		self._override_restore[settings.id] = settings
@@ -88,11 +80,9 @@ function AIAttentionObject:add_attention(settings)
 	else
 		self._attention_data[settings.id] = settings
 	end
-
 	if needs_register then
 		self:_register()
 	end
-
 	self:_call_listeners()
 end
 
@@ -100,47 +90,33 @@ function AIAttentionObject:remove_attention(id)
 	if not self._attention_data then
 		return
 	end
-
 	if self._override_restore and self._override_restore[id] then
 		self._override_restore[id] = nil
 		if not next(self._override_restore) then
 			self._override_restore = nil
 		end
-
 	end
-
 	if self._attention_data[id] then
 		self._attention_data[id] = nil
 		if not next(self._attention_data) then
 			managers.groupai:state():unregister_AI_attention_object(self._parent_unit or self._unit:key())
 			self._attention_data = nil
 		end
-
 		self:_call_listeners()
 	end
-
 end
 
 function AIAttentionObject:set_attention(settings, id)
 	if self._override_restore then
-		do
-			local (for generator), (for state), (for control) = pairs(self._attention_data)
-			do
-				do break end
-				if att_id ~= id and self._override_restore[att_id] then
-					self._override_restore[att_id] = nil
-				end
-
+		for att_id, att_setting in pairs(self._attention_data) do
+			if att_id ~= id and self._override_restore[att_id] then
+				self._override_restore[att_id] = nil
 			end
-
 		end
-
 		if not next(self._override_restore) then
 			self._override_restore = nil
 		end
-
 	end
-
 	if self._attention_data then
 		if settings then
 			local override_setting = self._overrides and self._overrides[id or settings.id]
@@ -151,7 +127,6 @@ function AIAttentionObject:set_attention(settings, id)
 			self._attention_data = nil
 			managers.groupai:state():unregister_AI_attention_object(self._parent_unit or self._unit:key())
 		end
-
 		self:_call_listeners()
 	elseif settings then
 		self._attention_data = {}
@@ -161,7 +136,6 @@ function AIAttentionObject:set_attention(settings, id)
 		self:_register()
 		self:_call_listeners()
 	end
-
 end
 
 function AIAttentionObject:override_attention(original_preset_name, override_preset)
@@ -171,14 +145,12 @@ function AIAttentionObject:override_attention(original_preset_name, override_pre
 			self._override_restore = self._override_restore or {}
 			self._override_restore[original_preset_name] = original_preset
 		end
-
 		self._overrides = self._overrides or {}
 		self._overrides[original_preset_name] = override_preset
 		if self._attention_data and self._attention_data[original_preset_name] then
 			self._attention_data[original_preset_name] = override_preset
 			self:_call_listeners()
 		end
-
 	elseif self._overrides then
 		local original_preset = self._override_restore and self._override_restore[original_preset_name]
 		if original_preset then
@@ -186,46 +158,33 @@ function AIAttentionObject:override_attention(original_preset_name, override_pre
 			if not next(self._override_restore) then
 				self._override_restore = nil
 			end
-
 		end
-
 		self._overrides[original_preset_name] = nil
 		if not next(self._overrides) then
 			self._overrides = nil
 		end
-
 		if original_preset then
 			self:add_attention(original_preset)
 		else
 			self:remove_attention(original_preset_name)
 		end
-
 	end
-
 end
 
 function AIAttentionObject:get_attention(filter, min, max)
 	if not self._attention_data then
 		return
 	end
-
 	min = min or AIAttentionObject.REACT_MIN
 	max = max or AIAttentionObject.REACT_MAX
 	local nav_manager = managers.navigation
 	local access_f = nav_manager.check_access
 	local settings_match
-	do
-		local (for generator), (for state), (for control) = pairs(self._attention_data)
-		do
-			do break end
-			if min <= settings.reaction and max >= settings.reaction and (not settings_match or settings.reaction > settings_match.reaction) and access_f(nav_manager, settings.filter, filter, 0) then
-				settings_match = settings
-			end
-
+	for id, settings in pairs(self._attention_data) do
+		if min <= settings.reaction and max >= settings.reaction and (not settings_match or settings.reaction > settings_match.reaction) and access_f(nav_manager, settings.filter, filter, 0) then
+			settings_match = settings
 		end
-
 	end
-
 	return settings_match
 end
 
@@ -233,7 +192,6 @@ function AIAttentionObject:verify_attention(test_settings, min, max)
 	if not self._attention_data then
 		return
 	end
-
 	local new_settings = self:get_attention(filter, min, max)
 	return new_settings == test_settings
 end
@@ -287,10 +245,8 @@ function AIAttentionObject:link(parent_unit, obj_name, local_pos)
 			if self._parent_unit:id() == -1 then
 				debug_pause_unit(self._parent_unit, "[AIAttentionObject:set_parent_unit] attention object parent is not network synched", self._parent_unit)
 			end
-
 			managers.network:session():send_to_peers_synched("link_attention_no_rot", self._parent_unit, self._unit, obj_name, local_pos)
 		end
-
 		self:set_update_enabled(true)
 	else
 		self._parent_unit = nil
@@ -300,10 +256,8 @@ function AIAttentionObject:link(parent_unit, obj_name, local_pos)
 		if Network:is_server() then
 			managers.network:session():send_to_peers_synched("unlink_attention", self._unit)
 		end
-
 		self:set_update_enabled(false)
 	end
-
 end
 
 function AIAttentionObject:save(data)
@@ -312,21 +266,18 @@ function AIAttentionObject:save(data)
 		data.parent_obj_name = self._parent_obj_name
 		data.local_pos = self._local_pos
 	end
-
 end
 
 function AIAttentionObject:load(data)
 	if not data or not data.parent_u_id then
 		return
 	end
-
 	local parent_unit
 	if Application:editor() then
 		parent_unit = managers.editor:unit_with_id(data.parent_u_id)
 	else
 		parent_unit = managers.worlddefinition:get_unit_on_load(data.parent_u_id, callback(self, self, "clbk_load_parent_unit"))
 	end
-
 	if parent_unit then
 		self:link(parent_unit, data.parent_obj_name, data.local_pos)
 	elseif not Application:editor() then
@@ -334,14 +285,12 @@ function AIAttentionObject:load(data)
 	else
 		debug_pause_unit(self._unit, "[AIAttentionObject:load] failed to link", self._unit)
 	end
-
 end
 
 function AIAttentionObject:clbk_load_parent_unit(parent_unit)
 	if parent_unit then
 		self:link(parent_unit, self._load_data.parent_obj_name, self._load_data.local_pos)
 	end
-
 	self._load_data = nil
 end
 
@@ -353,6 +302,5 @@ function AIAttentionObject:destroy()
 	if self == last_extension then
 		self._unit:base():pre_destroy(self._unit)
 	end
-
 end
 

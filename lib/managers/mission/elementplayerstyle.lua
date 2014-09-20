@@ -12,7 +12,6 @@ function ElementPlayerStyle:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	managers.player:change_player_look(self._values.style)
 	ElementPlayerStyle.super.on_executed(self, instigator)
 end

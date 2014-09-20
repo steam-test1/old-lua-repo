@@ -5,15 +5,12 @@ local string_to_binary = function(str)
 		out_str = out_str and out_str .. " "
 		out_str = (out_str or "") .. string.byte(str, i)
 	end
-
 	return out_str or ""
 end
 
 local function dump_collect(tab, t, level, max_level)
 	if level < max_level then
-		local (for generator), (for state), (for control) = pairs(tab)
-		do
-			do break end
+		for k, v in pairs(tab) do
 			local k_str
 			local v_type = type(v)
 			if type(k) == "userdata" then
@@ -23,15 +20,12 @@ local function dump_collect(tab, t, level, max_level)
 				else
 					k_str = "(" .. tostring({}) .. ") UNKNOWN"
 				end
-
 			else
 				k_str = tostring(k)
 			end
-
 			if level == 0 then
 				cat_print("debug", "Dumping: " .. k_str)
 			end
-
 			if v == tab then
 				t[k_str] = {
 					_type = "recursive",
@@ -45,7 +39,6 @@ local function dump_collect(tab, t, level, max_level)
 						_value = info.source .. ":" .. info.linedefined
 					}
 				end
-
 			elseif v_type == "table" then
 				t[k_str] = {
 					_type = v_type,
@@ -62,30 +55,24 @@ local function dump_collect(tab, t, level, max_level)
 						_value = "(" .. tostring({}) .. ") UNKNOWN"
 					}
 				end
-
 			else
 				t[k_str] = {
 					_type = v_type,
 					_value = tostring(v)
 				}
 			end
-
 		end
-
 	else
 		t["(" .. tostring({}) .. ") UNKNOWN"] = {
 			_type = "unexplored",
 			_value = "(" .. tostring({}) .. ") UNKNOWN"
 		}
 	end
-
 	return t
 end
 
 local function write_to_file(file, t, level)
-	local (for generator), (for state), (for control) = pairs(t)
-	do
-		do break end
+	for k, v in pairs(t) do
 		if v._type == "table" then
 			file:write(level .. "<table name=\"" .. string_to_binary(k) .. "\">\n")
 			write_to_file(file, v._value, level .. "\t")
@@ -93,9 +80,7 @@ local function write_to_file(file, t, level)
 		else
 			file:write(level .. "<" .. v._type .. " name=\"" .. string_to_binary(k) .. "\" value=\"" .. string_to_binary(v._value) .. "\"/>\n")
 		end
-
 	end
-
 end
 
 local function write_locals(file)
@@ -112,19 +97,15 @@ local function write_locals(file)
 				else
 					v_str = "(" .. tostring({}) .. ") UNKNOWN"
 				end
-
 			else
 				v_str = tostring(value)
 			end
-
 			file:write("\t<local name=\"" .. string_to_binary(name) .. "\" value=\"" .. string_to_binary(v_str) .. "\"/>\n")
 			i = i + 1
 		else
 			break
 		end
-
 	end
-
 end
 
 function core_lua_dump(file_name, root, max_level, no_bin)
@@ -136,7 +117,6 @@ function core_lua_dump(file_name, root, max_level, no_bin)
 		end
 
 	end
-
 	cat_print("debug", "Starting LUA dump...")
 	file:write("<lua_dump>\n")
 	file:write("\t<traceback data=\"" .. string_to_binary(debug.traceback()) .. "\"/>\n")

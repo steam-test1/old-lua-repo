@@ -18,7 +18,6 @@ function MenuItemDivider:setup_gui(node, row_item)
 		row_item.text:set_size(tw, th)
 		h = th
 	end
-
 	row_item.gui_panel:set_left(node._mid_align(node))
 	row_item.gui_panel:set_w(scaled_size.width - row_item.gui_panel:left())
 	row_item.gui_panel:set_h(h)
@@ -45,7 +44,6 @@ function MenuItemDivider:_set_row_item_state(node, row_item)
 	if row_item.highlighted then
 	else
 	end
-
 end
 
 function MenuItemDivider:menu_unselected_visible()

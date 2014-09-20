@@ -3,7 +3,6 @@ function EWSControlSettingSync:init(ews_frame)
 	if ews_frame == nil then
 		Application:error("EWSControlSettingSync:init(): No ews_frame given as argument. Check so you use : to call new.")
 	end
-
 	self._controls_map = {}
 	self._ews_frame = ews_frame
 	self._ending_mark = "-"
@@ -16,7 +15,6 @@ function EWSControlSettingSync:get_control(id)
 	if not control_info then
 		Application:throw_exception("EWSControlSettingSync::get_control_info() control info does not exist for \"" .. id .. "\"")
 	end
-
 	return control_info.main_control
 end
 
@@ -40,9 +38,7 @@ function EWSControlSettingSync:update_setting_box(custom_data, event_object)
 		if self._control_updated_callback then
 			self._control_updated_callback(id, val)
 		end
-
 	end
-
 end
 
 function EWSControlSettingSync:update_setting(custom_data, event_object)
@@ -54,42 +50,28 @@ function EWSControlSettingSync:update_setting(custom_data, event_object)
 		self:set_ews_control_value(value, main_data, control_info)
 		value = self:get_ews_control_value(main_data, control_info)
 	end
-
 	local controls = control_info.controls
 	if controls then
-		local (for generator), (for state), (for control) = ipairs(controls)
-		do
-			do break end
+		for _, data in ipairs(controls) do
 			if data ~= main_data then
 				self:set_ews_control_value(value, data, control_info)
 			end
-
 		end
-
 	end
-
 	if self._control_updated_callback then
 		self._control_updated_callback(id, value)
 	end
-
 	local links = control_info.links
 	if links then
-		local (for generator), (for state), (for control) = ipairs(links)
-		do
-			do break end
+		for _, link_id in ipairs(links) do
 			if id ~= link_id then
 				self:set_ews_value(link_id, value)
 			end
-
 		end
-
 	end
-
 	local sync_slaves = control_info.sync_less
 	if sync_slaves then
-		local (for generator), (for state), (for control) = ipairs(sync_slaves)
-		do
-			do break end
+		for _, slave_id in ipairs(sync_slaves) do
 			if id ~= slave_id then
 				local slave_value = self:get_ews_value(slave_id)
 				if value >= slave_value then
@@ -97,21 +79,14 @@ function EWSControlSettingSync:update_setting(custom_data, event_object)
 					if control_info.sync_step then
 						value = value + control_info.sync_step
 					end
-
 					self:set_ews_value(slave_id, value)
 				end
-
 			end
-
 		end
-
 	end
-
 	sync_slaves = control_info.sync_more
 	if sync_slaves then
-		local (for generator), (for state), (for control) = ipairs(sync_slaves)
-		do
-			do break end
+		for _, slave_id in ipairs(sync_slaves) do
 			if id ~= slave_id then
 				local slave_value = self:get_ews_value(slave_id)
 				if value <= slave_value then
@@ -119,16 +94,11 @@ function EWSControlSettingSync:update_setting(custom_data, event_object)
 					if control_info.sync_step then
 						value = value - control_info.sync_step
 					end
-
 					self:set_ews_value(slave_id, value)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function EWSControlSettingSync:set_ews_vector(id, value)
@@ -155,17 +125,12 @@ function EWSControlSettingSync:do_set_ews_value(id, value)
 	local main_value = self:get_ews_control_value(main_data, control_info)
 	local controls = control_info.controls
 	if controls then
-		local (for generator), (for state), (for control) = ipairs(controls)
-		do
-			do break end
+		for _, data in ipairs(controls) do
 			if data ~= main_data then
 				self:set_ews_control_value(main_value, data, control_info)
 			end
-
 		end
-
 	end
-
 	return main_value
 end
 
@@ -174,7 +139,6 @@ function EWSControlSettingSync:set_ews_value(id, value)
 	if self._control_updated_callback then
 		self._control_updated_callback(id, main_value)
 	end
-
 end
 
 function EWSControlSettingSync:get_ews_value(id)
@@ -190,7 +154,6 @@ function EWSControlSettingSync:set_ews_control_value(value, data, control_info)
 		if value and scales and scales[data] then
 			value = tonumber(value) * scales[data]
 		end
-
 		local type = controls_type[data]
 		if type == "list" then
 		elseif type == "listctrl" then
@@ -201,15 +164,12 @@ function EWSControlSettingSync:set_ews_control_value(value, data, control_info)
 				data_map[index]:set(1, value)
 				index = data:get_next_item(index, "LIST_NEXT_ALL", "LIST_STATE_SELECTED")
 			end
-
 		else
 			data:set_value(value)
 		end
-
 	else
 		Application:throw_exception("EWSControlSettingSync::set_ews_control_value() controls_type was not specified for control_info map")
 	end
-
 end
 
 function EWSControlSettingSync:get_ews_control_value(data, control_info)
@@ -222,27 +182,22 @@ function EWSControlSettingSync:get_ews_control_value(data, control_info)
 			if index > -1 then
 				value = data:get_string(index)
 			end
-
 		elseif type == "listctrl" then
 			local index = data:get_next_item(-1, "LIST_NEXT_ALL", "LIST_STATE_SELECTED")
 			if index ~= -1 then
 				local data_map = control_info.listctrl_data
 				value = data_map[index][1]
 			end
-
 		else
 			value = data:get_value()
 		end
-
 		local scales = control_info.controls_scale
 		if value and scales and scales[data] then
 			value = tonumber(value) / scales[data]
 		end
-
 	else
 		Application:throw_exception("EWSControlSettingSync::get_ews_control_value() controls_type was not specified for control_info map")
 	end
-
 	return value
 end
 
@@ -255,7 +210,6 @@ function EWSControlSettingSync:get_control_info(id)
 	if not control_info then
 		Application:throw_exception("EWSControlSettingSync::get_control_info() control info does not exist for \"" .. id .. "\"")
 	end
-
 	return control_info
 end
 
@@ -264,9 +218,7 @@ function EWSControlSettingSync:update_link(custom_data, event_object)
 	local value = self:get_ews_control_value(custom_data, control_info)
 	local links = control_info.links
 	if links then
-		local (for generator), (for state), (for control) = links, nil, nil
-		do
-			do break end
+		for link_id in links, nil, nil do
 			if event_object:get_id() ~= link_id then
 				local link_info = self:get_control_info(link_id)
 				if value then
@@ -274,13 +226,9 @@ function EWSControlSettingSync:update_link(custom_data, event_object)
 				else
 					link_info.links = nil
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function EWSControlSettingSync:show_texture_dialog(custom_data, event_object)
@@ -293,7 +241,6 @@ function EWSControlSettingSync:show_texture_dialog(custom_data, event_object)
 		self:set_ews_control_value(path, custom_data, control_info)
 		self:update_setting(custom_data, event_object)
 	end
-
 end
 
 function EWSControlSettingSync:create_small_label(text)
@@ -325,13 +272,11 @@ function EWSControlSettingSync:create_slider(id, min, max, num_decimals, labelte
 	if min > max or min == max then
 		Application:throw_exception("EWSControlSettingSync::create_slider(" .. id .. "," .. min .. "," .. max .. "," .. num_decimals .. ") Arguments are confusing")
 	end
-
 	local sizer = EWS:BoxSizer("HORIZONTAL")
 	if labeltext ~= nil then
 		local label = self:create_small_label(labeltext)
 		sizer:add(label, 0, 0, "FIXED_MINSIZE")
 	end
-
 	local slider = EWS:Slider(self._ews_frame, min, min, max, id, "")
 	local text = EWS:TextCtrl(self._ews_frame, "", id, "")
 	sizer:add(slider, 1, 0, "EXPAND")
@@ -376,7 +321,6 @@ function EWSControlSettingSync:create_rgb_slider(base_id, min, max, num_decimals
 		local label = self:create_small_label(labeltext)
 		sizer:add(label, 0, 0, "FIXED_MINSIZE")
 	end
-
 	local id_r = base_id .. self._ending_mark .. "r"
 	local id_g = base_id .. self._ending_mark .. "g"
 	local id_b = base_id .. self._ending_mark .. "b"
@@ -400,7 +344,6 @@ function EWSControlSettingSync:create_rgb_box(base_id, labeltext)
 	else
 		label = labeltext
 	end
-
 	sizer:add(self:create_small_label(label), 2, 0, "")
 	local slider = EWS:Button(self._ews_frame, label, newid, "")
 	sizer:add(slider, 2, 1, "")
@@ -421,7 +364,6 @@ function EWSControlSettingSync:create_string(id, label_text)
 		local label = EWS:StaticText(self._ews_frame, label_text, 0, "")
 		sizer:add(label, 0, 2, "ALIGN_CENTER_VERTICAL,RIGHT")
 	end
-
 	sizer:add(text, 1, 0, "EXPAND")
 	self._ews_frame:connect(id, "EVT_COMMAND_TEXT_UPDATED", callback(self, self, "update_setting"), text)
 	self._ews_frame:connect(id, "EVT_COMMAND_TEXT_ENTER", callback(self, self, "update_setting"), text)
@@ -463,12 +405,10 @@ function EWSControlSettingSync:create_list_config(id, rename_event_func, add_eve
 		text_sizer:add(add_btn, 0, 2, "LEFT,EXPAND")
 		self._ews_frame:connect(id, "EVT_COMMAND_BUTTON_CLICKED", add_event_func, text)
 	end
-
 	self._ews_frame:connect(id, "EVT_COMMAND_LISTBOX_SELECTED", callback(self, self, "update_setting"), list)
 	if rename_event_func then
 		self._ews_frame:connect(id, "EVT_COMMAND_TEXT_ENTER", rename_event_func, text)
 	end
-
 	local info_map = {}
 	local types_map = {}
 	types_map[list] = "list"
@@ -487,12 +427,10 @@ function EWSControlSettingSync:create_combo_config(id, label_text, rename_event_
 		local label = EWS:StaticText(self._ews_frame, label_text, 0, "")
 		sizer:add(label, 0, 2, "ALIGN_CENTER_VERTICAL,RIGHT")
 	end
-
 	sizer:add(combo, 1, 0, "")
 	if rename_event_func then
 		self._ews_frame:connect(id, "EVT_COMMAND_TEXT_ENTER", rename_event_func, combo)
 	end
-
 	self._ews_frame:connect(id, "EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "update_setting"), combo)
 	local info_map = {}
 	local types_map = {}
@@ -544,21 +482,14 @@ function EWSControlSettingSync:append_to_control(id, map)
 	local list_data = control_info.main_control
 	list_data:clear()
 	if map[1] then
-		local (for generator), (for state), (for control) = ipairs(map)
-		do
-			do break end
+		for _, name in ipairs(map) do
 			list_data:append(name)
 		end
-
 	else
-		local (for generator), (for state), (for control) = pairs(map)
-		do
-			do break end
+		for name, data in pairs(map) do
 			list_data:append(name)
 		end
-
 	end
-
 end
 
 function EWSControlSettingSync:create_properties_list(id, add_vector, read_only)
@@ -578,26 +509,18 @@ function EWSControlSettingSync:create_properties_list(id, add_vector, read_only)
 		sizer:add(value_sizer, 0, 0, "EXPAND")
 		self._ews_frame:connect(remove_id, "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "remove_selected_property_from_list"), id)
 	end
-
 	if add_vector and #add_vector > 0 then
 		local add_sizer = EWS:BoxSizer("HORIZONTAL")
 		local combo = EWS:ComboBox(self._ews_frame, "", id, "CB_SORT,CB_DROPDOWN")
 		local add_btn = EWS:Button(self._ews_frame, "Add", id, "BU_EXACTFIT,NO_BORDER")
-		do
-			local (for generator), (for state), (for control) = ipairs(add_vector)
-			do
-				do break end
-				combo:append(name)
-			end
-
+		for _, name in ipairs(add_vector) do
+			combo:append(name)
 		end
-
 		add_sizer:add(combo, 1, 0, "EXPAND")
 		add_sizer:add(add_btn, 0, 2, "LEFT,EXPAND")
 		sizer:add(add_sizer, 0, 4, "TOP,EXPAND")
 		self._ews_frame:connect(id, "EVT_COMMAND_BUTTON_CLICKED", callback(self, self, "add_property_to_list"), combo)
 	end
-
 	self._ews_frame:connect(id, "EVT_COMMAND_LIST_ITEM_SELECTED", callback(self, self, "update_setting"), list)
 	self._ews_frame:connect(id, "EVT_COMMAND_TEXT_ENTER", callback(self, self, "update_setting"), text)
 	local info_map = {}
@@ -608,7 +531,6 @@ function EWSControlSettingSync:create_properties_list(id, add_vector, read_only)
 		types_map[text] = "text"
 		info_map.controls = {list, text}
 	end
-
 	info_map.controls_type = types_map
 	info_map.main_control = list
 	self._controls_map[id] = info_map
@@ -622,41 +544,27 @@ function EWSControlSettingSync:load_properties_list(id, properties_map)
 	local data_map = control_info.listctrl_data
 	data_map = {}
 	if properties_map then
-		local (for generator), (for state), (for control) = pairs(properties_map)
-		do
-			do break end
+		for name, value in pairs(properties_map) do
 			local index = list_data:append_item(name)
 			list_data:set_item(index, 1, value)
 			data_map[index] = {name, value}
 		end
-
 	end
-
 	local controls_type = control_info.controls_type
-	local (for generator), (for state), (for control) = pairs(controls_type)
-	do
-		do break end
+	for data, type in pairs(controls_type) do
 		if type == "text" then
 			data:set_value("")
 		end
-
 	end
-
 end
 
 function EWSControlSettingSync:save_properties_list(id)
 	local saved_map = {}
 	local control_info = self:get_control_info(id)
 	local data_map = control_info.listctrl_data
-	do
-		local (for generator), (for state), (for control) = pairs(data_map)
-		do
-			do break end
-			saved_map[data[0]] = data[1]
-		end
-
+	for index, data in pairs(data_map) do
+		saved_map[data[0]] = data[1]
 	end
-
 	return saved_map
 end
 
@@ -679,14 +587,10 @@ function EWSControlSettingSync:remove_selected_property_from_list(custom_data, e
 		data_map[index] = nil
 		index = list_data:get_next_item(index, "LIST_NEXT_ALL", "LIST_STATE_SELECTED")
 	end
-
 end
 
 function EWSControlSettingSync:create_about_dialog(about_text)
-	local text = about_text or [[
-This about was created by
-Håkan
-The all and mighty.]]
+	local text = about_text or "This about was created by\nH\229kan\nThe all and mighty."
 	local num_lines = 0
 	local longest_line = 0
 	local at, at_end = 0, 0
@@ -699,18 +603,14 @@ The all and mighty.]]
 			if longest_line < length then
 				longest_line = length
 			end
-
 			at = at_end + 1
 		else
 			break
 		end
-
 	end
-
 	if longest_line == 0 then
 		longest_line = text:len()
 	end
-
 	local text_box_size = num_lines * 15
 	local frame_size_height = text_box_size + 50
 	local frame_size_width = longest_line * 8
@@ -732,10 +632,7 @@ end
 
 AboutDialog = AboutDialog or class()
 function AboutDialog:init(parent, text)
-	local text = text or [[
-This about was created by
-Håkan
-The all and mighty.]]
+	local text = text or "This about was created by\nH\229kan\nThe all and mighty."
 	local num_lines = 0
 	local longest_line = 0
 	local at, at_end = 0, 0
@@ -748,18 +645,14 @@ The all and mighty.]]
 			if longest_line < length then
 				longest_line = length
 			end
-
 			at = at_end + 1
 		else
 			break
 		end
-
 	end
-
 	if longest_line == 0 then
 		longest_line = text:len()
 	end
-
 	local text_box_size = num_lines * 15
 	local frame_size_height = text_box_size + 50
 	local frame_size_width = longest_line * 6

@@ -33,9 +33,7 @@ function CoreRandomUnitElement:draw_links(t, dt, selected_unit, all_units)
 				b = 0.25
 			})
 		end
-
 	end
-
 end
 
 function CoreRandomUnitElement:add_element()
@@ -47,9 +45,7 @@ function CoreRandomUnitElement:add_element()
 		else
 			self._hed.counter_id = id
 		end
-
 	end
-
 end
 
 function CoreRandomUnitElement:add_triggers(vc)
@@ -60,7 +56,6 @@ function CoreRandomUnitElement:remove_links(unit)
 	if self._hed.counter_id and self._hed.counter_id == unit:unit_data().unit_id then
 		self._hed.counter_id = nil
 	end
-
 end
 
 function CoreRandomUnitElement:_build_panel(panel, panel_sizer)

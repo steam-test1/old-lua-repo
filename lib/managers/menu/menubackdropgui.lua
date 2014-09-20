@@ -17,10 +17,8 @@ function MenuBackdropGUI:init(ws, gui_data_manager, fixed_dt)
 		if managers and managers.viewport then
 			self._resolution_changed_callback_id = managers.viewport:add_resolution_changed_func(callback(self, self, "resolution_changed"))
 		end
-
 		self._my_workspace = true
 	end
-
 	self._panel = self._workspace:panel():panel({
 		name = "panel",
 		halign = "grow",
@@ -68,7 +66,6 @@ function MenuBackdropGUI:init(ws, gui_data_manager, fixed_dt)
 	for i = 1, 6 do
 		table.insert(self._layer_layers, 0)
 	end
-
 	self:_create_base_layer()
 	self:set_particles_object("guis/textures/pd2/menu_backdrop/bd_particles", 2, 2, 6)
 	self:enable_light(true)
@@ -101,7 +98,6 @@ function MenuBackdropGUI:create_black_borders()
 		self._gui_data_scene_gui:destroy_workspace(self._black_bg_ws)
 		self._black_bg_ws = nil
 	end
-
 	self._gui_data_scene_gui = Overlay:gui()
 	self._black_bg_ws = self._gui_data_scene_gui:create_screen_workspace()
 	self._black_bg_ws:panel():rect({
@@ -164,17 +160,11 @@ function MenuBackdropGUI:_update_layers()
 	}
 	local num_layers = 0
 	local layer
-	do
-		local (for generator), (for state), (for control) = ipairs(layers_name_table)
-		do
-			do break end
-			layer = self._panel:child(layer_name)
-			layer:set_layer(num_layers)
-			num_layers = num_layers + self._layer_layers[i]
-		end
-
+	for i, layer_name in ipairs(layers_name_table) do
+		layer = self._panel:child(layer_name)
+		layer:set_layer(num_layers)
+		num_layers = num_layers + self._layer_layers[i]
 	end
-
 	layer:set_layer(num_layers)
 end
 
@@ -196,7 +186,6 @@ function MenuBackdropGUI:enable_light(enabled)
 		self:_set_layers_of_layer(5, 0)
 		return
 	end
-
 	self:_set_layers_of_layer(5, 1)
 	local bd_light = light_layer:bitmap({
 		name = "bd_light",
@@ -221,10 +210,8 @@ function MenuBackdropGUI:enable_light(enabled)
 			if not flicker_up then
 			else
 			end
-
 			wanted_alpha = math.rand(flicker_up and alpha or 0, alpha or 0.3)
 		end
-
 	end
 
 	bd_light:animate(light_flicker_animation)
@@ -237,7 +224,6 @@ function MenuBackdropGUI:set_pattern(bitmap_texture, alpha, blend_mode)
 	if not bitmap_texture then
 		return bg_layer
 	end
-
 	local object = bg_layer:bitmap({
 		name = "object",
 		texture = bitmap_texture,
@@ -269,7 +255,6 @@ function MenuBackdropGUI:set_pattern(bitmap_texture, alpha, blend_mode)
 			else
 				o:set_y(math.lerp(start_y, wanted_y, p))
 			end
-
 		end
 
 		local function overshoot_one_axis(p)
@@ -278,7 +263,6 @@ function MenuBackdropGUI:set_pattern(bitmap_texture, alpha, blend_mode)
 			else
 				o:set_y(math.lerp(wanted_y, wanted_y + overshoot, p))
 			end
-
 		end
 
 		local function bringback_one_axis(p)
@@ -287,7 +271,6 @@ function MenuBackdropGUI:set_pattern(bitmap_texture, alpha, blend_mode)
 			else
 				o:set_y(math.lerp(wanted_y + overshoot, wanted_y, p))
 			end
-
 		end
 
 		math.random()
@@ -306,13 +289,11 @@ function MenuBackdropGUI:set_pattern(bitmap_texture, alpha, blend_mode)
 				wanted_y = math.random(corner_top, corner_bottom)
 				dir_moved = 0
 			end
-
 			move_on_x_axis = not move_on_x_axis
 			diff = move_on_x_axis and wanted_x - start_x or wanted_y - start_y
 			dir = diff == 0 and 0 or diff / math.abs(diff)
 			overshoot = move_on_x_axis and math.random(bg_layer:w() * 0.008) or math.random(bg_layer:h() * 0.008) * dir
 		end
-
 	end
 
 	object:animate(mechanic_animation)
@@ -329,7 +310,6 @@ function MenuBackdropGUI:set_particles_object(bitmap_texture, row, column, num_p
 	for i = 1, num_particles do
 		self:_create_particle()
 	end
-
 end
 
 function MenuBackdropGUI:_create_particle()
@@ -385,7 +365,6 @@ function MenuBackdropGUI:_create_particle()
 			if seconds <= t then
 				break
 			end
-
 			wave_t = wave_t + dt * math.rand(0.5, 1.5)
 			alpha_t = alpha_t + dt * math.rand(0.25, 0.75)
 			o:set_center(math.lerp(start_x, end_x, t / seconds), math.lerp(start_y, end_y, t / seconds))
@@ -394,7 +373,6 @@ function MenuBackdropGUI:_create_particle()
 			next_alpha = math.abs(math.sin(alpha_t * 90)) * 0.5 + 0.5
 			o:set_blend_mode("add")
 		end
-
 		self:_remove_particle(o)
 	end
 
@@ -461,30 +439,24 @@ function MenuBackdropGUI:show()
 	if self._panel then
 		self._panel:show()
 	end
-
 	if self._blackborder_workspace then
 		self._blackborder_workspace:show()
 	end
-
 	if self._black_bg_ws then
 		self._black_bg_ws:panel():show()
 	end
-
 end
 
 function MenuBackdropGUI:hide()
 	if self._panel then
 		self._panel:hide()
 	end
-
 	if self._blackborder_workspace then
 		self._blackborder_workspace:hide()
 	end
-
 	if self._black_bg_ws then
 		self._black_bg_ws:panel():hide()
 	end
-
 end
 
 function MenuBackdropGUI:show_layer(layer)
@@ -494,7 +466,6 @@ function MenuBackdropGUI:show_layer(layer)
 	else
 		print("MenuBackdropGUI:show_layer: Trying to show non-existing panel '" .. tostring(layer) .. "'.")
 	end
-
 end
 
 function MenuBackdropGUI:hide_layer(layer)
@@ -504,7 +475,6 @@ function MenuBackdropGUI:hide_layer(layer)
 	else
 		print("MenuBackdropGUI:show_layer: Trying to hide non-existing panel '" .. tostring(layer) .. "'.")
 	end
-
 end
 
 function MenuBackdropGUI:panel()
@@ -523,7 +493,6 @@ function MenuBackdropGUI:set_panel_to_saferect(panel)
 	if not panel then
 		return
 	end
-
 	local shape = self:saferect_shape()
 	panel:set_shape(shape.x, shape.y, shape.w, shape.h)
 end
@@ -544,9 +513,7 @@ function MenuBackdropGUI:animate_bg_text(text)
 				left = not left
 				speed = 50
 			end
-
 		end
-
 	end
 
 end
@@ -557,9 +524,7 @@ end
 function MenuBackdropGUI:mouse_moved(x, y)
 	local particles = self._panel:child("particles_layer")
 	local fx, fy = managers.gui_data:safe_to_full_16_9(x, y)
-	local (for generator), (for state), (for control) = ipairs(particles:children())
-	do
-		do break end
+	for _, particle in ipairs(particles:children()) do
 		if not particle:has_script() and particle:inside(fx, fy) then
 			particle:stop()
 			local fade_anim = function(o, self)
@@ -575,9 +540,7 @@ function MenuBackdropGUI:mouse_moved(x, y)
 			particle:script()
 			return
 		end
-
 	end
-
 end
 
 function MenuBackdropGUI:close()
@@ -588,21 +551,17 @@ function MenuBackdropGUI:destroy()
 	if self._blackborder_workspace then
 		Overlay:gui():destroy_workspace(self._blackborder_workspace)
 	end
-
 	if self._my_workspace then
 		Overlay:gui():destroy_workspace(self._workspace)
 	else
 		self._workspace:panel():remove(self._panel)
 	end
-
 	if self._black_bg_ws then
 		self._gui_data_scene_gui:destroy_workspace(self._black_bg_ws)
 		self._black_bg_ws = nil
 	end
-
 	if self._resolution_changed_callback_id then
 		managers.viewport:remove_resolution_changed_func(self._resolution_changed_callback_id)
 	end
-
 end
 

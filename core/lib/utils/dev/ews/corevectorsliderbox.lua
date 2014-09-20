@@ -32,7 +32,6 @@ function VectorSliderBox:_on_mute_toggle()
 	else
 		self:_set_enabled_all(true)
 	end
-
 end
 
 function VectorSliderBox:_create_slider()
@@ -70,7 +69,6 @@ function VectorSliderBox:get_value()
 	else
 		return Vector3(self._slider_x:get_value(), self._slider_y:get_value(), self._slider_z:get_value())
 	end
-
 end
 
 function VectorSliderBox:set_value(vector)
@@ -83,7 +81,6 @@ function VectorSliderBox:set_value(vector)
 	else
 		self:_send_event("EVT_VALUE_CHANGED", vector:with_z(0))
 	end
-
 end
 
 function VectorSliderBox:_actual_to_slider(value)
@@ -132,7 +129,6 @@ function VectorSliderBox:_check_input(input)
 	elseif value < self._min or value > self._max then
 		value = self._min
 	end
-
 	return value
 end
 

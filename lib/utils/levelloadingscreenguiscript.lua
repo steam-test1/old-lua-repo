@@ -79,9 +79,7 @@ function LevelLoadingScreenGuiScript:init(scene_gui, res, progress, base_layer)
 			h = 256
 		})
 		self._controller:set_center(background_safepanel:w() / 2, background_safepanel:h() / 2)
-		local (for generator), (for state), (for control) = pairs(self._coords)
-		do
-			do break end
+		for id, data in pairs(self._coords) do
 			data.text = background_safepanel:text({
 				name = id,
 				text = data.string,
@@ -104,7 +102,6 @@ function LevelLoadingScreenGuiScript:init(scene_gui, res, progress, base_layer)
 				elseif data.align == "center" then
 					data.text:set_center_x(x)
 				end
-
 				if data.vertical == "top" then
 					data.text:set_top(y)
 				elseif data.vertical == "bottom" then
@@ -112,13 +109,9 @@ function LevelLoadingScreenGuiScript:init(scene_gui, res, progress, base_layer)
 				else
 					data.text:set_center_y(y)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function LevelLoadingScreenGuiScript:setup(res, progress)
@@ -140,9 +133,7 @@ function LevelLoadingScreenGuiScript:setup(res, progress)
 			self._briefing_text:set_size(w, h)
 			self._briefing_text:set_rightbottom(self._briefing_text:parent():w(), self._saferect_bottom_y - self._gui_tweak_data.border_pad)
 		end
-
 	end
-
 	local border_size = 2
 	local bar_size = 2
 	self._stonecold_small_logo:set_righttop(self._stonecold_small_logo:parent():righttop())
@@ -163,31 +154,21 @@ function LevelLoadingScreenGuiScript:setup(res, progress)
 	if progress > 0 then
 		self._init_progress = progress
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._challenges)
-		do
-			do break end
-			local h = challenge.panel:h()
-			challenge.panel:set_bottom(self._saferect_bottom_y - (h + 2) * (#self._challenges - i))
-			challenge.text:set_left(challenge.panel:right() + 8 * self._scale_tweak_data.loading_challenge_bar_scale)
-			challenge.text:set_center_y(challenge.panel:center_y())
-		end
-
+	for i, challenge in ipairs(self._challenges) do
+		local h = challenge.panel:h()
+		challenge.panel:set_bottom(self._saferect_bottom_y - (h + 2) * (#self._challenges - i))
+		challenge.text:set_left(challenge.panel:right() + 8 * self._scale_tweak_data.loading_challenge_bar_scale)
+		challenge.text:set_center_y(challenge.panel:center_y())
 	end
-
 	self._challenges_topic:set_visible(self._challenges[1] and true or false)
 	if self._challenges[1] then
 		self._challenges_topic:set_bottom(self._challenges[1].panel:top() - 4)
 	end
-
 	self._indicator:set_left(self._level_title_text:right() + 8)
 	self._indicator:set_bottom(self._gui_tweak_data.upper_saferect_border - self._gui_tweak_data.border_pad)
 	if self._coords then
 		self._controller:set_center(self._saferect_panel:w() / 2, self._saferect_panel:h() / 2)
-		local (for generator), (for state), (for control) = pairs(self._coords)
-		do
-			do break end
+		for id, data in pairs(self._coords) do
 			local _, _, w, h = data.text:text_rect()
 			data.text:set_size(w, h)
 			if data.x then
@@ -200,7 +181,6 @@ function LevelLoadingScreenGuiScript:setup(res, progress)
 				elseif data.align == "center" then
 					data.text:set_center_x(x)
 				end
-
 				if data.vertical == "top" then
 					data.text:set_top(y)
 				elseif data.vertical == "bottom" then
@@ -208,13 +188,9 @@ function LevelLoadingScreenGuiScript:setup(res, progress)
 				else
 					data.text:set_center_y(y)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function LevelLoadingScreenGuiScript:update(progress, t, dt)
@@ -235,22 +211,18 @@ function LevelLoadingScreenGuiScript:destroy()
 		self._scene_gui:destroy_workspace(self._saferect)
 		self._saferect = nil
 	end
-
 	if alive(self._fullrect) then
 		self._scene_gui:destroy_workspace(self._fullrect)
 		self._fullrect = nil
 	end
-
 	if alive(self._ws) then
 		self._scene_gui:destroy_workspace(self._ws)
 		self._ws = nil
 	end
-
 	if self._back_drop_gui then
 		self._back_drop_gui:destroy()
 		self._back_drop_gui = nil
 	end
-
 end
 
 function LevelLoadingScreenGuiScript:visible()
@@ -263,6 +235,5 @@ function LevelLoadingScreenGuiScript:set_visible(visible)
 	else
 		self._ws:hide()
 	end
-
 end
 

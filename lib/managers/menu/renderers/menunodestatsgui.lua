@@ -64,15 +64,9 @@ function MenuNodeStatsGui:_setup_stats(node)
 	})
 	if SystemInfo:platform() == Idstring("WIN32") then
 		local y = 30
-		do
-			local (for generator), (for state), (for control) = ipairs(self._stats_items)
-			do
-				do break end
-				y = y + panel:h() + self.spacing
-			end
-
+		for _, panel in ipairs(self._stats_items) do
+			y = y + panel:h() + self.spacing
 		end
-
 		local safe_rect = managers.viewport:get_safe_rect_pixels()
 		local panel = self._item_panel_parent:panel({y = y})
 		local text = panel:text({
@@ -93,20 +87,13 @@ function MenuNodeStatsGui:_setup_stats(node)
 		text:set_h(h)
 		panel:set_h(h)
 	end
-
 end
 
 function MenuNodeStatsGui:_add_stats(params)
 	local y = 0
-	do
-		local (for generator), (for state), (for control) = ipairs(self._stats_items)
-		do
-			do break end
-			y = y + panel:h() + self.spacing
-		end
-
+	for _, panel in ipairs(self._stats_items) do
+		y = y + panel:h() + self.spacing
 	end
-
 	local panel = self._item_panel_parent:panel({y = y})
 	local topic = panel:text({
 		font_size = tweak_data.menu.stats_font_size,
@@ -141,7 +128,6 @@ function MenuNodeStatsGui:_add_stats(params)
 			render_template = Idstring("VertexColorTextured")
 		})
 	end
-
 	if params.type == "progress" then
 		local bg = panel:rect({
 			x = self:_right_align(),
@@ -188,7 +174,6 @@ function MenuNodeStatsGui:_add_stats(params)
 			render_template = Idstring("VertexColorTextured")
 		})
 	end
-
 	table.insert(self._stats_items, panel)
 end
 

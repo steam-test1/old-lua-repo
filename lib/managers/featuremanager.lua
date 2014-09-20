@@ -15,21 +15,14 @@ function FeatureManager:_setup()
 	if not Global.feature_manager then
 		Global.feature_manager = {}
 		Global.feature_manager.announcements = {}
-		do
-			local (for generator), (for state), (for control) = pairs(self._default.announcements)
-			do
-				do break end
-				Global.feature_manager.announcements[id] = 0
-			end
-
+		for id, _ in pairs(self._default.announcements) do
+			Global.feature_manager.announcements[id] = 0
 		end
-
 		Global.feature_manager.announcements.crimenet_welcome = 3
 		Global.feature_manager.announcements.dlc_gage_pack_jobs = 1
 		Global.feature_manager.announcements.join_pd2_clan = 50
 		Global.feature_manager.announced = {}
 	end
-
 	self._global = Global.feature_manager
 end
 
@@ -42,25 +35,15 @@ end
 
 function FeatureManager:load(data, version)
 	Application:debug("[FeatureManager:load]")
-	do
-		local (for generator), (for state), (for control) = pairs(self._default.announcements)
-		do
-			do break end
-			Global.feature_manager.announcements[announcement] = default
-		end
-
+	for announcement, default in pairs(self._default.announcements) do
+		Global.feature_manager.announcements[announcement] = default
 	end
-
 	if data.feature_manager then
 		local announcements = data.feature_manager.announcements or {}
-		local (for generator), (for state), (for control) = pairs(announcements)
-		do
-			do break end
+		for announcement, num in pairs(announcements) do
 			Global.feature_manager.announcements[announcement] = num
 		end
-
 	end
-
 end
 
 function FeatureManager:announce_feature(feature_id)
@@ -68,26 +51,21 @@ function FeatureManager:announce_feature(feature_id)
 	if not announcement then
 		return
 	end
-
 	if self._global.announced[feature_id] then
 		Application:debug("[FeatureManager:announce_feature] Feture already announced.", feature_id)
 		return
 	end
-
 	if type(announcement) ~= "number" then
 		self._global.announcements[feature_id] = 0
 		return
 	end
-
 	if announcement <= 0 then
 		return
 	end
-
 	local func = self[feature_id]
 	if not func or not func() then
 		Application:error("[FeatureManager:announce_feature] Failed announcing feature!", feature_id)
 	end
-
 	announcement = announcement - 1
 	self._global.announcements[feature_id] = announcement
 	self._global.announced[feature_id] = true
@@ -98,7 +76,6 @@ function FeatureManager:set_feature_announce_times(feature_id, num)
 	if not announcement then
 		return
 	end
-
 	self._global.announcements[feature_id] = num
 end
 

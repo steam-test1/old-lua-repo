@@ -15,7 +15,6 @@ function AiDataManager:add_patrol_path(name)
 		Application:error("Patrol path with name " .. name .. " allready exists!")
 		return false
 	end
-
 	self._data.patrol_paths[name] = {
 		points = {}
 	}
@@ -27,7 +26,6 @@ function AiDataManager:remove_patrol_path(name)
 		Application:error("Patrol path with name " .. name .. " doesnt exists!")
 		return false
 	end
-
 	self._data.patrol_paths[name] = nil
 	return true
 end
@@ -37,7 +35,6 @@ function AiDataManager:add_patrol_point(name, unit)
 		Application:error("Patrol path with name " .. name .. " doesn't exist exists!")
 		return
 	end
-
 	local t = {
 		position = unit:position(),
 		rotation = unit:rotation(),
@@ -48,55 +45,34 @@ function AiDataManager:add_patrol_point(name, unit)
 end
 
 function AiDataManager:delete_point_by_unit(unit)
-	local (for generator), (for state), (for control) = pairs(self._data.patrol_paths)
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(path.points)
-		do
-			do break end
+	for name, path in pairs(self._data.patrol_paths) do
+		for i, point in ipairs(path.points) do
 			if point.unit == unit then
 				table.remove(path.points, i)
 				return
 			end
-
 		end
-
 	end
-
 end
 
 function AiDataManager:patrol_path_by_unit(unit)
-	local (for generator), (for state), (for control) = pairs(self._data.patrol_paths)
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(path.points)
-		do
-			do break end
+	for name, path in pairs(self._data.patrol_paths) do
+		for i, point in ipairs(path.points) do
 			if point.unit == unit then
 				return name, path
 			end
-
 		end
-
 	end
-
 end
 
 function AiDataManager:patrol_point_index_by_unit(unit)
-	local (for generator), (for state), (for control) = pairs(self._data.patrol_paths)
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(path.points)
-		do
-			do break end
+	for name, path in pairs(self._data.patrol_paths) do
+		for i, point in ipairs(path.points) do
 			if point.unit == unit then
 				return i, point
 			end
-
 		end
-
 	end
-
 end
 
 function AiDataManager:patrol_path(name)
@@ -109,15 +85,9 @@ end
 
 function AiDataManager:patrol_path_names()
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._data.patrol_paths)
-		do
-			do break end
-			table.insert(t, name)
-		end
-
+	for name, path in pairs(self._data.patrol_paths) do
+		table.insert(t, name)
 	end
-
 	table.sort(t)
 	return t
 end
@@ -136,22 +106,13 @@ end
 
 function AiDataManager:save_data()
 	local t = CoreTable.deep_clone(self._data)
-	do
-		local (for generator), (for state), (for control) = pairs(t.patrol_paths)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(path.points)
-			do
-				do break end
-				point.position = point.unit:position()
-				point.rotation = point.unit:rotation()
-				point.unit = nil
-			end
-
+	for name, path in pairs(t.patrol_paths) do
+		for i, point in ipairs(path.points) do
+			point.position = point.unit:position()
+			point.rotation = point.unit:rotation()
+			point.unit = nil
 		end
-
 	end
-
 	return t
 end
 
@@ -159,29 +120,18 @@ function AiDataManager:load_data(data)
 	if not data then
 		return
 	end
-
 	self._data = data
 end
 
 function AiDataManager:load_units(units)
-	local (for generator), (for state), (for control) = ipairs(units)
-	do
-		do break end
-		local (for generator), (for state), (for control) = pairs(self._data.patrol_paths)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(path.points)
-			do
-				do break end
+	for _, unit in ipairs(units) do
+		for name, path in pairs(self._data.patrol_paths) do
+			for i, point in ipairs(path.points) do
 				if point.unit_id == unit:unit_data().unit_id then
 					point.unit = unit
 				end
-
 			end
-
 		end
-
 	end
-
 end
 

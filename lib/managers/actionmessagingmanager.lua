@@ -9,17 +9,13 @@ end
 
 function ActionMessagingManager:_parse_messages()
 	local list = PackageManager:script_data(self.FILE_EXTENSION:id(), self.PATH:id())
-	local (for generator), (for state), (for control) = ipairs(list)
-	do
-		do break end
+	for _, data in ipairs(list) do
 		if data._meta == "message" then
 			self:_parse_message(data)
 		else
 			Application:error("Unknown node \"" .. tostring(data._meta) .. "\" in \"" .. self.FULL_PATH .. "\". Expected \"message\" node.")
 		end
-
 	end
-
 end
 
 function ActionMessagingManager:_parse_message(data)
@@ -38,15 +34,9 @@ end
 
 function ActionMessagingManager:ids()
 	local t = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._messages)
-		do
-			do break end
-			table.insert(t, id)
-		end
-
+	for id, _ in pairs(self._messages) do
+		table.insert(t, id)
 	end
-
 	table.sort(t)
 	return t
 end
@@ -64,7 +54,6 @@ function ActionMessagingManager:show_message(id, instigator)
 		Application:stack_dump_error("Bad id to show message, " .. tostring(id) .. ".")
 		return
 	end
-
 	self:_show_message(id, instigator)
 end
 
@@ -82,7 +71,6 @@ function ActionMessagingManager:_show_message(id, instigator)
 		title = title .. ":"
 		msg = managers.localization:text(self:message(id).text_id)
 	end
-
 	managers.hud:present_mid_text({
 		title = utf8.to_upper(title),
 		text = utf8.to_upper(msg),
@@ -93,14 +81,12 @@ function ActionMessagingManager:_show_message(id, instigator)
 	if self:message(id).dialog_id then
 		managers.dialog:queue_dialog(self:message(id).dialog_id, {})
 	end
-
 end
 
 function ActionMessagingManager:sync_show_message(id, instigator)
 	if alive(instigator) and managers.network:game():member_from_unit(instigator) then
 		self:_show_message(id, instigator)
 	end
-
 end
 
 function ActionMessagingManager:save(data)

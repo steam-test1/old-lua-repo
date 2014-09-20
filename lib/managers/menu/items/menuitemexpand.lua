@@ -10,9 +10,7 @@ function MenuItemExpand:init(data_node, parameters)
 	self._current_index = 1
 	self._all_items = {}
 	if data_node then
-		local (for generator), (for state), (for control) = ipairs(data_node)
-		do
-			do break end
+		for _, c in ipairs(data_node) do
 			local type = c._meta
 			if type == "item" then
 				local item = CoreMenuNode.MenuNode.create_item(self, c)
@@ -21,13 +19,9 @@ function MenuItemExpand:init(data_node, parameters)
 				if visible_callback then
 					item.visible_callback_names = string.split(visible_callback, " ")
 				end
-
 			end
-
 		end
-
 	end
-
 	self._enabled = true
 	self:_show_items(nil)
 end
@@ -44,29 +38,20 @@ end
 
 function MenuItemExpand:_show_items(callback_handler)
 	self._items = {}
-	local (for generator), (for state), (for control) = ipairs(self._all_items)
-	do
-		do break end
+	for _, item in ipairs(self._all_items) do
 		local show = true
 		if callback_handler and item._visible_callback_name_list then
-			local (for generator), (for state), (for control) = ipairs(item._visible_callback_name_list)
-			do
-				do break end
+			for _, id in ipairs(item._visible_callback_name_list) do
 				if not callback_handler[id](callback_handler, item) then
 					show = false
+				else
+				end
 			end
-
-			else
-			end
-
 		end
-
 		if show then
 			table.insert(self._items, item)
 		end
-
 	end
-
 end
 
 function MenuItemExpand:add_item(item)
@@ -75,30 +60,17 @@ function MenuItemExpand:add_item(item)
 end
 
 function MenuItemExpand:get_item(name)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._all_items)
-		do
-			do break end
-			if item:parameters().name == name then
-				return item
-			end
-
+	for _, item in ipairs(self._all_items) do
+		if item:parameters().name == name then
+			return item
 		end
-
 	end
-
 	return nil
 end
 
 function MenuItemExpand:visible_items()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._items)
-		do
-			break
-		end
-
+	for _, item in ipairs(self._items) do
 	end
-
 	return self._items
 end
 
@@ -122,81 +94,51 @@ end
 
 function MenuItemExpand:expand(node, row_item)
 	local need_repos = false
-	do
-		local (for generator), (for state), (for control) = ipairs(self._items)
-		do
-			do break end
-			eitem:parameters().is_expanded = true
-			eitem:parameters().expand_value = self:expand_value() + (self:parameters().is_expanded and self:parameters().expand_value or 0)
-			need_repos = true
-			do
-				local (for generator), (for state), (for control) = pairs(row_item.node._items)
-				do
-					do break end
-					if nitem == self then
-						row_item.node:insert_item(eitem, j + i)
-				end
-
-				else
-				end
-
+	for i, eitem in ipairs(self._items) do
+		eitem:parameters().is_expanded = true
+		eitem:parameters().expand_value = self:expand_value() + (self:parameters().is_expanded and self:parameters().expand_value or 0)
+		need_repos = true
+		for j, nitem in pairs(row_item.node._items) do
+			if nitem == self then
+				row_item.node:insert_item(eitem, j + i)
+			else
 			end
-
-			local (for generator), (for state), (for control) = pairs(node.row_items)
-			do
-				do break end
-				if ritem == row_item then
-					node:_insert_row_item(eitem, row_item.node, j + i)
-				end
-
-			end
-
 		end
-
+		for j, ritem in pairs(node.row_items) do
+			if ritem == row_item then
+				node:_insert_row_item(eitem, row_item.node, j + i)
+			end
+		end
 	end
-
 	return need_repos
 end
 
 function MenuItemExpand:collaps(node, row_item)
 	local need_repos = false
-	do
-		local (for generator), (for state), (for control) = ipairs(self._items)
-		do
-			do break end
-			local type = eitem:type()
-			if (type == "expand" or type == "weapon_expand" or type == "weapon_upgrade_expand") and eitem:expanded() then
-				eitem:toggle()
-				node:_reload_expand(eitem)
-			end
-
-			if row_item.node:delete_item(eitem:name()) then
-				need_repos = true
-			end
-
-			node:_delete_row_item(eitem)
+	for i, eitem in ipairs(self._items) do
+		local type = eitem:type()
+		if (type == "expand" or type == "weapon_expand" or type == "weapon_upgrade_expand") and eitem:expanded() then
+			eitem:toggle()
+			node:_reload_expand(eitem)
 		end
-
+		if row_item.node:delete_item(eitem:name()) then
+			need_repos = true
+		end
+		node:_delete_row_item(eitem)
 	end
-
 	return need_repos
 end
 
 function MenuItemExpand:get_h(row_item, node)
 	local h = row_item.gui_panel:h()
 	if self:expanded() then
-		local (for generator), (for state), (for control) = ipairs(self:items())
-		do
-			do break end
+		for _, item in ipairs(self:items()) do
 			local child_row_item = node:row_item(item)
 			if child_row_item then
 				h = h + child_row_item.gui_panel:h()
 			end
-
 		end
-
 	end
-
 	return nil
 end
 
@@ -224,7 +166,6 @@ function MenuItemExpand:reload(row_item, node)
 	if not row_item.expanded_indicator then
 		self:_create_indicator(row_item, node)
 	end
-
 	row_item.expand_line = row_item.expand_line or row_item.gui_panel:parent():bitmap({
 		texture = "guis/textures/headershadowdown",
 		texture_rect = {
@@ -247,7 +188,6 @@ function MenuItemExpand:reload(row_item, node)
 		row_item.expanded_indicator:set_color(node.row_item_hightlight_color)
 		row_item.menu_unselected:set_color(node.row_item_hightlight_color)
 	end
-
 	self:_set_row_item_state(node, row_item)
 end
 
@@ -263,7 +203,6 @@ function MenuItemExpand:_set_row_item_state(node, row_item)
 		row_item.current_of_total:set_color(row_item.color)
 		row_item.current_of_total:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.default_font_id)
 	end
-
 end
 
 function MenuItemExpand:highlight_row_item(node, row_item, mouse_over)
@@ -295,19 +234,12 @@ function MenuItemExpand:set_current_index(index)
 end
 
 function MenuItemExpand:set_value(value)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._items)
-		do
-			do break end
-			if item:parameters().value == value then
-				self._current_index = i
-		end
-
+	for i, item in ipairs(self._items) do
+		if item:parameters().value == value then
+			self._current_index = i
 		else
 		end
-
 	end
-
 	self:dirty()
 end
 
@@ -317,37 +249,25 @@ function MenuItemExpand:value()
 	if selected_item then
 		value = selected_item:parameters().value
 	end
-
 	return value
 end
 
 function MenuItemExpand:_highest_item_index()
 	local index = 1
-	do
-		local (for generator), (for state), (for control) = ipairs(self._items)
-		do
-			do break end
-			if not item:parameters().exclude then
-				index = i
-			end
-
+	for i, item in ipairs(self._items) do
+		if not item:parameters().exclude then
+			index = i
 		end
-
 	end
-
 	return index
 end
 
 function MenuItemExpand:_lowest_item_index()
-	local (for generator), (for state), (for control) = ipairs(self._items)
-	do
-		do break end
+	for i, item in ipairs(self._items) do
 		if not item:parameters().exclude then
 			return i
 		end
-
 	end
-
 end
 
 function MenuItemExpand:expanded()
@@ -363,18 +283,11 @@ function MenuItemExpand:toggle()
 end
 
 function MenuItemExpand:is_parent_to_item(child_item)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._items)
-		do
-			do break end
-			if child_item == item then
-				return true
-			end
-
+	for i, item in ipairs(self._items) do
+		if child_item == item then
+			return true
 		end
-
 	end
-
 	return false
 end
 
@@ -397,7 +310,6 @@ function MenuItemExpandAction:setup_gui(node, row_item)
 	else
 		row_item.gui_panel:set_left(node._mid_align(node) + self._parameters.expand_value)
 	end
-
 	row_item.gui_panel:set_w(scaled_size.width - row_item.gui_panel:left())
 	row_item.gui_panel:set_h(h)
 	local texture, rect = tweak_data.hud_icons:get_icon_data(self._parameters.action_type == "equip" and "icon_equipped" or self._parameters.action_type == "repair" and "icon_repair" or self._parameters.action_type == "buy_upgrades" and "icon_addon" or self._parameters.action_type == "buy" and "icon_buy" or self._parameters.action_type == "attach_upgrade" and "icon_equipped" or self._parameters.action_type == "buy_upgrade" and "icon_buy")
@@ -412,7 +324,6 @@ function MenuItemExpandAction:setup_gui(node, row_item)
 	else
 		row_item.action_name:set_left(h + 4)
 	end
-
 	if self._parameters.action_type == "repair" then
 		local texture, rect = tweak_data.hud_icons:get_icon_data("icon_circlebg")
 		row_item.circlefill = row_item.gui_panel:bitmap({
@@ -433,7 +344,6 @@ function MenuItemExpandAction:setup_gui(node, row_item)
 		})
 		row_item.repair_circle:set_position(row_item.circlefill:position())
 	end
-
 	return true
 end
 
@@ -452,7 +362,6 @@ function MenuItemExpandAction:reload(row_item, node)
 	elseif self._parameters.action_type == "attach_upgrade" then
 		self:parameters().parent_item:on_attach_upgrade(node)
 	end
-
 	self:_set_row_item_state(node, row_item)
 	return true
 end
@@ -467,10 +376,8 @@ function MenuItemExpandAction:_set_row_item_state(node, row_item)
 		else
 			row_item.action_name:set_color(row_item.color)
 		end
-
 		row_item.action_name:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.default_font_id)
 	end
-
 end
 
 function MenuItemExpandAction:highlight_row_item(node, row_item, mouse_over)

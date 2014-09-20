@@ -21,7 +21,6 @@ function ElementUnitSequence:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	self._unit:damage():run_sequence_simple("run_sequence")
 	ElementUnitSequence.super.on_executed(self, instigator)
 end

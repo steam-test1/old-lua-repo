@@ -75,7 +75,6 @@ function IngameManualGui:_destroy_controller_input()
 	if alive(self._fullscreen_panel) then
 		self._fullscreen_panel:axis_move(nil)
 	end
-
 end
 
 function IngameManualGui:_axis_move(o, axis_name, axis_vector, controller)
@@ -84,14 +83,12 @@ function IngameManualGui:_axis_move(o, axis_name, axis_vector, controller)
 	elseif axis_name == Idstring("right") then
 		mvector3.set(self._right_axis_vector, axis_vector)
 	end
-
 end
 
 function IngameManualGui:update(t, dt)
 	if managers.menu:is_pc_controller() then
 		return
 	end
-
 	local left_x, left_y = managers.menu_component:get_left_controller_axis()
 	local right_x, right_y = managers.menu_component:get_right_controller_axis()
 	self:controller_move(-left_x * dt, left_y * dt)
@@ -104,24 +101,20 @@ function IngameManualGui:correct_position()
 	elseif self._page:right() < self._page_panel:w() then
 		self._page:set_right(self._page_panel:w())
 	end
-
 	if 0 < self._page:top() then
 		self._page:set_top(0)
 	elseif self._page:bottom() < self._page_panel:h() then
 		self._page:set_bottom(self._page_panel:h())
 	end
-
 end
 
 function IngameManualGui:controller_move(x, y)
 	if self._loading then
 		return
 	end
-
 	if not alive(self._page) then
 		return
 	end
-
 	local speed = 512
 	self._page:move(x * speed, y * speed)
 	self:correct_position()
@@ -131,11 +124,9 @@ function IngameManualGui:controller_zoom(y)
 	if self._loading then
 		return
 	end
-
 	if not alive(self._page) then
 		return
 	end
-
 	self._zoom = math.clamp(self._zoom + y * 2, 1, 2)
 	local w, h = self._manual_panel:size()
 	local px, py = self._page:position()
@@ -168,7 +159,6 @@ function IngameManualGui:open_manual_page(page)
 	if new_page == self._current_page then
 		return
 	end
-
 	local path = "guis/textures/pd2/ingame_manual/page_"
 	local lang_key = SystemInfo:language():key()
 	local files = {
@@ -188,16 +178,13 @@ function IngameManualGui:remove_page(unretrieve_texture)
 		self._page_panel = nil
 		self._page = nil
 	end
-
 	if alive(self._page) then
 		self._page:parent():remove(self._page)
 		self._page = nil
 	end
-
 	if unretrieve_texture then
 		self:unretrieve_texture()
 	end
-
 end
 
 function IngameManualGui:create_page(texture_path)
@@ -224,7 +211,6 @@ function IngameManualGui:create_page(texture_path)
 			dt = coroutine.yield()
 			o:rotate(360 * dt)
 		end
-
 	end
 
 	spinning_item:animate(spin_anim)
@@ -232,12 +218,10 @@ function IngameManualGui:create_page(texture_path)
 	if not managers.menu_component then
 		return
 	end
-
 	if DB:has(Idstring("texture"), texture_path) then
 		local texture_count = managers.menu_component:request_texture(texture_path, callback(self, self, "texture_done_clbk"))
 		self._requested_texture = {texture_count = texture_count, texture = texture_path}
 	end
-
 end
 
 function IngameManualGui:unretrieve_texture()
@@ -245,7 +229,6 @@ function IngameManualGui:unretrieve_texture()
 		managers.menu_component:unretrieve_texture(self._requested_texture.texture, self._requested_texture.texture_count)
 		self._requested_texture = nil
 	end
-
 end
 
 function IngameManualGui:texture_done_clbk(texture_ids)

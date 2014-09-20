@@ -49,9 +49,7 @@ end
 
 function CoreLogicChanceOperatorUnitElement:draw_links(t, dt, selected_unit, all_units)
 	CoreLogicChanceOperatorUnitElement.super.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -63,9 +61,7 @@ function CoreLogicChanceOperatorUnitElement:draw_links(t, dt, selected_unit, all
 				b = 0.25
 			})
 		end
-
 	end
-
 end
 
 function CoreLogicChanceOperatorUnitElement:update_editing()
@@ -80,21 +76,15 @@ function CoreLogicChanceOperatorUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function CoreLogicChanceOperatorUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function CoreLogicChanceOperatorUnitElement:add_triggers(vc)
@@ -163,9 +153,7 @@ end
 
 function CoreLogicChanceTriggerUnitElement:draw_links(t, dt, selected_unit, all_units)
 	CoreLogicChanceTriggerUnitElement.super.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		local draw = not selected_unit or unit == selected_unit or self._unit == selected_unit
 		if draw then
@@ -177,9 +165,7 @@ function CoreLogicChanceTriggerUnitElement:draw_links(t, dt, selected_unit, all_
 				b = 0.25
 			})
 		end
-
 	end
-
 end
 
 function CoreLogicChanceTriggerUnitElement:update_editing()
@@ -194,21 +180,15 @@ function CoreLogicChanceTriggerUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function CoreLogicChanceTriggerUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function CoreLogicChanceTriggerUnitElement:add_triggers(vc)

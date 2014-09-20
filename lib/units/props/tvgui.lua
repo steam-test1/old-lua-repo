@@ -49,6 +49,5 @@ function TvGui:destroy()
 		self._ws = nil
 		self._new_gui = nil
 	end
-
 end
 

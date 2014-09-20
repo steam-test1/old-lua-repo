@@ -35,7 +35,6 @@ function CoreCutsceneExporter:add_animation_patch(unit_name, blend_set, animatio
 		self.__animation_patches[unit_name] = self.__animation_patches[unit_name] or {}
 		self.__animation_patches[unit_name][blend_set] = animation_name
 	end
-
 end
 
 function CoreCutsceneExporter:export_to_database(asset_name)
@@ -86,104 +85,65 @@ function CoreCutsceneExporter:_problem_map()
 			start_time = 0,
 			metadata = responder_map({is_valid = true})
 		})
-		do
-			local (for generator), (for state), (for control) = ipairs(self.__clips)
-			do
-				do break end
-				if previous_clip:end_time() > clip:start_time() then
-					add_problem("One or more clips overlap.")
-				elseif previous_clip:end_time() ~= clip:start_time() then
-					add_problem("There are gaps between clips.")
-				end
-
-				if clip:metadata() == nil then
-					add_problem("One or more clips is missing cutscene footage data.")
-				elseif not clip:metadata():is_valid() then
-					add_problem("One or more clips contain invalid cutscene footage data.")
-				end
-
-				previous_clip = clip
+		for _, clip in ipairs(self.__clips) do
+			if previous_clip:end_time() > clip:start_time() then
+				add_problem("One or more clips overlap.")
+			elseif previous_clip:end_time() ~= clip:start_time() then
+				add_problem("There are gaps between clips.")
 			end
-
+			if clip:metadata() == nil then
+				add_problem("One or more clips is missing cutscene footage data.")
+			elseif not clip:metadata():is_valid() then
+				add_problem("One or more clips contain invalid cutscene footage data.")
+			end
+			previous_clip = clip
 		end
-
 		if table.empty(problem_map) and self:contains_optimized_footage() then
 			if self:contains_unoptimized_footage() then
 				add_problem("The scene features both optimized and un-optimized clips.")
 			end
-
 			if not table.empty(self.__animation_patches or {}) then
 				add_problem("Cannot apply animation patches to optimized clips.")
 			end
-
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self.__animation_patches or {})
-		do
-			do break end
-			if not table.contains(self:_all_controlled_unit_names(), unit_name) then
-				add_problem("Animation patch table contains a non-existing actor.")
-			end
-
-			local (for generator), (for state), (for control) = pairs(patches or {})
-			do
-				do break end
-				if not DB:has("animation", animation) and not SystemFS:exists(animation) then
-					add_problem("Animation patch table contains invalid animations.")
-				end
-
-			end
-
+	for unit_name, patches in pairs(self.__animation_patches or {}) do
+		if not table.contains(self:_all_controlled_unit_names(), unit_name) then
+			add_problem("Animation patch table contains a non-existing actor.")
 		end
-
+		for _, animation in pairs(patches or {}) do
+			if not DB:has("animation", animation) and not SystemFS:exists(animation) then
+				add_problem("Animation patch table contains invalid animations.")
+			end
+		end
 	end
-
 	return problem_map
 end
 
 function CoreCutsceneExporter:_has_cameras()
-	do
-		local (for generator), (for state), (for control) = pairs(self:_all_controlled_unit_types(true))
-		do
-			do break end
-			if string.begins(unit_name, "camera") then
-				return true
-			end
-
+	for unit_name, _ in pairs(self:_all_controlled_unit_types(true)) do
+		if string.begins(unit_name, "camera") then
+			return true
 		end
-
 	end
-
 	return false
 end
 
 function CoreCutsceneExporter:_all_controlled_unit_types(include_cameras)
 	if self.__all_controlled_unit_types == nil then
 		self.__all_controlled_unit_types = {}
-		local (for generator), (for state), (for control) = ipairs(self.__clips)
-		do
-			do break end
-			local (for generator), (for state), (for control) = pairs(clip:metadata():footage()._cutscene:controlled_unit_types())
-			do
-				do break end
+		for _, clip in ipairs(self.__clips) do
+			for unit_name, unit_type in pairs(clip:metadata():footage()._cutscene:controlled_unit_types()) do
 				self.__all_controlled_unit_types[unit_name] = unit_type
 			end
-
 		end
-
 	end
-
 	if not include_cameras or not self.__all_controlled_unit_types then
 	end
-
 	return (table.remap(self.__all_controlled_unit_types, function(unit_name, unit_type)
 		if not string.begins(unit_name, "camera") then
 		else
 		end
-
 		return unit_name, unit_type or nil
 	end
 ))
@@ -216,10 +176,7 @@ function CoreCutsceneExporter:_get_final_animation(unit_name)
 )
 					final_animation = self:_process_animation("strip", final_animation, kept_bones)
 				end
-
-				local (for generator), (for state), (for control) = pairs(patches)
-				do
-					do break end
+				for blend_set, animation_name in pairs(patches) do
 					local blend_set_bones = AnimationManager:animatable_set_bones(unit_animatable_set, blend_set)
 					assert(#blend_set_bones > 0, string.format("Blend set \"%s\" in \"%s\" contains no bones.", blend_set, unit_animatable_set))
 					local patch_animation = self:_process_animation("strip", AnimationCutter:load(animation_name), blend_set_bones)
@@ -231,17 +188,12 @@ function CoreCutsceneExporter:_get_final_animation(unit_name)
 						patch_animation = self:_process_animation("join", patch_animation, pause)
 						pause:free()
 					end
-
 					final_animation = self:_process_animation("merge", final_animation, patch_animation)
 				end
-
 			end
-
 		end
-
 		self.__final_animation_cache[unit_name] = final_animation
 	end
-
 	return final_animation or nil
 end
 
@@ -254,7 +206,6 @@ function CoreCutsceneExporter:_get_joined_animation(unit_name_or_func)
 		end
  or unit_name_or_func
 	end
-
 	local unit_name = unit_name_func()
 	local joined_animation = self.__joined_animation_cache[unit_name]
 	if not alive(joined_animation) then
@@ -262,9 +213,7 @@ function CoreCutsceneExporter:_get_joined_animation(unit_name_or_func)
 		if unit_name then
 			self.__joined_animation_cache[unit_name] = joined_animation
 		end
-
 	end
-
 	return joined_animation or nil
 end
 
@@ -288,12 +237,9 @@ function CoreCutsceneExporter:_get_footage_animation(cutscene, unit_name)
 				local animatable_set_name = self:_get_animatable_set_name_for_unit_type(unit_type)
 				footage_animation = self:_process_animation("strip", footage_animation, animatable_set_name)
 			end
-
 		end
-
 		self.__footage_animation_cache[key] = footage_animation
 	end
-
 	return footage_animation or nil
 end
 
@@ -304,81 +250,51 @@ function CoreCutsceneExporter:_get_animatable_set_name_for_unit_type(unit_type)
 	if not object_db_entry then
 		error(string.format("Unit \"%s\" - Model XML \"%s\" not found.", unit_type, model_filename:t()))
 	end
-
 	local object_node = self.__database:load_node(object_db_entry)
 	if object_node == nil then
 		error(string.format("Unit \"%s\" - Model XML is invalid.", unit_type))
 	end
-
-	do
-		local (for generator), (for state), (for control) = object_node:children()
-		do
-			do break end
-			if child:name() == "animation_set" then
-				local animation_set_name = child:parameter("name")
-				local animation_set = AnimationManager:animation_set(animation_set_name)
-				return animation_set:animatable_set_name()
-			end
-
+	for child in object_node:children() do
+		if child:name() == "animation_set" then
+			local animation_set_name = child:parameter("name")
+			local animation_set = AnimationManager:animation_set(animation_set_name)
+			return animation_set:animatable_set_name()
 		end
-
 	end
-
 	error(string.format("Unit \"%s\" - Model XML is missing animation_set name.", unit_type))
 end
 
 function CoreCutsceneExporter:_join_animations(unit_name_func)
 	local joined_animation
-	do
-		local (for generator), (for state), (for control) = ipairs(self.__clips)
-		do
-			do break end
-			local cutscene = clip:metadata():footage()._cutscene
-			local unit_name = unit_name_func(clip)
-			local footage_animation = self:_get_footage_animation(cutscene, unit_name)
-			if joined_animation ~= nil and footage_animation ~= nil then
-				local first_set = table.sorted_copy(joined_animation:bones())
-				local second_set = table.sorted_copy(footage_animation:bones())
-				if not table.empty(first_set) and not table.empty(second_set) and not table.equals(first_set, second_set) then
-					cat_print("debug", "Unit \"" .. unit_name .. "\", first set:")
-					do
-						local (for generator), (for state), (for control) = ipairs(first_set)
-						do
-							do break end
-							cat_print("debug", bone)
-						end
-
-					end
-
-					cat_print("debug", "")
-					cat_print("debug", "Unit \"" .. unit_name .. "\", second set:")
-					do
-						local (for generator), (for state), (for control) = ipairs(second_set)
-						do
-							do break end
-							cat_print("debug", bone)
-						end
-
-					end
-
-					error(string.format("Unit \"%s\" - Bones differ in footage \"%s\".", unit_name, cutscene:name()))
+	for _, clip in ipairs(self.__clips) do
+		local cutscene = clip:metadata():footage()._cutscene
+		local unit_name = unit_name_func(clip)
+		local footage_animation = self:_get_footage_animation(cutscene, unit_name)
+		if joined_animation ~= nil and footage_animation ~= nil then
+			local first_set = table.sorted_copy(joined_animation:bones())
+			local second_set = table.sorted_copy(footage_animation:bones())
+			if not table.empty(first_set) and not table.empty(second_set) and not table.equals(first_set, second_set) then
+				cat_print("debug", "Unit \"" .. unit_name .. "\", first set:")
+				for _, bone in ipairs(first_set) do
+					cat_print("debug", bone)
 				end
-
+				cat_print("debug", "")
+				cat_print("debug", "Unit \"" .. unit_name .. "\", second set:")
+				for _, bone in ipairs(second_set) do
+					cat_print("debug", bone)
+				end
+				error(string.format("Unit \"%s\" - Bones differ in footage \"%s\".", unit_name, cutscene:name()))
 			end
-
-			local range_start = clip:start_time_in_source() / cutscene:frames_per_second()
-			local range_end = clip:end_time_in_source() / cutscene:frames_per_second()
-			local range_duration = clip:length() / cutscene:frames_per_second()
-			local clip_animation = footage_animation and AnimationCutter:cut(footage_animation, range_start, range_end) or AnimationCutter:pause(range_duration)
-			joined_animation = joined_animation and self:_process_animation("join", joined_animation, clip_animation) or clip_animation
-			if joined_animation ~= clip_animation then
-				clip_animation:free()
-			end
-
 		end
-
+		local range_start = clip:start_time_in_source() / cutscene:frames_per_second()
+		local range_end = clip:end_time_in_source() / cutscene:frames_per_second()
+		local range_duration = clip:length() / cutscene:frames_per_second()
+		local clip_animation = footage_animation and AnimationCutter:cut(footage_animation, range_start, range_end) or AnimationCutter:pause(range_duration)
+		joined_animation = joined_animation and self:_process_animation("join", joined_animation, clip_animation) or clip_animation
+		if joined_animation ~= clip_animation then
+			clip_animation:free()
+		end
 	end
-
 	return joined_animation
 end
 
@@ -399,6 +315,5 @@ function CoreCutsceneExporter:_assert_is_valid()
 	if #problems ~= 0 then
 		error("Cutscene project is invalid: ", string.join(" ", problems))
 	end
-
 end
 

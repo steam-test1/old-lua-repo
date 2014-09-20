@@ -12,16 +12,10 @@ function CoreEditor:build_menubar()
 	file_menu:append_separator()
 	self._rf_menu = EWS:Menu("")
 	self._recent_files_callback = callback(self, self, "on_load_recent_file")
-	do
-		local (for generator), (for state), (for control) = ipairs(self._recent_files)
-		do
-			do break end
-			self._rf_menu:append_item(file.path, index .. " " .. file.path, "")
-			Global.frame:connect(file.path, "EVT_COMMAND_MENU_SELECTED", self._recent_files_callback, index)
-		end
-
+	for index, file in ipairs(self._recent_files) do
+		self._rf_menu:append_item(file.path, index .. " " .. file.path, "")
+		Global.frame:connect(file.path, "EVT_COMMAND_MENU_SELECTED", self._recent_files_callback, index)
 	end
-
 	file_menu:append_menu("RECENT FILES", "Recent Files", self._rf_menu, "Recent worked on files")
 	file_menu:append_separator()
 	file_menu:append_item("EXIT", "Exit", "Exit the application")
@@ -66,11 +60,9 @@ function CoreEditor:build_menubar()
 		if i + 1 >= 10 then
 			c = "\tCtrl+Alt+" .. i - 9
 		end
-
 		layers_menu:append_item(text, text .. c, "Change To Layer")
 		Global.frame:connect(text, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_change_layer"), i)
 	end
-
 	menu_bar:append(layers_menu, "Layers")
 	self._edit_menu = EWS:Menu("")
 	self._edit_menu:append_radio_item("TB WIDGET SELECT", "Select\t" .. self:ctrl_menu_binding("select"), "Select Unit")
@@ -85,15 +77,9 @@ function CoreEditor:build_menubar()
 	Global.frame:connect("SHOW_CAMERA_TRANFORM_TYPE_IN", "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_camera_transform_type_in"), nil)
 	self._edit_menu:append_separator()
 	self._coordinate_menu = EWS:Menu("")
-	do
-		local (for generator), (for state), (for control) = ipairs(self._coordinate_systems)
-		do
-			do break end
-			self._coordinate_menu:append_radio_item(coor, coor, coor)
-		end
-
+	for _, coor in ipairs(self._coordinate_systems) do
+		self._coordinate_menu:append_radio_item(coor, coor, coor)
 	end
-
 	self._coordinate_menu:set_checked(self._coordinate_system, true)
 	self._edit_menu:append_menu("COORDINATE_MENU", "Reference Coordinate System\t(" .. self:ctrl_binding("toggle_coordinate_system") .. ")", self._coordinate_menu, "Reference Coordinate System")
 	self._edit_menu:append_separator()
@@ -113,27 +99,15 @@ function CoreEditor:build_menubar()
 	})
 	self._edit_menu:append_separator()
 	self._grid_sizes_menu = EWS:Menu("")
-	do
-		local (for generator), (for state), (for control) = ipairs(self._grid_sizes)
-		do
-			do break end
-			self._grid_sizes_menu:append_radio_item("TB_GRIDSIZE" .. g, g, "Set gridsize to " .. g)
-		end
-
+	for _, g in ipairs(self._grid_sizes) do
+		self._grid_sizes_menu:append_radio_item("TB_GRIDSIZE" .. g, g, "Set gridsize to " .. g)
 	end
-
 	self._grid_sizes_menu:set_checked("TB_GRIDSIZE" .. self._grid_size, true)
 	self._edit_menu:append_menu("GRID_SIZES_MENU", "Grid sizes", self._grid_sizes_menu, "Grid Sizes")
 	self._snap_rotations_menu = EWS:Menu("")
-	do
-		local (for generator), (for state), (for control) = ipairs(self._snap_rotations)
-		do
-			do break end
-			self._snap_rotations_menu:append_radio_item("TB_SNAPROTATION" .. r, r, "Set snap rotation to " .. r)
-		end
-
+	for _, r in ipairs(self._snap_rotations) do
+		self._snap_rotations_menu:append_radio_item("TB_SNAPROTATION" .. r, r, "Set snap rotation to " .. r)
 	end
-
 	self._snap_rotations_menu:set_checked("TB_SNAPROTATION" .. self._snap_rotation, true)
 	self._edit_menu:append_menu("SNAP_ROTATION_MENU", "Snap Rotations", self._snap_rotations_menu, "Snap Rotations")
 	self._snap_rotations_axis_menu = EWS:Menu("")
@@ -147,7 +121,6 @@ function CoreEditor:build_menubar()
 	else
 		self._snap_rotations_axis_menu:set_checked("TB_SNAPROTATE_Z", true)
 	end
-
 	self._edit_menu:append_menu("SNAP_ROTATION_AIXS_MENU", "Snap Rotation Axis\t(" .. self:ctrl_binding("change_snaprot_axis") .. ")", self._snap_rotations_axis_menu, "Snap Rotation Axis")
 	menu_bar:append(self._edit_menu, "Edit")
 	self._group_menu = EWS:Menu("")
@@ -180,42 +153,24 @@ function CoreEditor:build_menubar()
 	self._mission_menu:append_item("RUN MISSION SIMULATION", "Run Mission Simulation\t" .. self:ctrl_menu_binding("run_mission_simulation"), "Run Mission Simulation")
 	self._mission_menu:append_item("RUN GAMEPLAY SIMULATION", "Run Gameplay Simulation\t" .. self:ctrl_menu_binding("run_gameplay_simulation"), "Run Gameplay Simulation")
 	local difficulty_menu = EWS:Menu("")
-	do
-		local (for generator), (for state), (for control) = ipairs(self._mission_difficulties)
-		do
-			do break end
-			difficulty_menu:append_radio_item(difficulty, difficulty, "")
-			Global.frame:connect(difficulty, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_difficulty"), difficulty)
-		end
-
+	for _, difficulty in ipairs(self._mission_difficulties) do
+		difficulty_menu:append_radio_item(difficulty, difficulty, "")
+		Global.frame:connect(difficulty, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_difficulty"), difficulty)
 	end
-
 	difficulty_menu:set_checked(self._mission_difficulty, true)
 	self._mission_menu:append_menu("DIFFICULTY MENU", "Difficulty", difficulty_menu, "Difficulties")
 	local players_menu = EWS:Menu("")
-	do
-		local (for generator), (for state), (for control) = ipairs(self._mission_players)
-		do
-			do break end
-			players_menu:append_radio_item(player, player, "")
-			Global.frame:connect(player, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_players"), player)
-		end
-
+	for _, player in ipairs(self._mission_players) do
+		players_menu:append_radio_item(player, player, "")
+		Global.frame:connect(player, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_players"), player)
 	end
-
 	players_menu:set_checked(self._mission_player, true)
 	self._mission_menu:append_menu("PLAYERS MENU", "Players", players_menu, "Players")
 	local platforms_menu = EWS:Menu("")
-	do
-		local (for generator), (for state), (for control) = ipairs(self._mission_platforms)
-		do
-			do break end
-			platforms_menu:append_radio_item(platform, platform, "")
-			Global.frame:connect(platform, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_platform"), platform)
-		end
-
+	for _, platform in ipairs(self._mission_platforms) do
+		platforms_menu:append_radio_item(platform, platform, "")
+		Global.frame:connect(platform, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_platform"), platform)
 	end
-
 	platforms_menu:set_checked(self._mission_platform, true)
 	self._mission_menu:append_menu("PLATFORMS MENU", "Platform", platforms_menu, "Platform")
 	self._mission_menu:append_separator()
@@ -254,16 +209,10 @@ function CoreEditor:build_menubar()
 	view_menu:append_item("DEPTH", "Depth", "Change visualization to Depth")
 	view_menu:append_separator()
 	local post_processor_effects_menu = EWS:Menu("")
-	do
-		local (for generator), (for state), (for control) = ipairs({"empty", "default"})
-		do
-			do break end
-			post_processor_effects_menu:append_radio_item(effect, effect, "")
-			Global.frame:connect(effect, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_post_processor_effect"), effect)
-		end
-
+	for _, effect in ipairs({"empty", "default"}) do
+		post_processor_effects_menu:append_radio_item(effect, effect, "")
+		Global.frame:connect(effect, "EVT_COMMAND_MENU_SELECTED", callback(self, self, "on_post_processor_effect"), effect)
 	end
-
 	post_processor_effects_menu:set_checked("empty", true)
 	view_menu:append_menu("POST_PROCESSOR_MENU", "Post processor effects", post_processor_effects_menu, "Post processor effects")
 	view_menu:append_separator()
@@ -393,7 +342,6 @@ function CoreEditor:build_menubar()
 	if managers and managers.toolhub then
 		menu_bar:append(managers.toolhub:get_tool_menu(Global.frame), "Toolhub")
 	end
-
 	local window_menu = EWS:Menu("")
 	window_menu:append_check_item("SHOW MARKERS", "Show Markers", "Toggle markers")
 	window_menu:set_checked("SHOW MARKERS", self._show_markers)
@@ -421,9 +369,7 @@ function CoreEditor:confirm_on_new()
 		elseif confirm == "YES" then
 			return false
 		end
-
 	end
-
 	if self._confirm_on_new then
 		local confirm = EWS:message_box(Global.frame_panel, "Save Changes?", "Bringer of World", "YES_NO,CANCEL,ICON_QUESTION", Vector3(-1, -1, 0))
 		if confirm == "CANCEL" then
@@ -431,17 +377,14 @@ function CoreEditor:confirm_on_new()
 		elseif confirm == "YES" then
 			self:on_save()
 		end
-
 		self._confirm_on_new = false
 	end
-
 end
 
 function CoreEditor:on_new()
 	if self:confirm_on_new() then
 		return
 	end
-
 	self._title = self._editor_name
 	Global.frame:set_title(self._title)
 	self:clear_all()
@@ -449,14 +392,12 @@ function CoreEditor:on_new()
 	if self._unit_list then
 		self._unit_list:reset()
 	end
-
 end
 
 function CoreEditor:on_open()
 	if self:confirm_on_new() then
 		return
 	end
-
 	local opendlg_path, opendlg_dir = managers.database:open_file_dialog(Global.frame, "Worlds (*.world)|*.world", self._lastdir)
 	if opendlg_path and opendlg_dir then
 		local path = opendlg_path
@@ -467,9 +408,7 @@ function CoreEditor:on_open()
 			self:output_error("Cant open file from outside the project")
 			self:on_open()
 		end
-
 	end
-
 end
 
 function CoreEditor:on_save()
@@ -477,7 +416,6 @@ function CoreEditor:on_save()
 		self:output_warning("Won't save during simulation.")
 		return
 	end
-
 	if self._lastfile then
 		self:do_save(self._lastfile, self._lastdir)
 		local rules = {
@@ -487,40 +425,25 @@ function CoreEditor:on_save()
 	else
 		self:on_saveas()
 	end
-
 end
 
 function CoreEditor:create_temp_saves(type)
 	local a = string.gsub(managers.editor._lastdir, managers.database:base_path(), "")
 	local dirs = {}
-	do
-		local (for generator), (for state), (for control) = string.gmatch(a, "[%w_]+")
-		do
-			do break end
-			table.insert(dirs, w)
-		end
-
+	for w in string.gmatch(a, "[%w_]+") do
+		table.insert(dirs, w)
 	end
-
 	local d = self._editor_temp_path
-	do
-		local (for generator), (for state), (for control) = ipairs(dirs)
-		do
-			do break end
-			d = d .. "\\" .. dir
-			if not SystemFS:exists(d) then
-				SystemFS:make_dir(d)
-			end
-
+	for _, dir in ipairs(dirs) do
+		d = d .. "\\" .. dir
+		if not SystemFS:exists(d) then
+			SystemFS:make_dir(d)
 		end
-
 	end
-
 	d = d .. "\\" .. type
 	if not SystemFS:exists(d) then
 		SystemFS:make_dir(d)
 	end
-
 	return d
 end
 
@@ -529,14 +452,12 @@ function CoreEditor:on_saveas()
 		self:output_warning("Won't save during simulation.")
 		return
 	end
-
 	local savedlg_path, savedlg_dir = managers.database:save_file_dialog(Global.frame, true, "Worlds (*.world)|*.world", managers.database:base_path() .. self._lastdir)
 	if savedlg_path and savedlg_dir then
 		local save_continents = true
 		self:do_save(savedlg_path, savedlg_dir, save_continents)
 		self:save_editor_settings(savedlg_path, savedlg_dir)
 	end
-
 end
 
 function CoreEditor:on_saveascopy()
@@ -544,20 +465,17 @@ function CoreEditor:on_saveascopy()
 		self:output_warning("Won't save during simulation.")
 		return
 	end
-
 	local savedlg_path, savedlg_dir = managers.database:save_file_dialog(Global.frame, true, "Worlds (*.world)|*.world", managers.database:base_path() .. self._lastdir)
 	if savedlg_path and savedlg_dir then
 		local save_continents = true
 		self:do_save(savedlg_path, savedlg_dir, save_continents)
 	end
-
 end
 
 function CoreEditor:on_load_recent_file(index)
 	if self:confirm_on_new() then
 		return
 	end
-
 	self:load_level(self._recent_files[index].dir, self._recent_files[index].path)
 end
 
@@ -565,26 +483,20 @@ function CoreEditor:on_close(custom_data, event_object)
 	if self:confirm_on_new() then
 		return
 	end
-
 	self:save_edit_setting_values()
 	self:save_layout()
 	CoreEngineAccess._quit()
 end
 
 function CoreEditor:on_enable_all_layers()
-	local (for generator), (for state), (for control) = pairs(self:layers())
-	do
-		do break end
+	for name, layer in pairs(self:layers()) do
 		layer:set_enabled(true)
 		self._disable_layer_menu:set_checked("DISABLE_" .. name, false)
 	end
-
 end
 
 function CoreEditor:on_disable_layers()
-	local (for generator), (for state), (for control) = pairs(self:layers())
-	do
-		do break end
+	for name, layer in pairs(self:layers()) do
 		if layer ~= self._current_layer then
 			self._disable_layer_menu:set_checked("DISABLE_" .. name, true)
 			self:on_disable_layer({
@@ -592,9 +504,7 @@ function CoreEditor:on_disable_layers()
 				id = "DISABLE_" .. name
 			})
 		end
-
 	end
-
 end
 
 function CoreEditor:on_disable_layer(data)
@@ -602,7 +512,6 @@ function CoreEditor:on_disable_layer(data)
 	if not accepted then
 		self._disable_layer_menu:set_checked(data.id, false)
 	end
-
 end
 
 function CoreEditor:on_hide_layer(data)
@@ -629,9 +538,7 @@ function CoreEditor:group()
 			local units = clone(self._current_layer:selected_units())
 			self:create_group(name, unit, units)
 		end
-
 	end
-
 end
 
 function CoreEditor:ungroup()
@@ -641,9 +548,7 @@ function CoreEditor:ungroup()
 			local group = groups[#groups]
 			self:remove_group(group:name())
 		end
-
 	end
-
 end
 
 function CoreEditor:save_group()
@@ -653,9 +558,7 @@ function CoreEditor:save_group()
 			local group = groups[#groups]
 			group:save_to_file()
 		end
-
 	end
-
 end
 
 function CoreEditor:load_group()
@@ -666,7 +569,6 @@ function CoreEditor:show_group_presets()
 	if not SystemFS:exists(self._group_presets_path) then
 		SystemFS:make_dir(self._group_presets_path)
 	end
-
 	local files = SystemFS:list(self._group_presets_path, "*.xml", false)
 	GroupPresetsDialog:new(files, self._group_presets_path)
 end
@@ -678,9 +580,7 @@ function CoreEditor:dump_group()
 			local group = groups[#groups]
 			managers.editor:dump_mesh(group:units(), group:name())
 		end
-
 	end
-
 end
 
 function CoreEditor:on_difficulty(difficulty)
@@ -709,7 +609,6 @@ function CoreEditor:toggle_info(data)
 	elseif data[2] == "INFO UNIT" then
 		self._unit_info:set_visible(data[1]:is_checked(data[2]))
 	end
-
 	self._info_frame:layout()
 end
 
@@ -718,12 +617,9 @@ function CoreEditor:show_news()
 end
 
 function CoreEditor:change_visualization(viz)
-	local (for generator), (for state), (for control) = ipairs(managers.viewport:viewports())
-	do
-		do break end
+	for _, vp in ipairs(managers.viewport:viewports()) do
 		vp:set_visualization_mode(viz)
 	end
-
 end
 
 function CoreEditor:on_post_processor_effect(effect)
@@ -738,7 +634,6 @@ function CoreEditor:toggle_lock_1280_720(data)
 	else
 		self:_set_appwin_fixed_resolution(nil)
 	end
-
 end
 
 function CoreEditor:toggle_orthographic(data)
@@ -781,21 +676,15 @@ end
 function CoreEditor:on_reload_unit(quick)
 	local names = {}
 	if self._current_layer then
-		local (for generator), (for state), (for control) = ipairs(self._current_layer:selected_units())
-		do
-			do break end
+		for _, unit in ipairs(self._current_layer:selected_units()) do
 			if alive(unit) then
 				local name = unit:name()
 				if not table.contains(names, name) then
 					table.insert(names, name)
 				end
-
 			end
-
 		end
-
 	end
-
 	self:reload_units(names, quick)
 end
 
@@ -828,9 +717,7 @@ function CoreEditor:on_add_workview()
 		else
 			self:add_workview(name)
 		end
-
 	end
-
 end
 
 function CoreEditor:on_show_workview()
@@ -842,68 +729,52 @@ function CoreEditor:on_check_duality()
 	local collisions = {}
 	collisions.only_positions = {}
 	collisions.complete = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(World:find_units_quick("all"))
-		do
-			do break end
-			local pos = unit:position()
-			pos = pos:with_x(math.floor(pos.x))
-			pos = pos:with_y(math.floor(pos.y))
-			pos = pos:with_z(math.floor(pos.z))
-			local rot = unit:rotation()
-			rot = Vector3(math.floor(rot:yaw()), math.floor(rot:pitch()), math.floor(rot:roll()))
-			local unit_name = units[unit:name():s()]
-			if unit_name then
-				do
-					local (for generator), (for state), (for control) = ipairs(unit_name)
-					do
-						do break end
-						if data.pos == pos then
-							if data.rot == rot then
-								table.insert(collisions.complete, {
-									u1 = data.unit,
-									u2 = unit,
-									pos = pos
-								})
-							else
-								table.insert(collisions.only_positions, {
-									u1 = data.unit,
-									u2 = unit,
-									pos = pos
-								})
-							end
-
-						end
-
+	for _, unit in ipairs(World:find_units_quick("all")) do
+		local pos = unit:position()
+		pos = pos:with_x(math.floor(pos.x))
+		pos = pos:with_y(math.floor(pos.y))
+		pos = pos:with_z(math.floor(pos.z))
+		local rot = unit:rotation()
+		rot = Vector3(math.floor(rot:yaw()), math.floor(rot:pitch()), math.floor(rot:roll()))
+		local unit_name = units[unit:name():s()]
+		if unit_name then
+			for _, data in ipairs(unit_name) do
+				if data.pos == pos then
+					if data.rot == rot then
+						table.insert(collisions.complete, {
+							u1 = data.unit,
+							u2 = unit,
+							pos = pos
+						})
+					else
+						table.insert(collisions.only_positions, {
+							u1 = data.unit,
+							u2 = unit,
+							pos = pos
+						})
 					end
-
 				end
-
-				table.insert(unit_name, {
+			end
+			table.insert(unit_name, {
+				unit = unit,
+				pos = pos,
+				rot = rot
+			})
+		else
+			units[unit:name():s()] = {
+				{
 					unit = unit,
 					pos = pos,
 					rot = rot
-				})
-			else
-				units[unit:name():s()] = {
-					{
-						unit = unit,
-						pos = pos,
-						rot = rot
-					}
 				}
-			end
-
+			}
 		end
-
 	end
-
 	local pos
 	if self._unit_duality then
 		pos = self._unit_duality:position()
 		self._unit_duality:destroy()
 	end
-
 	self._unit_duality = UnitDuality:new(collisions, pos)
 end
 
@@ -918,20 +789,13 @@ function CoreEditor:toggle_draw_occluders(data)
 end
 
 function CoreEditor:on_hide_helper_units(vis)
-	local (for generator), (for state), (for control) = pairs(self._layers)
-	do
-		do break end
-		local (for generator), (for state), (for control) = ipairs(layer:created_units())
-		do
-			do break end
+	for name, layer in pairs(self._layers) do
+		for _, unit in ipairs(layer:created_units()) do
 			if unit:unit_data().only_visible_in_editor or unit:unit_data().only_exists_in_editor or unit:has_material_assigned(Idstring("leveltools")) then
 				self:set_unit_visible(unit, vis)
 			end
-
 		end
-
 	end
-
 end
 
 function CoreEditor:toggle_render_effects(data)

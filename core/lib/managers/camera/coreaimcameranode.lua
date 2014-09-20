@@ -23,7 +23,6 @@ function AimCameraNode.compile_settings(xml_node, settings)
 	else
 		settings.pitch_offset = false
 	end
-
 end
 
 function AimCameraNode:set_eye_target_position(position)
@@ -35,13 +34,11 @@ function AimCameraNode:update(t, dt, in_data, out_data)
 	if not eye_target_position then
 		return
 	end
-
 	local parent_position = in_data:position()
 	local parent_rotation = in_data:rotation()
 	if self._pitch_offset then
 		mvector3_set(self._local_position, self:_update_pitch_offset(parent_position, parent_rotation))
 	end
-
 	local direction = mvector3_copy(self._local_position)
 	mvector3_rotate_with(direction, parent_rotation)
 	mvector3_add(direction, parent_position)
@@ -69,9 +66,7 @@ function AimCameraNode:_update_pitch_offset(parent_position, parent_rotation)
 			local offset = Vector3(0, y_offset, 0)
 			return offset:rotate_with(Rotation(math.UP, yaw))
 		end
-
 	end
-
 	return self:local_position()
 end
 

@@ -61,7 +61,6 @@ function LaserTriggerUnitElement:update_editing(...)
 		moving_point.pos = ray.position
 		moving_point.rot = Rotation(ray.normal, math.UP)
 	end
-
 end
 
 function LaserTriggerUnitElement:begin_editing(...)
@@ -81,18 +80,10 @@ function LaserTriggerUnitElement:update_selected(t, dt, selected_unit, all_units
 end
 
 function LaserTriggerUnitElement:_draw_selected()
-	do
-		local (for generator), (for state), (for control) = pairs(self._hed.points)
-		do
-			do break end
-			self:_draw_point(point.pos, point.rot, 0, 0.5, 0)
-		end
-
+	for _, point in pairs(self._hed.points) do
+		self:_draw_point(point.pos, point.rot, 0, 0.5, 0)
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._hed.connections)
-	do
-		do break end
+	for i, connection in ipairs(self._hed.connections) do
 		local s_p = self._hed.points[connection.from]
 		local e_p = self._hed.points[connection.to]
 		local r, g, b = unpack(self.COLORS[self._hed.color])
@@ -101,9 +92,7 @@ function LaserTriggerUnitElement:_draw_selected()
 		else
 			Application:draw_line(s_p.pos, e_p.pos, r, g, b)
 		end
-
 	end
-
 end
 
 function LaserTriggerUnitElement:_raycast()
@@ -121,37 +110,26 @@ function LaserTriggerUnitElement:_raycast()
 			else
 				self:_draw_point(point.pos, point.rot, 1, 0, 0)
 			end
-
 		else
 			if self._creating_connection then
 				local creating_point = self._hed.points[self._creating_connection]
 				Application:draw_line(creating_point.pos, ray.position, r * 0.6, g * 0.6, b * 0.6)
 			end
-
 			self:_draw_point(ray.position, Rotation(ray.normal, math.UP))
 		end
-
 		self._dummy_unit:set_position(ray.position)
 		self._dummy_unit:set_rotation(Rotation(ray.normal, math.UP))
 		return ray
 	end
-
 	return nil
 end
 
 function LaserTriggerUnitElement:_get_close_point(points, pos)
-	do
-		local (for generator), (for state), (for control) = pairs(points)
-		do
-			do break end
-			if point.pos - pos:length() < self.CLOSE_DISTANCE then
-				return i, point
-			end
-
+	for i, point in pairs(points) do
+		if point.pos - pos:length() < self.CLOSE_DISTANCE then
+			return i, point
 		end
-
 	end
-
 	return nil, nil
 end
 
@@ -174,7 +152,6 @@ function LaserTriggerUnitElement:_remove_any_close_point(pos)
 		self._hed.points[index] = nil
 		return true
 	end
-
 	return false
 end
 
@@ -182,7 +159,6 @@ function LaserTriggerUnitElement:_break_creating_connection()
 	if alive(self._dummy_unit) then
 		self._dummy_unit:set_enabled(true)
 	end
-
 	self._creating_connection = nil
 end
 
@@ -197,24 +173,20 @@ function LaserTriggerUnitElement:_rmb()
 		self:_break_moving_point()
 		return
 	end
-
 	if self._creating_connection then
 		self:_break_creating_connection()
 		return
 	end
-
 	print("LaserTriggerUnitElement:_rmb()")
 	local ray = self:_raycast()
 	if not ray then
 		return
 	end
-
 	local pos = ray.position
 	local rot = Rotation(ray.normal, math.UP)
 	if self:_remove_any_close_point(pos) then
 		return
 	end
-
 	table.insert(self._hed.points, {pos = pos, rot = rot})
 end
 
@@ -223,12 +195,10 @@ function LaserTriggerUnitElement:_lmb()
 	if self._moving_point then
 		return
 	end
-
 	local ray = self:_raycast()
 	if not ray then
 		return
 	end
-
 	local pos = ray.position
 	local rot = Rotation(ray.normal, math.UP)
 	local index, point = self:_get_close_point(self._hed.points, pos)
@@ -238,7 +208,6 @@ function LaserTriggerUnitElement:_lmb()
 		self:_break_creating_connection()
 		return
 	end
-
 	if self._creating_connection then
 		if self._creating_connection == index then
 			print("break (same) starting connection")
@@ -251,29 +220,24 @@ function LaserTriggerUnitElement:_lmb()
 				})
 				self:_fill_connections_box()
 			end
-
 		end
-
 		self:_break_creating_connection()
 	else
 		print("start creating connection")
 		self._dummy_unit:set_enabled(false)
 		self._creating_connection = index
 	end
-
 end
 
 function LaserTriggerUnitElement:_emb()
 	if self._creating_connection then
 		return
 	end
-
 	print("LaserTriggerUnitElement:_emb()")
 	local ray = self:_raycast()
 	if not ray then
 		return
 	end
-
 	local pos = ray.position
 	local rot = Rotation(ray.normal, math.UP)
 	local index, point = self:_get_close_point(self._hed.points, pos)
@@ -281,7 +245,6 @@ function LaserTriggerUnitElement:_emb()
 	if not point then
 		return
 	end
-
 	self._moving_point_undo = clone(point)
 	self._moving_point = index
 end
@@ -291,47 +254,33 @@ function LaserTriggerUnitElement:_release_emb()
 	if self._moving_point then
 		self:_break_moving_point()
 	end
-
 end
 
 function LaserTriggerUnitElement:_check_remove_index(index)
-	local (for generator), (for state), (for control) = ipairs(clone(self._hed.connections))
-	do
-		do break end
+	for i, connection in ipairs(clone(self._hed.connections)) do
 		if connection.from == index or connection.to == index then
 			if self._selected_connection and self._selected_connection == i then
 				self._selected_connection = nil
 			end
-
 			table.remove(self._hed.connections, i)
 			self:_fill_connections_box()
 			self:_check_remove_index(index)
 			return
 		end
-
 	end
-
 end
 
 function LaserTriggerUnitElement:_check_remove_connection(i1, i2)
-	do
-		local (for generator), (for state), (for control) = ipairs(clone(self._hed.connections))
-		do
-			do break end
-			if connection.from == i1 and connection.to == i2 or connection.from == i2 and connection.to == i1 then
-				table.remove(self._hed.connections, i)
-				self:_fill_connections_box()
-				if self._selected_connection and self._selected_connection == i then
-					self._selected_connection = nil
-				end
-
-				return true
+	for i, connection in ipairs(clone(self._hed.connections)) do
+		if connection.from == i1 and connection.to == i2 or connection.from == i2 and connection.to == i1 then
+			table.remove(self._hed.connections, i)
+			self:_fill_connections_box()
+			if self._selected_connection and self._selected_connection == i then
+				self._selected_connection = nil
 			end
-
+			return true
 		end
-
 	end
-
 	return false
 end
 
@@ -350,19 +299,15 @@ function LaserTriggerUnitElement:_on_clicked_connections_box()
 		self._selected_connection = nil
 		return
 	end
-
 	print(self._connections_box:get_string(selected_index))
 	self._selected_connection = tonumber(self._connections_box:get_string(selected_index))
 end
 
 function LaserTriggerUnitElement:_fill_connections_box()
 	self._connections_box:clear()
-	local (for generator), (for state), (for control) = ipairs(self._hed.connections)
-	do
-		do break end
+	for i, connection in ipairs(self._hed.connections) do
 		self._connections_box:append(i)
 	end
-
 end
 
 function LaserTriggerUnitElement:_move_connection_up()
@@ -370,7 +315,6 @@ function LaserTriggerUnitElement:_move_connection_up()
 	if not self._selected_connection or self._selected_connection == 1 then
 		return
 	end
-
 	local selected_index = self._connections_box:selected_index()
 	table.insert(self._hed.connections, self._selected_connection - 1, table.remove(self._hed.connections, self._selected_connection))
 	self:_fill_connections_box()
@@ -383,7 +327,6 @@ function LaserTriggerUnitElement:_move_connection_down()
 	if not self._selected_connection or self._selected_connection == #self._hed.connections then
 		return
 	end
-
 	local selected_index = self._connections_box:selected_index()
 	table.insert(self._hed.connections, self._selected_connection + 1, table.remove(self._hed.connections, self._selected_connection))
 	self:_fill_connections_box()
@@ -426,7 +369,6 @@ function LaserTriggerUnitElement:_build_panel(panel, panel_sizer)
 		if ctrlr:get_value() == "criminals" then
 			EWS:message_box(Global.frame_panel, "Criminals is deprecated, you should probably use local_criminals. Ask Martin or Ilija why.", "Instigator Warning", "ICON_WARNING", Vector3(-1, -1, 0))
 		end
-
 	end
 
 	instigator:connect("EVT_COMMAND_COMBOBOX_SELECTED", f, instigator)
@@ -547,9 +489,7 @@ function LaserTriggerUnitElement:add_to_mission_package()
 	})
 	local sequence_files = {}
 	CoreEditorUtils.get_sequence_files_by_unit_name(unit_name, sequence_files)
-	local (for generator), (for state), (for control) = ipairs(sequence_files)
-	do
-		do break end
+	for _, file in ipairs(sequence_files) do
 		managers.editor:add_to_world_package({
 			category = "script_data",
 			name = file:s() .. ".sequence_manager",
@@ -557,6 +497,5 @@ function LaserTriggerUnitElement:add_to_mission_package()
 			init = true
 		})
 	end
-
 end
 

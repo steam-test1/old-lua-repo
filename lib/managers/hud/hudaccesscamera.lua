@@ -197,7 +197,6 @@ function HUDAccessCamera:_animate_date()
 		self._full_hud_panel:child("noise"):set_x(-math.random(50))
 		self._full_hud_panel:child("noise"):set_y(-math.random(50))
 	end
-
 end
 
 function HUDAccessCamera:draw_marker(i, pos)
@@ -211,7 +210,6 @@ function HUDAccessCamera:draw_marker(i, pos)
 			y = pos.y
 		})
 	end
-
 	self._markers[i]:set_center(pos.x, pos.y)
 end
 
@@ -220,6 +218,5 @@ function HUDAccessCamera:max_markers(amount)
 		local obj = table.remove(self._markers, amount + 1)
 		self._full_hud_panel:remove(obj)
 	end
-
 end
 

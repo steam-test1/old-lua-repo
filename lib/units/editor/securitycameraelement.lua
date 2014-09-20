@@ -26,7 +26,6 @@ function SecurityCameraUnitElement:post_init()
 		table.insert(self._save_values, "detection_delay_min")
 		table.insert(self._save_values, "detection_delay_max")
 	end
-
 end
 
 function SecurityCameraUnitElement:_build_panel(panel, panel_sizer)
@@ -190,15 +189,12 @@ function SecurityCameraUnitElement:_find_camera_raycast()
 	if not ray then
 		return
 	end
-
 	if ray.unit:id() == -1 then
 		return
 	end
-
 	if not ray.unit:base() or not ray.unit:base().security_camera then
 		return
 	end
-
 	Application:draw(ray.unit, 0, 1, 0)
 	return ray.unit
 end
@@ -211,7 +207,6 @@ function SecurityCameraUnitElement:_raycast()
 		Application:draw_sphere(ray.position, 10, 1, 1, 1)
 		return ray.position
 	end
-
 	return nil
 end
 
@@ -223,9 +218,7 @@ function SecurityCameraUnitElement:_lmb()
 		else
 			self:_set_camera_unit(unit)
 		end
-
 	end
-
 end
 
 function SecurityCameraUnitElement:update_selected(t, dt, selected_unit, all_units)
@@ -233,7 +226,6 @@ function SecurityCameraUnitElement:update_selected(t, dt, selected_unit, all_uni
 	if selected_unit and (not self._camera_u_data or self._camera_u_data.unit ~= selected_unit) and self._unit ~= selected_unit then
 		return
 	end
-
 	if self._camera_u_data then
 		self:_draw_link({
 			from_unit = self._unit,
@@ -243,7 +235,6 @@ function SecurityCameraUnitElement:update_selected(t, dt, selected_unit, all_uni
 			b = 0
 		})
 	end
-
 end
 
 function SecurityCameraUnitElement:update_unselected(t, dt, selected_unit, all_units)
@@ -254,7 +245,6 @@ function SecurityCameraUnitElement:_chk_units_alive()
 	if self._camera_u_data and not alive(self._camera_u_data.unit) then
 		self:_set_camera_unit(nil)
 	end
-
 end
 
 function SecurityCameraUnitElement:draw_links(t, dt, selected_unit, all_units)
@@ -263,7 +253,6 @@ function SecurityCameraUnitElement:draw_links(t, dt, selected_unit, all_units)
 	if selected_unit and (not self._camera_u_data or self._camera_u_data.unit ~= selected_unit) and self._unit ~= selected_unit then
 		return
 	end
-
 	if self._camera_u_data then
 		self:_draw_link({
 			from_unit = self._unit,
@@ -273,7 +262,6 @@ function SecurityCameraUnitElement:draw_links(t, dt, selected_unit, all_units)
 			b = 0
 		})
 	end
-
 end
 
 function SecurityCameraUnitElement:layer_finished()
@@ -285,9 +273,7 @@ function SecurityCameraUnitElement:layer_finished()
 		else
 			self:_set_camera_unit(nil)
 		end
-
 	end
-
 end
 
 function SecurityCameraUnitElement:load_camera_unit(unit)
@@ -300,7 +286,6 @@ function SecurityCameraUnitElement:selected()
 	if self._camera_u_data then
 		self:_align_camera_unit()
 	end
-
 end
 
 function SecurityCameraUnitElement:add_triggers(vc)
@@ -311,13 +296,11 @@ function SecurityCameraUnitElement:_set_camera_unit(unit)
 	if self._camera_u_data and self._camera_u_data.unit == unit or not self._camera_u_data and not unit then
 		return
 	end
-
 	if self._camera_u_data then
 		self._camera_u_data.unit:get_object(Idstring("CameraYaw")):set_local_rotation(self._camera_u_data.original_rot_yaw)
 		self._camera_u_data.unit:get_object(Idstring("CameraPitch")):set_local_rotation(self._camera_u_data.original_rot_pitch)
 		self._camera_u_data.unit:set_moving()
 	end
-
 	if unit then
 		local orig_rot = self._object_original_rotations[unit:name():key()]
 		if not orig_rot then
@@ -328,7 +311,6 @@ function SecurityCameraUnitElement:_set_camera_unit(unit)
 			self._object_original_rotations[unit:name():key()] = {yaw = original_rot_yaw, pitch = original_rot_pitch}
 			orig_rot = self._object_original_rotations[unit:name():key()]
 		end
-
 		self._camera_u_data = {
 			unit = unit,
 			original_rot_yaw = orig_rot.yaw,
@@ -340,7 +322,6 @@ function SecurityCameraUnitElement:_set_camera_unit(unit)
 		self._camera_u_data = nil
 		self._hed.camera_u_id = nil
 	end
-
 end
 
 function SecurityCameraUnitElement:set_element_data(...)
@@ -350,7 +331,6 @@ function SecurityCameraUnitElement:set_element_data(...)
 	if self._camera_u_data then
 		self:_align_camera_unit()
 	end
-
 	if had_settings and not self._hed.apply_settings then
 		table.delete(self._save_values, "yaw")
 		table.delete(self._save_values, "pitch")
@@ -370,7 +350,6 @@ function SecurityCameraUnitElement:set_element_data(...)
 		table.insert(self._save_values, "detection_delay_max")
 		print("adding settings", inspect(self._save_values))
 	end
-
 end
 
 function SecurityCameraUnitElement:_align_camera_unit()
@@ -386,7 +365,6 @@ function SecurityCameraUnitElement:_align_camera_unit()
 		self._camera_u_data.unit:get_object(Idstring("CameraYaw")):set_local_rotation(self._camera_u_data.original_rot_yaw)
 		self._camera_u_data.unit:get_object(Idstring("CameraPitch")):set_local_rotation(self._camera_u_data.original_rot_pitch)
 	end
-
 	self._camera_u_data.unit:set_moving()
 end
 

@@ -152,17 +152,11 @@ do
 	}
 	local path_string = "units/payday2/characters/"
 	local character_path = ""
-	do
-		local (for generator), (for state), (for control) = ipairs(payday2_characters_map)
-		do
-			do break end
-			character_path = path_string .. character .. "/" .. character
-			CopBase._material_translation_map[tostring(Idstring(character_path):key())] = Idstring(character_path .. "_contour")
-			CopBase._material_translation_map[tostring(Idstring(character_path .. "_contour"):key())] = Idstring(character_path)
-		end
-
+	for _, character in ipairs(payday2_characters_map) do
+		character_path = path_string .. character .. "/" .. character
+		CopBase._material_translation_map[tostring(Idstring(character_path):key())] = Idstring(character_path .. "_contour")
+		CopBase._material_translation_map[tostring(Idstring(character_path .. "_contour"):key())] = Idstring(character_path)
 	end
-
 	local pd2_dlc1_characters_map = {
 		"civ_male_bank_manager_2",
 		"civ_male_casual_10",
@@ -175,33 +169,23 @@ do
 	}
 	local path_string = "units/pd2_dlc1/characters/"
 	local character_path = ""
-	do
-		local (for generator), (for state), (for control) = ipairs(pd2_dlc1_characters_map)
-		do
-			do break end
-			character_path = path_string .. character .. "/" .. character
-			CopBase._material_translation_map[tostring(Idstring(character_path):key())] = Idstring(character_path .. "_contour")
-			CopBase._material_translation_map[tostring(Idstring(character_path .. "_contour"):key())] = Idstring(character_path)
-		end
-
+	for _, character in ipairs(pd2_dlc1_characters_map) do
+		character_path = path_string .. character .. "/" .. character
+		CopBase._material_translation_map[tostring(Idstring(character_path):key())] = Idstring(character_path .. "_contour")
+		CopBase._material_translation_map[tostring(Idstring(character_path .. "_contour"):key())] = Idstring(character_path)
 	end
-
 	local pd2_dlc1_characters_map = {
 		"civ_female_bank_assistant_1",
 		"civ_female_bank_assistant_2"
 	}
 	local path_string = "units/pd2_dlc2/characters/"
 	local character_path = ""
-	local (for generator), (for state), (for control) = ipairs(pd2_dlc1_characters_map)
-	do
-		do break end
+	for _, character in ipairs(pd2_dlc1_characters_map) do
 		character_path = path_string .. character .. "/" .. character
 		CopBase._material_translation_map[tostring(Idstring(character_path):key())] = Idstring(character_path .. "_contour")
 		CopBase._material_translation_map[tostring(Idstring(character_path .. "_contour"):key())] = Idstring(character_path)
 	end
-
 end
-
 function CopBase:init(unit)
 	UnitBase.init(self, unit, false)
 	self._char_tweak = tweak_data.character[self._tweak_table]
@@ -226,15 +210,11 @@ end
 function CopBase:default_weapon_name()
 	local default_weapon_id = self._default_weapon_id
 	local weap_ids = tweak_data.character.weap_ids
-	local (for generator), (for state), (for control) = ipairs(weap_ids)
-	do
-		do break end
+	for i_weap_id, weap_id in ipairs(weap_ids) do
 		if default_weapon_id == weap_id then
 			return tweak_data.character.weap_unit_names[i_weap_id]
 		end
-
 	end
-
 end
 
 function CopBase:visibility_state()
@@ -255,32 +235,26 @@ function CopBase:set_visibility_state(stage)
 		state = true
 		stage = 1
 	end
-
 	if self._lod_stage == stage then
 		return
 	end
-
 	local inventory = self._unit:inventory()
 	local weapon = inventory and inventory.get_weapon and inventory:get_weapon()
 	if weapon then
 		weapon:base():set_flashlight_light_lod_enabled(stage ~= 2 and not not stage)
 	end
-
 	if self._visibility_state ~= state then
 		local unit = self._unit
 		if inventory then
 			inventory:set_visibility_state(state)
 		end
-
 		unit:set_visible(state)
 		if state or self._unit:anim_data().can_freeze then
 			unit:set_animatable_enabled(ids_lod, state)
 			unit:set_animatable_enabled(ids_ik_aim, state)
 		end
-
 		self._visibility_state = state
 	end
-
 	if state then
 		self:set_anim_lod(stage)
 		self._unit:movement():enable_update(true)
@@ -289,9 +263,7 @@ function CopBase:set_visibility_state(stage)
 		elseif self._lod_stage == 1 then
 			self._unit:set_animatable_enabled(ids_lod1, false)
 		end
-
 	end
-
 	self._lod_stage = stage
 	self:chk_freeze_anims()
 end
@@ -311,13 +283,11 @@ function CopBase:chk_freeze_anims()
 			self._unit:set_animations_enabled(false)
 			self._ext_movement:on_anim_freeze(true)
 		end
-
 	elseif self._anims_frozen then
 		self._anims_frozen = nil
 		self._unit:set_animations_enabled(true)
 		self._ext_movement:on_anim_freeze(false)
 	end
-
 end
 
 function CopBase:anim_act_clbk(unit, anim_act, send_to_action)
@@ -326,7 +296,6 @@ function CopBase:anim_act_clbk(unit, anim_act, send_to_action)
 	elseif unit:unit_data().mission_element then
 		unit:unit_data().mission_element:event(anim_act, unit)
 	end
-
 end
 
 function CopBase:save(data)
@@ -335,7 +304,6 @@ function CopBase:save(data)
 	elseif self._unit:interaction() and self._unit:interaction().tweak_data == "hostage_convert" then
 		data.is_hostage_convert = true
 	end
-
 end
 
 function CopBase:load(data)
@@ -344,7 +312,6 @@ function CopBase:load(data)
 	elseif data.is_hostage_convert then
 		self._unit:interaction():set_tweak_data("hostage_convert")
 	end
-
 end
 
 function CopBase:swap_material_config(material_applied_clbk)
@@ -355,23 +322,19 @@ function CopBase:swap_material_config(material_applied_clbk)
 		if not material_applied_clbk then
 			self:on_material_applied()
 		end
-
 	else
 		print("[CopBase:swap_material_config] fail", self._unit:material_config(), self._unit)
 		Application:stack_dump()
 	end
-
 end
 
 function CopBase:on_material_applied(material_applied_clbk)
 	if self._unit:interaction() then
 		self._unit:interaction():refresh_material()
 	end
-
 	if material_applied_clbk then
 		material_applied_clbk()
 	end
-
 end
 
 function CopBase:is_in_original_material()
@@ -382,7 +345,6 @@ function CopBase:set_material_state(original)
 	if original and not self._is_in_original_material or not original and self._is_in_original_material then
 		self:swap_material_config()
 	end
-
 end
 
 function CopBase:char_tweak()

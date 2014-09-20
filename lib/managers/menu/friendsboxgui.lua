@@ -24,7 +24,6 @@ function FriendsBoxGui:_create_friend_action_gui_by_user(user_data)
 	if self._friend_action_gui then
 		self._friend_action_gui:close()
 	end
-
 	local user = user_data.user
 	local offline = user_data.main_state == "offline"
 	local data = {
@@ -38,14 +37,12 @@ function FriendsBoxGui:_create_friend_action_gui_by_user(user_data)
 		join_game.id_name = "join_game"
 		table.insert(data.button_list, join_game)
 	end
-
 	if not offline and managers.network.matchmake.lobby_handler and not user_lobby_id then
 		local invite = {}
 		invite.text = "Invite"
 		invite.id_name = "invite"
 		table.insert(data.button_list, invite)
 	end
-
 	local chat_button = {}
 	chat_button.text = "Message"
 	chat_button.id_name = "message"
@@ -69,7 +66,6 @@ function FriendsBoxGui:_create_friend_action_gui_by_user(user_data)
 		view_character_button.id_name = "view_character"
 		table.insert(data.button_list, view_character_button)
 	end
-
 	data.focus_button = 1
 	local h = 78 + #data.button_list * 24
 	self._friend_action_gui = TextBoxGui:new(self._ws, nil, nil, data, {
@@ -88,150 +84,119 @@ function FriendsBoxGui:set_layer(layer)
 	if self._friend_action_gui then
 		self._friend_action_gui:set_layer(layer + 20)
 	end
-
 end
 
 function FriendsBoxGui:update_friends()
 	if not Steam:logged_on() then
 		return
 	end
-
 	local new_users = {}
 	local friends = self._type == "recent" and Steam:coplay_friends() or Steam:friends() or {}
-	do
-		local (for generator), (for state), (for control) = ipairs(friends)
-		do
-			do break end
-			local main_state, sub_state
-			local state = user:state()
-			local rich_presence_status = user:rich_presence("status")
-			local rich_presence_level = user:rich_presence("level")
-			local payday1 = rich_presence_level == ""
-			local playing_this = user:playing_this()
-			if playing_this then
-				main_state = "ingame"
-				sub_state = state .. (payday1 and " - PAYDAY 1" or "")
-			elseif state == "online" or state == "away" then
-				main_state = "online"
-				sub_state = state
-			else
-				main_state = state
-				sub_state = state
-			end
-
-			if user:lobby() then
-				local numbers = managers.network.matchmake:_lobby_to_numbers(user:lobby())
-				if #numbers > 0 then
-					local level_id = tweak_data.levels:get_level_name_from_index(numbers[1])
-					sub_state = managers.localization:text(tweak_data.levels[level_id] and tweak_data.levels[level_id].name_id or "SECRET LEVEL")
-					sub_state = sub_state .. (payday1 and " - PAYDAY 1" or "")
-				end
-
-			elseif rich_presence_status == "" then
-				if main_state == "ingame" then
-				elseif main_state == "offline" then
-				end
-
-			else
-				sub_state = rich_presence_status
-			end
-
-			if not self._users[user:id()] then
-				self._users[user:id()] = {
-					user = user,
-					main_state = main_state,
-					sub_state = sub_state,
-					lobby = user:lobby(),
-					level = rich_presence_level,
-					payday1 = payday1
-				}
-				table.insert(new_users, user:id())
-			end
-
-			self._users[user:id()].user = user
-			self._users[user:id()].current_main_state = main_state
-			self._users[user:id()].current_sub_state = sub_state
-			self._users[user:id()].current_lobby = user:lobby()
-			self._users[user:id()].current_level = rich_presence_level
-			self._users[user:id()].payday1 = payday1
+	for _, user in ipairs(friends) do
+		local main_state, sub_state
+		local state = user:state()
+		local rich_presence_status = user:rich_presence("status")
+		local rich_presence_level = user:rich_presence("level")
+		local payday1 = rich_presence_level == ""
+		local playing_this = user:playing_this()
+		if playing_this then
+			main_state = "ingame"
+			sub_state = state .. (payday1 and " - PAYDAY 1" or "")
+		elseif state == "online" or state == "away" then
+			main_state = "online"
+			sub_state = state
+		else
+			main_state = state
+			sub_state = state
 		end
-
+		if user:lobby() then
+			local numbers = managers.network.matchmake:_lobby_to_numbers(user:lobby())
+			if #numbers > 0 then
+				local level_id = tweak_data.levels:get_level_name_from_index(numbers[1])
+				sub_state = managers.localization:text(tweak_data.levels[level_id] and tweak_data.levels[level_id].name_id or "SECRET LEVEL")
+				sub_state = sub_state .. (payday1 and " - PAYDAY 1" or "")
+			end
+		elseif rich_presence_status == "" then
+			if main_state == "ingame" then
+			elseif main_state == "offline" then
+			end
+		else
+			sub_state = rich_presence_status
+		end
+		if not self._users[user:id()] then
+			self._users[user:id()] = {
+				user = user,
+				main_state = main_state,
+				sub_state = sub_state,
+				lobby = user:lobby(),
+				level = rich_presence_level,
+				payday1 = payday1
+			}
+			table.insert(new_users, user:id())
+		end
+		self._users[user:id()].user = user
+		self._users[user:id()].current_main_state = main_state
+		self._users[user:id()].current_sub_state = sub_state
+		self._users[user:id()].current_lobby = user:lobby()
+		self._users[user:id()].current_level = rich_presence_level
+		self._users[user:id()].payday1 = payday1
 	end
-
 	local friends_panel = self._scroll_panel:child("friends_panel")
 	local ingame_panel = friends_panel:child("ingame_panel")
 	local online_panel = friends_panel:child("online_panel")
 	local offline_panel = friends_panel:child("offline_panel")
-	do
-		local (for generator), (for state), (for control) = ipairs(new_users)
-		do
-			do break end
-			local user = self._users[user_id].user
-			local main_state = self._users[user_id].main_state
-			local sub_state = self._users[user_id].sub_state
-			local level = self._users[user_id].level
-			if main_state == "ingame" then
-				self:_create_user(ingame_panel, 0, user, "ingame", sub_state, level)
-			elseif main_state == "online" or main_state == "away" then
-				self:_create_user(online_panel, 0, user, "online", sub_state, level)
+	for _, user_id in ipairs(new_users) do
+		local user = self._users[user_id].user
+		local main_state = self._users[user_id].main_state
+		local sub_state = self._users[user_id].sub_state
+		local level = self._users[user_id].level
+		if main_state == "ingame" then
+			self:_create_user(ingame_panel, 0, user, "ingame", sub_state, level)
+		elseif main_state == "online" or main_state == "away" then
+			self:_create_user(online_panel, 0, user, "online", sub_state, level)
+		else
+			self:_create_user(offline_panel, 0, user, "offline", sub_state, level)
+		end
+	end
+	for _, user in pairs(self._users) do
+		if user.main_state ~= user.current_main_state then
+			if user.main_state == "online" then
+				online_panel:remove(online_panel:child(user.user:id()))
+			elseif user.main_state == "ingame" then
+				ingame_panel:remove(ingame_panel:child(user.user:id()))
 			else
-				self:_create_user(offline_panel, 0, user, "offline", sub_state, level)
+				offline_panel:remove(offline_panel:child(user.user:id()))
 			end
-
+			if user.current_main_state == "ingame" then
+				self:_create_user(ingame_panel, 0, user.user, "ingame", user.sub_state, user.level)
+			elseif user.current_main_state == "online" then
+				self:_create_user(online_panel, 0, user.user, "online", user.sub_state, user.level)
+			else
+				self:_create_user(offline_panel, 0, user.user, "offline", user.sub_state, user.level)
+			end
+			user.main_state = user.current_main_state
+		elseif user.sub_state ~= user.current_sub_state then
+			self:_update_sub_state(user)
+			user.sub_state = user.current_sub_state
 		end
-
-	end
-
-	do
-		local (for generator), (for state), (for control) = pairs(self._users)
-		do
-			do break end
-			if user.main_state ~= user.current_main_state then
-				if user.main_state == "online" then
-					online_panel:remove(online_panel:child(user.user:id()))
-				elseif user.main_state == "ingame" then
-					ingame_panel:remove(ingame_panel:child(user.user:id()))
-				else
-					offline_panel:remove(offline_panel:child(user.user:id()))
-				end
-
-				if user.current_main_state == "ingame" then
-					self:_create_user(ingame_panel, 0, user.user, "ingame", user.sub_state, user.level)
-				elseif user.current_main_state == "online" then
-					self:_create_user(online_panel, 0, user.user, "online", user.sub_state, user.level)
-				else
-					self:_create_user(offline_panel, 0, user.user, "offline", user.sub_state, user.level)
-				end
-
-				user.main_state = user.current_main_state
-			elseif user.sub_state ~= user.current_sub_state then
-				self:_update_sub_state(user)
-				user.sub_state = user.current_sub_state
-			end
-
-			if user.lobby ~= user.current_lobby then
-				local panel = self:_get_user_panel(user.user:id())
-				panel:child("lobby"):set_visible(user.current_lobby and true or false)
-				user.lobby = user.current_lobby
-			end
-
-			if user.level ~= user.current_level then
-				print("CHANGED LEVEL", user.level, user.current_level)
-				user.level = user.current_level
-				local panel = self:_get_user_panel(user.user:id())
-				local user_level = panel:child("user_level")
-				user_level:set_text(user.level)
-				local _, _, w, h = user_level:text_rect()
-				user_level:set_size(w, h)
-				user_level:set_right(math.floor(panel:w()))
-				user_level:set_center_y(math.round(panel:child("user_name"):center_y()))
-				user_level:set_visible(true)
-			end
-
+		if user.lobby ~= user.current_lobby then
+			local panel = self:_get_user_panel(user.user:id())
+			panel:child("lobby"):set_visible(user.current_lobby and true or false)
+			user.lobby = user.current_lobby
 		end
-
+		if user.level ~= user.current_level then
+			print("CHANGED LEVEL", user.level, user.current_level)
+			user.level = user.current_level
+			local panel = self:_get_user_panel(user.user:id())
+			local user_level = panel:child("user_level")
+			user_level:set_text(user.level)
+			local _, _, w, h = user_level:text_rect()
+			user_level:set_size(w, h)
+			user_level:set_right(math.floor(panel:w()))
+			user_level:set_center_y(math.round(panel:child("user_name"):center_y()))
+			user_level:set_visible(true)
+		end
 	end
-
 	self:_layout_friends_panel()
 end
 
@@ -245,7 +210,6 @@ function FriendsBoxGui:_update_sub_state(user_data)
 	else
 		panel = friends_panel:child("offline_panel")
 	end
-
 	local user_panel = panel:child(user_data.user:id())
 	local user_state = user_panel:child("user_state")
 	user_state:set_text(string.upper(user_data.current_sub_state))
@@ -282,16 +246,10 @@ end
 
 function FriendsBoxGui:_get_state_h(panel)
 	local h = 0
-	do
-		local (for generator), (for state), (for control) = ipairs(panel:children())
-		do
-			do break end
-			child:set_y(math.ceil(h))
-			h = h + child:h()
-		end
-
+	for _, child in ipairs(panel:children()) do
+		child:set_y(math.ceil(h))
+		h = h + child:h()
 	end
-
 	panel:set_h(h)
 	return h
 end
@@ -484,7 +442,6 @@ function FriendsBoxGui:mouse_pressed(button, x, y)
 				if self._friend_action_user:lobby() then
 					managers.network.matchmake:join_server_with_check(self._friend_action_user:lobby():id())
 				end
-
 			elseif focus_btn_id == "message" then
 				self._friend_action_user:open_overlay("chat")
 			elseif focus_btn_id == "view_profile" then
@@ -500,22 +457,17 @@ function FriendsBoxGui:mouse_pressed(button, x, y)
 				if managers.network.matchmake.lobby_handler then
 					self._friend_action_user:invite(managers.network.matchmake.lobby_handler:id())
 				end
-
 			end
-
 			self:_hide_friend_action_user()
 		end
-
 		return true
 	end
-
 	if self:in_info_area_focus(x, y) and button == Idstring("0") then
 		local user_panel = self:_inside_user(x, y)
 		if user_panel then
 			if self._users[user_panel:name()].current_lobby then
 				managers.menu_component:criment_goto_lobby(self._users[user_panel:name()].lobby)
 			end
-
 			if self._friend_action_user ~= self._users[user_panel:name()].user then
 				self._friend_action_user = self._users[user_panel:name()].user
 				self:_create_friend_action_gui_by_user(self._users[user_panel:name()])
@@ -524,21 +476,16 @@ function FriendsBoxGui:mouse_pressed(button, x, y)
 				if x + self._friend_action_gui:w() > self:x() + self:w() - 20 then
 					x = self:x() + self:w() - 20 - self._friend_action_gui:w()
 				end
-
 				if y + self._friend_action_gui:h() > self:y() + self:h() then
 					y = self:y() + self:h() - self._friend_action_gui:h()
 				end
-
 				self._friend_action_gui:set_position(x, y)
 			else
 				self:_hide_friend_action_user()
 			end
-
 			return true
 		end
-
 	end
-
 	self:_hide_friend_action_user()
 end
 
@@ -547,7 +494,6 @@ function FriendsBoxGui:_hide_friend_action_user()
 	if self._friend_action_gui then
 		self._friend_action_gui:set_visible(false)
 	end
-
 end
 
 function FriendsBoxGui:_inside_user(x, y)
@@ -555,42 +501,21 @@ function FriendsBoxGui:_inside_user(x, y)
 	local ingame_panel = friends_panel:child("ingame_panel")
 	local online_panel = friends_panel:child("online_panel")
 	local offline_panel = friends_panel:child("offline_panel")
-	do
-		local (for generator), (for state), (for control) = ipairs(ingame_panel:children())
-		do
-			do break end
-			if user_panel:inside(x, y) then
-				return user_panel
-			end
-
+	for _, user_panel in ipairs(ingame_panel:children()) do
+		if user_panel:inside(x, y) then
+			return user_panel
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(online_panel:children())
-		do
-			do break end
-			if user_panel:inside(x, y) then
-				return user_panel
-			end
-
+	for _, user_panel in ipairs(online_panel:children()) do
+		if user_panel:inside(x, y) then
+			return user_panel
 		end
-
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(offline_panel:children())
-		do
-			do break end
-			if user_panel:inside(x, y) then
-				return user_panel
-			end
-
+	for _, user_panel in ipairs(offline_panel:children()) do
+		if user_panel:inside(x, y) then
+			return user_panel
 		end
-
 	end
-
 	return nil
 end
 
@@ -607,7 +532,6 @@ function FriendsBoxGui:mouse_moved(x, y)
 		self._friend_action_gui:check_focus_button(x, y)
 		return
 	end
-
 	local friends_panel = self._scroll_panel:child("friends_panel")
 	self:_set_user_panels_state(x, y, friends_panel:child("ingame_panel"), self._ingame_color)
 	self:_set_user_panels_state(x, y, friends_panel:child("online_panel"), self._online_color)
@@ -615,15 +539,12 @@ function FriendsBoxGui:mouse_moved(x, y)
 end
 
 function FriendsBoxGui:_set_user_panels_state(x, y, panel, color)
-	local (for generator), (for state), (for control) = ipairs(panel:children())
-	do
-		do break end
+	for _, user_panel in ipairs(panel:children()) do
 		local inside = user_panel:inside(x, y)
 		user_panel:child("arrow"):set_visible(inside)
 		user_panel:child("user_name"):set_color(inside and Color.white or color)
 		user_panel:child("user_state"):set_color(inside and Color.white or color)
 	end
-
 end
 
 function FriendsBoxGui:_check_scroll_indicator_states()
@@ -636,13 +557,10 @@ function FriendsBoxGui:set_size(x, y)
 	friends_panel:set_w(self._scroll_panel:w())
 	local f = function(friends_panel, panel)
 		panel:set_w(friends_panel:w())
-		local (for generator), (for state), (for control) = ipairs(panel:children())
-		do
-			do break end
+		for _, user_panel in ipairs(panel:children()) do
 			user_panel:set_w(panel:w())
 			user_panel:child("lobby"):set_right(user_panel:w())
 		end
-
 	end
 
 	f(friends_panel, friends_panel:child("ingame_panel"))
@@ -654,7 +572,6 @@ function FriendsBoxGui:set_visible(visible)
 	if not visible then
 		self:_hide_friend_action_user()
 	end
-
 	FriendsBoxGui.super.set_visible(self, visible)
 end
 
@@ -664,6 +581,5 @@ function FriendsBoxGui:close()
 	if self._friend_action_gui then
 		self._friend_action_gui:close()
 	end
-
 end
 

@@ -16,9 +16,7 @@ end
 
 function CoreOperatorUnitElement:draw_links(t, dt, selected_unit, all_units)
 	CoreOperatorUnitElement.super.draw_links(self, t, dt, selected_unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		local unit = all_units[id]
 		if not alive(unit) then
 			table.delete(self._hed.elements, id)
@@ -33,11 +31,8 @@ function CoreOperatorUnitElement:draw_links(t, dt, selected_unit, all_units)
 					b = 0.25
 				})
 			end
-
 		end
-
 	end
-
 end
 
 function CoreOperatorUnitElement:update_editing()
@@ -52,21 +47,15 @@ function CoreOperatorUnitElement:add_element()
 		else
 			table.insert(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function CoreOperatorUnitElement:remove_links(unit)
-	local (for generator), (for state), (for control) = ipairs(self._hed.elements)
-	do
-		do break end
+	for _, id in ipairs(self._hed.elements) do
 		if id == unit:unit_data().unit_id then
 			table.delete(self._hed.elements, id)
 		end
-
 	end
-
 end
 
 function CoreOperatorUnitElement:add_triggers(vc)

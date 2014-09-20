@@ -4,15 +4,12 @@ function HUDHitConfirm:init(hud)
 	if self._hud_panel:child("hit_confirm") then
 		self._hud_panel:remove(self._hud_panel:child("hit_confirm"))
 	end
-
 	if self._hud_panel:child("headshot_confirm") then
 		self._hud_panel:remove(self._hud_panel:child("headshot_confirm"))
 	end
-
 	if self._hud_panel:child("crit_confirm") then
 		self._hud_panel:remove(self._hud_panel:child("crit_confirm"))
 	end
-
 	self._hit_confirm = self._hud_panel:bitmap({
 		valign = "center",
 		halign = "center",
@@ -61,7 +58,6 @@ function HUDHitConfirm:_animate_show(hint_confirm, done_cb, seconds)
 		t = t - dt
 		hint_confirm:set_alpha(t / seconds)
 	end
-
 	hint_confirm:set_visible(false)
 	done_cb()
 end

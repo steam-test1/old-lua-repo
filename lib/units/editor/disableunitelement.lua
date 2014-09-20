@@ -8,42 +8,28 @@ end
 
 function DisableUnitUnitElement:layer_finished()
 	MissionElement.layer_finished(self)
-	local (for generator), (for state), (for control) = pairs(self._hed.unit_ids)
-	do
-		do break end
+	for _, id in pairs(self._hed.unit_ids) do
 		local unit = managers.worlddefinition:get_unit_on_load(id, callback(self, self, "load_unit"))
 		if unit then
 			self._units[unit:unit_data().unit_id] = unit
 		end
-
 	end
-
 end
 
 function DisableUnitUnitElement:load_unit(unit)
 	if unit then
 		self._units[unit:unit_data().unit_id] = unit
 	end
-
 end
 
 function DisableUnitUnitElement:update_selected()
-	do
-		local (for generator), (for state), (for control) = pairs(self._hed.unit_ids)
-		do
-			do break end
-			if not alive(self._units[id]) then
-				table.delete(self._hed.unit_ids, id)
-				self._units[id] = nil
-			end
-
+	for _, id in pairs(self._hed.unit_ids) do
+		if not alive(self._units[id]) then
+			table.delete(self._hed.unit_ids, id)
+			self._units[id] = nil
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._units)
-	do
-		do break end
+	for id, unit in pairs(self._units) do
 		if not alive(unit) then
 			table.delete(self._hed.unit_ids, id)
 			self._units[id] = nil
@@ -58,42 +44,27 @@ function DisableUnitUnitElement:update_selected()
 			self:_draw_link(params)
 			Application:draw(unit, 1, 0, 0)
 		end
-
 	end
-
 end
 
 function DisableUnitUnitElement:update_unselected(t, dt, selected_unit, all_units)
-	do
-		local (for generator), (for state), (for control) = pairs(self._hed.unit_ids)
-		do
-			do break end
-			if not alive(self._units[id]) then
-				table.delete(self._hed.unit_ids, id)
-				self._units[id] = nil
-			end
-
+	for _, id in pairs(self._hed.unit_ids) do
+		if not alive(self._units[id]) then
+			table.delete(self._hed.unit_ids, id)
+			self._units[id] = nil
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = pairs(self._units)
-	do
-		do break end
+	for id, unit in pairs(self._units) do
 		if not alive(unit) then
 			table.delete(self._hed.unit_ids, id)
 			self._units[id] = nil
 		end
-
 	end
-
 end
 
 function DisableUnitUnitElement:draw_links_unselected(...)
 	DisableUnitUnitElement.super.draw_links_unselected(self, ...)
-	local (for generator), (for state), (for control) = pairs(self._units)
-	do
-		do break end
+	for id, unit in pairs(self._units) do
 		local params = {
 			from_unit = self._unit,
 			to_unit = unit,
@@ -104,7 +75,6 @@ function DisableUnitUnitElement:draw_links_unselected(...)
 		self:_draw_link(params)
 		Application:draw(unit, 0.5, 0, 0)
 	end
-
 end
 
 function DisableUnitUnitElement:update_editing()
@@ -116,7 +86,6 @@ function DisableUnitUnitElement:update_editing()
 	if ray and ray.unit then
 		Application:draw(ray.unit, 0, 1, 0)
 	end
-
 end
 
 function DisableUnitUnitElement:select_unit()
@@ -132,9 +101,7 @@ function DisableUnitUnitElement:select_unit()
 		else
 			self:_add_unit(unit)
 		end
-
 	end
-
 end
 
 function DisableUnitUnitElement:_remove_unit(unit)
@@ -156,20 +123,15 @@ function DisableUnitUnitElement:add_unit_list_btn()
 		if self._units[unit:unit_data().unit_id] then
 			return false
 		end
-
 		return managers.editor:layer("Statics"):category_map()[unit:type():s()]
 	end
 
 	local dialog = SelectUnitByNameModal:new("Add Unit", f)
-	local (for generator), (for state), (for control) = ipairs(dialog:selected_units())
-	do
-		do break end
+	for _, unit in ipairs(dialog:selected_units()) do
 		if not self._units[unit:unit_data().unit_id] then
 			self:_add_unit(unit)
 		end
-
 	end
-
 end
 
 function DisableUnitUnitElement:remove_unit_list_btn()
@@ -178,15 +140,11 @@ function DisableUnitUnitElement:remove_unit_list_btn()
 	end
 
 	local dialog = SelectUnitByNameModal:new("Remove Unit", f)
-	local (for generator), (for state), (for control) = ipairs(dialog:selected_units())
-	do
-		do break end
+	for _, unit in ipairs(dialog:selected_units()) do
 		if self._units[unit:unit_data().unit_id] then
 			self:_remove_unit(unit)
 		end
-
 	end
-
 end
 
 function DisableUnitUnitElement:_build_panel(panel, panel_sizer)

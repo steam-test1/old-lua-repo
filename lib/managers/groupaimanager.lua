@@ -29,7 +29,6 @@ function GroupAIManager:set_state(name)
 		Application:error("[GroupAIManager:set_state] inexistent state name", name)
 		return
 	end
-
 	self._state_name = name
 end
 

@@ -3,7 +3,6 @@ function PrePlanningTweakData:get_custom_texture_rect(num)
 	if not num then
 		return
 	end
-
 	local x = math.floor(num / 10) - 1
 	local y = num % 10 - 1
 	return {
@@ -18,7 +17,6 @@ function PrePlanningTweakData:get_category_texture_rect(num)
 	if not num then
 		return
 	end
-
 	local x = math.floor(num / 10) - 1
 	local y = num % 10 - 1
 	return {
@@ -33,7 +31,6 @@ function PrePlanningTweakData:get_type_texture_rect(num)
 	if not num then
 		return
 	end
-
 	local x = math.floor(num / 10) - 1
 	local y = num % 10 - 1
 	return {

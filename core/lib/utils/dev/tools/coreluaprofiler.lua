@@ -11,18 +11,11 @@ function CoreLuaProfiler:init()
 	self:find_methods(_G, self._g_table)
 	self:on_goto_global()
 	table.sort(self._g_table, callback(self, self, "sort_by_name"))
-	do
-		local (for generator), (for state), (for control) = ipairs(self._g_table)
-		do
-			do break end
-			if not it._source then
-				self._main_frame_table._table_list_ctrl:append_item(it._name)
-			end
-
+	for _, it in ipairs(self._g_table) do
+		if not it._source then
+			self._main_frame_table._table_list_ctrl:append_item(it._name)
 		end
-
 	end
-
 	core_lua_profiler_reload = true
 	self._main_frame_table._table_list_ctrl:autosize_column(0)
 	self:check_news(true)
@@ -136,10 +129,8 @@ function CoreLuaProfiler:notebook_change()
 		else
 			self._main_notebook_page_selected = 1
 		end
-
 		self._flag_notebook_change = nil
 	end
-
 end
 
 function CoreLuaProfiler:notebook_selected()
@@ -157,39 +148,24 @@ function CoreLuaProfiler:check_news(new_only)
 	else
 		news = managers.news:get_old_news("lua_profiler", self._main_frame)
 	end
-
 	if news then
 		local str
-		do
-			local (for generator), (for state), (for control) = ipairs(news)
-			do
-				do break end
-				if not str then
-					str = n
-				else
-					str = str .. "\n" .. n
-				end
-
+		for _, n in ipairs(news) do
+			if not str then
+				str = n
+			else
+				str = str .. "\n" .. n
 			end
-
 		end
-
 		EWS:MessageDialog(self._main_frame, str, "New Features!", "OK,ICON_INFORMATION"):show_modal()
 	end
-
 end
 
 function CoreLuaProfiler:binary_to_string(str)
 	local out_str = ""
-	do
-		local (for generator), (for state), (for control) = string.gmatch(str, "[%d]+")
-		do
-			do break end
-			out_str = out_str .. string.char(tonumber(number))
-		end
-
+	for number in string.gmatch(str, "[%d]+") do
+		out_str = out_str .. string.char(tonumber(number))
 	end
-
 	return out_str
 end
 
@@ -200,7 +176,6 @@ function CoreLuaProfiler:dump_tree_expand(node)
 		assert(p)
 		self:dump_tree_expand(p)
 	end
-
 end
 
 function CoreLuaProfiler:on_dump_search()
@@ -210,27 +185,18 @@ function CoreLuaProfiler:on_dump_search()
 	local max = str ~= "" and len * 2 or len
 	local prog = EWS:ProgressDialog(self._main_frame, "Search", "Searching...", max, "PD_AUTO_HIDE,PD_SMOOTH,PD_CAN_SKIP")
 	self._dump_frame_table._tree_ctrl:freeze()
-	do
-		local (for generator), (for state), (for control) = pairs(self._dump_tree_id_table)
-		do
-			do break end
-			self._dump_frame_table._tree_ctrl:collapse(v._id)
-			self._dump_frame_table._tree_ctrl:set_item_bold(v._id, false)
-			if prog:skip() then
-				prog:update_bar(max)
-				return
-			else
-				prog:update_bar(i)
-			end
-
+	for i, v in pairs(self._dump_tree_id_table) do
+		self._dump_frame_table._tree_ctrl:collapse(v._id)
+		self._dump_frame_table._tree_ctrl:set_item_bold(v._id, false)
+		if prog:skip() then
+			prog:update_bar(max)
+			return
+		else
+			prog:update_bar(i)
 		end
-
 	end
-
 	if str ~= "" then
-		local (for generator), (for state), (for control) = pairs(self._dump_tree_id_table)
-		do
-			do break end
+		for i, v in pairs(self._dump_tree_id_table) do
 			if string.find(v._name, str) then
 				found = true
 				self:dump_tree_expand(v)
@@ -238,18 +204,14 @@ function CoreLuaProfiler:on_dump_search()
 			else
 				self._dump_frame_table._tree_ctrl:set_item_bold(v._id, false)
 			end
-
 			if prog:skip() then
 				prog:update_bar(max)
 				return
 			else
 				prog:update_bar(len + i)
 			end
-
 		end
-
 	end
-
 	self._dump_frame_table._tree_ctrl:thaw()
 end
 
@@ -261,7 +223,6 @@ function CoreLuaProfiler:on_open_dump()
 		Application:update_filesystem_index("/core/temp/dump.xml")
 		self:open_dump()
 	end
-
 end
 
 function CoreLuaProfiler:open_dump()
@@ -286,51 +247,39 @@ function CoreLuaProfiler:on_do_dump()
 			CoreLuaDump.core_lua_dump("/core/temp/dump.xml", var)
 			self:open_dump()
 		end
-
 	end
-
 end
 
 function CoreLuaProfiler:fill_dump_tree_ctrl(node, id)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for n in node:children() do
 		local name = n:name()
 		local sufix = n:parameter("name")
 		if sufix ~= "" then
 			name = name .. " - " .. self:binary_to_string(sufix)
 		end
-
 		local new_id = self._dump_frame_table._tree_ctrl:append(id, name)
 		self._dump_tree_id_table[new_id] = {
 			_id = new_id,
 			_name = n:name(),
 			_parent = id
 		}
-		do
-			local (for generator), (for state), (for control) = pairs(n:parameter_map())
-			do
-				do break end
-				local new_k_id = self._dump_frame_table._tree_ctrl:append(new_id, k)
-				self._dump_tree_id_table[new_k_id] = {
-					_id = new_k_id,
-					_name = k,
-					_parent = new_id
-				}
-				local bin_str = self:binary_to_string(v)
-				local new_v_id = self._dump_frame_table._tree_ctrl:append(new_k_id, self:binary_to_string(v))
-				self._dump_tree_id_table[new_v_id] = {
-					_id = new_v_id,
-					_name = bin_str,
-					_parent = new_k_id
-				}
-			end
-
+		for k, v in pairs(n:parameter_map()) do
+			local new_k_id = self._dump_frame_table._tree_ctrl:append(new_id, k)
+			self._dump_tree_id_table[new_k_id] = {
+				_id = new_k_id,
+				_name = k,
+				_parent = new_id
+			}
+			local bin_str = self:binary_to_string(v)
+			local new_v_id = self._dump_frame_table._tree_ctrl:append(new_k_id, self:binary_to_string(v))
+			self._dump_tree_id_table[new_v_id] = {
+				_id = new_v_id,
+				_name = bin_str,
+				_parent = new_k_id
+			}
 		end
-
 		self:fill_dump_tree_ctrl(n, new_id)
 	end
-
 end
 
 function CoreLuaProfiler:load_profilers()
@@ -342,65 +291,42 @@ function CoreLuaProfiler:load_profilers()
 		file:close()
 		self:remove_all_profilers()
 		self._main_frame_table._profiler_list_ctrl:delete_all_items()
-		do
-			local (for generator), (for state), (for control) = node:children()
-			do
-				do break end
-				self._class_name = class_node:parameter("name")
-				local c = rawget(_G, self._class_name)
-				if c then
-					self:find_methods(c, self._class_table)
-					local (for generator), (for state), (for control) = class_node:children()
-					do
-						do break end
-						local f = c[func_node:parameter("name")]
-						if f then
-							self:add_profiler(func_node:parameter("name"))
-						end
-
+		for class_node in node:children() do
+			self._class_name = class_node:parameter("name")
+			local c = rawget(_G, self._class_name)
+			if c then
+				self:find_methods(c, self._class_table)
+				for func_node in class_node:children() do
+					local f = c[func_node:parameter("name")]
+					if f then
+						self:add_profiler(func_node:parameter("name"))
 					end
-
 				end
-
 			end
-
 		end
-
 		self._class_name = prev_class_name
 		self._class_table = prev_class_table
 	end
-
 end
 
 function CoreLuaProfiler:get_child(node, name, key, value)
-	local (for generator), (for state), (for control) = node:children()
-	do
-		do break end
+	for n in node:children() do
 		if n:name() == name and n:parameter(key) == value then
 			return n
 		end
-
 	end
-
 end
 
 function CoreLuaProfiler:save_profilers()
 	local node = Node("lua_profiler")
-	do
-		local (for generator), (for state), (for control) = pairs(self._profilers)
-		do
-			do break end
-			local n = self:get_child(node, "class", "name", v._class_name)
-			if not n then
-				n = node:make_child("class")
-				n:set_parameter("name", v._class_name)
-			end
-
-			n:make_child("function"):set_parameter("name", v._function_name)
+	for k, v in pairs(self._profilers) do
+		local n = self:get_child(node, "class", "name", v._class_name)
+		if not n then
+			n = node:make_child("class")
+			n:set_parameter("name", v._class_name)
 		end
-
+		n:make_child("function"):set_parameter("name", v._function_name)
 	end
-
 	local file = SystemFS:open("/data/settings/lua_profiler.xml", "w")
 	file:write(node:to_xml())
 	file:close()
@@ -410,7 +336,6 @@ function CoreLuaProfiler:on_set_sample_rate()
 	if self._set_sample_rate_dialog:show_modal() then
 		self._frames_sample_steps = self._set_sample_rate_dialog:get_value()
 	end
-
 end
 
 function CoreLuaProfiler:on_goto_global()
@@ -427,45 +352,30 @@ end
 function CoreLuaProfiler:update_list()
 	table.sort(self._class_table, callback(self, self, "sort_by_name"))
 	self._main_frame_table._function_list_ctrl:delete_all_items()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._class_table)
-		do
-			do break end
-			if it._source then
-				local i = self._main_frame_table._function_list_ctrl:append_item(it._name)
-				self._main_frame_table._function_list_ctrl:set_item(i, 1, it._source)
-			end
-
+	for _, it in ipairs(self._class_table) do
+		if it._source then
+			local i = self._main_frame_table._function_list_ctrl:append_item(it._name)
+			self._main_frame_table._function_list_ctrl:set_item(i, 1, it._source)
 		end
-
 	end
-
 	self._main_frame_table._function_list_ctrl:autosize_column(0)
 	self._main_frame_table._function_list_ctrl:autosize_column(1)
 end
 
 function CoreLuaProfiler:find_table(name)
-	local (for generator), (for state), (for control) = ipairs(self._g_table)
-	do
-		do break end
+	for _, it in ipairs(self._g_table) do
 		if not it._source and it._name == name then
 			return it
 		end
-
 	end
-
 end
 
 function CoreLuaProfiler:find_function(name)
-	local (for generator), (for state), (for control) = ipairs(self._class_table)
-	do
-		do break end
+	for _, it in ipairs(self._class_table) do
 		if it._source and it._name == name then
 			return it
 		end
-
 	end
-
 end
 
 function CoreLuaProfiler:set_position(newpos)
@@ -483,45 +393,26 @@ function CoreLuaProfiler:on_select_profiler()
 		return b < a
 	end
 )
-	do
-		local (for generator), (for state), (for control) = ipairs(selected_idices)
-		do
-			do break end
-			table.insert(sources, self._main_frame_table._profiler_list_ctrl:get_item(selected_index, 1))
-			self._main_frame_table._profiler_list_ctrl:delete_item(selected_index)
-		end
-
+	for _, selected_index in ipairs(selected_idices) do
+		table.insert(sources, self._main_frame_table._profiler_list_ctrl:get_item(selected_index, 1))
+		self._main_frame_table._profiler_list_ctrl:delete_item(selected_index)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(sources)
-		do
-			do break end
-			if self._profilers[source] then
-				local f = self._profilers[source]._old_func
-				rawget(_G, self._profilers[source]._class_name)[self._profilers[source]._function_name] = f
-				self._profilers[source] = nil
-				Application:console_command("profiler remove " .. source)
-			end
-
+	for _, source in ipairs(sources) do
+		if self._profilers[source] then
+			local f = self._profilers[source]._old_func
+			rawget(_G, self._profilers[source]._class_name)[self._profilers[source]._function_name] = f
+			self._profilers[source] = nil
+			Application:console_command("profiler remove " .. source)
 		end
-
 	end
-
 	self:save_profilers()
 end
 
 function CoreLuaProfiler:remove_all_profilers()
-	do
-		local (for generator), (for state), (for control) = pairs(self._profilers)
-		do
-			do break end
-			rawget(_G, v._class_name)[v._function_name] = v._old_func
-			Application:console_command("profiler remove " .. k)
-		end
-
+	for k, v in pairs(self._profilers) do
+		rawget(_G, v._class_name)[v._function_name] = v._old_func
+		Application:console_command("profiler remove " .. k)
 	end
-
 	self._profilers = {}
 end
 
@@ -550,21 +441,13 @@ function CoreLuaProfiler:add_profiler(name)
 			self._main_frame_table._profiler_list_ctrl:autosize_column(0)
 			Application:console_command("profiler add " .. func_table._source)
 		end
-
 	end
-
 end
 
 function CoreLuaProfiler:on_select_function()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._main_frame_table._function_list_ctrl:selected_items())
-		do
-			do break end
-			self:add_profiler(self._main_frame_table._function_list_ctrl:get_item(selected_index, 0))
-		end
-
+	for _, selected_index in ipairs(self._main_frame_table._function_list_ctrl:selected_items()) do
+		self:add_profiler(self._main_frame_table._function_list_ctrl:get_item(selected_index, 0))
 	end
-
 	self:save_profilers()
 end
 
@@ -581,7 +464,6 @@ function CoreLuaProfiler:destroy()
 		self._main_frame:destroy()
 		self._main_frame = nil
 	end
-
 end
 
 function CoreLuaProfiler:close()
@@ -592,27 +474,20 @@ end
 function CoreLuaProfiler:reset_profilers()
 	if self._frames_since_profilers_reset >= self._frames_sample_steps then
 		self._frames_since_profilers_reset = 1
-		local (for generator), (for state), (for control) = pairs(self._profilers)
-		do
-			do break end
+		for k, v in pairs(self._profilers) do
 			v._calls = 0
 			v._time = 0
 		end
-
 	else
 		self._frames_since_profilers_reset = self._frames_since_profilers_reset + 1
 	end
-
 end
 
 function CoreLuaProfiler:update_profilers()
-	local (for generator), (for state), (for control) = pairs(self._profilers)
-	do
-		do break end
+	for k, v in pairs(self._profilers) do
 		v._calls = v._calls + Profiler:counter_calls(k)
 		v._time = v._time + Profiler:counter_time(k)
 	end
-
 end
 
 function CoreLuaProfiler:roundup(value)
@@ -622,13 +497,10 @@ function CoreLuaProfiler:roundup(value)
 	else
 		return f
 	end
-
 end
 
 function CoreLuaProfiler:update_profiler_list()
-	local (for generator), (for state), (for control) = pairs(self._profilers)
-	do
-		do break end
+	for k, v in pairs(self._profilers) do
 		local calls = v._calls / self._frames_sample_steps
 		local t = v._time / self._frames_sample_steps
 		local time = t / math.clamp(calls, 1, 1000000) * 1000
@@ -640,17 +512,14 @@ function CoreLuaProfiler:update_profiler_list()
 			if not (i < self._main_frame_table._profiler_list_ctrl:item_count()) or self._main_frame_table._profiler_list_ctrl:get_item(i, 1) == k then
 				break
 			end
-
 			i = i + 1
 		end
-
 		self._main_frame_table._profiler_list_ctrl:set_item(i, 2, self:roundup(calls))
 		self._main_frame_table._profiler_list_ctrl:set_item(i, 3, string.format("%.2f", time) .. " ms")
 		self._main_frame_table._profiler_list_ctrl:set_item(i, 4, string.format("%.2f", cost) .. " %")
 		self._main_frame_table._profiler_list_ctrl:set_item(i, 5, string.format("%.2f", total_time) .. " ms")
 		self._main_frame_table._profiler_list_ctrl:set_item(i, 6, string.format("%.2f", total_cost) .. " %")
 	end
-
 end
 
 function CoreLuaProfiler:update_mem()
@@ -666,7 +535,6 @@ function CoreLuaProfiler:update(t, dt)
 			core_lua_profiler_reload = false
 			self:load_profilers()
 		end
-
 		self:update_profilers()
 		if self._frames_sample_steps > 1 or not self._last_update or t - self._last_update > 0.5 then
 			self._last_update = t
@@ -674,18 +542,13 @@ function CoreLuaProfiler:update(t, dt)
 				self:update_profiler_list()
 				self:update_mem()
 			end
-
 		end
-
 		self:reset_profilers()
 	end
-
 end
 
 function CoreLuaProfiler:find_methods(in_table, out_table)
-	local (for generator), (for state), (for control) = pairs(in_table)
-	do
-		do break end
+	for k, v in pairs(in_table) do
 		if type(v) == "function" then
 			local info = debug.getinfo(v, "S")
 			if info.what == "Lua" then
@@ -695,16 +558,13 @@ function CoreLuaProfiler:find_methods(in_table, out_table)
 				info_table._source = info.source .. ":" .. info.linedefined
 				table.insert(out_table, info_table)
 			end
-
 		elseif type(v) == "table" and v.type_name ~= k then
 			local info_table = {}
 			info_table._name = k
 			info_table._table = v
 			table.insert(out_table, info_table)
 		end
-
 	end
-
 end
 
 function CoreLuaProfiler:on_tree_ctrl_change()
@@ -716,78 +576,51 @@ function CoreLuaProfiler:on_update_resources()
 	local root_id = self._resources_frame_table._tree_ctrl:append_root("World")
 	local mem_report = {}
 	local units = World:find_units_quick("all")
-	do
-		local (for generator), (for state), (for control) = ipairs(units)
-		do
-			do break end
-			if not mem_report[unit:name()] then
-				mem_report[unit:name()] = {_num = 1, _unit = unit}
-			else
-				local prev = mem_report[unit:name()]
-				prev._num = prev._num + 1
-			end
-
+	for _, unit in ipairs(units) do
+		if not mem_report[unit:name()] then
+			mem_report[unit:name()] = {_num = 1, _unit = unit}
+		else
+			local prev = mem_report[unit:name()]
+			prev._num = prev._num + 1
 		end
-
 	end
-
 	self._unit_report = {}
-	do
-		local (for generator), (for state), (for control) = pairs(mem_report)
-		do
-			do break end
-			table.insert(self._unit_report, {
-				_name = k,
-				_used = v._unit:geometry_memory_use(),
-				_unit = v._unit,
-				_extensions = v._unit:extensions(),
-				_textures = v._unit:used_texture_names()
-			})
-		end
-
+	for k, v in pairs(mem_report) do
+		table.insert(self._unit_report, {
+			_name = k,
+			_used = v._unit:geometry_memory_use(),
+			_unit = v._unit,
+			_extensions = v._unit:extensions(),
+			_textures = v._unit:used_texture_names()
+		})
 	end
-
 	table.sort(self._unit_report, self._resource_sort_func)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._unit_report)
-		do
-			do break end
-			self._unit_report._unit_id = self._resources_frame_table._tree_ctrl:append(root_id, v._name)
-			self._resources_frame_table._tree_ctrl:set_item_bold(self._unit_report._unit_id, true)
-			self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Author: " .. tostring(v._unit:author()))
-			self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Enabled: " .. tostring(v._unit:enabled()))
-			self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Visible: " .. tostring(v._unit:visible()))
-			self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Slot: " .. tostring(v._unit:slot()))
-			self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Num Bodies: " .. tostring(v._unit:num_bodies()))
-			self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Diesel: " .. v._unit:diesel_filename())
-			self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Material Config: " .. v._unit:material_config())
-			self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Geometry Mem: " .. tostring(math.round(v._used / 1024)) .. "Kb")
-			if #v._textures > 0 then
-				self._unit_report._textures_id = self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Used Textures")
-				self._resources_frame_table._tree_ctrl:set_item_bold(self._unit_report._textures_id, true)
-				local (for generator), (for state), (for control) = ipairs(v._textures)
-				do
-					do break end
-					self._resources_frame_table._tree_ctrl:append(self._unit_report._textures_id, texture_name)
-				end
-
+	for _, v in ipairs(self._unit_report) do
+		self._unit_report._unit_id = self._resources_frame_table._tree_ctrl:append(root_id, v._name)
+		self._resources_frame_table._tree_ctrl:set_item_bold(self._unit_report._unit_id, true)
+		self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Author: " .. tostring(v._unit:author()))
+		self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Enabled: " .. tostring(v._unit:enabled()))
+		self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Visible: " .. tostring(v._unit:visible()))
+		self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Slot: " .. tostring(v._unit:slot()))
+		self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Num Bodies: " .. tostring(v._unit:num_bodies()))
+		self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Diesel: " .. v._unit:diesel_filename())
+		self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Material Config: " .. v._unit:material_config())
+		self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Geometry Mem: " .. tostring(math.round(v._used / 1024)) .. "Kb")
+		if #v._textures > 0 then
+			self._unit_report._textures_id = self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Used Textures")
+			self._resources_frame_table._tree_ctrl:set_item_bold(self._unit_report._textures_id, true)
+			for _, texture_name in ipairs(v._textures) do
+				self._resources_frame_table._tree_ctrl:append(self._unit_report._textures_id, texture_name)
 			end
-
-			if #v._extensions > 0 then
-				self._unit_report._extensions_id = self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Script Extensions")
-				self._resources_frame_table._tree_ctrl:set_item_bold(self._unit_report._extensions_id, true)
-				local (for generator), (for state), (for control) = ipairs(v._extensions)
-				do
-					do break end
-					self._resources_frame_table._tree_ctrl:append(self._unit_report._extensions_id, extension_name)
-				end
-
-			end
-
 		end
-
+		if #v._extensions > 0 then
+			self._unit_report._extensions_id = self._resources_frame_table._tree_ctrl:append(self._unit_report._unit_id, "Script Extensions")
+			self._resources_frame_table._tree_ctrl:set_item_bold(self._unit_report._extensions_id, true)
+			for _, extension_name in ipairs(v._extensions) do
+				self._resources_frame_table._tree_ctrl:append(self._unit_report._extensions_id, extension_name)
+			end
+		end
 	end
-
 	self._resources_frame_table._tree_ctrl:thaw()
 	self._resources_frame_table._tree_ctrl:refresh()
 end
@@ -821,9 +654,7 @@ function CoreLuaProfilerSampleRateDialog:show_modal()
 	while true do
 		if not self._done then
 		end
-
 	end
-
 	return self._return_val
 end
 

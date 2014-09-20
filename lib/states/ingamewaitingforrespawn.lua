@@ -35,14 +35,12 @@ function IngameWaitingForRespawnState:_clear_controller()
 		self._controller:destroy()
 		self._controller = nil
 	end
-
 end
 
 function IngameWaitingForRespawnState:set_controller_enabled(enabled)
 	if self._controller then
 		self._controller:set_enabled(enabled)
 	end
-
 end
 
 function IngameWaitingForRespawnState:_setup_camera()
@@ -86,15 +84,9 @@ end
 function IngameWaitingForRespawnState:_create_spectator_data()
 	local all_teammates = managers.groupai:state():all_char_criminals()
 	local teammate_list = {}
-	do
-		local (for generator), (for state), (for control) = pairs(all_teammates)
-		do
-			do break end
-			table.insert(teammate_list, u_key)
-		end
-
+	for u_key, u_data in pairs(all_teammates) do
+		table.insert(teammate_list, u_key)
 	end
-
 	self._spectator_data = {
 		teammate_records = all_teammates,
 		teammate_list = teammate_list,
@@ -106,7 +98,6 @@ function IngameWaitingForRespawnState:_begin_game_enter_transition()
 	if self._ready_to_spawn_t then
 		return
 	end
-
 	self._auto_respawn_t = nil
 	local overlay_effect_desc = tweak_data.overlay_effects.spectator
 	local fade_in_duration = overlay_effect_desc.fade_in
@@ -119,15 +110,9 @@ function IngameWaitingForRespawnState.request_player_spawn(peer_to_spawn)
 		managers.network:session():server_peer():send("request_spawn_member")
 	else
 		local possible_criminals = {}
-		do
-			local (for generator), (for state), (for control) = pairs(managers.groupai:state():all_player_criminals())
-			do
-				do break end
-				table.insert(possible_criminals, u_key)
-			end
-
+		for u_key, u_data in pairs(managers.groupai:state():all_player_criminals()) do
+			table.insert(possible_criminals, u_key)
 		end
-
 		local spawn_at = managers.groupai:state():all_player_criminals()[possible_criminals[math.random(1, #possible_criminals)]]
 		if spawn_at then
 			local spawn_pos = spawn_at.unit:position()
@@ -138,7 +123,6 @@ function IngameWaitingForRespawnState.request_player_spawn(peer_to_spawn)
 			if first_crim and first_crim.id == crim_name then
 				managers.trade:cancel_trade()
 			end
-
 			managers.trade:sync_set_trade_spawn(crim_name)
 			managers.network:session():send_to_peers_synched("set_trade_spawn", crim_name)
 			local sp_id = "IngameWaitingForRespawnState"
@@ -147,9 +131,7 @@ function IngameWaitingForRespawnState.request_player_spawn(peer_to_spawn)
 			managers.network:game():spawn_member_by_id(peer_id, sp_id, true)
 			managers.network:unregister_spawn_point(sp_id)
 		end
-
 	end
-
 end
 
 function IngameWaitingForRespawnState:update(t, dt)
@@ -157,13 +139,7 @@ function IngameWaitingForRespawnState:update(t, dt)
 		self._player_state_change_needed = nil
 		managers.player:set_player_state("standard")
 	end
-
-	if not self._stats_screen then
-		-- unhandled boolean indicator
-	else
-		local btn_stats_screen_press = true
-	end
-
+	local btn_stats_screen_press = not self._stats_screen and self._controller:get_input_pressed("stats_screen")
 	local btn_stats_screen_release = self._stats_screen and self._controller:get_input_released("stats_screen")
 	if btn_stats_screen_press then
 		self._stats_screen = true
@@ -172,7 +148,6 @@ function IngameWaitingForRespawnState:update(t, dt)
 		self._stats_screen = false
 		managers.hud:hide_stats_screen()
 	end
-
 	if self._auto_respawn_t then
 		local time = self._auto_respawn_t - t
 		managers.hud:set_custody_respawn_time(time)
@@ -180,11 +155,9 @@ function IngameWaitingForRespawnState:update(t, dt)
 			self._auto_respawn_t = nil
 			self:_begin_game_enter_transition()
 		end
-
 	elseif self._ready_to_spawn_t and t > self._ready_to_spawn_t then
 		IngameWaitingForRespawnState.request_player_spawn()
 	end
-
 	if self._respawn_delay then
 		self._respawn_delay = managers.trade:respawn_delay_by_name(managers.criminals:local_character_name())
 		if self._respawn_delay <= 0 then
@@ -194,14 +167,11 @@ function IngameWaitingForRespawnState:update(t, dt)
 		else
 			managers.hud:set_custody_trade_delay(self._respawn_delay)
 		end
-
 	end
-
 	if self._play_too_long_line_t and t > self._play_too_long_line_t and managers.groupai:state():bain_state() then
 		self._play_too_long_line_t = nil
 		managers.dialog:queue_dialog("Play_ban_h38x", {})
 	end
-
 	self:_upd_watch(t, dt)
 end
 
@@ -226,14 +196,12 @@ function IngameWaitingForRespawnState:_upd_watch(t, dt)
 		if managers.hud:visible(self.GUI_SPECTATOR_FULLSCREEN) then
 			managers.hud:hide(self.GUI_SPECTATOR_FULLSCREEN)
 		end
-
 		local watch_u_record = self._spectator_data.teammate_records[self._spectator_data.watch_u_key]
 		local watch_u_head = watch_u_record.unit:movement():get_object(Idstring("Head"))
 		if not watch_u_head then
 			self._next_player_cb()
 			return
 		end
-
 		mvec3_set(self._vec_dir, self._controller:get_input_axis("look"))
 		local controller_type = self._controller:get_default_controller_id()
 		local stick_input_x = mvec3_x(self._vec_dir)
@@ -242,7 +210,6 @@ function IngameWaitingForRespawnState:_upd_watch(t, dt)
 				stick_input_x = stick_input_x / (1.3 - 0.3 * (1 - math.abs(mvec3_y(self._vec_dir))))
 				stick_input_x = stick_input_x * dt * 180
 			end
-
 			mrot_set_axis_angle(self._rot, math_up, -0.5 * stick_input_x)
 			mvec3_rotate_with(self._fwd, self._rot)
 			mvec3_cross(self._vec_target, math_up, self._fwd)
@@ -255,14 +222,11 @@ function IngameWaitingForRespawnState:_upd_watch(t, dt)
 			elseif angle < 85 then
 				rot = 85 - angle
 			end
-
 			if rot ~= 0 then
 				mrot_set_axis_angle(self._rot, self._vec_target, rot)
 				mvec3_rotate_with(self._fwd, self._rot)
 			end
-
 		end
-
 		watch_u_head:m_position(self._vec_target)
 		mvec3_set(self._vec_eye, self._fwd)
 		mvec3_multiply(self._vec_eye, 150)
@@ -279,14 +243,12 @@ function IngameWaitingForRespawnState:_upd_watch(t, dt)
 			mvec3_subtract(self._vec_dir, self._vec_target)
 			dis_new = mvec3_normalize(self._vec_dir)
 		end
-
 		if self._dis_curr and dis_new > self._dis_curr then
 			local speed = math.max((dis_new - self._dis_curr) / 5, 1.5)
 			self._dis_curr = math.lerp(self._dis_curr, dis_new, speed * dt)
 		else
 			self._dis_curr = dis_new
 		end
-
 		mvec3_set(self._vec_eye, self._vec_dir)
 		mvec3_multiply(self._vec_eye, self._dis_curr)
 		mvec3_add(self._vec_eye, self._vec_target)
@@ -295,7 +257,6 @@ function IngameWaitingForRespawnState:_upd_watch(t, dt)
 	elseif not managers.hud:visible(self.GUI_SPECTATOR_FULLSCREEN) then
 		managers.hud:show(self.GUI_SPECTATOR_FULLSCREEN)
 	end
-
 end
 
 function IngameWaitingForRespawnState:at_enter()
@@ -324,11 +285,9 @@ function IngameWaitingForRespawnState:at_enter()
 	if not managers.hud:exists(self.GUI_SPECTATOR_FULLSCREEN) then
 		managers.hud:load_hud(self.GUI_SPECTATOR_FULLSCREEN, false, false, false, {})
 	end
-
 	if not managers.hud:exists(PlayerBase.PLAYER_CUSTODY_HUD) then
 		managers.hud:load_hud(self.GUI_SPECTATOR, false, true, true, {})
 	end
-
 	managers.hud:show(self.GUI_SPECTATOR)
 	managers.hud:show(PlayerBase.PLAYER_INFO_HUD)
 	managers.hud:show(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN)
@@ -341,11 +300,9 @@ function IngameWaitingForRespawnState:at_enter()
 	else
 		managers.hud:set_custody_timer_visibility(false)
 	end
-
 	if not managers.hud:exists(PlayerBase.PLAYER_HUD) then
 		managers.hud:load_hud(PlayerBase.PLAYER_HUD, false, false, true, {})
 	end
-
 	self:_create_spectator_data()
 	self._next_player_cb()
 	if Network:is_server() then
@@ -353,13 +310,11 @@ function IngameWaitingForRespawnState:at_enter()
 		local hostages_killed = managers.trade:hostages_killed_by_name(managers.criminals:local_character_name())
 		self:trade_death(respawn_delay, hostages_killed)
 	end
-
 	if Global.game_settings.single_player then
 		managers.hud:set_custody_negotiating_visible(false)
 		managers.hud:set_custody_trade_delay_visible(false)
 		managers.hud:set_custody_timer_visibility(false)
 	end
-
 end
 
 function IngameWaitingForRespawnState:at_exit()
@@ -370,7 +325,6 @@ function IngameWaitingForRespawnState:at_exit()
 	if managers.hud:visible(self.GUI_SPECTATOR_FULLSCREEN) then
 		managers.hud:hide(self.GUI_SPECTATOR_FULLSCREEN)
 	end
-
 	self:_clear_controller()
 	self:_clear_camera()
 	self:_clear_sound_listener()
@@ -393,54 +347,34 @@ function IngameWaitingForRespawnState:_refresh_teammate_list()
 				lost_teammate_at_i = i
 				self._spectator_data.watch_u_key = nil
 			end
-
 		end
-
 		i = i - 1
 	end
-
 	if #teammate_list ~= table.size(all_teammates) then
-		local (for generator), (for state), (for control) = pairs(all_teammates)
-		do
-			do break end
+		for u_key, u_data in pairs(all_teammates) do
 			local add = true
-			do
-				local (for generator), (for state), (for control) = ipairs(teammate_list)
-				do
-					do break end
-					if test_u_key == u_key then
-						add = false
-				end
-
+			for i_key, test_u_key in ipairs(teammate_list) do
+				if test_u_key == u_key then
+					add = false
 				else
 				end
-
 			end
-
 			if add then
 				table.insert(teammate_list, u_key)
 			end
-
 		end
-
 	end
-
 	if lost_teammate_at_i then
 		self._spectator_data.watch_u_key = teammate_list[math.clamp(lost_teammate_at_i, 1, #teammate_list)]
 	end
-
 end
 
 function IngameWaitingForRespawnState:_get_teammate_index_by_unit_key(u_key)
-	local (for generator), (for state), (for control) = ipairs(self._spectator_data.teammate_list)
-	do
-		do break end
+	for i_key, test_u_key in ipairs(self._spectator_data.teammate_list) do
 		if test_u_key == u_key then
 			return i_key
 		end
-
 	end
-
 end
 
 function IngameWaitingForRespawnState:cb_next_player()
@@ -449,14 +383,12 @@ function IngameWaitingForRespawnState:cb_next_player()
 	if not watch_u_key then
 		return
 	end
-
 	local i_watch = self:_get_teammate_index_by_unit_key(watch_u_key)
 	if i_watch == #self._spectator_data.teammate_list then
 		i_watch = 1
 	else
 		i_watch = i_watch + 1
 	end
-
 	watch_u_key = self._spectator_data.teammate_list[i_watch]
 	self._spectator_data.watch_u_key = watch_u_key
 	self:_upd_hud_watch_character_name()
@@ -469,14 +401,12 @@ function IngameWaitingForRespawnState:cb_prev_player()
 	if not watch_u_key then
 		return
 	end
-
 	local i_watch = self:_get_teammate_index_by_unit_key(watch_u_key)
 	if i_watch == 1 then
 		i_watch = #self._spectator_data.teammate_list
 	else
 		i_watch = i_watch - 1
 	end
-
 	watch_u_key = self._spectator_data.teammate_list[i_watch]
 	self._spectator_data.watch_u_key = watch_u_key
 	self:_upd_hud_watch_character_name()
@@ -490,7 +420,6 @@ function IngameWaitingForRespawnState:_upd_hud_watch_character_name()
 	else
 		new_text = ""
 	end
-
 	managers.hud:script(self.GUI_SPECTATOR).text_title:set_text(utf8.to_upper(new_text))
 end
 
@@ -504,7 +433,6 @@ function IngameWaitingForRespawnState:trade_death(respawn_delay, hostages_killed
 		managers.hud:set_custody_trade_delay(self._respawn_delay)
 		managers.hud:set_custody_negotiating_visible(true)
 	end
-
 	if not Global.game_settings.single_player and managers.groupai:state():bain_state() then
 		if managers.groupai:state():get_assault_mode() then
 			managers.dialog:queue_dialog("ban_h31x", {})
@@ -515,9 +443,7 @@ function IngameWaitingForRespawnState:trade_death(respawn_delay, hostages_killed
 		else
 			managers.dialog:queue_dialog("Play_ban_h34x", {})
 		end
-
 	end
-
 end
 
 function IngameWaitingForRespawnState:finish_trade()
@@ -527,15 +453,9 @@ end
 function IngameWaitingForRespawnState:begin_trade()
 	managers.hud:set_custody_can_be_trade_visible(true)
 	local crims = {}
-	do
-		local (for generator), (for state), (for control) = pairs(managers.groupai:state():all_char_criminals())
-		do
-			do break end
-			crims[k] = d
-		end
-
+	for k, d in pairs(managers.groupai:state():all_char_criminals()) do
+		crims[k] = d
 	end
-
 	if managers.groupai:state():bain_state() and next(crims) then
 		if table.size(crims) > 1 then
 			managers.dialog:queue_dialog("Play_ban_h36x", {})
@@ -544,9 +464,7 @@ function IngameWaitingForRespawnState:begin_trade()
 			local char_code = managers.criminals:character_static_data_by_unit(data.unit).ssuffix
 			managers.dialog:queue_dialog("Play_ban_h37" .. char_code, {})
 		end
-
 	end
-
 	self._play_too_long_line_t = Application:time() + 60
 end
 

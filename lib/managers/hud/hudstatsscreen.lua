@@ -400,9 +400,7 @@ function HUDStatsScreen:init()
 		if difficulty_stars > 0 then
 			risk_text:set_color(tweak_data.screen_colors.risk)
 		end
-
 	end
-
 	local day_payout = day_wrapper_panel:text({
 		layer = 0,
 		x = 0,
@@ -481,7 +479,6 @@ function HUDStatsScreen:init()
 		ghost_icon:set_color(is_whisper_mode and Color.white or tweak_data.screen_colors.important_1)
 		ghostable_text:set_visible(is_level_ghostable and is_whisper_mode)
 	end
-
 	local ext_inventory_panel = right_panel:panel({
 		layer = 1,
 		valign = {0.5, 0.5},
@@ -514,14 +511,10 @@ end
 
 function HUDStatsScreen:_rec_round_object(object)
 	if object.children then
-		local (for generator), (for state), (for control) = ipairs(object:children())
-		do
-			do break end
+		for i, d in ipairs(object:children()) do
 			self:_rec_round_object(d)
 		end
-
 	end
-
 	local x, y = object:position()
 	object:set_position(math.round(x), math.round(y))
 end
@@ -550,7 +543,6 @@ function HUDStatsScreen:show()
 			"whisper_mode"
 		}, callback(self, self, "on_whisper_mode_changed"))
 	end
-
 end
 
 function HUDStatsScreen:hide()
@@ -560,7 +552,6 @@ function HUDStatsScreen:hide()
 	if not managers.hud:exists(safe) then
 		return
 	end
-
 	managers.hud:hide(safe)
 	local left_panel = self._full_hud_panel:child("left_panel")
 	local right_panel = self._full_hud_panel:child("right_panel")
@@ -574,16 +565,13 @@ function HUDStatsScreen:hide()
 		managers.groupai:state():remove_listener(self._whisper_listener)
 		self._whisper_listener = nil
 	end
-
 end
 
 function HUDStatsScreen:_create_stats_screen_objectives(panel)
 	panel:clear()
 	local x, y = 0, 0
 	local panel_w = panel:w() - x
-	local (for generator), (for state), (for control) = pairs(managers.objectives:get_active_objectives())
-	do
-		do break end
+	for i, data in pairs(managers.objectives:get_active_objectives()) do
 		local obj_panel = panel:panel({
 			name = "obj_panel",
 			x = x,
@@ -622,7 +610,6 @@ function HUDStatsScreen:_create_stats_screen_objectives(panel)
 		obj_description:set_lefttop(obj_title:leftbottom())
 		y = math.ceil(y + obj_panel:h())
 	end
-
 end
 
 function HUDStatsScreen:_create_stats_screen_profile(profile_wrapper_panel)
@@ -729,9 +716,7 @@ function HUDStatsScreen:_create_stats_screen_profile(profile_wrapper_panel)
 			potential_level_up_text:set_center_y(math.round(exp_ring:center_y()) + 20)
 			potential_level_up_text:animate(callback(self, self, "_animate_text_pulse"), exp_gain_ring, exp_ring)
 		end
-
 	end
-
 end
 
 function HUDStatsScreen:on_whisper_mode_changed()
@@ -744,7 +729,6 @@ function HUDStatsScreen:on_whisper_mode_changed()
 		ghost_icon:set_color(tweak_data.screen_colors.important_1)
 		ghostable_text:set_visible(is_level_ghostable)
 	end
-
 end
 
 function HUDStatsScreen:on_ext_inventory_changed()
@@ -752,12 +736,10 @@ function HUDStatsScreen:on_ext_inventory_changed()
 	if not alive(right_panel) then
 		return
 	end
-
 	local ext_inventory_panel = right_panel:child("ext_inventory_panel")
 	if not alive(ext_inventory_panel) then
 		return
 	end
-
 	self:_create_stats_ext_inventory(ext_inventory_panel)
 end
 
@@ -773,70 +755,64 @@ function HUDStatsScreen:_create_stats_ext_inventory(ext_inventory_panel)
 		}
 	}
 	local y
-	do
-		local (for generator), (for state), (for control) = ipairs(equipment)
-		do
-			do break end
-			y = ext_inventory_panel:h() - eq_h * i - 2 * (i - 1)
-			local panel = ext_inventory_panel:panel({
-				name = "panel" .. i,
-				layer = 1,
-				w = eq_w,
-				h = eq_h,
-				x = ext_inventory_panel:w() - eq_w,
-				y = y
-			})
-			local icon, texture_rect = tweak_data.hud_icons:get_icon_data(eq.icon)
-			local image = panel:bitmap({
-				name = "image",
-				texture = icon,
-				texture_rect = texture_rect,
-				visible = true,
-				layer = 1,
-				color = Color.white,
-				w = panel:h(),
-				h = panel:h(),
-				x = -(panel:h() - panel:h()) / 2,
-				y = -(panel:h() - panel:h()) / 2
-			})
-			local amount = panel:text({
-				name = "amount",
-				visible = true,
-				text = tostring(13),
-				font = "fonts/font_medium_mf",
-				font_size = 22,
-				color = Color.white,
-				align = "right",
-				vertical = "center",
-				layer = 2,
-				x = -2,
-				y = 2,
-				w = panel:w(),
-				h = panel:h()
-			})
-			self:_set_amount_string(amount, eq.amount)
-			local text = ext_inventory_panel:text({
-				name = "text" .. i,
-				visible = true,
-				text = eq.text,
-				font = "fonts/font_medium_mf",
-				font_size = 22,
-				color = Color.white,
-				align = "right",
-				vertical = "center",
-				layer = 2,
-				x = -2,
-				y = 2,
-				w = panel:w(),
-				h = panel:h()
-			})
-			managers.hud:make_fine_text(text)
-			text:set_y(math.round(panel:center_y() - text:h() / 2) + 2)
-			text:set_right(math.round(panel:left() - 8))
-		end
-
+	for i, eq in ipairs(equipment) do
+		y = ext_inventory_panel:h() - eq_h * i - 2 * (i - 1)
+		local panel = ext_inventory_panel:panel({
+			name = "panel" .. i,
+			layer = 1,
+			w = eq_w,
+			h = eq_h,
+			x = ext_inventory_panel:w() - eq_w,
+			y = y
+		})
+		local icon, texture_rect = tweak_data.hud_icons:get_icon_data(eq.icon)
+		local image = panel:bitmap({
+			name = "image",
+			texture = icon,
+			texture_rect = texture_rect,
+			visible = true,
+			layer = 1,
+			color = Color.white,
+			w = panel:h(),
+			h = panel:h(),
+			x = -(panel:h() - panel:h()) / 2,
+			y = -(panel:h() - panel:h()) / 2
+		})
+		local amount = panel:text({
+			name = "amount",
+			visible = true,
+			text = tostring(13),
+			font = "fonts/font_medium_mf",
+			font_size = 22,
+			color = Color.white,
+			align = "right",
+			vertical = "center",
+			layer = 2,
+			x = -2,
+			y = 2,
+			w = panel:w(),
+			h = panel:h()
+		})
+		self:_set_amount_string(amount, eq.amount)
+		local text = ext_inventory_panel:text({
+			name = "text" .. i,
+			visible = true,
+			text = eq.text,
+			font = "fonts/font_medium_mf",
+			font_size = 22,
+			color = Color.white,
+			align = "right",
+			vertical = "center",
+			layer = 2,
+			x = -2,
+			y = 2,
+			w = panel:w(),
+			h = panel:h()
+		})
+		managers.hud:make_fine_text(text)
+		text:set_y(math.round(panel:center_y() - text:h() / 2) + 2)
+		text:set_right(math.round(panel:left() - 8))
 	end
-
 	local title = ext_inventory_panel:text({
 		name = "title",
 		visible = true,
@@ -881,7 +857,6 @@ function HUDStatsScreen:_animate_text_pulse(text, exp_gain_ring, exp_ring)
 		exp_ring:set_size(exp_gain_ring:size())
 		exp_ring:set_center(exp_gain_ring:center())
 	end
-
 end
 
 function HUDStatsScreen:_update_stats_screen_loot(loot_wrapper_panel)
@@ -947,13 +922,9 @@ function HUDStatsScreen:_update_stats_screen_loot(loot_wrapper_panel)
 					x = 0
 					y = 22
 				end
-
 			end
-
 		end
-
 	end
-
 	local bonus_amount = managers.loot:get_secured_bonus_bags_amount()
 	local bonus_vis = bonus_amount > 0 or secured_amount > 0
 	local bonus_bags_title = loot_wrapper_panel:child("bonus_bags_title")
@@ -987,9 +958,7 @@ function HUDStatsScreen:_update_stats_screen_loot(loot_wrapper_panel)
 				x = x
 			})
 		end
-
 	end
-
 	local mandatory_cash = managers.money:get_secured_mandatory_bags_money()
 	local mission_bags_payout = loot_wrapper_panel:child("mission_bags_payout")
 	mission_bags_payout:set_visible(mission_vis)
@@ -1023,7 +992,6 @@ function HUDStatsScreen:_update_stats_screen_day(right_panel)
 		right_panel:set_visible(false)
 		return
 	end
-
 	if has_stage_data then
 		local num_stages = self._current_job_chain and #self._current_job_chain or 0
 		local job_chain = managers.job:current_job_chain_data()
@@ -1058,9 +1026,7 @@ function HUDStatsScreen:_update_stats_screen_day(right_panel)
 			ghost_icon:set_color(is_whisper_mode and Color.white or tweak_data.screen_colors.important_1)
 			ghostable_text:set_visible(is_level_ghostable and is_whisper_mode)
 		end
-
 	end
-
 end
 
 function HUDStatsScreen:loot_value_updated()
@@ -1089,7 +1055,6 @@ function HUDStatsScreen:_animate_show_stats_left_panel(left_panel, right_panel, 
 		objectives_panel:set_alpha(1 - a)
 		chat_panel:set_alpha(a_half)
 	end
-
 	left_panel:set_x(0)
 	left_panel:set_alpha(1)
 	teammates_panel:set_alpha(0.5)
@@ -1124,7 +1089,6 @@ function HUDStatsScreen:_animate_hide_stats_left_panel(left_panel, right_panel, 
 		objectives_panel:set_alpha(1 - a)
 		chat_panel:set_alpha(a_half)
 	end
-
 	left_panel:set_x(-left_panel:w())
 	left_panel:set_alpha(0)
 	teammates_panel:set_alpha(1)

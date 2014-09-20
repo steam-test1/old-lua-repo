@@ -39,6 +39,5 @@ function PlayerAnimationData:anim_clbk_death_exit(unit)
 	if unit:inventory() then
 		unit:inventory():on_death_exit()
 	end
-
 end
 

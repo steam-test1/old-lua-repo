@@ -21,7 +21,6 @@ if TeamAIBrain._reload_clbks then
 else
 	TeamAIBrain._reload_clbks = {}
 end
-
 function TeamAIBrain:init(unit)
 	self._unit = unit
 	self._timer = TimerManager:game()
@@ -51,7 +50,6 @@ function TeamAIBrain:post_init()
 	if not self._current_logic then
 		self:set_init_logic("idle")
 	end
-
 	self:_setup_attention_handler()
 	self._alert_listen_key = "TeamAIBrain" .. tostring(self._unit:key())
 	local alert_listen_filter = managers.groupai:state():get_unit_type_filter("all_enemy")
@@ -68,7 +66,6 @@ function TeamAIBrain:set_spawn_ai(spawn_ai)
 	if managers.groupai:state():enemy_weapons_hot() then
 		self:clbk_heat()
 	end
-
 end
 
 function TeamAIBrain:clbk_damage(my_unit, damage_info)
@@ -107,7 +104,6 @@ function TeamAIBrain:set_active(state)
 	if not state then
 		self:set_objective()
 	end
-
 	self._unit:character_damage():disable()
 end
 
@@ -120,11 +116,9 @@ function TeamAIBrain:on_cool_state_changed(state)
 	if self._logic_data then
 		self._logic_data.cool = state
 	end
-
 	if not self._attention_handler then
 		return
 	end
-
 	local att_settings
 	if state then
 		att_settings = {
@@ -135,7 +129,6 @@ function TeamAIBrain:on_cool_state_changed(state)
 			"team_enemy_cbt"
 		}
 	end
-
 	PlayerMovement.set_attention_settings(self, att_settings, "team_AI")
 end
 

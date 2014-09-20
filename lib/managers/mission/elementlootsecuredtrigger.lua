@@ -13,14 +13,12 @@ function ElementLootSecuredTrigger:on_script_activated()
 	else
 		managers.loot:add_trigger(self._id, self._values.include_instant_cash and "total_amount" or "amount", self._values.amount, callback(self, self, "on_executed"))
 	end
-
 end
 
 function ElementLootSecuredTrigger:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	ElementLootSecuredTrigger.super.on_executed(self, instigator)
 end
 

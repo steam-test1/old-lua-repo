@@ -47,17 +47,14 @@ function Logic:_execute_action_queue()
 		if self._action_callback_map[action.action_name] then
 			self._action_callback_map[action.action_name](unpack(action.parameters))
 		end
-
 		table.remove(self._action_queue, 1)
 	end
-
 end
 
 function Logic:update(t, dt)
 	if self:selected_node() then
 		self:selected_node():update(t, dt)
 	end
-
 	self:_execute_action_queue()
 end
 
@@ -65,7 +62,6 @@ function Logic:select_node(node_name, queue, ...)
 	if self._accept_input or queue then
 		self:_queue_action("select_node", node_name, ...)
 	end
-
 end
 
 function Logic:_select_node(node_name, ...)
@@ -76,19 +72,16 @@ function Logic:_select_node(node_name, ...)
 		if selected_node then
 			selected_node:trigger_focus_changed(false)
 		end
-
 		node:trigger_focus_changed(true, ...)
 		if node:parameters().menu_components then
 			managers.menu_component:set_active_components(node:parameters().menu_components, node)
 		end
-
 		table.insert(self._node_stack, node)
 		self:_call_callback("renderer_show_node", node)
 		node:select_item()
 		self:_call_callback("renderer_select_item", node:selected_item())
 		self:_call_callback("menu_manager_select_node", node)
 	end
-
 end
 
 function Logic:refresh_node_stack(queue, ...)
@@ -96,25 +89,15 @@ function Logic:refresh_node_stack(queue, ...)
 end
 
 function Logic:_refresh_node_stack(...)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._node_stack)
-		do
-			do break end
-			if node:parameters().refresh then
-				local (for generator), (for state), (for control) = ipairs(node:parameters().refresh)
-				do
-					do break end
-					node = refresh_func(node, ...)
-				end
-
+	for i, node in ipairs(self._node_stack) do
+		if node:parameters().refresh then
+			for _, refresh_func in ipairs(node:parameters().refresh) do
+				node = refresh_func(node, ...)
 			end
-
-			local selected_item = node:selected_item()
-			node:select_item(selected_item and selected_item:name())
 		end
-
+		local selected_item = node:selected_item()
+		node:select_item(selected_item and selected_item:name())
 	end
-
 	self:_call_callback("renderer_refresh_node_stack")
 end
 
@@ -125,21 +108,16 @@ end
 function Logic:_refresh_node(node_name, ...)
 	local node = self:selected_node()
 	if node:parameters().refresh then
-		local (for generator), (for state), (for control) = ipairs(node:parameters().refresh)
-		do
-			do break end
+		for _, refresh_func in ipairs(node:parameters().refresh) do
 			node = refresh_func(node, ...)
 		end
-
 	end
-
 	if node then
 		self:_call_callback("renderer_refresh_node", node)
 		local selected_item = node:selected_item()
 		node:select_item(selected_item and selected_item:name())
 		self:_call_callback("renderer_select_item", node:selected_item())
 	end
-
 end
 
 function Logic:update_node(node_name, queue, ...)
@@ -150,25 +128,19 @@ function Logic:_update_node(node_name, ...)
 	local node = self:selected_node()
 	if node then
 		if node:parameters().update then
-			local (for generator), (for state), (for control) = ipairs(node:parameters().update)
-			do
-				do break end
+			for _, update_func in ipairs(node:parameters().update) do
 				node = update_func(node, ...)
 			end
-
 		end
-
 	else
 		Application:error("[CoreLogic:_update_node] Trying to update selected node, but none is selected!")
 	end
-
 end
 
 function Logic:navigate_back(queue, skip_nodes)
 	if self._accept_input or queue then
 		self:_queue_action("navigate_back", skip_nodes)
 	end
-
 end
 
 function Logic:_navigate_back(skip_nodes)
@@ -177,31 +149,24 @@ function Logic:_navigate_back(skip_nodes)
 		if node:trigger_back() then
 			return
 		end
-
 		node:trigger_focus_changed(false)
 	end
-
 	if type(skip_nodes) ~= "number" or not skip_nodes then
 		skip_nodes = 0
 	end
-
 	if #self._node_stack > 1 + skip_nodes then
 		for i = 1, 1 + skip_nodes do
 			table.remove(self._node_stack, #self._node_stack)
 			self:_call_callback("renderer_navigate_back")
 		end
-
 		node = self._node_stack[#self._node_stack]
 		if node then
 			node:trigger_focus_changed(true)
 			if node:parameters().menu_components then
 				managers.menu_component:set_active_components(node:parameters().menu_components, node)
 			end
-
 		end
-
 	end
-
 	self:_call_callback("menu_manager_select_node", node)
 end
 
@@ -211,10 +176,8 @@ function Logic:soft_open()
 		if node:parameters().menu_components then
 			managers.menu_component:set_active_components(node:parameters().menu_components, node)
 		end
-
 		self:_call_callback("menu_manager_select_node", node)
 	end
-
 end
 
 function Logic:selected_node()
@@ -229,14 +192,12 @@ function Logic:select_item(item_name, queue)
 	if self._accept_input or queue then
 		self:_queue_action("select_item", item_name)
 	end
-
 end
 
 function Logic:mouse_over_select_item(item_name, queue)
 	if self._accept_input or queue then
 		self:_queue_action("select_item", item_name, true)
 	end
-
 end
 
 function Logic:_select_item(item_name, mouse_over)
@@ -246,18 +207,15 @@ function Logic:_select_item(item_name, mouse_over)
 		if current_item then
 			self:_call_callback("renderer_deselect_item", current_item)
 		end
-
 		current_node:select_item(item_name)
 		self:_call_callback("renderer_select_item", current_node:selected_item(), mouse_over)
 	end
-
 end
 
 function Logic:trigger_item(queue, item)
 	if self._accept_input or queue then
 		self:_queue_action("trigger_item", item)
 	end
-
 end
 
 function Logic:_trigger_item(item)
@@ -266,7 +224,6 @@ function Logic:_trigger_item(item)
 		item:trigger()
 		self:_call_callback("renderer_trigger_item", item)
 	end
-
 end
 
 function Logic:selected_item()
@@ -275,7 +232,6 @@ function Logic:selected_item()
 	if node then
 		item = node:selected_item()
 	end
-
 	return item
 end
 
@@ -285,7 +241,6 @@ function Logic:get_item(name)
 	if node then
 		item = node:item(name)
 	end
-
 	return item
 end
 
@@ -294,7 +249,6 @@ function Logic:get_node(node_name, ...)
 	if node and not node.dirty_callback then
 		node.dirty_callback = callback(self, self, "node_item_dirty")
 	end
-
 	return node
 end
 
@@ -313,7 +267,6 @@ function Logic:_call_callback(id, ...)
 	else
 		Application:error("Logic:_call_callback: Callback " .. id .. " not found.")
 	end
-
 end
 
 function Logic:node_item_dirty(node, item)
@@ -332,9 +285,7 @@ function Logic:close(closing_menu)
 		if not closing_menu and node then
 			node:trigger_back()
 		end
-
 	end
-
 	self._node_stack = {}
 	self:_call_callback("menu_manager_select_node", false)
 end

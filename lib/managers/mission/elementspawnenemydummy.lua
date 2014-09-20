@@ -25,7 +25,6 @@ function ElementSpawnEnemyDummy:_finalize_values()
 		if not values[name_in] or values[name_in] == "none" then
 			values[name_in] = nil
 		end
-
 	end
 
 	local function _index_or_nil(table_in, name_in)
@@ -54,7 +53,6 @@ function ElementSpawnEnemyDummy:produce(params)
 	if not managers.groupai:state():is_AI_enabled() then
 		return
 	end
-
 	if params then
 		local unit = safe_spawn_unit(params.name, self:get_orientation())
 		unit:base():add_destroy_listener(self._unit_destroy_clbk_key, callback(self, self, "clbk_unit_destroyed"))
@@ -66,7 +64,6 @@ function ElementSpawnEnemyDummy:produce(params)
 		if self._values.force_pickup and self._values.force_pickup ~= "none" then
 			unit:character_damage():set_pickup(self._values.force_pickup)
 		end
-
 	else
 		local unit = safe_spawn_unit(self._enemy_name, self:get_orientation())
 		unit:base():add_destroy_listener(self._unit_destroy_clbk_key, callback(self, self, "clbk_unit_destroyed"))
@@ -81,51 +78,38 @@ function ElementSpawnEnemyDummy:produce(params)
 				stance = stance
 			}
 		end
-
 		local spawn_ai = {init_state = "idle", objective = objective}
 		unit:brain():set_spawn_ai(spawn_ai)
 		if self._values.participate_to_group_ai then
 			managers.groupai:state():assign_enemy_to_group_ai(unit)
 		end
-
 		if self._values.voice then
 			unit:sound():set_voice_prefix(self._values.voice)
 		end
-
 		table.insert(self._units, unit)
 		self:event("spawn", unit)
 		if self._values.force_pickup and self._values.force_pickup ~= "none" then
 			unit:character_damage():set_pickup(self._values.force_pickup)
 		end
-
 	end
-
 	return self._units[#self._units]
 end
 
 function ElementSpawnEnemyDummy:clbk_unit_destroyed(unit)
 	local u_key = unit:key()
-	local (for generator), (for state), (for control) = ipairs(self._units)
-	do
-		do break end
+	for i, owned_unit in ipairs(self._units) do
 		if owned_unit:key() == u_key then
 			table.remove(self._units, i)
 		end
-
 	end
-
 end
 
 function ElementSpawnEnemyDummy:event(name, unit)
 	if self._events[name] then
-		local (for generator), (for state), (for control) = ipairs(self._events[name])
-		do
-			do break end
+		for _, callback in ipairs(self._events[name]) do
 			callback(unit)
 		end
-
 	end
-
 end
 
 function ElementSpawnEnemyDummy:add_event_callback(name, callback)
@@ -137,11 +121,9 @@ function ElementSpawnEnemyDummy:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	if not managers.groupai:state():is_AI_enabled() and not Application:editor() then
 		return
 	end
-
 	local unit = self:produce()
 	ElementSpawnEnemyDummy.super.on_executed(self, unit)
 end
@@ -156,7 +138,6 @@ function ElementSpawnEnemyDummy:_create_spawn_AI_parametric(stance, objective, s
 			followup_objective = followup_objective
 		}
 	end
-
 	return {
 		init_state = "idle",
 		stance = stance,
@@ -186,44 +167,31 @@ function ElementSpawnEnemyDummy._create_action_data(anim_name)
 			align_sync = true
 		}
 	end
-
 end
 
 function ElementSpawnEnemyDummy:unspawn_all_units()
-	local (for generator), (for state), (for control) = ipairs(self._units)
-	do
-		do break end
+	for _, unit in ipairs(self._units) do
 		if alive(unit) then
 			unit:brain():set_active(false)
 			unit:base():set_slot(unit, 0)
 		end
-
 	end
-
 end
 
 function ElementSpawnEnemyDummy:kill_all_units()
-	local (for generator), (for state), (for control) = ipairs(self._units)
-	do
-		do break end
+	for _, unit in ipairs(self._units) do
 		if alive(unit) then
 			unit:character_damage():damage_mission({damage = 1000})
 		end
-
 	end
-
 end
 
 function ElementSpawnEnemyDummy:execute_on_all_units(func)
-	local (for generator), (for state), (for control) = ipairs(self._units)
-	do
-		do break end
+	for _, unit in ipairs(self._units) do
 		if alive(unit) then
 			func(unit)
 		end
-
 	end
-
 end
 
 function ElementSpawnEnemyDummy:accessibility()

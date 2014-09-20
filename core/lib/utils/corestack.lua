@@ -13,7 +13,6 @@ function Stack:pop()
 	if self:is_empty() then
 		error("Stack is empty")
 	end
-
 	local value = self._table[self._last]
 	self._table[self._last] = nil
 	self._last = self._last - 1
@@ -24,7 +23,6 @@ function Stack:top()
 	if self:is_empty() then
 		error("Stack is empty")
 	end
-
 	return self._table[self._last]
 end
 

@@ -76,39 +76,25 @@ function CoreEditor:on_list_units()
 	local units = World:find_units_quick("all")
 	local amount = {}
 	local total = 0
-	do
-		local (for generator), (for state), (for control) = ipairs(units)
-		do
-			do break end
-			total = total + 1
-			local name = u:name():s()
-			if amount[name] then
-				amount[name] = amount[name] + 1
-			else
-				amount[name] = 1
-			end
-
+	for _, u in ipairs(units) do
+		total = total + 1
+		local name = u:name():s()
+		if amount[name] then
+			amount[name] = amount[name] + 1
+		else
+			amount[name] = 1
 		end
-
 	end
-
 	self:output("", true)
-	do
-		local (for generator), (for state), (for control) = pairs(amount)
-		do
-			do break end
-			local len = string.len(name)
-			local tabs = 6 - math.floor(len / 7)
-			local tab = ""
-			for j = 1, tabs do
-				tab = tab .. "\t"
-			end
-
-			self:output(name .. tab .. amount, true)
+	for name, amount in pairs(amount) do
+		local len = string.len(name)
+		local tabs = 6 - math.floor(len / 7)
+		local tab = ""
+		for j = 1, tabs do
+			tab = tab .. "\t"
 		end
-
+		self:output(name .. tab .. amount, true)
 	end
-
 	self:output("", true)
 	self:output("Total units: " .. total .. " Total Unique: " .. table.size(amount))
 end
@@ -117,6 +103,5 @@ function CoreEditor:on_open_world_folder()
 	if self._opendir then
 		os.execute("explorer " .. self._opendir)
 	end
-
 end
 

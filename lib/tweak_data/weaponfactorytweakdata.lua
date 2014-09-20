@@ -1,51 +1,37 @@
 local ids_unit = Idstring("unit")
 function preload_all()
-	local (for generator), (for state), (for control) = pairs(tweak_data.weapon.factory.parts)
-	do
-		do break end
+	for id, part in pairs(tweak_data.weapon.factory.parts) do
 		if part.third_unit then
 			local ids_unit_name = Idstring(part.third_unit)
 			managers.dyn_resource:load(ids_unit, ids_unit_name, "packages/dyn_resources", false)
 		else
 			print(id, "didn't have third")
 		end
-
 	end
-
 end
 
 function preload_all_units()
-	local (for generator), (for state), (for control) = pairs(tweak_data.weapon.factory)
-	do
-		do break end
+	for id, part in pairs(tweak_data.weapon.factory) do
 		if part.unit then
 			local ids_unit_name = Idstring(part.unit)
 			managers.dyn_resource:load(ids_unit, ids_unit_name, "packages/dyn_resources", false)
 		else
 			print(id, "didn't have unit")
 		end
-
 	end
-
 end
 
 function print_package_strings_unit()
-	local (for generator), (for state), (for control) = pairs(tweak_data.weapon.factory)
-	do
-		do break end
+	for id, part in pairs(tweak_data.weapon.factory) do
 		if part.unit then
 			print("<unit name=\"" .. part.unit .. "\"/>")
 		else
 		end
-
 	end
-
 end
 
 function print_package_strings_part_unit()
-	local (for generator), (for state), (for control) = pairs(tweak_data.weapon.factory.parts)
-	do
-		do break end
+	for id, part in pairs(tweak_data.weapon.factory.parts) do
 		if part.unit then
 			local f = SystemFS:open(id .. ".package", "w")
 			f:puts("<package>")
@@ -56,63 +42,44 @@ function print_package_strings_part_unit()
 			SystemFS:close(f)
 		else
 		end
-
 	end
-
 end
 
 function preload_all_first()
-	local (for generator), (for state), (for control) = pairs(tweak_data.weapon.factory.parts)
-	do
-		do break end
+	for id, part in pairs(tweak_data.weapon.factory.parts) do
 		if part.unit then
 			local ids_unit_name = Idstring(part.unit)
 			managers.dyn_resource:load(ids_unit, ids_unit_name, "packages/dyn_resources", false)
 		else
 			print(id, "didn't have unit")
 		end
-
 	end
-
 end
 
 function print_package_strings()
-	local (for generator), (for state), (for control) = pairs(tweak_data.weapon.factory.parts)
-	do
-		do break end
+	for id, part in pairs(tweak_data.weapon.factory.parts) do
 		if part.third_unit then
 			print("<unit name=\"" .. part.third_unit .. "\"/>")
 		else
 		end
-
 	end
-
 end
 
 function print_parts_without_texture()
 	Application:debug("print_parts_without_texture")
-	do
-		local (for generator), (for state), (for control) = pairs(tweak_data.weapon.factory.parts)
-		do
-			do break end
-			if part.pcs then
-				local guis_catalog = "guis/"
-				local bundle_folder = part.texture_bundle_folder
-				if bundle_folder then
-					guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
-				end
-
-				guis_catalog = guis_catalog .. "textures/pd2/blackmarket/icons/mods/"
-				if not DB:has(Idstring("texture"), guis_catalog .. id) then
-					print(guis_catalog .. id)
-				end
-
+	for id, part in pairs(tweak_data.weapon.factory.parts) do
+		if part.pcs then
+			local guis_catalog = "guis/"
+			local bundle_folder = part.texture_bundle_folder
+			if bundle_folder then
+				guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 			end
-
+			guis_catalog = guis_catalog .. "textures/pd2/blackmarket/icons/mods/"
+			if not DB:has(Idstring("texture"), guis_catalog .. id) then
+				print(guis_catalog .. id)
+			end
 		end
-
 	end
-
 	Application:debug("---------------------------")
 end
 
@@ -2086,102 +2053,65 @@ function WeaponFactoryTweakData:_init_content_unfinished()
 		"wpn_fps_upg_ns_pis_medium_gem",
 		"wpn_fps_upg_ns_pis_large_kac"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(unfinished_content)
-		do
-			do break end
-			local part = self.parts[id]
-			if part then
-				part.pc = nil
-				part.pcs = nil
-				part.texture_bundle_folder = "unfinished"
-				part.unit = string.gsub(part.unit, "payday2", "pd2_backlog")
-				part.third_unit = string.gsub(part.third_unit, "payday2", "pd2_backlog")
-			end
-
+	for i, id in ipairs(unfinished_content) do
+		local part = self.parts[id]
+		if part then
+			part.pc = nil
+			part.pcs = nil
+			part.texture_bundle_folder = "unfinished"
+			part.unit = string.gsub(part.unit, "payday2", "pd2_backlog")
+			part.third_unit = string.gsub(part.third_unit, "payday2", "pd2_backlog")
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = pairs(self)
-	do
-		do break end
+	for id, data in pairs(self) do
 		if data.uses_parts then
 			for i = #data.uses_parts, 1, -1 do
 				if table.contains(unfinished_content, data.uses_parts[i]) then
 					table.remove(data.uses_parts, i)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function WeaponFactoryTweakData:_cleanup_unfinished_content()
 end
 
 function WeaponFactoryTweakData:_cleanup_unfinished_parts()
-	do
-		local (for generator), (for state), (for control) = pairs(self)
-		do
-			do break end
-			if id ~= "parts" and data.uses_parts then
-				for i = #data.uses_parts, 1, -1 do
-					if not self.parts[data.uses_parts[i]] then
-						table.remove(data.uses_parts, i)
-					end
-
+	for id, data in pairs(self) do
+		if id ~= "parts" and data.uses_parts then
+			for i = #data.uses_parts, 1, -1 do
+				if not self.parts[data.uses_parts[i]] then
+					table.remove(data.uses_parts, i)
 				end
-
 			end
-
-			if data.default_blueprint then
-				for i = #data.default_blueprint, 1, -1 do
-					if not self.parts[data.default_blueprint[i]] then
-						table.remove(data.default_blueprint, i)
-					end
-
-				end
-
-			end
-
-			if data.adds then
-				local (for generator), (for state), (for control) = pairs(data.adds)
-				do
-					do break end
-					for i = #part_data, 1, -1 do
-						if not self.parts[part_data[i]] then
-							table.remove(part_data, i)
-						end
-
-					end
-
-				end
-
-			end
-
 		end
-
+		if data.default_blueprint then
+			for i = #data.default_blueprint, 1, -1 do
+				if not self.parts[data.default_blueprint[i]] then
+					table.remove(data.default_blueprint, i)
+				end
+			end
+		end
+		if data.adds then
+			for part_id, part_data in pairs(data.adds) do
+				for i = #part_data, 1, -1 do
+					if not self.parts[part_data[i]] then
+						table.remove(part_data, i)
+					end
+				end
+			end
+		end
 	end
-
-	local (for generator), (for state), (for control) = pairs(self.parts)
-	do
-		do break end
+	for id, data in pairs(self.parts) do
 		if data.adds then
 			for i = #data.adds, 1, -1 do
 				if not self.parts[data.adds[i]] then
 					table.remove(data.adds, i)
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function WeaponFactoryTweakData:_init_m4()
@@ -13165,9 +13095,7 @@ function WeaponFactoryTweakData:create_ammunition()
 		"wpn_fps_sho_ksg",
 		"wpn_fps_pis_judge"
 	}
-	local (for generator), (for state), (for control) = ipairs(weapons)
-	do
-		do break end
+	for _, factory_id in ipairs(weapons) do
 		if self[factory_id] and self[factory_id].uses_parts then
 			table.insert(self[factory_id].uses_parts, "wpn_fps_upg_a_slug")
 			table.insert(self[factory_id].uses_parts, "wpn_fps_upg_a_custom")
@@ -13175,8 +13103,6 @@ function WeaponFactoryTweakData:create_ammunition()
 			table.insert(self[factory_id].uses_parts, "wpn_fps_upg_a_explosive")
 			table.insert(self[factory_id].uses_parts, "wpn_fps_upg_a_piercing")
 		end
-
 	end
-
 end
 

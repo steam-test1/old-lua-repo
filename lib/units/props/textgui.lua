@@ -35,7 +35,6 @@ function TextGui:init(unit)
 	if self.BG_COLOR_TYPE then
 		self.BG_COLOR = TextGui.COLORS[self.BG_COLOR_TYPE]
 	end
-
 	self._texts_data = {}
 	for i = 1, self.ROWS do
 		self._texts_data[i] = {}
@@ -45,7 +44,6 @@ function TextGui:init(unit)
 		self._texts_data[i].iterator = 1
 		self._texts_data[i].guis = {}
 	end
-
 	self._text = "HELLO WORLD!"
 	self._gui_object = self._gui_object or "gui_object"
 	self._new_gui = World:gui()
@@ -67,7 +65,6 @@ function TextGui:setup()
 			layer = -1
 		})
 	end
-
 	local font_size = self.FONT_SIZE
 end
 
@@ -77,7 +74,6 @@ function TextGui:_create_text_gui(row)
 	if not text_data then
 		return
 	end
-
 	local color = self.COLORS[text_data.color_type or self.COLOR_TYPE]
 	local font_size = text_data.font_size or self.FONT_SIZE
 	local font = text_data.font or self.FONT
@@ -95,11 +91,9 @@ function TextGui:_create_text_gui(row)
 	if self.RENDER_TEMPLATE then
 		gui:set_render_template(Idstring(self.RENDER_TEMPLATE))
 	end
-
 	if self.BLEND_MODE then
 		gui:set_blend_mode(self.BLEND_MODE)
 	end
-
 	local _, _, w, h = gui:text_rect()
 	gui:set_w(w)
 	gui:set_h(h)
@@ -109,7 +103,6 @@ function TextGui:_create_text_gui(row)
 	else
 		gui:set_center_y((row - 1) * (y / self.ROWS) + y / self.ROWS / 2)
 	end
-
 	local x = self._panel:w()
 	if not self.START_RIGHT then
 		if 0 < #data.guis then
@@ -118,34 +111,26 @@ function TextGui:_create_text_gui(row)
 		else
 			x = 0
 		end
-
 	end
-
 	gui:set_x(x)
 	table.insert(data.guis, {gui = gui, x = x})
 	if text_data.once then
 		table.remove(data.texts_data, data.iterator)
 	end
-
 	data.iterator = data.iterator + 1
 	if data.iterator > #data.texts_data then
 		data.iterator = 1
 	end
-
 end
 
 function TextGui:update(unit, t, dt)
 	if not self._visible then
 		return
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self._texts_data)
-	do
-		do break end
+	for row, data in ipairs(self._texts_data) do
 		if #data.texts_data > 0 and #data.guis == 0 then
 			self:_create_text_gui(row)
 		end
-
 		local i = 1
 		while i <= #data.guis do
 			local gui_data = data.guis[i]
@@ -154,18 +139,14 @@ function TextGui:update(unit, t, dt)
 			if i == #data.guis and gui_data.x + gui_data.gui:w() + data.gap < self._panel:w() then
 				self:_create_text_gui(row)
 			end
-
 			if 0 > gui_data.x + gui_data.gui:w() then
 				gui_data.gui:parent():remove(gui_data.gui)
 				table.remove(data.guis, i)
 			else
 				i = i + 1
 			end
-
 		end
-
 	end
-
 end
 
 function TextGui:set_color_type(type)
@@ -186,7 +167,6 @@ function TextGui:set_bg_color_type(type)
 		self._bg_rect:parent():remove(self._bg_rect)
 		self._bg_rect = nil
 	end
-
 end
 
 function TextGui:add_once_text(...)
@@ -222,7 +202,6 @@ function TextGui:clear_row_and_guis(row)
 		local gui_data = table.remove(data.guis)
 		gui_data.gui:parent():remove(gui_data.gui)
 	end
-
 	self:clear_row(row)
 end
 
@@ -236,7 +215,6 @@ function TextGui:_test()
 	for i = 1, self.ROWS do
 		self:clear_row_and_guis(i)
 	end
-
 	local companies = {
 		"Big bank",
 		"Starbeeze",
@@ -257,23 +235,19 @@ function TextGui:_test()
 		"Catfight",
 		"LOL"
 	}
-	local (for generator), (for state), (for control) = ipairs(companies)
-	do
-		do break end
+	for i, company in ipairs(companies) do
 		local j = 10 - math.rand(20)
 		local row = math.mod(i, self.ROWS) + 1
 		self:add_text(row, company, "white")
 		self:add_text(row, "" .. (j < 0 and "" or "+") .. string.format("%.2f", j) .. "%", j < 0 and "light_red" or "light_green", self.FONT_SIZE / 1.5, "bottom", nil)
 		self:add_text(row, "  ", "white")
 	end
-
 end
 
 function TextGui:_test2()
 	for i = 1, self.ROWS do
 		self:clear_row_and_guis(i)
 	end
-
 	local texts = {
 		"Welcome to Big Bank"
 	}
@@ -290,33 +264,22 @@ function TextGui:_test2()
 		"Funds",
 		"MONEY!"
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(texts)
-		do
-			do break end
-			self:add_text(1, text, "green")
-		end
-
+	for i, text in ipairs(texts) do
+		self:add_text(1, text, "green")
 	end
-
-	local (for generator), (for state), (for control) = ipairs(texts2)
-	do
-		do break end
+	for i, text in ipairs(texts2) do
 		self:add_text(2, text, "light_green")
 		self:add_text(2, " - ", "light_green")
 	end
-
 end
 
 function TextGui:_sequence_trigger(sequence_name)
 	if not Network:is_server() then
 		return
 	end
-
 	if self._unit:damage():has_sequence(sequence_name) then
 		self._unit:damage():run_sequence_simple(sequence_name)
 	end
-
 end
 
 function TextGui:set_visible(visible)
@@ -326,7 +289,6 @@ function TextGui:set_visible(visible)
 	else
 		self._ws:hide()
 	end
-
 end
 
 function TextGui:lock_gui()
@@ -350,7 +312,6 @@ function TextGui:sync_gui_net_event(event_id, value)
 	elseif event_id == TextGui.GUI_EVENT_IDS.number_set then
 		self:number_set(value)
 	end
-
 end
 
 function TextGui:destroy()
@@ -359,7 +320,6 @@ function TextGui:destroy()
 		self._ws = nil
 		self._new_gui = nil
 	end
-
 end
 
 function TextGui:save(data)
@@ -377,6 +337,5 @@ function TextGui:load(data)
 	if state.visible ~= self._visible then
 		self:set_visible(state.visible)
 	end
-
 end
 

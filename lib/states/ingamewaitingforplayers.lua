@@ -18,29 +18,24 @@ function IngameWaitingForPlayersState:setup_controller()
 	if not self._controller then
 		self._controller = managers.controller:create_controller("waiting_for_players", managers.controller:get_default_wrapper_index(), false)
 	end
-
 	self._controller:set_enabled(true)
 end
 
 function IngameWaitingForPlayersState:set_controller_enabled(enabled)
 	if self._controller then
 	end
-
 end
 
 function IngameWaitingForPlayersState:_skip()
 	if not Network:is_server() then
 		return
 	end
-
 	if not self._audio_started then
 		return
 	end
-
 	if self._skipped then
 		return
 	end
-
 	self:sync_skip()
 	managers.network:session():send_to_peers_synched("sync_waiting_for_player_skip")
 end
@@ -56,7 +51,6 @@ function IngameWaitingForPlayersState:_start()
 	if not Network:is_server() then
 		return
 	end
-
 	local variant = managers.groupai:state():blackscreen_variant() or 0
 	self:sync_start(variant)
 	managers.network:session():send_to_peers_synched("sync_waiting_for_player_start", variant, Global.music_manager.current_track)
@@ -74,7 +68,6 @@ function IngameWaitingForPlayersState:sync_start(variant, soundtrack)
 		managers.music:post_event(music)
 		managers.music:post_event(start_switch)
 	end
-
 	self._fade_out_id = managers.overlay_effect:play_effect(tweak_data.overlay_effects.fade_out_permanent)
 	local level_data = Global.level_data.level_id and tweak_data.levels[Global.level_data.level_id]
 	self._intro_text_id = level_data and level_data.intro_text_id
@@ -88,7 +81,6 @@ function IngameWaitingForPlayersState:sync_start(variant, soundtrack)
 	else
 		self:_start_delay()
 	end
-
 end
 
 function IngameWaitingForPlayersState:blackscreen_started()
@@ -115,22 +107,18 @@ function IngameWaitingForPlayersState:_start_audio()
 			}
 		})
 	end
-
 	if not event_started then
 		print("failed to start audio, or played safehouse before")
 		if Network:is_server() then
 			self:_start_delay()
 		end
-
 	end
-
 end
 
 function IngameWaitingForPlayersState:_start_delay()
 	if self._delay_start_t then
 		return
 	end
-
 	self._delay_start_t = Application:time() + 1
 end
 
@@ -147,11 +135,9 @@ function IngameWaitingForPlayersState:update(t, dt)
 	if not managers.network:session() then
 		return
 	end
-
 	if t > self._camera_data.next_t then
 		self:_next_camera()
 	end
-
 	if self._briefing_start_t and t > self._briefing_start_t then
 		self._briefing_start_t = nil
 		if managers.job:has_active_job() then
@@ -161,7 +147,6 @@ function IngameWaitingForPlayersState:update(t, dt)
 			if type(briefing_dialog) == "table" then
 				briefing_dialog = briefing_dialog[math.random(#briefing_dialog)]
 			end
-
 			local job_data = managers.job:current_job_data()
 			if job_data and managers.job:current_job_id() == "safehouse" and Global.mission_manager.saved_job_values.playedSafeHouseBefore then
 			elseif not managers.menu_component:is_preplanning_enabled() then
@@ -173,16 +158,12 @@ function IngameWaitingForPlayersState:update(t, dt)
 					}
 				})
 			end
-
 		end
-
 	end
-
 	if self._delay_audio_t and t > self._delay_audio_t then
 		self._delay_audio_t = nil
 		self:_start_audio()
 	end
-
 	if self._delay_start_t then
 		if self._file_streamer_max_workload or Network:is_server() and not managers.network:session():are_peers_done_streaming() or not managers.network:session():are_all_peer_assets_loaded() then
 			self._delay_start_t = Application:time() + 1
@@ -192,20 +173,15 @@ function IngameWaitingForPlayersState:update(t, dt)
 			if Network:is_server() then
 				self._delay_spawn_t = Application:time() + 1
 			end
-
 			FadeoutGuiObject:new(tweak_data.overlay_effects.level_fade_in)
 		end
-
 	end
-
 	if self._delay_spawn_t and t > self._delay_spawn_t then
 		self._delay_spawn_t = nil
 		if managers.network:game() then
 			managers.network:game():spawn_players()
 		end
-
 	end
-
 	local in_foucs = managers.menu:active_menu() == self._kit_menu
 	self:_chk_show_skip_prompt()
 	if self._skip_promt_shown and Network:is_server() then
@@ -218,9 +194,7 @@ function IngameWaitingForPlayersState:update(t, dt)
 					self._skip_data = nil
 					managers.hud:set_blackscreen_skip_circle(0, 1)
 				end
-
 			end
-
 			if self._skip_data then
 				self._skip_data.current = self._skip_data.current + dt
 				managers.hud:set_blackscreen_skip_circle(self._skip_data.current, self._skip_data.total)
@@ -228,16 +202,12 @@ function IngameWaitingForPlayersState:update(t, dt)
 					managers.hud:blackscreen_skip_circle_done()
 					self:_skip()
 				end
-
 			end
-
 		end
-
 	elseif self._skip_data then
 		self._skip_data = nil
 		managers.hud:set_blackscreen_skip_circle(0, 1)
 	end
-
 end
 
 function IngameWaitingForPlayersState:at_enter()
@@ -253,15 +223,12 @@ function IngameWaitingForPlayersState:at_enter()
 	if not managers.hud:exists(self.PLAYER_HUD) then
 		managers.hud:load_hud(self.PLAYER_HUD, false, false, true, {})
 	end
-
 	if not managers.hud:exists(self.PLAYER_DOWNED_HUD) then
 		managers.hud:load_hud(self.PLAYER_DOWNED_HUD, false, false, true, {})
 	end
-
 	if not managers.hud:exists(self.LEVEL_INTRO_GUI) then
 		managers.hud:load_hud(self.LEVEL_INTRO_GUI, false, false, true, {})
 	end
-
 	managers.menu:close_menu()
 	managers.menu:open_menu("kit_menu")
 	self._kit_menu = managers.menu:get_menu("kit_menu")
@@ -275,11 +242,9 @@ function IngameWaitingForPlayersState:at_enter()
 		Global.local_member:sync_lobby_data(managers.network:session():server_peer())
 		Global.local_member:sync_data(managers.network:session():server_peer())
 	end
-
 	if managers.job:interupt_stage() and not tweak_data.levels[managers.job:interupt_stage()].bonus_escape then
 		managers.menu_component:post_event("escape_menu")
 	end
-
 	managers.music:check_music_switch()
 	managers.music:post_event(managers.music:jukebox_menu_track("loadout"))
 	managers.dyn_resource:set_file_streaming_chunk_size_mul(1, 2)
@@ -294,7 +259,6 @@ function IngameWaitingForPlayersState:at_enter()
 			DynamicResourceManager.listener_events.file_streamer_workload
 		}, callback(self, self, "clbk_file_streamer_status"))
 	end
-
 end
 
 function IngameWaitingForPlayersState:clbk_file_streamer_status(workload)
@@ -303,7 +267,6 @@ function IngameWaitingForPlayersState:clbk_file_streamer_status(workload)
 		managers.dyn_resource:remove_listener(self)
 		return
 	end
-
 	self._file_streamer_max_workload = math.max(self._file_streamer_max_workload, workload)
 	local progress = self._file_streamer_max_workload > 0 and 1 - workload / self._file_streamer_max_workload or 1
 	progress = math.ceil(progress * 100)
@@ -315,12 +278,10 @@ function IngameWaitingForPlayersState:clbk_file_streamer_status(workload)
 		managers.network:session():send_to_peers_loaded("set_member_ready", managers.network:session():local_peer():id(), progress, 2, "")
 		self._last_sent_streaming_status = progress
 	end
-
 	if workload == 0 then
 		self._file_streamer_max_workload = nil
 		managers.dyn_resource:remove_listener(self)
 	end
-
 end
 
 function IngameWaitingForPlayersState:_chk_show_skip_prompt()
@@ -332,20 +293,16 @@ function IngameWaitingForPlayersState:_chk_show_skip_prompt()
 			else
 				managers.hud:set_blackscreen_loading_text_status(false)
 			end
-
 		else
 			managers.hud:set_blackscreen_loading_text_status("wait_for_peers")
 		end
-
 	end
-
 end
 
 function IngameWaitingForPlayersState:start_game_intro()
 	if self._starting_game_intro then
 		return
 	end
-
 	self._starting_game_intro = true
 	self:_start()
 end
@@ -365,7 +322,6 @@ function IngameWaitingForPlayersState:at_exit()
 		self._file_streamer_max_workload = nil
 		managers.dyn_resource:remove_listener(self)
 	end
-
 	managers.briefing:stop_event(true)
 	managers.assets:clear_asset_textures()
 	managers.menu:close_menu("kit_menu")
@@ -385,7 +341,6 @@ function IngameWaitingForPlayersState:at_exit()
 		self._sound_listener:delete()
 		self._sound_listener = nil
 	end
-
 	managers.hud:hide(self.LEVEL_INTRO_GUI)
 	if self._started_from_beginning then
 		managers.music:post_event(tweak_data.levels:get_music_event("intro"))
@@ -397,9 +352,7 @@ function IngameWaitingForPlayersState:at_exit()
 			managers.music:post_event(music)
 			managers.music:post_event(music_ext)
 		end
-
 	end
-
 	managers.platform:set_presence("Playing")
 	managers.platform:set_rich_presence(Global.game_settings.single_player and "SPPlaying" or "MPPlaying")
 	managers.game_play_central:start_heist_timer()
@@ -407,19 +360,13 @@ end
 
 function IngameWaitingForPlayersState:_get_cameras()
 	self._cameras = {}
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.helper_unit:get_units_by_type("waiting_camera"))
-		do
-			do break end
-			table.insert(self._cameras, {
-				pos = unit:position(),
-				rot = unit:rotation(),
-				nr = math.random(20)
-			})
-		end
-
+	for _, unit in ipairs(managers.helper_unit:get_units_by_type("waiting_camera")) do
+		table.insert(self._cameras, {
+			pos = unit:position(),
+			rot = unit:rotation(),
+			nr = math.random(20)
+		})
 	end
-
 	if #self._cameras == 0 then
 		table.insert(self._cameras, {
 			pos = Vector3(-196, -496, 851),
@@ -437,7 +384,6 @@ function IngameWaitingForPlayersState:_get_cameras()
 			nr = math.random(20)
 		})
 	end
-
 end
 
 function IngameWaitingForPlayersState:_next_camera()
@@ -446,7 +392,6 @@ function IngameWaitingForPlayersState:_next_camera()
 	if self._camera_data.index > #self._cameras then
 		self._camera_data.index = 1
 	end
-
 	self._cam_unit:set_position(self._cameras[self._camera_data.index].pos)
 	self._cam_unit:set_rotation(self._cameras[self._camera_data.index].rot)
 	self._cam_unit:camera():start(math.rand(30))

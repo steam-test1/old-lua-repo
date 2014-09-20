@@ -52,7 +52,6 @@ function PlayerTweakData:init()
 	else
 		self.damage.ARMOR_INIT = 2
 	end
-
 	self.damage.DODGE_INIT = 0
 	self.damage.HEALTH_REGEN = 0
 	self.damage.ARMOR_STEPS = 1
@@ -76,7 +75,6 @@ function PlayerTweakData:init()
 	else
 		self.damage.REGENERATE_TIME = 3
 	end
-
 	self.damage.REVIVE_HEALTH_STEPS = {0.4}
 	self.damage.BLEED_OT_TIME = 40
 	self.damage.TASED_TIME = 10

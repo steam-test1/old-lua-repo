@@ -5,13 +5,11 @@ function TankCopDamage:damage_melee(attack_data)
 	else
 		return
 	end
-
 end
 
 function TankCopDamage:seq_clbk_vizor_shatter()
 	if not self._unit:character_damage():dead() then
 		self._unit:sound():say("visor_lost")
 	end
-
 end
 

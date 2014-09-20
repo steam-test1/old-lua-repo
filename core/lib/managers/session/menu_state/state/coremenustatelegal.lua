@@ -11,6 +11,5 @@ function Legal:transition()
 	if current_time >= self._start_time + time_until_intro_screens then
 		return CoreMenuStateIntroScreens.IntroScreens
 	end
-
 end
 

@@ -10,14 +10,10 @@ function ElementExecuteInOtherMission:client_on_executed(...)
 end
 
 function ElementExecuteInOtherMission:get_mission_element(id)
-	local (for generator), (for state), (for control) = pairs(managers.mission:scripts())
-	do
-		do break end
+	for name, script in pairs(managers.mission:scripts()) do
 		if script:element(id) then
 			return script:element(id)
 		end
-
 	end
-
 end
 

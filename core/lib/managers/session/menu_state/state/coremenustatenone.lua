@@ -10,8 +10,6 @@ function None:transition()
 		else
 			return CoreMenuStatePreFrontEndOnce.PreFrontEndOnce
 		end
-
 	end
-
 end
 

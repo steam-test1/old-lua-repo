@@ -15,7 +15,6 @@ function ElementOverlayEffect:on_executed(instigator)
 	if not self._values.enabled then
 		return
 	end
-
 	if self._values.effect ~= "none" then
 		local effect = CoreTable.clone(managers.overlay_effect:presets()[self._values.effect])
 		effect.sustain = self._values.sustain or effect.sustain
@@ -25,7 +24,6 @@ function ElementOverlayEffect:on_executed(instigator)
 	elseif Application:editor() then
 		managers.editor:output_error("Cant activate overlay effect \"none\" [" .. self:editor_name() .. "]")
 	end
-
 	ElementOverlayEffect.super.on_executed(self, instigator)
 end
 

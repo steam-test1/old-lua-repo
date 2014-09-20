@@ -68,19 +68,16 @@ function CrimeNetCasinoGui:init(ws, fullscreen_ws, node)
 		button_bet:set_color(tweak_data.screen_colors.button_stage_3)
 		button_exit:set_color(tweak_data.screen_colors.button_stage_3)
 	end
-
 	self:can_afford()
 	if not managers.menu:is_pc_controller() then
 		managers.menu:active_menu().input:deactivate_controller_mouse()
 	end
-
 end
 
 function CrimeNetCasinoGui:close()
 	if not managers.menu:is_pc_controller() then
 		managers.menu:active_menu().input:activate_controller_mouse()
 	end
-
 	self._ws:panel():remove(self._panel)
 	self._fullscreen_ws:panel():remove(self._fullscreen_panel)
 end
@@ -91,30 +88,24 @@ function CrimeNetCasinoGui:mouse_moved(x, y)
 			self._button_panel:child("button_bet"):set_color(tweak_data.screen_colors.button_stage_3)
 			self._button_bet_highlight = false
 		end
-
 		if self._button_exit_highlight then
 			self._button_panel:child("button_exit"):set_color(tweak_data.screen_colors.button_stage_3)
 			self._button_exit_highlight = false
 		end
-
 		if self._can_afford and self._button_panel:child("button_bet"):inside(x, y) then
 			if not self._button_bet_highlight then
 				self._button_bet_highlight = true
 				self._button_panel:child("button_bet"):set_color(tweak_data.screen_colors.button_stage_2)
 			end
-
 			return true, "link"
 		elseif self._button_panel:child("button_exit"):inside(x, y) then
 			if not self._button_exit_highlight then
 				self._button_exit_highlight = true
 				self._button_panel:child("button_exit"):set_color(tweak_data.screen_colors.button_stage_2)
 			end
-
 			return true, "link"
 		end
-
 	end
-
 	return false, "arrow"
 end
 
@@ -125,9 +116,7 @@ function CrimeNetCasinoGui:mouse_pressed(button, x, y)
 		elseif self._button_panel:child("button_exit"):inside(x, y) then
 			self:_exit()
 		end
-
 	end
-
 end
 
 function CrimeNetCasinoGui:special_btn_pressed(button)
@@ -135,7 +124,6 @@ function CrimeNetCasinoGui:special_btn_pressed(button)
 		self:_place_bet()
 		return true
 	end
-
 	return false
 end
 
@@ -155,14 +143,12 @@ function CrimeNetCasinoGui:can_afford()
 			button:set_text(managers.localization:to_upper_text("menu_cn_premium_cannot_buy"))
 			button:set_visible(true)
 		end
-
 		local _, _, w, h = button:text_rect()
 		button:set_w(w)
 		button:set_h(h)
 		button:set_right(self._panel:right())
 		self._can_afford = can_afford
 	end
-
 end
 
 function CrimeNetCasinoGui:_crimenet_casino_additional_cost()
@@ -180,7 +166,6 @@ function CrimeNetCasinoGui:_place_bet()
 	if not managers.money:can_afford_casino_fee(secure_cards, increase_infamous, preferred_card) then
 		return
 	end
-
 	local params = {}
 	params.contract_fee = managers.experience:cash_string(managers.money:get_cost_of_casino_fee(secure_cards, increase_infamous, preferred_card))
 	params.offshore = managers.experience:cash_string(managers.money:offshore())
@@ -197,7 +182,6 @@ function CrimeNetCasinoGui:_crimenet_casino_pay_fee()
 	if not managers.money:can_afford_casino_fee(secure_cards, increase_infamous, preferred_card) then
 		return
 	end
-
 	if managers.menu:active_menu().logic:selected_node():item("preferred_item") then
 		managers.money:on_buy_casino_fee(secure_cards, increase_infamous, preferred_card)
 		managers.menu:active_menu().renderer:selected_node():set_offshore_text()
@@ -208,7 +192,6 @@ function CrimeNetCasinoGui:_crimenet_casino_pay_fee()
 		node_data.back_callback = callback(self, self, "_crimenet_casino_lootdrop_back")
 		managers.menu:open_node("crimenet_contract_casino_lootdrop", {node_data})
 	end
-
 end
 
 function CrimeNetCasinoGui:_crimenet_casino_lootdrop_back()

@@ -9,15 +9,12 @@ function GageAssignmentBase:sync_pickup(peer)
 	if not alive(self._unit) then
 		return
 	end
-
 	if not managers.gage_assignment:is_unit_an_assignment(self._unit) then
 		if Network:is_server() then
 			self:consume()
 		end
-
 		return
 	end
-
 	self._picked_up = true
 	managers.gage_assignment:on_unit_interact(self._unit, self._assignment)
 	if Network:is_server() then
@@ -25,24 +22,20 @@ function GageAssignmentBase:sync_pickup(peer)
 		self:show_pickup_msg(peer and peer:id() or 1)
 		self:consume()
 	end
-
 end
 
 function GageAssignmentBase:_pickup(unit)
 	if self._picked_up then
 		return
 	end
-
 	if not alive(unit) or not alive(self._unit) then
 		return
 	end
-
 	if Network:is_server() then
 		self:sync_pickup()
 	else
 		managers.network:session():send_to_host("sync_pickup", self._unit)
 	end
-
 	return true
 end
 
@@ -51,7 +44,6 @@ function GageAssignmentBase:show_pickup_msg(peer_id)
 	if peer then
 		managers.gage_assignment:present_progress(self._assignment, peer:name())
 	end
-
 end
 
 function GageAssignmentBase:sync_net_event(event_id)
@@ -60,7 +52,6 @@ function GageAssignmentBase:sync_net_event(event_id)
 		self:sync_pickup()
 		self:show_pickup_msg(peer_id)
 	end
-
 end
 
 function GageAssignmentBase:assignment()
@@ -71,7 +62,6 @@ function GageAssignmentBase:delete_unit()
 	if alive(self._unit) then
 		self._unit:set_slot(0)
 	end
-
 end
 
 function GageAssignmentBase:interact_blocked()

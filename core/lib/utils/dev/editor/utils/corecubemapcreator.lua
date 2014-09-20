@@ -15,7 +15,6 @@ function CubeMapCreator:destroy()
 		Application:destroy_viewport(self._vp)
 		self._vp = nil
 	end
-
 end
 
 function CubeMapCreator:set_camera_rot(rot)
@@ -29,7 +28,6 @@ function CubeMapCreator:render()
 		self._creating_cube_map = false
 		self:create_cube_map()
 	end
-
 end
 
 function CubeMapCreator:start_cube_map(pos)

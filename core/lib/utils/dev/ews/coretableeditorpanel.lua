@@ -42,7 +42,6 @@ function CoreTableEditorPanel:thaw()
 		self:_refresh_fields_panel()
 		self:_refresh_buttons_panel()
 	end
-
 end
 
 function CoreTableEditorPanel:add_column(heading, format_style)
@@ -59,7 +58,6 @@ function CoreTableEditorPanel:add_item(...)
 	for i = 2, #values do
 		self.__list_ctrl:set_item(item_index, i - 1, tostring(values[i]))
 	end
-
 	self:set_selected_item(item_index)
 	return item_index
 end
@@ -98,7 +96,6 @@ function CoreTableEditorPanel:set_selected_item_value(column_name, value)
 	if selected_item_index then
 		self:set_item_value(selected_item_index, column_name, value)
 	end
-
 end
 
 function CoreTableEditorPanel:_create_list_ctrl(parent)
@@ -142,30 +139,21 @@ function CoreTableEditorPanel:_refresh_fields_panel()
 			self.__fields_panel:set_sizer(new_sizer)
 			self.__fields_panel:fit_inside()
 		end
-
 		self.__fields_panel:thaw()
 	end
-
 end
 
 function CoreTableEditorPanel:_sizer_with_editable_fields(parent)
 	local sizer = EWS:BoxSizer("VERTICAL")
 	local first_control
-	do
-		local (for generator), (for state), (for control) = ipairs(self.__column_names)
-		do
-			do break end
-			local control = self:_create_labeled_text_field(column_name, parent, sizer)
-			first_control = first_control or control
-		end
-
+	for _, column_name in ipairs(self.__column_names) do
+		local control = self:_create_labeled_text_field(column_name, parent, sizer)
+		first_control = first_control or control
 	end
-
 	if first_control and self:selected_item() ~= nil then
 		first_control:set_selection(-1, -1)
 		first_control:set_focus()
 	end
-
 	return sizer
 end
 
@@ -195,7 +183,6 @@ end
 function CoreTableEditorPanel:_value_to_string(value, column_name)
 	if value ~= nil or not "" then
 	end
-
 	return (tostring(value))
 end
 

@@ -35,13 +35,10 @@ if Application:editor() then
 	if Application:production_build() then
 		require("lib/utils/dev/tools/ParseAllDramas")
 	end
-
 end
-
 if Application:production_build() then
 	require("lib/units/SimpleCharacter")
 end
-
 require("lib/units/ScriptUnitData")
 require("lib/units/UnitBase")
 require("lib/units/SyncUnitData")
@@ -164,24 +161,16 @@ function GameSetup:load_packages()
 	if not PackageManager:loaded("packages/game_base") then
 		PackageManager:load("packages/game_base")
 	end
-
 	local prefix = "packages/dlcs/"
 	local sufix = "/game_base"
 	local package = ""
-	do
-		local (for generator), (for state), (for control) = pairs(DLCManager.BUNDLED_DLC_PACKAGES)
-		do
-			do break end
-			package = prefix .. tostring(dlc_package) .. sufix
-			Application:debug("[MenuSetup:load_packages] DLC package: " .. package, "Is package OK to load?: " .. tostring(bundled))
-			if bundled and (bundled == true or bundled == 2) and PackageManager:package_exists(package) and not PackageManager:loaded(package) then
-				PackageManager:load(package)
-			end
-
+	for dlc_package, bundled in pairs(DLCManager.BUNDLED_DLC_PACKAGES) do
+		package = prefix .. tostring(dlc_package) .. sufix
+		Application:debug("[MenuSetup:load_packages] DLC package: " .. package, "Is package OK to load?: " .. tostring(bundled))
+		if bundled and (bundled == true or bundled == 2) and PackageManager:package_exists(package) and not PackageManager:loaded(package) then
+			PackageManager:load(package)
 		end
-
 	end
-
 	local level_package
 	if not Global.level_data or not Global.level_data.level_id then
 		level_package = "packages/level_debug"
@@ -189,56 +178,44 @@ function GameSetup:load_packages()
 		local lvl_tweak_data = Global.level_data and Global.level_data.level_id and tweak_data.levels[Global.level_data.level_id]
 		level_package = lvl_tweak_data and lvl_tweak_data.package
 	end
-
 	if level_package then
 		if type(level_package) == "table" then
 			self._loaded_level_package = level_package
-			local (for generator), (for state), (for control) = ipairs(level_package)
-			do
-				do break end
+			for _, package in ipairs(level_package) do
 				if not PackageManager:loaded(package) then
 					PackageManager:load(package)
 				end
-
 			end
-
 		elseif not PackageManager:loaded(level_package) then
 			self._loaded_level_package = level_package
 			PackageManager:load(level_package)
 		end
-
 	end
-
 	local job_tweak_contact_data, job_tweak_package_data
 	if Global.job_manager and Global.job_manager.current_job and Global.job_manager.current_job.job_id then
 		job_tweak_contact_data = tweak_data.narrative:job_data(Global.job_manager.current_job.job_id)
 		job_tweak_package_data = tweak_data.narrative:job_data(Global.job_manager.current_job.job_id, true)
 	end
-
 	local contact
 	if Global.job_manager and Global.job_manager.interupt_stage then
 		contact = "interupt"
 		if tweak_data.levels[Global.job_manager.interupt_stage].bonus_escape then
 			contact = "bain"
 		end
-
 	else
 		contact = job_tweak_contact_data and job_tweak_contact_data.contact
 	end
-
 	local contact_tweak_data = tweak_data.narrative.contacts[contact]
 	local contact_package = contact_tweak_data and contact_tweak_data.package
 	if contact_package and not PackageManager:loaded(contact_package) then
 		self._loaded_contact_package = contact_package
 		PackageManager:load(contact_package)
 	end
-
 	local contract_package = job_tweak_package_data and job_tweak_package_data.package
 	if contract_package and not PackageManager:loaded(contract_package) then
 		self._loaded_contract_package = contract_package
 		PackageManager:load(contract_package)
 	end
-
 end
 
 function GameSetup:unload_packages()
@@ -247,46 +224,33 @@ function GameSetup:unload_packages()
 		local prefix = "packages/dlcs/"
 		local sufix = "/game_base"
 		local package = ""
-		local (for generator), (for state), (for control) = pairs(DLCManager.BUNDLED_DLC_PACKAGES)
-		do
-			do break end
+		for dlc_package, bundled in pairs(DLCManager.BUNDLED_DLC_PACKAGES) do
 			package = prefix .. tostring(dlc_package) .. sufix
 			if bundled and (bundled == true or bundled == 2) and PackageManager:package_exists(package) and PackageManager:loaded(package) then
 				PackageManager:unload(package)
 			end
-
 		end
-
 	end
-
 	if self._loaded_level_package then
 		if type(self._loaded_level_package) == "table" then
-			local (for generator), (for state), (for control) = ipairs(self._loaded_level_package)
-			do
-				do break end
+			for _, package in ipairs(self._loaded_level_package) do
 				if PackageManager:loaded(package) then
 					PackageManager:unload(package)
 				end
-
 			end
-
 		elseif PackageManager:loaded(self._loaded_level_package) then
 			PackageManager:unload(self._loaded_level_package)
 		end
-
 		self._loaded_level_package = nil
 	end
-
 	if PackageManager:loaded(self._loaded_contact_package) then
 		PackageManager:unload(self._loaded_contact_package)
 		self._loaded_contact_package = nil
 	end
-
 	if PackageManager:loaded(self._loaded_contract_package) then
 		PackageManager:unload(self._loaded_contract_package)
 		self._loaded_contract_package = nil
 	end
-
 end
 
 function GameSetup:init_managers(managers)
@@ -315,7 +279,6 @@ function GameSetup:init_managers(managers)
 	if SystemInfo:platform() == Idstring("X360") then
 		managers.blackmarket:load_equipped_weapons()
 	end
-
 end
 
 function GameSetup:init_game()
@@ -333,7 +296,6 @@ function GameSetup:init_game()
 			if level_class then
 				script_data.level_script = level_class:new()
 			end
-
 			local level_path = "levels/" .. tostring(level)
 			local t = {
 				file_path = level_path .. "/world",
@@ -350,10 +312,8 @@ function GameSetup:init_game()
 		else
 			error("No level loaded! Use -level 'levelname'")
 		end
-
 		managers.worlddefinition:init_done()
 	end
-
 	return gsm
 end
 
@@ -361,12 +321,10 @@ function GameSetup:init_finalize()
 	if script_data.level_script and script_data.level_script.post_init then
 		script_data.level_script:post_init()
 	end
-
 	if Global.current_load_package then
 		PackageManager:unload(Global.current_load_package)
 		Global.current_load_package = nil
 	end
-
 	Setup.init_finalize(self)
 	managers.hud:init_finalize()
 	managers.dialog:init_finalize()
@@ -375,19 +333,15 @@ function GameSetup:init_finalize()
 	if not Application:editor() then
 		managers.navigation:on_game_started()
 	end
-
 	if not Application:editor() then
 		game_state_machine:change_state_by_name("ingame_waiting_for_players")
 	end
-
 	if SystemInfo:platform() == Idstring("PS3") then
 		managers.achievment:chk_install_trophies()
 	end
-
 	if managers.music then
 		managers.music:init_finalize()
 	end
-
 	managers.dyn_resource:post_init()
 	tweak_data.gui.crime_net.locations = {}
 	self._keyboard = Input:keyboard()
@@ -411,7 +365,6 @@ function GameSetup:update(t, dt)
 	if script_data.level_script and script_data.level_script.update then
 		script_data.level_script:update(t, dt)
 	end
-
 	self:_update_debug_input()
 end
 
@@ -421,7 +374,6 @@ function GameSetup:paused_update(t, dt)
 	if script_data.level_script and script_data.level_script.paused_update then
 		script_data.level_script:paused_update(t, dt)
 	end
-
 	self:_update_debug_input()
 end
 
@@ -430,7 +382,6 @@ function GameSetup:destroy()
 	if script_data.level_script and script_data.level_script.destroy then
 		script_data.level_script:destroy()
 	end
-
 	managers.navigation:destroy()
 	managers.time_speed:destroy()
 end
@@ -487,7 +438,6 @@ function GameSetup:_update_debug_input()
 	if not editor_ok or not debug_on_ok then
 		return
 	end
-
 	if self._keyboard then
 		if self._keyboard:pressed(59) then
 			print("[GameSetup:_update_debug_input]", Application:paused() and "UNPAUSING" or "PAUSING")
@@ -500,11 +450,8 @@ function GameSetup:_update_debug_input()
 				self._framerate_low = true
 				Application:cap_framerate(30)
 			end
-
 		end
-
 	end
-
 end
 
 return GameSetup

@@ -17,6 +17,5 @@ function PreFrontEnd:transition()
 	if not state:is_in_pre_front_end() then
 		return CoreMenuStateFrontEnd.FrontEnd
 	end
-
 end
 

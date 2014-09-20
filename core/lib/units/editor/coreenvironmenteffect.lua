@@ -20,15 +20,9 @@ function CoreEnvironmentEffectHubElement:_build_panel(panel, panel_sizer)
 	effect_sizer:add(EWS:StaticText(self._panel, "Effect:", 0, ""), 1, 0, "ALIGN_CENTER_VERTICAL")
 	local effects = EWS:ComboBox(self._panel, "", "", "CB_DROPDOWN,CB_READONLY")
 	effects:append("none")
-	do
-		local (for generator), (for state), (for control) = ipairs(managers.environment_effects:effects_names())
-		do
-			do break end
-			effects:append(name)
-		end
-
+	for _, name in ipairs(managers.environment_effects:effects_names()) do
+		effects:append(name)
 	end
-
 	effects:set_value(self._hed.environment_effect)
 	effects:connect("EVT_COMMAND_COMBOBOX_SELECTED", callback(self, self, "set_element_data"), {
 		ctrlr = effects,

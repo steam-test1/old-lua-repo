@@ -49,7 +49,6 @@ function TeamAIBase:_register()
 		managers.groupai:state():register_criminal(self._unit)
 		self._registered = true
 	end
-
 end
 
 function TeamAIBase:unregister()
@@ -57,15 +56,12 @@ function TeamAIBase:unregister()
 		if Network:is_server() then
 			self._unit:brain():attention_handler():set_attention(nil)
 		end
-
 		if managers.groupai:state():all_AI_criminals()[self._unit:key()] then
 			managers.groupai:state():unregister_criminal(self._unit)
 		end
-
 		self._char_name = managers.criminals:character_name_by_unit(self._unit)
 		self._registered = nil
 	end
-
 end
 
 function TeamAIBase:chk_freeze_anims()

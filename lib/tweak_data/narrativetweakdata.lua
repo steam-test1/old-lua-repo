@@ -1871,14 +1871,10 @@ function NarrativeTweakData:init()
 end
 
 function NarrativeTweakData:set_job_wrappers()
-	local (for generator), (for state), (for control) = ipairs(self._jobs_index)
-	do
-		do break end
+	for _, job_id in ipairs(self._jobs_index) do
 		local job_wrapper = self.jobs[job_id].job_wrapper
 		if job_wrapper then
-			local (for generator), (for state), (for control) = ipairs(job_wrapper)
-			do
-				do break end
+			for _, wrapped_job_id in ipairs(job_wrapper) do
 				if self.jobs[wrapped_job_id].job_wrapper then
 					Application:throw_exception("Can't wrap " .. tostring(wrapped_job_id) .. " into another wrapper.")
 				elseif self.jobs[wrapped_job_id].wrapped_to_job then
@@ -1886,31 +1882,17 @@ function NarrativeTweakData:set_job_wrappers()
 				else
 					self.jobs[wrapped_job_id].wrapped_to_job = job_id
 				end
-
 			end
-
 		end
-
 	end
-
 end
 
 function NarrativeTweakData:has_job_wrapper(job_id)
-	if self.jobs[job_id] then
-		-- unhandled boolean indicator
-	else
-	end
-
-	return true
+	return self.jobs[job_id] and not not self.jobs[job_id].job_wrapper
 end
 
 function NarrativeTweakData:is_wrapped_to_job(job_id)
-	if self.jobs[job_id] then
-		-- unhandled boolean indicator
-	else
-	end
-
-	return true
+	return self.jobs[job_id] and not not self.jobs[job_id].wrapped_to_job
 end
 
 function NarrativeTweakData:get_jobs_index()
@@ -1918,18 +1900,11 @@ function NarrativeTweakData:get_jobs_index()
 end
 
 function NarrativeTweakData:get_index_from_job_id(job_id)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._jobs_index)
-		do
-			do break end
-			if entry_name == job_id then
-				return index
-			end
-
+	for index, entry_name in ipairs(self._jobs_index) do
+		if entry_name == job_id then
+			return index
 		end
-
 	end
-
 	return 0
 end
 
@@ -1941,15 +1916,12 @@ function NarrativeTweakData:job_data(job_id, unique_to_job)
 	if not job_id or not self.jobs[job_id] then
 		return
 	end
-
 	if unique_to_job then
 		return self.jobs[job_id]
 	end
-
 	if self.jobs[job_id].wrapped_to_job then
 		return self.jobs[self.jobs[job_id].wrapped_to_job]
 	end
-
 	return self.jobs[job_id]
 end
 
@@ -1957,11 +1929,9 @@ function NarrativeTweakData:job_chain(job_id)
 	if not job_id or not self.jobs[job_id] then
 		return {}
 	end
-
 	if self.jobs[job_id].job_wrapper then
 		return self.jobs[self.jobs[job_id].job_wrapper[1]].chain or {}
 	end
-
 	return self.jobs[job_id].chain or {}
 end
 
@@ -1980,7 +1950,6 @@ function NarrativeTweakData:create_job_name(job_id, skip_professional)
 			color = tweak_data.screen_colors.dlc_color
 		}
 	end
-
 	if not skip_professional and job_tweak.professional then
 		local pro_text = "  " .. managers.localization:to_upper_text("cn_menu_pro_job")
 		local s_len = utf8.len(text_id)
@@ -1992,32 +1961,20 @@ function NarrativeTweakData:create_job_name(job_id, skip_professional)
 			color = tweak_data.screen_colors.pro_color
 		}
 	end
-
 	return text_id, color_ranges
 end
 
 function NarrativeTweakData:test_contract_packages()
-	do
-		local (for generator), (for state), (for control) = ipairs(self._jobs_index)
-		do
-			do break end
-			local package = self.jobs[job_id] and self.jobs[job_id].package
-			if not package or not DB:has(Idstring("package"), package) then
-				print("test_contract_packages", "1", job_id)
-			end
-
+	for i, job_id in ipairs(self._jobs_index) do
+		local package = self.jobs[job_id] and self.jobs[job_id].package
+		if not package or not DB:has(Idstring("package"), package) then
+			print("test_contract_packages", "1", job_id)
 		end
-
 	end
-
-	local (for generator), (for state), (for control) = ipairs(self.jobs)
-	do
-		do break end
+	for job_id, job in ipairs(self.jobs) do
 		if job.package and not DB:has(Idstring("package"), job.package) then
 			print("test_contract_packages", "2", job_id)
 		end
-
 	end
-
 end
 

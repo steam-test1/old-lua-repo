@@ -20,6 +20,5 @@ function Start:transition()
 	if current_time >= self._start_time + time_until_attract then
 		return CoreMenuStateAttract.Attract
 	end
-
 end
 

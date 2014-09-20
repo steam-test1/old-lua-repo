@@ -14,6 +14,5 @@ function FrontEnd:transition()
 	elseif game_state:is_in_pre_front_end() then
 		return CoreMenuStatePreFrontEnd.PreFrontEnd
 	end
-
 end
 

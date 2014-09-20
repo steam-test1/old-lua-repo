@@ -6,6 +6,5 @@ function InGame:transition()
 	if game_state:is_preparing_for_loading_front_end() then
 		return CoreMenuStatePrepareLoadingFrontEnd.PrepareLoadingFrontEnd
 	end
-
 end
 

@@ -30,7 +30,6 @@ function MenuNodeGui:init(node, layer, parameters)
 	if node:parameters().no_item_parent then
 		self._item_panel_parent:set_visible(false)
 	end
-
 end
 
 function MenuNodeGui:align_line_padding()
@@ -145,7 +144,6 @@ function MenuNodeGui:_setup_panels(node)
 		mvector3.set_static(mvector_br, x + w, y + h, 0)
 		self._list_arrows.up:set_texture_coordinates(mvector_tl, mvector_tr, mvector_bl, mvector_br)
 	end
-
 	do
 		local x = math.random(1, 255)
 		local y = math.random(0, math.round(self._list_arrows.down:texture_height() / 2 - 1)) * 2
@@ -157,7 +155,6 @@ function MenuNodeGui:_setup_panels(node)
 		mvector3.set_static(mvector_br, x + w, y + h, 0)
 		self._list_arrows.down:set_texture_coordinates(mvector_tl, mvector_tr, mvector_bl, mvector_br)
 	end
-
 	self._info_bg_rect = self.safe_rect_panel:rect({
 		visible = false,
 		x = 0,
@@ -175,11 +172,9 @@ function MenuNodeGui:_setup_panels(node)
 		active_menu.renderer:set_bg_visible(self._bg_visible)
 		active_menu.renderer:set_bg_area(self._bg_area)
 	end
-
 	if self._scene_state then
 		managers.menu_scene:set_scene_template(self._scene_state)
 	end
-
 	local mini_info = self.safe_rect_panel:panel({
 		x = 0,
 		y = 0,
@@ -212,7 +207,6 @@ function MenuNodeGui:_setup_panels(node)
 	if node.mini_info then
 		self:set_mini_info(node.mini_info)
 	end
-
 end
 
 function MenuNodeGui:set_mini_info(text)
@@ -233,27 +227,19 @@ function MenuNodeGui:_create_legends(node)
 	})
 	local t_text = ""
 	local has_pc_legend = false
-	do
-		local (for generator), (for state), (for control) = ipairs(node:legends())
-		do
-			do break end
-			if not is_pc or legend.pc then
-				has_pc_legend = has_pc_legend or legend.pc
-				local spacing = i > 1 and "  |  " or ""
-				t_text = t_text .. spacing .. utf8.to_upper(managers.localization:text(legend.string_id, {
-					BTN_UPDATE = managers.localization:btn_macro("menu_update"),
-					BTN_BACK = managers.localization:btn_macro("back")
-				}))
-			end
-
+	for i, legend in ipairs(node:legends()) do
+		if not is_pc or legend.pc then
+			has_pc_legend = has_pc_legend or legend.pc
+			local spacing = i > 1 and "  |  " or ""
+			t_text = t_text .. spacing .. utf8.to_upper(managers.localization:text(legend.string_id, {
+				BTN_UPDATE = managers.localization:btn_macro("menu_update"),
+				BTN_BACK = managers.localization:btn_macro("back")
+			}))
 		end
-
 	end
-
 	if is_pc then
 		self._legends_panel:set_visible(has_pc_legend)
 	end
-
 	local text = self._legends_panel:text({
 		text = t_text,
 		font = self.font,
@@ -297,7 +283,6 @@ function MenuNodeGui:_create_marker(node)
 	if self.marker_color then
 		self._marker_data.gradient:set_color(self.marker_color)
 	end
-
 end
 
 function MenuNodeGui:_setup_item_panel_parent(safe_rect, shape)
@@ -331,7 +316,6 @@ function MenuNodeGui:_setup_item_panel(safe_rect, res)
 			self._item_panel_y.target = self._item_panel_parent:h() / 2
 		else
 		end
-
 		self.item_panel:set_shape(0, self.item_panel:y(), safe_rect.width, self:_item_panel_height())
 		if not self._item_panel_y then
 			self.item_panel:set_center_y(self._item_panel_parent:h() / 2)
@@ -339,12 +323,10 @@ function MenuNodeGui:_setup_item_panel(safe_rect, res)
 			self.item_panel:set_center_y(self._item_panel_parent:h() / 2)
 			self._item_panel_y.first = nil
 		end
-
 	else
 		local y = self:_item_panel_height() < self._item_panel_parent:h() and 0 or self.item_panel:y()
 		self.item_panel:set_shape(0, y, safe_rect.width, self:_item_panel_height())
 	end
-
 	self.item_panel:set_w(safe_rect.width)
 	self:_set_topic_position()
 	if self._item_panel_parent:h() < self.item_panel:h() then
@@ -352,7 +334,6 @@ function MenuNodeGui:_setup_item_panel(safe_rect, res)
 		self._list_arrows.down:set_visible(true)
 		self._list_arrows.up:set_color(self._list_arrows.up:color():with_alpha(0.5))
 	end
-
 end
 
 function MenuNodeGui:_set_topic_position()
@@ -361,7 +342,6 @@ function MenuNodeGui:_set_topic_position()
 	if bottom < self._item_panel_parent:y() then
 		bottom = self._item_panel_parent:y() or bottom
 	end
-
 	self._topic_panel2:set_bottom(bottom)
 	self._topic_text2:set_rightbottom(self._topic_panel2:size())
 	self._topic_line:set_rightbottom(self._topic_panel2:size())
@@ -375,16 +355,13 @@ function MenuNodeGui:_create_menu_item(row_item)
 	if row_item.gui_panel then
 		self.item_panel:remove(row_item.gui_panel)
 	end
-
 	if alive(row_item.gui_pd2_panel) then
 		row_item.gui_pd2_panel:parent():remove(row_item.gui_pd2_panel)
 	end
-
 	if row_item.item:parameters().back then
 		row_item.item:parameters().back = false
 		row_item.item:parameters().pd2_corner = true
 	end
-
 	if row_item.item:parameters().gui_node_custom then
 		self:gui_node_custom(row_item)
 	elseif row_item.item:parameters().back then
@@ -493,7 +470,6 @@ function MenuNodeGui:_create_menu_item(row_item)
 			row_item.gui_text:set_rotation(360)
 			row_item.gui_text:set_right(row_item.gui_pd2_panel:w())
 		end
-
 		if MenuBackdropGUI and managers.menu:is_pc_controller() then
 			local bg_text = row_item.gui_pd2_panel:text({
 				text = utf8.to_upper(row_item.text),
@@ -512,7 +488,6 @@ function MenuNodeGui:_create_menu_item(row_item)
 			bg_text:move(13, -9)
 			MenuBackdropGUI.animate_bg_text(self, bg_text)
 		end
-
 	elseif row_item.type == "level" then
 		row_item.gui_panel = self:_text_item_part(row_item, self.item_panel, self:_right_align())
 		row_item.gui_panel:set_text(utf8.to_upper(row_item.gui_panel:text()))
@@ -613,18 +588,14 @@ function MenuNodeGui:_create_menu_item(row_item)
 			row_item.current_of_total:set_color(row_item.color)
 			row_item.current_of_total:set_text("(" .. row_item.item:parameters().current .. "/" .. row_item.item:parameters().total .. ")")
 		end
-
 		if row_item.help_text then
 		end
-
 		if row_item.item:parameters().trial_buy then
 			self:_setup_trial_buy(row_item)
 		end
-
 		if row_item.item:parameters().fake_disabled then
 			self:_setup_fake_disabled(row_item)
 		end
-
 		if row_item.item:parameters().icon then
 			row_item.icon = self.item_panel:bitmap({
 				texture = row_item.item:parameters().icon,
@@ -633,10 +604,8 @@ function MenuNodeGui:_create_menu_item(row_item)
 				layer = self.layers.items + 1
 			})
 		end
-
 		self:_align_normal(row_item)
 	end
-
 	local visible = row_item.item:menu_unselected_visible(self, row_item) and not row_item.item:parameters().back
 	row_item.menu_unselected = self.item_panel:bitmap({
 		visible = false,
@@ -704,7 +673,6 @@ function MenuNodeGui:_set_lobby_campaign(row_item)
 		row_item.level_title = MenuNodeGui.lobby_campaign.level_title
 		row_item.level_briefing = MenuNodeGui.lobby_campaign.level_briefing
 	end
-
 end
 
 function MenuNodeGui:_create_lobby_campaign(row_item)
@@ -769,7 +737,6 @@ function MenuNodeGui:_highlight_lobby_campaign(row_item)
 	if row_item.level_id ~= Global.game_settings.level_id then
 		self:_reload_lobby_campaign(row_item)
 	end
-
 	row_item.gui_info_panel:set_visible(true)
 end
 
@@ -781,7 +748,6 @@ function MenuNodeGui:_reload_lobby_campaign(row_item)
 	if MenuNodeGui.lobby_campaign.level_id == Global.game_settings.level_id then
 		return
 	end
-
 	if row_item.level_id ~= MenuNodeGui.lobby_campaign.level_id then
 		row_item.level_id = MenuNodeGui.lobby_campaign.level_id
 		row_item.gui_info_panel = MenuNodeGui.lobby_campaign.gui_info_panel
@@ -789,7 +755,6 @@ function MenuNodeGui:_reload_lobby_campaign(row_item)
 		row_item.level_briefing = MenuNodeGui.lobby_campaign.level_briefing
 		return
 	end
-
 	row_item.level_id = Global.game_settings.level_id
 	local text = string.upper(managers.localization:text(tweak_data.levels[row_item.level_id].name_id))
 	row_item.level_title:set_text(text)
@@ -902,7 +867,6 @@ function MenuNodeGui:_align_friend(row_item)
 		row_item.icon:set_center_y(row_item.gui_panel:center_y())
 		row_item.icon:set_color(row_item.gui_panel:color())
 	end
-
 	row_item.signin_status:set_font_size(self.font_size)
 	row_item.signin_status:set_height(h)
 	if row_item.align == "right" then
@@ -912,7 +876,6 @@ function MenuNodeGui:_align_friend(row_item)
 	else
 		row_item.signin_status:set_right(self:_left_align())
 	end
-
 end
 
 function MenuNodeGui:activate_customize_controller(item)
@@ -944,29 +907,23 @@ function MenuNodeGui:_key_press(o, key, input_id, item, no_add)
 	if managers.system_menu:is_active() then
 		return
 	end
-
 	if self._skip_first_mouse_0 then
 		self._skip_first_mouse_0 = false
 		if input_id == "mouse" and key == Idstring("0") then
 			return
 		end
-
 	end
-
 	local row_item = self:row_item(item)
 	if key == Idstring("esc") then
 		self:_end_customize_controller(o, item)
 		return
 	end
-
 	if input_id ~= "mouse" or not Input:mouse():button_name_str(key) then
 	end
-
 	local key_name = "" .. Input:keyboard():button_name_str(key)
 	if not no_add and input_id == "mouse" then
 		key_name = "mouse " .. key_name or key_name
 	end
-
 	local forbidden_btns = {
 		"esc",
 		"tab",
@@ -986,62 +943,40 @@ function MenuNodeGui:_key_press(o, key, input_id, item, no_add)
 		"mouse 9",
 		""
 	}
-	do
-		local (for generator), (for state), (for control) = ipairs(forbidden_btns)
-		do
-			do break end
-			if Idstring(btn) == key then
-				managers.menu:show_key_binding_forbidden({KEY = key_name})
-				self:_end_customize_controller(o, item)
-				return
-			end
-
+	for _, btn in ipairs(forbidden_btns) do
+		if Idstring(btn) == key then
+			managers.menu:show_key_binding_forbidden({KEY = key_name})
+			self:_end_customize_controller(o, item)
+			return
 		end
-
 	end
-
 	local connections = managers.controller:get_settings(managers.controller:get_default_wrapper_type()):get_connection_map()
-	do
-		local (for generator), (for state), (for control) = ipairs(MenuCustomizeControllerCreator.CONTROLS)
-		do
-			do break end
-			local connection = connections[name]
-			if connection._btn_connections then
-				local (for generator), (for state), (for control) = pairs(connection._btn_connections)
-				do
-					do break end
-					if btn_connection.name == key_name and item:parameters().binding ~= btn_connection.name then
-						managers.menu:show_key_binding_collision({
-							KEY = key_name,
-							MAPPED = managers.localization:text(MenuCustomizeControllerCreator.CONTROLS_INFO[name].text_id)
-						})
-						self:_end_customize_controller(o, item)
-						return
-					end
-
+	for _, name in ipairs(MenuCustomizeControllerCreator.CONTROLS) do
+		local connection = connections[name]
+		if connection._btn_connections then
+			for name, btn_connection in pairs(connection._btn_connections) do
+				if btn_connection.name == key_name and item:parameters().binding ~= btn_connection.name then
+					managers.menu:show_key_binding_collision({
+						KEY = key_name,
+						MAPPED = managers.localization:text(MenuCustomizeControllerCreator.CONTROLS_INFO[name].text_id)
+					})
+					self:_end_customize_controller(o, item)
+					return
 				end
-
-			else
-				local (for generator), (for state), (for control) = ipairs(connection:get_input_name_list())
-				do
-					do break end
-					if tostring(b_name) == key_name and item:parameters().binding ~= b_name then
-						managers.menu:show_key_binding_collision({
-							KEY = key_name,
-							MAPPED = managers.localization:text(MenuCustomizeControllerCreator.CONTROLS_INFO[name].text_id)
-						})
-						self:_end_customize_controller(o, item)
-						return
-					end
-
-				end
-
 			end
-
+		else
+			for _, b_name in ipairs(connection:get_input_name_list()) do
+				if tostring(b_name) == key_name and item:parameters().binding ~= b_name then
+					managers.menu:show_key_binding_collision({
+						KEY = key_name,
+						MAPPED = managers.localization:text(MenuCustomizeControllerCreator.CONTROLS_INFO[name].text_id)
+					})
+					self:_end_customize_controller(o, item)
+					return
+				end
+			end
 		end
-
 	end
-
 	if item:parameters().axis then
 		connections[item:parameters().axis]._btn_connections[item:parameters().button].name = key_name
 		managers.controller:set_user_mod(item:parameters().connection_name, {
@@ -1060,7 +995,6 @@ function MenuNodeGui:_key_press(o, key, input_id, item, no_add)
 		})
 		item:parameters().binding = key_name
 	end
-
 	managers.controller:rebind_connections()
 	self:_end_customize_controller(o, item)
 end
@@ -1088,7 +1022,6 @@ function MenuNodeGui:_cb_chat(row_item)
 		self:_say(say, row_item, managers.network:session():local_peer():id())
 		managers.network:session():send_to_peers("sync_chat_message", say)
 	end
-
 	self._chatbox_typing = false
 	row_item.chat_input:child("text"):set_text("")
 	row_item.chat_input:child("text"):set_selection(0, 0)
@@ -1102,7 +1035,6 @@ function MenuNodeGui:_say(message, row_item, id)
 	if managers.menu:active_menu() then
 		managers.menu:active_menu().renderer:post_event("prompt_exit")
 	end
-
 	local s = row_item.chat_output:script()
 	local i = utf8.find_char(message, ":")
 	s.box_print(message, tweak_data.chat_colors[id], i)
@@ -1131,14 +1063,10 @@ function MenuNodeGui:_text_item_part(row_item, panel, align_x, text_align)
 	})
 	local color_ranges = row_item.color_ranges
 	if color_ranges then
-		local (for generator), (for state), (for control) = ipairs(color_ranges)
-		do
-			do break end
+		for _, color_range in ipairs(color_ranges) do
 			new_text:set_range_color(color_range.start, color_range.stop, color_range.color)
 		end
-
 	end
-
 	return new_text
 end
 
@@ -1149,13 +1077,11 @@ function MenuNodeGui:scroll_update(dt)
 	else
 		self._list_arrows.up:set_color(self._list_arrows.up:color():with_alpha(0))
 	end
-
 	if math.round(self.item_panel:world_bottom()) - self._item_panel_parent:world_bottom() < 4 then
 		self._list_arrows.down:set_color(self._list_arrows.down:color():with_alpha(0))
 	else
 		self._list_arrows.down:set_color(self._list_arrows.down:color():with_alpha(1))
 	end
-
 	return scrolled
 end
 
@@ -1165,7 +1091,6 @@ function MenuNodeGui:reload_item(item)
 	if row_item then
 		row_item.color = item:enabled() and (row_item.highlighted and (row_item.hightlight_color or self.row_item_hightlight_color) or row_item.row_item_color or self.row_item_color) or row_item.disabled_color
 	end
-
 	if not item:reload(row_item, self) then
 		if type == "weapon_expand" or type == "weapon_upgrade_expand" then
 			self:_reload_expand(item)
@@ -1176,28 +1101,21 @@ function MenuNodeGui:reload_item(item)
 		else
 			MenuNodeGui.super.reload_item(self, item)
 		end
-
 	end
-
 	if self._highlighted_item and self._highlighted_item == item and row_item then
 		self:_align_marker(row_item)
 	end
-
 end
 
 function MenuNodeGui:_collaps_others(my_item)
-	local (for generator), (for state), (for control) = ipairs(self.row_items)
-	do
-		do break end
+	for _, row_item in ipairs(self.row_items) do
 		local item = row_item.item
 		local type = item:type()
 		if my_item ~= item and (type == "expand" or type == "weapon_expand" or type == "weapon_upgrade_expand") and not item:is_parent_to_item(my_item) and item:expanded() then
 			item:toggle()
 			self:_reload_expand(item)
 		end
-
 	end
-
 end
 
 function MenuNodeGui:_reload_expand(item)
@@ -1206,7 +1124,6 @@ function MenuNodeGui:_reload_expand(item)
 	if item:expanded() then
 		self:_collaps_others(item)
 	end
-
 	local need_repos = false
 	if item:can_expand() then
 		if item:expanded() then
@@ -1214,50 +1131,32 @@ function MenuNodeGui:_reload_expand(item)
 		else
 			need_repos = item:collaps(self, row_item)
 		end
-
 	end
-
 	if need_repos then
 		self:need_repositioning()
 		row_item.node:select_item(item:name())
 		self:_reposition_items(row_item)
 	end
-
 end
 
 function MenuNodeGui:_delete_row_item(item)
-	do
-		local (for generator), (for state), (for control) = ipairs(self.row_items)
-		do
-			do break end
-			if row_item.item == item then
-				if alive(row_item.gui_pd2_panel) then
-					row_item.gui_pd2_panel:parent():remove(row_item.gui_pd2_panel)
-				end
-
-		end
-
+	for i, row_item in ipairs(self.row_items) do
+		if row_item.item == item then
+			if alive(row_item.gui_pd2_panel) then
+				row_item.gui_pd2_panel:parent():remove(row_item.gui_pd2_panel)
+			end
 		else
 		end
-
 	end
-
 	MenuNodeGui.super._delete_row_item(self, item)
 end
 
 function MenuNodeGui:_clear_gui()
-	do
-		local (for generator), (for state), (for control) = ipairs(self.row_items)
-		do
-			do break end
-			if alive(row_item.gui_pd2_panel) then
-				row_item.gui_pd2_panel:parent():remove(row_item.gui_pd2_panel)
-			end
-
+	for i, row_item in ipairs(self.row_items) do
+		if alive(row_item.gui_pd2_panel) then
+			row_item.gui_pd2_panel:parent():remove(row_item.gui_pd2_panel)
 		end
-
 	end
-
 	MenuNodeGui.super._clear_gui(self)
 end
 
@@ -1268,15 +1167,11 @@ function MenuNodeGui:need_repositioning()
 end
 
 function MenuNodeGui:update_item_icon_visibility()
-	local (for generator), (for state), (for control) = pairs(self.row_items)
-	do
-		do break end
+	for _, row_item in pairs(self.row_items) do
 		if alive(row_item.icon) then
 			row_item.icon:set_visible(row_item.item:icon_visible())
 		end
-
 	end
-
 end
 
 function MenuNodeGui:_reload_friend(item)
@@ -1290,7 +1185,6 @@ function MenuNodeGui:_setup_item_size(row_item)
 	if type == "level" then
 		self:_setup_level_size(row_item)
 	end
-
 end
 
 function MenuNodeGui:_setup_level_size(row_item)
@@ -1308,29 +1202,19 @@ function MenuNodeGui:_highlight_row_item(row_item, mouse_over)
 		if active_menu then
 			active_menu.renderer:set_bottom_text(row_item.item:parameters().help_id)
 		end
-
 		self:_align_marker(row_item)
 		row_item.color = row_item.item:enabled() and (row_item.hightlight_color or self.row_item_hightlight_color) or row_item.disabled_color
 		if row_item.type == "NOTHING" then
 		elseif row_item.type == "column" then
-			local (for generator), (for state), (for control) = ipairs(row_item.gui_columns)
-			do
-				do break end
+			for _, gui in ipairs(row_item.gui_columns) do
 				gui:set_color(row_item.color)
 				gui:set_font(tweak_data.menu.pd2_medium_font_id)
 			end
-
 		elseif row_item.type == "server_column" then
-			do
-				local (for generator), (for state), (for control) = ipairs(row_item.gui_columns)
-				do
-					do break end
-					gui:set_color(row_item.color)
-					gui:set_font(tweak_data.menu.pd2_medium_font_id)
-				end
-
+			for _, gui in ipairs(row_item.gui_columns) do
+				gui:set_color(row_item.color)
+				gui:set_font(tweak_data.menu.pd2_medium_font_id)
 			end
-
 			row_item.gui_info_panel:set_visible(true)
 		elseif row_item.type == "level" then
 			row_item.gui_level_panel:set_visible(true)
@@ -1346,7 +1230,6 @@ function MenuNodeGui:_highlight_row_item(row_item, mouse_over)
 			if not mouse_over then
 				row_item.chat_input:script().set_focus(true)
 			end
-
 		elseif row_item.type == "weapon_expand" or row_item.type == "weapon_upgrade_expand" then
 			row_item.item:highlight_row_item(self, row_item, mouse_over)
 		elseif row_item.item:parameters().back then
@@ -1358,20 +1241,16 @@ function MenuNodeGui:_highlight_row_item(row_item, mouse_over)
 			if row_item.gui_panel.set_text then
 				row_item.gui_panel:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.pd2_medium_font_id)
 			end
-
 			if row_item.gui_info_panel then
 				row_item.gui_info_panel:set_visible(true)
 			end
-
 			MenuNodeGui.super._highlight_row_item(self, row_item)
 			if row_item.icon then
 				row_item.icon:set_left(row_item.gui_panel:right())
 				row_item.icon:set_center_y(row_item.gui_panel:center_y())
 				row_item.icon:set_color(row_item.gui_panel:color())
 			end
-
 		end
-
 		local active_menu = managers.menu:active_menu()
 		if active_menu then
 			if row_item.item:parameters().stencil_image then
@@ -1379,18 +1258,14 @@ function MenuNodeGui:_highlight_row_item(row_item, mouse_over)
 			else
 				active_menu.renderer:set_stencil_image(self._stencil_image)
 			end
-
 		end
-
 	end
-
 end
 
 function MenuNodeGui:_align_marker(row_item)
 	if self.marker_color then
 		self._marker_data.gradient:set_color(row_item.item:enabled() and self.marker_color or self.marker_disabled_color or row_item.disabled_color)
 	end
-
 	if row_item.item:parameters().pd2_corner then
 		self._marker_data.marker:set_visible(true)
 		self._marker_data.gradient:set_visible(true)
@@ -1403,7 +1278,6 @@ function MenuNodeGui:_align_marker(row_item)
 		self._marker_data.marker:set_world_center_y(row_item.gui_text:world_center_y() - 2)
 		return
 	end
-
 	self._marker_data.marker:show()
 	self._marker_data.gradient:set_rotation(0)
 	self._marker_data.marker:set_height(64 * row_item.gui_panel:height() / 32)
@@ -1414,7 +1288,6 @@ function MenuNodeGui:_align_marker(row_item)
 	if item_enabled then
 	else
 	end
-
 	if row_item.item:parameters().back then
 		self._marker_data.marker:set_visible(false)
 	else
@@ -1422,9 +1295,7 @@ function MenuNodeGui:_align_marker(row_item)
 		if self._marker_data.back_marker then
 			self._marker_data.back_marker:set_visible(false)
 		end
-
 	end
-
 	if row_item.type == "upgrade" then
 		self._marker_data.marker:set_left(self:_mid_align())
 	elseif row_item.type == "friend" then
@@ -1434,7 +1305,6 @@ function MenuNodeGui:_align_marker(row_item)
 			local _, _, w, _ = row_item.signin_status:text_rect()
 			self._marker_data.marker:set_left(self:_left_align() - w - self._align_line_padding)
 		end
-
 	elseif row_item.type == "server_column" then
 		self._marker_data.marker:set_left(row_item.gui_panel:x())
 	elseif row_item.type == "customize_controller" then
@@ -1446,7 +1316,6 @@ function MenuNodeGui:_align_marker(row_item)
 				if row_item.choice_panel then
 					self._marker_data.marker:set_left(row_item.arrow_left:left() - self._align_line_padding + row_item.gui_panel:x())
 				end
-
 			elseif row_item.type == "toggle" then
 				if row_item.gui_option then
 					local x, y, w, h = row_item.gui_option:text_rect()
@@ -1454,21 +1323,16 @@ function MenuNodeGui:_align_marker(row_item)
 				else
 					self._marker_data.marker:set_left(row_item.gui_icon:x() - self._align_line_padding + row_item.gui_panel:x())
 				end
-
 			end
-
 		else
 		end
-
 	end
-
 	self._marker_data.marker:set_w(self:_scaled_size().width - self._marker_data.marker:left())
 	self._marker_data.gradient:set_w(self._marker_data.marker:w())
 	self._marker_data.gradient:set_visible(true)
 	if row_item.type == "chat" then
 		self._marker_data.gradient:set_visible(false)
 	end
-
 end
 
 function MenuNodeGui:_fade_row_item(row_item)
@@ -1477,24 +1341,15 @@ function MenuNodeGui:_fade_row_item(row_item)
 		row_item.color = row_item.item:enabled() and (row_item.row_item_color or self.row_item_color) or row_item.disabled_color
 		if row_item.type == "NOTHING" then
 		elseif row_item.type == "column" then
-			local (for generator), (for state), (for control) = ipairs(row_item.gui_columns)
-			do
-				do break end
+			for _, gui in ipairs(row_item.gui_columns) do
 				gui:set_color(row_item.color)
 				gui:set_font(tweak_data.menu.pd2_medium_font_id)
 			end
-
 		elseif row_item.type == "server_column" then
-			do
-				local (for generator), (for state), (for control) = ipairs(row_item.gui_columns)
-				do
-					do break end
-					gui:set_color(row_item.color)
-					gui:set_font(tweak_data.menu.pd2_medium_font_id)
-				end
-
+			for _, gui in ipairs(row_item.gui_columns) do
+				gui:set_color(row_item.color)
+				gui:set_font(tweak_data.menu.pd2_medium_font_id)
 			end
-
 			row_item.gui_info_panel:set_visible(false)
 		elseif row_item.type == "level" then
 			row_item.gui_level_panel:set_visible(false)
@@ -1519,22 +1374,17 @@ function MenuNodeGui:_fade_row_item(row_item)
 			if row_item.gui_panel.set_text then
 				row_item.gui_panel:set_font(row_item.font and Idstring(row_item.font) or tweak_data.menu.pd2_medium_font_id)
 			end
-
 			if row_item.gui_info_panel then
 				row_item.gui_info_panel:set_visible(false)
 			end
-
 			MenuNodeGui.super._fade_row_item(self, row_item)
 			if row_item.icon then
 				row_item.icon:set_left(row_item.gui_panel:right())
 				row_item.icon:set_center_y(row_item.gui_panel:center_y())
 				row_item.icon:set_color(row_item.gui_panel:color())
 			end
-
 		end
-
 	end
-
 end
 
 function MenuNodeGui:_align_item_gui_info_panel(panel)
@@ -1566,11 +1416,9 @@ function MenuNodeGui:_align_normal(row_item)
 		row_item.icon:set_center_y(row_item.gui_panel:center_y())
 		row_item.icon:set_color(row_item.gui_panel:color())
 	end
-
 	if row_item.gui_info_panel then
 		self:_align_info_panel(row_item)
 	end
-
 end
 
 function MenuNodeGui:_align_chat(row_item)
@@ -1596,7 +1444,6 @@ function MenuNodeGui:_align_chat(row_item)
 		row_item.icon:set_center_y(row_item.gui_panel:center_y())
 		row_item.icon:set_color(row_item.gui_panel:color())
 	end
-
 end
 
 function MenuNodeGui:_update_scaled_values()
@@ -1610,30 +1457,21 @@ function MenuNodeGui:resolution_changed()
 	local safe_rect = self:_scaled_size()
 	local res = RenderSettings.resolution
 	self._info_bg_rect:set_shape(0, tweak_data.load_level.upper_saferect_border, safe_rect.width * 0.41, safe_rect.height - tweak_data.load_level.upper_saferect_border * 2)
-	do
-		local (for generator), (for state), (for control) = pairs(self.row_items)
-		do
-			do break end
-			if row_item.item:parameters().trial_buy then
-				self:_setup_trial_buy(row_item)
-			end
-
-			if row_item.item:parameters().fake_disabled then
-				self:_setup_fake_disabled(row_item)
-			end
-
-			if row_item.item:reload(row_item, self) or row_item.item:parameters().back then
-			elseif row_item.item:parameters().pd2_corner then
-			elseif row_item.type == "chat" then
-				self:_align_chat(row_item)
-			elseif row_item.type ~= "kitslot" and row_item.type ~= "server_column" then
-				self:_align_normal(row_item)
-			end
-
+	for _, row_item in pairs(self.row_items) do
+		if row_item.item:parameters().trial_buy then
+			self:_setup_trial_buy(row_item)
 		end
-
+		if row_item.item:parameters().fake_disabled then
+			self:_setup_fake_disabled(row_item)
+		end
+		if row_item.item:reload(row_item, self) or row_item.item:parameters().back then
+		elseif row_item.item:parameters().pd2_corner then
+		elseif row_item.type == "chat" then
+			self:_align_chat(row_item)
+		elseif row_item.type ~= "kitslot" and row_item.type ~= "server_column" then
+			self:_align_normal(row_item)
+		end
 	end
-
 	MenuNodeGui.super.resolution_changed(self)
 	self._align_data.panel:set_center_x(self:_mid_align())
 	self._list_arrows.up:set_world_left(self._align_data.panel:world_left())
@@ -1654,7 +1492,6 @@ function MenuNodeGui:_layout_legends()
 	else
 		text:set_right(self._legends_panel:w())
 	end
-
 	text:set_bottom(self._legends_panel:h())
 	self._legends_panel:set_bottom(self.ws:panel():bottom())
 end
@@ -1670,50 +1507,34 @@ function MenuNodeGui:set_visible(visible)
 			active_menu.renderer:set_bg_visible(self._bg_visible)
 			active_menu.renderer:set_bg_area(self._bg_area)
 		end
-
 		if self._scene_state then
 			managers.menu_scene:set_scene_template(self._scene_state)
 		end
-
 	end
-
 	local active_menu = managers.menu:active_menu()
 	if active_menu then
 		if visible and self.row_items and #self.row_items > 0 then
-			local (for generator), (for state), (for control) = ipairs(self.row_items)
-			do
-				do break end
+			for _, row_item in ipairs(self.row_items) do
 				if row_item.highlighted then
 					active_menu.renderer:set_bottom_text(row_item.item:parameters().help_id)
+				else
+				end
 			end
-
-			else
-			end
-
 		else
 			active_menu.renderer:set_bottom_text(nil)
 		end
-
 	end
-
 end
 
 function MenuNodeGui:close(...)
-	do
-		local (for generator), (for state), (for control) = ipairs(self.row_items)
-		do
-			do break end
-			local item = row_item.item
-			local type = item:type()
-			if (type == "expand" or type == "weapon_expand" or type == "weapon_upgrade_expand") and item:expanded() then
-				item:toggle()
-				self:_reload_expand(item)
-			end
-
+	for _, row_item in ipairs(self.row_items) do
+		local item = row_item.item
+		local type = item:type()
+		if (type == "expand" or type == "weapon_expand" or type == "weapon_upgrade_expand") and item:expanded() then
+			item:toggle()
+			self:_reload_expand(item)
 		end
-
 	end
-
 	MenuNodeGui.super.close(self, ...)
 end
 
@@ -1724,7 +1545,6 @@ function MenuNodeMainGui:_setup_item_rows(node)
 		self._version_string:parent():remove(self._version_string)
 		self._version_string = nil
 	end
-
 	self._version_string = self.ws:panel():text({
 		name = "version_string",
 		text = Application:version(),

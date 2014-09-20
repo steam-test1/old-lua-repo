@@ -34,41 +34,26 @@ function CoreEditor:_create_dome_occlusion(params)
 	self:on_hide_helper_units(false)
 	self._saved_hidden_object = {}
 	self._saved_hidden_units = {}
-	do
-		local (for generator), (for state), (for control) = pairs(self._layers)
-		do
-			do break end
-			local (for generator), (for state), (for control) = ipairs(layer:created_units())
-			do
-				do break end
-				if unit:has_material_assigned(Idstring("leveltools")) then
-					self:set_unit_visible(unit, true)
-					local (for generator), (for state), (for control) = ipairs(unit:get_objects("*"))
-					do
-						do break end
-						local match = string.find(obj:name(), "s_", 1, true)
-						if not match or match ~= 1 then
-							obj:set_visibility(false)
-							table.insert(self._saved_hidden_object, obj)
-						end
-
+	for name, layer in pairs(self._layers) do
+		for _, unit in ipairs(layer:created_units()) do
+			if unit:has_material_assigned(Idstring("leveltools")) then
+				self:set_unit_visible(unit, true)
+				for _, obj in ipairs(unit:get_objects("*")) do
+					local match = string.find(obj:name(), "s_", 1, true)
+					if not match or match ~= 1 then
+						obj:set_visibility(false)
+						table.insert(self._saved_hidden_object, obj)
 					end
-
-				elseif unit:unit_data().hide_on_projection_light then
-					self:set_unit_visible(unit, false)
-					table.insert(self._saved_hidden_units, unit)
 				end
-
+			elseif unit:unit_data().hide_on_projection_light then
+				self:set_unit_visible(unit, false)
+				table.insert(self._saved_hidden_units, unit)
 			end
-
 		end
-
 	end
-
 	if self._current_layer then
 		self._current_layer:update_unit_settings()
 	end
-
 	local shape = self._dome_occlusion_params.shape
 	local corner = shape:position()
 	local w = shape:depth()
@@ -87,7 +72,6 @@ function CoreEditor:_create_dome_occlusion(params)
 		self:dome_occlusion_done()
 		return
 	end
-
 	local post_dome_occ = deferred_processor:modifier(Idstring("post_dome_occ"))
 	self._dome_occ_corner = corner
 	self._dome_occ_size = Vector3(w, d, h)
@@ -96,12 +80,10 @@ function CoreEditor:_create_dome_occlusion(params)
 		dome_occ_feed:set_variable(Idstring("dome_occ_pos"), self._dome_occ_corner)
 		dome_occ_feed:set_variable(Idstring("dome_occ_size"), self._dome_occ_size)
 	end
-
 	if not self._lastdir then
 		self:dome_occlusion_done()
 		return
 	end
-
 	local folder_name = "cube_lights"
 	local path = self._lastdir .. "\\" .. folder_name
 	print(path)
@@ -120,9 +102,7 @@ function CoreEditor:_tick_generate_dome_occlusion(t, dt)
 		elseif self._dome_occlusion_params.step == 3 then
 			self:dome_occlusion_done()
 		end
-
 	end
-
 end
 
 function CoreEditor:generate_dome_occlusion(path)
@@ -147,11 +127,9 @@ function CoreEditor:dome_occlusion_done()
 		Application:error("CoreEditor:dome_occlusion_done. Generate has not been started")
 		return
 	end
-
 	if self._dome_occlusion_params.saved_environment then
 		managers.environment_area:set_default_environment(self._dome_occlusion_params.saved_environment)
 	end
-
 	self:viewport():vp():set_post_processor_effect("World", Idstring("hdr_post_processor"), self._default_post_processor_effect)
 	local bloom_combine_effect = self._default_post_processor_effect == Idstring("empty") and Idstring("bloom_combine_empty") or Idstring("bloom_combine")
 	self:viewport():vp():set_post_processor_effect("World", Idstring("bloom_combine_post_processor"), bloom_combine_effect)
@@ -163,24 +141,12 @@ function CoreEditor:dome_occlusion_done()
 	self._layers[self._mission_layer_name]:set_enabled(true)
 	self._show_center = self._saved_show_center
 	self:on_hide_helper_units(true)
-	do
-		local (for generator), (for state), (for control) = ipairs(self._saved_hidden_object)
-		do
-			do break end
-			obj:set_visibility(true)
-		end
-
+	for _, obj in ipairs(self._saved_hidden_object) do
+		obj:set_visibility(true)
 	end
-
-	do
-		local (for generator), (for state), (for control) = ipairs(self._saved_hidden_units)
-		do
-			do break end
-			self:set_unit_visible(unit, true)
-		end
-
+	for _, unit in ipairs(self._saved_hidden_units) do
+		self:set_unit_visible(unit, true)
 	end
-
 	if self._saved_camera then
 		self:set_camera(self._saved_camera.pos, self._saved_camera.rot)
 		self:set_camera_fov(self._saved_camera.fov)
@@ -189,7 +155,6 @@ function CoreEditor:dome_occlusion_done()
 		self:camera():set_far_range(self._saved_camera.far_range)
 		self._saved_camera = nil
 	end
-
 	self:_set_appwin_fixed_resolution(nil)
 	self._vp:set_width_mul_enabled(true)
 	assert(self._vp:pop_ref_fov())
