@@ -487,8 +487,7 @@ function HUDManager:_create_teammates_panel(hud)
 	local small_gap = (teammates_panel:w() - player_gap - teammate_w * 4) / 3
 	for i = 1, 4 do
 		local is_player = i == HUDManager.PLAYER_PANEL
-		do break end
-		-- unhandled boolean indicator
+		
 		self._hud.teammate_panels_data[i] = {
 			taken = true,
 			special_equipments = {}

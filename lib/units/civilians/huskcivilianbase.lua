@@ -4,6 +4,7 @@ local ids_ik_aim = Idstring("ik_aim")
 HuskCivilianBase = HuskCivilianBase or class(HuskCopBase)
 function HuskCivilianBase:post_init()
 	self._ext_movement = self._unit:movement()
+	self._ext_anim = self._unit:anim_data()
 	self._unit:brain():post_init()
 	self:set_anim_lod(1)
 	self._lod_stage = 1

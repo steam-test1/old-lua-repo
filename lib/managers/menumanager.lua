@@ -996,6 +996,11 @@ function MenuCallbackHandler:dlc_buy_big_bank_pc()
 	Steam:overlay_activate("store", 306690)
 end
 
+function MenuCallbackHandler:dlc_buy_hl_miami_pc()
+	print("[MenuCallbackHandler:dlc_buy_hl_miami_pc]")
+	Steam:overlay_activate("store", 323500)
+end
+
 function MenuCallbackHandler:dlc_buy_gage_pack_assault_pc()
 	print("[MenuCallbackHandler:dlc_buy_gage_pack_assault_pc]")
 	Steam:overlay_activate("store", 320030)
@@ -1061,6 +1066,7 @@ end
 
 function MenuCallbackHandler:is_dlc_latest_locked(check_dlc)
 	local dlcs = {
+		"hl_miami",
 		"gage_pack_assault",
 		"gage_pack_shotgun",
 		"big_bank",
@@ -1119,6 +1125,10 @@ end
 
 function MenuCallbackHandler:visible_callback_gage_pack_assault()
 	return self:is_dlc_latest_locked("gage_pack_assault")
+end
+
+function MenuCallbackHandler:visible_callback_hl_miami()
+	return self:is_dlc_latest_locked("hl_miami")
 end
 
 function MenuCallbackHandler:visible_callback_big_bank()
@@ -2015,6 +2025,9 @@ function MenuCallbackHandler:_increase_infamous()
 end
 
 function MenuCallbackHandler:become_infamous(params)
+	if not self:can_become_infamous() then
+		return
+	end
 	local infamous_cost = Application:digest_value(tweak_data.infamy.ranks[managers.experience:current_rank() + 1], false)
 	local params = {}
 	params.cost = managers.experience:cash_string(infamous_cost)
@@ -2527,7 +2540,7 @@ end
 
 function MenuCallbackHandler:_dialog_end_game_yes()
 	managers.job:clear_saved_ghost_bonus()
-	managers.statistics:stop_session()
+	managers.statistics:stop_session({quit = true})
 	managers.savefile:save_progress()
 	managers.job:deactivate_current_job()
 	managers.gage_assignment:deactivate_assignments()
@@ -4047,6 +4060,7 @@ end
 
 MenuJukeboxHeistPlaylist = MenuJukeboxHeistPlaylist or class()
 function MenuJukeboxHeistPlaylist:modify_node(node, data)
+	managers.menu_component:show_contract_character(false)
 	node:clean_items()
 	local data = {
 		type = "MenuItemToggleWithIcon",
@@ -4105,6 +4119,7 @@ end
 
 MenuJukeboxHeistTracks = MenuJukeboxHeistTracks or class()
 function MenuJukeboxHeistTracks:modify_node(node, data)
+	managers.menu_component:show_contract_character(false)
 	node:clean_items()
 	local track_list, track_locked = managers.music:jukebox_music_tracks()
 	local option_data = {
@@ -4134,7 +4149,7 @@ function MenuJukeboxHeistTracks:modify_node(node, data)
 	for _, job_id in ipairs(tweak_data.narrative:get_jobs_index()) do
 		local job_tweak = tweak_data.narrative:job_data(job_id)
 		if self:_have_music(job_id) and not table.contains(unique_jobs, job_tweak.name_id) then
-			local text_id, color = tweak_data.narrative:create_job_name(job_id, true)
+			local text_id, color_ranges = tweak_data.narrative:create_job_name(job_id, true)
 			local days = #tweak_data.narrative:job_chain(job_id)
 			table.insert(unique_jobs, job_tweak.name_id)
 			if days > 1 then
@@ -4145,7 +4160,7 @@ function MenuJukeboxHeistTracks:modify_node(node, data)
 						day = i,
 						sort_id = text_id,
 						text_id = text_id .. " - " .. managers.localization:text("menu_jukebox_heist_day", {day = i}),
-						color = color
+						color_ranges = color_ranges
 					})
 				end
 			else
@@ -4154,7 +4169,7 @@ function MenuJukeboxHeistTracks:modify_node(node, data)
 					name_id = job_tweak.name_id,
 					sort_id = text_id,
 					text_id = text_id,
-					color = color
+					color_ranges = color_ranges
 				})
 			end
 		end
@@ -4174,9 +4189,7 @@ function MenuJukeboxHeistTracks:modify_node(node, data)
 			name = heist_name,
 			text_id = track_data.text_id,
 			localize = "false",
-			color_ranges = {
-				track_data.color
-			},
+			color_ranges = track_data.color_ranges,
 			align = "left",
 			callback = "jukebox_option_heist_tracks",
 			text_offset = 100,
@@ -4216,6 +4229,7 @@ end
 
 MenuJukeboxMenuPlaylist = MenuJukeboxMenuPlaylist or class()
 function MenuJukeboxMenuPlaylist:modify_node(node, data)
+	managers.menu_component:show_contract_character(false)
 	node:clean_items()
 	local data = {
 		type = "MenuItemToggleWithIcon",
@@ -4274,6 +4288,7 @@ end
 
 MenuJukeboxMenuTracks = MenuJukeboxMenuTracks or class()
 function MenuJukeboxMenuTracks:modify_node(node, data)
+	managers.menu_component:show_contract_character(false)
 	node:clean_items()
 	local track_list, track_locked = managers.music:jukebox_menu_tracks()
 	local option_data = {
@@ -5194,6 +5209,7 @@ end
 function MenuCallbackHandler:jukebox_option_back(item)
 	managers.music:track_listen_stop()
 	managers.music:post_event(managers.music:jukebox_menu_track("mainmenu"))
+	managers.menu_component:show_contract_character(true)
 end
 
 MenuCrimeNetGageAssignmentInitiator = MenuCrimeNetGageAssignmentInitiator or class(MenuCrimeNetContactInfoInitiator)
@@ -5404,7 +5420,7 @@ end
 function MenuCrimeNetSpecialInitiator:create_job(node, contract)
 	local id = contract.id
 	local enabled = contract.enabled
-	local text_id, color = tweak_data.narrative:create_job_name(id)
+	local text_id, color_ranges = tweak_data.narrative:create_job_name(id)
 	local ghostable = managers.job:is_job_ghostable(id)
 	if ghostable then
 		text_id = text_id .. " " .. managers.localization:get_default_macro("BTN_GHOST")
@@ -5412,7 +5428,7 @@ function MenuCrimeNetSpecialInitiator:create_job(node, contract)
 	local params = {
 		name = "job_" .. id,
 		text_id = text_id,
-		color_ranges = {color},
+		color_ranges = color_ranges,
 		localize = "false",
 		callback = enabled and "open_contract_node",
 		id = id,
@@ -5999,15 +6015,18 @@ function MenuCrimeNetFiltersInitiator:add_filters(node)
 	for index, job_id in ipairs(tweak_data.narrative:get_jobs_index()) do
 		if not tweak_data.narrative.jobs[job_id].wrapped_to_job and tweak_data.narrative.jobs[job_id].contact ~= "wip" then
 			local text_id, color_data = tweak_data.narrative:create_job_name(job_id)
-			table.insert(data_node, {
+			local params = {
 				_meta = "option",
 				text_id = text_id,
 				value = index,
-				color_section = color_data and color_data.color,
-				color_start = color_data and color_data.start,
-				color_stop = color_data and color_data.stop,
 				localize = false
-			})
+			}
+			for count, color in ipairs(color_data) do
+				params["color" .. count] = color.color
+				params["color_start" .. count] = color.start
+				params["color_stop" .. count] = color.stop
+			end
+			table.insert(data_node, params)
 		end
 	end
 	local new_item = node:create_item(data_node, params)

@@ -511,3 +511,12 @@ function PlayerInventory:set_visibility_state(state)
 	end
 end
 
+function PlayerInventory:set_weapon_enabled(state)
+	if self._equipped_selection then
+		self:equipped_unit():set_enabled(state)
+	end
+	if alive(self._shield_unit) then
+		self._shield_unit:set_enabled(state)
+	end
+end
+

@@ -5,7 +5,6 @@ function ElementPrePlanning:init(...)
 end
 
 function ElementPrePlanning:on_script_activated()
-	print(" !!!!!!!!!!!!!!!!!!!!!! ElementPrePlanning:on_script_activated()")
 	if self._values.enabled then
 		managers.preplanning:register_element(self)
 	end
@@ -15,9 +14,6 @@ function ElementPrePlanning:on_executed(instigator, ...)
 	if not self._values.enabled then
 		return
 	end
-	print("ElementPrePlanning:on_executed", inspect({
-		...
-	}))
 	ElementPrePlanning.super.on_executed(self, instigator, ...)
 end
 

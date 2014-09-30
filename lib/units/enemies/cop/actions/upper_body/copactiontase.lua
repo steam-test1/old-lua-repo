@@ -88,7 +88,7 @@ function CopActionTase:on_attention(attention)
 	self._tasing_local_unit = nil
 	self._tasing_player = nil
 	if Network:is_server() then
-		self._common_data.ext_network:send("action_tase_start")
+		self._common_data.ext_network:send("action_tase_event", 1)
 		if not attention_unit:base().is_husk_player then
 			self._shoot_t = TimerManager:game():time() + shoot_delay
 			self._tasing_local_unit = attention_unit
@@ -125,7 +125,7 @@ function CopActionTase:on_exit()
 		self._machine:allow_modifier(self._modifier_name)
 	end
 	if Network:is_server() then
-		self._unit:network():send("action_tase_end")
+		self._unit:network():send("action_tase_event", 2)
 		if self._expired then
 			self._ext_movement:action_request({type = "idle", body_part = 3})
 		end
@@ -214,7 +214,7 @@ function CopActionTase:update(t)
 			else
 				local vis_ray = self._unit:raycast("ray", shoot_from_pos, target_pos, "slot_mask", self._line_of_fire_slotmask, "ignore_unit", self._tasing_local_unit, "report")
 				if not vis_ray then
-					self._common_data.ext_network:send("action_tase_fire")
+					self._common_data.ext_network:send("action_tase_event", 3)
 					local attack_data = {
 						attacker_unit = self._unit
 					}
