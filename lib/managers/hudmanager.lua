@@ -1092,7 +1092,7 @@ end
 function HUDManager:check_start_anticipation_music(t)
 	if not self._anticipation_music_started and t < 30 then
 		self._anticipation_music_started = true
-		managers.network:session():send_to_peers("sync_start_anticipation_music")
+		managers.network:session():send_to_peers_synched("sync_start_anticipation_music")
 		self:sync_start_anticipation_music()
 	end
 end
@@ -1103,7 +1103,7 @@ end
 
 function HUDManager:start_assault(data)
 	self._hud.in_assault = true
-	managers.network:session():send_to_peers("sync_start_assault")
+	managers.network:session():send_to_peers_synched("sync_start_assault")
 	self:sync_start_assault(data)
 end
 
@@ -1111,7 +1111,7 @@ function HUDManager:end_assault(result)
 	self._anticipation_music_started = false
 	self._hud.in_assault = false
 	self:sync_end_assault(result)
-	managers.network:session():send_to_peers("sync_end_assault", result)
+	managers.network:session():send_to_peers_synched("sync_end_assault", result)
 end
 
 function HUDManager:setup_anticipation(total_t)
@@ -1143,7 +1143,7 @@ function HUDManager:check_anticipation_voice(t)
 	if t < self._anticipation_dialogs[1].time then
 		local data = table.remove(self._anticipation_dialogs, 1)
 		self:sync_assault_dialog(data.dialog)
-		managers.network:session():send_to_peers("sync_assault_dialog", data.dialog)
+		managers.network:session():send_to_peers_synched("sync_assault_dialog", data.dialog)
 	end
 end
 
@@ -1465,6 +1465,7 @@ end
 function HUDManager:on_simulation_ended()
 	self:remove_updator("point_of_no_return")
 	self:end_assault()
+	self._teammate_panels[HUDManager.PLAYER_PANEL]:remove_panel()
 end
 
 function HUDManager:debug_show_coordinates()

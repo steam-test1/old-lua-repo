@@ -79,6 +79,7 @@ function CoreEditor:init(game_state_machine, session_state)
 	assert(game_state_machine)
 	self._gsm = game_state_machine
 	self._session_state = session_state
+	PackageManager:set_resource_loaded_clbk(Idstring("unit"), callback(managers.sequence, managers.sequence, "clbk_pkg_manager_unit_loaded"))
 	World:get_object(Idstring("ref")):set_visibility(false)
 	self._WORKING_ON_CONTINENTS = true
 	self._skipped_freeflight_frames = 1
@@ -253,13 +254,14 @@ function CoreEditor:_init_layer_values()
 		25,
 		50,
 		100,
-		250,
-		500,
+		400,
+		800,
 		1000,
+		1600,
 		2000,
 		10000
 	}
-	self._grid_size = self._grid_sizes[5]
+	self._grid_size = self._grid_sizes[4]
 	self._snap_rotations = {
 		1,
 		2,
@@ -325,9 +327,9 @@ end
 
 function CoreEditor:_init_mission_difficulties()
 	self._mission_difficulties = {
-		"easy",
-		"medium",
-		"hard"
+		{"easy", "Easy"},
+		{"medium", "Medium"},
+		{"hard", "Hard"}
 	}
 	self._mission_difficulty = "medium"
 end
@@ -1468,6 +1470,7 @@ function CoreEditor:select_unit_name(name)
 							for k = 0, units_list:item_count() - 1 do
 								if layer:get_real_name(units_list:get_item_data(k)) == name:s() then
 									units_list:set_item_selected(k, true)
+									units_list:ensure_visible(k)
 									return "Found " .. name:s() .. " in layer " .. layer_name .. " with category " .. nb_type
 								end
 							end

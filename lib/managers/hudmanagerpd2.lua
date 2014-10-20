@@ -487,7 +487,8 @@ function HUDManager:_create_teammates_panel(hud)
 	local small_gap = (teammates_panel:w() - player_gap - teammate_w * 4) / 3
 	for i = 1, 4 do
 		local is_player = i == HUDManager.PLAYER_PANEL
-		
+		do break end
+		-- unhandled boolean indicator
 		self._hud.teammate_panels_data[i] = {
 			taken = true,
 			special_equipments = {}
@@ -1036,7 +1037,8 @@ function HUDManager:teammate_progress(peer_id, type_index, enabled, tweak_data_i
 		elseif type_index == 2 then
 			if enabled then
 				local equipment_name = managers.localization:text(tweak_data.equipments[tweak_data_id].text_id)
-				action_text = managers.localization:text("hud_deploying_equipment", {EQUIPMENT = equipment_name})
+				local deploying_text = tweak_data.equipments[tweak_data_id].deploying_text_id and managers.localization:text(tweak_data.equipments[tweak_data_id].deploying_text_id) or false
+				action_text = deploying_text or managers.localization:text("hud_deploying_equipment", {EQUIPMENT = equipment_name})
 			end
 		elseif type_index == 3 then
 			action_text = managers.localization:text("hud_starting_heist")

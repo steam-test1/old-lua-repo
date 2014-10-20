@@ -1943,7 +1943,7 @@ function MenuCallbackHandler:get_matchmake_attributes()
 	local permission_id = tweak_data:permission_to_index(Global.game_settings.permission)
 	local min_lvl = Global.game_settings.reputation_permission or 0
 	local drop_in = Global.game_settings.drop_in_allowed and 1 or 0
-	local job_id = tweak_data.narrative:get_index_from_job_id(managers.job:current_job_id())
+	local job_id = tweak_data.narrative:get_index_from_job_id(managers.job:current_real_job_id())
 	local attributes = {
 		numbers = {
 			level_id + 1000 * job_id,
@@ -1958,7 +1958,7 @@ function MenuCallbackHandler:get_matchmake_attributes()
 	if self:is_win32() then
 		local kicking_allowed = Global.game_settings.kicking_allowed and 1 or 0
 		table.insert(attributes.numbers, kicking_allowed)
-		local job_class = managers.job:calculate_job_class(managers.job:current_job_id(), difficulty_id)
+		local job_class = managers.job:calculate_job_class(managers.job:current_real_job_id(), difficulty_id)
 		table.insert(attributes.numbers, job_class)
 	end
 	return attributes
@@ -2006,7 +2006,7 @@ function MenuCallbackHandler:_increase_infamous()
 	managers.experience:set_current_rank(rank)
 	managers.money:deduct_from_total(managers.money:total())
 	managers.money:deduct_from_offshore(Application:digest_value(tweak_data.infamy.ranks[rank], false))
-	managers.skilltree:reset()
+	managers.skilltree:infamy_reset()
 	managers.blackmarket:reset_equipped()
 	if managers.menu_component then
 		managers.menu_component:refresh_player_profile_gui()
@@ -3670,31 +3670,6 @@ function VerifyLevelOptionInitiator:modify_node(node)
 	return node
 end
 
-DynamicLevelCreator = DynamicLevelCreator or class()
-function DynamicLevelCreator:modify_node(node)
-	print("DynamicLevelCreator:modify_node", inspect(node))
-	local single_player = node:parameters().single_player
-	local new_node = deep_clone(node)
-	for _, level_id in ipairs(tweak_data.levels:get_level_index()) do
-		local level_data = tweak_data.levels[level_id]
-		local params = {
-			name = "pick_" .. level_id,
-			level_id = level_id,
-			text_id = managers.localization:text(level_data.name_id),
-			help_id = single_player and "menu_start_the_game_help" or "menu_start_lobby_help",
-			difficulty = 1,
-			localize = "false",
-			callback = single_player and "lobby_start_campaign" or "lobby_create_campaign",
-			info_panel = "lobby_campaign",
-			title_id = "menu_campaign"
-		}
-		local new_item = new_node:create_item(nil, params)
-		new_node:add_item(new_item)
-	end
-	managers.menu:add_back_button(new_node)
-	return new_node
-end
-
 MenuCustomizeControllerCreator = MenuCustomizeControllerCreator or class()
 MenuCustomizeControllerCreator.CONTROLS = {
 	"move",
@@ -4114,6 +4089,7 @@ function MenuJukeboxHeistPlaylist:modify_node(node, data)
 		end
 		node:add_item(item)
 	end
+	managers.menu:add_back_button(node)
 	return node
 end
 
@@ -4201,6 +4177,7 @@ function MenuJukeboxHeistTracks:modify_node(node, data)
 		item:set_value(managers.music:track_attachment(heist_name) or "all")
 		node:add_item(item)
 	end
+	managers.menu:add_back_button(node)
 	return node
 end
 
@@ -4283,6 +4260,7 @@ function MenuJukeboxMenuPlaylist:modify_node(node, data)
 		end
 		node:add_item(item)
 	end
+	managers.menu:add_back_button(node)
 	return node
 end
 
@@ -4334,6 +4312,7 @@ function MenuJukeboxMenuTracks:modify_node(node, data)
 		item:set_value(managers.music:track_attachment(track_name))
 		node:add_item(item)
 	end
+	managers.menu:add_back_button(node)
 	return node
 end
 
@@ -5119,7 +5098,9 @@ function MenuCallbackHandler:jukebox_option_heist_tracks(item)
 	end
 	local item_list = managers.menu:active_menu().logic:selected_node():items()
 	for _, item_data in ipairs(item_list) do
-		item_data:set_icon_visible(false)
+		if item_data.set_icon_visible then
+			item_data:set_icon_visible(false)
+		end
 	end
 	if track ~= "all" and track ~= "playlist" then
 		managers.music:track_listen_start("music_heist_assault", track)
@@ -5141,7 +5122,9 @@ function MenuCallbackHandler:jukebox_option_heist_playlist(item)
 	end
 	local item_list = managers.menu:active_menu().logic:selected_node():items()
 	for _, item_data in ipairs(item_list) do
-		item_data:set_icon_visible(false)
+		if item_data.set_icon_visible then
+			item_data:set_icon_visible(false)
+		end
 	end
 	if empty_list then
 		item:set_value("on")
@@ -5169,7 +5152,9 @@ function MenuCallbackHandler:jukebox_option_menu_playlist(item)
 	end
 	local item_list = managers.menu:active_menu().logic:selected_node():items()
 	for _, item_data in ipairs(item_list) do
-		item_data:set_icon_visible(false)
+		if item_data.set_icon_visible then
+			item_data:set_icon_visible(false)
+		end
 	end
 	if empty_list then
 		item:set_value("on")
@@ -5190,7 +5175,9 @@ function MenuCallbackHandler:jukebox_option_menu_tracks(item)
 	local track = item:value()
 	local item_list = managers.menu:active_menu().logic:selected_node():items()
 	for _, item_data in ipairs(item_list) do
-		item_data:set_icon_visible(false)
+		if item_data.set_icon_visible then
+			item_data:set_icon_visible(false)
+		end
 	end
 	managers.music:track_attachment_add(item:name(), track)
 	if track ~= "all" and track ~= "playlist" then
@@ -5945,6 +5932,7 @@ function MenuCrimeNetFiltersInitiator:modify_node(original_node, data)
 		local matchmake_filters = managers.network.matchmake:lobby_filters()
 		node:item("toggle_new_servers_only"):set_value(matchmake_filters.num_players and matchmake_filters.num_players.value or -1)
 		node:item("toggle_server_state_lobby"):set_value(matchmake_filters.state and matchmake_filters.state.value or -1)
+		node:item("toggle_job_appropriate_lobby"):set_value(Global.game_settings.search_appropriate_jobs and "on" or "off")
 		node:item("max_lobbies_filter"):set_value(managers.network.matchmake:get_lobby_return_count())
 		node:item("server_filter"):set_value(managers.network.matchmake:distance_filter())
 		node:item("difficulty_filter"):set_value(matchmake_filters.difficulty and matchmake_filters.difficulty.value or -1)
@@ -5954,6 +5942,7 @@ function MenuCrimeNetFiltersInitiator:modify_node(original_node, data)
 		local not_friends_only = not Global.game_settings.search_friends_only
 		node:item("toggle_new_servers_only"):set_enabled(not_friends_only)
 		node:item("toggle_server_state_lobby"):set_enabled(not_friends_only)
+		node:item("toggle_job_appropriate_lobby"):set_enabled(not_friends_only)
 		node:item("max_lobbies_filter"):set_enabled(not_friends_only)
 		node:item("server_filter"):set_enabled(not_friends_only)
 		node:item("difficulty_filter"):set_enabled(not_friends_only)
@@ -5972,6 +5961,7 @@ function MenuCrimeNetFiltersInitiator:update_node(node)
 		local not_friends_only = not Global.game_settings.search_friends_only
 		node:item("toggle_new_servers_only"):set_enabled(not_friends_only)
 		node:item("toggle_server_state_lobby"):set_enabled(not_friends_only)
+		node:item("toggle_job_appropriate_lobby"):set_enabled(not_friends_only)
 		node:item("max_lobbies_filter"):set_enabled(not_friends_only)
 		node:item("server_filter"):set_enabled(not_friends_only)
 		node:item("difficulty_filter"):set_enabled(not_friends_only)
@@ -5985,6 +5975,7 @@ function MenuCrimeNetFiltersInitiator:refresh_node(node)
 		local not_friends_only = not Global.game_settings.search_friends_only
 		node:item("toggle_new_servers_only"):set_enabled(not_friends_only)
 		node:item("toggle_server_state_lobby"):set_enabled(not_friends_only)
+		node:item("toggle_job_appropriate_lobby"):set_enabled(not_friends_only)
 		node:item("max_lobbies_filter"):set_enabled(not_friends_only)
 		node:item("server_filter"):set_enabled(not_friends_only)
 		node:item("difficulty_filter"):set_enabled(not_friends_only)

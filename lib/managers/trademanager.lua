@@ -263,7 +263,7 @@ function TradeManager:on_AI_criminal_death(criminal_name, respawn_penalty, hosta
 	}
 	table.insert(self._criminals_to_respawn, crim)
 	if Network:is_server() and not skip_netsend then
-		managers.network:session():send_to_peers("set_trade_death", criminal_name, respawn_penalty, hostages_killed)
+		managers.network:session():send_to_peers_synched("set_trade_death", criminal_name, respawn_penalty, hostages_killed)
 		self:sync_set_trade_death(criminal_name, respawn_penalty, hostages_killed, true)
 	end
 	return crim
@@ -306,7 +306,7 @@ function TradeManager:on_player_criminal_death(criminal_name, respawn_penalty, h
 		table.insert(self._criminals_to_respawn, crim)
 	end
 	if Network:is_server() and not skip_netsend then
-		managers.network:session():send_to_peers("set_trade_death", criminal_name, respawn_penalty, hostages_killed)
+		managers.network:session():send_to_peers_synched("set_trade_death", criminal_name, respawn_penalty, hostages_killed)
 		self:sync_set_trade_death(criminal_name, respawn_penalty, hostages_killed, true)
 	end
 	print("[TradeManager:on_player_criminal_death]", criminal_name, ". Respawn queue:")
@@ -319,7 +319,7 @@ end
 function TradeManager:set_trade_countdown(enabled)
 	self._trade_countdown = enabled
 	if Network:is_server() and managers.network then
-		managers.network:session():send_to_peers("set_trade_countdown", enabled)
+		managers.network:session():send_to_peers_synched("set_trade_countdown", enabled)
 	end
 end
 
@@ -437,7 +437,7 @@ end
 
 function TradeManager:change_hostage()
 	self:sync_hostage_trade_dialog(6)
-	managers.network:session():send_to_peers("hostage_trade_dialog", 6)
+	managers.network:session():send_to_peers_synched("hostage_trade_dialog", 6)
 	self:cancel_trade()
 end
 
@@ -544,7 +544,7 @@ function TradeManager:clbk_begin_hostage_trade_dialog(i)
 		self._hostage_trade_clbk = "TradeManager"
 		managers.enemy:add_delayed_clbk(self._hostage_trade_clbk, callback(self, self, "clbk_begin_hostage_trade"), respawn_t)
 	end
-	managers.network:session():send_to_peers("hostage_trade_dialog", i)
+	managers.network:session():send_to_peers_synched("hostage_trade_dialog", i)
 end
 
 function TradeManager:clbk_begin_hostage_trade()
