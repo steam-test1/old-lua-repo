@@ -418,7 +418,6 @@ function GameSetup:save(data)
 	managers.preplanning:sync_save(data)
 	managers.assets:sync_save(data)
 	managers.job:sync_save(data)
-	managers.sequence:save(data)
 end
 
 function GameSetup:load(data)
@@ -440,7 +439,6 @@ function GameSetup:load(data)
 	managers.assets:sync_load(data)
 	managers.job:sync_load(data)
 	managers.menu_component:load(data)
-	managers.sequence:load(data)
 end
 
 function GameSetup:_update_debug_input()
