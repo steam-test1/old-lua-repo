@@ -5,3 +5,5 @@ end
 
 SaigaShotgun = SaigaShotgun or class(NewShotgunBase)
 GrenadeLauncherBase = GrenadeLauncherBase or class(NewRaycastWeaponBase)
+AkimboWeaponBase = AkimboWeaponBase or class(NewRaycastWeaponBase)
+AkimboWeaponBase.AKIMBO = true
