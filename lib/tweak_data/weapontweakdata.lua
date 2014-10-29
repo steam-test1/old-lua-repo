@@ -68,6 +68,7 @@ function WeaponTweakData:init(tweak_data)
 	self:_init_data_x_b92fs_npc()
 	self:_init_data_x_deagle_npc()
 	self:_init_data_g26_npc()
+	self:_init_data_spas12_npc()
 	self:_precalculate_values()
 end
 
@@ -1088,6 +1089,21 @@ function WeaponTweakData:_init_data_g26_npc()
 	self.g26_npc.hold = "pistol"
 	self.g26_npc.alert_size = 2500
 	self.g26_npc.suppression = 1
+end
+
+function WeaponTweakData:_init_data_spas12_npc()
+	self.spas12_npc.sounds.prefix = "spas_npc"
+	self.spas12_npc.use_data.selection_index = 2
+	self.spas12_npc.DAMAGE = 5
+	self.spas12_npc.muzzleflash = "effects/payday2/particles/weapons/762_auto"
+	self.spas12_npc.shell_ejection = "effects/payday2/particles/weapons/shells/shell_slug"
+	self.spas12_npc.auto.fire_rate = 0.14
+	self.spas12_npc.CLIP_AMMO_MAX = 8
+	self.spas12_npc.NR_CLIPS_MAX = 4
+	self.spas12_npc.hold = "rifle"
+	self.spas12_npc.alert_size = 4500
+	self.spas12_npc.suppression = 1.8
+	self.spas12_npc.is_shotgun = true
 end
 
 function WeaponTweakData:_init_data_player_weapons(tweak_data)
@@ -6453,6 +6469,186 @@ function WeaponTweakData:_init_new_weapons(autohit_rifle_default, autohit_pistol
 		total_ammo_mod = 21,
 		value = 1
 	}
+	self.spas12 = {}
+	self.spas12.category = "shotgun"
+	self.spas12.damage_melee = damage_melee_default
+	self.spas12.damage_melee_effect_mul = damage_melee_effect_multiplier_default
+	self.spas12.sounds = {}
+	self.spas12.sounds.fire = "spas_fire"
+	self.spas12.sounds.dryfire = "shotgun_dryfire"
+	self.spas12.sounds.stop_fire = "shotgun_dryfire"
+	self.spas12.sounds.enter_steelsight = "primary_steel_sight_enter"
+	self.spas12.sounds.leave_steelsight = "primary_steel_sight_exit"
+	self.spas12.timers = {}
+	self.spas12.timers.unequip = 0.85
+	self.spas12.timers.equip = 0.85
+	self.spas12.name_id = "bm_w_spas12"
+	self.spas12.desc_id = "bm_w_spas12_desc"
+	self.spas12.description_id = "des_spas12"
+	self.spas12.muzzleflash = "effects/payday2/particles/weapons/762_auto_fps"
+	self.spas12.shell_ejection = "effects/payday2/particles/weapons/shells/shell_slug"
+	self.spas12.use_data = {}
+	self.spas12.use_data.selection_index = 2
+	self.spas12.use_data.align_place = "right_hand"
+	self.spas12.DAMAGE = 6
+	self.spas12.damage_near = 700
+	self.spas12.damage_far = 1800
+	self.spas12.rays = 5
+	self.spas12.CLIP_AMMO_MAX = 6
+	self.spas12.NR_CLIPS_MAX = math.round(total_damage_primary / 8 / self.spas12.CLIP_AMMO_MAX)
+	self.spas12.AMMO_MAX = self.spas12.CLIP_AMMO_MAX * self.spas12.NR_CLIPS_MAX
+	self.spas12.AMMO_PICKUP = self:_pickup_chance(self.spas12.AMMO_MAX, 2)
+	self.spas12.FIRE_MODE = "single"
+	self.spas12.fire_mode_data = {}
+	self.spas12.fire_mode_data.fire_rate = 0.2
+	self.spas12.CAN_TOGGLE_FIREMODE = false
+	self.spas12.single = {}
+	self.spas12.single.fire_rate = 0.2
+	self.spas12.spread = {}
+	self.spas12.spread.standing = self.r870.spread.standing
+	self.spas12.spread.crouching = self.r870.spread.crouching
+	self.spas12.spread.steelsight = self.r870.spread.steelsight
+	self.spas12.spread.moving_standing = self.r870.spread.moving_standing
+	self.spas12.spread.moving_crouching = self.r870.spread.moving_crouching
+	self.spas12.spread.moving_steelsight = self.r870.spread.moving_steelsight
+	self.spas12.kick = {}
+	self.spas12.kick.standing = {
+		1.8,
+		1.5,
+		-0.5,
+		0.8
+	}
+	self.spas12.kick.crouching = self.spas12.kick.standing
+	self.spas12.kick.steelsight = self.spas12.kick.standing
+	self.spas12.crosshair = {}
+	self.spas12.crosshair.standing = {}
+	self.spas12.crosshair.crouching = {}
+	self.spas12.crosshair.steelsight = {}
+	self.spas12.crosshair.standing.offset = 0.6
+	self.spas12.crosshair.standing.moving_offset = 0.8
+	self.spas12.crosshair.standing.kick_offset = 0.8
+	self.spas12.crosshair.crouching.offset = 0.75
+	self.spas12.crosshair.crouching.moving_offset = 0.85
+	self.spas12.crosshair.crouching.kick_offset = 0.95
+	self.spas12.crosshair.steelsight.hidden = true
+	self.spas12.crosshair.steelsight.offset = 0.85
+	self.spas12.crosshair.steelsight.moving_offset = 0.95
+	self.spas12.crosshair.steelsight.kick_offset = 0.95
+	self.spas12.shake = {}
+	self.spas12.shake.fire_multiplier = 2.4
+	self.spas12.shake.fire_steelsight_multiplier = 1.45
+	self.spas12.autohit = autohit_shotgun_default
+	self.spas12.aim_assist = aim_assist_shotgun_default
+	self.spas12.animations = {}
+	self.spas12.animations.equip_id = "equip_r870_shotgun"
+	self.spas12.animations.recoil_steelsight = true
+	self.spas12.global_value = "pd2_clan"
+	self.spas12.stats = {
+		damage = 20,
+		spread = 6,
+		recoil = 4,
+		spread_moving = 7,
+		zoom = 3,
+		concealment = 14,
+		suppression = 5,
+		alert_size = 7,
+		extra_ammo = 6,
+		total_ammo_mod = 21,
+		value = 1
+	}
+end
+
+function WeaponTweakData:_init_data_offhand_weapons()
+	self.b92fs_primary = deep_clone(self.b92fs)
+	self.b92fs_primary.parent_weapon_id = "b92fs"
+	self.b92fs_primary.use_data.selection_index = 2
+	self.b92fs_primary.animations.reload_name_id = "b92fs"
+	self.b92fs_primary.use_stance = "b92fs"
+	self.b92fs_primary.texture_name = "b92fs"
+	self.b92fs_primary.AMMO_MAX = math.round(self.b92fs_primary.AMMO_MAX * 0.75)
+	self.glock_18c_primary = deep_clone(self.glock_18c)
+	self.glock_18c_primary.parent_weapon_id = "glock_18c"
+	self.glock_18c_primary.use_data.selection_index = 2
+	self.glock_18c_primary.animations.reload_name_id = "glock_18c"
+	self.glock_18c_primary.use_stance = "glock_18c"
+	self.glock_18c_primary.texture_name = "glock_18c"
+	self.glock_18c_primary.AMMO_MAX = math.round(self.glock_18c_primary.AMMO_MAX * 0.75)
+	self.olympic_primary = deep_clone(self.olympic)
+	self.olympic_primary.parent_weapon_id = "olympic"
+	self.olympic_primary.use_data.selection_index = 2
+	self.olympic_primary.animations.reload_name_id = "olympic"
+	self.olympic_primary.use_stance = "olympic"
+	self.olympic_primary.texture_name = "olympic"
+	self.olympic_primary.AMMO_MAX = math.round(self.olympic_primary.AMMO_MAX * 0.75)
+	self.akmsu_primary = deep_clone(self.akmsu)
+	self.akmsu_primary.parent_weapon_id = "akmsu"
+	self.akmsu_primary.use_data.selection_index = 2
+	self.akmsu_primary.animations.reload_name_id = "akmsu"
+	self.akmsu_primary.use_stance = "akmsu"
+	self.akmsu_primary.texture_name = "akmsu"
+	self.akmsu_primary.AMMO_MAX = math.round(self.akmsu_primary.AMMO_MAX * 0.75)
+	self.deagle_primary = deep_clone(self.deagle)
+	self.deagle_primary.parent_weapon_id = "deagle"
+	self.deagle_primary.use_data.selection_index = 2
+	self.deagle_primary.animations.reload_name_id = "deagle"
+	self.deagle_primary.use_stance = "deagle"
+	self.deagle_primary.texture_name = "deagle"
+	self.deagle_primary.weapon_hold = "deagle"
+	self.deagle_primary.AMMO_MAX = math.round(self.deagle_primary.AMMO_MAX * 0.75)
+	self.colt_1911_primary = deep_clone(self.colt_1911)
+	self.colt_1911_primary.parent_weapon_id = "colt_1911"
+	self.colt_1911_primary.use_data.selection_index = 2
+	self.colt_1911_primary.animations.reload_name_id = "colt_1911"
+	self.colt_1911_primary.use_stance = "colt_1911"
+	self.colt_1911_primary.texture_name = "colt_1911"
+	self.colt_1911_primary.weapon_hold = "colt_1911"
+	self.colt_1911_primary.AMMO_MAX = math.round(self.colt_1911_primary.AMMO_MAX * 0.75)
+	self.raging_bull_primary = deep_clone(self.new_raging_bull)
+	self.raging_bull_primary.parent_weapon_id = "new_raging_bull"
+	self.raging_bull_primary.use_data.selection_index = 2
+	self.raging_bull_primary.animations.reload_name_id = "new_raging_bull"
+	self.raging_bull_primary.use_stance = "new_raging_bull"
+	self.raging_bull_primary.texture_name = "new_raging_bull"
+	self.raging_bull_primary.AMMO_MAX = math.round(self.raging_bull_primary.AMMO_MAX * 0.75)
+	self.ak74_secondary = deep_clone(self.ak74)
+	self.ak74_secondary.parent_weapon_id = "ak74"
+	self.ak74_secondary.use_data.selection_index = 1
+	self.ak74_secondary.animations.reload_name_id = "ak74"
+	self.ak74_secondary.use_stance = "ak74"
+	self.ak74_secondary.texture_name = "ak74"
+	self.ak74_secondary.AMMO_MAX = math.round(self.ak74_secondary.AMMO_MAX * 0.75)
+	self.aug_secondary = deep_clone(self.aug)
+	self.aug_secondary.parent_weapon_id = "aug"
+	self.aug_secondary.use_data.selection_index = 1
+	self.aug_secondary.animations.reload_name_id = "aug"
+	self.aug_secondary.use_stance = "aug"
+	self.aug_secondary.texture_name = "aug"
+	self.aug_secondary.weapon_hold = "aug"
+	self.aug_secondary.AMMO_MAX = math.round(self.aug_secondary.AMMO_MAX * 0.75)
+	self.saw_secondary = deep_clone(self.saw)
+	self.saw_secondary.parent_weapon_id = "saw"
+	self.saw_secondary.use_data.selection_index = 1
+	self.saw_secondary.animations.reload_name_id = "saw"
+	self.saw_secondary.use_stance = "saw"
+	self.saw_secondary.texture_name = "saw"
+	self.saw_secondary.weapon_hold = "saw"
+	self.saw_secondary.AMMO_MAX = math.round(self.saw_secondary.AMMO_MAX * 0.75)
+	self.s552_secondary = deep_clone(self.s552)
+	self.s552_secondary.parent_weapon_id = "s552"
+	self.s552_secondary.use_data.selection_index = 1
+	self.s552_secondary.animations.reload_name_id = "s552"
+	self.s552_secondary.use_stance = "s552"
+	self.s552_secondary.texture_name = "s552"
+	self.s552_secondary.weapon_hold = "s552"
+	self.s552_secondary.AMMO_MAX = math.round(self.s552_secondary.AMMO_MAX * 0.75)
+	self.m4_secondary = deep_clone(self.new_m4)
+	self.m4_secondary.parent_weapon_id = "new_m4"
+	self.m4_secondary.use_data.selection_index = 1
+	self.m4_secondary.animations.reload_name_id = "new_m4"
+	self.m4_secondary.use_stance = "new_m4"
+	self.m4_secondary.texture_name = "new_m4"
+	self.m4_secondary.weapon_hold = "new_m4"
+	self.m4_secondary.AMMO_MAX = math.round(self.m4_secondary.AMMO_MAX * 0.75)
 end
 
 function WeaponTweakData:_create_table_structure_wip()
@@ -6848,6 +7044,12 @@ function WeaponTweakData:_create_table_structure()
 		use_data = {},
 		auto = {}
 	}
+	self.spas12_npc = {
+		usage = "r870",
+		sounds = {},
+		use_data = {},
+		auto = {}
+	}
 end
 
 function WeaponTweakData:_precalculate_values_wip()
@@ -6919,5 +7121,6 @@ function WeaponTweakData:_precalculate_values()
 	self.x_b92fs_npc.AMMO_MAX = self.x_b92fs_npc.CLIP_AMMO_MAX * self.x_b92fs_npc.NR_CLIPS_MAX
 	self.x_deagle_npc.AMMO_MAX = self.x_deagle_npc.CLIP_AMMO_MAX * self.x_deagle_npc.NR_CLIPS_MAX
 	self.g26_npc.AMMO_MAX = 150
+	self.spas12_npc.AMMO_MAX = self.spas12_npc.CLIP_AMMO_MAX * self.spas12_npc.NR_CLIPS_MAX
 end
 

@@ -29,6 +29,9 @@ require("lib/tweak_data/GageAssignmentTweakData")
 require("lib/tweak_data/PrePlanningTweakData")
 require("lib/tweak_data/InteractionTweakData")
 TweakData = TweakData or class()
+function TweakData:_init_wip_tweak_data()
+end
+
 function TweakData:_init_wip_hud_icons()
 end
 
@@ -399,14 +402,15 @@ function TweakData:init()
 		"german",
 		"spanish",
 		"american",
-		"jowi"
+		"jowi",
+		"old_hoxton"
 	}
 	self.criminals.characters = {
 		{
 			name = "american",
 			static_data = {
 				ai_character_id = "ai_hoxton",
-				ssuffix = "d",
+				ssuffix = "l",
 				color_id = 1,
 				voice = "rb2",
 				ai_mask_id = "hoxton",
@@ -454,6 +458,17 @@ function TweakData:init()
 				color_id = 4,
 				voice = "rb6",
 				ai_mask_id = "jw_shades",
+				mask_id = 4
+			}
+		},
+		{
+			name = "old_hoxton",
+			static_data = {
+				ai_character_id = "ai_old_hoxton",
+				ssuffix = "d",
+				color_id = 4,
+				voice = "rb5",
+				ai_mask_id = "old_hoxton",
 				mask_id = 4
 			}
 		}
@@ -1107,6 +1122,7 @@ function TweakData:init()
 		kill_type = "melee",
 		count = 50
 	}
+	self.achievement.cavity = {award = "bulldog_4", melee_type = "toothbrush"}
 	self.achievement.one_man_army = {
 		award = "gage5_3",
 		equipped = {
@@ -1484,14 +1500,22 @@ function TweakData:init()
 			difficulty = {
 				"overkill_290"
 			},
-			job = "watchdogs"
+			jobs = {
+				"watchdogs_wrapper",
+				"watchdogs_night",
+				"watchdogs"
+			}
 		},
 		death_watchdogs_prof = {
 			award = "death_6",
 			difficulty = {
 				"overkill_290"
 			},
-			job = "watchdogs_prof"
+			jobs = {
+				"watchdogs_wrapper_prof",
+				"watchdogs_night_prof",
+				"watchdogs_prof"
+			}
 		},
 		death_rats = {
 			award = "death_33",
@@ -1540,7 +1564,11 @@ function TweakData:init()
 			difficulty = {
 				"overkill_290"
 			},
-			job = "welcome_to_the_jungle_prof"
+			jobs = {
+				"welcome_to_the_jungle_wrapper_prof",
+				"welcome_to_the_jungle_night_prof",
+				"welcome_to_the_jungle_prof"
+			}
 		},
 		death_jewelry_store = {
 			award = "death_13",
@@ -1675,6 +1703,31 @@ function TweakData:init()
 			},
 			job = "mia_prof"
 		},
+		death_artgallery = {
+			award = "squek",
+			difficulty = {
+				"overkill_290"
+			},
+			job = "gallery"
+		},
+		death_hoxton = {
+			award = "bulldog_2",
+			difficulty = {
+				"overkill_290"
+			},
+			job = "hox"
+		},
+		death_hoxton_prof = {
+			award = "bulldog_3",
+			difficulty = {
+				"overkill_290"
+			},
+			job = "hox_prof"
+		},
+		complete_hoxton = {
+			award = "bulldog_1",
+			jobs = {"hox", "hox_prof"}
+		},
 		not_for_old_men = {
 			award = "gage4_11",
 			full_jobs_id = {
@@ -1702,8 +1755,8 @@ function TweakData:init()
 		"nightclub"
 	}
 	self.achievement.job_list.hector = {
-		"watchdogs",
-		"watchdogs_prof",
+		"watchdogs_wrapper",
+		"watchdogs_wrapper_prof",
 		"alex",
 		"alex_prof",
 		"firestarter",
@@ -1712,7 +1765,7 @@ function TweakData:init()
 	self.achievement.job_list.elephant = {
 		"framing_frame",
 		"framing_frame_prof",
-		"welcome_to_the_jungle_prof",
+		"welcome_to_the_jungle_wrapper_prof",
 		"election_day",
 		"election_day_prof"
 	}
@@ -1729,12 +1782,15 @@ function TweakData:init()
 		"arm_fac",
 		"arm_par",
 		"arm_und",
-		"kosugi"
+		"kosugi",
+		"gallery"
 	}
 	self.achievement.job_list.dentist = {
 		"big",
 		"mia",
-		"mia_prof"
+		"mia_prof",
+		"hox",
+		"hox_prof"
 	}
 	self.achievement.complete_heist_stats_achievements = {
 		death_vlad = {
@@ -1836,11 +1892,15 @@ function TweakData:init()
 				"pig"
 			}
 		},
-		guy_with_gun = {
+		guy_with_gun_now_with_night_jobs = {
 			award = "gage5_6",
 			jobs = {
+				"watchdogs_wrapper",
+				"watchdogs_wrapper_prof",
 				"watchdogs",
-				"watchdogs_prof"
+				"watchdogs_prof",
+				"watchdogs_night",
+				"watchdogs_night_prof"
 			},
 			difficulties = {
 				"overkill_145",
@@ -2328,6 +2388,7 @@ function TweakData:init()
 	self.grenades.launcher_frag.init_timer = 2.5
 	self.grenades.launcher_frag.mass_look_up_modifier = 1
 	self.grenades.launcher_frag.sound_event = "gl_explode"
+	self:_init_wip_tweak_data()
 	self:set_difficulty()
 	self:set_mode()
 	self:digest_tweak_data()

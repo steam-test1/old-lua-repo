@@ -100,6 +100,15 @@ function TweakData:_init_pd2()
 			32
 		}
 	}
+	self.hud_icons.mugshot_swansong = {
+		texture = "guis/textures/pd2/hud_swansong_icon",
+		texture_rect = {
+			0,
+			0,
+			64,
+			64
+		}
+	}
 	self.hud_icons.equipment_ammo_bag = {
 		texture = "guis/textures/pd2/equipment",
 		texture_rect = {
@@ -150,6 +159,24 @@ function TweakData:_init_pd2()
 		texture_rect = {
 			32,
 			64,
+			32,
+			32
+		}
+	}
+	self.hud_icons.equipment_first_aid_kit = {
+		texture = "guis/textures/pd2/equipment",
+		texture_rect = {
+			0,
+			64,
+			32,
+			32
+		}
+	}
+	self.hud_icons.equipment_bodybags_bag = {
+		texture = "guis/textures/pd2/equipment",
+		texture_rect = {
+			96,
+			32,
 			32,
 			32
 		}

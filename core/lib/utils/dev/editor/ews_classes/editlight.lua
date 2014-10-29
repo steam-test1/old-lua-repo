@@ -261,8 +261,11 @@ function EditUnitLight:update_light_ctrls_from_light(light)
 	CoreEws.change_slider_and_number_value(self._falloff_params, light:falloff_exponent())
 	CoreEws.change_slider_and_number_value(self._spot_start_angle_params, light:spot_angle_start())
 	CoreEws.change_slider_and_number_value(self._spot_end_angle_params, light:spot_angle_end())
-	
-	local is_spot = string.match(light:properties(), "omni")
+	if string.match(light:properties(), "omni") then
+	else
+		-- unhandled boolean indicator
+	end
+	local is_spot = true
 	self._spot_start_angle_params.number_ctrlr:set_enabled(is_spot)
 	self._spot_start_angle_params.slider_ctrlr:set_enabled(is_spot)
 	self._spot_end_angle_params.number_ctrlr:set_enabled(is_spot)
