@@ -1762,7 +1762,7 @@ function NarrativeTweakData:init()
 	self.jobs.haunted = {}
 	self.jobs.haunted.name_id = "heist_haunted"
 	self.jobs.haunted.briefing_id = "heist_haunted_crimenet"
-	self.jobs.haunted.contact = "wip"
+	self.jobs.haunted.contact = "bain"
 	self.jobs.haunted.region = "street"
 	self.jobs.haunted.jc = 10
 	self.jobs.haunted.chain = {
@@ -2112,7 +2112,8 @@ function NarrativeTweakData:init()
 		"mia_prof",
 		"gallery",
 		"hox",
-		"hox_prof"
+		"hox_prof",
+		"haunted"
 	}
 	self:set_job_wrappers()
 end

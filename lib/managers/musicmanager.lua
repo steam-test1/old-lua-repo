@@ -291,6 +291,7 @@ function MusicManager:jukebox_default_tracks()
 		heist_alex1 = "track_08",
 		heist_alex2 = "track_07",
 		heist_alex3 = "track_02",
+		heist_haunted = "track_22",
 		heist_big = "all",
 		heist_arm_cro = "all",
 		heist_arm_hcm = "all",
@@ -341,7 +342,8 @@ function MusicManager:jukebox_music_tracks()
 		"track_18",
 		"track_19",
 		"track_20",
-		"track_21"
+		"track_21",
+		"track_22"
 	}
 	local pdth_tracks = {
 		"track_pth_01",
@@ -381,6 +383,7 @@ function MusicManager:jukebox_menu_tracks()
 		"preplanning_music",
 		"preplanning_music_old",
 		"lets_go_shopping_menu",
+		"this_is_our_time",
 		"criminals_ambition"
 	}
 	local pd2_tracks = {
