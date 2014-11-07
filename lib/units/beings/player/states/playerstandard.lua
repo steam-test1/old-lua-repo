@@ -1898,7 +1898,7 @@ function PlayerStandard:_start_action_intimidate(t)
 				sound_name = "f38_any"
 			end
 		elseif voice_type == "revive" then
-			interact_type = "cmd_get_up"
+			interact_type = "cmd_come"
 			local static_data = managers.criminals:character_static_data_by_unit(prime_target.unit)
 			if not static_data then
 				return
@@ -1910,7 +1910,7 @@ function PlayerStandard:_start_action_intimidate(t)
 			end
 			self._ext_movement:rally_skill_data().morale_boost_delay_t = managers.player:player_timer():time() + (self._ext_movement:rally_skill_data().morale_boost_cooldown_t or 3.5)
 		elseif voice_type == "boost" then
-			interact_type = "cmd_gogo"
+			interact_type = "cmd_point"
 			local static_data = managers.criminals:character_static_data_by_unit(prime_target.unit)
 			if not static_data then
 				return
@@ -2564,7 +2564,6 @@ function PlayerStandard:_start_action_unequip_weapon(t, data)
 end
 
 function PlayerStandard:_start_action_equip_weapon(t)
-	local speed_multiplier = self:_get_swap_speed_multiplier()
 	if self._change_weapon_data.next then
 		self._ext_inventory:equip_next(false)
 	elseif self._change_weapon_data.previous then
@@ -2572,6 +2571,7 @@ function PlayerStandard:_start_action_equip_weapon(t)
 	elseif self._change_weapon_data.selection_wanted then
 		self._ext_inventory:equip_selection(self._change_weapon_data.selection_wanted, false)
 	end
+	local speed_multiplier = self:_get_swap_speed_multiplier()
 	local tweak_data = self._equipped_unit:base():weapon_tweak_data()
 	self._equip_weapon_expire_t = t + (tweak_data.timers.equip or 0.7) / speed_multiplier
 	self._ext_camera:play_redirect(self.IDS_EQUIP, speed_multiplier)

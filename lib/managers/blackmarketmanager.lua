@@ -4063,6 +4063,18 @@ function BlackMarketManager:fire_rate_multiplier(name, category, silencer, detec
 	return multiplier
 end
 
+function BlackMarketManager:damage_addend(name, category, silencer, detection_risk, current_state, blueprint)
+	local value = 0
+	if tweak_data.weapon[name] and tweak_data.weapon[name].ignore_damage_upgrades then
+		return value
+	end
+	value = value + managers.player:upgrade_value("player", "damage_addend", 0)
+	value = value + managers.player:upgrade_value("weapon", "damage_addend", 0)
+	value = value + managers.player:upgrade_value(category, "damage_addend", 0)
+	value = value + managers.player:upgrade_value(name, "damage_addend", 0)
+	return value
+end
+
 function BlackMarketManager:damage_multiplier(name, category, silencer, detection_risk, current_state, blueprint)
 	local multiplier = 1
 	if tweak_data.weapon[name] and tweak_data.weapon[name].ignore_damage_upgrades then

@@ -44,6 +44,7 @@ function MissionEndState:at_enter(old_state, params)
 	if player then
 		player:camera():remove_sound_listener()
 		player:camera():play_redirect(Idstring("idle"))
+		player:character_damage():disable_berserker()
 	end
 	managers.dialog:quit_dialog()
 	Application:debug("1 second to managers.mission:pre_destroy()")

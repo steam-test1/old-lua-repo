@@ -12162,7 +12162,11 @@ function WeaponFactoryTweakData:_init_galil()
 		texture_bundle_folder = "big_bank",
 		dlc = "big_bank",
 		is_a_unlockable = true,
-		animations = {reload = "reload"}
+		animations = {
+			reload = "reload",
+			fire = "recoil",
+			fire_steelsight = "recoil"
+		}
 	}
 	self.parts.wpn_fps_ass_galil_fg_fab = {
 		pcs = {},
@@ -14151,6 +14155,7 @@ function WeaponFactoryTweakData:_init_g26()
 			concealment = -2,
 			damage = -1
 		},
+		perks = {"silencer"},
 		sound_switch = {
 			suppressed = "suppressed_b"
 		},

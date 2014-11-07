@@ -1105,7 +1105,7 @@ function SkillTreeGui:_setup()
 			},
 			remove_points = {
 				prio = 3,
-				btn = "BTN_B",
+				btn = "BTN_X",
 				pc_btn = Idstring("menu_remove_item"),
 				name = "menu_st_remove_spec_points",
 				callback = nil

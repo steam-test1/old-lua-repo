@@ -199,8 +199,11 @@ function CopDamage:damage_bullet(attack_data)
 			managers.statistics:killed(data)
 			if attack_data.attacker_unit:character_damage():bleed_out() and not self:_type_civilian(self._unit:base()._tweak_table) then
 				local messiah_revive = false
-				if managers.player:has_category_upgrade("player", "pistol_revive_from_bleed_out") and data.weapon_unit:base():weapon_tweak_data().category == "pistol" and attack_data.attacker_unit:character_damage():consume_messiah_charge() then
-					messiah_revive = true
+				if managers.player:has_category_upgrade("player", "pistol_revive_from_bleed_out") then
+					local weapon_category = data.weapon_unit:base():weapon_tweak_data().category
+					if (weapon_category == "pistol" or weapon_category == "akimbo") and attack_data.attacker_unit:character_damage():consume_messiah_charge() then
+						messiah_revive = true
+					end
 				end
 				if messiah_revive then
 					attack_data.attacker_unit:character_damage():revive(true)
@@ -345,6 +348,7 @@ function CopDamage:_comment_death(unit, type)
 	elseif type == "shield" then
 		PlayerStandard.say_line(unit:sound(), "g31x_any")
 	elseif type == "sniper" then
+		PlayerStandard.say_line(unit:sound(), "g35x_any")
 	end
 end
 
@@ -357,6 +361,8 @@ function CopDamage:_AI_comment_death(unit, type)
 		unit:sound():say("g32x_any", true)
 	elseif type == "shield" then
 		unit:sound():say("g31x_any", true)
+	elseif type == "sniper" then
+		unit:sound():say("g35x_any", true)
 	end
 end
 

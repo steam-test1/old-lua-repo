@@ -81,6 +81,18 @@ function table.map_copy(map)
 	return copy
 end
 
+function table.deep_map_copy(map)
+	local copy = {}
+	for k, v in pairs(map) do
+		if type(v) == "table" then
+			copy[k] = table.deep_map_copy(v)
+		else
+			copy[k] = v
+		end
+	end
+	return copy
+end
+
 function table.list_copy(list)
 	local copy = {}
 	for k, v in ipairs(list) do
