@@ -162,7 +162,7 @@ function UpgradesTweakData:_init_pd2_values()
 	self.values.pistol.reload_speed_multiplier = {1.5}
 	self.values.akimbo.reload_speed_multiplier = self.values.pistol.reload_speed_multiplier
 	self.values.pistol.damage_addend = {1.5}
-	self.values.akimbo.damage_addend = {1.5}
+	self.values.akimbo.damage_addend = {0.75}
 	self.values.pistol.damage_multiplier = {1.5}
 	self.values.assault_rifle.reload_speed_multiplier = {1.25}
 	self.values.assault_rifle.move_spread_multiplier = {0.5}
@@ -554,7 +554,7 @@ function UpgradesTweakData:_init_pd2_values()
 	self.values.player.extra_corpse_dispose_amount = {1}
 	self.values.player.standstill_omniscience = {true}
 	self.values.player.mask_off_pickup = {true}
-	self.values.player.cleaner_cost_multiplier = {0.75}
+	self.values.player.cleaner_cost_multiplier = {0.25}
 	self.values.player.counter_strike_melee = {true}
 	self.values.player.counter_strike_spooc = {true}
 	self.values.temporary.passive_revive_damage_reduction = {
@@ -1330,7 +1330,11 @@ function UpgradesTweakData:init()
 	}
 	self.level_tree[23] = {
 		name_id = "weapons",
-		upgrades = {"bullseye"}
+		upgrades = {"bullseye", "c96"}
+	}
+	self.level_tree[24] = {
+		name_id = "weapons",
+		upgrades = {"model24"}
 	}
 	self.level_tree[26] = {
 		name_id = "weapons",
@@ -1389,7 +1393,7 @@ function UpgradesTweakData:init()
 	}
 	self.level_tree[41] = {
 		name_id = "weapons",
-		upgrades = {"gerber"}
+		upgrades = {"gerber", "fairbair"}
 	}
 	self.level_tree[42] = {
 		name_id = "weapons",
@@ -1403,6 +1407,10 @@ function UpgradesTweakData:init()
 		name_id = "weapons",
 		upgrades = {"gre_m79"}
 	}
+	self.level_tree[47] = {
+		name_id = "weapons",
+		upgrades = {"freedom"}
+	}
 	self.level_tree[48] = {
 		name_id = "weapons",
 		upgrades = {"dingdong"}
@@ -1415,7 +1423,7 @@ function UpgradesTweakData:init()
 	}
 	self.level_tree[51] = {
 		name_id = "weapons",
-		upgrades = {"machete"}
+		upgrades = {"machete", "sterling"}
 	}
 	self.level_tree[52] = {
 		name_id = "weapons",
@@ -1423,7 +1431,7 @@ function UpgradesTweakData:init()
 	}
 	self.level_tree[54] = {
 		name_id = "weapons",
-		upgrades = {"becker"}
+		upgrades = {"becker", "mosin"}
 	}
 	self.level_tree[55] = {
 		name_id = "weapons",
@@ -1451,7 +1459,7 @@ function UpgradesTweakData:init()
 	}
 	self.level_tree[71] = {
 		name_id = "weapons",
-		upgrades = {"fireaxe"}
+		upgrades = {"fireaxe", "mg42"}
 	}
 	self.level_tree[75] = {
 		name_id = "weapons",
@@ -1659,6 +1667,10 @@ function UpgradesTweakData:init()
 	self:_galil_definitions()
 	self:_famas_definitions()
 	self:_spas12_definitions()
+	self:_mg42_definitions()
+	self:_c96_definitions()
+	self:_sterling_definitions()
+	self:_mosin_definitions()
 	self:_weapon_definitions()
 	self:_pistol_definitions()
 	self:_assault_rifle_definitions()
@@ -5651,6 +5663,42 @@ function UpgradesTweakData:_spas12_definitions()
 	}
 end
 
+function UpgradesTweakData:_mg42_definitions()
+	self.definitions.mg42 = {
+		category = "weapon",
+		weapon_id = "mg42",
+		factory_id = "wpn_fps_lmg_mg42",
+		dlc = "gage_pack_historical"
+	}
+end
+
+function UpgradesTweakData:_c96_definitions()
+	self.definitions.c96 = {
+		category = "weapon",
+		weapon_id = "c96",
+		factory_id = "wpn_fps_pis_c96",
+		dlc = "gage_pack_historical"
+	}
+end
+
+function UpgradesTweakData:_sterling_definitions()
+	self.definitions.sterling = {
+		category = "weapon",
+		weapon_id = "sterling",
+		factory_id = "wpn_fps_smg_sterling",
+		dlc = "gage_pack_historical"
+	}
+end
+
+function UpgradesTweakData:_mosin_definitions()
+	self.definitions.mosin = {
+		category = "weapon",
+		weapon_id = "mosin",
+		factory_id = "wpn_fps_snp_mosin",
+		dlc = "gage_pack_historical"
+	}
+end
+
 function UpgradesTweakData:_melee_weapon_definitions()
 	self.definitions.weapon = {
 		category = "melee_weapon"
@@ -5737,6 +5785,22 @@ function UpgradesTweakData:_melee_weapon_definitions()
 	self.definitions.briefcase = {
 		category = "melee_weapon",
 		dlc = "hlm_game"
+	}
+	self.definitions.fairbair = {
+		category = "melee_weapon",
+		dlc = "gage_pack_historical"
+	}
+	self.definitions.freedom = {
+		category = "melee_weapon",
+		dlc = "gage_pack_historical"
+	}
+	self.definitions.model24 = {
+		category = "melee_weapon",
+		dlc = "gage_pack_historical"
+	}
+	self.definitions.swagger = {
+		category = "melee_weapon",
+		dlc = "gage_pack_historical"
 	}
 end
 

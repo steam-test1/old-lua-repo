@@ -193,6 +193,18 @@ function table.random(t)
 	return t[math.random(#t)]
 end
 
+function table.random_key(t)
+	if not next(t) then
+		return
+	end
+	local rand_nr = math.random(table.size(t))
+	local key
+	for i = 1, rand_nr do
+		key = next(t, prev_key)
+	end
+	return prev_key
+end
+
 function table.concat_map(map, concat_values, none_string, wrap, sep, last_sep)
 	local count = 0
 	local function func()
