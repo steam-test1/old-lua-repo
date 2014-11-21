@@ -5802,6 +5802,10 @@ function UpgradesTweakData:_melee_weapon_definitions()
 		category = "melee_weapon",
 		dlc = "gage_pack_historical"
 	}
+	self.definitions.alien_maul = {
+		category = "melee_weapon",
+		dlc = "alienware_alpha_promo"
+	}
 end
 
 function UpgradesTweakData:_weapon_definitions()

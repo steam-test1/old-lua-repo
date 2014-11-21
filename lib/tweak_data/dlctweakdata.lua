@@ -15,6 +15,7 @@ function DLCTweakData:init(tweak_data)
 		gage_pack_assault = true,
 		hl_miami = true,
 		gage_pack_historical = true,
+		alienware_alpha = true,
 		season_pass = true,
 		animal = true
 	}
@@ -2158,5 +2159,25 @@ function DLCTweakData:init(tweak_data)
 		}
 	}
 	self.gage_pack_historical.content.upgrades = {"swagger"}
+	self.alienware_alpha = {}
+	self.alienware_alpha.dlc = "has_alienware_alpha"
+	self.alienware_alpha.content = {}
+	self.alienware_alpha.content.loot_drops = {
+		{
+			type_items = "masks",
+			item_entry = "area51",
+			amount = 1
+		},
+		{
+			type_items = "masks",
+			item_entry = "alien_helmet",
+			amount = 1
+		}
+	}
+	self.alienware_alpha_promo = {}
+	self.alienware_alpha_promo.dlc = "has_alienware_alpha_promo"
+	self.alienware_alpha_promo.content = {}
+	self.alienware_alpha_promo.content.loot_drops = {}
+	self.alienware_alpha_promo.content.upgrades = {"alien_maul"}
 end
 
