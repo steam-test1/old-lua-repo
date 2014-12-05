@@ -1,6 +1,6 @@
 _OcclusionManager = _OcclusionManager or class()
 function _OcclusionManager:init()
-	self._obj_id = Idstring("object3d")
+	self._model_ids = Idstring("model")
 	self._skip_occlusion = {}
 end
 
@@ -13,7 +13,7 @@ end
 
 function _OcclusionManager:remove_occlusion(unit)
 	if alive(unit) then
-		local objects = unit:get_objects_by_type(self._obj_id)
+		local objects = unit:get_objects_by_type(self._model_ids)
 		for _, obj in pairs(objects) do
 			obj:set_skip_occlusion(true)
 		end
@@ -23,7 +23,7 @@ end
 
 function _OcclusionManager:add_occlusion(unit)
 	if alive(unit) then
-		local objects = unit:get_objects_by_type(self._obj_id)
+		local objects = unit:get_objects_by_type(self._model_ids)
 		for _, obj in pairs(objects) do
 			obj:set_skip_occlusion(false)
 		end

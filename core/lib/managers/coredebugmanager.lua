@@ -641,6 +641,7 @@ function FuncDebug:update(t, dt)
 end
 
 function FuncDebug:clear()
+	FuncDebug.super.clear(self)
 	self._func_list = {}
 end
 
@@ -695,6 +696,7 @@ function PosDebug:update(t, dt)
 end
 
 function PosDebug:clear(list_index)
+	PosDebug.super.clear(self)
 	if not list_index then
 		self._pos_list = {}
 	else
@@ -798,6 +800,7 @@ function RotDebug:update(t, dt)
 end
 
 function RotDebug:clear(list_index)
+	RotDebug.super.clear(self)
 	if not list_index then
 		self._rot_list = {}
 	else
@@ -886,6 +889,7 @@ function GUIDebug:update(t, dt)
 end
 
 function GUIDebug:clear()
+	GUIDebug.super.clear(self)
 	if self._workspace ~= nil then
 		for _, text in ipairs(self._text) do
 			text:set_text("")
@@ -1052,12 +1056,7 @@ function GraphDebug:set_range(min, max)
 end
 
 function GraphDebug:update(t, dt)
-	local contains_values
-	for _ in pairs(self._pos_list) do
-		contains_values = true
-		break
-	end
-	if contains_values then
+	if next(self._pos_list) then
 		if not self._workspace_map then
 			self:setup()
 		end
@@ -1331,6 +1330,7 @@ function HijackDebug:update(t, dt)
 end
 
 function HijackDebug:clear()
+	HijackDebug.super.clear(self)
 	self._ray_list = {}
 end
 
@@ -1635,6 +1635,7 @@ function SimpleDebug:update(time, rel_time)
 end
 
 function SimpleDebug:clear()
+	SimpleDebug.super.clear(self)
 	self._depricate_list = {}
 end
 
@@ -1677,6 +1678,7 @@ function ProfilerDebug:init()
 end
 
 function ProfilerDebug:clear()
+	ProfilerDebug.super.clear(self)
 	for _, counter in pairs(self._counter_map) do
 		counter:set_enabled(false)
 	end
@@ -2427,7 +2429,7 @@ function MacroDebug:get_asset_path()
 	return self:get_cleaned_path(Application:nice_path(Application:base_path() .. relative_path, true))
 end
 
-function MacroDebug:check_dangerous_sequence_slot(slot_list)
+function MacroDebug:check_dangerous_network_slot(slot_list)
 	slot_list = slot_list or {0}
 	local asset_path = self:get_asset_path()
 	local unit_file_list = self:get_file_list_by_type("unit")
@@ -2437,6 +2439,7 @@ function MacroDebug:check_dangerous_sequence_slot(slot_list)
 			do
 				local unit_node = DB:load_node("unit", unit_file)
 				local network_sync, object_file
+				local original_slot = tonumber(unit_node:parameter("slot"))
 				for child_node in unit_node:children() do
 					local child_node_name = child_node:name()
 					if child_node_name == "network" then
@@ -2447,48 +2450,67 @@ function MacroDebug:check_dangerous_sequence_slot(slot_list)
 					end
 				end
 				if network_sync and object_file and DB:has("object", object_file) then
-					local object_node = DB:load_node("object", object_file)
-					local object_sequence_node
-					for child_node in object_node:children() do
-						local child_node_name = child_node:name()
-						if child_node_name == "sequence_manager" then
-							object_sequence_node = child_node
-						else
+					do
+						local object_node = DB:load_node("object", object_file)
+						local object_sequence_node
+						local unit_file_path = asset_path .. tostring(unit_file) .. ".unit"
+						local object_file_path = asset_path .. tostring(object_file) .. ".object"
+						local function check_slot_func(slot, sequence_file_path)
+							if table.contains(slot_list, tonumber(slot)) then
+								local sub_map = found_unit_file_map[slot]
+								if not sub_map then
+									sub_map = {}
+									found_unit_file_map[slot] = sub_map
+								end
+								sub_map[unit_file] = {
+									unit = unit_file_path,
+									object = object_file_path,
+									sequence = sequence_file_path,
+									sync = network_sync,
+									original_slot = original_slot,
+									slot = slot
+								}
+								return true
+							else
+								return false
+							end
 						end
-					end
-					if object_sequence_node then
-						do
-							local sequence_file = object_sequence_node:parameter("file")
-							if sequence_file and DB:has("sequence_manager", sequence_file) then
-								local sequence_data = PackageManager:editor_load_script_data(Idstring("sequence_manager"), Idstring(sequence_file))
-								local function find_slot_func(map, recursive_func)
-									for k, v in pairs(map) do
-										if type(v) == "table" then
-											if k == "slot" then
-												local slot = v.slot
-												if table.contains(slot_list, tonumber(slot)) then
-													local list = found_unit_file_map[slot]
-													if not list then
-														list = {}
-														found_unit_file_map[slot] = list
+
+						check_slot_func(original_slot, nil)
+						for child_node in object_node:children() do
+							local child_node_name = child_node:name()
+							if child_node_name == "sequence_manager" then
+								object_sequence_node = child_node
+							else
+							end
+						end
+						if object_sequence_node then
+							do
+								local sequence_file = object_sequence_node:parameter("file")
+								local sequence_file_path = asset_path .. tostring(sequence_file) .. ".sequence_manager"
+								if sequence_file and DB:has("sequence_manager", sequence_file) then
+									local sequence_data = PackageManager:editor_load_script_data(Idstring("sequence_manager"), Idstring(sequence_file))
+									local function find_slot_func(map, recursive_func)
+										for k, v in pairs(map) do
+											if type(v) == "table" then
+												if k == "slot" then
+													local slot = v.slot
+													if check_slot_func(slot, sequence_file_path) then
+														return true
 													end
-													table.insert(list, {
-														unit = asset_path .. tostring(unit_file) .. ".unit",
-														object = asset_path .. tostring(object_file) .. ".object",
-														sequence = asset_path .. tostring(sequence_file) .. ".sequence_manager",
-														sync = network_sync,
-														slot = slot
-													})
+												end
+												if recursive_func(v, recursive_func) then
+													return true
 												end
 											end
-											recursive_func(v, recursive_func)
 										end
+										return false
 									end
-								end
 
-								find_slot_func(sequence_data, find_slot_func)
-							else
-								Application:error("Object " .. tostring(object_file) .. " has an invalid <sequence_manager file=\"...\"/> node.")
+									find_slot_func(sequence_data, find_slot_func)
+								else
+									Application:error("Object " .. tostring(object_file) .. " has an invalid <sequence_manager file=\"...\"/> node.")
+								end
 							end
 						end
 					end
@@ -2497,14 +2519,14 @@ function MacroDebug:check_dangerous_sequence_slot(slot_list)
 		end
 	end
 	for _, list in pairs(found_unit_file_map) do
-		for _, data in ipairs(list) do
-			cat_print("debug", "Slot: " .. tostring(data.slot) .. ", Sync: " .. tostring(data.sync) .. [[
-
-Sequence file: ]] .. data.sequence .. [[
+		for unit_name, data in pairs(list) do
+			cat_print("debug", "Slot: " .. (data.original_slot ~= data.slot and tostring(data.original_slot) .. " -> " or "") .. tostring(data.slot) .. ", Sync: " .. tostring(data.sync) .. ", Name: " .. tostring(unit_name) .. [[
 
 Unit file: ]] .. data.unit .. [[
 
-Object file: ]] .. data.object)
+Object file: ]] .. data.object .. (data.sequence and [[
+
+Sequence file: ]] .. data.sequence or "") .. "\n")
 		end
 	end
 	return found_unit_file_map
@@ -2600,6 +2622,7 @@ function MacroDebug:update(t, dt)
 end
 
 function MacroDebug:clear()
+	MacroDebug.super.clear(self)
 	if self._check_fps then
 		self:fps()
 	end
@@ -2936,6 +2959,7 @@ function ConsoleDebug:get_stack_dump_text(skip_level)
 end
 
 function ConsoleDebug:clear()
+	ConsoleDebug.super.clear(self)
 	if self._workspace ~= nil then
 		self._workspace:panel():clear()
 		Overlay:gui():destroy_workspace(self._workspace)
@@ -3196,6 +3220,7 @@ function MenuDebug:get_visible()
 end
 
 function MenuDebug:clear()
+	MenuDebug.super.clear(self)
 	self._menu_data = nil
 	self:setup_menu()
 end

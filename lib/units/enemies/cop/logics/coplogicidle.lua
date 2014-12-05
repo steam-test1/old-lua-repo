@@ -159,7 +159,7 @@ function CopLogicIdle._upd_enemy_detection(data)
 		end
 		if wanted_state and wanted_state ~= data.name then
 			if obj_failed then
-				managers.groupai:state():on_objective_failed(data.unit, data.objective)
+				data.objective_failed_clbk(data.unit, data.objective)
 			end
 			if my_data == data.internal_data then
 				CopLogicBase._exit(data.unit, wanted_state)
@@ -477,7 +477,7 @@ function CopLogicIdle._surrender(data, amount, aggressor_unit)
 	local params = {effect = amount, aggressor_unit = aggressor_unit}
 	data.unit:brain():set_logic("intimidated", params)
 	if data.objective then
-		managers.groupai:state():on_objective_failed(data.unit, data.objective)
+		data.objective_failed_clbk(data.unit, data.objective)
 	end
 end
 
@@ -695,10 +695,10 @@ function CopLogicIdle.action_complete_clbk(data, action)
 			end
 			if action:expired() then
 				if not my_data.action_timeout_clbk_id then
-					managers.groupai:state():on_objective_complete(data.unit, data.objective)
+					data.objective_complete_clbk(data.unit, data.objective)
 				end
 			elseif not my_data.action_expired then
-				managers.groupai:state():on_objective_failed(data.unit, data.objective)
+				data.objective_failed_clbk(data.unit, data.objective)
 			end
 		end
 	elseif action_type == "hurt" and data.important and action:expired() then
@@ -738,7 +738,7 @@ function CopLogicIdle.clbk_action_timeout(ignore_this, data)
 	if data.unit:anim_data().act and data.unit:anim_data().needs_idle then
 		CopLogicIdle._start_idle_action_from_act(data)
 	end
-	managers.groupai:state():on_objective_complete(data.unit, data.objective)
+	data.objective_complete_clbk(data.unit, data.objective)
 end
 
 function CopLogicIdle._nav_point_pos(nav_point)

@@ -553,7 +553,7 @@ function HuskPlayerMovement:anim_cbk_set_melee_item_state_vars(unit)
 end
 
 function HuskPlayerMovement:anim_cbk_spawn_melee_item(unit)
-	if alive(self._melee_item_unit) then
+	if alive(self._melee_item_unit) or not managers.network:game() or not managers.network:game():member_from_unit(self._unit) then
 		return
 	end
 	local align_obj_l_name = Idstring("a_weapon_left_front")
