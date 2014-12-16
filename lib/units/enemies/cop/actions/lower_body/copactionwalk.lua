@@ -1453,7 +1453,7 @@ function CopActionWalk:_reserve_nav_pos(nav_pos, next_pos, from_pos, vel)
 		step_mul = 1,
 		nr_attempts = 0
 	}
-	local step_clbk = callback(self, CopActionWalk, "_rserve_pos_step_clbk", data)
+	local step_clbk = callback(self, CopActionWalk, "_reserve_pos_step_clbk", data)
 	local eta = dis / vel
 	local res_pos = managers.navigation:reserve_pos(TimerManager:game():time() + eta, 1, nav_pos, step_clbk, 40, self._ext_movement:pos_rsrv_id())
 	if res_pos then
@@ -1462,8 +1462,12 @@ function CopActionWalk:_reserve_nav_pos(nav_pos, next_pos, from_pos, vel)
 	end
 end
 
-function CopActionWalk:_rserve_pos_step_clbk(data, test_pos)
+function CopActionWalk:_reserve_pos_step_clbk(data, test_pos)
 	local nav_manager = managers.navigation
+	data.nr_attempts = data.nr_attempts + 1
+	if data.nr_attempts > 8 then
+		return false
+	end
 	local step_vec = data.step_vec
 	local step_mul = data.step_mul
 	mvec3_set(test_pos, step_vec)
@@ -1484,28 +1488,17 @@ function CopActionWalk:_rserve_pos_step_clbk(data, test_pos)
 			blocked = nav_manager:raycast(params)
 		end
 	end
-	if blocked then
-		if data.block then
-			return false
-		end
-		data.block = true
-		if step_mul > 0 then
-			data.step_mul = -step_mul
-		else
-			data.step_mul = -step_mul + 1
-		end
-		if data.nr_attempts < 8 then
-			data.nr_attempts = data.nr_attempts + 1
-			return self:_rserve_pos_step_clbk(data, test_pos)
-		else
-			return false
-		end
-	elseif data.block then
-		data.step_mul = step_mul + math.sign(step_mul)
+	if blocked and data.blocked then
+		return false
+	elseif data.blocked then
+		data.step_mul = data.step_mul + math.sign(data.step_mul)
 	elseif step_mul > 0 then
 		data.step_mul = -step_mul
 	else
 		data.step_mul = -step_mul + 1
+	end
+	if blocked then
+		data.blocked = true
 	end
 	return true
 end

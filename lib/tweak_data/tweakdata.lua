@@ -403,7 +403,8 @@ function TweakData:init()
 		"spanish",
 		"american",
 		"jowi",
-		"old_hoxton"
+		"old_hoxton",
+		"female_1"
 	}
 	self.criminals.characters = {
 		{
@@ -469,6 +470,17 @@ function TweakData:init()
 				color_id = 4,
 				voice = "rb5",
 				ai_mask_id = "old_hoxton",
+				mask_id = 4
+			}
+		},
+		{
+			name = "female_1",
+			static_data = {
+				ai_character_id = "ai_female_1",
+				ssuffix = "n",
+				color_id = 4,
+				voice = "rb7",
+				ai_mask_id = "msk_grizel",
 				mask_id = 4
 			}
 		}
@@ -1725,6 +1737,13 @@ function TweakData:init()
 			},
 			job = "hox_prof"
 		},
+		death_mus = {
+			award = "bat_1",
+			difficulty = {
+				"overkill_290"
+			},
+			job = "mus"
+		},
 		complete_hoxton = {
 			award = "bulldog_1",
 			jobs = {"hox", "hox_prof"}
@@ -1820,7 +1839,8 @@ function TweakData:init()
 		"mia",
 		"mia_prof",
 		"hox",
-		"hox_prof"
+		"hox_prof",
+		"mus"
 	}
 	self.achievement.complete_heist_stats_achievements = {
 		death_vlad = {
@@ -1969,6 +1989,20 @@ function TweakData:init()
 				"mrs_claus",
 				"strinch",
 				"robo_santa"
+			}
+		},
+		blight = {
+			award = "bat_5",
+			jobs = {"mus"},
+			difficulties = {
+				"overkill_145",
+				"overkill_290"
+			},
+			masks = {
+				"medusa",
+				"anubis",
+				"pazuzu",
+				"cursed_crown"
 			}
 		}
 	}
