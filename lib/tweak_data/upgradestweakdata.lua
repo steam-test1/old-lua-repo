@@ -1373,6 +1373,12 @@ function UpgradesTweakData:init()
 		name_id = "weapons",
 		upgrades = {"model24", "l85a2"}
 	}
+	self.level_tree[25] = {
+		name_id = "weapons",
+		upgrades = {
+			"boxing_gloves"
+		}
+	}
 	self.level_tree[26] = {
 		name_id = "weapons",
 		upgrades = {"new_m14", "saiga"}
@@ -5960,6 +5966,10 @@ function UpgradesTweakData:_melee_weapon_definitions()
 	self.definitions.shillelagh = {
 		category = "melee_weapon",
 		dlc = "character_pack_clover"
+	}
+	self.definitions.boxing_gloves = {
+		category = "melee_weapon",
+		dlc = "pd2_clan"
 	}
 end
 

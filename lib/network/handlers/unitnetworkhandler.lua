@@ -821,13 +821,16 @@ function UnitNetworkHandler:revive_player(revive_health_level, revive_damage_red
 	if not self._verify_gamestate(self._gamestate_filter.need_revive) or not peer then
 		return
 	end
-	if revive_health_level > 0 then
-		managers.player:player_unit():character_damage():set_revive_boost(revive_health_level)
+	local player = managers.player:player_unit()
+	if revive_health_level > 0 and alive(player) then
+		player:character_damage():set_revive_boost(revive_health_level)
 	end
 	if revive_damage_reduction > 0 then
 		managers.player:activate_temporary_upgrade_by_level("temporary", "passive_revive_damage_reduction", revive_damage_reduction)
 	end
-	managers.player:player_unit():character_damage():revive()
+	if alive(player) then
+		player:character_damage():revive()
+	end
 end
 
 function UnitNetworkHandler:start_revive_player(timer, sender)
@@ -835,7 +838,9 @@ function UnitNetworkHandler:start_revive_player(timer, sender)
 		return
 	end
 	local player = managers.player:player_unit()
-	player:character_damage():pause_downed_timer(timer)
+	if alive(player) then
+		player:character_damage():pause_downed_timer(timer)
+	end
 end
 
 function UnitNetworkHandler:interupt_revive_player(sender)
@@ -843,7 +848,9 @@ function UnitNetworkHandler:interupt_revive_player(sender)
 		return
 	end
 	local player = managers.player:player_unit()
-	player:character_damage():unpause_downed_timer()
+	if alive(player) then
+		player:character_damage():unpause_downed_timer()
+	end
 end
 
 function UnitNetworkHandler:start_free_player(sender)
@@ -851,7 +858,9 @@ function UnitNetworkHandler:start_free_player(sender)
 		return
 	end
 	local player = managers.player:player_unit()
-	player:character_damage():pause_arrested_timer()
+	if alive(player) then
+		player:character_damage():pause_arrested_timer()
+	end
 end
 
 function UnitNetworkHandler:interupt_free_player(sender)
@@ -859,7 +868,9 @@ function UnitNetworkHandler:interupt_free_player(sender)
 		return
 	end
 	local player = managers.player:player_unit()
-	player:character_damage():unpause_arrested_timer()
+	if alive(player) then
+		player:character_damage():unpause_arrested_timer()
+	end
 end
 
 function UnitNetworkHandler:pause_arrested_timer(unit, sender)
