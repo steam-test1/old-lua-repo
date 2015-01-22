@@ -85,7 +85,7 @@ function SavefileManager:active_user_changed()
 end
 
 function SavefileManager:storage_changed()
-	print("[SavefileManager:storage_changed]")
+	cat_print("savefile_manager", "[SavefileManager:storage_changed]")
 	local storage_device_selected = managers.user:is_storage_selected(nil)
 	if not managers.user.STORE_SETTINGS_ON_PROFILE then
 		self:_clean_meta_data_list(true)
@@ -94,7 +94,7 @@ function SavefileManager:storage_changed()
 	if storage_device_selected then
 		self._loading_sequence = true
 		self._save_slots_to_load = {all = true}
-		print("[SavefileManager:storage_changed] Scanning all slots")
+		cat_print("savefile_manager", "[SavefileManager:storage_changed] Scanning all slots")
 		if self._backup_data == nil and SystemInfo:platform() == Idstring("WIN32") then
 			self:load_progress("local_hdd")
 		end
@@ -180,7 +180,7 @@ function SavefileManager:_is_loading()
 end
 
 function SavefileManager:_on_load_sequence_complete()
-	print("[SavefileManager:_on_load_sequence_complete]", Application:time())
+	cat_print("savefile_manager", "[SavefileManager:_on_load_sequence_complete]", Application:time())
 	self._loading_sequence = nil
 	self._load_sequence_done_callback_handler:dispatch()
 end
@@ -190,7 +190,7 @@ function SavefileManager:is_in_loading_sequence()
 end
 
 function SavefileManager:break_loading_sequence()
-	print("SavefileManager:break_loading_sequence()")
+	cat_print("savefile_manager", "SavefileManager:break_loading_sequence()")
 	self._try_again = nil
 	self._loading_sequence = nil
 	self._save_slots_to_load = {}
@@ -418,7 +418,7 @@ function SavefileManager:_save_cache(slot)
 	end
 	if SystemInfo:platform() == Idstring("WIN32") then
 		cache.user_id = self._USER_ID_OVERRRIDE or Steam:userid()
-		print("[SavefileManager:_save_cache] user_id:", cache.user_id)
+		cat_print("savefile_manager", "[SavefileManager:_save_cache] user_id:", cache.user_id)
 	end
 	self:_set_cache(slot, cache)
 	self:_set_synched_cache(slot, false)
@@ -486,7 +486,7 @@ function SavefileManager:_load(slot, cache_only, save_system)
 end
 
 function SavefileManager:_on_task_queued(task_data)
-	print("[SavefileManager:_on_task_queued]", inspect(task_data))
+	cat_print("savefile_manager", "[SavefileManager:_on_task_queued]", inspect(task_data))
 	if task_data.max_queue_size then
 		local nr_tasks_found = 0
 		local i_task = 1
@@ -510,19 +510,19 @@ function SavefileManager:_on_task_queued(task_data)
 end
 
 function SavefileManager:_on_task_completed(task_data)
-	print("[SavefileManager:_on_task_completed]", inspect(task_data))
+	cat_print("savefile_manager", "[SavefileManager:_on_task_completed]", inspect(task_data))
 	for i, test_task_data in ipairs(self._queued_tasks) do
 		if task_data == test_task_data then
 			table.remove(self._queued_tasks, i)
 			self:update_current_task_type()
-			print("found and removed")
+			cat_print("savefile_manager", "found and removed")
 			return true
 		end
 	end
 end
 
 function SavefileManager:_load_done(slot, cache_only, wrong_user, wrong_version)
-	print("[SavefileManager:_load_done]", slot, cache_only, wrong_user, wrong_version)
+	cat_print("savefile_manager", "[SavefileManager:_load_done]", slot, cache_only, wrong_user, wrong_version)
 	local is_setting_slot = slot == self.SETTING_SLOT
 	local is_progress_slot = slot == self.PROGRESS_SLOT
 	local meta_data = self:_meta_data(slot)
@@ -563,7 +563,7 @@ function SavefileManager:_load_done(slot, cache_only, wrong_user, wrong_version)
 				local at_init = false
 				local error_msg = is_setting_slot and "dialog_fail_load_setting_" or is_progress_slot and "dialog_fail_load_progress_"
 				error_msg = error_msg .. (req_version == nil and "corrupt" or "wrong_version")
-				print("ERROR: ", error_msg)
+				cat_print("savefile_manager", "ERROR: ", error_msg)
 				if not self._try_again[slot] then
 					local yes_button = {}
 					yes_button.text = managers.localization:text("dialog_yes")
@@ -893,7 +893,7 @@ function SavefileManager:_ask_load_backup(reason, dialog_at_init, load_params)
 end
 
 function SavefileManager:clbk_result_load_platform_setting_map(task_data, platform_setting_map)
-	print("[SavefileManager:clbk_result_load_platform_setting_map]")
+	cat_print("savefile_manager", "[SavefileManager:clbk_result_load_platform_setting_map]")
 	if not self:_on_task_completed(task_data) then
 		return
 	end
@@ -906,13 +906,13 @@ function SavefileManager:clbk_result_load_platform_setting_map(task_data, platfo
 end
 
 function SavefileManager:clbk_result_load(task_data, result_data)
-	print("[SavefileManager:clbk_result_load]")
+	cat_print("savefile_manager", "[SavefileManager:clbk_result_load]")
 	if not self:_on_task_completed(task_data) then
 		return
 	end
 	if type_name(result_data) == "table" then
 		for slot, slot_data in pairs(result_data) do
-			print("slot:", slot, "\n", inspect(slot_data))
+			cat_print("savefile_manager", "slot:", slot, "\n", inspect(slot_data))
 			local status = slot_data.status
 			local cache
 			local wrong_user = status == "WRONG_USER"
@@ -926,7 +926,7 @@ function SavefileManager:clbk_result_load(task_data, result_data)
 			end
 			if cache and SystemInfo:platform() == Idstring("WIN32") then
 				if cache.user_id ~= (self._USER_ID_OVERRRIDE or Steam:userid()) then
-					print("[SavefileManager:clbk_result_load] User ID missmatch. cache.user_id:", cache.user_id, ". expected user id:", self._USER_ID_OVERRRIDE or Steam:userid())
+					cat_print("savefile_manager", "[SavefileManager:clbk_result_load] User ID missmatch. cache.user_id:", cache.user_id, ". expected user id:", self._USER_ID_OVERRRIDE or Steam:userid())
 					cache = nil
 					wrong_user = true
 				end
@@ -940,13 +940,13 @@ function SavefileManager:clbk_result_load(task_data, result_data)
 end
 
 function SavefileManager:clbk_result_load_backup(task_data, result_data)
-	print("[SavefileManager:clbk_result_load_backup]")
+	cat_print("savefile_manager", "[SavefileManager:clbk_result_load_backup]")
 	if not self:_on_task_completed(task_data) then
 		return
 	end
 	if type_name(result_data) == "table" then
 		for slot, slot_data in pairs(result_data) do
-			print("slot:", slot, "\n", inspect(slot_data))
+			cat_print("savefile_manager", "slot:", slot, "\n", inspect(slot_data))
 			local status = slot_data.status
 			if slot == self.BACKUP_SLOT then
 				self._backup_data = false
@@ -956,10 +956,10 @@ function SavefileManager:clbk_result_load_backup(task_data, result_data)
 					local version_name = cache.version_name
 					if SystemInfo:platform() == Idstring("WIN32") then
 						if cache.user_id ~= (self._USER_ID_OVERRRIDE or Steam:userid()) then
-							print("[SavefileManager:clbk_result_load_backup] User ID missmatch. cache.user_id:", cache.user_id, ". expected user id:", self._USER_ID_OVERRRIDE or Steam:userid())
+							cat_print("savefile_manager", "[SavefileManager:clbk_result_load_backup] User ID missmatch. cache.user_id:", cache.user_id, ". expected user id:", self._USER_ID_OVERRRIDE or Steam:userid())
 						end
 					elseif version <= SavefileManager.VERSION then
-						print("[SavefileManager:clbk_result_load_backup] backup loaded")
+						cat_print("savefile_manager", "[SavefileManager:clbk_result_load_backup] backup loaded")
 						self._backup_data = {save_data = slot_data}
 					else
 						Application:error("[SavefileManager:clbk_result_load_backup] local savegame backup is wrong version")
@@ -973,7 +973,7 @@ function SavefileManager:clbk_result_load_backup(task_data, result_data)
 end
 
 function SavefileManager:clbk_result_remove(task_data, result_data)
-	print("[SavefileManager:clbk_result_remove]", inspect(task_data), inspect(result_data))
+	cat_print("savefile_manager", "[SavefileManager:clbk_result_remove]", inspect(task_data), inspect(result_data))
 	if not self:_on_task_completed(task_data) then
 		return
 	end
@@ -982,7 +982,7 @@ function SavefileManager:clbk_result_remove(task_data, result_data)
 end
 
 function SavefileManager:clbk_result_iterate_savegame_slots(task_data, result_data)
-	print("[SavefileManager:clbk_result_iterate_savegame_slots]", inspect(task_data), inspect(result_data))
+	cat_print("savefile_manager", "[SavefileManager:clbk_result_iterate_savegame_slots]", inspect(task_data), inspect(result_data))
 	if not self:_on_task_completed(task_data) then
 		return
 	end
@@ -990,7 +990,7 @@ function SavefileManager:clbk_result_iterate_savegame_slots(task_data, result_da
 	local found_progress_slot
 	if type_name(result_data) == "table" then
 		for slot, slot_data in pairs(result_data) do
-			print("slot:", slot, "\n", inspect(slot_data))
+			cat_print("savefile_manager", "slot:", slot, "\n", inspect(slot_data))
 			if slot == self.SETTING_SLOT then
 				self._save_slots_to_load[slot] = true
 				self:load_settings()
@@ -1010,13 +1010,13 @@ function SavefileManager:clbk_result_iterate_savegame_slots(task_data, result_da
 end
 
 function SavefileManager:clbk_result_save(task_data, result_data)
-	print("[SavefileManager:clbk_result_save]")
+	cat_print("savefile_manager", "[SavefileManager:clbk_result_save]")
 	if not self:_on_task_completed(task_data) then
 		return
 	end
 	if type_name(result_data) == "table" then
 		for slot, slot_data in pairs(result_data) do
-			print("slot:", slot, "\n", inspect(slot_data))
+			cat_print("savefile_manager", "slot:", slot, "\n", inspect(slot_data))
 			local success = slot_data.status == "OK"
 			self:_save_done(slot, false, task_data, slot_data, success)
 		end
@@ -1026,7 +1026,7 @@ function SavefileManager:clbk_result_save(task_data, result_data)
 end
 
 function SavefileManager:clbk_result_save_platform_setting(task_data, success)
-	print("[SavefileManager:clbk_result_save_platform_setting]", inspect(task_data), success)
+	cat_print("savefile_manager", "[SavefileManager:clbk_result_save_platform_setting]", inspect(task_data), success)
 	if not self:_on_task_completed(task_data) then
 		return
 	end
@@ -1038,7 +1038,7 @@ function SavefileManager:clbk_result_save_platform_setting(task_data, success)
 end
 
 function SavefileManager:clbk_result_space_required(task_data, result_data)
-	print("[SavefileManager:clbk_result_space_required] table.size(result_data)", table.size(result_data))
+	cat_print("savefile_manager", "[SavefileManager:clbk_result_space_required] table.size(result_data)", table.size(result_data))
 	if not self:_on_task_completed(task_data) then
 		return
 	end

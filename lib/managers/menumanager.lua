@@ -1045,9 +1045,19 @@ function MenuCallbackHandler:dlc_buy_character_pack_clover_pc()
 	Steam:overlay_activate("store", 337661)
 end
 
+function MenuCallbackHandler:dlc_buy_character_pack_dragan_pc()
+	print("[MenuCallbackHandler:dlc_buy_character_pack_dragan_pc]")
+	Steam:overlay_activate("store", 344140)
+end
+
 function MenuCallbackHandler:dlc_buy_hope_diamond_pc()
 	print("[MenuCallbackHandler:dlc_buy_hope_diamond_pc]")
 	Steam:overlay_activate("store", 337660)
+end
+
+function MenuCallbackHandler:dlc_buy_the_bomb_pc()
+	print("[MenuCallbackHandler:dlc_buy_the_bomb_pc]")
+	Steam:overlay_activate("store", 339480)
 end
 
 function MenuCallbackHandler:dlc_buy_ps3()
@@ -1085,6 +1095,8 @@ end
 
 function MenuCallbackHandler:is_dlc_latest_locked(check_dlc)
 	local dlcs = {
+		"the_bomb",
+		"character_pack_dragan",
 		"hope_diamond",
 		"character_pack_clover",
 		"gage_pack_historical",
@@ -1165,8 +1177,16 @@ function MenuCallbackHandler:visible_callback_character_pack_clover()
 	return self:is_dlc_latest_locked("character_pack_clover")
 end
 
+function MenuCallbackHandler:visible_callback_character_pack_dragan()
+	return self:is_dlc_latest_locked("character_pack_dragan")
+end
+
 function MenuCallbackHandler:visible_callback_hope_diamond()
 	return self:is_dlc_latest_locked("hope_diamond")
+end
+
+function MenuCallbackHandler:visible_callback_the_bomb()
+	return self:is_dlc_latest_locked("the_bomb")
 end
 
 function MenuCallbackHandler:not_has_all_dlcs()
