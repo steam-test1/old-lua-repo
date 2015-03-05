@@ -437,7 +437,7 @@ end
 
 StageEndScreenGui = StageEndScreenGui or class()
 function StageEndScreenGui:init(saferect_ws, fullrect_ws, statistics_data)
-	self._safe_workspace = saferect_ws
+  	self._safe_workspace = saferect_ws
 	self._full_workspace = fullrect_ws
 	self._fullscreen_panel = self._full_workspace:panel():panel({layer = 1})
 	self._panel = self._safe_workspace:panel():panel({
