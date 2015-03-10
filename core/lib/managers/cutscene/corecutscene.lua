@@ -156,7 +156,7 @@ function CoreCutscene:_parse_animation_blob_list(cutscene_node)
 end
 
 function CoreCutscene:_parse_single_animation_blob(cutscene_node)
- 	for collection_node in cutscene_node:children() do
+	for collection_node in cutscene_node:children() do
 		if collection_node:name() == "controlled_units" then
 			local animation_blob = collection_node:parameter("animation_blob")
 			return {animation_blob}

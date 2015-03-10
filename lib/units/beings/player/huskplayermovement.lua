@@ -1592,7 +1592,7 @@ function HuskPlayerMovement:_adjust_walk_anim_speed(dt, target_speed)
 end
 
 function HuskPlayerMovement:sync_shot_blank(impact)
- 	if self._state == "mask_off" or self._state == "clean" then
+	if self._state == "mask_off" or self._state == "clean" then
 		return
 	end
 	local delay = self._stance.values[3] < 0.7

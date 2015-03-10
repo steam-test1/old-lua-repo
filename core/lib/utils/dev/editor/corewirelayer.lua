@@ -6,7 +6,7 @@ core:import("CoreMath")
 core:import("CoreEws")
 WireLayer = WireLayer or class(CoreLayer.Layer)
 function WireLayer:init(owner, save_name, units_vector, slot_mask)
- 	WireLayer.super.init(self, owner, save_name or "wires")
+	WireLayer.super.init(self, owner, save_name or "wires")
 	self._current_pos = Vector3(0, 0, 0)
 	self._current_rot = Rotation()
 	self._ctrlrs = {}

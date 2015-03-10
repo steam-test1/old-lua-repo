@@ -115,7 +115,7 @@ function MenuNodeBaseGui:create_text_button(params)
 end
 
 function MenuNodeBaseGui:create_gui_box(panel, params)
- 	if not alive(panel) then
+	if not alive(panel) then
 		return
 	end
 	local box = BoxGuiObject:new(panel, {
