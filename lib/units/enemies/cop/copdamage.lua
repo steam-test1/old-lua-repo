@@ -142,6 +142,8 @@ function CopDamage:damage_bullet(attack_data)
 		end
 		if head then
 			managers.player:on_headshot_dealt()
+		else
+			managers.player:on_damage_dealt()
 		end
 	end
 	if self._damage_reduction_multiplier then
@@ -169,6 +171,7 @@ function CopDamage:damage_bullet(attack_data)
 			variant = attack_data.variant
 		}
 		self:die(attack_data.variant)
+		self:chk_killshot(attack_data.attacker_unit, attack_data.variant)
 	else
 		attack_data.damage = damage
 		local result_type = self:get_damage_type(damage_percent, "bullet")
@@ -429,6 +432,7 @@ function CopDamage:damage_explosion(attack_data)
 			attacker_unit = attacker_unit:base():thrower_unit()
 			data.weapon_unit = attack_data.attacker_unit
 		end
+		self:chk_killshot(attacker_unit, attack_data.variant)
 		if attacker_unit == managers.player:player_unit() then
 			if alive(attacker_unit) then
 				self:_comment_death(attacker_unit, self._unit:base()._tweak_table)
@@ -513,6 +517,7 @@ function CopDamage:damage_melee(attack_data)
 			variant = attack_data.variant
 		}
 		self:die(attack_data.variant)
+		self:chk_killshot(attack_data.attacker_unit, attack_data.variant)
 	else
 		attack_data.damage = damage
 		damage_effect = math.clamp(damage_effect, self._HEALTH_INIT_PRECENT, self._HEALTH_INIT)
@@ -824,6 +829,7 @@ function CopDamage:sync_damage_bullet(attacker_unit, damage_percent, i_body, hit
 		end
 		result = {type = "death", variant = "bullet"}
 		self:die(attack_data.variant)
+		self:chk_killshot(attacker_unit, attack_data.variant)
 		local data = {
 			name = self._unit:base()._tweak_table,
 			head_shot = head,
@@ -853,6 +859,12 @@ function CopDamage:sync_damage_bullet(attacker_unit, damage_percent, i_body, hit
 	self:_on_damage_received(attack_data)
 	if shotgun_push then
 		managers.game_play_central:do_shotgun_push(self._unit, hit_pos, attack_dir, distance)
+	end
+end
+
+function CopDamage:chk_killshot(attacker_unit, variant)
+	if attacker_unit and attacker_unit == managers.player:player_unit() then
+		managers.player:on_killshot(self._unit, variant)
 	end
 end
 
@@ -902,6 +914,9 @@ function CopDamage:sync_damage_explosion(attacker_unit, damage_percent, i_attack
 			skip_push = true
 		})
 	end
+	if attack_data.attacker_unit and attack_data.attacker_unit == managers.player:player_unit() then
+		managers.hud:on_hit_confirmed()
+	end
 	if result.type == "death" then
 		local data = {
 			name = self._unit:base()._tweak_table,
@@ -914,6 +929,7 @@ function CopDamage:sync_damage_explosion(attacker_unit, damage_percent, i_attack
 			attacker_unit = attacker_unit:base():thrower_unit()
 			data.weapon_unit = attack_data.attacker_unit
 		end
+		self:chk_killshot(attacker_unit, variant)
 		if attacker_unit == managers.player:player_unit() then
 			if alive(attacker_unit) then
 				self:_comment_death(attacker_unit, self._unit:base()._tweak_table)
@@ -949,6 +965,7 @@ function CopDamage:sync_damage_melee(attacker_unit, damage_percent, damage_effec
 	if death then
 		result = {type = "death", variant = "melee"}
 		self:die(attack_data.variant)
+		self:chk_killshot(attacker_unit, variant)
 		local data = {
 			name = self._unit:base()._tweak_table,
 			head_shot = false,
