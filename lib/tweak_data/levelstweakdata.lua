@@ -730,6 +730,9 @@ function LevelsTweakData:init()
 		},
 		neutral1 = {
 			foes = {}
+		},
+		hacked_turret = {
+			foes = {mobster1 = true, law1 = true}
 		}
 	}
 	self.mia2_new = {}
@@ -1086,6 +1089,9 @@ function LevelsTweakData:get_team_setup()
 			},
 			neutral1 = {
 				foes = {}
+			},
+			hacked_turret = {
+				foes = {mobster1 = true, law1 = true}
 			}
 		}
 		for id, team in pairs(teams) do

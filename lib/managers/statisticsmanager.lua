@@ -717,7 +717,9 @@ function StatisticsManager:_get_stat_tables()
 		"corey",
 		"tonys_revenge",
 		"richard_returns",
-		"richard_begins"
+		"richard_begins",
+		"bonnie",
+		"bonnie_begins"
 	}
 	local weapon_list = {
 		"ak5",
@@ -789,7 +791,8 @@ function StatisticsManager:_get_stat_tables()
 		"hs2000",
 		"m134",
 		"rpg7",
-		"cobray"
+		"cobray",
+		"b682"
 	}
 	local melee_list = {
 		"weapon",
@@ -825,7 +828,8 @@ function StatisticsManager:_get_stat_tables()
 		"shillelagh",
 		"boxing_gloves",
 		"meat_cleaver",
-		"hammer"
+		"hammer",
+		"whiskey"
 	}
 	local enemy_list = {
 		"civilian",
@@ -940,7 +944,7 @@ function StatisticsManager:publish_to_steam(session, success, completion)
 	}
 	local current_rank = managers.experience:current_rank()
 	local current_rank_range = current_rank > 5 and 5 or current_rank
-	for i = 0, 5 do
+	for i = 0, 25 do
 		stats["player_rank_" .. i] = {
 			type = "int",
 			method = "set",
@@ -1175,7 +1179,7 @@ function StatisticsManager:publish_level_to_steam()
 	}
 	local current_rank = managers.experience:current_rank()
 	local current_rank_range = current_rank > 5 and 5 or current_rank
-	for i = 0, 5 do
+	for i = 0, 25 do
 		stats["player_rank_" .. i] = {
 			type = "int",
 			method = "set",
