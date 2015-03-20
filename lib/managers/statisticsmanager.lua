@@ -495,7 +495,8 @@ function StatisticsManager:_get_stat_tables()
 		"crojob2",
 		"crojob3",
 		"crojob3_night",
-		"rat"
+		"rat",
+		"cage"
 	}
 	local job_list = {
 		"jewelry_store",
@@ -542,7 +543,8 @@ function StatisticsManager:_get_stat_tables()
 		"crojob2",
 		"crojob2_night",
 		"rat",
-		"arm_for"
+		"arm_for",
+		"cage"
 	}
 	local mask_list = {
 		"character_locked",
@@ -719,7 +721,8 @@ function StatisticsManager:_get_stat_tables()
 		"richard_returns",
 		"richard_begins",
 		"bonnie",
-		"bonnie_begins"
+		"bonnie_begins",
+		"simpson"
 	}
 	local weapon_list = {
 		"ak5",
@@ -943,7 +946,7 @@ function StatisticsManager:publish_to_steam(session, success, completion)
 		value = 1
 	}
 	local current_rank = managers.experience:current_rank()
-	local current_rank_range = current_rank > 5 and 5 or current_rank
+	local current_rank_range = current_rank > 25 and 25 or current_rank
 	for i = 0, 25 do
 		stats["player_rank_" .. i] = {
 			type = "int",
@@ -1178,7 +1181,7 @@ function StatisticsManager:publish_level_to_steam()
 		value = 1
 	}
 	local current_rank = managers.experience:current_rank()
-	local current_rank_range = current_rank > 5 and 5 or current_rank
+	local current_rank_range = current_rank > 25 and 25 or current_rank
 	for i = 0, 25 do
 		stats["player_rank_" .. i] = {
 			type = "int",
