@@ -287,6 +287,7 @@ function MusicManager:jukebox_default_tracks()
 		heist_mia2 = "all",
 		heist_hox1 = "track_20",
 		heist_hox2 = "track_21",
+		heist_hox_3 = "track_27",
 		heist_jewelry_store = "track_01",
 		heist_mallcrasher = "track_03",
 		heist_nightclub = "track_05",
@@ -362,7 +363,8 @@ function MusicManager:jukebox_music_tracks()
 		"track_23",
 		"track_24",
 		"track_25",
-		"track_26"
+		"track_26",
+		"track_27"
 	}
 	local pdth_tracks = {
 		"track_pth_01",
