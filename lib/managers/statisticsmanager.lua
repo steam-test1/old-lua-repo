@@ -112,6 +112,20 @@ function StatisticsManager:_setup(reset)
 			explosion = 0,
 			tied = 0
 		},
+		hector_boss = {
+			count = 0,
+			head_shots = 0,
+			melee = 0,
+			explosion = 0,
+			tied = 0
+		},
+		hector_boss_no_armor = {
+			count = 0,
+			head_shots = 0,
+			melee = 0,
+			explosion = 0,
+			tied = 0
+		},
 		sniper = {
 			count = 0,
 			head_shots = 0,
@@ -496,7 +510,8 @@ function StatisticsManager:_get_stat_tables()
 		"crojob3",
 		"crojob3_night",
 		"rat",
-		"cage"
+		"cage",
+		"hox_3"
 	}
 	local job_list = {
 		"jewelry_store",
@@ -544,7 +559,8 @@ function StatisticsManager:_get_stat_tables()
 		"crojob2_night",
 		"rat",
 		"arm_for",
-		"cage"
+		"cage",
+		"hox_3"
 	}
 	local mask_list = {
 		"character_locked",
@@ -722,7 +738,13 @@ function StatisticsManager:_get_stat_tables()
 		"richard_begins",
 		"bonnie",
 		"bonnie_begins",
-		"simpson"
+		"simpson",
+		"hothead",
+		"falcon",
+		"unic",
+		"speedrunner",
+		"hectors_helmet",
+		"old_hoxton_begins"
 	}
 	local weapon_list = {
 		"ak5",
@@ -855,7 +877,9 @@ function StatisticsManager:_get_stat_tables()
 		"taser",
 		"mobster",
 		"mobster_boss",
-		"tank_hw"
+		"tank_hw",
+		"hector_boss",
+		"hector_boss_no_armor"
 	}
 	local armor_list = {
 		"level_1",
@@ -886,6 +910,8 @@ function StatisticsManager:publish_to_steam(session, success, completion)
 		return
 	end
 	self:check_version()
+	local max_ranks = 25
+	local max_specializations = 10
 	local session_time_seconds = Application:time() - self._start_session_time
 	local session_time_minutes = session_time_seconds / 60
 	local session_time = session_time_minutes / 60
@@ -946,8 +972,8 @@ function StatisticsManager:publish_to_steam(session, success, completion)
 		value = 1
 	}
 	local current_rank = managers.experience:current_rank()
-	local current_rank_range = current_rank > 25 and 25 or current_rank
-	for i = 0, 25 do
+	local current_rank_range = max_ranks < current_rank and max_ranks or current_rank
+	for i = 0, max_ranks do
 		stats["player_rank_" .. i] = {
 			type = "int",
 			method = "set",
@@ -959,6 +985,16 @@ function StatisticsManager:publish_to_steam(session, success, completion)
 		method = "set",
 		value = 1
 	}
+	for i = 1, max_specializations do
+		local specialization = managers.skilltree:get_specialization_value(i)
+		if specialization and specialization.tiers and specialization.tiers.current_tier then
+			stats["player_specialization_" .. i] = {
+				type = "int",
+				method = "set",
+				value = managers.skilltree:digest_value(specialization.tiers.current_tier)
+			}
+		end
+	end
 	local current_cash = managers.money:offshore()
 	local cash_found = false
 	local cash_amount = 1000000000
@@ -1052,6 +1088,10 @@ function StatisticsManager:publish_to_steam(session, success, completion)
 			print("Statistics Missing: character_used_" .. character_id)
 		end
 		stats["difficulty_" .. Global.game_settings.difficulty] = {type = "int", value = 1}
+		local specialization = managers.skilltree:get_specialization_value("current_specialization")
+		if specialization >= 0 and max_specializations >= specialization then
+			stats["specialization_used_" .. specialization] = {type = "int", value = 1}
+		end
 	end
 	for weapon_name, weapon_data in pairs(session.killed_by_weapon) do
 		if 0 < weapon_data.count then
@@ -1160,6 +1200,7 @@ function StatisticsManager:publish_level_to_steam()
 	if Application:editor() then
 		return
 	end
+	local max_ranks = 25
 	local stats = {}
 	local current_level = managers.experience:current_level()
 	stats.player_level = {
@@ -1181,8 +1222,8 @@ function StatisticsManager:publish_level_to_steam()
 		value = 1
 	}
 	local current_rank = managers.experience:current_rank()
-	local current_rank_range = current_rank > 25 and 25 or current_rank
-	for i = 0, 25 do
+	local current_rank_range = max_ranks < current_rank and max_ranks or current_rank
+	for i = 0, max_ranks do
 		stats["player_rank_" .. i] = {
 			type = "int",
 			method = "set",
@@ -1522,7 +1563,9 @@ function StatisticsManager:shot_fired(data)
 	if data.hit then
 		self._global.shots_fired.hits = self._global.shots_fired.hits + 1
 		self._global.session.shots_fired.hits = self._global.session.shots_fired.hits + 1
+		self._global.session.shots_by_weapon[name_id] = self._global.session.shots_by_weapon[name_id] or {hits = 0, total = 0}
 		self._global.session.shots_by_weapon[name_id].hits = self._global.session.shots_by_weapon[name_id].hits + 1
+		self._global.shots_by_weapon[name_id] = self._global.shots_by_weapon[name_id] or {hits = 0, total = 0}
 		self._global.shots_by_weapon[name_id].hits = self._global.shots_by_weapon[name_id].hits + 1
 	end
 end

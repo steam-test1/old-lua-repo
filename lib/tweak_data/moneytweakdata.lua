@@ -163,6 +163,7 @@ function MoneyTweakData:init(tweak_data)
 	self.global_value_multipliers.goty_dlc_bundle_2014 = 1
 	self.global_value_multipliers.character_pack_dragan = 1
 	self.global_value_multipliers.the_bomb = 1
+	self.global_value_multipliers.bbq = 1
 	self.global_value_multipliers.akm4_pack = 1
 	self.global_value_multipliers.overkill_pack = 1
 	self.global_value_multipliers.complete_overkill_pack = 1
@@ -207,6 +208,7 @@ function MoneyTweakData:init(tweak_data)
 	self.global_value_bonus_multiplier.goty_dlc_bundle_2014 = 0.2
 	self.global_value_bonus_multiplier.character_pack_dragan = 0.2
 	self.global_value_bonus_multiplier.the_bomb = 0.2
+	self.global_value_bonus_multiplier.bbq = 0.2
 	self.global_value_bonus_multiplier.akm4_pack = 0.2
 	self.global_value_bonus_multiplier.overkill_pack = 0.2
 	self.global_value_bonus_multiplier.complete_overkill_pack = 0.3
