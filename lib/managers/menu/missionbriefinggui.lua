@@ -1656,8 +1656,8 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 	local slot_h = player_slot.panel:h()
 	local aspect
 	local x = player_slot.panel:w() / 2
-	local y = player_slot.panel:h() / 20
-	local w = slot_h / 6 * 1.15
+	local y = player_slot.panel:h() / 18
+	local w = slot_h / 5 * 0.95
 	local h = w
 	local slot_color = tweak_data.chat_colors[slot]
 	local criminal_text = player_slot.panel:text({
@@ -1798,6 +1798,7 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 		end
 	end
 	if outfit.grenade then
+		do break end
 		local guis_catalog = "guis/"
 		local bundle_folder = tweak_data.blackmarket.grenades[outfit.grenade] and tweak_data.blackmarket.grenades[outfit.grenade].texture_bundle_folder
 		if bundle_folder then
@@ -1831,7 +1832,7 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 		aspect = armor_bitmap:texture_width() / math.max(1, armor_bitmap:texture_height())
 		armor_bitmap:set_w(armor_bitmap:h() * aspect)
 		armor_bitmap:set_center_x(x)
-		armor_bitmap:set_center_y(y * 15)
+		armor_bitmap:set_center_y(y * 12)
 	end
 	if outfit.deployable and outfit.deployable ~= "nil" then
 		local guis_catalog = "guis/"
@@ -1849,7 +1850,7 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 		aspect = deployable_bitmap:texture_width() / math.max(1, deployable_bitmap:texture_height())
 		deployable_bitmap:set_w(deployable_bitmap:h() * aspect)
 		deployable_bitmap:set_center_x(x)
-		deployable_bitmap:set_center_y(y * 17)
+		deployable_bitmap:set_center_y(y * 15)
 		local deployable_amount = tonumber(outfit.deployable_amount) or 0
 		if deployable_amount > 1 then
 			local deployable_text = player_slot.panel:text({
@@ -2039,7 +2040,7 @@ function NewLoadoutTab:init(panel, text, i, menu_component_data)
 	local primary = managers.blackmarket:equipped_primary()
 	local secondary = managers.blackmarket:equipped_secondary()
 	local melee_weapon = managers.blackmarket:equipped_melee_weapon()
-	local grenade = managers.blackmarket:equipped_grenade()
+	local grenade, grenade_amount = managers.blackmarket:equipped_grenade()
 	local armor = managers.blackmarket:equipped_armor()
 	local deployable = managers.player:equipment_in_slot(1)
 	if primary then
@@ -2099,7 +2100,7 @@ function NewLoadoutTab:init(panel, text, i, menu_component_data)
 		end
 		melee_weapon_string = managers.localization:text(tweak_data.blackmarket.melee_weapons[melee_weapon].name_id)
 	end
-	if grenade then
+	if grenade and grenade_amount > 0 then
 		local guis_catalog = "guis/"
 		local bundle_folder = tweak_data.blackmarket.grenades[grenade] and tweak_data.blackmarket.grenades[grenade].texture_bundle_folder
 		if bundle_folder then
@@ -2125,15 +2126,6 @@ function NewLoadoutTab:init(panel, text, i, menu_component_data)
 		end
 		deployable_texture = guis_catalog .. "textures/pd2/blackmarket/icons/deployables/" .. tostring(deployable)
 		deployable_string = managers.localization:text(tweak_data.upgrades.definitions[deployable].name_id)
-	end
-	if grenade then
-		local guis_catalog = "guis/"
-		local bundle_folder = tweak_data.blackmarket.grenades[grenade] and tweak_data.blackmarket.grenades[grenade].texture_bundle_folder
-		if bundle_folder then
-			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
-		end
-		grenade_texture = guis_catalog .. "textures/pd2/blackmarket/icons/grenades/" .. tostring(grenade)
-		grenade_string = managers.localization:text(tweak_data.grenades[grenade].name_id)
 	end
 	local primary = {
 		item_texture = primary_texture,

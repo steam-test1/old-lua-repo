@@ -48,7 +48,11 @@ function DLCTweakData:init(tweak_data)
 			amount = 1
 		}
 	}
-	self.starter_kit.content.upgrades = {"fists", "frag"}
+	self.starter_kit.content.upgrades = {
+		"fists",
+		"molotov",
+		"frag"
+	}
 	do
 		local all_normal_masks = {
 			"alienware",

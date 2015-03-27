@@ -4,6 +4,12 @@ function MolotovGrenade:init(unit)
 	MolotovGrenade.super.init(self, unit)
 end
 
+function MolotovGrenade:destroy(unit)
+	for _, damage_effect_entry in pairs(self._molotov_damage_effect_table) do
+		World:effect_manager():fade_kill(damage_effect_entry.effect_id)
+	end
+end
+
 function MolotovGrenade:_setup_molotov_data(grenade_entry)
 	self._tweak_data = tweak_data.grenades[grenade_entry]
 	self._init_timer = 10
@@ -66,10 +72,9 @@ function MolotovGrenade:update(unit, t, dt)
 		self._last_position = unit:position()
 	end
 	if self._burn_duration <= 0 then
-		for _, damage_effect_entry in pairs(self._molotov_damage_effect_table) do
-			World:effect_manager():fade_kill(damage_effect_entry.effect_id)
+		if Network:is_server() then
+			self._unit:set_slot(0)
 		end
-		self._unit:set_slot(0)
 		self._detonated = false
 	end
 end
@@ -81,7 +86,7 @@ function MolotovGrenade:_do_damage()
 	local slot_mask = managers.slot:get_mask("explosion_targets")
 	local player_in_range = false
 	local player_in_range_count = 0
-	if Network:is_server() and self._molotov_damage_effect_table then
+	if self._molotov_damage_effect_table then
 		local collision_safety_distance = Vector3(0, 0, 5)
 		local effect_position
 		local player_damage_range = range
@@ -105,19 +110,21 @@ function MolotovGrenade:_do_damage()
 						end
 					end
 				end
-				local fire_dot_data = self._tweak_data.fire_dot_data
-				local hit_units, splinters = managers.fire:detect_and_give_dmg({
-					hit_pos = effect_position,
-					range = damage_range,
-					collision_slotmask = slot_mask,
-					curve_pow = self._curve_pow,
-					damage = self._damage,
-					player_damage = 0,
-					ignore_unit = self._unit,
-					user = self._unit,
-					push_units = false,
-					fire_dot_data = fire_dot_data
-				})
+				if Network:is_server() then
+					local fire_dot_data = self._tweak_data.fire_dot_data
+					local hit_units, splinters = managers.fire:detect_and_give_dmg({
+						hit_pos = effect_position,
+						range = damage_range,
+						collision_slotmask = slot_mask,
+						curve_pow = self._curve_pow,
+						damage = self._damage,
+						player_damage = 0,
+						ignore_unit = self._unit,
+						user = self._unit,
+						push_units = false,
+						fire_dot_data = fire_dot_data
+					})
+				end
 			end
 		end
 		if player_in_range == true then
@@ -151,7 +158,7 @@ function MolotovGrenade:detonate(normal)
 	local raycast
 	local slotmask = managers.slot:get_mask("molotov_raycasts")
 	local vector, effect_id
-	if normal == nil then
+	if normal == nil or 0.1 > mvector3.length(normal) then
 		normal = Vector3(0, 0, 1)
 	end
 	local tangent = Vector3(normal.z, normal.z, -normal.x - normal.y)
@@ -173,7 +180,7 @@ function MolotovGrenade:detonate(normal)
 			local vector41 = vector21 - 50 * normal
 			raycast = World:raycast("ray", vector21 + 20 * normal, vector41, "slot_mask", slotmask)
 			if raycast ~= nil then
-				managers.fire:play_sound_and_effects(vector21, normal, range, self._custom_params, self._molotov_damage_effect_table)
+				managers.fire:play_sound_and_effects(raycast.position, raycast.normal, range, self._custom_params, self._molotov_damage_effect_table)
 				ray_cast2 = raycast
 			else
 				local vector31 = vector + Vector3(0, 0, -1500)
@@ -206,7 +213,7 @@ function MolotovGrenade:detonate(normal)
 				local vector4 = vector2 - 50 * normal
 				raycast = World:raycast("ray", vector2 + 20 * normal, vector4, "slot_mask", slotmask)
 				if raycast ~= nil then
-					managers.fire:play_sound_and_effects(vector2, normal, range, self._custom_params, self._molotov_damage_effect_table)
+					managers.fire:play_sound_and_effects(raycast.position, raycast.normal, range, self._custom_params, self._molotov_damage_effect_table)
 					ray_cast = raycast
 				else
 					local vector3 = vector + Vector3(0, 0, -1500)
@@ -234,12 +241,14 @@ function MolotovGrenade:detonate(normal)
 		mvector3.rotate_with(offset, rotation)
 	end
 	self._detonated = true
+	self._unit:damage():run_sequence_simple("disable")
 	self._unit:set_visible(false)
 end
 
 function MolotovGrenade:_detonate(normal)
 	if self._detonated == false then
 		self:detonate(normal)
+		Application:debug(" ........................... MolotovGrenade:_detonate()   ", normal)
 		managers.network:session():send_to_peers_synched("sync_detonate_molotov_grenade", self._unit, "base", GrenadeBase.EVENT_IDS.detonate, normal)
 	end
 end
