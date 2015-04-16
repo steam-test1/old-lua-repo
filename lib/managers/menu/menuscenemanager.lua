@@ -42,7 +42,9 @@ function MenuSceneManager:init()
 	}
 	self._global_poses.lmg = {"husk_lmg"}
 	self._global_poses.infamous = {
-		"husk_infamous1"
+		"husk_infamous1",
+		"husk_infamous3",
+		"husk_infamous4"
 	}
 	self._global_poses.famas = {
 		"husk_bullpup"
@@ -59,6 +61,10 @@ function MenuSceneManager:init()
 	self._global_poses.gre_m79 = {
 		"husk_mosconi"
 	}
+	self._global_poses.ksg = {
+		"husk_mosconi",
+		"husk_bullpup"
+	}
 	self._global_poses.m249 = {"husk_m249"}
 	self._global_poses.jowi = {
 		"husk_akimbo1",
@@ -73,6 +79,18 @@ function MenuSceneManager:init()
 		"husk_akimbo2"
 	}
 	self._global_poses.x_deagle = {
+		"husk_akimbo1",
+		"husk_akimbo2"
+	}
+	self._global_poses.x_g17 = {
+		"husk_akimbo1",
+		"husk_akimbo2"
+	}
+	self._global_poses.x_g22c = {
+		"husk_akimbo1",
+		"husk_akimbo2"
+	}
+	self._global_poses.x_usp = {
 		"husk_akimbo1",
 		"husk_akimbo2"
 	}
@@ -633,7 +651,7 @@ function MenuSceneManager:test_show_all_lobby_characters(enable_card)
 		local unit = self._lobby_characters[i]
 		if unit and alive(unit) then
 			if enable_card then
-				self:set_character_card(i, math.random(5), unit)
+				self:set_character_card(i, math.random(25), unit)
 			else
 				local state = unit:play_redirect(Idstring("idle_menu"))
 				unit:anim_state_machine():set_parameter(state, "husk" .. i, 1)
@@ -650,6 +668,12 @@ function MenuSceneManager:test_show_all_lobby_characters(enable_card)
 			mrotation.set_look_at(rot, mvec, math_up)
 			unit:set_position(pos)
 			unit:set_rotation(rot)
+			local character = managers.blackmarket:equipped_character()
+			local mask_blueprint = managers.blackmarket:equipped_mask().blueprint
+			self:change_lobby_character(i, character)
+			unit = self._lobby_characters[i]
+			self:set_character_mask_by_id(managers.blackmarket:equipped_mask().mask_id, mask_blueprint, unit, i)
+			self:set_character_armor(managers.blackmarket:equipped_armor(), unit)
 			self:set_lobby_character_visible(i, true)
 		end
 	end
@@ -1427,9 +1451,9 @@ function MenuSceneManager:spawn_melee_weapon_clbk(melee_weapon_id)
 		local anim_length = new_unit:anim_length(anim_ids)
 		local anim_params = melee_weapon.menu_scene_params or {}
 		if anim_params.loop then
-			new_unit:anim_play_loop(anim_ids, 0, anim_length)
+			new_unit:anim_play_loop(anim_ids, 0, anim_length, anim_params.speed or 1)
 		else
-			new_unit:anim_play(anim_ids)
+			new_unit:anim_play(anim_ids, anim_params.speed or 1)
 		end
 		if anim_params.start_time then
 			local start_time = anim_params.start_time
@@ -1700,7 +1724,7 @@ function MenuSceneManager:_release_character_grab()
 end
 
 function MenuSceneManager:controller_move(x, y)
-	if self._item_unit then
+	if self._item_unit and alive(self._item_unit.unit) then
 		local diff = -y * 90
 		self._item_yaw = (self._item_yaw + x * 75) % 360
 		local yaw_sin = math.sin(self._item_yaw)
