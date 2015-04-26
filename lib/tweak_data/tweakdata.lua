@@ -1000,16 +1000,17 @@ function TweakData:init()
 		0
 	}
 	self.experience_manager.job_completion = {
-		2000,
-		4000,
-		10000,
-		16000,
-		20000,
-		28000,
-		32000
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0
 	}
 	self.experience_manager.stage_failed_multiplier = 0.01
 	self.experience_manager.in_custody_multiplier = 0.7
+	self.experience_manager.pro_job_multiplier = 1.2
 	self.experience_manager.difficulty_multiplier = {
 		2,
 		5,
@@ -2150,8 +2151,7 @@ function TweakData:init()
 			difficulties = {
 				"overkill_145"
 			},
-			timer = 50,
-			is_shortterm = true
+			total_time = 50
 		}
 	}
 	self.achievement.job_list = {}
@@ -2159,7 +2159,8 @@ function TweakData:init()
 		"ukrainian_job_prof",
 		"mallcrasher",
 		"four_stores",
-		"nightclub"
+		"nightclub",
+		"pines"
 	}
 	self.achievement.job_list.hector = {
 		"watchdogs_wrapper",
@@ -2189,6 +2190,7 @@ function TweakData:init()
 		"arm_fac",
 		"arm_par",
 		"arm_und",
+		"arm_for",
 		"kosugi",
 		"gallery",
 		"rat",
@@ -2927,83 +2929,74 @@ function TweakData:init()
 	}
 	self.casino.infamous_cost = 3000000
 	self.casino.infamous_chance = 3
-	self.grenades = {}
-	self.grenades.frag = {}
-	self.grenades.frag.damage = 30
-	self.grenades.frag.player_damage = 10
-	self.grenades.frag.range = 1000
-	self.grenades.frag.name_id = "bm_grenade_frag"
-	self.grenades.launcher_frag = {}
-	self.grenades.launcher_frag.damage = 34
-	self.grenades.launcher_frag.curve_pow = 0.1
-	self.grenades.launcher_frag.player_damage = 8
-	self.grenades.launcher_frag.range = 350
-	self.grenades.launcher_frag.init_timer = 2.5
-	self.grenades.launcher_frag.mass_look_up_modifier = 1
-	self.grenades.launcher_frag.sound_event = "gl_explode"
-	self.grenades.launcher_frag.name_id = "bm_launcher_frag"
-	self.grenades.launcher_rocket = {}
-	self.grenades.launcher_rocket.damage = 1000
-	self.grenades.launcher_rocket.curve_pow = 0.1
-	self.grenades.launcher_rocket.player_damage = 40
-	self.grenades.launcher_rocket.range = 500
-	self.grenades.launcher_rocket.init_timer = 2.5
-	self.grenades.launcher_rocket.mass_look_up_modifier = 1
-	self.grenades.launcher_rocket.sound_event = "rpg_explode"
-	self.grenades.launcher_rocket.name_id = "bm_launcher_rocket"
-	self.grenades.molotov = {}
-	self.grenades.molotov.damage = 1
-	self.grenades.molotov.player_damage = 1
-	self.grenades.molotov.range = 50
-	self.grenades.molotov.burn_duration = 30
-	self.grenades.molotov.burn_tick_period = 0.5
-	self.grenades.molotov.name_id = "bm_grenade_molotov"
-	self.grenades.launcher_incendiary = {}
-	self.grenades.launcher_incendiary.damage = 34
-	self.grenades.launcher_incendiary.curve_pow = 0.1
-	self.grenades.launcher_incendiary.player_damage = 8
-	self.grenades.launcher_incendiary.range = 350
-	self.grenades.launcher_incendiary.init_timer = 2.5
-	self.grenades.launcher_incendiary.mass_look_up_modifier = 1
-	self.grenades.launcher_incendiary.sound_event = "gl_explode"
-	self.grenades.launcher_incendiary.name_id = "bm_launcher_incendiary"
-	self.grenades.launcher_incendiary.burn_duration = 30
-	self.grenades.launcher_incendiary.burn_tick_period = 0.5
-	self.grenades.molotov = {}
-	self.grenades.molotov.damage = 3
-	self.grenades.molotov.player_damage = 2
-	self.grenades.molotov.fire_dot_data = {
+	self.projectiles = {}
+	self.projectiles.frag = {}
+	self.projectiles.frag.damage = 30
+	self.projectiles.frag.player_damage = 10
+	self.projectiles.frag.range = 1000
+	self.projectiles.frag.name_id = "bm_grenade_frag"
+	self.projectiles.launcher_frag = {}
+	self.projectiles.launcher_frag.damage = 34
+	self.projectiles.launcher_frag.launch_speed = 1250
+	self.projectiles.launcher_frag.curve_pow = 0.1
+	self.projectiles.launcher_frag.player_damage = 8
+	self.projectiles.launcher_frag.range = 350
+	self.projectiles.launcher_frag.init_timer = 2.5
+	self.projectiles.launcher_frag.mass_look_up_modifier = 1
+	self.projectiles.launcher_frag.sound_event = "gl_explode"
+	self.projectiles.launcher_frag.name_id = "bm_launcher_frag"
+	self.projectiles.launcher_rocket = {}
+	self.projectiles.launcher_rocket.damage = 1000
+	self.projectiles.launcher_rocket.launch_speed = 2500
+	self.projectiles.launcher_rocket.curve_pow = 0.1
+	self.projectiles.launcher_rocket.player_damage = 40
+	self.projectiles.launcher_rocket.range = 500
+	self.projectiles.launcher_rocket.init_timer = 2.5
+	self.projectiles.launcher_rocket.mass_look_up_modifier = 1
+	self.projectiles.launcher_rocket.sound_event = "rpg_explode"
+	self.projectiles.launcher_rocket.name_id = "bm_launcher_rocket"
+	self.projectiles.molotov = {}
+	self.projectiles.molotov.damage = 3
+	self.projectiles.molotov.player_damage = 2
+	self.projectiles.molotov.fire_dot_data = {
 		dot_damage = 2,
 		dot_trigger_max_distance = 3000,
 		dot_trigger_chance = 35,
 		dot_length = 3,
 		dot_tick_damage = 0.5
 	}
-	self.grenades.molotov.range = 75
-	self.grenades.molotov.burn_duration = 20
-	self.grenades.molotov.burn_tick_period = 0.5
-	self.grenades.molotov.sound_event = "molotov_impact"
-	self.grenades.molotov.sound_event_impact_duration = 4
-	self.grenades.molotov.name_id = "bm_grenade_molotov"
-	self.grenades.launcher_incendiary = {}
-	self.grenades.launcher_incendiary.damage = 3
-	self.grenades.launcher_incendiary.curve_pow = 0.1
-	self.grenades.launcher_incendiary.player_damage = 2
-	self.grenades.launcher_incendiary.fire_dot_data = {
+	self.projectiles.molotov.range = 75
+	self.projectiles.molotov.burn_duration = 20
+	self.projectiles.molotov.burn_tick_period = 0.5
+	self.projectiles.molotov.sound_event = "molotov_impact"
+	self.projectiles.molotov.sound_event_impact_duration = 4
+	self.projectiles.molotov.name_id = "bm_grenade_molotov"
+	self.projectiles.molotov.alert_radius = 1500
+	self.projectiles.molotov.fire_alert_radius = 1500
+	self.projectiles.launcher_incendiary = {}
+	self.projectiles.launcher_incendiary.damage = 3
+	self.projectiles.launcher_incendiary.launch_speed = 1250
+	self.projectiles.launcher_incendiary.curve_pow = 0.1
+	self.projectiles.launcher_incendiary.player_damage = 2
+	self.projectiles.launcher_incendiary.fire_dot_data = {
 		dot_damage = 2,
 		dot_trigger_max_distance = 3000,
 		dot_trigger_chance = 35,
 		dot_length = 3,
 		dot_tick_damage = 0.5
 	}
-	self.grenades.launcher_incendiary.range = 75
-	self.grenades.launcher_incendiary.init_timer = 2.5
-	self.grenades.launcher_incendiary.mass_look_up_modifier = 1
-	self.grenades.launcher_incendiary.sound_event = "gl_explode"
-	self.grenades.launcher_incendiary.sound_event_impact_duration = 1
-	self.grenades.launcher_incendiary.name_id = "bm_launcher_incendiary"
-	self.grenades.launcher_incendiary.burn_duration = 6
-	self.grenades.launcher_incendiary.burn_tick_period = 0.5
+	self.projectiles.launcher_incendiary.range = 75
+	self.projectiles.launcher_incendiary.init_timer = 2.5
+	self.projectiles.launcher_incendiary.mass_look_up_modifier = 1
+	self.projectiles.launcher_incendiary.sound_event = "gl_explode"
+	self.projectiles.launcher_incendiary.sound_event_impact_duration = 1
+	self.projectiles.launcher_incendiary.name_id = "bm_launcher_incendiary"
+	self.projectiles.launcher_incendiary.burn_duration = 6
+	self.projectiles.launcher_incendiary.burn_tick_period = 0.5
+	self.projectiles.launcher_frag_m32 = deep_clone(self.projectiles.launcher_frag)
+	self.projectiles.rocket_frag = {}
+	self.projectiles.rocket_frag.launch_speed = 2500
+	self.projectiles.rocket_frag.adjust_z = 0
 	self.voting = {}
 	self.voting.timeout = 30
 	self.voting.cooldown = 50

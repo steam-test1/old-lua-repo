@@ -1,7 +1,6 @@
 VehicleManager = VehicleManager or class()
 function VehicleManager:init()
 	self._vehicles = {}
-	Application:debug("VehicleManager:init")
 	self._listener_holder = EventListenerHolder:new()
 end
 
@@ -14,6 +13,7 @@ function VehicleManager:on_simulation_started()
 end
 
 function VehicleManager:on_simulation_ended()
+	Application:debug("[VehicleManager] on_simulation_ended")
 	for i, v in ipairs(self._vehicles) do
 		v:vehicle_driving():stop_all_sound_events()
 	end
@@ -39,6 +39,7 @@ end
 
 function VehicleManager:remove_vehicle(vehicle)
 	table.delete(vehicle)
+	managers.hud:_remove_name_label(vehicle:unit_data().name_label_id)
 end
 
 function VehicleManager:get_all_vehicles()
@@ -73,7 +74,8 @@ function VehicleManager:update_vehicles_data_to_peer(peer)
 	if peer:ip_verified() then
 		for i, v in ipairs(self._vehicles) do
 			local v_ext = v:vehicle_driving()
-			Application:debug("[VehicleManager] Syncing vehicle data for... " .. v_ext._unit:id())
+			local v_npc_ext = v:npc_vehicle_driving()
+			Application:debug("[VehicleManager] Syncing vehicle data for: ", v_ext._unit:id(), v_ext._current_state_name)
 			local driver, passenger_front, passenger_back_left, passenger_back_right
 			if v_ext._seats.driver and alive(v_ext._seats.driver.occupant) then
 				driver = v_ext._seats.driver.occupant
@@ -87,85 +89,115 @@ function VehicleManager:update_vehicles_data_to_peer(peer)
 			if v_ext._seats.passenger_back_right and alive(v_ext._seats.passenger_back_right.occupant) then
 				passenger_back_right = v_ext._seats.passenger_back_right.occupant
 			end
-			peer:send_queued_sync("sync_vehicles_data", v_ext._unit, v_ext._state, driver, passenger_front, passenger_back_left, passenger_back_right)
+			peer:send_queued_sync("sync_vehicle_data", v_ext._unit, v_ext._current_state_name, driver, passenger_front, passenger_back_left, passenger_back_right)
+			if v_npc_ext then
+				peer:send_queued_sync("sync_npc_vehicle_data", v_npc_ext._unit, v_npc_ext._current_state_name, v_npc_ext._target_unit)
+			end
+			local stored_loot = v_ext._loot
+			local loot_index = 1
+			while loot_index <= #stored_loot do
+				local loot1 = stored_loot[loot_index]
+				loot_index = loot_index + 1
+				local loot2 = {carry_id = nil, multiplier = 0}
+				if loot_index <= #stored_loot then
+					loot2 = stored_loot[loot_index]
+				end
+				loot_index = loot_index + 1
+				local loot3 = {carry_id = nil, multiplier = 0}
+				if loot_index <= #stored_loot then
+					loot3 = stored_loot[loot_index]
+				end
+				loot_index = loot_index + 1
+				peer:send_queued_sync("sync_vehicle_loot", v_ext._unit, loot1.carry_id, loot1.multiplier, loot2.carry_id, loot2.multiplier, loot3.carry_id, loot3.multiplier)
+			end
 		end
 	end
 end
 
-function VehicleManager:sync_vehicles_data(vehicle_unit, state, occupant_driver, occupant_left, occupant_back_left, occupant_back_right)
-	for i, v in ipairs(self._vehicles) do
-		if v == vehicle_unit then
-			local v_ext = v:vehicle_driving()
-			local vehicle = vehicle_unit:vehicle()
-			Application:debug("[VehicleManager] Syncing vehicle data for... " .. vehicle_unit:id())
-			if v_ext._seats.driver then
-				v_ext._seats.driver.occupant = occupant_driver
-				if occupant_driver then
-					vehicle_unit:link(Idstring(VehicleDrivingExt.SEAT_PREFIX .. v_ext._seats.driver.name), occupant_driver)
-					local member = managers.network:game():member_from_unit(occupant_driver)
-					if member then
-						local peer_id = managers.network:game():member_from_unit(occupant_driver):peer():id()
-						managers.player._global.synced_vehicle_data[peer_id] = {
-							vehicle_unit = v,
-							seat = v_ext._seats.driver.name
-						}
-					end
-				end
-			end
-			if v_ext._seats.passenger_front then
-				v_ext._seats.passenger_front.occupant = occupant_left
-				if occupant_left then
-					vehicle_unit:link(Idstring(VehicleDrivingExt.SEAT_PREFIX .. v_ext._seats.passenger_front.name), occupant_left)
-					local member = managers.network:game():member_from_unit(occupant_left)
-					if member then
-						local peer_id = managers.network:game():member_from_unit(occupant_left):peer():id()
-						managers.player._global.synced_vehicle_data[peer_id] = {
-							vehicle_unit = v,
-							seat = v_ext._seats.passenger_front.name
-						}
-					end
-				end
-			end
-			if v_ext._seats.passenger_back_left then
-				v_ext._seats.passenger_back_left.occupant = occupant_back_left
-				if occupant_back_left then
-					vehicle_unit:link(Idstring(VehicleDrivingExt.SEAT_PREFIX .. v_ext._seats.passenger_back_left.name), occupant_back_left)
-					local member = managers.network:game():member_from_unit(occupant_back_left)
-					if member then
-						local peer_id = managers.network:game():member_from_unit(occupant_back_left):peer():id()
-						managers.player._global.synced_vehicle_data[peer_id] = {
-							vehicle_unit = v,
-							seat = v_ext._seats.passenger_back_left.name
-						}
-					end
-				end
-			end
-			if v_ext._seats.passenger_back_right then
-				v_ext._seats.passenger_back_right.occupant = occupant_back_right
-				if occupant_back_right then
-					vehicle_unit:link(Idstring(VehicleDrivingExt.SEAT_PREFIX .. v_ext._seats.passenger_back_right.name), occupant_back_right)
-					local member = managers.network:game():member_from_unit(occupant_back_right)
-					if member then
-						local peer_id = managers.network:game():member_from_unit(occupant_back_right):peer():id()
-						managers.player._global.synced_vehicle_data[peer_id] = {
-							vehicle_unit = v,
-							seat = v_ext._seats.passenger_back_right.name
-						}
-					end
-				end
-			end
-			Application:debug("[VehicleManager]", inspect(managers.player._global.synced_vehicle_data))
-			if state ~= VehicleDrivingExt.STATE_INACTIVE then
-				v:damage():run_sequence_simple("driving")
-				v:vehicle():set_active(true)
-				v_ext:set_state(state)
+function VehicleManager:sync_npc_vehicle_data(vehicle_unit, state_name, target_unit)
+	local v_npc_ext = vehicle_unit:npc_vehicle_driving()
+	Application:debug("sync_npc_vehicle_data", vehicle_unit:unit_data().unit_id, state_name)
+	v_npc_ext:_set_state(state_name)
+	v_npc_ext:start()
+end
+
+function VehicleManager:sync_vehicle_data(vehicle_unit, state, occupant_driver, occupant_left, occupant_back_left, occupant_back_right)
+	local v_ext = vehicle_unit:vehicle_driving()
+	if v_ext._seats.driver then
+		v_ext._seats.driver.occupant = occupant_driver
+		if occupant_driver then
+			vehicle_unit:link(Idstring(VehicleDrivingExt.SEAT_PREFIX .. v_ext._seats.driver.name), occupant_driver)
+			local member = managers.network:game():member_from_unit(occupant_driver)
+			if member then
+				local peer_id = managers.network:game():member_from_unit(occupant_driver):peer():id()
+				managers.player._global.synced_vehicle_data[peer_id] = {
+					vehicle_unit = vehicle_unit,
+					seat = v_ext._seats.driver.name
+				}
 			end
 		end
 	end
+	if v_ext._seats.passenger_front then
+		v_ext._seats.passenger_front.occupant = occupant_left
+		if occupant_left then
+			vehicle_unit:link(Idstring(VehicleDrivingExt.SEAT_PREFIX .. v_ext._seats.passenger_front.name), occupant_left)
+			local member = managers.network:game():member_from_unit(occupant_left)
+			if member then
+				local peer_id = managers.network:game():member_from_unit(occupant_left):peer():id()
+				managers.player._global.synced_vehicle_data[peer_id] = {
+					vehicle_unit = vehicle_unit,
+					seat = v_ext._seats.passenger_front.name
+				}
+			end
+		end
+	end
+	if v_ext._seats.passenger_back_left then
+		v_ext._seats.passenger_back_left.occupant = occupant_back_left
+		if occupant_back_left then
+			vehicle_unit:link(Idstring(VehicleDrivingExt.SEAT_PREFIX .. v_ext._seats.passenger_back_left.name), occupant_back_left)
+			local member = managers.network:game():member_from_unit(occupant_back_left)
+			if member then
+				local peer_id = managers.network:game():member_from_unit(occupant_back_left):peer():id()
+				managers.player._global.synced_vehicle_data[peer_id] = {
+					vehicle_unit = vehicle_unit,
+					seat = v_ext._seats.passenger_back_left.name
+				}
+			end
+		end
+	end
+	if v_ext._seats.passenger_back_right then
+		v_ext._seats.passenger_back_right.occupant = occupant_back_right
+		if occupant_back_right then
+			vehicle_unit:link(Idstring(VehicleDrivingExt.SEAT_PREFIX .. v_ext._seats.passenger_back_right.name), occupant_back_right)
+			local member = managers.network:game():member_from_unit(occupant_back_right)
+			if member then
+				local peer_id = managers.network:game():member_from_unit(occupant_back_right):peer():id()
+				managers.player._global.synced_vehicle_data[peer_id] = {
+					vehicle_unit = vehicle_unit,
+					seat = v_ext._seats.passenger_back_right.name
+				}
+			end
+		end
+	end
+	Application:debug("[VehicleManager]", inspect(managers.player._global.synced_vehicle_data))
+	if state ~= VehicleDrivingExt.STATE_INACTIVE then
+		vehicle_unit:damage():run_sequence_simple("driving")
+		vehicle_unit:vehicle():set_active(true)
+		v_ext:set_state(state, true)
+	end
+end
+
+function VehicleManager:sync_vehicle_loot(vehicle_unit, carry_id1, multiplier1, carry_id2, multiplier2, carry_id3, multiplier3)
+	if not alive(vehicle_unit) then
+		return
+	end
+	local v_ext = vehicle_unit:vehicle_driving()
+	v_ext:add_loot(carry_id1, multiplier1)
+	v_ext:add_loot(carry_id2, multiplier2)
+	v_ext:add_loot(carry_id3, multiplier3)
 end
 
 function VehicleManager:find_active_vehicle_with_player()
-	Application:debug("[VehicleManager] find_active_vehicle_with_player()")
 	for i, v in ipairs(self._vehicles) do
 		if v:vehicle_driving()._vehicle:is_active() then
 			local v_ext = v:vehicle_driving()
@@ -173,7 +205,6 @@ function VehicleManager:find_active_vehicle_with_player()
 			local has_player = false
 			for _, seat in pairs(v_ext._seats) do
 				local occupant = seat.occupant
-				Application:debug(inspect(seat))
 				if occupant == nil then
 					has_free_seat = true
 				elseif alive(occupant) and occupant:brain() or not alive(occupant) then
@@ -185,6 +216,15 @@ function VehicleManager:find_active_vehicle_with_player()
 			if has_free_seat and has_player then
 				return v
 			end
+		end
+	end
+	return nil
+end
+
+function VehicleManager:find_npc_vehicle_target()
+	for i, v in ipairs(self._vehicles) do
+		if v:vehicle_driving()._vehicle:is_active() and v:npc_vehicle_driving() == nil then
+			return v
 		end
 	end
 	return nil

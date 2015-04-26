@@ -96,7 +96,9 @@ function GenericDLCManager:give_dlc_package()
 				print("[DLC] Allready been given dlc package", package_id)
 			end
 			for _, upgrade in ipairs(data.content.upgrades or {}) do
-				managers.upgrades:aquire_default(upgrade, UpgradesManager.AQUIRE_STRINGS[1])
+				if not managers.upgrades:aquired(upgrade, UpgradesManager.AQUIRE_STRINGS[1]) then
+					managers.upgrades:aquire_default(upgrade, UpgradesManager.AQUIRE_STRINGS[1])
+				end
 			end
 		else
 			print("[DLC] Didn't own DLC package", package_id)
@@ -338,16 +340,16 @@ function GenericDLCManager:has_gage_pack_assault()
 	return Global.dlc_manager.all_dlc_data.gage_pack_assault and Global.dlc_manager.all_dlc_data.gage_pack_assault.verified
 end
 
-function GenericDLCManager:has_akm4_pack()
-	return Global.dlc_manager.all_dlc_data.akm4_pack and Global.dlc_manager.all_dlc_data.akm4_pack.verified
-end
-
 function GenericDLCManager:has_overkill_pack()
 	return Global.dlc_manager.all_dlc_data.overkill_pack and Global.dlc_manager.all_dlc_data.overkill_pack.verified
 end
 
 function GenericDLCManager:has_complete_overkill_pack()
 	return Global.dlc_manager.all_dlc_data.complete_overkill_pack and Global.dlc_manager.all_dlc_data.complete_overkill_pack.verified
+end
+
+function GenericDLCManager:has_akm4_pack()
+	return Global.dlc_manager.all_dlc_data.akm4_pack and Global.dlc_manager.all_dlc_data.akm4_pack.verified
 end
 
 function GenericDLCManager:has_big_bank()
@@ -667,9 +669,9 @@ function WINDLCManager:init()
 			gage_pack_snp = {app_id = "259380", no_install = true},
 			gage_pack_shotgun = {app_id = "311050", no_install = true},
 			gage_pack_assault = {app_id = "320030", no_install = true},
-			akm4_pack = {app_id = "351890", no_install = true},
 			overkill_pack = {app_id = "348090", no_install = true},
 			complete_overkill_pack = {app_id = "348091", no_install = true},
+			akm4_pack = {app_id = "351890", no_install = true},
 			big_bank = {app_id = "306690", no_install = true},
 			hl_miami = {app_id = "323500", no_install = true},
 			hlm_game = {

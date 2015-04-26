@@ -17,6 +17,7 @@ function PlayerTased:enter(state_data, enter_data)
 	end
 	self._next_shock = 0.5
 	self._taser_value = 1
+	self._num_shocks = 0
 	managers.groupai:state():on_criminal_disabled(self._unit, "electrified")
 	if Network:is_server() then
 		self:_register_revive_SO()
@@ -64,6 +65,7 @@ function PlayerTased:exit(state_data, enter_data)
 	self._unit:camera():play_redirect(Idstring("idle"))
 	self._tase_ended = nil
 	self._counter_taser_unit = nil
+	self._num_shocks = nil
 end
 
 function PlayerTased:interaction_blocked()
@@ -77,6 +79,7 @@ end
 function PlayerTased:_update_check_actions(t, dt)
 	local input = self:_get_input()
 	if t > self._next_shock then
+		self._num_shocks = self._num_shocks + 1
 		self._next_shock = t + 0.25 + math.rand(1)
 		self._unit:camera():play_shaker("player_taser_shock", 1, 10)
 		self._unit:camera():camera_unit():base():set_target_tilt((math.random(2) == 1 and -1 or 1) * math.random(10))
@@ -148,6 +151,7 @@ function PlayerTased:_check_action_primary_attack(t, input)
 					if fire_mode == "single" and input.btn_primary_attack_press then
 						weap_base:dryfire()
 					end
+				elseif self._num_shocks > 1 and weap_base.can_refire_while_tased and not weap_base:can_refire_while_tased() then
 				elseif self._running then
 					self:_interupt_action_running(t)
 				else
@@ -167,6 +171,9 @@ function PlayerTased:_check_action_primary_attack(t, input)
 					if fire_mode == "single" then
 						if input.btn_primary_attack_press then
 							fired = weap_base:trigger_pressed(self._ext_camera:position(), self._ext_camera:forward(), nil, nil, nil, nil, suppression_mul)
+							if weap_base:fire_on_release() then
+								fired = weap_base:trigger_released(self._ext_camera:position(), self._ext_camera:forward(), nil, nil, nil, nil, suppression_mul)
+							end
 						end
 					elseif input.btn_primary_attack_state then
 						fired = weap_base:trigger_held(self._ext_camera:position(), self._ext_camera:forward(), nil, nil, nil, nil, suppression_mul)

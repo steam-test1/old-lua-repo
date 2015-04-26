@@ -446,6 +446,7 @@ end
 function Setup:exec(context)
 	self:set_fps_cap(30)
 	managers.music:stop()
+	managers.vote:stop()
 	SoundDevice:stop()
 	if not managers.system_menu:is_active() then
 		self:set_main_thread_loading_screen_visible(true)

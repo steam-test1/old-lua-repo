@@ -26,6 +26,32 @@ CopDamage._hurt_severities = {
 	explode = "expl_hurt",
 	fire = "fire_hurt"
 }
+CopDamage._impact_bones = {}
+local impact_bones_tmp = {
+	"Hips",
+	"Spine",
+	"Spine1",
+	"Spine2",
+	"Neck",
+	"Head",
+	"LeftShoulder",
+	"LeftArm",
+	"LeftForeArm",
+	"RightShoulder",
+	"RightArm",
+	"RightForeArm",
+	"LeftUpLeg",
+	"LeftLeg",
+	"LeftFoot",
+	"RightUpLeg",
+	"RightLeg",
+	"RightFoot"
+}
+for i, k in ipairs(impact_bones_tmp) do
+	local name_ids = Idstring(impact_bones_tmp[i])
+	CopDamage._impact_bones[name_ids:key()] = name_ids
+end
+impact_bones_tmp = nil
 local mvec_1 = Vector3()
 local mvec_2 = Vector3()
 function CopDamage:init(unit)
@@ -295,6 +321,9 @@ function CopDamage:_check_damage_achievements(attack_data, head)
 			weapon_type_pass = not achievement_data.weapon_type or attack_weapon:base():weapon_tweak_data().category == achievement_data.weapon_type
 			weapons_pass = not achievement_data.weapons or table.contains(achievement_data.weapons, attack_weapon:base().name_id)
 			weapon_pass = not achievement_data.weapon or attack_weapon:base().name_id == achievement_data.weapon
+			fire_mode_pass = not achievement_data.fire_mode or attack_weapon:base():fire_mode() == achievement_data.fire_mode
+			ammo_pass = not achievement_data.total_ammo or attack_weapon:base():get_ammo_total() == achievement_data.total_ammo
+			one_shot_pass = not achievement_data.one_shot or attack_data.damage == self._HEALTH_INIT
 			enemy_pass = not achievement_data.enemy or unit_type == achievement_data.enemy
 			enemy_weapon_pass = not achievement_data.enemy_weapon or unit_weapon == achievement_data.enemy_weapon
 			mask_pass = not achievement_data.mask or current_mask_id == achievement_data.mask
@@ -334,7 +363,7 @@ function CopDamage:_check_damage_achievements(attack_data, head)
 					managers.job:set_memory(achievement, {t})
 				end
 			end
-			all_pass = weapon_type_pass and weapons_pass and weapon_pass and enemy_pass and enemy_weapon_pass and mask_pass and hiding_pass and head_pass and distance_pass and zipline_pass and rope_pass and level_pass and timer_pass and part_pass and cop_pass
+			all_pass = weapon_type_pass and weapons_pass and weapon_pass and fire_mode_pass and ammo_pass and one_shot_pass and enemy_pass and enemy_weapon_pass and mask_pass and hiding_pass and head_pass and distance_pass and zipline_pass and rope_pass and level_pass and timer_pass and part_pass and cop_pass
 			if all_pass then
 				if achievement_data.stat then
 					managers.achievment:award_progress(achievement_data.stat)
@@ -720,16 +749,22 @@ function CopDamage:damage_melee(attack_data)
 			if not is_civlian and managers.groupai:state():whisper_mode() and managers.blackmarket:equipped_mask().mask_id == tweak_data.achievement.cant_hear_you_scream.mask then
 				managers.achievment:award_progress(tweak_data.achievement.cant_hear_you_scream.stat)
 			end
+			mvector3.set(mvec_1, self._unit:position())
+			mvector3.subtract(mvec_1, attack_data.attacker_unit:position())
+			mvector3.normalize(mvec_1)
+			mvector3.set(mvec_2, self._unit:rotation():y())
+			local from_behind = mvector3.dot(mvec_1, mvec_2) >= 0
 			if tweak_data.blackmarket.melee_weapons[attack_data.name_id] then
 				local achievements = tweak_data.achievement.enemy_melee_kill_achievements or {}
 				local melee_type = tweak_data.blackmarket.melee_weapons[attack_data.name_id].type
 				local enemy_type = self._unit:base()._tweak_table
 				local health_ratio = managers.player:player_unit():character_damage():health_ratio() * 100
-				local melee_pass, type_pass, enemy_pass, diff_pass, health_pass, level_pass, job_pass, jobs_pass, all_pass, cop_pass, gangster_pass, civilian_pass, stealth_pass, on_fire_pass
+				local melee_pass, type_pass, enemy_pass, diff_pass, health_pass, level_pass, job_pass, jobs_pass, all_pass, cop_pass, gangster_pass, civilian_pass, stealth_pass, on_fire_pass, behind_pass
 				for achievement, achievement_data in pairs(achievements) do
 					melee_pass = not achievement_data.melee_id or achievement_data.melee_id == attack_data.name_id
 					type_pass = not achievement_data.melee_type or melee_type == achievement_data.melee_type
 					enemy_pass = not achievement_data.enemy or enemy_type == achievement_data.enemy
+					behind_pass = not achievement_data.from_behind or from_behind
 					diff_pass = not achievement_data.difficulty or table.contains(achievement_data.difficulty, Global.game_settings.difficulty)
 					health_pass = not achievement_data.health or health_ratio <= achievement_data.health
 					if achievement_data.level_id then
@@ -751,7 +786,7 @@ function CopDamage:damage_melee(attack_data)
 							end
 						end
 					end
-					all_pass = melee_pass and type_pass and enemy_pass and diff_pass and health_pass and level_pass and job_pass and jobs_pass and cop_pass and gangster_pass and civilian_pass and stealth_pass and on_fire_pass
+					all_pass = melee_pass and type_pass and enemy_pass and behind_pass and diff_pass and health_pass and level_pass and job_pass and jobs_pass and cop_pass and gangster_pass and civilian_pass and stealth_pass and on_fire_pass
 					if all_pass then
 						if achievement_data.stat then
 							managers.achievment:award_progress(achievement_data.stat)
@@ -805,6 +840,9 @@ function CopDamage:damage_mission(attack_data)
 	attack_data.result = result
 	attack_data.attack_dir = self._unit:rotation():y()
 	attack_data.pos = self._unit:position()
+	if attack_data.attacker_unit == managers.player:local_player() and CopDamage.is_civilian(self._unit:base()._tweak_table) then
+		managers.money:civilian_killed()
+	end
 	self:_send_explosion_attack_result(attack_data, self._unit, damage_percent, self:_get_attack_variant_index("explosion"), attack_data.col_ray and attack_data.col_ray.ray)
 	self:_on_damage_received(attack_data)
 	return result
@@ -858,6 +896,45 @@ function CopDamage:get_ranged_attack_autotarget_data(shoot_from_pos, aim_vec)
 	return autotarget_data
 end
 
+function CopDamage:get_impact_segment(position)
+	local closest_dist_sq, closest_bone
+	for _, bone_name in pairs(self._impact_bones) do
+		local bone_obj = self._unit:get_object(bone_name)
+		local bone_dist_sq = mvector3.distance_sq(position, bone_obj:position())
+		if not closest_bone or closest_dist_sq > bone_dist_sq then
+			closest_bone = bone_obj
+			closest_dist_sq = bone_dist_sq
+		end
+	end
+	print("CopDamage:get_impact_segment(): closest_bone is:", closest_bone and closest_bone:name())
+	local parent_bone, child_bone, closest_child
+	closest_dist_sq = nil
+	for _, bone_obj in ipairs(closest_bone:children()) do
+		if self._impact_bones[bone_obj:name():key()] then
+			local bone_dist_sq = mvector3.distance_sq(position, bone_obj:position())
+			if not closest_dist_sq or closest_dist_sq > bone_dist_sq then
+				closest_child = bone_obj
+				closest_dist_sq = bone_dist_sq
+			end
+		end
+	end
+	print("CopDamage:get_impact_segment(): closest_child is:", closest_child and closest_child:name())
+	local bone_obj = closest_bone:parent()
+	if bone_obj and self._impact_bones[bone_obj:name():key()] then
+		local bone_dist_sq = mvector3.distance_sq(position, bone_obj:position())
+		if not closest_dist_sq or closest_dist_sq > bone_dist_sq then
+			parent_bone = bone_obj
+			child_bone = closest_bone
+		end
+	end
+	if not parent_bone then
+		parent_bone = closest_bone
+		child_bone = closest_child
+	end
+	print("CopDamage:get_impact_segment(): parent, child:", parent_bone and parent_bone:name(), child_bone and child_bone:name())
+	return parent_bone, child_bone
+end
+
 function CopDamage:_spawn_head_gadget(params)
 	if not self._head_gear then
 		return
@@ -892,8 +969,8 @@ end
 
 function CopDamage:die(variant)
 	self._unit:base():set_slot(self._unit, 17)
-	if alive(managers.interaction:active_object()) then
-		managers.interaction:active_object():interaction():selected()
+	if alive(managers.interaction:active_unit()) then
+		managers.interaction:active_unit():interaction():selected()
 	end
 	self:drop_pickup()
 	self._unit:inventory():drop_shield()

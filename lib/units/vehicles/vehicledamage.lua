@@ -11,12 +11,28 @@ function VehicleDamage:init(unit)
 	self._current_max_health = VehicleDamage.VEHICLE_DEFAULT_HEALTH
 	self._next_allowed_dmg_t = Application:digest_value(-100, true)
 	self._last_received_dmg = 0
+	self._broken_effect = Idstring("effects/payday2/particles/explosions/sentry_damage_smoke")
+	self._broken_engine_locator = Idstring("v_repair_engine")
+	self._team_police = "law1"
+	self._team_criminal = "criminal1"
 end
 
 function VehicleDamage:set_tweak_data(data)
 	self._tweak_data = data
 	self._current_max_health = self._tweak_data.damage.max_health
 	self._health = self._tweak_data.damage.max_health
+end
+
+function VehicleDamage:damage_mission(dmg)
+	if not self._unit:vehicle_driving():is_vulnerable() then
+		return
+	end
+	local damage_info = {
+		result = {type = "hurt", variant = "killzone"}
+	}
+	local attack_data = {damage = dmg}
+	self:_health_recap(attack_data)
+	self:_call_listeners(damage_info)
 end
 
 function VehicleDamage:damage_killzone(attack_data)
@@ -26,23 +42,27 @@ function VehicleDamage:damage_killzone(attack_data)
 	local damage_info = {
 		result = {type = "hurt", variant = "killzone"}
 	}
-	if self._god_mode or self._invulnerable then
+	if self._god_mode then
+		if attack_data.damage > 0 then
+		end
+		self:_call_listeners(damage_info)
+		return
+	elseif self._invulnerable then
 		self:_call_listeners(damage_info)
 		return
 	elseif self:incapacitated() then
 		return
+	elseif self:is_friendly_fire(attack_data.attacker_unit) then
+		return
+	elseif self:_chk_dmg_too_soon(attack_data.damage) then
+		return
 	end
-	local health_subtracted = self:_calc_health_damage(attack_data)
-	if self:get_real_health() <= 0 then
-		self._health = 0
-		self._unit:vehicle_driving():on_vehicle_death()
-	end
-	self:_send_vehicle_health(self._health)
+	self:_health_recap(attack_data)
 	self:_call_listeners(damage_info)
 end
 
 function VehicleDamage:damage_bullet(attack_data)
-	if not self._unit:vehicle_driving():is_vulnerable() then
+	if self._unit:vehicle_driving() and not self._unit:vehicle_driving():is_vulnerable() then
 		return
 	end
 	local damage_info = {
@@ -64,34 +84,9 @@ function VehicleDamage:damage_bullet(attack_data)
 	elseif self:_chk_dmg_too_soon(attack_data.damage) then
 		return
 	end
-	local health_subtracted = self:_calc_health_damage(attack_data)
-	if 0 >= self:get_real_health() then
-		self._health = 0
-		self._unit:vehicle_driving():on_vehicle_death()
-	end
-	local result
-	local damage = attack_data.damage
-	if damage >= self._health then
-		result = {
-			type = "death",
-			variant = attack_data.variant
-		}
-		self:die(attack_data.variant)
-	else
-		attack_data.damage = damage
-		result = {
-			type = "hurt",
-			variant = attack_data.variant
-		}
-	end
-	attack_data.result = result
-	attack_data.pos = attack_data.col_ray.position
-	local attacker = attack_data.attacker_unit
-	if attacker:id() == -1 then
-		attacker = self._unit
-	end
-	self:_send_vehicle_health(self._health)
-	return result
+	self:_hit_direction(attack_data.col_ray)
+	self:_health_recap(attack_data)
+	return attack_data.result
 end
 
 function VehicleDamage:damage_explosion(attack_data)
@@ -101,19 +96,23 @@ function VehicleDamage:damage_explosion(attack_data)
 	local damage_info = {
 		result = {type = "hurt", variant = "explosion"}
 	}
-	if self._god_mode or self._invulnerable then
+	if self._god_mode then
+		if attack_data.damage > 0 then
+		end
+		self:_call_listeners(damage_info)
+		return
+	elseif self._invulnerable then
 		self:_call_listeners(damage_info)
 		return
 	elseif self:incapacitated() then
 		return
+	elseif self:is_friendly_fire(attack_data.attacker_unit) then
+		return
+	elseif self:_chk_dmg_too_soon(attack_data.damage) then
+		return
 	end
-	local health_subtracted = self:_calc_health_damage(attack_data)
-	if self:get_real_health() <= 0 then
-		self._health = 0
-		self._unit:vehicle_driving():on_vehicle_death()
-	end
-	self:_send_vehicle_health(self._health)
-	self:_call_listeners(damage_info)
+	self:_hit_direction(attack_data.col_ray)
+	self:_health_recap(attack_data)
 end
 
 function VehicleDamage:damage_fire(attack_data)
@@ -123,19 +122,48 @@ function VehicleDamage:damage_fire(attack_data)
 	local damage_info = {
 		result = {type = "hurt", variant = "fire"}
 	}
-	if self._god_mode or self._invulnerable then
+	if self._god_mode then
+		if attack_data.damage > 0 then
+		end
+		self:_call_listeners(damage_info)
+		return
+	elseif self._invulnerable then
 		self:_call_listeners(damage_info)
 		return
 	elseif self:incapacitated() then
 		return
+	elseif self:is_friendly_fire(attack_data.attacker_unit) then
+		return
+	elseif self:_chk_dmg_too_soon(attack_data.damage) then
+		return
 	end
-	local health_subtracted = self:_calc_health_damage(attack_data)
-	if self:get_real_health() <= 0 then
-		self._health = 0
-		self._unit:vehicle_driving():on_vehicle_death()
+	self:_hit_direction(attack_data.col_ray)
+	self:_health_recap(attack_data)
+end
+
+function VehicleDamage:damage_collision(attack_data)
+	if not self._unit:vehicle_driving():is_vulnerable() then
+		return
 	end
-	self:_send_vehicle_health(self._health)
-	self:_call_listeners(damage_info)
+	local damage_info = {
+		result = {type = "hurt", variant = "collision"}
+	}
+	if self._god_mode then
+		if attack_data.damage > 0 then
+		end
+		self:_call_listeners(damage_info)
+		return
+	elseif self._invulnerable then
+		self:_call_listeners(damage_info)
+		return
+	elseif self:incapacitated() then
+		return
+	elseif self:is_friendly_fire(attack_data.attacker_unit) then
+		return
+	elseif self:_chk_dmg_too_soon(attack_data.damage) then
+		return
+	end
+	self:_health_recap(attack_data)
 end
 
 function VehicleDamage:sync_damage_bullet(attacker_unit, damage_percent, i_body, hit_offset_height, death)
@@ -181,10 +209,13 @@ end
 
 function VehicleDamage:sync_vehicle_health(health)
 	self._health = tonumber(health)
+	if self:get_real_health() <= 0 then
+		self._health = 0
+		self._unit:vehicle_driving():on_vehicle_death()
+	end
 end
 
 function VehicleDamage:_on_damage_received(damage_info)
-	Application:debug(" .... VehicleDamage:_on_damage_received: ", inspect(damage_info))
 	self:_call_listeners(damage_info)
 end
 
@@ -192,7 +223,6 @@ function VehicleDamage:_calc_health_damage(attack_data)
 	local health_subtracted = 0
 	health_subtracted = self:get_real_health()
 	self:change_health(-attack_data.damage)
-	self:_send_set_health()
 	self:_set_health_effect()
 	return health_subtracted
 end
@@ -214,6 +244,11 @@ end
 
 function VehicleDamage:revive()
 	self:set_health(self:_max_health())
+	self:_send_vehicle_health(self._health)
+	if self._broken_effect_id then
+		World:effect_manager():fade_kill(self._broken_effect_id)
+		self._broken_effect_id = nil
+	end
 end
 
 function VehicleDamage:need_revive()
@@ -225,11 +260,16 @@ function VehicleDamage:dead()
 end
 
 function VehicleDamage:is_friendly_fire(attacker_unit)
+	local friendly_fire = false
 	if not attacker_unit then
 		return
 	end
-	local unit_is_criminal = attacker_unit:in_slot(managers.slot:get_mask("criminals")) or attacker_unit:in_slot(managers.slot:get_mask("harmless_criminals"))
-	return not unit_is_criminal
+	if self._team and self._team == self._team_police then
+		friendly_fire = attacker_unit:movement():team().foes[self._team_police]
+	else
+		friendly_fire = attacker_unit:movement():team().foes[self._team_criminal]
+	end
+	return not friendly_fire
 end
 
 function VehicleDamage:_chk_dmg_too_soon(damage)
@@ -240,31 +280,32 @@ function VehicleDamage:_chk_dmg_too_soon(damage)
 end
 
 function VehicleDamage:_hit_direction(col_ray)
-	if col_ray then
+	local local_player_vehicle = managers.player:get_vehicle()
+	if local_player_vehicle and self._unit == local_player_vehicle.vehicle_unit and col_ray then
 		local dir = col_ray.ray
-		local infront = math.dot(self._unit:camera():forward(), dir)
+		local infront = math.dot(managers.player:local_player():camera():forward(), dir)
 		if infront < -0.9 then
 			managers.environment_controller:hit_feedback_front()
 		elseif infront > 0.9 then
 			managers.environment_controller:hit_feedback_back()
-			managers.hud:on_hit_direction("right")
+			managers.hud:on_hit_direction("right", HUDHitDirection.UNIT_TYPE_HIT_VEHICLE)
 		else
-			local polar = self._unit:camera():forward():to_polar_with_reference(-dir, Vector3(0, 0, 1))
+			local polar = managers.player:local_player():camera():forward():to_polar_with_reference(-dir, Vector3(0, 0, 1))
 			local direction = Vector3(polar.spin, polar.pitch, 0):normalized()
 			if math.abs(direction.x) > math.abs(direction.y) then
 				if 0 > direction.x then
 					managers.environment_controller:hit_feedback_left()
-					managers.hud:on_hit_direction("left")
+					managers.hud:on_hit_direction("left", HUDHitDirection.UNIT_TYPE_HIT_VEHICLE)
 				else
 					managers.environment_controller:hit_feedback_right()
-					managers.hud:on_hit_direction("right")
+					managers.hud:on_hit_direction("right", HUDHitDirection.UNIT_TYPE_HIT_VEHICLE)
 				end
 			elseif 0 > direction.y then
 				managers.environment_controller:hit_feedback_up()
-				managers.hud:on_hit_direction("up")
+				managers.hud:on_hit_direction("up", HUDHitDirection.UNIT_TYPE_HIT_VEHICLE)
 			else
 				managers.environment_controller:hit_feedback_down()
-				managers.hud:on_hit_direction("down")
+				managers.hud:on_hit_direction("down", HUDHitDirection.UNIT_TYPE_HIT_VEHICLE)
 			end
 		end
 	else
@@ -292,13 +333,6 @@ function VehicleDamage:_max_health()
 	return self._current_max_health
 end
 
-function VehicleDamage:_send_set_health()
-	if self._unit:network() then
-		local hp = math.round(self:get_real_health() / self:_max_health() * 100)
-		self._unit:network():send("set_health", math.clamp(hp, 0, 100))
-	end
-end
-
 function VehicleDamage:_set_health_effect()
 	local hp = self:get_real_health() / self:_max_health()
 	math.clamp(hp, 0, 1)
@@ -314,6 +348,27 @@ function VehicleDamage:_get_attack_variant_index(variant)
 	return 1
 end
 
-function VehicleDamage:die(variant)
+function VehicleDamage:_health_recap(attack_data)
+	local health_subtracted = self:_calc_health_damage(attack_data)
+	if self:get_real_health() <= 0 then
+		self._health = 0
+		if self._unit:npc_vehicle_driving() then
+			self._unit:npc_vehicle_driving():deactivate()
+		else
+			self._unit:vehicle_driving():on_vehicle_death()
+		end
+		if not self._broken_effect_id then
+			local engine_locator = self._unit:get_object(self._broken_engine_locator)
+			if engine_locator then
+				self._broken_effect_id = World:effect_manager():spawn({
+					effect = self._broken_effect,
+					parent = engine_locator
+				})
+			end
+		end
+	end
+	local result
+	local damage = attack_data.damage
+	self:_send_vehicle_health(self._health)
 end
 

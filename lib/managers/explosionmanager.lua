@@ -51,6 +51,7 @@ function ExplosionManager:detect_and_give_dmg(params)
 	local owner = params.owner
 	local push_units = true
 	local results = {}
+	local alert_radius = params.alert_radius or 10000
 	if params.push_units ~= nil then
 		push_units = params.push_units
 	end
@@ -72,7 +73,7 @@ function ExplosionManager:detect_and_give_dmg(params)
 	managers.groupai:state():propagate_alert({
 		"explosion",
 		hit_pos,
-		10000,
+		alert_radius,
 		alert_filter,
 		alert_unit
 	})
@@ -405,7 +406,7 @@ function ExplosionManager:spawn_sound_and_effects(position, normal, range, effec
 				sound_source:set_switch("materials", managers.game_play_central:material_name(sound_switch_name))
 			end
 			sound_source:post_event(sound_event)
-			managers.enemy:add_delayed_clbk("ExplosionManager", callback(GrenadeBase, GrenadeBase, "_dispose_of_sound", {sound_source = sound_source}), TimerManager:game():time() + 4)
+			managers.enemy:add_delayed_clbk("ExplosionManager", callback(ProjectileBase, ProjectileBase, "_dispose_of_sound", {sound_source = sound_source}), TimerManager:game():time() + 4)
 		end
 	end
 	self:project_decal(ray, decal_ray_from, decal_ray_to, on_unit and ray and ray.unit, idstr_decal, idstr_effect)

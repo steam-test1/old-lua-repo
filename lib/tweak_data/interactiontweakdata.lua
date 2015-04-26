@@ -745,6 +745,11 @@ function InteractionTweakData:init()
 	}
 	self.revive.contour_preset = "teammate_downed"
 	self.revive.contour_preset_selected = "teammate_downed_selected"
+	self.dead = {}
+	self.dead.icon = "interaction_help"
+	self.dead.text_id = "debug_interact_revive"
+	self.dead.start_active = false
+	self.dead.interact_distance = 300
 	self.free = {}
 	self.free.icon = "interaction_free"
 	self.free.text_id = "debug_interact_free"
@@ -2418,6 +2423,7 @@ function InteractionTweakData:init()
 	self.gen_pku_evidence_bag.text_id = "hud_int_hold_take_evidence"
 	self.gen_pku_evidence_bag.action_text_id = "hud_action_taking_evidence_bag"
 	self.gen_pku_evidence_bag.timer = 3
+	self.gen_pku_evidence_bag.axis = "y"
 	self.gen_pku_evidence_bag.sound_start = "bar_bag_money"
 	self.gen_pku_evidence_bag.sound_interupt = "bar_bag_money_cancel"
 	self.gen_pku_evidence_bag.sound_done = "bar_bag_money_finished"

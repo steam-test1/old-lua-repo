@@ -705,23 +705,10 @@ function LootDropTweakData:init(tweak_data)
 	self.global_values.sweettooth.track = true
 	self.global_values.sweettooth.sort_number = 200
 	self.global_values.sweettooth.category = nil
-	self.global_values.bbq = {}
-	self.global_values.bbq.name_id = "bm_global_value_bbq"
-	self.global_values.bbq.desc_id = "menu_l_global_value_bbq"
-	self.global_values.bbq.unlock_id = "bm_global_value_bbq_unlock"
-	self.global_values.bbq.color = Color(255, 255, 212, 0) / 255
-	self.global_values.bbq.dlc = true
-	self.global_values.bbq.chance = 1
-	self.global_values.bbq.value_multiplier = tweak_data:get_value("money_manager", "global_value_multipliers", "bbq")
-	self.global_values.bbq.durability_multiplier = 1
-	self.global_values.bbq.drops = true
-	self.global_values.bbq.track = true
-	self.global_values.bbq.sort_number = 150
-	self.global_values.bbq.category = "dlc"
 	self.global_value_list_index = {
 		"normal",
 		"infamous",
-		"pre_order",
+		"preorder",
 		"pd2_clan",
 		"halloween",
 		"xmas",
@@ -739,8 +726,7 @@ function LootDropTweakData:init(tweak_data)
 		"gage_pack_historical",
 		"character_pack_clover",
 		"character_pack_dragan",
-		"hlm2_deluxe",
-		"bbq"
+		"hlm2_deluxe"
 	}
 	self:_create_global_value_list_map()
 end

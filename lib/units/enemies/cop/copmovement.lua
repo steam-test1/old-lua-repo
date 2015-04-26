@@ -1100,7 +1100,7 @@ end
 function CopMovement:damage_clbk(my_unit, damage_info)
 	local hurt_type = damage_info.result.type
 	local block_type = hurt_type
-	if hurt_type == "expl_hurt" then
+	if hurt_type == "expl_hurt" or hurt_type == "fire_hurt" then
 		block_type = "heavy_hurt"
 	end
 	if hurt_type == "death" and self._queued_actions then
@@ -1152,7 +1152,7 @@ function CopMovement:damage_clbk(my_unit, damage_info)
 	end
 	if damage_info.variant == "tase" then
 		block_type = "bleedout"
-	elseif hurt_type == "expl_hurt" then
+	elseif hurt_type == "expl_hurt" or hurt_type == "fire_hurt" then
 		block_type = "heavy_hurt"
 	else
 		block_type = hurt_type
@@ -1175,6 +1175,7 @@ function CopMovement:damage_clbk(my_unit, damage_info)
 		attacker_unit = damage_info.attacker_unit,
 		death_type = tweak.damage.death_severity and (damage_info.damage / tweak.HEALTH_INIT > tweak.damage.death_severity and "heavy" or "normal") or "normal",
 		ignite_character = damage_info.ignite_character,
+		start_dot_damage_roll = damage_info.start_dot_damage_roll,
 		is_fire_dot_damage = damage_info.is_fire_dot_damage,
 		fire_dot_data = damage_info.fire_dot_data
 	}
@@ -1269,6 +1270,11 @@ function CopMovement:anim_clbk_melee_strike(unit)
 	end
 end
 
+function CopMovement:anim_clbk_set_visibility(unit, state)
+	state = state == true and true or false
+	self._unit:set_visible(state)
+end
+
 function CopMovement:anim_clbk_wanted_item(unit, item_type, align_place, droppable)
 	self._wanted_items = self._wanted_items or {}
 	table.insert(self._wanted_items, {
@@ -1297,7 +1303,7 @@ function CopMovement:anim_clbk_ik_change(unit)
 end
 
 function CopMovement:anim_clbk_enter_vehicle(unit)
-	if self.vehicle_seat then
+	if self.vehicle_unit and self.vehicle_seat then
 		self.vehicle_unit:vehicle_driving():on_team_ai_enter(self._unit)
 	else
 		Application:debug("No seat present!", inspect(self))

@@ -100,7 +100,7 @@ function SentryGunDamage:damage_bullet(attack_data)
 			return
 		end
 		local attacker = attack_data.attacker_unit
-		if attacker:id() == -1 then
+		if not attacker or attacker:id() == -1 then
 			attacker = self._unit
 		end
 		local body_index = self._unit:get_body_index(hit_body_name)
@@ -133,7 +133,7 @@ function SentryGunDamage:damage_fire(attack_data)
 			return
 		end
 		local attacker = attack_data.attacker_unit
-		if attacker:id() == -1 then
+		if not attacker or attacker:id() == -1 then
 			attacker = self._unit
 		end
 		local i_attack_variant = CopDamage._get_attack_variant_index(self, attack_data.variant)
@@ -176,7 +176,7 @@ function SentryGunDamage:damage_explosion(attack_data)
 			return
 		end
 		local attacker = attack_data.attacker_unit
-		if attacker:id() == -1 then
+		if not attacker or attacker:id() == -1 then
 			attacker = self._unit
 		end
 		local i_attack_variant = CopDamage._get_attack_variant_index(self, attack_data.variant)
@@ -216,6 +216,12 @@ function SentryGunDamage:die()
 	end
 	if self._unit:interaction() then
 		self._unit:interaction():set_tweak_data("sentry_gun_revive")
+	end
+	local turret_units = managers.groupai:state():turrets()
+	if turret_units and table.contains(turret_units, self._unit) then
+		self._unit:contour():remove("mark_unit_friendly", true)
+		self._unit:contour():remove("mark_unit_dangerous", true)
+		managers.groupai:state():unregister_turret(self._unit)
 	end
 end
 

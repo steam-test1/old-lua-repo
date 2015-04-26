@@ -1457,9 +1457,9 @@ function LoadoutItem:populate_grenades(data)
 	local new_data = {}
 	local index = 0
 	local guis_catalog = "guis/"
-	for i, grenade in ipairs(tweak_data.blackmarket.grenades) do
+	for i, grenade in ipairs(tweak_data.blackmarket.projectiles) do
 		guis_catalog = "guis/"
-		local bundle_folder = tweak_data.blackmarket.grenades[grenade] and tweak_data.blackmarket.grenades[grenade].texture_bundle_folder
+		local bundle_folder = tweak_data.blackmarket.projectiles[grenade] and tweak_data.blackmarket.projectiles[grenade].texture_bundle_folder
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
@@ -1800,7 +1800,7 @@ function TeamLoadoutItem:set_slot_outfit(slot, criminal_name, outfit)
 	if outfit.grenade then
 		do break end
 		local guis_catalog = "guis/"
-		local bundle_folder = tweak_data.blackmarket.grenades[outfit.grenade] and tweak_data.blackmarket.grenades[outfit.grenade].texture_bundle_folder
+		local bundle_folder = tweak_data.blackmarket.projectiles[outfit.grenade] and tweak_data.blackmarket.projectiles[outfit.grenade].texture_bundle_folder
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
@@ -2102,12 +2102,12 @@ function NewLoadoutTab:init(panel, text, i, menu_component_data)
 	end
 	if grenade and grenade_amount > 0 then
 		local guis_catalog = "guis/"
-		local bundle_folder = tweak_data.blackmarket.grenades[grenade] and tweak_data.blackmarket.grenades[grenade].texture_bundle_folder
+		local bundle_folder = tweak_data.blackmarket.projectiles[grenade] and tweak_data.blackmarket.projectiles[grenade].texture_bundle_folder
 		if bundle_folder then
 			guis_catalog = guis_catalog .. "dlcs/" .. tostring(bundle_folder) .. "/"
 		end
 		grenade_texture = guis_catalog .. "textures/pd2/blackmarket/icons/grenades/" .. tostring(grenade)
-		grenade_string = managers.localization:text(tweak_data.blackmarket.grenades[grenade].name_id)
+		grenade_string = managers.localization:text(tweak_data.blackmarket.projectiles[grenade].name_id)
 	end
 	if armor then
 		local guis_catalog = "guis/"
@@ -2602,7 +2602,8 @@ function MissionBriefingGui:init(saferect_ws, fullrect_ws, node)
 		font = tweak_data.menu.pd2_large_font,
 		color = tweak_data.screen_colors.button_stage_3,
 		layer = 2,
-		blend_mode = "add"
+		blend_mode = "add",
+		rotation = 360
 	})
 	local _, _, w, h = self._ready_button:text_rect()
 	self._ready_button:set_size(w, h)
@@ -2627,7 +2628,8 @@ function MissionBriefingGui:init(saferect_ws, fullrect_ws, node)
 		font = tweak_data.menu.pd2_massive_font,
 		color = tweak_data.screen_colors.button_stage_3,
 		alpha = 0.4,
-		layer = 1
+		layer = 1,
+		rotation = 360
 	})
 	local _, _, w, h = big_text:text_rect()
 	big_text:set_size(w, h)
@@ -2781,7 +2783,7 @@ function MissionBriefingGui:flash_ready()
 )
 		o:set_color(color)
 		o:set_font_size(font_size)
-		o:set_rotation(0)
+		o:set_rotation(360)
 	end
 
 	self._ready_button:animate(animate_flash_ready)

@@ -310,7 +310,7 @@ function StatisticsManager:start_session(data)
 	if self._session_started then
 		return
 	end
-	if Global.level_data.level_id then
+	if Global.level_data.level_id and self._global.sessions.levels[Global.level_data.level_id] then
 		self._global.sessions.levels[Global.level_data.level_id].started = self._global.sessions.levels[Global.level_data.level_id].started + 1
 		self._global.sessions.levels[Global.level_data.level_id].from_beginning = self._global.sessions.levels[Global.level_data.level_id].from_beginning + (Global.statistics_manager.playing_from_start and 1 or 0)
 		self._global.sessions.levels[Global.level_data.level_id].drop_in = self._global.sessions.levels[Global.level_data.level_id].drop_in + (Global.statistics_manager.playing_from_start and 0 or 1)
@@ -337,6 +337,10 @@ function StatisticsManager:stop_session(data)
 		if data and data.quit then
 			Global.statistics_manager.playing_from_start = nil
 		end
+		return
+	end
+	Application:debug("StatisticsManager:stop_session( data ) level_id: ", Global.level_data.level_id)
+	if not self._global.sessions.levels[Global.level_data.level_id] then
 		return
 	end
 	self:_flush_log()
@@ -705,12 +709,12 @@ function StatisticsManager:publish_to_steam(session, success, completion)
 	stats.info_playing_normal = {
 		type = "int",
 		method = "set",
-		value = 1
+		value = 0
 	}
 	stats.info_playing_beta = {
 		type = "int",
 		method = "set",
-		value = 0
+		value = 1
 	}
 	if completion == "win_begin" or completion == "win_dropin" or completion == "fail" then
 		local level_id = managers.job:current_level_id()
@@ -981,6 +985,8 @@ function StatisticsManager:killed(data)
 		self._global.session.killed_by_weapon[name_id] = self._global.session.killed_by_weapon[name_id] or {count = 0, headshots = 0}
 		self._global.session.killed_by_weapon[name_id].count = self._global.session.killed_by_weapon[name_id].count + 1
 		self._global.session.killed_by_weapon[name_id].headshots = self._global.session.killed_by_weapon[name_id].headshots + (data.head_shot and 1 or 0)
+		self._global.session.killed_by_weapon[name_id][data.name] = self._global.session.killed_by_weapon[name_id][data.name] or {count = 0}
+		self._global.session.killed_by_weapon[name_id][data.name].count = self._global.session.killed_by_weapon[name_id][data.name].count + 1
 		self._global.killed_by_weapon[name_id] = self._global.killed_by_weapon[name_id] or {count = 0, headshots = 0}
 		self._global.killed_by_weapon[name_id].count = self._global.killed_by_weapon[name_id].count + 1
 		self._global.killed_by_weapon[name_id].headshots = (self._global.killed_by_weapon[name_id].headshots or 0) + (data.head_shot and 1 or 0)
@@ -1000,8 +1006,8 @@ function StatisticsManager:killed(data)
 	elseif by_explosion then
 		local name_id
 		if data.weapon_unit then
-			if data.weapon_unit:base().grenade_entry then
-				name_id = tweak_data.blackmarket.grenades[data.weapon_unit:base():grenade_entry()].weapon_id
+			if data.weapon_unit:base().projectile_entry then
+				name_id = tweak_data.blackmarket.projectiles[data.weapon_unit:base():projectile_entry()].weapon_id
 			else
 				name_id = data.weapon_unit:base().get_name_id and data.weapon_unit and data.weapon_unit:base():get_name_id()
 			end

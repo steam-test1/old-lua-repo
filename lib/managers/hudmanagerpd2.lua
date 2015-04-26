@@ -9,6 +9,7 @@ require("lib/managers/hud/HUDAssaultCorner")
 require("lib/managers/hud/HUDChat")
 require("lib/managers/hud/HUDHint")
 require("lib/managers/hud/HUDAccessCamera")
+require("lib/managers/hud/HUDDriving")
 require("lib/managers/hud/HUDHeistTimer")
 require("lib/managers/hud/HUDTemp")
 require("lib/managers/hud/HUDSuspicion")
@@ -36,8 +37,8 @@ function HUDManager:controller_mod_changed()
 	if self._hud_player_downed then
 		self._hud_player_downed:set_arrest_finished_text()
 	end
-	if alive(managers.interaction:active_object()) then
-		managers.interaction:active_object():interaction():selected()
+	if alive(managers.interaction:active_unit()) then
+		managers.interaction:active_unit():interaction():selected()
 	end
 end
 
@@ -416,7 +417,7 @@ function HUDManager:add_teammate_panel(character_name, player_name, ai, peer_id)
 				end
 				local peer_grenades = managers.player:get_synced_grenades(peer_id)
 				if peer_grenades then
-					local icon = tweak_data.blackmarket.grenades[peer_grenades.grenade].icon
+					local icon = tweak_data.blackmarket.projectiles[peer_grenades.grenade].icon
 					self:set_teammate_grenades(i, {
 						icon = icon,
 						amount = Application:digest_value(peer_grenades.amount, false)
@@ -801,8 +802,8 @@ function HUDManager:_create_hit_direction(hud)
 	self._hud_hit_direction = HUDHitDirection:new(hud)
 end
 
-function HUDManager:on_hit_direction(dir)
-	self._hud_hit_direction:on_hit_direction(dir)
+function HUDManager:on_hit_direction(dir, unit_type_hit)
+	self._hud_hit_direction:on_hit_direction(dir, unit_type_hit)
 end
 
 function HUDManager:_create_downed_hud(hud)
@@ -994,6 +995,92 @@ function HUDManager:_add_name_label(data)
 	return id
 end
 
+function HUDManager:add_vehicle_name_label(data)
+	local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN_PD2)
+	local last_id = self._hud.name_labels[#self._hud.name_labels] and self._hud.name_labels[#self._hud.name_labels].id or 0
+	local id = last_id + 1
+	local vehicle_name = data.name
+	local panel = hud.panel:panel({
+		name = "name_label" .. id
+	})
+	local radius = 24
+	local interact = CircleBitmapGuiObject:new(panel, {
+		use_bg = true,
+		radius = radius,
+		blend_mode = "add",
+		color = Color.white,
+		layer = 0
+	})
+	interact:set_visible(false)
+	local tabs_texture = "guis/textures/pd2/hud_tabs"
+	local bag_rect = {
+		2,
+		34,
+		20,
+		17
+	}
+	local crim_color = tweak_data.chat_colors[1]
+	local text = panel:text({
+		name = "text",
+		text = utf8.to_upper(data.name),
+		font = tweak_data.hud.medium_font,
+		font_size = tweak_data.hud.name_label_font_size,
+		color = crim_color,
+		align = "left",
+		vertical = "top",
+		layer = -1,
+		w = 256,
+		h = 18
+	})
+	local bag = panel:bitmap({
+		name = "bag",
+		texture = tabs_texture,
+		texture_rect = bag_rect,
+		visible = false,
+		layer = 0,
+		color = crim_color * 1.1:with_alpha(1),
+		x = 1,
+		y = 1
+	})
+	panel:text({
+		name = "cheater",
+		text = utf8.to_upper(managers.localization:text("menu_hud_cheater")),
+		font = tweak_data.hud.medium_font,
+		font_size = tweak_data.hud.name_label_font_size,
+		color = tweak_data.screen_colors.pro_color,
+		align = "center",
+		visible = false,
+		layer = -1,
+		w = 256,
+		h = 18
+	})
+	panel:text({
+		name = "action",
+		rotation = 360,
+		visible = false,
+		text = utf8.to_upper("Fixing"),
+		font = tweak_data.hud.medium_font,
+		font_size = tweak_data.hud.name_label_font_size,
+		color = crim_color * 1.1:with_alpha(1),
+		align = "left",
+		vertical = "bottom",
+		layer = -1,
+		w = 256,
+		h = 18
+	})
+	self:align_teammate_name_label(panel, interact)
+	table.insert(self._hud.name_labels, {
+		vehicle = data.unit,
+		panel = panel,
+		text = text,
+		id = id,
+		character_name = vehicle_name,
+		interact = interact,
+		bag = bag
+	})
+	return id
+end
+
 function HUDManager:_remove_name_label(id)
 	local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN_PD2)
 	if not hud then
@@ -1020,10 +1107,29 @@ function HUDManager:_name_label_by_peer_id(peer_id)
 	end
 end
 
+function HUDManager:_get_name_label(id)
+	local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN_PD2)
+	if not hud then
+		return
+	end
+	for i, data in ipairs(self._hud.name_labels) do
+		if data.id == id then
+			return data
+		end
+	end
+end
+
 function HUDManager:set_name_label_carry_info(peer_id, carry_id, value)
 	local name_label = self:_name_label_by_peer_id(peer_id)
 	if name_label then
 		name_label.panel:child("bag"):set_visible(true)
+	end
+end
+
+function HUDManager:set_vehicle_label_carry_info(label_id, value)
+	local name_label = self:_get_name_label(label_id)
+	if name_label then
+		name_label.panel:child("bag"):set_visible(value)
 	end
 end
 
@@ -1156,6 +1262,25 @@ end
 
 function HUDManager:access_camera_track_max_amount(amount)
 	self._hud_access_camera:max_markers(amount)
+end
+
+function HUDManager:setup_driving_hud()
+	print("HUDManager:setup_driving_hud()")
+	local hud = managers.hud:script(IngameDriving.DRIVING_GUI_SAFERECT)
+	local full_hud = managers.hud:script(IngameDriving.DRIVING_GUI_FULLSCREEN)
+	self._hud_driving = HUDDriving:new(hud, full_hud)
+end
+
+function HUDManager:start_driving()
+	self._hud_driving:start()
+end
+
+function HUDManager:stop_driving()
+	self._hud_driving:stop()
+end
+
+function HUDManager:set_driving_vehicle_state(speed, rpm, gear)
+	self._hud_driving:set_vehicle_state(speed, rpm, gear)
 end
 
 function HUDManager:setup_blackscreen_hud()
@@ -1315,7 +1440,7 @@ end
 
 function HUDManager:setup_lootscreen_hud()
 	local hud = managers.hud:script(IngameLobbyMenuState.GUI_LOOTSCREEN)
-	self._hud_lootscreen = HUDLootScreen:new(hud, self._fullscreen_workspace, self._saved_lootdrop, self._saved_selected, self._saved_card_chosen)
+	self._hud_lootscreen = HUDLootScreen:new(hud, self._fullscreen_workspace, self._saved_lootdrop, self._saved_selected, self._saved_card_chosen, self._saved_setup)
 	self._saved_lootdrop = nil
 	self._saved_selected = nil
 	self._saved_card_chosen = nil
@@ -1333,9 +1458,23 @@ function HUDManager:show_lootscreen_hud()
 	end
 end
 
-function HUDManager:feed_lootdrop_hud(lootdrop_data)
+function HUDManager:make_cards_hud(peer, max_pc, left_card, right_card)
 	if self._hud_lootscreen then
-		self._hud_lootscreen:feed_lootdrop(lootdrop_data)
+		self._hud_lootscreen:make_cards(peer, max_pc, left_card, right_card)
+	else
+		self._saved_setup = self._saved_setup or {}
+		table.insert(self._saved_setup, {
+			peer = peer,
+			max_pc = max_pc,
+			left_card = left_card,
+			right_card = right_card
+		})
+	end
+end
+
+function HUDManager:make_lootdrop_hud(lootdrop_data)
+	if self._hud_lootscreen then
+		self._hud_lootscreen:make_lootdrop(lootdrop_data)
 	else
 		self._saved_lootdrop = self._saved_lootdrop or {}
 		table.insert(self._saved_lootdrop, lootdrop_data)

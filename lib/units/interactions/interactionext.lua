@@ -73,7 +73,7 @@ function BaseInteractionExt:set_tweak_data(id)
 		self._selected_contour_id = self._unit:contour():add(self._tweak_data.contour_preset_selected)
 	end
 	self:_upd_interaction_topology()
-	if alive(managers.interaction:active_object()) and self._unit == managers.interaction:active_object() then
+	if alive(managers.interaction:active_unit()) and self._unit == managers.interaction:active_unit() then
 		self:set_dirty(true)
 	end
 end
@@ -390,7 +390,7 @@ end
 
 function BaseInteractionExt:set_active(active, sync)
 	if not active and self._active then
-		managers.interaction:remove_object(self._unit)
+		managers.interaction:remove_unit(self._unit)
 		if self._tweak_data.contour_preset or self._tweak_data.contour_preset_selected then
 			if self._contour_id and self._unit:contour() then
 				self._unit:contour():remove_by_id(self._contour_id)
@@ -405,7 +405,7 @@ function BaseInteractionExt:set_active(active, sync)
 		end
 		self._is_selected = nil
 	elseif active and not self._active then
-		managers.interaction:add_object(self._unit)
+		managers.interaction:add_unit(self._unit)
 		if self._tweak_data.contour_preset then
 			if not self._contour_id then
 				self._contour_id = self._unit:contour():add(self._tweak_data.contour_preset)
@@ -482,7 +482,7 @@ function BaseInteractionExt:load(data)
 end
 
 function BaseInteractionExt:remove_interact()
-	if not managers.interaction:active_object() or self._unit == managers.interaction:active_object() then
+	if not managers.interaction:active_unit() or self._unit == managers.interaction:active_unit() then
 		managers.hud:remove_interact()
 	end
 end
@@ -490,7 +490,7 @@ end
 function BaseInteractionExt:destroy()
 	self:remove_interact()
 	self:set_active(false, false)
-	if self._unit == managers.interaction:active_object() then
+	if self._unit == managers.interaction:active_unit() then
 		self:_post_event(managers.player:player_unit(), "sound_interupt")
 	end
 	if self._tweak_data.contour_preset then
@@ -1133,8 +1133,8 @@ function IntimitateInteractionExt:interact(player)
 				managers.network:session():send_to_peers_synched("sync_interacted", self._unit, self._unit:id(), self.tweak_data, 3)
 			end
 			self._unit:brain():on_alarm_pager_interaction("complete", player)
-			if alive(managers.interaction:active_object()) then
-				managers.interaction:active_object():interaction():selected()
+			if alive(managers.interaction:active_unit()) then
+				managers.interaction:active_unit():interaction():selected()
 			end
 		elseif managers.enemy:get_corpse_unit_data_from_key(self._unit:key()) then
 			local u_id = managers.enemy:get_corpse_unit_data_from_key(self._unit:key()).u_id
@@ -1455,7 +1455,7 @@ function CarryInteractionExt:sync_interacted(peer, player, status, skip_alive_ch
 	end
 	if Network:is_server() then
 		if self._remove_on_interact then
-			if self._unit == managers.interaction:active_object() then
+			if self._unit == managers.interaction:active_unit() then
 				self:interact_interupt(managers.player:player_unit(), false)
 			end
 			self:remove_interact()
@@ -1935,13 +1935,42 @@ function DrivingInteractionExt:interact(player)
 	local vehicle_ext = self._unit:vehicle_driving()
 	local action = vehicle_ext:get_action_for_interaction(player:position())
 	local success = false
-	if action == VehicleDrivingExt.INTERACT_ENTER then
+	if action == VehicleDrivingExt.INTERACT_ENTER or action == VehicleDrivingExt.INTERACT_DRIVE then
 		success = managers.player:enter_vehicle(self._unit)
 	elseif action == VehicleDrivingExt.INTERACT_LOOT then
-		vehicle_ext:give_loot_to_player(player, managers.network:session():local_peer():id())
+		vehicle_ext:give_vehicle_loot_to_player(managers.network:session():local_peer():id())
 	elseif action == VehicleDrivingExt.INTERACT_REPAIR then
 		vehicle_ext:repair_vehicle()
 	end
 	return success
+end
+
+function DrivingInteractionExt:selected(player)
+	if not alive(player) or not self:can_select(player) then
+		return
+	end
+	local vehicle_ext = self._unit:vehicle_driving()
+	local action = vehicle_ext:get_action_for_interaction(player:position())
+	if action == VehicleDrivingExt.INTERACT_ENTER then
+		self._tweak_data.text_id = "hud_int_vehicle_enter"
+	elseif action == VehicleDrivingExt.INTERACT_DRIVE then
+		self._tweak_data.text_id = "hud_int_vehicle_drive"
+	elseif action == VehicleDrivingExt.INTERACT_LOOT then
+		self._tweak_data.text_id = "hud_int_vehicle_loot"
+	elseif action == VehicleDrivingExt.INTERACT_REPAIR then
+		self._tweak_data.text_id = "hud_int_vehicle_repair"
+	end
+	self:set_dirty(true)
+	return DrivingInteractionExt.super.selected(self, player)
+end
+
+function DrivingInteractionExt:can_select(player)
+	local can_select = DrivingInteractionExt.super.can_select(self, player)
+	if can_select then
+		local vehicle_ext = self._unit:vehicle_driving()
+		local action = vehicle_ext:get_action_for_interaction(player:position())
+		can_select = vehicle_ext:is_interaction_enabled(action)
+	end
+	return can_select
 end
 

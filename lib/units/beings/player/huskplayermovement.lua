@@ -255,6 +255,7 @@ function HuskPlayerMovement:init(unit)
 	self._is_weapon_gadget_on = nil
 	local stance = {}
 	self._stance = stance
+	self._vehicle_shooting_stance = PlayerDriving.STANCE_NORMAL
 	stance.names = self._stance_names
 	stance.values = {
 		1,
@@ -963,13 +964,16 @@ function HuskPlayerMovement:_upd_attention_driving(dt)
 	end
 	if self._sync_look_dir then
 		if self._atention_on then
+			self._atention_on = false
 			if self._ext_anim.reload then
 				self._atention_on = false
 				local blend_out_t = 0.15
-				self._machine:set_modifier_blend(self._head_modifier_name, blend_out_t)
 				self._machine:set_modifier_blend(self._arm_modifier_name, blend_out_t)
+				self._machine:set_modifier_blend(self._head_modifier_name, blend_out_t)
+				self._machine:set_modifier_blend(self._look_modifier_name, blend_out_t)
 				self._machine:forbid_modifier(self._head_modifier_name)
 				self._machine:forbid_modifier(self._arm_modifier_name)
+				self._machine:forbid_modifier(self._look_modifier_name)
 			end
 		elseif self._ext_anim.reload then
 			if self._sync_look_dir ~= self._look_dir then
@@ -978,8 +982,15 @@ function HuskPlayerMovement:_upd_attention_driving(dt)
 			return
 		else
 			self._atention_on = true
-			self._machine:force_modifier(self._head_modifier_name)
-			self._machine:force_modifier(self._arm_modifier_name)
+			if self._vehicle_shooting_stance == PlayerDriving.STANCE_NORMAL and not self._allow_shooting then
+				self._machine:forbid_modifier(self._look_modifier_name)
+				self._machine:force_modifier(self._head_modifier_name)
+				self._machine:forbid_modifier(self._arm_modifier_name)
+			else
+				self._machine:force_modifier(self._look_modifier_name)
+				self._machine:forbid_modifier(self._head_modifier_name)
+				self._machine:forbid_modifier(self._arm_modifier_name)
+			end
 		end
 		local tar_look_dir = tmp_vec1
 		mvec3_set(tar_look_dir, self._sync_look_dir)
@@ -990,25 +1001,35 @@ function HuskPlayerMovement:_upd_attention_driving(dt)
 		local error_axis = self._look_dir:cross(tar_look_dir)
 		local rot_adj = Rotation(error_axis, rot_amount)
 		self._look_dir = self._look_dir:rotate_with(rot_adj)
-		self._look_modifier:set_target_y(self._look_dir)
+		if self._vehicle_shooting_stance == PlayerDriving.STANCE_NORMAL and not self._allow_shooting then
+			self._head_modifier:set_target_z(self._look_dir)
+		else
+			self._look_modifier:set_target_y(self._look_dir)
+			self._arm_modifier:set_target_y(self._look_dir)
+			self._head_modifier:set_target_z(self._look_dir)
+		end
 		if rot_amount == error_angle then
 			self._sync_look_dir = nil
 		end
-		self._arm_modifier:set_target_y(self._look_dir)
-		self._head_modifier:set_target_z(self._look_dir)
 		local fwd = self._m_rot:y()
 		local spin = fwd:to_polar_with_reference(self._look_dir, math.UP).spin
 		local anim = self._machine:segment_state(self._ids_base)
-		local max_anim_spin = 70
-		local min_anim_spin = -70
-		local aim_spin = math.clamp(spin, min_anim_spin, max_anim_spin)
+		local max_anim_spin = 120
+		local min_anim_spin = -120
+		local aim_spin = spin
+		local bwd = 0
+		if 90 < math.abs(aim_spin) then
+			bwd = 1
+		end
 		local anim = self._machine:segment_state(self._ids_base)
-		local fwd = 1 - math.clamp(math.abs(aim_spin / 90), 0, 1)
-		local l = math.clamp(aim_spin / min_anim_spin, 0, 1)
-		local r = math.clamp(aim_spin / max_anim_spin, 0, 1)
+		local fwd = (1 - math.clamp(math.abs(aim_spin / 90), 0, 1)) * (1 - bwd)
+		local l = math.clamp(aim_spin / min_anim_spin, 0, 1) * (1 - bwd)
+		local r = math.clamp(aim_spin / max_anim_spin, 0, 1) * (1 - bwd)
 		self._machine:set_parameter(anim, "fwd", fwd)
 		self._machine:set_parameter(anim, "l", l)
 		self._machine:set_parameter(anim, "r", r)
+		self._machine:set_parameter(anim, "bwd", bwd)
+		self._machine:set_parameter(anim, "team_ai", 0)
 	end
 end
 
@@ -1370,6 +1391,10 @@ function HuskPlayerMovement:_upd_move_driving(t, dt)
 	self:set_rotation(self.seat_third:rotation())
 end
 
+function HuskPlayerMovement:anim_clbk_exit_vehicle(unit)
+	self:on_exit_vehicle()
+end
+
 function HuskPlayerMovement:_adjust_move_anim(side, speed)
 	local anim_data = self._ext_anim
 	if anim_data.haste == speed and anim_data["move_" .. side] then
@@ -1667,6 +1692,7 @@ function HuskPlayerMovement:_start_driving(event_desc)
 	local vehicle_tweak_data = vehicle_data.vehicle_unit:vehicle_driving()._tweak_data
 	local vehicle_unit = vehicle_data.vehicle_unit
 	local animation = vehicle_tweak_data.animations[vehicle_data.seat]
+	self._allow_shooting = vehicle_tweak_data.seats[vehicle_data.seat].allow_shooting
 	self._vehicle = vehicle_unit:vehicle()
 	self._driver = false
 	if vehicle_data.seat == "driver" then
@@ -1683,10 +1709,6 @@ function HuskPlayerMovement:_start_driving(event_desc)
 	end
 	self:set_position(self.seat_third:position())
 	self:set_rotation(self.seat_third:rotation())
-	self._look_dir = self._m_rot:y()
-	self._look_modifier:set_target_y(self._look_dir)
-	self._arm_modifier:set_target_y(self._look_dir)
-	self._head_modifier:set_target_z(self._look_dir)
 	self._movement_updator = callback(self, self, "_upd_move_driving")
 	self._attention_updator = callback(self, self, "_upd_attention_driving")
 	return true
@@ -2242,14 +2264,22 @@ end
 function HuskPlayerMovement:on_exit_vehicle()
 	local event_desc = self._sequenced_events[1]
 	if self._atention_on then
-		self._machine:forbid_modifier(self._look_modifier_name)
-		self._machine:forbid_modifier(self._head_modifier_name)
-		self._machine:forbid_modifier(self._arm_modifier_name)
-		self._machine:forbid_modifier(self._mask_off_modifier_name)
 		self._atention_on = false
 	end
+	self._machine:forbid_modifier(self._look_modifier_name)
+	self._machine:forbid_modifier(self._head_modifier_name)
+	self._machine:forbid_modifier(self._arm_modifier_name)
+	self._machine:forbid_modifier(self._mask_off_modifier_name)
 	self._look_modifier:set_target_y(self._look_dir)
+	self._vehicle_shooting_stance = PlayerDriving.STANCE_NORMAL
 	self._movement_updator = callback(self, self, "_upd_move_standard")
 	self._attention_updator = callback(self, self, "_upd_attention_standard")
+end
+
+function HuskPlayerMovement:sync_vehicle_change_stance(stance)
+	local anim = self._machine:segment_state(self._ids_base)
+	Application:trace("Current animation", inspect(anim))
+	self._machine:set_parameter(anim, "shooting_stance", stance)
+	self._vehicle_shooting_stance = stance
 end
 

@@ -10,7 +10,7 @@ function BlackMarketTweakData:init(tweak_data)
 	self:_init_weapon_mods(tweak_data)
 	self:_init_armors()
 	self:_init_deployables(tweak_data)
-	self:_init_grenades()
+	self:_init_projectiles()
 	self:_init_melee_weapons()
 end
 
@@ -5970,56 +5970,56 @@ function BlackMarketTweakData:_init_deployables(tweak_data)
 	self:_add_desc_from_name_macro(self.deployables)
 end
 
-function BlackMarketTweakData:_init_grenades()
-	self.grenades = {}
-	self.grenades.frag = {}
-	self.grenades.frag.name_id = "bm_grenade_frag"
-	self.grenades.frag.unit = "units/payday2/weapons/wpn_frag_grenade/wpn_frag_grenade"
-	self.grenades.frag.unit_dummy = "units/payday2/weapons/wpn_frag_grenade/wpn_frag_grenade_husk"
-	self.grenades.frag.sprint_unit = "units/payday2/weapons/wpn_frag_grenade/wpn_frag_grenade_sprint"
-	self.grenades.frag.icon = "frag_grenade"
-	self.grenades.frag.dlc = "gage_pack"
-	self.grenades.frag.throwable = true
-	self.grenades.frag.max_amount = 3
-	self.grenades.launcher_frag = {}
-	self.grenades.launcher_frag.name_id = "bm_launcher_frag"
-	self.grenades.launcher_frag.unit = "units/pd2_dlc_gage_assault/weapons/wpn_launcher_frag_grenade/wpn_launcher_frag_grenade"
-	self.grenades.launcher_frag.weapon_id = "gre_m79"
-	self.grenades.launcher_frag.no_cheat_count = true
-	self.grenades.launcher_frag.impact_detonation = true
-	self.grenades.launcher_frag.time_cheat = 1
-	self.grenades.rocket_frag = {}
-	self.grenades.rocket_frag.name_id = "bm_rocket_frag"
-	self.grenades.rocket_frag.unit = "units/pd2_dlc_overkill_pack/weapons/wpn_third_rpg7_fired_rocket/wpn_third_rpg7_fired_rocket"
-	self.grenades.rocket_frag.weapon_id = "rpg7"
-	self.grenades.rocket_frag.no_cheat_count = true
-	self.grenades.rocket_frag.impact_detonation = true
-	self.grenades.rocket_frag.time_cheat = 1
-	self.grenades.rocket_frag.physic_effect = Idstring("physic_effects/anti_gravitate")
-	self.grenades.rocket_frag.adjust_z = 0
-	self.grenades.molotov = {}
-	self.grenades.molotov.name_id = "bm_grenade_molotov"
-	self.grenades.molotov.unit = "units/pd2_dlc_bbq/weapons/molotov_cocktail/wpn_molotov_third"
-	self.grenades.molotov.unit_dummy = "units/pd2_dlc_bbq/weapons/molotov_cocktail/wpn_molotov_husk"
-	self.grenades.molotov.icon = "molotov_grenade"
-	self.grenades.molotov.dlc = "bbq"
-	self.grenades.molotov.no_cheat_count = true
-	self.grenades.molotov.impact_detonation = true
-	self.grenades.molotov.time_cheat = 1
-	self.grenades.molotov.throwable = true
-	self.grenades.molotov.max_amount = 3
-	self.grenades.molotov.texture_bundle_folder = "bbq"
-	self.grenades.molotov.physic_effect = Idstring("physic_effects/molotov_throw")
-	self.grenades.launcher_incendiary = {}
-	self.grenades.launcher_incendiary.name_id = "bm_launcher_incendiary"
-	self.grenades.launcher_incendiary.unit = "units/pd2_dlc_bbq/weapons/wpn_launcher_incendiary_grenade/wpn_launcher_incendiary_grenade"
-	self.grenades.launcher_incendiary.weapon_id = "gre_m79"
-	self.grenades.launcher_incendiary.no_cheat_count = true
-	self.grenades.launcher_incendiary.impact_detonation = true
-	self.grenades.launcher_incendiary.time_cheat = 1
-	self.grenades.launcher_frag_m32 = deep_clone(self.grenades.launcher_frag)
-	self.grenades.launcher_frag_m32.weapon_id = "m32"
-	self._grenades_index = {
+function BlackMarketTweakData:_init_projectiles()
+	self.projectiles = {}
+	self.projectiles.frag = {}
+	self.projectiles.frag.name_id = "bm_grenade_frag"
+	self.projectiles.frag.unit = "units/payday2/weapons/wpn_frag_grenade/wpn_frag_grenade"
+	self.projectiles.frag.unit_dummy = "units/payday2/weapons/wpn_frag_grenade/wpn_frag_grenade_husk"
+	self.projectiles.frag.sprint_unit = "units/payday2/weapons/wpn_frag_grenade/wpn_frag_grenade_sprint"
+	self.projectiles.frag.icon = "frag_grenade"
+	self.projectiles.frag.dlc = "gage_pack"
+	self.projectiles.frag.throwable = true
+	self.projectiles.frag.max_amount = 3
+	self.projectiles.launcher_frag = {}
+	self.projectiles.launcher_frag.name_id = "bm_launcher_frag"
+	self.projectiles.launcher_frag.unit = "units/pd2_dlc_gage_assault/weapons/wpn_launcher_frag_grenade/wpn_launcher_frag_grenade"
+	self.projectiles.launcher_frag.weapon_id = "gre_m79"
+	self.projectiles.launcher_frag.no_cheat_count = true
+	self.projectiles.launcher_frag.impact_detonation = true
+	self.projectiles.launcher_frag.time_cheat = 1
+	self.projectiles.rocket_frag = {}
+	self.projectiles.rocket_frag.name_id = "bm_rocket_frag"
+	self.projectiles.rocket_frag.unit = "units/pd2_dlc_overkill_pack/weapons/wpn_third_rpg7_fired_rocket/wpn_third_rpg7_fired_rocket"
+	self.projectiles.rocket_frag.weapon_id = "rpg7"
+	self.projectiles.rocket_frag.no_cheat_count = true
+	self.projectiles.rocket_frag.impact_detonation = true
+	self.projectiles.rocket_frag.time_cheat = 1
+	self.projectiles.rocket_frag.physic_effect = Idstring("physic_effects/anti_gravitate")
+	self.projectiles.rocket_frag.adjust_z = 0
+	self.projectiles.molotov = {}
+	self.projectiles.molotov.name_id = "bm_grenade_molotov"
+	self.projectiles.molotov.unit = "units/pd2_dlc_bbq/weapons/molotov_cocktail/wpn_molotov_third"
+	self.projectiles.molotov.unit_dummy = "units/pd2_dlc_bbq/weapons/molotov_cocktail/wpn_molotov_husk"
+	self.projectiles.molotov.icon = "molotov_grenade"
+	self.projectiles.molotov.dlc = "bbq"
+	self.projectiles.molotov.no_cheat_count = true
+	self.projectiles.molotov.impact_detonation = true
+	self.projectiles.molotov.time_cheat = 1
+	self.projectiles.molotov.throwable = true
+	self.projectiles.molotov.max_amount = 3
+	self.projectiles.molotov.texture_bundle_folder = "bbq"
+	self.projectiles.molotov.physic_effect = Idstring("physic_effects/molotov_throw")
+	self.projectiles.launcher_incendiary = {}
+	self.projectiles.launcher_incendiary.name_id = "bm_launcher_incendiary"
+	self.projectiles.launcher_incendiary.unit = "units/pd2_dlc_bbq/weapons/wpn_launcher_incendiary_grenade/wpn_launcher_incendiary_grenade"
+	self.projectiles.launcher_incendiary.weapon_id = "gre_m79"
+	self.projectiles.launcher_incendiary.no_cheat_count = true
+	self.projectiles.launcher_incendiary.impact_detonation = true
+	self.projectiles.launcher_incendiary.time_cheat = 1
+	self.projectiles.launcher_frag_m32 = deep_clone(self.projectiles.launcher_frag)
+	self.projectiles.launcher_frag_m32.weapon_id = "m32"
+	self._projectiles_index = {
 		"frag",
 		"launcher_frag",
 		"rocket_frag",
@@ -6027,24 +6027,24 @@ function BlackMarketTweakData:_init_grenades()
 		"launcher_incendiary",
 		"launcher_frag_m32"
 	}
-	self:_add_desc_from_name_macro(self.grenades)
+	self:_add_desc_from_name_macro(self.projectiles)
 end
 
-function BlackMarketTweakData:get_grenades_index()
-	return self._grenades_index
+function BlackMarketTweakData:get_projectiles_index()
+	return self._projectiles_index
 end
 
-function BlackMarketTweakData:get_index_from_grenade_id(grenade_id)
-	for index, entry_name in ipairs(self._grenades_index) do
-		if entry_name == grenade_id then
+function BlackMarketTweakData:get_index_from_projectile_id(projectile_id)
+	for index, entry_name in ipairs(self._projectiles_index) do
+		if entry_name == projectile_id then
 			return index
 		end
 	end
 	return 0
 end
 
-function BlackMarketTweakData:get_grenade_name_from_index(index)
-	return self._grenades_index[index]
+function BlackMarketTweakData:get_projectile_name_from_index(index)
+	return self._projectiles_index[index]
 end
 
 function BlackMarketTweakData:_init_melee_weapons()

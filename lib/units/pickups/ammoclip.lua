@@ -14,7 +14,9 @@ function AmmoClip:_pickup(unit)
 	if not unit:character_damage():dead() and inventory then
 		local picked_up = false
 		for _, weapon in pairs(inventory:available_selections()) do
-			picked_up = weapon.unit:base():add_ammo() or picked_up
+			if not self._weapon_category or self._weapon_category == weapon.unit:base():weapon_tweak_data().category then
+				picked_up = weapon.unit:base():add_ammo(1, self._ammo_count) or picked_up
+			end
 		end
 		if picked_up then
 			self._picked_up = true
@@ -30,13 +32,13 @@ function AmmoClip:_pickup(unit)
 					unit:character_damage():restore_health(restore_value, true)
 					unit:sound():play("pickup_ammo_health_boost", nil, true)
 					if managers.player:has_category_upgrade("player", "loose_ammo_restore_health_give_team") then
-						managers.network:session():send_to_peers_synched("sync_unit_event_id_16", self._unit, "base", 2 + sync_value)
+						managers.network:session():send_to_peers_synched("sync_unit_event_id_16", self._unit, "pickup", 2 + sync_value)
 					end
 				end
 			end
 			if managers.player:has_category_upgrade("temporary", "loose_ammo_give_team") and not managers.player:has_activate_temporary_upgrade("temporary", "loose_ammo_give_team") then
 				managers.player:activate_temporary_upgrade("temporary", "loose_ammo_give_team")
-				managers.network:session():send_to_peers_synched("sync_unit_event_id_16", self._unit, "base", AmmoClip.EVENT_IDS.bonnie_share_ammo)
+				managers.network:session():send_to_peers_synched("sync_unit_event_id_16", self._unit, "pickup", AmmoClip.EVENT_IDS.bonnie_share_ammo)
 			end
 			if Network:is_client() then
 				managers.network:session():send_to_host("sync_pickup", self._unit)

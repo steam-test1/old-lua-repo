@@ -79,6 +79,7 @@ function EnemyDummyTriggerUnitElement:_build_panel(panel, panel_sizer)
 	local options = {
 		"alerted",
 		"death",
+		"killshot",
 		"fled",
 		"spawn",
 		"panic",

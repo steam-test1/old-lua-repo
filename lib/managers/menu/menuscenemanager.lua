@@ -1393,7 +1393,7 @@ function MenuSceneManager:_infamy_enable_dragging()
 end
 
 function MenuSceneManager:spawn_grenade(grenade_id)
-	local grenade = tweak_data.blackmarket.grenades[grenade_id]
+	local grenade = tweak_data.blackmarket.projectiles[grenade_id]
 	if not grenade.unit_dummy then
 		return
 	end

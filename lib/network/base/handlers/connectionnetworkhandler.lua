@@ -477,13 +477,13 @@ function ConnectionNetworkHandler:send_chat_message(channel_id, message, sender)
 	managers.chat:receive_message_by_peer(channel_id, peer, message)
 end
 
-function ConnectionNetworkHandler:sync_outfit(outfit_string, outfit_version, sender)
+function ConnectionNetworkHandler:sync_outfit(outfit_string, outfit_version, outfit_signature, sender)
 	local peer = self._verify_sender(sender)
 	if not peer then
 		return
 	end
 	print("[ConnectionNetworkHandler:sync_outfit]", "peer_id", peer:id(), "outfit_string", outfit_string, "outfit_version", outfit_version)
-	peer:set_outfit_string(outfit_string, outfit_version)
+	peer:set_outfit_string(outfit_string, outfit_version, outfit_signature)
 	if managers.network:session():is_host() then
 		managers.network:session():chk_request_peer_outfit_load_status()
 	end
@@ -561,7 +561,11 @@ function ConnectionNetworkHandler:feed_lootdrop(global_value, item_category, ite
 		left_pc,
 		right_pc
 	}
-	managers.hud:feed_lootdrop_hud(lootdrop_data)
+	if item_pc == 0 then
+		managers.hud:make_cards_hud(peer, max_pc, left_pc, right_pc)
+	else
+		managers.hud:make_lootdrop_hud(lootdrop_data)
+	end
 end
 
 function ConnectionNetworkHandler:set_selected_lootcard(selected, sender)
@@ -718,6 +722,14 @@ function ConnectionNetworkHandler:voting_data(type, value, result, sender)
 		return
 	end
 	managers.vote:network_package(type, value, result, peer:id())
+end
+
+function ConnectionNetworkHandler:sync_award_achievement(achievement_id, sender)
+	if not self._verify_sender(sender) then
+		return
+	end
+	print("ConnectionNetworkHandler:sync_award_achievement():", achievement_id)
+	managers.achievment:award(achievement_id)
 end
 
 function ConnectionNetworkHandler:propagate_alert(type, position, range, filter, aggressor, head_position, sender)

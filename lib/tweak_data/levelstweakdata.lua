@@ -684,6 +684,7 @@ function LevelsTweakData:init()
 	self.mia_1.music = "heist"
 	self.mia_1.package = "packages/narr_mia_1"
 	self.mia_1.cube = "cube_apply_heist_bank"
+	self.mia_1.max_bags = 15
 	self.mia_2 = {}
 	self.mia_2.name_id = "heist_mia_2_hl"
 	self.mia_2.briefing_id = "heist_mia_2_briefing"
@@ -696,6 +697,7 @@ function LevelsTweakData:init()
 	self.mia_2.music = "heist"
 	self.mia_2.package = "packages/narr_mia_2"
 	self.mia_2.cube = "cube_apply_heist_bank"
+	self.mia_2.max_bags = 20
 	self.mia_2.teams = {
 		criminal1 = {
 			foes = {
