@@ -16,6 +16,9 @@ function AmmoClip:_pickup(unit)
 		for _, weapon in pairs(inventory:available_selections()) do
 			if not self._weapon_category or self._weapon_category == weapon.unit:base():weapon_tweak_data().category then
 				picked_up = weapon.unit:base():add_ammo(1, self._ammo_count) or picked_up
+				if picked_up and tweak_data.achievement.pickup_sticks and self._weapon_category == tweak_data.achievement.pickup_sticks.weapon_category then
+					managers.achievment:award_progress(tweak_data.achievement.pickup_sticks.stat)
+				end
 			end
 		end
 		if picked_up then
@@ -43,7 +46,7 @@ function AmmoClip:_pickup(unit)
 			if Network:is_client() then
 				managers.network:session():send_to_host("sync_pickup", self._unit)
 			end
-			unit:sound():play("pickup_ammo", nil, true)
+			unit:sound():play(self._pickup_event or "pickup_ammo", nil, true)
 			self:consume()
 			return true
 		end
@@ -64,7 +67,7 @@ function AmmoClip:sync_net_event(event, peer)
 				picked_up = weapon.unit:base():add_ammo(tweak_data.upgrades.loose_ammo_give_team_ratio or 0.25) or picked_up
 			end
 			if picked_up then
-				player:sound():play("pickup_ammo", nil, true)
+				player:sound():play(self._pickup_event or "pickup_ammo", nil, true)
 				for id, weapon in pairs(inventory:available_selections()) do
 					managers.hud:set_ammo_amount(id, weapon.unit:base():ammo_info())
 				end

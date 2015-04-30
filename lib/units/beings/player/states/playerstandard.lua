@@ -980,8 +980,9 @@ function PlayerStandard:_start_action_throw_grenade(t, input)
 	self:_interupt_action_running(t)
 	self:_interupt_action_charging_weapon(t)
 	managers.network:session():send_to_peers_synched("play_distance_interact_redirect", self._unit, "throw_grenade")
-	local grenade_index = tweak_data.blackmarket:get_index_from_projectile_id(managers.blackmarket:equipped_grenade())
-	if grenade_index == 4 then
+	local equipped_grenade = managers.blackmarket:equipped_grenade()
+	local grenade_index = tweak_data.blackmarket:get_index_from_projectile_id(equipped_grenade)
+	if grenade_index == 4 or equipped_grenade == "dynamite" then
 		self._ext_camera:play_redirect(Idstring("throw_molotov"))
 	else
 		self._ext_camera:play_redirect(Idstring("throw_grenade"))
@@ -1913,20 +1914,22 @@ function PlayerStandard:_get_unit_intimidation_action(intimidate_enemies, intimi
 			end
 		end
 	end
-	if managers.groupai:state():whisper_mode() then
-		for _, unit in ipairs(SecurityCamera.cameras) do
-			if alive(unit) and unit:enabled() and not unit:base():destroyed() then
-				local dist = 2000
-				local prio = 0.001
-				self:_add_unit_to_char_table(char_table, unit, unit_type_camera, dist, false, false, prio, my_head_pos, cam_fwd, {unit})
+	if intimidate_enemies then
+		if managers.groupai:state():whisper_mode() then
+			for _, unit in ipairs(SecurityCamera.cameras) do
+				if alive(unit) and unit:enabled() and not unit:base():destroyed() then
+					local dist = 2000
+					local prio = 0.001
+					self:_add_unit_to_char_table(char_table, unit, unit_type_camera, dist, false, false, prio, my_head_pos, cam_fwd, {unit})
+				end
 			end
 		end
-	end
-	local turret_units = managers.groupai:state():turrets()
-	if turret_units then
-		for _, unit in pairs(turret_units) do
-			if alive(unit) and unit:movement():team().foes[self._ext_movement:team().id] then
-				self:_add_unit_to_char_table(char_table, unit, unit_type_turret, 2000, false, false, 0.01, my_head_pos, cam_fwd, {unit})
+		local turret_units = managers.groupai:state():turrets()
+		if turret_units then
+			for _, unit in pairs(turret_units) do
+				if alive(unit) and unit:movement():team().foes[self._ext_movement:team().id] then
+					self:_add_unit_to_char_table(char_table, unit, unit_type_turret, 2000, false, false, 0.01, my_head_pos, cam_fwd, {unit})
+				end
 			end
 		end
 	end

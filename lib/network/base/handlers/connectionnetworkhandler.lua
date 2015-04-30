@@ -729,7 +729,6 @@ function ConnectionNetworkHandler:sync_award_achievement(achievement_id, sender)
 		return
 	end
 	print("ConnectionNetworkHandler:sync_award_achievement():", achievement_id)
-	managers.achievment:award(achievement_id)
 end
 
 function ConnectionNetworkHandler:propagate_alert(type, position, range, filter, aggressor, head_position, sender)

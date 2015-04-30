@@ -57,7 +57,8 @@ local mvec_direction = Vector3()
 local mvec_spread_direction = Vector3()
 function NewShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoot_player, spread_mul, autohit_mul, suppr_mul, shoot_through_data)
 	local result
-	if self._can_shoot_through_shield or self._can_shoot_through_enemy or self._can_shoot_through_wall then
+	local add_shoot_through_bullet = self._can_shoot_through_shield or self._can_shoot_through_enemy or self._can_shoot_through_wall
+	if add_shoot_through_bullet then
 		result = NewShotgunBase.super._fire_raycast(self, user_unit, from_pos, direction, dmg_mul, shoot_player, spread_mul, autohit_mul, suppr_mul, shoot_through_data)
 	end
 	local hit_enemies = {}
@@ -84,7 +85,7 @@ function NewShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, s
 	mvector3.set(mvec_direction, direction)
 	if spread then
 	end
-	for i = 1, self._rays do
+	for i = add_shoot_through_bullet and 2 or 1, self._rays do
 		mvector3.set(mvec_spread_direction, mvec_direction)
 		if spread then
 			mvector3.spread(mvec_spread_direction, spread * (spread_mul or 1))

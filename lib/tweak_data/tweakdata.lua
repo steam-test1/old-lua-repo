@@ -1235,6 +1235,15 @@ function TweakData:init()
 	self.achievement.drive_away = "fort_2"
 	self.achievement.disco_inferno = "grill_1"
 	self.achievement.overgrill = "grill_4"
+	self.achievement.pickup_sticks = {
+		stat = "scorpion_1_stats",
+		weapon_category = "bow"
+	}
+	self.achievement.pincushion = {
+		award = "scorpion_3",
+		enemy = "tank",
+		count = 10
+	}
 	self.achievement.one_man_army = {
 		award = "gage5_3",
 		equipped = {
@@ -1328,6 +1337,12 @@ function TweakData:init()
 			award = "grill_3",
 			timer = 10,
 			kill_count = 10
+		},
+		threemite = {
+			count = 3,
+			grenade_type = "dynamite",
+			award = "scorpion_2",
+			kill = true
 		}
 	}
 	self.achievement.enemy_kill_achievements = {
@@ -1513,6 +1528,13 @@ function TweakData:init()
 				"akmsu",
 				"olympic"
 			}
+		},
+		seven_eleven = {
+			award = "scorpion_4",
+			weapon = "peacemaker",
+			in_steelsight = false,
+			timer = 6,
+			count = 6
 		}
 	}
 	self.achievement.enemy_melee_kill_achievements = {
@@ -2997,6 +3019,22 @@ function TweakData:init()
 	self.projectiles.rocket_frag = {}
 	self.projectiles.rocket_frag.launch_speed = 2500
 	self.projectiles.rocket_frag.adjust_z = 0
+	self.projectiles.west_arrow = {}
+	self.projectiles.west_arrow.damage = 19.5
+	self.projectiles.west_arrow.launch_speed = 2000
+	self.projectiles.west_arrow.adjust_z = 0
+	self.projectiles.west_arrow.mass_look_up_modifier = 1
+	self.projectiles.west_arrow.name_id = "bm_west_arrow"
+	self.projectiles.west_arrow.push_at_body_index = 0
+	self.projectiles.west_arrow_exp = deep_clone(self.projectiles.west_arrow)
+	self.projectiles.west_arrow_exp.damage = 26
+	self.projectiles.west_arrow_exp.bullet_class = "InstantExplosiveBulletBase"
+	self.projectiles.west_arrow_exp.remove_on_impact = true
+	self.projectiles.dynamite = {}
+	self.projectiles.dynamite.damage = 30
+	self.projectiles.dynamite.player_damage = 10
+	self.projectiles.dynamite.range = 1000
+	self.projectiles.dynamite.name_id = "bm_grenade_frag"
 	self.voting = {}
 	self.voting.timeout = 30
 	self.voting.cooldown = 50

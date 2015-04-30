@@ -1624,6 +1624,10 @@ function UnitNetworkHandler:sync_attach_projectile(unit, instant_dynamic_pickup,
 		unit:base():sync_attach_to_unit(instant_dynamic_pickup, parent_unit, parent_body, parent_object, local_pos, dir)
 	end
 	if peer_id ~= 1 then
+		local dummy_unit = ArrowBase.find_nearest_arrow(peer_id, world_position)
+		if dummy_unit then
+			dummy_unit:set_slot(0)
+		end
 	end
 end
 

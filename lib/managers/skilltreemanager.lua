@@ -647,13 +647,13 @@ function SkillTreeManager:infamy_reset()
 	Global.skilltree_manager = nil
 	self:_setup()
 	self._global.specializations = saved_specialization
-	self._global.selected_skill_switch = saved_selected_skill_switch
 	if self._global.skill_switches then
 		for i = 1, #self._global.skill_switches do
 			self._global.skill_switches[i].unlocked = skill_switches_unlocks[i]
 			self._global.skill_switches[i].specialization = skill_switches_specializations[i] or 1
 		end
 	end
+	self:switch_skills(saved_selected_skill_switch)
 	local current_specialization = self:digest_value(self._global.specializations.current_specialization, false, 1)
 	local tree_data = self._global.specializations[current_specialization]
 	if not tree_data then
@@ -871,6 +871,28 @@ function SkillTreeManager:_verify_loaded_data(points_aquired_during_load)
 			unlocked = unlocked - 1
 		end
 		switch_data.points = Application:digest_value(points, true)
+	end
+	for i = 1, #self._global.skill_switches do
+		if self._global.skill_switches[i] then
+			if 0 > Application:digest_value(not self._global.skill_switches[i].points and 0, false) then
+				local switch_data = self._global.skill_switches[i]
+				switch_data.points = Application:digest_value(assumed_points, true)
+				switch_data.trees = {}
+				for tree, data in pairs(tweak_data.skilltree.trees) do
+					switch_data.trees[tree] = {
+						unlocked = false,
+						points_spent = Application:digest_value(0, true)
+					}
+				end
+				switch_data.skills = {}
+				for skill_id, data in pairs(tweak_data.skilltree.skills) do
+					switch_data.skills[skill_id] = {
+						unlocked = 0,
+						total = #data
+					}
+				end
+			end
+		end
 	end
 	if not self._global.skill_switches[self._global.selected_skill_switch] then
 		self._global.selected_skill_switch = 1

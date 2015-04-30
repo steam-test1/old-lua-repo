@@ -299,6 +299,9 @@ function CopDamage:damage_bullet(attack_data)
 	if attacker:id() == -1 then
 		attacker = self._unit
 	end
+	if alive(attack_data.weapon_unit) and attack_data.weapon_unit:base() and attack_data.weapon_unit:base().add_damage_result then
+		attack_data.weapon_unit:base():add_damage_result(self._unit, attacker, result.type == "death", damage_percent)
+	end
 	self:_send_bullet_attack_result(attack_data, attacker, damage_percent, body_index, hit_offset_height)
 	self:_on_damage_received(attack_data)
 	return result
@@ -315,7 +318,7 @@ function CopDamage:_check_damage_achievements(attack_data, head)
 		local unit_anim = self._unit.anim_data and self._unit:anim_data()
 		local achievements = tweak_data.achievement.enemy_kill_achievements or {}
 		local current_mask_id = managers.blackmarket:equipped_mask().mask_id
-		local weapons_pass, weapon_pass, fire_mode_pass, ammo_pass, enemy_pass, enemy_weapon_pass, mask_pass, hiding_pass, head_pass, distance_pass, zipline_pass, rope_pass, one_shot_pass, weapon_type_pass, level_pass, part_pass, parts_pass, timer_pass, cop_pass, gangster_pass, civilian_pass, all_pass, memory
+		local weapons_pass, weapon_pass, fire_mode_pass, ammo_pass, enemy_pass, enemy_weapon_pass, mask_pass, hiding_pass, head_pass, steelsight_pass, distance_pass, zipline_pass, rope_pass, one_shot_pass, weapon_type_pass, level_pass, part_pass, parts_pass, timer_pass, cop_pass, gangster_pass, civilian_pass, all_pass, memory
 		local is_cop = CopDamage.is_cop(self._unit:base()._tweak_table)
 		for achievement, achievement_data in pairs(achievements) do
 			weapon_type_pass = not achievement_data.weapon_type or attack_weapon:base():weapon_tweak_data().category == achievement_data.weapon_type
@@ -335,6 +338,7 @@ function CopDamage:_check_damage_achievements(attack_data, head)
 			if achievement_data.level_id then
 				level_pass = (managers.job:current_level_id() or "") == achievement_data.level_id
 			end
+			steelsight_pass = achievement_data.in_steelsight == nil or attack_data.attacker_unit and attack_data.attacker_unit:movement():current_state():in_steelsight() == achievement_data.in_steelsight
 			cop_pass = not achievement_data.is_cop or is_cop
 			part_pass = not achievement_data.part_id or attack_weapon:base():has_part(achievement_data.part_id)
 			parts_pass = not achievement_data.parts
@@ -346,8 +350,9 @@ function CopDamage:_check_damage_achievements(attack_data, head)
 					end
 				end
 			end
+			all_pass = weapon_type_pass and weapons_pass and weapon_pass and fire_mode_pass and ammo_pass and one_shot_pass and enemy_pass and enemy_weapon_pass and mask_pass and hiding_pass and head_pass and distance_pass and zipline_pass and rope_pass and level_pass and part_pass and steelsight_pass and cop_pass
 			timer_pass = not achievement_data.timer
-			if achievement_data.timer then
+			if all_pass and achievement_data.timer then
 				memory = managers.job:get_memory(achievement)
 				local t = Application:time()
 				if memory then
@@ -363,7 +368,7 @@ function CopDamage:_check_damage_achievements(attack_data, head)
 					managers.job:set_memory(achievement, {t})
 				end
 			end
-			all_pass = weapon_type_pass and weapons_pass and weapon_pass and fire_mode_pass and ammo_pass and one_shot_pass and enemy_pass and enemy_weapon_pass and mask_pass and hiding_pass and head_pass and distance_pass and zipline_pass and rope_pass and level_pass and timer_pass and part_pass and cop_pass
+			all_pass = all_pass and timer_pass
 			if all_pass then
 				if achievement_data.stat then
 					managers.achievment:award_progress(achievement_data.stat)

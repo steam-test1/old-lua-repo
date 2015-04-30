@@ -172,7 +172,13 @@ function PlayerTased:_check_action_primary_attack(t, input)
 						if input.btn_primary_attack_press then
 							fired = weap_base:trigger_pressed(self._ext_camera:position(), self._ext_camera:forward(), nil, nil, nil, nil, suppression_mul)
 							if weap_base:fire_on_release() then
+								if weap_base.set_tased_shot then
+									weap_base:set_tased_shot(true)
+								end
 								fired = weap_base:trigger_released(self._ext_camera:position(), self._ext_camera:forward(), nil, nil, nil, nil, suppression_mul)
+								if weap_base.set_tased_shot then
+									weap_base:set_tased_shot(false)
+								end
 							end
 						end
 					elseif input.btn_primary_attack_state then

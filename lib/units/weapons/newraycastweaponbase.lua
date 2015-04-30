@@ -88,6 +88,23 @@ function NewRaycastWeaponBase:clbk_assembly_complete(clbk, parts, blueprint)
 			end
 		end
 	end
+	if not self._bullet_objects or #self._bullet_objects == 0 then
+		local ammo = managers.weapon_factory:get_part_from_weapon_by_type("ammo", self._parts)
+		if ammo then
+			local bullet_objects = managers.weapon_factory:get_part_data_type_from_weapon_by_type("ammo", "bullet_objects", self._parts)
+			if bullet_objects then
+				self._bullet_objects = {}
+				local prefix = bullet_objects.prefix
+				for i = 1, bullet_objects.amount do
+					local object = ammo.unit:get_object(Idstring(prefix .. i))
+					if object then
+						self._bullet_objects[i] = self._bullet_objects[i] or {}
+						table.insert(self._bullet_objects[i], object)
+					end
+				end
+			end
+		end
+	end
 	self:apply_texture_switches()
 	self:check_npc()
 	self:_set_parts_enabled(self._enabled)

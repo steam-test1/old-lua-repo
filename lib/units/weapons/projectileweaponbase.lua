@@ -16,6 +16,7 @@ function ProjectileWeaponBase:_fire_raycast(user_unit, from_pos, direction, dmg_
 	if self._ammo_data and self._ammo_data.launcher_grenade then
 		projectile_type_index = tweak_data.blackmarket:get_index_from_projectile_id(self._ammo_data.launcher_grenade)
 	end
+	self:_adjust_throw_z(mvec_spread_direction)
 	mvec_spread_direction = mvec_spread_direction * self:projectile_speed_multiplier()
 	local spawn_offset = self:_get_spawn_offset()
 	self._dmg_mul = dmg_mul or 1
@@ -40,6 +41,10 @@ function ProjectileWeaponBase:_update_stats_values()
 	if self._ammo_data and self._ammo_data.projectile_type_index ~= nil then
 		self._projectile_type_index = self._ammo_data.projectile_type_index
 	end
+end
+
+function ProjectileWeaponBase:_adjust_throw_z(m_vec)
+	return
 end
 
 function ProjectileWeaponBase:projectile_damage_multiplier()

@@ -1080,6 +1080,11 @@ function MenuCallbackHandler:dlc_buy_bbq_pc()
 	Steam:overlay_activate("store", 358150)
 end
 
+function MenuCallbackHandler:dlc_buy_west_pc()
+	print("[MenuCallbackHandler:dlc_buy_west_pc]")
+	Steam:overlay_activate("store", 349830)
+end
+
 function MenuCallbackHandler:dlc_buy_ps3()
 	print("[MenuCallbackHandler:dlc_buy_ps3]")
 	managers.dlc:buy_product("dlc1")
@@ -1115,6 +1120,7 @@ end
 
 function MenuCallbackHandler:is_dlc_latest_locked(check_dlc)
 	local dlcs = {
+		"west",
 		"bbq",
 		"overkill_pack",
 		"akm4_pack",
@@ -1226,6 +1232,10 @@ end
 
 function MenuCallbackHandler:visible_callback_bbq()
 	return self:is_dlc_latest_locked("bbq")
+end
+
+function MenuCallbackHandler:visible_callback_west()
+	return self:is_dlc_latest_locked("west")
 end
 
 function MenuCallbackHandler:not_has_all_dlcs()

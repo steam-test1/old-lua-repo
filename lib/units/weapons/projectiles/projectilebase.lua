@@ -78,19 +78,22 @@ function ProjectileBase:throw(params)
 	local velocity = params.dir
 	local adjust_z = 50
 	local launch_speed = 250
+	local push_at_body_index
 	if params.projectile_entry and tweak_data.projectiles[params.projectile_entry] then
 		adjust_z = tweak_data.projectiles[params.projectile_entry].adjust_z or adjust_z
 		launch_speed = tweak_data.projectiles[params.projectile_entry].launch_speed or launch_speed
-	end
-	if self._weapon_speed_mult then
-		adjust_z = adjust_z * self._weapon_speed_mult
+		push_at_body_index = tweak_data.projectiles[params.projectile_entry].push_at_body_index
 	end
 	velocity = velocity * launch_speed
 	velocity = Vector3(velocity.x, velocity.y, velocity.z + adjust_z)
 	local mass_look_up_modifier = self._mass_look_up_modifier or 2
 	local mass = math.max(mass_look_up_modifier * (1 + math.min(0, params.dir.z)), 1)
 	if self._simulated then
-		self._unit:push_at(mass, velocity, self._unit:position())
+		if push_at_body_index then
+			self._unit:push_at(mass, velocity, self._unit:body(push_at_body_index):center_of_mass())
+		else
+			self._unit:push_at(mass, velocity, self._unit:position())
+		end
 	else
 		self._velocity = velocity
 	end

@@ -1444,7 +1444,11 @@ function UpgradesTweakData:init()
 	}
 	self.level_tree[15] = {
 		name_id = "weapons",
-		upgrades = {"msr", "benelli"}
+		upgrades = {
+			"msr",
+			"benelli",
+			"plainsrider"
+		}
 	}
 	self.level_tree[16] = {
 		name_id = "weapons",
@@ -1480,7 +1484,11 @@ function UpgradesTweakData:init()
 	}
 	self.level_tree[22] = {
 		name_id = "community_item",
-		upgrades = {"g22c", "ksg"}
+		upgrades = {
+			"g22c",
+			"ksg",
+			"branding_iron"
+		}
 	}
 	self.level_tree[23] = {
 		name_id = "weapons",
@@ -1488,7 +1496,11 @@ function UpgradesTweakData:init()
 	}
 	self.level_tree[24] = {
 		name_id = "weapons",
-		upgrades = {"model24", "l85a2"}
+		upgrades = {
+			"model24",
+			"l85a2",
+			"scalper"
+		}
 	}
 	self.level_tree[25] = {
 		name_id = "weapons",
@@ -1507,7 +1519,11 @@ function UpgradesTweakData:init()
 	}
 	self.level_tree[28] = {
 		name_id = "weapons",
-		upgrades = {"hs2000", "vhs"}
+		upgrades = {
+			"hs2000",
+			"vhs",
+			"bowie"
+		}
 	}
 	self.level_tree[29] = {
 		name_id = "weapons",
@@ -1523,7 +1539,8 @@ function UpgradesTweakData:init()
 		name_id = "body_armor5",
 		upgrades = {
 			"body_armor5",
-			"chef"
+			"chef",
+			"peacemaker"
 		}
 	}
 	self.level_tree[32] = {
@@ -1540,11 +1557,19 @@ function UpgradesTweakData:init()
 	}
 	self.level_tree[35] = {
 		name_id = "weapons",
-		upgrades = {"r93", "judge"}
+		upgrades = {
+			"r93",
+			"judge",
+			"mining_pick"
+		}
 	}
 	self.level_tree[36] = {
 		name_id = "weapons",
-		upgrades = {"p90", "deagle"}
+		upgrades = {
+			"p90",
+			"deagle",
+			"winchester1874"
+		}
 	}
 	self.level_tree[37] = {
 		name_id = "weapons",
@@ -1871,6 +1896,9 @@ function UpgradesTweakData:init()
 	self:_m32_definitions()
 	self:_aa12_definitions()
 	self:_bbq_weapon_definitions()
+	self:_peacemaker_definitions()
+	self:_winchester1874_definitions()
+	self:_plainsrider_definitions()
 	self:_melee_weapon_definitions()
 	self:_grenades_definitions()
 	self:_carry_definitions()
@@ -6301,11 +6329,28 @@ function UpgradesTweakData:_melee_weapon_definitions()
 		category = "melee_weapon",
 		dlc = "pd2_clan"
 	}
+	self.definitions.scalper = {
+		category = "melee_weapon",
+		dlc = "west"
+	}
+	self.definitions.mining_pick = {
+		category = "melee_weapon",
+		dlc = "west"
+	}
+	self.definitions.branding_iron = {
+		category = "melee_weapon",
+		dlc = "west"
+	}
+	self.definitions.bowie = {
+		category = "melee_weapon",
+		dlc = "west"
+	}
 end
 
 function UpgradesTweakData:_grenades_definitions()
 	self.definitions.molotov = {category = "grenade", dlc = "bbq"}
 	self.definitions.frag = {category = "grenade", dlc = "gage_pack"}
+	self.definitions.dynamite = {category = "grenade", dlc = "west"}
 end
 
 function UpgradesTweakData:_weapon_definitions()
@@ -8691,5 +8736,32 @@ function UpgradesTweakData:_bbq_weapon_definitions()
 	}
 	self.flame_bullet = {}
 	self.flame_bullet.show_blood_hits = false
+end
+
+function UpgradesTweakData:_peacemaker_definitions()
+	self.definitions.peacemaker = {
+		category = "weapon",
+		weapon_id = "peacemaker",
+		factory_id = "wpn_fps_pis_peacemaker",
+		dlc = "west"
+	}
+end
+
+function UpgradesTweakData:_winchester1874_definitions()
+	self.definitions.winchester1874 = {
+		category = "weapon",
+		weapon_id = "winchester1874",
+		factory_id = "wpn_fps_snp_winchester",
+		dlc = "west"
+	}
+end
+
+function UpgradesTweakData:_plainsrider_definitions()
+	self.definitions.plainsrider = {
+		category = "weapon",
+		weapon_id = "plainsrider",
+		factory_id = "wpn_fps_bow_plainsrider",
+		dlc = "west"
+	}
 end
 
