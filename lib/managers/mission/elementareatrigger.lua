@@ -22,12 +22,6 @@ function ElementAreaTrigger:project_instigators()
 				table.insert(instigators, v)
 			end
 		end
-	elseif self._values.instigator == "vehicle_or_player" then
-		table.insert(instigators, managers.player:player_unit())
-		local vehicles = managers.vehicle:get_all_vehicles()
-		for _, v in pairs(vehicles) do
-			table.insert(instigators, v)
-		end
 	elseif self._values.instigator == "vehicle_with_players" then
 		local vehicles = managers.vehicle:get_all_vehicles()
 		for _, v in pairs(vehicles) do
@@ -127,15 +121,27 @@ function ElementAreaTrigger:project_amount_all()
 end
 
 function ElementAreaTrigger:project_amount_inside()
+	local counter = #self._inside
 	if self._values.instigator == "vehicle_with_players" then
 		for _, instigator in pairs(self._inside) do
 			local vehicle = instigator:vehicle_driving()
 			if vehicle then
-				return vehicle:num_players_inside()
+				counter = vehicle:num_players_inside()
 			end
 		end
 	end
-	return #self._inside
+	return counter
+end
+
+function ElementAreaTrigger:is_instigator_valid(unit)
+	if self._values.instigator == "vehicle_with_players" then
+		local result = false
+		if unit:vehicle_driving() and unit:vehicle_driving():num_players_inside() > 0 then
+			result = true
+		end
+		return result
+	end
+	return true
 end
 
 CoreClass.override_class(CoreElementArea.ElementAreaTrigger, ElementAreaTrigger)

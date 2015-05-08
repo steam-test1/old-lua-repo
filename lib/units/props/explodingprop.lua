@@ -27,7 +27,7 @@ function ExplodingProp:detonate(pos, range, damage, player_damage)
 			hit_pos = pos,
 			range = range,
 			collision_slotmask = slot_mask,
-			curve_pow = 5,
+			curve_pow = 3,
 			damage = damage,
 			player_damage = 0,
 			ignore_unit = self._unit,

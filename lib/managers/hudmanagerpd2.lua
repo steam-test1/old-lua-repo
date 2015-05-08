@@ -857,6 +857,7 @@ function HUDManager:align_teammate_name_label(panel, interact)
 	local text = panel:child("text")
 	local action = panel:child("action")
 	local bag = panel:child("bag")
+	local bag_number = panel:child("bag_number")
 	local cheater = panel:child("cheater")
 	local _, _, tw, th = text:text_rect()
 	local _, _, aw, ah = action:text_rect()
@@ -880,8 +881,15 @@ function HUDManager:align_teammate_name_label(panel, interact)
 		infamy:set_top(text:top())
 		text:set_x(double_radius + 4 + infamy:w())
 	end
-	panel:set_w(panel:w() + bag:w() + 4)
-	bag:set_right(panel:w())
+	if bag_number then
+		bag_number:set_bottom(text:bottom() - 1)
+		panel:set_w(panel:w() + bag_number:w() + bag:w() + 8)
+		bag:set_right(panel:w() - bag_number:w())
+		bag_number:set_right(panel:w() + 2)
+	else
+		panel:set_w(panel:w() + bag:w() + 4)
+		bag:set_right(panel:w())
+	end
 end
 
 function HUDManager:_add_name_label(data)
@@ -1042,6 +1050,19 @@ function HUDManager:add_vehicle_name_label(data)
 		x = 1,
 		y = 1
 	})
+	local bag_number = panel:text({
+		name = "bag_number",
+		visible = false,
+		text = utf8.to_upper(""),
+		font = tweak_data.hud.small_font,
+		font_size = tweak_data.hud.small_name_label_font_size,
+		color = crim_color,
+		align = "left",
+		vertical = "top",
+		layer = -1,
+		w = 32,
+		h = 18
+	})
 	panel:text({
 		name = "cheater",
 		text = utf8.to_upper(managers.localization:text("menu_hud_cheater")),
@@ -1076,7 +1097,8 @@ function HUDManager:add_vehicle_name_label(data)
 		id = id,
 		character_name = vehicle_name,
 		interact = interact,
-		bag = bag
+		bag = bag,
+		bag_number = bag_number
 	})
 	return id
 end
@@ -1126,10 +1148,12 @@ function HUDManager:set_name_label_carry_info(peer_id, carry_id, value)
 	end
 end
 
-function HUDManager:set_vehicle_label_carry_info(label_id, value)
+function HUDManager:set_vehicle_label_carry_info(label_id, value, number)
 	local name_label = self:_get_name_label(label_id)
 	if name_label then
 		name_label.panel:child("bag"):set_visible(value)
+		name_label.panel:child("bag_number"):set_visible(value)
+		name_label.panel:child("bag_number"):set_text("X" .. number)
 	end
 end
 

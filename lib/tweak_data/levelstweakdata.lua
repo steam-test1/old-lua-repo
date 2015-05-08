@@ -866,6 +866,21 @@ function LevelsTweakData:init()
 	self.rat.package = "packages/narr_alex1"
 	self.rat.cube = "cube_apply_heist_bank"
 	self.rat.max_bags = 1200
+	self.shoutout_raid = {}
+	self.shoutout_raid.name_id = "heist_shoutout_raid_hl"
+	self.shoutout_raid.briefing_id = "heist_shoutout_raid_briefing"
+	self.shoutout_raid.briefing_dialog = "Play_pln_ko1b_brf_01"
+	self.shoutout_raid.world_name = "narratives/vlad/shout"
+	self.shoutout_raid.intro_event = "Play_pln_rat_stage1_intro_a"
+	self.shoutout_raid.outro_event = {
+		"Play_pln_rat_stage1_end_a",
+		"Play_pln_rat_stage1_end_b",
+		"Play_pln_rat_stage1_end_c"
+	}
+	self.shoutout_raid.music = "heist"
+	self.shoutout_raid.package = "packages/vlad_shout"
+	self.shoutout_raid.cube = "cube_apply_heist_bank"
+	self.shoutout_raid.max_bags = 20
 	self._level_index = {
 		"welcome_to_the_jungle_1",
 		"welcome_to_the_jungle_1_night",
@@ -926,7 +941,8 @@ function LevelsTweakData:init()
 		"crojob2",
 		"crojob3",
 		"crojob3_night",
-		"rat"
+		"rat",
+		"shoutout_raid"
 	}
 	self.escape_levels = {
 		"escape_cafe",

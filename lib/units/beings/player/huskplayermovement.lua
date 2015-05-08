@@ -577,6 +577,9 @@ function HuskPlayerMovement:anim_cbk_spawn_melee_item(unit, graphic_object)
 		if alive(self._unit:inventory():equipped_unit()) and self._unit:inventory():equipped_unit():base().AKIMBO then
 			self._unit:inventory():equipped_unit():base():on_melee_item_shown()
 		end
+		if self._unit:inventory().on_melee_item_shown then
+			self._unit:inventory():on_melee_item_shown()
+		end
 	end
 end
 
@@ -588,6 +591,9 @@ function HuskPlayerMovement:anim_cbk_unspawn_melee_item(unit)
 		if alive(self._unit:inventory():equipped_unit()) and self._unit:inventory():equipped_unit():base().AKIMBO then
 			self._unit:inventory():equipped_unit():base():on_melee_item_hidden()
 		end
+	end
+	if self._unit:inventory().on_melee_item_hidden then
+		self._unit:inventory():on_melee_item_hidden()
 	end
 end
 
@@ -945,21 +951,18 @@ function HuskPlayerMovement:_upd_attention_driving(dt)
 	if self._driver then
 		local steer = self._vehicle:get_steer()
 		local anim = self._machine:segment_state(self._ids_base)
-		local fwd = 0
-		local r = 0
-		local l = 0
-		if steer < 0 then
-			r = 1
-		end
-		if steer == 0 then
-			fwd = 1
-		end
-		if steer > 0 then
-			l = 1
-		end
+		local r = math.clamp(-steer, 0, 1)
+		local l = math.clamp(steer, 0, 1)
+		local fwd = math.clamp(1 - steer, 0, 1)
 		self._machine:set_parameter(anim, "fwd", fwd)
 		self._machine:set_parameter(anim, "l", l)
 		self._machine:set_parameter(anim, "r", r)
+		self._machine:forbid_modifier(self._look_modifier_name)
+		self._machine:force_modifier(self._head_modifier_name)
+		self._machine:forbid_modifier(self._arm_modifier_name)
+		if self._sync_look_dir then
+			self:update_sync_look_dir(dt)
+		end
 		return
 	end
 	if self._sync_look_dir then
@@ -992,44 +995,51 @@ function HuskPlayerMovement:_upd_attention_driving(dt)
 				self._machine:forbid_modifier(self._arm_modifier_name)
 			end
 		end
-		local tar_look_dir = tmp_vec1
-		mvec3_set(tar_look_dir, self._sync_look_dir)
-		local error_angle = tar_look_dir:angle(self._look_dir)
-		local rot_speed_rel = math.pow(math.min(error_angle / 90, 1), 0.5)
-		local rot_speed = math.lerp(40, 360, rot_speed_rel)
-		local rot_amount = math.min(rot_speed * dt, error_angle)
-		local error_axis = self._look_dir:cross(tar_look_dir)
-		local rot_adj = Rotation(error_axis, rot_amount)
-		self._look_dir = self._look_dir:rotate_with(rot_adj)
-		if self._vehicle_shooting_stance == PlayerDriving.STANCE_NORMAL and not self._allow_shooting then
-			self._head_modifier:set_target_z(self._look_dir)
-		else
-			self._look_modifier:set_target_y(self._look_dir)
-			self._arm_modifier:set_target_y(self._look_dir)
-			self._head_modifier:set_target_z(self._look_dir)
-		end
-		if rot_amount == error_angle then
-			self._sync_look_dir = nil
-		end
+		self:update_sync_look_dir(dt)
 		local fwd = self._m_rot:y()
 		local spin = fwd:to_polar_with_reference(self._look_dir, math.UP).spin
 		local anim = self._machine:segment_state(self._ids_base)
 		local max_anim_spin = 120
 		local min_anim_spin = -120
 		local aim_spin = spin
-		local bwd = 0
-		if 90 < math.abs(aim_spin) then
-			bwd = 1
-		end
 		local anim = self._machine:segment_state(self._ids_base)
-		local fwd = (1 - math.clamp(math.abs(aim_spin / 90), 0, 1)) * (1 - bwd)
-		local l = math.clamp(aim_spin / min_anim_spin, 0, 1) * (1 - bwd)
-		local r = math.clamp(aim_spin / max_anim_spin, 0, 1) * (1 - bwd)
+		local fwd = math.clamp(1 - math.abs(aim_spin) / 45, 0, 1)
+		local bwd = math.clamp(1 - (180 - math.abs(aim_spin)) / 45, 0, 1)
+		local l, r
+		if aim_spin > 0 then
+			r = 1 - fwd - bwd
+			l = 0
+		else
+			l = 1 - fwd - bwd
+			r = 0
+		end
 		self._machine:set_parameter(anim, "fwd", fwd)
 		self._machine:set_parameter(anim, "l", l)
 		self._machine:set_parameter(anim, "r", r)
 		self._machine:set_parameter(anim, "bwd", bwd)
 		self._machine:set_parameter(anim, "team_ai", 0)
+	end
+end
+
+function HuskPlayerMovement:update_sync_look_dir(dt)
+	local tar_look_dir = tmp_vec1
+	mvec3_set(tar_look_dir, self._sync_look_dir)
+	local error_angle = tar_look_dir:angle(self._look_dir)
+	local rot_speed_rel = math.pow(math.min(error_angle / 90, 1), 0.5)
+	local rot_speed = math.lerp(40, 360, rot_speed_rel)
+	local rot_amount = math.min(rot_speed * dt, error_angle)
+	local error_axis = self._look_dir:cross(tar_look_dir)
+	local rot_adj = Rotation(error_axis, rot_amount)
+	self._look_dir = self._look_dir:rotate_with(rot_adj)
+	if self._vehicle_shooting_stance == PlayerDriving.STANCE_NORMAL and not self._allow_shooting then
+		self._head_modifier:set_target_z(self._look_dir)
+	else
+		self._look_modifier:set_target_y(self._look_dir)
+		self._arm_modifier:set_target_y(self._look_dir)
+		self._head_modifier:set_target_z(self._look_dir)
+	end
+	if rot_amount == error_angle then
+		self._sync_look_dir = nil
 	end
 end
 
@@ -1697,9 +1707,11 @@ function HuskPlayerMovement:_start_driving(event_desc)
 	self._driver = false
 	if vehicle_data.seat == "driver" then
 		self._driver = true
+		self._unit:inventory():hide_equipped_unit()
 	end
 	self:play_redirect(animation)
 	self.seat_third = vehicle_unit:get_object(Idstring(VehicleDrivingExt.THIRD_PREFIX .. vehicle_data.seat))
+	self._sync_look_dir = self._look_dir
 	if self._atention_on then
 		self._machine:forbid_modifier(self._look_modifier_name)
 		self._machine:forbid_modifier(self._head_modifier_name)
@@ -1755,7 +1767,8 @@ function HuskPlayerMovement:_shoot_blank(impact)
 			self._aim_up_expire_t = TimerManager:game():time() + 2
 		end
 	end
-	if not self._unit:anim_data().base_no_recoil then
+	local anim_data = self._unit:anim_data()
+	if not anim_data.base_no_recoil or anim_data.player_ignore_base_no_recoil then
 		self:play_redirect("recoil_single")
 	end
 end
@@ -2272,6 +2285,7 @@ function HuskPlayerMovement:on_exit_vehicle()
 	self._machine:forbid_modifier(self._mask_off_modifier_name)
 	self._look_modifier:set_target_y(self._look_dir)
 	self._vehicle_shooting_stance = PlayerDriving.STANCE_NORMAL
+	self._unit:inventory():show_equipped_unit()
 	self._movement_updator = callback(self, self, "_upd_move_standard")
 	self._attention_updator = callback(self, self, "_upd_attention_standard")
 end

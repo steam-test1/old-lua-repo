@@ -83,9 +83,9 @@ function InteractionTweakData:init()
 	self.requires_crowbar_interactive_template.special_equipment = "crowbar"
 	self.requires_crowbar_interactive_template.timer = 8
 	self.requires_crowbar_interactive_template.start_active = false
-	self.requires_crowbar_interactive_template.sound_start = "crowbar_metal_work_loop"
-	self.requires_crowbar_interactive_template.sound_interupt = "crowbar_metal_cancel"
-	self.requires_crowbar_interactive_template.sound_done = "crowbar_metal_cancel"
+	self.requires_crowbar_interactive_template.sound_start = "bar_crowbar_open_metal"
+	self.requires_crowbar_interactive_template.sound_interupt = "bar_crowbar_open_metal_cancel"
+	self.requires_crowbar_interactive_template.sound_done = "bar_crowbar_open_metal_finished"
 	self.requires_saw_blade = {}
 	self.requires_saw_blade.icon = "develop"
 	self.requires_saw_blade.text_id = "hud_int_hold_add_blade"
@@ -157,8 +157,8 @@ function InteractionTweakData:init()
 	self.suburbia_iron_gate_crowbar.special_equipment = "crowbar"
 	self.suburbia_iron_gate_crowbar.timer = 5
 	self.suburbia_iron_gate_crowbar.start_active = false
-	self.suburbia_iron_gate_crowbar.sound_start = "crowbar_metal_work_loop"
-	self.suburbia_iron_gate_crowbar.sound_interupt = "crowbar_metal_cancel"
+	self.suburbia_iron_gate_crowbar.sound_start = "bar_crowbar_open_metal"
+	self.suburbia_iron_gate_crowbar.sound_interupt = "bar_crowbar_open_metal_cancel"
 	self.apartment_key = {}
 	self.apartment_key.icon = "equipment_chavez_key"
 	self.apartment_key.text_id = "debug_interact_apartment_key"
@@ -941,7 +941,6 @@ function InteractionTweakData:init()
 	self.driving_drive = {}
 	self.driving_drive.icon = "develop"
 	self.driving_drive.text_id = "hud_int_driving_drive"
-	self.driving_drive.interact_distance = 450
 	self.driving_drive.timer = 1
 	self.interaction_ball = {}
 	self.interaction_ball.icon = "develop"
@@ -2473,5 +2472,33 @@ function InteractionTweakData:init()
 	self.mcm_panicroom_keycard_2.equipment_consume = true
 	self.mcm_panicroom_keycard_2.start_active = true
 	self.mcm_panicroom_keycard_2.axis = "y"
+	self.gen_prop_container_a_vault_seq = {}
+	self.gen_prop_container_a_vault_seq.text_id = "hud_int_hold_jam_vent"
+	self.gen_prop_container_a_vault_seq.action_text_id = "hud_action_jamming_vent"
+	self.gen_prop_container_a_vault_seq.equipment_text_id = "debug_interact_equipment_crowbar"
+	self.gen_prop_container_a_vault_seq.special_equipment = "crowbar"
+	self.gen_prop_container_a_vault_seq.timer = 1
+	self.gen_prop_container_a_vault_seq.start_active = false
+	self.gen_prop_container_a_vault_seq.equipment_consume = true
+	self.gen_prop_container_a_vault_seq.sound_start = "bar_fan_jam"
+	self.gen_prop_container_a_vault_seq.sound_interupt = "bar_fan_jam_cancel"
+	self.gen_prop_container_a_vault_seq.sound_done = "bar_fan_jam_finished"
+	self.gen_pku_warhead = {}
+	self.gen_pku_warhead.text_id = "hud_int_hold_take_warhead"
+	self.gen_pku_warhead.action_text_id = "hud_action_taking_warhead"
+	self.gen_pku_warhead.timer = 3
+	self.gen_pku_warhead.start_active = true
+	self.gen_pku_warhead.sound_start = "bar_bag_money"
+	self.gen_pku_warhead.sound_interupt = "bar_bag_money_cancel"
+	self.gen_pku_warhead.sound_done = "bar_bag_money_finished"
+	self.gen_pku_warhead.blocked_hint = "carry_block"
+	self.gen_pku_warhead_box = {}
+	self.gen_pku_warhead_box.text_id = "hud_int_hold_open_case"
+	self.gen_pku_warhead_box.action_text_id = "hud_action_opening_case"
+	self.gen_pku_warhead_box.timer = 2
+	self.gen_pku_warhead_box.start_active = false
+	self.gen_pku_warhead_box.sound_start = "bar_open_warhead_box"
+	self.gen_pku_warhead_box.sound_interupt = "bar_open_warhead_box_cancel"
+	self.gen_pku_warhead_box.sound_done = "bar_open_warhead_box_finished"
 end
 

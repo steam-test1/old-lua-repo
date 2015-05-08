@@ -2483,19 +2483,26 @@ function PlayerManager:on_peer_synch_request(peer)
 	self:player_unit():network():synch_to_peer(peer)
 end
 
-function PlayerManager:enter_vehicle(vehicle)
+function PlayerManager:enter_vehicle(vehicle, locator)
 	local peer_id = managers.network:session():local_peer():id()
 	local player = self:local_player()
+	local seat = vehicle:vehicle_driving():get_available_seat(locator:position())
 	if Network:is_server() then
-		self:server_enter_vehicle(vehicle, peer_id, player)
+		self:server_enter_vehicle(vehicle, peer_id, player, seat.name)
 	else
-		managers.network:session():send_to_host("sync_enter_vehicle_host", vehicle, peer_id, player)
+		managers.network:session():send_to_host("sync_enter_vehicle_host", vehicle, seat.name, peer_id, player)
 	end
 end
 
-function PlayerManager:server_enter_vehicle(vehicle, peer_id, player)
+function PlayerManager:server_enter_vehicle(vehicle, peer_id, player, seat_name)
 	local vehicle_ext = vehicle:vehicle_driving()
-	local seat = vehicle_ext:reserve_seat(player, player:position())
+	local seat
+	if seat_name == nil then
+		local pos = player:position()
+		seat = vehicle_ext:reserve_seat(player, pos, nil)
+	else
+		seat = vehicle_ext:reserve_seat(player, nil, seat_name)
+	end
 	if seat ~= nil then
 		managers.network:session():send_to_peers_synched("sync_vehicle_player", "enter", vehicle, peer_id, player, seat.name)
 		self:_enter_vehicle(vehicle, peer_id, player, seat.name)

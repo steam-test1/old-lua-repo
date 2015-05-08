@@ -8,7 +8,8 @@ function ObjectInteractionManager:init()
 	self._close_index = 0
 	self._close_freq = 1
 	self._active_unit = nil
-	self._slotmask_world_geometry = managers.slot:get_mask("world_geometry")
+	self._active_locator = nil
+	self._slotmask_interaction_obstruction = managers.slot:get_mask("interaction_obstruction")
 end
 
 function ObjectInteractionManager:update(t, dt)
@@ -33,7 +34,7 @@ end
 function ObjectInteractionManager:end_action_interact(player)
 	self._active_object_locked_data = nil
 	if alive(self._active_unit) then
-		self._active_unit:interaction():interact(player)
+		self._active_unit:interaction():interact(player, self._active_locator)
 	end
 end
 
@@ -106,14 +107,15 @@ function ObjectInteractionManager:_update_targeted(player_pos, player_unit)
 	if locked then
 		return
 	end
-	local optimized = true
 	local last_active = self._active_unit
-	local last_dot = optimized and last_active and self._current_dot or nil
+	local last_active_locator = self._active_locator
+	local last_dot = last_active and self._current_dot or nil
 	local blocked = player_unit:movement():object_interaction_blocked()
 	local driving = managers.player:current_state() == "driving"
 	if #self._close_units > 0 and not blocked and not driving then
 		local active_unit
 		local current_dot = last_dot or 0.9
+		local closest_locator
 		local player_fwd = player_unit:camera():forward()
 		local camera_pos = player_unit:camera():position()
 		self._close_test_index = self._close_test_index or 0
@@ -122,23 +124,45 @@ function ObjectInteractionManager:_update_targeted(player_pos, player_unit)
 			self._close_test_index = 1
 		end
 		local contains = table.contains(self._close_units, last_active)
-		if optimized then
-		else
-		end
 		for _, unit in pairs({
 			contains and last_active,
 			self._close_units[self._close_test_index]
 		} or self._close_units) do
-			if alive(unit) and unit:interaction():can_select(player_unit) then
-				mvector3.set(mvec1, unit:interaction():interact_position())
-				mvector3.subtract(mvec1, camera_pos)
-				mvector3.normalize(mvec1)
-				local dot = mvector3.dot(player_fwd, mvec1)
-				if current_dot < dot or optimized and alive(last_active) and unit == last_active and dot > 0.9 then
-					local interact_axis = unit:interaction():interact_axis()
-					if (not interact_axis or 0 > mvector3.dot(mvec1, interact_axis)) and self:_raycheck_ok(unit, camera_pos) then
-						current_dot = dot
-						active_unit = unit
+			if alive(unit) then
+				if unit:interaction():ray_objects() and unit:vehicle_driving() then
+					for _, locator in pairs(unit:interaction():ray_objects()) do
+						mvector3.set(mvec1, locator:position())
+						mvector3.subtract(mvec1, camera_pos)
+						mvector3.normalize(mvec1)
+						local dot = mvector3.dot(player_fwd, mvec1)
+						if dot > 0.9 and unit:interaction():can_select(player_unit, locator) and mvector3.distance(player_unit:position(), locator:position()) <= unit:interaction():interact_distance() and (current_dot <= dot or locator == last_active_locator and dot > 0.9) then
+							local interact_axis = unit:interaction():interact_axis()
+							if (not interact_axis or 0 > mvector3.dot(mvec1, interact_axis)) and self:_raycheck_ok(unit, camera_pos, locator) then
+								if closest_locator and player_unit then
+									if mvector3.distance(player_unit:position(), locator:position()) < mvector3.distance(player_unit:position(), closest_locator:position()) then
+										closest_locator = locator
+									end
+								else
+									closest_locator = locator
+								end
+								current_dot = dot
+								active_unit = unit
+							end
+						end
+					end
+					self._active_locator = closest_locator
+				elseif unit:interaction():can_select(player_unit) and unit:interaction():can_select(player_unit) then
+					mvector3.set(mvec1, unit:interaction():interact_position())
+					mvector3.subtract(mvec1, camera_pos)
+					mvector3.normalize(mvec1)
+					local dot = mvector3.dot(player_fwd, mvec1)
+					if current_dot < dot or alive(last_active) and unit == last_active and dot > 0.9 then
+						local interact_axis = unit:interaction():interact_axis()
+						if (not interact_axis or 0 > mvector3.dot(mvec1, interact_axis)) and self:_raycheck_ok(unit, camera_pos) then
+							current_dot = dot
+							active_unit = unit
+							self._active_locator = nil
+						end
 					end
 				end
 			end
@@ -147,13 +171,19 @@ function ObjectInteractionManager:_update_targeted(player_pos, player_unit)
 			if alive(self._active_unit) then
 				self._active_unit:interaction():unselect()
 			end
-			if not active_unit:interaction():selected(player_unit) then
+			if not active_unit:interaction():selected(player_unit, self._active_locator) then
 				active_unit = nil
+			end
+		elseif self._active_locator and self._active_locator ~= last_active_locator then
+			self._active_unit:interaction():unselect()
+			if not self._active_unit:interaction():selected(player_unit, self._active_locator) then
+				active_unit = nil
+				self._active_locator = nil
 			end
 		elseif alive(self._active_unit) and self._active_unit:interaction():dirty() then
 			self._active_unit:interaction():set_dirty(false)
 			self._active_unit:interaction():unselect()
-			if not self._active_unit:interaction():selected(player_unit) then
+			if not self._active_unit:interaction():selected(player_unit, self._active_locator) then
 				active_unit = nil
 			end
 		end
@@ -169,16 +199,23 @@ function ObjectInteractionManager:_update_targeted(player_pos, player_unit)
 end
 
 local m_obj_pos = Vector3()
-function ObjectInteractionManager:_raycheck_ok(unit, camera_pos)
-	local check_objects = unit:interaction():ray_objects()
-	if not check_objects then
-		return true
-	end
-	for _, object in ipairs(check_objects) do
-		object:m_position(m_obj_pos)
-		local obstructed = unit:raycast("ray", m_obj_pos, camera_pos, "ray_type", "bag body", "slot_mask", self._slotmask_world_geometry, "report")
+function ObjectInteractionManager:_raycheck_ok(unit, camera_pos, locator)
+	if locator then
+		local obstructed = World:raycast("ray", locator:position(), camera_pos, "ray_type", "bag body", "slot_mask", self._slotmask_interaction_obstruction, "report")
 		if not obstructed then
 			return true
+		end
+	else
+		local check_objects = unit:interaction():ray_objects()
+		if not check_objects then
+			return true
+		end
+		for _, object in ipairs(check_objects) do
+			object:m_position(m_obj_pos)
+			local obstructed = unit:raycast("ray", m_obj_pos, camera_pos, "ray_type", "bag body", "slot_mask", self._slotmask_interaction_obstruction, "report")
+			if not obstructed then
+				return true
+			end
 		end
 	end
 	return false

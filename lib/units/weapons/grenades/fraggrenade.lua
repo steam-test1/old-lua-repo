@@ -5,7 +5,7 @@ function FragGrenade:_setup_from_tweak_data()
 	self._init_timer = tweak_entry.init_timer or 2.5
 	self._mass_look_up_modifier = tweak_entry.mass_look_up_modifier
 	self._range = tweak_entry.range
-	self._effect_name = "effects/payday2/particles/explosions/grenade_explosion"
+	self._effect_name = tweak_entry.effect_name or "effects/payday2/particles/explosions/grenade_explosion"
 	self._curve_pow = tweak_entry.curve_pow or 3
 	self._damage = tweak_entry.damage
 	self._player_damage = tweak_entry.player_damage

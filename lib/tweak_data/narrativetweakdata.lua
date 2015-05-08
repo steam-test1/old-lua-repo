@@ -3027,6 +3027,60 @@ function NarrativeTweakData:init()
 		20000
 	}
 	self.jobs.crojob_wrapper.dlc = "the_bomb"
+	self.jobs.shoutout_raid = {}
+	self.jobs.shoutout_raid.name_id = "heist_shoutout_raid"
+	self.jobs.shoutout_raid.briefing_id = "heist_shoutout_raid_crimenet"
+	self.jobs.shoutout_raid.contact = "vlad"
+	self.jobs.shoutout_raid.region = "street"
+	self.jobs.shoutout_raid.jc = 30
+	self.jobs.shoutout_raid.chain = {
+		{
+			level_id = "shoutout_raid",
+			type_id = "heist_type_assault",
+			type = "d"
+		}
+	}
+	self.jobs.shoutout_raid.briefing_event = "vld_ko1b_cbf_01_01"
+	self.jobs.shoutout_raid.debrief_event = nil
+	self.jobs.shoutout_raid.crimenet_callouts = {
+		"vld_ko1b_cnc_01_01",
+		"vld_ko1b_cnc_01_02",
+		"vld_ko1b_cnc_01_03"
+	}
+	self.jobs.shoutout_raid.crimenet_videos = {
+		"cn_jewel1",
+		"cn_jewel2",
+		"cn_jewel3"
+	}
+	self.jobs.shoutout_raid.payout = {
+		26000,
+		37000,
+		81000,
+		101000,
+		202000
+	}
+	self.jobs.shoutout_raid.contract_cost = {
+		62000,
+		124000,
+		310000,
+		620000,
+		800000
+	}
+	self.jobs.shoutout_raid.contract_visuals = {}
+	self.jobs.shoutout_raid.contract_visuals.min_mission_xp = {
+		20000,
+		20000,
+		20000,
+		20000,
+		20000
+	}
+	self.jobs.shoutout_raid.contract_visuals.max_mission_xp = {
+		36000,
+		36000,
+		36000,
+		36000,
+		36000
+	}
 	self.jobs.crojob2 = {}
 	self.jobs.crojob2.package = "packages/job_crojob"
 	self.jobs.crojob2.chain = {
@@ -3096,7 +3150,8 @@ function NarrativeTweakData:init()
 		"crojob_wrapper",
 		"crojob2",
 		"crojob2_night",
-		"rat"
+		"rat",
+		"shoutout_raid"
 	}
 	self:set_job_wrappers()
 end

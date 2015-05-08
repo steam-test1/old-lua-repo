@@ -207,8 +207,15 @@ function BaseInteractionExt:unselect()
 			self._unit:contour():remove_by_id(self._selected_contour_id)
 		end
 		self._selected_contour_id = nil
-	else
+	elseif not self._unit:vehicle_driving() then
 		self:set_contour("standard_color")
+	else
+		local vehicle_state_name = self._unit:vehicle_driving():get_state_name()
+		if vehicle_state_name == VehicleDrivingExt.STATE_BROKEN then
+			self:set_contour("standard_color", 1)
+		else
+			self:set_contour("standard_color", 0)
+		end
 	end
 end
 
@@ -416,7 +423,8 @@ function BaseInteractionExt:set_active(active, sync)
 	end
 	self._active = active
 	if not self._tweak_data.contour_preset then
-		self:set_contour("standard_color")
+		local opacity_value = self:_set_active_contour_opacity()
+		self:set_contour("standard_color", opacity_value)
 	end
 	if sync and managers.network:session() then
 		local u_id = self._unit:id()
@@ -431,6 +439,10 @@ function BaseInteractionExt:set_active(active, sync)
 		end
 		managers.network:session():send_to_peers_synched("interaction_set_active", self._unit, u_id, active, self.tweak_data, self._unit:contour() and self._unit:contour():is_flashing() or false)
 	end
+end
+
+function BaseInteractionExt:_set_active_contour_opacity()
+	return nil
 end
 
 function BaseInteractionExt:set_outline_flash_state(state, sync)
@@ -1930,47 +1942,133 @@ function DrivingInteractionExt:set_override_timer_value(override_timer_value)
 	self._override_timer_value = override_timer_value
 end
 
-function DrivingInteractionExt:interact(player)
+function DrivingInteractionExt:interact(player, locator)
+	if locator == nil then
+		return false
+	end
 	DrivingInteractionExt.super.super.interact(self, player)
 	local vehicle_ext = self._unit:vehicle_driving()
-	local action = vehicle_ext:get_action_for_interaction(player:position())
 	local success = false
+	local action = vehicle_ext:get_action_for_interaction(player:position(), locator)
 	if action == VehicleDrivingExt.INTERACT_ENTER or action == VehicleDrivingExt.INTERACT_DRIVE then
-		success = managers.player:enter_vehicle(self._unit)
+		success = managers.player:enter_vehicle(self._unit, locator)
 	elseif action == VehicleDrivingExt.INTERACT_LOOT then
-		vehicle_ext:give_vehicle_loot_to_player(managers.network:session():local_peer():id())
+		success = vehicle_ext:give_vehicle_loot_to_player(managers.network:session():local_peer():id())
 	elseif action == VehicleDrivingExt.INTERACT_REPAIR then
 		vehicle_ext:repair_vehicle()
+	elseif action == VehicleDrivingExt.INTERACT_TRUNK then
+		vehicle_ext:interact_trunk()
 	end
 	return success
 end
 
-function DrivingInteractionExt:selected(player)
-	if not alive(player) or not self:can_select(player) then
+function DrivingInteractionExt:selected(player, locator)
+	if locator == nil then
+		return false
+	end
+	if not alive(player) or not self:can_select(player, locator) then
 		return
 	end
 	local vehicle_ext = self._unit:vehicle_driving()
-	local action = vehicle_ext:get_action_for_interaction(player:position())
+	local action = vehicle_ext:get_action_for_interaction(player:position(), locator)
 	if action == VehicleDrivingExt.INTERACT_ENTER then
 		self._tweak_data.text_id = "hud_int_vehicle_enter"
 	elseif action == VehicleDrivingExt.INTERACT_DRIVE then
 		self._tweak_data.text_id = "hud_int_vehicle_drive"
-	elseif action == VehicleDrivingExt.INTERACT_LOOT then
+	elseif action == VehicleDrivingExt.INTERACT_LOOT and vehicle_ext._loot and #vehicle_ext._loot > 0 then
 		self._tweak_data.text_id = "hud_int_vehicle_loot"
 	elseif action == VehicleDrivingExt.INTERACT_REPAIR then
 		self._tweak_data.text_id = "hud_int_vehicle_repair"
+	elseif action == VehicleDrivingExt.INTERACT_TRUNK then
+		if vehicle_ext._trunk_open then
+			self._tweak_data.text_id = "hud_int_vehicle_close_trunk"
+		else
+			self._tweak_data.text_id = "hud_int_vehicle_open_trunk"
+		end
 	end
-	self:set_dirty(true)
-	return DrivingInteractionExt.super.selected(self, player)
+	self._action = action
+	local res = DrivingInteractionExt.super.selected(self, player)
+	return res
 end
 
-function DrivingInteractionExt:can_select(player)
+function DrivingInteractionExt:can_select(player, locator)
+	if locator == nil then
+		return true
+	end
 	local can_select = DrivingInteractionExt.super.can_select(self, player)
 	if can_select then
 		local vehicle_ext = self._unit:vehicle_driving()
-		local action = vehicle_ext:get_action_for_interaction(player:position())
+		local action = vehicle_ext:get_action_for_interaction(player:position(), locator)
 		can_select = vehicle_ext:is_interaction_enabled(action)
+		if managers.player:is_carrying() and action == VehicleDrivingExt.INTERACT_LOOT then
+			can_select = false
+		end
 	end
 	return can_select
+end
+
+function DrivingInteractionExt:can_interact(player)
+	local can_interact = DrivingInteractionExt.super.can_interact(self, player)
+	if can_interact and managers.player:is_carrying() then
+		if self._action == VehicleDrivingExt.INTERACT_ENTER or self._action == VehicleDrivingExt.INTERACT_DRIVE then
+			can_interact = false
+			managers.hud:show_hint({
+				text = managers.localization:text("hud_vehicle_no_enter_carry"),
+				time = 3
+			})
+		elseif self._action == VehicleDrivingExt.INTERACT_LOOT then
+			can_interact = false
+		end
+	end
+	return can_interact
+end
+
+function DrivingInteractionExt:_post_event(player, sound_type, tweak_data_id)
+	if not alive(player) then
+		return
+	end
+	if player ~= managers.player:player_unit() then
+		return
+	end
+	local vehicle_ext = self._unit:vehicle_driving()
+	if self._vehicle_action == VehicleDrivingExt.INTERACT_REPAIR then
+		if sound_type == "sound_interupt" then
+			local sound = vehicle_ext._tweak_data.sound.fix_engine_stop
+			if sound then
+				player:sound():play(sound)
+			end
+		elseif sound_type == "sound_start" then
+			local sound = vehicle_ext._tweak_data.sound.fix_engine_loop
+			if sound then
+				player:sound():play(sound)
+			end
+		end
+	end
+end
+
+function DrivingInteractionExt:_set_active_contour_opacity()
+	if self._unit:vehicle_driving() then
+		if self._unit:vehicle_driving():get_state_name() == VehicleDrivingExt.STATE_BROKEN then
+			return 1
+		else
+			return 0
+		end
+	else
+		return 1
+	end
+end
+
+function DrivingInteractionExt:interact_distance()
+	local vehicle_ext = self._unit:vehicle_driving()
+	return vehicle_ext._tweak_data.interact_distance or tweak_data.interaction.INTERACT_DISTANCE
+end
+
+function DrivingInteractionExt:_setup_ray_objects()
+	if self._ray_object_names then
+		self._ray_objects = {}
+		for _, object_name in ipairs(self._ray_object_names) do
+			table.insert(self._ray_objects, self._unit:get_object(Idstring(object_name)))
+		end
+	end
 end
 

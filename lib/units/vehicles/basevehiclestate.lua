@@ -18,23 +18,19 @@ end
 function BaseVehicleState:exit(state_data)
 end
 
-function BaseVehicleState:get_action_for_interaction(pos)
+function BaseVehicleState:get_action_for_interaction(pos, locator)
 	local action = VehicleDrivingExt.INTERACT_INVALID
-	local seat, seat_distance = self._unit:vehicle_driving():get_available_seat(pos)
-	local loot_point, loot_point_distance = self._unit:vehicle_driving():get_nearest_loot_point(pos)
-	if seat and loot_point then
-		if seat_distance >= loot_point_distance and not managers.player:is_carrying() then
-			action = VehicleDrivingExt.INTERACT_LOOT
-		else
-			action = VehicleDrivingExt.INTERACT_ENTER
-		end
-	elseif seat then
-		action = VehicleDrivingExt.INTERACT_ENTER
-	elseif loot_point and not managers.player:is_carrying() then
-		action = VehicleDrivingExt.INTERACT_LOOT
-	end
-	if action == VehicleDrivingExt.INTERACT_ENTER and seat.driving then
+	local locator_name = locator:name()
+	if locator_name == VehicleDrivingExt.LOCATOR_INTERACT_DRIVE then
 		action = VehicleDrivingExt.INTERACT_DRIVE
+	elseif locator_name == VehicleDrivingExt.LOCATOR_INTERACT_ENTER or locator_name == VehicleDrivingExt.LOCATOR_INTERACT_ENTER_FRONT or locator_name == VehicleDrivingExt.LOCATOR_INTERACT_ENTER_BACK_LEFT or locator_name == VehicleDrivingExt.LOCATOR_INTERACT_ENTER_BACK_RIGHT then
+		action = VehicleDrivingExt.INTERACT_ENTER
+	elseif locator_name == VehicleDrivingExt.LOCATOR_INTERACT_LOOT_LEFT or locator_name == VehicleDrivingExt.LOCATOR_INTERACT_LOOT_RIGHT or locator_name == VehicleDrivingExt.LOCATOR_INTERACT_LOOT and self._unit:vehicle_driving()._loot and #self._unit:vehicle_driving()._loot > 0 then
+		action = VehicleDrivingExt.INTERACT_LOOT
+	elseif locator_name == VehicleDrivingExt.LOCATOR_INTERACT_REPAIR then
+		action = VehicleDrivingExt.INTERACT_REPAIR
+	elseif locator_name == VehicleDrivingExt.LOCATOR_INTERACT_TRUNK then
+		action = VehicleDrivingExt.INTERACT_TRUNK
 	end
 	return action
 end
@@ -53,6 +49,7 @@ function BaseVehicleState:disable_interactions()
 		self._unit:damage():run_sequence_simple(VehicleDrivingExt.INTERACT_INTERACTION_DISABLED)
 		self._unit:vehicle_driving()._interaction_enter_vehicle = false
 		self._unit:vehicle_driving()._interaction_loot = false
+		self._unit:vehicle_driving()._interaction_trunk = false
 		self._unit:vehicle_driving()._interaction_repair = false
 	end
 end

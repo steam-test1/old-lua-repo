@@ -404,6 +404,10 @@ function GenericDLCManager:has_xmas_soundtrack()
 	return Global.dlc_manager.all_dlc_data.xmas_soundtrack and Global.dlc_manager.all_dlc_data.xmas_soundtrack.verified
 end
 
+function GenericDLCManager:has_bsides_soundtrack()
+	return Global.dlc_manager.all_dlc_data.bsides_soundtrack and Global.dlc_manager.all_dlc_data.bsides_soundtrack.verified
+end
+
 function GenericDLCManager:has_twitch_pack()
 	return Global.dlc_manager.all_dlc_data.twitch_pack and Global.dlc_manager.all_dlc_data.twitch_pack.verified
 end
@@ -710,6 +714,7 @@ function WINDLCManager:init()
 			bbq = {app_id = "358150", no_install = true},
 			west = {app_id = "349830", no_install = true},
 			xmas_soundtrack = {app_id = "267381", no_install = true},
+			bsides_soundtrack = {app_id = "368870", no_install = true},
 			twitch_pack = {app_id = "306110", no_install = true},
 			humble_pack2 = {app_id = "331040", no_install = true},
 			gage_pack_historical = {app_id = "331900", no_install = true},

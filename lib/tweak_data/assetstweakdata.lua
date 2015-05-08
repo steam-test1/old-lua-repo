@@ -189,7 +189,8 @@ function AssetsTweakData:_init_assets(tweak_data)
 		"election_day_3_skip2",
 		"arm_for",
 		"rat",
-		"hox_3"
+		"hox_3",
+		"shoutout_raid"
 	}
 	self.ammo_bag.visible_if_locked = true
 	self.ammo_bag.unlock_desc_id = "menu_asset_ammo_desc"
@@ -207,7 +208,8 @@ function AssetsTweakData:_init_assets(tweak_data)
 		"election_day_3_skip2",
 		"arm_for",
 		"rat",
-		"hox_3"
+		"hox_3",
+		"shoutout_raid"
 	}
 	self.health_bag.visible_if_locked = true
 	self.health_bag.unlock_desc_id = "menu_asset_health_desc"

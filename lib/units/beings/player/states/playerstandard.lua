@@ -2796,6 +2796,7 @@ end
 
 function PlayerStandard:_upd_attention()
 	local preset
+	do break end
 	if self._seat and self._seat.driving then
 	elseif managers.groupai:state():whisper_mode() then
 		if self._state_data.ducking then

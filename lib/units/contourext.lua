@@ -317,24 +317,38 @@ function ContourExt:update(unit, t, dt)
 	end
 end
 
-function ContourExt:_upd_opacity(opacity)
+function ContourExt:_upd_opacity(opacity, is_retry)
 	if opacity == self._last_opacity then
 		return
 	end
 	self._last_opacity = opacity
 	self._materials = self._materials or self._unit:get_objects_by_type(idstr_material)
 	for _, material in ipairs(self._materials) do
+		if not alive(material) then
+			self:update_materials()
+			if not is_retry then
+				self:_upd_opacity(opacity, true)
+			end
+			return
+		end
 		material:set_variable(idstr_contour_opacity, opacity)
 	end
 end
 
-function ContourExt:_upd_color()
+function ContourExt:_upd_color(is_retry)
 	local color = self._types[self._contour_list[1].type].color or self._contour_list[1].color
 	if not color then
 		return
 	end
 	self._materials = self._materials or self._unit:get_objects_by_type(idstr_material)
 	for _, material in ipairs(self._materials) do
+		if not alive(material) then
+			self:update_materials()
+			if not is_retry then
+				self:_upd_color(true)
+			end
+			return
+		end
 		material:set_variable(idstr_contour_color, color)
 	end
 end

@@ -185,6 +185,7 @@ function StatisticsManager:_setup(reset)
 	}
 	self._defaults.killed_by_melee = {}
 	self._defaults.killed_by_weapon = {}
+	self._defaults.killed_by_grenade = {}
 	self._defaults.shots_by_weapon = {}
 	self._defaults.sessions = {count = 0, time = 0}
 	self._defaults.sessions.levels = {}
@@ -469,7 +470,7 @@ function StatisticsManager:publish_to_steam(session, success, completion)
 	if session_time_seconds == 0 or session_time_minutes == 0 or session_time == 0 then
 		return
 	end
-	local level_list, job_list, mask_list, weapon_list, melee_list, enemy_list, armor_list, character_list = tweak_data.statistics:statistics_table()
+	local level_list, job_list, mask_list, weapon_list, melee_list, grenade_list, enemy_list, armor_list, character_list = tweak_data.statistics:statistics_table()
 	local stats = {}
 	self._global.play_time.minutes = math.ceil(self._global.play_time.minutes + session_time_minutes)
 	local current_time = math.floor(self._global.play_time.minutes / 60)
@@ -620,6 +621,12 @@ function StatisticsManager:publish_to_steam(session, success, completion)
 		elseif melee_name then
 			print("Statistics Missing: melee_used_" .. melee_name)
 		end
+		local grenade_name = managers.blackmarket:equipped_grenade()
+		if table.contains(grenade_list, grenade_name) then
+			stats["grenade_used_" .. grenade_name] = {type = "int", value = 1}
+		elseif grenade_name then
+			print("Statistics Missing: grenade_used_" .. grenade_name)
+		end
 		local mask_id = managers.blackmarket:equipped_mask().mask_id
 		if table.contains(mask_list, mask_id) then
 			stats["mask_used_" .. mask_id] = {type = "int", value = 1}
@@ -665,6 +672,15 @@ function StatisticsManager:publish_to_steam(session, success, completion)
 			end
 		end
 	end
+	for grenade_name, grenade_kill in pairs(session.killed_by_grenade) do
+		if grenade_kill > 0 then
+			if table.contains(grenade_list, grenade_name) then
+				stats["grenade_kills_" .. grenade_name] = {type = "int", value = grenade_kill}
+			else
+				print("Statistics Missing: grenade_kills_" .. grenade_name)
+			end
+		end
+	end
 	for enemy_name, enemy_data in pairs(session.killed) do
 		if 0 < enemy_data.count and enemy_name ~= "total" then
 			if table.contains(enemy_list, enemy_name) then
@@ -707,11 +723,6 @@ function StatisticsManager:publish_to_steam(session, success, completion)
 		stats.heist_failed = {type = "int", value = 1}
 	end
 	stats.info_playing_normal = {
-		type = "int",
-		method = "set",
-		value = 0
-	}
-	stats.info_playing_beta = {
 		type = "int",
 		method = "set",
 		value = 1
@@ -1004,13 +1015,19 @@ function StatisticsManager:killed(data)
 		self._global.session.killed_by_melee[name_id] = (self._global.session.killed_by_melee[name_id] or 0) + 1
 		self._global.killed_by_melee[name_id] = (self._global.killed_by_melee[name_id] or 0) + 1
 	elseif by_explosion then
-		local name_id
+		local name_id, throwable_id
 		if data.weapon_unit then
 			if data.weapon_unit:base().projectile_entry then
-				name_id = tweak_data.blackmarket.projectiles[data.weapon_unit:base():projectile_entry()].weapon_id
+				local projectile_data = tweak_data.blackmarket.projectiles[data.weapon_unit:base():projectile_entry()]
+				name_id = projectile_data.weapon_id
+				throwable_id = projectile_data.throwable and data.weapon_unit:base():projectile_entry()
 			else
 				name_id = data.weapon_unit:base().get_name_id and data.weapon_unit and data.weapon_unit:base():get_name_id()
 			end
+		end
+		if throwable_id then
+			self._global.session.killed_by_grenade[throwable_id] = (self._global.session.killed_by_grenade[throwable_id] or 0) + 1
+			self._global.killed_by_grenade[throwable_id] = (self._global.killed_by_grenade[throwable_id] or 0) + 1
 		end
 		local boom_guns = {
 			"gre_m79",
@@ -1502,6 +1519,7 @@ function StatisticsManager:save(data)
 		experience = self._global.experience,
 		killed_by_melee = self._global.killed_by_melee,
 		killed_by_weapon = self._global.killed_by_weapon,
+		killed_by_grenade = self._global.killed_by_grenade,
 		shots_by_weapon = self._global.shots_by_weapon,
 		health = self._global.health,
 		misc = self._global.misc,

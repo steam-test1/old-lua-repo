@@ -368,6 +368,7 @@ function SentryGunWeapon:_set_laser_state(state)
 			self._laser_unit:set_visible(false)
 		end
 	elseif alive(self._laser_unit) then
+		self._laser_unit:base():set_off()
 		self._laser_unit:set_slot(0)
 		self._laser_unit = nil
 	end

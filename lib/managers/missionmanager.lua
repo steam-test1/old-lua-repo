@@ -111,7 +111,6 @@ function MissionManager:init(...)
 	self:add_area_instigator_categories("loot")
 	self:add_area_instigator_categories("unique_loot")
 	self:add_area_instigator_categories("vehicle")
-	self:add_area_instigator_categories("vehicle_or_player")
 	self:add_area_instigator_categories("vehicle_with_players")
 	self:set_default_area_instigator("player")
 	self:set_global_event_list({

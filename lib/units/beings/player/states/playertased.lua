@@ -28,6 +28,7 @@ function PlayerTased:enter(state_data, enter_data)
 	self:_interupt_action_steelsight()
 	self:_interupt_action_melee(managers.player:player_timer():time())
 	self:_interupt_action_ladder(managers.player:player_timer():time())
+	self:_interupt_action_charging_weapon(managers.player:player_timer():time())
 	self._rumble_electrified = managers.rumble:play("electrified")
 end
 

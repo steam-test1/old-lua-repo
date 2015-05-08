@@ -2,6 +2,8 @@ VehicleManager = VehicleManager or class()
 function VehicleManager:init()
 	self._vehicles = {}
 	self._listener_holder = EventListenerHolder:new()
+	self._debug = SystemInfo:platform() == Idstring("WIN32") and Application:production_build()
+	self._draw_enabled = false
 end
 
 function VehicleManager:on_simulation_started()
@@ -15,7 +17,12 @@ end
 function VehicleManager:on_simulation_ended()
 	Application:debug("[VehicleManager] on_simulation_ended")
 	for i, v in ipairs(self._vehicles) do
+		v:interaction():set_contour("standard_color", 0)
 		v:vehicle_driving():stop_all_sound_events()
+		if v.character_damage and v:character_damage()._broken_effect_id then
+			World:effect_manager():fade_kill(v:character_damage()._broken_effect_id)
+			v:character_damage()._broken_effect_id = nil
+		end
 	end
 	self._vehicles = {}
 	self._listener_holder = EventListenerHolder:new()
@@ -89,7 +96,11 @@ function VehicleManager:update_vehicles_data_to_peer(peer)
 			if v_ext._seats.passenger_back_right and alive(v_ext._seats.passenger_back_right.occupant) then
 				passenger_back_right = v_ext._seats.passenger_back_right.occupant
 			end
-			peer:send_queued_sync("sync_vehicle_data", v_ext._unit, v_ext._current_state_name, driver, passenger_front, passenger_back_left, passenger_back_right)
+			local is_trunk_open
+			if v_ext._has_trunk then
+				is_trunk_open = v_ext._trunk_open
+			end
+			peer:send_queued_sync("sync_vehicle_data", v_ext._unit, v_ext._current_state_name, driver, passenger_front, passenger_back_left, passenger_back_right, is_trunk_open)
 			if v_npc_ext then
 				peer:send_queued_sync("sync_npc_vehicle_data", v_npc_ext._unit, v_npc_ext._current_state_name, v_npc_ext._target_unit)
 			end
@@ -121,7 +132,7 @@ function VehicleManager:sync_npc_vehicle_data(vehicle_unit, state_name, target_u
 	v_npc_ext:start()
 end
 
-function VehicleManager:sync_vehicle_data(vehicle_unit, state, occupant_driver, occupant_left, occupant_back_left, occupant_back_right)
+function VehicleManager:sync_vehicle_data(vehicle_unit, state, occupant_driver, occupant_left, occupant_back_left, occupant_back_right, is_trunk_open)
 	local v_ext = vehicle_unit:vehicle_driving()
 	if v_ext._seats.driver then
 		v_ext._seats.driver.occupant = occupant_driver
@@ -184,6 +195,14 @@ function VehicleManager:sync_vehicle_data(vehicle_unit, state, occupant_driver, 
 		vehicle_unit:damage():run_sequence_simple("driving")
 		vehicle_unit:vehicle():set_active(true)
 		v_ext:set_state(state, true)
+		if vehicle_unit:damage():has_sequence("local_driving_exit") then
+			vehicle_unit:damage():run_sequence("local_driving_exit")
+		end
+	end
+	if is_trunk_open then
+		vehicle_unit:damage():run_sequence_simple(VehicleDrivingExt.SEQUENCE_TRUNK_OPEN)
+		v_ext._trunk_open = true
+		v_ext._interaction_loot = true
 	end
 end
 
@@ -192,9 +211,9 @@ function VehicleManager:sync_vehicle_loot(vehicle_unit, carry_id1, multiplier1, 
 		return
 	end
 	local v_ext = vehicle_unit:vehicle_driving()
-	v_ext:add_loot(carry_id1, multiplier1)
-	v_ext:add_loot(carry_id2, multiplier2)
-	v_ext:add_loot(carry_id3, multiplier3)
+	v_ext:sync_loot(carry_id1, multiplier1)
+	v_ext:sync_loot(carry_id2, multiplier2)
+	v_ext:sync_loot(carry_id3, multiplier3)
 end
 
 function VehicleManager:find_active_vehicle_with_player()
@@ -222,11 +241,27 @@ function VehicleManager:find_active_vehicle_with_player()
 end
 
 function VehicleManager:find_npc_vehicle_target()
+	local target_unit
 	for i, v in ipairs(self._vehicles) do
-		if v:vehicle_driving()._vehicle:is_active() and v:npc_vehicle_driving() == nil then
-			return v
+		if alive(v) and v:vehicle_driving()._vehicle:is_active() and v:npc_vehicle_driving() == nil and v:vehicle_driving():num_players_inside() >= 0 then
+			target_unit = v
 		end
 	end
-	return nil
+	if not target_unit and managers.player:players() then
+		target_unit = managers.player:players()[1]
+	end
+	return target_unit
+end
+
+function VehicleManager:update(t, dt)
+	if self._debug and self._draw_enabled then
+		for i, v in ipairs(self._vehicles) do
+			if v:interaction() and v:interaction()._interact_object then
+				local obj = v:get_object(Idstring(v:interaction()._interact_object))
+				local interact_radius = v:vehicle_driving()._tweak_data.interact_distance
+				Application:draw_sphere(obj:position(), interact_radius, 0, 0, 0.7)
+			end
+		end
+	end
 end
 

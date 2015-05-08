@@ -289,8 +289,7 @@ function PlayerInventory:_place_selection(selection_index, is_equip)
 			unit:set_enabled(true)
 			unit:base():on_enabled()
 		end
-		local parent_unit = align_place.on_body and self._unit or self._unit:camera()._camera_unit
-		local res = parent_unit:link(align_place.obj3d_name, unit, unit:orientation_object():name())
+		local res = self:_link_weapon(unit, align_place)
 	else
 		unit:unlink()
 		unit:set_enabled(false)
@@ -299,6 +298,12 @@ function PlayerInventory:_place_selection(selection_index, is_equip)
 			self._unit:movement():set_cbt_permanent(false)
 		end
 	end
+end
+
+function PlayerInventory:_link_weapon(unit, align_place)
+	local parent_unit = align_place.on_body and self._unit or self._unit:camera()._camera_unit
+	local res = parent_unit:link(align_place.obj3d_name, unit, unit:orientation_object():name())
+	return res
 end
 
 function PlayerInventory:_select_new_primary()
