@@ -167,7 +167,8 @@ function EquipmentsTweakData:init()
 		text_id = "hud_int_equipment_pickup_keycard",
 		icon = "equipment_bank_manager_key",
 		action_message = "bank_manager_key_obtained",
-		sync_possession = true
+		sync_possession = true,
+		transfer_quantity = 4
 	}
 	self.specials.c_keys = {
 		text_id = "hud_int_equipment_c_keys",
@@ -199,7 +200,8 @@ function EquipmentsTweakData:init()
 	self.specials.lance_part = {
 		text_id = "hud_equipment_lance_part",
 		icon = "equipment_drillfix",
-		sync_possession = true
+		sync_possession = true,
+		transfer_quantity = 4
 	}
 	self.specials.glass_cutter = {
 		text_id = "debug_equipment_glass_cutter",
@@ -228,12 +230,14 @@ function EquipmentsTweakData:init()
 	self.specials.planks = {
 		text_id = "debug_equipment_stash_planks",
 		icon = "equipment_planks",
-		sync_possession = true
+		sync_possession = true,
+		transfer_quantity = 4
 	}
 	self.specials.boards = {
 		text_id = "hud_equipment_boards",
 		icon = "equipment_planks",
-		sync_possession = true
+		sync_possession = true,
+		transfer_quantity = 4
 	}
 	self.specials.gold_bag_equip = {
 		text_id = "debug_equipment_gold_bag",
@@ -249,19 +253,22 @@ function EquipmentsTweakData:init()
 	self.specials.thermite_paste = {
 		text_id = "hud_equipment_thermite_paste",
 		icon = "equipment_thermite",
-		sync_possession = true
+		sync_possession = true,
+		transfer_quantity = 4
 	}
 	self.specials.gas = {
 		text_id = "debug_equipment_gas",
 		icon = "equipment_gasoline",
 		action_message = "gas_obtained",
-		sync_possession = true
+		sync_possession = true,
+		transfer_quantity = 4
 	}
 	self.specials.c4 = {
 		text_id = "hud_equipment_pickup_c4",
 		icon = "pd2_c4",
 		action_message = "c4_obtained",
 		quantity = 4,
+		transfer_quantity = 4,
 		sync_possession = true
 	}
 	self.specials.c4_x10 = {
@@ -269,6 +276,8 @@ function EquipmentsTweakData:init()
 		icon = "pd2_c4",
 		action_message = "c4_obtained",
 		quantity = 10,
+		max_quantity = 10,
+		transfer_quantity = 10,
 		sync_possession = true
 	}
 	self.specials.organs = {
@@ -281,9 +290,15 @@ function EquipmentsTweakData:init()
 		icon = "equipment_crowbar",
 		sync_possession = true
 	}
+	self.specials.crowbar_stack = {
+		text_id = "debug_equipment_crowbar",
+		icon = "equipment_crowbar",
+		sync_possession = true,
+		transfer_quantity = 4
+	}
 	self.specials.fire_extinguisher = {
 		text_id = "hud_int_equipment_fire_extinguisher",
-		icon = "equipment_thermite",
+		icon = "equipment_fire_extinguisher",
 		sync_possession = true
 	}
 	self.specials.blood_sample = {
@@ -294,7 +309,8 @@ function EquipmentsTweakData:init()
 	self.specials.acid = {
 		text_id = "hud_int_equipment_acid",
 		icon = "equipment_muriatic_acid",
-		sync_possession = true
+		sync_possession = true,
+		transfer_quantity = 4
 	}
 	self.specials.blood_sample_verified = {
 		text_id = "debug_equipment_blood_sample_valid",
@@ -304,17 +320,27 @@ function EquipmentsTweakData:init()
 	self.specials.caustic_soda = {
 		text_id = "hud_int_equipment_caustic_soda",
 		icon = "equipment_caustic_soda",
-		sync_possession = true
+		sync_possession = true,
+		transfer_quantity = 4
 	}
 	self.specials.hydrogen_chloride = {
 		text_id = "hud_int_equipment_hydrogen_chloride",
 		icon = "equipment_hydrogen_chloride",
-		sync_possession = true
+		sync_possession = true,
+		transfer_quantity = 4
 	}
 	self.specials.gold = {
 		text_id = "debug_equipment_gold",
 		icon = "equipment_gold",
 		player_rule = "no_run"
+	}
+	self.specials.circle_cutter = {
+		text_id = "hud_equipment_circle_cutter",
+		icon = "equipment_glasscutter",
+		quantity = 1,
+		max_quantity = 3,
+		transfer_quantity = 3,
+		sync_possession = true
 	}
 	local barcodes = {
 		"barcode_downtown",

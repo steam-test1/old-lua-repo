@@ -147,7 +147,7 @@ end
 
 function ConnectionNetworkHandler:set_dropin()
 	if game_state_machine:current_state().set_dropin then
-		game_state_machine:current_state():set_dropin(Global.local_member:character_name())
+		game_state_machine:current_state():set_dropin(managers.network:session():local_peer():character())
 	end
 end
 
@@ -156,7 +156,7 @@ function ConnectionNetworkHandler:spawn_dropin_penalty(dead, bleed_out, health, 
 		return
 	end
 	managers.player:spawn_dropin_penalty(dead, bleed_out, health, used_deployable, used_cable_ties, used_body_bags)
-	if not managers.groupai:state():whisper_mode() and (game_state_machine:last_queued_state_name() == "ingame_clean" or game_state_machine:last_queued_state_name() == "ingame_mask_off") then
+	if not managers.groupai:state():whisper_mode() and (game_state_machine:last_queued_state_name() == "ingame_clean" or game_state_machine:last_queued_state_name() == "ingame_mask_off" or game_state_machine:last_queued_state_name() == "ingame_dirty") then
 		managers.player:set_player_state("standard")
 	end
 end
@@ -589,6 +589,9 @@ function ConnectionNetworkHandler:choose_lootcard(card_id, sender)
 end
 
 function ConnectionNetworkHandler:sync_explode_bullet(position, normal, damage, peer_id_or_selection_index, sender)
+-- fail 26
+unluac.decompile.expression.FunctionCall@300ffa5d
+-1
 	local peer = self._verify_sender(sender)
 	if not self._verify_gamestate(self._gamestate_filter.any_ingame) or not peer then
 		return

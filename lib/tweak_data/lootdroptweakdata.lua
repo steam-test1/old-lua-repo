@@ -228,7 +228,7 @@ function LootDropTweakData:init(tweak_data)
 	self.global_values.pd2_clan.track = true
 	self.global_values.pd2_clan.sort_number = -100
 	self.global_values.pd2_clan.unique_lock_icon = "guis/textures/pd2/lock_community"
-	self.global_values.pd2_clan.category = nil
+	self.global_values.pd2_clan.category = SystemInfo:platform() ~= Idstring("WIN32") and "normal" or nil
 	self.global_values.poetry_soundtrack = {}
 	self.global_values.poetry_soundtrack.name_id = "bm_global_value_poetry_soundtrack"
 	self.global_values.poetry_soundtrack.desc_id = "menu_l_global_value_poetry_soundtrack"
@@ -325,6 +325,90 @@ function LootDropTweakData:init(tweak_data)
 	self.global_values.alienware_alpha_promo.sort_number = 73
 	self.global_values.alienware_alpha_promo.hide_unavailable = true
 	self.global_values.alienware_alpha_promo.category = "global_event"
+	self.global_values.humble_pack3 = {}
+	self.global_values.humble_pack3.name_id = "bm_global_value_humble_pack3"
+	self.global_values.humble_pack3.desc_id = "menu_l_global_value_humble_pack3"
+	self.global_values.humble_pack3.unlock_id = "bm_global_value_humble_pack3_unlock"
+	self.global_values.humble_pack3.color = Color(255, 255, 145, 0) / 255
+	self.global_values.humble_pack3.dlc = true
+	self.global_values.humble_pack3.chance = 1
+	self.global_values.humble_pack3.value_multiplier = tweak_data:get_value("money_manager", "global_value_multipliers", "humble_pack3")
+	self.global_values.humble_pack3.durability_multiplier = 1
+	self.global_values.humble_pack3.drops = true
+	self.global_values.humble_pack3.track = true
+	self.global_values.humble_pack3.sort_number = 74
+	self.global_values.humble_pack3.hide_unavailable = true
+	self.global_values.humble_pack3.category = "global_event"
+	self.global_values.humble_pack4 = {}
+	self.global_values.humble_pack4.name_id = "bm_global_value_humble_pack4"
+	self.global_values.humble_pack4.desc_id = "menu_l_global_value_humble_pack4"
+	self.global_values.humble_pack4.unlock_id = "bm_global_value_humble_pack4_unlock"
+	self.global_values.humble_pack4.color = Color(255, 255, 145, 0) / 255
+	self.global_values.humble_pack4.dlc = true
+	self.global_values.humble_pack4.chance = 1
+	self.global_values.humble_pack4.value_multiplier = tweak_data:get_value("money_manager", "global_value_multipliers", "humble_pack4")
+	self.global_values.humble_pack4.durability_multiplier = 1
+	self.global_values.humble_pack4.drops = true
+	self.global_values.humble_pack4.track = true
+	self.global_values.humble_pack4.sort_number = 75
+	self.global_values.humble_pack4.hide_unavailable = true
+	self.global_values.humble_pack4.category = "global_event"
+	self.global_values.e3_s15a = {}
+	self.global_values.e3_s15a.name_id = "bm_global_value_e3_s15a"
+	self.global_values.e3_s15a.desc_id = "menu_l_global_value_e3_s15a"
+	self.global_values.e3_s15a.unlock_id = "bm_global_value_e3_s15a_unlock"
+	self.global_values.e3_s15a.color = Color(255, 255, 145, 0) / 255
+	self.global_values.e3_s15a.dlc = true
+	self.global_values.e3_s15a.chance = 1
+	self.global_values.e3_s15a.value_multiplier = tweak_data:get_value("money_manager", "global_value_multipliers", "e3_s15a")
+	self.global_values.e3_s15a.durability_multiplier = 1
+	self.global_values.e3_s15a.drops = true
+	self.global_values.e3_s15a.track = true
+	self.global_values.e3_s15a.sort_number = 76
+	self.global_values.e3_s15a.hide_unavailable = true
+	self.global_values.e3_s15a.category = "global_event"
+	self.global_values.e3_s15b = {}
+	self.global_values.e3_s15b.name_id = "bm_global_value_e3_s15b"
+	self.global_values.e3_s15b.desc_id = "menu_l_global_value_e3_s15b"
+	self.global_values.e3_s15b.unlock_id = "bm_global_value_e3_s15b_unlock"
+	self.global_values.e3_s15b.color = Color(255, 255, 145, 0) / 255
+	self.global_values.e3_s15b.dlc = true
+	self.global_values.e3_s15b.chance = 1
+	self.global_values.e3_s15b.value_multiplier = tweak_data:get_value("money_manager", "global_value_multipliers", "e3_s15b")
+	self.global_values.e3_s15b.durability_multiplier = 1
+	self.global_values.e3_s15b.drops = true
+	self.global_values.e3_s15b.track = true
+	self.global_values.e3_s15b.sort_number = 77
+	self.global_values.e3_s15b.hide_unavailable = true
+	self.global_values.e3_s15b.category = "global_event"
+	self.global_values.e3_s15c = {}
+	self.global_values.e3_s15c.name_id = "bm_global_value_e3_s15c"
+	self.global_values.e3_s15c.desc_id = "menu_l_global_value_e3_s15c"
+	self.global_values.e3_s15c.unlock_id = "bm_global_value_e3_s15c_unlock"
+	self.global_values.e3_s15c.color = Color(255, 255, 145, 0) / 255
+	self.global_values.e3_s15c.dlc = true
+	self.global_values.e3_s15c.chance = 1
+	self.global_values.e3_s15c.value_multiplier = tweak_data:get_value("money_manager", "global_value_multipliers", "e3_s15c")
+	self.global_values.e3_s15c.durability_multiplier = 1
+	self.global_values.e3_s15c.drops = true
+	self.global_values.e3_s15c.track = true
+	self.global_values.e3_s15c.sort_number = 78
+	self.global_values.e3_s15c.hide_unavailable = true
+	self.global_values.e3_s15c.category = "global_event"
+	self.global_values.e3_s15d = {}
+	self.global_values.e3_s15d.name_id = "bm_global_value_e3_s15d"
+	self.global_values.e3_s15d.desc_id = "menu_l_global_value_e3_s15d"
+	self.global_values.e3_s15d.unlock_id = "bm_global_value_e3_s15d_unlock"
+	self.global_values.e3_s15d.color = Color(255, 255, 145, 0) / 255
+	self.global_values.e3_s15d.dlc = true
+	self.global_values.e3_s15d.chance = 1
+	self.global_values.e3_s15d.value_multiplier = tweak_data:get_value("money_manager", "global_value_multipliers", "e3_s15d")
+	self.global_values.e3_s15d.durability_multiplier = 1
+	self.global_values.e3_s15d.drops = true
+	self.global_values.e3_s15d.track = true
+	self.global_values.e3_s15d.sort_number = 79
+	self.global_values.e3_s15d.hide_unavailable = true
+	self.global_values.e3_s15d.category = "global_event"
 	self.global_values.xmas_soundtrack = {}
 	self.global_values.xmas_soundtrack.name_id = "bm_global_value_xmas_soundtrack"
 	self.global_values.xmas_soundtrack.desc_id = "menu_l_global_value_xmas_soundtrack"
@@ -693,6 +777,19 @@ function LootDropTweakData:init(tweak_data)
 	self.global_values.west.track = true
 	self.global_values.west.sort_number = 102
 	self.global_values.west.category = "dlc"
+	self.global_values.arena = {}
+	self.global_values.arena.name_id = "bm_global_value_arena"
+	self.global_values.arena.desc_id = "menu_l_global_value_arena"
+	self.global_values.arena.unlock_id = "bm_global_value_arena_unlock"
+	self.global_values.arena.color = Color(255, 255, 212, 0) / 255
+	self.global_values.arena.dlc = true
+	self.global_values.arena.chance = 1
+	self.global_values.arena.value_multiplier = tweak_data:get_value("money_manager", "global_value_multipliers", "arena")
+	self.global_values.arena.durability_multiplier = 1
+	self.global_values.arena.drops = true
+	self.global_values.arena.track = true
+	self.global_values.arena.sort_number = 103
+	self.global_values.arena.category = "dlc"
 	self.global_values.legendary = {}
 	self.global_values.legendary.name_id = "bm_global_value_legendary"
 	self.global_values.legendary.desc_id = "menu_l_global_value_legendary"
@@ -741,7 +838,8 @@ function LootDropTweakData:init(tweak_data)
 		"character_pack_dragan",
 		"hlm2_deluxe",
 		"bbq",
-		"west"
+		"west",
+		"arena"
 	}
 	self:_create_global_value_list_map()
 end

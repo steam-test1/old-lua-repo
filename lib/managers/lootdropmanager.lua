@@ -42,7 +42,7 @@ function LootDropManager:_setup_items()
 			end
 			local has_dlc = #dlcs == 0
 			for _, dlc in pairs(dlcs) do
-				has_dlc = has_dlc or managers.dlc:has_dlc(dlc)
+				has_dlc = has_dlc or managers.dlc:is_dlc_unlocked(dlc)
 			end
 			if has_dlc then
 				if item_data.pc then

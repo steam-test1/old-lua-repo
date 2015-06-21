@@ -173,14 +173,6 @@ function VehicleDrivingExt:update(unit, t, dt)
 	self._current_state:update(t, dt)
 end
 
-function VehicleDrivingExt:_move_team_ai()
-	for _, seat in pairs(self._seats) do
-		if alive(seat.occupant) and seat.occupant:brain() ~= nil then
-			seat.occupant:movement():set_position(seat.occupant:position())
-		end
-	end
-end
-
 function VehicleDrivingExt:_create_position_reservation()
 	self._pos_reservation_id = managers.navigation:get_pos_reservation_id()
 	if self._pos_reservation_id then
@@ -517,6 +509,9 @@ function VehicleDrivingExt:reserve_seat(player, position, seat_name)
 				seat = s
 			end
 		end
+		if alive(seat.occupant) and seat.occupant:brain() == nil then
+			seat = self:get_available_seat(player:position())
+		end
 	end
 	if seat == nil then
 		return nil
@@ -607,12 +602,16 @@ function VehicleDrivingExt:_evacuate_seat(seat)
 	seat.occupant:movement().seat = nil
 	if seat.occupant:character_damage():dead() then
 	elseif Network:is_server() then
-		seat.occupant:movement():action_request({type = "idle", body_part = 1})
+		seat.occupant:movement():action_request({
+			type = "idle",
+			body_part = 1,
+			sync = true
+		})
 	end
 	local rot = seat.SO_object:rotation()
 	local pos = seat.SO_object:position()
-	seat.occupant:set_rotation(rot)
-	seat.occupant:set_position(pos)
+	seat.occupant:movement():set_rotation(rot)
+	seat.occupant:movement():set_position(pos)
 	seat.occupant = nil
 end
 
@@ -707,7 +706,7 @@ function VehicleDrivingExt:num_players_inside()
 end
 
 function VehicleDrivingExt:on_team_ai_enter(ai_unit)
-	ai_unit:movement().vehicle_unit:link(Idstring(VehicleDrivingExt.THIRD_PREFIX .. ai_unit:movement().vehicle_seat.name), ai_unit, Idstring("root_point"))
+	ai_unit:movement().vehicle_unit:link(Idstring(VehicleDrivingExt.THIRD_PREFIX .. ai_unit:movement().vehicle_seat.name), ai_unit, ai_unit:orientation_object():name())
 	ai_unit:movement().vehicle_seat.occupant = ai_unit
 	Application:debug("VehicleDrivingExt:sync_ai_vehicle_action")
 	self._door_soundsource:set_position(ai_unit:movement().vehicle_seat.object:position())
@@ -945,6 +944,7 @@ function VehicleDrivingExt:_detect_invalid_possition(t, dt)
 			end
 			self._positions[self._position_counter].pos = self._vehicle:position()
 			self._positions[self._position_counter].rot = self._vehicle:rotation()
+			self._positions[self._position_counter].oobb = self._unit:oobb()
 			self._position_counter = self._position_counter + 1
 			if self._position_counter == 20 then
 				self._position_counter = 0
@@ -990,11 +990,27 @@ function VehicleDrivingExt:respawn_vehicle(auto_respawn)
 		end
 	end
 	Application:debug("Using respawn position on the index:", counter)
-	if self._positions[counter] then
-		self._vehicle:set_position(self._positions[counter].pos)
-		self._vehicle:set_rotation(self._positions[counter].rot)
+	while counter >= 0 do
+		if self._positions[counter] and self:_check_respawn_spot_valid(counter) then
+			print("[VehicleDrivingExt:respawn_vehicle] respawning vehicle on position, counter", counter)
+			self._vehicle:set_position(self._positions[counter].pos)
+			self._vehicle:set_rotation(self._positions[counter].rot)
+			break
+		else
+			Application:debug("[VehicleDrivingExt:respawn_vehicle] Trying to respawn vehicle on occupied position", counter)
+			counter = counter - 1
+		end
+	end
+end
+
+function VehicleDrivingExt:_check_respawn_spot_valid(counter)
+	local oobb = self._positions[counter].oobb
+	local slotmask = managers.slot:get_mask("all")
+	local units = World:find_units(self._unit, "intersect", "obb", oobb:center(), oobb:x() * 0.8, oobb:y() * 0.8, oobb:z() * 0.8, slotmask)
+	if #units > 0 then
+		return false
 	else
-		Application:error("[VehicleDrivingExt:respawn_vehicle] Trying to respawn vehicle on not existing position")
+		return true
 	end
 end
 
@@ -1169,6 +1185,7 @@ function VehicleDrivingExt:_cereate_seat_SO(seat)
 			variant = team_ai_animation,
 			body_part = 1,
 			align_sync = false,
+			needs_full_blend = true,
 			blocks = {
 				action = -1,
 				walk = -1,

@@ -153,6 +153,12 @@ function MoneyTweakData:init(tweak_data)
 	self.global_value_multipliers.poetry_soundtrack = 0
 	self.global_value_multipliers.twitch_pack = 0
 	self.global_value_multipliers.humble_pack2 = 0
+	self.global_value_multipliers.humble_pack3 = 0
+	self.global_value_multipliers.humble_pack4 = 0
+	self.global_value_multipliers.e3_s15a = 0
+	self.global_value_multipliers.e3_s15b = 0
+	self.global_value_multipliers.e3_s15c = 0
+	self.global_value_multipliers.e3_s15d = 0
 	self.global_value_multipliers.hl_miami = 1
 	self.global_value_multipliers.hlm_game = 1
 	self.global_value_multipliers.alienware_alpha = 1
@@ -173,6 +179,7 @@ function MoneyTweakData:init(tweak_data)
 	self.global_value_multipliers.butch_pack_free = 1
 	self.global_value_multipliers.speedrunners = 1
 	self.global_value_multipliers.west = 1
+	self.global_value_multipliers.arena = 1
 	self.global_value_bonus_multiplier = {}
 	self.global_value_bonus_multiplier.normal = 0
 	self.global_value_bonus_multiplier.superior = 0.1
@@ -199,6 +206,12 @@ function MoneyTweakData:init(tweak_data)
 	self.global_value_bonus_multiplier.poetry_soundtrack = 0
 	self.global_value_bonus_multiplier.twitch_pack = 0
 	self.global_value_bonus_multiplier.humble_pack2 = 0
+	self.global_value_bonus_multiplier.humble_pack3 = 0
+	self.global_value_bonus_multiplier.humble_pack4 = 0
+	self.global_value_bonus_multiplier.e3_s15a = 0
+	self.global_value_bonus_multiplier.e3_s15b = 0
+	self.global_value_bonus_multiplier.e3_s15c = 0
+	self.global_value_bonus_multiplier.e3_s15d = 0
 	self.global_value_bonus_multiplier.hl_miami = 0.2
 	self.global_value_bonus_multiplier.hlm_game = 0.2
 	self.global_value_bonus_multiplier.alienware_alpha = 0.2
@@ -219,6 +232,7 @@ function MoneyTweakData:init(tweak_data)
 	self.global_value_bonus_multiplier.butch_pack_free = 0.2
 	self.global_value_bonus_multiplier.speedrunners = 0
 	self.global_value_bonus_multiplier.west = 0.2
+	self.global_value_bonus_multiplier.arena = 0.2
 	local smallest_cashout = (self.stage_completion[1] + self.job_completion[1]) * self.offshore_rate
 	local biggest_mask_cost = self.biggest_cashout * 40
 	local biggest_mask_cost_deinfamous = math.round(biggest_mask_cost / self.global_value_multipliers.infamous)

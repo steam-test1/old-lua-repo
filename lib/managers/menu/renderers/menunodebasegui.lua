@@ -115,6 +115,9 @@ function MenuNodeBaseGui:create_text_button(params)
 end
 
 function MenuNodeBaseGui:create_gui_box(panel, params)
+-- fail 19
+null
+6
 	if not alive(panel) then
 		return
 	end

@@ -437,6 +437,12 @@ end
 
 StageEndScreenGui = StageEndScreenGui or class()
 function StageEndScreenGui:init(saferect_ws, fullrect_ws, statistics_data)
+-- fail 206
+unluac.decompile.expression.FunctionCall@433c675d
+-1
+-- fail 401
+unluac.decompile.expression.FunctionCall@3f91beef
+-1
 	self._safe_workspace = saferect_ws
 	self._full_workspace = fullrect_ws
 	self._fullscreen_panel = self._full_workspace:panel():panel({layer = 1})
@@ -876,6 +882,12 @@ end
 function StageEndScreenGui:back_pressed()
 	if not alive(self._panel) or not alive(self._fullscreen_panel) or not self._enabled then
 		return false
+	end
+end
+
+function StageEndScreenGui:special_btn_pressed(btn)
+	if btn == Idstring("menu_challenge_claim") then
+		managers.hud:set_speed_up_endscreen_hud(5)
 	end
 end
 
